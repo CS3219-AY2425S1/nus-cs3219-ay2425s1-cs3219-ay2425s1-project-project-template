@@ -1,24 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css'; // Import your CSS file here
-import CodeMirror from "@uiw/react-codemirror";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import { python } from '@codemirror/lang-python'; // Import the Python language mode
+import EditorPage from './routes/EditorPage';
+import LoginPage from './routes/LoginPage';
+import RegisterPage from './routes/RegisterPage';
 
 function App() {
-  const code = "console.log('Code Mirror!');";
   return (
-    <div>
-      <div className="headerStyle">
-        Python code editor 
-      </div>
-      <CodeMirror
-        value={code}
-        width="60vw"
-        theme={vscodeDark}
-        extensions={[python()]}
-        className="codeMirrorStyle"
-      />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/code" element={<EditorPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
   );
 }
+
 export default App;
