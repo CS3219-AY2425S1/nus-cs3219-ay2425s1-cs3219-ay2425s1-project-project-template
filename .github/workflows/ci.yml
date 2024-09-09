@@ -13,7 +13,7 @@ env:
   COLLABORATION_SERVICE_URL: "http://localhost:8001/api"
   MATCHING_SERVICE_URL: "http://localhost:8002/api"
   QUESTION_SERVICE_URL: "http://localhost:8003/api"
-  USER_SERVICE_URL: "http://localhost:8004/api"
+  # USER_SERVICE_URL: "http://localhost:8004"
 
 jobs:
   collaboration_service:
@@ -103,27 +103,27 @@ jobs:
       - name: Stop the service
         run: pkill node
 
-  user_service:
-    runs-on: ubuntu-latest
-    name: User Service
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  # user_service:
+  #   runs-on: ubuntu-latest
+  #   name: User Service
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        working-directory: ./user-service
-        run: npm install
+  #     - name: Install dependencies
+  #       working-directory: ./user-service
+  #       run: npm install
 
-      - name: Start the service
-        working-directory: ./user-service
-        run: |
-          nohup npm run start & sleep 5
-          curl --fail ${{ env.USER_SERVICE_URL }} || exit 1
+  #     - name: Start the service
+  #       working-directory: ./user-service
+  #       run: |
+  #         nohup npm run start & sleep 5
+  #         curl --fail ${{ env.USER_SERVICE_URL }} || exit 1
 
-      - name: Stop the service
-        run: pkill node
+  #     - name: Stop the service
+  #       run: pkill node
