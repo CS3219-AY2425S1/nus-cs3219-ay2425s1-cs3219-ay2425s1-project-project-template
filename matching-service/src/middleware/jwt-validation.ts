@@ -1,8 +1,10 @@
+import dotenv from 'dotenv';
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Socket } from 'socket.io';
 
-const secretKey = 'your_secret_key'; // Use an environment variable for this in production
+dotenv.config();
+const secretKey = process.env.JWT_SECRET || 'my-secret';
 
 // Function to validate JWT in HTTP requests
 export function validateApiJWT(req: Request, res: Response, next: NextFunction) {

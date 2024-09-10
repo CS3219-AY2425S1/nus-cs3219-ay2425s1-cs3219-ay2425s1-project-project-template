@@ -2,8 +2,12 @@
 import io, { Socket } from 'socket.io-client';
 import { server } from '../src/server'; // Adjust path to server.ts
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-const PORT = 8002;
+dotenv.config();
+
+const PORT = process.env.PORT || 8002;
+const JWT_SECRET = process.env.JWT_SECRET || 'my-secret';
 
 beforeAll((done) => {
     server.listen(PORT, done);
@@ -18,7 +22,7 @@ describe('Socket.IO Server Tests', () => {
     test('should register a user and get success response', (done) => {
 
         const clientSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ id: 'client-id' }, 'your_secret_key') },
+            auth: { token: jwt.sign({ id: 'client-id' }, JWT_SECRET) },
         });
         clientSocket.emit('registerForMatching', { difficulty: 'easy', topic: 'math' });
         clientSocket.on('registrationSuccess', (message) => {
@@ -31,11 +35,11 @@ describe('Socket.IO Server Tests', () => {
     test('should handle matching users and send matchFound event', (done) => {
 
         const clientSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ id: 'client-id' }, 'your_secret_key') },
+            auth: { token: jwt.sign({ id: 'client-id' }, JWT_SECRET) },
         });
 
         const anotherSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ id: 'client-id2' }, 'your_secret_key')  },
+            auth: { token: jwt.sign({ id: 'client-id2' }, JWT_SECRET)  },
         });
 
 

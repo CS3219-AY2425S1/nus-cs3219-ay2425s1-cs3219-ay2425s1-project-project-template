@@ -2,14 +2,11 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import { validateSocketJWT } from './middleware/jwt-validation';
-import {
-    addUserToSearchPool,
-    removeUserFromSearchPool,
-    matchUsers
-} from './model/matching-model';
-import { inherits } from 'util';
 import { registerEventHandlers } from './routes/socket-routes';
 import { initaliseData } from './controller/socket-controller';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Create the express app
 const app = express();
@@ -36,7 +33,7 @@ export { server };
 
 if (require.main === module) {
     // Start the server
-    const PORT = 8002;
+    const PORT = process.env.PORT || 8002;
     server.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
