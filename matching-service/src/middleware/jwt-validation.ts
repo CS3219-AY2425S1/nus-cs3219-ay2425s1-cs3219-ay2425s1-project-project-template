@@ -12,7 +12,7 @@ export function validateJWT(req: Request, res: Response, next: NextFunction) {
 
     try {
         const decoded = jwt.verify(token, secretKey) as JwtPayload;
-        req.body.userId = decoded.userId; // Attach userId to request
+        req.body.userId = decoded.id; // Attach userId to request
         next();
     } catch (err) {
         return res.status(400).json({ message: 'Invalid token.' });

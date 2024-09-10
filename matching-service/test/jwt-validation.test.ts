@@ -5,10 +5,10 @@ describe('Socket Middleware', () => {
     it('should validate token and extract userId', () => {
         const secretKey = 'your_secret_key';
         const userId = 'testUser';
-        const token = jwt.sign({ userId }, secretKey);
+        const token = jwt.sign({ id: userId }, secretKey);
 
         const decoded = validateSocketJWT(token);
-        expect(decoded.userId).toBe(userId);
+        expect(decoded.id).toBe(userId);
     });
 
     it('should throw an error for invalid token', () => {
