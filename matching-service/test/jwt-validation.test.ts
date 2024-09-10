@@ -1,4 +1,4 @@
-import { validateSocketJWT } from '../src/middleware/jwt-validation';
+import { validateJWT } from '../src/middleware/jwt-validation';
 import jwt from 'jsonwebtoken';
 
 describe('Socket Middleware', () => {
@@ -7,11 +7,11 @@ describe('Socket Middleware', () => {
         const userId = 'testUser';
         const token = jwt.sign({ id: userId }, secretKey);
 
-        const decoded = validateSocketJWT(token);
+        const decoded = validateJWT(token);
         expect(decoded.id).toBe(userId);
     });
 
     it('should throw an error for invalid token', () => {
-        expect(() => validateSocketJWT('invalid_token')).toThrow();
+        expect(() => validateJWT('invalid_token')).toThrow();
     });
 });

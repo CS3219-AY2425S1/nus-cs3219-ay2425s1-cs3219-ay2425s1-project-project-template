@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Socket } from 'socket.io';
 
 const secretKey = 'your_secret_key'; // Use an environment variable for this in production
 
 // Function to validate JWT in HTTP requests
-export function validateJWT(req: Request, res: Response, next: NextFunction) {
+export function validateApiJWT(req: Request, res: Response, next: NextFunction) {
     const token = req.headers.authorization?.split(' ')[1]; // Extract Bearer token
     if (!token) {
         return res.status(401).json({ message: 'Access Denied. No token provided.' });
@@ -19,12 +20,23 @@ export function validateJWT(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-// Function to validate JWT for socket connections
-export function validateSocketJWT(token: string): JwtPayload {
+export function validateSocketJWT(socket: Socket, next: (err?: Error) => void) {
+    const token = socket.handshake.auth.token;
+
+    if (!token) {
+        return next(new Error('Authentication error: No token provided.'));
+    }
+
     try {
         const decoded = jwt.verify(token, secretKey) as JwtPayload;
-        return decoded; // Return the decoded payload (userId, etc.)
+        socket.data.userId = decoded.id;
+        console.log(`User ${decoded.id} validated via JWT`);
+        next();
     } catch (err) {
-        throw new Error('Invalid token');
+        next(new Error('Authentication error: Invalid token.'));
     }
+}
+
+export function validateJWT (token: string): JwtPayload {
+    return jwt.verify(token, secretKey) as JwtPayload;
 }

@@ -9,7 +9,22 @@ interface UserSearch {
     startTime: Date;
 }
 
+// Maintain a mapping of userId to socket.id
+const userSocketMap = new Map<string, string>();
+
 const searchPool: UserSearch[] = [];
+
+export function addUserToSocketMap(userId: string, socketId: string) {
+    userSocketMap.set(userId, socketId);
+}
+
+export function removeUserFromSocketMap(userId: string) {
+    userSocketMap.delete(userId);
+}
+
+export function getSocketIdForUser(userId: string): string | undefined {
+    return userSocketMap.get(userId);
+}
 
 // Add user to the search pool
 export function addUserToSearchPool(userId: string, criteria: SearchCriteria) {

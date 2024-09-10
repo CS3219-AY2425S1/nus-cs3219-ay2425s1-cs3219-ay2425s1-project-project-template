@@ -18,7 +18,7 @@ describe('Socket.IO Server Tests', () => {
     test('should register a user and get success response', (done) => {
 
         const clientSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ userId: 'client-id' }, 'your_secret_key') },
+            auth: { token: jwt.sign({ id: 'client-id' }, 'your_secret_key') },
         });
         clientSocket.emit('registerForMatching', { difficulty: 'easy', topic: 'math' });
         clientSocket.on('registrationSuccess', (message) => {
@@ -31,11 +31,11 @@ describe('Socket.IO Server Tests', () => {
     test('should handle matching users and send matchFound event', (done) => {
 
         const clientSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ userId: 'client-id' }, 'your_secret_key') },
+            auth: { token: jwt.sign({ id: 'client-id' }, 'your_secret_key') },
         });
 
         const anotherSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ userId: 'client-id2' }, 'your_secret_key')  },
+            auth: { token: jwt.sign({ id: 'client-id2' }, 'your_secret_key')  },
         });
 
 
