@@ -15,6 +15,7 @@ const searchPool: UserSearch[] = [];
 export function addUserToSearchPool(userId: string, criteria: SearchCriteria) {
     const startTime = new Date();
     searchPool.push({ userId, criteria, startTime });
+    console.log(`User ${userId} added to search pool`);
 }
 
 // Get time spent matching for a specific user
@@ -32,15 +33,11 @@ export function getCurrentMatchingUsersCount(): number {
     return searchPool.length;
 }
 
-// Find user in the search pool
-export function findUserInPool(userId: string): UserSearch | undefined {
-    return searchPool.find(u => u.userId === userId);
-}
-
 // Remove a user from the search pool
 export function removeUserFromSearchPool(userId: string): UserSearch | null {
     const index = searchPool.findIndex(u => u.userId === userId);
     if (index !== -1) {
+        console.log(`User ${userId} removed from search pool`);
         return searchPool.splice(index, 1)[0];
     }
     return null;
@@ -51,9 +48,10 @@ export function matchUsers() {
     for (let i = 0; i < searchPool.length - 1; i++) {
         for (let j = i + 1; j < searchPool.length; j++) {
             if (isCriteriaMatching(searchPool[i], searchPool[j])) {
+                console.log(`Match found between ${searchPool[i].userId} and ${searchPool[j].userId}`);
                 const matchedUsers = [searchPool[i], searchPool[j]];
-                removeUserFromSearchPool(searchPool[i].userId);
-                removeUserFromSearchPool(searchPool[j].userId);
+                const userids = matchedUsers.map(user => user.userId);
+                userids.forEach(userId => { removeUserFromSearchPool(userId); });
                 return { matchedUsers };
             }
         }

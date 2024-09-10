@@ -4,7 +4,6 @@ import {
     getTimeSpentMatching,
     getCurrentMatchingUsersCount,
     removeUserFromSearchPool,
-    findUserInPool,
     matchUsers
 } from '../model/matching-model';
 
