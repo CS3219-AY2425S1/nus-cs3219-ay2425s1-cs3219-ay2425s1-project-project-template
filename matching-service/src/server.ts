@@ -3,7 +3,6 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { validateSocketJWT } from './middleware/jwt-validation';
 import { registerEventHandlers } from './routes/socket-routes';
-import { initaliseData } from './controller/socket-controller';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -25,7 +24,7 @@ app.use(express.json());
 // Socket.io connection handler with JWT validation
 io.use(validateSocketJWT);
 io.on('connection', (socket) => {
-    initaliseData(socket);
+    console.log(`User ${socket.data.userId} connected via socket ${socket.id}`);
     registerEventHandlers(socket, io);
 })
 

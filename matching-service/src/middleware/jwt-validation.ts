@@ -32,6 +32,9 @@ export function validateSocketJWT(socket: Socket, next: (err?: Error) => void) {
     try {
         const decoded = jwt.verify(token, secretKey) as JwtPayload;
         socket.data.userId = decoded.id;
+        if (!decoded.id) {
+            throw new Error('Invalid token');
+        }
         console.log(`User ${decoded.id} validated via JWT`);
         next();
     } catch (err) {

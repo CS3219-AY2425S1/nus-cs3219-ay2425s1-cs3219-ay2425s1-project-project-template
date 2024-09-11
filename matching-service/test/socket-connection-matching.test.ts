@@ -3,6 +3,7 @@ import io, { Socket } from 'socket.io-client';
 import { server } from '../src/server'; // Adjust path to server.ts
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import redisClient from '../src/utils/redis-client'; // Adjust path to redis-client.ts
 
 dotenv.config();
 
@@ -51,9 +52,34 @@ describe('Socket.IO Server Tests', () => {
 
             anotherSocket.on('matchFound', (data) => {
                 expect(data.matchedWith).toBe('client-id'); // Replace with actual expected value
-                done();
+                // add delay to allow for disconnect
+                setTimeout(() => {
+                    done();
+                }, 4000);
             });
 
         });
     });
+
+    test('should handle user disconnection', (done) => {
+
+        const clientSocket = io(`http://localhost:${PORT}`, {
+            auth: { token: jwt.sign({ id: 'client-id' }, JWT_SECRET) },
+        });
+
+        clientSocket.on('connect', () => {
+            clientSocket.disconnect();
+            setTimeout(() => {
+                redisClient.sCard('searchPool').then((count: number) => {
+                    expect(count).toBe(0);
+                    done();
+                });
+            }, 2000);
+        });
+    });
+
+
+
+
+
 });

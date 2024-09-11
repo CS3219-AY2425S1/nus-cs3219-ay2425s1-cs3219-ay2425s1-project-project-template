@@ -1,3 +1,5 @@
+import redisClient from '../utils/redis-client';
+
 interface SearchCriteria {
     difficulty: string;
     topic: string;
@@ -5,68 +7,68 @@ interface SearchCriteria {
 
 interface UserSearch {
     userId: string;
+    socketId: string;
     criteria: SearchCriteria;
     startTime: Date;
 }
 
-// Maintain a mapping of userId to socket.id
-const userSocketMap = new Map<string, string>();
-
-const searchPool: UserSearch[] = [];
-
-export function addUserToSocketMap(userId: string, socketId: string) {
-    userSocketMap.set(userId, socketId);
-}
-
-export function removeUserFromSocketMap(userId: string) {
-    userSocketMap.delete(userId);
-}
-
-export function getSocketIdForUser(userId: string): string | undefined {
-    return userSocketMap.get(userId);
-}
-
 // Add user to the search pool
-export function addUserToSearchPool(userId: string, criteria: SearchCriteria) {
-    const startTime = new Date();
-    searchPool.push({ userId, criteria, startTime });
+export async function addUserToSearchPool(userId: string, socketId: string, criteria: SearchCriteria) {
+    const startTime = new Date().toISOString();
+    await redisClient.hSet(`user:${userId}`, {
+        socketId,
+        criteria: JSON.stringify(criteria),
+        startTime
+    });
+    await redisClient.sAdd('searchPool', userId);
     console.log(`User ${userId} added to search pool`);
 }
 
 // Get time spent matching for a specific user
-export function getTimeSpentMatching(userId: string): number | null {
-    const user = searchPool.find(u => u.userId === userId);
-    if (!user) return null;
+export async function getTimeSpentMatching(userId: string): Promise<number | null> {
+    const user = await redisClient.hGetAll(`user:${userId}`);
+    if (!user.startTime) return null;
 
     const now = new Date();
-    const timeSpent = now.getTime() - user.startTime.getTime();
+    const startTime = new Date(user.startTime);
+    const timeSpent = now.getTime() - startTime.getTime();
     return Math.floor(timeSpent / 1000); // Time in seconds
 }
 
 // Get the count of users currently matching
-export function getCurrentMatchingUsersCount(): number {
-    return searchPool.length;
+export async function getCurrentMatchingUsersCount(): Promise<number> {
+    return await redisClient.sCard('searchPool');
 }
 
 // Remove a user from the search pool
-export function removeUserFromSearchPool(userId: string): UserSearch | null {
-    const index = searchPool.findIndex(u => u.userId === userId);
-    if (index !== -1) {
-        console.log(`User ${userId} removed from search pool`);
-        return searchPool.splice(index, 1)[0];
-    }
-    return null;
+export async function removeUserFromSearchPool(userId: string): Promise<void> {
+    await redisClient.del(`user:${userId}`);
+    await redisClient.sRem('searchPool', userId);
+    console.log(`User ${userId} removed from search pool`);
 }
 
 // Perform the matching logic
-export function matchUsers() {
-    for (let i = 0; i < searchPool.length - 1; i++) {
-        for (let j = i + 1; j < searchPool.length; j++) {
-            if (isCriteriaMatching(searchPool[i], searchPool[j])) {
-                console.log(`Match found between ${searchPool[i].userId} and ${searchPool[j].userId}`);
-                const matchedUsers = [searchPool[i], searchPool[j]];
-                const userids = matchedUsers.map(user => user.userId);
-                userids.forEach(userId => { removeUserFromSearchPool(userId); });
+export async function matchUsers() {
+    const userIds = await redisClient.sMembers('searchPool');
+    const users = await Promise.all(userIds.map(async (userId) => {
+        const user = await redisClient.hGetAll(`user:${userId}`);
+        return {
+            userId,
+            socketId: user.socketId,
+            criteria: JSON.parse(user.criteria),
+            startTime: new Date(user.startTime)
+        } as UserSearch;
+    }));
+
+    for (let i = 0; i < users.length - 1; i++) {
+        for (let j = i + 1; j < users.length; j++) {
+            if (isCriteriaMatching(users[i], users[j])) {
+                console.log(`Match found between ${users[i].userId} and ${users[j].userId}`);
+                const matchedUsers = [users[i], users[j]];
+                const userIds = matchedUsers.map(user => user.userId);
+                // Publish match notification to Redis channel
+                await redisClient.publish('matchNotifications', JSON.stringify({ matchedUsers }));
+
                 return { matchedUsers };
             }
         }
@@ -78,4 +80,10 @@ export function matchUsers() {
 function isCriteriaMatching(user1: UserSearch, user2: UserSearch): boolean {
     return user1.criteria.difficulty === user2.criteria.difficulty &&
            user1.criteria.topic === user2.criteria.topic;
+}
+
+// Get socket ID for a user
+export async function getSocketIdForUser(userId: string): Promise<string> {
+    const user = await redisClient.hGetAll(`user:${userId}`);
+    return user.socketId;
 }

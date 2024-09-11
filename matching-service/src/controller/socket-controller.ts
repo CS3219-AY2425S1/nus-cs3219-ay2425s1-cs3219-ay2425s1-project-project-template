@@ -1,50 +1,51 @@
 import { Server, Socket } from "socket.io";
-import { addUserToSearchPool, addUserToSocketMap, getSocketIdForUser, matchUsers, removeUserFromSearchPool, removeUserFromSocketMap } from "../model/matching-model";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { addUserToSearchPool, getSocketIdForUser, matchUsers, removeUserFromSearchPool } from "../model/matching-model";
+import redisClient from '../utils/redis-client';
+import { acquireLock } from "../utils/redis-lock";
 
-export function initaliseData(socket: Socket) {
-    const { userId } = socket.data;
-    addUserToSocketMap(userId, socket.id);
-    console.log(`User ${userId} connected via socket`);
+// Initialize Redis adapter for socket.io
+export function initializeSocketIO(io: Server) {
+    const pubClient = redisClient.duplicate();
+    const subClient = redisClient.duplicate();
+    io.adapter(createAdapter(pubClient, subClient));
+    // allows for multiple instances of the server to communicate with each other
 }
 
-
 // Handle user registration for matching
+// TODO: Consider race conditions and locking mechanisms
 export function handleRegisterForMatching(socket: Socket, io: Server) {
     const { userId } = socket.data;
-    socket.on('registerForMatching', (criteria) => {
+    socket.on('registerForMatching', async (criteria) => {
         if (criteria.difficulty && criteria.topic) {
-            addUserToSearchPool(userId, criteria);
+            await addUserToSearchPool(userId, socket.id, criteria);
             console.log(`User ${userId} registered with criteria`, criteria);
             socket.emit('registrationSuccess', { message: `User ${userId} registered for matching successfully.` });
 
-            // Check if a match can be made for the new user
-            const match = matchUsers();
+            // Check if a match can be made after new user joins
+            const match = await matchUsers();
             if (match) {
                 const { matchedUsers } = match;
                 const [user1, user2] = matchedUsers;
-
                 // Notify both clients of the match using the mapping
-                const socketId1 = getSocketIdForUser(user1.userId);
-                const socketId2 = getSocketIdForUser(user2.userId);
+                const socketId1 = await getSocketIdForUser(user1.userId);
+                const socketId2 = await getSocketIdForUser(user2.userId);
 
-                if (socketId1) {
-                    io.sockets.sockets.get(socketId1)?.emit('matchFound', { matchedWith: user2.userId }); //INSERT SESSION ID HERE
-                }
-                if (socketId2) {
-                    io.sockets.sockets.get(socketId2)?.emit('matchFound', { matchedWith: user1.userId }); //INSERT SESSION ID HERE
+                // check if both users are still connected
+                const socket1 = io.sockets.sockets.get(socketId1);
+                const socket2 = io.sockets.sockets.get(socketId2);
+
+                if (socket1 && socket2) {
+                    console.log(`Emitted matchFound to ${user1.userId} at socket ${socketId1}`);
+                    io.to(socketId1).emit('matchFound', { matchedWith: user2.userId }); //INSERT SESSION ID HERE
+                    console.log(`Emitted matchFound to ${user2.userId} at socket ${socketId2}`);
+                    io.to(socketId2).emit('matchFound', { matchedWith: user1.userId }); //INSERT SESSION ID HERE
+                    //Disconnect both users (Disconnecting users also removes them from the search pool)
+                    socket1.disconnect(true);
+                    socket2.disconnect(true);
                 }
 
-                // Disconnect both users
-                if (socketId1) {
-                    io.sockets.sockets.get(socketId1)?.disconnect(true);
-                }
-                if (socketId2) {
-                    io.sockets.sockets.get(socketId2)?.disconnect(true);
-                }
-
-                // Remove users from the map
-                removeUserFromSocketMap(user1.userId);
-                removeUserFromSocketMap(user2.userId);
+                console.log(`${user1.userId} and ${user2.userId} has been matched`);
             }
         } else {
             socket.emit('error', 'Invalid matching criteria.');
@@ -55,11 +56,21 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
 export function handleDisconnect(socket: Socket) {
     // Handle disconnection
     const { userId } = socket.data;
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         console.log(`User ${userId} disconnected`);
-        removeUserFromSearchPool(userId);
+        await removeUserFromSearchPool(userId);
+    });
+}
 
-        // Remove the user from the map
-        removeUserFromSocketMap(userId);
+// Subscribe to Redis channel for match notifications
+export function subscribeToMatchNotifications(io: Server) {
+    redisClient.subscribe('matchNotifications', (message: string) => {
+        const { matchedUsers } = JSON.parse(message);
+        matchedUsers.forEach(async (user: { userId: string }) => {
+            const socketId = await getSocketIdForUser(user.userId);
+            if (socketId) {
+                io.to(socketId).emit('matchFound', { matchedWith: matchedUsers.find((u: { userId: string }) => u.userId !== user.userId).userId }); //INSERT SESSION ID HERE
+            }
+        });
     });
 }
