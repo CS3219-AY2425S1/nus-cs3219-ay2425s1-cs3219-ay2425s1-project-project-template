@@ -34,4 +34,5 @@ jobs:
           VALIDATE_JSX: true
           VALIDATE_TSX: true
           VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_JAVA: true
       
