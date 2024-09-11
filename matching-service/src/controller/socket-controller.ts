@@ -23,34 +23,39 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
             socket.emit('registrationSuccess', { message: `User ${userId} registered for matching successfully.` });
 
             // Check if a match can be made after new user joins
-            const match = await matchUsers();
-            if (match) {
-                const { matchedUsers } = match;
-                const [user1, user2] = matchedUsers;
-                // Notify both clients of the match using the mapping
-                const socketId1 = await getSocketIdForUser(user1.userId);
-                const socketId2 = await getSocketIdForUser(user2.userId);
+            await checkForMatch(io);
 
-                // check if both users are still connected
-                const socket1 = io.sockets.sockets.get(socketId1);
-                const socket2 = io.sockets.sockets.get(socketId2);
-
-                if (socket1 && socket2) {
-                    console.log(`Emitted matchFound to ${user1.userId} at socket ${socketId1}`);
-                    io.to(socketId1).emit('matchFound', { matchedWith: user2.userId }); //INSERT SESSION ID HERE
-                    console.log(`Emitted matchFound to ${user2.userId} at socket ${socketId2}`);
-                    io.to(socketId2).emit('matchFound', { matchedWith: user1.userId }); //INSERT SESSION ID HERE
-                    //Disconnect both users (Disconnecting users also removes them from the search pool)
-                    socket1.disconnect(true);
-                    socket2.disconnect(true);
-                }
-
-                console.log(`${user1.userId} and ${user2.userId} has been matched`);
-            }
         } else {
             socket.emit('error', 'Invalid matching criteria.');
         }
     });
+}
+
+export async function checkForMatch(io: Server) {
+    const match = await matchUsers();
+    if (match) {
+        const { matchedUsers } = match;
+        const [user1, user2] = matchedUsers;
+        // Notify both clients of the match using the mapping
+        const socketId1 = await getSocketIdForUser(user1.userId);
+        const socketId2 = await getSocketIdForUser(user2.userId);
+
+        // check if both users are still connected
+        const socket1 = io.sockets.sockets.get(socketId1);
+        const socket2 = io.sockets.sockets.get(socketId2);
+
+        if (socket1 && socket2) {
+            console.log(`Emitted matchFound to ${user1.userId} at socket ${socketId1}`);
+            io.to(socketId1).emit('matchFound', { matchedWith: user2.userId }); //INSERT SESSION ID HERE
+            console.log(`Emitted matchFound to ${user2.userId} at socket ${socketId2}`);
+            io.to(socketId2).emit('matchFound', { matchedWith: user1.userId }); //INSERT SESSION ID HERE
+            //Disconnect both users (Disconnecting users also removes them from the search pool)
+            socket1.disconnect(true);
+            socket2.disconnect(true);
+        }
+
+        console.log(`${user1.userId} and ${user2.userId} has been matched`);
+    }
 }
 
 export function handleDisconnect(socket: Socket) {
