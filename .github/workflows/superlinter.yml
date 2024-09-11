@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - dev
+  pull_request:
+    branches:
+      - dev
 
 jobs:
   lint:
@@ -25,24 +28,10 @@ jobs:
         uses: super-linter/super-linter@v7.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_JAVA: true
+          VALIDATE_TYPESCRIPT_STANDARD: true
           VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_JAVASCRIPT_STANDARD: true
           VALIDATE_JSX: true
           VALIDATE_TSX: true
           VALIDATE_TYPESCRIPT_ES: true
-          VALIDATE_YAML: true
-          FIX_JAVASCRIPT_ES: true
-          FIX_JSX: true
-          FIX_TSX: true
-          FIX_TYPESCRIPT_ES: true
       
-      - name: Commit and push linting fixes
-        if: steps.linter.outcome == 'failure'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          branch: dev
-          commit_message: "chore: fix linting issues"
-          commit_user_name: "GitHub Actions"
-          commit_user_email: "actions@github.com"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
