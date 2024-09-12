@@ -1,0 +1,38 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  lint:
+    name: Lint code base
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Super-linter
+        id: linter
+        uses: super-linter/super-linter@v7.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_TYPESCRIPT_STANDARD: true
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_JAVASCRIPT_STANDARD: true
+          VALIDATE_JSX: true
+          VALIDATE_TSX: true
+          VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_JAVA: true
+      
