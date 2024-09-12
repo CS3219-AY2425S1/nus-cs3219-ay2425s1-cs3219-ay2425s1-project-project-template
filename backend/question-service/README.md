@@ -20,10 +20,6 @@
 poetry install
 ```
 
-```
-ln -s /opt/homebrew/bin/python3 /opt/homebrew/bin/python
-```
-
 2. Create a local database
 
 ```bash
