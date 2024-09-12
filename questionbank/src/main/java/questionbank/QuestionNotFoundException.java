@@ -2,7 +2,7 @@ package questionbank;
 
 class QuestionNotFoundException extends RuntimeException {
 
-    QuesetionNotFoundException(Long id) {
+    QuestionNotFoundException(Long id) {
         super("Could not find question " + id);
     }
 }

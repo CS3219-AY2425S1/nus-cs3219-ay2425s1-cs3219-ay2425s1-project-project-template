@@ -2,6 +2,7 @@ package questionbank;
 
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -13,6 +14,8 @@ class Question {
     private @Id
     @GeneratedValue Long id;
     private String title;
+
+    @Column(length = 1000) // Adjust length to fit description needs
     private String description;
     private String category;
     private String complexity;
@@ -72,8 +75,8 @@ class Question {
 
         if (this == o)
             return true;
-        if (!(o instanceof Question)
-        return false;
+        if (!(o instanceof Question))
+            return false;
         Question question = (Question) o;
         return Objects.equals(this.id, question.id) && Objects.equals(this.title, question.title)
                 && Objects.equals(this.description, question.description)
