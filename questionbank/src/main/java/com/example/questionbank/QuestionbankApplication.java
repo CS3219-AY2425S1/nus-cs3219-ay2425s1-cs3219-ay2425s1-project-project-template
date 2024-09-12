@@ -1,13 +1,13 @@
-package com.example.questions;
+package com.example.questionbank;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class QuestionsApplication {
+public class QuestionbankApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(QuestionsApplication.class, args);
+		SpringApplication.run(QuestionbankApplication.class, args);
 	}
 
 }

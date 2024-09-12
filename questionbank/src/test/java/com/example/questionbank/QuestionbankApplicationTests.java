@@ -1,10 +1,10 @@
-package com.example.questions;
+package com.example.questionbank;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class QuestionsApplicationTests {
+class QuestionbankApplicationTests {
 
 	@Test
 	void contextLoads() {
