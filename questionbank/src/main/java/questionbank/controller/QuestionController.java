@@ -17,14 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 import questionbank.model.Question;
 import questionbank.commons.QuestionNotFoundException;
 import questionbank.database.QuestionRepository;
+import questionbank.model.QuestionModelAssembler;
 
 @RestController
 public class QuestionController {
 
     private final QuestionRepository repository;
 
-    QuestionController(QuestionRepository repository) {
+    private final QuestionModelAssembler assembler;
+
+    QuestionController(QuestionRepository repository, QuestionModelAssembler assembler) {
         this.repository = repository;
+        this.assembler = assembler;
     }
 
 
@@ -32,12 +36,10 @@ public class QuestionController {
     // tag::get-aggregate-root[]
 
     @GetMapping("/questions")
-    CollectionModel<EntityModel<Question>> all() {
+    public CollectionModel<EntityModel<Question>> all() {
 
-        List<EntityModel<Question>> questions = repository.findAll().stream()
-                .map(question -> EntityModel.of(question,
-                        linkTo(methodOn(QuestionController.class).one(question.getId())).withSelfRel(),
-                        linkTo(methodOn(QuestionController.class).all()).withRel("questions")))
+        List<EntityModel<Question>> questions = repository.findAll().stream() //
+                .map(assembler::toModel) //
                 .collect(Collectors.toList());
 
         return CollectionModel.of(questions, linkTo(methodOn(QuestionController.class).all()).withSelfRel());
@@ -52,14 +54,12 @@ public class QuestionController {
     // Single item
 
     @GetMapping("/questions/{id}")
-    EntityModel<Question> one(@PathVariable Long id) {
+    public EntityModel<Question> one(@PathVariable Long id) {
 
         Question question = repository.findById(id) //
                 .orElseThrow(() -> new QuestionNotFoundException(id));
 
-        return EntityModel.of(question, //
-                linkTo(methodOn(QuestionController.class).one(id)).withSelfRel(),
-                linkTo(methodOn(QuestionController.class).all()).withRel("questions"));
+        return assembler.toModel(question);
     }
 
     @PutMapping("/questions/{id}")
