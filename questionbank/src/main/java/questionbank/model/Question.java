@@ -1,8 +1,10 @@
 package questionbank.model;
 
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -17,16 +19,19 @@ public class Question {
 
     @Column(length = 1000) // Adjust length to fit description needs
     private String description;
-    private String category;
+
+    @ElementCollection // Indicates that this is a collection of basic types
+    private List<String> categories; // A list of categories
+
     private String complexity;
 
-    Question() {}
+    public Question() {}
 
-    public Question(String title, String description, String category, String complexity) {
+    public Question(String title, String description, List<String> categories, String complexity) {
 
         this.title = title;
         this.description = description;
-        this.category = category;
+        this.categories = categories;
         this.complexity = complexity;
     }
 
@@ -42,8 +47,8 @@ public class Question {
         return this.description;
     }
 
-    public String getCategory() {
-        return this.category;
+    public List<String> getCategories() {
+        return this.categories;
     }
 
     public String getComplexity() {
@@ -62,8 +67,8 @@ public class Question {
         this.description = description;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 
     public void setComplexity(String complexity) {
@@ -80,13 +85,13 @@ public class Question {
         Question question = (Question) o;
         return Objects.equals(this.id, question.id) && Objects.equals(this.title, question.title)
                 && Objects.equals(this.description, question.description)
-                && Objects.equals(this.category, question.category)
+                && Objects.equals(this.categories, question.categories)
                 && Objects.equals(this.complexity, question.complexity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.title, this.description, this.category, this.complexity);
+        return Objects.hash(this.id, this.title, this.description, this.categories, this.complexity);
     }
 
     @Override
@@ -94,7 +99,7 @@ public class Question {
         return "Question{" + "id=" + this.id
                 + ", title='" + this.title + '\''
                 + ", description='" + this.description + '\''
-                + ", category='" + this.category + '\''
+                + ", categories='" + this.categories + '\''
                 + ", complexity='" + this.complexity + '\'' + '}';
     }
 }

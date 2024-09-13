@@ -77,7 +77,7 @@ public class QuestionController {
                 .map(question -> {
                     question.setTitle(newQuestion.getTitle());
                     question.setDescription(newQuestion.getDescription());
-                    question.setCategory(newQuestion.getCategory());
+                    question.setCategories(newQuestion.getCategories());
                     question.setComplexity(newQuestion.getComplexity());
                     return repository.save(question);
                 }) //
@@ -99,5 +99,5 @@ public class QuestionController {
 
         return ResponseEntity.noContent().build();
     }
-    
+
 }

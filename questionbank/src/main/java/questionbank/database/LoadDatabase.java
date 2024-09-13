@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import questionbank.model.Question;
 
+import java.util.Arrays;
+
 @Configuration
 class LoadDatabase {
 
@@ -34,11 +36,11 @@ class LoadDatabase {
                             "\n" +
                             "1 <= s.length <= 105\n" +
                             "s[i] is a printable ascii character.\n",
-                    "Strings", // Demo with just one category for now
+                        Arrays.asList("Strings", "Algorithms"), // Multiple categories
                     "Easy")));
             log.info("Preloading " + repository.save(new Question("Linked List Cycle Detection",
                     "Implement a function to detect if a linked list contains a cycle.",
-                    "Data Structures", // Demo with just one category for now
+                    Arrays.asList("Data Structures", "Algorithms"), // Multiple categories
                     "Easy")));
         };
     }
