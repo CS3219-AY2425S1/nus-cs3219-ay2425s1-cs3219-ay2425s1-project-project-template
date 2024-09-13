@@ -1,4 +1,4 @@
-package questionbank;
+package questionbank.model;
 
 import java.util.Objects;
 
@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 
 
 @Entity
-class Question {
+public class Question {
 
     private @Id
     @GeneratedValue Long id;
@@ -22,7 +22,7 @@ class Question {
 
     Question() {}
 
-    Question(String title, String description, String category, String complexity) {
+    public Question(String title, String description, String category, String complexity) {
 
         this.title = title;
         this.description = description;

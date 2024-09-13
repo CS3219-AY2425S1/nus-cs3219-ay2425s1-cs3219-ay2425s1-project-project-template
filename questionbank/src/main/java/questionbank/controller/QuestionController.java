@@ -1,4 +1,4 @@
-package questionbank;
+package questionbank.controller;
 
 import java.util.List;
 
@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import questionbank.model.Question;
+import questionbank.commons.QuestionNotFoundException;
+import questionbank.database.QuestionRepository;
 
 @RestController
-class QuestionController {
+public class QuestionController {
 
     private final QuestionRepository repository;
 
