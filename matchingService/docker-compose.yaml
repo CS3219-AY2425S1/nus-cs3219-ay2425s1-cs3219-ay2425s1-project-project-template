@@ -1,0 +1,7 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.0.0-rc.1-alpine
+    ports:
+      - "5672:5672"
+    environment:
+      RABBITMQ_NODE_PORT: 5672
