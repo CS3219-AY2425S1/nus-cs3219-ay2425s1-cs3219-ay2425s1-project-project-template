@@ -1,6 +1,11 @@
 package questionbank.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +30,17 @@ public class QuestionController {
 
     // Aggregate root
     // tag::get-aggregate-root[]
+
     @GetMapping("/questions")
-    List<Question> all() {
-        return repository.findAll();
+    CollectionModel<EntityModel<Question>> all() {
+
+        List<EntityModel<Question>> questions = repository.findAll().stream()
+                .map(question -> EntityModel.of(question,
+                        linkTo(methodOn(QuestionController.class).one(question.getId())).withSelfRel(),
+                        linkTo(methodOn(QuestionController.class).all()).withRel("questions")))
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(questions, linkTo(methodOn(QuestionController.class).all()).withSelfRel());
     }
     // end::get-aggregate-root[]
 
@@ -39,10 +52,14 @@ public class QuestionController {
     // Single item
 
     @GetMapping("/questions/{id}")
-    Question one(@PathVariable Long id) {
+    EntityModel<Question> one(@PathVariable Long id) {
 
-        return repository.findById(id)
+        Question question = repository.findById(id) //
                 .orElseThrow(() -> new QuestionNotFoundException(id));
+
+        return EntityModel.of(question, //
+                linkTo(methodOn(QuestionController.class).one(id)).withSelfRel(),
+                linkTo(methodOn(QuestionController.class).all()).withRel("questions"));
     }
 
     @PutMapping("/questions/{id}")
