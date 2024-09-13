@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,9 +48,15 @@ public class QuestionController {
     }
     // end::get-aggregate-root[]
 
+
     @PostMapping("/questions")
-    Question newQuestion(@RequestBody Question newQuestion) {
-        return repository.save(newQuestion);
+    ResponseEntity<?> newQuestion(@RequestBody Question newQuestion) {
+
+        EntityModel<Question> entityModel = assembler.toModel(repository.save(newQuestion));
+
+        return ResponseEntity //
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+                .body(entityModel);
     }
 
     // Single item
@@ -63,23 +71,33 @@ public class QuestionController {
     }
 
     @PutMapping("/questions/{id}")
-    Question replaceQuestion(@RequestBody Question newQuestion, @PathVariable Long id) {
+    ResponseEntity<?> replaceQuestion(@RequestBody Question newQuestion, @PathVariable Long id) {
 
-        return repository.findById(id)
+        Question updatedQuestion = repository.findById(id) //
                 .map(question -> {
                     question.setTitle(newQuestion.getTitle());
                     question.setDescription(newQuestion.getDescription());
                     question.setCategory(newQuestion.getCategory());
                     question.setComplexity(newQuestion.getComplexity());
                     return repository.save(question);
-                })
+                }) //
                 .orElseGet(() -> {
                     return repository.save(newQuestion);
                 });
+
+        EntityModel<Question> entityModel = assembler.toModel(updatedQuestion);
+
+        return ResponseEntity //
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+                .body(entityModel);
     }
 
     @DeleteMapping("/questions/{id}")
-    void deleteQuestion(@PathVariable Long id) {
+    ResponseEntity<?> deleteQuestion(@PathVariable Long id) {
+
         repository.deleteById(id);
+
+        return ResponseEntity.noContent().build();
     }
+    
 }
