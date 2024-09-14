@@ -3,6 +3,7 @@ import { Options } from "amqplib/callback_api";
 import QueueMessage from "./QueueMessage";
 import AmqpConnectionError from "../errors/AmqpConnectionError";
 import AmqpCreateChannelError from "../errors/AmqpCreateChannelError";
+import MatchRequest from "./MatchRequest";
 
 type ConnectCallback = (error: AmqpConnectionError | null, connection: amqp.Connection) => void;
 type CreateChannelCallback = (error: AmqpCreateChannelError | null, channel: amqp.Channel) => void;
@@ -22,7 +23,7 @@ class AmqpService {
         connection.createChannel(callback);
     }
 
-    public sendMessage(queue: string, msg: string) {
+    public sendJsonMessage(queue: string, msg: MatchRequest) {
         this.connect((error0: AmqpConnectionError | null, connection: amqp.Connection) => {
             if (error0) {
                 return error0;
@@ -38,7 +39,7 @@ class AmqpService {
         
                 channel.assertQueue(queue, options);
                 for (let i = 0; i < 5; i++) {
-                    channel.sendToQueue(queue, Buffer.from(msg));
+                    channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
                     console.log(" [x] Sent %s", msg);
                 }
             })
@@ -73,20 +74,3 @@ class AmqpService {
 }
 
 export default AmqpService;
-
-// import amqp from "amqplib/callback_api";
-// import AmqpConnectionError from "./errors/AmqpConnectionError";
-
-// class AmqpService {
-//     private connectionUrl: string;
-
-//     constructor(connectionUrl: string) {
-//         this.connectionUrl = connectionUrl;
-//     }
-    
-//     private connect(callback: (error: AmqpConnectionError | null, connection: amqp.Connection) => void) {
-//         amqp.connect(this.connectionUrl, callback);
-//     }
-
-//     public sendMessage(queue: string, msg: string, callback: )
-// }
