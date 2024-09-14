@@ -9,7 +9,7 @@ services:
     # ports not exposed as external access not required
 
   g38-matching-service:
-    image: g38-matching-service:latest
+    image: delishad21/g38-matching-service:latest
     env_file:
       - .env  # Loads environment variables from .env file
     ports:
