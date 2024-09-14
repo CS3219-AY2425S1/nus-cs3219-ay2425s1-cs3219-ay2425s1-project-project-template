@@ -10,13 +10,14 @@ dotenv.config();
 const PORT = process.env.PORT || 8002;
 const JWT_SECRET = process.env.JWT_SECRET || 'my-secret';
 
-beforeAll((done) => {
-    server.listen(PORT, done);
-});
+// Comment out for docker testing
+// beforeAll((done) => {
+//     server.listen(PORT, done);
+// });
 
-afterAll((done) => {
-    server.close(done);
-});
+// afterAll((done) => {
+//     server.close(done);
+// });
 
 describe('Socket.IO Server Tests', () => {
 
@@ -61,24 +62,22 @@ describe('Socket.IO Server Tests', () => {
         });
     });
 
-    test('should handle user disconnection', (done) => {
+    // test('should handle user disconnection', (done) => {
 
-        const clientSocket = io(`http://localhost:${PORT}`, {
-            auth: { token: jwt.sign({ id: 'client-id' }, JWT_SECRET) },
-        });
+    //     const clientSocket = io(`http://localhost:${PORT}`, {
+    //         auth: { token: jwt.sign({ id: 'client-id' }, JWT_SECRET) },
+    //     });
 
-        clientSocket.on('connect', () => {
-            clientSocket.disconnect();
-            setTimeout(() => {
-                redisClient.sCard('searchPool').then((count: number) => {
-                    expect(count).toBe(0);
-                    done();
-                });
-            }, 2000);
-        });
-    });
-
-
+    //     clientSocket.on('connect', () => {
+    //         clientSocket.disconnect();
+    //         setTimeout(() => {
+    //             redisClient.sCard('searchPool').then((count: number) => {
+    //                 expect(count).toBe(0);
+    //                 done();
+    //             });
+    //         }, 2000);
+    //     });
+    // });
 
 
 

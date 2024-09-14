@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import { validateSocketJWT } from './middleware/jwt-validation';
 import { registerEventHandlers } from './routes/socket-routes';
 import dotenv from 'dotenv';
+import { matchingRoutes } from './routes/api-routes';
 
 dotenv.config();
 
@@ -20,6 +21,8 @@ const io = new Server(server, {
 
 // Middleware for parsing JSON
 app.use(express.json());
+
+app.use('/api', matchingRoutes)
 
 // Socket.io connection handler with JWT validation
 io.use(validateSocketJWT);
