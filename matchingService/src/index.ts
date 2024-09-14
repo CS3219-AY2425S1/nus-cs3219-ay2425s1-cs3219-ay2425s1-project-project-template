@@ -1,15 +1,33 @@
 import AmqpService from "./QueueService/AmqpService";
 import QueueMessage from "./QueueService/QueueMessage";
+import MatchRequest from "./QueueService/MatchRequest";
 
 interface QueueService {
-    sendMessage(queue: string, msg: string): void;
+    sendJsonMessage(queue: string, msg: MatchRequest): void;
     receiveMessages(queue: string, callback: (msg: QueueMessage | null) => void): void;
 }
 
 var amqpService: QueueService = new AmqpService("amqp://localhost:5672");
 
-amqpService.sendMessage("hello", "hello world");
+const message: MatchRequest = {
+    userId: "John",
+    topic: "algorithm",
+    difficulty: "hard",
+}
+
+amqpService.sendJsonMessage("matchQueue", message);
 
 amqpService.receiveMessages("hello", (msg: QueueMessage | null) => {
-    console.log(msg?.content.toString());
+    let content = msg?.content.toString();
+    if (content) {
+        try {
+            var matchRequest: MatchRequest = JSON.parse(content);
+            console.log(matchRequest);
+        } catch (e) {
+            if (e instanceof Error) {
+                let name = e.message;
+                console.log(`Error occured ${name}`);
+            }
+        }
+    }
 })
