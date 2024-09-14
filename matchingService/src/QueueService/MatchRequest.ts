@@ -8,10 +8,6 @@ class MatchRequest {
         this.topic = topic;
         this.difficulty = difficulty;
     }
-    
-    public generateRoutingKey(): string {
-        return `${this.topic}.${this.difficulty}`;
-    }
 
     public getTopic(): string {
         return this.topic;
