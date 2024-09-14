@@ -36,7 +36,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ThemeToggle />
+          {/* TODO: Create Navbar component */}
+          <div className="m-2">
+            <ThemeToggle />
+          </div>
           {children}
         </ThemeProvider>
       </body>
