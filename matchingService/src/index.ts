@@ -1,56 +1,15 @@
-import amqp from "amqplib/callback_api";
-import { Options } from "amqplib/callback_api";
-import AmqpConnectionError from "./errors/amqpConnectionError";
-import AmqpCreateChannelError from "./errors/amqpCreateChannelError";
-import { error } from "console";
+import AmqpService from "./QueueService/AmqpService";
+import QueueMessage from "./QueueService/QueueMessage";
 
-amqp.connect(function(error0: AmqpConnectionError, connection: amqp.Connection) {
-    if (error0) {
-        throw error0;
-    }
-    connection.createChannel(function(error1: AmqpCreateChannelError, channel: amqp.Channel) {
-        if (error1) {
-            throw error1;
-        }
-        const queue: string = "hello";
-        const msg: string = "hello world";
+interface QueueService {
+    sendMessage(queue: string, msg: string): void;
+    receiveMessages(queue: string, callback: (msg: QueueMessage | null) => void): void;
+}
 
-        const options: Options.AssertQueue = {
-            durable: false,
-        }
+var amqpService: QueueService = new AmqpService("amqp://localhost:5672");
 
-        channel.assertQueue(queue, options);
-        for (let i = 0; i < 5; i++) {
-            channel.sendToQueue(queue, Buffer.from(msg));
-            console.log(" [x] Sent %s", msg);
-        }
-    });
-    setTimeout(function() {
-        connection.close();
-    }, 500);
-})
+amqpService.sendMessage("hello", "hello world");
 
-amqp.connect(function(error0: AmqpConnectionError, connection: amqp.Connection) {
-    if (error0) {
-        throw error0;
-    }
-    connection.createChannel(function(error1: AmqpCreateChannelError, channel: amqp.Channel) {
-        if (error1) {
-            throw error1;
-        }
-        var queue = "hello";
-        var options: Options.AssertQueue = {
-            durable: false,
-        }
-        channel.assertQueue(queue, options);
-        
-        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
-        channel.consume(queue, function(msg: amqp.Message | null) {
-            if (msg) {
-                console.log(" [x] Received %s", msg.content.toString());
-            }
-        }, {
-            noAck: true
-        });
-    })
+amqpService.receiveMessages("hello", (msg: QueueMessage | null) => {
+    console.log(msg?.content.toString());
 })
