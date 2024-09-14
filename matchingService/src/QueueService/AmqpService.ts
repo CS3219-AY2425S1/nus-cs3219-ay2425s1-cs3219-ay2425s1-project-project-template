@@ -1,75 +1,87 @@
-import amqp from "amqplib/callback_api";
-import { Options } from "amqplib/callback_api";
+import * as amqplib from "amqplib";
 import QueueMessage from "./QueueMessage";
-import AmqpConnectionError from "../errors/AmqpConnectionError";
-import AmqpCreateChannelError from "../errors/AmqpCreateChannelError";
 import MatchRequest from "./MatchRequest";
 
-type ConnectCallback = (error: AmqpConnectionError | null, connection: amqp.Connection) => void;
-type CreateChannelCallback = (error: AmqpCreateChannelError | null, channel: amqp.Channel) => void;
+const TOPIC_LIST: string[] = ["algorithm", "graph", "dp"];
+const DIFFICULTY_LEVELS: string[] = ["easy", "medium", "hard"];
 
 class AmqpService {
+    private connection: amqplib.Connection | null = null;
+    private channel: amqplib.Channel | null = null;
+    private exchange: string;
     private connectionUrl: string;
 
-    constructor(connectionUrl: string) {
+    constructor(connectionUrl: string, exchange: string) {
+        this.exchange = exchange;
         this.connectionUrl = connectionUrl;
     }
 
-    private connect(callback: ConnectCallback): void {
-        amqp.connect(this.connectionUrl, callback);
+    public async init(): Promise<void> {
+        await amqplib.connect(this.connectionUrl).then((conn) => {
+            this.connection = conn;
+            return this.connection.createChannel();
+        }).then(ch => {
+            this.channel = ch;
+            return this.channel.assertExchange(this.exchange, "headers", { durable: false });
+        }).catch((err) => console.log(err));
     }
 
-    private createChannel(connection: amqp.Connection, callback: CreateChannelCallback) {
-        connection.createChannel(callback);
-    }
-
-    public sendJsonMessage(queue: string, msg: MatchRequest) {
-        this.connect((error0: AmqpConnectionError | null, connection: amqp.Connection) => {
-            if (error0) {
-                return error0;
+    public async sendJsonMessage(msg: MatchRequest): Promise<void> {
+        if (!this.channel) {
+            console.log("Channel not initialised");
+            return;
+        }
+        this.channel?.publish(this.exchange, "", Buffer.from(JSON.stringify(msg)), {
+            headers: {
+                "topic": "algorithm",
+                "difficulty": "hard"
             }
-            this.createChannel(connection, (error1: AmqpCreateChannelError | null, channel: amqp.Channel) => {
-                if (error1) {
-                    throw error1;
-                }
-        
-                const options: Options.AssertQueue = {
-                    durable: false,
-                }
-        
-                channel.assertQueue(queue, options);
-                for (let i = 0; i < 5; i++) {
-                    channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
-                    console.log(" [x] Sent %s", msg);
-                }
-            })
-            setTimeout(function() {
-                connection.close();
-            }, 500);
-        })
-    }
-
-    public receiveMessages(queue: string, callback: (msg: QueueMessage | null) => void): void {
-        this.connect((error0: AmqpConnectionError | null, connection: amqp.Connection) => {
-            if (error0) {
-                throw error0;
-            }
-            connection.createChannel((error1: AmqpCreateChannelError | null, channel: amqp.Channel) => {
-                if (error1) {
-                    throw error1;
-                }
-                const options: amqp.Options.AssertQueue = { durable: false };
-
-                channel.assertQueue(queue, options);
-                console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
-
-                channel.consume(queue, (msg: amqp.Message | null) => {
-                    if (msg) {
-                        callback(msg);
-                    }
-                }, { noAck: true });
-            });
         });
+        console.log("Successfully sent message!");
+    }
+
+    public async receiveMessages(topic: string, difficulty: string, allback: (msg: QueueMessage | null) => void): Promise<void> {
+        if (!this.channel) {
+            console.log("Channel not initialised");
+            return;
+        }
+        const queue = await this.channel?.assertQueue("", { exclusive: true })
+        const queueName = queue?.queue;
+        if (!queueName) {
+            return;
+        }
+        await this.channel?.bindQueue(queueName, this.exchange, "", {
+            "x-match": "all",
+            "topic": topic,
+            "difficulty": difficulty
+        });
+        console.log("Consumer ready");
+        await this.channel?.consume(queueName, (message) => {
+            if (message) {
+                console.log(`Received message: ${message.content.toString()}`);
+            }
+        }, { noAck: true });
+    }
+
+    public async startConsumers(): Promise<void> {
+        for (const topic of TOPIC_LIST) {
+            for (const difficulty of DIFFICULTY_LEVELS) {
+                await this.receiveMessages(topic, difficulty, (msg: QueueMessage | null) => {
+                    let content = msg?.content.toString();
+                    if (content) {
+                        try {
+                            var matchRequest: MatchRequest = JSON.parse(content);
+                            console.log(matchRequest);
+                        } catch (e) {
+                            if (e instanceof Error) {
+                                let name = e.message;
+                                console.log(`Error occured ${name}`);
+                            }
+                        }
+                    }
+                });
+            }
+        }
     }
 }
 
