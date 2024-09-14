@@ -1,7 +1,32 @@
-import app from './index';
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import { validateSocketJWT } from './middleware/jwt-validation';
+import { handleEdits } from './routes/socket-routes';
+import dotenv from 'dotenv';
+import cors from 'cors';
 
-const PORT = process.env.PORT || 8001;
+const app = express();
+app.use(cors());
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
 });
+
+io.use(validateSocketJWT);
+
+export { server };
+
+if (require.main === module) {
+    dotenv.config();
+    const PORT = process.env.PORT || 8003;
+    server.listen(PORT, () => {
+        console.log(`Server listening on port ${PORT}`);
+    });
+
+}
