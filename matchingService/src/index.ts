@@ -15,10 +15,11 @@ const testMessages: MatchRequest[] = [
     new MatchRequest("the builder", "dp", "medium"),
 ];
 
-(async () => {
+async function main() {
     var amqpService: QueueService = await AmqpService.of("amqp://localhost:5672", "gateway");
     
     for (const testMessage of testMessages) {
         await amqpService.sendJsonMessage(testMessage);
     }
-})();
+}
+main();
