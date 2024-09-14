@@ -7,7 +7,7 @@ import questionRoutes from './routes/questionRoutes';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.QUESTION_SERVICE_PORT;
 
 // MongoDB Atlas connection string
 const mongoURI = process.env.MONGODB_URI;
@@ -18,20 +18,21 @@ if (!mongoURI) {
 }
 
 // Connect to MongoDB
-mongoose.connect(mongoURI)
+mongoose
+  .connect(mongoURI)
   .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch(err => console.error('Error connecting to MongoDB:', err));
+  .catch((err) => console.error('Error connecting to MongoDB:', err));
 
-  app.use(express.json());
+app.use(express.json());
 
 // Routes
 app.use('/api', questionRoutes);
-  
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.send('LeetCode Question API is running!');
 });
-  
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

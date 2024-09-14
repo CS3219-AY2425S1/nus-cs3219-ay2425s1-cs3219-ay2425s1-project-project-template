@@ -26,5 +26,5 @@ COPY --from=base ./package.json ./package.json
 COPY --from=base /dist /dist
 
 # Expose port 5001, and start the app.
-EXPOSE ${QUESTION_SERVICE_PORT}
+EXPOSE ${USER_SERVICE_PORT}
 CMD ["npm", "run", "start"]
