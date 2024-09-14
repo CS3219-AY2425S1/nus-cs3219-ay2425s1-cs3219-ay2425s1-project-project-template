@@ -1,0 +1,12 @@
+version: "3"
+services:
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+    ports:
+      - "3000:3000"
+  questionbank:
+    build:
+      context: ./questionbank
+    ports:
+      - "8080:8080"
