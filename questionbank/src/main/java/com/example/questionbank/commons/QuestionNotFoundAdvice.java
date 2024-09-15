@@ -1,4 +1,4 @@
-package questionbank.commons;
+package com.example.questionbank.commons;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

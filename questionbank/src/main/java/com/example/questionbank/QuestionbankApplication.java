@@ -1,4 +1,4 @@
-package questionbank;
+package com.example.questionbank;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

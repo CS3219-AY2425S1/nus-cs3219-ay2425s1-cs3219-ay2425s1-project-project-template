@@ -1,4 +1,4 @@
-package questionbank.commons;
+package com.example.questionbank.commons;
 
 public class QuestionNotFoundException extends RuntimeException {
 

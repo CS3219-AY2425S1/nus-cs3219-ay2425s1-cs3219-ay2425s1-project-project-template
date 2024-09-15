@@ -1,11 +1,11 @@
-package questionbank.model;
+package com.example.questionbank.model;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import questionbank.controller.QuestionController;
+import com.example.questionbank.controller.QuestionController;
 
 @Component
 public class QuestionModelAssembler implements RepresentationModelAssembler<Question, EntityModel<Question>> {

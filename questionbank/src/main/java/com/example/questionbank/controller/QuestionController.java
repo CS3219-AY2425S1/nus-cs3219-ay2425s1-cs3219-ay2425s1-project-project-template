@@ -1,8 +1,10 @@
-package questionbank.controller;
+package com.example.questionbank.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.questionbank.repository.QuestionRepository;
+import com.example.questionbank.model.QuestionModelAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -16,10 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import questionbank.model.Question;
-import questionbank.commons.QuestionNotFoundException;
-import questionbank.database.QuestionRepository;
-import questionbank.model.QuestionModelAssembler;
+import com.example.questionbank.model.Question;
+import com.example.questionbank.commons.QuestionNotFoundException;
 
 @RestController
 public class QuestionController {
