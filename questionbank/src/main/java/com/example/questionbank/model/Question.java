@@ -1,11 +1,14 @@
 package com.example.questionbank.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -25,12 +28,12 @@ public class Question {
     @Id
     private String id; // MongoDB idx
     private String title;
-
     private String description;
-
     private List<String> categories;
-
     private String complexity;
+
+    @Indexed
+    private LocalDateTime createdAt; // Allow sorting by createdAt for better order
 
     /**
      * Constructs a new {@code Question} with the specified title, description, categories, and complexity.
@@ -49,6 +52,7 @@ public class Question {
         this.description = description;
         this.categories = categories;
         this.complexity = complexity;
+        this.createdAt = LocalDateTime.now();
     }
 
 }
