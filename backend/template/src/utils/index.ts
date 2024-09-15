@@ -1,3 +1,1 @@
-import PinoLogger from './logger';
-
-export const logger = PinoLogger;
+export * from './logger';

@@ -1,5 +1,3 @@
-import logger from 'pino';
+import pinoLogger from 'pino';
 
-const PinoLogger = logger();
-
-export default PinoLogger;
+export const logger = pinoLogger();
