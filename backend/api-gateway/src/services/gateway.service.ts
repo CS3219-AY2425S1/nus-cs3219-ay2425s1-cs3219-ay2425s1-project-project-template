@@ -5,8 +5,8 @@ import axios from 'axios';
 @Injectable()
 export class GatewayService {
 
-  async handleRedirectRequest(@Req() req: Request, @Res() res: Response, serviceUrl: string): Promise<void> {
-    const url = `${serviceUrl}${req.originalUrl.replace('/api', '')}`;
+  async handleRedirectRequest(@Req() req: Request, @Res() res: Response, serviceDomain: string): Promise<void> {
+    const url = `${serviceDomain}${req.originalUrl.replace('/api', '')}`;
     try {
       const response = await axios({
         method: req.method,
