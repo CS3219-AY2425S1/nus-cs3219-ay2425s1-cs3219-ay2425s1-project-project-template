@@ -1,0 +1,23 @@
+{
+  "name": "peerprep-g16",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "fmt": "prettier --config .prettierrc ./**/*.ts --write",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.ts": [
+      "prettier --config .prettierrc --write"
+    ]
+  },
+  "workspaces": [
+    "backend/*",
+    "frontend"
+  ],
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3"
+  }
+}
