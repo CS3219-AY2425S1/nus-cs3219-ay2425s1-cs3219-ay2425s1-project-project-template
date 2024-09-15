@@ -9,6 +9,14 @@ import org.springframework.boot.CommandLineRunner;
 
 import java.util.Arrays;
 
+/**
+ * Configuration class for preloading the database with sample {@link Question} data.
+ * <p>
+ * This class uses a {@link CommandLineRunner} bean to populate the MongoDB database with predefined questions
+ * when the application starts. It ensures that the questions are only loaded if the database is empty.
+ * The class logs the preloading actions to provide visibility into the initialization process.
+ * </p>
+ */
 @Configuration
 public class LoadDatabase {
 

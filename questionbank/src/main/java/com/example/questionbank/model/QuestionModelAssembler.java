@@ -7,6 +7,14 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 import com.example.questionbank.controller.QuestionController;
 
+/**
+ * Assembles {@link Question} entities into {@link EntityModel} instances for HATEOAS support.
+ * <p>
+ * This component implements {@link RepresentationModelAssembler} to convert {@link Question} entities into
+ * {@link EntityModel} instances with added HATEOAS links. The links include self-references and a link to
+ * the collection of all questions.
+ * </p>
+ */
 @Component
 public class QuestionModelAssembler implements RepresentationModelAssembler<Question, EntityModel<Question>> {
 
