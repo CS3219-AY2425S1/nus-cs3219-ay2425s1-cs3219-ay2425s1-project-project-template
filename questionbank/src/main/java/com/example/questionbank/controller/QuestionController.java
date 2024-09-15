@@ -62,7 +62,7 @@ public class QuestionController {
     // Single item
 
     @GetMapping("/questions/{id}")
-    public EntityModel<Question> one(@PathVariable Long id) {
+    public EntityModel<Question> one(@PathVariable String id) {
 
         Question question = repository.findById(id) //
                 .orElseThrow(() -> new QuestionNotFoundException(id));
@@ -71,7 +71,7 @@ public class QuestionController {
     }
 
     @PutMapping("/questions/{id}")
-    ResponseEntity<?> replaceQuestion(@RequestBody Question newQuestion, @PathVariable Long id) {
+    ResponseEntity<?> replaceQuestion(@RequestBody Question newQuestion, @PathVariable String id) {
 
         Question updatedQuestion = repository.findById(id) //
                 .map(question -> {
@@ -93,7 +93,7 @@ public class QuestionController {
     }
 
     @DeleteMapping("/questions/{id}")
-    ResponseEntity<?> deleteQuestion(@PathVariable Long id) {
+    ResponseEntity<?> deleteQuestion(@PathVariable String id) {
 
         repository.deleteById(id);
 
