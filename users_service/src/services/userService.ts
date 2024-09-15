@@ -11,7 +11,7 @@ export async function signUp(
   const orFilter = [{ username: username }, { email: email }];
   const hasUser = await User.exists({ $or: orFilter });
   if (!hasUser) {
-    const hashedPassword = hashPassword(password);
+    const hashedPassword = await hashPassword(password);
     const newUserBody = {
       username: username,
       email: email,
