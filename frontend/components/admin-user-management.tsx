@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,32 +12,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Mock user data
-const mockUsers = [
-  {
-    id: "iuwadiua",
-    username: "user1",
-    email: "user1@example.com",
-    isAdmin: false,
-    skillLevel: "Novice",
-  },
-  {
-    id: "iawndaw",
-    username: "user2",
-    email: "user2@example.com",
-    isAdmin: true,
-    skillLevel: "Expert",
-  },
-  {
-    id: "inawdiuwa",
-    username: "user3",
-    email: "user3@example.com",
-    isAdmin: false,
-    skillLevel: "Intermediate",
-  },
-];
+const fetcher = (url: string) => {
+  const token = localStorage.getItem("jwtToken");
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  return fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => {
+    // TODO: Redirect to home page if user is not admin or error occurs
+    if (res.status == 401) {
+      throw new Error("You are not authorized to view this page.");
+    }
+    if (!res.ok) {
+      throw new Error("An error occurred while fetching the data.");
+    }
+    return res.json();
+  });
+};
 
 export default function AdminUserManagement() {
+  const { data, error, isLoading } = useSWR(
+    "http://localhost:3001/users",
+    fetcher
+  );
   const [users, setUsers] = useState<
     {
       id: string;
@@ -46,11 +49,11 @@ export default function AdminUserManagement() {
       skillLevel: string;
     }[]
   >([]);
-
   useEffect(() => {
-    // Fetch users from the API but we use mock data here
-    setUsers(mockUsers);
-  }, []);
+    if (data) {
+      setUsers(data.data);
+    }
+  }, [data]);
 
   return (
     <div className="container mx-auto p-4">
