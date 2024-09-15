@@ -8,21 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-
 @Data // Lombok generates getters, setters, equals, hashCode and toString
 @NoArgsConstructor // Lombok generates a no-argument constructor
 @AllArgsConstructor // Lombok generates a constructor with all fields
-@Document
+@Document(collection = "questionbank")
 public class Question {
 
     @Id
-    private String id; // MongoDB id
-
-    @Indexed(unique = true)
-    private Long questionId; // Numeric question ID, unique and indexed
-
-    @Indexed(unique=true)
+    private String id; // MongoDB idx
     private String title;
 
     private String description;
@@ -31,7 +24,7 @@ public class Question {
 
     private String complexity;
 
-    // Constructor without MongoDB Vid field
+    // Constructor without MongoDB id field
     public Question(String title, String description, List<String> categories, String complexity) {
 
         this.title = title;
