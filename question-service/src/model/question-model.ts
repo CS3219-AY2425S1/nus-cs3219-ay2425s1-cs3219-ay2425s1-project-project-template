@@ -14,7 +14,7 @@ interface QuestionDocument extends Document {
   question_id: number;
   title: string;
   description: string;
-  category: string;
+  category: string[];
   complexity: string;
 }
 
@@ -22,7 +22,14 @@ const questionSchema: Schema = new Schema({
   question_id: { type: Number, unique: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  category: { type: String, required: true },
+  category: {
+    type: [String],
+    required: true,
+    validate: {
+      validator: (v: string[]) => v.length > 0 && v.length <= 3, // Allow up to 3 categories
+      message: "A question must have between 1 and 3 categories.",
+    },
+  },
   complexity: { type: String, required: true },
 });
 
