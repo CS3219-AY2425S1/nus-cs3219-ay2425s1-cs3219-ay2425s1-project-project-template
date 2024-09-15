@@ -8,7 +8,7 @@ export enum QuestionComplexity {
     HARD = 'hard',
 }
 
-export enum QuestionTopics {
+export enum QuestionTopic {
     ARRAY = 'array',
     BINARY = "binary",
     BINARY_SEARCH = "binary_search",
@@ -30,8 +30,10 @@ export enum QuestionTopics {
     TRIE = "trie"
 }
 
+export type QuestionDocument = Question & Document;
+
 @Schema()
-export class Question extends Document {
+export class Question {
     @Prop({ type: Types.ObjectId, auto: true })
     _id: Types.ObjectId;
 
@@ -42,7 +44,7 @@ export class Question extends Document {
     description: string;
 
     @Prop({ required: true })
-    topics: QuestionTopics[];
+    topics: QuestionTopic[];
 
     @Prop({ required: true })
     complexity: QuestionComplexity;
