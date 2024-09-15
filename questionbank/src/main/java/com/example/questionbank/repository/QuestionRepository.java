@@ -1,3 +1,10 @@
+/**
+ * This package contains the repository interfaces for the Question Bank application.
+ *
+ * The repositories handle the data access logic and interact with the MongoDB database
+ * to perform CRUD operations on the entities, such as {@link QuestionRepository}
+ * for managing {@link Question} entities.
+ */
 package com.example.questionbank.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;

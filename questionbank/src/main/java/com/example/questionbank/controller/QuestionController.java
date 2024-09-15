@@ -1,3 +1,10 @@
+/**
+ * This package contains the REST controllers for the Question Bank application.
+ *
+ * The controllers handle incoming HTTP requests and expose the API endpoints
+ * for operations on {@link Question} entities. They interact with the service layer
+ * to retrieve and manipulate data and send appropriate responses to the client.
+ */
 package com.example.questionbank.controller;
 
 import java.util.List;
@@ -13,7 +20,8 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -167,5 +175,4 @@ public class QuestionController {
 
         return ResponseEntity.noContent().build();
     }
-
 }

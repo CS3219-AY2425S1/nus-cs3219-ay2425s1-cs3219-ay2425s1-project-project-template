@@ -1,3 +1,12 @@
+/**
+ * This package contains common classes and utilities for the Question Bank application.
+ *
+ * It includes custom exceptions such as {@link QuestionNotFoundException} to handle
+ * error cases when a question is not found, as well as advice classes like {@link QuestionNotFoundAdvice}
+ * that provide global exception handling for REST controllers.
+ *
+ * These classes ensure consistent error handling and reusable utilities across the application.
+ */
 package com.example.questionbank.commons;
 
 /**
@@ -9,6 +18,13 @@ package com.example.questionbank.commons;
  */
 public class QuestionNotFoundException extends RuntimeException {
 
+    /**
+     * Constructs a new {@link QuestionNotFoundException} with a detail message including the specified ID.
+     *
+     * The message is constructed as "Could not find question " followed by the given ID.
+     *
+     * @param id the ID of the question that could not be found.
+     */
     public QuestionNotFoundException(String id) {
         super("Could not find question " + id);
     }

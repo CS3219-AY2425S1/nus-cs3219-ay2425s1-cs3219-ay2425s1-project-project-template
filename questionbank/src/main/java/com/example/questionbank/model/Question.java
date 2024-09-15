@@ -1,6 +1,12 @@
+/**
+ * This package contains the model classes for the Question Bank application.
+ *
+ * The model classes represent the main entities such as {@link Question},
+ * which holds the data structure for questions including fields like ID, title,
+ * description, categories, and complexity.
+ */
 package com.example.questionbank.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,13 +31,53 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "questionbank")
 public class Question {
 
+    /**
+     * The unique identifier for the question in MongoDB.
+     * <p>
+     * This field is automatically assigned by MongoDB.
+     * </p>
+     */
     @Id
     private String id; // MongoDB idx
+
+    /**
+     * The title of the question.
+     * <p>
+     * This field holds a brief and descriptive title for the question.
+     * </p>
+     */
     private String title;
+
+    /**
+     * The description of the question.
+     * <p>
+     * This field provides a detailed explanation or context for the question.
+     * </p>
+     */
     private String description;
+
+    /**
+     * The list of categories associated with the question.
+     * <p>
+     * This field helps in categorizing the question into different topics or areas.
+     * </p>
+     */
     private List<String> categories;
+
+    /**
+     * The complexity level of the question.
+     * <p>
+     * This field indicates the difficulty of the question, such as "easy", "medium", or "hard".
+     * </p>
+     */
     private String complexity;
 
+    /**
+     * The timestamp indicating when the question was created.
+     * <p>
+     * This field is indexed to allow sorting by creation date for better order.
+     * </p>
+     */
     @Indexed
     private LocalDateTime createdAt; // Allow sorting by createdAt for better order
 
@@ -54,5 +100,4 @@ public class Question {
         this.complexity = complexity;
         this.createdAt = LocalDateTime.now();
     }
-
 }
