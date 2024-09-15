@@ -35,11 +35,11 @@ import com.example.questionbank.commons.QuestionNotFoundException;
 
 /**
  * Controller for managing {@link Question} resources.
- * <p>
+ *
  * This REST controller provides endpoints for creating, reading, updating, and deleting questions.
  * It uses {@link QuestionRepository} to interact with the underlying data store and {@link QuestionModelAssembler}
  * to convert {@link Question} entities to HATEOAS-compliant {@link EntityModel} and {@link CollectionModel}.
- * </p>
+ *
  */
 @RestController
 public class QuestionController {
@@ -63,9 +63,8 @@ public class QuestionController {
 
     /**
      * Retrieves all questions.
-     * <p>
+     *
      * This endpoint returns a collection of all questions in the repository, each wrapped in an {@link EntityModel}.
-     * </p>
      *
      * @return a {@link CollectionModel} containing {@link EntityModel}s of all questions
      */
@@ -83,9 +82,9 @@ public class QuestionController {
 
     /**
      * Creates a new question.
-     * <p>
-     * This endpoint saves a new question to the repository and returns the created question wrapped in an {@link EntityModel}.
-     * </p>
+     *
+     * This endpoint saves a new question to the repository and returns the created question wrapped in
+     * an {@link EntityModel}.
      *
      * @param newQuestion the {@link Question} to be created
      * @return a {@link ResponseEntity} containing the created {@link EntityModel} of the question
@@ -103,10 +102,10 @@ public class QuestionController {
 
     /**
      * Retrieves a specific question by its ID.
-     * <p>
+     *
      * This endpoint returns the question with the specified ID wrapped in an {@link EntityModel}.
      * If the question is not found, a {@link QuestionNotFoundException} is thrown.
-     * </p>
+     *
      *
      * @param id the ID of the question to be retrieved
      * @return an {@link EntityModel} containing the requested question
@@ -126,10 +125,9 @@ public class QuestionController {
 
     /**
      * Replaces an existing question with a new question.
-     * <p>
+     *
      * This endpoint updates the question with the specified ID using the provided {@link Question} data.
      * If the question does not exist, the new question is created.
-     * </p>
      *
      * @param newQuestion the {@link Question} data to replace the existing question
      * @param id          the ID of the question to be replaced
@@ -160,9 +158,8 @@ public class QuestionController {
 
     /**
      * Deletes a specific question by its ID.
-     * <p>
+     *
      * This endpoint removes the question with the specified ID from the repository.
-     * </p>
      *
      * @param id the ID of the question to be deleted
      * @return a {@link ResponseEntity} with no content
