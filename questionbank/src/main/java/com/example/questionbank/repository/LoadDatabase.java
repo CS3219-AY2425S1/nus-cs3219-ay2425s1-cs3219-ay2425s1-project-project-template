@@ -7,14 +7,20 @@
  */
 package com.example.questionbank.repository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.example.questionbank.model.Question;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Configuration class for preloading the database with sample {@link Question} data.
@@ -34,34 +40,23 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(QuestionRepository repository) {
         return args -> {
             if (repository.count() == 0) {
-                log.info("Preloading " + repository.save(new Question("Reverse a String",
-                        "Write a function that reverses a string. "
-                                + "The input string is given as an array of characters s. \n"
-                                + "\n"
-                                + "You must do this by modifying the input array in-place with O(1) extra memory. \n"
-                                + "\n"
-                                + "Example 1:\n"
-                                + "\n"
-                                + "Input: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\n"
-                                + "Output: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n"
-                                + "\n"
-                                + "Example 2:\n"
-                                + "Input: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\n"
-                                + "Output: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n"
-                                + "\n"
-                                + "Constraints:\n"
-                                + "\n"
-                                + "1 <= s.length <= 105\n"
-                                + "s[i] is a printable ascii character.\n",
-                        Arrays.asList("Strings", "Algorithms"),
-                        "Easy")));
-                log.info("Preloading " + repository.save(new Question("Linked List Cycle Detection",
-                        "Implement a function to detect if a linked list contains a cycle.",
-                        Arrays.asList("Data Structures", "Algorithms"),
-                        "Easy")));
+                Resource resource = new ClassPathResource("initialQuestions.json");
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                try {
+                    List<Question> questions = objectMapper.readValue(resource.getInputStream(),
+                            new TypeReference<List<Question>>(){});
+                    for (Question question : questions) {
+                        log.info("Preloading " + repository.save(question));
+                    }
+                } catch (IOException e) {
+                    log.error("Failed to load initial data", e);
+                }
             } else {
                 log.info("Database already initialized, skipping preloading.");
             }
         };
     }
 }
+
+
