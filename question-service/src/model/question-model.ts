@@ -42,4 +42,9 @@ questionSchema.pre("save", async function (next) {
   next();
 });
 
+// Add this option to remove __v automatically
+questionSchema.set("toJSON", {
+  versionKey: false, // This removes the __v field
+});
+
 export default mongoose.model<QuestionDocument>("Question", questionSchema);
