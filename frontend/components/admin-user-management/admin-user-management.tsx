@@ -21,7 +21,7 @@ const fetcher = (url: string) => {
 
   return fetch(url, {
     headers: {
-      Authorization: `Bearer jioawjd`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   }).then((res) => {
@@ -48,11 +48,23 @@ export default function AdminUserManagement() {
       skillLevel: string;
     }[]
   >([]);
+  const [unauthorised, setUnauthorised] = useState<Boolean>(false);
+
   useEffect(() => {
     if (data) {
       setUsers(data.data);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (error && error.message === "401") {
+      setUnauthorised(true);
+    }
+  }, [error]);
+
+  if (unauthorised) {
+    return <UnauthorisedAccess />;
+  }
 
   return (
     <div className="container mx-auto p-4">
