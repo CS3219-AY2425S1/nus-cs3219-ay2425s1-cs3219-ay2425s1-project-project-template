@@ -1,5 +1,5 @@
 import app from './server';
-import { logger } from './utils';
+import { logger } from './lib/utils';
 
 const port = process.env.PORT || 8001;
 
