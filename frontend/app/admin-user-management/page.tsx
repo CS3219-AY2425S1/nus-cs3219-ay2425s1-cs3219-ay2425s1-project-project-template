@@ -1,7 +1,7 @@
-import AdminUserManagement from "@/components/admin-user-management";
+import AdminUserManagement from "@/components/admin-user-management/admin-user-management";
 
 function AdminUserManagementPage() {
-    return <AdminUserManagement />;
+  return <AdminUserManagement />;
 }
 
 export default AdminUserManagementPage;

@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import UnauthorisedAccess from "../unauthorised-access";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -20,16 +21,14 @@ const fetcher = (url: string) => {
 
   return fetch(url, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer jioawjd`,
       "Content-Type": "application/json",
     },
   }).then((res) => {
-    // TODO: Redirect to home page if user is not admin or error occurs
-    if (res.status == 401) {
-      throw new Error("You are not authorized to view this page.");
-    }
     if (!res.ok) {
-      throw new Error("An error occurred while fetching the data.");
+      if (res.status === 401) {
+        throw new Error(String(res.status));
+      }
     }
     return res.json();
   });
