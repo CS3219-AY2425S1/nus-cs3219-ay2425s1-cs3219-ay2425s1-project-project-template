@@ -1,10 +1,26 @@
 import express from "express";
-import { User } from "../models/User";
+import { signIn, signUp } from "../services/userService";
 
 const router = express.Router();
 
-// Create a new question
+router.post("/signup", async (req, res) => {
+  try {
+    const body = req.body;
+    const token = await signUp(body.username, body.email, body.password);
+    res.status(201).json({ token: token });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
-// Add more routes as needed (e.g., get by ID, update, delete)
+router.post("/signin", async (req, res) => {
+  try {
+    const body = req.body;
+    const token = await signIn(body.username, body.password);
+    res.status(200).json({ token: token });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 export default router;
