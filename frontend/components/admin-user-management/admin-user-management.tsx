@@ -49,7 +49,8 @@ export default function AdminUserManagement() {
       skillLevel: string;
     }[]
   >([]);
-  const [unauthorised, setUnauthorised] = useState<Boolean>(false);
+  const [unauthorised, setUnauthorised] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   useEffect(() => {
     if (data) {
@@ -58,6 +59,10 @@ export default function AdminUserManagement() {
   }, [data]);
 
   useEffect(() => {
+    if (error && error.message === "No authentication token found") {
+      setUnauthorised(true);
+      setIsLoggedIn(false);
+    }
     if (error && error.message === "401") {
       setUnauthorised(true);
     }
@@ -68,7 +73,7 @@ export default function AdminUserManagement() {
   }
 
   if (unauthorised) {
-    return <UnauthorisedAccess />;
+    return <UnauthorisedAccess isLoggedIn={isLoggedIn} />;
   }
 
   return (

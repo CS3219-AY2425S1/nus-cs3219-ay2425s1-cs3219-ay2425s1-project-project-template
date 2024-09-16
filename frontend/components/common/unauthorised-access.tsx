@@ -1,6 +1,12 @@
 import { Button } from "../ui/button";
 
-export default function UnauthorisedAccess() {
+interface UnauthorisedAccessProps {
+  isLoggedIn: boolean;
+}
+
+export default function UnauthorisedAccess({
+  isLoggedIn,
+}: UnauthorisedAccessProps) {
   return (
     <div className="flex items-start justify-center h-2/6">
       <div className="text-center mt-[20vh]">
@@ -10,7 +16,9 @@ export default function UnauthorisedAccess() {
         <Button
           size="lg"
           onClick={() => {
-            window.location.href = "/";
+            isLoggedIn
+              ? (window.location.href = "/") // TODO: Change redirect later based on user login
+              : (window.location.href = "/");
           }}
         >
           Return Home
