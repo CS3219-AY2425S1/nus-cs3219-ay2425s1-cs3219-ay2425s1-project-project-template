@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { darkModeState } from '@/lib/state';
 
 export const Root = observer(() => {
-  const { isDark: _isDark, toggle: _toggle } = darkModeState;
+  const { toggle } = darkModeState;
   return (
     <div id='main' className='bg-background relative flex min-h-screen flex-col'>
       {/* Nav Bar */}
@@ -15,7 +15,7 @@ export const Root = observer(() => {
         {/* Main Nav */}
         <div className='mr-4 hidden md:flex'>
           {/* Logo */}
-          <Button variant='link' className='font-mono' onClick={_toggle}>
+          <Button variant='link' className='font-mono' onClick={toggle}>
             PeerPrep
           </Button>
           <nav className='flex items-center gap-4 text-sm lg:gap-6'>
