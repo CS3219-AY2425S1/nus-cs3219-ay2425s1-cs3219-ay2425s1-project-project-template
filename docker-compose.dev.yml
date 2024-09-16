@@ -10,6 +10,8 @@ services:
       - /app/node_modules
     environment:
       - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+      - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
       - JWT_SECRET=${JWT_SECRET}
     ports:
       - "5003:5003"

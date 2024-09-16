@@ -26,7 +26,7 @@ mongoose
 app.use(express.json());
 
 // Routes
-app.use("/api", userRoutes);
+app.use("/auth", userRoutes);
 
 // Basic route for testing
 app.get("/", (req, res) => {
