@@ -23,8 +23,8 @@ const questionSchema = new Schema({
     },
     complexity: {
         type: String,
-        enum: ["easy", "medium", "hard"],
-        default: "easy",
+        enum: ["Easy", "Medium", "Hard"],
+        default: "Easy",
         required: true
     }
 })
