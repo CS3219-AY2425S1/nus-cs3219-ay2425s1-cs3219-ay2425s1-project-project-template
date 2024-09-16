@@ -26,6 +26,10 @@
         ],
         "*.{json,js,ts,jsx,tsx,html}": [
             "prettier --write --ignore-unknown"
+        ],
+        "ignore": [
+            "**/node_modules/**",
+            "**/dist/**"
         ]
     }
 }
