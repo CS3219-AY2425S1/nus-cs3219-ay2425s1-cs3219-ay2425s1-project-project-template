@@ -1,21 +1,21 @@
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
-import { observable } from 'mobx';
+import { observer } from 'mobx-react';
 
 import '@/styles/globals.css';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { darkModeState } from '@/lib/state';
 
-export const Root = observable(() => {
+export const Root = observer(() => {
   const { isDark: _isDark, toggle: _toggle } = darkModeState;
   return (
-    <div className='bg-background relative flex min-h-screen flex-col'>
+    <div id='main' className='bg-background relative flex min-h-screen flex-col'>
       {/* Nav Bar */}
       <header className='border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full backdrop-blur'>
         {/* Main Nav */}
         <div className='mr-4 hidden md:flex'>
           {/* Logo */}
-          <Button variant='link' className='font-mono'>
+          <Button variant='link' className='font-mono' onClick={_toggle}>
             PeerPrep
           </Button>
           <nav className='flex items-center gap-4 text-sm lg:gap-6'>

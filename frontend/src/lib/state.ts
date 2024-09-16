@@ -8,7 +8,13 @@ class DarkModeState {
   }
 
   toggle() {
-    this.isDark = !this.isDark;
+    this.isDark = !this?.isDark;
+    const { documentElement } = document;
+    if (this.isDark) {
+      documentElement.classList.add('dark');
+    } else {
+      documentElement.classList.remove('dark');
+    }
   }
 }
 
