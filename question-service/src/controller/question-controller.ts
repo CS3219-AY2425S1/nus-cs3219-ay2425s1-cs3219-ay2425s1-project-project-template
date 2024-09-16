@@ -37,6 +37,11 @@ export const questionController = {
       const { question_id, title, description, category, complexity } =
         req.query;
 
+      // Set default values for pagination
+      const page = parseInt(req.query.page as string) || 1; // default to page 1
+      const limit = parseInt(req.query.limit as string) || 10; // default to 10 items per page
+      const skip = (page - 1) * limit;
+
       // Construct the filter object dynamically based on provided query params
       const filter: any = {};
 
@@ -58,8 +63,19 @@ export const questionController = {
         filter.complexity = complexity;
       }
 
-      const questions = await Question.find(filter);
-      res.status(200).json({ questions });
+      // Fetch the filtered and paginated results
+      const questions = await Question.find(filter).skip(skip).limit(limit);
+
+      // Count total number of documents matching the filter
+      const totalQuestions = await Question.countDocuments(filter);
+      res
+        .status(200)
+        .json({
+          questions,
+          totalQuestions,
+          currentPage: page,
+          totalPages: Math.ceil(totalQuestions / limit),
+        });
     } catch (err) {
       res.status(500).json({ message: "Failed to get questions", error: err });
     }
