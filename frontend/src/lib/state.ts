@@ -12,4 +12,12 @@ class DarkModeState {
   }
 }
 
-export const darkModeObservable = new DarkModeState();
+let darkModeObservable: DarkModeState;
+const populateSingleton = () => {
+  if (!darkModeObservable) {
+    darkModeObservable = new DarkModeState();
+  }
+  return darkModeObservable;
+};
+
+export const darkModeState = populateSingleton();

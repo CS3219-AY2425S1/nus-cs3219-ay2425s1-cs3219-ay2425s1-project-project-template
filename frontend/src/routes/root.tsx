@@ -4,10 +4,10 @@ import { observable } from 'mobx';
 import '@/styles/globals.css';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { darkModeObservable } from '@/lib/state';
+import { darkModeState } from '@/lib/state';
 
 export const Root = observable(() => {
-  const { isDark: _isDark, toggle: _toggle } = darkModeObservable;
+  const { isDark: _isDark, toggle: _toggle } = darkModeState;
   return (
     <div className='bg-background relative flex min-h-screen flex-col'>
       {/* Nav Bar */}
