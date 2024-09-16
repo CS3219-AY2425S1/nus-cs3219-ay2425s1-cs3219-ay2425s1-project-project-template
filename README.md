@@ -15,3 +15,30 @@ Members of CS3219 Project Group 39:
 - Jason Qiu
 
 ## Getting Started
+
+1. Clone this repository.
+
+```bash
+git clone https://github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g39.git
+cd cs3219-ay2425s1-project-g39
+```
+
+2. Install the required dependencies.
+
+```bash
+npm run install-all
+```
+
+> [!NOTE]
+> The above command installs the dependencies for all of the services. No need to do it individually!
+
+<!-- TODO: Replace with instructions to run on Docker -->
+
+3. Run the frontend.
+
+```bash
+cd frontend
+npm run dev
+```
+
+Congratulations! You have successfully set up PeerPrep. :tada:
