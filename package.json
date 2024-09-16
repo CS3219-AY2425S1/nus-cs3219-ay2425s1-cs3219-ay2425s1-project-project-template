@@ -8,7 +8,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "**/*.ts": [
+    "**/*.{ts,tsx}": [
       "prettier --config .prettierrc --write",
       "eslint --config .eslintrc.json --fix"
     ]

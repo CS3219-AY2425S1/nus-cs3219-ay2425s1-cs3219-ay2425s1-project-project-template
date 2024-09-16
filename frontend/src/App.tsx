@@ -9,9 +9,9 @@ function App() {
   const [_count, _setCount] = useState(0);
 
   return (
-    <div className='relative flex min-h-screen flex-col bg-background'>
+    <div className='bg-background relative flex min-h-screen flex-col'>
       {/* Nav Bar */}
-      <header className='sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+      <header className='border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full backdrop-blur'>
         {/* Main Nav */}
         <div className='mr-4 hidden md:flex'>
           {/* Logo */}
@@ -46,9 +46,7 @@ function App() {
         </div>
       </header>
       {/* Body */}
-      <div className="container relative">
-
-      </div>
+      <div className='container relative' />
     </div>
   );
 }
