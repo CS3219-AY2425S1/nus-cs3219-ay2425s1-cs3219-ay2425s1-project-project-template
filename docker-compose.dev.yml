@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  user-service:
+    build:
+      context: ./users_service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./users_service:/app
+      - /app/node_modules # This prevents the host's node_modules from overwriting the container's
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "5001:5001"
+  question-service:
+    build:
+      context: ./question_service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./question_service:/app
+      - /app/node_modules # This prevents the host's node_modules from overwriting the container's
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
+    ports:
+      - "5002:5002"
