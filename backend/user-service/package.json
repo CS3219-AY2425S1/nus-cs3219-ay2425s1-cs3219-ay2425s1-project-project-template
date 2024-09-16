@@ -7,7 +7,7 @@
         "test": "jest",
         "start": "npm run build && node dist/server.js",
         "dev": "nodemon src/server.ts",
-        "prepare": "husky",
+        "prepare": "cd ../.. && husky backend/user-service/.husky",
         "lint": "lint-staged"
     },
     "author": "",

@@ -1,2 +1,3 @@
+cd ./backend/user-service
 npm run lint
 npm run test
