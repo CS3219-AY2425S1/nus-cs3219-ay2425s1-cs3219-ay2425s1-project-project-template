@@ -1,13 +1,13 @@
-import { useState } from 'react';
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
+import { observable } from 'mobx';
 
 import '@/styles/globals.css';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { darkModeObservable } from '@/lib/state';
 
-export const Root = () => {
-  const [_count, _setCount] = useState(0);
-
+export const Root = observable(() => {
+  const { isDark: _isDark, toggle: _toggle } = darkModeObservable;
   return (
     <div className='bg-background relative flex min-h-screen flex-col'>
       {/* Nav Bar */}
@@ -49,4 +49,4 @@ export const Root = () => {
       <div className='container relative' />
     </div>
   );
-};
+});
