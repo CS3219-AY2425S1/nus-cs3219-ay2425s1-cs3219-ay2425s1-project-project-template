@@ -1,6 +1,6 @@
 .git
-.github
 .vscode
+.husky
 
 /node_modules
 **/node_modules
