@@ -3,9 +3,8 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="h-screen flex relative py-10">
-      <div className="max-w-7xl mx-auto">
-        <header className="justify-left px-10">
+      <div className="h-screen flex flex-col max-w-6xl mx-auto py-10 ">
+        <header className="mx-5">
           <Image
           className="dark:invert"
             src="/icons/logo-full.png"
@@ -15,8 +14,8 @@ export default function Home() {
           />
         </header>
         
-        <main className="h-screen flex px-10 space-x-20 items-center">
-          <div className="v-screen">
+        <main className="relative mx-5 flex space-x-20 items-center flex-1">
+          <div>
             <h1 className="text-6xl font-hairline leading-snug font-albert">Real Time Collaboration</h1>
             <p className="text-2xl font-hairline font-albert">easier than ever</p>
             <Link href="/login">
@@ -35,9 +34,7 @@ export default function Home() {
             height={512}
             priority
           />
-
         </main>
       </div>  
-    </div>
   );
 }
