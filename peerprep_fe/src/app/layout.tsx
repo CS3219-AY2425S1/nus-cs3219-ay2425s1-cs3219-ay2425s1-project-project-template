@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { Albert_Sans } from 'next/font/google';
 import "@/styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
+const albert_sans = Albert_Sans({
+  subsets: ['latin'],
+  variable: '--font-albert-sans',
 });
 
 export const metadata: Metadata = {
