@@ -1,0 +1,10 @@
+{
+  "name": "cs3219-ay2425s1-project-g31",
+  "version": "0.1.0",
+  "description": "CS3219 Project (PeerPrep) - AY2425S1 Group: G31",
+  "license": "MIT",
+  "workspaces": [
+    "frontend",
+    "backend/*"
+  ]
+}
