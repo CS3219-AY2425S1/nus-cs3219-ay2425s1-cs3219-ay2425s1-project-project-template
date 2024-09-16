@@ -1,34 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState } from 'react';
+import { HamburgerMenuIcon } from '@radix-ui/react-icons';
+
+import '@/styles/globals.css';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [_count, _setCount] = useState(0);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className='relative flex min-h-screen flex-col bg-background'>
+      {/* Nav Bar */}
+      <header className='sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+        {/* Main Nav */}
+        <div className='mr-4 hidden md:flex'>
+          {/* Logo */}
+          <Button variant='link' className='font-mono'>
+            PeerPrep
+          </Button>
+          <nav className='flex items-center gap-4 text-sm lg:gap-6'>
+            <a
+              href='/link'
+              className={cn(
+                'transition-colors hover:text-foreground/80'
+                // pathname === "/link" ? "text-foreground" : "text-foreground/60"
+              )}
+            >
+              link
+            </a>
+          </nav>
+        </div>
+        {/* Mobile Nav */}
+        <Button
+          variant='ghost'
+          className='mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden'
+        >
+          <HamburgerMenuIcon />
+        </Button>
+        {/* Right Group */}
+        <div className='container flex h-14 max-w-screen-2xl items-center'>
+          <div className='flex flex-1 items-center justify-between space-x-2 md:justify-end'>
+            <div className='w-full flex-1 md:w-auto md:flex-none'>{/* Command Bar */}</div>
+            <nav className='flex items-center'>{/* Links (Right) */}</nav>
+          </div>
+        </div>
+      </header>
+      {/* Body */}
+      <div className="container relative">
+
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
