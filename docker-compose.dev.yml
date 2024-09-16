@@ -1,6 +1,19 @@
 version: "3"
 
 services:
+  gateway-service:
+    build:
+      context: ./gateway_service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./gateway_service:/app
+      - /app/node_modules
+    environment:
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "5003:5003"
+
   user-service:
     build:
       context: ./users_service

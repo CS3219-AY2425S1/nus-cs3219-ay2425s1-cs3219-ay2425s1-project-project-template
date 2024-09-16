@@ -1,6 +1,14 @@
 version: "3"
 
 services:
+  gateway_service:
+    build:
+      context: ./gateway_service
+    environment:
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
   user-service:
     build:
       context: ./users_service
