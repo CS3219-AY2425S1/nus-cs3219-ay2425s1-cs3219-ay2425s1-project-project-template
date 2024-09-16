@@ -11,8 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import UnauthorisedAccess from "../common/unauthorised-access";
-import LoadingScreen from "../common/loading-screen";
+import UnauthorisedAccess from "@/components/common/unauthorised-access";
+import LoadingScreen from "@/components/common/loading-screen";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
