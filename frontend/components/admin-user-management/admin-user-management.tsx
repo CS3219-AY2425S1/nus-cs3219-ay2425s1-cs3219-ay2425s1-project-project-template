@@ -76,6 +76,32 @@ export default function AdminUserManagement() {
     return <UnauthorisedAccess isLoggedIn={isLoggedIn} />;
   }
 
+  const handleDelete = async (userId: string) => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+
+      setUsers(users.filter(user => user.id !== userId))
+
+      console.log("User deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
@@ -100,7 +126,7 @@ export default function AdminUserManagement() {
                 <Button variant="outline" className="mr-2" onClick={() => {}}>
                   Edit
                 </Button>
-                <Button variant="destructive" onClick={() => {}}>
+                <Button variant="destructive" onClick={() => handleDelete(user.id)}>
                   Delete
                 </Button>
               </TableCell>
