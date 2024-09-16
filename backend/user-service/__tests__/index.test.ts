@@ -5,7 +5,6 @@ import app from '../src/index'
 describe('GET /', () => {
     it('should return 200 OK', async () => {
         const response = await request(app).get('/')
-        console.log(response)
         expect(response.status).toBe(200)
     })
 })

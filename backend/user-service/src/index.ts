@@ -27,7 +27,7 @@ app.use((request: Request, response: Response, next: NextFunction) => {
     next()
 })
 
-app.get('/', (response: Response) => {
+app.get('/', (_: Request, response: Response) => {
     response
         .json({
             message: 'Hello World!',
