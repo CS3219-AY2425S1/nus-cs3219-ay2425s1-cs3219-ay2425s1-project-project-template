@@ -21,7 +21,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const tokenKey = "jwtToken";
     const [user, setUser] = useState<UserAuthType | null>(null);
-    const [token, setToken] = useState<string | null>(localStorage.getItem(tokenKey));
+    const [token, setToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        setToken(localStorage.getItem(tokenKey));
+    }, []);
 
     // Login using locally stored JWT token
     useEffect(() => {
@@ -39,7 +43,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 console.error(err);
             })
         }
-    }, []);
+    }, [token]);
 
     // Login using email and password
     const login = async (email: string, password: string) => {
