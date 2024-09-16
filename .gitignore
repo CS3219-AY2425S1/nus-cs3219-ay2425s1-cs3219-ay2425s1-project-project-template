@@ -1,5 +1,11 @@
 .git
-.github
 .vscode
 
 /node_modules
+**/node_modules
+
+**/.env
+**/.env.*
+
+**/dist
+**/coverage
