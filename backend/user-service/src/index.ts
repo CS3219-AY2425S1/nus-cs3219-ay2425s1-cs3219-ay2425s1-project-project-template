@@ -1,7 +1,7 @@
 import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
-import { ResponseError } from './types/ResponseError'
+import { logger } from './server'
 
 const app: Express = express()
 
@@ -27,28 +27,20 @@ app.use((request: Request, response: Response, next: NextFunction) => {
     next()
 })
 
+// Health Check Route
 app.get('/', (_: Request, response: Response) => {
-    response
-        .json({
-            message: 'Hello World!',
-        })
-        .status(200)
+    response.status(200)
 })
 
-// Handle When No Route Match Is Found
-app.use((next: NextFunction) => {
-    const error: ResponseError = new Error()
-    error.status = 404
-    next(error)
+//  Not Found Route
+app.use((response: Response) => {
+    response.status(404)
 })
 
-app.use((error: ResponseError, _: Request, response: Response) => {
-    response.status(error.status ?? 500)
-    response.json({
-        error: {
-            message: error.message,
-        },
-    })
+// Default Error Handler
+app.use((error: Error, request: Request, response: Response) => {
+    logger.error(`[Controller] [${request.method}  ${request.baseUrl + request.path}] ${error.message}`)
+    response.status(500)
 })
 
 export default app
