@@ -8,14 +8,15 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "**/*.ts": [
+    "**/*.{ts,tsx}": [
       "prettier --config .prettierrc --write",
       "eslint --config .eslintrc.json --fix"
     ]
   },
   "workspaces": [
     "backend/*",
-    "frontend"
+    "frontend",
+    "frontend/*"
   ],
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.5.0",
