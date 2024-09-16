@@ -14,7 +14,20 @@ export const questionController = {
   createQuestion: async (req: Request, res: Response) => {
     const { title, description, category, complexity } = req.body;
 
+    // Check if all fields are provided
+    if (!title || !description || !category || !complexity) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
     try {
+      // Check for duplicates based on the question title
+      const existingQuestion = await Question.findOne({ title });
+      if (existingQuestion) {
+        return res
+          .status(400)
+          .json({ error: "A question with this title already exists." });
+      }
+
       const question = new Question({
         title,
         description,
@@ -68,14 +81,12 @@ export const questionController = {
 
       // Count total number of documents matching the filter
       const totalQuestions = await Question.countDocuments(filter);
-      res
-        .status(200)
-        .json({
-          questions,
-          totalQuestions,
-          currentPage: page,
-          totalPages: Math.ceil(totalQuestions / limit),
-        });
+      res.status(200).json({
+        questions,
+        totalQuestions,
+        currentPage: page,
+        totalPages: Math.ceil(totalQuestions / limit),
+      });
     } catch (err) {
       res.status(500).json({ message: "Failed to get questions", error: err });
     }
@@ -100,6 +111,11 @@ export const questionController = {
   updateQuestion: async (req: Request, res: Response) => {
     const { id } = req.params;
     const { title, description, category, complexity } = req.body;
+
+    // Check if all fields are provided
+    if (!title || !description || !category || !complexity) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
     try {
       const updatedQuestion = await Question.findOneAndUpdate(
