@@ -11,7 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import UnauthorisedAccess from "../unauthorised-access";
+import UnauthorisedAccess from "../common/unauthorised-access";
+import LoadingScreen from "../common/loading-screen";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -61,6 +62,10 @@ export default function AdminUserManagement() {
       setUnauthorised(true);
     }
   }, [error]);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   if (unauthorised) {
     return <UnauthorisedAccess />;
