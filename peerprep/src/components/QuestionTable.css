@@ -1,0 +1,50 @@
+/* src/components/QuestionTable.css */
+
+.table-container {
+    margin-top: 20px;
+    /* Space from the top of the container */
+}
+
+.table-custom {
+    background-color: #ffe6f2;
+    /* Light pink background */
+    width: 80%;
+    /* Adjust the table width as needed */
+    margin: 0 auto;
+    /* Center the table */
+    border-collapse: collapse;
+}
+
+.table-custom th,
+.table-custom td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.table-custom th {
+    background-color: #ffb3d9;
+    /* Slightly darker pink for the header */
+    color: white;
+}
+
+/* Add styles for buttons */
+.table-custom button {
+    background-color: #ffb3d9;
+    /* Button color */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin: 0 4px;
+    /* Space between buttons */
+    border-radius: 12px;
+    /* Curved corners */
+    cursor: pointer;
+    font-family: 'Figtree', sans-serif;
+    /* Use Figtree font */
+}
+
+.table-custom button:hover {
+    background-color: #ff80bf;
+    /* Darker shade on hover */
+}

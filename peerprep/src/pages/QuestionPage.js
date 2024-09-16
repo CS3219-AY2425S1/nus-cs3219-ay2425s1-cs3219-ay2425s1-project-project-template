@@ -27,7 +27,7 @@ const QuestionPage = () => {
 
   return (
     <div>
-      <h1>Questions Page</h1>
+      <h1></h1>
       <QuestionTable questions={questions} />
     </div>
   );

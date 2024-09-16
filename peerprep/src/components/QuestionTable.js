@@ -1,41 +1,32 @@
 // src/components/QuestionTable.js
-
 import React from "react";
+import "./QuestionTable.css"; // Import the CSS file
 
 const QuestionTable = ({ questions }) => {
   return (
     <div>
-      <h1>Question Table</h1>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <h1></h1>
+      <table className="table-custom">
+        {" "}
+        {/* Apply custom table class */}
         <thead>
           <tr>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Title</th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>
-              Category
-            </th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>
-              Complexity
-            </th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>
-              Actions
-            </th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Complexity</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {questions.map((question) => (
             <tr key={question.id}>
-              <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                {question.title}
-              </td>
-              <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                {question.category}
-              </td>
-              <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                {question.complexity}
-              </td>
-              <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+              <td>{question.title}</td>
+              <td>{question.category}</td>
+              <td>{question.complexity}</td>
+              <td>
                 <button>Edit</button>
                 <button>View</button>
+                <button>Delete</button>
               </td>
             </tr>
           ))}
