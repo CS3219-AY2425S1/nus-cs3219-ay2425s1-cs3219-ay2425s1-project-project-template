@@ -2,6 +2,10 @@ import { Channel } from "amqplib";
 import QueueMessage from "../models/QueueMessage";
 import MatchRequest from "../models/MatchRequest";
 
+/** 
+ * Class repesenting a Consumer that consumes incoming messages from queues that will contain messages 
+ * regarding Matchmaking requests partitioned based on (topic, difficulty) 
+ * */
 class Consumer {
     constructor() {
 

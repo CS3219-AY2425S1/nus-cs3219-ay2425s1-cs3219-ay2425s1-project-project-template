@@ -5,6 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 var responseQueue: string = "responseQueue";
 
+/** 
+ * Class representing a Producer that will push matchmaking requests into a header exchange.
+ * */
 class Producer {
     constructor() {
 

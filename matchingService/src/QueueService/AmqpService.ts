@@ -16,6 +16,9 @@ const testMessages: MatchRequest[] = [
     new MatchRequest("the builder", "dp", "medium"),
 ];
 
+/**
+ * Class representing a Service that initiates groups of Consumers.
+ */
 class AmqpService {
     private categoryExchange: string;
     private responseExchange: string;
