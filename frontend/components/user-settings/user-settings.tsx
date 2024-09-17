@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import useSWR from "swr";
 import { useToast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,7 @@ const fetcher = (url: string) => {
 export default function UserSettings({ userId }: { userId: string }) {
   const auth = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
     `http://localhost:3001/users/${userId}`,
@@ -123,6 +124,9 @@ export default function UserSettings({ userId }: { userId: string }) {
   // Function to delete the current profile picture, defaulting to a default placeholder image
   const handleDeleteProfilePicture = () => {
     setProfilePicture("/img/placeholder.svg?height=100&width=100");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   // Function to save any updates to the user's information
@@ -232,6 +236,7 @@ export default function UserSettings({ userId }: { userId: string }) {
                     accept="image/*"
                     onChange={handleProfilePictureChange}
                     className="mb-2"
+                    ref={fileInputRef}
                   />
                   <Button
                     variant="outline"
