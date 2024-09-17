@@ -1,19 +1,21 @@
 import express, { Request, Response } from 'express';
 import morgan from 'morgan';
+import dotenv from 'dotenv';
+import router from '../routes/userRoutes';
+import connectDB from '../config/db';
+
+dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Middleware for parsing JSON
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan('combined'));
+app.use(router);
 
-// Simple GET route
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, TypeScript with Express!');
-});
+connectDB();
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
