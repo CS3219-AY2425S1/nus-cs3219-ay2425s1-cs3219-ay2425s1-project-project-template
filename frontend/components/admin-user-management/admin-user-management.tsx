@@ -94,7 +94,7 @@ export default function AdminUserManagement() {
         throw new Error("Failed to delete user");
       }
 
-      setUsers(users.filter(user => user.id !== userId))
+      setUsers(users.filter(user => user.id !== userId));
 
       console.log("User deleted successfully!");
     } catch (error) {
