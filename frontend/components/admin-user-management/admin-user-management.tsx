@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table";
 import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
-import { Navbar } from "../navbar";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -79,7 +78,6 @@ export default function AdminUserManagement() {
 
   return (
     <div className="container mx-auto p-4">
-      <Navbar />
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
       <Table>
         <TableHeader>

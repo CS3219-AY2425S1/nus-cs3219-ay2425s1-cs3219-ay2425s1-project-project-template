@@ -30,7 +30,6 @@ import DeleteAccountModal from "@/components/user-settings/delete-account-modal"
 import LoadingScreen from "../common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
-import { Navbar } from "../navbar";
 
 interface User {
   username: string;
@@ -273,7 +272,6 @@ export default function UserSettings({ userId }: { userId: string }) {
 
   return (
     <div className="container mx-auto p-4">
-      <Navbar />
       <h1 className="text-2xl font-bold mb-4">
         User Settings for {originalUsername}
       </h1>
