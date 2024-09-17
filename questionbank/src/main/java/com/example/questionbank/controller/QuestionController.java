@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.example.questionbank.repository.QuestionRepository;
 import com.example.questionbank.model.QuestionModelAssembler;
 
+import com.example.questionbank.service.QuestionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +48,9 @@ public class QuestionController {
     );
 
     /**
-     * Repository for retrieving question data.
+     * Service with business logic bridging repository and controller.
      */
-    private QuestionRepository repository;
+    private QuestionService service;
 
     /**
      * Assembler for converting {@link Question} entities to
@@ -59,17 +60,17 @@ public class QuestionController {
 
     /**
      * Constructs a {@code QuestionController} with the specified
-     * repository and assembler.
+     * service and assembler.
      *
-     * @param repository the {@link QuestionRepository}
+     * @param service the {@link QuestionService}
      *                           used to access questions
      * @param assembler  the {@link QuestionModelAssembler}
      *                           used to convert
      * {@link Question} entities
      */
-    QuestionController(QuestionRepository repository,
+    QuestionController(QuestionService service,
                        QuestionModelAssembler assembler) {
-        this.repository = repository;
+        this.service = service;
         this.assembler = assembler;
     }
 
@@ -87,7 +88,7 @@ public class QuestionController {
     public CollectionModel<EntityModel<Question>> all() {
         LOGGER.info("Fetching all questions");
 
-        List<EntityModel<Question>> questions = repository.findAll()
+        List<EntityModel<Question>> questions = service.getAllQuestions()
                 .stream() //
                 .map(assembler::toModel) //
                 .collect(Collectors.toList());
@@ -115,7 +116,7 @@ public class QuestionController {
         );
 
         EntityModel<Question> entityModel = assembler.toModel(
-                repository.save(newQuestion)
+                service.createQuestion(newQuestion)
         );
 
         return ResponseEntity
@@ -139,11 +140,7 @@ public class QuestionController {
     public EntityModel<Question> one(@PathVariable String id) {
         LOGGER.info("Fetching question with ID: {}", id);
 
-        Question question = repository.findById(id) //
-                .orElseThrow(() -> {
-                    LOGGER.error("Question with ID {} not found", id);
-                    return new QuestionNotFoundException(id);
-                });
+        Question question = service.getQuestionById(id);
 
         return assembler.toModel(question);
     }
@@ -166,20 +163,8 @@ public class QuestionController {
                                       @PathVariable String id) {
         LOGGER.info("Replacing question with ID: {}", id);
 
-        Question updatedQuestion = repository.findById(id) //
-                .map(question -> {
-                    question.setTitle(newQuestion.getTitle());
-                    question.setDescription(newQuestion.getDescription());
-                    question.setCategories(newQuestion.getCategories());
-                    question.setComplexity(newQuestion.getComplexity());
-                    return repository.save(question);
-                }) //
-                .orElseGet(() -> {
-                    return repository.save(newQuestion);
-                });
-
         EntityModel<Question> entityModel = assembler.toModel(
-                updatedQuestion
+                service.updateQuestion(id, newQuestion)
         );
 
         return ResponseEntity
@@ -202,8 +187,8 @@ public class QuestionController {
     ResponseEntity<?> deleteQuestion(@PathVariable String id) {
         LOGGER.info("Deleting question with ID: {}", id);
 
-        repository.deleteById(id);
+        service.deleteQuestion(id);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }
