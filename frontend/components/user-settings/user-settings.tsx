@@ -386,7 +386,7 @@ export default function UserSettings({ userId }: { userId: string }) {
                   <Input
                     id="newPassword"
                     type={showNewPassword ? "text" : "password"}
-                    className={cn("pr-10", !passwordsMatch && "border-red-500")}
+                    className={cn("pr-10", !passwordsMatch && "border-destructive")}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                   />
@@ -411,7 +411,7 @@ export default function UserSettings({ userId }: { userId: string }) {
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
-                    className={cn("pr-10", !passwordsMatch && "border-red-500")}
+                    className={cn("pr-10", !passwordsMatch && "border-destructive")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
@@ -430,12 +430,12 @@ export default function UserSettings({ userId }: { userId: string }) {
                   </Button>
                 </div>
                 {!passwordsMatch && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     Passwords do not match
                   </p>
                 )}
                 {!isPasswordValid && newPassword && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     Password must be at least 8 characters long, include 1
                     uppercase letter and 1 special character.
                   </p>
