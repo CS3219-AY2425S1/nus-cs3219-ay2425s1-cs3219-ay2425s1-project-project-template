@@ -82,24 +82,18 @@ export default function AdminUserManagement() {
       throw new Error("No authentication token found");
     }
 
-    try {
-      const response = await fetch(`http://localhost:3001/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+    const response = await fetch(`http://localhost:3001/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
-
-      setUsers(users.filter(user => user.id !== userId));
-
-      console.log("User deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting user:", error);
+    if (!response.ok) {
+      throw new Error("Failed to delete user");
     }
+
+    setUsers(users.filter(user => user.id !== userId));
   };
 
   return (
