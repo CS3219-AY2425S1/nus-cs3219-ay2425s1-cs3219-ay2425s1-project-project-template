@@ -12,9 +12,6 @@ export interface IConnectionManager {
 export class ConnectionManager {
     private connection: Connection | null = null;
     private channel: Channel | null = null;
-    constructor() {
-
-    }
 
     public async setup(connectionUrl: string): Promise<void> {
         this.connection = await this.connect(connectionUrl);
