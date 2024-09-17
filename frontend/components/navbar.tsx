@@ -1,5 +1,4 @@
 import { useAuth } from "@/app/auth/auth-context";
-
 import { Book, BookUser, LogOut, Settings, User, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -12,9 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ThemeToggle } from "./theme-toggle";
+import { usePathname } from "next/navigation";
 
 export function Navbar() {
   const auth = useAuth();
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
+
   return (
     <nav className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +33,11 @@ export function Navbar() {
               {auth?.user?.isAdmin && (
                 <Link
                   href="/app/admin-user-management"
-                  className="inline-flex items-center px-1 pt-1 border-b-2 $ text-sm font-medium"
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    isActive("/app/admin-user-management")
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
                 >
                   <BookUser className="mr-2 h-4 w-4" />
                   User Management
@@ -37,14 +45,22 @@ export function Navbar() {
               )}
               <Link
                 href="/app/questions"
-                className="inline-flex items-center px-1 pt-1 border-b-2 $ text-sm font-medium"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  isActive("/app/questions")
+                    ? "border-primary"
+                    : "border-transparent"
+                }`}
               >
                 <Book className="mr-2 h-4 w-4" />
                 Questions
               </Link>
               <Link
                 href="/app/matching"
-                className="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  isActive("/app/matching")
+                    ? "border-primary"
+                    : "border-transparent"
+                }`}
               >
                 <Users className="mr-2 h-4 w-4" />
                 Matching
@@ -104,6 +120,17 @@ export function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {auth?.user?.isAdmin && (
+                  <DropdownMenuItem>
+                    <Link
+                      href="/app/admin-user-management"
+                      className="flex items-center"
+                    >
+                      <BookUser className="mr-2 h-4 w-4" />
+                      <span>User Management</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem>
                   <Link href="/app/questions" className="flex items-center">
                     <Book className="mr-2 h-4 w-4" />
