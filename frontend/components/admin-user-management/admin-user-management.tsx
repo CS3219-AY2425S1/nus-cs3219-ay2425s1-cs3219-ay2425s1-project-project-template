@@ -88,7 +88,7 @@ export default function AdminUserManagement() {
     const response = await fetch(`http://localhost:3001/users/${userId}`, {
       method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -96,7 +96,7 @@ export default function AdminUserManagement() {
       throw new Error("Failed to delete user");
     }
 
-    setUsers(users.filter(user => user.id !== userId));
+    setUsers(users.filter((user) => user.id !== userId));
   };
 
   return (
@@ -123,7 +123,10 @@ export default function AdminUserManagement() {
                 <Button variant="outline" className="mr-2" onClick={() => {}}>
                   Edit
                 </Button>
-                <Button variant="destructive" onClick={() => handleDelete(user.id)}>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDelete(user.id)}
+                >
                   Delete
                 </Button>
               </TableCell>
