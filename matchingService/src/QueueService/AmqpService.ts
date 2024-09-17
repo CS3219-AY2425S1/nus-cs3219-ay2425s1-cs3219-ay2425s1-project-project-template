@@ -1,5 +1,4 @@
 import { Channel } from "amqplib";
-import QueueMessage from "../models/QueueMessage";
 import MatchRequest from "../models/MatchRequest";
 import { ConnectionManager, IConnectionManager } from "../config/ConnectionManager";
 import ChannelNotFoundError from "../errors/ChannelNotFoundError";
@@ -78,25 +77,7 @@ class AmqpService {
         var consumer: Consumer = new Consumer();
         for (const topic of TOPIC_LIST) {
             for (const difficulty of DIFFICULTY_LEVELS) {
-                await consumer.receiveMessages(topic, difficulty, this.responseExchange, channel, (msg: QueueMessage | null) => {
-                    let content = msg?.content.toString();
-                    if (content) {
-                        try {
-                            var matchRequest: MatchRequest = JSON.parse(content);
-                            console.log("Consumer received match request: ", matchRequest);
-                            const correlationId: string = msg?.properties.correlationId;
-                            const responseQueue: string = msg?.properties.replyTo;
-                            console.log(channel.publish(this.responseExchange, responseQueue, Buffer.from("Successfully matched"), {
-                                correlationId: correlationId,
-                              }));
-                        } catch (e) {
-                            if (e instanceof Error) {
-                                let name = e.message;
-                                console.log(`Error occured ${name}`);
-                            }
-                        }
-                    }
-                });
+                await consumer.receiveMessages(topic, difficulty, this.responseExchange, channel);
             }
         }
     }
