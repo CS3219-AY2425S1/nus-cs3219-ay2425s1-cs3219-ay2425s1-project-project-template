@@ -3,6 +3,8 @@ import { IUser } from "../interfaces/IUser";
 import { hashPassword, comparePassword } from "../utility/passwordHelper";
 import { generateToken } from "../utility/jwtHelper";
 
+const MAX_LOGIN_ATTEMPTS = 5;
+
 export async function signUp(
   username: string,
   email: string,
@@ -37,6 +39,9 @@ export async function signIn(username: string, password: string) {
         return generateUserJwt(user);
       } else {
         user.login_attempts += 1;
+        if (user.login_attempts >= MAX_LOGIN_ATTEMPTS) {
+          user.is_locked = true;
+        }
         await user.save();
         throw Error("Invalid Password");
       }
