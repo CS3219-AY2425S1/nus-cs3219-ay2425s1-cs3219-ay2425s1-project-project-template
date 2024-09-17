@@ -12,8 +12,6 @@ services:
       - ./user-service:/app
     depends_on:
       - user-service-db
-    networks:
-      - peerprep-network
 
   user-service-db:
     container_name: user-service-db
@@ -28,9 +26,3 @@ services:
       retries: 5
       start_period: 40s
     command: mongod --quiet --logpath /dev/null
-    networks:
-      - peerprep-network
-
-networks:
-  peerprep-network:
-    driver: bridge
