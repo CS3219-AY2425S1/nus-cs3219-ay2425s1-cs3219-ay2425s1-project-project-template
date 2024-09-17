@@ -1,6 +1,6 @@
 import { Channel } from "amqplib";
-import QueueMessage from "./QueueMessage";
-import { ConsumerMessageHeaderReq } from "./MessageHeaders";
+import QueueMessage from "../models/QueueMessage";
+import { ConsumerMessageHeaderReq } from "../models/MessageHeaders";
 
 class Consumer {
     constructor() {
