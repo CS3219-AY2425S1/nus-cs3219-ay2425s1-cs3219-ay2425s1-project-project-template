@@ -1,9 +1,10 @@
 package main
 
-//this is the main class to run the server
+//this is the main file to run the server
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	//"net/http"
 )
 
@@ -43,9 +44,18 @@ var questions = []Question{
 		},
 	},
 }
+var Server *mongo.Client = nil
 
 func main() {
 	router := gin.Default()
+	//initialise the database and handle error
+	var err error
+	Server, err = initialiseDB()
+	
+	if err != nil {
+		panic(err)
+	}
+
 	router.GET("/questions", GetAllQuestions)
-	router.Run(":9090")
+	router.Run(":9090")  //currently local hosted
 }
