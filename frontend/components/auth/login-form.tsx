@@ -15,12 +15,14 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "@/app/auth/auth-context";
 import { useRouter } from "next/navigation";
+import { useToast } from "../hooks/use-toast";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const auth = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -30,7 +32,7 @@ export function LoginForm() {
     } else if (user) {
       router.push("/");
     }
-    // TODO: Add toast for failure
+    toast({ title: "Error", description: "Login Failed." });
   };
 
   return (
