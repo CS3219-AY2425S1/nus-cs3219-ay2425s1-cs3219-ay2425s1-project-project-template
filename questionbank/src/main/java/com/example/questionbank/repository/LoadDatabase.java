@@ -1,12 +1,3 @@
-/**
- * This package contains the repository interfaces for the
- * Question Bank application.
- * <p>
- * The repositories handle the data access logic and interact
- * with the MongoDB database to perform CRUD operations on the
- * entities, such as {@link QuestionRepository} for managing
- * {@link Question} entities.
- */
 package com.example.questionbank.repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,38 +24,43 @@ import java.util.List;
  * starts. It ensures that the questions are only loaded if the database
  * is empty. The class logs the preloading actions to provide visibility
  * into the initialization process.
- * 
  */
 @Configuration
+@SuppressWarnings({"FinalClass", "DesignForExtension"})
 public class LoadDatabase {
 
-    private static final Logger log = LoggerFactory.getLogger(
+    /**
+     * Logger for logging database preloading actions.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(
             LoadDatabase.class
     );
 
     @Bean
-    CommandLineRunner initDatabase(QuestionRepository repository) {
+    CommandLineRunner initDatabase(final QuestionRepository repository) {
         return args -> {
             if (repository.count() == 0) {
-                Resource resource = new ClassPathResource("initialQuestions.json");
+                Resource resource = new ClassPathResource(
+                        "initialQuestions.json"
+                );
                 ObjectMapper objectMapper = new ObjectMapper();
 
                 try {
-                    List<Question> questions = objectMapper.readValue(
-                            resource.getInputStream(),
-                            new TypeReference<List<Question>>(){}
-                    );
+                    List<Question> questions = objectMapper
+                            .readValue(resource.getInputStream(),
+                                    new TypeReference<List<Question>>() { }
+                            );
                     for (Question question : questions) {
-                        log.info("Preloading " + repository.save(question));
+                        LOGGER.info("Preloading " + repository.save(question));
                     }
                 } catch (IOException e) {
-                    log.error("Failed to load initial data", e);
+                    LOGGER.error("Failed to load initial data", e);
                 }
             } else {
-                log.info("Database already initialized, skipping preloading.");
+                LOGGER.info(
+                        "Database already initialized, skipping preloading."
+                );
             }
         };
     }
 }
-
-

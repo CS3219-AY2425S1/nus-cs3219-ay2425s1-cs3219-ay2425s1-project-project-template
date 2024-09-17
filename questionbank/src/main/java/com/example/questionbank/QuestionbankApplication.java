@@ -1,9 +1,3 @@
-/**
- * The base package for the Question Bank application.
- * <p>
- * This package contains the entry point for the Spring Boot application
- * and common configurations and utilities for the entire project.
- */
 package com.example.questionbank;
 
 import org.springframework.boot.SpringApplication;
@@ -19,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-
 public class QuestionbankApplication {
 
     /**
@@ -28,7 +21,7 @@ public class QuestionbankApplication {
      *
      * @param args command-line arguments passed to the application.
      */
-    public static void main(String... args) {
+    public static void main(final String... args) {
         SpringApplication.run(QuestionbankApplication.class, args);
     }
 

@@ -1,16 +1,9 @@
-/**
- * This package contains the repository interfaces for the
- * Question Bank application.
- * <p>
- * The repositories handle the data access logic and interact
- * with the MongoDB database to perform CRUD operations on the
- * entities, such as {@link QuestionRepository} for managing
- * {@link Question} entities.
- */
 package com.example.questionbank.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import com.example.questionbank.model.Question;
+
+import java.util.Optional;
 
 /**
  * Repository interface for managing {@link Question} entities
@@ -23,7 +16,16 @@ import com.example.questionbank.model.Question;
  */
 public interface QuestionRepository extends MongoRepository<Question, String> {
 
-    // Example Spring Data Commons derived method for queries
-    public Question findQuestionByTitle(String title);
-
+    /**
+     * Finds a {@link Question} entity by its title.
+     * <p>
+     * This method is derived from Spring Data's query creation feature.
+     * It generates a query based on the method name to find a question
+     * by the provided title. If not will throw an error.
+     * </p>
+     *
+     * @param title the title of the question
+     * @return the {@link Question} entity with the specified title
+     */
+    Optional<Question> findQuestionByTitle(String title);
 }

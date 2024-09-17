@@ -1,16 +1,7 @@
-/**
- * This package contains the service layer of the Question
- * Bank application.
- * <p>
- * The service layer provides the business logic for managing
- * {@link Question} entities. It includes interfaces such as
- * {@link QuestionServiceInterface} and their implementations
- * that interact with the repository layer to perform operations
- * such as retrieving, adding, updating, and deleting questions.
- */
 package com.example.questionbank.service;
 
 import com.example.questionbank.commons.QuestionNotFoundException;
+import com.example.questionbank.commons.QuestionWithTitleNotFoundException;
 import com.example.questionbank.model.Question;
 import java.util.List;
 
@@ -39,6 +30,17 @@ public interface QuestionServiceInterface {
      * specified ID
      */
     Question getQuestionById(String id) throws QuestionNotFoundException;
+
+    /**
+     * Retrieves a question by its title.
+     *
+     * @param title the title of the question to retrieve
+     * @return the {@link Question} entity with the specified title
+     * @throws QuestionNotFoundException if no question is found with the
+     * specified title
+     */
+    Question getQuestionByTitle(String title)
+            throws QuestionWithTitleNotFoundException;
 
     /**
      * Creates a new question.
