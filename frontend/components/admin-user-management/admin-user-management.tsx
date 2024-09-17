@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
+import { useAuth } from "@/app/auth/auth-context";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -36,6 +37,8 @@ const fetcher = (url: string) => {
 };
 
 export default function AdminUserManagement() {
+  const auth = useAuth();
+
   const { data, error, isLoading } = useSWR(
     "http://localhost:3001/users",
     fetcher
@@ -77,7 +80,7 @@ export default function AdminUserManagement() {
   }
 
   const handleDelete = async (userId: string) => {
-    const token = localStorage.getItem("jwtToken");
+    const token = auth?.token;
     if (!token) {
       throw new Error("No authentication token found");
     }
