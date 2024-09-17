@@ -16,10 +16,12 @@ import { useState } from "react";
 import { useAuth } from "@/app/auth/auth-context";
 import { useRouter } from "next/navigation";
 import { useToast } from "../hooks/use-toast";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -31,8 +33,9 @@ export function LoginForm() {
       router.push("/admin-user-management");
     } else if (user) {
       router.push("/");
+    } else {
+      toast({ title: "Error", description: "Login Failed." });
     }
-    toast({ title: "Error", description: "Login Failed." });
   };
 
   return (
@@ -64,13 +67,26 @@ export function LoginForm() {
                 Forgot your password?
               </Link>
             </div>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOffIcon size={20} />
+                ) : (
+                  <EyeIcon size={20} />
+                )}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full">
             Login
@@ -78,7 +94,7 @@ export function LoginForm() {
         </form>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account? {/* TODO: Link to sign up link */}
-          <Link href="#" className="underline">
+          <Link href="/auth/signup" className="underline">
             Sign up
           </Link>
         </div>
