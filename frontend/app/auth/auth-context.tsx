@@ -1,5 +1,7 @@
 "use client";
 
+import { Router } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   ReactNode,
@@ -28,6 +30,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const tokenKey = "jwtToken";
   const [user, setUser] = useState<UserAuthType | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setToken(localStorage.getItem(tokenKey));
@@ -96,6 +99,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("jwtToken");
+    router.push("/");
   };
 
   return (
