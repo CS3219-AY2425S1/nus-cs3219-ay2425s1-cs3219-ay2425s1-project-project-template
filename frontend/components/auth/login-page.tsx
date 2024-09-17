@@ -30,6 +30,7 @@ export function LoginForm() {
     } else if (user) {
       router.push("/");
     }
+    // TODO: Add toast for failure
   };
 
   return (
@@ -56,6 +57,7 @@ export function LoginForm() {
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
+              {/* TODO: Link to forget password */}
               <Link href="#" className="ml-auto inline-block text-sm underline">
                 Forgot your password?
               </Link>
@@ -73,7 +75,7 @@ export function LoginForm() {
           </Button>
         </form>
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
+          Don&apos;t have an account? {/* TODO: Link to sign up link */}
           <Link href="#" className="underline">
             Sign up
           </Link>
