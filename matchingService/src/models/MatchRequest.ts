@@ -1,3 +1,5 @@
+// import MatchRequestWithQueueInfo from "./IdentifiedMatchRequest";
+
 class MatchRequest {
     private userId: string;
     private topic: string;
@@ -7,6 +9,10 @@ class MatchRequest {
         this.userId = userId;
         this.topic = topic;
         this.difficulty = difficulty;
+    }
+
+    public getUserId(): string {
+        return this.userId;
     }
 
     public getTopic(): string {

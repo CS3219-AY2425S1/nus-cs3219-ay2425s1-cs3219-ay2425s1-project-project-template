@@ -14,12 +14,13 @@ const testMessages: MatchRequest[] = [
     new MatchRequest("johhny", "graph", "easy"),
     new MatchRequest("bob", "graph", "easy"),
     new MatchRequest("the builder", "dp", "medium"),
+    new MatchRequest("johnny2.0", "algorithm", "hard"),
 ];
 
 /**
  * Class representing a Service that initiates groups of Consumers.
  */
-class AmqpService {
+class Service {
     private categoryExchange: string;
     private responseExchange: string;
     private connectionManager: IConnectionManager;
@@ -64,9 +65,9 @@ class AmqpService {
         }
     }
 
-    public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<AmqpService> {
+    public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<Service> {
         var connectionManager: IConnectionManager = new ConnectionManager();
-        var service: AmqpService = new AmqpService(categoryExchange, responseExchange, connectionManager);
+        var service: Service = new Service(categoryExchange, responseExchange, connectionManager);
         await connectionManager.setup(connectionUrl);
         await service.init();
         await service.startConsumers();
@@ -100,4 +101,4 @@ class AmqpService {
     }
 }
 
-export default AmqpService;
+export default Service;
