@@ -1,6 +1,6 @@
 import { useAuth } from "@/app/auth/auth-context";
 
-import { Book, LogOut, Settings, User, Users } from "lucide-react";
+import { Book, BookUser, LogOut, Settings, User, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import {
@@ -15,7 +15,6 @@ import { ThemeToggle } from "./theme-toggle";
 
 export function Navbar() {
   const auth = useAuth();
-  console.log(auth);
   return (
     <nav className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,6 +26,15 @@ export function Navbar() {
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {auth?.user?.isAdmin && (
+                <Link
+                  href="/app/admin-user-management"
+                  className="inline-flex items-center px-1 pt-1 border-b-2 $ text-sm font-medium"
+                >
+                  <BookUser className="mr-2 h-4 w-4" />
+                  User Management
+                </Link>
+              )}
               <Link
                 href="/app/questions"
                 className="inline-flex items-center px-1 pt-1 border-b-2 $ text-sm font-medium"
