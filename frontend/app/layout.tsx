@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "./auth/auth-context";
+import { Navbar } from "@/components/navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,10 +39,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {/* TODO: Create Navbar component */}
-          <div className="m-2">
-            <ThemeToggle />
-          </div>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <Navbar />
+            {children}
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
