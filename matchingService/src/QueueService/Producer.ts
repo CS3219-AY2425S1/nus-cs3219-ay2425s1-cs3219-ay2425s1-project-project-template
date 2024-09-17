@@ -8,10 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
  * TODO: To be utilised by frontend.
  * */
 class Producer {
-    constructor() {
-
-    }
-
     public async sendJsonMessage(msg: MatchRequest, channel: Channel, exchange: string, responseExchange: string): Promise<void> {
         const replyQueue = await channel.assertQueue("", { exclusive: true });
         const replyQueueName = replyQueue?.queue;
