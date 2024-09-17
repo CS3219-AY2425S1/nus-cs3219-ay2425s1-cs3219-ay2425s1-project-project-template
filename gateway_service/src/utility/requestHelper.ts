@@ -4,7 +4,7 @@ const axios = require("axios");
 export function sendPutRequest(path: string, service: string, id: string) {
   return async (req: Request, res: Response) => {
     try {
-      let resp = await axios.put(`${service}/${path}/${id}`);
+      let resp = await axios.put(`${service}/${path}/${id}`, req.body);
       res.json(resp.data);
     } catch (error: any) {
       if (error.response) {
