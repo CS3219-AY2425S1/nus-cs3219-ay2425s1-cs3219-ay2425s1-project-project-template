@@ -12,7 +12,10 @@ const config = {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        text: 'hsl(var(--text-color))',
+        text: {
+          DEFAULT: 'hsl(var(--text-color))',
+          secondary: 'hsl(var(--text-color-secondary))',
+        },
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',

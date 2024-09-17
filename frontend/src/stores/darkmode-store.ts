@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 
-class DarkModeState {
+class DarkModeStore {
   mode = 'light';
 
   constructor() {
@@ -20,4 +20,4 @@ class DarkModeState {
   };
 }
 
-export const darkModeState = new DarkModeState();
+export const darkModeStore = new DarkModeStore();
