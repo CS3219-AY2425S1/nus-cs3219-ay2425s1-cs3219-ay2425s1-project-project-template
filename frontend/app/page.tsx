@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Code, Zap } from "lucide-react";
 import { FeatureCard } from "@/components/feature-card";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -69,7 +70,9 @@ export default function Home() {
             Join thousands of developers who have improved their skills with
             PeerPrep.
           </p>
-          <Button size="lg">Sign Up Now</Button>
+          <Link href="/auth/signup">
+            <Button size="lg">Sign Up Now</Button>
+          </Link>
         </div>
       </section>
     </div>
