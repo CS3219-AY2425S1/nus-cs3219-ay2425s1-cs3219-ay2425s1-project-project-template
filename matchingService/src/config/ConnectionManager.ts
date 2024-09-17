@@ -8,6 +8,7 @@ export interface IConnectionManager {
     getChannel(): Channel;
 }
 
+/** Class representing a Manager that handles the connection to RabbitMQ cluster */
 export class ConnectionManager {
     private connection: Connection | null = null;
     private channel: Channel | null = null;
