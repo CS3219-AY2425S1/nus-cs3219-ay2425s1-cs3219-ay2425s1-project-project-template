@@ -12,9 +12,9 @@ class Producer {
     }
 
     public async sendJsonMessage(msg: MatchRequest, channel: Channel, exchange: string, responseExchange: string): Promise<void> {
-        const responseQueue = await channel.assertQueue("", { exclusive: true });
-        const responseQueueName = responseQueue?.queue;
-        if (!responseQueue) {
+        const replyQueue = await channel.assertQueue("", { exclusive: true });
+        const replyQueueName = replyQueue?.queue;
+        if (!replyQueue) {
             console.log("Failed to create response queue");
             return;
         }
@@ -22,24 +22,22 @@ class Producer {
             topic: msg.getTopic(),
             difficulty: msg.getDifficulty()
         }
-        const correlationid = uuidv4();
-        await this.waitForResponse(channel, responseExchange, responseQueueName, correlationid);
+        const correlationId = uuidv4();
+        await this.waitForResponse(channel, responseExchange, replyQueueName, correlationId);
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
-            replyTo: responseQueueName,
-            correlationId: correlationid,
+            replyTo: replyQueueName,
+            correlationId: correlationId,
         });
         console.log("Producer successfully sent message: ", msg);
     }
 
-    public async waitForResponse(channel: Channel, responseExchange: string, replyQueue: string, correlationId: string) {
+    private async waitForResponse(channel: Channel, responseExchange: string, replyQueue: string, correlationId: string) {
         await channel.bindQueue(replyQueue, responseExchange, replyQueue);
         const consumer = await channel.consume(replyQueue, async (message) => {
             if (message?.properties.correlationId === correlationId) {
                 console.log("Producer received Response: ", message?.content.toString());
-    
-                // Stop consuming messages after the first relevant response is received
-                await channel.cancel(consumer.consumerTag);
+                await channel.cancel(consumer.consumerTag); // Stop consuming messages after receiving first relevant response
             }
         }, { noAck: true });
     }

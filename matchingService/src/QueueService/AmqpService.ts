@@ -36,6 +36,7 @@ class AmqpService {
             return;
         }
         this.createExchanges(channel);
+        await this.setupQueues();
     }
 
     private async createExchanges(channel: Channel): Promise<void> {
@@ -43,17 +44,7 @@ class AmqpService {
         channel.assertExchange(this.responseExchange, "direct", { durable: false });
     }
 
-    public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<AmqpService> {
-        var connectionManager: IConnectionManager = new ConnectionManager();
-        var service: AmqpService = new AmqpService(categoryExchange, responseExchange, connectionManager);
-        await connectionManager.setup(connectionUrl);
-        await service.init();
-        await service.setupQueues();
-        await service.startConsumers();
-        return service;
-    }
-
-    public async setupQueues(): Promise<void> {
+    private async setupQueues(): Promise<void> {
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             console.error(channel.message);
@@ -71,6 +62,15 @@ class AmqpService {
                 });
             }
         }
+    }
+
+    public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<AmqpService> {
+        var connectionManager: IConnectionManager = new ConnectionManager();
+        var service: AmqpService = new AmqpService(categoryExchange, responseExchange, connectionManager);
+        await connectionManager.setup(connectionUrl);
+        await service.init();
+        await service.startConsumers();
+        return service;
     }
 
     public async startConsumers(): Promise<void> {
