@@ -41,7 +41,7 @@ public class Question {
      * </p>
      */
     @Id
-    private String id; // MongoDB idx
+    private String id;
 
     /**
      * The title of the question.
@@ -76,7 +76,7 @@ public class Question {
      * "easy", "medium", or "hard".
      * </p>
      */
-    private String complexity;
+    private Complexity complexity;
 
     /**
      * The timestamp indicating when the question was created.
@@ -102,7 +102,7 @@ public class Question {
      * @param complexity  the complexity level of the question
      */
     public Question(String title, String description,
-                    List<String> categories, String complexity) {
+                    List<String> categories, Complexity complexity) {
         this.title = title;
         this.description = description;
         this.categories = categories;
