@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import Header from "@/components/header";
+import Button from "@/components/button";
 
 export default function Home() {
   return (
@@ -8,22 +8,22 @@ export default function Home() {
       <Header />
 
       <main className="relative mx-5 flex space-x-20 items-center flex-1">
-        <div>
+        <div className="w-1/2 pl-10">
           <h1 className="text-6xl font-hairline leading-snug font-albert">
             Real Time Collaboration
           </h1>
           <p className="text-2xl font-hairline font-albert">easier than ever</p>
-          <Link href="/login">
-            <button className="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-20 rounded mt-10">
-              Sign in
-            </button>
-          </Link>
+          <div className="mt-10 w-3/4">
+            <Button text="Sign Up" link="/auth/signup"/>
+          </div>
         </div>
+
         <Image
+          className="w-1/2"
           src="/icons/landing_icon.png"
           alt="Landing page icon"
-          width={512}
-          height={512}
+          width={384}
+          height={384}
           priority
         />
       </main>
