@@ -15,12 +15,15 @@ class Producer {
             console.log("Failed to create response queue");
             return;
         }
+
+        const correlationId = uuidv4();
         const messageHeaders: MessageHeader = {
             topic: msg.getTopic(),
             difficulty: msg.getDifficulty()
         }
-        const correlationId = uuidv4();
+
         await this.waitForResponse(channel, responseExchange, replyQueueName, correlationId);
+
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
             replyTo: replyQueueName,
