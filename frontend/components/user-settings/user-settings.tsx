@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import { Eye, EyeOff } from 'lucide-react';
 import { useToast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
 import LoadingScreen from "../common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
+import { cn } from "@/lib/utils";
+
 interface User {
     username: string;
     email: string;
@@ -69,6 +72,7 @@ export default function UserSettings({ userId }: { userId: string }) {
         setIsDeleteButtonEnabled(confirmUsername === originalUsername);
     }, [confirmUsername, originalUsername]);
 
+    
 
     // Function to handle changes in the username/email fields
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,6 +176,69 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }
 
+
+
+
+    // Logic to toggle password visibility
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+    const togglePasswordVisibility = (field: string) => {
+      switch (field) {
+        case 'current':
+          setShowCurrentPassword(!showCurrentPassword);
+          break;
+        case 'new':
+          setShowNewPassword(!showNewPassword);
+          break;
+        case 'confirm':
+          setShowConfirmPassword(!showConfirmPassword);
+          break;
+      }
+    };
+
+    // Logic to handle password changes
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordsMatch, setPasswordsMatch] = useState(true);
+    useEffect(() => {
+        if (newPassword && confirmPassword) {
+          setPasswordsMatch(newPassword === confirmPassword);
+        } else {
+          setPasswordsMatch(true); // Reset when either field is empty
+        }
+      }, [newPassword, confirmPassword]);
+
+    const handleChangePassword = async () => {
+        // dummy function; does nothing
+    }
+
+    // Logic to check if the password is complex enough
+    const [isPasswordValid, setIsPasswordValid] = useState(true);
+    useEffect(() => {
+        if (newPassword) {
+          setIsPasswordValid(isPasswordComplex(newPassword));
+        } else {
+          setIsPasswordValid(true);
+        }
+        
+        if (newPassword && confirmPassword) {
+          setPasswordsMatch(newPassword === confirmPassword);
+        } else {
+          setPasswordsMatch(true);
+        }
+      }, [newPassword, confirmPassword]);
+    const isPasswordComplex = (password: string) => {
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+        
+        return password.length >= minLength && hasUpperCase && hasSpecialChar;
+      };
+
+
     if (isLoading) {
         return <LoadingScreen />;
     }
@@ -243,21 +310,85 @@ export default function UserSettings({ userId }: { userId: string }) {
                 <CardDescription>Manage your password and account settings.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                <div>
+                <div className="relative">
                     <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" type="password" />
+                    <div className="relative">
+                    <Input 
+                        id="currentPassword" 
+                        type={showCurrentPassword ? "text" : "password"}
+                        className="pr-10"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
+                        onClick={() => togglePasswordVisibility('current')}
+                    >
+                        {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    </div>
                 </div>
-                <div>
+                <div className="relative">
                     <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" />
+                    <div className="relative">
+                    <Input 
+                        id="newPassword" 
+                        type={showNewPassword ? "text" : "password"}
+                        className={cn("pr-10", !passwordsMatch && "border-red-500")}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
+                        onClick={() => togglePasswordVisibility('new')}
+                    >
+                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    </div>
                 </div>
-                <div>
+                <div className="relative">
                     <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" type="password" />
+                    <div className="relative">
+                    <Input 
+                        id="confirmPassword" 
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={cn("pr-10", !passwordsMatch && "border-red-500")}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
+                        onClick={() => togglePasswordVisibility('confirm')}
+                    >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    </div>
+                    {!passwordsMatch && (
+                    <p className="text-sm text-red-500 mt-1">Passwords do not match</p>
+                    )}
+                    {!isPasswordValid && newPassword && (
+                        <p className="text-sm text-red-500 mt-1">
+                            Password must be at least 8 characters long, include 1 uppercase letter and 1 special character.
+                        </p>
+                    )}
                 </div>
                 </CardContent>
                 <CardFooter>
-                <Button>Change Password</Button>
+                <Button 
+                    disabled={!passwordsMatch || !isPasswordValid || !newPassword || !confirmPassword || !currentPassword}
+                    onClick={handleChangePassword}
+                    >
+                    Change Password
+                </Button>
                 </CardFooter>
             </Card>
 
