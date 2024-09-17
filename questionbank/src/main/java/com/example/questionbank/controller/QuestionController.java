@@ -3,6 +3,7 @@ package com.example.questionbank.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.questionbank.commons.QuestionNotFoundException;
 import com.example.questionbank.commons.QuestionWithTitleNotFoundException;
 import com.example.questionbank.repository.QuestionRepository;
 import com.example.questionbank.model.QuestionModelAssembler;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.questionbank.model.Question;
-import com.example.questionbank.commons.QuestionNotFoundException;
+
 
 /**
  * Controller for managing {@link Question} resources.
