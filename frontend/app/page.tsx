@@ -19,7 +19,9 @@ export default function Home() {
                 bank, and improve your skills with AI-powered feedback.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg">Get Started</Button>
+                <Link href="/auth/login">
+                  <Button size="lg">Log In</Button>
+                </Link>
                 <Button size="lg" variant="outline">
                   Learn More
                 </Button>
