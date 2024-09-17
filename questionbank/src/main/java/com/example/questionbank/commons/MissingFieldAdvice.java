@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Global exception handler for {@link MissingFieldException} in the application.
+ * Global exception handler for {@link MissingFieldException} in the
+ * application.
  * <p>
  * This class handles exceptions of type {@link MissingFieldException}
  * thrown by controllers in the application and provides a response with a

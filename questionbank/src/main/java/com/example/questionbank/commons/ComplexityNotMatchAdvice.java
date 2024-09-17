@@ -15,15 +15,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *
  */
 @RestControllerAdvice
+@SuppressWarnings("FinalParameters")
 public class ComplexityNotMatchAdvice {
 
     /**
      * Logger instance for logging exceptions and important information.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComplexityNotMatchAdvice.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            ComplexityNotMatchAdvice.class
+    );
 
     /**
-     * Handles {@link ComplexityNotMatchException} and returns a 400 Bad Request response.
+     * Handles {@link ComplexityNotMatchException} and returns a 400 Bad Request
+     * response.
      * <p>
      * This method is triggered when a {@link ComplexityNotMatchException}
      * is thrown in the application. It logs the exception message and

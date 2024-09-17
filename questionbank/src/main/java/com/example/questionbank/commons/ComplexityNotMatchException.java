@@ -1,7 +1,8 @@
 package com.example.questionbank.commons;
 
 /**
- * Exception thrown when the complexity of a question does not match the allowed values.
+ * Exception thrown when the complexity of a question does not match the
+ * allowed values.
  * <p>
  * This exception is used to signal that the provided complexity is invalid.
  * It extends {@link RuntimeException} and provides a specific message.
@@ -17,6 +18,7 @@ public class ComplexityNotMatchException extends RuntimeException {
      * @param complexity the invalid complexity value.
      */
     public ComplexityNotMatchException(String complexity) {
-        super("Invalid complexity: " + complexity + ". Allowed values are EASY, MEDIUM, HARD.");
+        super("Invalid complexity: " + complexity
+                + ". Allowed values are EASY, MEDIUM, HARD.");
     }
 }
