@@ -1,9 +1,7 @@
-import { Channel, Replies } from "amqplib";
+import { Channel } from "amqplib";
 import MatchRequest from "../models/MatchRequest";
 import { MessageHeader } from "../models/MessageHeaders";
 import { v4 as uuidv4 } from 'uuid';
-
-var responseQueue: string = "responseQueue";
 
 /** 
  * Class representing a Producer that will push matchmaking requests into a header exchange.
