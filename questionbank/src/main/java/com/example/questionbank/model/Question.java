@@ -1,12 +1,3 @@
-/**
- * This package contains the model classes for the Question Bank
- * application.
- * <p>
- * The model classes represent the main entities such as
- * {@link Question},which holds the data structure for questions
- * including fields like ID, title, description, categories, and
- * complexity.
- */
 package com.example.questionbank.model;
 
 import java.time.LocalDateTime;
@@ -96,17 +87,21 @@ public class Question {
      * specifying an ID.
      * </p>
      *
-     * @param title       the title of the question
-     * @param description the description of the question
-     * @param categories  the list of categories associated with the question
-     * @param complexity  the complexity level of the question
+     * @param questionTitle       the title of the question
+     * @param questionDesc the description of the question
+     * @param questionCategories  the list of categories associated with
+     *                            the question
+     * @param questionComplexity  the complexity level of the question
      */
-    public Question(String title, String description,
-                    List<String> categories, String complexity) {
-        this.title = title;
-        this.description = description;
-        this.categories = categories;
-        this.complexity = complexity;
+    public Question(final String questionTitle,
+                    final String questionDesc,
+                    final List<String> questionCategories,
+                    final String questionComplexity) {
+        this.title = questionTitle;
+        this.description = questionDesc;
+        this.categories = questionCategories;
+        this.complexity = questionComplexity;
         this.createdAt = LocalDateTime.now();
     }
+
 }

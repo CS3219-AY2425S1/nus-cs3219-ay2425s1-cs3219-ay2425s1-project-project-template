@@ -1,13 +1,3 @@
-/**
- * This package contains the service layer of the Question
- * Bank application.
- * <p>
- * The service layer provides the business logic for managing
- * {@link Question} entities. It includes interfaces such as
- * {@link QuestionServiceInterface} and their implementations
- * that interact with the repository layer to perform operations
- * such as retrieving, adding, updating, and deleting questions.
- */
 package com.example.questionbank.service;
 
 import com.example.questionbank.model.Question;
@@ -19,11 +9,19 @@ import com.example.questionbank.model.Question;
  * of questions, such as title or description length.
  *
  */
+@SuppressWarnings("FinalClass")
 public class QuestionValidator {
+
+    // Private constructor to prevent instantiation
+    private QuestionValidator() {
+        throw new UnsupportedOperationException(
+                "Utility class should not be instantiated."
+        );
+    }
 
     /**
      * Validates a {@link Question} entity.
-     *
+     * <p>
      * This method checks whether the {@code title} and
      * {@code description} of the provided {@link Question} are non-null
      * and non-empty. It returns {@code true} if both fields are valid,
@@ -33,11 +31,14 @@ public class QuestionValidator {
      * @return {@code true} if the {@link Question} is valid,
      * {@code false} otherwise.
      */
-    public static boolean isValidQuestion(Question question) {
+    public static boolean isValidQuestion(final Question question) {
         // Example validation logic
-        return question.getTitle() != null &&
-                !question.getTitle().isEmpty() &&
-                question.getDescription() != null &&
-                !question.getDescription().isEmpty();
+        return question.getTitle() != null
+                && !question.getTitle().isEmpty()
+                && question.getDescription() != null
+                && !question.getDescription().isEmpty();
     }
 }
+
+
+

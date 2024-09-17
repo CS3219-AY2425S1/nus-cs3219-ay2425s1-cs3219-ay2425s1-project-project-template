@@ -1,12 +1,3 @@
-/**
- * This package contains the model classes for the Question Bank
- * application.
- * <p>
- * The model classes represent the main entities such as
- * {@link Question},which holds the data structure for questions
- * including fields like ID, title, description, categories, and
- * complexity.
- */
 package com.example.questionbank.model;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,11 +19,11 @@ import com.example.questionbank.controller.QuestionController;
  * </p>
  */
 @Component
-public class QuestionModelAssembler implements
+public final class QuestionModelAssembler implements
         RepresentationModelAssembler<Question, EntityModel<Question>> {
 
     @Override
-    public EntityModel<Question> toModel(Question question) {
+    public EntityModel<Question> toModel(final Question question) {
 
         return EntityModel.of(question,
                 linkTo(methodOn(QuestionController.class)
