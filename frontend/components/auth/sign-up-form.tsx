@@ -36,7 +36,10 @@ export function SignUpForm() {
     }
     const res = await signUp(username, email, password);
     if (!res.ok) {
-      toast({ title: "Error", description: "An unknown error has occurred" });
+      toast({
+        title: "Unknown Error",
+        description: "An unexpected error has occurred",
+      });
     }
     switch (res.status) {
       case 201:
