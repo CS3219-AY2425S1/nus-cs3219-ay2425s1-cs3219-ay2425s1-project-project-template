@@ -1,11 +1,11 @@
 {
-  "name": "question-service",
-  "version": "0.1.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "MIT",
-  "description": ""
+    "name": "question-service",
+    "version": "0.1.0",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown ."
+    },
+    "author": "",
+    "license": "MIT",
+    "description": ""
 }

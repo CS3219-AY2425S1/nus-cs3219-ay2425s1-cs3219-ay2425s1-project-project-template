@@ -8,7 +8,11 @@
         "backend/*"
     ],
     "scripts": {
-        "lint": "lint-staged",
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "lint-staged": "lint-staged",
         "prepare": "husky || true"
     },
     "devDependencies": {
@@ -18,6 +22,7 @@
         "husky": "^9.1.6",
         "lint-staged": "^15.2.10",
         "prettier": "^3.3.3",
+        "turbo": "^2.1.2",
         "typescript-eslint": "^8.5.0"
     },
     "lint-staged": {
@@ -26,10 +31,7 @@
         ],
         "*.{json,js,ts,jsx,tsx,html}": [
             "prettier --write --ignore-unknown"
-        ],
-        "ignore": [
-            "**/node_modules/**",
-            "**/dist/**"
         ]
-    }
+    },
+    "packageManager": "npm@10.8.2+"
 }
