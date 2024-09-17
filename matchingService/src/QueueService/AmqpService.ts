@@ -39,19 +39,30 @@ class AmqpService {
         var service: AmqpService = new AmqpService(exchange, connectionManager);
         await connectionManager.setup(connectionUrl);
         await service.init();
+        await service.setupQueues();
         await service.startConsumers();
         return service;
     }
 
-    public async startProducers(): Promise<void> {
+    public async setupQueues(): Promise<void> {
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             console.error(channel.message);
             return;
         }
-        var producer: Producer = new Producer();
-        for (const testMessage of testMessages) {
-            await producer.sendJsonMessage(testMessage, channel, this.exchange);
+        for (const topic of TOPIC_LIST) {
+            for (const difficulty of DIFFICULTY_LEVELS) {
+                const queueName = `queue_${topic}_${difficulty}`;
+                // Declare the queue
+                await channel.assertQueue(queueName, { durable: false });
+    
+                // Bind the queue to the exchange with the appropriate headers
+                await channel.bindQueue(queueName, this.exchange, '', {
+                    "x-match": 'all',
+                    "topic": topic,
+                    "difficulty": difficulty
+                });
+            }
         }
     }
 
@@ -69,7 +80,15 @@ class AmqpService {
                     if (content) {
                         try {
                             var matchRequest: MatchRequest = JSON.parse(content);
-                            console.log(matchRequest);
+                            console.log("Consumer received match request: ", matchRequest);
+                            const correlationId: string = msg?.properties.correlationId;
+                            const responseQueue: string = msg?.properties.replyTo;
+                            channel.publish(this.exchange, responseQueue, Buffer.from("Successfully matched"), {
+                                headers: {
+                                    "correlationId": correlationId,
+                                },
+                                correlationId: correlationId,
+                              })
                         } catch (e) {
                             if (e instanceof Error) {
                                 let name = e.message;
@@ -79,6 +98,18 @@ class AmqpService {
                     }
                 });
             }
+        }
+    }
+
+    public async startProducers(): Promise<void> {
+        var channel: Channel = this.connectionManager.getChannel();
+        if (channel instanceof ChannelNotFoundError) {
+            console.error(channel.message);
+            return;
+        }
+        var producer: Producer = new Producer();
+        for (const testMessage of testMessages) {
+            await producer.sendJsonMessage(testMessage, channel, this.exchange);
         }
     }
 }
