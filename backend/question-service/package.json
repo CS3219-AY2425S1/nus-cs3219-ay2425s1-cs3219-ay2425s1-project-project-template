@@ -2,7 +2,9 @@
     "name": "question-service",
     "version": "0.1.0",
     "main": "index.js",
-    "scripts": {},
+    "scripts": {
+        "lint": "eslint --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown ."
+    },
     "author": "",
     "license": "MIT",
     "description": ""
