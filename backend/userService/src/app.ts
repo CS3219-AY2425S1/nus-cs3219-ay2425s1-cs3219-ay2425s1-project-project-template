@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import router from '../routes/userRoutes';
-import connectDB from '../config/db';
+import connectDB from './config/db';
 
 dotenv.config();
 
