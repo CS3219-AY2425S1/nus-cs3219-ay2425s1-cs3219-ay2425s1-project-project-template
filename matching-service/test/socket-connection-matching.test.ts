@@ -3,7 +3,6 @@ import io, { Socket } from 'socket.io-client';
 import { server } from '../src/server'; // Adjust path to server.ts
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import redisClient from '../src/utils/redis-client'; // Adjust path to redis-client.ts
 
 dotenv.config();
 
@@ -62,6 +61,7 @@ describe('Socket.IO Server Tests', () => {
         });
     });
 
+    // Comment out for docker testing
     // test('should handle user disconnection', (done) => {
 
     //     const clientSocket = io(`http://localhost:${PORT}`, {

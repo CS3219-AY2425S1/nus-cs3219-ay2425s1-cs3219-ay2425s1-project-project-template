@@ -1,4 +1,4 @@
-import redisClient from '../utils/redis-client';
+import { getRedisClient } from '../utils/redis-client';
 
 interface SearchCriteria {
     difficulty: string;
@@ -12,20 +12,9 @@ interface UserSearch {
     startTime: Date;
 }
 
-// Add user to the search pool
-export async function addUserToSearchPool(userId: string, socketId: string, criteria: SearchCriteria) {
-    const startTime = new Date().toISOString();
-    await redisClient.hSet(`user:${userId}`, {
-        socketId,
-        criteria: JSON.stringify(criteria),
-        startTime
-    });
-    await redisClient.sAdd('searchPool', userId);
-    console.log(`User ${userId} added to search pool`);
-}
-
 // Get time spent matching for a specific user
 export async function getTimeSpentMatching(userId: string): Promise<number | null> {
+    const redisClient = getRedisClient();
     const user = await redisClient.hGetAll(`user:${userId}`);
     if (!user.startTime) return null;
 
@@ -37,53 +26,56 @@ export async function getTimeSpentMatching(userId: string): Promise<number | nul
 
 // Get the count of users currently matching
 export async function getCurrentMatchingUsersCount(): Promise<number> {
+    const redisClient = getRedisClient();
     return await redisClient.sCard('searchPool');
 }
 
-// Remove a user from the search pool
-export async function removeUserFromSearchPool(userId: string): Promise<void> {
-    await redisClient.del(`user:${userId}`);
-    await redisClient.sRem('searchPool', userId);
-    console.log(`User ${userId} removed from search pool`);
-}
-
 // Perform the matching logic
-export async function matchUsers() {
-    const userIds = await redisClient.sMembers('searchPool');
-    const users = await Promise.all(userIds.map(async (userId) => {
-        const user = await redisClient.hGetAll(`user:${userId}`);
-        return {
-            userId,
-            socketId: user.socketId,
-            criteria: JSON.parse(user.criteria),
-            startTime: new Date(user.startTime)
-        } as UserSearch;
-    }));
+export async function matchOrAddUserToSearchPool(userId: string, socketId: string, criteria: SearchCriteria) {
+    const redisClient = getRedisClient();
+    const topic = criteria.topic;
+    const difficulty = criteria.difficulty;
+    const startTime = new Date().toISOString();
 
-    for (let i = 0; i < users.length - 1; i++) {
-        for (let j = i + 1; j < users.length; j++) {
-            if (isCriteriaMatching(users[i], users[j])) {
-                console.log(`Match found between ${users[i].userId} and ${users[j].userId}`);
-                const matchedUsers = [users[i], users[j]];
-                const userIds = matchedUsers.map(user => user.userId);
-                // Publish match notification to Redis channel
-                await redisClient.publish('matchNotifications', JSON.stringify({ matchedUsers }));
+    const result = await redisClient.matchOrAddUser(topic, difficulty, userId, socketId, startTime);
 
-                return { matchedUsers };
-            }
-        }
+    console.log(`Matching user ${userId} with topic ${topic} and difficulty ${difficulty}`);
+    console.log(`matching result for user ${userId}: ${JSON.stringify(result)}`);
+
+    if (result) {
+        const match = result;
+        console.log(`Match found between ${match.matchedUsers[0].userId} and ${match.matchedUsers[1].userId}`);
+        return match.matchedUsers;
+    } else {
+        console.log(`No match found, user ${userId} added to the search pool`);
+        return null;
     }
-    return null;
-}
-
-// Check if two users have matching criteria
-function isCriteriaMatching(user1: UserSearch, user2: UserSearch): boolean {
-    return user1.criteria.difficulty === user2.criteria.difficulty &&
-           user1.criteria.topic === user2.criteria.topic;
 }
 
 // Get socket ID for a user
 export async function getSocketIdForUser(userId: string): Promise<string> {
+    const redisClient = getRedisClient();
     const user = await redisClient.hGetAll(`user:${userId}`);
     return user.socketId;
+}
+
+// Add user to the search pool
+export async function addUserToSearchPool(userId: string, socketId: string, criteria: SearchCriteria) {
+    const redisClient = getRedisClient();
+    const startTime = new Date().toISOString();
+    await redisClient.hSet(`user:${userId}`, {
+        socketId,
+        criteria: JSON.stringify(criteria),
+        startTime
+    });
+    await redisClient.sAdd('searchPool', userId);
+    console.log(`User ${userId} added to search pool`);
+}
+
+// Remove a user from the search pool
+export async function removeUserFromSearchPool(userId: string): Promise<void> {
+    const redisClient = getRedisClient();
+    await redisClient.del(`user:${userId}`);
+    await redisClient.sRem('searchPool', userId);
+    console.log(`User ${userId} removed from search pool`);
 }
