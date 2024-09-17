@@ -72,7 +72,9 @@ export default function Home() {
             Join thousands of developers who have improved their skills with
             PeerPrep.
           </p>
-          <Button size="lg">Sign Up Now</Button>
+          <Link href="/auth/signup">
+            <Button size="lg">Sign Up Now</Button>
+          </Link>
         </div>
       </section>
     </div>
