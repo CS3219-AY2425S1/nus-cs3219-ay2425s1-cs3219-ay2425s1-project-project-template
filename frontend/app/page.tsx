@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Code, Zap } from "lucide-react";
 import { FeatureCard } from "@/components/feature-card";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -18,7 +19,9 @@ export default function Home() {
                 bank, and improve your skills with AI-powered feedback.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg">Get Started</Button>
+                <Link href="/auth/login">
+                  <Button size="lg">Log In</Button>
+                </Link>
                 <Button size="lg" variant="outline">
                   Learn More
                 </Button>

@@ -25,7 +25,11 @@ const Dialog = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof dialogVariants>
 >(({ className, size, ...props }, ref) => (
-  <div ref={ref} className={cn(dialogVariants({ size }), className)} {...props} />
+  <div
+    ref={ref}
+    className={cn(dialogVariants({ size }), className)}
+    {...props}
+  />
 ));
 Dialog.displayName = "Dialog";
 
@@ -76,7 +80,11 @@ const DialogFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex justify-end space-x-2 mt-3", className)} {...props} />
+  <div
+    ref={ref}
+    className={cn("flex justify-end space-x-2 mt-3", className)}
+    {...props}
+  />
 ));
 DialogFooter.displayName = "DialogFooter";
 
@@ -92,12 +100,12 @@ const DialogCloseButton = ({
   </button>
 );
 
-export { 
-  Dialog, 
-  DialogTrigger, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogContent, 
-  DialogFooter, 
-  DialogCloseButton 
+export {
+  Dialog,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+  DialogCloseButton,
 };
