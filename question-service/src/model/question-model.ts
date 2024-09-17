@@ -9,6 +9,11 @@
 import mongoose, { Schema, Document } from "mongoose";
 import Counter from "./counter-model";
 
+interface TestCase {
+  input: string;
+  expectedOutput: string;
+}
+
 // Define the schema for a Question
 interface QuestionDocument extends Document {
   question_id: number;
@@ -16,7 +21,14 @@ interface QuestionDocument extends Document {
   description: string;
   category: string[];
   complexity: string;
+  templateCode: string; // New field for the template code
+  testCases: TestCase[]; // New field for test cases (array of test cases)
 }
+
+const TestCaseSchema = new Schema<TestCase>({
+  input: { type: String, required: true },
+  expectedOutput: { type: String, required: true },
+});
 
 const questionSchema: Schema = new Schema({
   question_id: { type: Number, unique: true },
@@ -31,6 +43,8 @@ const questionSchema: Schema = new Schema({
     },
   },
   complexity: { type: String, required: true },
+  templateCode: { type: String, required: true }, // Adding template code
+  testCases: [{ type: [TestCaseSchema], required: true }], // Adding test cases
 });
 
 // Middleware to auto-increment the question_id before saving
