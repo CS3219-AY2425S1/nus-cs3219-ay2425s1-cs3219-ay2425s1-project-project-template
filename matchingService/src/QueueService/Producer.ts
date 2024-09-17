@@ -18,13 +18,10 @@ class Producer {
             console.log("Failed to create response queue");
             return;
         }
-        console.log(responseQueueName);
         const messageHeaders: MessageHeader = {
             topic: msg.getTopic(),
             difficulty: msg.getDifficulty()
         }
-        console.log(messageHeaders);
-        console.log(exchange);
         const correlationid = uuidv4();
         await this.waitForResponse(channel, responseExchange, responseQueueName, correlationid);
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
@@ -37,15 +34,12 @@ class Producer {
 
     public async waitForResponse(channel: Channel, responseExchange: string, replyQueue: string, correlationId: string) {
         await channel.bindQueue(replyQueue, responseExchange, replyQueue);
-        console.log("Producer waiting for response....");
         const consumer = await channel.consume(replyQueue, async (message) => {
             if (message?.properties.correlationId === correlationId) {
                 console.log("Producer received Response: ", message?.content.toString());
     
                 // Stop consuming messages after the first relevant response is received
                 await channel.cancel(consumer.consumerTag);
-            } else {
-                console.log("Received message with different correlationId: ", message?.content.toString());
             }
         }, { noAck: true });
     }
