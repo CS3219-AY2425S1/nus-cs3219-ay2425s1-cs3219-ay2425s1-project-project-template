@@ -5,7 +5,7 @@ interface QueueService {
 }
 
 async function main() {
-    var amqpService: QueueService = await AmqpService.of("amqp://localhost:5672", "gateway", "responseGateway");
+    var amqpService: QueueService = await AmqpService.of(process.env.RABBITMQ_URL || "amqp://localhost:5672", "gateway", "responseGateway");
     await amqpService.startProducers()
 }
 main();
