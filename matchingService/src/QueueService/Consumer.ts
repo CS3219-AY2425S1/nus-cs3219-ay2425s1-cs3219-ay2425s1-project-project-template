@@ -30,9 +30,6 @@ class Consumer {
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
             console.log("Consumer received match request: ", matchRequest);
-            if (!this.isMatchRequestValid(matchRequest)) {
-                return;
-            }
             this.processMatchRequest(matchRequest, replyQueue, correlationId, channel, responseExchange);
         } catch (e) {
             if (e instanceof Error) {
@@ -64,11 +61,6 @@ class Consumer {
         correlationId: req2.getCorrelationId(),
         });
         this.pendingMatch = null;
-    }
-
-    private isMatchRequestValid(req: MatchRequest): boolean {
-        // TODO: Expiration checks
-        return true;
     }
 }
 

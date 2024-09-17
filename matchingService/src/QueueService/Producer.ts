@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 /** 
  * Class representing a Producer that will push matchmaking requests into a header exchange.
+ * TODO: To be utilised by frontend.
  * */
 class Producer {
     constructor() {
