@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/signup";
+import { toast } from "@/hooks/use-toast";
 
 export function SignUpForm() {
   const [username, setUsername] = useState("");
@@ -27,27 +28,49 @@ export function SignUpForm() {
     event.preventDefault();
     // TODO: Add validation for password
     if (password !== passwordConfirmation) {
-      // TODO: Add toast for password mismatch
+      toast({
+        title: "Password Mismatch",
+        description: "The passwords you entered do not match",
+      });
+      return;
     }
     const res = await signUp(username, email, password);
     if (!res.ok) {
-      // TODO: Toast
+      toast({ title: "Error", description: "An unknown error occurred" });
     }
     switch (res.status) {
       case 201:
-        // TODO: Toast for success
+        toast({
+          title: "Success",
+          description: "Your account has been created!",
+        });
         router.push("/auth/login");
         break;
       case 400:
-        // TODO: Toast for Missing fields
+        // In theory, they should never be able to send out a request
+        // with missing fields due to disabled submission button
+        toast({
+          title: "Missing Fields",
+          description: "Please fill out all fields",
+        });
         break;
       case 409:
-        // TODO: Toast for Duplicate username or email encountered
+        toast({
+          title: "Duplicted Username or Email",
+          description: "The username or email you entered is already in use",
+        });
         break;
       case 500:
-        // TODO: Toast for Database or server error
+        toast({
+          title: "Server Error",
+          description: "The server encountered an error",
+        });
         break;
       default:
+        toast({
+          title: "Unknown Error",
+          description: "The server encountered an unknown error",
+        });
         // TODO: Unknown error
         break;
     }
