@@ -54,7 +54,7 @@ class AmqpService {
         }
         for (const topic of TOPIC_LIST) {
             for (const difficulty of DIFFICULTY_LEVELS) {
-                const queueName = `queue_${topic}_${difficulty}`;
+                const queueName = `${topic}_${difficulty}`;
                 // Declare the queue
                 await channel.assertQueue(queueName, { durable: false });
     

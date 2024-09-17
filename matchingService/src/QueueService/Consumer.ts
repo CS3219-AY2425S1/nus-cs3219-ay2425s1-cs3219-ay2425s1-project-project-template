@@ -8,7 +8,7 @@ class Consumer {
     }
 
     public async receiveMessages(topic: string, difficulty: string, responseExchange: string, channel: Channel): Promise<void> {
-        const queueName = `queue_${topic}_${difficulty}`;
+        const queueName = `${topic}_${difficulty}`;
         await channel.consume(queueName, (message) => {
             this.handleMatchRequest(message, channel, responseExchange);
         }, { noAck: true });
