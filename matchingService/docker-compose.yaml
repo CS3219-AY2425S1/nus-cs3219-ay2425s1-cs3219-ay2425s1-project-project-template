@@ -1,7 +1,8 @@
 services:
   rabbitmq:
-    image: rabbitmq:4.0.0-rc.1-alpine
+    image: rabbitmq:4.0.0-rc.1-management-alpine
     ports:
-      - "5672:5672"
+      - "5672:5672" 
+      - "15672:15672" # Dashboard port
     environment:
       RABBITMQ_NODE_PORT: 5672
