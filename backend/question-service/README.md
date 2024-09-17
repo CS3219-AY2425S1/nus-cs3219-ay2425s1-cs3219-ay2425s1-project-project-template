@@ -30,7 +30,13 @@ make db
     <summary>Without <code>make</code></summary>
 
     ```bash
-    docker run --name question-db -p 27017:27017 -d mongodb/mongodb-community-server:6.0.8-ubi9
+    docker run --name question-db -p 27017:27017 -d \
+    	-e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+    	-e MONGO_INITDB_ROOT_PASSWORD=secret \
+    	-e MONGO_INITDB_DATABASE=questions_db \
+    	-e INIT_QUESTION_COLLECTION=questions \
+    	alxarkar/cs3219-ay2425s1-g40-question
+
     ```
 
 </details>
