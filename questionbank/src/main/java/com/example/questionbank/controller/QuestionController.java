@@ -3,6 +3,7 @@ package com.example.questionbank.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.questionbank.commons.QuestionWithTitleNotFoundException;
 import com.example.questionbank.repository.QuestionRepository;
 import com.example.questionbank.model.QuestionModelAssembler;
 
@@ -144,6 +145,26 @@ public class QuestionController {
 
         return assembler.toModel(question);
     }
+
+    /**
+     * Retrieves a specific question by its title.
+     * <p>
+     * This endpoint returns the question with the specified title wrapped
+     * in an {@link EntityModel}. If the question is not found,
+     * a {@link QuestionWithTitleNotFoundException} is thrown.
+     *
+     * @param title the title of the question to be retrieved
+     * @return an {@link EntityModel} containing the requested question
+     */
+    @GetMapping("/questions/title/{title}")
+    public EntityModel<Question> oneByTitle(@PathVariable String title) {
+        LOGGER.info("Fetching question with title: {}", title);
+
+        Question question = service.getQuestionByTitle(title);
+
+        return assembler.toModel(question);
+    }
+
 
     /**
      * Replaces an existing question with a new question.
