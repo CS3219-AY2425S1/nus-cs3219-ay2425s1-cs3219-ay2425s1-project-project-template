@@ -28,4 +28,5 @@ public interface QuestionRepository extends MongoRepository<Question, String> {
      * @return the {@link Question} entity with the specified title
      */
     Optional<Question> findQuestionByTitle(String title);
+
 }

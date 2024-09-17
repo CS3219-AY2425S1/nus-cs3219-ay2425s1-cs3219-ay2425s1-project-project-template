@@ -1,6 +1,7 @@
 package com.example.questionbank.service;
 
 import com.example.questionbank.commons.QuestionWithTitleNotFoundException;
+import com.example.questionbank.commons.TitleAlreadyExistsException;
 import com.example.questionbank.model.Question;
 import com.example.questionbank.repository.QuestionRepository;
 import com.example.questionbank.commons.QuestionNotFoundException;
@@ -79,6 +80,9 @@ public class QuestionService implements QuestionServiceInterface {
     public Question createQuestion(Question question) {
         if (!QuestionValidator.isValidQuestion(question)) {
             throw new IllegalArgumentException("Invalid question data");
+        }
+        if (repository.findQuestionByTitle(question.getTitle()).isPresent()) {
+            throw new TitleAlreadyExistsException(question.getTitle());
         }
         return repository.save(question);
     }

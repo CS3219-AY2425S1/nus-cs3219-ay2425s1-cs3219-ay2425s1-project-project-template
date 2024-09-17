@@ -8,40 +8,39 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Global exception handler for {@link QuestionWithTitleNotFoundException} in
+ * Global exception handler for {@link TitleAlreadyExistsException} in
  * the application.
  * <p>
- * This class handles exceptions of type {@link QuestionWithTitleNotFoundException}
+ * This class handles exceptions of type {@link TitleAlreadyExistsException}
  * thrown by controllers in the application and provides a response with a
- * 404 Not Found status.
+ * 409 Conflict status.
  *
  */
 @RestControllerAdvice
-class QuestionWithTitleNotFoundAdvice {
+class TitleAlreadyExistsAdvice {
 
     /**
      * Logger instance for logging exceptions and important information.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(
-            QuestionWithTitleNotFoundAdvice.class
+            TitleAlreadyExistsAdvice.class
     );
 
     /**
-     * Handles {@link QuestionWithTitleNotFoundException} and returns a 404 Not
-     * Found response.
+     * Handles {@link TitleAlreadyExistsException} and returns a 409 Conflict
+     * response.
      * <p>
-     * This method is triggered when a {@link QuestionWithTitleNotFoundException}
+     * This method is triggered when a {@link TitleAlreadyExistsException}
      * is thrown in the application. It logs the exception message and
      * returns it as the response body.
      *
-     * @param ex the {@link QuestionWithTitleNotFoundException} that was thrown.
+     * @param ex the {@link TitleAlreadyExistsException} that was thrown.
      * @return the exception message as the response body.
      */
-    @ExceptionHandler(QuestionWithTitleNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    String questionWithTitleNotFoundHandler(QuestionWithTitleNotFoundException ex) {
-        LOGGER.error("Question with that title not found: {}", ex.getMessage());
+    @ExceptionHandler(TitleAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    String titleAlreadyExistsHandler(TitleAlreadyExistsException ex) {
+        LOGGER.error("Title already exists: {}", ex.getMessage());
         return ex.getMessage();
     }
 }
-

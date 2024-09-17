@@ -40,6 +40,7 @@ public class Question {
      * This field holds a brief and descriptive title for the question.
      * </p>
      */
+    @Indexed(unique = true)
     private String title;
 
     /**
