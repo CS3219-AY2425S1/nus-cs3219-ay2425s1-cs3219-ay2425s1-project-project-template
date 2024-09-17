@@ -7,7 +7,8 @@ package com.example.questionbank.model;
  * It provides three possible levels:
  * <ul>
  * <li>{@code EASY} - Represents a question with an easy difficulty level.</li>
- * <li>{@code MEDIUM} - Represents a question with a medium difficulty level.</li>
+ * <li>{@code MEDIUM} - Represents a question with a medium difficulty
+ * level.</li>
  * <li>{@code HARD} - Represents a question with a hard difficulty level.</li>
  * </ul>
  * </p>

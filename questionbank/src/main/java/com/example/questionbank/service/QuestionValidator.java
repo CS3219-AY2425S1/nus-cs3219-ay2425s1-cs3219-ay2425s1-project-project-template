@@ -9,6 +9,7 @@ import com.example.questionbank.model.Question;
  * of questions, such as title or description length.
  *
  */
+@SuppressWarnings("HideUtilityClassConstructor")
 public class QuestionValidator {
 
     /**

@@ -8,6 +8,7 @@ package com.example.questionbank.commons;
  * provides a specific message including the title of the overlapping question.
  *
  */
+@SuppressWarnings("FinalParameters")
 public class TitleAlreadyExistsException extends RuntimeException {
 
     /**

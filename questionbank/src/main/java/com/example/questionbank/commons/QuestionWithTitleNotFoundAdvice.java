@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *
  */
 @RestControllerAdvice
+@SuppressWarnings("FinalParameters")
 class QuestionWithTitleNotFoundAdvice {
 
     /**

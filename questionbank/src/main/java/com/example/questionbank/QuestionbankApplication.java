@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
+@SuppressWarnings("HideUtilityClassConstructor")
 public class QuestionbankApplication {
 
     /**

@@ -8,6 +8,7 @@ package com.example.questionbank.commons;
  * provides a specific message including the ID of the missing question.
  *
  */
+@SuppressWarnings("FinalParameters")
 public class QuestionNotFoundException extends RuntimeException {
 
     /**

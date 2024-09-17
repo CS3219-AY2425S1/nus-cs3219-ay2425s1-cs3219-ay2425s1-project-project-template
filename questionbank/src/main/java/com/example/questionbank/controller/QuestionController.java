@@ -3,9 +3,6 @@ package com.example.questionbank.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.questionbank.commons.QuestionNotFoundException;
-import com.example.questionbank.commons.QuestionWithTitleNotFoundException;
-import com.example.questionbank.repository.QuestionRepository;
 import com.example.questionbank.model.QuestionModelAssembler;
 
 import com.example.questionbank.service.QuestionService;
@@ -33,13 +30,14 @@ import com.example.questionbank.model.Question;
  * Controller for managing {@link Question} resources.
  * <p>
  * This REST controller provides endpoints for creating, reading,
- * updating, and deleting questions. It uses {@link QuestionRepository}
+ * updating, and deleting questions. It uses {@link QuestionService}
  * to interact with the underlying data store and {@link QuestionModelAssembler}
  * to convert {@link Question} entities to HATEOAS-compliant {@link EntityModel}
  * and {@link CollectionModel}.
  *
  */
 @RestController
+@SuppressWarnings({"FinalParameters", "HiddenField"})
 public class QuestionController {
 
     /**
@@ -132,8 +130,7 @@ public class QuestionController {
      * Retrieves a specific question by its ID.
      * <p>
      * This endpoint returns the question with the specified ID wrapped
-     * in an {@link EntityModel}. If the question is not found,
-     * a {@link QuestionNotFoundException} is thrown.
+     * in an {@link EntityModel}.
      *
      * @param id the ID of the question to be retrieved
      * @return an {@link EntityModel} containing the requested question
@@ -151,8 +148,7 @@ public class QuestionController {
      * Retrieves a specific question by its title.
      * <p>
      * This endpoint returns the question with the specified title wrapped
-     * in an {@link EntityModel}. If the question is not found,
-     * a {@link QuestionWithTitleNotFoundException} is thrown.
+     * in an {@link EntityModel}.
      *
      * @param title the title of the question to be retrieved
      * @return an {@link EntityModel} containing the requested question

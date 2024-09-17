@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor // Lombok generates a no-argument constructor
 @AllArgsConstructor // Lombok generates a constructor with all fields
 @Document(collection = "questionbank")
+@SuppressWarnings({"FinalParameters", "HiddenField"})
 public class Question {
 
     /**

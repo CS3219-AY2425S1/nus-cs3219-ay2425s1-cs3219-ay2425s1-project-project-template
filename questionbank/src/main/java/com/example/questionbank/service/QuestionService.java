@@ -17,6 +17,7 @@ import java.util.List;
  * </p>
  */
 @Service
+@SuppressWarnings("FinalParameters")
 public class QuestionService implements QuestionServiceInterface {
 
     /**

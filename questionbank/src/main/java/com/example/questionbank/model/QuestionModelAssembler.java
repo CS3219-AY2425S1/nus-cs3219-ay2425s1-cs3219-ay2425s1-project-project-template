@@ -19,6 +19,7 @@ import com.example.questionbank.controller.QuestionController;
  * </p>
  */
 @Component
+@SuppressWarnings({"FinalParameters", "DesignForExtension"})
 public class QuestionModelAssembler implements
         RepresentationModelAssembler<Question, EntityModel<Question>> {
 
