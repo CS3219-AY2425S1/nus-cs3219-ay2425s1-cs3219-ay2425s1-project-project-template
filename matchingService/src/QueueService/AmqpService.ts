@@ -1,7 +1,7 @@
 import { Channel } from "amqplib";
-import QueueMessage from "./QueueMessage";
-import MatchRequest from "./MatchRequest";
-import { ConnectionManager, IConnectionManager } from "./ConnectionManager";
+import QueueMessage from "../models/QueueMessage";
+import MatchRequest from "../models/MatchRequest";
+import { ConnectionManager, IConnectionManager } from "../config/ConnectionManager";
 import ChannelNotFoundError from "../errors/ChannelNotFoundError";
 import Consumer from "./Consumer";
 import Producer from "./Producer";
