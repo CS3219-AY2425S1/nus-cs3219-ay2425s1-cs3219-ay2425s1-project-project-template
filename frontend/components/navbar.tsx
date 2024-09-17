@@ -1,3 +1,5 @@
+import { useAuth } from "@/app/auth/auth-context";
+
 import { Book, LogOut, Settings, User, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -12,6 +14,8 @@ import {
 import { ThemeToggle } from "./theme-toggle";
 
 export function Navbar() {
+  const auth = useAuth();
+  console.log(auth);
   return (
     <nav className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,14 +28,14 @@ export function Navbar() {
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
-                href="/questions"
+                href="/app/questions"
                 className="inline-flex items-center px-1 pt-1 border-b-2 $ text-sm font-medium"
               >
                 <Book className="mr-2 h-4 w-4" />
                 Questions
               </Link>
               <Link
-                href="/matching"
+                href="/app/matching"
                 className="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
               >
                 <Users className="mr-2 h-4 w-4" />
@@ -50,12 +54,16 @@ export function Navbar() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Link href="/settings" className="flex items-center">
+                  <Link
+                    // TODO: Make page path app/user-settings instead of app/user-settings/:id
+                    href={`/app/user-settings/${auth?.user?.id}`}
+                    className="flex items-center"
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={auth?.logout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
@@ -89,20 +97,24 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
-                  <Link href="/questions" className="flex items-center">
+                  <Link href="/app/questions" className="flex items-center">
                     <Book className="mr-2 h-4 w-4" />
                     <span>Questions</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href="/matching" className="flex items-center">
+                  <Link href="/app/matching" className="flex items-center">
                     <Users className="mr-2 h-4 w-4" />
                     <span>Matching</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Link href="/settings" className="flex items-center">
+                  <Link
+                    // TODO: Make page path app/user-settings instead of app/user-settings/:id
+                    href={`/app/user-settings/${auth?.user?.id}`}
+                    className="flex items-center"
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </Link>

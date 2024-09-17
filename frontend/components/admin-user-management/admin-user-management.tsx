@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
-import { useAuth } from "@/app/auth/auth-context";
+import { Navbar } from "../navbar";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -37,8 +37,6 @@ const fetcher = (url: string) => {
 };
 
 export default function AdminUserManagement() {
-  const auth = useAuth();
-
   const { data, error, isLoading } = useSWR(
     "http://localhost:3001/users",
     fetcher
@@ -79,28 +77,9 @@ export default function AdminUserManagement() {
     return <UnauthorisedAccess isLoggedIn={isLoggedIn} />;
   }
 
-  const handleDelete = async (userId: string) => {
-    const token = auth?.token;
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`http://localhost:3001/users/${userId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to delete user");
-    }
-
-    setUsers(users.filter((user) => user.id !== userId));
-  };
-
   return (
     <div className="container mx-auto p-4">
+      <Navbar />
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
       <Table>
         <TableHeader>
@@ -123,10 +102,7 @@ export default function AdminUserManagement() {
                 <Button variant="outline" className="mr-2" onClick={() => {}}>
                   Edit
                 </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(user.id)}
-                >
+                <Button variant="destructive" onClick={() => {}}>
                   Delete
                 </Button>
               </TableCell>
