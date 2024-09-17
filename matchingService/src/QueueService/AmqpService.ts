@@ -18,12 +18,14 @@ const testMessages: MatchRequest[] = [
 ];
 
 class AmqpService {
-    private exchange: string;
+    private categoryExchange: string;
+    private responseExchange: string;
     private connectionManager: IConnectionManager;
 
-    private constructor(exchange: string, connectionManager: IConnectionManager) {
-        this.exchange = exchange;
+    private constructor(categoryExchange: string, responseExchange: string, connectionManager: IConnectionManager) {
+        this.categoryExchange = categoryExchange;
         this.connectionManager = connectionManager;
+        this.responseExchange = responseExchange;
     }
 
     private async init(): Promise<void> {
@@ -31,12 +33,13 @@ class AmqpService {
         if (!channel) {
             return;
         }
-        channel.assertExchange(this.exchange, "headers", { durable: false });
+        channel.assertExchange(this.categoryExchange, "headers", { durable: false });
+        channel.assertExchange(this.responseExchange, "direct", { durable: false });
     }
 
-    public static async of(connectionUrl: string, exchange: string): Promise<AmqpService> {
+    public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<AmqpService> {
         var connectionManager: IConnectionManager = new ConnectionManager();
-        var service: AmqpService = new AmqpService(exchange, connectionManager);
+        var service: AmqpService = new AmqpService(categoryExchange, responseExchange, connectionManager);
         await connectionManager.setup(connectionUrl);
         await service.init();
         await service.setupQueues();
@@ -57,7 +60,7 @@ class AmqpService {
                 await channel.assertQueue(queueName, { durable: false });
     
                 // Bind the queue to the exchange with the appropriate headers
-                await channel.bindQueue(queueName, this.exchange, '', {
+                await channel.bindQueue(queueName, this.categoryExchange, '', {
                     "x-match": 'all',
                     "topic": topic,
                     "difficulty": difficulty
@@ -75,7 +78,7 @@ class AmqpService {
         var consumer: Consumer = new Consumer();
         for (const topic of TOPIC_LIST) {
             for (const difficulty of DIFFICULTY_LEVELS) {
-                await consumer.receiveMessages(topic, difficulty, this.exchange, channel, (msg: QueueMessage | null) => {
+                await consumer.receiveMessages(topic, difficulty, this.responseExchange, channel, (msg: QueueMessage | null) => {
                     let content = msg?.content.toString();
                     if (content) {
                         try {
@@ -83,12 +86,9 @@ class AmqpService {
                             console.log("Consumer received match request: ", matchRequest);
                             const correlationId: string = msg?.properties.correlationId;
                             const responseQueue: string = msg?.properties.replyTo;
-                            channel.publish(this.exchange, responseQueue, Buffer.from("Successfully matched"), {
-                                headers: {
-                                    "correlationId": correlationId,
-                                },
+                            console.log(channel.publish(this.responseExchange, responseQueue, Buffer.from("Successfully matched"), {
                                 correlationId: correlationId,
-                              })
+                              }));
                         } catch (e) {
                             if (e instanceof Error) {
                                 let name = e.message;
@@ -109,7 +109,7 @@ class AmqpService {
         }
         var producer: Producer = new Producer();
         for (const testMessage of testMessages) {
-            await producer.sendJsonMessage(testMessage, channel, this.exchange);
+            await producer.sendJsonMessage(testMessage, channel, this.categoryExchange, this.responseExchange);
         }
     }
 }

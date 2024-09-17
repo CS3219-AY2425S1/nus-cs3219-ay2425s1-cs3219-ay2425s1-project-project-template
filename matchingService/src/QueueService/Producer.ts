@@ -10,7 +10,7 @@ class Producer {
 
     }
 
-    public async sendJsonMessage(msg: MatchRequest, channel: Channel, exchange: string): Promise<void> {
+    public async sendJsonMessage(msg: MatchRequest, channel: Channel, exchange: string, responseExchange: string): Promise<void> {
         const responseQueue = await channel.assertQueue("", { exclusive: true });
         const responseQueueName = responseQueue?.queue;
         if (!responseQueue) {
@@ -25,7 +25,7 @@ class Producer {
         console.log(messageHeaders);
         console.log(exchange);
         const correlationid = uuidv4();
-        await this.waitForResponse(channel, exchange, responseQueueName, correlationid);
+        await this.waitForResponse(channel, responseExchange, responseQueueName, correlationid);
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
             replyTo: responseQueueName,
@@ -34,18 +34,15 @@ class Producer {
         console.log("Producer successfully sent message: ", msg);
     }
 
-    public async waitForResponse(channel: Channel, exchange: string, replyQueue: string, correlationId: string) {
-        await channel.bindQueue(replyQueue, exchange, "", {
-            'x-match': 'all',
-            "correlationId": correlationId,
-        });
+    public async waitForResponse(channel: Channel, responseExchange: string, replyQueue: string, correlationId: string) {
+        await channel.bindQueue(replyQueue, responseExchange, replyQueue);
         console.log("Producer waiting for response....");
         const consumer = await channel.consume(replyQueue, async (message) => {
             if (message?.properties.correlationId === correlationId) {
                 console.log("Producer received Response: ", message?.content.toString());
     
                 // Stop consuming messages after the first relevant response is received
-                // await channel.cancel(consumer.consumerTag);
+                await channel.cancel(consumer.consumerTag);
             } else {
                 console.log("Received message with different correlationId: ", message?.content.toString());
             }
