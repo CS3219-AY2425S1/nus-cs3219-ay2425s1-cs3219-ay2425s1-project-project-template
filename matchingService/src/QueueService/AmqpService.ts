@@ -32,6 +32,10 @@ class AmqpService {
         if (!channel) {
             return;
         }
+        this.createExchanges(channel);
+    }
+
+    private async createExchanges(channel: Channel): Promise<void> {
         channel.assertExchange(this.categoryExchange, "headers", { durable: false });
         channel.assertExchange(this.responseExchange, "direct", { durable: false });
     }
