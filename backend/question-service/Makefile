@@ -1,6 +1,17 @@
 .PHONY: db 
 db:
-	docker run --name question-db -p 27017:27017 -d mongodb/mongodb-community-server:6.0.8-ubi9
+	@docker run --name question-db -p 27017:27017 -d \
+		-e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+		-e MONGO_INITDB_ROOT_PASSWORD=secret \
+		-e MONGO_INITDB_DATABASE=questions_db \
+		-e INIT_QUESTION_COLLECTION=questions \
+		alxarkar/cs3219-ay2425s1-g40-question
+
+.PHONY: dropdb
+dropdb:
+	@docker exec question-db \
+		mongosh -u mongoadmin -p secret \
+		--eval "use questions_db" --eval  "db.dropDatabase()";
 
 .PHONY: server
 server:
