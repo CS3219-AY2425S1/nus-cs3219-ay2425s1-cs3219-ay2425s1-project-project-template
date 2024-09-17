@@ -5,6 +5,7 @@
     "scripts": {
         "build": "tsc",
         "test": "jest",
+        "lint": "eslint --fix && prettier --write .",
         "start": "npm run build && node dist/server.js",
         "dev": "nodemon src/server.ts"
     },
