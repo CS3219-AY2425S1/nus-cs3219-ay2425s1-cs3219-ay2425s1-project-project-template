@@ -55,10 +55,8 @@ class AmqpService {
         for (const topic of TOPIC_LIST) {
             for (const difficulty of DIFFICULTY_LEVELS) {
                 const queueName = `${topic}_${difficulty}`;
-                // Declare the queue
                 await channel.assertQueue(queueName, { durable: false });
     
-                // Bind the queue to the exchange with the appropriate headers
                 await channel.bindQueue(queueName, this.categoryExchange, '', {
                     "x-match": 'all',
                     "topic": topic,
