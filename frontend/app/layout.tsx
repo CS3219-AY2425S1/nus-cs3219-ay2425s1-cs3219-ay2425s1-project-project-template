@@ -41,9 +41,7 @@ export default function RootLayout({
           <div className="m-2">
             <ThemeToggle />
           </div>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>
