@@ -47,38 +47,40 @@ jobs:
 
   matching_service:
     runs-on: ubuntu-latest
-
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379 # Default Redis port
     steps:
-      # Check out the repository containing the code
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Set up Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-      # Build and start Docker Compose services
-      - name: Build and start Docker Compose
+      - name: Install dependencies
+        working-directory: ./matching-service
+        run: npm install
+
+      - name: Build the service
+        working-directory: ./matching-service
+        run: npm run build
+
+      - name: Start the service
+        working-directory: ./matching-service
         run: |
-          docker-compose -f docker-compose.yml up -d --build
+          nohup npm run start & sleep 5
+          curl --fail ${{ env.MATCHING_SERVICE_URL }} || exit 1
 
-      # Wait for the matching service to be ready by checking the /api endpoint
-      - name: Wait for matching service to be ready
-        run: |
-          until [[ "$(curl -s http://localhost:${{ env.MATCHING_SERVICE_URL }}/api)" == "Hello from matching service!" ]]; do
-            echo "Waiting for matching service..."
-            sleep 5
-          done
-          echo "Matching service is ready!"
-
-      # Run Jest tests
       - name: Run Jest tests
-        run: |
-          npm install
-          npm run test
+        working-directory: ./matching-service
+        run: npm run test
 
-      # Tear down the Docker Compose environment after tests
-      - name: Tear down Docker Compose
-        run: docker-compose down
+      - name: Stop the service
+        run: pkill node
 
   question_service:
     runs-on: ubuntu-latest

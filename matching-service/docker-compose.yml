@@ -11,10 +11,15 @@ services:
     #   - "6379:6379"
 
   g38-matching-service:
-    image: g38-matching-service:latest
+    image: delishad21/g38-matching-service:latest
     env_file:
       - .env  # Loads environment variables from .env file
     ports:
       - "${MATCHING_SERVICE_PORT}:${MATCHING_SERVICE_PORT}"  # Bind port using env variable
     depends_on:
       - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${MATCHING_SERVICE_PORT}/api"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
