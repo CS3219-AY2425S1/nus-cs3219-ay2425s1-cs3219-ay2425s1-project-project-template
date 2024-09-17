@@ -17,6 +17,11 @@ const UserModelSchema = new Schema({
     type: String,
     required: true,
   },
+  skillLevel: {
+    type: String,
+    enum: ["Novice", "Intermediate", "Expert", null],
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now, // Setting default to the current date/time
@@ -25,7 +30,7 @@ const UserModelSchema = new Schema({
     type: Boolean,
     required: true,
     default: false,
-  },
+  }
 });
 
 export default mongoose.model("UserModel", UserModelSchema);

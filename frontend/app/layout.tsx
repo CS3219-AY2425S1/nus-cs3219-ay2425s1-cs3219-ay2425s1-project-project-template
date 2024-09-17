@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "./auth/auth-context";
 
 const geistSans = localFont({
@@ -41,9 +42,8 @@ export default function RootLayout({
           <div className="m-2">
             <ThemeToggle />
           </div>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
