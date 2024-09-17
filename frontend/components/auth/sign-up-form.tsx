@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signUp } from "@/lib/signup";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,9 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/signup";
 import { toast } from "@/hooks/use-toast";
 
 export function SignUpForm() {
@@ -36,7 +36,7 @@ export function SignUpForm() {
     }
     const res = await signUp(username, email, password);
     if (!res.ok) {
-      toast({ title: "Error", description: "An unknown error occurred" });
+      toast({ title: "Error", description: "An unknown error has occurred" });
     }
     switch (res.status) {
       case 201:
@@ -69,9 +69,8 @@ export function SignUpForm() {
       default:
         toast({
           title: "Unknown Error",
-          description: "The server encountered an unknown error",
+          description: "An unexpected error has occured",
         });
-        // TODO: Unknown error
         break;
     }
   };
