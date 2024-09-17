@@ -1,9 +1,11 @@
 /**
- * This package contains the model classes for the Question Bank application.
- *
- * The model classes represent the main entities such as {@link Question},
- * which holds the data structure for questions including fields like ID, title,
- * description, categories, and complexity.
+ * This package contains the model classes for the Question Bank
+ * application.
+ * <p>
+ * The model classes represent the main entities such as
+ * {@link Question},which holds the data structure for questions
+ * including fields like ID, title, description, categories, and
+ * complexity.
  */
 package com.example.questionbank.model;
 
@@ -20,8 +22,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 /**
  * Represents a question entity in the question bank.
  * <p>
- * This class is mapped to the "questionbank" collection in MongoDB. It includes fields for the question's
- * identifier, title, description, categories, and complexity. Lombok annotations are used to generate
+ * This class is mapped to the "questionbank" collection in MongoDB.
+ * It includes fields for the question's identifier, title, description,
+ * categories, and complexity. Lombok annotations are used to generate
  * boilerplate code such as getters, setters, and constructors.
  * </p>
  */
@@ -51,7 +54,8 @@ public class Question {
     /**
      * The description of the question.
      * <p>
-     * This field provides a detailed explanation or context for the question.
+     * This field provides a detailed explanation or context for
+     * the question.
      * </p>
      */
     private String description;
@@ -59,7 +63,8 @@ public class Question {
     /**
      * The list of categories associated with the question.
      * <p>
-     * This field helps in categorizing the question into different topics or areas.
+     * This field helps in categorizing the question into different
+     * topics or areas.
      * </p>
      */
     private List<String> categories;
@@ -67,7 +72,8 @@ public class Question {
     /**
      * The complexity level of the question.
      * <p>
-     * This field indicates the difficulty of the question, such as "easy", "medium", or "hard".
+     * This field indicates the difficulty of the question, such as
+     * "easy", "medium", or "hard".
      * </p>
      */
     private String complexity;
@@ -75,16 +81,19 @@ public class Question {
     /**
      * The timestamp indicating when the question was created.
      * <p>
-     * This field is indexed to allow sorting by creation date for better order.
+     * This field is indexed to allow sorting by creation date for better
+     * order.
      * </p>
      */
     @Indexed
-    private LocalDateTime createdAt; // Allow sorting by createdAt for better order
+    private LocalDateTime createdAt;
 
     /**
-     * Constructs a new {@code Question} with the specified title, description, categories, and complexity.
+     * Constructs a new {@code Question} with the specified title,
+     * description, categories, and complexity.
      * <p>
-     * This constructor is used when creating a new question without specifying an ID.
+     * This constructor is used when creating a new question without
+     * specifying an ID.
      * </p>
      *
      * @param title       the title of the question
@@ -92,8 +101,8 @@ public class Question {
      * @param categories  the list of categories associated with the question
      * @param complexity  the complexity level of the question
      */
-    public Question(String title, String description, List<String> categories, String complexity) {
-
+    public Question(String title, String description,
+                    List<String> categories, String complexity) {
         this.title = title;
         this.description = description;
         this.categories = categories;

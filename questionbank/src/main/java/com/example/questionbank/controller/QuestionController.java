@@ -1,9 +1,11 @@
 /**
- * This package contains the REST controllers for the Question Bank application.
- *
- * The controllers handle incoming HTTP requests and expose the API endpoints
- * for operations on {@link Question} entities. They interact with the service layer
- * to retrieve and manipulate data and send appropriate responses to the client.
+ * This package contains the REST controllers for the Question Bank
+ * application.
+ * <p>
+ * The controllers handle incoming HTTP requests and expose the
+ * API endpoints for operations on {@link Question} entities.
+ * They interact with the service layer to retrieve and manipulate
+ * data and send appropriate responses to the client.
  */
 package com.example.questionbank.controller;
 
@@ -35,27 +37,34 @@ import com.example.questionbank.commons.QuestionNotFoundException;
 
 /**
  * Controller for managing {@link Question} resources.
- *
- * This REST controller provides endpoints for creating, reading, updating, and deleting questions.
- * It uses {@link QuestionRepository} to interact with the underlying data store and {@link QuestionModelAssembler}
- * to convert {@link Question} entities to HATEOAS-compliant {@link EntityModel} and {@link CollectionModel}.
+ * <p>
+ * This REST controller provides endpoints for creating, reading,
+ * updating, and deleting questions. It uses {@link QuestionRepository}
+ * to interact with the underlying data store and {@link QuestionModelAssembler}
+ * to convert {@link Question} entities to HATEOAS-compliant {@link EntityModel}
+ * and {@link CollectionModel}.
  *
  */
 @RestController
 public class QuestionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            QuestionController.class
+    );
 
     private final QuestionRepository repository;
     private final QuestionModelAssembler assembler;
 
     /**
-     * Constructs a {@code QuestionController} with the specified repository and assembler.
+     * Constructs a {@code QuestionController} with the specified
+     * repository and assembler.
      *
      * @param repository the {@link QuestionRepository} used to access questions
-     * @param assembler  the {@link QuestionModelAssembler} used to convert {@link Question} entities
+     * @param assembler  the {@link QuestionModelAssembler} used to convert
+     * {@link Question} entities
      */
-    QuestionController(QuestionRepository repository, QuestionModelAssembler assembler) {
+    QuestionController(QuestionRepository repository,
+                       QuestionModelAssembler assembler) {
         this.repository = repository;
         this.assembler = assembler;
     }
@@ -64,48 +73,58 @@ public class QuestionController {
     /**
      * Retrieves all questions.
      *
-     * This endpoint returns a collection of all questions in the repository, each wrapped in an {@link EntityModel}.
+     * This endpoint returns a collection of all questions in the repository,
+     * each wrapped in an {@link EntityModel}.
      *
-     * @return a {@link CollectionModel} containing {@link EntityModel}s of all questions
+     * @return a {@link CollectionModel} containing {@link EntityModel}s of
+     * all questions
      */
     @GetMapping("/questions")
     public CollectionModel<EntityModel<Question>> all() {
         logger.info("Fetching all questions");
 
-        List<EntityModel<Question>> questions = repository.findAll().stream() //
+        List<EntityModel<Question>> questions = repository.findAll()
+                .stream() //
                 .map(assembler::toModel) //
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(questions, linkTo(methodOn(QuestionController.class).all()).withSelfRel());
+        return CollectionModel.of(questions, linkTo(
+                methodOn(QuestionController.class).all()
+        ).withSelfRel());
     }
 
 
     /**
      * Creates a new question.
      *
-     * This endpoint saves a new question to the repository and returns the created question wrapped in
-     * an {@link EntityModel}.
+     * This endpoint saves a new question to the repository and
+     * returns the created question wrapped in an {@link EntityModel}.
      *
      * @param newQuestion the {@link Question} to be created
-     * @return a {@link ResponseEntity} containing the created {@link EntityModel} of the question
+     * @return a {@link ResponseEntity} containing the created
+     * {@link EntityModel} of the question
      */
     @PostMapping("/questions")
     ResponseEntity<?> newQuestion(@RequestBody Question newQuestion) {
-        logger.info("Creating a new question with title: {}", newQuestion.getTitle());
+        logger.info("Creating a new question with title: {}",
+                newQuestion.getTitle()
+        );
 
-        EntityModel<Question> entityModel = assembler.toModel(repository.save(newQuestion));
+        EntityModel<Question> entityModel = assembler.toModel(
+                repository.save(newQuestion)
+        );
 
-        return ResponseEntity //
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
 
     /**
      * Retrieves a specific question by its ID.
-     *
-     * This endpoint returns the question with the specified ID wrapped in an {@link EntityModel}.
-     * If the question is not found, a {@link QuestionNotFoundException} is thrown.
-     *
+     * <p>
+     * This endpoint returns the question with the specified ID wrapped
+     * in an {@link EntityModel}. If the question is not found,
+     * a {@link QuestionNotFoundException} is thrown.
      *
      * @param id the ID of the question to be retrieved
      * @return an {@link EntityModel} containing the requested question
@@ -125,16 +144,19 @@ public class QuestionController {
 
     /**
      * Replaces an existing question with a new question.
-     *
-     * This endpoint updates the question with the specified ID using the provided {@link Question} data.
-     * If the question does not exist, the new question is created.
+     * <p>
+     * This endpoint updates the question with the specified ID using
+     * the provided {@link Question} data. If the question does not exist,
+     * the new question is created.
      *
      * @param newQuestion the {@link Question} data to replace the existing question
      * @param id          the ID of the question to be replaced
-     * @return a {@link ResponseEntity} containing the updated {@link EntityModel} of the question
+     * @return a {@link ResponseEntity} containing the updated {@link EntityModel}
+     * of the question
      */
     @PutMapping("/questions/{id}")
-    ResponseEntity<?> replaceQuestion(@RequestBody Question newQuestion, @PathVariable String id) {
+    ResponseEntity<?> replaceQuestion(@RequestBody Question newQuestion,
+                                      @PathVariable String id) {
         logger.info("Replacing question with ID: {}", id);
 
         Question updatedQuestion = repository.findById(id) //
@@ -151,15 +173,16 @@ public class QuestionController {
 
         EntityModel<Question> entityModel = assembler.toModel(updatedQuestion);
 
-        return ResponseEntity //
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
 
     /**
      * Deletes a specific question by its ID.
-     *
-     * This endpoint removes the question with the specified ID from the repository.
+     * <p>
+     * This endpoint removes the question with the specified ID from
+     * the repository.
      *
      * @param id the ID of the question to be deleted
      * @return a {@link ResponseEntity} with no content

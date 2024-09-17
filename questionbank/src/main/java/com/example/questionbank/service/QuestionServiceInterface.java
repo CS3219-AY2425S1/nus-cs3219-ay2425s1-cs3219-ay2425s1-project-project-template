@@ -1,10 +1,12 @@
 /**
- * This package contains the service layer of the Question Bank application.
- *
- * The service layer provides the business logic for managing {@link Question} entities.
- * It includes interfaces such as {@link QuestionServiceInterface} and their implementations
- * that interact with the repository layer to perform operations such as retrieving, adding,
- * updating, and deleting questions.
+ * This package contains the service layer of the Question
+ * Bank application.
+ * <p>
+ * The service layer provides the business logic for managing
+ * {@link Question} entities. It includes interfaces such as
+ * {@link QuestionServiceInterface} and their implementations
+ * that interact with the repository layer to perform operations
+ * such as retrieving, adding, updating, and deleting questions.
  */
 package com.example.questionbank.service;
 
@@ -14,9 +16,9 @@ import java.util.List;
 
 /**
  * Service interface for managing {@link Question} entities.
- *
- * This interface defines methods for CRUD operations and any additional
- * business logic related to questions.
+ * <p>
+ * This interface defines methods for CRUD operations and any
+ * additional business logic related to questions.
  *
  */
 public interface QuestionServiceInterface {
