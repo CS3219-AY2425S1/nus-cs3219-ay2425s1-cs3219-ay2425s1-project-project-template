@@ -11,14 +11,14 @@ describe('UserRepository', () => {
         startedContainer = await container.start()
 
         const connectionString = `${startedContainer.getConnectionString()}?directConnection=true`
-        logger.info(`[Index Test] MongoDB container started on ${connectionString}`)
+        logger.info(`[User Repository Test] MongoDB container started on ${connectionString}`)
 
         await connectToDatabase(connectionString)
     }, 60000)
 
     afterAll(async () => {
         await startedContainer.stop()
-        logger.info(`[Index Test] MongoDB container stopped`)
+        logger.info(`[User Repository Test] MongoDB container stopped`)
     })
 
     describe('findOneUserByUsername', () => {
