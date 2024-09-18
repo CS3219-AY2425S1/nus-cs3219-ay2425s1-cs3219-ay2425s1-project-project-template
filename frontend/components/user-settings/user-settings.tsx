@@ -134,6 +134,14 @@ export default function UserSettings({ userId }: { userId: string }) {
         return;
       }
 
+      if (!user.username || !user.email) {
+        toast({
+          title: "Changes denied ❌",
+          description: "Username or/and Email fields cannot be empty!",
+        });
+        return;
+      }
+
       try {
         const response = await fetch(`http://localhost:3001/users/${userId}`, {
           method: "PATCH",
