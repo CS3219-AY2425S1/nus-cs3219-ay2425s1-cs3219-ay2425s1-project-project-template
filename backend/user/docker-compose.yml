@@ -1,11 +1,11 @@
 services:
   postgres:
     hostname: postgres
-    build:
-      context: ./src/lib/db
-      dockerfile: ./src/lib/db/postgres.Dockerfile
     image: "user-db"
     container_name: "user_db"
+    build:
+      context: ./src/lib/db
+      dockerfile: ./postgres.Dockerfile
     environment:
       POSTGRES_DB: "User"
       POSTGRES_USER: "user"
@@ -19,17 +19,19 @@ services:
     restart: unless-stopped
 
   express:
+    image: "user-express"
+    container_name: "user-express"
     build:
       context: ./
       dockerfile: ./express.Dockerfile
       target: build
-    image: "user-express"
-    container_name: "user-express"
     ports:
       - "8001:8001"
+    command: node dist/index.js
+    depends_on:
+      postgres:
+        condition: service_started
+        restart: true
   
 volumes:
   user-db-docker:
-    external: true
-  user-express-docker:
-    external: true

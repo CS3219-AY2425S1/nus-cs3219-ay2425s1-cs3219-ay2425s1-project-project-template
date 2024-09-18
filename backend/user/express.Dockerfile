@@ -7,8 +7,8 @@ RUN npm run build
 
 FROM node:lts-alpine AS production
 WORKDIR /data/user-express
-COPY package*.json ./
-RUN npm ci --only=production
-COPY --from=build /data/user-express/dist ./dist
+COPY --from=build /data/user-express/package*.json ./
+RUN npm ci --omit=dev
+COPY --from=build --chown=node:node /data/user-express/dist ./dist
 EXPOSE 8001
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["node", "dist/index.js"]
