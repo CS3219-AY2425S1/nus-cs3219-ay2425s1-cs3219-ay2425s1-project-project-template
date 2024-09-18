@@ -1,6 +1,5 @@
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
-import logger from '../common/logger.util'
 import { createUser, findOneUserByEmail, findOneUserByUsername } from '../models/user.repository'
 import { CreateUserDto } from '../types/CreateUserDto'
 import { TypedRequest } from '../types/TypedRequest'
@@ -11,7 +10,6 @@ export async function handleCreateUser(request: TypedRequest<CreateUserDto>, res
     const createDto = CreateUserDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        logger.info(`[Controller] [POST /users] User validation failed: ${errors}`)
         const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
         response.status(400).json(errorMessages).send()
         return
