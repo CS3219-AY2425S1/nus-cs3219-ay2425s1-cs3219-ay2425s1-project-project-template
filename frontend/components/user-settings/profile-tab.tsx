@@ -20,12 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface User {
-  username: string;
-  email: string;
-  skillLevel: string;
-}
+import { User } from "@/lib/schemas/user-schema";
 
 interface ProfileTabProps {
   user: User;
@@ -95,7 +90,7 @@ export default function ProfileTab({
         <div>
           <Label htmlFor="skillLevel">Skill Level</Label>
           <Select
-            value={user.skillLevel}
+            value={user.skillLevel ?? undefined}
             onValueChange={handleSkillLevelChange}
           >
             <SelectTrigger id="skillLevel">
