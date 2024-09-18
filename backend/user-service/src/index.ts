@@ -2,6 +2,7 @@ import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import logger from './common/logger.util'
+import userRouter from './routes/user.router'
 
 const app: Express = express()
 
@@ -27,6 +28,8 @@ app.use(async (request: Request, response: Response, next: NextFunction): Promis
     // Continue Route Processing
     next()
 })
+
+app.use('/users', userRouter)
 
 // Health Check Route
 app.get('/', async (_: Request, response: Response): Promise<void> => {
