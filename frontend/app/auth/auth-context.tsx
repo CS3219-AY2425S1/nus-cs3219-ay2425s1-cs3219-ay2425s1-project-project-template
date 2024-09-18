@@ -48,34 +48,34 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   }, [token]);
 
   // Login using email and password
-  const login = async (email: string, password: string) : Promise<User> => {
-      const response = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+  const login = async (email: string, password: string): Promise<User> => {
+    const response = await fetch("http://localhost:3001/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error("Not OK");
-      }
+    if (!response.ok) {
+      throw new Error("Not OK");
+    }
 
-      const resJson = await response.json();
+    const resJson = await response.json();
 
-      const loginUser = UserSchema.parse(resJson.data);
-      setUser(loginUser);
+    const loginUser = UserSchema.parse(resJson.data);
+    setUser(loginUser);
 
-      const { accessToken } = resJson.data;
-      setToken(accessToken);
+    const { accessToken } = resJson.data;
+    setToken(accessToken);
 
-      // Cache JWT token for future authentication without login
-      localStorage.setItem(tokenKey, accessToken);
+    // Cache JWT token for future authentication without login
+    localStorage.setItem(tokenKey, accessToken);
 
-      return loginUser;
+    return loginUser;
   };
 
   const logout = async () => {

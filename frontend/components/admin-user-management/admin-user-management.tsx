@@ -28,11 +28,11 @@ const fetcher = async (url: string): Promise<User[]> => {
       "Content-Type": "application/json",
     },
   });
-  
+
   if (!response.ok) {
     throw new Error(String(response.status));
   }
-  
+
   const data = await response.json();
 
   return UserArraySchema.parse(data.data);

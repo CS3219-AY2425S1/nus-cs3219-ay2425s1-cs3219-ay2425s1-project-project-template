@@ -25,7 +25,7 @@ import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 
-const fetcher = async (url: string) : Promise<User> => {
+const fetcher = async (url: string): Promise<User> => {
   // Retrieve the JWT token from localStorage
   const token = localStorage.getItem("jwtToken");
   if (!token) {
@@ -38,11 +38,11 @@ const fetcher = async (url: string) : Promise<User> => {
       "Content-Type": "application/json",
     },
   });
-  
+
   if (!response.ok) {
     throw new Error(String(response.status));
   }
-  
+
   const data = await response.json();
 
   return UserSchema.parse(data.data);
