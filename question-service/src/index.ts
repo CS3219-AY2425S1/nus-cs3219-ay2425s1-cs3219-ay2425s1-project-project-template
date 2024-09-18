@@ -10,7 +10,7 @@ const app: Application = express();
 
 // Middleware
 app.use(express.json());
-app.use(authMiddleware);
+// app.use(authMiddleware);
 
 // MongoDB connection
 mongoose
