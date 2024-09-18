@@ -30,17 +30,20 @@ app.use((request: Request, response: Response, next: NextFunction) => {
 // Health Check Route
 app.get('/', (_: Request, response: Response) => {
     response.status(200)
+    response.send()
 })
 
 //  Not Found Route
 app.use((response: Response) => {
     response.status(404)
+    response.send()
 })
 
 // Default Error Handler
 app.use((error: Error, request: Request, response: Response) => {
     logger.error(`[Controller] [${request.method}  ${request.baseUrl + request.path}] ${error.message}`)
     response.status(500)
+    response.send()
 })
 
 export default app
