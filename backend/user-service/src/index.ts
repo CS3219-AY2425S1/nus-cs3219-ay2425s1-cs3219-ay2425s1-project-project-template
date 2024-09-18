@@ -34,7 +34,7 @@ app.get('/', (_: Request, response: Response) => {
 })
 
 //  Not Found Route
-app.use((response: Response) => {
+app.use((_: Request, response: Response) => {
     response.status(404)
     response.send()
 })
