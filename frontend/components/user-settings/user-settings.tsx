@@ -23,6 +23,7 @@ import ProfileTab from "@/components/user-settings/profile-tab";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
+import AuthPageWrapper from "../auth/auth-page-wrapper";
 
 interface User {
   username: string;
@@ -311,16 +312,11 @@ export default function UserSettings({ userId }: { userId: string }) {
     return <LoadingScreen />;
   }
 
-  if (error) {
-    return <div>Error: Failed to load user data</div>;
-  }
-
-  if (!user) {
-    return <div>No user data available.</div>;
-  }
-
   return (
-    <div className="container mx-auto p-4">
+    <AuthPageWrapper requireLoggedIn>
+      {error ? (<div>Error: Failed to load user data</div>) : (
+        !user ? (<div>No user data available.</div>) : (
+          <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">
         User Settings for {originalUsername}
       </h1>
@@ -498,5 +494,8 @@ export default function UserSettings({ userId }: { userId: string }) {
         </TabsContent>
       </Tabs>
     </div>
+        )
+      )}
+    </AuthPageWrapper>
   );
 }
