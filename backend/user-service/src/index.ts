@@ -2,7 +2,7 @@ import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import logger from './common/logger.util'
-import userRouter from './routes/user.router'
+import userRouter from './routes/user.routes'
 
 const app: Express = express()
 
