@@ -3,22 +3,11 @@ import { Response } from 'express'
 import logger from '../common/logger.util'
 import { createUser, findOneUserByEmail, findOneUserByUsername } from '../models/user.repository'
 import { CreateUserDto } from '../types/CreateUserDto'
-import { Proficiency } from '../types/Proficiency'
-import { Role } from '../types/Role'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { hashPassword } from './auth.controller'
 
-export async function handleCreateUser(
-    request: TypedRequest<{
-        username: string
-        password: string
-        email: string
-        role: Role
-        proficiency: Proficiency | undefined
-    }>,
-    response: Response
-): Promise<void> {
+export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
     const createDto = CreateUserDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
