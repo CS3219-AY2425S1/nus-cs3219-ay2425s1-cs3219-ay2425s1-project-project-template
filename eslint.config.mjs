@@ -1,5 +1,5 @@
-import pluginJs from '@eslint/js'
 import globals from 'globals'
+import pluginJs from '@eslint/js'
 import tseslint from 'typescript-eslint'
 
 export default [
@@ -7,5 +7,5 @@ export default [
     { languageOptions: { globals: globals.browser } },
     pluginJs.configs.recommended,
     ...tseslint.configs.recommended,
-    { ignores: ['**/dist/*', '**/node_modules/*', '**/jest.config.{ts,js}'] },
+    { ignores: ['**/dist/*', '**/node_modules/*', '**/jest.config.{ts,js}', '**/tailwind.config.{js,ts}'] },
 ]
