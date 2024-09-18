@@ -14,7 +14,7 @@ export default function Home() {
           </h1>
           <p className="text-2xl font-hairline font-albert">easier than ever</p>
           <div className="mt-10 w-3/4">
-            <Button text="Sign Up" link="/auth/signup"/>
+            <Button text="Sign Up" link="/auth/signup" />
           </div>
         </div>
 

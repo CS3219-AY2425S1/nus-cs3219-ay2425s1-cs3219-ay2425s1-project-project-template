@@ -24,7 +24,7 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        albert_sans: ['var(--font-albert-sans)'],
+        albert_sans: ["var(--font-albert-sans)"],
       },
     },
   },

@@ -6,7 +6,5 @@ export default function Signup() {
       <Header />
       Home Page
     </div>
-
-    
   );
 }

@@ -6,16 +6,14 @@ export default function Header({ children }: { children?: React.ReactNode }) {
     <header className="mx-5 flex place-content-between ">
       <Link href="/">
         <Image
-        className="dark:invert"
-        src="/icons/logo-full.png"
-        alt="Next.js logo"
-        width={128}
-        height={128}
+          className="dark:invert"
+          src="/icons/logo-full.png"
+          alt="Next.js logo"
+          width={128}
+          height={128}
         />
       </Link>
-      <div className="flex space-x-5">
-        {children}
-      </div>
+      <div className="flex space-x-5">{children}</div>
     </header>
   );
 }
