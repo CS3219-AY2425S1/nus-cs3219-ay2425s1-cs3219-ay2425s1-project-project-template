@@ -1,7 +1,9 @@
 import { useAuth } from "@/app/auth/auth-context";
+import { usePathname } from "next/navigation";
+
 import { Book, BookUser, LogOut, Settings, User, Users } from "lucide-react";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,9 +11,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { ThemeToggle } from "./theme-toggle";
-import { usePathname } from "next/navigation";
+} from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
   const auth = useAuth();
