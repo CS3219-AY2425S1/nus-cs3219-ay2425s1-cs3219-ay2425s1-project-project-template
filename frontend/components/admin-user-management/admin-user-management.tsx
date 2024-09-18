@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/auth/auth-context";
 import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/table";
 import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
-import { useAuth } from "@/app/auth/auth-context";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 
 const fetcher = async (url: string): Promise<User[]> => {
@@ -40,7 +40,6 @@ const fetcher = async (url: string): Promise<User[]> => {
 
 export default function AdminUserManagement() {
   const auth = useAuth();
-
   const { data, error, isLoading } = useSWR(
     "http://localhost:3001/users",
     fetcher
