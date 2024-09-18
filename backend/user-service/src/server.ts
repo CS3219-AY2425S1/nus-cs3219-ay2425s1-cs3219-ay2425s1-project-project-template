@@ -20,12 +20,11 @@ const port: string = process.env.PORT ?? '3000'
 const dbUrl: string | undefined = process.env.DB_URL
 if (!dbUrl) {
     logger.error(`[Init] DB_URL is not set`)
-    process.exit(1)
 }
 
 const server: Server = http.createServer(index)
 
-connect(dbUrl)
+connect(dbUrl!)
     .then(() => {
         logger.info(`[Init] Connected to MongoDB`)
     })
