@@ -1,10 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 
 export default function Header({ children }: { children?: React.ReactNode }) {
   return (
     <header className="mx-5 flex place-content-between ">
-      <Link href="/">
+      <Link href="/home">
         <Image
           className="dark:invert"
           src="/icons/logo-full.png"
