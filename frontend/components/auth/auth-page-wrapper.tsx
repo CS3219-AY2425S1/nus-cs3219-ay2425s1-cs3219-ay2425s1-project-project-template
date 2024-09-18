@@ -6,7 +6,7 @@ import { useAuth } from "@/app/auth/auth-context";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-type AuthCheck = (user: object) => boolean;
+type AuthCheck = (user: { isAdmin: boolean } | undefined | null) => boolean;
 
 interface AuthPageWrapperProps extends React.HTMLProps<HTMLDivElement> {
   children: ReactNode;
@@ -21,7 +21,7 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({ children, ...props })
   const auth = useAuth();
   const router = useRouter();
 
-  const finalAuthCheck = (user: object) : boolean => {
+  const finalAuthCheck = (user: { isAdmin: boolean } | undefined | null) : boolean => {
     if (props?.requireLoggedIn && !user) {
       return false;
     }
@@ -37,7 +37,7 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({ children, ...props })
 
   return (
     <div>
-      {finalAuthCheck(auth?.user as object) ? children : (
+      {finalAuthCheck(auth?.user) ? children : (
       <div className="flex items-start justify-center h-2/6">
         <div className="text-center mt-[20vh]">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
