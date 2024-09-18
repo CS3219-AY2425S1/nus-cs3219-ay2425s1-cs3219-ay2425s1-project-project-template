@@ -14,6 +14,8 @@ import {
 import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
+import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
+import { PencilIcon, Trash2Icon } from "lucide-react";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -54,6 +56,14 @@ export default function AdminUserManagement() {
   >([]);
   const [unauthorised, setUnauthorised] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    username: string;
+    email: string;
+    isAdmin: boolean;
+    skillLevel: string;
+  } | undefined>();
 
   useEffect(() => {
     if (data) {
@@ -102,6 +112,11 @@ export default function AdminUserManagement() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
+      <AdminEditUserModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        user={selectedUser}
+      />
       <Table>
         <TableHeader>
           <TableRow>
@@ -120,14 +135,20 @@ export default function AdminUserManagement() {
               <TableCell>{user.isAdmin ? "Admin" : "User"}</TableCell>
               <TableCell>{user.skillLevel}</TableCell>
               <TableCell>
-                <Button variant="outline" className="mr-2" onClick={() => {}}>
-                  Edit
+                <Button 
+                  variant="outline"
+                  className="mr-2"
+                  onClick={() => {
+                    setSelectedUser(user);
+                    setShowModal(true);
+                  }}>
+                  <PencilIcon/>
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={() => handleDelete(user.id)}
                 >
-                  Delete
+                  <Trash2Icon/>
                 </Button>
               </TableCell>
             </TableRow>
