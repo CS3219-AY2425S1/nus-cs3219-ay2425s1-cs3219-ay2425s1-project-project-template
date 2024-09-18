@@ -1,9 +1,9 @@
-import { Schema, model } from 'mongoose'
+import { Schema } from 'mongoose'
 import { IUser } from '../types/IUser'
 import { Proficiency } from '../types/Proficiency'
 import { Role } from '../types/Role'
 
-const UserSchema = new Schema<IUser>({
+export default new Schema<IUser>({
     username: {
         type: String,
         required: true,
@@ -43,5 +43,3 @@ const UserSchema = new Schema<IUser>({
         default: null,
     },
 })
-
-export default model<IUser>('User', UserSchema)

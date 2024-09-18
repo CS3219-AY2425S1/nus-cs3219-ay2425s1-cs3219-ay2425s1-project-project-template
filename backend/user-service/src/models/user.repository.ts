@@ -1,7 +1,10 @@
+import { Model, model } from 'mongoose'
 import { CreateUserDto } from '../types/CreateUserDto'
 import { IUser } from '../types/IUser'
 import { UserDto } from '../types/UserDto'
-import userModel from './user.model'
+import userSchema from './user.model'
+
+const userModel: Model<IUser> = model('User', userSchema)
 
 export async function findAllUsers(): Promise<IUser[]> {
     return userModel.find()
