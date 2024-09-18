@@ -10,6 +10,7 @@ services:
       - /app/node_modules
     environment:
       - FRONTEND_PORT=${FRONTEND_PORT}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
     ports:
       - "3000:3000"
 
