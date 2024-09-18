@@ -1,7 +1,7 @@
 import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
-import { logger } from './server'
+import logger from './common/logger.util'
 
 const app: Express = express()
 
