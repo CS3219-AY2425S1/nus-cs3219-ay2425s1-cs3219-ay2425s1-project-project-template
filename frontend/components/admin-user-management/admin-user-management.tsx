@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/auth/auth-context";
 import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import LoadingScreen from "@/components/common/loading-screen";
-import { useAuth } from "@/app/auth/auth-context";
 import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
 
 const fetcher = (url: string) => {
@@ -40,6 +40,7 @@ export default function AdminUserManagement() {
   const auth = useAuth();
 
   const { data, isLoading } = useSWR("http://localhost:3001/users", fetcher);
+
   const [users, setUsers] = useState<
     {
       id: string;
