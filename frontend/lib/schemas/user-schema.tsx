@@ -8,3 +8,7 @@ export const UserSchema = z.object({
     isAdmin: z.boolean(),
     createdAt: z.string(),
 });
+
+export const UserArraySchema = z.array(UserSchema);
+
+export type User = z.infer<typeof UserSchema>;
