@@ -10,16 +10,34 @@ type AuthCheck = (user: object) => boolean;
 
 interface AuthPageWrapperProps extends React.HTMLProps<HTMLDivElement> {
   children: ReactNode;
-  authCheck?: AuthCheck; // Return true if user has access
+
+  // User access rules
+  authCheck?: AuthCheck; // Custom predicate which is true when user is to be granted access
+  requireAdmin?: boolean;
+  requireLoggedIn?: boolean;
 }
 
 const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({ children, ...props }) => {
   const auth = useAuth();
   const router = useRouter();
 
+  const finalAuthCheck = (user: object) : boolean => {
+    if (props?.requireLoggedIn && !user) {
+      return false;
+    }
+    if (props?.requireAdmin && !user?.isAdmin) {
+      return false;
+    }
+    if (props?.authCheck) {
+      return props.authCheck(user);
+    }
+    // Allow access if no user access rule is defined
+    return true;
+  };
+
   return (
     <div>
-      {!props.authCheck || props.authCheck(auth?.user as object) ? children : (
+      {finalAuthCheck(auth?.user as object) ? children : (
       <div className="flex items-start justify-center h-2/6">
         <div className="text-center mt-[20vh]">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
@@ -29,7 +47,7 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({ children, ...props })
             size="lg"
             onClick={() => {
               auth?.user
-                ? router.push("/") // TODO: Change redirect later based on user login
+                ? router.push("/")
                 : router.push("/auth/login");
             }}
           >
