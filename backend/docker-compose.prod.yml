@@ -1,19 +1,17 @@
-#################
-## DEVELOPMENT ##
-#################
+################
+## PRODUCTION ##
+################
 version: "3"
 services:
   gateway-service:
     build:
       context: ./gateway-service
-      target: development
+      target: production
     container_name: gateway-service
-    command: npm run start:dev
+    command: npm run start:prod
     ports:
       - "4000:4000"
-    volumes:
-      - ./gateway-service:/app
-      - /app/node_modules
+    restart: always
     depends_on:
       - questions-service
       - users-service
@@ -23,12 +21,10 @@ services:
   questions-service:
     build:
       context: ./questions-service
-      target: development
+      target: production
     container_name: questions-service
-    volumes:
-      - ./questions-service:/app
-      - /app/node_modules
-    command: npm run start:dev
+    command: npm run start:prod
+    restart: always
     env_file:
       - ./questions-service/.env
     networks:
@@ -37,12 +33,10 @@ services:
   users-service:
     build:
       context: ./users-service
-      target: development
+      target: production
     container_name: users-service
-    command: npm run start:dev
-    volumes:
-      - ./users-service:/app
-      - /app/node_modules
+    command: npm run start:prod
+    restart: always
     env_file:
       - ./users-service/.env
     networks:
