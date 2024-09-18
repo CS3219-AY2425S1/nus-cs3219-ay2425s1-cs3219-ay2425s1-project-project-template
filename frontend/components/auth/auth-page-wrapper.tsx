@@ -17,11 +17,16 @@ interface AuthPageWrapperProps extends React.HTMLProps<HTMLDivElement> {
   requireLoggedIn?: boolean;
 }
 
-const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({ children, ...props }) => {
+const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({
+  children,
+  ...props
+}) => {
   const auth = useAuth();
   const router = useRouter();
 
-  const finalAuthCheck = (user: { isAdmin: boolean } | undefined | null) : boolean => {
+  const finalAuthCheck = (
+    user: { isAdmin: boolean } | undefined | null
+  ): boolean => {
     if (props?.requireLoggedIn && !user) {
       return false;
     }
@@ -37,25 +42,25 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({ children, ...props })
 
   return (
     <div>
-      {finalAuthCheck(auth?.user) ? children : (
-      <div className="flex items-start justify-center h-2/6">
-        <div className="text-center mt-[20vh]">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Uh Oh! You&apos;re not supposed to be here!
-          </h1>
-          <Button
-            size="lg"
-            onClick={() => {
-              auth?.user
-                ? router.push("/")
-                : router.push("/auth/login");
-            }}
-          >
-            Return Home
-          </Button>
+      {finalAuthCheck(auth?.user) ? (
+        children
+      ) : (
+        <div className="flex items-start justify-center h-2/6">
+          <div className="text-center mt-[20vh]">
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+              Uh Oh! You&apos;re not supposed to be here!
+            </h1>
+            <Button
+              size="lg"
+              onClick={() => {
+                auth?.user ? router.push("/") : router.push("/auth/login");
+              }}
+            >
+              Return Home
+            </Button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
     </div>
   );
 };

@@ -39,10 +39,7 @@ const fetcher = (url: string) => {
 export default function AdminUserManagement() {
   const auth = useAuth();
 
-  const { data, isLoading } = useSWR(
-    "http://localhost:3001/users",
-    fetcher
-  );
+  const { data, isLoading } = useSWR("http://localhost:3001/users", fetcher);
   const [users, setUsers] = useState<
     {
       id: string;
