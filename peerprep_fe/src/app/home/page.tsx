@@ -14,6 +14,7 @@ export default function Home() {
     if (!token) {
       router.push("/auth/login");
     }
+    // TODO: Validate token is still valid
   });
 
   return (
