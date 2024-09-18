@@ -1,0 +1,26 @@
+services:
+
+  frontend-service:
+    build: ./frontend-service
+    ports:
+      - 3000:3000
+    depends_on:
+      - question-service
+      - user-service
+
+  question-service:
+    build: ./question-service
+    ports:
+      - 3001:3001
+
+  user-service:
+    build: ./user-service
+    ports:
+      - 3002:3002
+
+# Notes:
+#
+# Docker Compose will automatically create an internal network where services can resolve each other using their service names.
+#
+# For example, inside your frontend-service code, you can make requests to the question-service like this:
+# - const questionServiceURL = "http://question-service:3001/api/questions";  # Hostname is the service name
