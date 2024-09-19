@@ -21,22 +21,22 @@ const MatchFound: React.FC<MatchFoundProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
-        <ModalHeader>
-          <h3>We found a match! Hang tight!</h3>
+        <ModalHeader className="font-sans flex flex-col pt-8">
+          <p className="text-xl font-bold pb-2">
+            We found a match! Hang tight!
+          </p>
         </ModalHeader>
         <ModalBody>
           <Badge variant="flat" color="success">
-            <p>Setting up your coding environment...</p>
+            <p>
+              Setting up your coding environment...
+              <br />
+              You will be redirected automatically.
+            </p>
           </Badge>
           <Spacer y={1} />
-          <p>You will be redirected automatically.</p>
+          <p></p>
         </ModalBody>
-        <ModalFooter>
-          <Button color="danger" onClick={() => console.log("Canceled")}>
-            Cancel
-          </Button>
-          <Button onClick={onConfirm}>Confirm</Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

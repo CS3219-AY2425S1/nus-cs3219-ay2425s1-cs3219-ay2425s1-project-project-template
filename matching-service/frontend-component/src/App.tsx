@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import MatchUI from "./components/MatchUI";
+import { Button } from "@nextui-org/react";
 
 const App: React.FC = () => {
   const [isMatchUIVisible, setIsMatchUIVisible] = useState<boolean>(true);
@@ -11,7 +12,9 @@ const App: React.FC = () => {
   return (
     <div>
       {isMatchUIVisible && <MatchUI onClose={handleClose} />}
-      <button onClick={() => setIsMatchUIVisible(true)}>Open MatchUI</button>
+      <Button onClick={() => setIsMatchUIVisible(true)} variant="solid">
+        Open MatchUI
+      </Button>
     </div>
   );
 };

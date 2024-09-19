@@ -1,11 +1,5 @@
-import React, { useState, useMemo } from "react";
-import {
-  Button,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from "@nextui-org/react";
+import React, { useState } from "react";
+import { Button, Select, SelectItem, Spinner } from "@nextui-org/react";
 import {
   Modal,
   ModalContent,
@@ -15,7 +9,7 @@ import {
 } from "@nextui-org/modal";
 
 interface StartSessionProps {
-  onContinue: (difficulty: string, topic: string) => void;
+  handleMatchFound: () => void;
   onClose: () => void;
   isOpen: boolean;
 }
@@ -25,26 +19,21 @@ const difficulties = ["Easy", "Medium", "Hard"];
 const topics = ["Dynamic Programming", "Graphs", "Arrays"];
 
 const StartSession: React.FC<StartSessionProps> = ({
-  onContinue,
+  handleMatchFound,
   onClose,
   isOpen,
 }) => {
+  // Using sets here in case we want to add multiple criteria matchmaking in the future
   const [selectedDifficultyKeys, setSelectedDifficultyKeys] = useState(
     new Set(["Easy"])
   );
   const [selectedTopicKeys, setSelectedTopicKeys] = useState(
     new Set(["Dynamic Programming"])
   );
+  const [isMatching, setIsMatching] = useState(false);
+  const [matchmakingTime, setMatchmakingTime] = useState<number>(0);
 
-  const selectedDifficulty = useMemo(
-    () => Array.from(selectedDifficultyKeys).join(", "),
-    [selectedDifficultyKeys]
-  );
-
-  const selectedTopic = useMemo(
-    () => Array.from(selectedTopicKeys).join(", "),
-    [selectedTopicKeys]
-  );
+  const [intervalID, setIntervalID] = useState<NodeJS.Timeout | null>(null);
 
   const handleDifficultyChange = (keys: any) => {
     setSelectedDifficultyKeys(new Set(keys));
@@ -54,56 +43,112 @@ const StartSession: React.FC<StartSessionProps> = ({
     setSelectedTopicKeys(new Set(keys));
   };
 
+  const handleMatchmaking = (
+    selectedDifficultyKeys: Set<string>,
+    selectedTopicKeys: Set<string>
+  ) => {
+    setIsMatching(true);
+    console.log(
+      `Matchmaking started with difficulty: ${Array.from(
+        selectedDifficultyKeys
+      ).join(", ")} and topic: ${Array.from(selectedTopicKeys).join(", ")}`
+    );
+    // Insert matchmaking logic here
+
+    // Simulation for testing
+    let time = 0;
+    const interval = setInterval(() => {
+      setMatchmakingTime(time);
+      time += 1;
+      if (time >= 5) {
+        clearInterval(interval);
+        handleMatchFound();
+      }
+    }, 1000);
+    setIntervalID(interval);
+  };
+
+  const handleStopMatchmaking = () => {
+    setIsMatching(false);
+    if (intervalID) {
+      clearInterval(intervalID);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
-        <ModalHeader className="flex flex-col">
-          <h3>Start a new session</h3>
-          <p>
-            Choose the topic, difficulty and we will match you with someone
-            else!
+        <ModalHeader className="font-sans flex flex-col pt-8">
+          <p className="text-xl font-bold pb-2">
+            {isMatching ? "Matchmaking in progress" : "Start a new session"}
           </p>
+          <p className="text-base font-normal text-gray-500">
+            {isMatching
+              ? "Hold on as we find someone for you..."
+              : "Choose the topic, difficulty and we will match you with someone else!"}
+          </p>
+          {isMatching && <Spinner color="secondary" className="pt-5" />}
+          {isMatching && (
+            <p className="text-base place-content-centre font-normal text-gray-500">
+              Matchmaking time: {matchmakingTime}s
+            </p>
+          )}
         </ModalHeader>
         <ModalBody>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button variant="bordered">{selectedDifficulty}</Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="Select Difficulty"
-              variant="flat"
-              closeOnSelect={true}
-              disallowEmptySelection
-              selectionMode="single"
-              selectedKeys={selectedDifficultyKeys}
-              onSelectionChange={handleDifficultyChange}
-            >
-              {difficulties.map((diff) => (
-                <DropdownItem key={diff}>{diff}</DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button variant="bordered">{selectedTopic}</Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="Select Topic"
-              variant="flat"
-              closeOnSelect={true}
-              disallowEmptySelection
-              selectionMode="single"
-              selectedKeys={selectedTopicKeys}
-              onSelectionChange={handleTopicChange}
-            >
-              {topics.map((top) => (
-                <DropdownItem key={top}>{top}</DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
+          <Select
+            label="Difficulty"
+            labelPlacement="outside"
+            variant="bordered"
+            className="flex flex-col"
+            selectedKeys={selectedDifficultyKeys}
+            onSelectionChange={handleDifficultyChange}
+            classNames={{ label: "font-bold" }}
+            radius="sm"
+            size="lg"
+            isDisabled={isMatching}
+          >
+            {difficulties.map((diff) => (
+              <SelectItem key={diff}>{diff}</SelectItem>
+            ))}
+          </Select>
+          <Select
+            label="Topic"
+            labelPlacement="outside"
+            variant="bordered"
+            className="flex flex-col"
+            selectedKeys={selectedTopicKeys}
+            onSelectionChange={handleTopicChange}
+            classNames={{ label: "font-bold" }}
+            radius="sm"
+            size="lg"
+            isDisabled={isMatching}
+          >
+            {topics.map((top) => (
+              <SelectItem key={top}>{top}</SelectItem>
+            ))}
+          </Select>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={() => onContinue(selectedDifficulty, selectedTopic)}>
+        <ModalFooter className="pb-8 pt-6 pl-5 pr-5">
+          <Button
+            color={isMatching ? "danger" : "secondary"}
+            variant="bordered"
+            className="flex-1 mx-1"
+            radius="sm"
+            size="lg"
+            onClick={isMatching ? handleStopMatchmaking : onClose}
+          >
+            {!isMatching ? "Cancel" : "Stop"}
+          </Button>
+          <Button
+            color="secondary"
+            className="flex-1 mx-1"
+            radius="sm"
+            size="lg"
+            onClick={() =>
+              handleMatchmaking(selectedDifficultyKeys, selectedTopicKeys)
+            }
+            isDisabled={isMatching}
+          >
             Continue
           </Button>
         </ModalFooter>
