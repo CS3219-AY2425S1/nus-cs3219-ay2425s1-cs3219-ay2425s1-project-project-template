@@ -71,6 +71,8 @@ func main() {
 	//create a new instance of the questionDB
 	questionDB := NewQuestionDB(server)
 
-	router.GET("/questions", questionDB.GetAllQuestions)
+	//set all the endpoints
+	SetAllEndpoints(router, questionDB)
+	
 	router.Run(":9090") //currently local hosted
 }
