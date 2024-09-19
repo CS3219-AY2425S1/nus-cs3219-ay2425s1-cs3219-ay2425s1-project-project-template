@@ -6,7 +6,8 @@ import axios from 'axios';
 export class GatewayService {
 
   async handleRedirectRequest(@Req() req: Request, @Res() res: Response, serviceDomain: string): Promise<void> {
-    const url = `${serviceDomain}${req.originalUrl.replace('/api', '')}`;
+    const url = `${serviceDomain}${req.originalUrl.replace("/api", "")}`;
+    console.log(url)
     try {
       const response = await axios({
         method: req.method,

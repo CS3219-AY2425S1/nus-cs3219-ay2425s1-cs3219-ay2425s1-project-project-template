@@ -26,8 +26,8 @@ export class GatewayController {
     this.gatewayService.handleRedirectRequest(req, res, this.questionServiceDomain)
   }
 
-  
-  @All('user/*')
+  // authenticated alrdy
+  @All('users/*')
   async handleUserRequest(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.gatewayService.handleRedirectRequest(req, res, this.userServiceDomain)
   }
