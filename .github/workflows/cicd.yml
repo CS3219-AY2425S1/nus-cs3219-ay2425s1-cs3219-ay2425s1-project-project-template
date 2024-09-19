@@ -54,6 +54,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          context: ./peer-prep-be
           file: ./peer-prep-be/Dockerfile
           platforms: linux/arm64, linux/amd64
           push: true
