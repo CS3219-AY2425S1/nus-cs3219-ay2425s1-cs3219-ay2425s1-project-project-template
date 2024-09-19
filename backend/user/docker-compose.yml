@@ -18,20 +18,20 @@ services:
       - "5431:5432"
     restart: unless-stopped
 
-  express:
-    image: "user-express"
-    container_name: "user-express"
-    build:
-      context: ./
-      dockerfile: ./express.Dockerfile
-      target: build
-    ports:
-      - "8001:8001"
-    command: node dist/index.js
-    depends_on:
-      postgres:
-        condition: service_started
-        restart: true
+  # express:
+  #   image: "user-express"
+  #   container_name: "user-express"
+  #   build:
+  #     context: ./
+  #     dockerfile: ./express.Dockerfile
+  #     target: build
+  #   ports:
+  #     - "8001:8001"
+  #   command: node dist/index.js
+  #   depends_on:
+  #     postgres:
+  #       condition: service_started
+  #       restart: true
   
 volumes:
   user-db-docker:
