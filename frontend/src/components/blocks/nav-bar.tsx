@@ -1,4 +1,4 @@
-import { SunIcon, MoonIcon } from '@radix-ui/react-icons';
+import { SunIcon, MoonIcon, PersonIcon } from '@radix-ui/react-icons';
 import { observer } from 'mobx-react';
 
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
@@ -50,6 +50,11 @@ const NavBar = observer(() => {
           {isSignUp && (
             <Button variant='outline'>
               <a href={ROUTES.LOGIN}>Log In</a>
+            </Button>
+          )}
+          {!isSignUp && !isLogin && (
+            <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
+              <PersonIcon />
             </Button>
           )}
         </div>
