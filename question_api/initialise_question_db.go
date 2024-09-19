@@ -1,3 +1,4 @@
+// this is used to initialise the database connection
 package main
 
 import (

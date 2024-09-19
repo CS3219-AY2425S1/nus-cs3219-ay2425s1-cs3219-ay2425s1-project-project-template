@@ -1,6 +1,5 @@
-package main
-
 //this is the main file to run the server
+package main
 
 import (
 	"github.com/gin-gonic/gin"
@@ -73,6 +72,6 @@ func main() {
 
 	//set all the endpoints
 	SetAllEndpoints(router, questionDB)
-	
+
 	router.Run(":9090") //currently local hosted
 }

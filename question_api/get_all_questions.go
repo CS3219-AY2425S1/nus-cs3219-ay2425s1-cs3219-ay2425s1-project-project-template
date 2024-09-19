@@ -1,3 +1,4 @@
+// endpoint to get all questions
 package main
 
 import (

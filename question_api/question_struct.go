@@ -1,12 +1,6 @@
+// defines the JSON format of quesitons.
 package main
-/*
-import (
-	"encoding/json"
-	"fmt"
-)
-*/
 
-// Difficulty represents the difficulty level of a question
 type Difficulty int 
 
 const (
