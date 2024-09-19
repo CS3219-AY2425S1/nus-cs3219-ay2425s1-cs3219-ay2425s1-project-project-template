@@ -11,6 +11,16 @@ services:
         - ./frontend:/app
       ports:
         - "3000:3000"
+
+  api-gateway:
+    build: 
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8001:8001
+    volumes:
+      - ./backend/api-gateway:/app
+
   user-app:
     build: 
       context: ./backend/user-service
