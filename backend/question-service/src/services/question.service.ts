@@ -48,7 +48,7 @@ export class QuestionService {
         const { difficulty, topics } = filterQuestionsDto;
         const filter: any = {};
         if (difficulty) {
-          filter.difficulty = difficulty;
+          filter.complexity = difficulty;
         }
         if (topics && topics.length > 0) {
           filter.topics = { $in: topics };
@@ -60,7 +60,7 @@ export class QuestionService {
         const { difficulty, topics } = filterQuestionsDto;
         const filter: any = {};
         if (difficulty) {
-          filter.difficulty = difficulty;
+          filter.complexity = difficulty;
         }
         if (topics && topics.length > 0) {
           filter.topics = { $in: topics };

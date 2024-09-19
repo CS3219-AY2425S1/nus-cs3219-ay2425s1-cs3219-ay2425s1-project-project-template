@@ -23,6 +23,22 @@ export class QuestionController {
         return this.questionService.findAll();
     }
 
+    @ApiOperation({ summary: 'Get a random question based on filter criteria' })
+    @ApiResponse({ status: 200, type: Question })
+    @Get('random')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async getRandomQuestion(@Query() filterQuestionsDto: FilterQuestionsDto): Promise<Question | null> {
+        return this.questionService.getRandomQuestion(filterQuestionsDto);
+    }
+
+    @ApiOperation({ summary: 'Filter questions by difficulty and topics' })
+    @ApiResponse({ status: 200, type: [Question] })
+    @Get('filter')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async filterQuestions(@Query() filterQuestionsDto: FilterQuestionsDto): Promise<Question[]> {
+        return this.questionService.filterQuestions(filterQuestionsDto);
+    }
+
     @ApiOperation({ summary: 'Get a question by id' })
     @ApiResponse({ status: 200, type: Question })
     @Get(':id')
@@ -43,21 +59,4 @@ export class QuestionController {
     async delete(@Param('id') id: string): Promise<Question> {
         return this.questionService.delete(id);
     }
-
-    @ApiOperation({ summary: 'Filter questions by difficulty and topics' })
-    @ApiResponse({ status: 200, type: [Question] })
-    @Get('filter')
-    @UsePipes(new ValidationPipe({ transform: true }))
-    async filterQuestions(@Query() filterQuestionsDto: FilterQuestionsDto): Promise<Question[]> {
-        return this.questionService.filterQuestions(filterQuestionsDto);
-    }
-
-    @ApiOperation({ summary: 'Get a random question based on filter criteria' })
-    @ApiResponse({ status: 200, type: Question })
-    @Get('random')
-    @UsePipes(new ValidationPipe({ transform: true }))
-    async getRandomQuestion(@Query() filterQuestionsDto: FilterQuestionsDto): Promise<Question | null> {
-        return this.questionService.getRandomQuestion(filterQuestionsDto);
-    }
-
 }

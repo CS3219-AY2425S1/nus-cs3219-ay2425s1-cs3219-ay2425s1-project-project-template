@@ -34,8 +34,9 @@ export type QuestionDocument = Question & Document;
 
 @Schema()
 export class Question {
-    @Prop({ type: Types.ObjectId, auto: true })
-    _id: Types.ObjectId;
+    // Removed as this interferes with the auto-generated _id
+    // @Prop({ type: Types.ObjectId, auto: true })
+    // _id: Types.ObjectId;
 
     @Prop({ required: true })
     title: string;

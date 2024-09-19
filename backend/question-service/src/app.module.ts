@@ -3,7 +3,7 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionController } from './controllers/question.controller';
 import { QuestionService } from './services/question.service';
-
+import { Question, QuestionSchema } from './schemas/question.schema';
 import config from './config';
 
 @Module({
@@ -20,7 +20,13 @@ import config from './config';
           dbName: configService.mongodb.dbName
         }
       },
-    })
+    }),
+    MongooseModule.forFeature([
+      {
+        name: Question.name,
+        schema: QuestionSchema
+      }
+    ])
   ],
   controllers: [QuestionController],
   providers: [QuestionService],

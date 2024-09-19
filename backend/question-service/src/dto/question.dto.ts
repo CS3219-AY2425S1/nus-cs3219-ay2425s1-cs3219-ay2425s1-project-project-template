@@ -38,7 +38,7 @@ export class FilterQuestionsDto {
 
     @ApiProperty()
     @IsArray()
-    @Optional()
+    @IsOptional()
     @IsEnum(QuestionTopic, { each: true })
     readonly topics: QuestionTopic[];
 }
