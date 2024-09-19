@@ -1,7 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsArray, IsString, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
 import { QuestionComplexity, QuestionTopic } from '../schemas/question.schema';
-import { Optional } from '@nestjs/common';
 
 export class CreateQuestionDto {
     @ApiProperty()

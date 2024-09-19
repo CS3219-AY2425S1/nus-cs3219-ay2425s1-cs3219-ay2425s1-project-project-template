@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Types } from 'mongoose';
 
 export enum QuestionComplexity {
     EASY = 'easy',
