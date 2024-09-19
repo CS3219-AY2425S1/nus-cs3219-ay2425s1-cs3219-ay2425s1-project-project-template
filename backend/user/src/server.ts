@@ -1,6 +1,6 @@
 import express, { json } from 'express';
 import pino from 'pino-http';
-import { db, tableName } from './lib/db';
+import { db, users } from './lib/db';
 
 const app = express();
 app.use(pino());
@@ -14,7 +14,7 @@ app.get('/', async (_req, res) => {
 
 // Ensure DB service is up before running.
 app.get('/test-db', async (_req, res) => {
-  await db.select().from(tableName);
+  await db.select().from(users);
   res.json({ message: 'OK ' });
 });
 
