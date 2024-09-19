@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { LoginCredentials } from './types/auth-types';
-import { db, users } from '../../lib/db';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
+import { db, users } from '@/lib/db';
+import type { LoginCredentials } from '@/controllers/auth/types/auth-types';
 
 export async function login(req: Request, res: Response) {
   const { username, password }: LoginCredentials = req.body;

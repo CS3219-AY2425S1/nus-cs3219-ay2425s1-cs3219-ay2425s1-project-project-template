@@ -9,6 +9,7 @@
     "fmt": "prettier --config .prettierrc src --write",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx drizzle.migrate.mts",
+    "db:inspect": "drizzle-kit studio",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -26,6 +27,8 @@
     "postgres": "^3.4.4"
   },
   "devDependencies": {
+    "@swc/core": "^1.7.26",
+    "@swc/helpers": "^0.5.13",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
@@ -33,6 +36,8 @@
     "drizzle-kit": "^0.24.2",
     "nodemon": "^3.1.4",
     "pino-pretty": "^11.2.2",
-    "ts-node": "^10.9.2"
+    "regenerator-runtime": "^0.14.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0"
   }
 }
