@@ -1,8 +1,10 @@
+import { handleCreateUser, handleUpdateProfile } from '../controllers/user.controller'
+
 import { Router } from 'express'
-import { handleCreateUser } from '../controllers/user.controller'
 
 const router = Router()
 
-router.post('/', handleCreateUser)
+router.post('/create', handleCreateUser)
+router.post('/update-profile', handleUpdateProfile)
 
 export default router
