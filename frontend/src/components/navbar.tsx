@@ -4,10 +4,10 @@ import Link from 'next/link';
 const Navbar: React.FC = () => {
   return (
     <nav className="bg-violet-700 p-4">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="mx-auto flex justify-between items-center">
         
         <div className="text-white flex text-3xl font-extrabold">
-            <div className='text-4xl mr-8 '>{'</>'}</div>
+            <div className='text-4xl mx-8 '>{'</>'}</div>
             <Link href="/">peerprep.</Link>
         </div>
         <ul className="flex justify-end w-4/5 text-lg">
@@ -21,11 +21,11 @@ const Navbar: React.FC = () => {
             <Link href="/contact">Dashboard</Link>
           </li>
         </ul>
-        <div className='flex w-40 justify-between'>
-            <button className='font-black bg-yellow-500 py-2 px-4 rounded-lg'>
+        <div className='flex w-auto justify-between'>
+            <button className='font-black bg-yellow-500 mt-1 h-10 px-4 rounded-lg mx-4'>
                 Practice
             </button>
-            <div className='w-12 h-12 rounded-full bg-white'></div>
+            <div className='w-12 h-12 rounded-full bg-white mx-4'></div>
         </div>
       </div>
     </nav>
