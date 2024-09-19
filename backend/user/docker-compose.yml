@@ -1,0 +1,37 @@
+services:
+  postgres:
+    hostname: postgres
+    image: "user-db"
+    container_name: "user_db"
+    build:
+      context: ./src/lib/db
+      dockerfile: ./postgres.Dockerfile
+    environment:
+      POSTGRES_DB: "User"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "user"
+      PGDATA: "/data/user-db"
+    volumes:
+       - "user-db-docker:/data/user-db"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5431:5432"
+    restart: unless-stopped
+
+  express:
+    image: "user-express"
+    container_name: "user-express"
+    build:
+      context: ./
+      dockerfile: ./express.Dockerfile
+      target: build
+    ports:
+      - "8001:8001"
+    command: node dist/index.js
+    depends_on:
+      postgres:
+        condition: service_started
+        restart: true
+  
+volumes:
+  user-db-docker:
