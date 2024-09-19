@@ -2,14 +2,23 @@
 version: "3.9"
 
 services:
+  frontend:
+      container_name: frontend
+      build:
+        context: ./frontend
+        dockerfile: Dockerfile
+      volumes:
+        - ./frontend:/app
+      ports:
+        - "3000:3000"
   user-app:
     build: 
-      context: ./user-service
+      context: ./backend/user-service
       dockerfile: Dockerfile.dev
     ports:
       - 8003:8003
     volumes:
-      - ./user-service:/app
+      - ./backend/user-service:/app
     depends_on:
       - user-service-db
 
