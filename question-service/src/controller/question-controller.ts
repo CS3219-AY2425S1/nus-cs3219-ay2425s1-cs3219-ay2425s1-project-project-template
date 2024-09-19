@@ -65,13 +65,13 @@ export const questionController = {
       const {
         question_id,
         title,
-        description,
+        // description,
         category,
         complexity,
-        templateCode,
-        testCase,
-        testCaseInput,
-        testCaseOutput,
+        // templateCode,
+        // testCase,
+        // testCaseInput,
+        // testCaseOutput,
       } = req.query;
 
       // Set default values for pagination
@@ -88,9 +88,9 @@ export const questionController = {
       if (title) {
         filter.title = { $regex: title, $options: "i" }; // Case-insensitive search
       }
-      if (description) {
-        filter.description = { $regex: description, $options: "i" };
-      }
+      // if (description) {
+      //   filter.description = { $regex: description, $options: "i" };
+      // }
       if (category) {
         filter.category = {
           $in: Array.isArray(category) ? category : [category],
@@ -99,14 +99,20 @@ export const questionController = {
       if (complexity) {
         filter.complexity = complexity;
       }
-      if (templateCode) {
-        filter.templateCode = { $regex: templateCode, $options: "i" };
-      }
+      // if (templateCode) {
+      //   filter.templateCode = { $regex: templateCode, $options: "i" };
+      // }
 
-      // Fetch the filtered and paginated results
+      // // Fetch the filtered and paginated results
+      // const questions = await Question.find(filter)
+      //   .skip(skip)
+      //   .limit(Number(limit));
+
+      // Fetch only the fields you need: question_id, title, category, complexity
       const questions = await Question.find(filter)
+        .select("question_id title category complexity") // Specify fields to fetch
         .skip(skip)
-        .limit(Number(limit));
+        .limit(limit);
 
       // Count total number of documents matching the filter
       const totalQuestions = await Question.countDocuments(filter);

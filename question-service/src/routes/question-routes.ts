@@ -20,7 +20,7 @@ router.post("/", authMiddleware, questionController.createQuestion);
 router.get("/", questionController.getAllQuestions);
 
 // Route to get a question by ID
-router.get("/:id", authMiddleware, questionController.getQuestionById);
+router.get("/:id", questionController.getQuestionById);
 
 // Route to update a question
 router.put("/:id", authMiddleware, questionController.updateQuestion);
