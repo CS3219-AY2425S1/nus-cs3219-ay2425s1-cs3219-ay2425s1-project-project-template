@@ -2,33 +2,76 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
+	"backend/controllers"
+	"backend/routes"
+
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var questionCollection *mongo.Collection
+
 func main() {
-	// Use the SetServerAPIOptions() method to set the version of the Stable API on the client
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI("mongodb+srv://username:password123%24@cluster0.3cuay.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").SetServerAPIOptions(serverAPI)
+	log.Println("Starting the Go application...")
 
-	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), opts)
+	// Load environment variables from the .env file
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal("Error loading .env file:", err)
 	}
 
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	// Send a ping to confirm a successful connection
-	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
-		panic(err)
+	// Get the MongoDB URI from the environment variable
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI not set in .env file")
 	}
-	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
+
+	// Set up MongoDB client options
+	clientOptions := options.Client().ApplyURI(mongoURI)
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatal("Error connecting to MongoDB:", err)
+	}
+
+	// Ping MongoDB to ensure the connection is established
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal("Error pinging MongoDB:", err)
+	}
+
+	// Initialize the MongoDB collection (questions)
+	questionCollection = client.Database("questiondb").Collection("questions")
+	if questionCollection == nil {
+		log.Fatal("Failed to initialize questionCollection")
+	}
+	log.Println("questionCollection initialized successfully")
+
+	// Set the collection in the controller
+	controllers.SetCollection(questionCollection)
+
+	// Initialize the router
+	r := mux.NewRouter()
+
+	// Register the routes for the API
+	routes.RegisterQuestionRoutes(r)
+
+	// Start the HTTP server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5050"
+	}
+	log.Println("Starting the server on port", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
