@@ -2,6 +2,7 @@ import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import logger from './common/logger.util'
+import userRouter from './routes/user.routes'
 
 const app: Express = express()
 
@@ -12,7 +13,7 @@ app.options('*', cors())
 app.use(helmet())
 
 // To handle CORS Errors
-app.use((request: Request, response: Response, next: NextFunction) => {
+app.use(async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     response.header('Access-Control-Allow-Origin', '*') // "*" -> Allow all links to access
 
     response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
@@ -20,30 +21,30 @@ app.use((request: Request, response: Response, next: NextFunction) => {
     // Browsers usually send this before PUT or POST Requests
     if (request.method === 'OPTIONS') {
         response.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH')
-        return response.status(200).json({})
+        response.status(200).send()
+        return
     }
 
     // Continue Route Processing
     next()
 })
 
+app.use('/users', userRouter)
+
 // Health Check Route
-app.get('/', (_: Request, response: Response) => {
-    response.status(200)
-    response.send()
+app.get('/', async (_: Request, response: Response): Promise<void> => {
+    response.status(200).send()
 })
 
 //  Not Found Route
-app.use((response: Response) => {
-    response.status(404)
-    response.send()
+app.use(async (_: Request, response: Response): Promise<void> => {
+    response.status(404).send()
 })
 
 // Default Error Handler
-app.use((error: Error, request: Request, response: Response) => {
+app.use(async (error: Error, request: Request, response: Response): Promise<void> => {
     logger.error(`[Controller] [${request.method}  ${request.baseUrl + request.path}] ${error.message}`)
-    response.status(500)
-    response.send()
+    response.status(500).send()
 })
 
 export default app

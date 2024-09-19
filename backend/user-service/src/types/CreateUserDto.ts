@@ -40,13 +40,7 @@ export class CreateUserDto {
 
     static fromRequest({
         body: { username, email, password, role, proficiency },
-    }: TypedRequest<{
-        username: string
-        password: string
-        email: string
-        role: Role
-        proficiency: Proficiency | undefined
-    }>): CreateUserDto {
+    }: TypedRequest<CreateUserDto>): CreateUserDto {
         return new CreateUserDto(username, email, password, role, proficiency)
     }
 
