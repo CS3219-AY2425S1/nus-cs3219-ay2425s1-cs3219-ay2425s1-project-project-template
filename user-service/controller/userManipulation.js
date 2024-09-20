@@ -7,10 +7,10 @@ const findUserByEmail = async (email) => {
 
 // Find user by token
 const findByToken = async (token) => {
-    return await User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() }
-    })
+  return await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+  })
 }
 
 // Find user by ID
@@ -28,6 +28,20 @@ const saveUser = async (user) => {
   return await user.save();
 };
 
+// Delete a user
+const deleteUser = async (userId) => {
+  return await User.findByIdAndDelete(userId);
+};
+
+// Get all users
+const getUsers = async () => {
+  return await User.find();
+};
+
+// Delete all users
+const deleteAllUsers = async () => {
+  return await User.deleteMany();
+};
 
 module.exports = {
   findUserByEmail,
@@ -35,4 +49,7 @@ module.exports = {
   findUserById,
   updateUserById,
   saveUser,
+  deleteUser,
+  getUsers,
+  deleteAllUsers,
 };

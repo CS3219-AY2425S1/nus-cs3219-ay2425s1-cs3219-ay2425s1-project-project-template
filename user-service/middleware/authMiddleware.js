@@ -28,16 +28,17 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (err) {
-    // Handle different types of errors
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    } else if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
-    } else {
-      return res.status(500).json({ message: 'Internal server error' });
-    }
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const verifyIsAdmin = (req, res, next) => {
+  if (req.user.isAdmin) {
+    return next();
+  }
+
+  return res.status(403).json({ message: "Not authorized to access this resource" });
+}
 
 const verifyIsOwnerOrAdmin = (req, res, next) => {
   if (req.user.isAdmin) {
@@ -56,4 +57,5 @@ const verifyIsOwnerOrAdmin = (req, res, next) => {
 module.exports = {
   authMiddleware,
   verifyIsOwnerOrAdmin,
+  verifyIsAdmin,
 }
