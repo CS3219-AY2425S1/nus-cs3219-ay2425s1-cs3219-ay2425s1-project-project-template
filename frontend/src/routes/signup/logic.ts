@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const signUpSchema = z
+export const signUpSchema = z
   .object({
     email: z.string().email(),
     username: z.string().min(2).max(50),

@@ -1,3 +1,5 @@
+import { useMutation } from '@tanstack/react-query';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -10,10 +12,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/lib/routes';
+import { signUp } from '@/services/user-service';
 
 import { useSignupForm } from './logic';
 
 export const SignUpForm = () => {
+  const { mutate: _sendSignUpRequest, status: _status } = useMutation({
+    mutationFn: signUp,
+  });
   const { form, onSubmit } = useSignupForm();
   return (
     <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center border'>

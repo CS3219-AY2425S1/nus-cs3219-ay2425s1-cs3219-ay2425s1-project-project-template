@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 
-const loginFormSchema = z.object({
+export const loginFormSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
 });
