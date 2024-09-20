@@ -6,8 +6,8 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     host: 'localhost',
-    port: 5431,
-    database: 'template',
+    port: 5433,
+    database: 'Question',
     user: 'user',
     password: 'user',
   },

@@ -3,8 +3,8 @@ import postgres from 'postgres';
 
 const queryClient = postgres({
   host: 'localhost',
-  port: 5430,
-  database: 'template',
+  port: 5433,
+  database: 'Question',
   user: 'user',
   password: 'user',
 });

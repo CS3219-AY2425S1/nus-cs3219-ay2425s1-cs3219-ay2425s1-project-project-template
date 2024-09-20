@@ -5,8 +5,8 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 const user = 'user';
 const password = 'user';
 const url = 'localhost';
-const database = 'template';
-const port = 5431;
+const database = 'Question';
+const port = 5433;
 
 const CONNECTION_STRING = `postgresql://${user}:${password}@${url}:${port}/${database}`;
 
