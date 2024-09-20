@@ -2,8 +2,8 @@
 
 appimage=apigateway
 containername="my-api-gateway"
-containerPort=8001
-localPort=8001
+containerPort=8000
+localPort=8000
 
 # remove existing containers if found
 docker ps -a | grep $containername
