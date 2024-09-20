@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OAuth2Client } from 'google-auth-library';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AppService {
@@ -38,8 +39,20 @@ export class AppService {
   }
 
   // Generate JWT for the authenticated user
-  generateJwt(user: any): string {
+  generateJwt(user: any): { accessToken: string; refreshToken: string } {
     const payload = { email: user.email, sub: user.id };
-    return this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '1d' });
+    return { accessToken, refreshToken };
+  }
+
+  // Validate the JWT
+  validateJwt(token: string): any {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      console.error('Error validating JWT:', error);
+      throw new BadRequestException('Invalid JWT token');
+    }
   }
 }

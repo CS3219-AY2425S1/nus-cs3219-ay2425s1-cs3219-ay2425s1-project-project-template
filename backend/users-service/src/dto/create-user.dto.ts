@@ -1,6 +1,6 @@
-
 import {IsArray, IsEmail, IsEnum, IsOptional, IsString} from 'class-validator';
 import { Languages, Proficiency } from 'src/schema/user.schema';
+
 export class CreateUserDto {
   @IsString()
   username: string;

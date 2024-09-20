@@ -20,4 +20,10 @@ export class AppController {
 
     return { token: jwtToken };
   }
+
+  @MessagePattern({ cmd: 'validate-jwt' })
+  async validateJwt(data: { token: string }) {
+    const { token } = data;
+    return this.appService.validateJwt(token);
+  }
 }

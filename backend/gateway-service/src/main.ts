@@ -12,6 +12,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.setGlobalPrefix('api');
   await app.listen(4000);
   console.log('Gateway Service is listening on port 4000');
 }
