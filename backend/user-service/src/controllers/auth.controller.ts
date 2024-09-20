@@ -2,6 +2,7 @@ import { compare, hash } from 'bcrypt'
 import { Request, Response } from 'express'
 import { sign, SignOptions } from 'jsonwebtoken'
 import { IVerifyOptions } from 'passport-local'
+import config from '../common/config.util'
 import { findOneUserByEmail, findOneUserByUsername } from '../models/user.repository'
 import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
 import { Role } from '../types/Role'
@@ -53,7 +54,7 @@ export async function generateAccessToken(user: UserDto): Promise<string> {
         audience: 'frontend',
     }
 
-    const privateKey: Buffer = Buffer.from(process.env.ACCESS_TOKEN_PRIVATE_KEY!, 'base64')
+    const privateKey: Buffer = Buffer.from(config.ACCESS_TOKEN_PRIVATE_KEY, 'base64')
 
     return sign(payload, privateKey, options)
 }
