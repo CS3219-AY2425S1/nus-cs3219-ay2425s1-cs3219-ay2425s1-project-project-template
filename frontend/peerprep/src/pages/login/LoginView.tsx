@@ -3,13 +3,18 @@ import InputBox from '../../components/InputBox';
 import LargeButton from '../../components/SubmitButton';
 import logo from '/peerprep_logo.png';
 
-const LoginView: React.FC = () => {
+interface LoginViewProps {
+  onSubmit: (username: string, password: string) => void;
+  errorMessage?: string; // Optional prop for error message
+}
+
+const LoginView: React.FC<LoginViewProps> = ({ onSubmit, errorMessage }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Logging in with', username, password);
+    onSubmit(username, password);
   };
 
   return (
@@ -20,7 +25,7 @@ const LoginView: React.FC = () => {
       </div>
       <div className="bg-white bg-opacity-10 p-20 rounded-lg backdrop-blur-md text-center w-auto">
         <h2 className="text-white text-2xl font-semibold mb-4">Login</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="input-container">
             <InputBox
               type="text"
@@ -40,7 +45,7 @@ const LoginView: React.FC = () => {
           <div className="forgot-password text-right">
             <a href="#" className="text-purple-400 hover:underline text-sm">Forgot password?</a>
           </div>
-          <LargeButton text="Login" onClick={handleLogin} />
+          <LargeButton text="Login" onClick={handleSubmit} />
         </form>
         <div className="signup-link mt-6 text-sm text-gray-300">
           Don’t have an account? <a href="#" className="text-purple-400 hover:underline">Create account</a>
