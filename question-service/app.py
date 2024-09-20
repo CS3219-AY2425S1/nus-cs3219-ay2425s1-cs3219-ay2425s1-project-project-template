@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from enum import Enum
 from pydantic import BaseModel, Field
@@ -27,7 +27,7 @@ class ComplexityEnum(str, Enum):
     hard = "hard"
 
 class QuestionModel(BaseModel):
-    id: PyObjectId | None = Field(alias="_id", default=None)
+    # id: PyObjectId | None = Field(alias="_id", default=None)
     title: str
     description: str
     category: str
@@ -38,9 +38,25 @@ class QuestionCollection(BaseModel):
 
 @app.post("/questions/",
             response_description="Create new question",
-            response_model=QuestionModel)
+            response_model=QuestionModel,
+            responses={
+                409: {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "detail": "A question with this title already exists."
+                            }
+                        }
+                    },
+                }
+                ,
+            })
 async def create_question(question: QuestionModel):
-    new_question = await question_collection.insert_one(question.model_dump(by_alias=True, exclude=["id"]))
+    # check if question with title already exists
+    existing_question = await question_collection.find_one({"title": question.title})
+    if existing_question:
+        raise HTTPException(status_code=409, detail="Question with this title already exists.")
+    new_question = await question_collection.insert_one(question.model_dump())
     created_question = await question_collection.find_one({"_id": new_question.inserted_id})
     return created_question
 
