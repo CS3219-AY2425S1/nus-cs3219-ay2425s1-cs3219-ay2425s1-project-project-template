@@ -6,20 +6,31 @@ import {
   Text,
   TextInput,
   Title,
+  UnstyledButton,
 } from '@mantine/core';
 import { useState } from 'react';
 
 interface LoginModalProps {
   isLoginModalOpened: boolean;
   closeLoginModal: () => void;
+  openSignUpModal: () => void;
 }
 
-function LoginModal({ isLoginModalOpened, closeLoginModal }: LoginModalProps) {
+function LoginModal({
+  isLoginModalOpened,
+  closeLoginModal,
+  openSignUpModal,
+}: LoginModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = () => {
     console.log('log in');
+  };
+
+  const handleSignUpClick = () => {
+    closeLoginModal();
+    openSignUpModal();
   };
 
   return (
@@ -44,7 +55,10 @@ function LoginModal({ isLoginModalOpened, closeLoginModal }: LoginModalProps) {
           />
           <Button type="submit">Log in</Button>
           <Text>
-            Don't have an account yet? <b>Sign up now</b>
+            Don't have an account yet?{' '}
+            <UnstyledButton onClick={handleSignUpClick} fw={700}>
+              Sign up now
+            </UnstyledButton>
           </Text>
         </Stack>
       </form>

@@ -60,10 +60,12 @@ function Landing() {
       <LoginModal
         isLoginModalOpened={isLoginModalOpened}
         closeLoginModal={closeLoginModal}
+        openSignUpModal={openSignUpModal}
       />
       <SignUpModal
         isSignUpModalOpened={isSignUpModalOpened}
         closeSignUpModal={closeSignUpModal}
+        openLoginModal={openLoginModal}
       />
     </>
   );
