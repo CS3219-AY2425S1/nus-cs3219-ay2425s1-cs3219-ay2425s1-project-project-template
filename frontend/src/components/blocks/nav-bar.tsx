@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
-import { darkModeStore } from '@/stores/darkmode-store';
+import { darkModeStore } from '@/stores/dark-mode-store';
 
 const NavBar = observer(() => {
-  const { isLogin, isSignUp } = useRouterLocation();
+  const { isLogin, isSignUp, isForgotPassword } = useRouterLocation();
 
   return (
     <header className='bg-secondary/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
@@ -33,17 +33,15 @@ const NavBar = observer(() => {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          {isLogin && (
+          {isLogin ? (
             <Button variant='outline' asChild>
               <a href={ROUTES.SIGNUP}>Sign Up</a>
             </Button>
-          )}
-          {isSignUp && (
+          ) : isSignUp || isForgotPassword ? (
             <Button variant='outline' asChild>
               <a href={ROUTES.LOGIN}>Log In</a>
             </Button>
-          )}
-          {!isSignUp && !isLogin && (
+          ) : (
             <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
               <PersonIcon />
             </Button>

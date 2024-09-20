@@ -1,8 +1,6 @@
-import { observer } from 'mobx-react';
+import { SignUpForm } from '@/routes/signup';
 
-import { SignUpForm } from '@/components/routes/signup';
-
-export const SignUp = observer(() => {
+export const SignUp = () => {
   return (
     <div className='grid w-full grid-cols-1'>
       <div className='flex items-center justify-center'>
@@ -12,4 +10,4 @@ export const SignUp = observer(() => {
       </div>
     </div>
   );
-});
+};

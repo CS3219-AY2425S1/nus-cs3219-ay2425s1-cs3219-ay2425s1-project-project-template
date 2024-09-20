@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react';
 
-import { Hero, LoginForm } from '@/components/routes/login';
+import { Hero, LoginForm } from '@/routes/login';
 
 export const Login = observer(() => {
   return (

@@ -55,7 +55,7 @@ export const LoginForm = () => {
                       className='hover:text-secondary-foreground ml-auto p-0 font-normal'
                       asChild
                     >
-                      <a href='#'>Forgot Password?</a>
+                      <a href={ROUTES.FORGOT_PASSWORD}>Forgot Password?</a>
                     </Button>
                   </div>
                 </FormItem>
