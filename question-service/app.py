@@ -2,11 +2,8 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 
-
-from pydantic.functional_validators import BeforeValidator
 from models import QuestionModel, QuestionCollection
 
-from typing_extensions import Annotated
 import motor.motor_asyncio
 
 # load env variables
@@ -18,8 +15,6 @@ app = FastAPI(title="Question Service API")
 client = motor.motor_asyncio.AsyncIOMotorClient(DB_CLOUD_URI)
 db = client.get_database("question_service")
 question_collection = db.get_collection("questions")
-
-PyObjectId = Annotated[str, BeforeValidator(str)]
 
 @app.post("/questions/",
             response_description="Create new question",
