@@ -3,6 +3,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');  // Import the database connection
 const userRoutes = require('./routes/userRoutes'); // Import routes
 const authRoutes = require('./routes/authRoutes'); // Import routes
+const User = require('./model/User');
 
 // Initialize Express app
 const app = express();
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
 
   // Browsers usually send this before PUT or POST Requests
   if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH");
+    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
     return res.status(200).json({});
   }
 
@@ -48,6 +49,22 @@ app.use('/api/auth', authRoutes)
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'Hello from user service.' });
 });
+
+
+
+
+// Route to get all users
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find(); // Fetch all users from the database
+        res.json(users); // Send the users as JSON
+    } catch (err) {
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
