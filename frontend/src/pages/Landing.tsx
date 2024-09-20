@@ -10,8 +10,8 @@ import {
 import '@mantine/core/styles.css';
 import { useDisclosure } from '@mantine/hooks';
 
-import LoginModal from '../components/LoginModal';
-import SignUpModal from '../components/SignupModal';
+import LoginModal from '../components/modal/LoginModal';
+import SignUpModal from '../components/modal/SignUpModal';
 
 function Landing() {
   const [isLoginModalOpened, { open: openLoginModal, close: closeLoginModal }] =
