@@ -89,12 +89,12 @@ describe('User Routes', () => {
             expect(response.body.username).toEqual('test3')
             expect(response.body.proficiency).toEqual(Proficiency.ADVANCED)
         })
-        it('should return 404 for requests with invalid ids', async () => {
+        it('should return 500 for requests with invalid ids', async () => {
             const response = await request(app).put('/users/111').send({
                 username: 'test3',
                 proficiency: Proficiency.ADVANCED,
             })
-            expect(response.status).toBe(404)
+            expect(response.status).toBe(500)
             expect(response.body).toHaveLength(1)
         })
         it('should return 400 for invalid requests and a list of errors', async () => {
