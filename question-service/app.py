@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 
-from enum import Enum
-from pydantic import BaseModel, Field
+
 from pydantic.functional_validators import BeforeValidator
+from models import QuestionModel, QuestionCollection
 
 from typing_extensions import Annotated
 import motor.motor_asyncio
@@ -20,21 +20,6 @@ db = client.get_database("question_service")
 question_collection = db.get_collection("questions")
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
-
-class ComplexityEnum(str, Enum):
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
-
-class QuestionModel(BaseModel):
-    # id: PyObjectId | None = Field(alias="_id", default=None)
-    title: str
-    description: str
-    category: str
-    complexity: ComplexityEnum
-
-class QuestionCollection(BaseModel):
-    questions: list[QuestionModel]
 
 @app.post("/questions/",
             response_description="Create new question",
