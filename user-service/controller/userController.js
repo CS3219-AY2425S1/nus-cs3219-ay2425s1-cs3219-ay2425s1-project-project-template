@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const {
   findUserById,
   updateUserById,
@@ -12,9 +13,10 @@ const updateProfile = async (req, res) => {
     if (username) updateData.username = username;
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
-    const updatedUser = await updateUserById(req.userId, updateData);
+    const updatedUser = await updateUserById(req.user.id, updateData);
     res.json({ message: 'Profile updated successfully.', user: updatedUser });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ error: 'Server error.' });
   }
 };
@@ -22,7 +24,7 @@ const updateProfile = async (req, res) => {
 // View Profile
 const viewProfile = async (req, res) => {
   try {
-    const user = await findUserById(req.userId);
+    const user = await findUserById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'Profile not found.' });
     }

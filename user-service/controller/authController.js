@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {
   findUserByEmail,
+  findByToken,
   saveUser,
   updateUserById,
 } = require('./userManipulation');
@@ -69,11 +70,16 @@ const forgotPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await updateUserById(user._id, { resetPasswordToken, resetPasswordExpires: user.resetPasswordExpires });
+    await updateUserById(user._id.toString(), {
+      resetPasswordToken: user.resetPasswordToken,
+      resetPasswordExpires: user.resetPasswordExpires
+    });
 
     // Send reset email
     const transporter = nodemailer.createTransport({
-      service: 'Gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -81,6 +87,7 @@ const forgotPassword = async (req, res) => {
     });
 
     const mailOptions = {
+      from: process.env.EMAIL_USER,
       to: user.email,
       subject: 'Password Reset',
       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
@@ -90,7 +97,9 @@ const forgotPassword = async (req, res) => {
     };
 
     transporter.sendMail(mailOptions, (err) => {
-      if (err) return res.status(500).json({ message: 'Error sending email.' });
+      if (err) {
+        return res.status(500).json({ message: 'Error sending email.' });
+      }
       res.json({ message: 'Password reset email sent.' });
     });
   } catch (err) {
@@ -104,7 +113,7 @@ const resetPassword = async (req, res) => {
   const token = req.params.token;
 
   try {
-    const user = await findUserByEmail({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
+    const user = await findByToken(token);
     if (!user) {
       return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
     }
@@ -112,7 +121,7 @@ const resetPassword = async (req, res) => {
     user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
-    await updateUserById(user._id, { password: user.password });
+    await updateUserById(user._id.toString(), { password: user.password });
 
     res.json({ message: 'Password has been reset successfully.' });
   } catch (err) {
