@@ -3,7 +3,7 @@ import postgres from 'postgres';
 
 const queryClient = postgres({
   host: 'localhost',
-  port: 5431,
+  port: 5430,
   database: 'template',
   user: 'user',
   password: 'user',

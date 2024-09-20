@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: 'Question'
       POSTGRES_USER: 'user'
-      POSTGRES_PASSWORD: 'password'
+      POSTGRES_PASSWORD: 'user'
       PGDATA: '/data/question-db'
     volumes:
       - 'question-db-docker:/data/question-db'
@@ -26,7 +26,7 @@ services:
       dockerfile: ./express.Dockerfile
       target: build
     ports:
-      - '8002:8001'
+      - '8000:8001'
     command: node dist/index.js
     depends_on:
       postgres:
