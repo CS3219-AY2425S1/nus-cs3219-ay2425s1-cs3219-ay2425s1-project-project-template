@@ -79,3 +79,31 @@
   margin-bottom: 5px;
 }
 
+.scrollable-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.menu-list {
+  list-style-type: none;
+  padding: 0;
+  max-height: 200px; /* Height of the scrollable area */
+  overflow-y: auto; /* Enable vertical scroll */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.menu-list li {
+  padding: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menu-list li:hover {
+  background-color: #ddd;
+}

@@ -30,6 +30,21 @@ function NewPage() {
           <label htmlFor="constraints">Constraints:</label>
           <input type="text" id="constraints" className="input-field" />
         </div>
+
+        {/* Scrollable Selection Menu */}
+        <div className="scrollable-menu">
+          <label className="label">Items:</label>
+          <ul className="menu-list">
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li>Item 3</li>
+            <li>Item 4</li>
+            <li>Item 5</li>
+            <li>Item 6</li>
+            <li>Item 7</li>
+            <li>Item 8</li>
+          </ul>
+        </div>
       </div>
 
       <div class="left-section">
