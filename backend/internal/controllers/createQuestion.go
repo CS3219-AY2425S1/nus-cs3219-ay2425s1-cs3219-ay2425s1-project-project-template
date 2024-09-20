@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
-	"backend/models"
+	"backend/internal/models"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -38,12 +40,35 @@ func CreateQuestion(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Decoded request body successfully...")
 
+	// Convert the title to lowercase for the check
+	lowercaseTitle := strings.ToLower(question.Title)
+
+	existingQuestion := bson.M{}
+	filter := bson.M{"$expr": bson.M{
+		"$eq": []interface{}{
+			bson.M{"$toLower": "$title"}, // Convert the title in the database to lowercase
+			lowercaseTitle,               // Compare with the lowercase title
+		},
+	}}
+	err = questionCollection.FindOne(context.TODO(), filter).Decode(&existingQuestion)
+	if err == nil {
+		// If we find a document, the title is already in use
+		log.Println("A question with this title already exists")
+		http.Error(w, "A question with this title already exists", http.StatusBadRequest)
+		return
+	} else if err != mongo.ErrNoDocuments {
+		// If there is an error other than no documents found
+		log.Println("Error checking for existing question:", err)
+		http.Error(w, "Failed to check existing question", http.StatusInternalServerError)
+		return
+	}
+
 	// Set creation and update timestamps
 	question.CreatedAt = time.Now()
 	question.UpdatedAt = time.Now()
 
-	// Generate a unique ID for the question
-	question.QuestionID = primitive.NewObjectID().Hex()
+	// Generate a UUID for the question
+	question.QuestionID = uuid.New().String()
 
 	// Insert the question into MongoDB
 	result, err := questionCollection.InsertOne(context.TODO(), question)

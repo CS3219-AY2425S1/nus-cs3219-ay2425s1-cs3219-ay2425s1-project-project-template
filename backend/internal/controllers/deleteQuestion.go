@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // DeleteQuestion deletes a question from the MongoDB collection by ID
@@ -18,16 +18,16 @@ func DeleteQuestion(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	questionID := params["id"]
 
-	// Convert the question ID to ObjectId (if it's an ObjectId in MongoDB)
-	objID, err := primitive.ObjectIDFromHex(questionID)
+	// Validate the question ID to ensure it is a valid UUID
+	_, err := uuid.Parse(questionID)
 	if err != nil {
-		log.Println("Invalid ObjectID format:", err)
-		http.Error(w, "Invalid question ID", http.StatusBadRequest)
+		log.Println("Invalid UUID format:", err)
+		http.Error(w, "Invalid question ID format", http.StatusBadRequest)
 		return
 	}
 
-	// Prepare the filter to find the question by ID
-	filter := bson.M{"_id": objID}
+	// Prepare the filter to find the question by UUID
+	filter := bson.M{"questionid": questionID}
 
 	// Delete the question from MongoDB
 	result, err := questionCollection.DeleteOne(context.TODO(), filter)

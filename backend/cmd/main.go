@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"backend/controllers"
-	"backend/routes"
+	"backend/internal/controllers"
+	"backend/internal/routes"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
