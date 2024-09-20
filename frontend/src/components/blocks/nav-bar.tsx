@@ -1,4 +1,4 @@
-import { MoonIcon, PersonIcon, SunIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon, MoonIcon, PersonIcon, SunIcon } from '@radix-ui/react-icons';
 import { observer } from 'mobx-react';
 
 import { Logo } from '@/components/common/logo';
@@ -13,6 +13,7 @@ const NavBar = observer(() => {
 
   return (
     <header className='bg-secondary/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
+      {/* Desktop Nav */}
       <nav className='hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6'>
         <Logo className='text-md' />
         {!isLogin && !isSignUp && (
@@ -49,6 +50,21 @@ const NavBar = observer(() => {
           )}
         </div>
       </nav>
+      {/* Mobile Nav */}
+      <div className='inline-flex w-full items-center justify-between md:hidden'>
+        <div className='inline-flex items-center gap-4'>
+          <HamburgerMenuIcon />
+          <Logo />
+        </div>
+        <div>
+          <Button
+            className='rounded-lg p-3'
+            onClick={() => darkModeStore.toggle(darkModeStore.mode === 'light' ? 'dark' : 'light')}
+          >
+            {darkModeStore.mode === 'light' ? <MoonIcon /> : <SunIcon />}
+          </Button>
+        </div>
+      </div>
     </header>
   );
 });
