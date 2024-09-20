@@ -44,13 +44,18 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
         return
     }
 
+    const id = request.params.id
+
     const duplicateUsername = await findOneUserByUsername(createDto.username)
-    if (duplicateUsername && duplicateUsername.id !== request.body.id) {
-        response.status(409).json('DUPLICATE_USERNAME').send()
+    if (duplicateUsername && duplicateUsername.id !== id) {
+        response.status(409).json(['DUPLICATE_USERNAME']).send()
         return
     }
 
-    const user = await updateUser(request.body.id, createDto)
-
-    response.status(200).json(user).send()
+    try {
+        const user = await updateUser(id, createDto)
+        response.status(200).json(user).send()
+    } catch (e) {
+        response.status(404).json([e]).send()
+    }
 }

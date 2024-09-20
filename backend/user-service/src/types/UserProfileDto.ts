@@ -6,10 +6,6 @@ import { TypedRequest } from './TypedRequest'
 export class UserProfileDto {
     @IsString()
     @IsNotEmpty()
-    id: string
-
-    @IsString()
-    @IsNotEmpty()
     username: string
 
     @IsDate()
@@ -19,15 +15,14 @@ export class UserProfileDto {
     @IsEnum(Proficiency)
     proficiency?: Proficiency
 
-    constructor(id: string, username: string, updatedAt: Date, proficiency?: Proficiency) {
-        this.id = id
+    constructor(username: string, updatedAt: Date, proficiency?: Proficiency) {
         this.username = username
         this.updatedAt = updatedAt
         this.proficiency = proficiency
     }
 
-    static fromRequest({ body: { id, username, proficiency } }: TypedRequest<UserProfileDto>): UserProfileDto {
-        return new UserProfileDto(id, username, new Date(), proficiency)
+    static fromRequest({ body: { username, proficiency } }: TypedRequest<UserProfileDto>): UserProfileDto {
+        return new UserProfileDto(username, new Date(), proficiency)
     }
 
     async validate(): Promise<ValidationError[]> {

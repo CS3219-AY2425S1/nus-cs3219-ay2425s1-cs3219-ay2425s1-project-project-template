@@ -4,7 +4,7 @@ import { Router } from 'express'
 
 const router = Router()
 
-router.post('/create', handleCreateUser)
-router.post('/update-profile', handleUpdateProfile)
+router.post('/', handleCreateUser)
+router.put('/:id', handleUpdateProfile)
 
 export default router
