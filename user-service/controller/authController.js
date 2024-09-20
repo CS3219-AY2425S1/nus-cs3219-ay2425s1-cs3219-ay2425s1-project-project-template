@@ -1,34 +1,12 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {
-  findUserByEmail,
-  findByToken,
-  saveUser,
-  updateUserById,
-} = require('./userManipulation');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-
-// Register User
-const registerUser = async (req, res) => {
-  const { email, username, password } = req.body;
-
-  try {
-    let user = await findUserByEmail(email);
-    if (user) {
-      return res.status(400).json({ message: 'Email already exists.' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    user = new User({ email, username, password: hashedPassword });
-    await saveUser(user);
-    res.json({ message: 'User registered successfully.' });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
-  }
-};
+const {
+  findUserByEmail,
+  updateUserById,
+  findByToken,
+} = require('./userManipulation');
 
 // Login User
 const loginUser = async (req, res) => {
@@ -52,7 +30,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -103,7 +81,7 @@ const forgotPassword = async (req, res) => {
       res.json({ message: 'Password reset email sent.' });
     });
   } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -125,13 +103,23 @@ const resetPassword = async (req, res) => {
 
     res.json({ message: 'Password has been reset successfully.' });
   } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
+    res.status(500).json({ error: err.message });
   }
 };
 
+// Verify Token
+const handleVerifyToken = async (req, res) => {
+  try {
+    const verifiedUser = req.user;
+    return res.status(200).json({ message: "Token verified", data: verifiedUser });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+}
+
 module.exports = {
-  registerUser,
   loginUser,
   forgotPassword,
   resetPassword,
+  handleVerifyToken,
 };

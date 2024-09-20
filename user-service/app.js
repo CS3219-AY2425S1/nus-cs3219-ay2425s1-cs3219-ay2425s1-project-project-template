@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db');  // Import the database connection
-const userRoutes = require('./routes/userRoutes'); // Import routes
-const authRoutes = require('./routes/authRoutes'); // Import routes
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes'); 
 const User = require('./model/User');
 
 // Initialize Express app
@@ -17,7 +17,6 @@ connectDB();
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 
 // Handle CORS
 app.use(cors());
@@ -42,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes)
 
 // Health check route
@@ -50,21 +49,25 @@ app.get('/', (req, res) => {
   res.status(200).json({ status: 'Hello from user service.' });
 });
 
-
-
-
 // Route to get all users
 app.get('/users', async (req, res) => {
-    try {
-        const users = await User.find(); // Fetch all users from the database
-        res.json(users); // Send the users as JSON
-    } catch (err) {
-        res.status(500).json({ error: 'Server error.' });
-    }
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error.' });
+  }
 });
 
-
-
+// Route to delete all users
+app.delete('/users', async (req, res) => {
+  try {
+    await User.deleteMany();
+    res.json({ message: 'All users deleted successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://user-service-mongo:27017/users
+      - JWT_SECRET=your_jwt_secret
+      - PORT=3001
+      - EMAIL_USER=peerprepuserservice@gmail.com
+      - EMAIL_PASS=dbnvdnadpugvycfr
+    depends_on:
+      - user-service-mongo
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+
+  user-service-mongo:
+    image: mongo:4.2
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
