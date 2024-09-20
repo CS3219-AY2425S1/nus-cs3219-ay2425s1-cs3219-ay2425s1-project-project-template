@@ -1,13 +1,6 @@
-import { observer } from 'mobx-react';
-import { useEffect } from 'react';
-
 import { Logo } from '@/components/common/logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { ROUTES } from '@/lib/routes';
-import { loginStore } from '@/stores/login-store';
-import { useLoginForm } from './logic';
 import {
   Form,
   FormControl,
@@ -16,13 +9,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { ROUTES } from '@/lib/routes';
 
-export const LoginForm = observer(() => {
+import { useLoginForm } from './logic';
+
+export const LoginForm = () => {
   const { form, onSubmit } = useLoginForm();
-
-  useEffect(() => {
-    loginStore.resetForm();
-  }, []);
 
   return (
     <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center'>
@@ -82,4 +75,4 @@ export const LoginForm = observer(() => {
       </CardFooter>
     </Card>
   );
-});
+};
