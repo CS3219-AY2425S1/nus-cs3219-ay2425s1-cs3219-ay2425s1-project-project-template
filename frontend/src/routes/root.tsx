@@ -4,10 +4,8 @@ import { observer } from 'mobx-react';
 import '@/styles/globals.css';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { darkModeState } from '@/lib/state';
 
 export const Root = observer(() => {
-  const { toggle } = darkModeState;
   return (
     <div id='main' className='bg-background relative flex min-h-screen flex-col'>
       {/* Nav Bar */}
@@ -15,7 +13,7 @@ export const Root = observer(() => {
         {/* Main Nav */}
         <div className='mr-4 hidden md:flex'>
           {/* Logo */}
-          <Button variant='link' className='font-mono' onClick={toggle}>
+          <Button variant='link' className='font-mono'>
             PeerPrep
           </Button>
           <nav className='flex items-center gap-4 text-sm lg:gap-6'>
