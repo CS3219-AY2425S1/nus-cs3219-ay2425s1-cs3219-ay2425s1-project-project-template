@@ -56,6 +56,6 @@ export async function logout(_req: Request, res: Response) {
       secure: true,
       sameSite: 'none',
     })
-    .status(200)
+    .status(StatusCodes.OK)
     .json('User has been logged out.');
 }
