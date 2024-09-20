@@ -18,6 +18,10 @@ function LoginModal({ isLoginModalOpened, closeLoginModal }: LoginModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleSubmit = () => {
+    console.log('log in');
+  };
+
   return (
     <Modal
       opened={isLoginModalOpened}
@@ -25,7 +29,7 @@ function LoginModal({ isLoginModalOpened, closeLoginModal }: LoginModalProps) {
       withCloseButton={false}
       centered
     >
-      <form onSubmit={() => console.log(password, email)}>
+      <form onSubmit={handleSubmit}>
         <Stack ta="center" p="16px">
           <Title order={3}>Login</Title>
           <TextInput
