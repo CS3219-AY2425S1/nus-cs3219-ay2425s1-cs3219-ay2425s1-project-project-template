@@ -3,7 +3,6 @@ import {
   Button,
   Center,
   Group,
-  Modal,
   Stack,
   Text,
   Title,
@@ -12,10 +11,15 @@ import '@mantine/core/styles.css';
 import { useDisclosure } from '@mantine/hooks';
 
 import LoginModal from '../components/LoginModal';
+import SignUpModal from '../components/SignupModal';
 
 function Landing() {
   const [isLoginModalOpened, { open: openLoginModal, close: closeLoginModal }] =
     useDisclosure(false);
+  const [
+    isSignUpModalOpened,
+    { open: openSignUpModal, close: closeSignUpModal },
+  ] = useDisclosure(false);
 
   return (
     <>
@@ -45,7 +49,7 @@ function Landing() {
                 Match with others and practice LeetCode questions through mock
                 interviews.
               </Text>
-              <Button size="lg" mt="16px">
+              <Button size="lg" mt="16px" onClick={openSignUpModal}>
                 Get started
               </Button>
             </Stack>
@@ -56,6 +60,10 @@ function Landing() {
       <LoginModal
         isLoginModalOpened={isLoginModalOpened}
         closeLoginModal={closeLoginModal}
+      />
+      <SignUpModal
+        isSignUpModalOpened={isSignUpModalOpened}
+        closeSignUpModal={closeSignUpModal}
       />
     </>
   );
