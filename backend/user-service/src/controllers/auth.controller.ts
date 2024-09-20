@@ -1,7 +1,10 @@
 import { compare, hash } from 'bcrypt'
 import { Request, Response } from 'express'
+import { sign, SignOptions } from 'jsonwebtoken'
 import { IVerifyOptions } from 'passport-local'
 import { findOneUserByEmail, findOneUserByUsername } from '../models/user.repository'
+import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
+import { Role } from '../types/Role'
 import { UserDto } from '../types/UserDto'
 
 export async function handleAuthentication(
@@ -27,7 +30,32 @@ export async function handleAuthentication(
 }
 
 export async function handleLogin({ user }: Request, response: Response): Promise<void> {
-    response.status(201).json(user).send()
+    const accessToken = await generateAccessToken(user as UserDto)
+    response
+        .status(201)
+        .json({
+            ...user,
+            accessToken,
+        })
+        .send()
+}
+
+export async function generateAccessToken(user: UserDto): Promise<string> {
+    const payload: Partial<IAccessTokenPayload> = {
+        id: user.id,
+        admin: user.role === Role.ADMIN,
+    }
+    const options: SignOptions = {
+        subject: user.email,
+        algorithm: 'RS256', // Assymetric Algorithm
+        expiresIn: '1h',
+        issuer: 'user-service',
+        audience: 'frontend',
+    }
+
+    const privateKey: Buffer = Buffer.from(process.env.ACCESS_TOKEN_PRIVATE_KEY!, 'base64')
+
+    return sign(payload, privateKey, options)
 }
 
 export async function comparePasswords(plaintextPassword: string, hashedPassword: string): Promise<boolean> {
