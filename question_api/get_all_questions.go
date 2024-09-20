@@ -30,5 +30,5 @@ func (db *QuestionDB) GetAllQuestions(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "No questions found"})
 	}
 
-	ctx.JSON(200, questions)
+	ctx.JSON(http.StatusOK, questions)
 }
