@@ -1,28 +1,18 @@
-import { SunIcon, MoonIcon, PersonIcon } from '@radix-ui/react-icons';
+import { MoonIcon, PersonIcon, SunIcon } from '@radix-ui/react-icons';
 import { observer } from 'mobx-react';
 
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
-import { Button } from '../ui/button';
-import { Logo } from '../common/logo';
-import { useLocation } from 'react-router-dom';
-import { darkModeStore } from '@/stores/darkmode-store';
+import { Logo } from '@/components/common/logo';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
+import { darkModeStore } from '@/stores/darkmode-store';
 
 const NavBar = observer(() => {
-  const location = useLocation();
-  let isSignUp = false;
-  let isLogin = false;
-
-  if (location.pathname === '/signup') {
-    isSignUp = true;
-    isLogin = false;
-  } else if (location.pathname === '/login') {
-    isLogin = true;
-    isSignUp = false;
-  }
+  const { isLogin, isSignUp } = useRouterLocation();
 
   return (
-    <header className='bg-secondary sticky top-0 flex h-16 items-center gap-4 px-4 md:px-6'>
+    <header className='bg-primary-foreground/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
       <nav className='hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6'>
         <Logo className='text-md' />
         {!isLogin && !isSignUp && (
