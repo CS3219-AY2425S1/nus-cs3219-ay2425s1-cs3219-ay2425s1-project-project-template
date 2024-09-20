@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
@@ -9,8 +10,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/lib/routes';
+
 import { useSignupForm } from './logic';
-import { Button } from '@/components/ui/button';
 
 export const SignUpForm = () => {
   const { form, onSubmit } = useSignupForm();
