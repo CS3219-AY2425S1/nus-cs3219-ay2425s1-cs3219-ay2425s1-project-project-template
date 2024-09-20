@@ -15,7 +15,7 @@ export const LoginForm = observer(() => {
   }, []);
 
   return (
-    <Card className='bg-primary-foreground mx-auto flex h-[650px] max-h-[90%] min-w-[400px] max-w-sm flex-col justify-center'>
+    <Card className='bg-primary-foreground mx-auto flex size-full max-w-sm flex-col justify-center'>
       <CardHeader className='flex items-center pb-10'>
         <CardTitle className='text-3xl'>Welcome Back To</CardTitle>
         <Logo className='text-2xl' />

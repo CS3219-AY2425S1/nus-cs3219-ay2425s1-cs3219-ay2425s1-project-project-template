@@ -4,9 +4,9 @@ import { Hero, LoginForm } from '@/components/routes/login';
 
 export const Login = observer(() => {
   return (
-    <div className='grid w-full grid-cols-1 md:grid-cols-[3fr_2fr]'>
+    <div className='flex w-full py-8'>
       <Hero />
-      <div className='flex items-center justify-center'>
+      <div className='flex size-full items-center justify-center md:min-w-[40%] md:max-w-sm'>
         <LoginForm />
       </div>
     </div>

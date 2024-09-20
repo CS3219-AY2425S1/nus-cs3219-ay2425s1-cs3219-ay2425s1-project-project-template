@@ -12,7 +12,7 @@ const NavBar = observer(() => {
   const { isLogin, isSignUp } = useRouterLocation();
 
   return (
-    <header className='bg-primary-foreground/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
+    <header className='bg-secondary/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
       <nav className='hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6'>
         <Logo className='text-md' />
         {!isLogin && !isSignUp && (
@@ -33,12 +33,12 @@ const NavBar = observer(() => {
             </TabsList>
           </Tabs>
           {isLogin && (
-            <Button variant='outline'>
+            <Button variant='outline' asChild>
               <a href={ROUTES.SIGNUP}>Sign Up</a>
             </Button>
           )}
           {isSignUp && (
-            <Button variant='outline'>
+            <Button variant='outline' asChild>
               <a href={ROUTES.LOGIN}>Log In</a>
             </Button>
           )}
