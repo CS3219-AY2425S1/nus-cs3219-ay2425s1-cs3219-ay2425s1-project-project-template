@@ -5,11 +5,21 @@ import { Logo } from '@/components/common/logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ROUTES } from '@/lib/routes';
 import { loginStore } from '@/stores/login-store';
+import { useLoginForm } from './logic';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 
 export const LoginForm = observer(() => {
+  const { form, onSubmit } = useLoginForm();
+
   useEffect(() => {
     loginStore.resetForm();
   }, []);
@@ -21,38 +31,48 @@ export const LoginForm = observer(() => {
         <Logo className='text-2xl' />
       </CardHeader>
       <CardContent>
-        <div className='grid gap-4'>
-          <div className='grid gap-2'>
-            <Label htmlFor='email'>Email</Label>
-            <Input
-              id='email'
-              type='email'
-              placeholder='Email'
-              value={loginStore.email}
-              onChange={(e) => loginStore.setEmail(e.target.value)}
-              required
+        <Form {...form}>
+          <form onSubmit={onSubmit} className='flex flex-col gap-4'>
+            <FormField
+              control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder='jollyRancher' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='password'>Password</Label>
-            <Input
-              id='password'
-              type='password'
-              placeholder='Password'
-              value={loginStore.password}
-              onChange={(e) => loginStore.setPassword(e.target.value)}
-              required
+            <FormField
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type='password' placeholder='••••••••' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <div className='flex w-full'>
+                    <Button
+                      variant='link'
+                      className='hover:text-secondary-foreground ml-auto p-0 font-normal'
+                      asChild
+                    >
+                      <a href='#'>Forgot Password?</a>
+                    </Button>
+                  </div>
+                </FormItem>
+              )}
             />
-            <div className='text-right'>
-              <a href='#' className='ml-auto inline-block text-sm underline'>
-                Forgot your password?
-              </a>
-            </div>
-          </div>
-          <Button className='w-full' onClick={() => loginStore.submitForm()}>
-            Login
-          </Button>
-        </div>
+            <Button className='w-full' type='submit'>
+              Login
+            </Button>
+          </form>
+        </Form>
       </CardContent>
       <CardFooter className='mx-auto text-center text-sm'>
         <span>Don&apos;t have an account?&nbsp;</span>
