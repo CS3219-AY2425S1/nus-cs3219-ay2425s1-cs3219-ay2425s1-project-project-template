@@ -1,7 +1,9 @@
 import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
+import passport from 'passport'
 import logger from './common/logger.util'
+import authRouter from './routes/auth.routes'
 import userRouter from './routes/user.routes'
 
 const app: Express = express()
@@ -11,6 +13,8 @@ app.use(express.json())
 app.use(cors()) // config cors so that front-end can use
 app.options('*', cors())
 app.use(helmet())
+
+app.use(passport.initialize())
 
 // To handle CORS Errors
 app.use(async (request: Request, response: Response, next: NextFunction): Promise<void> => {
@@ -29,6 +33,7 @@ app.use(async (request: Request, response: Response, next: NextFunction): Promis
     next()
 })
 
+app.use('/auth', authRouter)
 app.use('/users', userRouter)
 
 // Health Check Route
