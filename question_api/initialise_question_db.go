@@ -3,23 +3,24 @@ package main
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func initialiseDB() (*mongo.Client, error) {
 	// Load environment variables
 	err := godotenv.Load("../questionDB.env")
-	
+
 	if err != nil {
 		log.Fatal("Error loading environment variables: " + err.Error())
 	}
 
 	mongoURI := os.Getenv("MONGODB_URI")
-	
+
 	if mongoURI == "" {
 		log.Fatal("MONGODB_URI not set in environment variables")
 	}
