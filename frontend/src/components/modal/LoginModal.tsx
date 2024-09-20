@@ -8,7 +8,7 @@ import {
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import { useState } from 'react';
+import { isEmail, isNotEmpty, useForm } from '@mantine/form';
 
 interface LoginModalProps {
   isLoginModalOpened: boolean;
@@ -21,12 +21,17 @@ function LoginModal({
   closeLoginModal,
   openSignUpModal,
 }: LoginModalProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = () => {
-    console.log('log in');
-  };
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validate: {
+      email: isEmail('Invalid email'),
+      password: isNotEmpty('Password cannot be empty'),
+    },
+  });
 
   const handleSignUpClick = () => {
     closeLoginModal();
@@ -40,21 +45,23 @@ function LoginModal({
       withCloseButton={false}
       centered
     >
-      <form onSubmit={handleSubmit}>
-        <Stack ta="center" p="16px">
-          <Title order={3}>Login</Title>
+      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <Stack p="16px">
+          <Title order={3} ta="center">
+            Login
+          </Title>
           <TextInput
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...form.getInputProps('email')}
+            key={form.key('email')}
             placeholder="Email"
           />
           <PasswordInput
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...form.getInputProps('password')}
+            key={form.key('password')}
             placeholder="Password"
           />
           <Button type="submit">Log in</Button>
-          <Text>
+          <Text ta="center">
             Don't have an account yet?{' '}
             <UnstyledButton onClick={handleSignUpClick} fw={700}>
               Sign up now

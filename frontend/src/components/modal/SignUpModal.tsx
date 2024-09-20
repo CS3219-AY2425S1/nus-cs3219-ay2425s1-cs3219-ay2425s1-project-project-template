@@ -8,7 +8,7 @@ import {
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import { useState } from 'react';
+import { isEmail, isNotEmpty, matchesField, useForm } from '@mantine/form';
 
 interface SignUpModalProps {
   isSignUpModalOpened: boolean;
@@ -21,13 +21,19 @@ function SignUpModal({
   closeSignUpModal,
   openLoginModal,
 }: SignUpModalProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
-
-  const handleSubmit = () => {
-    console.log('sign up');
-  };
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      email: '',
+      password: '',
+      passwordConfirmation: '',
+    },
+    validate: {
+      email: isEmail('Invalid email'),
+      password: isNotEmpty('Password cannot be empty'),
+      passwordConfirmation: matchesField('password', 'Password does not match'),
+    },
+  });
 
   const handleLogInClick = () => {
     closeSignUpModal();
@@ -41,26 +47,28 @@ function SignUpModal({
       withCloseButton={false}
       centered
     >
-      <form onSubmit={handleSubmit}>
-        <Stack ta="center" p="16px">
-          <Title order={3}>Sign up now</Title>
+      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <Stack p="16px">
+          <Title order={3} ta="center">
+            Sign up now
+          </Title>
           <TextInput
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...form.getInputProps('email')}
+            key={form.key('email')}
             placeholder="Email"
           />
           <PasswordInput
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...form.getInputProps('password')}
+            key={form.key('password')}
             placeholder="Password"
           />
           <PasswordInput
-            value={passwordConfirmation}
-            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            {...form.getInputProps('passwordConfirmation')}
+            key={form.key('passwordConfirmation')}
             placeholder="Confirm password"
           />
           <Button type="submit">Sign up</Button>
-          <Text>
+          <Text ta="center">
             Already have an account?{' '}
             <UnstyledButton onClick={handleLogInClick} fw={700}>
               Log in now
