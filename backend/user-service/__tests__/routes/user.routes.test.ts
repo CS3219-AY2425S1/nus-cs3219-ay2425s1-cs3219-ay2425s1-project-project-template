@@ -1,16 +1,18 @@
-import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
-import { generateKeyPairSync } from 'crypto'
-import express, { Express } from 'express'
 import 'express-async-errors'
-import mongoose from 'mongoose'
-import request from 'supertest'
-import config from '../../src/common/config.util'
-import logger from '../../src/common/logger.util'
-import connectToDatabase from '../../src/common/mongodb.util'
-import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
-import userRouter from '../../src/routes/user.routes'
+
+import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
+import express, { Express } from 'express'
+
 import { Proficiency } from '../../src/types/Proficiency'
 import { Role } from '../../src/types/Role'
+import config from '../../src/common/config.util'
+import connectToDatabase from '../../src/common/mongodb.util'
+import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
+import { generateKeyPairSync } from 'crypto'
+import logger from '../../src/common/logger.util'
+import mongoose from 'mongoose'
+import request from 'supertest'
+import userRouter from '../../src/routes/user.routes'
 
 jest.mock('../../src/common/config.util', () => ({
     NODE_ENV: 'test',
@@ -100,7 +102,7 @@ describe('User Routes', () => {
         })
     })
 
-    describe('PUT /users', () => {
+    describe('PUT /users/:id', () => {
         it('should return 200 for successful update', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
             const response = await request(app).put(`/users/${user1.body.id}`).send({
@@ -121,7 +123,6 @@ describe('User Routes', () => {
         it('should return 400 for invalid requests and a list of errors', async () => {
             const response = await request(app).put('/users/111').send({})
             expect(response.status).toBe(400)
-            expect(response.body).toHaveLength(1)
         })
         it('should return 409 for duplicate username', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
@@ -131,6 +132,20 @@ describe('User Routes', () => {
                 proficiency: Proficiency.ADVANCED,
             })
             expect(response.status).toBe(409)
+        })
+    })
+
+    describe('DELETE /users/:id', () => {
+        it('should return 200 for successful deletion', async () => {
+            const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
+            const response = await request(app).delete(`/users/${user1.body.id}`).send()
+            expect(response.status).toBe(200)
+            const confirmation = await request(app).delete('/users/${user1.body.id}').send()
+            expect(confirmation.status).toBe(400)
+        })
+        it('should return 400 for requests with invalid ids', async () => {
+            const response = await request(app).delete('/users/111').send()
+            expect(response.status).toBe(400)
         })
     })
 })

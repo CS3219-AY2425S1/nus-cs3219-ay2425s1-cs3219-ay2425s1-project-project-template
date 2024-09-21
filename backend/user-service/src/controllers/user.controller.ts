@@ -1,11 +1,17 @@
-import { createUser, findOneUserByEmail, findOneUserByUsername, updateUser } from '../models/user.repository'
+import {
+    createUser,
+    deleteUser,
+    findOneUserByEmail,
+    findOneUserByUsername,
+    updateUser,
+} from '../models/user.repository'
 
-import { ValidationError } from 'class-validator'
-import { Response } from 'express'
 import { CreateUserDto } from '../types/CreateUserDto'
+import { Response } from 'express'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserProfileDto } from '../types/UserProfileDto'
+import { ValidationError } from 'class-validator'
 import { hashPassword } from './auth.controller'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
@@ -54,4 +60,10 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
 
     const user = await updateUser(id, createDto)
     response.status(200).json(user).send()
+}
+
+export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
+    const id = request.params.id
+    await deleteUser(id)
+    response.status(200).send()
 }
