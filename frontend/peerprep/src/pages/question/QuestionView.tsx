@@ -119,11 +119,13 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                 {/* Table Display */}
                 <Box className="bg-white justify-between bg-opacity-10 rounded-md border-radius-md p-4" overflowX="auto">
                     <Table variant='simple' colorScheme='#141A67'>
-                        <Thead>
+                        <Thead 
+                            border="2px solid" 
+                            borderColor="white">
                             {table.getHeaderGroups().map(headerGroup => (
                                 <Tr key={headerGroup.id} bgColor="purple.200" boxShadow="md">
                                     {headerGroup.headers.map(header => (
-                                        <Th key={header.id} px={6} py={4} textAlign="center" textColor="black.300">
+                                        <Th key={header.id} px={6} py={4} textAlign="center" textColor="black.300" fontSize={'large'}>
                                             {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                         </Th>
                                     ))}
@@ -137,13 +139,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                                     color={'white'} 
                                     _hover={{ bgColor: 'purple' }}
                                     border="2px solid" 
-                                    borderColor="gray.200"
+                                    borderColor="white"
                                 >
                                     {row.getVisibleCells().map(cell => (
                                         <Td 
                                             key={cell.id} 
                                             px={6} 
-                                            py={4} 
+                                            py={4}
+                                            fontSize={'large'}
                                             textAlign="center" 
                                             borderRight="2px solid" 
                                             borderColor="gray.300"
