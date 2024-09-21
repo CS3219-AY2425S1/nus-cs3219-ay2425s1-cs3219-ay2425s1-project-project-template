@@ -1,6 +1,8 @@
+'use client'
+
 import { useState } from 'react'
 import { Logo } from './ui/toast/Logo'
-import { useToast } from '@/components/login/ui/toast/use-toast'
+import { useToast } from './ui/toast/use-toast'
 
 export default function Signup() {
     const [email, setEmail] = useState('')

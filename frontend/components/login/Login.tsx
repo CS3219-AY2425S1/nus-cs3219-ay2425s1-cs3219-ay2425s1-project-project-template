@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { Logo } from './ui/toast/Logo'
 import { useToast } from './ui/toast/use-toast'

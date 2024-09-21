@@ -1,7 +1,8 @@
 'use client'
+
 import { useState } from 'react'
-import Login from '../components/login/Login'
-import Signup from '../components/login/Signup'
+import Login from '../components/login/login'
+import Signup from '../components/login/signup'
 import Image from 'next/image'
 
 export default function Home() {
@@ -14,7 +15,7 @@ export default function Home() {
                     Connect, Collaborate, Code: Unlock Your Potential Together
                 </p>
                 <div className="flex justify-center mt-8">
-                    <Image src="/img.png" width={400} height={400} alt="heillo i am a pro" />
+                    <Image priority={true} src="/img.png" width={400} height={400} alt="heillo i am a pro" />
                 </div>
             </div>
             <div className="m-16">

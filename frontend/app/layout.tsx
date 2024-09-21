@@ -1,3 +1,5 @@
+'use client'
+
 import localFont from 'next/font/local'
 import './globals.css'
 import Toaster from '../components/login/ui/toast/toaster'

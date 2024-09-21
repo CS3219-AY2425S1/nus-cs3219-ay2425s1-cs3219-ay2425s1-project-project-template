@@ -74,7 +74,7 @@ export const NewSession = () => {
                 </Select>
             </div>
 
-            <Button className="mt-4 bg-purple-600">Start matchmaking</Button>
+            <Button className="mt-4 bg-purple-600 hover:bg-[#A78BFA]">Start matchmaking</Button>
         </div>
     )
 }
