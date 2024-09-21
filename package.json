@@ -15,7 +15,7 @@
   },
   "workspaces": [
     "backend/*",
-    "frontend/*"
+    "frontend"
   ],
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.56.1",
