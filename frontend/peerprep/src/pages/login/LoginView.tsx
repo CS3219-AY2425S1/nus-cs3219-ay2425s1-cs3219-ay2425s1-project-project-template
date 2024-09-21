@@ -21,7 +21,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, errorMessage }) => {
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]">
       <div className="flex Justify-center items-center p-2 mb-5">
             <img src={logo} alt="Peerprep Logo" className="w-20 h-20" />
-      <span className="text-6xl text-white-800">PeerPrep</span>
+      <span className="text-6xl text-white">PeerPrep</span>
       </div>
       <div className="bg-white bg-opacity-10 p-20 rounded-lg backdrop-blur-md text-center w-auto">
         <h2 className="text-white text-2xl font-semibold mb-4">Login</h2>
