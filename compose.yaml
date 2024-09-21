@@ -1,0 +1,34 @@
+services:
+  nginx:
+    build:
+      context: ./nginx
+    restart: always
+    volumes:
+      - ./nginx/default.conf:/tmp/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt
+      - react-build:/app/dist
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail --insecure https://localhost/health-check || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    command: /app/start.sh
+    
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - react-build:/app/dist
+    entrypoint: ["sh", "-c", "npm run build && exit 0"]
+
+volumes:
+  react-build:
