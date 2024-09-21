@@ -1,6 +1,5 @@
 import { NavBar } from '@/components/layout/navbar'
 import { inter } from '@/styles/fonts'
-import '@/styles/globals.css'
 
 export default function RootLayout({
     children,
