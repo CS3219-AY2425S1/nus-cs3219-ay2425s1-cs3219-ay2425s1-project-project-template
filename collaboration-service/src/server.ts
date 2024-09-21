@@ -24,7 +24,7 @@ export { server };
 
 if (require.main === module) {
     dotenv.config();
-    const PORT = process.env.PORT || 8003;
+    const PORT = process.env.PORT || 8001;
     server.listen(PORT, () => {
         console.log(`Server listening on port ${PORT}`);
     });

@@ -8,6 +8,7 @@ import io from 'socket.io-client';
 
 import './App.css';
 
+const socket = io('http://localhost:8001');
 
 function App() {
   const [content, setContent] = useState('');
@@ -26,6 +27,7 @@ function App() {
   const handleEdit = (event) => {
       const updatedContent = event.target.value;
       setContent(updatedContent);
+      console.log("content updated");
       socket.emit('edit', updatedContent);
   };
 
@@ -34,14 +36,10 @@ function App() {
         <h1>Real-time Collaborative Editor</h1>
         <textarea
             value={content}
+            defaultValue={"Start typing here..."}
             onChange={handleEdit}
             rows={10}
             cols={50}
-            style={{
-                fontWeight: bold ? 'bold' : 'normal',
-                fontStyle: italic ? 'italic' : 'normal',
-                textDecoration: underline ? 'underline' : 'none'
-            }}
         />
     </div>
   );
