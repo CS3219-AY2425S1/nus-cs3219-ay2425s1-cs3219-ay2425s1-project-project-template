@@ -1,7 +1,14 @@
-import { UserCredentials } from '@/types/user-types';
+import type { IForgotPasswordPayload, ILoginPayload, ISignUpPayload } from '@/types/user-types';
 import { userApiClient } from './api-clients';
 
-export const login = async (userCredentials: UserCredentials): Promise<void> => {
-  const response = await userApiClient.post(`/login`, userCredentials);
-  return response.data;
+export const login = (userCredentials: ILoginPayload) => {
+  return userApiClient.post(`/login`, userCredentials);
+};
+
+export const signUp = (signUpPayload: ISignUpPayload) => {
+  return userApiClient.post(``, signUpPayload);
+};
+
+export const forgotPassword = (forgotPasswordPayload: IForgotPasswordPayload) => {
+  return userApiClient.post(``, forgotPasswordPayload);
 };
