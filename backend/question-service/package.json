@@ -3,7 +3,11 @@
     "version": "0.1.0",
     "main": "index.js",
     "scripts": {
-        "lint": "eslint --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown ."
+        "build": "tsc",
+        "test": "jest",
+        "lint": "eslint --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown .",
+        "start": "npm run build && node dist/server.js",
+        "dev": "nodemon src/server.ts"
     },
     "author": "",
     "license": "MIT",
