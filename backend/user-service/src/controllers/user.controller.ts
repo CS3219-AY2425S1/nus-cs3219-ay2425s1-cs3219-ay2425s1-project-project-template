@@ -67,19 +67,15 @@ export async function handleGetCurrentProfile(
     request: TypedRequest<UserProfileDto>,
     response: Response
 ): Promise<void> {
-    const createDto = UserProfileDto.fromRequest(request)
-    const errors = await createDto.validate()
-
-    if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
-        response.status(400).json(errorMessages).send()
-        return
-    }
-
     const id = request.params.id
 
     const user = await findOneUserById(id)
-    response.status(200).json(user).send()
+    if (!user) {
+        response.status(404).send()
+    } else {
+        const dto = UserDto.fromModel(user)
+        response.status(200).json(dto).send()
+    }
 }
 
 export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
