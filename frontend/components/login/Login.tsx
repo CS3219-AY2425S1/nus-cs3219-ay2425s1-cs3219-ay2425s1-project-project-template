@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Logo } from './Logo'
+import { Logo } from './ui/toast/Logo'
 import { useToast } from './ui/toast/use-toast'
 
 export default function Login() {
