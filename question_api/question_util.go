@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -39,5 +40,43 @@ func (db *QuestionDB) incrementNextQuestionId(nextId int, logger *Logger) {
 	}
 
 	logger.Log.Info(fmt.Sprintf("Next question ID incremented to %d successfully", nextId))
+}
+
+func (db *QuestionDB) GetMatchingQuestions(query string) ([]Question, error) {
+	questions := []Question{}
+	
+	//create filter for exact match for ID. First attempt to parse query as an integer
+	id, err := strconv.Atoi(query)
+	var id_filter bson.D
+	
+	//query is an integer
+	if err == nil {
+		id_filter = bson.D{bson.E{Key: "id", Value: id}}
+	}
+
+	//create filter for case-insensitive partial match for title
+	title_filter := bson.D{bson.E{Key: "title", Value: bson.D{bson.E{Key: "$regex", Value: "(?i)" + query}}}}
+
+	var filter bson.D
+	
+	if id_filter == nil {
+		//query is a string
+		filter = title_filter
+	} else {
+		//query is an integer
+		filter = bson.D{bson.E{Key: "$or", Value: []bson.D{id_filter, title_filter}}}
+	}
+	
+	cursor, err := db.questions.Find(context.Background(), filter)
+	
+	if err != nil {
+		return questions, err
+	}
+
+	if err = cursor.All(context.Background(), &questions); err != nil {
+		return questions, err
+	}
+
+	return questions, nil
 }
 

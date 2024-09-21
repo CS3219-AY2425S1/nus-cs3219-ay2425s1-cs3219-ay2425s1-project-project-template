@@ -8,9 +8,9 @@ import (
 func SetAllEndpoints(router *gin.Engine, db *QuestionDB, logger *Logger) {
 	router.GET("/questions", GetAllQuestionsWithLogger(db, logger))
 	router.POST("/questions", AddQuestionWithLogger(db, logger))
+	router.GET("/questions/:query", GetMatchingQuestionsWithLogger(db, logger))
 	/*
 	TODO: implement the following endpoints
-	router.GET("/questions/:id", db.GetQuestion)
 	router.PUT("/questions/:id", db.UpdateQuestion)
 	router.DELETE("/questions/:id", db.DeleteQuestion)
 	*/
