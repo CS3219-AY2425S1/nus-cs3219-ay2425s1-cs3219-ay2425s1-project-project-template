@@ -1,12 +1,14 @@
 // this is a method used to add questions to the database. This function will eventually be only called by admins.
-package main 
+package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
 	"context"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
-//TODO: add logic to check for the question ID before adding, should add to the next ID number.
+
+// TODO: add logic to check for the question ID before adding, should add to the next ID number.
 func (db *QuestionDB) AddQuestion(ctx *gin.Context) {
 	var question Question
 
@@ -20,6 +22,6 @@ func (db *QuestionDB) AddQuestion(ctx *gin.Context) {
 		return
 	}
 
-	db.collection.InsertOne(context.Background(), question)
+	db.questions.InsertOne(context.Background(), question)
 	ctx.JSON(http.StatusCreated, gin.H{"Success": "Question added successfully"})
 }

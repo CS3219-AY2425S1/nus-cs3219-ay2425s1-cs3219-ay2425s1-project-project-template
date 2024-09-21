@@ -6,13 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+
 	//"go.mongodb.org/mongo-driver/mongo"
 	"context"
 )
 
 func (db *QuestionDB) GetAllQuestions(ctx *gin.Context) {
 	// get all questions from the database
-	questions_cursor, err := db.collection.Find(context.Background(), bson.D{})
+	questions_cursor, err := db.questions.Find(context.Background(), bson.D{})
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error retrieving questions": err.Error()})
