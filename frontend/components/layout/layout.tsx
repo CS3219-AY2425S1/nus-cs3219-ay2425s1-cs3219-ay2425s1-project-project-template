@@ -10,7 +10,7 @@ export default function RootLayout({
     return (
         <>
             <NavBar />
-            <div className={`${inter.className} mx-10`}>{children}</div>
+            <div className={`${inter.className} mx-10 my-6`}>{children}</div>
         </>
     )
 }
