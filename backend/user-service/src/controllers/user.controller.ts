@@ -1,8 +1,8 @@
 import {
     createUser,
+    deleteUser,
     findOneUserByEmail,
     findOneUserByUsername,
-    softDeleteUser,
     updateUser,
 } from '../models/user.repository'
 
@@ -72,7 +72,7 @@ export async function handleDeleteUser(request: TypedRequest<void>, response: Re
     const id = request.params.id
 
     try {
-        const user = await softDeleteUser(id)
+        const user = await deleteUser(id)
         response.status(200).json(user).send()
     } catch (e) {
         logger.error(e)

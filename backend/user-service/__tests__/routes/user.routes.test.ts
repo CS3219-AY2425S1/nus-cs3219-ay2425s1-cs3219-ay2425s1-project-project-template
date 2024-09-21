@@ -138,7 +138,9 @@ describe('User Routes', () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
             const response = await request(app).delete(`/users/${user1.body.id}`).send()
             expect(response.status).toBe(200)
-            expect(response.body.deletedAt).toBeDefined()
+            expect(response.body.username).toEqual('test1')
+            const confirmation = await request(app).delete('/users/${user1.body.id}').send()
+            expect(confirmation.status).toBe(500)
         })
         it('should return 500 for requests with invalid ids', async () => {
             const response = await request(app).delete('/users/111').send()
