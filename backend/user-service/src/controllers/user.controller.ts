@@ -1,4 +1,10 @@
-import { createUser, findOneUserByEmail, findOneUserByUsername, updateUser } from '../models/user.repository'
+import {
+    createUser,
+    findOneUserByEmail,
+    findOneUserById,
+    findOneUserByUsername,
+    updateUser,
+} from '../models/user.repository'
 
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
@@ -53,5 +59,24 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
     }
 
     const user = await updateUser(id, createDto)
+    response.status(200).json(user).send()
+}
+
+export async function handleGetCurrentProfile(
+    request: TypedRequest<UserProfileDto>,
+    response: Response
+): Promise<void> {
+    const createDto = UserProfileDto.fromRequest(request)
+    const errors = await createDto.validate()
+
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const id = request.params.id
+
+    const user = await findOneUserById(id)
     response.status(200).json(user).send()
 }

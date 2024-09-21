@@ -133,4 +133,26 @@ describe('User Routes', () => {
             expect(response.status).toBe(409)
         })
     })
+
+    describe('GET /users', () => {
+        it('should return 200 for successful get', async () => {
+            const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
+            const response = await request(app).get(`/users/${user1.body.id}`).send()
+            expect(response.status).toBe(200)
+            expect(response.body).toEqual(
+                expect.objectContaining({
+                    id: expect.any(String),
+                    username: 'test1',
+                    email: 'test@gmail.com',
+                    role: Role.ADMIN,
+                    proficiency: Proficiency.INTERMEDIATE,
+                })
+            )
+        })
+        it('should return 404 for non-existent ids', async () => {
+            const response = await request(app).put('/users/111').send({})
+            expect(response.status).toBe(404)
+            expect(response.body).toHaveLength(1)
+        })
+    })
 })
