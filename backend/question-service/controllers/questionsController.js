@@ -26,13 +26,19 @@ const createQuestion = async (req, res) => {
 }
 
 const updateQuestion = async (req, res) => {
-    if (!req?.body?.id) {
+  try {
+    const questionId = req.params.id; // Get ID from URL parameters
+    console.log('Received questionId:', questionId); // Log the questionId
+
+    if (!questionId) {
         return res.status(400).json({ 'message': 'Question ID is required.' });
     }
 
-    const question = await QuestionSchema.findOne({ _id: req.body.id }).exec();
+    const question = await QuestionSchema.findOne({ _id: questionId }).exec();
+    console.log('question:', question); // Log the questionId
+
     if (!question) {
-        return res.status(204).json({ "message": `No question matches ID ${req.body.id}.` });
+        return res.status(401).json({ "message": `No question matches ID ${ questionId}.` });
     }
 
     if (req.body?.title) question.title = req.body.title;
@@ -40,8 +46,12 @@ const updateQuestion = async (req, res) => {
     if (req.body?.category) question.category = req.body.category;
     if (req.body?.complexity) question.complexity = req.body.complexity;
 
-    const result = await question.save();
-    res.json(result);
+    const updatedQuestion = await question.save();
+    return res.status(200).json(updatedQuestion); // Ensure you return the updated question as JSON
+  } catch (error) {
+      console.error('Error updating question:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+  }
 }
 
 const deleteQuestion = async (req, res) => {

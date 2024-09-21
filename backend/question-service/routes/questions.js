@@ -5,7 +5,7 @@ const questionsController = require('../controllers/questionsController');
 
 router.get('/', questionsController.getAllQuestions)
 router.post('/', questionsController.createQuestion)
-router.put('/', questionsController.updateQuestion)
+router.put('/:id', questionsController.updateQuestion)
 router.delete('/', questionsController.deleteQuestion)
 
 // Get question based on id

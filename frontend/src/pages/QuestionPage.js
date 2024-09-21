@@ -14,7 +14,7 @@ const QuestionPage = () => {
   useEffect(() => {
       const fetchQuestions = async () => {
         try {
-          const response = await fetch('http://localhost:8080/questions'); // Replace with your backend URL
+          const response = await fetch('http://localhost:8080/questions');
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
@@ -48,8 +48,13 @@ const QuestionPage = () => {
           },
           body: JSON.stringify(newQuestion),
         });
+
         if (response.ok) {
           const savedQuestion = await response.json();
+
+          // check the new question
+          console.log('savedQuestion:', savedQuestion);
+
           setQuestions((prevQuestions) => [...prevQuestions, savedQuestion]);
         } else {
           console.error('Failed to add question');
@@ -59,17 +64,40 @@ const QuestionPage = () => {
       }
     };
 
-  function handleEditQuestion(question) {
+  const handleEditQuestion = async (question) => {
     setDialogForm(<EditQuestionForm question={question} onUpdate={handleUpdateQuestion} />);
     toggleDialog();
   }
 
-  function handleUpdateQuestion(updatedQuestion) {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
-    );
+  const handleUpdateQuestion = async (updatedQuestion) => {
+    try {
+      console.log('Updating question with ID:', updatedQuestion._id); // Log the ID being used
+      const response = await fetch(`http://localhost:8080/questions/${updatedQuestion._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedQuestion), // Send the updated question dat
+      });
+
+      console.log('updatedQuestion:', updatedQuestion);
+
+      if (response.ok) {
+        const savedQuestion = await response.json(); // Parse the updated question
+        console.log('Saved question:', savedQuestion); // Log the saved question
+
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((q) => (q._id === savedQuestion._id ? savedQuestion : q)) // Update the specific question
+              );
+      } else {
+        const errorMessage = await response.text(); // Get error message from response
+        console.error(`Failed to edit question: ${response.status} ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('Error editing question:', error);
+    }
     toggleDialog();
-  }
+  };
 
   return (
     <div style={{ paddingTop: "70px" }}>
