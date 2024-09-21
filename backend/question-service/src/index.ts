@@ -4,8 +4,7 @@ import 'express-async-errors'
 import helmet from 'helmet'
 import passport from 'passport'
 import defaultErrorHandler from './middlewares/errorHandler.middleware'
-import authRouter from './routes/auth.routes'
-import userRouter from './routes/user.routes'
+import questionRouter from './routes/question.routes'
 
 const app: Express = express()
 
@@ -34,8 +33,7 @@ app.use((request: Request, response: Response, next: NextFunction) => {
     next()
 })
 
-app.use('/auth', authRouter)
-app.use('/users', userRouter)
+app.use('/questions', questionRouter)
 
 // Health Check Route
 app.get('/', (_: Request, response: Response) => {
