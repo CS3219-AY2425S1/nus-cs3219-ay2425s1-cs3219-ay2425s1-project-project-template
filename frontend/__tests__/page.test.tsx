@@ -2,14 +2,13 @@ import '@testing-library/jest-dom'
 
 import { render, screen } from '@testing-library/react'
 
-import Page from '../pages/index'
+import Layout from '../components/layout/layout'
 
-describe('Page', () => {
+describe('Layout', () => {
     it('renders the logo', () => {
-        render(<Page />)
+        render(<Layout children={undefined} />)
 
-        const page = screen.getByRole('img')
-
-        expect(page).toBeInTheDocument()
+        const logo = screen.getByRole('img')
+        expect(logo).toBeInTheDocument()
     })
 })
