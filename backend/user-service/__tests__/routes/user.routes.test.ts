@@ -1,12 +1,13 @@
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import { generateKeyPairSync } from 'crypto'
 import express, { Express } from 'express'
-
+import 'express-async-errors'
 import mongoose from 'mongoose'
 import request from 'supertest'
 import config from '../../src/common/config.util'
 import logger from '../../src/common/logger.util'
 import connectToDatabase from '../../src/common/mongodb.util'
+import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
 import userRouter from '../../src/routes/user.routes'
 import { Proficiency } from '../../src/types/Proficiency'
 import { Role } from '../../src/types/Role'
@@ -59,6 +60,7 @@ describe('User Routes', () => {
         app = express()
         app.use(express.json())
         app.use('/users', userRouter)
+        app.use(defaultErrorHandler)
 
         await connectToDatabase(connectionString)
     }, 60000)
@@ -109,13 +111,12 @@ describe('User Routes', () => {
             expect(response.body.username).toEqual('test3')
             expect(response.body.proficiency).toEqual(Proficiency.ADVANCED)
         })
-        it('should return 500 for requests with invalid ids', async () => {
+        it('should return 400 for requests with invalid ids', async () => {
             const response = await request(app).put('/users/111').send({
                 username: 'test3',
                 proficiency: Proficiency.ADVANCED,
             })
-            expect(response.status).toBe(500)
-            expect(response.body).toHaveLength(1)
+            expect(response.status).toBe(400)
         })
         it('should return 400 for invalid requests and a list of errors', async () => {
             const response = await request(app).put('/users/111').send({})
