@@ -1,64 +1,67 @@
-import React from 'react';
-import './QuestionPage.css'; // Make sure this file contains your styles
+import React, { useState } from 'react';
 
-function NewPage() {
+const QuestionPage = () => {
+  const [questions] = useState([
+    { id: 1, title: "item1", complexity: "Easy", description: "Description for item1" },
+    { id: 2, title: "item2", complexity: "Medium", description: "Description for item2" },
+    { id: 3, title: "item3", complexity: "Hard", description: "Description for item3" },
+    { id: 4, title: "item4", complexity: "Medium", description: "Description for item4" },
+    { id: 5, title: "item5", complexity: "Hard", description: "Description for item5" },
+    { id: 6, title: "item6", complexity: "Easy", description: "Description for item6" },
+    { id: 7, title: "item7", complexity: "Medium", description: "Description for item7" },
+    { id: 8, title: "item8", complexity: "Hard", description: "Description for item8" },
+    { id: 9, title: "item9", complexity: "Easy", description: "Description for item9" },
+    { id: 10, title: "item10", complexity: "Medium", description: "Description for item10" },
+    { id: 11, title: "item11", complexity: "Hard", description: "Description for item11" },
+    { id: 12, title: "item12", complexity: "Easy", description: "Description for item12" },
+    { id: 13, title: "item13", complexity: "Medium", description: "Description for item13" },
+    { id: 14, title: "item14", complexity: "Hard", description: "Description for item14" },
+    { id: 15, title: "item15", complexity: "Easy", description: "Description for item15" },
+    { id: 16, title: "item16", complexity: "Medium", description: "Description for item16" },
+    { id: 17, title: "item17", complexity: "Hard", description: "Description for item17" },
+    { id: 18, title: "item18", complexity: "Easy", description: "Description for item18" },
+    { id: 19, title: "item19", complexity: "Medium", description: "Description for item19" },
+    { id: 20, title: "item20", complexity: "Hard", description: "Description for item20" },
+  ]);
+
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+
+  const handleTitleClick = (question) => {
+    setSelectedQuestion(selectedQuestion === question ? null : question);
+  };
+
   return (
-    <div className="question-page-container">
-      <div className="form-section">
-        <div className="row">
-          <label htmlFor="difficulty">Difficulty:</label>
-          <select id="difficulty" className="dropdown">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-
-          <label htmlFor="topic">Topic:</label>
-          <select id="topic" className="dropdown">
-            <option value="math">Math</option>
-            <option value="science">Science</option>
-            <option value="programming">Programming</option>
-          </select>
-        </div>
-
-        <div className="hints-section">
-          <label htmlFor="hints">Hints:</label>
-          <textarea id="hints" className="textarea"></textarea>
-        </div>
-
-        <div className="constraints-section">
-          <label htmlFor="constraints">Constraints:</label>
-          <input type="text" id="constraints" className="input-field" />
-        </div>
-
-        {/* Scrollable Selection Menu */}
-        <div className="scrollable-menu">
-          <label className="label">Items:</label>
-          <ul className="menu-list">
-            <li>Item 1</li>
-            <li>Item 2</li>
-            <li>Item 3</li>
-            <li>Item 4</li>
-            <li>Item 5</li>
-            <li>Item 6</li>
-            <li>Item 7</li>
-            <li>Item 8</li>
-          </ul>
-        </div>
+    <div className="container mx-auto p-4 bg-white">
+      <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
+      <div className="overflow-y-auto" style={{ maxHeight: '300px' }}>
+        <table className="min-w-full bg-white border border-gray-300">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b">Question Title</th>
+              <th className="py-2 px-4 border-b">Complexity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {questions.map((question) => (
+              <tr key={question.id}>
+                <td className="py-2 px-4 border-b cursor-pointer" onClick={() => handleTitleClick(question)}>
+                  {question.title}
+                </td>
+                <td className="py-2 px-4 border-b">{question.complexity}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <div class="left-section">
-        <div className="question-section">
-          <label htmlFor="question">Question:</label>
-          <textarea id="question" className="textarea"></textarea>
+      {selectedQuestion && (
+        <div className="mt-4 p-4 border border-gray-300">
+          <h2 className="font-bold">{selectedQuestion.title} - Description</h2>
+          <p>{selectedQuestion.description}</p>
         </div>
-
-        <div className="button-section">
-          <button className="set-question-button">Set Question</button>
-        </div>
-      </div>
+      )}
     </div>
   );
-}
+};
 
-export default NewPage;
+export default QuestionPage;
