@@ -12,71 +12,21 @@ const QuestionPage = () => {
   const dialogRef  = useRef(null);
 
   useEffect(() => {
-      // Fetch or define questions data here
-      // Linkage to mongoDB here maybe
-    setQuestions([
-      {
-        id: 1,
-        title: "Two Sum",
-        category: "Array",
-        complexity: "Easy",
-      },
-      {
-        id: 2,
-        title: "Three Sum",
-        category: "Array",
-        complexity: "Medium",
-      },
-      {
-        id: 3,
-        title: "Longest Substring Without Repeating Characters",
-        category: "String",
-        complexity: "Medium",
-      },
-      {
-        id: 4,
-        title: "Merge Intervals",
-        category: "Array",
-        complexity: "Medium",
-      },
-      {
-        id: 5,
-        title: "Valid Parentheses",
-        category: "String",
-        complexity: "Easy",
-      },
-      {
-        id: 6,
-        title: "Binary Tree Inorder Traversal",
-        category: "Tree",
-        complexity: "Easy",
-      },
-      {
-        id: 7,
-        title: "Add Two Numbers",
-        category: "Linked List",
-        complexity: "Medium",
-      },
-      {
-        id: 8,
-        title: "Product of Array Except Self",
-        category: "Array",
-        complexity: "Medium",
-      },
-      {
-        id: 9,
-        title: "Search in Rotated Sorted Array",
-        category: "Array",
-        complexity: "Medium",
-      },
-      {
-        id: 10,
-        title: "Longest Palindromic Substring",
-        category: "String",
-        complexity: "Medium",
-      },
-    ]);
-  }, []);
+      const fetchQuestions = async () => {
+        try {
+          const response = await fetch('http://localhost:8080/questions'); // Replace with your backend URL
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          setQuestions(data); // Update the state with fetched questions
+        } catch (error) {
+          console.error('Error fetching questions:', error);
+        }
+      };
+
+      fetchQuestions(); // Call the fetch function on component mount
+    }, []); // Empty dependency array to run only once
 
   function toggleDialog() {
     if (!dialogRef.current) {
@@ -87,15 +37,27 @@ const QuestionPage = () => {
       ? dialogRef.current.close()
       : dialogRef.current.showModal();
   }
-
-  function handleAddQuestion(newQuestion) {
+  const handleAddQuestion = async (newQuestion) => {
     toggleDialog();
 
-    setQuestions((prevQuestions) => [
-      ...prevQuestions,
-      { id: prevQuestions.length + 1, ...newQuestion },
-    ]);
-  }
+    try {
+        const response = await fetch('http://localhost:8080/questions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newQuestion),
+        });
+        if (response.ok) {
+          const savedQuestion = await response.json();
+          setQuestions((prevQuestions) => [...prevQuestions, savedQuestion]);
+        } else {
+          console.error('Failed to add question');
+        }
+      } catch (error) {
+        console.error('Error adding question:', error);
+      }
+    };
 
   function handleEditQuestion(question) {
     setDialogForm(<EditQuestionForm question={question} onUpdate={handleUpdateQuestion} />);
