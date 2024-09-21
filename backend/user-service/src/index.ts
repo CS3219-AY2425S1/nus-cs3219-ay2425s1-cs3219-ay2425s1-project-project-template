@@ -3,7 +3,7 @@ import express, { Express, NextFunction, Request, Response } from 'express'
 import 'express-async-errors'
 import helmet from 'helmet'
 import passport from 'passport'
-import logger from './common/logger.util'
+import defaultErrorHandler from './middlewares/errorHandler.middleware'
 import authRouter from './routes/auth.routes'
 import userRouter from './routes/user.routes'
 
@@ -48,9 +48,6 @@ app.use((_: Request, response: Response) => {
 })
 
 // Default Error Handler
-app.use((error: Error, request: Request, response: Response, _: NextFunction) => {
-    logger.error(`[Controller] [${request.method}  ${request.baseUrl + request.path}] ${error.message}`)
-    response.status(500).send()
-})
+app.use(defaultErrorHandler)
 
 export default app
