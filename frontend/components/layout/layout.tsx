@@ -1,5 +1,5 @@
 import { NavBar } from '@/components/layout/navbar'
-import { inter } from '@/fonts'
+import { inter } from '@/styles/fonts'
 import '@/styles/globals.css'
 
 export default function RootLayout({
