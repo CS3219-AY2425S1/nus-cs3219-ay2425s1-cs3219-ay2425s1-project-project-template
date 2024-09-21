@@ -8,7 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: add logic to check for the question ID before adding, should add to the next ID number.
+// When adding a question, the next ID to be used is found by calling findNextQuestionId() and the question is added to the database.
+// The next ID is then incremented by 1.
 func (db *QuestionDB) AddQuestion(ctx *gin.Context) {
 	var question Question
 
@@ -22,6 +23,9 @@ func (db *QuestionDB) AddQuestion(ctx *gin.Context) {
 		return
 	}
 
+	question.ID = db.findNextQuestionId()
 	db.questions.InsertOne(context.Background(), question)
+
+	db.incrementNextQuestionId(question.ID + 1)
 	ctx.JSON(http.StatusCreated, gin.H{"Success": "Question added successfully"})
 }
