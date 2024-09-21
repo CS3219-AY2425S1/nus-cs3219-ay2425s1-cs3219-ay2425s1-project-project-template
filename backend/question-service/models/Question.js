@@ -3,10 +3,6 @@ const { v4: uuid } = require('uuid');
 
 
 const questionSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        default: uuid(),
-    },
     title: {
         type: String,
         required: true

@@ -19,6 +19,6 @@
 | ----------------- | ------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | /question         | `GET`        | \*                                                        | Get all question                                                                                         |
 | /question         | `POST`       | title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str`                                      | Create a new question                                                                                             |
-| /question         | `PUT`        | id: `str`<br>title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str` | Update question based on ID                                                                                                      |
-| /question         | `DELETE`     | id: `str`<br>title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str`           | Delete question based on ID                                                             |
-| /question         | `GET`       | id: `str`       | Get one question based on ID                                                                                                          |
+| /question         | `PUT`        | _id: `str`<br>title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str` | Update question based on ID                                                                                                      |
+| /question         | `DELETE`     | _id: `str` | Delete question based on ID                                                             |
+| /question         | `GET`       | _id: `str`       | Get one question based on ID                                                                                                          |

@@ -19,7 +19,7 @@ const QuestionTable = ({ questions, onEdit, onView, onDelete }) => {
         </thead>
         <tbody>
           {questions.map((question) => (
-            <tr key={question.id}>
+            <tr key={question._id}>
               <td>{question.title}</td>
               <td>{question.category}</td>
               <td>{question.complexity}</td>
