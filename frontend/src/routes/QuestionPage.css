@@ -1,0 +1,109 @@
+.question-page-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #e5d6d6; /* light pinkish background */
+  height: 100vh;
+  width:100vw;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Adds space between elements */
+  width: 45%; /* Adjust the width of the form section */
+  box-sizing: border-box;
+}
+
+.left-section {
+  display: flex;
+  background-color: pink;
+  flex-direction: column;
+  width: 55%; /* Adjust the width of the form section */
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropdown {
+  background-color: #caa;
+  border: none;
+  padding: 8px;
+  border-radius: 4px;
+  width: 48%;
+}
+
+.hints-section,
+.constraints-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.textarea, .input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.question-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 50%; /* Adjust width of question section */
+  box-sizing: border-box;
+}
+
+.button-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.set-question-button {
+  background-color: #5a8542; /* green background */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.scrollable-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.menu-list {
+  list-style-type: none;
+  padding: 0;
+  max-height: 200px; /* Height of the scrollable area */
+  overflow-y: auto; /* Enable vertical scroll */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.menu-list li {
+  padding: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menu-list li:hover {
+  background-color: #ddd;
+}

@@ -4,6 +4,8 @@ import './App.css'; // Import your CSS file here
 import EditorPage from './routes/EditorPage';
 import LoginPage from './routes/LoginPage';
 import RegisterPage from './routes/RegisterPage';
+import QuestionPage from './routes/QuestionPage';
+
 
 function App() {
   return (
@@ -12,6 +14,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/code" element={<EditorPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/question" element={<QuestionPage />} />
       </Routes>
     </Router>
   );
