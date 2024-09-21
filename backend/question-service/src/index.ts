@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
+import 'express-async-errors'
 import helmet from 'helmet'
 import passport from 'passport'
 import logger from './common/logger.util'
