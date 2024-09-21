@@ -3,7 +3,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -22,21 +22,22 @@ func (db *QuestionDB) findNextQuestionId() int {
 	}{}
 	filter := bson.D{}
 	
-	var err error
-	if err = db.nextId.FindOne(context.Background(), filter).Decode(&id); err != nil {
-		log.Fatal(err)  // should not happen. 
+	if err := db.nextId.FindOne(context.Background(), filter).Decode(&id); err != nil {
+		return -1
 	}
 	
-	log.Println("Next ID: ", id.Next)
 	return id.Next
 }
 
 // used to increment the next question ID to be used.
 // since the collection is capped at one document, inserting a new document will replace the old one.
-func (db *QuestionDB) incrementNextQuestionId(nextId int) {
+func (db *QuestionDB) incrementNextQuestionId(nextId int, logger *Logger) {
 	var err error
 	if _, err = db.nextId.InsertOne(context.Background(), bson.D{bson.E{Key: "next", Value: nextId}}); err != nil {
-		log.Fatal(err)  // should not happen. 
+		logger.Log.Error("Error incrementing next question ID: ", err)
+		return
 	}
+
+	logger.Log.Info(fmt.Sprintf("Next question ID incremented to %d successfully", nextId))
 }
 

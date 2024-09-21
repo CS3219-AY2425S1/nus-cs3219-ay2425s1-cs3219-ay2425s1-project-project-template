@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetAllEndpoints(router *gin.Engine, db *QuestionDB) {
-	router.GET("/questions", db.GetAllQuestions)
-	router.POST("/questions", db.AddQuestion)
+func SetAllEndpoints(router *gin.Engine, db *QuestionDB, logger *Logger) {
+	router.GET("/questions", GetAllQuestionsWithLogger(db, logger))
+	router.POST("/questions", AddQuestionWithLogger(db, logger))
 	/*
 	TODO: implement the following endpoints
 	router.GET("/questions/:id", db.GetQuestion)

@@ -2,9 +2,12 @@
 package main
 
 import (
+	"os"
+	"github.com/sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
-	//"net/http"
+	"fmt"
+	"time"
 )
 
 // for initial API testing
@@ -60,7 +63,36 @@ func NewQuestionDB(client *mongo.Client) *QuestionDB {
 	return &QuestionDB{questions: questionCollection, nextId: idCollection}
 }
 
+// Logger is a struct that contains a pointer to a logrus logger.
+type Logger struct {
+	Log *logrus.Logger
+}
+
+func NewLogger(logger *logrus.Logger) *Logger {
+	return &Logger{Log: logger}
+}
+
 func main() {
+	//initialise logger file and directory if they do not exist
+	logger := NewLogger(logrus.New())
+
+	logDirectory := "./log"
+	
+	if err := os.MkdirAll(logDirectory, 0755); err != nil {
+		logger.Log.Error("Failed to create log directory: " + err.Error())
+	}
+
+	logFile, err := os.OpenFile("./log/question_api.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+
+	if err != nil {
+		logger.Log.Warn("Failed to log to file, using default stderr")
+	}
+
+	defer logFile.Close()
+
+	logger.Log.Out = logFile
+
+
 	router := gin.Default()
 	//initialise the database and handle errors
 	server, err := initialiseDB()
@@ -73,7 +105,9 @@ func main() {
 	questionDB := NewQuestionDB(server)
 
 	//set all the endpoints
-	SetAllEndpoints(router, questionDB)
+	SetAllEndpoints(router, questionDB, logger)
+
+	logger.Log.Info(fmt.Sprintf("Server started at time: %s", time.Now().String()))
 
 	router.Run(":9090") //currently local hosted
 }
