@@ -8,9 +8,9 @@ export default function Home() {
     const [isLoginPage, setIsLoginPage] = useState(false)
     return (
         <div className="grid grid-cols-2 h-screen">
-            <div className="mx-16 flex flex-col justify-center">
-                <h2 className="font-bold text-6xl">PeerPrep</h2>
-                <p className="text-gray-600 font-semibold mt-4">
+            <div className="w-full h-full bg-gradient-to-b from-[#FCF7FC] via-[#FCF7FC] to-[#E8E1F6] flex flex-col justify-center">
+                <h2 className="pl-[59px] font-semibold text-6xl">PeerPrep</h2>
+                <p className="pl-[59px] text-gray-600 font-semibold mt-4">
                     Connect, Collaborate, Code: Unlock Your Potential Together
                 </p>
                 <div className="flex justify-center mt-8">
