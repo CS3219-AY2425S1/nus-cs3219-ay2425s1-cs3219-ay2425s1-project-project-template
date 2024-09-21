@@ -1,15 +1,29 @@
+import {
+  getEmptyFieldErrorMessage,
+  getFieldMaxLengthErrorMessage,
+  getFieldMinLengthErrorMessage,
+} from '@/lib/forms';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const signUpSchema = z
   .object({
-    email: z.string().email(),
-    username: z.string().min(2).max(50),
-    firstName: z.string().min(2).max(50),
-    lastName: z.string().min(2).max(50),
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
+    email: z.string().email().min(1, getEmptyFieldErrorMessage('Email')),
+    username: z
+      .string()
+      .min(2, getFieldMinLengthErrorMessage('Username', 2))
+      .max(50, getFieldMaxLengthErrorMessage('Username', 50)),
+    firstName: z
+      .string()
+      .min(2, getFieldMinLengthErrorMessage('First Name', 2))
+      .max(50, getFieldMaxLengthErrorMessage('First Name', 50)),
+    lastName: z
+      .string()
+      .min(2, getFieldMinLengthErrorMessage('Last Name', 2))
+      .max(50, getFieldMaxLengthErrorMessage('Last Name', 50)),
+    password: z.string().min(8, getFieldMinLengthErrorMessage('Password', 8)),
+    confirmPassword: z.string().min(8, getFieldMinLengthErrorMessage('Password', 8)),
   })
   .superRefine(({ password, confirmPassword }, ctx) => {
     if (confirmPassword !== password) {

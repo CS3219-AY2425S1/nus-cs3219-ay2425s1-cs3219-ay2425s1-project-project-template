@@ -2,9 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 
+import { getEmptyFieldErrorMessage } from '@/lib/forms';
+
 export const loginFormSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
+  username: z.string().min(1, getEmptyFieldErrorMessage('Username')),
+  password: z.string().min(1, getEmptyFieldErrorMessage('Password')),
 });
 
 type ILoginFormSchema = z.infer<typeof loginFormSchema>;

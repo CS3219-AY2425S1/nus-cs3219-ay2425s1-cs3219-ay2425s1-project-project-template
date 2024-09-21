@@ -2,8 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { getEmptyFieldErrorMessage } from '@/lib/forms';
+
 export const forgotPasswordSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email().min(1, getEmptyFieldErrorMessage('Email')),
 });
 
 export type IForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
