@@ -33,6 +33,19 @@ export const getQuestionByDifficulty = async (req, res) => {
     return res.status(200).json(questions);;
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: `Unknown error when finding question with id ${id}!` });
+    return res.status(500).json({ message: `Unknown error when finding question with difficulty ${difficulty}!` });
+  }
+};
+
+export const getQuestionByTopic = async (req, res) => {
+  try {
+    const topic = req.params.topic;
+    const questions = await Question.find({ 
+      topics: topic
+    });
+    return res.status(200).json(questions);;
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: `Unknown error when finding question with topic ${topic}!` });
   }
 };
