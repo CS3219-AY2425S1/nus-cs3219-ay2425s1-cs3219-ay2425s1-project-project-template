@@ -5,10 +5,10 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  useColorModeValue,
 } from "@chakra-ui/react";
-import { ColumnFilter } from '@tanstack/react-table';
+import { ColumnFilter } from "@tanstack/react-table";
 import { FaSearch } from "react-icons/fa";
-
 
 // Define the type for the props
 interface FiltersProps {
@@ -27,20 +27,32 @@ const Filters: React.FC<FiltersProps> = ({ columnFilters, setColumnFilters }) =>
           id,
           value,
         })
-    );
+    );    
 
   return (
-    <HStack mb={6} spacing={3}>
-      <InputGroup size="sm" maxW="12rem">
+    <HStack mb={6} spacing={4} align="center">
+      <InputGroup size="sm" maxW="16rem" boxShadow="sm">
         <InputLeftElement pointerEvents="none">
-          <Icon as={FaSearch} color={"grey"} />
+          <Icon as={FaSearch} color={"white"} boxSize={4} />
         </InputLeftElement>
         <Input
           type="text"
           variant="filled"
-          placeholder="Title"
-          textColor={"grey"}
-          borderRadius={5}
+          placeholder="Search by Title"
+          textColor={"white"}
+          bg={"rgba(255, 255, 255, 0.1)"}
+          _hover={{
+            bg: "rgba(255, 255, 255, 0.2)",
+            boxShadow: "white", 
+          }}
+          _focus={{
+            bg: "purple",
+            textColor: "black",
+            borderColor: "white",
+            boxShadow: "white",
+          }}
+          _placeholder={{ color: "white" }}
+          borderRadius={8}
           value={questions}
           onChange={(e) => onFilterChange("title", e.target.value)}
         />

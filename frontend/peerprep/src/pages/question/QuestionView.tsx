@@ -18,7 +18,7 @@ import {
     Tr,
     Th,
     Td,
-    Input,
+    Text,
     Button,
     Icon,
     useDisclosure,
@@ -40,7 +40,32 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
             { header: "ID", accessorKey: "id" },
             { header: "Title", accessorKey: "title" },
             { header: "Topic", accessorKey: "categories" },
-            { header: "Complexity", accessorKey: "complexity" },
+            {
+                header: "Complexity",
+                accessorKey: "complexity",
+                cell: ({ getValue }) => {
+                    const complexity = getValue<string>().toLowerCase();
+                    let color = 'white'; // Default color
+    
+                    switch (complexity) {
+                        case 'easy':
+                            color = 'green.400';
+                            break;
+                        case 'med':
+                            color = 'yellow.400';
+                            break;
+                        case 'hard':
+                            color = 'red.400';
+                            break;
+                    }
+    
+                    return (
+                        <Text color={color} fontWeight="bold" textTransform="capitalize">
+                            {complexity}
+                        </Text>
+                    );
+                }
+            },
             {
                 header: "Question",
                 accessorKey: "link",
@@ -67,8 +92,19 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
     return (
         <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
             <Box className="flex justify-start items-center p-2 mb-5">
-                <Button className="mr-4" onClick={onOpen}>
-                    <Icon as={FiAlignJustify} />
+                <Button 
+                    onClick={onOpen} 
+                    border="2px solid"
+                    borderColor="white"
+                    bg="transparent"
+                    _hover={{ bg: 'purple' }}
+                    className="mr-4"
+                >
+                    <Icon 
+                        as={FiAlignJustify} 
+                        color="white" 
+                        className="bg-opacity-0" 
+                    />
                 </Button>
                 <img src={logo} alt="Peerprep Logo" className="w-10 h-10" />
                 <span className="text-4xl text-white">PeerPrep</span>
@@ -76,21 +112,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
             {/* Drawer for menu */}
             <MenuDrawer isOpen={isOpen} onClose={onClose}/>
 
-            <Box className="justify-center items-center p-2">
+            <Box className="flex-col justify-center items-center p-2">
                 {/* Search Filter Input */}
-                <Box className="flex item-center justify-between mb-1">
-                    <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilter} />
-                    <h2 className="text-white text-3xl font-semibold mx-auto">Questions</h2>
-                </Box>
-
+                <h2 className="flex justify-center text-white text-3xl font-semibold">Questions</h2>
+                <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilter} />
                 {/* Table Display */}
-                <Box overflowX="auto">
-                    <Table variant='striped' colorScheme='purple' bgColor={'white'}>
+                <Box className="bg-white justify-between bg-opacity-10 rounded-md border-radius-md p-4" overflowX="auto">
+                    <Table variant='simple' colorScheme='#141A67'>
                         <Thead>
                             {table.getHeaderGroups().map(headerGroup => (
-                                <Tr key={headerGroup.id}>
+                                <Tr key={headerGroup.id} bgColor="purple.200" boxShadow="md">
                                     {headerGroup.headers.map(header => (
-                                        <Th key={header.id}>
+                                        <Th key={header.id} px={6} py={4} textAlign="center" textColor="black.300">
                                             {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                         </Th>
                                     ))}
@@ -99,9 +132,23 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                         </Thead>
                         <Tbody>
                             {table.getRowModel().rows.map(row => (
-                                <Tr key={row.id}>
+                                <Tr 
+                                    key={row.id} 
+                                    color={'white'} 
+                                    _hover={{ bgColor: 'purple' }}
+                                    border="2px solid" 
+                                    borderColor="gray.200"
+                                >
                                     {row.getVisibleCells().map(cell => (
-                                        <Td key={cell.id}>
+                                        <Td 
+                                            key={cell.id} 
+                                            px={6} 
+                                            py={4} 
+                                            textAlign="center" 
+                                            borderRight="2px solid" 
+                                            borderColor="gray.300"
+                                            _last={{ borderRight: "none" }}
+                                        >
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </Td>
                                     ))}

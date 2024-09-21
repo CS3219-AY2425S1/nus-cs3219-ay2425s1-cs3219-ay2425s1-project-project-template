@@ -29,7 +29,7 @@ export type Question = {
       title: "Roman to Integer",
       description: "Convert a Roman numeral to an integer.",
       categories: "Algorithms",
-      complexity: "Easy",
+      complexity: "Med",
       link: "https://example.com/roman-to-integer",
     },
     {
@@ -45,7 +45,7 @@ export type Question = {
       title: "Fibonacci Number",
       description: "Return the Nth Fibonacci number using recursion.",
       categories: "Recursion",
-      complexity: "Easy",
+      complexity: "Hard",
       link: "https://example.com/fibonacci-number",
     },
   ];
