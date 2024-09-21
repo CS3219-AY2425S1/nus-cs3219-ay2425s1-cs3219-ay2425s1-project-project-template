@@ -7,8 +7,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
-import backgroundImage from "./assets/images/lightbluepinkgrad.jpeg"; // Adjust the path as needed
-import "./styles/App.css"; // Import the CSS file
+import backgroundImage from "./assets/images/lightgradient.jpeg"; // path for background
+import "./styles/App.css"; // css file
 
 const HomePage = () => {
   const navigate = useNavigate();
