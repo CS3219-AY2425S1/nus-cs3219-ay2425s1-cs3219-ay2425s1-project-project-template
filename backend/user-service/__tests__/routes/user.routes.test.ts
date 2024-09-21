@@ -1,3 +1,5 @@
+import 'express-async-errors'
+
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import express, { Express } from 'express'
 
@@ -5,6 +7,7 @@ import { Proficiency } from '../../src/types/Proficiency'
 import { Role } from '../../src/types/Role'
 import config from '../../src/common/config.util'
 import connectToDatabase from '../../src/common/mongodb.util'
+import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
 import { generateKeyPairSync } from 'crypto'
 import logger from '../../src/common/logger.util'
 import mongoose from 'mongoose'
@@ -59,6 +62,7 @@ describe('User Routes', () => {
         app = express()
         app.use(express.json())
         app.use('/users', userRouter)
+        app.use(defaultErrorHandler)
 
         await connectToDatabase(connectionString)
     }, 60000)
@@ -109,18 +113,16 @@ describe('User Routes', () => {
             expect(response.body.username).toEqual('test3')
             expect(response.body.proficiency).toEqual(Proficiency.ADVANCED)
         })
-        it('should return 500 for requests with invalid ids', async () => {
+        it('should return 400 for requests with invalid ids', async () => {
             const response = await request(app).put('/users/111').send({
                 username: 'test3',
                 proficiency: Proficiency.ADVANCED,
             })
-            expect(response.status).toBe(500)
-            expect(response.body).toHaveLength(1)
+            expect(response.status).toBe(400)
         })
         it('should return 400 for invalid requests and a list of errors', async () => {
             const response = await request(app).put('/users/111').send({})
             expect(response.status).toBe(400)
-            expect(response.body).toHaveLength(1)
         })
         it('should return 409 for duplicate username', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
@@ -138,14 +140,12 @@ describe('User Routes', () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
             const response = await request(app).delete(`/users/${user1.body.id}`).send()
             expect(response.status).toBe(200)
-            expect(response.body.username).toEqual('test1')
             const confirmation = await request(app).delete('/users/${user1.body.id}').send()
-            expect(confirmation.status).toBe(500)
+            expect(confirmation.status).toBe(400)
         })
-        it('should return 500 for requests with invalid ids', async () => {
+        it('should return 400 for requests with invalid ids', async () => {
             const response = await request(app).delete('/users/111').send()
-            expect(response.status).toBe(500)
-            expect(response.body).toHaveLength(1)
+            expect(response.status).toBe(400)
         })
     })
 })

@@ -1,10 +1,11 @@
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import express, { Express } from 'express'
-
+import 'express-async-errors'
 import mongoose from 'mongoose'
 import config from '../../src/common/config.util'
 import logger from '../../src/common/logger.util'
 import connectToDatabase from '../../src/common/mongodb.util'
+import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
 import questionRouter from '../../src/routes/question.routes'
 
 jest.mock('../../src/common/config.util', () => ({
@@ -29,6 +30,7 @@ describe('Question Routes', () => {
         app = express()
         app.use(express.json())
         app.use('/questions', questionRouter)
+        app.use(defaultErrorHandler)
 
         await connectToDatabase(connectionString)
     }, 60000)

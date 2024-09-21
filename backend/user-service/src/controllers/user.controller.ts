@@ -13,7 +13,6 @@ import { UserDto } from '../types/UserDto'
 import { UserProfileDto } from '../types/UserProfileDto'
 import { ValidationError } from 'class-validator'
 import { hashPassword } from './auth.controller'
-import logger from '../common/logger.util'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
     const createDto = CreateUserDto.fromRequest(request)
@@ -59,23 +58,12 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
         return
     }
 
-    try {
-        const user = await updateUser(id, createDto)
-        response.status(200).json(user).send()
-    } catch (e) {
-        logger.error(e)
-        response.status(500).json(['INVALID_USER_ID']).send()
-    }
+    const user = await updateUser(id, createDto)
+    response.status(200).json(user).send()
 }
 
 export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
     const id = request.params.id
-
-    try {
-        const user = await deleteUser(id)
-        response.status(200).json(user).send()
-    } catch (e) {
-        logger.error(e)
-        response.status(500).json(['INVALID_USER_ID']).send()
-    }
+    await deleteUser(id)
+    response.status(200).send()
 }
