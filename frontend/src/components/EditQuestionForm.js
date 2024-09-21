@@ -27,11 +27,12 @@ const EditQuestionForm = ({ question, onUpdate }) => {
     <form
       onSubmit={handleSubmit}
       style={{
-        maxWidth: "400px",
+        width: "600px", // Fixed width
+        height: "500px", // Fixed height
         margin: "0 auto",
         padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "5px",
+        // border: "1px solid #ccc",
+        // borderRadius: "5px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >

@@ -22,11 +22,12 @@ const AddQuestionForm = ({ onAdd }) => {
     <form
       onSubmit={handleSubmit}
       style={{
-        maxWidth: "400px",
+        width: "600px", // Fixed width
+        height: "500px", // Fixed height
         margin: "0 auto",
         padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "5px",
+        // border: "1px solid #ccc",
+        // borderRadius: "5px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -100,10 +101,10 @@ const AddQuestionForm = ({ onAdd }) => {
       <button
         type="submit"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)} 
+        onMouseLeave={() => setIsHovered(false)}
         style={{
           padding: "12px 15px",
-          backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9", 
+          backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
           color: "#000",
           border: "none",
           borderRadius: "4px",

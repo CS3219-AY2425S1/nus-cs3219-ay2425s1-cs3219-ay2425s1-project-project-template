@@ -1,6 +1,5 @@
-/* src/pages/QuestionPage.css */
-
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import "../components/DialogForm.css";
 import AddQuestionButton from "../components/AddQuestionButton";
 import AddQuestionForm from "../components/AddQuestionForm";
@@ -10,6 +9,7 @@ import QuestionDetail from "../components/QuestionDetail";
 import QuestionTable from "../components/QuestionTable";
 
 const QuestionPage = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const [questions, setQuestions] = useState([]);
   const [dialogForm, setDialogForm] = useState(null);
   const dialogRef = useRef(null);
@@ -22,14 +22,14 @@ const QuestionPage = () => {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setQuestions(data); // Update the state with fetched questions
+        setQuestions(data);
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
     };
 
-    fetchQuestions(); // Call the fetch function on component mount
-  }, []); // Empty dependency array to run only once
+    fetchQuestions();
+  }, []);
 
   function toggleDialog() {
     if (!dialogRef.current) {
@@ -40,6 +40,7 @@ const QuestionPage = () => {
       ? dialogRef.current.close()
       : dialogRef.current.showModal();
   }
+
   const handleAddQuestion = async (newQuestion) => {
     toggleDialog();
 
@@ -54,10 +55,7 @@ const QuestionPage = () => {
 
       if (response.ok) {
         const savedQuestion = await response.json();
-
-        // check the new question
         console.log("savedQuestion:", savedQuestion);
-
         setQuestions((prevQuestions) => [...prevQuestions, savedQuestion]);
       } else {
         console.error("Failed to add question");
@@ -68,10 +66,9 @@ const QuestionPage = () => {
   };
 
   const handleCloseDetail = () => {
-    setDialogForm(null); // Clear the dialog form
-    toggleDialog(); // Close the dialog
+    setDialogForm(null);
+    toggleDialog();
   };
-
 
   const handleViewQuestion = async (question) => {
     setDialogForm(
@@ -79,7 +76,6 @@ const QuestionPage = () => {
     );
     toggleDialog();
   };
-
 
   const handleEditQuestion = async (question) => {
     setDialogForm(
@@ -90,7 +86,6 @@ const QuestionPage = () => {
 
   const handleUpdateQuestion = async (updatedQuestion) => {
     try {
-      console.log("Updating question with ID:", updatedQuestion._id); // Log the ID being used
       const response = await fetch(
         `http://localhost:8080/questions/${updatedQuestion._id}`,
         {
@@ -98,24 +93,19 @@ const QuestionPage = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(updatedQuestion), // Send the updated question dat
+          body: JSON.stringify(updatedQuestion),
         }
       );
 
-      console.log("updatedQuestion:", updatedQuestion);
-
       if (response.ok) {
-        const savedQuestion = await response.json(); // Parse the updated question
-        console.log("Saved question:", savedQuestion); // Log the saved question
-
-        setQuestions(
-          (prevQuestions) =>
-            prevQuestions.map((q) =>
-              q._id === savedQuestion._id ? savedQuestion : q
-            ) // Update the specific question
+        const savedQuestion = await response.json();
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((q) =>
+            q._id === savedQuestion._id ? savedQuestion : q
+          )
         );
       } else {
-        const errorMessage = await response.text(); // Get error message from response
+        const errorMessage = await response.text();
         console.error(
           `Failed to edit question: ${response.status} ${errorMessage}`
         );
@@ -126,21 +116,42 @@ const QuestionPage = () => {
     toggleDialog();
   };
 
+  const handleBack = () => {
+    navigate(-1); // Navigate back to the previous page
+  };
+
   return (
-    <div style={{ paddingTop: "70px" }}>
-      <h1></h1>
+    <div style={{ paddingTop: "70px", position: "relative" }}>
+      <h1 style={{ visibility: "hidden" }}>Question Page</h1>
+      <button
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "145px", 
+        }}
+        className="button-custom" // using the AddQuestionButton.js 
+        onClick={handleBack}
+      >
+        <i className="fas fa-arrow-left"></i> Back
+      </button>
       <AddQuestionButton
         onClick={() => {
           setDialogForm(<AddQuestionForm onAdd={handleAddQuestion} />);
           toggleDialog();
         }}
       />
-      <QuestionTable questions={questions} onEdit={handleEditQuestion} onView={handleViewQuestion}/>
+      <QuestionTable
+        questions={questions}
+        onEdit={handleEditQuestion}
+        onView={handleViewQuestion}
+      />
       <Dialog toggleDialog={toggleDialog} ref={dialogRef}>
         {dialogForm}
       </Dialog>
     </div>
   );
+
+
 };
 
 export default QuestionPage;
