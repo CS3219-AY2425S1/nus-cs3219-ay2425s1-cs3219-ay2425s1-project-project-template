@@ -46,7 +46,7 @@ app.use((_: Request, response: Response) => {
 })
 
 // Default Error Handler
-app.use((error: Error, request: Request, response: Response) => {
+app.use((error: Error, request: Request, response: Response, _: NextFunction) => {
     logger.error(`[Controller] [${request.method}  ${request.baseUrl + request.path}] ${error.message}`)
     response.status(500).send()
 })

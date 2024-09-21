@@ -18,7 +18,7 @@ app.use(helmet())
 app.use(passport.initialize())
 
 // To handle CORS Errors
-app.use(async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+app.use((request: Request, response: Response, next: NextFunction) => {
     response.header('Access-Control-Allow-Origin', '*') // "*" -> Allow all links to access
 
     response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
@@ -38,17 +38,17 @@ app.use('/auth', authRouter)
 app.use('/users', userRouter)
 
 // Health Check Route
-app.get('/', async (_: Request, response: Response): Promise<void> => {
+app.get('/', (_: Request, response: Response) => {
     response.status(200).send()
 })
 
 //  Not Found Route
-app.use(async (_: Request, response: Response): Promise<void> => {
+app.use((_: Request, response: Response) => {
     response.status(404).send()
 })
 
 // Default Error Handler
-app.use(async (error: Error, request: Request, response: Response): Promise<void> => {
+app.use((error: Error, request: Request, response: Response, _: NextFunction) => {
     logger.error(`[Controller] [${request.method}  ${request.baseUrl + request.path}] ${error.message}`)
     response.status(500).send()
 })
