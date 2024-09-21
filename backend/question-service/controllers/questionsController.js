@@ -27,15 +27,15 @@ const createQuestion = async (req, res) => {
 
 const updateQuestion = async (req, res) => {
   try {
-    const questionId = req.params.id; // Get ID from URL parameters
-    console.log('Received questionId:', questionId); // Log the questionId
+    const questionId = req.params._id;
+    console.log('Received questionId:', questionId);
 
     if (!questionId) {
         return res.status(400).json({ 'message': 'Question ID is required.' });
     }
 
     const question = await QuestionSchema.findOne({ _id: questionId }).exec();
-    console.log('question:', question); // Log the questionId
+    console.log('question:', question);
 
     if (!question) {
         return res.status(401).json({ "message": `No question matches ID ${ questionId}.` });
@@ -47,7 +47,7 @@ const updateQuestion = async (req, res) => {
     if (req.body?.complexity) question.complexity = req.body.complexity;
 
     const updatedQuestion = await question.save();
-    return res.status(200).json(updatedQuestion); // Ensure you return the updated question as JSON
+    return res.status(200).json(updatedQuestion);
   } catch (error) {
       console.error('Error updating question:', error);
       return res.status(500).json({ message: 'Internal server error' });
@@ -55,22 +55,22 @@ const updateQuestion = async (req, res) => {
 }
 
 const deleteQuestion = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'Question ID is required.' });
+    if (!req?.body?._id) return res.status(400).json({ 'message': 'Question ID is required.' });
 
-    const question = await QuestionSchema.findOne({ _id: req.body.id }).exec();
+    const question = await QuestionSchema.findOne({ _id: req.body._id }).exec();
     if (!question) {
-        return res.status(204).json({ "message": `No question matches ID ${req.body.id}.` });
+        return res.status(204).json({ "message": `No question matches ID ${req.body._id}.` });
     }
     const result = await question.deleteOne();
     res.json(result);
 }
 
 const getQuestion = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'Question ID required.' });
+    if (!req?.params?._id) return res.status(400).json({ 'message': 'Question ID required.' });
 
-    const question = await QuestionSchema.findOne({ _id: req.params.id }).exec();
+    const question = await QuestionSchema.findOne({ _id: req.params._id }).exec();
     if (!question) {
-        return res.status(204).json({ "message": `No question matches ID ${req.params.id}.` });
+        return res.status(204).json({ "message": `No question matches ID ${req.params._id}.` });
     }
     res.json(question);
 }
