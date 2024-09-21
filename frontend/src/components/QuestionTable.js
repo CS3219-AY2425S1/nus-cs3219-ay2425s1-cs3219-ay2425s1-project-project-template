@@ -2,7 +2,7 @@
 import React from "react";
 import "./QuestionTable.css"; // Import the CSS file
 
-const QuestionTable = ({ questions, onEdit, onView }) => {
+const QuestionTable = ({ questions, onEdit, onView, onDelete }) => {
   return (
     <div className="table-wrapper">
       <h1></h1>
@@ -26,7 +26,7 @@ const QuestionTable = ({ questions, onEdit, onView }) => {
               <td>
                 <button onClick={() => onEdit(question)}>Edit</button>
                 <button onClick={() => onView(question)}>View</button>
-                <button>Delete</button>
+                <button onClick={() => onDelete(question)}>Delete</button>
               </td>
             </tr>
           ))}

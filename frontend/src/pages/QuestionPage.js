@@ -116,6 +116,12 @@ const QuestionPage = () => {
     toggleDialog();
   };
 
+  const handleDeleteQuestion = (deletedQuestion) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.filter((q) => q._id !== deletedQuestion._id)
+    );
+  }
+
   const handleBack = () => {
     navigate(-1); // Navigate back to the previous page
   };
@@ -144,6 +150,7 @@ const QuestionPage = () => {
         questions={questions}
         onEdit={handleEditQuestion}
         onView={handleViewQuestion}
+        onDelete={handleDeleteQuestion}
       />
       <Dialog toggleDialog={toggleDialog} ref={dialogRef}>
         {dialogForm}
