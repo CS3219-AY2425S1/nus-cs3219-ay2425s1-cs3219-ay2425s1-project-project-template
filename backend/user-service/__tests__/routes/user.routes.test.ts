@@ -1,13 +1,23 @@
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
+import { generateKeyPairSync } from 'crypto'
 import express, { Express } from 'express'
 
-import { Proficiency } from '../../src/types/Proficiency'
-import { Role } from '../../src/types/Role'
-import connectToDatabase from '../../src/common/mongodb.util'
-import logger from '../../src/common/logger.util'
 import mongoose from 'mongoose'
 import request from 'supertest'
+import config from '../../src/common/config.util'
+import logger from '../../src/common/logger.util'
+import connectToDatabase from '../../src/common/mongodb.util'
 import userRouter from '../../src/routes/user.routes'
+import { Proficiency } from '../../src/types/Proficiency'
+import { Role } from '../../src/types/Role'
+
+jest.mock('../../src/common/config.util', () => ({
+    NODE_ENV: 'test',
+    PORT: '3002',
+    DB_URL: 'placeholder',
+    ACCESS_TOKEN_PRIVATE_KEY: 'placeholder',
+    ACCESS_TOKEN_PUBLIC_KEY: 'placeholder',
+}))
 
 describe('User Routes', () => {
     let app: Express
@@ -35,6 +45,16 @@ describe('User Routes', () => {
 
         const connectionString = `${startedContainer.getConnectionString()}?directConnection=true`
         logger.info(`[User Routes Test] MongoDB container started on ${connectionString}`)
+
+        const { publicKey, privateKey } = generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: { type: 'spki', format: 'pem' },
+            privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+        })
+
+        jest.replaceProperty(config, 'ACCESS_TOKEN_PRIVATE_KEY', Buffer.from(privateKey).toString('base64'))
+        jest.replaceProperty(config, 'ACCESS_TOKEN_PUBLIC_KEY', Buffer.from(publicKey).toString('base64'))
+        jest.replaceProperty(config, 'DB_URL', connectionString)
 
         app = express()
         app.use(express.json())
