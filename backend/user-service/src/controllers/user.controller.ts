@@ -1,17 +1,18 @@
 import {
     createUser,
-    findOneUserByEmail,
+    deleteUser,
     findOneUserById,
+    findOneUserByEmail,
     findOneUserByUsername,
     updateUser,
 } from '../models/user.repository'
 
-import { ValidationError } from 'class-validator'
-import { Response } from 'express'
 import { CreateUserDto } from '../types/CreateUserDto'
+import { Response } from 'express'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserProfileDto } from '../types/UserProfileDto'
+import { ValidationError } from 'class-validator'
 import { hashPassword } from './auth.controller'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
@@ -79,4 +80,10 @@ export async function handleGetCurrentProfile(
 
     const user = await findOneUserById(id)
     response.status(200).json(user).send()
+}
+
+export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
+    const id = request.params.id
+    await deleteUser(id)
+    response.status(200).send()
 }
