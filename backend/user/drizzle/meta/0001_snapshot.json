@@ -1,6 +1,6 @@
 {
-  "id": "ecf4404b-9642-42c5-b6d6-deeaeaca7a77",
-  "prevId": "bfb0f47d-1ebe-47d4-b979-8fe9d6305cd4",
+  "id": "f5be5ec3-9d76-437e-a011-372a55170295",
+  "prevId": "5dc3ebe6-ff0a-454d-b059-92180971dcfa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -44,6 +44,19 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "failed_attempts": {
+          "name": "failed_attempts",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "unlock_time": {
+          "name": "unlock_time",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

@@ -1,37 +1,36 @@
 services:
   postgres:
     hostname: postgres
-    image: "user-db"
-    container_name: "user_db"
+    image: 'collaboration-db'
+    container_name: 'collaboration_db'
     build:
       context: ./src/lib/db
       dockerfile: ./postgres.Dockerfile
     environment:
-      POSTGRES_DB: "User"
-      POSTGRES_USER: "user"
-      POSTGRES_PASSWORD: "user"
-      PGDATA: "/data/user-db"
+      POSTGRES_DB: 'Collaboration'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'user'
+      PGDATA: '/data/collaboration-db'
     volumes:
-       - "user-db-docker:/data/user-db"
+      - 'collaboration-db-docker:/data/collaboration-db'
       #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5431:5432"
+      - '5434:5432'
     restart: unless-stopped
 
   express:
-    image: "user-express"
-    container_name: "user-express"
+    image: 'collaboration-express'
+    container_name: 'collaboration-express'
     build:
       context: ./
       dockerfile: ./express.Dockerfile
       target: build
     ports:
-      - "9000:8001"
+      - '8002:8001'
     command: node dist/index.js
     depends_on:
       postgres:
         condition: service_started
         restart: true
-  
 volumes:
-  user-db-docker:
+  collaboration-db-docker:
