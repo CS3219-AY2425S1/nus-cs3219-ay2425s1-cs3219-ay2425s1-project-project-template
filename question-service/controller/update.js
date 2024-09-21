@@ -7,7 +7,9 @@ export const updateQuestion = async (req, res) => {
         id: id
       }
       const update = req.body;
-      const question = await Question.findOneAndUpdate(filter, update);
+      const question = await Question.findOneAndUpdate(filter, update, {
+        new: true
+      });
       return res.status(200).json(question);;
     } catch (err) {
       console.log(err);
