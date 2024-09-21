@@ -4,7 +4,7 @@ import "./QuestionTable.css"; // Import the CSS file
 
 const QuestionTable = ({ questions }) => {
   return (
-    <div>
+    <div className="table-wrapper">
       <h1></h1>
       <table className="table-custom">
         {" "}

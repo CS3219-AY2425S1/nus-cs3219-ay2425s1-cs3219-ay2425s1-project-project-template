@@ -1,0 +1,23 @@
+dialog {
+    align-self: center;
+    justify-self: center;
+    border: none;
+}
+
+form {
+    padding: 3rem;
+    display: grid;
+    gap: 1rem;
+    font-size: 1.5rem;
+}
+
+form > label {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+form > button {
+    height: 2rem;
+    font-size: 100%;
+}

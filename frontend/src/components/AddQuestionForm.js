@@ -10,6 +10,11 @@ const AddQuestionForm = ({ onAdd }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onAdd({ title, description, category, complexity });
+
+    setTitle("");
+    setDescription("");
+    setCategory("");
+    setComplexity("");
   };
 
   return (
@@ -20,6 +25,7 @@ const AddQuestionForm = ({ onAdd }) => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
       </label>
       <label>
@@ -27,6 +33,7 @@ const AddQuestionForm = ({ onAdd }) => {
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
         />
       </label>
       <label>
@@ -35,6 +42,7 @@ const AddQuestionForm = ({ onAdd }) => {
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          required
         />
       </label>
       <label>
@@ -43,6 +51,7 @@ const AddQuestionForm = ({ onAdd }) => {
           type="text"
           value={complexity}
           onChange={(e) => setComplexity(e.target.value)}
+          required
         />
       </label>
       <button type="submit">Add Question</button>

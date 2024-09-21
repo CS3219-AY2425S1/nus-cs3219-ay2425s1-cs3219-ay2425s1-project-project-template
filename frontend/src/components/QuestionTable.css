@@ -11,14 +11,21 @@
     padding-top: 20px;
 }
 
-.table-custom {
-    background-color: #ffe6f2;
-    /* Light pink background */
+.table-wrapper {
+    max-height: 70svh;
+    overflow: scroll;
     width: 80%;
     /* Adjust the table width as needed */
     margin: 0 auto;
     /* Center the table */
+    
+}
+
+.table-custom {
+    background-color: #ffe6f2;
+    /* Light pink background */
     border-collapse: collapse;
+    width: 100%;
 }
 
 .table-custom th,
@@ -32,6 +39,8 @@
     background-color: #ffb3d9;
     /* Slightly darker pink for the header */
     color: white;
+    position: sticky;
+    top: 0px;
 }
 
 /* Add styles for buttons */

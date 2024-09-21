@@ -1,9 +1,14 @@
-// src/pages/QuestionPage.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import "../components/DialogForm.css";
+import AddQuestionButton from "../components/AddQuestionButton";
+import AddQuestionForm from "../components/AddQuestionForm";
+import Dialog from "../components/Dialog";
 import QuestionTable from "../components/QuestionTable";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState([]);
+  const [dialogForm, setDialogForm] = useState(null);
+  const dialogRef  = useRef(null);
 
   useEffect(() => {
       // Fetch or define questions data here
@@ -72,10 +77,37 @@ const QuestionPage = () => {
     ]);
   }, []);
 
+  function toggleDialog() {
+    if (!dialogRef.current) {
+      return;
+    }
+
+    dialogRef.current.hasAttribute("open")
+      ? dialogRef.current.close()
+      : dialogRef.current.showModal();
+  }
+
+  function handleAddQuestion(newQuestion) {
+    toggleDialog();
+
+    setQuestions((prevQuestions) => [
+      ...prevQuestions,
+      { id: prevQuestions.length + 1, ...newQuestion },
+    ]);
+  }
+
   return (
     <div style={{ paddingTop: "70px" }}>
       <h1></h1>
+      <AddQuestionButton onClick={() => {
+        setDialogForm(<AddQuestionForm onAdd={handleAddQuestion} />);
+        toggleDialog();
+    
+      }} />
       <QuestionTable questions={questions} />
+      <Dialog toggleDialog={toggleDialog} ref={dialogRef}>
+          {dialogForm}
+      </Dialog>
     </div>
   );
 };
