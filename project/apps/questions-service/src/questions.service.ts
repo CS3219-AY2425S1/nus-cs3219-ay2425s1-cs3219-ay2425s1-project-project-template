@@ -8,6 +8,7 @@ export class QuestionsService {
   ];
 
   findById(id: string) {
+    console.log('hello');
     return this.questions.find((question) => question.id === id);
   }
 }
