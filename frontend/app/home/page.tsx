@@ -1,4 +1,4 @@
-import { NavBar } from '@/components/navbar'
+import { NavBar } from '@/components/layout/navbar'
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
