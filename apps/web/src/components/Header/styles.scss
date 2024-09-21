@@ -1,6 +1,13 @@
 $primary-color: #e0afa0;
 $secondary-color: #463f3a;
 
+.header {
+  display: flex;
+  align-items: center;
+  background: white !important;
+  border-bottom: 1px solid #f3f3f3;
+}
+
 .logo {
   font-family: "Inter";
   font-style: normal;
@@ -20,4 +27,10 @@ $secondary-color: #463f3a;
 .logo2 {
   @extend .logo;
   color: $secondary-color;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: row;
+  padding: 0 16px 0 0;
 }

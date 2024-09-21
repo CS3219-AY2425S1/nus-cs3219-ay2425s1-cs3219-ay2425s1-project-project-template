@@ -12,19 +12,14 @@ const Header = (): JSX.Element => {
     {
       key: 1,
       label: "Matching",
+      disabled: true,
     },
   ];
 
   return (
     // Header Component
-    <AntdHeader
-      style={{
-        display: "flex",
-        alignItems: "center",
-        background: "white",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "row" }}>
+    <AntdHeader className="header">
+      <div className="logo-container">
         <div className="logo1">Peer</div>
         <div className="logo2">Prep</div>
       </div>
