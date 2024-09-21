@@ -2,7 +2,40 @@
 
 endpoint: `http://localhost:8000`
 
-## Question Routes
+## CREATE Route
+
+### 1. Create a Question
+
+- **Endpoint**: `POST /`
+- **Purpose**: Create a new question, with ID automatically assigned.
+- **Input**:
+```json
+{
+        "title": "Reverse a String 2",
+        "description": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.",
+        "topics": ["Strings", "Algorithms"],
+        "difficulty": "Easy"
+}
+```
+- **Output**:
+  - **Success**:
+
+    ```json
+    {
+      "id": 21,
+      "title": "Reverse a String 2",
+      "description": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.",
+      "topics": [
+          "Strings",
+          "Algorithms"
+      ],
+      "difficulty": "Easy",
+      "_id": "66eeef72c86938ba15b60ee5",
+      "__v": 0
+    }
+    ```
+
+## READ Routes
 
 ### 1. Get All Questions
 
@@ -50,4 +83,60 @@ endpoint: `http://localhost:8000`
 
     ```json
     [{"_id":"66ee9579ac0f39d60f4edd64","id":1,"title":"Reverse a String","description":"Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.","topics":["Strings","Algorithms"],"difficulty":"Easy","__v":0},{"_id":"66ee9579ac0f39d60f4edd7b","id":11,"title":"Longest Common Subsequence","description":"Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.\n\nA subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.\n\nFor example, \"ace\" is a subsequence of \"abcde\". A common subsequence of two strings is a subsequence that is common to both strings.","topics":["Strings","Algorithms"],"difficulty":"Medium","__v":0},{"_id":"66ee9579ac0f39d60f4edd89","id":18,"title":"Wildcard Matching","description":"Given an input string (s) and a pattern (p), implement wildcard pattern matching with support for '?' and '*' where:\n\n'?' Matches any single character. '*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).","topics":["Strings","Algorithms"],"difficulty":"Hard","__v":0}]
+    ```
+
+## UPDATE Route
+
+### 1. Update a Question
+
+- **Endpoint**: `PUT /:id`
+- **Purpose**: Update a question by it's ID.
+- **Input**:
+```json
+{
+    "title": "Reverse a String2 updated",
+    "difficulty": "Medium"
+}
+```
+- **Output**:
+  - **Success**:
+
+    ```json
+    {
+      "_id": "66eeef72c86938ba15b60ee5",
+      "id": 21,
+      "title": "Reverse a String2 updated",
+      "description": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.",
+      "topics": [
+          "Strings",
+          "Algorithms"
+      ],
+      "difficulty": "Medium",
+      "__v": 0
+    }
+    ```
+
+## DELETE Route
+
+### 1. Delete a Question
+
+- **Endpoint**: `DELETE /:id`
+- **Purpose**: Delete a question by it's ID.
+- **Input**: None.
+- **Output**:
+  - **Success**:
+
+    ```json
+    {
+      "_id": "66eeef72c86938ba15b60ee5",
+      "id": 21,
+      "title": "Reverse a String2 updated",
+      "description": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.",
+      "topics": [
+          "Strings",
+          "Algorithms"
+      ],
+      "difficulty": "Medium",
+      "__v": 0
+    }
     ```
