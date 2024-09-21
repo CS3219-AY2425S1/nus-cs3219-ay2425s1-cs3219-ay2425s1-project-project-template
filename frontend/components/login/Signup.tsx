@@ -71,7 +71,7 @@ export default function Signup() {
             />
             <button
                 onClick={onSignup}
-                className="w-full bg-[#7F57C2] text-white p-2 rounded mt-4 hover:bg-blue-700 transition-colors"
+                className="w-full bg-[#7F57C2] text-white p-2 rounded mt-4 hover:bg-[#A78BFA] transition-colors"
             >
                 Sign Up
             </button>
