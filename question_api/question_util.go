@@ -42,6 +42,7 @@ func (db *QuestionDB) incrementNextQuestionId(nextId int, logger *Logger) {
 	logger.Log.Info(fmt.Sprintf("Next question ID incremented to %d successfully", nextId))
 }
 
+// used to get all questions that match a query. The query can be on either the title or the id of the question
 func (db *QuestionDB) GetMatchingQuestions(query string) ([]Question, error) {
 	questions := []Question{}
 	
