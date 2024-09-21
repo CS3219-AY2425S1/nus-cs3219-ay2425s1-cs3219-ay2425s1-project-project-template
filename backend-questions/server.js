@@ -1,16 +1,18 @@
-import express from "express";
-import cors from "cors";
-import records from "./routes/record.js";
+import http from "http";
+import index from "./index.js";
+import "dotenv/config";
+import { connectToDB } from "./model/repository.js";
 
-const PORT = process.env.PORT || 5050;
-const app = express();
+const port = process.env.PORT || 3001;
 
-app.use(cors());
-app.use(express.json());
-app.use("/record", records);
+const server = http.createServer(index);
 
-// start the Express server
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+await connectToDB().then(() => {
+  console.log("MongoDB Connected!");
+
+  server.listen(port);
+  console.log("User service server listening on http://localhost:" + port);
+}).catch((err) => {
+  console.error("Failed to connect to DB");
+  console.error(err);
 });
-

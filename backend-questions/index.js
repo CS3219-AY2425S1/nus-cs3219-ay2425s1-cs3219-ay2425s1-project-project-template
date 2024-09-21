@@ -1,42 +1,34 @@
-import { MongoClient } from "mongodb";
-import dotenv from 'dotenv'
-dotenv.config()
+import express from "express";
+import cors from "cors";
 
-// Replace the uri string with your connection string.
-const uri = process.env.MONGO_URI;
-console.log("URI = ", uri);
+import router from "./routes/routes.js";
 
+const app = express();
 
-const client = new MongoClient(uri);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors()); // config cors so that front-end can use
+app.options("*", cors());
 
-async function listDatabases(client){
-  databasesList = await client.db().admin().listDatabases();
+// To handle CORS Errors
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // "*" -> Allow all links to access
 
-  console.log("Databases:");
-  databasesList.databases.forEach(db => console.log(` - ${db.name}`));
-};
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  );
 
-listDatabases(client);
-
-async function run() {
-  try {
-    await client.connect();
-
-    console.log("client connected!");
-
-    const database = client.db('sample_mflix');
-    const movies = database.collection('movies');
-
-    console.log(movies);
-
-    // Query for a movie that has the title 'Back to the Future'
-    const query = { title: 'Back to the Future' };
-    const movie = await movies.findOne(query);
-
-    console.log(movie);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+  // Browsers usually send this before PUT or POST Requests
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH");
+    return res.status(200).json({});
   }
-}
-// run().catch(console.dir);
+
+  // Continue Route Processing
+  next();
+});
+
+app.use('/', router);
+
+export default app;
