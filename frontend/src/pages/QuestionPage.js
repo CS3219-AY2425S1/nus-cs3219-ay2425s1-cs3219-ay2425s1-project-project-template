@@ -6,6 +6,7 @@ import AddQuestionButton from "../components/AddQuestionButton";
 import AddQuestionForm from "../components/AddQuestionForm";
 import Dialog from "../components/Dialog";
 import EditQuestionForm from "../components/EditQuestionForm";
+import QuestionDetail from "../components/QuestionDetail";
 import QuestionTable from "../components/QuestionTable";
 
 const QuestionPage = () => {
@@ -66,6 +67,20 @@ const QuestionPage = () => {
     }
   };
 
+  const handleCloseDetail = () => {
+    setDialogForm(null); // Clear the dialog form
+    toggleDialog(); // Close the dialog
+  };
+
+
+  const handleViewQuestion = async (question) => {
+    setDialogForm(
+      <QuestionDetail question={question} onClose={handleCloseDetail} />
+    );
+    toggleDialog();
+  };
+
+
   const handleEditQuestion = async (question) => {
     setDialogForm(
       <EditQuestionForm question={question} onUpdate={handleUpdateQuestion} />
@@ -120,7 +135,7 @@ const QuestionPage = () => {
           toggleDialog();
         }}
       />
-      <QuestionTable questions={questions} onEdit={handleEditQuestion} />
+      <QuestionTable questions={questions} onEdit={handleEditQuestion} onView={handleViewQuestion}/>
       <Dialog toggleDialog={toggleDialog} ref={dialogRef}>
         {dialogForm}
       </Dialog>
