@@ -27,6 +27,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
       </label>
       <label>
@@ -34,6 +35,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
         />
       </label>
       <label>
@@ -42,6 +44,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          required
         />
       </label>
       <label>
@@ -50,6 +53,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           type="text"
           value={complexity}
           onChange={(e) => setComplexity(e.target.value)}
+          required
         />
       </label>
       <button type="submit">Update Question</button>

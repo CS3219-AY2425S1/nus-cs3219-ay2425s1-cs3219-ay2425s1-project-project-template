@@ -3,6 +3,7 @@ import "../components/DialogForm.css";
 import AddQuestionButton from "../components/AddQuestionButton";
 import AddQuestionForm from "../components/AddQuestionForm";
 import Dialog from "../components/Dialog";
+import EditQuestionForm from "../components/EditQuestionForm";
 import QuestionTable from "../components/QuestionTable";
 
 const QuestionPage = () => {
@@ -96,6 +97,18 @@ const QuestionPage = () => {
     ]);
   }
 
+  function handleEditQuestion(question) {
+    setDialogForm(<EditQuestionForm question={question} onUpdate={handleUpdateQuestion} />);
+    toggleDialog();
+  }
+
+  function handleUpdateQuestion(updatedQuestion) {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
+    );
+    toggleDialog();
+  }
+
   return (
     <div style={{ paddingTop: "70px" }}>
       <h1></h1>
@@ -104,7 +117,7 @@ const QuestionPage = () => {
         toggleDialog();
     
       }} />
-      <QuestionTable questions={questions} />
+      <QuestionTable questions={questions} onEdit={handleEditQuestion} />
       <Dialog toggleDialog={toggleDialog} ref={dialogRef}>
           {dialogForm}
       </Dialog>
