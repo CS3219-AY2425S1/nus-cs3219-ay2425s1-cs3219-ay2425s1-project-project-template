@@ -1,8 +1,8 @@
 'use client'
-import Image from 'next/image'
 import { useState } from 'react'
 import Login from './components/Login'
 import Signup from './components/Signup'
+import Image from 'next/image'
 
 export default function Home() {
     const [isLoginPage, setIsLoginPage] = useState(false)
@@ -14,12 +14,7 @@ export default function Home() {
                     Connect, Collaborate, Code: Unlock Your Potential Together
                 </p>
                 <div className="flex justify-center mt-8">
-                    <Image
-                        src="https://png.pngtree.com/png-clipart/20230913/original/pngtree-coder-clipart-boy-working-with-computer-game-on-the-desk-vector-png-image_11072679.png"
-                        width={400}
-                        height={400}
-                        alt="logo"
-                    />
+                    <Image src="/img.png" width={400} height={400} alt="heillo i am a pro" />
                 </div>
             </div>
             <div className="m-16">
