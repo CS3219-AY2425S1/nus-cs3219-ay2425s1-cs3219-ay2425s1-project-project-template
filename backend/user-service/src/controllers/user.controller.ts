@@ -1,4 +1,10 @@
-import { createUser, findOneUserByEmail, findOneUserByUsername, updateUser } from '../models/user.repository'
+import {
+    createUser,
+    findOneUserByEmail,
+    findOneUserByUsername,
+    softDeleteUser,
+    updateUser,
+} from '../models/user.repository'
 
 import { CreateUserDto } from '../types/CreateUserDto'
 import { Response } from 'express'
@@ -55,6 +61,18 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
 
     try {
         const user = await updateUser(id, createDto)
+        response.status(200).json(user).send()
+    } catch (e) {
+        logger.error(e)
+        response.status(500).json(['INVALID_USER_ID']).send()
+    }
+}
+
+export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
+    const id = request.params.id
+
+    try {
+        const user = await softDeleteUser(id)
         response.status(200).json(user).send()
     } catch (e) {
         logger.error(e)

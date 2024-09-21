@@ -1,15 +1,15 @@
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
-import { generateKeyPairSync } from 'crypto'
 import express, { Express } from 'express'
 
-import mongoose from 'mongoose'
-import request from 'supertest'
-import config from '../../src/common/config.util'
-import logger from '../../src/common/logger.util'
-import connectToDatabase from '../../src/common/mongodb.util'
-import userRouter from '../../src/routes/user.routes'
 import { Proficiency } from '../../src/types/Proficiency'
 import { Role } from '../../src/types/Role'
+import config from '../../src/common/config.util'
+import connectToDatabase from '../../src/common/mongodb.util'
+import { generateKeyPairSync } from 'crypto'
+import logger from '../../src/common/logger.util'
+import mongoose from 'mongoose'
+import request from 'supertest'
+import userRouter from '../../src/routes/user.routes'
 
 jest.mock('../../src/common/config.util', () => ({
     NODE_ENV: 'test',
@@ -98,7 +98,7 @@ describe('User Routes', () => {
         })
     })
 
-    describe('PUT /users', () => {
+    describe('PUT /users/:id', () => {
         it('should return 200 for successful update', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
             const response = await request(app).put(`/users/${user1.body.id}`).send({
@@ -130,6 +130,20 @@ describe('User Routes', () => {
                 proficiency: Proficiency.ADVANCED,
             })
             expect(response.status).toBe(409)
+        })
+    })
+
+    describe('DELETE /users/:id', () => {
+        it('should return 200 for successful deletion', async () => {
+            const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
+            const response = await request(app).delete(`/users/${user1.body.id}`).send()
+            expect(response.status).toBe(200)
+            expect(response.body.deletedAt).toBeDefined()
+        })
+        it('should return 500 for requests with invalid ids', async () => {
+            const response = await request(app).delete('/users/111').send()
+            expect(response.status).toBe(500)
+            expect(response.body).toHaveLength(1)
         })
     })
 })

@@ -32,6 +32,6 @@ export async function updateUser(id: string, dto: UserDto | UserProfileDto): Pro
     return userModel.findByIdAndUpdate(id, dto, { new: true })
 }
 
-export async function deleteUser(id: string): Promise<void> {
-    await userModel.findByIdAndDelete(id)
+export async function softDeleteUser(id: string): Promise<IUser | null> {
+    return userModel.findByIdAndUpdate(id, { deletedAt: new Date() })
 }
