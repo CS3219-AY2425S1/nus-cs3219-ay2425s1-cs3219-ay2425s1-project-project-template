@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Login from '../components/login/login'
-import Signup from '../components/login/signup'
+import Login from '../../components/login/Login'
+import Signup from '../../components/login/Signup'
 import Image from 'next/image'
 
 export default function Home() {
