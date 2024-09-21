@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Logo } from './Logo'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { useToast } from '@/app/components/ui/toast/use-toast'
 
 export default function Signup() {
     const [email, setEmail] = useState('')
