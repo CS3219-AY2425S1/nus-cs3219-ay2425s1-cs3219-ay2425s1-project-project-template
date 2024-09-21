@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { register, UserCredentials } from './authService';
+import { register, UserCredentials } from '../login/authService';
 import RegistrationView from './RegistrationView';
 
 const RegistrationController: React.FC = () => {
