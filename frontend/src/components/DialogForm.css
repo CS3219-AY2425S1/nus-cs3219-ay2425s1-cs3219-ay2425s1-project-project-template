@@ -2,13 +2,15 @@ dialog {
     align-self: center;
     justify-self: center;
     border: none;
+    min-height: 400px;
 }
 
 form {
-    padding: 3rem;
+    padding: 4rem;
     display: grid;
     gap: 1rem;
     font-size: 1.5rem;
+    min-height: 300px;
 }
 
 form > label {
@@ -20,4 +22,10 @@ form > label {
 form > button {
     height: 2rem;
     font-size: 100%;
+}
+
+form>input,
+form>textarea {
+    height: 40px;
+    font-size: 1rem;
 }
