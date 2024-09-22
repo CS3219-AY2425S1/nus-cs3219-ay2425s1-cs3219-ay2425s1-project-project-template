@@ -2,3 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --background: #2F3B54;
+    --foreground: #171C28;
+  }
+  
+  body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Inter, Helvetica, sans-serif;
+  }
+  
+  @layer utilities {
+    .text-balance {
+      text-wrap: balance;
+    }
+  }
