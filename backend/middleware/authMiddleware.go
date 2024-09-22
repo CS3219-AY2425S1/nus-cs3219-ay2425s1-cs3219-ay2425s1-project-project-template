@@ -13,7 +13,8 @@ import (
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		fmt.Println("Authenticating")
-		clientToken := c.Request.Header.Get("token")
+		var clientToken string = c.Request.Header.Get("token")
+
 		if clientToken == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("No Authorization header provided")})
 			c.Abort()
@@ -21,18 +22,26 @@ func Authentication() gin.HandlerFunc {
 		}
 
 		claims, err := helper.ValidateToken(clientToken)
+
 		if err != "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			c.Abort()
 			return
 		}
 
+		if claims == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Token is invalid"})
+			c.Abort()
+			return
+		}
+
+		fmt.Println("Claims: ", claims)
+
 		// Stores the user information in the context
-		c.Set("email", claims.Email)
-		c.Set("username", claims.Username)
-		c.Set("uid", claims.Uid)
+		// c.Set("email", claims.Email)
+		// c.Set("username", claims.Username)
+		// c.Set("uid", claims.Uid)
 
 		c.Next()
-
 	}
 }

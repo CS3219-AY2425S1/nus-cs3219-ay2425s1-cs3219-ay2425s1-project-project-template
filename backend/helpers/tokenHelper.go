@@ -76,17 +76,24 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 		return
 	}
 
+	// Ensure token is not nil before accessing Claims
+	if token == nil {
+		msg = "token is nil"
+		return nil, msg
+	}
+	// msg = "hi"
+
 	claims, ok := token.Claims.(*SignedDetails)
 	if !ok {
 		msg = fmt.Sprintf("the token is invalid")
-		msg = err.Error()
-		return
+		return nil, msg
 	}
 
-	if claims.RegisteredClaims.ExpiresAt.Time.After(time.Now()) {
+	fmt.Print(claims.ExpiresAt.Time)
+
+	if claims.ExpiresAt.Time.Before(time.Now()) {
 		msg = fmt.Sprintf("token is expired")
-		msg = err.Error()
-		return
+		return nil, msg
 	}
 
 	return claims, msg
