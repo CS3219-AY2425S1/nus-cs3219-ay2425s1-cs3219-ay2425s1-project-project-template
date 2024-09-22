@@ -2,9 +2,9 @@
 
 import { getUserInterviewMetadata } from "@/api/dashboard";
 import DashboardCard from "@/app/(authenticatedPages)/dashboard/components/DashboardCard";
+import { DashboardDataTable } from "@/app/(authenticatedPages)/dashboard/components/DashboardDataTable";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
-import { DataTableDemo } from "@/components/ui/DataTable";
 import { UserInterviewMetadata } from "@/types/dashboard";
 import { useEffect, useState } from "react";
 import { IoMdSearch } from "react-icons/io";
@@ -24,7 +24,7 @@ const Dashboard = () => {
   };
 
   return (
-    <Container className="flex flex-col w-full">
+    <Container className="flex flex-col gap-y-5">
       <div className="flex flex-row w-full gap-8">
         <DashboardCard
           cardTitleLabel="Completed This Week"
@@ -47,7 +47,7 @@ const Dashboard = () => {
           <span>Find Interview Peer</span>
         </Button>
       </div>
-      <DataTableDemo />
+      <DashboardDataTable />
     </Container>
   );
 };

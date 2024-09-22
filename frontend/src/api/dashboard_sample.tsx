@@ -1,4 +1,4 @@
-import { UserInterviewMetadata } from "@/types/dashboard";
+import { SessionHistory, UserInterviewMetadata } from "@/types/dashboard";
 
 export const DashboardUserInterviewMetadataExample: UserInterviewMetadata = {
   completedThisWeek: {
@@ -11,3 +11,97 @@ export const DashboardUserInterviewMetadataExample: UserInterviewMetadata = {
     timeTakenFormatted: "3h 15 min", // Formatting to be done in backend
   },
 };
+
+export const DashboardUserHistoryExample: SessionHistory[] = [
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Ting",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Kai",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Kai",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Kai",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+  {
+    peerName: "Mai Kai",
+    completedAt: new Date(2024, 9, 16, 19, 3),
+    questionName: "Two Sum",
+    totalTime: "3h 15 min",
+    sessionId: 10,
+  },
+];
