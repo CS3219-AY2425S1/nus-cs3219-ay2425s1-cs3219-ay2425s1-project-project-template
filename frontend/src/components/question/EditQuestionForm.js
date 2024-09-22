@@ -37,13 +37,13 @@ const EditQuestionForm = ({ question, onUpdate }) => {
       onSubmit={handleSubmit}
       style={{
         width: "700px", // Fixed width
-        height: "600px", // Fixed height
+        height: "700px", // Fixed height
         margin: "0 auto",
         padding: "20px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: "5px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
           Title:
           <input
@@ -60,7 +60,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           />
         </label>
       </div>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: "5px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
           Description:
           <textarea
@@ -72,12 +72,12 @@ const EditQuestionForm = ({ question, onUpdate }) => {
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
-              height: "150px",
+              height: "200px",
             }}
           />
         </label>
       </div>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: "5px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
           Category:
           <input
@@ -94,7 +94,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           />
         </label>
       </div>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: "5px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
           Complexity:
           <input

@@ -36,7 +36,7 @@ const AddQuestionForm = ({ onAdd }) => {
       onSubmit={handleSubmit}
       style={{
         width: "700px",
-        height: "600px",
+        height: "700px",
         margin: "0 auto",
         padding: "20px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
@@ -68,7 +68,7 @@ const AddQuestionForm = ({ onAdd }) => {
             required
             style={{
               width: "100%",
-              height: "100px", 
+              height: "200px", 
               padding: "10px", 
               borderRadius: "4px",
               border: "1px solid #ccc",

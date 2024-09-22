@@ -6,7 +6,7 @@ const QuestionDetail = ({ question, onClose }) => {
     <div
       style={{
         width: "700px", // Fixed width
-        height: "600px", // Fixed height
+        height: "700px", // Fixed height
         padding: "20px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
         backgroundColor: "#fff",
@@ -45,7 +45,7 @@ const QuestionDetail = ({ question, onClose }) => {
           fontSize: "16px",
           lineHeight: "1.5",
           display: "block",
-          margin: "200px auto 0",
+          margin: "380px auto 0",
           width: "100%",
         }}
       >
