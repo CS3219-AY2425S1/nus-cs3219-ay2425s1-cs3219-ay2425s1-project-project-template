@@ -4,8 +4,7 @@
 }
 
 dialog {
-    align-self: center;
-    justify-self: center;
+    margin: auto;
     border: none;
     border-radius: 0.25rem;
 }
