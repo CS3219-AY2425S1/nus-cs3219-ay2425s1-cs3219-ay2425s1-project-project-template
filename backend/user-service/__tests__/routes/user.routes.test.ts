@@ -129,6 +129,7 @@ describe('User Routes', () => {
                 expect(response.body.username).toEqual('test3')
                 expect(response.body.proficiency).toEqual(Proficiency.ADVANCED)
             })
+            // handleAccessControl will return 403 as the id of the token does not match the id in the request
             it('should return 403 for requests with invalid ids', async () => {
                 const response = await authenticatedTestAgent.put('/users/111').send({
                     username: 'test3',
@@ -183,6 +184,7 @@ describe('User Routes', () => {
                 const response = await authenticatedTestAgent.delete(`/users/${user.id}`).send()
                 expect(response.status).toBe(200)
             })
+            //handleAccessControl will return 403 as the id of the token does not match the id in the request
             it('should return 403 for requests with invalid ids', async () => {
                 const response = await authenticatedTestAgent.delete('/users/111').send()
                 expect(response.status).toBe(403)
