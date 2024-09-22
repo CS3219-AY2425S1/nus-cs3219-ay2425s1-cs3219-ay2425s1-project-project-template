@@ -1,41 +1,44 @@
-import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Box } from '@mui/material';
+import React, { useState } from "react";
+import { Container, Typography, TextField, Button, Box } from "@mui/material";
 import Header from "../components/Header";
-import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { updateUserProfile } from '../api/userApi';
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { updateUserProfile } from "../api/userApi";
 
 const EditProfile: React.FC = () => {
   const { user, token, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const [username, setusername] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [error, setError] = useState('');
+  const [username, setusername] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [error, setError] = useState("");
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !token) {
-        setError('User is not logged in.');
-        return;
-      }
+      setError("User is not logged in.");
+      return;
+    }
 
     try {
-      const response = await updateUserProfile(token, user.id, { username, email });
+      const response = await updateUserProfile(token, user.id, {
+        username,
+        email,
+      });
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error("Failed to update profile");
       }
       const res = await response.json();
-        console.log(res.data)
+      console.log(res.data);
       // Update user in context
       setUser({
         ...res.data,
-        name: res.data.username // Rename `username` to `name`
+        name: res.data.username, // Rename `username` to `name`
       });
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
-      console.error('Error updating profile:', err);
-      setError('Failed to update profile. Please try again.');
+      console.error("Error updating profile:", err);
+      setError("Failed to update profile. Please try again.");
     }
   };
 

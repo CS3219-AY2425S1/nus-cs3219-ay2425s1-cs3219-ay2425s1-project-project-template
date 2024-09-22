@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       value={{
         token,
         user,
-        setUser, 
+        setUser,
         login: handleLogin,
         logOut,
         isAuthenticated,

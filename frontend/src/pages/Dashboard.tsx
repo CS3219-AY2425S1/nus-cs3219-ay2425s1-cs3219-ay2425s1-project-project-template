@@ -16,18 +16,63 @@ import {
 import Header from "../components/Header";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const questionAttempts = [
-  { question: "Question 1", topic: "Math", peer: "John Doe", difficulty: "Easy" },
-  { question: "Question 2", topic: "Algorithms", peer: "Jane Smith", difficulty: "Medium" },
-  { question: "Question 3", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 4", topic: "Data Structures", peer: "Alice Lee", difficulty: "Easy" },
-  { question: "Question 5", topic: "Data Structures", peer: "Alice Lee", difficulty: "Medium" },
-  { question: "Question 6", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 7", topic: "Data Structures", peer: "Alice Lee", difficulty: "Easy" },
-  { question: "Question 8", topic: "Data Structures", peer: "Alice Lee", difficulty: "Medium" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
+  {
+    question: "Question 1",
+    topic: "Math",
+    peer: "John Doe",
+    difficulty: "Easy",
+  },
+  {
+    question: "Question 2",
+    topic: "Algorithms",
+    peer: "Jane Smith",
+    difficulty: "Medium",
+  },
+  {
+    question: "Question 3",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Hard",
+  },
+  {
+    question: "Question 4",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Easy",
+  },
+  {
+    question: "Question 5",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Medium",
+  },
+  {
+    question: "Question 6",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Hard",
+  },
+  {
+    question: "Question 7",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Easy",
+  },
+  {
+    question: "Question 8",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Medium",
+  },
+  {
+    question: "Question 9",
+    topic: "Data Structures",
+    peer: "Alice Lee",
+    difficulty: "Hard",
+  },
 ];
 
 const Dashboard = () => {
@@ -43,7 +88,10 @@ const Dashboard = () => {
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = filteredQuestions.slice(indexOfFirstEntry, indexOfLastEntry);
+  const currentEntries = filteredQuestions.slice(
+    indexOfFirstEntry,
+    indexOfLastEntry
+  );
 
   const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSortBy(event.target.value);
@@ -58,7 +106,10 @@ const Dashboard = () => {
     if (sortBy === "Difficulty") {
       sortedQuestions.sort((a, b) => {
         const difficultyOrder = ["Easy", "Medium", "Hard"];
-        return difficultyOrder.indexOf(a.difficulty) - difficultyOrder.indexOf(b.difficulty);
+        return (
+          difficultyOrder.indexOf(a.difficulty) -
+          difficultyOrder.indexOf(b.difficulty)
+        );
       });
     } else if (sortBy === "Topic") {
       sortedQuestions.sort((a, b) => a.topic.localeCompare(b.topic));
@@ -143,7 +194,12 @@ const Dashboard = () => {
               Attempts History
             </Typography>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={3}
+            >
               <TextField
                 variant="outlined"
                 label="Search"
@@ -187,9 +243,16 @@ const Dashboard = () => {
               </Table>
             </Paper>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mt={2}
+            >
               <Typography variant="body2">
-                Showing data {indexOfFirstEntry + 1} to {Math.min(indexOfLastEntry, totalEntries)} of {totalEntries} entries
+                Showing data {indexOfFirstEntry + 1} to{" "}
+                {Math.min(indexOfLastEntry, totalEntries)} of {totalEntries}{" "}
+                entries
               </Typography>
               <Box>
                 {pageNumbers.map((pageNumber) => (

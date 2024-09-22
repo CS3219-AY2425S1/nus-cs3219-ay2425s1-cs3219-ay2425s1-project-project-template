@@ -1,6 +1,6 @@
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const Header = () => {
   const auth = useAuth();
@@ -24,10 +24,10 @@ const Header = () => {
           to="/dashboard"
           sx={{
             mx: 0.5,
-            color: 'white',
-            backgroundColor: 'primary.main',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
+            color: "white",
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.dark",
             },
           }}
         >
@@ -39,10 +39,10 @@ const Header = () => {
           to="/questions"
           sx={{
             mx: 0.5,
-            color: 'white',
-            backgroundColor: 'primary.main',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
+            color: "white",
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.dark",
             },
           }}
         >
@@ -54,10 +54,10 @@ const Header = () => {
           to="/matching"
           sx={{
             mx: 0.5,
-            color: 'white',
-            backgroundColor: 'primary.main',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
+            color: "white",
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.dark",
             },
           }}
         >
@@ -69,10 +69,10 @@ const Header = () => {
           to="/dashboard/edit-profile"
           sx={{
             mx: 0.5,
-            color: 'white',
-            backgroundColor: 'primary.main',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
+            color: "white",
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.dark",
             },
           }}
         >
@@ -84,10 +84,10 @@ const Header = () => {
           onClick={handleLogOut}
           sx={{
             mx: 0.5,
-            color: 'white',
-            backgroundColor: 'primary.main',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
+            color: "white",
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.dark",
             },
           }}
         >

@@ -33,7 +33,11 @@ export const login = async (data: LoginData) => {
   }
 };
 
-export const updateUserProfile = async (token: string, userId: number, data: { username?: string; email?: string; password?: string }) => {
+export const updateUserProfile = async (
+  token: string,
+  userId: number,
+  data: { username?: string; email?: string; password?: string }
+) => {
   try {
     const response = await fetch(`${API_URL}/users/${userId}`, {
       method: "PATCH",
