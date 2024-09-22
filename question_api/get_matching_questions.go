@@ -15,7 +15,7 @@ func GetMatchingQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerF
 		query := ctx.Param("query")
 		
 		if strings.Contains(query, " ") {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Query cannot contain spaces"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "endpoint cannot contain spaces"})
 			logger.Log.Warn("Attempted to query with illegal endpoint: ", query)
 			return
 		}
@@ -38,7 +38,6 @@ func GetMatchingQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerF
 
 		ctx.JSON(http.StatusOK, questions)
 		logger.Log.Info(fmt.Sprintf("Questions matching query %s retrieved successfully", query))
-
 	}
 }
 

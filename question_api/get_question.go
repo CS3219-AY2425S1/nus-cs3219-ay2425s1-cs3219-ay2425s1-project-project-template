@@ -40,5 +40,6 @@ func GetQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusOK, question)
+		logger.Log.Info(fmt.Sprintf("Question with ID %d returned successfully", id))
 	}
 }
