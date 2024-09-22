@@ -11,6 +11,8 @@ app.use(express.json());
 
 app.use("/api/question", questionRoute);
 
+
+//global error handler
 app.use( (err: Error, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({msg : "Internal Server Error."});
 })

@@ -1,14 +1,14 @@
-import mongoose, { MongooseError } from "mongoose";
+import mongoose from "mongoose";
 import Question from "../models/questionModel";
 import { Response, Request, NextFunction } from "express";
+
+const DUPKEYERRORCODE = 11000; 
 
 export const getAllQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const questions = await Question.find({});
         res.status(200).json(questions);
     } catch (err) {
-        // res.status(500).send();
-        // console.log("Internal Server Error");
         console.log(err);
         next(err);
     }
@@ -16,79 +16,66 @@ export const getAllQuestions = async (req: Request, res: Response, next: NextFun
 
 export const getOneQuestion = async (req: Request, res: Response, next: NextFunction) => {
     const { qid } = req.params;
+    if (isNaN(+qid)) {
+        return res.status(404).send({msg: "Please enter a valid question ID."})
+    }
     try {
         const question = await Question.findOne({qid: qid});
         if (!question) {
-            console.log(`No question with id=${qid}`);
-            return res.status(404).send();
+            return res.status(404).send({msg : `No question with id=${qid}.`});
         }
         res.status(200).json(question);
     } catch (err) {
         console.log(err);
         next(err);
-        // if (err instanceof MongooseError) {
-        //     res.status(500).send();
-        //     console.log(err.message);
-        // } else {
-        //     res.status(500).send();
-        //     console.log("Internal server error");
-        // }
     }
 }
 
 
-export const addQuestion = async(req: Request, res: Response, next : NextFunction) => {
-    const {qid, title, description, catagories, complexity} = req.body;
+export const addQuestion = async (req: Request, res: Response, next : NextFunction) => {
+    const {qid, title, description, categories, complexity} = req.body;
     try {
-        const question = await Question.create({qid, title, description, catagories, complexity});
+        const question = await Question.create({qid, title, description, categories, complexity});
         res.status(200).json(question);
     } catch (err) {
         console.log(err);
+        if (err instanceof mongoose.mongo.MongoError && err.code == DUPKEYERRORCODE) { // this catches duplicate key error
+            return res.status(404).json({msg: `Question ID ${qid} already exists.`});
+        }
         next(err);
     }
 }
 
-export const deleteQuestion = async(req: Request, res: Response, next : NextFunction) => {
+export const deleteQuestion = async (req: Request, res: Response, next : NextFunction) => {
     const { qid } = req.params;
+    if (isNaN(+qid)) {
+        return res.status(404).send({msg: "Please enter a valid question ID."})
+    }
     try {
         const question = await Question.findOneAndDelete({qid: qid});
         if (!question) {
-            console.log(`No question with id=${qid}`);
-            return res.status(404).send();
+            return res.status(404).send({msg: `No question with id=${qid}`});
         }
         res.status(200).json(question);
     } catch (err) {
         console.log(err);
         next(err);
-        // if (err instanceof MongooseError) {
-        //     res.status(501).send();
-        //     console.log(err.message);
-        // } else {
-        //     res.status(502).send();
-        //     console.log("Internal server error");
-        // }
     }
 }
 
-export const updateQuestion = async(req: Request, res: Response, next : NextFunction) => {
+export const updateQuestion = async (req: Request, res: Response, next : NextFunction) => {
     const { qid } = req.params;
-
+    if (isNaN(+qid)) {
+        return res.status(404).send({msg: "Please enter a valid question ID."})
+    }
     try {
-        const question = await Question.findOneAndUpdate({qid: qid}, {...req.body})
+        const question = await Question.findOneAndUpdate({qid: qid}, {...req.body, qid})
         if (!question) {
-            console.log(`No question with id=${qid}`);
-            return res.status(404).send();
+            return res.status(404).send({msg: `No question with id=${qid}`});
         }
         res.status(200).json(question);
     } catch (err) {
         console.log(err);
         next(err);
-        // if (err instanceof MongooseError) {
-        //     res.status(501).send();
-        //     console.log(err.message);
-        // } else {
-        //     res.status(502).send();
-        //     console.log("Internal server error");
-        // }
     }
 }

@@ -17,7 +17,7 @@ const questionSchema = new Schema({
         type: String,
         required: true
     },
-    catagories: {
+    categories: {
         type: [String],
         required: true
     },
