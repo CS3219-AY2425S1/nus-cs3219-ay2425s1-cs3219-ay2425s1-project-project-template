@@ -1,0 +1,72 @@
+.App {
+  text-align: center;
+  font-family: cursive;
+}
+
+.App-table {
+  margin: 10px auto;
+  border-collapse: collapse;
+  width: 50%;
+  border: 5px solid white;
+  color: black;
+  font-size: 16px;
+}
+
+.App-table th .App-table td {
+  border: 2px solid white;
+  padding: 8px;
+  text-align: left;
+}
+
+.App-table th {
+  background-color: #F7B32B;
+  color: black;
+}
+
+.App-table tr:nth-child(odd) {
+  background-color: white;
+}
+
+.App-table tr:nth-child(even) {
+  background-color: #FFFFCC;
+}
+
+.delete-btn {
+  background-color: transparent !important;
+  font-size: 12px;
+  color: #B30000 !important;
+  border: none !important;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.App-header {
+  background-color: #2F3654;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.welcome-text {
+  font-size: 40px;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.create-btn {
+  background-color: #F7B32B;
+  color: white;
+  border: 2px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.7);
+  padding: 6px 15px;
+  font-size: 16px;
+  font-family: cursive;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
