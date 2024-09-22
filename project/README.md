@@ -12,6 +12,20 @@ This Turborepo includes the following packages/apps:
 - `api-gateway`: [NestJS](https://nestjs.com/) backend serving as an entry point into microservices
 - `questions-service`: [NestJS](https://nestjs.com/) backend handling all questions related functions
 
+```mermaid
+graph TD
+    A[Web Client] -->|HTTP Request| B(API Gateway)
+    B -->|RPC Call| C[Questions Service]
+    B -->|RPC Call| D[Other Microservice 1]
+    B -->|RPC Call| E[Other Microservice 2]
+
+    subgraph Microservices
+        C
+        D
+        E
+    end
+```
+
 ### Packages
 
 - `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
