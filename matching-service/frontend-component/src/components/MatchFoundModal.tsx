@@ -1,23 +1,12 @@
-import { Button, Spacer, Badge } from "@nextui-org/react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@nextui-org/modal";
+import { Spacer, Badge } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody } from "@nextui-org/modal";
 
 interface MatchFoundProps {
-  onConfirm: () => void;
   onClose: () => void;
   isOpen: boolean;
 }
 
-const MatchFound: React.FC<MatchFoundProps> = ({
-  onConfirm,
-  onClose,
-  isOpen,
-}) => {
+const MatchFoundModal: React.FC<MatchFoundProps> = ({ onClose, isOpen }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
@@ -42,4 +31,4 @@ const MatchFound: React.FC<MatchFoundProps> = ({
   );
 };
 
-export default MatchFound;
+export default MatchFoundModal;

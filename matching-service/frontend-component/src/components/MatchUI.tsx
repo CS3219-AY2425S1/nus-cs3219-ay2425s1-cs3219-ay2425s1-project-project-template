@@ -1,6 +1,12 @@
-import { useState } from "react";
-import StartSession from "./StartSession";
-import MatchFound from "./MatchFound";
+import { useState, useEffect } from "react";
+import MatchFoundModal from "./MatchFoundModal";
+import MatchmakingModal from "./MatchmakingModal";
+import {
+  initializeSocket,
+  disconnectSocket,
+  registerUser,
+  deregisterUser,
+} from "../services/matchingSocketService";
 
 interface MatchUIProps {
   onClose: () => void;
@@ -15,19 +21,46 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
   const [isMatchUIVisible, setIsMatchUIVisible] = useState<boolean>(true);
   const [uiState, setUiState] = useState<UIState>(UIState.StartSession);
 
-  const matchFound = () => {
-    console.log("Match found");
-    setUiState(UIState.MatchFound);
+  // Initialize socket on component mount
+  useEffect(() => {
+    initializeSocket();
+
+    // Clean up on component unmount
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
+
+  const handleRegisterForMatching = async (
+    difficulty: Set<string>,
+    topic: Set<string>
+  ) => {
+    const userParams = {
+      difficulty: Array.from(difficulty).join(","),
+      topic: Array.from(topic).join(","),
+    };
+
+    registerUser(
+      userParams,
+      handleMatchFound,
+      () => console.log("Registration successful!"), // Handle success
+      (error) => console.error("Error during matchmaking:", error) // Handle error
+    );
   };
 
-  const confirmMatch = () => {
-    console.log("Match confirmed");
-    // Handle match confirmation (e.g., redirect to the coding session)
-    setUiState(UIState.StartSession); // Reset for now
+  const handleDeregisterForMatching = () => {
+    console.log("Deregistering for matching");
+    deregisterUser();
+  };
+
+  const handleMatchFound = (matchData: any) => {
+    console.log("Match found");
+    setUiState(UIState.MatchFound);
+
+    // TODO: Redirect to session page
   };
 
   const closeModal = () => {
-    console.log("Closing modal");
     setIsMatchUIVisible(false);
     setUiState(UIState.StartSession);
     onClose();
@@ -37,13 +70,13 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
     <>
       {isMatchUIVisible && (
         <>
-          <StartSession
-            handleMatchFound={matchFound}
+          <MatchmakingModal
+            handleRegisterForMatching={handleRegisterForMatching}
+            handleDeregisterForMatching={handleDeregisterForMatching}
             onClose={closeModal}
             isOpen={uiState === UIState.StartSession}
           />
-          <MatchFound
-            onConfirm={confirmMatch}
+          <MatchFoundModal
             onClose={closeModal}
             isOpen={uiState === UIState.MatchFound}
           />

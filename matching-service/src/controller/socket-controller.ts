@@ -60,6 +60,13 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
     });
 }
 
+export function handleDeregisterForMatching(socket: Socket) {
+    socket.on('deregisterForMatching', async () => {
+        console.log(`User ${socket.data.userId} deregistered for matching`);
+        await removeUserFromSearchPool(socket.data.userId);
+    });
+}
+
 export function handleDisconnect(socket: Socket) {
     // Handle disconnection
     const { userId } = socket.data;

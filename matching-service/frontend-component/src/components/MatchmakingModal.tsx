@@ -9,7 +9,11 @@ import {
 } from "@nextui-org/modal";
 
 interface StartSessionProps {
-  handleMatchFound: () => void;
+  handleDeregisterForMatching: () => void;
+  handleRegisterForMatching: (
+    difficulty: Set<string>,
+    topic: Set<string>
+  ) => void;
   onClose: () => void;
   isOpen: boolean;
 }
@@ -18,8 +22,9 @@ interface StartSessionProps {
 const difficulties = ["Easy", "Medium", "Hard"];
 const topics = ["Dynamic Programming", "Graphs", "Arrays"];
 
-const StartSession: React.FC<StartSessionProps> = ({
-  handleMatchFound,
+const MatchmakingModal: React.FC<StartSessionProps> = ({
+  handleDeregisterForMatching,
+  handleRegisterForMatching,
   onClose,
   isOpen,
 }) => {
@@ -43,36 +48,25 @@ const StartSession: React.FC<StartSessionProps> = ({
     setSelectedTopicKeys(new Set(keys));
   };
 
-  const handleMatchmaking = (
-    selectedDifficultyKeys: Set<string>,
-    selectedTopicKeys: Set<string>
-  ) => {
-    setIsMatching(true);
-    console.log(
-      `Matchmaking started with difficulty: ${Array.from(
-        selectedDifficultyKeys
-      ).join(", ")} and topic: ${Array.from(selectedTopicKeys).join(", ")}`
-    );
-    // Insert matchmaking logic here
-
-    // Simulation for testing
+  const handleContinue = async () => {
+    // Set timer for matchmaking
     let time = 0;
     const interval = setInterval(() => {
       setMatchmakingTime(time);
       time += 1;
-      if (time >= 5) {
-        clearInterval(interval);
-        handleMatchFound();
-      }
     }, 1000);
     setIntervalID(interval);
+    // Call the register function
+    await handleRegisterForMatching(selectedDifficultyKeys, selectedTopicKeys);
+    setIsMatching(true);
   };
 
-  const handleStopMatchmaking = () => {
-    setIsMatching(false);
+  const handleStop = () => {
+    handleDeregisterForMatching();
     if (intervalID) {
       clearInterval(intervalID);
     }
+    setIsMatching(false);
   };
 
   return (
@@ -135,7 +129,7 @@ const StartSession: React.FC<StartSessionProps> = ({
             className="flex-1 mx-1"
             radius="sm"
             size="lg"
-            onClick={isMatching ? handleStopMatchmaking : onClose}
+            onClick={isMatching ? handleStop : onClose}
           >
             {!isMatching ? "Cancel" : "Stop"}
           </Button>
@@ -144,9 +138,7 @@ const StartSession: React.FC<StartSessionProps> = ({
             className="flex-1 mx-1"
             radius="sm"
             size="lg"
-            onClick={() =>
-              handleMatchmaking(selectedDifficultyKeys, selectedTopicKeys)
-            }
+            onClick={() => handleContinue()}
             isDisabled={isMatching}
           >
             Continue
@@ -157,4 +149,4 @@ const StartSession: React.FC<StartSessionProps> = ({
   );
 };
 
-export default StartSession;
+export default MatchmakingModal;
