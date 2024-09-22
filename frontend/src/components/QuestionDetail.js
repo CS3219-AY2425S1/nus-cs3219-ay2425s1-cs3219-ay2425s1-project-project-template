@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-
 const QuestionDetail = ({ question, onClose }) => {
   const [isHovered, setIsHovered] = useState(false); // State for hover
 
   return (
     <div
       style={{
-        width: "600px", // Fixed width
-        height: "400px", // Fixed height
-        margin: "20px auto",
+        width: "700px", // Fixed width
+        height: "600px", // Fixed height
         padding: "20px",
-        // border: "1px solid #ccc",
-        // borderRadius: "5px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
         backgroundColor: "#fff",
         overflowY: "auto", // Scrollable content if it exceeds the fixed height
@@ -31,10 +27,12 @@ const QuestionDetail = ({ question, onClose }) => {
       <h2 style={{ fontSize: "20px", marginTop: "20px", color: "#666" }}>
         Description:
       </h2>
-      <p style={{ lineHeight: "1.6", color: "#444" }}>{question.description}</p>
+      <p style={{ lineHeight: "1.6", color: "#444", whiteSpace: "pre-wrap" }}>
+        {question.description}
+      </p>
 
       <button
-        onClick={onClose} 
+        onClick={onClose}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
@@ -47,7 +45,7 @@ const QuestionDetail = ({ question, onClose }) => {
           fontSize: "16px",
           lineHeight: "1.5",
           display: "block",
-          margin: "70px auto 0",
+          margin: "200px auto 0",
           width: "100%",
         }}
       >

@@ -36,8 +36,8 @@ const EditQuestionForm = ({ question, onUpdate }) => {
     <form
       onSubmit={handleSubmit}
       style={{
-        width: "600px", // Fixed width
-        height: "500px", // Fixed height
+        width: "700px", // Fixed width
+        height: "600px", // Fixed height
         margin: "0 auto",
         padding: "20px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
@@ -72,6 +72,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              height: "150px",
             }}
           />
         </label>
@@ -112,28 +113,32 @@ const EditQuestionForm = ({ question, onUpdate }) => {
         {error && <div style={{ color: "red", fontSize: "12px" }}>{error}</div>}{" "}
         {/* Error message */}
       </div>
-      <button
-        type="submit"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        disabled={isLoading}
-        style={{
-          padding: "12px 15px",
-          backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
-          color: "#000",
-          border: "none",
-          borderRadius: "4px",
-          cursor: isLoading ? "not-allowed" : "pointer",
-          fontSize: "16px",
-          lineHeight: "1.5",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-        }}
-      >
-        {isLoading ? "Updating..." : "Update Question"}
-      </button>
+      <div style={{ marginBottom: "20px" }}>
+        {" "}
+        {/* Div for margin */}
+        <button
+          type="submit"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          disabled={isLoading}
+          style={{
+            padding: "12px 15px", // Button padding
+            backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
+            color: "#000",
+            border: "none",
+            borderRadius: "4px",
+            cursor: isLoading ? "not-allowed" : "pointer",
+            fontSize: "16px",
+            lineHeight: "1.5",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          {isLoading ? "Updating..." : "Update Question"}
+        </button>
+      </div>
     </form>
   );
 };
