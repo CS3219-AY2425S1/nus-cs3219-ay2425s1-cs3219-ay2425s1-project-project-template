@@ -41,6 +41,7 @@ const QuestionPage = () => {
       : dialogRef.current.showModal();
   }
 
+  // Add questions
   const handleAddQuestion = async (newQuestion) => {
     toggleDialog();
 
@@ -70,6 +71,7 @@ const QuestionPage = () => {
     toggleDialog();
   };
 
+  // View question
   const handleViewQuestion = async (question) => {
     setDialogForm(
       <QuestionDetail question={question} onClose={handleCloseDetail} />
@@ -77,6 +79,7 @@ const QuestionPage = () => {
     toggleDialog();
   };
 
+  // Edit question
   const handleEditQuestion = async (question) => {
     setDialogForm(
       <EditQuestionForm question={question} onUpdate={handleUpdateQuestion} />
@@ -116,11 +119,36 @@ const QuestionPage = () => {
     toggleDialog();
   };
 
-  const handleDeleteQuestion = (deletedQuestion) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.filter((q) => q._id !== deletedQuestion._id)
-    );
-  }
+  // Delete question
+  const handleDeleteQuestion = async (deletedQuestion) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/questions/${deletedQuestion._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(deletedQuestion),
+        }
+      );
+
+      if (response.ok) {
+        const updatedQuestionList = await response.json();
+        setQuestions(updatedQuestionList);
+        console.log("Question deleted successfully!");
+      } else {
+        const errorMessage = await response.text();
+        console.error(`Failed to delete question: ${response.status} ${errorMessage}`);
+        console.error(`Error: ${response.status} - ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Error deleting question:", error);
+      // Optionally show error feedback to the user
+      console.error("An unexpected error occurred. Please try again.");
+    }
+  };
+
 
   const handleBack = () => {
     navigate(-1); // Navigate back to the previous page

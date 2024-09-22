@@ -27,7 +27,9 @@ const createQuestion = async (req, res) => {
 
 const updateQuestion = async (req, res) => {
   try {
-    const questionId = req.params._id;
+
+    // to reflect the update successfully in database and UI, params.id is used instead of params._id
+    const questionId = req.params.id;
     console.log('Received questionId:', questionId);
 
     if (!questionId) {
@@ -55,14 +57,21 @@ const updateQuestion = async (req, res) => {
 }
 
 const deleteQuestion = async (req, res) => {
-    if (!req?.body?._id) return res.status(400).json({ 'message': 'Question ID is required.' });
 
-    const question = await QuestionSchema.findOne({ _id: req.body._id }).exec();
+    // to delete successfully in database and UI, params.id is used instead of params._id / body._id
+    const questionId = req.params.id;
+
+    if (!questionId) return res.status(400).json({ 'message': 'Question ID is required.' });
+
+    const question = await QuestionSchema.findOne({ _id: questionId }).exec();
     if (!question) {
-        return res.status(204).json({ "message": `No question matches ID ${req.body._id}.` });
+        return res.status(204).json({ "message": `No question matches ID ${questionId}.` });
     }
-    const result = await question.deleteOne();
-    res.json(result);
+
+    // return the new question list that no longer contain the deleted question
+    const updatedQuestionList = await QuestionSchema.find();
+    res.json(updatedQuestionList);
+    console.log('updatedQuestionList:', updatedQuestionList);
 }
 
 const getQuestion = async (req, res) => {
