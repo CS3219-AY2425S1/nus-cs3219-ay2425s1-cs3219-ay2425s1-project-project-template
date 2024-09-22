@@ -15,10 +15,20 @@
 Initialising a new Nest.js project will cause a `.git` folder to exist within the service, which is not what we want. We want to remove the nested git folders by doing:
 
 1. Verify that there is a nested `.git` directory
-``` bash
+
+```bash
 find backend/service_name/ -name ".git"
 ```
+
 2. Remove the `.git` directory.
+
 ```bash
 rm -rf backend/service_name/.git
 ```
+
+# Backend: Service - Port Bindings
+
+| Service          | Port |
+| ---------------- | ---- |
+| API Gateway      | 8000 |
+| Question Service | 8001 |
