@@ -44,6 +44,9 @@ function LoginModal({
       onClose={closeLoginModal}
       withCloseButton={false}
       centered
+      overlayProps={{
+        blur: 4,
+      }}
     >
       <form onSubmit={form.onSubmit((values) => console.log(values))}>
         <Stack p="16px">
