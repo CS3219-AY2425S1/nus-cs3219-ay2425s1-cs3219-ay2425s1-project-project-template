@@ -3,8 +3,29 @@
 @tailwind utilities;
 
 :root {
-    --background: #ffffff;
+    --background: #f5f5f5;
     --foreground: #171717;
+
+    --theme-900: #3b0764;
+    --theme-600: #7f57c2;
+    --theme-400: #c084fc;
+    --theme-100: #f3e8ff;
+
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+
+    --green-pri: #34d399;
+    --green-sec: #e1fcef;
+
+    --red-pri: #ef4444;
+    --red-sec: #fee2e2;
+
+    --orange-pri: #fb923c;
+    --orange-sec: #ffedd5;
 }
 
 pre,
