@@ -61,7 +61,10 @@ const Example = () => {
       {
         accessorKey: "categories",
         header: "Categories",
-        Cell: ({ cell }) => cell.getValue<string[]>().join(", "),
+        Cell: ({ cell }) => {
+            const value = cell.getValue<string[] | string>();
+            return Array.isArray(value) ? value.join(", ") : value;
+          },
         muiEditTextFieldProps: {
           required: true,
         },
@@ -221,12 +224,16 @@ const Example = () => {
             name="description"
             required
             multiline
-            // onChange={(e) => {
-            //   table.setCreatingRow({
-            //     ...row.original,
-            //     description: e.target.value,
-            //   });
-            // }}
+            onChange={(e) => {
+              table.setCreatingRow((prev) => {
+                if (prev === null) return null;
+                if (typeof prev === "boolean") return prev;
+                return {
+                  ...prev,
+                  description: e.target.value,
+                };
+              });
+            }}
           />
         </DialogContent>
         <DialogActions>
@@ -247,13 +254,16 @@ const Example = () => {
             name="description"
             required
             multiline
-            // onChange={(e) => {
-            //   table.setEditingRow({
-            //     ...row.original,
-            //     description: e.target.value,
-            //   });
-            // }}
-            value={row.original.description}
+            onChange={(e) => {
+              table.setEditingRow((prev) => {
+                if (prev === null) return null;
+                return {
+                  ...prev,
+                  description: e.target.value,
+                };
+              });
+            }}
+            value={(row.original as Question & { description?: string }).description || ''}
           />
         </DialogContent>
         <DialogActions>
@@ -312,14 +322,16 @@ function useCreateQuestion() {
     onMutate: (newQuestionInfo: Question) => {
       queryClient.setQueryData(
         ["questions"],
-        (prevQuestions: any) =>
-          [
-            ...prevQuestions,
+        (prevQuestions: any) => {
+          const updatedQuestions = Array.isArray(prevQuestions) ? prevQuestions : [];
+          return [
+            ...updatedQuestions,
             {
               ...newQuestionInfo,
               id: (Math.random() + 1).toString(36).substring(7),
             },
-          ] as Question[]
+          ] as Question[];
+        }
       );
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
@@ -350,13 +362,14 @@ function useUpdateQuestion() {
     },
     //client side optimistic update
     onMutate: (newQuestionInfo: Question) => {
-      queryClient.setQueryData(["questions"], (prevQuestions: any) =>
-        prevQuestions?.map((prevQuestion: Question) =>
+      queryClient.setQueryData(["questions"], (prevQuestions: any) => {
+        if (!Array.isArray(prevQuestions)) return [newQuestionInfo];
+        return prevQuestions.map((prevQuestion: Question) =>
           prevQuestion.id === newQuestionInfo.id
             ? newQuestionInfo
             : prevQuestion
-        )
-      );
+        );
+      });
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
   });
@@ -373,11 +386,12 @@ function useDeleteQuestion() {
     },
     //client side optimistic update
     onMutate: (questionId: string) => {
-      queryClient.setQueryData(["questions"], (prevQuestions: any) =>
-        prevQuestions?.filter(
+      queryClient.setQueryData(["questions"], (prevQuestions: any) => {
+        if (!Array.isArray(prevQuestions)) return [];
+        return prevQuestions.filter(
           (question: Question) => question.id !== questionId
-        )
-      );
+        );
+      });
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
   });
