@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   MRT_EditActionButtons,
   MaterialReactTable,
@@ -7,7 +7,7 @@ import {
   type MRT_Row,
   type MRT_TableOptions,
   useMaterialReactTable,
-} from 'material-react-table';
+} from "material-react-table";
 import {
   Box,
   Button,
@@ -17,17 +17,17 @@ import {
   IconButton,
   Tooltip,
   TextField,
-} from '@mui/material';
+} from "@mui/material";
 import {
   QueryClient,
   QueryClientProvider,
   useMutation,
   useQuery,
   useQueryClient,
-} from '@tanstack/react-query';
-import { type Question, fakeData, problemComplexity } from '../../makeData';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+} from "@tanstack/react-query";
+import { type Question, fakeData, problemComplexity } from "../../makeData";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Example = () => {
   const [validationErrors, setValidationErrors] = useState<
@@ -37,37 +37,37 @@ const Example = () => {
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'Id',
+        accessorKey: "id",
+        header: "Id",
         enableEditing: false,
         size: 80,
       },
       {
-        accessorKey: 'title',
-        header: 'Title',
+        accessorKey: "title",
+        header: "Title",
         muiEditTextFieldProps: {
           required: true,
         },
       },
       {
-        accessorKey: 'complexity',
-        header: 'Complexity',
-        editVariant: 'select',
+        accessorKey: "complexity",
+        header: "Complexity",
+        editVariant: "select",
         editSelectOptions: problemComplexity,
         muiEditTextFieldProps: {
-            select: true,
+          select: true,
         },
       },
       {
-        accessorKey: 'categories',
-        header: 'Categories',
-        Cell: ({ cell }) => cell.getValue<string[]>().join(', '),
+        accessorKey: "categories",
+        header: "Categories",
+        Cell: ({ cell }) => cell.getValue<string[]>().join(", "),
         muiEditTextFieldProps: {
-            required: true,
-          },
+          required: true,
+        },
       },
     ],
-    [],
+    []
   );
 
   //call CREATE hook
@@ -88,26 +88,22 @@ const Example = () => {
     useDeleteQuestion();
 
   //CREATE action
-  const handleCreateQuestion: MRT_TableOptions<Question>['onCreatingRowSave'] = async ({
-    values,
-    table,
-  }) => {
-    await createQuestion(values);
-    table.setCreatingRow(null); //exit creating mode
-  };
+  const handleCreateQuestion: MRT_TableOptions<Question>["onCreatingRowSave"] =
+    async ({ values, table }) => {
+      await createQuestion(values);
+      table.setCreatingRow(null); //exit creating mode
+    };
 
   //UPDATE action
-  const handleSaveQuestion: MRT_TableOptions<Question>['onEditingRowSave'] = async ({
-    values,
-    table,
-  }) => {
-    await updateQuestion(values);
-    table.setEditingRow(null); //exit editing mode
-  };
+  const handleSaveQuestion: MRT_TableOptions<Question>["onEditingRowSave"] =
+    async ({ values, table }) => {
+      await updateQuestion(values);
+      table.setEditingRow(null); //exit editing mode
+    };
 
   //DELETE action
   const openDeleteConfirmModal = (row: MRT_Row<Question>) => {
-    if (window.confirm('Are you sure you want to delete this question?')) {
+    if (window.confirm("Are you sure you want to delete this question?")) {
       deleteQuestion(row.original.id);
     }
   };
@@ -115,21 +111,100 @@ const Example = () => {
   const table = useMaterialReactTable({
     columns,
     data: fetchedQuestions,
-    createDisplayMode: 'modal', //default ('row', and 'custom' are also available)
-    editDisplayMode: 'modal', //default ('row', 'cell', 'table', and 'custom' are also available)
+    createDisplayMode: "modal", //default ('row', and 'custom' are also available)
+    editDisplayMode: "modal", //default ('row', 'cell', 'table', and 'custom' are also available)
     enableEditing: true,
     getRowId: (row) => row.id,
     muiToolbarAlertBannerProps: isLoadingQuestionsError
       ? {
-          color: 'error',
-          children: 'Error loading data',
+          color: "error",
+          children: "Error loading data",
         }
       : undefined,
+
     muiTableContainerProps: {
+      sx: { minHeight: "500px", backgroundColor: "grey.900" }, // Set dark background
+    },
+    muiTableHeadCellProps: {
       sx: {
-        minHeight: '500px',
+        backgroundColor: "grey.900", // Dark header background
+        color: "white", // White text
       },
     },
+    muiTableBodyCellProps: {
+      sx: {
+        backgroundColor: "grey.900", // Dark cell background
+        color: "white", // White text
+      },
+    },
+    muiTopToolbarProps: {
+      sx: {
+        backgroundColor: "grey.900", // Dark toolbar background
+        color: "white", // White text in toolbar
+        "& .MuiIconButton-root": {
+          color: "white", // Make icon buttons white
+        },
+        "& .MuiTypography-root": {
+          color: "white", // Make text white
+        },
+        "& .MuiInputBase-root": {
+          color: "white", // Make input text color white
+          "& .MuiInputBase-input": {
+            color: "white", // Input text
+          },
+          "& .MuiInputBase-input::placeholder": {
+            color: "white", // Placeholder text color
+            opacity: 1, // Ensure opacity is 1 for visibility
+          },
+        },
+      },
+    },
+    muiBottomToolbarProps: {
+      sx: {
+        backgroundColor: "grey.900", // Dark background for the footer
+        color: "white", // Default text color for pagination
+        "& .MuiTypography-root": {
+          color: "white", // Make pagination text white
+        },
+        "& .MuiPagination-root": {
+          "& .MuiButtonBase-root": {
+            color: "white", // Pagination button color
+          },
+          "& .Mui-selected": {
+            backgroundColor: "grey.700", // Selected pagination button color
+            color: "white", // Selected button text color
+          },
+        },
+        "& .MuiSvgIcon-root": {
+          color: "white",
+        },
+        "& .MuiFormLabel-root": {
+          color: "white",
+        },
+        "& .MuiInputBase-root": {
+          color: "white", // Input text color
+          "& .MuiInputBase-input": {
+            color: "white", // Input text
+          },
+          "& .MuiInputBase-input::placeholder": {
+            color: "white", // Placeholder text color
+            opacity: 1, // Ensure opacity is 1 for visibility
+          },
+        },
+        "& .MuiFormControl-root": {
+          "& .MuiInputLabel-root": {
+            color: "white", // Label color
+          },
+          "& .MuiSelect-root": {
+            color: "white", // Select dropdown text
+          },
+          "& .MuiSelect-icon": {
+            color: "white", // Dropdown arrow color
+          },
+        },
+      },
+    },
+
     onCreatingRowCancel: () => setValidationErrors({}),
     onCreatingRowSave: handleCreateQuestion,
     onEditingRowCancel: () => setValidationErrors({}),
@@ -138,7 +213,7 @@ const Example = () => {
       <>
         <DialogTitle variant="h3">Create New Question</DialogTitle>
         <DialogContent
-          sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
           {internalEditComponents}
           <TextField
@@ -164,7 +239,7 @@ const Example = () => {
       <>
         <DialogTitle variant="h3">Edit Question</DialogTitle>
         <DialogContent
-          sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+          sx={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
         >
           {internalEditComponents}
           <TextField
@@ -187,9 +262,12 @@ const Example = () => {
       </>
     ),
     renderRowActions: ({ row, table }) => (
-      <Box sx={{ display: 'flex', gap: '1rem' }}>
+      <Box sx={{ display: "flex", gap: "1rem" }}>
         <Tooltip title="Edit">
-          <IconButton onClick={() => table.setEditingRow(row)}>
+          <IconButton
+            sx={{ color: "white" }}
+            onClick={() => table.setEditingRow(row)}
+          >
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -233,7 +311,7 @@ function useCreateQuestion() {
     //client side optimistic update
     onMutate: (newQuestionInfo: Question) => {
       queryClient.setQueryData(
-        ['questions'],
+        ["questions"],
         (prevQuestions: any) =>
           [
             ...prevQuestions,
@@ -241,7 +319,7 @@ function useCreateQuestion() {
               ...newQuestionInfo,
               id: (Math.random() + 1).toString(36).substring(7),
             },
-          ] as Question[],
+          ] as Question[]
       );
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
@@ -251,7 +329,7 @@ function useCreateQuestion() {
 //READ hook (get questions from api)
 function useGetQuestions() {
   return useQuery<Question[]>({
-    queryKey: ['questions'],
+    queryKey: ["questions"],
     queryFn: async () => {
       //send api request here
       await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
@@ -272,10 +350,12 @@ function useUpdateQuestion() {
     },
     //client side optimistic update
     onMutate: (newQuestionInfo: Question) => {
-      queryClient.setQueryData(['questions'], (prevQuestions: any) =>
+      queryClient.setQueryData(["questions"], (prevQuestions: any) =>
         prevQuestions?.map((prevQuestion: Question) =>
-          prevQuestion.id === newQuestionInfo.id ? newQuestionInfo : prevQuestion,
-        ),
+          prevQuestion.id === newQuestionInfo.id
+            ? newQuestionInfo
+            : prevQuestion
+        )
       );
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
@@ -293,8 +373,10 @@ function useDeleteQuestion() {
     },
     //client side optimistic update
     onMutate: (questionId: string) => {
-      queryClient.setQueryData(['questions'], (prevQuestions: any) =>
-        prevQuestions?.filter((question: Question) => question.id !== questionId),
+      queryClient.setQueryData(["questions"], (prevQuestions: any) =>
+        prevQuestions?.filter(
+          (question: Question) => question.id !== questionId
+        )
       );
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
@@ -311,4 +393,3 @@ const ExampleWithProviders = () => (
 );
 
 export default ExampleWithProviders;
-
