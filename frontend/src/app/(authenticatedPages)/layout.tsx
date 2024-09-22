@@ -65,6 +65,9 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
     <div className="flex h-full">
       <Sidebar
         className="h-full"
+        rootStyles={{
+          borderColor: "#171C28",
+        }}
         collapsed={!isHovered}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
