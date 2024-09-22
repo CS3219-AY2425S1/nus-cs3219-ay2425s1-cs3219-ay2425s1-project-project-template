@@ -3,6 +3,7 @@ import { Model, model } from 'mongoose'
 import { CreateUserDto } from '../types/CreateUserDto'
 import { IUser } from '../types/IUser'
 import { UserDto } from '../types/UserDto'
+import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
 import userSchema from './user.model'
 
@@ -28,7 +29,7 @@ export async function createUser(dto: CreateUserDto): Promise<IUser> {
     return userModel.create(dto)
 }
 
-export async function updateUser(id: string, dto: UserDto | UserProfileDto): Promise<IUser | null> {
+export async function updateUser(id: string, dto: UserDto | UserProfileDto | UserPasswordDto): Promise<IUser | null> {
     return userModel.findByIdAndUpdate(id, dto, { new: true })
 }
 

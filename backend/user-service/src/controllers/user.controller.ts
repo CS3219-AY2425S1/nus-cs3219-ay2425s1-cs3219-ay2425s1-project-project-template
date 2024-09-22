@@ -10,6 +10,7 @@ import { CreateUserDto } from '../types/CreateUserDto'
 import { Response } from 'express'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
+import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
 import { ValidationError } from 'class-validator'
 import { hashPassword } from './auth.controller'
@@ -66,4 +67,20 @@ export async function handleDeleteUser(request: TypedRequest<void>, response: Re
     const id = request.params.id
     await deleteUser(id)
     response.status(200).send()
+}
+
+export async function handleUpdatePassword(request: TypedRequest<UserPasswordDto>, response: Response): Promise<void> {
+    const createDto = UserPasswordDto.fromRequest(request)
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const id = request.params.id
+    createDto.password = await hashPassword(createDto.password)
+
+    const user = await updateUser(id, createDto)
+    response.status(200).json(user).send()
 }
