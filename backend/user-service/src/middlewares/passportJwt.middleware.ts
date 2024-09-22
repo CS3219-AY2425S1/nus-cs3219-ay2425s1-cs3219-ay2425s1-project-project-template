@@ -1,7 +1,9 @@
-import passport from 'passport'
+import passport, { DoneCallback } from 'passport'
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt'
 import config from '../common/config.util'
-import { handleAuthorisation } from '../controllers/auth.controller'
+import { findOneUserById } from '../models/user.repository'
+import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
+import { UserDto } from '../types/UserDto'
 
 const options: StrategyOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -9,6 +11,16 @@ const options: StrategyOptions = {
     secretOrKey: Buffer.from(config.ACCESS_TOKEN_PUBLIC_KEY, 'base64'),
     issuer: 'user-service',
     audience: 'frontend',
+}
+
+async function handleAuthorisation(payload: IAccessTokenPayload, done: DoneCallback): Promise<void> {
+    const user = await findOneUserById(payload.id)
+    if (!user) {
+        return done(null, false)
+    }
+
+    const dto = UserDto.fromModel(user)
+    return done(null, dto)
 }
 
 passport.use('jwt', new Strategy(options, handleAuthorisation))
