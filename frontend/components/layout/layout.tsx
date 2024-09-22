@@ -18,8 +18,14 @@ export default function RootLayout({
     }, [])
     return (
         <>
-            {!isAuth && <NavBar />}
-            <div className={`${inter.className} mx-10`}>{children}</div>
+            {isAuth ? (
+                children
+            ) : (
+                <>
+                    <NavBar />
+                    <div className={`${inter.className} mx-10`}>{children}</div>
+                </>
+            )}
         </>
     )
 }
