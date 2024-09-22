@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
+import DashboardPage from "./pages/DashboardPage";
 import backgroundImage from "./assets/images/lightgradient.jpeg"; // path for background
 import "./styles/App.css"; // css file
 
@@ -18,15 +19,47 @@ const HomePage = () => {
       style={{
         textAlign: "center",
         paddingTop: "20%",
+        color: "#fff",
+        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
       }}
     >
-      <h1>Welcome to PeerPrep</h1>
-      <button
-        onClick={() => navigate("/questions")}
-        className="button-custom" // Apply custom button style
-      >
-        View Questions
-      </button>
+      <h1 style={{ fontSize: "4rem", marginBottom: "40px" }}>PeerPrep</h1>
+      
+      <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="button-custom" 
+          style={{
+            padding: "15px 30px",
+            fontSize: "1.5rem",
+            borderRadius: "5px",
+            border: "none",
+            backgroundColor: "#007BFF",
+            color: "#fff",
+            cursor: "pointer",
+            transition: "background-color 0.3s",
+          }}
+        >
+          Dashboard
+        </button>
+
+        <button
+          onClick={() => navigate("/questions")}
+          className="button-custom" 
+          style={{
+            padding: "15px 30px",
+            fontSize: "1.5rem",
+            borderRadius: "5px",
+            border: "none",
+            backgroundColor: "#28A745",
+            color: "#fff",
+            cursor: "pointer",
+            transition: "background-color 0.3s",
+          }}
+        >
+          Available Questions
+        </button>
+      </div>
     </div>
   );
 };
@@ -45,6 +78,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/questions" element={<QuestionPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           {/* Define other routes here */}
         </Routes>
       </Router>

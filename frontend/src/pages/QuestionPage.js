@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import "../components/DialogForm.css";
-import AddQuestionButton from "../components/AddQuestionButton";
-import AddQuestionForm from "../components/AddQuestionForm";
-import Dialog from "../components/Dialog";
-import EditQuestionForm from "../components/EditQuestionForm";
-import QuestionDetail from "../components/QuestionDetail";
-import QuestionTable from "../components/QuestionTable";
+import "../components/question/DialogForm.css";
+import AddQuestionButton from "../components/question/AddQuestionButton";
+import AddQuestionForm from "../components/question/AddQuestionForm";
+import Dialog from "../components/question/Dialog";
+import EditQuestionForm from "../components/question/EditQuestionForm";
+import QuestionDetail from "../components/question/QuestionDetail";
+import QuestionTable from "../components/question/QuestionTable";
 
 const QuestionPage = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -121,6 +121,14 @@ const QuestionPage = () => {
 
   // Delete question
   const handleDeleteQuestion = async (deletedQuestion) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${deletedQuestion.title}"?`
+    );
+
+    if (!confirmDelete) {
+      return; // Exit if the user cancels
+    }
+
     try {
       const response = await fetch(
         `http://localhost:8080/questions/${deletedQuestion._id}`,
@@ -139,15 +147,15 @@ const QuestionPage = () => {
         console.log("Question deleted successfully!");
       } else {
         const errorMessage = await response.text();
-        console.error(`Failed to delete question: ${response.status} ${errorMessage}`);
-        console.error(`Error: ${response.status} - ${errorMessage}`);
+        console.error(
+          `Failed to delete question: ${response.status} ${errorMessage}`
+        );
       }
     } catch (error) {
       console.error("Error deleting question:", error);
-      // Optionally show error feedback to the user
-      console.error("An unexpected error occurred. Please try again.");
     }
   };
+
 
 
   const handleBack = () => {
