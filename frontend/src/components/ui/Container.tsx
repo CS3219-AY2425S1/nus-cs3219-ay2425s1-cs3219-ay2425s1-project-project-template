@@ -13,7 +13,7 @@ const Container = ({
   className,
 }: ContainerProps) => {
   return (
-    <div className={cn(`m-10 w-full`, className)}>
+    <div className={cn(`m-10`, className)}>
       {withHeader && <Header />}
       {children}
     </div>

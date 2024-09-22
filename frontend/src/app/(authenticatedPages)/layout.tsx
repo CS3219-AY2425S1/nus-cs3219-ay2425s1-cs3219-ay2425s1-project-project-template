@@ -62,9 +62,9 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
     console.log("Logout action: To be implemented");
   };
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-y-auto">
       <Sidebar
-        className="h-full"
+        className="sticky top-0 h-full"
         rootStyles={{
           borderColor: "#171C28",
         }}
@@ -101,7 +101,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
           </Menu>
         </div>
       </Sidebar>
-      {children}
+      <div className="w-full overflow-y-scroll">{children}</div>
     </div>
   );
 };
