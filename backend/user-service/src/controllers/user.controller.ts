@@ -1,6 +1,7 @@
 import {
     createUser,
     deleteUser,
+    findOneUserById,
     findOneUserByEmail,
     findOneUserByUsername,
     updateUser,
@@ -60,6 +61,21 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
 
     const user = await updateUser(id, createDto)
     response.status(200).json(user).send()
+}
+
+export async function handleGetCurrentProfile(
+    request: TypedRequest<UserProfileDto>,
+    response: Response
+): Promise<void> {
+    const id = request.params.id
+
+    const user = await findOneUserById(id)
+    if (!user) {
+        response.status(404).send()
+    } else {
+        const dto = UserDto.fromModel(user)
+        response.status(200).json(dto).send()
+    }
 }
 
 export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
