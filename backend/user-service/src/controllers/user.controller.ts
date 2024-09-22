@@ -1,19 +1,19 @@
 import {
     createUser,
     deleteUser,
-    findOneUserById,
     findOneUserByEmail,
+    findOneUserById,
     findOneUserByUsername,
     updateUser,
 } from '../models/user.repository'
 
-import { CreateUserDto } from '../types/CreateUserDto'
+import { ValidationError } from 'class-validator'
 import { Response } from 'express'
+import { CreateUserDto } from '../types/CreateUserDto'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
-import { ValidationError } from 'class-validator'
 import { hashPassword } from './auth.controller'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
