@@ -17,6 +17,7 @@ import {
 import Header from "../components/Header";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from 'react-router-dom';
 
 const questionAttempts = [
   { question: "Question 1", topic: "Math", peer: "John Doe", difficulty: "Easy" },
@@ -28,23 +29,6 @@ const questionAttempts = [
   { question: "Question 7", topic: "Math", peer: "John Doe", difficulty: "Easy" },
   { question: "Question 8", topic: "Algorithms", peer: "Jane Smith", difficulty: "Medium" },
   { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
-  { question: "Question 9", topic: "Data Structures", peer: "Alice Lee", difficulty: "Hard" },
 ];
 
 const Dashboard = () => {
@@ -52,7 +36,8 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredQuestions, setFilteredQuestions] = useState(questionAttempts);
-  const { user } = useAuth(); // Access the logged-in user from AuthContext
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const entriesPerPage = 8;
 
@@ -109,11 +94,10 @@ const Dashboard = () => {
 
       <Container maxWidth="lg">
         <Grid container spacing={2}>
-          {/* Left Side: Smaller width */}
           <Grid item xs={3}>
             <Box p={2} border={1} borderColor="grey.300" borderRadius={2}>
               <Typography variant="h5" gutterBottom>
-                {user ? user.name : "Loading..."} {/* Display the user's name */}
+                {user ? user.name : "Loading..."}
               </Typography>
               <Typography variant="subtitle1" gutterBottom>
                 Proficiency: Expert
@@ -131,15 +115,24 @@ const Dashboard = () => {
               </Box>
 
               <Box mt={3}>
-                <Button variant="outlined" fullWidth>Edit Profile</Button>
-                <Button variant="outlined" fullWidth sx={{ mt: 2 }}>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={() => navigate("/dashboard/edit-profile")}
+              >
+                Edit Profile
+              </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => navigate("/dashboard/change-password")}
+                >
                   Change Password
                 </Button>
               </Box>
             </Box>
           </Grid>
 
-          {/* Right Side: Larger width */}
           <Grid item xs={9}>
             <Box p={2} border={1} borderColor="grey.300" borderRadius={2}>
               {/* Title */}
@@ -147,7 +140,6 @@ const Dashboard = () => {
                 Attempts History
               </Typography>
 
-              {/* Search and Sort */}
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <TextField
                   variant="outlined"
@@ -169,7 +161,6 @@ const Dashboard = () => {
                 </TextField>
               </Box>
 
-              {/* Table for Questions */}
               <Paper elevation={3}>
                 <Table>
                   <TableHead>
@@ -193,13 +184,11 @@ const Dashboard = () => {
                 </Table>
               </Paper>
 
-              {/* Footer with Pagination Info */}
               <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
                 <Typography variant="body2">
                   Showing data {indexOfFirstEntry + 1} to {Math.min(indexOfLastEntry, totalEntries)} of {totalEntries} entries
                 </Typography>
 
-                {/* Pagination */}
                 <Box>
                   {pageNumbers.map((pageNumber) => (
                     <IconButton

@@ -32,3 +32,24 @@ export const login = async (data: LoginData) => {
     throw error;
   }
 };
+
+export const updateUserProfile = async (token: string, userId: number, data: { username?: string; email?: string; password?: string }) => {
+  try {
+    const response = await fetch(`${API_URL}/users/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update profile");
+    }
+    return response;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};

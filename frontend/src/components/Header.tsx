@@ -1,14 +1,13 @@
-import React from 'react';
 import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';  // Assuming you have a useAuth hook
+import { useAuth } from '../hooks/useAuth';
 
 const Header = () => {
-  const auth = useAuth();  // Get the auth context
-  const navigate = useNavigate();  // Get navigate function
+  const auth = useAuth();
+  const navigate = useNavigate();
 
   const handleLogOut = () => {
-    auth.logOut(navigate);  // Call the logOut method and navigate away after logout
+    auth.logOut(navigate);
   };
 
   return (
@@ -19,8 +18,8 @@ const Header = () => {
           PeerPrep
         </Typography>
 
-        {/* Navigation Links */}
-        <Button color="inherit" component={Link} to="/">
+        <Button
+          color="inherit" component={Link} to="/dashboard">
           Home
         </Button>
         <Button color="inherit" component={Link} to="/questions">
@@ -29,11 +28,10 @@ const Header = () => {
         <Button color="inherit" component={Link} to="/matching">
           Matching
         </Button>
-        <Button color="inherit" component={Link} to="/profile">
+        <Button color="inherit" component={Link} to="/dashboard/edit-profile">
           Profile
         </Button>
 
-        {/* Sign Out Button */}
         <Button color="inherit" onClick={handleLogOut}>
           Sign Out
         </Button>
