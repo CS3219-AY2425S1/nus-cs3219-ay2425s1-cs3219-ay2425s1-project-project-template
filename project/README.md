@@ -96,7 +96,6 @@ We use shadcn/ui for CSS. Refer to the [shadcn/ui documentation](https://ui.shad
 
 - Keep your microservices small and focused on a specific domain.
 - Use the shared DTOs for consistency between frontend and backend.
-- Leverage the API gateway for cross-cutting concerns like authentication.
 - Write unit tests for your services and controllers.
 - Use Zod schemas for both runtime validation and TypeScript type inference.
 
@@ -108,7 +107,3 @@ If you encounter any issues:
 2. Check that you're using the correct Node.js version (specified in `.nvmrc`)
 3. Clear your build cache with `pnpm clean`
 4. If problems persist, please open an issue in the repository
-
-## Contributing
-
-Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.) backend handling all questions related functions.
