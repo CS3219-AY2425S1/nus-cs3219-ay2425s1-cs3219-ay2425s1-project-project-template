@@ -22,7 +22,7 @@ export function PasswordReset() {
             <DialogHeader>
                 <DialogTitle>Forgot your password</DialogTitle>
                 <DialogDescription>
-                    Enter your email address below and we'll send you an otp to reset your password.
+                    Enter your email address below and we will send you an otp to reset your password.
                 </DialogDescription>
             </DialogHeader>
             <input id="username" value="test@gmail.com" className="w-full p-2 border bg-[#EFEFEF] rounded-[5px]" />

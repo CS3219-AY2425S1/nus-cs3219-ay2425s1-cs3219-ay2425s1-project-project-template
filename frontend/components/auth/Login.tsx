@@ -1,5 +1,6 @@
 'use client'
 
+import Img from 'next/image'
 import { PasswordReset } from './PasswordReset'
 import { useState } from 'react'
 import { useToast } from '../ui/use-toast'
@@ -27,7 +28,7 @@ export default function Login() {
     return (
         <div className="flex flex-col gap-4 items-center sm:items-start w-full mx-auto max-w-sm">
             <div className="flex flex-col items-center justify-center my-5 w-full gap-8">
-                <img src="/logo.svg" alt="Logo" width={30} height={30} className="my-2 mx-8" />
+                <Img src="/logo.svg" alt="Logo" width={30} height={30} className="my-2 mx-8" />
                 <h2 className="text-2xl font-bold mb-4">Start your journey with us!</h2>
             </div>
 
