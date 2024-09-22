@@ -30,6 +30,10 @@ export async function findOneUserByUsernameOrEmail(usernameOrEmail: string): Pro
     return userModel.findOne({ $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }] })
 }
 
+export async function findUsersByUsernameAndEmail(username: string, email: string): Promise<IUser[]> {
+    return userModel.find({ $or: [{ username }, { email }] })
+}
+
 export async function createUser(dto: CreateUserDto): Promise<IUser> {
     return userModel.create(dto)
 }

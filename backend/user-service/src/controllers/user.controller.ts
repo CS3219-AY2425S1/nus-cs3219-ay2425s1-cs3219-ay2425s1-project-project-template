@@ -1,9 +1,9 @@
 import {
     createUser,
     deleteUser,
-    findOneUserByEmail,
     findOneUserById,
     findOneUserByUsername,
+    findUsersByUsernameAndEmail,
     updateUser,
 } from '../models/user.repository'
 
@@ -11,6 +11,7 @@ import { ValidationError } from 'class-validator'
 import { Response } from 'express'
 import { hashPassword } from '../common/password.util'
 import { CreateUserDto } from '../types/CreateUserDto'
+import { IUser } from '../types/IUser'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserPasswordDto } from '../types/UserPasswordDto'
@@ -25,13 +26,12 @@ export async function handleCreateUser(request: TypedRequest<CreateUserDto>, res
         return
     }
 
-    const duplicateUsername = await findOneUserByUsername(createDto.username)
-    if (duplicateUsername) {
-        response.status(409).json('DUPLICATE_USERNAME').send()
+    const duplicate = await findUsersByUsernameAndEmail(createDto.username, createDto.email)
+    if (duplicate.find((user: IUser) => user.username === createDto.username)) {
+        response.status(409).json(['DUPLICATE_USERNAME']).send()
         return
     }
-    const duplicateEmail = await findOneUserByEmail(createDto.email)
-    if (duplicateEmail) {
+    if (duplicate.find((user: IUser) => user.email === createDto.email)) {
         response.status(409).json('DUPLICATE_EMAIL').send()
         return
     }
