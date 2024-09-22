@@ -10,7 +10,6 @@ export default function RootLayout({
 }>) {
     const [isAuth, setIsAuth] = useState(false)
     const pathname = usePathname()
-    console.log(pathname)
     useEffect(() => {
         if (pathname == '/auth') {
             setIsAuth(true)
