@@ -1,32 +1,33 @@
-// src/server.ts
-import express, { Request, Response } from 'express';
+import express, { Application } from 'express';
+import dotenv from 'dotenv';
+import questionRoutes from './routes/question-routes';
+import { connectToDB } from './repo/question-repo';
 
-// Create an Express application
-const app = express();
+dotenv.config();
 
-// Set the port
+const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
-// Define a simple route
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, World! This is your Express server with TypeScript.');
-});
+// Connect to MongoDB and start the server only if the connection is successful
+async function startServer() {
+    try {
+        await connectToDB();
+        console.log('Connected to MongoDB');
 
-// Example API route (GET /api/data)
-app.get('/api/data', (req: Request, res: Response) => {
-  res.json({ message: 'Hello from the API', data: [1, 2, 3, 4, 5] });
-});
+        // Use the question routes, and prefix all routes with /api
+        app.use('/api', questionRoutes);
 
-// Example POST route (POST /api/submit)
-app.post('/api/submit', (req: Request, res: Response) => {
-  const { name, message } = req.body;
-  res.json({ message: `Hello ${name}, your message is: ${message}` });
-});
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to connect to MongoDB:', error);
+        process.exit(1);  // Exit the process if connection fails
+    }
+}
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+startServer();
