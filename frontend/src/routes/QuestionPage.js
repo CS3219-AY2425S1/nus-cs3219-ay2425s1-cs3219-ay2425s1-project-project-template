@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import './QuestionPage.css'; 
 
 const QuestionPage = () => {
+
+  //shared logic between left and right, probably just the edit/create new qn state
+
+  //Either create or edit mode.
+  const [mode, setMode] = useState("create");
+  const [questionEdit, setEdit] = useState("None");
+
+
+
+  //left side logic
   const [questions, setQuestions] = useState([
     { id: 1, title: "item1", complexity: "Easy", description: "Implement a function to detect if a linked list contains a cycle." },
     { id: 2, title: "item2", complexity: "Medium", description: "Description for item2" },
@@ -20,6 +30,57 @@ const QuestionPage = () => {
     // setSelectedQuestion(null);  // Clear selected question after deletion
     // call delete api on question id
   };
+
+
+
+
+  //Right side logic
+  const [difficulty, setDifficulty] = useState('easy');
+  const [topic, setTopic] = useState('loops');
+  const [question, setQuestion] = useState('');
+
+
+  const clearState = () => {
+    setDifficulty("easy");
+    setTopic("loops");
+    setQuestion("");
+  }
+
+  // Handle API call on button press
+  const handleSetQuestion = async () => {
+    // Prepare data
+    const data = {
+      difficulty,
+      topic,
+      question,
+    };
+
+    try {
+      // Make API call (replace 'your-api-url' with your actual API endpoint)
+      const response = await fetch('your-api-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        // Clear the question field if the request was successful
+        setQuestion('');
+        alert('Question submitted successfully!');
+      } else {
+        alert('Failed to submit question.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred.');
+    }
+  };
+
+
+
+
 
   return (
     <div class="question-page-container">
@@ -77,20 +138,30 @@ const QuestionPage = () => {
 
       <div class="right-section">
 
-        <div class="info-row">
-          Mode: Creating new question
+        <div class="info-row" id="curmode">
+          Mode: {mode === "create" ? "Creating new question" : "Editing question"}
         </div>
 
         <div class="row">
           <label htmlFor="difficulty">Difficulty:</label>
-          <select id="difficulty" className="dropdown">
+          <select 
+            id="difficulty" 
+            className="dropdown" 
+            value={difficulty} 
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
 
           <label htmlFor="topic">Topic:</label>
-          <select id="topic" class="dropdown">
+          <select 
+            id="topic" 
+            class="dropdown"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          >
             <option value="loops">Loops</option>
             <option value="arrays">Arrays</option>
             <option value="conditions">Conditions</option>
@@ -99,14 +170,21 @@ const QuestionPage = () => {
 
         <div class="question-section">
           <label htmlFor="question">Question:</label>
-          <textarea id="question" class="textarea"></textarea>
+          <textarea
+          id="question"
+          className="textarea"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          />
         </div>
 
         <div class="button-section">
+
           <div class = "button-box">
-            <button class="clear-question-button">Clear/Exit</button>
+            <button class="clear-question-button" onClick={clearState}>Clear/Exit</button>
           </div>
-          <div class="button-box-right">
+
+          <div class="button-box-right" onClick={handleSetQuestion}>
             <button class="set-question-button">Set Question</button>
           </div>
         </div>
