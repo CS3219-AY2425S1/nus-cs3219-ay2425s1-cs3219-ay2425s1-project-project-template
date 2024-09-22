@@ -1,7 +1,7 @@
 // src/pages/Calendar.js
 
 import React, { useEffect, useState } from "react";
-import "./Calendar.css"; // Create a separate CSS file for the calendar styles
+import "./Calendar.css"; 
 
 const Calendar = ({
   currentMonth,
@@ -82,10 +82,10 @@ const Calendar = ({
   };
 
   return (
-    <div>
+    <div className="calendar-container">
       <div className="calendar-header">
         <button className="calendar-button" onClick={handlePrevMonth}>
-          Previous
+          &#8592;
         </button>
         <h2>
           {new Date(currentYear, currentMonth).toLocaleString("default", {
@@ -94,13 +94,21 @@ const Calendar = ({
           {currentYear}
         </h2>
         <button className="calendar-button" onClick={handleNextMonth}>
-          Next
+          &#8594;
         </button>
       </div>
+
+      <h3 className="days-online">
+        Days Online in{" "}
+        {new Date(currentYear, currentMonth).toLocaleString("default", {
+          month: "long",
+        })}
+      </h3>
 
       <div className="calendar">{renderCalendar()}</div>
     </div>
   );
+
 };
 
 export default Calendar;

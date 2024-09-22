@@ -24,38 +24,25 @@ const HomePage = () => {
       }}
     >
       <h1 style={{ fontSize: "4rem", marginBottom: "40px" }}>PeerPrep</h1>
-      
-      <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "20px",
+        }}
+      >
         <button
           onClick={() => navigate("/dashboard")}
-          className="button-custom" 
-          style={{
-            padding: "15px 30px",
-            fontSize: "1.5rem",
-            borderRadius: "5px",
-            border: "none",
-            backgroundColor: "#007BFF",
-            color: "#fff",
-            cursor: "pointer",
-            transition: "background-color 0.3s",
-          }}
+          className="button-custom"
         >
-          Dashboard
+          Dashboard (Under Construction 🚧)
         </button>
 
         <button
           onClick={() => navigate("/questions")}
-          className="button-custom" 
-          style={{
-            padding: "15px 30px",
-            fontSize: "1.5rem",
-            borderRadius: "5px",
-            border: "none",
-            backgroundColor: "#28A745",
-            color: "#fff",
-            cursor: "pointer",
-            transition: "background-color 0.3s",
-          }}
+          className="button-custom"
         >
           Available Questions
         </button>
