@@ -3,7 +3,8 @@ package main
 import (
 	"os"
 
-	// middleware "backend/middleware"
+	middleware "backend/middleware"
+	// "backend/middleware"
 	routes "backend/routes"
 
 	"github.com/gin-gonic/gin"
@@ -20,13 +21,11 @@ func main() {
 	router.Use(gin.Logger())
 	routes.UserRoutes(router) // Creates User api routes
 
-	// router.Use(middleware.Authentication())
+	router.Use(middleware.Authentication())
 
 	// API-2
 	router.GET("/api-1", func(c *gin.Context) {
-
 		c.JSON(200, gin.H{"success": "Access granted for api-1"})
-
 	})
 
 	// API-1

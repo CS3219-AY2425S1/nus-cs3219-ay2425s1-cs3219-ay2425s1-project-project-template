@@ -9,7 +9,7 @@ import (
 
 	"backend/database"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,27 +21,27 @@ type SignedDetails struct {
 	Email    string
 	Username string
 	Uid      string
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user_db", "user_accounts")
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
-// GenerateAllTokens generates both teh detailed token and refresh token
+// GenerateAllTokens generates both the detailed token and refresh token
 func GenerateAllTokens(email string, username string, uid string) (signedToken string, signedRefreshToken string, err error) {
 	claims := &SignedDetails{
 		Email:    email,
 		Username: username,
 		Uid:      uid,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // valid for 1 day
 		},
 	}
 
 	refreshClaims := &SignedDetails{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(72 * time.Hour)), // valid for 3 days
 		},
 	}
 
@@ -83,7 +83,7 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 		return
 	}
 
-	if claims.ExpiresAt < time.Now().Local().Unix() {
+	if claims.RegisteredClaims.ExpiresAt.Time.After(time.Now()) {
 		msg = fmt.Sprintf("token is expired")
 		msg = err.Error()
 		return

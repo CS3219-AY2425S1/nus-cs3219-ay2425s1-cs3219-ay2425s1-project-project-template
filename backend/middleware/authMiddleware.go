@@ -27,6 +27,7 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
+		// Stores the user information in the context
 		c.Set("email", claims.Email)
 		c.Set("username", claims.Username)
 		c.Set("uid", claims.Uid)
