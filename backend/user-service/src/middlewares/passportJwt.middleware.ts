@@ -5,7 +5,8 @@ import { handleAuthorisation } from '../controllers/auth.controller'
 
 const options: StrategyOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: config.ACCESS_TOKEN_PUBLIC_KEY,
+    algorithms: ['RS256'],
+    secretOrKey: Buffer.from(config.ACCESS_TOKEN_PUBLIC_KEY, 'base64'),
     issuer: 'user-service',
     audience: 'frontend',
 }
