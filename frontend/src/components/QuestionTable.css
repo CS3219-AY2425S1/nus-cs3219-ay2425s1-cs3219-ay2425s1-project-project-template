@@ -17,6 +17,7 @@
     width: 95%;
     margin: 0 auto;
     /* Center the table */
+    border-radius: 12px;
 }
 
 .table-custom {
@@ -24,8 +25,7 @@
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .table-custom th,
@@ -40,7 +40,7 @@
     /* Slightly darker pink for the header */
     color: white;
     position: sticky;
-    top: 0px;
+    top: 0;
 }
 
 /* Add styles for buttons */
