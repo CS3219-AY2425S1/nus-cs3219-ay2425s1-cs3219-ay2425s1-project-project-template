@@ -2,11 +2,14 @@ import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongo
 import express, { Express } from 'express'
 import 'express-async-errors'
 import mongoose from 'mongoose'
+import { QUESTION_BANK } from '../../__mocks__/question.mock'
 import config from '../../src/common/config.util'
 import logger from '../../src/common/logger.util'
 import connectToDatabase from '../../src/common/mongodb.util'
 import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
+import questionSchema from '../../src/models/question.model'
 import questionRouter from '../../src/routes/question.routes'
+import { IQuestion } from '../../src/types/IQuestion'
 
 jest.mock('../../src/common/config.util', () => ({
     NODE_ENV: 'test',
@@ -42,6 +45,19 @@ describe('Question Routes', () => {
 
     afterEach(async () => {
         await mongoose.connection.db!.dropDatabase()
+    })
+
+    // Dummy test, remove when APIs are implemented
+    it('should insert all questions', async () => {
+        await mongoose.model<IQuestion>('Question', questionSchema).bulkWrite(
+            QUESTION_BANK.map((question) => ({
+                insertOne: {
+                    document: question,
+                },
+            }))
+        )
+        const questions = await mongoose.model<IQuestion>('Question', questionSchema).find()
+        expect(questions).toHaveLength(QUESTION_BANK.length)
     })
 
     describe('GET /questions', () => {
