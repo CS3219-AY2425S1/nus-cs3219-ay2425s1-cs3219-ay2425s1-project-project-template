@@ -5,13 +5,10 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   PaginationState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
