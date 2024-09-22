@@ -9,9 +9,21 @@ import { UserInterviewMetadata } from "@/types/dashboard";
 import { useEffect, useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 
+const initialUserInterviewMetaData: UserInterviewMetadata = {
+  completedThisWeek: {
+    interviewCount: 0,
+    dateRangeStart: new Date(),
+    dateRangeEnd: new Date(),
+  },
+  latestInterview: {
+    latestInterviewPartnerName: "",
+    timeTakenFormatted: "",
+  },
+};
+
 const Dashboard = () => {
   const [userInterviewMetadata, setUserInterviewMetadata] =
-    useState<UserInterviewMetadata>();
+    useState<UserInterviewMetadata>(initialUserInterviewMetaData);
 
   useEffect(() => {
     setUserInterviewMetadata(getUserInterviewMetadata());
