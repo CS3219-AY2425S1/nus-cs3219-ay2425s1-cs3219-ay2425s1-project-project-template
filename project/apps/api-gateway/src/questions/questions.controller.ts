@@ -1,8 +1,7 @@
 // apps/backend/api-gateway/src/questions/questions.controller.ts
 
-import { Controller, Get, Param, Inject } from '@nestjs/common';
+import { Controller, Get, Param, Inject, Body, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-
 @Controller('questions')
 export class QuestionsController {
   constructor(
@@ -13,5 +12,13 @@ export class QuestionsController {
   @Get(':id')
   async getQuestionById(@Param('id') id: string) {
     return this.questionsServiceClient.send({ cmd: 'get_question' }, id);
+  }
+
+  @Post()
+  async createQuestion(@Body() createQuestionDto: any) {
+    return this.questionsServiceClient.send(
+      { cmd: 'create_question' },
+      createQuestionDto,
+    );
   }
 }
