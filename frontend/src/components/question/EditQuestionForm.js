@@ -10,6 +10,8 @@ const EditQuestionForm = ({ question, onUpdate }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(""); // State for error message
 
+  const validComplexities = ["Easy", "Medium", "Hard"];
+
   useEffect(() => {
     setTitle(question.title);
     setDescription(question.description);
@@ -94,24 +96,27 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           />
         </label>
       </div>
-      <div style={{ marginBottom: "5px" }}>
+      <div style={{ marginBottom: "15px" }}>
         <label style={{ display: "block", marginBottom: "5px" }}>
           Complexity:
-          <input
-            type="text"
-            value={complexity}
-            onChange={(e) => setComplexity(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          />
         </label>
-        {error && <div style={{ color: "red", fontSize: "12px" }}>{error}</div>}{" "}
-        {/* Error message */}
+        <div className="complexity-group" style={{ marginTop: "24px" }}>
+          {validComplexities.map((comp) => (
+            <div key={comp} style={{ marginRight: "10px" }}>
+              <input
+                type="radio"
+                id={`complexity-${comp}`}
+                value={comp}
+                checked={complexity === comp}
+                onChange={(e) => setComplexity(e.target.value)}
+                required
+              />
+              <label className="radio-label" htmlFor={`complexity-${comp}`}>
+                {comp}
+              </label>
+            </div>
+          ))}
+        </div>
       </div>
       <div style={{ marginBottom: "20px" }}>
         {" "}
