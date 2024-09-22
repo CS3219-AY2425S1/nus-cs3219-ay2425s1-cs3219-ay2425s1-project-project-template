@@ -24,8 +24,8 @@
 
 | Endpoint          | Request Type | Required Fields                                           | Description                                                                                                     |
 | ----------------- | ------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| /question         | `GET`        | \*                                                        | Get all question                                                                                         |
-| /question         | `POST`       | title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str`                                      | Create a new question                                                                                             |
-| /question         | `PUT`        | _id: `str`<br>title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str` | Update question based on ID                                                                                                      |
-| /question         | `DELETE`     | _id: `str` | Delete question based on ID                                                             |
-| /question         | `GET`       | _id: `str`       | Get one question based on ID                                                                                                          |
+| /questions         | `GET`        | \*                                                        | Get all questions                                                                                         |
+| /questions         | `POST`       | title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str`                                      | Create a new question                                                                                             |
+| /questions         | `PUT`        | _id: `str`<br>title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str` | Update question based on ID                                                                                                      |
+| /questions         | `DELETE`     | _id: `str` | Delete question based on ID                                                             |
+| /questions         | `GET`       | _id: `str`       | Get one question based on ID                                                                                                          |
