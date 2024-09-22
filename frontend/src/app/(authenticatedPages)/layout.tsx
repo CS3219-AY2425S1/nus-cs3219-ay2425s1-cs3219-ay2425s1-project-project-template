@@ -7,31 +7,46 @@ import { CgProfile } from "react-icons/cg";
 import { IoMdSearch } from "react-icons/io";
 import { IconType } from "react-icons";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import Link from "next/link";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
   menuIcon: IconType;
+  linksTo: string;
 }
+
+const iconSize = 20;
 
 const SidebarMenuItem = ({
   menuLabel,
   menuIcon: MenuIcon,
+  linksTo,
 }: SidebarMenuItemProps) => {
-  return <MenuItem icon={<MenuIcon size={20} />}>{menuLabel}</MenuItem>;
+  return (
+    <MenuItem
+      icon={<MenuIcon size={iconSize} />}
+      component={<Link href={linksTo} />}
+    >
+      {menuLabel}
+    </MenuItem>
+  );
 };
 
 const sidebarItems: SidebarMenuItemProps[] = [
   {
     menuLabel: "Home",
     menuIcon: MdHomeFilled,
+    linksTo: "/dashboard",
   },
   {
     menuLabel: "Profile",
     menuIcon: CgProfile,
+    linksTo: "/profile",
   },
   {
     menuLabel: "Find Match",
     menuIcon: IoMdSearch,
+    linksTo: "/find-match",
   },
 ];
 
@@ -43,6 +58,9 @@ const menuItemStyles: MenuItemStyles = {
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const logoutHandler = () => {
+    console.log("Logout action: To be implemented");
+  };
   return (
     <div className="flex h-full">
       <Sidebar
@@ -61,6 +79,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
                 key={idx}
                 menuLabel={item["menuLabel"]}
                 menuIcon={item["menuIcon"]}
+                linksTo={item["linksTo"]}
               />
             ))}
           </Menu>
@@ -70,7 +89,12 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
               marginBottom: "60px",
             }}
           >
-            <SidebarMenuItem menuLabel="Logout" menuIcon={RiLogoutBoxLine} />
+            <MenuItem
+              icon={<RiLogoutBoxLine size={iconSize} />}
+              onClick={logoutHandler}
+            >
+              Logout
+            </MenuItem>
           </Menu>
         </div>
       </Sidebar>
