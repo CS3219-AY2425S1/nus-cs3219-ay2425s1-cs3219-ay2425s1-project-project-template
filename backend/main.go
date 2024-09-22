@@ -1,45 +1,38 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
 	"os"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	middleware "backend/middleware"
+	// "backend/middleware"
+	routes "backend/routes"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Use the SetServerAPIOptions() method to set the version of the Stable API on the client
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	port := os.Getenv("PORT")
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if port == "" {
+		port = "8000"
 	}
 
-	uri := os.Getenv("MONGODB_URI")
+	router := gin.New()
+	router.Use(gin.Logger())
+	routes.UserRoutes(router) // Creates User api routes
 
-	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
+	router.Use(middleware.Authentication())
 
-	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), opts)
-	if err != nil {
-		panic(err)
-	}
+	// API-2
+	router.GET("/api-1", func(c *gin.Context) {
+		c.JSON(200, gin.H{"success": "Access granted for api-1"})
+	})
 
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
+	// API-1
+	router.GET("/api-2", func(c *gin.Context) {
+		c.JSON(200, gin.H{"success": "Access granted for api-2"})
+	})
 
-	// Send a ping to confirm a successful connection
-	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
-		panic(err)
-	}
-	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
+	router.Run(":" + port)
+
 }
