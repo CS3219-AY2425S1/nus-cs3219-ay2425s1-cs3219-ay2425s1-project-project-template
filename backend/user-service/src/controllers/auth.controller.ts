@@ -1,16 +1,12 @@
 import * as path from 'path'
 
-import { compare, hash } from 'bcrypt'
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { promises as fs } from 'fs'
-import { SignOptions, sign } from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
-import config from '../common/config.util'
+import { generateAccessToken } from '../common/token.util'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
-import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
-import { Role } from '../types/Role'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 
@@ -23,33 +19,6 @@ export async function handleLogin({ user }: Request, response: Response): Promis
             accessToken,
         })
         .send()
-}
-
-export async function generateAccessToken(user: UserDto): Promise<string> {
-    const payload: Partial<IAccessTokenPayload> = {
-        id: user.id,
-        admin: user.role === Role.ADMIN,
-    }
-    const options: SignOptions = {
-        subject: user.email,
-        algorithm: 'RS256', // Assymetric Algorithm
-        expiresIn: '1h',
-        issuer: 'user-service',
-        audience: 'frontend',
-    }
-
-    const privateKey: Buffer = Buffer.from(config.ACCESS_TOKEN_PRIVATE_KEY, 'base64')
-
-    return sign(payload, privateKey, options)
-}
-
-export async function comparePasswords(plaintextPassword: string, hashedPassword: string): Promise<boolean> {
-    return compare(plaintextPassword, hashedPassword)
-}
-
-export async function hashPassword(password: string): Promise<string> {
-    const saltRounds = 10
-    return hash(password, saltRounds)
 }
 
 export async function getHTMLTemplate(htmlFilePath: string): Promise<string> {

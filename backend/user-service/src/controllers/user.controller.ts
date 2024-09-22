@@ -9,12 +9,12 @@ import {
 
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
+import { hashPassword } from '../common/password.util'
 import { CreateUserDto } from '../types/CreateUserDto'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
-import { hashPassword } from './auth.controller'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
     const createDto = CreateUserDto.fromRequest(request)
