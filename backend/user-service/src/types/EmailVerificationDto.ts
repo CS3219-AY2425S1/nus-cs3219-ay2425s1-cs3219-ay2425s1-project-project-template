@@ -1,9 +1,10 @@
-import { IsDate, IsEmail, IsString, ValidationError, validate } from 'class-validator'
+import { IsDate, IsEmail, IsNotEmpty, IsString, ValidationError, validate } from 'class-validator'
 
 import { TypedRequest } from './TypedRequest'
 
 export class EmailVerificationDto {
     @IsEmail()
+    @IsNotEmpty()
     email: string
 
     @IsString()

@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Logo } from './ui/toast/Logo'
-import { useToast } from './ui/toast/use-toast'
+import { useToast } from '../ui/use-toast'
 
 export default function Signup() {
     const [email, setEmail] = useState('')
@@ -39,7 +38,7 @@ export default function Signup() {
     return (
         <div className="flex flex-col gap-4 items-center sm:items-start w-full mx-auto max-w-sm">
             <div className="flex flex-col items-center justify-center my-5 w-full gap-8">
-                <Logo />
+                <img src="/logo.svg" alt="Logo" width={30} height={30} className="my-2 mx-8" />
                 <h2 className="text-2xl font-bold mb-4">Start your journey with us!</h2>
             </div>
 

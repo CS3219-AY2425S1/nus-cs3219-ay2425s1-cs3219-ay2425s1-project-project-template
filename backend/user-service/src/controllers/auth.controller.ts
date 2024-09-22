@@ -121,7 +121,7 @@ export async function handleReset(request: TypedRequest<EmailVerificationDto>, r
         response.status(404).json('USER_NOT_FOUND').send()
         return
     }
-    if (user.verificationToken === '') {
+    if (user.verificationToken !== '') {
         response.status(400).json('TOKEN_ALREADY_SENT').send()
         return
     }
@@ -153,12 +153,13 @@ export async function handleVerify(request: TypedRequest<EmailVerificationDto>, 
         return
     }
 
-    if (user.verificationToken !== '' && user.verificationToken !== createDto.verificationToken) {
+    if (user.verificationToken == '' || user.verificationToken !== createDto.verificationToken) {
         response.status(400).json('INVALID_OTP').send()
         return
     }
 
     createDto.verificationToken = ''
     await updateUser(user.id, createDto)
+
     response.status(200).send()
 }
