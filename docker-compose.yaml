@@ -12,6 +12,8 @@ services:
       PGDATA: "/data/user-db"
     volumes:
       - user-db-docker:/data/user-db
+    ports:
+      - 5431:5432
   collab-db:
     hostname: collabdb
     image: postgres:16.4
@@ -25,6 +27,8 @@ services:
       PGDATA: "/data/collab-db"
     volumes:
       - collab-db-docker:/data/collab-db
+    ports:
+      - 5433:5432
   question-db:
     hostname: questiondb
     image: postgres:16.4
@@ -38,6 +42,8 @@ services:
       PGDATA: "/data/question-db"
     volumes:
       - question-db-docker:/data/question-db
+    ports:
+      - 5434:5432
 
 volumes:
   user-db-docker:
