@@ -1,42 +1,18 @@
 import * as path from 'path'
 
-import { Request, Response } from 'express'
-import { SignOptions, sign } from 'jsonwebtoken'
 import { compare, hash } from 'bcrypt'
-import { findOneUserByEmail, findOneUserByUsername, updateUser } from '../models/user.repository'
-
+import { ValidationError } from 'class-validator'
+import { Request, Response } from 'express'
+import { promises as fs } from 'fs'
+import { SignOptions, sign } from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
+import config from '../common/config.util'
+import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
 import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
-import { IVerifyOptions } from 'passport-local'
 import { Role } from '../types/Role'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
-import { ValidationError } from 'class-validator'
-import config from '../common/config.util'
-import { promises as fs } from 'fs'
-import nodemailer from 'nodemailer'
-
-export async function handleAuthentication(
-    usernameOrEmail: string,
-    password: string,
-    done: (error: Error | null, user: UserDto | false, options?: IVerifyOptions) => void
-): Promise<void> {
-    const user = (await findOneUserByUsername(usernameOrEmail)) || (await findOneUserByEmail(usernameOrEmail))
-    if (!user) {
-        done(null, false)
-        return
-    }
-
-    const isPasswordMatching = await compare(password, user.password)
-    if (!isPasswordMatching) {
-        done(null, false)
-        return
-    }
-
-    const dto = UserDto.fromModel(user)
-
-    done(null, dto)
-}
 
 export async function handleLogin({ user }: Request, response: Response): Promise<void> {
     const accessToken = await generateAccessToken(user as UserDto)
