@@ -1,19 +1,25 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Stack, Input, Text, Button, FormControl, FormLabel } from '@chakra-ui/react';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
   const handleSubmit = () => {
-    alert(`Email: ${email}\nPassword: ${password}`);
+    if ((email === 'test@gmail.com' && password === 'pw') || (email === 'test' && password === 'pw')) {
+      router.push('/questions');
+    } else {
+      alert('Invalid credentials');
+    }
     setEmail('');
     setPassword('');
   };
-  const handleForgotPassword = () => alert('Forgot Password clicked');
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSubmit();
@@ -47,7 +53,9 @@ export default function LoginPage() {
       </FormControl>
       <Button colorScheme='blue' onClick={handleSubmit} mt='30px' mb='20px'>Login</Button>
       <Stack align="center">
-        <Button variant="link" onClick={handleForgotPassword} fontSize='10px' color='black' textDecoration='underline'>Forgot Password?</Button>
+        <Link href={"/resetpassword"}>
+          <Text variant="link" fontSize='10px' color='black' textDecoration='underline' onClick={() => router.push("/resetpassword")}>Forgot password?</Text>
+        </Link>
         <Stack direction="row" spacing={1}>
           <Text fontSize='10px' color='black'>Don't have an account?</Text>
           <Link href={"/signup"}>

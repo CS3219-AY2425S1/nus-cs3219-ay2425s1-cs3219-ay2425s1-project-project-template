@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from 'next/navigation';
-import { Stack, Text, Spacer, Box } from "@chakra-ui/react";
+import { Stack, Text, Spacer, Box, Flex } from "@chakra-ui/react";
 import { HamburgerIcon } from "@/public/icons/HamburgerIcon";
 import { ChevronIcon } from "@/public/icons/ChevronIcon";
 import NavbarCards, { NavbarCardProps } from "@/components/NavbarCard";
@@ -51,7 +51,7 @@ export default function Layout({
   }, [pathname]);
 
   return (
-    <>
+    <Flex direction="column" height="100vh">
       <Stack direction="row" align="center" justify="space-between" className="bg-[#2C5282] p-2 px-8 ">
         <Text fontSize="30px" color="white" as="b">
           {'{PeerPrep}'}
@@ -77,6 +77,6 @@ export default function Layout({
         </Stack>
       </Box>
       {children}
-    </>
+    </Flex>
   );
 }
