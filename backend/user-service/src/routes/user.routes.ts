@@ -7,8 +7,7 @@ import {
     handleUpdatePassword,
     handleUpdateProfile,
 } from '../controllers/user.controller'
-import handleAccessControl from '../middlewares/accessControl.middleware'
-import { Role } from '../types/Role'
+import { handleOwnershipAccessControl } from '../middlewares/accessControl.middleware'
 
 const router = Router()
 
@@ -16,9 +15,9 @@ router.post('/', handleCreateUser)
 
 router.use(passport.authenticate('jwt', { session: false }))
 
-router.put('/:id', handleAccessControl([Role.USER]), handleUpdateProfile)
-router.get('/:id', handleAccessControl([Role.USER]), handleGetCurrentProfile)
-router.delete('/:id', handleAccessControl([Role.ADMIN]), handleDeleteUser)
-router.put('/:id/password', handleUpdatePassword)
+router.put('/:id', handleOwnershipAccessControl, handleUpdateProfile)
+router.get('/:id', handleGetCurrentProfile)
+router.delete('/:id', handleOwnershipAccessControl, handleDeleteUser)
+router.put('/:id/password', handleOwnershipAccessControl, handleUpdatePassword)
 
 export default router
