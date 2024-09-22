@@ -1,11 +1,8 @@
 import { or, eq, getTableColumns } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { db, users } from '@/lib/db';
 import type { IRegisterPayload } from './register-inputs';
-
-const _JWT_SECRET_KEY = 'secret';
 
 const _getSchema = () => {
   const { id, email, username, firstName, lastName, password } = getTableColumns(users);
@@ -53,14 +50,10 @@ export const registerService = async (payload: IRegisterPayload) => {
     })
     .returning(_getSchema());
 
-  // generate JWT token for the new user
-  const jwtToken = jwt.sign({ id: newUser.id }, _JWT_SECRET_KEY);
-
   // return success response with the JWT token
   return {
     code: StatusCodes.CREATED,
     data: {
-      cookie: jwtToken,
       user: newUser,
     },
   };

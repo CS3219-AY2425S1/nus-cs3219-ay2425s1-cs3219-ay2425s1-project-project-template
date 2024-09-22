@@ -27,12 +27,8 @@ export async function register(req: Request, res: Response) {
     return res.status(code).json(sanitizedErr);
   }
 
-  //Set JWT token as an HTTP-only cookie
-  return res
-    .status(StatusCodes.CREATED)
-    .cookie('jwtToken', data.cookie, { httpOnly: true }) // Set the JWT token as a cookie
-    .json({
-      message: 'User registered successfully',
-      user: data.user, // Return user data if needed
-    });
+  return res.status(StatusCodes.CREATED).json({
+    message: 'User registered successfully',
+    user: data.user, // Return user data if needed
+  });
 }
