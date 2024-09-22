@@ -8,6 +8,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
   const [complexity, setComplexity] = useState(question.complexity);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(""); // State for error message
 
   useEffect(() => {
     setTitle(question.title);
@@ -18,6 +19,14 @@ const EditQuestionForm = ({ question, onUpdate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate complexity
+    if (!["Easy", "Medium", "Hard"].includes(complexity)) {
+      setError("Complexity must be one of: Easy, Medium, Hard");
+      return;
+    } else {
+      setError(""); // Clear error if validation passes
+    }
+
     setIsLoading(true);
     await onUpdate({ ...question, title, description, category, complexity });
     setIsLoading(false);
@@ -31,8 +40,6 @@ const EditQuestionForm = ({ question, onUpdate }) => {
         height: "500px", // Fixed height
         margin: "0 auto",
         padding: "20px",
-        // border: "1px solid #ccc",
-        // borderRadius: "5px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -102,6 +109,8 @@ const EditQuestionForm = ({ question, onUpdate }) => {
             }}
           />
         </label>
+        {error && <div style={{ color: "red", fontSize: "12px" }}>{error}</div>}{" "}
+        {/* Error message */}
       </div>
       <button
         type="submit"

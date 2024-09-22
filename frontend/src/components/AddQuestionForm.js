@@ -6,12 +6,25 @@ const AddQuestionForm = ({ onAdd }) => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [complexity, setComplexity] = useState("");
-  const [isHovered, setIsHovered] = useState(false); // State for hover
+  const [isHovered, setIsHovered] = useState(false);
+  const [error, setError] = useState("");
+
+  const validComplexities = ["Easy", "Medium", "Hard"];
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Check if the complexity is valid
+    if (!validComplexities.includes(complexity)) {
+      setError("Complexity must be one of: Easy, Medium, Hard");
+      return;
+    }
+
+    // Clear the error and proceed to add the question
+    setError("");
     onAdd({ title, description, category, complexity });
 
+    // Clear the form fields
     setTitle("");
     setDescription("");
     setCategory("");
@@ -22,12 +35,10 @@ const AddQuestionForm = ({ onAdd }) => {
     <form
       onSubmit={handleSubmit}
       style={{
-        width: "600px", // Fixed width
-        height: "500px", // Fixed height
+        width: "600px",
+        height: "500px",
         margin: "0 auto",
         padding: "20px",
-        // border: "1px solid #ccc",
-        // borderRadius: "5px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -97,7 +108,10 @@ const AddQuestionForm = ({ onAdd }) => {
             }}
           />
         </label>
+        {error && <div style={{ color: "red", fontSize: "12px" }}>{error}</div>}{" "}
+        {/* Error message */}
       </div>
+
       <button
         type="submit"
         onMouseEnter={() => setIsHovered(true)}
