@@ -160,8 +160,8 @@ const QuestionPage = () => {
       <button
         style={{
           position: "absolute",
-          top: "20px",
-          left: "145px", 
+          top: "40px",
+          left: "35px", 
         }}
         className="button-custom" // using the AddQuestionButton.js 
         onClick={handleBack}

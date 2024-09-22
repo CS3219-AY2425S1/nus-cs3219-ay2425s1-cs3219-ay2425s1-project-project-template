@@ -3,11 +3,15 @@ import React from "react";
 import "./QuestionTable.css"; // Import the CSS file
 
 const QuestionTable = ({ questions, onEdit, onView, onDelete }) => {
+  // Sort questions by title in alphabetical order
+  const sortedQuestions = questions.sort((a, b) =>
+    a.title.localeCompare(b.title)
+  );
+
   return (
     <div className="table-wrapper">
       <h1></h1>
       <table className="table-custom">
-        {" "}
         {/* Apply custom table class */}
         <thead>
           <tr>
@@ -18,7 +22,7 @@ const QuestionTable = ({ questions, onEdit, onView, onDelete }) => {
           </tr>
         </thead>
         <tbody>
-          {questions.map((question) => (
+          {sortedQuestions.map((question) => (
             <tr key={question._id}>
               <td>{question.title}</td>
               <td>{question.category}</td>

@@ -6,8 +6,8 @@ const AddQuestionButton = ({ onClick }) => {
     <button
       style={{
         position: "absolute", 
-        top: "20px",
-        right: "145px", 
+        top: "30px",
+        right: "35px", 
       }}
       className="button-custom"
       onClick={onClick}

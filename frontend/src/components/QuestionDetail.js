@@ -34,7 +34,7 @@ const QuestionDetail = ({ question, onClose }) => {
       <p style={{ lineHeight: "1.6", color: "#444" }}>{question.description}</p>
 
       <button
-        onClick={onClose} // Call the onClose function passed from the parent
+        onClick={onClose} 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{

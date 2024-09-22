@@ -12,20 +12,20 @@
 }
 
 .table-wrapper {
-    max-height: 70svh;
-    overflow: scroll;
-    width: 80%;
-    /* Adjust the table width as needed */
+    max-height: 80svh;
+    overflow: auto;
+    width: 95%;
     margin: 0 auto;
     /* Center the table */
-    
 }
 
 .table-custom {
     background-color: #ffe6f2;
-    /* Light pink background */
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .table-custom th,

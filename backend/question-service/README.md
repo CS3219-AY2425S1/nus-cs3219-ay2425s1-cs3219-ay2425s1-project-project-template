@@ -6,6 +6,7 @@
 <br> `npm i`
 
 3. rename .env.example into .env
+<br> `mv .env.example .env`
 
 4. Fire up the backend service
 <br> `npm run dev`
