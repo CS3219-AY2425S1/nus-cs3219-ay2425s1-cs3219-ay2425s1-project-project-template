@@ -26,6 +26,10 @@ export async function findOneUserByEmail(email: string): Promise<IUser | null> {
     return userModel.findOne({ email })
 }
 
+export async function findOneUserByUsernameOrEmail(usernameOrEmail: string): Promise<IUser | null> {
+    return userModel.findOne({ $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }] })
+}
+
 export async function createUser(dto: CreateUserDto): Promise<IUser> {
     return userModel.create(dto)
 }
