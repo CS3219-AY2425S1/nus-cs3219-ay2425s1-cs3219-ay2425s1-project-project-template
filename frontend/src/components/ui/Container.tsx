@@ -1,13 +1,19 @@
 import Header from "@/components/ui/Header";
+import { cn } from "@/lib/utils";
 
 interface ContainerProps {
   withHeader?: boolean; // Lazy way to handle adding of headers to pages that need them
+  className: string;
   children: React.ReactNode;
 }
 
-const Container = ({ withHeader = true, children }: ContainerProps) => {
+const Container = ({
+  withHeader = true,
+  children,
+  className,
+}: ContainerProps) => {
   return (
-    <div className="p-10">
+    <div className={cn(`m-10 w-full`, className)}>
       {withHeader && <Header />}
       {children}
     </div>
