@@ -22,7 +22,7 @@ const QuestionPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 flex h-screen w-screen">
+    <div class="question-page-container">
       <div className="left-section pr-4 overflow-y-auto" style={{ width: '45%' }}>
         <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
         <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-lg overflow-hidden shadow-lg">
@@ -72,58 +72,49 @@ const QuestionPage = () => {
         </div>
       </div>
 
-      <div className="right-section pl-4 overflow-y-auto" style={{ width: '55%' }}>
-        <div className="form-section">
-          <div className="row">
-            <label htmlFor="difficulty">Difficulty:</label>
-            <select id="difficulty" className="dropdown">
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
 
-            <label htmlFor="topic">Topic:</label>
-            <select id="topic" className="dropdown">
-              <option value="math">Math</option>
-              <option value="science">Science</option>
-              <option value="programming">Programming</option>
-            </select>
+      {/**Right section uses normal CSS, 55% vw. */}
+
+      <div class="right-section">
+
+        <div class="info-row">
+          Mode: Creating new question
+        </div>
+
+        <div class="row">
+          <label htmlFor="difficulty">Difficulty:</label>
+          <select id="difficulty" className="dropdown">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+
+          <label htmlFor="topic">Topic:</label>
+          <select id="topic" class="dropdown">
+            <option value="loops">Loops</option>
+            <option value="arrays">Arrays</option>
+            <option value="conditions">Conditions</option>
+          </select>
+        </div>
+
+        <div class="question-section">
+          <label htmlFor="question">Question:</label>
+          <textarea id="question" class="textarea"></textarea>
+        </div>
+
+        <div class="button-section">
+          <div class = "button-box">
+            <button class="clear-question-button">Clear/Exit</button>
           </div>
-
-          <div className="hints-section">
-            <label htmlFor="hints">Hints:</label>
-            <textarea id="hints" className="textarea"></textarea>
-          </div>
-
-          <div className="constraints-section">
-            <label htmlFor="constraints">Constraints:</label>
-            <input type="text" id="constraints" className="input-field" />
-          </div>
-
-          <div className="scrollable-menu">
-            <label className="label">Items:</label>
-            <ul className="menu-list">
-              <li>Item 1</li>
-              <li>Item 2</li>
-              <li>Item 3</li>
-              <li>Item 4</li>
-              <li>Item 5</li>
-              <li>Item 6</li>
-              <li>Item 7</li>
-              <li>Item 8</li>
-            </ul>
-          </div>
-
-          <div className="question-section">
-            <label htmlFor="question">Question:</label>
-            <textarea id="question" className="textarea"></textarea>
-          </div>
-
-          <div className="button-section">
-            <button className="set-question-button">Set Question</button>
+          <div class="button-box-right">
+            <button class="set-question-button">Set Question</button>
           </div>
         </div>
       </div>
+
+
+
+
     </div>
   );
 };
