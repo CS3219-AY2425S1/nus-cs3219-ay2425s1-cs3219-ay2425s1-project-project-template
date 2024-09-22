@@ -135,6 +135,34 @@ describe('User Routes', () => {
         })
     })
 
+    describe('GET /users', () => {
+        it('should return 200 for successful get', async () => {
+            const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
+            const response = await request(app).get(`/users/${user1.body.id}`).send()
+            expect(response.status).toBe(200)
+            expect(response.body).toEqual(
+                expect.objectContaining({
+                    id: expect.any(String),
+                    username: 'test1',
+                    email: 'test@gmail.com',
+                    role: Role.ADMIN,
+                    proficiency: Proficiency.INTERMEDIATE,
+                })
+            )
+        })
+        it('should return 404 for non-existent ids', async () => {
+            const testID = '000000000000000000000000' // MongoDB ID is 24 char
+            const response = await request(app).get(`/users/${testID}`).send()
+            expect(response.status).toBe(404)
+            expect(response.body).toMatchObject({})
+        })
+        it('should return 400 for non-existent/invalid ids', async () => {
+            const response = await request(app).get('/users/123').send()
+            expect(response.status).toBe(400)
+            expect(response.body).toContain('INVALID_ID')
+        })
+    })
+
     describe('DELETE /users/:id', () => {
         it('should return 200 for successful deletion', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)

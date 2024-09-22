@@ -1,4 +1,4 @@
-import { handleAuthentication, handleLogin } from '../controllers/auth.controller'
+import { handleAuthentication, handleLogin, handleReset, handleVerify } from '../controllers/auth.controller'
 
 import { Strategy as LocalStrategy } from 'passport-local'
 import { Router } from 'express'
@@ -20,7 +20,7 @@ passport.use(
 const router = Router()
 
 router.post('/login', passport.authenticate('local', { session: false }), handleLogin)
-// router.post('/password')
-// router.put('/password')
+router.put('/reset', handleReset)
+router.put('/verify', handleVerify)
 
 export default router

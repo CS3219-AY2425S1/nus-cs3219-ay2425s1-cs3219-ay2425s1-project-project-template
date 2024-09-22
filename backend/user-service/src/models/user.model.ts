@@ -1,7 +1,7 @@
-import { Schema } from 'mongoose'
 import { IUser } from '../types/IUser'
 import { Proficiency } from '../types/Proficiency'
 import { Role } from '../types/Role'
+import { Schema } from 'mongoose'
 
 export default new Schema<IUser>({
     username: {
@@ -37,9 +37,9 @@ export default new Schema<IUser>({
         required: false,
         default: null,
     },
-    deletedAt: {
-        type: Date,
+    verificationToken: {
+        type: String,
         required: false,
-        default: null,
+        default: '',
     },
 })
