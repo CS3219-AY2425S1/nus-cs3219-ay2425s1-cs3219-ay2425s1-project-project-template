@@ -21,13 +21,13 @@ export class GatewayController {
   }
 
   // Need auth in the future (with secret key)
-  @All('question/*')
+  @All('question*')
   async handleQuestionRequest(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.gatewayService.handleRedirectRequest(req, res, this.questionServiceDomain)
   }
 
   // authenticated alrdy
-  @All('users/*')
+  @All('users*')
   async handleUserRequest(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.gatewayService.handleRedirectRequest(req, res, this.userServiceDomain)
   }
