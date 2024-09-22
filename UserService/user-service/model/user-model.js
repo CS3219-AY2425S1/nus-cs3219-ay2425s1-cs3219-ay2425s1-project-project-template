@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+var validateEmail = function (email) {
+	var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+	return re.test(email);
+};
+
 const UserModelSchema = new Schema({
   username: {
     type: String,
@@ -12,10 +17,22 @@ const UserModelSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    validate: [validateEmail, "Please fill a valid email address"],
+    match: [
+			/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+			"Please fill a valid email address",
+		],
   },
   password: {
     type: String,
     required: true,
+  },
+  proficiency: {
+    type: String,
+    enum: ['Beginner', 'Intermediate', 'Expert'], 
+  },
+  displayName: {
+    type: String,
   },
   createdAt: {
     type: Date,

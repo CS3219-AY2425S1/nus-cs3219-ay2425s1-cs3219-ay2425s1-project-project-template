@@ -11,8 +11,8 @@ export async function connectToDB() {
   await connect(mongoDBUri);
 }
 
-export async function createUser(username, email, password) {
-  return new UserModel({ username, email, password }).save();
+export async function createUser(username, email, password, proficiency, displayName) {
+  return new UserModel({ username, email, password, proficiency, displayName}).save();
 }
 
 export async function findUserByEmail(email) {
@@ -40,7 +40,7 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password) {
+export async function updateUserById(userId, username, email, password, proficiency, displayName) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -48,6 +48,8 @@ export async function updateUserById(userId, username, email, password) {
         username,
         email,
         password,
+        proficiency,
+        displayName,
       },
     },
     { new: true },  // return the updated user
