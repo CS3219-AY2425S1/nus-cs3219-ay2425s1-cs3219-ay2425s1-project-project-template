@@ -10,7 +10,8 @@ import config from './config';
   imports: [
     ConfigModule.forRoot({
       load: [config],
-      isGlobal: true
+      isGlobal: true,
+      envFilePath: "../../.env"
     }),
     MongooseModule.forRootAsync({
       inject: [config.KEY],
