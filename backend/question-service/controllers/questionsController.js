@@ -28,8 +28,8 @@ const createQuestion = async (req, res) => {
 const updateQuestion = async (req, res) => {
   try {
 
-    // to reflect the update successfully in database and UI, params.id is used instead of params._id
-    const questionId = req.params.id;
+    // to reflect the update successfully in database and UI, params.id / body._id can be used
+    const questionId = req.body._id;
     console.log('Received questionId:', questionId);
 
     if (!questionId) {
@@ -58,8 +58,8 @@ const updateQuestion = async (req, res) => {
 
 const deleteQuestion = async (req, res) => {
 
-    // to delete successfully in database and UI, params.id is used instead of params._id / body._id
-    const questionId = req.params.id;
+    // to delete successfully in database and UI, params.id / body._id can be used
+    const questionId = req.body._id;
 
     if (!questionId) return res.status(400).json({ 'message': 'Question ID is required.' });
 
@@ -67,6 +67,8 @@ const deleteQuestion = async (req, res) => {
     if (!question) {
         return res.status(204).json({ "message": `No question matches ID ${questionId}.` });
     }
+
+    const result = await question.deleteOne();
 
     // return the new question list that no longer contain the deleted question
     const updatedQuestionList = await QuestionSchema.find();
