@@ -10,5 +10,5 @@ dist
 **/dist
 
 # Secrets
-.env*
-**/.env*
+.env
+**/.env

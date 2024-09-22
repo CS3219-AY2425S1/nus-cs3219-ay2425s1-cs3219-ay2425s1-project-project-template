@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: question-db
+  name: question-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: question-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/code-default: "true"
+        io.kompose.service: question-db
+    spec:
+      containers:
+        - env:
+            - name: PGDATA
+              value: /data/question-db
+            - name: POSTGRES_DB
+              value: question
+            - name: POSTGRES_PASSWORD
+              value: question
+            - name: POSTGRES_USER
+              value: express
+          image: postgres:16.4
+          name: question-db
+          ports:
+            - containerPort: 5432
+              hostPort: 5434
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data/question-db
+              name: question-db-docker
+      hostname: questiondb
+      restartPolicy: Always
+      volumes:
+        - name: question-db-docker
+          persistentVolumeClaim:
+            claimName: question-db-docker

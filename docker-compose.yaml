@@ -1,0 +1,51 @@
+services:
+  user-db:
+    hostname: userdb
+    image: postgres:16.4
+    container_name: user_db
+    build:
+      context: ./backend/user/src/lib/db
+    environment:
+      POSTGRES_DB: user
+      POSTGRES_USER: express
+      POSTGRES_PASSWORD: user
+      PGDATA: "/data/user-db"
+    volumes:
+      - user-db-docker:/data/user-db
+    ports:
+      - 5431:5432
+  collab-db:
+    hostname: collabdb
+    image: postgres:16.4
+    container_name: collab_db
+    build:
+      context: ./backend/collaboration/src/lib/db
+    environment:
+      POSTGRES_DB: collab
+      POSTGRES_USER: express
+      POSTGRES_PASSWORD: collab
+      PGDATA: "/data/collab-db"
+    volumes:
+      - collab-db-docker:/data/collab-db
+    ports:
+      - 5433:5432
+  question-db:
+    hostname: questiondb
+    image: postgres:16.4
+    container_name: question_db
+    build:
+      context: ./backend/question/src/lib/db
+    environment:
+      POSTGRES_DB: question
+      POSTGRES_USER: express
+      POSTGRES_PASSWORD: question
+      PGDATA: "/data/question-db"
+    volumes:
+      - question-db-docker:/data/question-db
+    ports:
+      - 5434:5432
+
+volumes:
+  user-db-docker:
+  collab-db-docker:
+  question-db-docker:
