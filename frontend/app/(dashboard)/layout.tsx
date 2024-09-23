@@ -55,7 +55,7 @@ export default function Layout({
     <Flex direction="column" height="100vh">
       <Stack direction="row" align="center" justify="space-between" className="bg-[#2C5282] p-2 px-8 ">
         <Link href="/questions">
-          <Text fontSize="30px" color="white" as="b">
+          <Text className="logo-text">
             {'{PeerPrep}'}
           </Text>
         </Link>
