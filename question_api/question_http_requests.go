@@ -11,9 +11,5 @@ func SetAllEndpoints(router *gin.Engine, db *QuestionDB, logger *Logger) {
 	router.GET("/questions/search/:query", GetMatchingQuestionsWithLogger(db, logger))
 	router.GET("/questions/solve/:id", GetQuestionWithLogger(db, logger))
 	router.DELETE("/questions/delete/:id", DeleteQuestionWithLogger(db, logger))
-	/*
-	TODO: implement the following endpoints
-	router.PUT("/questions/:id", db.UpdateQuestion)
-	router.DELETE("/questions/:id", db.DeleteQuestion)
-	*/
+	router.PUT("/questions/replace/:id", ReplaceQuestionWithLogger(db, logger))
 }

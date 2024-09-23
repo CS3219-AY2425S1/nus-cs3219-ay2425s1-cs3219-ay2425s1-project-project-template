@@ -81,3 +81,11 @@ func (db *QuestionDB) GetMatchingQuestions(query string) ([]Question, error) {
 	return questions, nil
 }
 
+
+// used to check if a question being replaced will cause duplicates in the database
+
+func (db *QuestionDB) questionExistsExceptId(question *Question) bool {
+	filter := bson.D{bson.E{Key: "title", Value: question.Title}, bson.E{Key: "id", Value: bson.D{bson.E{Key: "$ne", Value: question.ID}}}}
+	err := db.questions.FindOne(context.Background(), filter).Decode(&Question{}) //FindOne() returns error if no document is found
+	return err == nil
+}
