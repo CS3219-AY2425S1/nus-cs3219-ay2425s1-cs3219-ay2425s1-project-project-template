@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "title": "Two Sum",
+    "description": "Given an array of integers, return indices of the two numbers such that they add up to a specific target.",
+    "category": "Array",
+    "difficulty": "easy"
+  },
+  {
+    "id": 2,
+    "title": "Reverse Linked List",
+    "description": "Reverse a singly linked list and return the reversed list.",
+    "category": "Linked List",
+    "difficulty": "easy"
+  },
+  {
+    "id": 3,
+    "title": "Longest Substring Without Repeating Characters",
+    "description": "Find the length of the longest substring without repeating characters.",
+    "category": "String",
+    "difficulty": "medium"
+  },
+  {
+    "id": 4,
+    "title": "Merge Intervals",
+    "description": "Merge all overlapping intervals and return an array of the non-overlapping intervals.",
+    "category": "Array",
+    "difficulty": "medium"
+  },
+  {
+    "id": 5,
+    "title": "Trapping Rain Water",
+    "description": "Given n non-negative integers representing an elevation map, compute how much water it can trap after raining.",
+    "category": "Array",
+    "difficulty": "hard"
+  },
+  {
+    "id": 6,
+    "title": "Word Break",
+    "description": "Given a string s and a dictionary of words, return true if s can be segmented into a space-separated sequence of dictionary words.",
+    "category": "Dynamic Programming",
+    "difficulty": "medium"
+  },
+  {
+    "id": 7,
+    "title": "Binary Tree Inorder Traversal",
+    "description": "Given a binary tree, return the inorder traversal of its nodes' values.",
+    "category": "Tree",
+    "difficulty": "easy"
+  },
+  {
+    "id": 8,
+    "title": "Find Median from Data Stream",
+    "description": "The median is the middle value in an ordered integer list. Implement a data structure that efficiently supports finding the median.",
+    "category": "Heap",
+    "difficulty": "hard"
+  },
+  {
+    "id": 9,
+    "title": "Kth Largest Element in an Array",
+    "description": "Find the Kth largest element in an unsorted array.",
+    "category": "Array",
+    "difficulty": "medium"
+  },
+  {
+    "id": 10,
+    "title": "Coin Change",
+    "description": "Given different denominations of coins, compute the fewest number of coins needed to make up a given amount.",
+    "category": "Dynamic Programming",
+    "difficulty": "medium"
+  }
+]
