@@ -14,11 +14,12 @@ import { Label } from "../ui/label";
 import { updateUser } from "@/lib/update-user";
 import { useAuth } from "@/app/auth/auth-context";
 import { useToast } from "@/components/hooks/use-toast";
+import { User } from "@/lib/schemas/user-schema";
 
 interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {
   showModal?: boolean;
   setShowModal: (show: boolean) => void;
-  user: { id: string; username: string; email: string } | undefined;
+  user: User | undefined;
   onUserUpdate: () => void;
 }
 

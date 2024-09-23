@@ -16,26 +16,28 @@ import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
+import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 
-const fetcher = (url: string) => {
+const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
   if (!token) {
     throw new Error("No authentication token found");
   }
 
-  return fetch(url, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-  }).then((res) => {
-    if (!res.ok) {
-      if (res.status === 401) {
-        throw new Error(String(res.status));
-      }
-    }
-    return res.json();
   });
+
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+
+  const data = await response.json();
+
+  return UserArraySchema.parse(data.data);
 };
 
 export default function AdminUserManagement() {
@@ -44,32 +46,16 @@ export default function AdminUserManagement() {
     "http://localhost:3001/users",
     fetcher
   );
-  const [users, setUsers] = useState<
-    {
-      id: string;
-      username: string;
-      email: string;
-      isAdmin: boolean;
-      skillLevel: string;
-    }[]
-  >([]);
+
+  const [users, setUsers] = useState<User[]>([]);
   const [unauthorised, setUnauthorised] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<
-    | {
-        id: string;
-        username: string;
-        email: string;
-        isAdmin: boolean;
-        skillLevel: string;
-      }
-    | undefined
-  >();
+  const [selectedUser, setSelectedUser] = useState<User>();
 
   useEffect(() => {
     if (data) {
-      setUsers(data.data);
+      setUsers(data);
     }
   }, [data]);
 
