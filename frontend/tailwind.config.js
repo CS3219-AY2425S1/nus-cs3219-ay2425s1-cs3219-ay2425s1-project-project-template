@@ -66,6 +66,9 @@ module.exports = {
                     foreground: 'hsl(var(--foreground))',
                 },
             },
+            height: {
+                fullscreen: 'calc(100vh - 3rem)',
+            },
         },
     },
     plugins: [require('tailwindcss-animate')],
