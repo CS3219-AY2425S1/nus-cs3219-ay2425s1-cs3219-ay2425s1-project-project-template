@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -36,5 +37,11 @@ export class QuestionController {
   @Delete(':id')
   deleteQuestion(@Param('id') id: string) {
     return this.questionService.deleteQuestion(id);
+  }
+
+  // Update question
+  @Patch(':id')
+  updateQuestion(@Param('id') id: string, @Body() dto: CreateQuestionDto) {
+    return this.questionService.updateQuestion(id, dto);
   }
 }

@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsIn, IsString } from 'class-validator';
+import { IsArray, IsIn, IsString, ValidateNested } from 'class-validator';
 
 export class CreateQuestionDto {
   @IsString()
@@ -16,4 +16,13 @@ export class CreateQuestionDto {
   @IsString({ each: true })
   @Type(() => String)
   categories: string[];
+}
+
+export class UpdateQuestionDto {
+  @IsString()
+  id: string;
+
+  @ValidateNested()
+  @Type(() => CreateQuestionDto)
+  updatedQuestionInfo: CreateQuestionDto;
 }

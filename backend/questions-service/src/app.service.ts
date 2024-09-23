@@ -130,4 +130,25 @@ export class AppService {
       throw new RpcException(error.message);
     }
   }
+
+  async updateQuestion(id: string, data: CreateQuestionDto): Promise<Question> {
+    const { title, description, difficulty, categories } = data;
+    try {
+      const updatedQuestion = await this.questionModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(id) },
+          { title, description, difficulty, categories },
+          { new: true },
+        )
+        .exec();
+
+      if (!updatedQuestion) {
+        throw new RpcException('Question not found');
+      }
+
+      return updatedQuestion;
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
 }

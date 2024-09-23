@@ -4,6 +4,7 @@ import {
   CreateQuestionDto,
   FindQuestionBySlugDto,
   GetQuestionsDto,
+  UpdateQuestionDto,
 } from './dto';
 
 @Injectable()
@@ -27,5 +28,10 @@ export class QuestionService {
 
   deleteQuestion(id: string) {
     return this.questionClient.send({ cmd: 'delete_question' }, id);
+  }
+
+  updateQuestion(id: string, data: CreateQuestionDto) {
+    const payload: UpdateQuestionDto = { id, updatedQuestionInfo: data };
+    return this.questionClient.send({ cmd: 'update_question' }, payload);
   }
 }

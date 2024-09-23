@@ -5,6 +5,7 @@ import {
   CreateQuestionDto,
   FindQuestionBySlugDto,
   GetQuestionsDto,
+  UpdateQuestionDto,
 } from './dto';
 
 @Controller()
@@ -37,5 +38,11 @@ export class AppController {
   @MessagePattern({ cmd: 'delete_question' })
   async deleteQuestion(@Payload() id: string) {
     return this.appService.deleteQuestion(id);
+  }
+
+  @MessagePattern({ cmd: 'update_question' })
+  async updateQuestion(@Payload() data: UpdateQuestionDto) {
+    const { id, updatedQuestionInfo } = data;
+    return this.appService.updateQuestion(id, updatedQuestionInfo);
   }
 }
