@@ -1,8 +1,8 @@
 import React from "react";
 //import { useParams } from "react-router-dom";
-import "./ReadPage.css";
+import "../styles/ReadPage.css";
 
-function ReadPage() {
+export const ReadPage = () => {
   // Insert the logic and API to get the question
 
   return (
@@ -18,25 +18,18 @@ function ReadPage() {
         <div className="complexity">
           <p>Easy</p>
         </div>
-
       </div>
 
-      <div className="divider"></div>   
+      <div className="divider"></div>
 
       <div className="description">
         <p>Implement a function to detect if a linked list contains a cycle.</p>
       </div>
 
       <div className="edit-delete-btn">
-        <button className="edit-btn">
-          Edit
-        </button>
-        <button className="delete-btn">
-          Delete
-        </button>
-      </div>   
+        <button className="edit-btn">Edit</button>
+        <button className="delete-btn">Delete</button>
+      </div>
     </div>
   );
-}
-
-export default ReadPage;
+};
