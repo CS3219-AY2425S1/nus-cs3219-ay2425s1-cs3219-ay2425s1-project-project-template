@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
 import { Difficulty } from '@/tyoes/difficulty'
 import Image from 'next/image'
+import { useState } from 'react'
 
 interface ICollaborator {
     name: string
@@ -96,6 +97,11 @@ const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') =>
 }
 
 export default function Code() {
+    const [isChatOpen, setIsChatOpen] = useState(true)
+    const toggleChat = () => {
+        setIsChatOpen(!isChatOpen)
+    }
+
     return (
         <div className="flex h-fullscreen">
             <section className="w-1/3 flex flex-col">
@@ -117,31 +123,40 @@ export default function Code() {
                     <div className="mt-6">{questionData.description}</div>
                 </div>
 
-                <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-oneThirdScreen flex flex-col">
+                <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-twoFifthScreen flex flex-col">
                     <div className="flex items-center justify-between border-b-[1px] pl-3 ">
                         <h3 className="text-lg font-medium">Chat</h3>
-                        <Button variant="iconNoBorder" size="icon">
-                            <Image src="/icons/minimise.svg" alt="Minimise chat" width={20} height={20} />
+                        <Button variant="iconNoBorder" size="icon" onClick={toggleChat}>
+                            <Image
+                                src={`/icons/${isChatOpen ? 'minimise' : 'maximise'}.svg`}
+                                alt="Minimise chat"
+                                width={20}
+                                height={20}
+                            />
                         </Button>
                     </div>
-                    <div className="overflow-y-auto p-3 pb-0">
-                        {chatData.map((chat, index) => (
-                            <div
-                                key={index}
-                                className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.user, 'label')}`}
-                            >
-                                <div className="flex items-center gap-2">
-                                    <h4 className="text-xs font-medium">{chat.user.name}</h4>
-                                    <span className="text-xs text-slate-400">{formatTimestamp(chat.timestamp)}</span>
-                                </div>
+                    {isChatOpen && (
+                        <div className="overflow-y-auto p-3 pb-0">
+                            {chatData.map((chat, index) => (
                                 <div
-                                    className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.user, 'text')}`}
+                                    key={index}
+                                    className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.user, 'label')}`}
                                 >
-                                    {chat.message}
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-xs font-medium">{chat.user.name}</h4>
+                                        <span className="text-xs text-slate-400">
+                                            {formatTimestamp(chat.timestamp)}
+                                        </span>
+                                    </div>
+                                    <div
+                                        className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.user, 'text')}`}
+                                    >
+                                        {chat.message}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
             <section className="w-2/3"></section>
