@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional
+from typing import List, Optional
 
 from .object_id import PyObjectId
 
@@ -22,4 +22,4 @@ class QuestionModel(BaseModel):
     complexity: ComplexityEnum
 
 class QuestionCollection(BaseModel):
-    questions: list[QuestionModel]
+    questions: List[QuestionModel]

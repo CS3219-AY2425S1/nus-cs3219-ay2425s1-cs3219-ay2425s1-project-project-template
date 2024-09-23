@@ -2,12 +2,9 @@ from fastapi import APIRouter, HTTPException
 from app.models.questions import QuestionModel, QuestionCollection
 from app.crud.questions import create_question, get_all_questions
 
-router = APIRouter(
-    prefix="/questions",
-    tags=["questions"]
-)
+router = APIRouter()
 
-@router.post("/questions/",
+@router.post("/",
             response_description="Create new question",
             response_model=QuestionModel,
             responses={
