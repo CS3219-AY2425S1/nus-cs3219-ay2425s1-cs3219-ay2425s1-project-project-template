@@ -5,7 +5,7 @@ export const updateUserPrivilege = async (
   ) => {
     const body = { isAdmin };
   
-    const response = await fetch(`http://localhost:3001/users/${id}`, {
+    const response = await fetch(`http://localhost:3001/users/${id}/privilege`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${jwtToken}`,

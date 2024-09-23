@@ -171,7 +171,7 @@
 
 - HTTP Method: `PATCH`
 
-- Endpoint: http://localhost:3001/users/{userId}
+- Endpoint: http://localhost:3001/users/{userId}/privilege
 
 - Parameters
   - Required: `userId` path parameter
