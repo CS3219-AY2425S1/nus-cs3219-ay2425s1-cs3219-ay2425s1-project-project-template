@@ -89,6 +89,7 @@ export const questionController = {
         // testCase,
         // testCaseInput,
         // testCaseOutput,
+        sort,
       } = req.query;
 
       // Set default values for pagination
@@ -125,11 +126,51 @@ export const questionController = {
       //   .skip(skip)
       //   .limit(Number(limit));
 
+      // // Default sorting
+      // let sortOptions: any = {};
+
+      // // Sorting by title
+      // if (sort === "title" || sort === "-title") {
+      //   sortOptions.title = sort === "title" ? 1 : -1; // Ascending for 'title', descending for '-title'
+      // }
+
+      // // Sorting by complexity using numerical values for custom ordering
+      // if (sort === "complexity" || sort === "-complexity") {
+      //   const complexityOrder = { Easy: 1, Medium: 2, Hard: 3 };
+      //   sortOptions.complexity =
+      //     sort === "complexity"
+      //       ? complexityOrder
+      //       : { Easy: -1, Medium: -2, Hard: -3 };
+      // }
+
       // Fetch only the fields you need: question_id, title, category, complexity
       const questions = await Question.find(filter)
         .select("question_id title category complexity") // Specify fields to fetch
+        // .sort(sortOptions) // Apply sorting
         .skip(skip)
         .limit(limit);
+
+      // Define complexity order for sorting
+      const complexityOrder: { [key: string]: number } = {
+        Easy: 1,
+        Medium: 2,
+        Hard: 3,
+      };
+
+      // Apply sorting in the application layer
+      if (sort === "complexity") {
+        questions.sort((a: any, b: any) => {
+          return complexityOrder[a.complexity] - complexityOrder[b.complexity];
+        });
+      } else if (sort === "-complexity") {
+        questions.sort((a: any, b: any) => {
+          return complexityOrder[b.complexity] - complexityOrder[a.complexity];
+        });
+      } else if (sort === "title") {
+        questions.sort((a: any, b: any) => a.title.localeCompare(b.title)); // Ascending
+      } else if (sort === "-title") {
+        questions.sort((a: any, b: any) => b.title.localeCompare(a.title)); // Descending
+      }
 
       // Count total number of documents matching the filter
       const totalQuestions = await Question.countDocuments(filter);
@@ -253,6 +294,37 @@ export const questionController = {
       res
         .status(500)
         .json({ message: "Failed to delete question", error: err });
+    }
+  },
+
+  // Get all unique categories (topics)
+  getAllUniqueCategories: async (req: Request, res: Response) => {
+    try {
+      // Use MongoDB's distinct to retrieve unique category values
+      const uniqueCategories = await Question.distinct("category");
+
+      res.status(200).json({ uniqueCategories });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "Failed to get unique categories", error: err });
+    }
+  },
+
+  // Get all unique complexity levels
+  getAllUniqueComplexityLevels: async (req: Request, res: Response) => {
+    try {
+      // Use MongoDB's distinct to retrieve unique complexity values
+      const uniqueComplexityLevels = await Question.distinct("complexity");
+
+      res.status(200).json({ uniqueComplexityLevels });
+    } catch (err) {
+      res
+        .status(500)
+        .json({
+          message: "Failed to get unique complexity levels",
+          error: err,
+        });
     }
   },
 };
