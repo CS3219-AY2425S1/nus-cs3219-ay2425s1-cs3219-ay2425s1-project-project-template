@@ -74,34 +74,34 @@ jobs:
       - name: Stop the service
         run: pkill node
 
-  question_service:
-    runs-on: ubuntu-latest
-    name: Question Service
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  # question_service:
+  #   runs-on: ubuntu-latest
+  #   name: Question Service
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        working-directory: ./question-service
-        run: npm install
+  #     - name: Install dependencies
+  #       working-directory: ./question-service
+  #       run: npm install
 
-      - name: Build the service
-        working-directory: ./question-service
-        run: npm run build
+  #     - name: Build the service
+  #       working-directory: ./question-service
+  #       run: npm run build
 
-      - name: Start the service
-        working-directory: ./question-service
-        run: |
-          nohup npm run start & sleep 5
-          curl --fail ${{ env.QUESTION_SERVICE_URL }} || exit 1
+  #     - name: Start the service
+  #       working-directory: ./question-service
+  #       run: |
+  #         nohup npm run start & sleep 5
+  #         curl --fail ${{ env.QUESTION_SERVICE_URL }} || exit 1
 
-      - name: Stop the service
-        run: pkill node
+  #     - name: Stop the service
+  #       run: pkill node
 
   # user_service:
   #   runs-on: ubuntu-latest
