@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
 import { Difficulty } from '@/tyoes/difficulty'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface ICollaborator {
     name: string
@@ -27,7 +27,7 @@ const userData: ICollaborator = {
     email: 'oliverwye@gmail.com',
 }
 
-const chatData = [
+const initialChatData = [
     {
         user: userData,
         message: "I don't understand the question. Please help me!",
@@ -98,9 +98,38 @@ const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') =>
 
 export default function Code() {
     const [isChatOpen, setIsChatOpen] = useState(true)
+    const [chatData, setChatData] = useState(initialChatData)
+
+    // Ref for autoscroll the last chat message
+    const chatEndRef = useRef<HTMLDivElement | null>(null)
+
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
     }
+
+    // TODO: create message service to handle messages
+    const sendMessage = (message: string) => {
+        const newMessage = {
+            user: userData,
+            message,
+            timestamp: new Date().toISOString(),
+        }
+        setChatData([...chatData, newMessage])
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
+            sendMessage(e.currentTarget.value)
+            e.currentTarget.value = ''
+        }
+    }
+
+    // Scroll to the bottom of the chat box when new messages are added
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
+    }, [chatData])
 
     return (
         <div className="flex h-fullscreen">
@@ -139,26 +168,37 @@ export default function Code() {
                         </Button>
                     </div>
                     {isChatOpen && (
-                        <div className="overflow-y-auto p-3 pb-0">
-                            {chatData.map((chat, index) => (
-                                <div
-                                    key={index}
-                                    className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.user, 'label')}`}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="text-xs font-medium">{chat.user.name}</h4>
-                                        <span className="text-xs text-slate-400">
-                                            {formatTimestamp(chat.timestamp)}
-                                        </span>
-                                    </div>
+                        <>
+                            <div className="overflow-y-auto p-3 pb-0">
+                                {chatData.map((chat, index) => (
                                     <div
-                                        className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.user, 'text')}`}
+                                        key={index}
+                                        className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.user, 'label')}`}
                                     >
-                                        {chat.message}
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="text-xs font-medium">{chat.user.name}</h4>
+                                            <span className="text-xs text-slate-400">
+                                                {formatTimestamp(chat.timestamp)}
+                                            </span>
+                                        </div>
+                                        <div
+                                            className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.user, 'text')}`}
+                                        >
+                                            {chat.message}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                                <div ref={chatEndRef}></div>
+                            </div>
+                            <div className="m-3 px-3 py-1 border-[1px] rounded-xl text-sm">
+                                <input
+                                    type="text"
+                                    className="w-full bg-transparent border-none focus:outline-none"
+                                    placeholder="Send a message..."
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
+                        </>
                     )}
                 </div>
             </section>
