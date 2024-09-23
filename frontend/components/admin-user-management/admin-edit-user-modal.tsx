@@ -157,7 +157,7 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
                   required
                 />
               </div>
-              <div className="grid gap-2 mt-2">
+              <div className="grid gap-2 mt-5">
                 <div className="flex items-center">
                   <Label htmlFor="email">Email</Label>
                 </div>
