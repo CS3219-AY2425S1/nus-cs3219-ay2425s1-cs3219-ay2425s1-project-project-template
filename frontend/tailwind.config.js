@@ -78,6 +78,9 @@ module.exports = {
             maxHeight: {
                 oneThirdScreen: 'calc((100vh - 3rem) / 3)',
             },
+            height: {
+                fullscreen: 'calc(100vh - 3rem)',
+            },
         },
     },
     plugins: [require('tailwindcss-animate')],
