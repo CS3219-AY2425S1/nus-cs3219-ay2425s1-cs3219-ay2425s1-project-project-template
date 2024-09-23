@@ -1,13 +1,10 @@
 import { eq, getTableColumns, sql } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 import { db, users } from '@/lib/db';
 import type { ILoginPayload, ILoginResponse } from './types';
-
-// TODO: Set env var and rotate automatically
-const _JWT_SECRET_KEY = 'secret';
+import { generateCookie } from '@/lib/cookies';
+import { getIsPasswordValid } from '@/lib/passwords';
 
 const _FAILED_ATTEMPTS_ALLOWED = 3;
 const _getSchema = () => {
@@ -53,7 +50,7 @@ export const loginService = async (payload: ILoginPayload): Promise<ILoginRespon
   }
 
   // 3. Wrong Password
-  const isPasswordValid = bcrypt.compareSync(payload.password, password);
+  const isPasswordValid = getIsPasswordValid(payload.password, password);
   if (!isPasswordValid) {
     const newFailedAttempts = (failedAttempts ?? 0) + 1;
     const updateValues = {
@@ -77,7 +74,7 @@ export const loginService = async (payload: ILoginPayload): Promise<ILoginRespon
       unlockTime: null,
     });
   }
-  const jwtToken = jwt.sign({ id: user.id }, _JWT_SECRET_KEY);
+  const jwtToken = generateCookie({ id: user.id });
   return {
     code: StatusCodes.OK,
     data: {

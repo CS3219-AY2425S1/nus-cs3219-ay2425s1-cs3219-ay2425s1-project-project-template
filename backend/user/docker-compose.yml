@@ -1,11 +1,10 @@
 services:
   postgres:
     hostname: postgres
-    image: "user-db"
+    image: postgres:16.4
     container_name: "user_db"
     build:
       context: ./src/lib/db
-      dockerfile: ./postgres.Dockerfile
     environment:
       POSTGRES_DB: "User"
       POSTGRES_USER: "user"

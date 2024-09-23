@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import type { StatusCodes } from 'http-status-codes';
 
 export type IServiceResponse<T> = {
@@ -7,3 +8,5 @@ export type IServiceResponse<T> = {
   };
   data?: T;
 };
+
+export type IRouteHandler = <T>(req: Request, res: Response) => Promise<Response<T>>;
