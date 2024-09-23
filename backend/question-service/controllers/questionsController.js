@@ -9,8 +9,14 @@ const getAllQuestions = async (req, res) => {
 
 const createQuestion = async (req, res) => {
     if (!(req?.body?.title && req?.body?.description && req?.body?.category && req?.body?.complexity)) {
-        return res.status(400).json({ 'message': 'title, description, category and complexity are required!' });
-    }    
+        return res.status(400).json({ 'message': 'Title, description, category and complexity are required!' });
+    }
+    if (QuestionSchema.findOne({ title: req.body.title }).exec != null) {
+        return res.status(409).json({ 'message': 'A question with this title already exists!' })
+    }
+    if (QuestionSchema.findOne({ description: req.body.description }).exec != null) {
+        return res.status(409).json({ 'message': 'A question with this description already exists!' })
+    }
     try {
         const result = await QuestionSchema.create({
             title: req.body.title,
