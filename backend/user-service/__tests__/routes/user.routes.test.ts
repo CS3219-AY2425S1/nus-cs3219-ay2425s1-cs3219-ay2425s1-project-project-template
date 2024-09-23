@@ -177,22 +177,22 @@ describe('User Routes', () => {
         })
     })
 
-    describe('PUT /users/password/:id', () => {
+    describe('PUT /users/:id/password', () => {
         it('should return 200 for successful update', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
-            const response = await request(app).put(`/users/password/${user1.body.id}`).send({
+            const response = await request(app).put(`/users/${user1.body.id}/password`).send({
                 password: 'Test12345!',
             })
             expect(response.status).toBe(200)
             expect(response.body.password).not.toEqual(user1.body.password)
         })
         it('should return 400 for requests with invalid ids', async () => {
-            const response = await request(app).put('/users/password/111').send()
+            const response = await request(app).put('/users/111/password').send()
             expect(response.status).toBe(400)
         })
         it('should return 400 for requests with invalid passwords', async () => {
             const user1 = await request(app).post('/users').send(CREATE_USER_DTO1)
-            const response = await request(app).put(`/users/password/${user1.body.id}`).send({
+            const response = await request(app).put(`/users/${user1.body.id}/password`).send({
                 password: 'Test1234',
             })
             expect(response.status).toBe(400)
