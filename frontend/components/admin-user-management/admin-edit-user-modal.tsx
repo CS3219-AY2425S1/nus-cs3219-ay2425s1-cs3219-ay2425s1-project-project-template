@@ -39,18 +39,24 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
   >();
 
   useEffect(() => {
-    setEditingUser(props?.user);
+    setEditingUser(props.user);
   }, [props.user]);
+
+  const closeModal = () => {
+    setEditingUser(props.user);
+    props.setShowModal(false);
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    updateUserInfo().then(() => updateUserPrivilege());
-
-    // Remove old states, update UI and close modal
-    setEditingUser(undefined);
-    props.onUserUpdate();
-    props.setShowModal(false);
+    updateUserInfo()
+      .then(() => updateUserPrivilege())
+      .then(() => {
+        // Remove old states, update UI and close modal
+        props.onUserUpdate();
+        closeModal();
+      });
   };
 
   const updateUserInfo = async () => {
@@ -141,7 +147,6 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
   };
 
   const updateUserPrivilege = async () => {
-
   };
 
   return (
@@ -204,7 +209,9 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
               >
                 Save changes
               </Button>
-              <Button onClick={() => props.setShowModal(false)}>Exit</Button>
+              <Button variant="destructive" onClick={closeModal}>
+                Exit
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
