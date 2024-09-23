@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css'
-import Login from './login';
+import Login from './pages/SignIn/login';
 import Navbar from './navbar';
 
 
@@ -16,4 +16,4 @@ const App: React.FC = () => {
 };
 
 
-export default App
+export default App;
