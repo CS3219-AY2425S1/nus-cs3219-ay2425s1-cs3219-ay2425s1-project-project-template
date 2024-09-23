@@ -9,6 +9,7 @@ import NavbarCards, { NavbarCardProps } from "@/components/NavbarCard";
 import questionImage from '@/public/images/questions.png';
 import practiceImage from '@/public/images/practice.png';
 import profileImage from '@/public/images/profile.png';
+import Link from "next/link";
 
 const items: NavbarCardProps[] = [
   {
@@ -53,9 +54,11 @@ export default function Layout({
   return (
     <Flex direction="column" height="100vh">
       <Stack direction="row" align="center" justify="space-between" className="bg-[#2C5282] p-2 px-8 ">
-        <Text fontSize="30px" color="white" as="b">
-          {'{PeerPrep}'}
-        </Text>
+        <Link href="/questions">
+          <Text fontSize="30px" color="white" as="b">
+            {'{PeerPrep}'}
+          </Text>
+        </Link>
         <Spacer />
         <>
           <Text fontSize="20px" color="white">
@@ -67,10 +70,16 @@ export default function Layout({
         </>
       </Stack>
       <Box
+        position="absolute"
+        top="60px"
+        left="0"
+        width="100%"
         className={`${isUserTriggered ? 'transition-all duration-500 ease-in-out' : ''}`}
         style={{ maxHeight: isToggled ? '500px' : '0', overflow: 'hidden' }}
+        bg="white"
+        zIndex="10"
       >
-        <Stack direction="row" align="center" justify="space-between" className="px-8">
+        <Stack direction="row" align="center" justify="space-between" className="px-8 ">
           {items.map((item, index) => (
             <NavbarCards key={index} {...item} />
           ))}
