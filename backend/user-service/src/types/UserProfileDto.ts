@@ -1,4 +1,4 @@
-import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, ValidationError, validate } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsOptional, IsString, ValidationError, validate } from 'class-validator'
 
 import { Proficiency } from './Proficiency'
 import { TypedRequest } from './TypedRequest'
@@ -8,21 +8,17 @@ export class UserProfileDto {
     @IsNotEmpty()
     username: string
 
-    @IsDate()
-    updatedAt: Date
-
     @IsOptional()
     @IsEnum(Proficiency)
     proficiency?: Proficiency
 
-    constructor(username: string, updatedAt: Date, proficiency?: Proficiency) {
+    constructor(username: string, proficiency?: Proficiency) {
         this.username = username
-        this.updatedAt = updatedAt
         this.proficiency = proficiency
     }
 
     static fromRequest({ body: { username, proficiency } }: TypedRequest<UserProfileDto>): UserProfileDto {
-        return new UserProfileDto(username, new Date(), proficiency)
+        return new UserProfileDto(username, proficiency)
     }
 
     async validate(): Promise<ValidationError[]> {

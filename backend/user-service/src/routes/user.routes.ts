@@ -1,3 +1,5 @@
+import { Router } from 'express'
+import passport from 'passport'
 import {
     handleCreateUser,
     handleDeleteUser,
@@ -5,15 +7,17 @@ import {
     handleUpdatePassword,
     handleUpdateProfile,
 } from '../controllers/user.controller'
-
-import { Router } from 'express'
+import { handleOwnershipAccessControl } from '../middlewares/accessControl.middleware'
 
 const router = Router()
 
 router.post('/', handleCreateUser)
-router.put('/:id', handleUpdateProfile)
+
+router.use(passport.authenticate('jwt', { session: false }))
+
+router.put('/:id', handleOwnershipAccessControl, handleUpdateProfile)
 router.get('/:id', handleGetCurrentProfile)
-router.delete('/:id', handleDeleteUser)
-router.put('/:id/password', handleUpdatePassword)
+router.delete('/:id', handleOwnershipAccessControl, handleDeleteUser)
+router.put('/:id/password', handleOwnershipAccessControl, handleUpdatePassword)
 
 export default router

@@ -1,42 +1,12 @@
-import * as path from 'path'
-
+import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
-import { SignOptions, sign } from 'jsonwebtoken'
-import { compare, hash } from 'bcrypt'
-import { findOneUserByEmail, findOneUserByUsername, updateUser } from '../models/user.repository'
-
+import { generateOTP, sendMail } from '../common/mail.util'
+import { getHTMLTemplate } from '../common/template.util'
+import { generateAccessToken } from '../common/token.util'
+import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
-import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
-import { IVerifyOptions } from 'passport-local'
-import { Role } from '../types/Role'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
-import { ValidationError } from 'class-validator'
-import config from '../common/config.util'
-import { promises as fs } from 'fs'
-import nodemailer from 'nodemailer'
-
-export async function handleAuthentication(
-    usernameOrEmail: string,
-    password: string,
-    done: (error: Error | null, user: UserDto | false, options?: IVerifyOptions) => void
-): Promise<void> {
-    const user = (await findOneUserByUsername(usernameOrEmail)) || (await findOneUserByEmail(usernameOrEmail))
-    if (!user) {
-        done(null, false)
-        return
-    }
-
-    const isPasswordMatching = await compare(password, user.password)
-    if (!isPasswordMatching) {
-        done(null, false)
-        return
-    }
-
-    const dto = UserDto.fromModel(user)
-
-    done(null, dto)
-}
 
 export async function handleLogin({ user }: Request, response: Response): Promise<void> {
     const accessToken = await generateAccessToken(user as UserDto)
@@ -47,62 +17,6 @@ export async function handleLogin({ user }: Request, response: Response): Promis
             accessToken,
         })
         .send()
-}
-
-export async function generateAccessToken(user: UserDto): Promise<string> {
-    const payload: Partial<IAccessTokenPayload> = {
-        id: user.id,
-        admin: user.role === Role.ADMIN,
-    }
-    const options: SignOptions = {
-        subject: user.email,
-        algorithm: 'RS256', // Assymetric Algorithm
-        expiresIn: '1h',
-        issuer: 'user-service',
-        audience: 'frontend',
-    }
-
-    const privateKey: Buffer = Buffer.from(config.ACCESS_TOKEN_PRIVATE_KEY, 'base64')
-
-    return sign(payload, privateKey, options)
-}
-
-export async function comparePasswords(plaintextPassword: string, hashedPassword: string): Promise<boolean> {
-    return compare(plaintextPassword, hashedPassword)
-}
-
-export async function hashPassword(password: string): Promise<string> {
-    const saltRounds = 10
-    return hash(password, saltRounds)
-}
-
-export async function getHTMLTemplate(htmlFilePath: string): Promise<string> {
-    const filePath = path.join(__dirname, htmlFilePath)
-    return await fs.readFile(filePath, 'utf8')
-}
-
-export async function sendMail(to: string, subject: string, text: string, html: string): Promise<void> {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.NODEMAILER_EMAIL,
-            pass: process.env.NODEMAILER_PASSWORD,
-        },
-    })
-    await transporter.sendMail({
-        from: process.env.NODEMAILER_EMAIL,
-        to,
-        subject,
-        text,
-        html,
-    })
-}
-
-export function generateOTP(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
 export async function handleReset(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
