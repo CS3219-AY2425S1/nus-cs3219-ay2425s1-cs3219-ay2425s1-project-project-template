@@ -9,6 +9,7 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { isEmail, isNotEmpty, useForm } from '@mantine/form';
+import { Link } from 'react-router-dom';
 
 interface LoginModalProps {
   isLoginModalOpened: boolean;
@@ -60,7 +61,9 @@ function LoginModal({
             key={form.key('password')}
             placeholder="Password"
           />
-          <Button type="submit">Log in</Button>
+          <Link to="../../pages/">
+            <Button type="submit">Log in</Button>
+          </Link>
           <Text ta="center">
             Don't have an account yet?{' '}
             <UnstyledButton onClick={handleSignUpClick} fw={700}>
