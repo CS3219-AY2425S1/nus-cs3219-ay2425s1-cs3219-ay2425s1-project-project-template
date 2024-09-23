@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css'
 import { login } from '../../authentication/AuthService';
-import '../../assets/images/signup_graphic.png';
+import signupGraphic from '../../assets/images/signup_graphic.png';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -17,22 +18,35 @@ const Login: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setErrorMessage(`Login failed: ${error.message}`);
-      console.error('Login Error:', error);
     }
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Sign In</h2>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Username or Email" required></input>
-      <input type="Password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required></input>
-      <button type="submit">Login</button>
-      <div style={{ marginTop: '10px' }}>
-        <a href="#" style={{ color: 'blue', textDecoration: 'underline' }}>
-          Forgot Password?
-        </a>
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-form">
+          <h1>Welcome back!</h1>
+          <p>Log in to resume your unlimited access to practice questions.</p>
+
+          <form onSubmit={handleLogin}>
+            <label id="email" htmlFor='email'>Email*</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email address" required></input>
+            <label htmlFor='password'>Password*</label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" required></input>
+            <div className="extras">
+              <label className="remember-me">
+                <input name="checkbox" type="checkbox" />Remember me
+                <a href="#" className="forgot-password">Forgot Password?</a>
+              </label>
+            </div>
+            <button type="submit" className="login-button">Login</button>
+          </form>
+          <p>
+            Don't have an account? <a href="#">Sign Up here</a>
+          </p>
+        </div>
       </div>
-    </form>
+    </div>
   );
 };
 

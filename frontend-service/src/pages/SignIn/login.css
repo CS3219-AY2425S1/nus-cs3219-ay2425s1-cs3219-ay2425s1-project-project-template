@@ -2,9 +2,69 @@ form {
   display: flex;
   flex-direction: column;
   width: 300px;
+  border-radius: 10px;
+  margin: 0 auto;
 }
 
-input {
+input[type="email"],
+input[type="password"] {
   margin-bottom: 10px;
-  padding: 10px;
+  padding: 12px;
+  width: 100%;
+  border: 1px solid #736b60;
+  font-size: 14px;
+  background-color: #ffffff;
+}
+
+.login-button {
+  background-color: #65afff;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-button:hover {
+  background-color: #ffffff;
+  border: 1px solid #65afff;
+}
+
+.extras {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+}
+
+.forgot-password {
+  margin-left: 30px;
+  color: #007bff;
+  text-decoration: underline;
+}
+
+label {
+  display: flex;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+p {
+  display: block;
+  margin-top: 20px;
+  padding-bottom: 15px;
+  text-align: center;
 }
