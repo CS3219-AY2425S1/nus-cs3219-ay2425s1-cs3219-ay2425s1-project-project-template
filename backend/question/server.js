@@ -5,8 +5,7 @@ const mongoose = require("mongoose");
 const questionRoutes = require("./routes/questionRoutes");
 const cors = require("cors");
 
-const uri =
-  "mongodb+srv://jehousoh:cs3219@questionbank.4xtdt.mongodb.net/?retryWrites=true&w=majority&appName=QuestionBank";
+const uri = process.env.MONGO_URL || "";
 
 const app = express();
 
