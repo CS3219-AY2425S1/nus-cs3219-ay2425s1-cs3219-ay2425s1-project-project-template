@@ -1,14 +1,24 @@
-import express, { Application } from 'express';
-import router from './routes/template-routes';
-import authMiddleware from './middleware/template-middleware';
+import express, { Application } from "express";
+import mongoose from "mongoose";
+import router from "./routes/question-routes";
+import authMiddleware from "./middleware/question-middleware";
+import "dotenv/config";
 
 const app: Application = express();
 
+// console.log("MONGODB_URI: ", process.env.MONGODB_URI);
+
 // Middleware
 app.use(express.json());
-app.use(authMiddleware);
+// app.use(authMiddleware);
+
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGODB_URI as string, {})
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log("Error connecting to MongoDB", err));
 
 // Routes
-app.use('/api', router);
+app.use("/api/questions", router);
 
 export default app;
