@@ -6,17 +6,24 @@
 frontend/
   ├── app/
   │   ├── layout.tsx            // Layout component
-  │   ├── page.tsx              // Root page
   │   ├── error.tsx             // Error boundary component 
   │   ├── not-found.tsx         // 404 page
-  │   ├── about/
-  │   │   └── page.tsx          // About page
-  │   ├── contact/
-  │   │   └── page.tsx          // Contact page
-  │   └── [slug]/
-  │       └── page.tsx          // Dynamic route page
+  │   ├──(dashboard)/           // Route group to organise files without affecting the URL path structure.
+  │   |   ├── layout.tsx        // Layout contains navigation bar shared across practice, profile and questions pages.
+  |   |   ├── practice/         // http://localhost:3000/practice
+  |   |   |   └── page.tsx 
+  |   |   ├── profile/          // http://localhost:3000/profile
+  |   |   |   └── page.tsx 
+  |   |   └── questions/        // http://localhost:3000/questions
+  |   |       └── page.tsx 
+  │   └── (account)/            // Route group to organise files without affecting the URL path structure.
+  │       ├── layout.tsx        // Layout contains {PeerPrep} logo shared across login and signup pages.
+  |       ├── login/            // http://localhost:3000/login
+  |       |   └── page.tsx 
+  |       └── signup/           // http://localhost:3000/signup
+  |           └── page.tsx 
   ├── components/               // Reusable UI components
-  │   ├── Header.tsx
+  │   ├── NavbarCard.tsx
   │   ├── Footer.tsx
   │   └── Button.tsx
   ├── lib/                      // Library code and utilities
@@ -63,7 +70,7 @@ docker run --name my-app -p 3000:3000 -v %cd%:/app -d frontend
 
 ## 3. Access the application
 
-Open your web browser and navigate to [http://localhost:3000](http://localhost:3000)
+Open your web browser and navigate to [http://localhost:3000/signup](http://localhost:3000/signup)
 
 ## 4. Terminate the application
 
