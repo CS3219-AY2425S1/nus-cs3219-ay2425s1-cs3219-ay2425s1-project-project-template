@@ -20,7 +20,7 @@ export default function QuestionsPage() {
     setIsLoading(false);
   }, []);
 
-  console.log('Questions:', questionData);
+  console.log(questionData);
 
   return (
     <div className='px-8 mt-4' style={{ overflowY: 'scroll' }}>
