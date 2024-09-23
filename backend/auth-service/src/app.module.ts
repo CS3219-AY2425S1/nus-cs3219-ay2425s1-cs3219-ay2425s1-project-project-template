@@ -19,7 +19,7 @@ import { LocalStrategy } from './local.strategy';
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'users-service',
+          host: 'user-service',
           port: 3001,
         },
       },

@@ -14,7 +14,7 @@ import { AuthService } from './auth/auth.service';
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'users-service',
+          host: 'user-service',
           port: 3001,
         },
       },
@@ -22,7 +22,7 @@ import { AuthService } from './auth/auth.service';
         name: 'QUESTION_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'questions-service',
+          host: 'question-service',
           port: 3002,
         },
       },
