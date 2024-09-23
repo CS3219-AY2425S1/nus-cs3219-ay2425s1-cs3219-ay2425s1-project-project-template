@@ -14,11 +14,12 @@ import { Label } from "../ui/label";
 import { updateUser } from "@/lib/update-user";
 import { useAuth } from "@/app/auth/auth-context";
 import { useToast } from "@/components/hooks/use-toast";
+import { Switch } from "../ui/switch";
 
 interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {
   showModal?: boolean;
   setShowModal: (show: boolean) => void;
-  user: { id: string; username: string; email: string } | undefined;
+  user: { id: string; username: string; email: string, isAdmin: boolean } | undefined;
   onUserUpdate: () => void;
 }
 
@@ -32,6 +33,7 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
         id?: string;
         username?: string;
         email?: string;
+        isAdmin?: boolean;
       }
     | undefined
   >();
@@ -43,6 +45,15 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    updateUserInfo().then(() => updateUserPrivilege());
+
+    // Remove old states, update UI and close modal
+    setEditingUser(undefined);
+    props.onUserUpdate();
+    props.setShowModal(false);
+  };
+
+  const updateUserInfo = async () => {
     if (!auth?.token) {
       // Will not reach this point as button is disabled
       // when token is missing
@@ -127,11 +138,10 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
         });
         return;
     }
+  };
 
-    // Remove old states, update UI and close modal
-    setEditingUser(undefined);
-    props.onUserUpdate();
-    props.setShowModal(false);
+  const updateUserPrivilege = async () => {
+
   };
 
   return (
@@ -169,6 +179,16 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
                   onChange={(e) =>
                     setEditingUser({ ...editingUser, email: e.target.value })
                   }
+                  required
+                />
+              </div>
+              <div className="grid gap-2 mt-5">
+              <div className="flex items-center">
+                <Label htmlFor="email">Admin</Label>
+                </div>
+                <Switch
+                  checked={editingUser?.isAdmin}
+                  onCheckedChange={(e) => setEditingUser({ ...editingUser, isAdmin: e })}
                   required
                 />
               </div>
