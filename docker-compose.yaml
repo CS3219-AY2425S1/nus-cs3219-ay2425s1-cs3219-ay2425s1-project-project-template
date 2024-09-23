@@ -16,6 +16,9 @@ services:
     build: 
       context: ./backend/api-gateway
       dockerfile: Dockerfile.dev
+    environment:
+      QUESTION_SERVICE_DOMAIN: ${QUESTION_SERVICE_DOMAIN}
+      USER_SERVICE_DOMAIN: ${USER_SERVICE_DOMAIN}
     ports:
       - 8000:8000
     # volumes:
@@ -25,6 +28,9 @@ services:
     build: 
       context: ./backend/question-service
       dockerfile: Dockerfile.dev
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+      MONGODB_NAME: ${MONGODB_NAME}
     ports:
       - 8001:8001
     # volumes:
@@ -34,6 +40,12 @@ services:
     build: 
       context: ./backend/user-service
       dockerfile: Dockerfile.dev
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DB_CLOUD_URI: ${DB_CLOUD_URI}
+      DB_LOCAL_URI: ${DB_LOCAL_URI}
+      PORT: ${PORT}
+      ENV: ${ENV}
     ports:
       - 8003:8003
     # volumes:
