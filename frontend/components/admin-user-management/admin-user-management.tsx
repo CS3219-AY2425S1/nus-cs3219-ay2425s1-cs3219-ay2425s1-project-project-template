@@ -56,13 +56,16 @@ export default function AdminUserManagement() {
   const [unauthorised, setUnauthorised] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<{
-    id: string;
-    username: string;
-    email: string;
-    isAdmin: boolean;
-    skillLevel: string;
-  } | undefined>();
+  const [selectedUser, setSelectedUser] = useState<
+    | {
+        id: string;
+        username: string;
+        email: string;
+        isAdmin: boolean;
+        skillLevel: string;
+      }
+    | undefined
+  >();
 
   useEffect(() => {
     if (data) {
@@ -111,7 +114,7 @@ export default function AdminUserManagement() {
   const onUserUpdate = () => {
     mutate();
     setSelectedUser(undefined);
-  }
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -140,20 +143,21 @@ export default function AdminUserManagement() {
               <TableCell>{user.isAdmin ? "Admin" : "User"}</TableCell>
               <TableCell>{user.skillLevel}</TableCell>
               <TableCell>
-                <Button 
+                <Button
                   variant="outline"
                   className="mr-2"
                   onClick={() => {
                     setSelectedUser(user);
                     setShowModal(true);
-                  }}>
-                  <PencilIcon/>
+                  }}
+                >
+                  <PencilIcon />
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={() => handleDelete(user.id)}
                 >
-                  <Trash2Icon/>
+                  <Trash2Icon />
                 </Button>
               </TableCell>
             </TableRow>
