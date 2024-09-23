@@ -1,9 +1,11 @@
 // src/context/AuthContext.tsx
-import { useGoogleLogin } from "@react-oauth/google";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 interface AuthContextType {
-  user: any; // You can define a more specific type for user
+  user: {
+    access_token: string;
+  }; // You can define a more specific type for user
   login: (response: any) => void;
   logout: () => void;
 }
@@ -14,14 +16,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<any>(null);
 
   const login = (response: any) => {
-    // Perform additional login actions (e.g., storing tokens)
-    setUser(response);
+    const access_token = response.access_token;
+
+    // store user data for 1 hour
+    Cookies.set("access_token", access_token, { expires: 1 / 24 });
+    setUser({ access_token });
   };
 
   const logout = () => {
     setUser(null);
-    // Perform additional logout actions (e.g., clearing tokens)
+    Cookies.remove("access_token");
   };
+
+  useEffect(() => {
+    const access_token = Cookies.get("access_token");
+    if (access_token) {
+      setUser({ access_token });
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
