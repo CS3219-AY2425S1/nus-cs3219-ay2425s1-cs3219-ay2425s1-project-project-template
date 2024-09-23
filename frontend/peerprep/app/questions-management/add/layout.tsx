@@ -1,4 +1,4 @@
-export default function QuestionsLayout({
+export default function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -35,15 +35,13 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
-        <NavbarItem className="flex items-center justify-center h-screen gap-5">
-          {/* Hide these buttons on small screens */}
+        <NavbarItem className="flex items-center justify-center gap-5">
           <div className="hidden sm:flex">
             <SettingButton />
             <NotificationButton />
             <ThemeSwitch className="ml-2.5" />
           </div>
 
-          {/* Avatar icon should always be visible */}
           <Avatar
             icon={<AvatarIcon />}
             size="sm"

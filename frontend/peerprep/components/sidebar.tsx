@@ -10,7 +10,7 @@ export const Sidebar = () => {
   const { theme } = useTheme();
 
   return (
-    <div className="min-h-screen flex flex-col fixed w-fit relative">
+    <div className="h-fit flex flex-col fixed w-fit pr-4 relative">
       <Listbox
         variant="flat"
         aria-label="Listbox menu with sections"
@@ -41,7 +41,7 @@ export const Sidebar = () => {
                 <BoxIcon name="bxs-message-square-edit" color="primary" />
               }
               className="py-3 my-1 text-primary"
-              href="/questions-management"
+              href="/questions-management/list"
               color="primary"
             >
               <span className="text-base">Question Management</span>

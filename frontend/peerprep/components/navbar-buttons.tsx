@@ -19,13 +19,7 @@ export const SettingButton: React.FC = () => {
 export const NotificationButton: React.FC = () => {
   return (
     <Badge shape="circle" color="danger">
-      <Button
-        radius="full"
-        isIconOnly
-        aria-label="more than 99 notifications"
-        variant="light"
-        className="text-red-500"
-      >
+      <Button radius="full" isIconOnly variant="light" className="text-red-500">
         <BoxIcon name="bxs-bell" />
       </Button>
     </Badge>
