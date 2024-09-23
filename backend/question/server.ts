@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const questionRoutes = require("./routes/questionRoutes");
+import questionRoutes from "./routes/questionRoutes.ts";
 const cors = require("cors");
 
 const uri = process.env.MONGO_URL || "";
@@ -26,9 +26,6 @@ async function connect() {
 
 connect();
 
-app.listen(PORT, (err) => {
-  if (err) {
-    return console.error(err);
-  }
-  return console.log(`App is running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
