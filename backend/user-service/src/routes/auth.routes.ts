@@ -20,7 +20,7 @@ passport.use(
 const router = Router()
 
 router.post('/login', passport.authenticate('local', { session: false }), handleLogin)
-router.put('/reset', handleReset)
-router.put('/verify', handleVerify)
+router.post('/reset', handleReset)
+router.post('/verify', handleVerify)
 
 export default router

@@ -88,12 +88,12 @@ export async function sendMail(to: string, subject: string, text: string, html: 
         port: 587,
         secure: false,
         auth: {
-            user: process.env.EMAIL,
-            pass: process.env.PASSWORD,
+            user: process.env.NODEMAILER_EMAIL,
+            pass: process.env.NODEMAILER_PASSWORD,
         },
     })
     await transporter.sendMail({
-        from: process.env.EMAIL,
+        from: process.env.NODEMAILER_EMAIL,
         to,
         subject,
         text,

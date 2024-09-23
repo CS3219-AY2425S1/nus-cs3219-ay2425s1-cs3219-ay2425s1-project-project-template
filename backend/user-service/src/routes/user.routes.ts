@@ -14,6 +14,6 @@ router.post('/', handleCreateUser)
 router.put('/:id', handleUpdateProfile)
 router.get('/:id', handleGetCurrentProfile)
 router.delete('/:id', handleDeleteUser)
-router.put('/password/:id', handleUpdatePassword)
+router.put('/:id/password', handleUpdatePassword)
 
 export default router
