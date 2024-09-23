@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { db, users } from '@/lib/db';
-import type { ILoginPayload } from './types';
+import type { ILoginPayload, ILoginResponse } from './types';
 
 // TODO: Set env var and rotate automatically
 const _JWT_SECRET_KEY = 'secret';
@@ -21,7 +21,7 @@ const _getSchema = () => {
     unlockTime,
   };
 };
-export const loginService = async (payload: ILoginPayload) => {
+export const loginService = async (payload: ILoginPayload): Promise<ILoginResponse> => {
   const rows = await db
     .select(_getSchema())
     .from(users)

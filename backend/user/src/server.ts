@@ -1,11 +1,13 @@
+import { exit } from 'process';
+
 import express, { json } from 'express';
 import pino from 'pino-http';
-import { db } from './lib/db';
-import authRoutes from './routes/auth';
 import helmet from 'helmet';
 import { sql } from 'drizzle-orm';
-import { logger } from './lib/utils';
-import { exit } from 'process';
+
+import { db } from '@/lib/db';
+import authRoutes from '@/routes/auth';
+import { logger } from '@/lib/utils';
 
 const app = express();
 app.use(pino());
