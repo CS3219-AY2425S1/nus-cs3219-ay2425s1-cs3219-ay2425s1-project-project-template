@@ -3,18 +3,14 @@ export const updateUser = async (
     id: string,
     username?: string,
     email?: string,
+    password?: string,
+    skillLevel?: string,
   ) => {
-    if (!username && !email) {
+    if (!username && !email && !password && !skillLevel) {
       throw new Error("Require at least one field");
     }
 
-    const body = {};
-    if (username) {
-      body["username"] = username;
-    }
-    if (email) {
-      body["email"] = email;
-    }
+    const body = { username, email, password, skillLevel };
 
     const response = await fetch(`http://localhost:3001/users/${id}`, {
       method: "PATCH",
