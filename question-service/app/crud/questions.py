@@ -1,4 +1,5 @@
 from app.models.questions import QuestionCollection, QuestionModel
+from bson import ObjectId
 from dotenv import load_dotenv
 import motor.motor_asyncio
 import os
@@ -23,3 +24,11 @@ async def create_question(question: QuestionModel):
 async def get_all_questions() -> QuestionCollection:
     questions = await question_collection.find().to_list(1000)
     return QuestionCollection(questions=questions)
+
+
+async def delete_question(question_id: str):
+    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    if existing_question is None:
+        return None
+    await question_collection.delete_one({"_id": ObjectId(question_id)})
+    return {"message": f"Question with id {existing_question['_id']} and title '{existing_question['title']}' deleted."}

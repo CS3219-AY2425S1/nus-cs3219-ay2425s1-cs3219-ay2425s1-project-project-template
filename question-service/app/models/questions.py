@@ -23,3 +23,6 @@ class QuestionModel(BaseModel):
 
 class QuestionCollection(BaseModel):
     questions: List[QuestionModel]
+    
+class MessageModel(BaseModel):
+    message: str
