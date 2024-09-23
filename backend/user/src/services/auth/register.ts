@@ -1,8 +1,9 @@
 import { or, eq, getTableColumns } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
+
 import { db, users } from '@/lib/db';
-import type { IRegisterPayload } from './register-inputs';
+import type { IRegisterPayload } from './types';
 
 const _getSchema = () => {
   const { id, email, username, firstName, lastName } = getTableColumns(users);

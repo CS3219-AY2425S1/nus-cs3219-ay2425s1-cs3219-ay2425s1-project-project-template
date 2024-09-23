@@ -1,9 +1,12 @@
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { loginService } from '@/services/auth/auth-logic';
-import type { ILoginPayload } from '@/services/auth/types';
-import { registerService } from '@/services/registration/register-logic';
-import type { IRegisterPayload } from '@/services/registration/register-inputs';
+
+import {
+  loginService,
+  registerService,
+  type ILoginPayload,
+  type IRegisterPayload,
+} from '@/services/auth';
 
 export async function login(req: Request, res: Response) {
   const { username, password }: Partial<ILoginPayload> = req.body;
