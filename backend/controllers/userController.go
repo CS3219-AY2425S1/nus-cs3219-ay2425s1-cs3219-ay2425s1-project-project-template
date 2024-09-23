@@ -88,7 +88,7 @@ func SignUp() gin.HandlerFunc {
 		user.ID = primitive.NewObjectID()
 		user.User_id = user.ID.Hex()
 		token, refreshToken, _ := helper.GenerateAllTokens(user.Email, user.Username, user.User_id)
-		user.Token = token
+		// user.Token = token
 		user.Refresh_token = refreshToken
 
 		_, insertErr := userCollection.InsertOne(ctx, user)
@@ -100,7 +100,7 @@ func SignUp() gin.HandlerFunc {
 		defer cancel()
 
 		// send a message to user, successfully created user
-		c.JSON(http.StatusOK, gin.H{"message": "User: " + user.Username + " created successfully"})
+		c.JSON(http.StatusOK, gin.H{"message": "User: " + user.Username + " created successfully", "token": token})
 
 	}
 }
@@ -133,10 +133,59 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
+		// Generates a new token and refresh token each time on login
 		token, refreshToken, _ := helper.GenerateAllTokens(foundUser.Email, foundUser.Username, foundUser.User_id)
 
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
 
 		c.JSON(http.StatusOK, gin.H{"message": "User logged in successfully", "token": token, "refreshToken": refreshToken})
 	}
+}
+
+func RefreshToken(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var refreshToken string = c.Request.Header.Get("refresh_token")
+	var targetUser models.User
+
+	if refreshToken == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No refresh token provided"})
+	}
+
+	refreshClaims, err := helper.ParseToken(refreshToken)
+
+	fmt.Println("refreshClaims", refreshClaims.Uid)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	// Check if refresh token has expired
+	if refreshClaims.ExpiresAt.Time.Before(time.Now()) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Refresh token has expired"})
+		return
+	}
+
+	// Validate refresh token with backend
+	err = userCollection.FindOne(ctx, bson.M{"user_id": refreshClaims.Uid}).Decode(&targetUser) // finds user with corresponding email from coll
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+		return
+	}
+
+	if refreshToken != targetUser.Refresh_token {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	token, _, err := helper.GenerateAllTokens(targetUser.Email, targetUser.Username, targetUser.User_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Generated new access token", "token": token})
 }

@@ -30,12 +30,10 @@ func Authentication() gin.HandlerFunc {
 		}
 
 		if claims == nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Token is invalid"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			c.Abort()
 			return
 		}
-
-		fmt.Println("Claims: ", claims)
 
 		// Stores the user information in the context
 		// c.Set("email", claims.Email)

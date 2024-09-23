@@ -35,13 +35,14 @@ func GenerateAllTokens(email string, username string, uid string) (signedToken s
 		Username: username,
 		Uid:      uid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // valid for 1 day
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * time.Second)), // valid for 1 hour
 		},
 	}
 
 	refreshClaims := &SignedDetails{
+		Uid: uid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(72 * time.Hour)), // valid for 3 days
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Hour)), // valid for 15 days
 		},
 	}
 
@@ -59,6 +60,29 @@ func GenerateAllTokens(email string, username string, uid string) (signedToken s
 	}
 
 	return token, refreshToken, err
+}
+
+func ParseToken(signedToken string) (claims *SignedDetails, err error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&SignedDetails{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(SECRET_KEY), nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*SignedDetails)
+	fmt.Print("claims", claims)
+	if !ok {
+		err = fmt.Errorf("the token is invalid")
+		return nil, err
+	}
+
+	return claims, err
 }
 
 // ValidateToken validates the jwt token
@@ -105,7 +129,7 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId strin
 
 	var updateObj primitive.D
 
-	updateObj = append(updateObj, bson.E{"token", signedToken})
+	// updateObj = append(updateObj, bson.E{"token", signedToken})
 	updateObj = append(updateObj, bson.E{"refresh_token", signedRefreshToken})
 
 	Updated_at, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
