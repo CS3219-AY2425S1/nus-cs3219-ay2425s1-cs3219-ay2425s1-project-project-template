@@ -10,26 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { PencilIcon, TableOfContentsIcon, Trash2Icon } from "lucide-react";
+import { TableOfContentsIcon, Trash2Icon } from "lucide-react";
 
 interface QuestionTableProps {
   data: Question[];
   isAdmin?: boolean;
   handleView: (question: Question) => void;
-  handleEdit?: (question: Question) => void;
   handleDelete?: (question: Question) => void;
 }
 
 const QuestionTable: React.FC<QuestionTableProps> = ({ ...props }) => {
   const adminActions = (question: Question) => (
     <>
-      <Button
-        variant="secondary"
-        className="ml-2"
-        onClick={() => props.handleEdit && props.handleEdit(question)}
-      >
-        <PencilIcon />
-      </Button>
       <Button
         variant="destructive"
         className="ml-2"
@@ -52,7 +44,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ ...props }) => {
       </TableHeader>
       <TableBody>
         {props.data.map((question) => (
-          <TableRow key={question.title}>
+          <TableRow key={question.id}>
             <TableCell>{question.title}</TableCell>
             <TableCell>{question.category}</TableCell>
             <TableCell>{question.complexity}</TableCell>
