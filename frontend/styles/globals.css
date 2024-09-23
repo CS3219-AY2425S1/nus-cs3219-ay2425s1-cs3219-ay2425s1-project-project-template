@@ -15,3 +15,10 @@ body {
   font-weight: 700;
   color: white;
 }
+
+code {
+  font-family: 'Roboto Mono', monospace;
+  background-color: #f4f4f4;
+  padding: 2px 4px;
+  border-radius: 5px;
+}

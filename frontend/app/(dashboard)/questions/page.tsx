@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Button, Spinner } from '@chakra-ui/react';
+import { Table, Text, Thead, Tbody, Tr, Th, Td, TableContainer, Button, Spinner } from '@chakra-ui/react';
 import Link from 'next/link';
 import { Question, QuestionComplexity, QuestionTopic } from '../../../types/Question';
 import { fetchQuestions } from '../../../hooks/fetchQuestions';
+import QuestionModal from './QuestionModal';
 
 export default function QuestionsPage() {
 
@@ -42,8 +43,8 @@ export default function QuestionsPage() {
           <Tbody>
             { questionData && questionData.map((question, index) => (
               <Tr key={index}>
-                <Td>{question.title}</Td>
-                {difficultyText(question.complexity)}
+                <Td><QuestionModal {...question}/></Td>
+                <Td>{difficultyText(question.complexity)}</Td>
                 <Td>
                   {question.topics.map((topic, idx) => (
                     topicText(topic, idx)
@@ -63,21 +64,21 @@ export default function QuestionsPage() {
   );
 }
 
-const difficultyText = (complexity: QuestionComplexity) => {
+export const difficultyText = (complexity: QuestionComplexity) => {
   return (
-    <Td color={
+    <Text color={
       complexity === QuestionComplexity.EASY ? 'green.500' :
       complexity === QuestionComplexity.MEDIUM ? 'yellow.500' :
       complexity === QuestionComplexity.HARD ? 'red.500' : 'gray.500'
-    }>
+    } className='font-medium'>
       {complexity.charAt(0).toUpperCase() + complexity.slice(1)}
-    </Td>
+    </Text>
   )
 }
 
-const topicText = (topic: QuestionTopic, idx: number) => {
+export const topicText = (topic: QuestionTopic, idx: number) => {
   return (
-    <span key={idx} className='mx-2 bg-gray-500 text-white px-2 py-2 rounded-2xl'>
+    <span key={idx} className='mx-2 bg-gray-200  px-2 py-2 rounded-2xl font-medium'>
       {topic
         .split('_')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
