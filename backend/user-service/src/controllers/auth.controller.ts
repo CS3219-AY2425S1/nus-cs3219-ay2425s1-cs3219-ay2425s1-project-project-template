@@ -131,8 +131,8 @@ export async function handleReset(request: TypedRequest<EmailVerificationDto>, r
 
     await updateUser(user.id, createDto)
 
-    const htmlFile = await getHTMLTemplate('../util/passwordResetEmail.html')
-    await sendMail('shishdoescs@gmail.com', 'Password Reset Request', 'PeerPrep', htmlFile.replace('{otp}', otp))
+    const htmlFile = await getHTMLTemplate('../../public/passwordResetEmail.html')
+    await sendMail(user.email, 'Password Reset Request', 'PeerPrep', htmlFile.replace('{otp}', otp))
 
     response.status(200).send()
 }
