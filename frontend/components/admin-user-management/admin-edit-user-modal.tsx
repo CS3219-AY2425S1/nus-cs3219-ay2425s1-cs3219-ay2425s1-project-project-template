@@ -15,11 +15,14 @@ import { updateUser } from "@/lib/update-user";
 import { useAuth } from "@/app/auth/auth-context";
 import { useToast } from "@/components/hooks/use-toast";
 import { Switch } from "../ui/switch";
+import { updateUserPrivilege } from "@/lib/update-user-privilege";
 
 interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {
   showModal?: boolean;
   setShowModal: (show: boolean) => void;
-  user: { id: string; username: string; email: string, isAdmin: boolean } | undefined;
+  user:
+    | { id: string; username: string; email: string; isAdmin: boolean }
+    | undefined;
   onUserUpdate: () => void;
 }
 
@@ -50,16 +53,19 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    updateUserInfo()
-      .then(() => updateUserPrivilege())
+    updateInfo()
+      .then(() => updatePrivilege())
       .then(() => {
-        // Remove old states, update UI and close modal
-        props.onUserUpdate();
+        toast({
+          title: "Success",
+          description: "User updated successfully!",
+        });
         closeModal();
-      });
+      })
+      .catch(() => null);
   };
 
-  const updateUserInfo = async () => {
+  const updateInfo = async () => {
     if (!auth?.token) {
       // Will not reach this point as button is disabled
       // when token is missing
@@ -86,19 +92,10 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
       editingUser?.username,
       editingUser?.email
     );
-    if (!response.ok) {
-      toast({
-        title: "Unknown Error",
-        description: "An unexpected error has occurred",
-      });
-    }
     switch (response.status) {
       case 200:
-        toast({
-          title: "Success",
-          description: "User updated successfully!",
-        });
-        break;
+        props.onUserUpdate();
+        return;
       case 400:
         // In theory, they should never be able to send out a request
         // with missing fields due to disabled submission button
@@ -106,47 +103,118 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
           title: "Missing Fields",
           description: "Please fill in at least 1 field",
         });
-        return;
+        break;
       case 401:
         toast({
           title: "Access denied",
           description: "Invalid session",
         });
-        return;
+        break;
       case 403:
         toast({
           title: "Access denied",
           description: "Only admins can update other user",
         });
-        return;
+        break;
       case 404:
         toast({
           title: "User not found",
           description: "User with specified ID not found",
         });
-        return;
+        break;
       case 409:
         toast({
           title: "Duplicated Username or Email",
           description: "The username or email you entered is already in use",
         });
-        return;
+        break;
       case 500:
         toast({
           title: "Server Error",
           description: "The server encountered an error",
         });
-        return;
+        break;
       default:
         toast({
           title: "Unknown Error",
           description: "An unexpected error has occured",
         });
-        return;
+        break;
     }
+    throw new Error("Update user info request failed");
   };
 
-  const updateUserPrivilege = async () => {
+  const updatePrivilege = async () => {
+    if (!auth?.token) {
+      // Will not reach this point as button is disabled
+      // when token is missing
+      toast({
+        title: "Access denied",
+        description: "No authentication token found",
+      });
+      return;
+    }
+
+    if (!editingUser?.id) {
+      // Will not reach this point as button is disabled
+      // when editing user's id is missing
+      toast({
+        title: "Invalid selection",
+        description: "No user selected",
+      });
+      return;
+    }
+
+    if (editingUser?.isAdmin == null) {
+      // Will not reach this point as button is disabled
+      // when field is missing
+      toast({
+        title: "Invalid selection",
+        description: "No user selected",
+      });
+      return;
+    }
+
+    const response = await updateUserPrivilege(
+      auth.token,
+      editingUser?.id,
+      editingUser?.isAdmin
+    );
+
+    switch (response.status) {
+      case 200:
+        props.onUserUpdate();
+        return;
+      case 400:
+        // In theory, they should never be able to send out a request
+        // with missing fields due to disabled submission button
+        break;
+      case 401:
+        toast({
+          title: "Access denied",
+          description: "Invalid session",
+        });
+        break;
+      case 403:
+        toast({
+          title: "Access denied",
+          description: "Only admins can update other user",
+        });
+        break;
+      case 404:
+        toast({
+          title: "User not found",
+          description: "User with specified ID not found",
+        });
+        break;
+      default:
+        toast({
+          title: "Unknown Error",
+          description: "An unexpected error has occured",
+        });
+        break;
+    }
+    throw new Error("Update user privilege request failed");
   };
 
   return (
@@ -188,12 +256,14 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
                 />
               </div>
               <div className="grid gap-2 mt-5">
-              <div className="flex items-center">
-                <Label htmlFor="email">Admin</Label>
+                <div className="flex items-center">
+                  <Label htmlFor="email">Admin</Label>
                 </div>
                 <Switch
                   checked={editingUser?.isAdmin}
-                  onCheckedChange={(e) => setEditingUser({ ...editingUser, isAdmin: e })}
+                  onCheckedChange={(e) =>
+                    setEditingUser({ ...editingUser, isAdmin: e })
+                  }
                   required
                 />
               </div>
@@ -204,7 +274,8 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
                 disabled={
                   !auth?.token ||
                   !editingUser?.id ||
-                  (!editingUser?.email && !editingUser?.username)
+                  (!editingUser?.email && !editingUser?.username) ||
+                  editingUser?.isAdmin == null
                 }
               >
                 Save changes
