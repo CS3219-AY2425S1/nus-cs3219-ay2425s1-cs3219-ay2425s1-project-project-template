@@ -65,9 +65,18 @@ module.exports = {
                     hover: 'hsl(var(--hover-fill))',
                     foreground: 'hsl(var(--foreground))',
                 },
+                theme: {
+                    100: 'hsl(var(--theme-100))',
+                    400: 'hsl(var(--theme-400))',
+                    600: 'hsl(var(--theme-600))',
+                    900: 'hsl(var(--theme-900))',
+                },
             },
             height: {
                 fullscreen: 'calc(100vh - 3rem)',
+            },
+            maxHeight: {
+                oneThirdScreen: 'calc((100vh - 3rem) / 3)',
             },
         },
     },
