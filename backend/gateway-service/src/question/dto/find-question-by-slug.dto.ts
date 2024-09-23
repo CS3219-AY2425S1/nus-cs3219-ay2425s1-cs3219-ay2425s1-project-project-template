@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-export class FindQuestionByIdDto {
+
+export class FindQuestionBySlugDto {
   @IsString()
   @IsNotEmpty()
-  id: string;
+  slug: string;
 }

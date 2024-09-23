@@ -1,7 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FindQuestionByIdDto, GetQuestionsDto } from './dto';
+import {
+  CreateQuestionDto,
+  FindQuestionBySlugDto,
+  GetQuestionsDto,
+} from './dto';
 
 @Controller()
 export class AppController {
@@ -9,19 +13,29 @@ export class AppController {
 
   @MessagePattern({ cmd: 'get_questions' })
   async getQuestions(@Payload() data: GetQuestionsDto) {
-    const { page, limit, searchQuery, difficulty, categories } = data;
+    const { page, limit, query, difficulty, categories } = data;
     return this.appService.getQuestions(
       page,
       limit,
-      searchQuery,
+      query,
       difficulty,
       categories,
     );
   }
 
   @MessagePattern({ cmd: 'get_question_details' })
-  async getQuestionDetails(@Payload() data: FindQuestionByIdDto) {
-    const { id } = data;
-    return this.appService.getQuestionDetails(id);
+  async getQuestionDetailBySlug(@Payload() data: FindQuestionBySlugDto) {
+    const { slug } = data;
+    return this.appService.getQuestionDetailsBySlug(slug);
+  }
+
+  @MessagePattern({ cmd: 'create_question' })
+  async createQuestion(@Payload() data: CreateQuestionDto) {
+    return this.appService.createQuestion(data);
+  }
+
+  @MessagePattern({ cmd: 'delete_question' })
+  async deleteQuestion(@Payload() id: string) {
+    return this.appService.deleteQuestion(id);
   }
 }

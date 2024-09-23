@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
@@ -21,7 +21,7 @@ export class GetQuestionsDto {
 
   @IsOptional()
   @IsString()
-  searchQuery?: string;
+  query?: string;
 
   @IsOptional()
   @IsString()
@@ -32,5 +32,6 @@ export class GetQuestionsDto {
   @IsArray()
   @IsString({ each: true })
   @Type(() => String)
+  @Transform(({ value }) => value.split(',').map((item) => item.trim()))
   categories?: string[];
 }

@@ -1,30 +1,40 @@
-import { Body, Controller, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { QuestionService } from './question.service';
-import { GetQuestionsDto } from './dto';
+import { CreateQuestionDto, GetQuestionsDto } from './dto';
 
-@Controller('question')
+@Controller('questions')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
+  // Get questions
   @Get()
-  getHello(): string {
-    return this.questionService.getHello();
+  getQuestions(@Query() dto: GetQuestionsDto) {
+    return this.questionService.getQuestions(dto);
   }
 
-  @Get('questions')
-  getQuestions(@Body() dto: GetQuestionsDto) {
-    const { page, limit, searchQuery, difficulty, categories } = dto;
-    return this.questionService.getQuestions(
-      page,
-      limit,
-      searchQuery,
-      difficulty,
-      categories,
-    );
+  // Get question details by slug
+  @Get(':slug')
+  getQuestionDetailsBySlug(@Param('slug') slug: string) {
+    return this.questionService.getQuestionDetailsBySlug(slug);
   }
 
-  @Get(':id')
-  getQuestionDetails(@Param('id') id: string) {
-    return this.questionService.getQuestionDetails(id);
+  // Create question
+  @Post('create')
+  createQuestion(@Body() dto: CreateQuestionDto) {
+    return this.questionService.createQuestion(dto);
+  }
+
+  // Delete question
+  @Delete(':id')
+  deleteQuestion(@Param('id') id: string) {
+    return this.questionService.deleteQuestion(id);
   }
 }
