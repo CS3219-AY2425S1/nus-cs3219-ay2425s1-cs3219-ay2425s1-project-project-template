@@ -1,11 +1,6 @@
 from fastapi import APIRouter, HTTPException
-<<<<<<< HEAD
 from app.models.questions import QuestionModel, QuestionCollection, MessageModel
-from app.crud.questions import create_question, get_all_questions, delete_question
-=======
-from app.models.questions import QuestionModel, QuestionCollection
-from app.crud.questions import create_question, get_all_questions, get_question_by_id
->>>>>>> main
+from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question
 
 router = APIRouter()
 
