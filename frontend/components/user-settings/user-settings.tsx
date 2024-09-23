@@ -24,31 +24,29 @@ import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import AuthPageWrapper from "../auth/auth-page-wrapper";
+import { User, UserSchema } from "@/lib/schemas/user-schema";
 
-interface User {
-  username: string;
-  email: string;
-  skillLevel: string;
-}
-
-const fetcher = (url: string) => {
+const fetcher = async (url: string): Promise<User> => {
   // Retrieve the JWT token from localStorage
   const token = localStorage.getItem("jwtToken");
   if (!token) {
     throw new Error("No authentication token found");
   }
 
-  return fetch(url, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error("An error occurred while fetching the data.");
-    }
-    return res.json();
   });
+
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+
+  const data = await response.json();
+
+  return UserSchema.parse(data.data);
 };
 
 export default function UserSettings({ userId }: { userId: string }) {
@@ -72,10 +70,8 @@ export default function UserSettings({ userId }: { userId: string }) {
   // Use effect to fetch information related to the currently logged-in user
   useEffect(() => {
     if (data) {
-      const { username, email, skillLevel } = data.data;
-
-      setUser({ username, email, skillLevel });
-      setOriginalUsername(username);
+      setUser(data);
+      setOriginalUsername(data.username);
     }
   }, [data]);
 

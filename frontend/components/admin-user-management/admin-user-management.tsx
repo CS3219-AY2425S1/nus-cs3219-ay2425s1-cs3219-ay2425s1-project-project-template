@@ -14,46 +14,39 @@ import {
 } from "@/components/ui/table";
 import LoadingScreen from "@/components/common/loading-screen";
 import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
+import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 
-const fetcher = (url: string) => {
+const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
   if (!token) {
     throw new Error("No authentication token found");
   }
 
-  return fetch(url, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-  }).then((res) => {
-    if (!res.ok) {
-      if (res.status === 401) {
-        throw new Error(String(res.status));
-      }
-    }
-    return res.json();
   });
+
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+
+  const data = await response.json();
+
+  return UserArraySchema.parse(data.data);
 };
 
 export default function AdminUserManagement() {
   const auth = useAuth();
-
   const { data, isLoading } = useSWR("http://localhost:3001/users", fetcher);
 
-  const [users, setUsers] = useState<
-    {
-      id: string;
-      username: string;
-      email: string;
-      isAdmin: boolean;
-      skillLevel: string;
-    }[]
-  >([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     if (data) {
-      setUsers(data.data ?? []);
+      setUsers(data);
     }
   }, [data]);
 
