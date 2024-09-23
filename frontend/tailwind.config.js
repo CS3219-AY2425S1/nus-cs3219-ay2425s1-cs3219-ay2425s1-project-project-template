@@ -58,6 +58,13 @@ module.exports = {
                     4: 'hsl(var(--chart-4))',
                     5: 'hsl(var(--chart-5))',
                 },
+                btn: {
+                    DEFAULT: 'hsl(var(--theme-600))',
+                    primary: 'hsl(var(--theme-600))',
+                    secondary: 'hsl(var(--white))',
+                    hover: 'hsl(var(--hover-fill))',
+                    foreground: 'hsl(var(--foreground))',
+                },
             },
         },
     },
