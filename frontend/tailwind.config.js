@@ -79,6 +79,9 @@ module.exports = {
                 oneThirdScreen: 'calc((100vh - 3rem) / 3)',
                 twoFifthScreen: 'calc((100vh - 3rem) / 2.5)',
             },
+            height: {
+                fullscreen: 'calc(100vh - 3rem)',
+            },
         },
     },
     plugins: [require('tailwindcss-animate')],
