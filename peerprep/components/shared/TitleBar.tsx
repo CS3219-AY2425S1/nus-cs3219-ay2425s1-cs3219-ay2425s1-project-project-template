@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from '@/style/shapes.module.css';
+import styles from '@/style/layout.module.css';
 
 function TitleBar() {
   return (

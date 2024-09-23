@@ -1,11 +1,16 @@
 .bar {
-  position: sticky;
-  top: 0px;
   background-color: rgb(206, 229, 255);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1px 5px 1px 5px;
+}
+
+.container {
+  display: flex;
+  min-width: 100%;
+  max-height: 90%;
+  overflow-y: scroll;
 }
 
 .title {
