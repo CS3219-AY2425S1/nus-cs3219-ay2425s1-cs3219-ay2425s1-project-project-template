@@ -61,8 +61,10 @@ export const questionController = {
         title: title,
         // description: updatedDescription,
         description: description,
-        category: category,
-        complexity: complexity,
+        category: Array.isArray(category)
+          ? category.map((cat) => cat.toUpperCase())
+          : category.toUpperCase(), // Convert each category string to uppercase
+        complexity: complexity.toUpperCase(),
         templateCode: templateCode,
         testCases: req.body.testCases,
       });
@@ -109,13 +111,21 @@ export const questionController = {
       // if (description) {
       //   filter.description = { $regex: description, $options: "i" };
       // }
+      // if (category) {
+      //   filter.category = {
+      //     $in: Array.isArray(category) ? category : [category],
+      //   };
+      // }
+
       if (category) {
+        const categoriesArray = Array.isArray(category) ? category : [category];
         filter.category = {
-          $in: Array.isArray(category) ? category : [category],
+          $in: categoriesArray.map((cat) => new RegExp(cat as string, "i")), // Convert each category to case-insensitive regex
         };
       }
+
       if (complexity) {
-        filter.complexity = complexity;
+        filter.complexity = { $regex: complexity, $options: "i" }; // Case-insensitive;
       }
       // if (templateCode) {
       //   filter.templateCode = { $regex: templateCode, $options: "i" };
@@ -246,8 +256,10 @@ export const questionController = {
       question.title = title || question.title;
       // question.description = updatedDescription || question.description;
       question.description = description || question.description;
-      question.category = category || question.category;
-      question.complexity = complexity || question.complexity;
+      question.category = Array.isArray(category)
+        ? category.map((cat) => cat.toUpperCase())
+        : category.toUpperCase() || question.category;
+      question.complexity = complexity.toUpperCase() || question.complexity;
       question.templateCode = templateCode || question.templateCode;
       question.testCases = testCases || question.testCases;
 
@@ -319,12 +331,10 @@ export const questionController = {
 
       res.status(200).json({ uniqueComplexityLevels });
     } catch (err) {
-      res
-        .status(500)
-        .json({
-          message: "Failed to get unique complexity levels",
-          error: err,
-        });
+      res.status(500).json({
+        message: "Failed to get unique complexity levels",
+        error: err,
+      });
     }
   },
 };
