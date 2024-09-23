@@ -49,3 +49,27 @@ export type IGetQuestionResponse = IServiceResponse<{
      */
   };
 }>;
+
+//=============================================================================
+// /random (For matching)
+//=============================================================================
+export type IGetRandomQuestionPayload = {
+  userId: number;
+  difficulty?: string;
+  topic?: string;
+};
+
+export type IGetRandomQuestionResponse = IServiceResponse<{
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  question: {
+    // TODO: Add schema from db
+    /**
+     * - name
+     * - number
+     * - description
+     * - difficulty
+     * - topic
+     * - submissionHistory?: TBC
+     */
+  };
+}>;
