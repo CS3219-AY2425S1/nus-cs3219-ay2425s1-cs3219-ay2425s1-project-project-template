@@ -12,6 +12,7 @@ services:
       - ./frontend:/app
     networks:
       - question-network
+      - user-service-network
   
   question:
     container_name: question
@@ -20,18 +21,20 @@ services:
       context: services/question
       dockerfile: Dockerfile
     ports:
-      - 8081:8081
+      - "${QUESTION_SERVICE_PORT}:${QUESTION_SERVICE_PORT}"
     environment:
       DB_CLOUD_URI: ${QUESTION_DB_CLOUD_URI}
       DB_LOCAL_URI: ${QUESTION_DB_LOCAL_URI}
       DB_USERNAME: ${QUESTION_DB_USERNAME}
       DB_PASSWORD: ${QUESTION_DB_PASSWORD}
+      QUESTION_SERVICE_PORT: ${QUESTION_SERVICE_PORT}
     volumes:
       - /app/node_modules
       - ./services/question:/app
     networks:
       - question-network
       - question-db-network
+      - user-service-network
 
   question-db:
     container_name: question-db
@@ -44,6 +47,24 @@ services:
     networks:
       - question-db-network
 
+  user-service:
+    container_name: user-service
+    image: user-service
+    build:
+      context: services/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+    environment:
+      USER_SERVICE_CLOUD_URI: ${USER_SERVICE_CLOUD_URI}
+      USER_SERVICE_LOCAL_URI: ${USER_SERVICE_LOCAL_URI}
+      ENV: ${ENV}
+      JWT_SECRET: ${JWT_SECRET}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
+    networks:
+      - question-network
+      - user-service-network
+
 volumes:
   question-db:
 
@@ -51,4 +72,6 @@ networks:
   question-network:
     driver: bridge
   question-db-network:
+    driver: bridge
+  user-service-network:
     driver: bridge
