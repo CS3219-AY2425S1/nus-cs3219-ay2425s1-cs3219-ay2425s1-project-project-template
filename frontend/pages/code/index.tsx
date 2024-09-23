@@ -110,7 +110,10 @@ export default function Code() {
                     <h2 className="text-lg font-medium">Session with: {collaboratorData.name}</h2>
                 </div>
 
-                <div id="question-data" className="flex-grow border-2 rounded-lg border-slate-100 mt-2 py-2 px-3">
+                <div
+                    id="question-data"
+                    className="flex-grow border-2 rounded-lg border-slate-100 mt-2 py-2 px-3 overflow-y-auto"
+                >
                     <h3 className="text-lg font-medium">{questionData.title}</h3>
                     <div className="flex gap-3 my-2 text-sm">
                         <DifficultyLabel difficulty={questionData.difficulty} />
