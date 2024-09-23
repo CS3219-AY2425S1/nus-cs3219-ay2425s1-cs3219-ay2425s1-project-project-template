@@ -1,9 +1,7 @@
-import * as path from 'path'
-
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
-import { promises as fs } from 'fs'
-import nodemailer from 'nodemailer'
+import { generateOTP, sendMail } from '../common/mail.util'
+import { getHTMLTemplate } from '../common/template.util'
 import { generateAccessToken } from '../common/token.util'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
@@ -19,35 +17,6 @@ export async function handleLogin({ user }: Request, response: Response): Promis
             accessToken,
         })
         .send()
-}
-
-export async function getHTMLTemplate(htmlFilePath: string): Promise<string> {
-    const filePath = path.join(__dirname, htmlFilePath)
-    return await fs.readFile(filePath, 'utf8')
-}
-
-export async function sendMail(to: string, subject: string, text: string, html: string): Promise<void> {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.NODEMAILER_EMAIL,
-            pass: process.env.NODEMAILER_PASSWORD,
-        },
-    })
-    await transporter.sendMail({
-        from: process.env.NODEMAILER_EMAIL,
-        to,
-        subject,
-        text,
-        html,
-    })
-}
-
-export function generateOTP(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
 export async function handleReset(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
