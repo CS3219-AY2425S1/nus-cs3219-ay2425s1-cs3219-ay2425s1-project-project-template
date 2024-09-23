@@ -8,9 +8,9 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { RpcException } from '@nestjs/microservices';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +20,48 @@ export class AuthController {
   getHello(): string {
     return this.authService.getHello();
   }
+
+  @Post('signup')
+  async signUp(@Body() body: { email: string; password: string; }) {
+    try {
+      const response = await this.authService.localSignUp(body.email, body.password);
+      return {
+        message: response.message,
+        token: response.token,
+      };
+    } catch (error) {
+      if (error instanceof RpcException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('login')
+  async logIn(@Body() body: { email: string; password: string }) {
+    try {
+      const response = await this.authService.localLogIn(body.email, body.password);
+      const jwtToken = response.token;
+      return { token: jwtToken };
+    } catch (error) {
+      if (error instanceof RpcException) {
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  // @Post('logout')
+  // async logOut(@Body() body: { token: string }) {}
+
+  // @Post('refresh-token')
+  // async refreshToken(@Body() body: { token: string }) {}
+
+  // @Post('password-reset')
+  // async passwordReset(@Body() body: { email: string }) {}
+
+  // @Post('change-password')
+  // async changePassword(@Body() body: { email: string; password: string }) {}
 
   @Get('google')
   async googleAuth(@Res() res: Response) {
@@ -34,29 +76,5 @@ export class AuthController {
     const jwtToken = response.token;
     // Redirect the user with the JWT token (or you can set a cookie here)
     return { token: jwtToken };
-  }
-
-  @Post('login')
-  async logIn(@Body() body: { email: string; password: string }) {
-    try {
-      const response = await this.authService.localLogIn(body.email, body.password);
-      const jwtToken = response.token;
-      return { token: jwtToken };
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Post('signup')
-  async signUp(@Body() body: { email: string; password: string; name: string }) {
-    try {
-      const response = await this.authService.localSignUp(body.email, body.password, body.name);
-      return {
-        message: response.message,
-        token: response.token,
-      };
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
   }
 }

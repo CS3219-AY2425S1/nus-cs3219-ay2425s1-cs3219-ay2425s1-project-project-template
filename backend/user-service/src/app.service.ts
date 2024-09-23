@@ -40,16 +40,8 @@ export class AppService {
   }
 
   async getUserByEmail(email: string) {
-    try {
       const user = await this.userModel.findOne({ email }).exec();
 
-      if (!user) {
-        throw new NotFoundException(`User with email ${email} not found`);
-      }
-  
       return user;
-    } catch (error) {
-      throw new RpcException(error.message);
-    }
   }
 }

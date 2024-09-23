@@ -3,12 +3,15 @@ import { Languages, Proficiency } from 'src/schema/user.schema';
 
 export class CreateUserDto {
   @IsString()
+  @IsOptional()
   username: string;
 
   @IsString()
+  @IsOptional()
   displayName: string;
 
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
@@ -24,6 +27,7 @@ export class CreateUserDto {
   proficiency?: Proficiency;
 
   @IsArray()
+  @IsOptional()
   @IsEnum(Languages, { each: true })
   languages: Languages[];
 }

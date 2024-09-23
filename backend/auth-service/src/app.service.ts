@@ -24,40 +24,6 @@ export class AppService {
     return 'This is the auth service!';
   }
 
-  // Exchange the authorization code for tokens and user profile
-  async exchangeGoogleCodeForTokens(code: string): Promise<any> {
-    try {
-      const { tokens } = await this.oauthClient.getToken(code);
-      this.oauthClient.setCredentials(tokens);
-
-      // Verify the id token
-      const ticket = await this.oauthClient.verifyIdToken({
-        idToken: tokens.id_token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-
-      const payload = ticket.getPayload();
-
-      // Retrieve user profile
-      const userInfo = await this.oauthClient.request({
-        url: 'https://www.googleapis.com/oauth2/v3/userinfo',
-      });
-
-      return {
-        tokens,
-        user: {
-          email: payload.email,
-          name: payload.name,
-          picture: payload.picture,
-          ...(typeof userInfo.data === 'object' ? userInfo.data : {}),
-        },
-      };
-    } catch (error) {
-      console.error('Error during token exchange:', error);
-      throw new Error('Error exchanging authorization code for tokens');
-    }
-  }
-
   async hashPassword(password: string): Promise<string> {
     const saltRounds = await bcrypt.genSalt(); // Number of salt rounds for bcrypt
     return bcrypt.hash(password, saltRounds);
@@ -65,26 +31,16 @@ export class AppService {
 
   async generateJwt(user: any) {
     const payload = { email: user.email, sub: user._id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return this.jwtService.sign(payload);
   }
 
-  async signUp(email: string, password: string, name: string): Promise<any> {
+  async registerUser(email: string, password: string): Promise<any> {
     try {
-      const existingUser = await lastValueFrom(
-        this.userClient.send({ cmd: 'get_user_by_email' }, { email }),
-      );
-
-      if (existingUser) {
-        throw new RpcException('User already exists');
-      }
-
       const hashedPassword = await this.hashPassword(password);
       const user = await lastValueFrom(
         this.userClient.send(
           { cmd: 'create_user' },
-          { email, password: hashedPassword, name },
+          { email, password: hashedPassword },
         ),
       );
 
@@ -120,6 +76,40 @@ export class AppService {
       return result;
     } catch (error) {
       throw new RpcException(error.message || 'Internal server error');
+    }
+  }
+
+  // Exchange the authorization code for tokens and user profile
+  async exchangeGoogleCodeForTokens(code: string): Promise<any> {
+    try {
+      const { tokens } = await this.oauthClient.getToken(code);
+      this.oauthClient.setCredentials(tokens);
+
+      // Verify the id token
+      const ticket = await this.oauthClient.verifyIdToken({
+        idToken: tokens.id_token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+
+      // Retrieve user profile
+      const userInfo = await this.oauthClient.request({
+        url: 'https://www.googleapis.com/oauth2/v3/userinfo',
+      });
+
+      return {
+        tokens,
+        user: {
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+          ...(typeof userInfo.data === 'object' ? userInfo.data : {}),
+        },
+      };
+    } catch (error) {
+      console.error('Error during token exchange:', error);
+      throw new Error('Error exchanging authorization code for tokens');
     }
   }
 }

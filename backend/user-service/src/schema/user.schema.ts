@@ -15,10 +15,10 @@ export enum Languages {
 
 @Schema()
 export class User extends Document {
-  @Prop({required: true})
+  @Prop({required: false, default: ''})
   username: string
 
-  @Prop({required:true})
+  @Prop({required: false, default: ''})
   displayName: string;
 
   @Prop({required: true})
@@ -30,10 +30,10 @@ export class User extends Document {
   @Prop({required: false, default: ''})
   profilePictureUrl?: string;
 
-  @Prop({ required: true, enum: Proficiency, default: Proficiency.BEGINNER })
+  @Prop({ required: false, enum: Proficiency, default: Proficiency.BEGINNER })
   proficiency: Proficiency;
 
-  @Prop({ required: true, type: [String], enum: Languages })
+  @Prop({ required: false, type: [String], enum: Languages })
   languages: Languages[];
 }
 

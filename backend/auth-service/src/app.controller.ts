@@ -11,14 +11,19 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @MessagePattern({ cmd: 'google-auth-redirect' })
-  async googleAuthRedirect(data: { code: string }) {
-    const { code } = data;
-    const tokens = await this.appService.exchangeGoogleCodeForTokens(code);
+  @MessagePattern({ cmd: 'local-sign-up' })
+  async localSignUp(data: { email: string; password: string }) {
+    try {
+      const { email, password } = data;
+      const response = await this.appService.registerUser(email, password);
 
-    const jwtToken = this.appService.generateJwt(tokens.user);
-
-    return { token: jwtToken };
+      return {
+        message: response.message,
+        token: response.token,
+      };
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
   @MessagePattern({ cmd: 'local-log-in' })
@@ -34,18 +39,12 @@ export class AppController {
     }
   }
 
-  @MessagePattern({ cmd: 'local-sign-up' })
-  async localSignUp(data: { email: string; password: string; name: string }) {
-    try {
-      const { email, password, name } = data;
-      const response = await this.appService.signUp(email, password, name);
+  @MessagePattern({ cmd: 'google-auth-redirect' })
+  async googleAuthRedirect(data: { code: string }) {
+    const { code } = data;
+    const tokens = await this.appService.exchangeGoogleCodeForTokens(code);
 
-      return {
-        message: response.message,
-        token: response.token,
-      };
-    } catch (error) {
-      throw new RpcException(error.message || 'Internal server error');
-    }
+    const jwtToken = this.appService.generateJwt(tokens.user);
+    return { token: jwtToken };
   }
 }

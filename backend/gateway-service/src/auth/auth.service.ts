@@ -12,6 +12,18 @@ export class AuthService {
     return 'This is the auth service!';
   }
 
+  async localSignUp(email: string, password: string) {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'local-sign-up' }, { email, password }),
+    );
+  }
+
+  async localLogIn(email: string, password: string) {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'local-log-in' }, { email, password }),
+    );
+  }
+
   async getGoogleAuthRedirect(code: string) {
     return firstValueFrom(
       this.authClient.send({ cmd: 'google-auth-redirect' }, { code }),
@@ -28,17 +40,5 @@ export class AuthService {
     const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
 
     return googleOAuthUrl;
-  }
-
-  async localLogIn(email: string, password: string) {
-    return firstValueFrom(
-      this.authClient.send({ cmd: 'local-log-in' }, { email, password }),
-    );
-  }
-
-  async localSignUp(email: string, password: string, name: string) {
-    return firstValueFrom(
-      this.authClient.send({ cmd: 'local-sign-up' }, { email, password, name }),
-    );
   }
 }
