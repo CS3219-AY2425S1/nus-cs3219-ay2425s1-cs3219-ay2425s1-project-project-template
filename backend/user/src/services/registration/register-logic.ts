@@ -5,14 +5,13 @@ import { db, users } from '@/lib/db';
 import type { IRegisterPayload } from './register-inputs';
 
 const _getSchema = () => {
-  const { id, email, username, firstName, lastName, password } = getTableColumns(users);
+  const { id, email, username, firstName, lastName } = getTableColumns(users);
   return {
     id,
     email,
     username,
     firstName,
     lastName,
-    password,
   };
 };
 
