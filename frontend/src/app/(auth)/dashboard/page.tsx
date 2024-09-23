@@ -1,8 +1,8 @@
 "use client";
 
 import { getUserInterviewMetadata } from "@/api/dashboard";
-import DashboardCard from "@/app/(authenticatedPages)/dashboard/components/DashboardCard";
-import { DashboardDataTable } from "@/app/(authenticatedPages)/dashboard/components/DashboardDataTable";
+import DashboardCard from "@/app/(auth)/dashboard/components/DashboardCard";
+import { DashboardDataTable } from "@/app/(auth)/dashboard/components/DashboardDataTable";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { UserInterviewMetadata } from "@/types/dashboard";

@@ -8,6 +8,8 @@ import { IoMdSearch } from "react-icons/io";
 import { IconType } from "react-icons";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthContext";
+import { googleLogout } from "@react-oauth/google";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
@@ -58,10 +60,15 @@ const menuItemStyles: MenuItemStyles = {
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const logoutHandler = () => {
-    console.log("Logout action: To be implemented");
-  };
-  return (
+
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    googleLogout();
+    logout();
+  }
+
+  return (!!user &&
     <div className="flex h-full overflow-y-auto">
       <Sidebar
         className="sticky top-0 h-full"
@@ -94,7 +101,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
           >
             <MenuItem
               icon={<RiLogoutBoxLine size={iconSize} />}
-              onClick={logoutHandler}
+              onClick={handleLogout}
             >
               Logout
             </MenuItem>
