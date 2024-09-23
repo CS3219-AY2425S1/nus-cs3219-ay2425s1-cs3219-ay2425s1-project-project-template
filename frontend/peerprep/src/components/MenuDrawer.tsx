@@ -1,9 +1,8 @@
 import React from 'react';
 import { Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, Box, Button, Icon, useColorModeValue } from '@chakra-ui/react';
 import { FiLogOut } from 'react-icons/fi';
-import { FaHome, FaHistory } from 'react-icons/fa';
 import logo from '/peerprep_logo.png';
-import { IoMdSettings } from 'react-icons/io';
+import { menuItems } from '../data';
 
 type MenuDrawerProps = {
     isOpen: boolean;
@@ -11,7 +10,6 @@ type MenuDrawerProps = {
 };
 
 const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
-    // Use a color scheme for dark blue background and white text
     const drawerBgColor = '#141A67';
     const buttonTextColor = 'white';
 
@@ -31,42 +29,21 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
 
                 <DrawerBody>
                     <Box mb={4}>
-                        <Button 
-                            variant="link" 
-                            width="100%" 
-                            p={5}
-                            mb={2} 
-                            justifyContent="start"
-                            leftIcon={<FaHome />}
-                            _hover={{ borderColor: "white"}}
-                            color={buttonTextColor}
-                        >
-                            Home
-                        </Button>
-                        <Button 
-                            variant="link" 
-                            width="100%" 
-                            p={5}
-                            mb={2} 
-                            justifyContent="start"
-                            leftIcon={<IoMdSettings />}
-                            _hover={{ borderColor: "white"}}
-                            color={buttonTextColor}
-                        >
-                            Account Settings
-                        </Button>
-                        <Button 
-                            variant="link" 
-                            width="100%" 
-                            p={5}
-                            mb={2} 
-                            justifyContent="start"
-                            leftIcon={<FaHistory />}
-                            _hover={{ borderColor: "white"}}
-                            color={buttonTextColor}
-                        >
-                            History
-                        </Button>
+                        {menuItems.map((item, index) => (
+                            <Button 
+                                key={index}
+                                variant="link"
+                                width="100%"
+                                p={5}
+                                mb={2}
+                                justifyContent="start"
+                                leftIcon={<item.icon />} 
+                                _hover={{ borderColor: "white"}}
+                                color={buttonTextColor}
+                            >
+                                {item.label}
+                            </Button>
+                        ))}
                     </Box>
                 </DrawerBody>
 

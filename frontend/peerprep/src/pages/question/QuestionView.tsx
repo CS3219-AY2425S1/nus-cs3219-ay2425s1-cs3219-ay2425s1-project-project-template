@@ -8,16 +8,10 @@ import {
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
-    getSortedRowModel,
 } from '@tanstack/react-table';
 import {
+    Badge,
     Box,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
     Text,
     Button,
     Icon,
@@ -26,6 +20,8 @@ import {
 import MenuDrawer from '../../components/MenuDrawer';
 import { FiAlignJustify } from 'react-icons/fi';
 import Filters from '../../components/Filter';
+import { CATEGORIES, COMPLEXITIES } from '../../data';
+import DataTable from '../../components/DataTable';
 
 type QuestionViewProps = {
     questions: Question[];
@@ -33,36 +29,51 @@ type QuestionViewProps = {
 
 const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
     const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
-    const { isOpen, onOpen, onClose } = useDisclosure(); // Chakra UI drawer hook
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const getComplexityColor = (complexity: string) => {
+        const found = COMPLEXITIES.find(c => c.id.toLowerCase() === complexity.toLowerCase());
+        return found ? found.color : 'white';
+    };
+
+    const getCategoryColor = (category: string) => {
+        const found = CATEGORIES.find(c => c.id.toLowerCase() === category.toLowerCase());
+        return found ? found.color : 'white';
+    };
 
     const columns: ColumnDef<Question>[] = useMemo(
         () => [
             { header: "ID", accessorKey: "id" },
             { header: "Title", accessorKey: "title" },
-            { header: "Topic", accessorKey: "categories" },
+            {
+                header: "Topic",
+                accessorKey: "categories",
+                cell: ({ getValue }) => {
+                    const category = getValue<string>();
+                    const color = getCategoryColor(category)
+                    return (
+                        <Text
+                            color={color}
+                            fontWeight='bold'
+                            mb={1}
+                        >
+                            {category}
+                        </Text>
+                    );
+                }
+            },
             {
                 header: "Complexity",
                 accessorKey: "complexity",
                 cell: ({ getValue }) => {
-                    const complexity = getValue<string>().toLowerCase();
-                    let color = 'white'; // Default color
-    
-                    switch (complexity) {
-                        case 'easy':
-                            color = 'green.400';
-                            break;
-                        case 'med':
-                            color = 'yellow.400';
-                            break;
-                        case 'hard':
-                            color = 'red.400';
-                            break;
-                    }
-    
+                    const complexity = getValue<string>();
+                    const color = getComplexityColor(complexity);
                     return (
-                        <Text color={color} fontWeight="bold" textTransform="capitalize">
-                            {complexity}
-                        </Text>
+                        <Badge borderRadius='lg' px='5' py='2' bg={color}>
+                            <Text color={'whitesmoke'}>
+                                {complexity}
+                            </Text>
+                        </Badge>
                     );
                 }
             },
@@ -78,16 +89,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
         ],
         []
     );
-
-    const table = useReactTable({
-        data: questions,
-        columns,
-        state: {
-            columnFilters,
-        },
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel : getFilteredRowModel(),
-    });
 
     return (
         <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
@@ -117,49 +118,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                 <h2 className="flex justify-center text-white text-3xl font-semibold">Questions</h2>
                 <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilter} />
                 {/* Table Display */}
-                <Box className="bg-white justify-between bg-opacity-10 rounded-md border-radius-md p-4" overflowX="auto">
-                    <Table variant='simple' colorScheme='#141A67'>
-                        <Thead 
-                            border="2px solid" 
-                            borderColor="white">
-                            {table.getHeaderGroups().map(headerGroup => (
-                                <Tr key={headerGroup.id} bgColor="purple.200" boxShadow="md">
-                                    {headerGroup.headers.map(header => (
-                                        <Th key={header.id} px={6} py={4} textAlign="center" textColor="black.300" fontSize={'large'}>
-                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                        </Th>
-                                    ))}
-                                </Tr>
-                            ))}
-                        </Thead>
-                        <Tbody>
-                            {table.getRowModel().rows.map(row => (
-                                <Tr 
-                                    key={row.id} 
-                                    color={'white'} 
-                                    _hover={{ bgColor: 'purple' }}
-                                    border="2px solid" 
-                                    borderColor="white"
-                                >
-                                    {row.getVisibleCells().map(cell => (
-                                        <Td 
-                                            key={cell.id} 
-                                            px={6} 
-                                            py={4}
-                                            fontSize={'large'}
-                                            textAlign="center" 
-                                            borderRight="2px solid" 
-                                            borderColor="gray.300"
-                                            _last={{ borderRight: "none" }}
-                                        >
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </Td>
-                                    ))}
-                                </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
-                </Box>
+                <DataTable columns={columns} data={questions} columnFilters={columnFilters} setColumnFilters={setColumnFilter}/>
             </Box>
         </Box>
     );
