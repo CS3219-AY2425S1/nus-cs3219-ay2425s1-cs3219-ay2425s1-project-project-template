@@ -1,34 +1,12 @@
-import { compare, hash } from 'bcrypt'
+import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
-import { sign, SignOptions } from 'jsonwebtoken'
-import { IVerifyOptions } from 'passport-local'
-import config from '../common/config.util'
-import { findOneUserByEmail, findOneUserByUsername } from '../models/user.repository'
-import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
-import { Role } from '../types/Role'
+import { generateOTP, sendMail } from '../common/mail.util'
+import { getHTMLTemplate } from '../common/template.util'
+import { generateAccessToken } from '../common/token.util'
+import { findOneUserByEmail, updateUser } from '../models/user.repository'
+import { EmailVerificationDto } from '../types/EmailVerificationDto'
+import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
-
-export async function handleAuthentication(
-    usernameOrEmail: string,
-    password: string,
-    done: (error: Error | null, user: UserDto | false, options?: IVerifyOptions) => void
-): Promise<void> {
-    const user = (await findOneUserByUsername(usernameOrEmail)) || (await findOneUserByEmail(usernameOrEmail))
-    if (!user) {
-        done(null, false)
-        return
-    }
-
-    const isPasswordMatching = await compare(password, user.password)
-    if (!isPasswordMatching) {
-        done(null, false)
-        return
-    }
-
-    const dto = UserDto.fromModel(user)
-
-    done(null, dto)
-}
 
 export async function handleLogin({ user }: Request, response: Response): Promise<void> {
     const accessToken = await generateAccessToken(user as UserDto)
@@ -41,29 +19,61 @@ export async function handleLogin({ user }: Request, response: Response): Promis
         .send()
 }
 
-export async function generateAccessToken(user: UserDto): Promise<string> {
-    const payload: Partial<IAccessTokenPayload> = {
-        id: user.id,
-        admin: user.role === Role.ADMIN,
-    }
-    const options: SignOptions = {
-        subject: user.email,
-        algorithm: 'RS256', // Assymetric Algorithm
-        expiresIn: '1h',
-        issuer: 'user-service',
-        audience: 'frontend',
+export async function handleReset(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
+    const createDto = EmailVerificationDto.fromRequest(request)
+    createDto.verificationToken = '0'
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
     }
 
-    const privateKey: Buffer = Buffer.from(config.ACCESS_TOKEN_PRIVATE_KEY, 'base64')
+    const user = await findOneUserByEmail(createDto.email)
 
-    return sign(payload, privateKey, options)
+    if (!user) {
+        response.status(404).json('USER_NOT_FOUND').send()
+        return
+    }
+    if (user.verificationToken !== '0') {
+        response.status(400).json('TOKEN_ALREADY_SENT').send()
+        return
+    }
+
+    const otp = generateOTP()
+    createDto.verificationToken = otp
+
+    await updateUser(user.id, createDto)
+
+    const htmlFile = await getHTMLTemplate('../../public/passwordResetEmail.html')
+    await sendMail(user.email, 'Password Reset Request', 'PeerPrep', htmlFile.replace('{otp}', otp))
+
+    response.status(200).send()
 }
 
-export async function comparePasswords(plaintextPassword: string, hashedPassword: string): Promise<boolean> {
-    return compare(plaintextPassword, hashedPassword)
-}
+export async function handleVerify(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
+    const createDto = EmailVerificationDto.fromRequest(request)
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
 
-export async function hashPassword(password: string): Promise<string> {
-    const saltRounds = 10
-    return hash(password, saltRounds)
+    const user = await findOneUserByEmail(createDto.email)
+
+    if (!user) {
+        response.status(404).json('USER_NOT_FOUND').send()
+        return
+    }
+
+    if (user.verificationToken == '0' || user.verificationToken !== createDto.verificationToken) {
+        response.status(400).json('INVALID_OTP').send()
+        return
+    }
+
+    createDto.verificationToken = '0'
+    await updateUser(user.id, createDto)
+
+    response.status(200).send()
 }

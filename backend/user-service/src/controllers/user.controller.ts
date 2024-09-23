@@ -2,18 +2,20 @@ import {
     createUser,
     deleteUser,
     findOneUserById,
-    findOneUserByEmail,
     findOneUserByUsername,
+    findUsersByUsernameAndEmail,
     updateUser,
 } from '../models/user.repository'
 
-import { CreateUserDto } from '../types/CreateUserDto'
+import { ValidationError } from 'class-validator'
 import { Response } from 'express'
+import { hashPassword } from '../common/password.util'
+import { CreateUserDto } from '../types/CreateUserDto'
+import { IUser } from '../types/IUser'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
+import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
-import { ValidationError } from 'class-validator'
-import { hashPassword } from './auth.controller'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
     const createDto = CreateUserDto.fromRequest(request)
@@ -24,13 +26,12 @@ export async function handleCreateUser(request: TypedRequest<CreateUserDto>, res
         return
     }
 
-    const duplicateUsername = await findOneUserByUsername(createDto.username)
-    if (duplicateUsername) {
-        response.status(409).json('DUPLICATE_USERNAME').send()
+    const duplicate = await findUsersByUsernameAndEmail(createDto.username, createDto.email)
+    if (duplicate.find((user: IUser) => user.username === createDto.username)) {
+        response.status(409).json(['DUPLICATE_USERNAME']).send()
         return
     }
-    const duplicateEmail = await findOneUserByEmail(createDto.email)
-    if (duplicateEmail) {
+    if (duplicate.find((user: IUser) => user.email === createDto.email)) {
         response.status(409).json('DUPLICATE_EMAIL').send()
         return
     }
@@ -82,4 +83,20 @@ export async function handleDeleteUser(request: TypedRequest<void>, response: Re
     const id = request.params.id
     await deleteUser(id)
     response.status(200).send()
+}
+
+export async function handleUpdatePassword(request: TypedRequest<UserPasswordDto>, response: Response): Promise<void> {
+    const createDto = UserPasswordDto.fromRequest(request)
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const id = request.params.id
+    createDto.password = await hashPassword(createDto.password)
+
+    const user = await updateUser(id, createDto)
+    response.status(200).json(user).send()
 }

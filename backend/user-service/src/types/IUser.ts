@@ -8,7 +8,5 @@ export interface IUser {
     password: string
     role: Role
     proficiency?: Proficiency
-    createdAt?: Date
-    updatedAt?: Date
-    deletedAt?: Date
+    verificationToken?: string
 }

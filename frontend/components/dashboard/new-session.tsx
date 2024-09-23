@@ -38,7 +38,7 @@ export const NewSession = () => {
     return (
         <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
             <div>
-                <h5 className=" text-xl text-medium font-bold">Recent Sessions</h5>
+                <h5 className=" text-xl text-medium font-bold">Start a New Session</h5>
                 <br />
                 <p className="text-medium font-medium mb-1">
                     Choose a <strong>Topic</strong> and <strong>Difficulty</strong> level to start your collaborative
