@@ -23,7 +23,13 @@ export default function QuestionsPage() {
 
   return (
     <div className='px-8 mt-4' style={{ overflowY: 'scroll' }}>
-      { isLoading && <Spinner size='xl' /> }
+    { isLoading ? (
+        <div className='flex flex-col justify-center items-center'>
+          <Spinner size='xl' thickness='4px' color='blue.500' emptyColor='gray.200' className="m-10" />
+          <span className='text-xl text-center'>Loading Questions...</span>
+        </div>
+      ) : (
+      <>
       <TableContainer>
         <Table variant="striped">
           <Thead>
@@ -34,13 +40,13 @@ export default function QuestionsPage() {
             </Tr>
           </Thead>
           <Tbody>
-            {questionData && questionData.map((question, index) => (
+            { questionData && questionData.map((question, index) => (
               <Tr key={index}>
                 <Td>{question.title}</Td>
-                <Td>{question.complexity}</Td>
+                {difficultyText(question.complexity)}
                 <Td>
                   {question.topics.map((topic, idx) => (
-                    <span key={idx}>{topic}{idx < question.topics.length - 1 ? ', ' : ''}</span>
+                    topicText(topic, idx)
                   ))}
                 </Td>
               </Tr>
@@ -51,6 +57,32 @@ export default function QuestionsPage() {
       <Button colorScheme="teal" onClick={() => alert('Add new question')} className='mt-4 mb-4'>
         Add New Question
       </Button>
+      </>
+    )}
     </div>
   );
+}
+
+const difficultyText = (complexity: QuestionComplexity) => {
+  return (
+    <Td color={
+      complexity === QuestionComplexity.EASY ? 'green.500' :
+      complexity === QuestionComplexity.MEDIUM ? 'yellow.500' :
+      complexity === QuestionComplexity.HARD ? 'red.500' : 'gray.500'
+    }>
+      {complexity.charAt(0).toUpperCase() + complexity.slice(1)}
+    </Td>
+  )
+}
+
+const topicText = (topic: QuestionTopic, idx: number) => {
+  return (
+    <span key={idx} className='mx-2 bg-gray-500 text-white px-2 py-2 rounded-2xl'>
+      {topic
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+      }
+    </span>
+  )
 }
