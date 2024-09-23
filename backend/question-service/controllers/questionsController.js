@@ -11,10 +11,10 @@ const createQuestion = async (req, res) => {
     if (!(req?.body?.title && req?.body?.description && req?.body?.category && req?.body?.complexity)) {
         return res.status(400).json({ 'message': 'Title, description, category and complexity are required!' });
     }
-    if (QuestionSchema.findOne({ title: req.body.title }).exec != null) {
+    if (await QuestionSchema.countDocuments({ title: req.body.title }) > 0) {
         return res.status(409).json({ 'message': 'A question with this title already exists!' })
     }
-    if (QuestionSchema.findOne({ description: req.body.description }).exec != null) {
+    if (await QuestionSchema.countDocuments({ description: req.body.description }) > 0) {
         return res.status(409).json({ 'message': 'A question with this description already exists!' })
     }
     try {
@@ -25,7 +25,7 @@ const createQuestion = async (req, res) => {
             complexity: req.body.complexity
         });
 
-        res.status(201).json(result);
+        return res.status(201).json(result);
     } catch (err) {
         console.error(err);
     }
