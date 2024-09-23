@@ -1,9 +1,9 @@
-import { AppShell } from '@mantine/core';
-import { useMantineTheme } from '@mantine/core';
+import { AppShell, useMantineTheme } from '@mantine/core';
 import { lazy } from 'react';
 
+import Card from '../components/Card';
+import QuestionCounter from '../components/dashboard/QuestionCounter';
 import './Dashboard.css';
-
 
 const Header = lazy(() => import('../components/Header'));
 
@@ -13,36 +13,52 @@ function Dashboard() {
     <AppShell withBorder={false} header={{ height: 80 }}>
       <Header />
       <AppShell.Main h="calc(100vh - 80px)" w="100%" bg="slate.9">
-        <div className='dashboard-container'>
-          <div className='dashboard-header'>
-            <div className='dashboard-stats'>
-
-            </div>
-            <div className='dashboard-practice'>
-
-            </div>
+        <div className="dashboard-container">
+          <div className="dashboard-header">
+            <Card className="dashboard-stats">
+              <QuestionCounter colour={theme.colors.green[4]} label="Easy" />
+              <QuestionCounter colour={theme.colors.orange[4]} label="Medium" />
+              <QuestionCounter colour={theme.colors.red[4]} label="Hard" />
+            </Card>
+            <Card className="dashboard-practice">blah</Card>
           </div>
-          <table className='dashboard-table'>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Role</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>admin</td>
-                <td>admin</td>
-                <td>edit</td>
-              </tr>
-              <tr>
-                <td>user</td>
-                <td>user</td>
-                <td>edit</td>
-              </tr>
-            </tbody>
-          </table>
+          <Card className="practice-history-container">
+            <h2 className="practice-history-label">Practice History</h2>
+            <table className="dashboard-table">
+              <thead style={{backgroundColor: theme.colors.slate[7]}}>
+                <tr>
+                  <th className='expand'>Question</th>
+                  <th>Date</th>
+                  <th>Difficulty</th>
+                  <th>Language</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Diameter of Binary Tree</td>
+                  <td>Sep 23, 2023</td>
+                  <td>Medium</td>
+                  <td>Python 3</td>
+                  <td><button className='view-button' style={{backgroundColor: theme.colors.slate[7]}}>View</button></td>
+                </tr>
+                <tr>
+                  <td>Diameter of Binary Tree</td>
+                  <td>Sep 23, 2023</td>
+                  <td>Medium</td>
+                  <td>Python 3</td>
+                  <td><button className='view-button' style={{backgroundColor: theme.colors.slate[7]}}>View</button></td>
+                </tr>
+                <tr>
+                  <td>Diameter of Binary Tree</td>
+                  <td>Sep 23, 2023</td>
+                  <td>Medium</td>
+                  <td>Python 3</td>
+                  <td><button className='view-button' style={{backgroundColor: theme.colors.slate[7]}}>View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </Card>
         </div>
       </AppShell.Main>
     </AppShell>

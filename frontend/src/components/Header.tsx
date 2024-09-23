@@ -6,9 +6,9 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 
-function header() {
+function Header() {
   return (
-    <AppShell.Header px="40px" py="16px" bg="slate.8">
+    <AppShell.Header px="40px" pt="20px" bg="slate.9">
       <Group justify="space-between">
         <a href="." className="logo">
           <Title c="white">PeerPrep</Title>
@@ -26,4 +26,4 @@ function header() {
   );
 }
 
-export default header;
+export default Header;
