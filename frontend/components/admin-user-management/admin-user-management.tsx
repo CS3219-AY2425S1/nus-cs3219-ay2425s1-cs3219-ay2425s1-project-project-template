@@ -40,7 +40,7 @@ const fetcher = (url: string) => {
 
 export default function AdminUserManagement() {
   const auth = useAuth();
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     "http://localhost:3001/users",
     fetcher
   );
@@ -108,6 +108,11 @@ export default function AdminUserManagement() {
     setUsers(users.filter((user) => user.id !== userId));
   };
 
+  const onUserUpdate = () => {
+    mutate();
+    setSelectedUser(undefined);
+  }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
@@ -115,6 +120,7 @@ export default function AdminUserManagement() {
         showModal={showModal}
         setShowModal={setShowModal}
         user={selectedUser}
+        onUserUpdate={onUserUpdate}
       />
       <Table>
         <TableHeader>

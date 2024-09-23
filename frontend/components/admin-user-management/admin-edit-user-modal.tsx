@@ -13,6 +13,7 @@ interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {
   showModal?: boolean;
   setShowModal: (show: boolean) => void;
   user: { id: string, username: string, email: string } | undefined;
+  onUserUpdate: () => void;
 };
 
 const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
@@ -113,6 +114,9 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
           return;
     }
 
+    // Remove old states, update UI and close modal
+    setEditingUser(undefined);
+    props.onUserUpdate();
     props.setShowModal(false);
   };
 
