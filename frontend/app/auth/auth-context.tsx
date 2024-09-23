@@ -1,5 +1,6 @@
 "use client";
 
+import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -9,17 +10,10 @@ import {
   useState,
 } from "react";
 
-interface UserAuthType {
-  id: string;
-  username: string;
-  email: string;
-  isAdmin: boolean;
-}
-
 interface AuthContextType {
-  user: UserAuthType | null;
+  user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<UserAuthType | undefined>;
+  login: (email: string, password: string) => Promise<User | undefined>;
   logout: () => Promise<void>;
 }
 
@@ -27,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const tokenKey = "jwtToken";
-  const [user, setUser] = useState<UserAuthType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
@@ -56,42 +50,34 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   }, [token]);
 
   // Login using email and password
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+  const login = async (email: string, password: string): Promise<User> => {
+    const response = await fetch("http://localhost:3001/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error("Not OK");
-      }
-
-      const resJson = await response.json();
-
-      setUser({
-        id: resJson.data.id,
-        username: resJson.data.username,
-        email: resJson.data.email,
-        isAdmin: resJson.data.isAdmin,
-      });
-
-      const { accessToken } = resJson.data;
-      setToken(accessToken);
-
-      // Cache JWT token for future authentication without login
-      localStorage.setItem(tokenKey, accessToken);
-
-      return user as UserAuthType;
-    } catch (err) {
-      console.error(err);
+    if (!response.ok) {
+      throw new Error("Not OK");
     }
+
+    const resJson = await response.json();
+
+    const loginUser = UserSchema.parse(resJson.data);
+    setUser(loginUser);
+
+    const { accessToken } = resJson.data;
+    setToken(accessToken);
+
+    // Cache JWT token for future authentication without login
+    localStorage.setItem(tokenKey, accessToken);
+
+    return loginUser;
   };
 
   const logout = async () => {
