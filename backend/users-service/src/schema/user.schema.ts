@@ -15,7 +15,6 @@ export enum Languages {
 
 @Schema()
 export class User extends Document {
-
   @Prop({required: true})
   username: string
 
@@ -36,8 +35,6 @@ export class User extends Document {
 
   @Prop({ required: true, type: [String], enum: Languages })
   languages: Languages[];
-
-
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

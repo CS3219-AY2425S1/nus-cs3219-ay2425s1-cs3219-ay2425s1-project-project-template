@@ -14,6 +14,12 @@ export class AppController {
     return this.appService.getUser(userId);
   }
 
+  @MessagePattern({ cmd: 'get_user_by_email' })
+  async getUserByEmail(@Payload() data: { email: string }) {
+    const { email } = data;
+    return this.appService.getUserByEmail(email);
+  }
+
   @MessagePattern({ cmd: 'update_user' })
   async updateUser(
     @Payload() data: { userId: string, updateUserDto: UpdateUserDto },

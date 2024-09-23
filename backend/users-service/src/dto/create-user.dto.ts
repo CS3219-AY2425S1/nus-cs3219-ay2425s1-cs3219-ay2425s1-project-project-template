@@ -1,4 +1,4 @@
-import {IsArray, IsEmail, IsEnum, IsOptional, IsString} from 'class-validator';
+import {IsArray, IsEmail, IsEnum, IsOptional, IsString, IsNotEmpty} from 'class-validator';
 import { Languages, Proficiency } from 'src/schema/user.schema';
 
 export class CreateUserDto {
@@ -12,6 +12,7 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   password: string;
 
   @IsOptional()

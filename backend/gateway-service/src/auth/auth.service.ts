@@ -29,4 +29,16 @@ export class AuthService {
 
     return googleOAuthUrl;
   }
+
+  async localLogIn(email: string, password: string) {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'local-log-in' }, { email, password }),
+    );
+  }
+
+  async localSignUp(email: string, password: string, name: string) {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'local-sign-up' }, { email, password, name }),
+    );
+  }
 }
