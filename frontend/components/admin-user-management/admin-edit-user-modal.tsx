@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { updateUser } from "@/lib/update-user";
 import { useAuth } from "@/app/auth/auth-context";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {
   showModal?: boolean;
@@ -19,6 +19,7 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
   ...props
 }) => {
   const auth = useAuth();
+  const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<{
     id?: string;
     username?: string;
@@ -36,6 +37,7 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
         // Will not reach this point as button is disabled
         // when token is missing
         toast({
+            title: "Access denied",
             description: "No authentication token found",
         });
         return;
@@ -45,6 +47,7 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
         // Will not reach this point as button is disabled
         // when editing user's id is missing
         toast({
+            title: "Invalid selection",
             description: "No user selected",
         });
         return;
@@ -69,29 +72,49 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
           // with missing fields due to disabled submission button
           toast({
             title: "Missing Fields",
-            description: "Please fill out all fields",
+            description: "Please fill in at least 1 field",
           });
-          break;
+          return;
+        case 401:
+          toast({
+            title: "Access denied",
+            description: "Invalid session",
+          });
+          return;
+        case 403:
+          toast({
+            title: "Access denied",
+            description: "Only admins can update other user",
+          });
+          return;
+        case 404:
+          toast({
+            title: "User not found",
+            description: "User with specified ID not found",
+          });
+          return;
         case 409:
           toast({
-            title: "Duplicted Username or Email",
+            title: "Duplicated Username or Email",
             description: "The username or email you entered is already in use",
           });
-          break;
+          return;
         case 500:
           toast({
             title: "Server Error",
             description: "The server encountered an error",
           });
-          break;
+          return;
         default:
           toast({
             title: "Unknown Error",
             description: "An unexpected error has occured",
           });
-          break;
+          return;
     }
-  }
+
+    props.setShowModal(false);
+  };
 
   return (
     <>
