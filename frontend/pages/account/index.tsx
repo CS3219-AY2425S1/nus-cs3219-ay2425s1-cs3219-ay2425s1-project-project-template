@@ -1,9 +1,9 @@
-import ProfileSettings from '@/components/account/TabBar'
+import AccountSettings from '@/components/account/AccountSetting'
 
 export default function index() {
     return (
         <>
-            <ProfileSettings />
+            <AccountSettings />
         </>
     )
 }
