@@ -1,9 +1,9 @@
-form {
+.login-form {
   display: flex;
   flex-direction: column;
   width: 300px;
   border-radius: 10px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 input[type="email"],
@@ -30,6 +30,7 @@ input[type="password"] {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
 }
 
 .login-button:hover {
@@ -67,4 +68,26 @@ p {
   margin-top: 20px;
   padding-bottom: 15px;
   text-align: center;
+}
+
+.login-graphic {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  padding: 20px;
+}
+
+.login-graphic img {
+  max-width: 100%;
+  height: auto;
+}
+
+.login-container {
+  display: flex;
+  width: 80%;
+  max-width: 1200px;
+  justify-content: space-between;
+  align-items: center;
 }

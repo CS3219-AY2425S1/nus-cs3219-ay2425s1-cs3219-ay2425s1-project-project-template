@@ -45,6 +45,9 @@ const Login: React.FC = () => {
             Don't have an account? <a href="#">Sign Up here</a>
           </p>
         </div>
+        <div className="login-graphic">
+          <img src={signupGraphic}></img>
+        </div>
       </div>
     </div>
   );
