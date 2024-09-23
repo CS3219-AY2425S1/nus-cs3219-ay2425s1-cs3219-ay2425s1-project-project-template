@@ -1,12 +1,20 @@
-import { compare, hash } from 'bcrypt'
+import * as path from 'path'
+
 import { Request, Response } from 'express'
-import { sign, SignOptions } from 'jsonwebtoken'
-import { IVerifyOptions } from 'passport-local'
-import config from '../common/config.util'
-import { findOneUserByEmail, findOneUserByUsername } from '../models/user.repository'
+import { SignOptions, sign } from 'jsonwebtoken'
+import { compare, hash } from 'bcrypt'
+import { findOneUserByEmail, findOneUserByUsername, updateUser } from '../models/user.repository'
+
+import { EmailVerificationDto } from '../types/EmailVerificationDto'
 import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
+import { IVerifyOptions } from 'passport-local'
 import { Role } from '../types/Role'
+import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
+import { ValidationError } from 'class-validator'
+import config from '../common/config.util'
+import { promises as fs } from 'fs'
+import nodemailer from 'nodemailer'
 
 export async function handleAuthentication(
     usernameOrEmail: string,
@@ -66,4 +74,92 @@ export async function comparePasswords(plaintextPassword: string, hashedPassword
 export async function hashPassword(password: string): Promise<string> {
     const saltRounds = 10
     return hash(password, saltRounds)
+}
+
+export async function getHTMLTemplate(htmlFilePath: string): Promise<string> {
+    const filePath = path.join(__dirname, htmlFilePath)
+    return await fs.readFile(filePath, 'utf8')
+}
+
+export async function sendMail(to: string, subject: string, text: string, html: string): Promise<void> {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: process.env.NODEMAILER_EMAIL,
+            pass: process.env.NODEMAILER_PASSWORD,
+        },
+    })
+    await transporter.sendMail({
+        from: process.env.NODEMAILER_EMAIL,
+        to,
+        subject,
+        text,
+        html,
+    })
+}
+
+export function generateOTP(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
+export async function handleReset(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
+    const createDto = EmailVerificationDto.fromRequest(request)
+    createDto.verificationToken = '0'
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const user = await findOneUserByEmail(createDto.email)
+
+    if (!user) {
+        response.status(404).json('USER_NOT_FOUND').send()
+        return
+    }
+    if (user.verificationToken !== '0') {
+        response.status(400).json('TOKEN_ALREADY_SENT').send()
+        return
+    }
+
+    const otp = generateOTP()
+    createDto.verificationToken = otp
+
+    await updateUser(user.id, createDto)
+
+    const htmlFile = await getHTMLTemplate('../../public/passwordResetEmail.html')
+    await sendMail(user.email, 'Password Reset Request', 'PeerPrep', htmlFile.replace('{otp}', otp))
+
+    response.status(200).send()
+}
+
+export async function handleVerify(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
+    const createDto = EmailVerificationDto.fromRequest(request)
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const user = await findOneUserByEmail(createDto.email)
+
+    if (!user) {
+        response.status(404).json('USER_NOT_FOUND').send()
+        return
+    }
+
+    if (user.verificationToken == '0' || user.verificationToken !== createDto.verificationToken) {
+        response.status(400).json('INVALID_OTP').send()
+        return
+    }
+
+    createDto.verificationToken = '0'
+    await updateUser(user.id, createDto)
+
+    response.status(200).send()
 }

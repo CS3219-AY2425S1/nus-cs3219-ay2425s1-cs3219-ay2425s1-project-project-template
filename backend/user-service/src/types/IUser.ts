@@ -10,5 +10,5 @@ export interface IUser {
     proficiency?: Proficiency
     createdAt?: Date
     updatedAt?: Date
-    deletedAt?: Date
+    verificationToken?: string
 }

@@ -1,10 +1,12 @@
-import cors from 'cors'
-import express, { Express, NextFunction, Request, Response } from 'express'
 import 'express-async-errors'
+
+import express, { Express, NextFunction, Request, Response } from 'express'
+
+import authRouter from './routes/auth.routes'
+import cors from 'cors'
+import defaultErrorHandler from './middlewares/errorHandler.middleware'
 import helmet from 'helmet'
 import passport from 'passport'
-import defaultErrorHandler from './middlewares/errorHandler.middleware'
-import authRouter from './routes/auth.routes'
 import userRouter from './routes/user.routes'
 
 const app: Express = express()

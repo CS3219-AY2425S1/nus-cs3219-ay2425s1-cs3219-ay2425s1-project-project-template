@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import Login from '../../components/login/Login'
-import Signup from '../../components/login/Signup'
 import Image from 'next/image'
+import Login from '../../components/auth/Login'
+import Signup from '../../components/auth/Signup'
+import { useState } from 'react'
 
 export default function Home() {
     const [isLoginPage, setIsLoginPage] = useState(false)

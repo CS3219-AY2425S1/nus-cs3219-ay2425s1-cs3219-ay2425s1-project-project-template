@@ -1,7 +1,8 @@
 import {
     handleCreateUser,
-    handleGetCurrentProfile,
     handleDeleteUser,
+    handleGetCurrentProfile,
+    handleUpdatePassword,
     handleUpdateProfile,
 } from '../controllers/user.controller'
 
@@ -13,5 +14,6 @@ router.post('/', handleCreateUser)
 router.put('/:id', handleUpdateProfile)
 router.get('/:id', handleGetCurrentProfile)
 router.delete('/:id', handleDeleteUser)
+router.put('/:id/password', handleUpdatePassword)
 
 export default router
