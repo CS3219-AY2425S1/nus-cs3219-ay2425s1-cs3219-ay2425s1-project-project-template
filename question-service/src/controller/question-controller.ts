@@ -8,6 +8,7 @@
 
 import { Request, Response } from "express";
 import Question from "../model/question-model";
+import { uploadToS3, deleteFromS3 } from "../config/s3";
 
 export const questionController = {
   // Create a question
@@ -26,7 +27,7 @@ export const questionController = {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    if (!templateCode || !testCases || !Array.isArray(testCases)) {
+    if (!templateCode || !testCases /*|| !Array.isArray(testCases)*/) {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
@@ -41,13 +42,29 @@ export const questionController = {
           .json({ error: "A question with this title already exists." });
       }
 
+      // Parse the testCases if they are sent as a JSON string
+      // if (typeof req.body.testCases === "string") {
+      //   req.body.testCases = JSON.parse(req.body.testCases);
+      // }
+
+      // // Handle image upload if present
+      // let updatedDescription = description;
+      // if (req.files) {
+      //   const files = req.files as Express.Multer.File[];
+      //   for (const file of files) {
+      //     const imageUrl = await uploadToS3(file);
+      //     updatedDescription += `\n![Image](${imageUrl})`; // Append image URL at the end of description
+      //   }
+      // }
+
       const question = new Question({
-        title,
-        description,
-        category,
-        complexity,
-        templateCode,
-        testCases,
+        title: title,
+        // description: updatedDescription,
+        description: description,
+        category: category,
+        complexity: complexity,
+        templateCode: templateCode,
+        testCases: req.body.testCases,
       });
 
       const savedQuestion = await question.save();
@@ -159,24 +176,42 @@ export const questionController = {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    if (!templateCode || !testCases || !Array.isArray(testCases)) {
+    if (!templateCode /*|| !testCases || !Array.isArray(testCases)*/) {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
     }
 
     try {
-      const updatedQuestion = await Question.findOneAndUpdate(
-        { question_id: id },
-        { title, description, category, complexity, templateCode, testCases },
-        { new: true } // Return the updated document
-      );
+      // const updatedQuestion = await Question.findOneAndUpdate(
+      //   { question_id: id },
+      //   { title, description, category, complexity, templateCode, testCases },
+      //   { new: true } // Return the updated document
+      // );
 
-      if (updatedQuestion) {
-        res.status(200).json(updatedQuestion);
-      } else {
-        res.status(404).json({ message: "Question not found" });
-      }
+      const question = await Question.findOne({ question_id: id });
+      if (!question)
+        return res.status(404).json({ message: "Question not found" });
+
+      // let updatedDescription = description;
+      // if (req.files) {
+      //   const files = req.files as Express.Multer.File[];
+      //   for (const file of files) {
+      //     const imageUrl = await uploadToS3(file);
+      //     updatedDescription += `\n![Image](${imageUrl})`; // Append new image URL to description
+      //   }
+      // }
+
+      question.title = title || question.title;
+      // question.description = updatedDescription || question.description;
+      question.description = description || question.description;
+      question.category = category || question.category;
+      question.complexity = complexity || question.complexity;
+      question.templateCode = templateCode || question.templateCode;
+      question.testCases = testCases || question.testCases;
+
+      await question.save();
+      res.status(200).json(question);
     } catch (err) {
       res
         .status(500)
@@ -188,14 +223,32 @@ export const questionController = {
   deleteQuestion: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const deletedQuestion = await Question.findOneAndDelete({
-        question_id: id,
-      });
-      if (deletedQuestion) {
-        res.status(200).json({ message: "Question deleted successfully" });
-      } else {
-        res.status(404).json({ message: "Question not found" });
-      }
+      const question = await Question.findOne({ question_id: id });
+      if (!question)
+        return res.status(404).json({ message: "Question not found" });
+      // const deletedQuestion = await Question.findOneAndDelete({
+      //   question_id: id,
+      // });
+
+      // // Extract image URLs from the description and delete them from S3
+      // const imageUrls = question.description
+      //   .match(/!\[Image]\((.*?)\)/g)
+      //   ?.map((img) => img.slice(9, -1));
+      // if (imageUrls) {
+      //   for (const imageUrl of imageUrls) {
+      //     const key = imageUrl.split("/").pop() as string;
+      //     await deleteFromS3(key);
+      //   }
+      // }
+
+      await question.delete();
+      res.status(200).json({ message: "Question deleted successfully" });
+
+      // if (deletedQuestion) {
+      //   res.status(200).json({ message: "Question deleted successfully" });
+      // } else {
+      //   res.status(404).json({ message: "Question not found" });
+      // }
     } catch (err) {
       res
         .status(500)

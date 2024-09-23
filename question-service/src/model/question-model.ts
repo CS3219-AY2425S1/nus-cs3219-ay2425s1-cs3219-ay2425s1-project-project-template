@@ -22,7 +22,8 @@ interface QuestionDocument extends Document {
   category: string[];
   complexity: string;
   templateCode: string; // New field for the template code
-  testCases: TestCase[]; // New field for test cases (array of test cases)
+  // testCases: TestCase[]; // New field for test cases (array of test cases)
+  testCases: string[]; // New field for test cases (array of test cases)
 }
 
 const TestCaseSchema = new Schema<TestCase>({
@@ -44,7 +45,7 @@ const questionSchema: Schema = new Schema({
   },
   complexity: { type: String, required: true },
   templateCode: { type: String, required: true }, // Adding template code
-  testCases: [{ type: [TestCaseSchema], required: true }], // Adding test cases
+  testCases: [{ type: [String], required: false }], // Adding test cases
 });
 
 // Middleware to auto-increment the question_id before saving
