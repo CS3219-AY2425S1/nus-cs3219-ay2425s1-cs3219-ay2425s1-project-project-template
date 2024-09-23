@@ -4,8 +4,8 @@ import Link from "next/link";
 const Header = () => {
   const iconSize = 180;
   return (
-    <div className="w-full mb-8">
-      <Link href="/dashboard">
+    <div className="w-full">
+      <Link href="/">
         <Image
           alt="PeerPrep Header Icon"
           src="logo_full.svg"

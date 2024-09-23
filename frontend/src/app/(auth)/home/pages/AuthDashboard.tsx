@@ -1,6 +1,6 @@
 import { getUserInterviewMetadata } from "@/api/dashboard";
-import DashboardCard from "@/app/(auth)/(home)/components/DashboardCard";
-import { DashboardDataTable } from "@/app/(auth)/(home)/components/DashboardDataTable";
+import DashboardCard from "@/app/(auth)/home/components/DashboardCard";
+import { DashboardDataTable } from "@/app/(auth)/home/components/DashboardDataTable";
 import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";

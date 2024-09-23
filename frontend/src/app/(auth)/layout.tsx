@@ -1,9 +1,9 @@
 "use client";
 
-import { AuthProvider, useAuth } from "@/components/auth/AuthContext";
+import { AuthProvider } from "@/components/auth/AuthContext";
 import { ReactNode } from "react";
-import AuthLayout from "./AuthLayout";
-import UnauthLayout from "./UnauthLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import UnauthLayout from "./layouts/UnauthLayout";
 
 const Layout = ({ children }: { children: ReactNode }) => {
 
