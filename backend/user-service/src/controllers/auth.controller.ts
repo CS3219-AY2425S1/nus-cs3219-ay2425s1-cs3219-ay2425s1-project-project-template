@@ -107,7 +107,7 @@ export function generateOTP(): string {
 
 export async function handleReset(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
     const createDto = EmailVerificationDto.fromRequest(request)
-    createDto.verificationToken = ''
+    createDto.verificationToken = '0'
     const errors = await createDto.validate()
     if (errors.length) {
         const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
@@ -121,7 +121,7 @@ export async function handleReset(request: TypedRequest<EmailVerificationDto>, r
         response.status(404).json('USER_NOT_FOUND').send()
         return
     }
-    if (user.verificationToken !== '') {
+    if (user.verificationToken !== '0') {
         response.status(400).json('TOKEN_ALREADY_SENT').send()
         return
     }
@@ -153,12 +153,12 @@ export async function handleVerify(request: TypedRequest<EmailVerificationDto>, 
         return
     }
 
-    if (user.verificationToken == '' || user.verificationToken !== createDto.verificationToken) {
+    if (user.verificationToken == '0' || user.verificationToken !== createDto.verificationToken) {
         response.status(400).json('INVALID_OTP').send()
         return
     }
 
-    createDto.verificationToken = ''
+    createDto.verificationToken = '0'
     await updateUser(user.id, createDto)
 
     response.status(200).send()

@@ -40,6 +40,6 @@ export default new Schema<IUser>({
     verificationToken: {
         type: String,
         required: false,
-        default: '',
+        default: '0',
     },
 })
