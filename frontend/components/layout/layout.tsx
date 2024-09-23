@@ -22,7 +22,7 @@ export default function RootLayout({
             ) : (
                 <>
                     <NavBar />
-                    <div className={`${inter.className} mx-10 my-6`}>{children}</div>
+                    <div className={`${inter.className} mx-10 my-6 h-[calc(100vh-101px)]`}>{children}</div>
                 </>
             )}
         </>

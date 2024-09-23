@@ -9,7 +9,7 @@ function Profile() {
                     <input
                         type="text"
                         id="username"
-                        placeholder="eg. Lynn Low"
+                        placeholder="eg. John Doe"
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                     />
                 </div>
@@ -29,11 +29,8 @@ function Profile() {
                     </select>
                 </div>
 
-                <button
-                    type="submit"
-                    className="w-full bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600"
-                >
-                    Update profile
+                <button type="submit" className="bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600">
+                    Update Profile
                 </button>
             </form>
         </>
