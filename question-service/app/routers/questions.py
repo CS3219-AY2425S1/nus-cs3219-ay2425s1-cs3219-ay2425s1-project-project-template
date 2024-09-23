@@ -32,7 +32,6 @@ async def get_all():
 @router.get("/{question_id}", response_description="Get question with specified id", response_model=QuestionModel)
 async def get_question(question_id: str):
     existing_question: QuestionModel = await get_question_by_id(question_id)
-    print(existing_question, question_id)
     if existing_question is None:
         raise HTTPException(status_code=404, detail="Question with this id does not exist.")
     return existing_question
