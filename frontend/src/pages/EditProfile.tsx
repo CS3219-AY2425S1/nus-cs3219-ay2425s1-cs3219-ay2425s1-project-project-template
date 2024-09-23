@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { updateUserProfile } from "../api/userApi";
+import { toast } from "react-toastify";
 
 const EditProfile: React.FC = () => {
   const { user, token, setUser } = useAuth();
@@ -21,24 +22,28 @@ const EditProfile: React.FC = () => {
     }
 
     try {
-      const response = await updateUserProfile(token, user.id, {
+      const res = await updateUserProfile(token, user.id, {
         username,
         email,
       });
-      if (!response.ok) {
+
+      if (!res) {
         throw new Error("Failed to update profile");
       }
-      const res = await response.json();
-      console.log(res.data);
-      // Update user in context
+
       setUser({
         ...res.data,
-        name: res.data.username, // Rename `username` to `name`
+        name: res.data.username,
       });
+      toast.success("Profile updated successfully");
       navigate("/dashboard");
     } catch (err) {
-      console.error("Error updating profile:", err);
-      setError("Failed to update profile. Please try again.");
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        console.error("Error updating profile:", err);
+        toast.error("Failed to update profile. Please try again.");
+      }
     }
   };
 

@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const handleVerifyToken = async (token: string) => {
     try {
       const response = await verifyToken(token);
-      if (response.ok) {
+      if (response) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -50,12 +50,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     navigate: (path: string) => void
   ) => {
     try {
-      const response = await loginService(data);
-      if (!response.ok) {
-        throw new Error("Failed to login: " + response.statusText);
-      }
+      const res = await loginService(data);
 
-      const res = await response.json();
       if (res.data && res.data.accessToken) {
         setUser({
           id: res.data.id,

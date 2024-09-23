@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "../pages/Login";
+import SignUp from "../pages/SignUp";
 import Dashboard from "../pages/Dashboard";
 import ProtectedRoute from "./ProtectedRoutes";
 import EditProfile from "../pages/EditProfile";
@@ -9,6 +10,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
   },
   {
     path: "/dashboard",
@@ -27,6 +32,10 @@ const router = createBrowserRouter([
         element: <ChangePassword />,
       },
     ],
+  },
+  {
+    path: "/questions",
+    element: <ProtectedRoute />,
   },
 ]);
 

@@ -23,3 +23,10 @@ export interface LoginData {
 export interface AuthProviderProps {
   children: React.ReactNode;
 }
+
+export interface SignUpData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
