@@ -8,7 +8,7 @@ export default function Layout({
   return (
     <div className="flex items-center justify-evenly min-h-screen bg-[#2C5282]">
       <Stack align="start">
-        <Text fontSize='50px' color='white' as='b'>{'{PeerPrep}'}</Text>
+        <Text className='logo-text' fontSize='50px'>{'{PeerPrep}'}</Text>
         <Text fontSize='30px' color='white'>Master Interviews Together!</Text>
       </Stack>
       {children}
