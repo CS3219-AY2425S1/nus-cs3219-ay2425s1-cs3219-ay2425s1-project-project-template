@@ -2,7 +2,6 @@ import express, { json } from 'express';
 import pino from 'pino-http';
 import { db } from './lib/db';
 import authRoutes from './routes/auth';
-import registerRoutes from './routes/register';
 import helmet from 'helmet';
 import { sql } from 'drizzle-orm';
 import { logger } from './lib/utils';
@@ -13,7 +12,6 @@ app.use(pino());
 app.use(json());
 app.use(helmet());
 app.use('/auth', authRoutes);
-app.use('/register', registerRoutes);
 app.get('/', async (_req, res) => {
   res.json({
     message: 'OK',
