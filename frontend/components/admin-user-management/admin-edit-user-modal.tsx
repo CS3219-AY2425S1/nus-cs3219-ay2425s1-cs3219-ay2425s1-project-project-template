@@ -16,13 +16,12 @@ import { useAuth } from "@/app/auth/auth-context";
 import { useToast } from "@/components/hooks/use-toast";
 import { Switch } from "../ui/switch";
 import { updateUserPrivilege } from "@/lib/update-user-privilege";
+import { User } from "@/lib/schemas/user-schema";
 
 interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {
   showModal?: boolean;
   setShowModal: (show: boolean) => void;
-  user:
-    | { id: string; username: string; email: string; isAdmin: boolean }
-    | undefined;
+  user: User | undefined;
   onUserUpdate: () => void;
 }
 
