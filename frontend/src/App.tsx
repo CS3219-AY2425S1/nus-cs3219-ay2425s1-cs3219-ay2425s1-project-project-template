@@ -1,12 +1,15 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import QuestionPage from "./pages/QuestionPage";
+import LandingPage from "./pages/LandingPage";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <div>
-        <h1 className="text-5xl font-bold underline">Hello world!</h1>
-      </div>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/question" element={<QuestionPage />} />
+      </Routes>
     </BrowserRouter>
   );
 };
