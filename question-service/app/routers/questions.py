@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from app.models.questions import QuestionModel, QuestionCollection, MessageModel
+
+from app.models.questions import CreateQuestionModel, QuestionModel, QuestionCollection, MessageModel
 from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question
 
 router = APIRouter()
@@ -19,7 +20,7 @@ router = APIRouter()
                 }
                 ,
             })
-async def create(question: QuestionModel):
+async def create(question: CreateQuestionModel):
     existing_question = await create_question(question)
     if existing_question is None:
         raise HTTPException(status_code=409, detail="Question with this title already exists.")
