@@ -43,3 +43,5 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+require github.com/gin-contrib/cors v1.7.2 // indirect

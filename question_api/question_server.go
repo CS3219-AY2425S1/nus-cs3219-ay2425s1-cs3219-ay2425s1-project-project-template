@@ -2,12 +2,13 @@
 package main
 
 import (
-	"os"
-	"github.com/sirupsen/logrus"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 	"fmt"
+	"os"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // QuestionDB is a struct that contains a pointer to a mongo client.
@@ -56,6 +57,8 @@ func main() {
 
 
 	router := gin.Default()
+	SetCors(router)
+	
 	//initialise the database and handle errors
 	server, err := initialiseDB()
 
