@@ -1,35 +1,42 @@
+# Command: docker-compose --env-file .env.local up -d
+
 services:
-  postgres:
-    hostname: postgres
+  question-db:
+    hostname: "question-db"
     image: postgres:16.4
-    container_name: 'question_db'
+    container_name: "question-db"
     build:
       context: ./src/lib/db
-    environment:
-      POSTGRES_DB: 'Question'
-      POSTGRES_USER: 'user'
-      POSTGRES_PASSWORD: 'user'
-      PGDATA: '/data/question-db'
+    env_file:
+      - ./.env.local
     volumes:
-      - 'question-db-docker:/data/question-db'
+      - "question-db-docker:${PGDATA}"
       #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - '5433:5432'
+      - "${EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
 
-  express:
-    image: 'question-express'
-    container_name: 'question-express'
+  question-express:
+    image: "question-express"
+    container_name: "question-express"
     build:
       context: ./
       dockerfile: ./express.Dockerfile
       target: build
+      args: 
+        # For building with the correct env vars
+        - env=${EXPRESS_ENV}
     ports:
-      - '9002:8001'
+      - "9002:8001"
     command: node dist/index.js
+    env_file:
+      - ./.env.local
+    environment:
+      # Docker Compose Specific
+      - EXPRESS_DB_HOST=question-db
+      - EXPRESS_DB_PORT=5432
     depends_on:
-      postgres:
-        condition: service_started
-        restart: true
+      - question-db
+      
 volumes:
   question-db-docker:

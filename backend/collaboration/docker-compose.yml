@@ -1,35 +1,41 @@
+# Command: docker-compose --env-file .env.local up -d
+
 services:
-  postgres:
-    hostname: postgres
-    image: postgres:16.4
-    container_name: 'collaboration_db'
+  collab-db:
+    hostname: "collab-db"
+    image: "postgres:16.4"
+    container_name: "collab-db"
     build:
       context: ./src/lib/db
-    environment:
-      POSTGRES_DB: 'Collaboration'
-      POSTGRES_USER: 'user'
-      POSTGRES_PASSWORD: 'user'
-      PGDATA: '/data/collaboration-db'
+    env_file:
+      - ./.env.local
     volumes:
-      - 'collaboration-db-docker:/data/collaboration-db'
+      - "collab-db-docker:/${PGDATA}"
       #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - '5434:5432'
+      - "${EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
 
-  express:
-    image: 'collaboration-express'
-    container_name: 'collaboration-express'
+  collab-express:
+    image: "collab-express"
+    container_name: "collab-express"
     build:
       context: ./
       dockerfile: ./express.Dockerfile
       target: build
+      args:
+        # For building with the correct env vars
+        - env=${EXPRESS_ENV}
     ports:
-      - '9003:8001'
+      - "9003:8001"
     command: node dist/index.js
+    env_file:
+      - ./.env.local
+    environment:
+      # Docker Compose Specific
+      - EXPRESS_DB_HOST=collab-db
+      - EXPRESS_DB_PORT=5432
     depends_on:
-      postgres:
-        condition: service_started
-        restart: true
+      - collab-db
 volumes:
-  collaboration-db-docker:
+  collab-db-docker:

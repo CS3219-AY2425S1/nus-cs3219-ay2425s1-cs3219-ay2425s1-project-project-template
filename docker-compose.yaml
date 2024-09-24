@@ -1,49 +1,50 @@
+# Command: docker-compose --env-file .env.local up -d
+
 services:
   user-db:
-    hostname: userdb
+    hostname: "user-db"
     image: postgres:16.4
-    container_name: user_db
+    container_name: "user-db"
     build:
       context: ./backend/user/src/lib/db
-    environment:
-      POSTGRES_DB: user
-      POSTGRES_USER: express
-      POSTGRES_PASSWORD: user
-      PGDATA: "/data/user-db"
+    env_file:
+      - ./backend/user/.env.local
     volumes:
-      - user-db-docker:/data/user-db
+      - "user-db-docker:${USER_PGDATA}"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - 5431:5432
+      - "${USER_EXPRESS_DB_PORT}:5432"
+    restart: unless-stopped
+
   collab-db:
-    hostname: collabdb
-    image: postgres:16.4
-    container_name: collab_db
+    hostname: "collab-db"
+    image: "postgres:16.4"
+    container_name: "collab-db"
     build:
       context: ./backend/collaboration/src/lib/db
-    environment:
-      POSTGRES_DB: collab
-      POSTGRES_USER: express
-      POSTGRES_PASSWORD: collab
-      PGDATA: "/data/collab-db"
+    env_file:
+      - ./backend/collaboration/.env.local
     volumes:
-      - collab-db-docker:/data/collab-db
+      - "collab-db-docker:/${COLLAB_PGDATA}"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - 5433:5432
+      - "${COLLAB_EXPRESS_DB_PORT}:5432"
+    restart: unless-stopped
+
   question-db:
-    hostname: questiondb
+    hostname: "question-db"
     image: postgres:16.4
-    container_name: question_db
+    container_name: "question-db"
     build:
       context: ./backend/question/src/lib/db
-    environment:
-      POSTGRES_DB: question
-      POSTGRES_USER: express
-      POSTGRES_PASSWORD: question
-      PGDATA: "/data/question-db"
+    env_file:
+      - ./backend/question/.env.local
     volumes:
-      - question-db-docker:/data/question-db
+      - "question-db-docker:${QUESTION_PGDATA}"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - 5434:5432
+      - "${QUESTION_EXPRESS_DB_PORT}:5432"
+    restart: unless-stopped
 
 volumes:
   user-db-docker:
