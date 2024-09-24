@@ -10,7 +10,9 @@ export type ILoginPayload = {
 };
 
 export type ILoginResponse = IServiceResponse<{
+  // To be extracted by controller and set on the HTTP response
   cookie: string;
+  // Payload for controller
   user: {
     id: string;
     username: string;
