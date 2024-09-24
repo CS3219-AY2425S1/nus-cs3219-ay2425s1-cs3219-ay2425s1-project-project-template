@@ -3,9 +3,9 @@ import questionRoutes from "./routes/questionRoutes";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
-const uri = "mongodb+srv://jamie:cs3219@questionbank.4xtdt.mongodb.net?retryWrites=true&w=majority&appName=QuestionBank";
+const uri = process.env.MONGODB_URI || "";
 
 const app = express();
 
