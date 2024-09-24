@@ -4,14 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-
-interface FilterSelectProps {
-  placeholder: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-  value: string | string[];
-  isMulti?: boolean;
-}
+import { FilterSelectProps } from "@/types/types";
 
 export function FilterSelect({
   placeholder,

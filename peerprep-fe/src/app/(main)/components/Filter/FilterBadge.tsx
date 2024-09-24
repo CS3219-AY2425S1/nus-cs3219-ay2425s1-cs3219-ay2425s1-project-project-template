@@ -1,11 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-
-interface FilterBadgeProps {
-  filterType: "difficulty" | "status" | "topics";
-  value: string;
-  onRemove: (filterType: string, value: string) => void;
-}
+import { FilterBadgeProps } from "@/types/types";
+import { cn } from "@/lib/utils";
 
 export function FilterBadge({ filterType, value, onRemove }: FilterBadgeProps) {
   const getBadgeColor = () => {
@@ -29,10 +25,12 @@ export function FilterBadge({ filterType, value, onRemove }: FilterBadgeProps) {
     }
   };
 
-  const badgeColor = getBadgeColor();
-
   return (
-    <Badge variant="secondary" hover={false} className={`pr-1 ${badgeColor}`}>
+    <Badge
+      variant="secondary"
+      hover={false}
+      className={cn("pr-1", getBadgeColor())}
+    >
       {`${filterType}: ${value}`}
       <button
         onClick={() => onRemove(filterType, value)}
