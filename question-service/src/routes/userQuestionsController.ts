@@ -11,10 +11,10 @@ let questionsCollection: Collection<UserQuestions>;
 router.use(async (_, res, next) => {
   try {
     const db = await connectToDB();
-    questionsCollection = db.collection<UserQuestions>('userQuestions');
+    questionsCollection = db.collection<UserQuestions>('user_questions');
     next();
   } catch (error) {
-    res.status(500).json({ error: "Failed to connect to MongoDB" });
+    res.status(500).json({ error: 'Failed to connect to MongoDB' });
   }
 });
 
@@ -24,7 +24,7 @@ router.get('/', async (req: Request, res: Response) => {
     const items = await questionsCollection.find().toArray();
     res.status(200).json(items);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch items" });
+    res.status(500).json({ error: 'Failed to fetch items' });
   }
 });
 

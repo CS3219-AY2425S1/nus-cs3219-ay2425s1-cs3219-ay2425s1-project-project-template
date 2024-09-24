@@ -16,5 +16,5 @@ app.use('/questions', questionsRouter);
 app.use('/userquestions', userQuestionsRouter);
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

@@ -13,8 +13,7 @@ const client = new MongoClient(MONGODB_URI, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-
-  }
+  },
 });
 
 export async function connectToDB(): Promise<Db> {

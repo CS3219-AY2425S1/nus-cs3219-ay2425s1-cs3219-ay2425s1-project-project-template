@@ -11,5 +11,5 @@ docker run -p 4001:4001 --env-file .env.dev question-service
 
 ## Routes Endpoint
 
-- GET /questions/ - get all questions
-- GET /userQuestions/ - get all questions of a user
+- GET /questions/ - get all coding questions
+- GET /userQuestions/ - get all user questions
