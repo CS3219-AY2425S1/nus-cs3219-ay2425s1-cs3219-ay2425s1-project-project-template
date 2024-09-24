@@ -32,7 +32,7 @@ export function LoginForm() {
     if (user?.isAdmin) {
       router.push("/app/admin-user-management");
     } else if (user) {
-      router.push("/");
+      router.push("/app/questions");
     } else {
       toast({ title: "Error", description: "Login Failed." });
     }
