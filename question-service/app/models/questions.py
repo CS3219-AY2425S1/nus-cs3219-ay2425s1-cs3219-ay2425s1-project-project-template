@@ -29,3 +29,6 @@ class CreateQuestionModel(BaseModel):
     description: str
     category: str
     complexity: ComplexityEnum
+    
+class MessageModel(BaseModel):
+    message: str
