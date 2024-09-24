@@ -7,9 +7,17 @@ interface CustomTabsProps {
     type?: 'default' | 'label'
     size?: ButtonProps['size']
     handleActiveTabChange: (tab: string) => void
+    className?: string
 }
 
-export default function CustomTabs({ tabs, handleActiveTabChange, isBottomBorder, type, size }: CustomTabsProps) {
+export default function CustomTabs({
+    tabs,
+    handleActiveTabChange,
+    isBottomBorder,
+    type,
+    size,
+    className,
+}: CustomTabsProps) {
     const [activeTab, setActiveTab] = useState(tabs[0])
 
     const tabVariant = (tab: string) => {
@@ -27,7 +35,7 @@ export default function CustomTabs({ tabs, handleActiveTabChange, isBottomBorder
     return (
         <div
             id="test-tabs"
-            className={`${isBottomBorder ? 'border-b-2 border-slate-100' : ''} flex items-center ${type === 'label' ? 'gap-2' : ''}`}
+            className={`${isBottomBorder ? 'border-b-2 border-slate-100' : ''} flex items-center ${type === 'label' ? 'gap-2' : ''} ${className}`}
         >
             {tabs.map((tab, index) => (
                 <Button

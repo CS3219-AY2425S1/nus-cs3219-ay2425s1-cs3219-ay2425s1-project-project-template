@@ -192,7 +192,7 @@ export default function Code() {
                     )}
                 </div>
             </section>
-            <section className="w-2/3 flex flex-col h-max-fullscreen">
+            <section className="w-2/3 flex flex-col h-fullscreen">
                 <div id="control-panel" className="flex justify-between">
                     <div className="flex gap-3">
                         <Button variant={'primary'} onClick={handleRunTests}>
@@ -233,13 +233,17 @@ export default function Code() {
                         }}
                     />
                 </div>
-                <div id="test-results-container" className="mt-4 border-2 rounded-lg border-slate-100 flex-grow">
-                    <CustomTabs
-                        tabs={testTabs}
-                        handleActiveTabChange={handleActiveTestTabChange}
-                        isBottomBorder={true}
-                    />
-                    <div className="m-4 flex overflow-auto">
+                <CustomTabs
+                    tabs={testTabs}
+                    handleActiveTabChange={handleActiveTestTabChange}
+                    isBottomBorder={true}
+                    className="mt-4 border-2 rounded-t-lg border-slate-100"
+                />
+                <div
+                    id="test-results-container"
+                    className="border-2 rounded-lg border-t-0 rounded-t-none border-slate-100 flex-grow overflow-y-auto"
+                >
+                    <div className="m-4 flex overflow-x-auto">
                         {activeTestTab === 'Testcases' ? (
                             <TestcasesTab testcases={testCasesData} />
                         ) : (
