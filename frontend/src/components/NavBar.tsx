@@ -1,6 +1,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import IsConnected from "./IsConnected";
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+
 
 const NavBar: React.FC = () => {
   const location = useLocation();
@@ -18,8 +20,10 @@ const NavBar: React.FC = () => {
       <IsConnected isConnected={false} />
       {location.pathname === "/" ? (
         <div className="container flex space-x-8 justify-end text-2xl text-off-white">
-          <button className="bg-black rounded-[25px] p-4">Register</button>
-          <button className="bg-yellow rounded-[25px] p-4">Login</button>
+          <Link to="/question">
+            <button className="bg-black rounded-[25px] p-4">Register</button>
+            <button className="bg-yellow rounded-[25px] p-4">Login</button>
+          </Link>
         </div>
       ) : (
         <div className="container flex space-x-8 justify-end text-2xl text-off-white">

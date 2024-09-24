@@ -29,10 +29,7 @@
     "eslint-plugin-react-refresh": "^0.4.12",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
-<<<<<<< HEAD
-=======
     "tailwindcss": "^3.4.12",
->>>>>>> 97f7644f9732296fda7b547bd9125ef91ff7299c
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.6.0",
     "vite": "^5.4.6"
