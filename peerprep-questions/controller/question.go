@@ -43,6 +43,8 @@ func (qc QuestionController) CreateQuestion(w http.ResponseWriter, r *http.Reque
 }
 
 func (qc QuestionController) ListQuestions(w http.ResponseWriter, r *http.Request) {
+	// parse pagination/filter if need
+
 	// Get from DB
 	questions, err := qc.questionRepository.ListQuestions()
 	if err != nil {
