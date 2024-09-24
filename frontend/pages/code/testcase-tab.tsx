@@ -16,22 +16,14 @@ export default function TestcasesTab({ testcases }: { testcases: ITestcase[] }) 
                 type="label"
                 size="label"
             />
-            {testcases.map((testcase) => (
-                <div className="text-sm mt-4">
-                    {activeTestcaseIdx === testcase.idx && (
-                        <div key={activeTestcaseIdx} className="flex flex-col gap-2">
-                            <span>{activeTestcase(activeTestcaseIdx)?.inputVar} =</span>
-                            <span className="px-2 py-1 rounded-lg bg-slate-100">
-                                {activeTestcase(activeTestcaseIdx)?.input}
-                            </span>
-                            <span>Expected output = </span>
-                            <span className="px-2 py-1 rounded-lg bg-slate-100">
-                                {activeTestcase(activeTestcaseIdx)?.expectedOutput}
-                            </span>
-                        </div>
-                    )}
-                </div>
-            ))}
+            <div key={activeTestcaseIdx} className="flex flex-col gap-2 text-sm">
+                <span className="mt-2">{activeTestcase(activeTestcaseIdx)?.inputVar} =</span>
+                <span className="px-2 py-1 rounded-lg bg-slate-100">{activeTestcase(activeTestcaseIdx)?.input}</span>
+                <span className="mt-2">Expected output = </span>
+                <span className="px-2 py-1 rounded-lg bg-slate-100">
+                    {activeTestcase(activeTestcaseIdx)?.expectedOutput}
+                </span>
+            </div>
         </div>
     )
 }
