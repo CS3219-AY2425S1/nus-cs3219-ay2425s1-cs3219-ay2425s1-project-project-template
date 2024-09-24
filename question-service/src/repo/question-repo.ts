@@ -26,7 +26,7 @@ export async function getQuestionByTitle(title: string) {
     return await questionModel.findOne({ title });
 }
 
-export async function updateQuestionById(id: string, title: string, description: string, category: string, complexity: string) {
+export async function updateQuestionById(id: string, title: string, description: string, category: [string], complexity: string) {
     return await questionModel.findByIdAndUpdate(
         id,
         {

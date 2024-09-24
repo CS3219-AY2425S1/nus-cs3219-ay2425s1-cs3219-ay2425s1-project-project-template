@@ -5,6 +5,7 @@ import Dashboard from "../pages/Dashboard";
 import ProtectedRoute from "./ProtectedRoutes";
 import EditProfile from "../pages/EditProfile";
 import ChangePassword from "../pages/ChangePassword";
+import QuestionRepo from "../pages/QuestionRepo";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,12 @@ const router = createBrowserRouter([
   {
     path: "/questions",
     element: <ProtectedRoute />,
+    children: [
+      {
+        path: "",
+        element: <QuestionRepo />,
+      },
+    ],
   },
 ]);
 

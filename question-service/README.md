@@ -30,7 +30,7 @@
 
 - Body:
 
-  - Required: title (string), description (string), complexity (string), category (string)
+  - Required: title (string), description (string), complexity (string), category (Array of strings)
   ```
   {
     "title": "twoSum",
@@ -96,7 +96,7 @@
   - id (string): The unique identifier of the question to update.
 
 - Body (at least one field required):
-  - Optional: title (string), description (string), complexity (string), category (string)
+  - Optional: title (string), description (string), complexity (string), category (Array of strings)
   ```
   {
     "title": "twoSum",
