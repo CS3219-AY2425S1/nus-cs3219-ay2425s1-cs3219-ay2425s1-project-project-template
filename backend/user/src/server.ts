@@ -18,6 +18,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: [process.env.PEERPREP_UI_HOST!],
+    credentials: true,
   })
 );
 

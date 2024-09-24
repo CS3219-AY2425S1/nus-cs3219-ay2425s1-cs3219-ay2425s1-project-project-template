@@ -7,6 +7,12 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
 import { darkModeStore } from '@/stores/dark-mode-store';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const NavBar = observer(() => {
   const { isLogin, isSignUp, isForgotPassword } = useRouterLocation();
@@ -42,9 +48,20 @@ const NavBar = observer(() => {
               <a href={ROUTES.LOGIN}>Log In</a>
             </Button>
           ) : (
-            <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
-              <PersonIcon />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
+                  <PersonIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Button variant='link' asChild>
+                    <a href='/logout'>Logout</a>
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </nav>

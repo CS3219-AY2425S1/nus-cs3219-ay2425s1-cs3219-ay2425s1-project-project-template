@@ -20,7 +20,11 @@ export const login: IRouteHandler = async (req, res) => {
   }
   return res
     .status(StatusCodes.OK)
-    .cookie('jwtToken', data.cookie, { httpOnly: true })
+    .cookie('jwtToken', data.cookie, {
+      httpOnly: true,
+      secure: false, // For HTTPS: Set true
+      sameSite: 'lax',
+    })
     .json(data.user);
 };
 
