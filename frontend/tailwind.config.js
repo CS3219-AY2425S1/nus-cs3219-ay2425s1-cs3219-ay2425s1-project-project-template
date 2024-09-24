@@ -59,6 +59,48 @@ module.exports = {
                     4: 'hsl(var(--chart-4))',
                     5: 'hsl(var(--chart-5))',
                 },
+                btn: {
+                    DEFAULT: 'hsl(var(--theme-600))',
+                    primary: 'hsl(var(--theme-600))',
+                    hover: 'hsl(var(--hover-fill))',
+                    secondary: 'hsl(var(--secondary))',
+                    secondaryHover: 'hsl(var(--secondary-darker))',
+                    foreground: 'hsl(var(--foreground))',
+                },
+                theme: {
+                    DEFAULT: 'hsl(var(--theme-600))',
+                    50: 'hsl(var(--theme-50))',
+                    100: 'hsl(var(--theme-100))',
+                    400: 'hsl(var(--theme-400))',
+                    600: 'hsl(var(--theme-600))',
+                    700: 'hsl(var(--theme-700))',
+                    900: 'hsl(var(--theme-900))',
+                },
+                green: {
+                    DEFAULT: 'hsl(var(--green-default))',
+                    light: 'hsl(var(--green-light))',
+                    dark: 'hsl(var(--green-dark))',
+                },
+                red: {
+                    DEFAULT: 'hsl(var(--red-default))',
+                    light: 'hsl(var(--red-light))',
+                    dark: 'hsl(var(--red-dark))',
+                },
+                amber: {
+                    DEFAULT: 'hsl(var(--orange-default))',
+                    light: 'hsl(var(--orange-light))',
+                    dark: 'hsl(var(--orange-dark))',
+                },
+            },
+            height: {
+                fullscreen: 'calc(100vh - 3rem)',
+            },
+            maxHeight: {
+                oneThirdScreen: 'calc((100vh - 3rem) / 3)',
+                twoFifthScreen: 'calc((100vh - 3rem) / 2.5)',
+            },
+            height: {
+                fullscreen: 'calc(100vh - 3rem)',
             },
         },
     },
