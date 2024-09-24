@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, CheckCheckIcon } from "lucide-react"
+import { CheckCheckIcon } from "lucide-react"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { CaretSortIcon, CrossCircledIcon } from "@radix-ui/react-icons"
