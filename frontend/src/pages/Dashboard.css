@@ -81,7 +81,7 @@
 }
 
 .dashboard-practice-label {
-  font-size: 2.3rem;
+  font-size: 2.1rem;
   font-weight: 600;
   margin: 0;
 }
@@ -91,12 +91,18 @@
   margin: 0;
   border-radius: 10px;
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
   border-style: none;
 }
 
 .dashboard-practice-help {
   align-self: center;
+}
+
+.dashboard-practice-help:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 table.dashboard-table {
