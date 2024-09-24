@@ -10,12 +10,3 @@ export interface Question {
 }
 
 export const difficulties = ["all", "easy", "medium", "hard"] as string[];
-
-export const categories = [
-  "all",
-  "Array",
-  "Linked List",
-  "String",
-  "Dynamic Programming",
-  "Tree",
-] as string[];

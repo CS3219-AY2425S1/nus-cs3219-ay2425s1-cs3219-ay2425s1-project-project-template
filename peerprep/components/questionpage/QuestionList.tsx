@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
 import { Question, difficulties } from "../shared/Question";
 import PeerprepDropdown from "../shared/PeerprepDropdown";
+import PeerprepSearchBar from "../shared/PeerprepSearchBar";
 
 const QuestionList: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -17,12 +18,14 @@ const QuestionList: React.FC = () => {
 
   useEffect(() => {
     // uhhhhh this should be changed to fetch on filter/search change
+    // make use of gateway.ts later
     const fetchQuestions = async () => {
       try {
         const response = await fetch("/data/dummyquestions.json");
         const data: Question[] = await response.json();
         setQuestions(data);
 
+        // get all present categories in all qns
         const uniqueCategories = Array.from(
           new Set(data.flatMap((question) => question.category))
         );
@@ -39,18 +42,28 @@ const QuestionList: React.FC = () => {
 
   const filteredQuestions = questions.filter((question) => {
     const matchesDifficulty =
-      difficultyFilter === "all" ||
+      difficultyFilter === difficulties[0] ||
       difficulties[question.difficulty] === difficultyFilter;
     const matchesCategory =
-      categoryFilter === "all" || question.category.includes(categoryFilter);
-    return matchesDifficulty && matchesCategory;
+      categoryFilter === categories[0] ||
+      question.category.includes(categoryFilter);
+    const matchesSearch =
+      searchFilter === "" ||
+      question.title.toLowerCase().includes(searchFilter.toLowerCase());
+
+    return matchesDifficulty && matchesCategory && matchesSearch;
   });
 
   const sortedQuestions = filteredQuestions.sort((a, b) => a.id - b.id);
 
   return (
     <div className="flex-grow max-h-screen overflow-y-auto p-4">
-      <div className="flex space-x-4 mb-4">
+      <div className="flex space-x-4 mb-4 items-end">
+        <PeerprepSearchBar
+          value={searchFilter}
+          label="Search questions..."
+          onChange={(e) => setSearchFilter(e.target.value)}
+        />
         <PeerprepDropdown
           label="Difficulty"
           value={difficultyFilter}
