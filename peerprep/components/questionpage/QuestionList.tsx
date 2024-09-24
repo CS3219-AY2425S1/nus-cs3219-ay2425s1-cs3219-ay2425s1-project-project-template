@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
 import { Question, difficulties, categories } from "../shared/Question";
-import PeerprepDropdown from "../shared/PeerprepDropdown"; // Import the Dropdown component
+import PeerprepDropdown from "../shared/PeerprepDropdown";
 
 const QuestionList: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);

@@ -44,7 +44,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       </div>
 
       <div className="ml-10 mr-10">
-        <PeerprepButton onClick={() => console.log("Button clicked!")}>
+        {/* display question page */}
+        <PeerprepButton onClick={() => console.log("Expand button clicked!")}>
           Expand
         </PeerprepButton>
       </div>
