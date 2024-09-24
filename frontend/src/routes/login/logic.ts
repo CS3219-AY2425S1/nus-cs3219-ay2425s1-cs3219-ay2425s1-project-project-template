@@ -29,7 +29,7 @@ export const useLoginForm = () => {
     mutationKey: ['login'],
     mutationFn: login,
     onSuccess: (_response, _params, _context) => {
-      navigate('/');
+      navigate(0);
     },
   });
 

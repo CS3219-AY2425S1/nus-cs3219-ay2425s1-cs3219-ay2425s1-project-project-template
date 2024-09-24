@@ -1,4 +1,3 @@
-
 import { createContext, FC, PropsWithChildren, useContext } from 'react';
 
 // class AuthStore {

@@ -35,19 +35,7 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
         console.error(err);
       }
     })
-    .then((data) => {
-      return data?.status === HttpStatusCode.Ok;
+    .then((response) => {
+      return response?.status === HttpStatusCode.Ok;
     });
-  // return fetch(USER_SERVICE + USER_SERVICE_ROUTES.IS_AUTHED, {
-  //   method: 'GET',
-  //   credentials: 'include',
-  //   signal: param?.signal
-  // }).catch((err) => {
-  //   if (err !== null) {
-  //     console.error(err);
-  //     return new Response('', { status: 401 })
-  //   }
-  // }).then(res => {
-  //   return res?.status === 200
-  // });
 };
