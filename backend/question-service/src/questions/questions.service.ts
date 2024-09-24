@@ -1,26 +1,63 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { Question, QuestionDocument } from './schemas/question.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class QuestionsService {
-  create(createQuestionDto: CreateQuestionDto) {
-    return 'This action adds a new question';
+  constructor(
+    @InjectModel(Question.name) private questionModel: Model<QuestionDocument>,
+  ) {}
+
+  async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
+    const newQuestion = new this.questionModel(createQuestionDto);
+    return newQuestion.save();
   }
 
-  findAll() {
-    return `This action returns all questions`;
+  async findAll(): Promise<Partial<Question>[]> {
+    return this.questionModel
+      .find()
+      .select('questionId title categories complexity')
+      .exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} question`;
+  async findOne(questionId: string): Promise<Question> {
+    const questionById = await this.questionModel
+      .findOne({ questionId })
+      .exec();
+    if (!questionById) {
+      throw new NotFoundException(
+        `There is no question with the ID ${questionId}`,
+      );
+    }
+
+    return questionById;
   }
 
-  update(id: number, updateQuestionDto: UpdateQuestionDto) {
-    return `This action updates a #${id} question`;
+  async update(
+    questionId: string,
+    updateQuestionDto: UpdateQuestionDto,
+  ): Promise<Question> {
+    const questionToUpdate = await this.questionModel
+      .findOneAndUpdate({ questionId }, updateQuestionDto, { new: true })
+      .exec();
+    if (!questionToUpdate) {
+      throw new NotFoundException(`There is no question with ID ${questionId}`);
+    }
+
+    return questionToUpdate;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} question`;
+  async remove(questionId: string): Promise<Question> {
+    const questionToDelete = await this.questionModel
+      .findOneAndDelete({ questionId })
+      .exec();
+    if (!questionToDelete) {
+      throw new NotFoundException(`There is no question with ID ${questionId}`);
+    }
+
+    return questionToDelete;
   }
 }

@@ -1,34 +1,46 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { Question } from './schemas/question.schema';
 
 @Controller('questions')
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @Post()
-  create(@Body() createQuestionDto: CreateQuestionDto) {
+  create(@Body() createQuestionDto: CreateQuestionDto): Promise<Question> {
     return this.questionsService.create(createQuestionDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Partial<Question>[]> {
     return this.questionsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.questionsService.findOne(+id);
+  @Get(':questionId')
+  findOne(@Param('questionId') questionId: string): Promise<Question> {
+    return this.questionsService.findOne(questionId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
-    return this.questionsService.update(+id, updateQuestionDto);
+  @Patch(':questionId')
+  update(
+    @Param('questionId') questionId: string,
+    @Body() updateQuestionDto: UpdateQuestionDto,
+  ): Promise<Question> {
+    return this.questionsService.update(questionId, updateQuestionDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.questionsService.remove(+id);
+  @Delete(':questionId')
+  remove(@Param('questionId') questionId: string): Promise<Question> {
+    return this.questionsService.remove(questionId);
   }
 }
