@@ -29,13 +29,6 @@ coverage/
 jest-test-results.json
 .cache/
 
-# Docker
-docker-compose.override.yml
-docker-compose.yaml
-.dockerignore
-Dockerfile
-docker-compose.yml
-
 # OS generated files
 .DS_Store
 Thumbs.db
