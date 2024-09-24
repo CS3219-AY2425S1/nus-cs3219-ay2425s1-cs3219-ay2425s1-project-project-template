@@ -92,11 +92,35 @@ export const DifficultyOption = [
 
 export const OrderOption = [
   {
-    label: "Newest",
-    value: "Newest",
+    label: "Id (ASC)",
+    value: "Id (ASC)",
+  },
+  {
+    label: "Id (DESC)",
+    value: "Id (DESC)",
+  },
+  {
+    label: "Most Recent",
+    value: "Most Recent",
   },
   {
     label: "Oldest",
     value: "Oldest",
+  },
+  {
+    label: "Alphabetical (A-Z)",
+    value: "Alphabetical (A-Z)", // TODO: Edit the values based on backend in the future
+  },
+  {
+    label: "Alphabetical (Z-A)",
+    value: "Alphabetical (Z-A)", // TODO: Edit the values based on backend in the future
+  },
+  {
+    label: "Difficulty (ASC)",
+    value: "Difficulty (ASC)",
+  },
+  {
+    label: "Difficulty (DESC)",
+    value: "Difficulty (DESC)",
   },
 ];

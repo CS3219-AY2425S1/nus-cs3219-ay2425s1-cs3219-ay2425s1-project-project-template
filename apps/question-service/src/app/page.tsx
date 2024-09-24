@@ -35,9 +35,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Filtering States
-  const [categories, setCategories] = useState<String[]>([]); // Store the selected filter categories
-  const [difficulty, setDifficulty] = useState<String>(""); // Store the selected difficulty level
-  const [order, setOrder] = useState<String>(""); // Store the selected sorting order (Newest/Oldest) aka ASC/DESC
+  const [search, setSearch] = useState<string | undefined>(undefined); // Store the search
+  const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
+  const [difficulty, setDifficulty] = useState<string[]>([]); // Store the selected difficulty level
+  const [sortBy, setSortBy] = useState<string | undefined>(undefined); // Store the selected sorting parameter
 
   useEffect(() => {
     if (!isLoading) {
@@ -106,9 +107,17 @@ export default function Home() {
     },
   ];
 
-  // HandleChange for Multi-select Categories Option
+  // Handler for change in multi-select categories option
   const handleCategoriesChange = (value: string[]) => {
     setCategories(value);
+  };
+
+  // Handler for clearing the filtering options
+  const handleClear = () => {
+    setCategories([]);
+    setDifficulty([]);
+    setSearch(undefined);
+    setSortBy(undefined);
   };
 
   return (
@@ -128,11 +137,13 @@ export default function Home() {
             </div>
             {/* TODO (Ben/Ryan): Include and link search & filter parameters */}
             <div className="content-filter">
-              <Row gutter={16}>
+              <Row gutter={8}>
                 <Col span={6}>
                   <Input
                     placeholder="Search Question Title"
                     prefix={<SearchOutlined />}
+                    onChange={(e) => setSearch(e.target.value)}
+                    value={search}
                   />
                 </Col>
                 <Col span={6}>
@@ -143,28 +154,32 @@ export default function Home() {
                     onChange={handleCategoriesChange}
                     options={CategoriesOption}
                     className="categories-multi-select"
+                    value={categories}
                   />
                 </Col>
                 <Col span={4}>
                   <Select
+                    mode="multiple"
                     allowClear
                     placeholder="Difficulty"
-                    onChange={(value: string) => setDifficulty(value)}
+                    onChange={(value: string[]) => setDifficulty(value)}
                     options={DifficultyOption}
                     className="difficulty-select"
+                    value={difficulty}
                   />
                 </Col>
                 <Col span={4}>
                   <Select
                     allowClear
-                    placeholder="Recent"
-                    onChange={(value: string) => setOrder(value)}
+                    placeholder="Sort By"
+                    onChange={(value: string) => setSortBy(value)}
                     options={OrderOption}
                     className="order-select"
+                    value={sortBy}
                   />
                 </Col>
                 <Col span={4}>
-                  <Button>Clear</Button>
+                  <Button onClick={handleClear}>Clear</Button>
                   <Button type="primary" className="filter-button">
                     Filter
                   </Button>
