@@ -31,6 +31,20 @@ router.post('/create', [
         return res.status(500).send('Internal server error');
     }
 });
+// Retrieve all questions
+router.get('/all', async (req: Request, res: Response) => {
+    try {
+        const questions = await Question
+            .find()
+            .lean()
+            .exec();
+        console.log(questions);
+        return res.json(questions);
+    }
+    catch (error) {
+        return res.status(500).send('Internal server error');
+    }
+});
 
 // Retrieve a specific question by id
 router.get('/:id', [
@@ -52,24 +66,12 @@ router.get('/:id', [
     }
 });
 
-// Retrieve all questions
-router.get('/all', async (req: Request, res: Response) => {
-    try {
-        const questions = await Question
-            .find()
-            .lean()
-            .exec();
-        return res.json(questions);
-    }
-    catch (error) {
-        return res.status(500).send('Internal server error');
-    }
-});
-
 // Update a specific question by id
-router.post('/:id/update', [
-    ...updateQuestionValidators,
-], async (req: Request, res: Response) => {
+router.post('/:id/update', 
+    [
+        ...updateQuestionValidators,
+    ],
+    async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
