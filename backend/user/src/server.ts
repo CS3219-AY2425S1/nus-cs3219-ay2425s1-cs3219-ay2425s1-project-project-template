@@ -1,15 +1,16 @@
 import { exit } from 'process';
 
 import cors from 'cors';
-import express, { json } from 'express';
-import pino from 'pino-http';
-import helmet from 'helmet';
 import { sql } from 'drizzle-orm';
+import express, { json } from 'express';
+import helmet from 'helmet';
+import pino from 'pino-http';
 
 import { dbConfig } from '@/config';
 import { db } from '@/lib/db';
-import authRoutes from '@/routes/auth';
 import { logger } from '@/lib/utils';
+import authRoutes from '@/routes/auth';
+import checkRoutes from '@/routes/check';
 
 const app = express();
 app.use(pino());
@@ -23,6 +24,7 @@ app.use(
 );
 
 app.use('/auth', authRoutes);
+app.use('/auth-check', checkRoutes);
 app.get('/', async (_req, res) => {
   res.json({
     message: 'OK',

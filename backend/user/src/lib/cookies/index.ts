@@ -1,6 +1,8 @@
 import { JWT_SECRET_KEY } from '@/config';
 import jwt from 'jsonwebtoken';
 
+export const COOKIE_NAME = 'peerprep-user-session';
+
 export const generateCookie = <T extends object>(payload: T) => {
   return jwt.sign(payload, JWT_SECRET_KEY, {
     expiresIn: '30m',

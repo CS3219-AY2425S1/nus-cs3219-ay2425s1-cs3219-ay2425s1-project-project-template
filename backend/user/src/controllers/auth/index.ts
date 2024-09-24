@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
+import { COOKIE_NAME } from '@/lib/cookies';
 import {
   loginService,
   registerService,
@@ -20,7 +21,7 @@ export const login: IRouteHandler = async (req, res) => {
   }
   return res
     .status(StatusCodes.OK)
-    .cookie('jwtToken', data.cookie, {
+    .cookie(COOKIE_NAME, data.cookie, {
       httpOnly: true,
       secure: false, // For HTTPS: Set true
       sameSite: 'lax',
@@ -30,7 +31,7 @@ export const login: IRouteHandler = async (req, res) => {
 
 export const logout: IRouteHandler = async (_req, res) => {
   return res
-    .clearCookie('jwtToken', {
+    .clearCookie(COOKIE_NAME, {
       secure: true,
       sameSite: 'none',
     })
