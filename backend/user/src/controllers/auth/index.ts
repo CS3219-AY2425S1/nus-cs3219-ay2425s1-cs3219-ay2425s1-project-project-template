@@ -1,11 +1,14 @@
-import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { loginService } from '@/services/auth/auth-logic';
-import type { ILoginPayload } from '@/services/auth/types';
-import { registerService } from '@/services/registration/register-logic';
-import type { IRegisterPayload } from '@/services/registration/register-inputs';
 
-export async function login(req: Request, res: Response) {
+import {
+  loginService,
+  registerService,
+  type ILoginPayload,
+  type IRegisterPayload,
+} from '@/services/auth';
+import type { IRouteHandler } from '@/types';
+
+export const login: IRouteHandler = async (req, res) => {
   const { username, password }: Partial<ILoginPayload> = req.body;
   if (!username || !password) {
     return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed Request');
@@ -19,9 +22,9 @@ export async function login(req: Request, res: Response) {
     .status(StatusCodes.OK)
     .cookie('jwtToken', data.cookie, { httpOnly: true })
     .json(data.user);
-}
+};
 
-export async function logout(_req: Request, res: Response) {
+export const logout: IRouteHandler = async (_req, res) => {
   return res
     .clearCookie('jwtToken', {
       secure: true,
@@ -29,9 +32,9 @@ export async function logout(_req: Request, res: Response) {
     })
     .status(StatusCodes.OK)
     .json('User has been logged out.');
-}
+};
 
-export async function register(req: Request, res: Response) {
+export const register: IRouteHandler = async (req, res) => {
   //Extract the registration data from the request body
   const { email, username, password, firstName, lastName }: Partial<IRegisterPayload> = req.body;
 
@@ -59,4 +62,4 @@ export async function register(req: Request, res: Response) {
     message: 'User registered successfully',
     user: data.user, // Return user data if needed
   });
-}
+};

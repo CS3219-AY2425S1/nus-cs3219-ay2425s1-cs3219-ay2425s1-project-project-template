@@ -1,8 +1,10 @@
-import { or, eq, getTableColumns } from 'drizzle-orm';
+import { eq, getTableColumns, or } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
-import bcrypt from 'bcrypt';
+
 import { db, users } from '@/lib/db';
-import type { IRegisterPayload } from './register-inputs';
+import { generatePasswordHash } from '@/lib/passwords';
+
+import type { IRegisterPayload } from './types';
 
 const _getSchema = () => {
   const { id, email, username, firstName, lastName } = getTableColumns(users);
@@ -35,7 +37,7 @@ export const registerService = async (payload: IRegisterPayload) => {
   }
 
   //hash the password
-  const hashedPassword = bcrypt.hashSync(password, 10); // Use bcrypt to hash the password
+  const hashedPassword = generatePasswordHash(password);
 
   //insert new user into the database
   const [newUser] = await db

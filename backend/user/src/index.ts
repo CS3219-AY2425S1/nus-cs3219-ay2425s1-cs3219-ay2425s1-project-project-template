@@ -1,5 +1,5 @@
-import app, { dbHealthCheck } from './server';
-import { logger } from './lib/utils';
+import app, { dbHealthCheck } from '@/server';
+import { logger } from '@/lib/utils';
 
 const port = process.env.PORT || 8001;
 

@@ -1,8 +1,7 @@
 import express from 'express';
 
-import { login, logout } from '@/controllers/auth/auth-controller';
+import { login, logout, register } from '@/controllers/auth';
 import { limiter } from '@/lib/ratelimit';
-import { register } from '@/controllers/auth/auth-controller';
 
 const router = express.Router();
 
