@@ -18,7 +18,9 @@ class MockDB:
             return db
 
     def get_question_by_title(self, title_slug: str) -> Optional[dict]:
-        return self.db[title_slug]
+        if title_slug in self.db:
+            return self.db[title_slug]
+        return None
 
     def get_questions(self) -> List[dict]:
         return self.db
@@ -26,7 +28,7 @@ class MockDB:
     def create_question(self, question: dict) -> None:
         # this method has no validation,
         # the actual repository layer should have validation
-        self.db["titleSlug"] = question
+        self.db[question["titleSlug"]] = question
         return
 
     def update_question(self, title_slug: str, updated_question: dict) -> dict:
