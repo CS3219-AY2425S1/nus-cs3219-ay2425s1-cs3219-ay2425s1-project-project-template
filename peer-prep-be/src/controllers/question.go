@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var questionCollection *mongo.Collection = configs.GetCollection(configs.DB, "questions")
@@ -65,3 +66,28 @@ func GetQuestion(c echo.Context) error {
 
     return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": question}})
 }
+
+func GetQuestions(c echo.Context) error {
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var questions []models.Question
+	defer cancel()
+
+	cur, err := questionCollection.Find(ctx, bson.D{{}}, options.Find())
+
+	for cur.Next(ctx) {
+		var doc models.Question
+		err := cur.Decode(&doc)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+		}
+		questions = append(questions, doc)
+	}
+
+    if err != nil {
+        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+    }
+
+    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": questions}})
+}
+
