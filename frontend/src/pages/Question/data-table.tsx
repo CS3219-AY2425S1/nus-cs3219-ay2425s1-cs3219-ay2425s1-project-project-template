@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import {
   MRT_EditActionButtons,
   MaterialReactTable,
-  // createRow,
   type MRT_ColumnDef,
   type MRT_Row,
   type MRT_TableOptions,
@@ -11,12 +10,14 @@ import {
 import {
   Box,
   Button,
+  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   Tooltip,
   TextField,
+  styled,
 } from "@mui/material";
 import {
   QueryClient,
@@ -29,10 +30,59 @@ import { type Question, fakeData, problemComplexity } from "../../makeData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+// Styled components for the dialog
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialog-paper': {
+    backgroundColor: 'rgb(18, 18, 18)',
+    color: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+    backdropFilter: 'blur(5px)',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+  },
+}));
+
+const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+  padding: theme.spacing(2),
+}));
+
+const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
+  padding: theme.spacing(3),
+}));
+
+const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
+  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+  padding: theme.spacing(2),
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiInputBase-input': {
+    color: 'white',
+  },
+  '& .MuiInputLabel-root': {
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.23)',
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.7)',
+    },
+  },
+}));
+
+
 const Example = () => {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string | undefined>
   >({});
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
 
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
@@ -111,6 +161,15 @@ const Example = () => {
     }
   };
 
+  // Row click action
+  const handleRowClick = (row: MRT_Row<Question>) => {
+    setSelectedQuestion(row.original);
+  };
+
+  const closeInfoDialog = () => {
+    setSelectedQuestion(null);
+  };
+
   const table = useMaterialReactTable({
     columns,
     data: fetchedQuestions,
@@ -124,7 +183,10 @@ const Example = () => {
           children: "Error loading data",
         }
       : undefined,
-
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: () => handleRowClick(row),
+      style: { cursor: 'pointer' }
+    }),
     muiTableContainerProps: {
       sx: { minHeight: "500px", backgroundColor: "grey.900" }, // Set dark background
     },
@@ -207,7 +269,6 @@ const Example = () => {
         },
       },
     },
-
     onCreatingRowCancel: () => setValidationErrors({}),
     onCreatingRowSave: handleCreateQuestion,
     onEditingRowCancel: () => setValidationErrors({}),
@@ -276,13 +337,19 @@ const Example = () => {
         <Tooltip title="Edit">
           <IconButton
             sx={{ color: "white" }}
-            onClick={() => table.setEditingRow(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              table.setEditingRow(row);
+            }}
           >
             <EditIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title="Delete">
-          <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
+          <IconButton color="error" onClick={(e) => {
+            e.stopPropagation();
+            openDeleteConfirmModal(row);
+            }}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -306,8 +373,62 @@ const Example = () => {
     },
   });
 
-  return <MaterialReactTable table={table} />;
+  return (
+    <>
+      <MaterialReactTable table={table} />
+      <StyledDialog 
+        open={!!selectedQuestion} 
+        onClose={closeInfoDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <StyledDialogTitle>{selectedQuestion?.title || 'Question Details'}</StyledDialogTitle>
+        <StyledDialogContent>
+          {selectedQuestion && (
+            <>
+              <StyledTextField
+                label="ID"
+                value={selectedQuestion.id}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <StyledTextField
+                label="Complexity"
+                value={selectedQuestion.complexity}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <StyledTextField
+                label="Categories"
+                value={Array.isArray(selectedQuestion.categories) 
+                  ? selectedQuestion.categories.join(", ") 
+                  : selectedQuestion.categories}
+                fullWidth
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+              <StyledTextField
+                label="Description"
+                value={(selectedQuestion as Question & { description?: string }).description || ''}
+                fullWidth
+                multiline
+                rows={4}
+                margin="normal"
+                InputProps={{ readOnly: true }}
+              />
+            </>
+          )}
+        </StyledDialogContent>
+        <StyledDialogActions>
+          <Button onClick={closeInfoDialog} style={{ color: 'white' }}>Close</Button>
+        </StyledDialogActions>
+      </StyledDialog>
+    </>
+  );
 };
+
 
 //CREATE hook (post new question to api)
 function useCreateQuestion() {
