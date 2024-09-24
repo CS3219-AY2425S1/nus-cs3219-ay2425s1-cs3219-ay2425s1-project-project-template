@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/components/Header/header";
-import { Button, Layout, Table, TableProps, Tabs, Tag } from "antd";
+import { Button, Layout, Table, TableProps, Tabs, Tag, Modal } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
   DeleteOutlined,
@@ -8,6 +8,7 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
+import { useState } from "react";
 
 interface QuestionTableData {
   id: number;
@@ -22,9 +23,24 @@ interface QuestionTableData {
   testCases?: string[];
 }
 
+type DeletionStage = {} | {index: number, deleteConfirmed: boolean}
+
+function DeleteModal({question, isOpen, okHandler, cancelHandler}: {question: string, isOpen: boolean, okHandler: () => void, cancelHandler: () => void}) {
+  const title: string = `Delete Question \"${question}\"?`
+  const text: string = 'This action is irreversible(?)!' 
+
+  return <Modal title={title} open={isOpen} onOk={okHandler} onCancel={cancelHandler}>
+    <p>{text}</p>
+  </Modal>
+}
+
 export default function Home() {
+
+  const [deletionStage, setDeletionStage] = useState<DeletionStage>({})
+
+
   // TODO (Ben): Replace this with retrieving via backend api after backend implementation
-  const sampleData: QuestionTableData[] = [
+  const sampleDataInit: QuestionTableData[] = [
     {
       id: 1,
       title: "Two Sum",
@@ -111,6 +127,17 @@ export default function Home() {
     },
   ];
 
+  // USe client-side state for now
+  const [sampleData, setQuestions] = useState(sampleDataInit)
+
+  function confirmDeletion() {
+    if (!('index' in deletionStage)) {
+      throw new Error('tried to confirm deletion of nonexistent index')
+    }
+    setQuestions(sampleData.filter((_, i) => i != deletionStage.index))
+    setDeletionStage({})
+  }
+
   const columns: TableProps<QuestionTableData>["columns"] = [
     {
       title: "Id",
@@ -156,10 +183,18 @@ export default function Home() {
           {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
           <Button className="edit-button" icon={<EditOutlined />}></Button>
           {/* TODO (Ryan): Include Pop-up confirmation for delete when clicked and link to delete API --> can also explore success notification or look into react-toast*/}
+
           <Button
             className="delete-button"
             danger
             icon={<DeleteOutlined />}
+            onClick={() => {
+              let toDelete = sampleData.findIndex(row => row.id == id)
+              if (toDelete == -1) {
+                throw new Error("could not find id")
+              }
+              setDeletionStage({index: toDelete, deleteConfirmed: false})}
+            }
           ></Button>
         </div>
       ),
@@ -191,6 +226,11 @@ export default function Home() {
           </div>
         </Content>
       </Layout>
+      <DeleteModal 
+        isOpen={'index' in deletionStage} 
+        okHandler={confirmDeletion} 
+        cancelHandler={() => setDeletionStage({index: null})} 
+        question={'index' in deletionStage ? sampleData[deletionStage.index].title : 'noname'}/>
     </div>
   );
 }
