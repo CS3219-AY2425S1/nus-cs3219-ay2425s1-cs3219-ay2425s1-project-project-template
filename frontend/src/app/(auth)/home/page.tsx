@@ -1,14 +1,13 @@
 "use client";
 
 import { useAuth } from "@/components/auth/AuthContext";
-import AuthDashboard from "./pages/AuthDashboard";
-import UnauthPage from "../common/UnauthPage";
+import AuthDashboard from "./pages/Dashboard";
 
 const Dashboard = () => {
   const { user } = useAuth();
 
   return (
-    user ? <AuthDashboard/> : <UnauthPage/>
+    user && <AuthDashboard/>
   );
 };
 

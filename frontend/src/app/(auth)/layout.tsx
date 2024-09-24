@@ -1,16 +1,123 @@
 "use client";
 
-import { AuthProvider } from "@/components/auth/AuthContext";
-import { ReactNode } from "react";
-import AuthLayout from "./layouts/AuthLayout";
-import UnauthLayout from "./layouts/UnauthLayout";
+import { ReactNode, useEffect, useState } from "react";
+import { Sidebar, Menu, MenuItem, MenuItemStyles } from "react-pro-sidebar";
+import { MdHomeFilled } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
+import { IoMdSearch } from "react-icons/io";
+import { IconType } from "react-icons";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthContext";
+import { googleLogout } from "@react-oauth/google";
+
+interface SidebarMenuItemProps {
+  menuLabel: string;
+  menuIcon: IconType;
+  linksTo: string;
+}
+
+const iconSize = 20;
+
+const SidebarMenuItem = ({
+  menuLabel,
+  menuIcon: MenuIcon,
+  linksTo,
+}: SidebarMenuItemProps) => {
+  return (
+    <MenuItem
+      icon={<MenuIcon size={iconSize} />}
+      component={<Link href={linksTo} />}
+    >
+      {menuLabel}
+    </MenuItem>
+  );
+};
+
+const sidebarItems: SidebarMenuItemProps[] = [
+  {
+    menuLabel: "Home",
+    menuIcon: MdHomeFilled,
+    linksTo: "/dashboard",
+  },
+  {
+    menuLabel: "Profile",
+    menuIcon: CgProfile,
+    linksTo: "/profile",
+  },
+  {
+    menuLabel: "Find Match",
+    menuIcon: IoMdSearch,
+    linksTo: "/find-match",
+  },
+];
+
+const menuItemStyles: MenuItemStyles = {
+  root: {
+    color: "#6679A4",
+  },
+};
 
 const Layout = ({ children }: { children: ReactNode }) => {
+  const [isHovered, setIsHovered] = useState(false);
 
-  return <AuthProvider>
-    <AuthLayout>{children}</AuthLayout>
-    <UnauthLayout>{children}</UnauthLayout>
-  </AuthProvider>
+  const { user, logout } = useAuth();
+
+  useEffect(() => {
+    console.log(window.location.pathname);
+    if (!user && window.location.pathname !== "/") {
+      window.location.pathname = "/";
+      // modal
+    }
+  }, []);
+
+  const handleLogout = () => {
+    googleLogout();
+    logout();
+  }
+
+  return (<div className="flex h-full overflow-y-auto">
+      <Sidebar
+        className="sticky top-0 h-full"
+        rootStyles={{
+          borderColor: "#171C28",
+        }}
+        collapsed={!isHovered}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+        }}
+        backgroundColor={"#171C28"}
+      >
+        <div className="h-full flex flex-col justify-between">
+          <Menu menuItemStyles={menuItemStyles}>
+            {sidebarItems.map((item, idx) => (
+              <SidebarMenuItem
+                key={idx}
+                menuLabel={item["menuLabel"]}
+                menuIcon={item["menuIcon"]}
+                linksTo={item["linksTo"]}
+              />
+            ))}
+          </Menu>
+          <Menu
+            menuItemStyles={menuItemStyles}
+            rootStyles={{
+              marginBottom: "60px",
+            }}
+          >
+            <MenuItem
+              icon={<RiLogoutBoxLine size={iconSize} />}
+              onClick={handleLogout}
+            >
+              Logout
+            </MenuItem>
+          </Menu>
+        </div>
+      </Sidebar>
+      <div className="w-full overflow-y-scroll">{children}</div>
+    </div>
+  );
 };
 
 export default Layout;
