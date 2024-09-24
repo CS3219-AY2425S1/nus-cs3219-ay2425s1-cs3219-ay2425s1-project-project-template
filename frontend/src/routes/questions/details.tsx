@@ -1,8 +1,13 @@
-import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { getQuestionDetails } from '@/services/question-service';
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import Markdown from 'react-markdown';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
+import rehypeKatex from 'rehype-katex';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getQuestionDetails } from '@/services/question-service';
 
 const questionDetailsQuery = (id: number) =>
   queryOptions({
@@ -24,9 +29,11 @@ export const QuestionDetails = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{details.title}</CardTitle>
-        <div className='flex flex-col gap-2'>
-          <Badge className='flex w-min grow-0'>{details.difficulty}</Badge>
+        <div className='flex flex-col gap-4'>
+          <div className='flex w-full items-center gap-4'>
+            <CardTitle className='text-2xl'>{details.title}</CardTitle>
+            <Badge className='flex w-min grow-0'>{details.difficulty}</Badge>
+          </div>
           <div className='flex flex-wrap items-center gap-1'>
             {details.topics.map((v, i) => (
               <Badge className='flex w-min grow-0 whitespace-nowrap' key={i}>
@@ -36,6 +43,15 @@ export const QuestionDetails = () => {
           </div>
         </div>
       </CardHeader>
+      <CardContent>
+        <Markdown
+          rehypePlugins={[rehypeKatex]}
+          remarkPlugins={[remarkMath, remarkGfm]}
+          className='prose prose-neutral'
+        >
+          {details.description}
+        </Markdown>
+      </CardContent>
     </Card>
   );
 };
