@@ -18,6 +18,8 @@ import (
 
 var questionCollection *mongo.Collection = configs.GetCollection(configs.DB, "questions")
 var validate = validator.New()
+var errMessage = "error"
+var successMessage = "success"
 
 func CreateQuestion(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -26,12 +28,12 @@ func CreateQuestion(c echo.Context) error {
 
 	// Validate the request body
 	if err := c.Bind(&question); err != nil {
-		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: "error", Data: &echo.Map{"data": err.Error()}})
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
 	// Validate fields that are indicated as "Required" in model
 	if validationErr := validate.Struct(&question); validationErr != nil {
-		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: "error", Data: &echo.Map{"data": validationErr.Error()}})
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": validationErr.Error()}})
 	}
 
 	newQuestion := models.Question{
@@ -44,10 +46,10 @@ func CreateQuestion(c echo.Context) error {
 
 	result, err := questionCollection.InsertOne(ctx, newQuestion)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
-	return c.JSON(http.StatusCreated, responses.StatusResponse{Status: http.StatusCreated, Message: "success", Data: &echo.Map{"data": result}})
+	return c.JSON(http.StatusCreated, responses.StatusResponse{Status: http.StatusCreated, Message: successMessage, Data: &echo.Map{"data": result}})
 }
 
 func GetQuestion(c echo.Context) error {
@@ -61,10 +63,10 @@ func GetQuestion(c echo.Context) error {
     err := questionCollection.FindOne(ctx, bson.M{"question_id": objId}).Decode(&question)
 
     if err != nil {
-        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
     }
 
-    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": question}})
+    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": question}})
 }
 
 func GetQuestions(c echo.Context) error {
@@ -79,15 +81,15 @@ func GetQuestions(c echo.Context) error {
 		err := cur.Decode(&doc)
 
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+			return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 		}
 		questions = append(questions, doc)
 	}
 
     if err != nil {
-        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
     }
 
-    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": questions}})
+    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
 }
 
