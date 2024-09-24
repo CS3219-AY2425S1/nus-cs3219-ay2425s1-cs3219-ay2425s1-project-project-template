@@ -61,12 +61,14 @@ module.exports = {
                 btn: {
                     DEFAULT: 'hsl(var(--theme-600))',
                     primary: 'hsl(var(--theme-600))',
-                    secondary: 'hsl(var(--white))',
                     hover: 'hsl(var(--hover-fill))',
+                    secondary: 'hsl(var(--secondary))',
+                    secondaryHover: 'hsl(var(--secondary-darker))',
                     foreground: 'hsl(var(--foreground))',
                 },
                 theme: {
                     DEFAULT: 'hsl(var(--theme-600))',
+                    50: 'hsl(var(--theme-50))',
                     100: 'hsl(var(--theme-100))',
                     400: 'hsl(var(--theme-400))',
                     600: 'hsl(var(--theme-600))',

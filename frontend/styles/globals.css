@@ -39,7 +39,7 @@ body {
 
 @layer base {
     :root {
-        --foreground: 217 32.6% 17.5%;
+        --foreground: 215 28.0% 16.9%;
         --card: 0 0% 100%;
         --card-foreground: 240 10% 3.9%;
         --popover: 0 0% 100%;
@@ -69,6 +69,7 @@ body {
         --theme-600: 262.1, 83.3%, 57.8%;
         --theme-400: 270, 95.2%, 75.9%;
         --theme-100: 268, 100%, 95.5%;
+        --theme-50: 250, 100%, 97.7%;
         --hover-fill: 210.0, 40.0%, 96.1%;
         --green-default: 158.1, 64.4%, 51.6%;
         --green-light: 151.1, 81.8%, 93.5%;
@@ -79,6 +80,8 @@ body {
         --orange-default: 27.0, 96.0%, 61.0%;
         --orange-light: 34.3, 100%, 91.8%;
         --orange-dark: 20.5, 90.2%, 48.2%;
+        --secondary: 210, 40%, 96%;
+        --secondary-darker: 214.3, 31.8%, 91.4%;
     }
     .dark {
         --background: 240 10% 3.9%;
@@ -114,5 +117,20 @@ body {
     }
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+#ace-editor {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+#language-mode-select {
+    .border-input {
+        border-color: transparent;
+        border-top-left-radius: 0.5rem;
+    }
+    button {
+        font-size: smaller !important;
     }
 }
