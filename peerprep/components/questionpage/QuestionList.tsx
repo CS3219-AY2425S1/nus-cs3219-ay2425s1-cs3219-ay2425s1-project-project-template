@@ -1,19 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
-import { Question, Difficulty } from "../shared/Question";
+import { Question, difficulties } from "../shared/Question";
 import PeerprepDropdown from "../shared/PeerprepDropdown";
 
 const QuestionList: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>(
+    difficulties[0]
+  );
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   // will prolly have to search by name later
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [categories, setCategories] = useState<string[]>(["all"]);
 
   useEffect(() => {
+    // uhhhhh this should be changed to fetch on filter/search change
     const fetchQuestions = async () => {
       try {
         const response = await fetch("/data/dummyquestions.json");
@@ -36,7 +39,8 @@ const QuestionList: React.FC = () => {
 
   const filteredQuestions = questions.filter((question) => {
     const matchesDifficulty =
-      difficultyFilter === "all" || question.difficulty === difficultyFilter;
+      difficultyFilter === "all" ||
+      difficulties[question.difficulty] === difficultyFilter;
     const matchesCategory =
       categoryFilter === "all" || question.category.includes(categoryFilter);
     return matchesDifficulty && matchesCategory;
@@ -51,7 +55,7 @@ const QuestionList: React.FC = () => {
           label="Difficulty"
           value={difficultyFilter}
           onChange={(e) => setDifficultyFilter(e.target.value)}
-          options={["all", ...Object.values(Difficulty)]}
+          options={difficulties}
         />
         <PeerprepDropdown
           label="Category"

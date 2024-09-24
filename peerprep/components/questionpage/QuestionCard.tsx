@@ -1,5 +1,5 @@
 import React from "react";
-import { Question } from "../shared/Question";
+import { Question, difficulties } from "../shared/Question";
 import PeerprepButton from "../shared/PeerprepButton";
 
 type QuestionCardProps = {
@@ -27,9 +27,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         <p className="text-sm">
           Difficulty:{" "}
           <span
-            className={`capitalize ${getDifficultyClass(question.difficulty)}`}
+            className={`capitalize ${getDifficultyClass(
+              difficulties[question.difficulty]
+            )}`}
           >
-            {question.difficulty}
+            {difficulties[question.difficulty]}
           </span>
         </p>
         <p className="text-sm">

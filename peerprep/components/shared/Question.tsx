@@ -3,17 +3,13 @@ export interface Question {
   title: string;
   description: string;
   category: string[];
-  difficulty: Difficulty;
+  difficulty: number;
   test_cases: {
     [key: string]: string;
   };
 }
 
-export enum Difficulty {
-  Easy = "easy",
-  Medium = "medium",
-  Hard = "hard",
-}
+export const difficulties = ["all", "easy", "medium", "hard"] as string[];
 
 export const categories = [
   "all",
