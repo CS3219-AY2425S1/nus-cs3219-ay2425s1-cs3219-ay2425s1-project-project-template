@@ -6,6 +6,8 @@ import mongooseAutoIncrement from "mongoose-sequence";
  * Only includes the required fields as specified in the project document.
  */
 
+mongoose.set('debug', true);
+
 export type TQuestion = {
     title: string;
     description: string;
@@ -36,13 +38,14 @@ const questionSchema: Schema = new Schema({
         required: true,
         alias: "difficulty",
     },
-});
+}, { collection: "questions" });
 
 //questionid will be autoincrementing, starting from a large number to avoid conflicts with the existing data
 // @ts-ignore
 const AutoIncrement = mongooseAutoIncrement(mongoose);
 // @ts-ignore
 questionSchema.plugin(AutoIncrement, { inc_field: "questionid", start_seq: 1090 });
-const Question = model<IQuestion>("Question", questionSchema);
+const QuestionBank = mongoose.connection.useDb('questionbank');
+const Question = QuestionBank.model<IQuestion>("Question", questionSchema, "questions");
 
 export default Question;

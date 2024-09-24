@@ -1,7 +1,6 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { check, validationResult, body } from 'express-validator';
 import Question from "../models/Question";
-import { Request, Response } from 'express';
 
 /**
  * Router for the question service.
@@ -24,7 +23,6 @@ router.post('/create', [
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-
     try {
         const { title, description, category, complexity } = req.body;
         const question = { title, description, category, complexity };
@@ -44,7 +42,6 @@ router.get('/:id', [
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-
     const questionId = parseInt(req.params.id, 10);
     try {
         const question = await Question

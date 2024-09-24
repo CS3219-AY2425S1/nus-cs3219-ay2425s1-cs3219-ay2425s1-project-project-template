@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 dotenv.config();
 
-const uri = process.env.MONGODB_URI || "";
+const uri = "mongodb+srv://jamie:cs3219@questionbank.4xtdt.mongodb.net?retryWrites=true&w=majority&appName=QuestionBank";
 
 const app = express();
 
