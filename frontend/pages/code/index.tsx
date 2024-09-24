@@ -4,6 +4,7 @@ import CustomLabel from '@/components/ui/label'
 import { Difficulty } from '@/tyoes/difficulty'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
 
 interface ICollaborator {
     name: string
@@ -132,13 +133,12 @@ export default function Code() {
     }, [chatData])
 
     return (
-        <div className="flex h-fullscreen">
+        <div className="flex h-fullscreen gap-2">
             <section className="w-1/3 flex flex-col">
                 <div className="flex items-center gap-4">
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
                     <h2 className="text-lg font-medium">Session with: {collaboratorData.name}</h2>
                 </div>
-
                 <div
                     id="question-data"
                     className="flex-grow border-2 rounded-lg border-slate-100 mt-2 py-2 px-3 overflow-y-auto"
@@ -148,8 +148,8 @@ export default function Code() {
                         <DifficultyLabel difficulty={questionData.difficulty} />
                         <CustomLabel
                             title={formatQuestionCategories(questionData.category)}
-                            textColor="text-purple-600"
-                            bgColor="bg-purple-100"
+                            textColor="text-theme"
+                            bgColor="bg-theme-100"
                         />
                     </div>
                     <div className="mt-6">{questionData.description}</div>
@@ -202,7 +202,24 @@ export default function Code() {
                     )}
                 </div>
             </section>
-            <section className="w-2/3"></section>
+            <section className="w-2/3">
+                <div id="control-panel" className="flex justify-between">
+                    <div className="flex gap-3">
+                        <Button variant={'primary'}>
+                            <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
+                            Run tests
+                        </Button>
+                        <Button className="bg-green hover:bg-green-dark">
+                            <SubmitIcon fill="white" className="mr-2" />
+                            Submit
+                        </Button>
+                    </div>
+                    <Button className="bg-red hover:bg-red-dark">
+                        <EndIcon fill="white" className="mr-2" />
+                        End session
+                    </Button>
+                </div>
+            </section>
         </div>
     )
 }
