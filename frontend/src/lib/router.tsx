@@ -7,6 +7,7 @@ import { Login } from '@/routes/login';
 import { Root } from '@/routes/root';
 import { SignUp } from '@/routes/signup';
 import { ROUTES } from './routes';
+import Questions from '@/routes/question/main';
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,14 @@ export const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Root />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: ROUTES.QUESTIONS,
+        element: (
+          <PrivateRoute>
+            <Questions />
           </PrivateRoute>
         ),
       },
