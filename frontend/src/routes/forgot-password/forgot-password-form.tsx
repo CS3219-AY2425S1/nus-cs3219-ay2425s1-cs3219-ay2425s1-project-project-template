@@ -22,7 +22,7 @@ export const ForgotPasswordForm = () => {
   });
   const { form, onSubmit } = useForgotPasswordForm();
   return (
-    <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center border'>
+    <Card className='bg-primary-foreground border-border mx-auto flex w-full max-w-sm flex-col justify-center border py-20'>
       <CardHeader className='flex items-center text-center'>
         <CardTitle className='text-3xl'>Send Password Reset Request</CardTitle>
       </CardHeader>

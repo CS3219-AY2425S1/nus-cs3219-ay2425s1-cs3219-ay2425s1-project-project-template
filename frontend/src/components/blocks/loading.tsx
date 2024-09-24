@@ -5,8 +5,8 @@ export const Loading = () => {
   return (
     <Sheet open>
       <SheetPortal>
-        <SheetOverlay>
-          <div className='text-primary-foreground z-[60] flex h-screen w-screen items-center justify-center'>
+        <SheetOverlay className='bg-background/40'>
+          <div className='text-foreground z-[60] flex h-screen w-screen items-center justify-center'>
             <div className='inline-flex items-center gap-2'>
               <LoaderCircle className='animate-spin' />
               <span className='font-medium'>Loading...</span>

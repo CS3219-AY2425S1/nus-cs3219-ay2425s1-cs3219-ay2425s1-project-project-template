@@ -1,14 +1,17 @@
-import { checkIsAuthed } from '@/services/user-service';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, Outlet } from 'react-router-dom';
+
+import { checkIsAuthed } from '@/services/user-service';
 import { Loading } from './loading';
 
 export const RouteGuard = ({ authedRoute }: { authedRoute: boolean }) => {
+  // const queryClient = useQueryClient();
   const { data: isAuthed, isLoading } = useQuery({
     queryKey: ['isAuthed'],
     queryFn: async ({ signal }) => {
       return await checkIsAuthed({ signal });
     },
+    // initialData: queryClient.getQueryData(['isAuthed']),
     staleTime: 1000 * 60 * 15,
   });
   return isLoading ? (
