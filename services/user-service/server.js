@@ -1,7 +1,7 @@
 import http from "http";
 import index from "./index.js";
 import "dotenv/config";
-import { connectToDB } from "./model/repository.js";
+import { connectToDB } from "./src/model/repository.js";
 
 const port = process.env.USER_SERVICE_PORT || 3001;
 

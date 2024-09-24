@@ -1,22 +1,10 @@
 # This is a sample environment configuration file.
 # Copy this file to .env and replace the placeholder values with your own.
-
-# Question Service
 QUESTION_DB_CLOUD_URI=<FILL-THIS-IN>
 QUESTION_DB_LOCAL_URI=mongodb://question-db:27017/question
 QUESTION_DB_USERNAME=user
 QUESTION_DB_PASSWORD=password
-QUESTION_SERVICE_PORT=8081
 
-# User Service
 USER_SERVICE_CLOUD_URI=mongodb+srv://admin:<db_password>@cluster0.uo0vu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-USER_SERVICE_LOACL_URI=mongodb://127.0.0.1:27017/peerprepUserServiceDB
-USER_SERVICE_PORT=3001
-
-# Will use cloud MongoDB Atlas database
-ENV=PROD
-
-# Secret for creating JWT signature
-JWT_SECRET=you-can-replace-this-with-your-own-secret
 
 NODE_ENV=development
