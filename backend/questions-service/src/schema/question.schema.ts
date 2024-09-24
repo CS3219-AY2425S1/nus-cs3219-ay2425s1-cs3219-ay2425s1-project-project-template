@@ -9,7 +9,7 @@ export enum Difficulty {
 }
 
 // Question Schema
-@Schema()
+@Schema({ versionKey: false })
 export class Question extends Document {
   // Title of the question
   @Prop({ required: true })
