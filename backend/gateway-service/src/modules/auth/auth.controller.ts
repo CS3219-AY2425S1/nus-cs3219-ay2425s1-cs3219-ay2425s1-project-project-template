@@ -1,61 +1,23 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Res,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
+import { SignUpDto, LogInDto } from './dto';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
-  getHello(): string {
-    return this.authService.getHello();
-  }
-
   @Post('signup')
-  async signUp(@Body() body: { email: string; password: string }) {
-    const response = await this.authService.localSignUp(
-      body.email,
-      body.password,
-    );
-    return {
-      message: response.message,
-      token: response.token,
-    };
+  signUp(@Body() data: SignUpDto) {
+    return this.authService.signUp(data);
   }
 
   @Post('login')
-  async logIn(@Body() body: { email: string; password: string }) {
-    const response = await this.authService.localLogIn(
-      body.email,
-      body.password,
-    );
-    const jwtToken = response.token;
-    return { token: jwtToken };
+  logIn(@Body() data: LogInDto) {
+    return this.authService.logIn(data);
   }
-
-  // @Post('logout')
-  // async logOut(@Body() body: { token: string }) {}
-
-  // @Post('refresh-token')
-  // async refreshToken(@Body() body: { token: string }) {}
-
-  // @Post('password-reset')
-  // async passwordReset(@Body() body: { email: string }) {}
-
-  // @Post('change-password')
-  // async changePassword(@Body() body: { email: string; password: string }) {}
 
   @Get('google')
   async googleAuth(@Res() res: Response) {

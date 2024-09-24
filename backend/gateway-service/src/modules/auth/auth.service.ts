@@ -1,39 +1,75 @@
 import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { LogInDto, SignUpDto, ValidateUserCredDto } from './dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
   ) {}
 
-  getHello(): string {
-    return 'This is the auth service!';
-  }
-
-  async localSignUp(email: string, password: string) {
+  async signUp(data: SignUpDto) {
     try {
-      return firstValueFrom(
-        this.authClient.send({ cmd: 'local-sign-up' }, { email, password }),
+      const newUser = await firstValueFrom(
+        this.userClient.send({ cmd: 'create-user' }, data),
       );
+
+      const token = await firstValueFrom(
+        this.authClient.send({ cmd: 'generate-jwt' }, newUser),
+      );
+
+      return {
+        token: token,
+        user: newUser,
+      };
     } catch (error) {
-      if (error instanceof RpcException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
+      throw new HttpException(
+        error.message || 'Error creating user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async localLogIn(email: string, password: string) {
+  async logIn(data: LogInDto) {
     try {
-      return firstValueFrom(
-        this.authClient.send({ cmd: 'local-log-in' }, { email, password }),
+      const user = await firstValueFrom(
+        this.userClient.send(
+          { cmd: 'get-user-by-email' },
+          { email: data.email },
+        ),
       );
-    } catch (error) {
-      if (error instanceof RpcException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
+
+      const payload: ValidateUserCredDto = {
+        password: data.password,
+        hashedPassword: user.password,
+      };
+      const isUserValid = await firstValueFrom(
+        this.authClient.send({ cmd: 'validate-user-cred' }, payload),
+      );
+      if (!isUserValid) {
+        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+      }
+
+      user.password = undefined;
+      const token = await firstValueFrom(
+        this.authClient.send({ cmd: 'generate-jwt' }, user),
+      );
+
+      return {
+        token: token,
+        user: user,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Login failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

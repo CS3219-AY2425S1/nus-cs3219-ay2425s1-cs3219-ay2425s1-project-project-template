@@ -1,6 +1,7 @@
-import { Controller, Get, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { MessagePattern, RpcException } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { GenerateJwtDto, ValidateUserCredDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -11,32 +12,14 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @MessagePattern({ cmd: 'local-sign-up' })
-  async localSignUp(data: { email: string; password: string }) {
-    try {
-      const { email, password } = data;
-      const response = await this.appService.registerUser(email, password);
-
-      return {
-        message: response.message,
-        token: response.token,
-      };
-    } catch (error) {
-      throw new RpcException(error.message);
-    }
+  @MessagePattern({ cmd: 'generate-jwt' })
+  generateJwt(@Payload() data: GenerateJwtDto) {
+    return this.appService.generateJwt(data);
   }
 
-  @MessagePattern({ cmd: 'local-log-in' })
-  async localLogIn(data: { email: string; password: string }) {
-    try {
-      const { email, password } = data;
-      const user = await this.appService.validateUser(email, password);
-
-      const jwtToken = this.appService.generateJwt(user);
-      return { token: jwtToken };
-    } catch (error) {
-      throw new RpcException(error.message || 'Internal server error');
-    }
+  @MessagePattern({ cmd: 'validate-user-cred' })
+  validateUser(@Payload() data: ValidateUserCredDto) {
+    return this.appService.validateUserCred(data);
   }
 
   @MessagePattern({ cmd: 'google-auth-redirect' })

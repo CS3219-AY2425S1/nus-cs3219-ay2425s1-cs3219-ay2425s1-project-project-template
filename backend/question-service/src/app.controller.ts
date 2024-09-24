@@ -12,7 +12,7 @@ import {
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern({ cmd: 'get_questions' })
+  @MessagePattern({ cmd: 'get-questions' })
   async getQuestions(@Payload() data: GetQuestionsDto) {
     const { page, limit, query, difficulty, categories } = data;
     return this.appService.getQuestions(
@@ -24,23 +24,23 @@ export class AppController {
     );
   }
 
-  @MessagePattern({ cmd: 'get_question_details' })
+  @MessagePattern({ cmd: 'get-question-details' })
   async getQuestionDetailBySlug(@Payload() data: FindQuestionBySlugDto) {
     const { slug } = data;
     return this.appService.getQuestionDetailsBySlug(slug);
   }
 
-  @MessagePattern({ cmd: 'create_question' })
+  @MessagePattern({ cmd: 'create-question' })
   async createQuestion(@Payload() data: CreateQuestionDto) {
     return this.appService.createQuestion(data);
   }
 
-  @MessagePattern({ cmd: 'delete_question' })
+  @MessagePattern({ cmd: 'delete-question' })
   async deleteQuestion(@Payload() id: string) {
     return this.appService.deleteQuestion(id);
   }
 
-  @MessagePattern({ cmd: 'update_question' })
+  @MessagePattern({ cmd: 'update-question' })
   async updateQuestion(@Payload() data: UpdateQuestionDto) {
     const { id, updatedQuestionInfo } = data;
     return this.appService.updateQuestion(id, updatedQuestionInfo);

@@ -1,9 +1,10 @@
+import * as bcrypt from 'bcryptjs';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OAuth2Client } from 'google-auth-library';
-import * as bcrypt from 'bcryptjs';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
+import { GenerateJwtDto, ValidateUserCredDto } from './dto';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AppService {
@@ -24,60 +25,26 @@ export class AppService {
     return 'This is the auth service!';
   }
 
-  async hashPassword(password: string): Promise<string> {
-    const saltRounds = await bcrypt.genSalt(); // Number of salt rounds for bcrypt
-    return bcrypt.hash(password, saltRounds);
-  }
-
-  async generateJwt(user: any) {
-    const payload = { email: user.email, sub: user._id };
+  async generateJwt(user: GenerateJwtDto) {
+    const payload = { ...user };
     return this.jwtService.sign(payload);
   }
 
-  async registerUser(email: string, password: string): Promise<any> {
+  async validateUserCred(data: ValidateUserCredDto): Promise<boolean> {
     try {
-      // TODO - Put the variables in a DTO
-      const hashedPassword = await this.hashPassword(password);
-      const user = await lastValueFrom(
-        this.userClient.send(
-          { cmd: 'create_user' },
-          { email, password: hashedPassword },
-        ),
-      );
+      const { password, hashedPassword } = data;
 
-      const token = this.generateJwt(user);
-
-      return {
-        message: 'User registered successfully',
-        user,
-        token,
-      };
+      if (this.validatePassword(password, hashedPassword)) {
+        return true;
+      }
+      return false;
     } catch (error) {
-      throw new RpcException(error.message || 'Internal server error');
+      throw new RpcException('Error validating user credentials');
     }
   }
 
-  async validateUser(email: string, password: string): Promise<any> {
-    try {
-      const user = await lastValueFrom(
-        this.userClient.send({ cmd: 'get_user_by_email' }, { email }),
-      );
-
-      if (!user) {
-        throw new RpcException('User not found');
-      }
-
-      const isPsValid = await bcrypt.compare(password, user.password);
-
-      if (!isPsValid) {
-        throw new RpcException('Invalid credentials');
-      }
-
-      const { password: _, ...result } = user;
-      return result;
-    } catch (error) {
-      throw new RpcException(error.message || 'Internal server error');
-    }
+  private async validatePassword(password: string, hashedPassword: string) {
+    return bcrypt.compare(password, hashedPassword);
   }
 
   // Exchange the authorization code for tokens and user profile

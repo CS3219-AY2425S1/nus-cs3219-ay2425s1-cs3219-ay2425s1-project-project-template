@@ -5,7 +5,6 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { GoogleStrategy } from './google.strategy';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { LocalStrategy } from './local.strategy';
 
 @Module({
   imports: [
@@ -26,6 +25,6 @@ import { LocalStrategy } from './local.strategy';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, GoogleStrategy, LocalStrategy],
+  providers: [AppService, GoogleStrategy],
 })
 export class AppModule {}
