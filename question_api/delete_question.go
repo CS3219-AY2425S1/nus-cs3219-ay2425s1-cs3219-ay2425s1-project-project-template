@@ -21,7 +21,7 @@ func DeleteQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"Error deleting question": "Invalid ID"})
 			logger.Log.Warn("Attempted deletion with invalid ID: ", ctx.Param("id"))
 			return
 		}
@@ -29,16 +29,16 @@ func DeleteQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		deleteStatus, err := db.questions.DeleteOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
 		
 		if err != nil {
-			ctx.JSON(http.StatusBadGateway, gin.H{"Failed to delete question: ": err.Error()})
+			ctx.JSON(http.StatusBadGateway, gin.H{"Error deleting question": err.Error()})
 			logger.Log.Warn(fmt.Sprintf("Failed to delete question with ID %d: %s", id, err.Error()))
 			return
 		} else if deleteStatus.DeletedCount == 0 {
-			ctx.JSON(http.StatusNotFound, gin.H{"Failed to delete question: ": "Question not found"})
+			ctx.JSON(http.StatusNotFound, gin.H{"Error deleting question": "Question not found"})
 			logger.Log.Warn(fmt.Sprintf("Question with ID %d not found", id))
 			return
 		}
 
-		ctx.JSON(http.StatusNoContent, gin.H{"message": "Question deleted successfully"})
+		ctx.JSON(http.StatusNoContent, gin.H{"Success": "Question deleted successfully"})
 		logger.Log.Warn(fmt.Sprintf("Question with ID %d deleted successfully", id))
 	}
 }

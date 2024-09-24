@@ -14,7 +14,7 @@ func GetAllQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		questions_cursor, err := db.questions.Find(context.Background(), bson.D{})
 
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error retrieving questions": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{"Error retrieving questions": err.Error()})
 			logger.Log.Error("Error retrieving questions: ", err.Error())
 			return
 		}
@@ -24,13 +24,13 @@ func GetAllQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 
 		// decode all the questions from the cursor. If there is an error, return the error
 		if err = questions_cursor.All(context.Background(), &questions); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error decoding questions": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{"Error retrieving questions": err.Error()})
 			logger.Log.Error("Error decoding questions: ", err.Error())
 			return
 		}
 
 		if len(questions) == 0 {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "No questions found"})
+			ctx.JSON(http.StatusNotFound, gin.H{"Error retrieving questions": "No questions found"})
 			logger.Log.Error("No questions found when retrieving all questions")
 			return
 		}

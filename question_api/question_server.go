@@ -55,10 +55,6 @@ func main() {
 
 	logger.Log.Out = logFile
 
-
-	router := gin.Default()
-	SetCors(router)
-	
 	//initialise the database and handle errors
 	server, err := initialiseDB()
 
@@ -69,7 +65,9 @@ func main() {
 	//create a new instance of the questionDB
 	questionDB := NewQuestionDB(server)
 
-	//set all the endpoints
+	
+	router := gin.Default()
+	SetCors(router)
 	SetAllEndpoints(router, questionDB, logger)
 
 	logger.Log.Info(fmt.Sprintf("Server started at time: %s", time.Now().String()))

@@ -19,7 +19,7 @@ func GetQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"Error retrieving question": "Invalid ID"})
 			logger.Log.Warn("Invalid ID: ", ctx.Param("id"))
 			return
 		}
@@ -27,14 +27,14 @@ func GetQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		question_cursor := db.questions.FindOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
 		
 		if question_cursor.Err() != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "Question not found"})
+			ctx.JSON(http.StatusNotFound, gin.H{"Error retrieving question": "Question not found"})
 			logger.Log.Warn(fmt.Sprintf("Question with ID %d not found", id))
 			return
 		}
 
 		var question Question
 		if err := question_cursor.Decode(&question); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error decoding question"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"Error retrieving question": "Error decoding question"})
 			logger.Log.Error("Error decoding question: ", err)
 			return
 		}
