@@ -14,6 +14,12 @@ const RootLayout = ({
               colorPrimary: "#463F3A",
               algorithm: true, // Enable algorithm
             },
+            Input: {
+              colorBgContainer: "#FAFAFA",
+            },
+            Select: {
+              colorBgContainer: "#FAFAFA",
+            },
           },
         }}
       >
