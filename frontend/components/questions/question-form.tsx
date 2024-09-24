@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { AutosizeTextarea } from "../ui/autosize-textarea";
 
 interface QuestionFormProps {
   data: Question | undefined;
@@ -66,29 +66,41 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
           <div className="m-4">
             <Label>Complexity</Label>
             <div className="mt-2">
-              <Select
-                value={question?.complexity}
-                onValueChange={(e) =>
-                  question && setQuestion({ ...question, complexity: e })
-                }
-                disabled={!props.isAdmin}
-              >
-                <SelectTrigger id="complexity">
-                  <SelectValue placeholder="Select complexity" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
+              {props.isAdmin ? (
+                <Select
+                  value={question?.complexity}
+                  onValueChange={(e) =>
+                    question && setQuestion({ ...question, complexity: e })
+                  }
+                  disabled={!props.isAdmin}
+                >
+                  <SelectTrigger id="complexity">
+                    <SelectValue placeholder="Select complexity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={question?.complexity}
+                  onChange={(e) =>
+                    question &&
+                    setQuestion({ ...question, complexity: e.target.value })
+                  }
+                  disabled={!props.isAdmin}
+                />
+              )}
             </div>
           </div>
           <div className="m-4">
             <Label>Description</Label>
-            <Textarea
+            <AutosizeTextarea
               value={question?.description}
               className="mt-2"
+              minHeight={200}
               onChange={(e) =>
                 question &&
                 setQuestion({ ...question, description: e.target.value })
