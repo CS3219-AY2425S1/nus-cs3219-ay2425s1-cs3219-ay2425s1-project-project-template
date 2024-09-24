@@ -1,13 +1,13 @@
 import React, { ReactNode } from 'react';
-import styles from '@/style/layout.module.css';
 
 interface Props {
-  children : ReactNode
+  children : ReactNode,
+  className : string
 }
 
-function Container({ children }: Props) {
+function Container({ children, className }: Props) {
   return (
-    <div className={styles.container}>
+    <div className={className}>
       {children}
     </div>
   )

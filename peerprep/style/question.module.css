@@ -1,0 +1,101 @@
+/* TODO: If the window is more tall than wide, flex-direction should flip. */
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  padding: 10px 5px;
+  height: 100%;
+  width: 100%;
+}
+
+.qn_container {
+  display: flex;
+  flex-direction: column;
+  width: 48%;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.title_wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0px 5px;
+}
+
+.title {
+  font-size: large;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: bolder;
+}
+
+.easy {
+  padding: 1px;
+  background-color: beige;
+  border: 1px solid darkgreen;
+  border-radius: 5%;
+  color: darkgreen;
+}
+
+.med {
+  padding: 1px;
+  background-color: azure;
+  border: 1px solid darkgoldenrod;
+  border-radius: 5%;
+  color: darkgoldenrod;
+}
+
+.hard {
+  padding: 1px;
+  background-color: mintcream;
+  border: 1px solid red;
+  border-radius: 5%;
+  color: red;
+}
+
+.table {
+  text-align: center;
+  border: 2px solid grey;
+}
+
+.cell {
+  font-weight: 300;
+}
+
+.header {
+  font-weight: bold;
+}
+
+.input {
+  width: 70%;
+}
+
+.output {
+  width: 30%;
+}
+
+.editor_container {
+  width: 48%;
+  height: 100%;
+  overflow-y: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.code_editor {
+  width: 100%;
+  height: 100%;
+  border-radius: 1%;
+  border: 1px darkblue;
+  outline: none;
+  font-family: 'Courier New', Courier, monospace;
+  background-color: rgb(29, 29, 53);
+  color: beige;
+  padding: 10px 6px;
+  resize: none;
+}

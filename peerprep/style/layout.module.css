@@ -6,7 +6,7 @@
   padding: 1px 5px 1px 5px;
 }
 
-.container {
+.main_container {
   display: flex;
   flex-direction: column;
   min-width: 100%;
