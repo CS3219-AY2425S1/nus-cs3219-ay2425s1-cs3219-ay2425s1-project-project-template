@@ -9,6 +9,7 @@ export const RouteGuard = ({ authedRoute }: { authedRoute: boolean }) => {
     queryFn: async ({ signal }) => {
       return await checkIsAuthed({ signal });
     },
+    staleTime: 1000 * 60 * 15,
   });
   return isLoading ? (
     <Loading />
