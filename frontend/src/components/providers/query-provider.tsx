@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const IS_SHOW_DEVTOOLS = false;
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export const QueryProvider: FC<PropsWithChildren> = ({ children }) => {
   return (

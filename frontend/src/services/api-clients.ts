@@ -7,4 +7,11 @@ export const userApiClient: AxiosInstance = axios.create({
   },
 });
 
+export const questionApiClient = axios.create({
+  baseURL: '/question-service',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // define more api clients for other microservices

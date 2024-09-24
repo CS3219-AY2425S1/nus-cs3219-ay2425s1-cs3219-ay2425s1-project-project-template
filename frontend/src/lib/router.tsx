@@ -4,9 +4,10 @@ import { Layout } from '@/components/blocks/layout';
 import { PrivateRoute } from '@/components/blocks/private-route';
 import { ForgotPassword } from '@/routes/forgot-password';
 import { Login } from '@/routes/login';
-import { Root } from '@/routes/root';
 import { SignUp } from '@/routes/signup';
 import { ROUTES } from './routes';
+import { loader as qnDetailsLoader, QuestionDetails } from '@/routes/questions/details';
+import { queryClient } from '@/components/providers';
 
 export const router = createBrowserRouter([
   {
@@ -14,11 +15,14 @@ export const router = createBrowserRouter([
     children: [
       {
         path: ROUTES.HOME,
-        element: (
-          <PrivateRoute>
-            <Root />
-          </PrivateRoute>
-        ),
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: ROUTES.QUESTION_DETAILS,
+            loader: qnDetailsLoader(queryClient),
+            element: <QuestionDetails />,
+          },
+        ],
       },
       {
         path: ROUTES.LOGIN,
