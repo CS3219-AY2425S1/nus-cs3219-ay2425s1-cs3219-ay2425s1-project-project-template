@@ -11,9 +11,22 @@ export interface Question {
   testCases?: string[];
 }
 
-// GET resquest to fetch all the questions
+// GET request to fetch all the questions (TODO: Ben --> Fetch with filtering/sorting etc)
 export const GetQuestions = async (): Promise<Question[]> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions`);
   const data = await response.json();
   return data;
 };
+
+// Get single question
+export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRef}`
+  );
+  const data = await response.json();
+  return data;
+};
+
+// Update single question (TODO: Sean)
+
+// Delete single question (TODO: Ryan)

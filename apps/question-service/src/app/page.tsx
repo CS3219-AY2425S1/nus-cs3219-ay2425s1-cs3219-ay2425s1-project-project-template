@@ -5,6 +5,7 @@ import {
   Col,
   Input,
   Layout,
+  message,
   Row,
   Select,
   Table,
@@ -29,10 +30,9 @@ import {
 } from "./utils/SelectOptions";
 
 export default function Home() {
-  // Store the questions
-  const [questions, setQuestions] = useState<Question[] | undefined>(undefined);
-  // Store the states related to table's loading
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Table States
+  const [questions, setQuestions] = useState<Question[] | undefined>(undefined); // Store the questions
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Filtering States
   const [search, setSearch] = useState<string | undefined>(undefined); // Store the search
@@ -40,6 +40,33 @@ export default function Home() {
   const [difficulty, setDifficulty] = useState<string[]>([]); // Store the selected difficulty level
   const [sortBy, setSortBy] = useState<string | undefined>(undefined); // Store the selected sorting parameter
 
+  // Message States
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const success = (message: string) => {
+    messageApi.open({
+      type: "success",
+      content: message,
+    });
+  };
+
+  const error = (message: string) => {
+    messageApi.open({
+      type: "error",
+      content: message,
+    });
+  };
+
+  const warning = (message: string) => {
+    messageApi.open({
+      type: "warning",
+      content: message,
+    });
+  };
+
+  // Include States for Create/Edit Modal (TODO: Sean)
+
+  // When the page is initialised, fetch all the questions ONCE and display in table
   useEffect(() => {
     if (!isLoading) {
       setIsLoading(true);
@@ -120,8 +147,14 @@ export default function Home() {
     setSortBy(undefined);
   };
 
+  // Handler for filtering (TODO)
+  const handleFilter = async () => {
+    success("Filtered Successfully!");
+  };
+
   return (
     <div>
+      {contextHolder}
       <Layout className="layout">
         <Header />
         <Content className="content">
@@ -180,7 +213,11 @@ export default function Home() {
                 </Col>
                 <Col span={4}>
                   <Button onClick={handleClear}>Clear</Button>
-                  <Button type="primary" className="filter-button">
+                  <Button
+                    type="primary"
+                    className="filter-button"
+                    onClick={handleFilter}
+                  >
                     Filter
                   </Button>
                 </Col>
