@@ -46,17 +46,18 @@ export async function handleGetPaginatedQuestions(request: TypedRequest<void>, r
 
     const start = (page - 1) * limit
     const count = await findQuestionCount()
-    const nextPage = start + limit < count ? page + 1 : null
 
     const questions = await findPaginatedQuestions(start, limit)
-    const dto = questions.map((question) => QuestionDto.fromModel(question))
+    const nextPage = start + limit < count ? page + 1 : null
 
     response.status(200).json({
-        currentPage: page,
-        totalItems: count,
-        totalPages: Math.ceil(count / limit),
-        nextPage,
-        dto,
+        pagination: {
+            currentPage: page,
+            nextPage,
+            totalPages: Math.ceil(count / limit),
+            totalItems: count,
+        },
+        questions: questions.map(QuestionDto.fromModel),
     })
 }
 

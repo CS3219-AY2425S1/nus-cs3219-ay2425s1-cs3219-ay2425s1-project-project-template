@@ -18,11 +18,8 @@ export async function findOneQuestionByTitle(title: string): Promise<IQuestion |
     return questionModel.findOne({ title })
 }
 
-export async function findPaginatedQuestions(page: number, limit: number): Promise<IQuestion[]> {
-    return questionModel
-        .find()
-        .limit(limit)
-        .skip((page - 1) * limit)
+export async function findPaginatedQuestions(start: number, limit: number): Promise<IQuestion[]> {
+    return questionModel.find().limit(limit).skip(start)
 }
 
 export async function findQuestionCount(): Promise<number> {
