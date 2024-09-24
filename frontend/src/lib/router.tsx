@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { Layout } from '@/components/blocks/layout';
 import { PrivateRoute } from '@/components/blocks/private-route';
+
 import { ForgotPassword } from '@/routes/forgot-password';
 import { Login } from '@/routes/login';
 import { Root } from '@/routes/root';

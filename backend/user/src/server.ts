@@ -11,11 +11,13 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import authRoutes from '@/routes/auth';
 import checkRoutes from '@/routes/check';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(pino());
 app.use(json());
 app.use(helmet());
+app.use(cookieParser());
 app.use(
   cors({
     origin: [process.env.PEERPREP_UI_HOST!],
