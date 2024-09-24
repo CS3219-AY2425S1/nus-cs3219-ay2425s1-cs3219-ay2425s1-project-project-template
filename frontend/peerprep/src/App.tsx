@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import LoginView from './pages/login/LoginView';
-import RegistrationView from './pages/users/RegistrationView';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import './index.css';
+import RegistrationController from "./pages/user/RegistrationController";
+import LoginController from "./pages/user/LoginController";
 
 const App: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -11,13 +12,13 @@ const App: React.FC = () => {
   };
   
   return (
-    <div>
-      {isRegistering ? (
-        <RegistrationView onLogin={toggleView} />
-      ) : (
-        <LoginView onCreateAccount={toggleView} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<LoginController />} />
+          <Route path="/register" element={<RegistrationController />} />
+      </Routes>
+    </Router>
   );
 };
 

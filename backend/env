@@ -1,0 +1,3 @@
+MONGODB_URI='mongodb+srv://cs3219_admin:FTqyebyoBtPF483R@cluster0.u2xtg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+SECRET_KEY='fnekanaeklnf'
+PORT="8080"

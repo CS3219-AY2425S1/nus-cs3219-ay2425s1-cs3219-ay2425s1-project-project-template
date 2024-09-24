@@ -1,29 +1,32 @@
 import React, { useState } from "react";
 import { login, UserCredentials } from "./authService";
 import LoginView from "./LoginView";
+import { useNavigate } from "react-router-dom";
 
 const LoginController: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const navigate = useNavigate();
 
-  const handleLogin = async (username: string, password: string) => {
-    const credentials: UserCredentials = { username, password };
+  const handleLogin = async (email: string, password: string) => {
+    const credentials: UserCredentials = { email, password };
     try {
       const token = await login(credentials);
-      console.log("Logged in successfully! Token:", token);
+      console.log("Login successful! Token:", token);
+      navigate("/register"); // changed to questions
     } catch (error) {
-      setErrorMessage("Login failed: Invalid username or password.");
+      setErrorMessage("Login failed: Invalid email or password.");
     }
   };
 
   const handleCreateAccount = () => {
     console.log("Create account clicked");
-    // You can handle the view switch here, or pass the prop to App component
+    navigate("/register");
   };
 
   return (
     <LoginView
       onSubmit={handleLogin}
-      onCreateAccount={handleCreateAccount} // Pass the prop here
+      onCreateAccount={handleCreateAccount}
       errorMessage={errorMessage}
     />
   );

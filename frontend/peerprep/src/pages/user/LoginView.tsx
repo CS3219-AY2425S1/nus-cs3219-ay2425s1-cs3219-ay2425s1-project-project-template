@@ -1,26 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import InputBox from '../../components/InputBox';
 import LargeButton from '../../components/SubmitButton';
 import logo from '/peerprep_logo.png';
 
+
 interface LoginViewProps {
-  onSubmit: (username: string, password: string) => void;
-  onCreateAccount: () => void; // New prop for creating an account
-  errorMessage?: string; // Optional prop for error message
+  onSubmit: (email: string, password: string) => void;
+  onCreateAccount: () => void;
+  errorMessage?: string;
 }
 
 const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorMessage }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(username, password);
+    onSubmit(email, password);
   };
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]">
-      <div className="flex justify-center items-center p-2 mb-5">
+      <div className="flex Justify-center items-center p-2 mb-5">
         <img src={logo} alt="Peerprep Logo" className="w-20 h-20" />
         <span className="text-6xl text-white-800">PeerPrep</span>
       </div>
@@ -29,10 +30,10 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorM
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="input-container">
             <InputBox
-              type="text"
-              placeholder="Username or Email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="input-container">
@@ -48,6 +49,11 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorM
           </div>
           <LargeButton text="Login" onClick={handleSubmit} />
         </form>
+        {errorMessage && (
+          <div className="text-red-500 mt-4">
+            {errorMessage}
+          </div>
+        )}
         <div className="signup-link mt-6 text-sm text-gray-300">
           Don’t have an account? <a href="#" className="text-purple-400 hover:underline" onClick={onCreateAccount}>Create account</a>
         </div>
