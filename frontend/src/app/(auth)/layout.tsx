@@ -10,6 +10,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthContext";
 import { googleLogout } from "@react-oauth/google";
+import Cookies from "js-cookie";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
@@ -61,13 +62,13 @@ const menuItemStyles: MenuItemStyles = {
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
+  // check if access token is present using Cookies
   useEffect(() => {
-    console.log(window.location.pathname);
-    if (!user && window.location.pathname !== "/") {
-      window.location.pathname = "/";
-      // modal
+    const access_token = Cookies.get("access_token");
+    if (!access_token) {
+      logout();
     }
   }, []);
 
