@@ -4,7 +4,7 @@ import express, { json } from 'express';
 import pino from 'pino-http';
 import { sql } from 'drizzle-orm';
 
-import { db } from '@/lib/db';
+import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 
 const app = express();
@@ -24,6 +24,7 @@ export const dbHealthCheck = async () => {
   } catch (error) {
     const { message } = error as Error;
     logger.error('Cannot connect to DB: ' + message);
+    logger.error(`DB Config: ${JSON.stringify({ ...config, password: '<REDACTED>' })}`);
     exit(1);
   }
 };

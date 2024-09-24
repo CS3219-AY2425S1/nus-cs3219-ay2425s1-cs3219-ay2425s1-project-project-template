@@ -10,5 +10,8 @@ WORKDIR /data/user-express
 COPY --from=build /data/user-express/package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build --chown=node:node /data/user-express/dist ./dist
+
+ARG env
+COPY ".env.${env}" .
 EXPOSE 8001
-ENTRYPOINT ["node", "dist/index.js"]
+CMD [ "npm", "run", "start" ]
