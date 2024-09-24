@@ -1,18 +1,14 @@
-import { HamburgerMenuIcon, MoonIcon, PersonIcon, SunIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import { observer } from 'mobx-react';
 
 import { Logo } from '@/components/common/logo';
+import { MobileThemeSwitch } from '@/components/common/mobile-theme-switch';
+import { ThemeSwitch } from '@/components/common/theme-switch';
+import { UserDropdown } from '@/components/common/user-dropdown';
+
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
-import { darkModeStore } from '@/stores/dark-mode-store';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 const NavBar = observer(() => {
   const { isLogin, isSignUp, isForgotPassword } = useRouterLocation();
@@ -29,16 +25,7 @@ const NavBar = observer(() => {
           </>
         )}
         <div className='ml-auto flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4'>
-          <Tabs value={darkModeStore.mode} onValueChange={darkModeStore.toggle}>
-            <TabsList>
-              <TabsTrigger value='light'>
-                <SunIcon />
-              </TabsTrigger>
-              <TabsTrigger value='dark'>
-                <MoonIcon />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <ThemeSwitch />
           {isLogin ? (
             <Button variant='outline' asChild>
               <a href={ROUTES.SIGNUP}>Sign Up</a>
@@ -48,20 +35,7 @@ const NavBar = observer(() => {
               <a href={ROUTES.LOGIN}>Log In</a>
             </Button>
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
-                  <PersonIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Button variant='link' asChild>
-                    <a href='/logout'>Logout</a>
-                  </Button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <UserDropdown />
           )}
         </div>
       </nav>
@@ -72,12 +46,7 @@ const NavBar = observer(() => {
           <Logo />
         </div>
         <div>
-          <Button
-            className='rounded-lg p-3'
-            onClick={() => darkModeStore.toggle(darkModeStore.mode === 'light' ? 'dark' : 'light')}
-          >
-            {darkModeStore.mode === 'light' ? <MoonIcon /> : <SunIcon />}
-          </Button>
+          <MobileThemeSwitch />
         </div>
       </div>
     </header>
