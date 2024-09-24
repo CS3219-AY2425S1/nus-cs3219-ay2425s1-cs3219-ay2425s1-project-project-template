@@ -1,11 +1,6 @@
 import axios from 'axios';
 
-const USER_SERVICE = import.meta.env.VITE_USER_SERVICE;
-
-export const userApiGetClient = axios.create({
-  baseURL: USER_SERVICE,
-  withCredentials: true,
-});
+export const USER_SERVICE = 'user-service';
 
 export const userApiClient = axios.create({
   baseURL: USER_SERVICE,
@@ -13,6 +8,11 @@ export const userApiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+export const userApiGetClient = axios.create({
+  baseURL: USER_SERVICE,
+  withCredentials: true,
 });
 
 // define more api clients for other microservices

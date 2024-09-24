@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import { Layout } from '@/components/blocks/layout';
+import { Layout, loader as rootLoader } from '@/components/blocks/layout';
 import { PrivateRoute } from '@/components/blocks/private-route';
 
 import { ForgotPassword } from '@/routes/forgot-password';
@@ -9,10 +9,12 @@ import { Root } from '@/routes/root';
 import { SignUp } from '@/routes/signup';
 
 import { ROUTES } from './routes';
+import { queryClient } from './query-client';
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
+    loader: rootLoader(queryClient),
     children: [
       {
         path: ROUTES.HOME,

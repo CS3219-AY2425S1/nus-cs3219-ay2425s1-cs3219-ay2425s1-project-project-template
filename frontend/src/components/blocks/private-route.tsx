@@ -1,24 +1,19 @@
-import { FC, PropsWithChildren, useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-
-import { checkIsAuthed } from '@/services/user-service';
-
-import { Loading } from './loading';
+import { FC, PropsWithChildren, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
 
 export const PrivateRoute: FC<PropsWithChildren> = ({ children }) => {
-  const [state, setState] = useState('pending');
-  const [isAuthed, setIsAuthed] = useState(false);
+  // const navigate = useNavigate();
+
   useEffect(() => {
-    const ensureAuthed = async () => {
-      try {
-        const isAuthed = await checkIsAuthed();
-        setIsAuthed(isAuthed);
-      } catch (error) {
-        setIsAuthed(false);
-      }
-      setState('loaded');
-    };
-    ensureAuthed();
+    // const ensureLoggedIn = async () => {
+    //   await axios
+    //     .get(import.meta.env.VITE_USER_SERVICE + '/auth-check/is-authed', { withCredentials: true })
+    //     .catch((err) => {
+    //       console.log(err);
+    //       navigate('/login');
+    //     });
+    //   ensureLoggedIn();
+    // };
   }, []);
-  return state === 'pending' ? <Loading /> : isAuthed ? children : <Navigate to='/login' />;
+  return children;
 };

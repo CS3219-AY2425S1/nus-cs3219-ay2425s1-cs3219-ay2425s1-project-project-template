@@ -1,6 +1,6 @@
-import { GenericAbortSignal, HttpStatusCode } from 'axios';
-
+import { HttpStatusCode } from 'axios';
 import type { IForgotPasswordPayload, ILoginPayload, ISignUpPayload } from '@/types/user-types';
+
 import { userApiClient, userApiGetClient } from './api-clients';
 
 const USER_SERVICE_ROUTES = {
@@ -23,9 +23,31 @@ export const forgotPassword = (forgotPasswordPayload: IForgotPasswordPayload) =>
   return userApiClient.post(``, forgotPasswordPayload);
 };
 
-export const checkIsAuthed = async (param?: { signal: GenericAbortSignal }) => {
-  const response = await userApiGetClient.get(USER_SERVICE_ROUTES.IS_AUTHED, {
-    signal: param?.signal,
-  });
-  return response.status === HttpStatusCode.Ok;
+export const logout = () => {
+  return userApiClient.post(USER_SERVICE_ROUTES.LOGOUT);
+};
+
+export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
+  return userApiGetClient
+    .get(USER_SERVICE_ROUTES.IS_AUTHED, { signal: param?.signal })
+    .catch((err) => {
+      if (err !== null) {
+        console.error(err);
+      }
+    })
+    .then((data) => {
+      return data?.status === HttpStatusCode.Ok;
+    });
+  // return fetch(USER_SERVICE + USER_SERVICE_ROUTES.IS_AUTHED, {
+  //   method: 'GET',
+  //   credentials: 'include',
+  //   signal: param?.signal
+  // }).catch((err) => {
+  //   if (err !== null) {
+  //     console.error(err);
+  //     return new Response('', { status: 401 })
+  //   }
+  // }).then(res => {
+  //   return res?.status === 200
+  // });
 };
