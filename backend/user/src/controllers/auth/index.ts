@@ -25,6 +25,7 @@ export const login: IRouteHandler = async (req, res) => {
       httpOnly: true,
       secure: false, // For HTTPS: Set true
       sameSite: 'lax',
+      path: '/',
     })
     .json(data.user);
 };

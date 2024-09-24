@@ -1,3 +1,5 @@
+import { GenericAbortSignal, HttpStatusCode } from 'axios';
+
 import type { IForgotPasswordPayload, ILoginPayload, ISignUpPayload } from '@/types/user-types';
 import { userApiClient } from './api-clients';
 
@@ -6,6 +8,7 @@ const USER_SERVICE_ROUTES = {
   LOGOUT: '/auth/logout',
   SIGNUP: '/auth/register',
   FORGOT_PASSWORD: '',
+  IS_AUTHED: '/auth-check/is-authed',
 };
 
 export const login = (userCredentials: ILoginPayload) => {
@@ -18,4 +21,11 @@ export const signUp = (signUpPayload: ISignUpPayload) => {
 
 export const forgotPassword = (forgotPasswordPayload: IForgotPasswordPayload) => {
   return userApiClient.post(``, forgotPasswordPayload);
+};
+
+export const checkIsAuthed = async (param?: { signal: GenericAbortSignal }) => {
+  const response = await userApiClient.get(USER_SERVICE_ROUTES.IS_AUTHED, {
+    signal: param?.signal,
+  });
+  return response.status === HttpStatusCode.Ok;
 };

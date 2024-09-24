@@ -7,6 +7,7 @@ export const userApiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // define more api clients for other microservices

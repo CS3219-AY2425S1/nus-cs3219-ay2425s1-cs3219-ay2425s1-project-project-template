@@ -6,6 +6,7 @@ import { ForgotPassword } from '@/routes/forgot-password';
 import { Login } from '@/routes/login';
 import { Root } from '@/routes/root';
 import { SignUp } from '@/routes/signup';
+
 import { ROUTES } from './routes';
 
 export const router = createBrowserRouter([
