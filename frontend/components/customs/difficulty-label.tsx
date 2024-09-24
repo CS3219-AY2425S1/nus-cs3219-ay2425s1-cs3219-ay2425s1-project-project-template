@@ -1,5 +1,5 @@
 import CustomLabel from '../ui/label'
-import { Difficulty } from '@/tyoes/difficulty'
+import { Difficulty } from '@/types/difficulty'
 
 import { FC } from 'react'
 
