@@ -96,7 +96,6 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
               key="all"
               value="all"
               _hover={{ bg: "gray.700", color: "white" }}
-              _focus={{ bg: "gray.700" }}
               _checked={{ bg: color, color: "white" }}
             >
               ALL
@@ -108,7 +107,6 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
                 marginTop={2}
                 bgColor={filter.color}
                 _hover={{ bg: "gray.700", color: filter.color }}
-                _focus={{ bg: "gray.700" }}
                 _checked={{ bg: filter.color, color: "white" }}
               >
                 {filter.id}
