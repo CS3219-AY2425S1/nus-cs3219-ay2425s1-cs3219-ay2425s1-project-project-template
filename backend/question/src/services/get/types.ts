@@ -7,7 +7,7 @@ export type IGetQuestionsPayload = {
   // Filters
   questionName?: string;
   difficulty?: string;
-  topic?: string;
+  topic?: Array<string>;
   // Pagination
   pageNum?: number; // Default 0
   recordsPerPage?: number; // Default 20
@@ -56,7 +56,7 @@ export type IGetQuestionResponse = IServiceResponse<{
 export type IGetRandomQuestionPayload = {
   userId: number;
   difficulty?: string;
-  topic?: string;
+  topic?: Array<string>;
 };
 
 export type IGetRandomQuestionResponse = IServiceResponse<{

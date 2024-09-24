@@ -1,11 +1,10 @@
 services:
   postgres:
     hostname: postgres
-    image: 'question-db'
+    image: postgres:16.4
     container_name: 'question_db'
     build:
       context: ./src/lib/db
-      dockerfile: ./postgres.Dockerfile
     environment:
       POSTGRES_DB: 'Question'
       POSTGRES_USER: 'user'
@@ -26,7 +25,7 @@ services:
       dockerfile: ./express.Dockerfile
       target: build
     ports:
-      - '8000:8001'
+      - '9002:8001'
     command: node dist/index.js
     depends_on:
       postgres:

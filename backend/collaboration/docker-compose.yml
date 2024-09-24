@@ -1,11 +1,10 @@
 services:
   postgres:
     hostname: postgres
-    image: 'collaboration-db'
+    image: postgres:16.4
     container_name: 'collaboration_db'
     build:
       context: ./src/lib/db
-      dockerfile: ./postgres.Dockerfile
     environment:
       POSTGRES_DB: 'Collaboration'
       POSTGRES_USER: 'user'
@@ -26,7 +25,7 @@ services:
       dockerfile: ./express.Dockerfile
       target: build
     ports:
-      - '8002:8001'
+      - '9003:8001'
     command: node dist/index.js
     depends_on:
       postgres:
