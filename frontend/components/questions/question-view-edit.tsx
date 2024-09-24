@@ -2,7 +2,7 @@
 
 import { Question, QuestionSchema } from "@/lib/schemas/question-schema";
 import useSWR from "swr";
-import QuestionForm from "./question-form";
+import QuestionForm from "@/components/questions/question-form";
 import { useAuth } from "@/app/auth/auth-context";
 import { useEffect, useState } from "react";
 
@@ -48,7 +48,7 @@ export default function QuestionViewEdit({
 
   const handleEdit = (question: Question) => {
     // Todo: Implement
-    question
+    question;
   };
 
   return (

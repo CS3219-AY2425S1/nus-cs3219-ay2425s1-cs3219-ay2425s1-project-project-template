@@ -1,11 +1,11 @@
 "use client";
 
 import { useAuth } from "@/app/auth/auth-context";
-import QuestionTable from "./questions-table";
+import QuestionTable from "@/components/questions/questions-table";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
-import LoadingScreen from "../common/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import { useRouter } from "next/navigation";
 
 const fetcher = async (url: string): Promise<Question[]> => {

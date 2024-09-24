@@ -1,6 +1,6 @@
 import QuestionViewEdit from "@/components/questions/question-view-edit";
 
-export default function UserSettingsPage({
+export default function QuestionViewEditPage({
   params,
 }: {
   params: { question_id: string };

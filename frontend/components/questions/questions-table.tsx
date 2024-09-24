@@ -1,7 +1,7 @@
 "use client";
 
 import { Question } from "@/lib/schemas/question-schema";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/components/ui/table";
 import { TableOfContentsIcon, Trash2Icon } from "lucide-react";
 
 interface QuestionTableProps {
