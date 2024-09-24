@@ -37,52 +37,44 @@ function HomePage() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div className="App">
-              <header className="App-header">
-                <p className = "welcome-text">
-                  Welcome to PeerPrep.
-                </p>
-                
-                <table className="App-table">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Category</th>
-                      <th>Complexity</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row) => (
-                      <tr key={row.id}>
-                        <td>{row.title}</td>
-                        <td>{row.category}</td>
-                        <td>{row.complexity}</td>
-                        <td>
-                          <button className="delete-btn" onClick={() => deleteRow(row.id)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <button className="create-btn" onClick={createRow}>
-                  Create
-                </button> 
- 
-              </header>
-            </div>
-          }
-        ></Route>
-        <Route path="*" element={<p>404: Page Not Found!</p>} />
-      </Routes>
-    </BrowserRouter>
+
+        <div className="App">
+          <header className="App-header">
+            <p className = "welcome-text">
+              Welcome to PeerPrep.
+            </p>
+            
+            <table className="App-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Complexity</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.title}</td>
+                    <td>{row.category}</td>
+                    <td>{row.complexity}</td>
+                    <td>
+                      <button className="delete-btn" onClick={() => deleteRow(row.id)}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button className="create-btn" onClick={createRow}>
+              Create
+            </button> 
+
+          </header>
+        </div>
+
   );
 }
 
