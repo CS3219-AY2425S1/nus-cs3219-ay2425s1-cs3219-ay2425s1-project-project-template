@@ -1,73 +1,36 @@
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
-import { Difficulty } from '@/tyoes/difficulty'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
+import AceEditor from 'react-ace'
+import 'ace-builds/src-noconflict/mode-javascript'
+import 'ace-builds/src-noconflict/mode-python'
+import 'ace-builds/src-noconflict/mode-java'
+import 'ace-builds/src-noconflict/mode-csharp'
+import 'ace-builds/src-noconflict/mode-golang'
+import 'ace-builds/src-noconflict/mode-ruby'
+import 'ace-builds/src-noconflict/mode-typescript'
+import 'ace-builds/src-noconflict/theme-monokai'
+import 'ace-builds/src-noconflict/ext-language_tools'
+import LanguageModeSelect from './language-mode-select'
+import CustomTabs from '@/components/customs/custom-tabs'
+import { mockChatData, mockCollaboratorData, mockQuestionData, mockTestCaseData, mockUserData } from '@/mock-data'
+import { IQuestion, ITestcase } from '@/types'
+import TestcasesTab from './testcase-tab'
+import { useRouter } from 'next/router'
 
 interface ICollaborator {
     name: string
     email: string
 }
 
-interface IQuestion {
-    title: string
-    description: string
-    difficulty: Difficulty
-    category: string[]
-}
-
-const collaboratorData: ICollaborator = {
-    name: 'John Doe',
-    email: 'johnnydoey@gmail.com',
-}
-
-const userData: ICollaborator = {
-    name: 'Oliver Wye',
-    email: 'oliverwye@gmail.com',
-}
-
-const initialChatData = [
-    {
-        user: userData,
-        message: "I don't understand the question. Please help me!",
-        timestamp: '2024-09-20T11:59:00',
-    },
-    {
-        user: collaboratorData,
-        message: 'Hey, lets try to solve this together.',
-        timestamp: '2024-09-20T12:01:00',
-    },
-    {
-        user: userData,
-        message: 'Okay! I am ready',
-        timestamp: '2024-09-20T12:03:00',
-    },
-    {
-        user: collaboratorData,
-        message: 'Sure, lets start by understanding the question',
-        timestamp: '2024-09-20T12:05:00',
-    },
-    {
-        user: collaboratorData,
-        message: 'This question is about reversing a string',
-        timestamp: '2024-09-20T12:08:00',
-    },
-    {
-        user: userData,
-        message: 'What does reverse mean?',
-        timestamp: '2024-09-20T12:09:00',
-    },
-]
-
-const questionData: IQuestion = {
-    title: 'Reverse a String',
-    description:
-        'Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory. Example 1: Input: s =["h", "e", "l", "l", "o"] Output: ["o", "l", "l", "e", "h"]',
-    difficulty: Difficulty.Easy,
-    category: ['Array', 'Hash Table'],
-}
+const collaboratorData: ICollaborator = mockCollaboratorData
+const userData: ICollaborator = mockUserData
+const initialChatData = mockChatData
+const questionData: IQuestion = mockQuestionData
+const testCasesData: ITestcase[] = mockTestCaseData
 
 const formatQuestionCategories = (cat: string[]) => {
     return cat.join(', ')
@@ -98,8 +61,13 @@ const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') =>
 }
 
 export default function Code() {
+    const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
     const [chatData, setChatData] = useState(initialChatData)
+    const code = ''
+    const [editorLanguage, setEditorLanguage] = useState('javascript')
+    const testTabs = ['Testcases', 'Test Results']
+    const [activeTestTab, setActiveTestTab] = useState(testTabs[0])
 
     // Ref for autoscroll the last chat message
     const chatEndRef = useRef<HTMLDivElement | null>(null)
@@ -132,8 +100,30 @@ export default function Code() {
         }
     }, [chatData])
 
+    const handleLanguageModeSelect = (value: string) => {
+        setEditorLanguage(value)
+    }
+
+    const editorRef = useRef<AceEditor | null>(null)
+
+    const handleRunTests = () => {
+        const currCode = editorRef.current?.editor?.getValue()
+        console.log(currCode)
+    }
+
+    const handleActiveTestTabChange = (tab: string) => {
+        setActiveTestTab(tab)
+        console.log(activeTestTab)
+    }
+
+    const handleEndSession = () => {
+        // TODO: Add end session logic + confirmation dialog
+        console.log('End session')
+        router.push('/')
+    }
+
     return (
-        <div className="flex h-fullscreen gap-2">
+        <div className="flex h-fullscreen gap-3">
             <section className="w-1/3 flex flex-col">
                 <div className="flex items-center gap-4">
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
@@ -202,10 +192,10 @@ export default function Code() {
                     )}
                 </div>
             </section>
-            <section className="w-2/3">
+            <section className="w-2/3 flex flex-col h-max-fullscreen">
                 <div id="control-panel" className="flex justify-between">
                     <div className="flex gap-3">
-                        <Button variant={'primary'}>
+                        <Button variant={'primary'} onClick={handleRunTests}>
                             <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
                             Run tests
                         </Button>
@@ -214,10 +204,48 @@ export default function Code() {
                             Submit
                         </Button>
                     </div>
-                    <Button className="bg-red hover:bg-red-dark">
+                    <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
                         <EndIcon fill="white" className="mr-2" />
                         End session
                     </Button>
+                </div>
+                <div id="editor-container" className="mt-4">
+                    <div id="language-mode-select" className="rounded-t-xl bg-black">
+                        <LanguageModeSelect
+                            onSelectChange={handleLanguageModeSelect}
+                            className="w-max text-white bg-neutral-800 rounded-tl-lg"
+                        />
+                    </div>
+                    <AceEditor
+                        ref={editorRef}
+                        height="55vh"
+                        width="100%"
+                        value={code}
+                        mode={editorLanguage}
+                        theme="monokai"
+                        fontSize="16px"
+                        highlightActiveLine={true}
+                        setOptions={{
+                            enableLiveAutocompletion: true,
+                            showLineNumbers: true,
+                            tabSize: 2,
+                            useWorker: false,
+                        }}
+                    />
+                </div>
+                <div id="test-results-container" className="mt-4 border-2 rounded-lg border-slate-100 flex-grow">
+                    <CustomTabs
+                        tabs={testTabs}
+                        handleActiveTabChange={handleActiveTestTabChange}
+                        isBottomBorder={true}
+                    />
+                    <div className="m-4 flex overflow-x-auto">
+                        {activeTestTab === 'Testcases' ? (
+                            <TestcasesTab testcases={testCasesData} />
+                        ) : (
+                            <div className="text-sm text-slate-400">No test results yet</div>
+                        )}
+                    </div>
                 </div>
             </section>
         </div>

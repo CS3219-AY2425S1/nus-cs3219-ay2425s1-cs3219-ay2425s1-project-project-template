@@ -17,7 +17,7 @@ export default function TestcasesTab({ testcases }: { testcases: ITestcase[] }) 
                 size="label"
             />
             {testcases.map((testcase) => (
-                <div className="text-sm mx-2 mt-4">
+                <div className="text-sm mt-4">
                     {activeTestcaseIdx === testcase.idx && (
                         <div key={activeTestcaseIdx} className="flex flex-col gap-2">
                             <span>{activeTestcase(activeTestcaseIdx)?.inputVar} =</span>
