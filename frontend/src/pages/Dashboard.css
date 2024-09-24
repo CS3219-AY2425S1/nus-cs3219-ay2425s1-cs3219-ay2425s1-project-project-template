@@ -17,6 +17,45 @@
 .dashboard-stats {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
+}
+
+.dashboard-stats-difficulty {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.dashboard-stats-topic{
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-stats-topic-label {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dashboard-stats-topic-table {
+  border-collapse: separate; 
+  border-spacing: 0 1.2rem;
+}
+
+.topic-number-solved {
+  font-weight: 700;
+}
+
+.topic-label {
+  font-size: 1.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10rem;
+  text-align: center;
+  border-style: none;
+}
+
+.topic-label-container {
+  padding: 0 1.5rem 0 0;
 }
 
 .dashbaord-table {
@@ -35,28 +74,53 @@
   font-weight: 600;
 }
 
-table {
+.dashboard-practice {
+  justify-content: space-between;
+  padding: 2rem;
+  gap: 1.3rem;
+}
+
+.dashboard-practice-label {
+  font-size: 2.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dashboard-practice-button {
+  padding: 0.5rem 0;
+  margin: 0;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 2rem;
+  border-style: none;
+}
+
+.dashboard-practice-help {
+  align-self: center;
+}
+
+table.dashboard-table {
   border-collapse: collapse;
 }
 
-tr { 
+table.dashboard-table tr { 
   border: solid;
   border-width: 1px 0;
 }
 
-tr:last-child { 
+table.dashboard-table tr:last-child { 
     border-bottom: none; 
 }
 
-th, td {
+table.dashboard-table th, td {
   font-size: 1.2rem;
 }
 
-td {
+table.dashboard-table td {
   padding: 1rem 2rem;
 }
 
-th {
+table.dashboard-table th {
   padding: 0.5rem 2rem;
   text-align: left;
   font-weight: 600;
