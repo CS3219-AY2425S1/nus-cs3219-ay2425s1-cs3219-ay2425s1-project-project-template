@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import IsConnected from "./IsConnected";
 
-const Dashboard: React.FC = () => {
+const NavBar: React.FC = () => {
   const location = useLocation();
   return (
     <nav className="bg-off-white w-full p-4 flex items-center justify-evenly">
@@ -30,4 +30,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default NavBar;

@@ -1,10 +1,10 @@
 import React from "react";
-import Dashboard from "../components/dashboard.tsx";
+import Navbar from "../components/NavBar.tsx";
 
 const LandingPage: React.FC = () => {
   return (
     <div className="bg-gradient-to-tr from-[#E0EFEF] via-[#8E9AA1] to-[#3D4553] w-screen h-screen flex flex-col">
-      <Dashboard />
+      <Navbar />
       <div className="flex flex-col items-center justify-center text-off-white flex-grow">
         <h1 className="text-8xl font-bold">
           Tech <br />
