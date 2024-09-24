@@ -15,8 +15,9 @@ export const connectToDatabase = async () => {
 
         if (res) {
             console.log('Connected to question service database')
+            return
         }
     } catch (e) {
-        console.log('Cannot connect to question service database')
+        console.log('Cannot connect to question service database', e)
     }
 }

@@ -6,6 +6,7 @@ import { connectToDatabase } from './db'
 dotenv.config({ path: './.env' })
 
 const app = express()
+app.use(express.json())
 
 const port: string | undefined = process.env.PORT
 
