@@ -239,7 +239,7 @@ export default function Code() {
                         handleActiveTabChange={handleActiveTestTabChange}
                         isBottomBorder={true}
                     />
-                    <div className="m-4 flex overflow-x-auto">
+                    <div className="m-4 flex overflow-auto">
                         {activeTestTab === 'Testcases' ? (
                             <TestcasesTab testcases={testCasesData} />
                         ) : (

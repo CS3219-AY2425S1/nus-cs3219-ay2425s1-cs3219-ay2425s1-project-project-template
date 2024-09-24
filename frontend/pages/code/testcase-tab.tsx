@@ -24,6 +24,10 @@ export default function TestcasesTab({ testcases }: { testcases: ITestcase[] }) 
                             <span className="px-2 py-1 rounded-lg bg-slate-100">
                                 {activeTestcase(activeTestcaseIdx)?.input}
                             </span>
+                            <span>Expected output = </span>
+                            <span className="px-2 py-1 rounded-lg bg-slate-100">
+                                {activeTestcase(activeTestcaseIdx)?.expectedOutput}
+                            </span>
                         </div>
                     )}
                 </div>
