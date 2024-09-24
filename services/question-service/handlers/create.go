@@ -31,7 +31,7 @@ func (s *Service) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	question.ID = docRef.ID
+	question.Ref = docRef.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)

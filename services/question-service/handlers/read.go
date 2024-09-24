@@ -28,7 +28,7 @@ func (s *Service) ReadQuestion(w http.ResponseWriter, r *http.Request) {
 
 	// Map data
 	var question models.Question
-	question.ID = doc.Ref.ID
+	question.Ref = doc.Ref.ID
 	if err := doc.DataTo(&question); err != nil {
 		http.Error(w, "Failed to map question data", http.StatusInternalServerError)
 		return

@@ -51,7 +51,7 @@ func (s *Service) UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	question.ID = id
+	question.Ref = id
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)
