@@ -52,7 +52,7 @@ func main() {
 		r.Get("/", service.ListQuestions)
 		r.Post("/", service.CreateQuestion)
 
-		r.Route("/{id}", func(r chi.Router) {
+		r.Route("/{docRefID}", func(r chi.Router) {
 			r.Get("/", service.ReadQuestion)
 			r.Put("/", service.UpdateQuestion)
 			r.Delete("/", service.DeleteQuestion)

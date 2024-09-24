@@ -27,7 +27,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 
 		// Map data
 		var question models.Question
-		question.ID = doc.Ref.ID
+		question.DocRefID = doc.Ref.ID
 		if err := doc.DataTo(&question); err != nil {
 			http.Error(w, "Failed to parse question", http.StatusInternalServerError)
 			return
