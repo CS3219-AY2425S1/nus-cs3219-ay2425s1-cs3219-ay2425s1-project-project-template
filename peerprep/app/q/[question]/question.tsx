@@ -1,4 +1,4 @@
-import { Question, ErrorBody, Difficulty } from "@/api/structs";
+import { Question, StatusBody, Difficulty } from "@/api/structs";
 import styles from '@/style/question.module.css';
 
 interface Props {
@@ -14,7 +14,7 @@ const difficultyColor = (diff: Difficulty) => {
 }
 
 function QuestionBlock({ question }: Props) {
-  const keys = Object.keys(question.test_cases);
+  const keys = question.test_cases ? Object.keys(question.test_cases) : [];
 
   const createRow = (key: string) => (
     <tr key={key}>
@@ -33,15 +33,17 @@ function QuestionBlock({ question }: Props) {
         <br/>
         <p>{question.description}</p>
         <br/>
-        <table className={styles.table}>
-          <tbody>
-            <tr>
-              <th className={`${styles.table} ${styles.header} ${styles.input}`}>Input</th>
-              <th className={`${styles.table} ${styles.header} ${styles.output}`}>Expected Output</th>
-            </tr>
-            {keys.map(createRow)}
-          </tbody>
-        </table>
+        {question.test_cases && (
+          <table className={styles.table}>
+            <tbody>
+              <tr>
+                <th className={`${styles.table} ${styles.header} ${styles.input}`}>Input</th>
+                <th className={`${styles.table} ${styles.header} ${styles.output}`}>Expected Output</th>
+              </tr>
+              {keys.map(createRow)}
+            </tbody>
+          </table>
+        )}
       </div>
       <form className={styles.editor_container}>
         <textarea className={styles.code_editor}/>

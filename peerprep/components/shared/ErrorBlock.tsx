@@ -1,9 +1,9 @@
 import React from 'react'
 import styles from '@/style/error.module.css';
-import { ErrorBody } from '@/api/structs';
+import { StatusBody } from '@/api/structs';
 
 interface Props {
-  err : ErrorBody
+  err : StatusBody
 }
 
 function ErrorBlock({ err }: Props) {

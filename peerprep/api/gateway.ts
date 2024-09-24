@@ -1,4 +1,4 @@
-import { Question, ErrorBody } from "./structs";
+import { Question, StatusBody, QuestionFullBody } from "./structs";
 
 const questions: { [key: string]: Question } = {
   "0" : {
@@ -25,7 +25,7 @@ const questions: { [key: string]: Question } = {
   }
 };
 
-export async function fetchQuestion(questionId: string): Promise<Question|ErrorBody> {
+export async function fetchQuestion(questionId: string): Promise<Question|StatusBody> {
   // remove this when services are up
   if (process.env.DEV_ENV === "dev") {
     return questions[questionId] === undefined
@@ -33,7 +33,7 @@ export async function fetchQuestion(questionId: string): Promise<Question|ErrorB
         : questions[questionId];
   }
   try {
-    const response = await fetch(`${process.env.QUESTION_SERVICE}/questions/solve/${questionId}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_QUESTION_SERVICE}/questions/solve/${questionId}`);
     if (!response.ok) {
       return {
         ...(await response.json()),
@@ -41,6 +41,32 @@ export async function fetchQuestion(questionId: string): Promise<Question|ErrorB
       };
     }
     return await response.json() as Question;
+  } catch (err: any) {
+    return { error: err.message, status: 0};
+  }
+}
+
+export async function addQuestion(body: QuestionFullBody): Promise<StatusBody> {
+  try {
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_QUESTION_SERVICE}/questions`,
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8"
+          }
+        }
+    );
+    if (response.ok) {
+      return {
+        status: response.status
+      };
+    }
+    return {
+      error: (await response.json())["Error adding question: "],
+      status: response.status
+    };
   } catch (err: any) {
     return { error: err.message, status: 0};
   }

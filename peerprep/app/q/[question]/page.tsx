@@ -1,5 +1,5 @@
 import { fetchQuestion } from '@/api/gateway';
-import { Question as QnType, ErrorBody, isError } from "@/api/structs";
+import { Question as QnType, StatusBody, isError } from "@/api/structs";
 import styles from '@/style/question.module.css';
 import ErrorBlock from '@/components/shared/ErrorBlock';
 import React from 'react'
@@ -18,7 +18,7 @@ async function Question({ params }: Props) {
     <div className={styles.wrapper}>
       {
         isError(question)
-        ? <ErrorBlock err={question as ErrorBody}/>
+        ? <ErrorBlock err={question as StatusBody}/>
         : <QuestionBlock question={question as QnType}/>
       }
     </div>

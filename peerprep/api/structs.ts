@@ -4,21 +4,29 @@ export enum Difficulty {
   Hard
 }
 
-export interface Question {
-  id: number;
+export interface QuestionBody {
   difficulty: Difficulty;
   title: string;
   description: string;
+}
+
+export interface TestCase {
   test_cases: {
     [key: string]: string;
   };
 }
 
-export interface ErrorBody {
-  error: string;
-  status: number;
+export interface QuestionFullBody extends QuestionBody, TestCase {}
+
+export interface Question extends QuestionFullBody {
+  id: number;
 }
 
-export function isError(obj: Question | ErrorBody): obj is ErrorBody {
-  return (obj as ErrorBody).error !== undefined;
+export interface StatusBody {
+  status: number;
+  error?: string;
+}
+
+export function isError(obj: Question | StatusBody): obj is StatusBody {
+  return (obj as StatusBody).error !== undefined;
 }
