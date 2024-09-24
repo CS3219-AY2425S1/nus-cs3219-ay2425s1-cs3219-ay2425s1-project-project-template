@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { isValidObjectId } from "mongoose";
 import {
   createUser as _createUser,
@@ -15,12 +15,12 @@ import {
 export async function createUser(req, res) {
   try {
     const { username, email, password } = req.body;
+    console.log(username, email, password);
     if (username && email && password) {
       const existingUser = await _findUserByUsernameOrEmail(username, email);
       if (existingUser) {
         return res.status(409).json({ message: "username or email already exists" });
       }
-
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
       const createdUser = await _createUser(username, email, hashedPassword);

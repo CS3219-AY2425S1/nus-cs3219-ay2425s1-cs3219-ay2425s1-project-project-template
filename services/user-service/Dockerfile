@@ -4,6 +4,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
-EXPOSE 3001
+EXPOSE ${USER_SERVICE_PORT}
 
 CMD ["npm", "start"]

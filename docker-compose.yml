@@ -61,9 +61,13 @@ services:
       ENV: ${ENV}
       JWT_SECRET: ${JWT_SECRET}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT}
+    volumes:
+      - /app/node_modules
+      - ./services/user-service:/app
     networks:
       - question-network
       - user-service-network
+    restart: always
 
 volumes:
   question-db:
