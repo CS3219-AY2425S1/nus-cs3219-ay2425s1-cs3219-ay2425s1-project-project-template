@@ -38,3 +38,14 @@
 .edit-button {
   margin-right: 0.5rem;
 }
+
+.filter-button {
+  margin-left: 1rem;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+.categories-multi-select,
+.difficulty-select,
+.order-select {
+  width: 100%;
+}
