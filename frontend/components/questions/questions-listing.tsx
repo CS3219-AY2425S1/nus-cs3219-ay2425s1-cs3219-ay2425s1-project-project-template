@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
 import LoadingScreen from "@/components/common/loading-screen";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import QuestionFilter from "./question-filter";
 
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -33,9 +34,16 @@ const fetcher = async (url: string): Promise<Question[]> => {
 export default function QuestionListing() {
   const auth = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+
   const { data, isLoading } = useSWR(
-    "http://localhost:8000/questions",
-    fetcher
+    `http://localhost:8000/questions?search=${encodeURIComponent(search)}`,
+    fetcher,
+    {
+      keepPreviousData: true,
+    }
   );
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -44,17 +52,41 @@ export default function QuestionListing() {
     setQuestions(data ?? []);
   }, [data]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (search) {
+      params.set("search", search);
+    } else {
+      params.delete("search");
+    }
+    router.push(`?${params.toString()}`);
+  }, [search, router, searchParams]);
+
   const handleView = (question: Question) => {
     router.push(`/app/questions/${question.id}`);
   };
 
-  if (isLoading) {
+  const handleSearchChange = (newSearch: string) => {
+    setSearch(newSearch);
+  };
+
+  const handleReset = () => {
+    setSearch("");
+    router.push("");
+  };
+
+  if (isLoading && !data) {
     return <LoadingScreen />;
   }
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Question Listing</h1>
+      <QuestionFilter
+        search={search}
+        onSearchChange={handleSearchChange}
+        onReset={handleReset}
+      />
       <QuestionTable
         data={questions}
         isAdmin={auth?.user?.isAdmin ?? false}

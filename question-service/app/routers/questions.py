@@ -27,8 +27,9 @@ async def create(question: CreateQuestionModel):
     return existing_question
 
 @router.get("/", response_description="Get all questions", response_model=QuestionCollection)
-async def get_all():
-    return await get_all_questions()
+async def get_all(search: str = None):
+    questions = await get_all_questions(search)
+    return questions
 
 @router.get("/{question_id}", response_description="Get question with specified id", response_model=QuestionModel)
 async def get_question(question_id: str):
