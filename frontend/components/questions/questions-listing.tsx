@@ -43,7 +43,9 @@ export default function QuestionListing() {
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
 
   useEffect(() => {
     setQuestions(data ?? []);
@@ -62,9 +64,12 @@ export default function QuestionListing() {
     if (!selectedQuestion) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/questions/${selectedQuestion.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:8000/questions/${selectedQuestion.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete the question");

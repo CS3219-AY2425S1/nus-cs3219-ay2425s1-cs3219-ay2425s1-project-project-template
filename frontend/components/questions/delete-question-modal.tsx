@@ -30,7 +30,10 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModalProps> = ({
               <DialogTitle>Confirm Delete Question</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <p>Are you sure you want to delete the question titled "{questionTitle}"?</p>
+              <p>
+                Are you sure you want to delete the question titled "
+                {questionTitle}"?
+              </p>
             </div>
             <DialogFooter>
               <Button
@@ -39,10 +42,7 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModalProps> = ({
               >
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDeleteQuestion}
-              >
+              <Button variant="destructive" onClick={handleDeleteQuestion}>
                 Delete Question
               </Button>
             </DialogFooter>
