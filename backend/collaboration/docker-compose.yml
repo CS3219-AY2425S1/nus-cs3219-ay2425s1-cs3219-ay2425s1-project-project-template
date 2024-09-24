@@ -29,14 +29,12 @@ services:
     ports:
       - "9003:8001"
     command: node dist/index.js
+    env_file:
+      - ./.env.local
     environment:
       # Docker Compose Specific
       - EXPRESS_DB_HOST=collab-db
       - EXPRESS_DB_PORT=5432
-      # Env File vars
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - collab-db
 volumes:
