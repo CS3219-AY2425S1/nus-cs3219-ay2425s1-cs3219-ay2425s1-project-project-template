@@ -67,14 +67,15 @@ const Layout = ({ children }: { children: ReactNode }) => {
   // check if access token is present using Cookies
   useEffect(() => {
     const access_token = Cookies.get("access_token");
-    if (!access_token) {
-      logout();
+    if (!access_token && window.location.pathname !== "/") {
+      window.location.href = "/";
     }
   }, []);
 
   const handleLogout = () => {
     googleLogout();
     logout();
+    window.location.href = "/";
   }
 
   return (<div className="flex h-full overflow-y-auto">

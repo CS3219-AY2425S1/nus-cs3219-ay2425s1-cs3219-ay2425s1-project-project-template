@@ -1,6 +1,6 @@
 "use client";
 
-import LandingPage from "./home/pages/LandingPage";
+import LandingPage from "./dashboard/pages/LandingPage";
 
 const Dashboard = () => {
 
