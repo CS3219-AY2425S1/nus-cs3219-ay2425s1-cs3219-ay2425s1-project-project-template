@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import QuestionPage from "./pages/Question/question";
-import NavBar from "./pages/NavBar/navbar";
+import NavBar from "./components/NavBar/navbar";
 
 function App() {
   return (
