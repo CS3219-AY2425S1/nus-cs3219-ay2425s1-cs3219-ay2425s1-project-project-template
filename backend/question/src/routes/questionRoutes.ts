@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
-import { check, validationResult, body } from 'express-validator';
-import Question from "../models/Question";
+import { validationResult } from 'express-validator';
+import Question, { TQuestion } from "../models/Question";
+import { createQuestionValidators, idValidators, updateQuestionValidators } from './validators';
 
 /**
  * Router for the question service.
@@ -14,10 +15,7 @@ router.get('/', (req, res) => {
 
 // Create a new question
 router.post('/create', [
-    check('title').isString().isLength({ min: 1 }),
-    check('description').isString().isLength({ min: 1 }),
-    check('category').isString().isLength({ min: 1 }),
-    check('complexity').isString().isLength({ min: 1 }),
+    ...createQuestionValidators,
 ], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -28,15 +26,15 @@ router.post('/create', [
         const question = { title, description, category, complexity };
         const newQuestion = new Question(question);
         await newQuestion.save();
-        res.status(200).json({ message: 'Question created succesfully', question: newQuestion });
+        return res.status(200).json({ message: 'Question created succesfully', question: newQuestion });
     } catch (error) {
-        res.status(500).send('Internal server error');
+        return res.status(500).send('Internal server error');
     }
 });
 
 // Retrieve a specific question by id
 router.get('/:id', [
-    check('id').isNumeric(),
+    ...idValidators,
 ], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -47,27 +45,30 @@ router.get('/:id', [
         const question = await Question
             .findOne({ questionid: questionId })
             .exec();
-        if (question) {
-            res.json(question);
-        }
-        else {
-            res.status(404).send('Question not found');
-        }
+        return res.json(question);
     }
     catch (error) {
         res.status(500).send('Internal server error');
     }
 });
 
+// Retrieve all questions
+router.get('/all', async (req: Request, res: Response) => {
+    try {
+        const questions = await Question
+            .find()
+            .lean()
+            .exec();
+        return res.json(questions);
+    }
+    catch (error) {
+        return res.status(500).send('Internal server error');
+    }
+});
+
 // Update a specific question by id
 router.post('/:id/update', [
-    check('id').isNumeric(),
-    body().custom((body) => {
-        const { title, description, category, complexity } = body;
-        if (!title && !description && !category && !complexity) {
-            throw new Error('At least one field must be provided');
-        }
-    })
+    ...updateQuestionValidators,
 ], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -75,40 +76,36 @@ router.post('/:id/update', [
     }
 
     const questionId = parseInt(req.params.id);
-    const { title, description, category, complexity } = req.body;
+    const updateData: Partial<TQuestion> = {};
+    if (req.body.title) {
+        updateData.title = req.body.title;
+    }
+    if (req.body.description) {
+        updateData.description = req.body.description;
+    }
+    if (req.body.category) {
+        updateData.category = req.body.category;
+    }
+    if (req.body.complexity) {
+        updateData.complexity = req.body.complexity;
+    }
 
     try {
-        //try to find question by questionId
-        const question = await Question
-            .findOne({ questionid: questionId })
-            .exec();
-        if (!question) {
-            return res.status(404).send('Question not found');
-        } else {
-            //update the fields that are provided, else use the existing values
-            if (title) {
-                question.title = title;
-            }
-            if (description) {
-                question.description = description;
-            }
-            if (category) {
-                question.category = category;
-            }
-            if (complexity) {
-                question.complexity = complexity;
-            }
-            await question.save();
-        }
+        const updatedQuestion = await Question
+            .findOneAndUpdate(
+                { questionid: questionId },
+                { $set: updateData },
+            );
+        return res.json(updatedQuestion);
     }
     catch (error) {
-        res.status(500).send('Internal server error');
+        return res.status(500).send('Internal server error');
     }
 });
 
 // Delete a specific question by id
 router.post('/:id/delete', [
-    check('id').isNumeric(),
+    ...idValidators,
 ], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -120,15 +117,10 @@ router.post('/:id/delete', [
         const deletedQuestion = await Question
             .findOneAndDelete({ questionid: questionId })
             .exec();
-        if (deletedQuestion) {
-            res.json(deletedQuestion);
-        }
-        else {
-            res.status(404).send('Question not found');
-        }
+        return res.json(deletedQuestion);
     }
     catch (error) {
-        res.status(500).send('Internal server error');
+        return res.status(500).send('Internal server error');
     }
 });
 
