@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Textarea,
   Title,
 } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
@@ -26,7 +27,7 @@ function QuestionEditor() {
       id: '1',
       title: 'Reverse a String',
       description:
-        'Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory. Example 1: Input: s = ["h","e","l","l","o"] Output: ["o","l","l","e","h"] Example 2: Input: s = ["H","a","n","n","a"," h"] Output: ["h","a","n","n","a","H"] Constraints: 1 <= s.length <= 105 s[i] is a printable ascii character.',
+        'Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory. \n\nExample 1: Input: s = ["h","e","l","l","o"] Output: ["o","l","l","e","h"] Example 2: Input: s = ["H","a","n","n","a"," h"] Output: ["h","a","n","n","a","H"] Constraints: 1 <= s.length <= 105 s[i] is a printable ascii character.',
     },
     {
       id: '2',
@@ -110,6 +111,17 @@ function QuestionEditor() {
     }
   };
 
+  const renderDescription = (description: string) => {
+    return description.split('\n').map((paragraph, index) => (
+      <Text
+        key={index}
+        mb={index < description.split('\n').length - 1 ? 'md' : 0}
+      >
+        {paragraph}
+      </Text>
+    ));
+  };
+
   return (
     <AppShell withBorder={false} header={{ height: 80 }}>
       <AppShell.Header px="40px" py="16px" bg="slate.8">
@@ -156,7 +168,7 @@ function QuestionEditor() {
                 <Accordion.Item key={question.id} value={question.id}>
                   <Accordion.Control>{question.title}</Accordion.Control>
                   <Accordion.Panel>
-                    <Text mb="md">{question.description}</Text>
+                    {renderDescription(question.description)}
                     <Group>
                       <Button
                         variant="outline"
@@ -195,9 +207,11 @@ function QuestionEditor() {
                 value={newTitle}
                 onChange={(event) => setNewTitle(event.currentTarget.value)}
               />
-              <TextInput
+              <Textarea
                 label="Description"
                 placeholder="Enter question description"
+                autosize
+                minRows={1}
                 value={newDescription}
                 onChange={(event) =>
                   setNewDescription(event.currentTarget.value)
@@ -222,9 +236,11 @@ function QuestionEditor() {
                 value={newTitle}
                 onChange={(event) => setNewTitle(event.currentTarget.value)}
               />
-              <TextInput
+              <Textarea
                 label="Description"
                 placeholder="Enter question description"
+                autosize
+                minRows={1}
                 value={newDescription}
                 onChange={(event) =>
                   setNewDescription(event.currentTarget.value)
