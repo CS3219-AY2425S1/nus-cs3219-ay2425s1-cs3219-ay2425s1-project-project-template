@@ -1,6 +1,7 @@
 import express from 'express';
 import { check, validationResult, body } from 'express-validator';
 import Question from "../models/Question";
+import { Request, Response } from 'express';
 
 /**
  * Router for the question service.
@@ -18,7 +19,7 @@ router.post('/create', [
     check('description').isString().isLength({ min: 1 }),
     check('category').isString().isLength({ min: 1 }),
     check('complexity').isString().isLength({ min: 1 }),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -38,7 +39,7 @@ router.post('/create', [
 // Retrieve a specific question by id
 router.get('/:id', [
     check('id').isNumeric(),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -70,7 +71,7 @@ router.post('/:id/update', [
             throw new Error('At least one field must be provided');
         }
     })
-], async (req, res) => {
+], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -111,7 +112,7 @@ router.post('/:id/update', [
 // Delete a specific question by id
 router.post('/:id/delete', [
     check('id').isNumeric(),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
