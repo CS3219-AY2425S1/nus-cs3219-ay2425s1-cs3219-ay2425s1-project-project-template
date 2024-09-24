@@ -66,10 +66,27 @@ module.exports = {
                     foreground: 'hsl(var(--foreground))',
                 },
                 theme: {
+                    DEFAULT: 'hsl(var(--theme-600))',
                     100: 'hsl(var(--theme-100))',
                     400: 'hsl(var(--theme-400))',
                     600: 'hsl(var(--theme-600))',
+                    700: 'hsl(var(--theme-700))',
                     900: 'hsl(var(--theme-900))',
+                },
+                green: {
+                    DEFAULT: 'hsl(var(--green-default))',
+                    light: 'hsl(var(--green-light))',
+                    dark: 'hsl(var(--green-dark))',
+                },
+                red: {
+                    DEFAULT: 'hsl(var(--red-default))',
+                    light: 'hsl(var(--red-light))',
+                    dark: 'hsl(var(--red-dark))',
+                },
+                amber: {
+                    DEFAULT: 'hsl(var(--orange-default))',
+                    light: 'hsl(var(--orange-light))',
+                    dark: 'hsl(var(--orange-dark))',
                 },
             },
             height: {
