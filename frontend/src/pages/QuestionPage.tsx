@@ -1,10 +1,14 @@
 import React from "react";
+import Dashboard from "../components/dashboard.tsx";
 
 const QuestionPage: React.FC = () => {
   return (
     <div>
-      <h1>Question Page</h1>
-      <p>This is the question page.</p>
+      <Dashboard />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col">Question</div>
+        <div className="flex flex-col">editor</div>
+      </div>
     </div>
   );
 };
