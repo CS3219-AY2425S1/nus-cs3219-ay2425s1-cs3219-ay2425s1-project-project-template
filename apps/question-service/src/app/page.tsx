@@ -8,110 +8,27 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
-
-interface QuestionTableData {
-  id: number;
-  title: string;
-  description?: string;
-  category: string[]; // enum[]
-  complexity: string; // enum
-  assets?: string[];
-  createdAt?: Date; // or string
-  updatedAt?: Date; // or string
-  deletedAt?: Date;
-  testCases?: string[];
-}
+import { useEffect, useState } from "react";
+import { GetQuestions, Question } from "./services/question";
 
 export default function Home() {
-  // TODO (Ben): Replace this with retrieving via backend api after backend implementation
-  const sampleData: QuestionTableData[] = [
-    {
-      id: 1,
-      title: "Two Sum",
-      category: ["Array", "Hash Table"],
-      complexity: "Easy",
-    },
-    {
-      id: 2,
-      title: "Add Two Numbers",
-      category: ["Linked List", "Math", "Recursion"],
-      complexity: "Medium",
-    },
-    {
-      id: 3,
-      title: "Longest Substring Without Repeating Characters",
-      category: ["String", "Sliding Window", "Hash Table"],
-      complexity: "Medium",
-    },
-    {
-      id: 4,
-      title: "Median of Two Sorted Arrays",
-      category: ["Array", "Binary Search", "Divide and Conquer"],
-      complexity: "Hard",
-    },
-    {
-      id: 5,
-      title: "Reverse Integer",
-      category: ["Math"],
-      complexity: "Easy",
-    },
-    {
-      id: 6,
-      title: "Palindrome Number",
-      category: ["Math"],
-      complexity: "Easy",
-    },
-    {
-      id: 7,
-      title: "Roman to Integer",
-      category: ["Math", "String"],
-      complexity: "Easy",
-    },
-    {
-      id: 8,
-      title: "Valid Parentheses",
-      category: ["Stack", "String"],
-      complexity: "Easy",
-    },
-    {
-      id: 9,
-      title: "Merge Two Sorted Lists",
-      category: ["Linked List"],
-      complexity: "Easy",
-    },
-    {
-      id: 10,
-      title: "Remove Duplicates from Sorted Array",
-      category: ["Array", "Two Pointers"],
-      complexity: "Easy",
-    },
-    {
-      id: 11,
-      title: "Container With Most Water",
-      category: ["Array", "Two Pointers"],
-      complexity: "Medium",
-    },
-    {
-      id: 12,
-      title: "3Sum",
-      category: ["Array", "Two Pointers"],
-      complexity: "Medium",
-    },
-    {
-      id: 13,
-      title: "Letter Combinations of a Phone Number",
-      category: ["String", "Backtracking"],
-      complexity: "Medium",
-    },
-    {
-      id: 14,
-      title: "Remove Nth Node From End of List",
-      category: ["Linked List", "Two Pointers"],
-      complexity: "Medium",
-    },
-  ];
+  // Store the questions
+  const [questions, setQuestions] = useState<Question[] | undefined>(undefined);
+  // Store the states related to table's loading
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const columns: TableProps<QuestionTableData>["columns"] = [
+  useEffect(() => {
+    if (!isLoading) {
+      setIsLoading(true);
+    }
+
+    GetQuestions().then((data) => {
+      setQuestions(data);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const columns: TableProps<Question>["columns"] = [
     {
       title: "Id",
       dataIndex: "id",
@@ -126,8 +43,8 @@ export default function Home() {
     },
     {
       title: "Categories",
-      dataIndex: "category",
-      key: "category",
+      dataIndex: "categories",
+      key: "categories",
       render: (categories: string[]) =>
         categories.map((category) => <Tag>{category}</Tag>),
     },
@@ -186,7 +103,11 @@ export default function Home() {
               Include Search & Filter Component Here
             </div>
             <div className="content-table">
-              <Table dataSource={sampleData} columns={columns} />
+              <Table
+                dataSource={questions}
+                columns={columns}
+                loading={isLoading}
+              />
             </div>
           </div>
         </Content>
