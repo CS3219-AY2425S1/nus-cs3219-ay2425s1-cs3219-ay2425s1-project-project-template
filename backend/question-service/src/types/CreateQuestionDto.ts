@@ -1,4 +1,6 @@
-import { IsArray, IsEnum, IsNotEmpty, IsString, IsUrl, validate, ValidationError } from 'class-validator'
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUrl, ValidationError, validate } from 'class-validator'
+
+import { Category } from './Category'
 import { Complexity } from './Complexity'
 import { TypedRequest } from './TypedRequest'
 
@@ -12,8 +14,9 @@ export class CreateQuestionDto {
     description: string
 
     @IsArray()
-    @IsString({ each: true })
-    categories: string[]
+    @IsEnum(Category, { each: true })
+    @ArrayNotEmpty()
+    categories: Category[]
 
     @IsEnum(Complexity)
     complexity: Complexity
@@ -21,7 +24,7 @@ export class CreateQuestionDto {
     @IsUrl()
     link: string
 
-    constructor(title: string, description: string, categories: string[], complexity: Complexity, link: string) {
+    constructor(title: string, description: string, categories: Category[], complexity: Complexity, link: string) {
         this.title = title
         this.description = description
         this.categories = categories
