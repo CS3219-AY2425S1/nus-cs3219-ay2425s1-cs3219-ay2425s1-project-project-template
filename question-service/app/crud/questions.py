@@ -28,3 +28,10 @@ async def get_all_questions() -> QuestionCollection:
 async def get_question_by_id(question_id: str) -> QuestionModel:
     existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
     return existing_question
+
+async def delete_question(question_id: str):
+    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    if existing_question is None:
+        return None
+    await question_collection.delete_one({"_id": ObjectId(question_id)})
+    return {"message": f"Question with id {existing_question['_id']} and title '{existing_question['title']}' deleted."}
