@@ -27,12 +27,6 @@ func CreateQuestion(c echo.Context) error {
 	var question models.Question
 	defer cancel()
 
-	err := questionCollection.FindOne(ctx, bson.M{"question_title": question.Question_title}).Decode(&existingQuestion)
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
-	}
-
 	// Validate the request body
 	if err := c.Bind(&question); err != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
@@ -41,6 +35,13 @@ func CreateQuestion(c echo.Context) error {
 	// Validate fields that are indicated as "Required" in model
 	if validationErr := validate.Struct(&question); validationErr != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": validationErr.Error()}})
+	}
+
+	err := questionCollection.FindOne(ctx, bson.M{"question_title": question.Question_title}).Decode(&existingQuestion)
+
+	// Only want to throw this error if there's a duplicate found, meaning FindOne has no error
+	if err == nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
 	}
 
 	newQuestion := models.Question{
