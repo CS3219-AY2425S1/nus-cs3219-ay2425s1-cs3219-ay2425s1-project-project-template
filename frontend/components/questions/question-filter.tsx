@@ -49,7 +49,7 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
             <Label htmlFor="complexity">Complexity</Label>
             <Select
               value={complexity}
-              onValueChange={() => onComplexityChange(complexity)}
+              onValueChange={(value) => onComplexityChange(value)}
             >
               <SelectTrigger id="complexity" className="mt-1">
                 <SelectValue placeholder="Select complexity" />

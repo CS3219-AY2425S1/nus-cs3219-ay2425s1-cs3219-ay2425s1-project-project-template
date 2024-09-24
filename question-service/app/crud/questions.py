@@ -26,7 +26,7 @@ async def get_all_questions(category: str, complexity: str) -> QuestionCollectio
     if category:
         query["category"] = {"$regex": category, "$options": "i"}
     if complexity:
-        query["complexity"] = "complexity"
+        query["complexity"] = complexity
     questions = await question_collection.find(query).to_list(1000)
 
     return QuestionCollection(questions=questions)
