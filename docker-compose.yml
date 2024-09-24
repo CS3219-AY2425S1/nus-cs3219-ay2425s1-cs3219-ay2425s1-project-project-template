@@ -1,0 +1,16 @@
+version: "3"
+services:
+  frontend:
+    build:
+      context: ./peerprep-fe
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+
+  # Add other microservices here
+  # backend:
+  #   ...
+  # database:
+  #   ...
