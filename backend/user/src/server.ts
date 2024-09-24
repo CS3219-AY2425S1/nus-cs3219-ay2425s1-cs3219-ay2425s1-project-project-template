@@ -10,7 +10,7 @@ import { dbConfig } from '@/config';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import authRoutes from '@/routes/auth';
-import checkRoutes from '@/routes/check';
+import authCheckRoutes from '@/routes/auth-check';
 import cookieParser from 'cookie-parser';
 
 const app = express();
@@ -26,7 +26,7 @@ app.use(
 );
 
 app.use('/auth', authRoutes);
-app.use('/auth-check', checkRoutes);
+app.use('/auth-check', authCheckRoutes);
 app.get('/', async (_req, res) => {
   res.json({
     message: 'OK',
