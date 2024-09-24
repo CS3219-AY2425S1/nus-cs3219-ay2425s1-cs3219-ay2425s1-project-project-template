@@ -10,8 +10,10 @@ import {
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto, GetQuestionsDto } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('questions')
+@ApiTags('question')
+@Controller('question')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 

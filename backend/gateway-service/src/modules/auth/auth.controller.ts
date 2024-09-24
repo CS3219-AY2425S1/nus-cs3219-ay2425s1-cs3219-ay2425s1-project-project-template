@@ -11,7 +11,9 @@ import {
 import { RpcException } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -22,8 +24,11 @@ export class AuthController {
   }
 
   @Post('signup')
-  async signUp(@Body() body: { email: string; password: string; }) {
-    const response = await this.authService.localSignUp(body.email, body.password);
+  async signUp(@Body() body: { email: string; password: string }) {
+    const response = await this.authService.localSignUp(
+      body.email,
+      body.password,
+    );
     return {
       message: response.message,
       token: response.token,
@@ -32,7 +37,10 @@ export class AuthController {
 
   @Post('login')
   async logIn(@Body() body: { email: string; password: string }) {
-    const response = await this.authService.localLogIn(body.email, body.password);
+    const response = await this.authService.localLogIn(
+      body.email,
+      body.password,
+    );
     const jwtToken = response.token;
     return { token: jwtToken };
   }
