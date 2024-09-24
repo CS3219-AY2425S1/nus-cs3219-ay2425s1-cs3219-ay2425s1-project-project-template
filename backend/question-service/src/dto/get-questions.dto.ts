@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class GetQuestionsDto {
   @IsOptional()
@@ -14,10 +21,11 @@ export class GetQuestionsDto {
 
   @IsOptional()
   @IsString()
-  searchQuery?: string;
+  query?: string;
 
   @IsOptional()
   @IsString()
+  @IsIn(['Easy', 'Medium', 'Hard'])
   difficulty?: string;
 
   @IsOptional()

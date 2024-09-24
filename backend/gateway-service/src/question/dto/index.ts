@@ -1,2 +1,3 @@
 export { GetQuestionsDto } from './get-questions.dto';
-export { FindQuestionByIdDto } from './find-question-by-id.dto';
+export { FindQuestionBySlugDto } from './find-question-by-slug.dto';
+export { CreateQuestionDto, UpdateQuestionDto } from './create-question.dto';
