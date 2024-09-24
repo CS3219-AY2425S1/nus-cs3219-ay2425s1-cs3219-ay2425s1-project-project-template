@@ -6,7 +6,7 @@ interface CustomTabsProps {
     isBottomBorder?: boolean
     type?: 'default' | 'label'
     size?: ButtonProps['size']
-    handleActiveTabChange: (tab: string) => void
+    handleActiveTabChange: (idx: number) => void
     className?: string
 }
 
@@ -18,18 +18,18 @@ export default function CustomTabs({
     size,
     className,
 }: CustomTabsProps) {
-    const [activeTab, setActiveTab] = useState(tabs[0])
+    const [activeTab, setActiveTab] = useState(0)
 
-    const tabVariant = (tab: string) => {
-        if (activeTab === tab) {
+    const tabVariant = (idx: number) => {
+        if (activeTab === idx) {
             return type === 'label' ? 'activeTabLabel' : 'activeTab'
         }
         return type === 'label' ? 'ghostTabLabel' : 'ghostTab'
     }
 
-    const handleSetActiveTab = (tab: string) => {
-        setActiveTab(tab)
-        handleActiveTabChange(tab)
+    const handleSetActiveTab = (idx: number) => {
+        setActiveTab(idx)
+        handleActiveTabChange(idx)
     }
 
     return (
@@ -40,9 +40,9 @@ export default function CustomTabs({
             {tabs.map((tab, index) => (
                 <Button
                     key={index}
-                    variant={tabVariant(tab)}
+                    variant={tabVariant(index)}
                     size={size || 'default'}
-                    onClick={() => handleSetActiveTab(tab)}
+                    onClick={() => handleSetActiveTab(index)}
                     className={isBottomBorder ? '-mb-[0.1rem]' : ''}
                 >
                     {tab}

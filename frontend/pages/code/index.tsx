@@ -67,7 +67,7 @@ export default function Code() {
     const code = ''
     const [editorLanguage, setEditorLanguage] = useState('javascript')
     const testTabs = ['Testcases', 'Test Results']
-    const [activeTestTab, setActiveTestTab] = useState(testTabs[0])
+    const [activeTestTab, setActiveTestTab] = useState(0)
 
     // Ref for autoscroll the last chat message
     const chatEndRef = useRef<HTMLDivElement | null>(null)
@@ -111,7 +111,7 @@ export default function Code() {
         console.log(currCode)
     }
 
-    const handleActiveTestTabChange = (tab: string) => {
+    const handleActiveTestTabChange = (tab: number) => {
         setActiveTestTab(tab)
         console.log(activeTestTab)
     }
@@ -244,7 +244,7 @@ export default function Code() {
                     className="border-2 rounded-lg border-t-0 rounded-t-none border-slate-100 flex-grow overflow-y-auto"
                 >
                     <div className="m-4 flex overflow-x-auto">
-                        {activeTestTab === 'Testcases' ? (
+                        {activeTestTab === 0 ? (
                             <TestcasesTab testcases={testCasesData} />
                         ) : (
                             <div className="text-sm text-slate-400">No test results yet</div>
