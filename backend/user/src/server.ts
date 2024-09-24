@@ -1,5 +1,6 @@
 import { exit } from 'process';
 
+import cors from 'cors';
 import express, { json } from 'express';
 import pino from 'pino-http';
 import helmet from 'helmet';
@@ -14,6 +15,12 @@ const app = express();
 app.use(pino());
 app.use(json());
 app.use(helmet());
+app.use(
+  cors({
+    origin: [process.env.PEERPREP_UI_HOST!],
+  })
+);
+
 app.use('/auth', authRoutes);
 app.get('/', async (_req, res) => {
   res.json({

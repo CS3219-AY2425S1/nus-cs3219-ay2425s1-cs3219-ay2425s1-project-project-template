@@ -1,11 +1,15 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+
 import {
   getEmptyFieldErrorMessage,
   getFieldMaxLengthErrorMessage,
   getFieldMinLengthErrorMessage,
 } from '@/lib/forms';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { signUp } from '@/services/user-service';
 
 export const signUpSchema = z
   .object({
@@ -37,9 +41,9 @@ export const signUpSchema = z
 
 type ISignupFormSchema = z.infer<typeof signUpSchema>;
 
-const onSubmit = (_formData: ISignupFormSchema) => {};
-
 export const useSignupForm = () => {
+  const navigate = useNavigate();
+
   const form = useForm<ISignupFormSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -53,5 +57,29 @@ export const useSignupForm = () => {
     mode: 'onSubmit',
   });
 
-  return { form, onSubmit: form.handleSubmit(onSubmit) };
+  const {
+    mutate: sendSignUpRequest,
+    status,
+    isPending,
+  } = useMutation({
+    mutationFn: signUp,
+    onSuccess: (response, _params, _context) => {
+      console.log(response);
+      form.reset();
+      // TODO: Add email validation page OR sign user in
+      navigate('/');
+    },
+  });
+
+  const onSubmit = (formData: ISignupFormSchema) => {
+    const parseResult = signUpSchema.safeParse(formData);
+    if (parseResult.error || !parseResult.data) {
+      console.error('An error occurred: ' + JSON.stringify(formData));
+      return;
+    }
+    const { confirmPassword, ...payload } = parseResult.data;
+    sendSignUpRequest(payload);
+  };
+
+  return { form, onSubmit: form.handleSubmit(onSubmit), status, isPending };
 };
