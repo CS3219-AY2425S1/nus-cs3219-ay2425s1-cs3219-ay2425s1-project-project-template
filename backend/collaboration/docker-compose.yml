@@ -17,8 +17,8 @@ services:
     restart: unless-stopped
 
   collab-express:
-    image: 'collab-express'
-    container_name: 'collab-express'
+    image: "collab-express"
+    container_name: "collab-express"
     build:
       context: ./
       dockerfile: ./express.Dockerfile
@@ -27,7 +27,7 @@ services:
         # For building with the correct env vars
         - env=${EXPRESS_ENV}
     ports:
-      - '9003:8001'
+      - "9003:8001"
     command: node dist/index.js
     environment:
       # Docker Compose Specific
