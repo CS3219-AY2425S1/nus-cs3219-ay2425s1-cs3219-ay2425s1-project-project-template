@@ -27,7 +27,7 @@ export default function CustomTabs({ tabs, handleActiveTabChange, isBottomBorder
     return (
         <div
             id="test-tabs"
-            className={`${isBottomBorder && 'border-b-2 border-slate-100'} flex items-center ${type === 'label' && 'gap-2'}`}
+            className={`${isBottomBorder ? 'border-b-2 border-slate-100' : ''} flex items-center ${type === 'label' ? 'gap-2' : ''}`}
         >
             {tabs.map((tab, index) => (
                 <Button
@@ -35,7 +35,7 @@ export default function CustomTabs({ tabs, handleActiveTabChange, isBottomBorder
                     variant={tabVariant(tab)}
                     size={size || 'default'}
                     onClick={() => handleSetActiveTab(tab)}
-                    className={`${isBottomBorder && '-mb-[0.1rem]'}`}
+                    className={isBottomBorder ? '-mb-[0.1rem]' : ''}
                 >
                     {tab}
                 </Button>
