@@ -23,8 +23,15 @@ var successMessage = "success"
 
 func CreateQuestion(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var existingQuestion models.Question
 	var question models.Question
 	defer cancel()
+
+	err := questionCollection.FindOne(ctx, bson.M{"question_title": question.Question_title}).Decode(&existingQuestion)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
+	}
 
 	// Validate the request body
 	if err := c.Bind(&question); err != nil {
