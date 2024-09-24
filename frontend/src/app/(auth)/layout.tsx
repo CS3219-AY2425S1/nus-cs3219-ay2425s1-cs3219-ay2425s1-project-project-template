@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Sidebar, Menu, MenuItem, MenuItemStyles } from "react-pro-sidebar";
 import { MdHomeFilled } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
@@ -8,6 +8,9 @@ import { IoMdSearch } from "react-icons/io";
 import { IconType } from "react-icons";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthContext";
+import { googleLogout } from "@react-oauth/google";
+import Cookies from "js-cookie";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
@@ -56,13 +59,26 @@ const menuItemStyles: MenuItemStyles = {
   },
 };
 
-const AuthLayout = ({ children }: { children: ReactNode }) => {
+const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const logoutHandler = () => {
-    console.log("Logout action: To be implemented");
-  };
-  return (
-    <div className="flex h-full overflow-y-auto">
+
+  const { logout } = useAuth();
+
+  // check if access token is present using Cookies
+  useEffect(() => {
+    const access_token = Cookies.get("access_token");
+    if (!access_token && window.location.pathname !== "/") {
+      window.location.href = "/";
+    }
+  }, []);
+
+  const handleLogout = () => {
+    googleLogout();
+    logout();
+    window.location.href = "/";
+  }
+
+  return (<div className="flex h-full overflow-y-auto">
       <Sidebar
         className="sticky top-0 h-full"
         rootStyles={{
@@ -94,7 +110,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
           >
             <MenuItem
               icon={<RiLogoutBoxLine size={iconSize} />}
-              onClick={logoutHandler}
+              onClick={handleLogout}
             >
               Logout
             </MenuItem>
@@ -106,4 +122,4 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default AuthLayout;
+export default Layout;
