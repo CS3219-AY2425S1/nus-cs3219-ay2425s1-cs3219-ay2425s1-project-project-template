@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
@@ -13,15 +14,27 @@ export class AuthService {
   }
 
   async localSignUp(email: string, password: string) {
-    return firstValueFrom(
-      this.authClient.send({ cmd: 'local-sign-up' }, { email, password }),
-    );
+    try {
+      return firstValueFrom(
+        this.authClient.send({ cmd: 'local-sign-up' }, { email, password }),
+      );
+    } catch (error) {
+      if (error instanceof RpcException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+    }
   }
 
   async localLogIn(email: string, password: string) {
-    return firstValueFrom(
-      this.authClient.send({ cmd: 'local-log-in' }, { email, password }),
-    );
+    try {
+      return firstValueFrom(
+        this.authClient.send({ cmd: 'local-log-in' }, { email, password }),
+      );
+    } catch (error) {
+      if (error instanceof RpcException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+    }
   }
 
   async getGoogleAuthRedirect(code: string) {

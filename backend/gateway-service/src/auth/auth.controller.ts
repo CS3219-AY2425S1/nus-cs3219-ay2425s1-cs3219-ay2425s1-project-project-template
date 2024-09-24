@@ -23,32 +23,18 @@ export class AuthController {
 
   @Post('signup')
   async signUp(@Body() body: { email: string; password: string; }) {
-    try {
-      const response = await this.authService.localSignUp(body.email, body.password);
-      return {
-        message: response.message,
-        token: response.token,
-      };
-    } catch (error) {
-      if (error instanceof RpcException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+    const response = await this.authService.localSignUp(body.email, body.password);
+    return {
+      message: response.message,
+      token: response.token,
+    };
   }
 
   @Post('login')
   async logIn(@Body() body: { email: string; password: string }) {
-    try {
-      const response = await this.authService.localLogIn(body.email, body.password);
-      const jwtToken = response.token;
-      return { token: jwtToken };
-    } catch (error) {
-      if (error instanceof RpcException) {
-        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
-      }
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+    const response = await this.authService.localLogIn(body.email, body.password);
+    const jwtToken = response.token;
+    return { token: jwtToken };
   }
 
   // @Post('logout')

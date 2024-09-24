@@ -36,6 +36,7 @@ export class AppService {
 
   async registerUser(email: string, password: string): Promise<any> {
     try {
+      // TODO - Put the variables in a DTO
       const hashedPassword = await this.hashPassword(password);
       const user = await lastValueFrom(
         this.userClient.send(

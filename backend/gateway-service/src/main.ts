@@ -14,6 +14,11 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: '*', // allow all origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept',
+  });
   
   await app.listen(4000);
   console.log('Gateway Service is listening on port 4000');
