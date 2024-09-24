@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { setupSwagger } from './common/configs/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,16 +24,7 @@ async function bootstrap() {
   });
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('PeerPrep API Docs')
-    .setDescription('API Documentation for PeerPrep')
-    .setVersion('1.0')
-    .addTag('auth')
-    .addTag('question')
-    .addTag('user')
-    .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, swaggerDocument);
+  setupSwagger(app);
 
   await app.listen(4000);
   console.log('Gateway Service is listening on port 4000');
