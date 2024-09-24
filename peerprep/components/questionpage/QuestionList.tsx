@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
-import { Question, difficulties, categories } from "../shared/Question";
+import { Question, Difficulty } from "../shared/Question";
 import PeerprepDropdown from "../shared/PeerprepDropdown";
 
 const QuestionList: React.FC = () => {
@@ -9,6 +9,9 @@ const QuestionList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  // will prolly have to search by name later
+  const [searchFilter, setSearchFilter] = useState<string>("");
+  const [categories, setCategories] = useState<string[]>(["all"]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -16,6 +19,11 @@ const QuestionList: React.FC = () => {
         const response = await fetch("/data/dummyquestions.json");
         const data: Question[] = await response.json();
         setQuestions(data);
+
+        const uniqueCategories = Array.from(
+          new Set(data.flatMap((question) => question.category))
+        );
+        setCategories(["all", ...uniqueCategories]);
       } catch (error) {
         console.error("Error fetching questions:", error);
       } finally {
@@ -30,7 +38,7 @@ const QuestionList: React.FC = () => {
     const matchesDifficulty =
       difficultyFilter === "all" || question.difficulty === difficultyFilter;
     const matchesCategory =
-      categoryFilter === "all" || question.category === categoryFilter;
+      categoryFilter === "all" || question.category.includes(categoryFilter);
     return matchesDifficulty && matchesCategory;
   });
 
@@ -43,7 +51,7 @@ const QuestionList: React.FC = () => {
           label="Difficulty"
           value={difficultyFilter}
           onChange={(e) => setDifficultyFilter(e.target.value)}
-          options={difficulties}
+          options={["all", ...Object.values(Difficulty)]}
         />
         <PeerprepDropdown
           label="Category"

@@ -33,7 +33,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           </span>
         </p>
         <p className="text-sm">
-          Category: <span>{question.category}</span>
+          Categories: <span>{question.category.join(", ")}</span>
         </p>
       </div>
 
@@ -46,7 +46,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       <div className="ml-10 mr-10">
         {/* display question page */}
         <PeerprepButton onClick={() => console.log("Expand button clicked!")}>
-          Expand
+          View Question
         </PeerprepButton>
       </div>
     </div>

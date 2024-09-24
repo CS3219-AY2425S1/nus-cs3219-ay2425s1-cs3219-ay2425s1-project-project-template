@@ -3,7 +3,7 @@
     "id": 1,
     "title": "Two Sum",
     "description": "Given an array of integers, return indices of the two numbers such that they add up to a specific target.",
-    "category": "Array",
+    "category": ["Array", "Hash Table"],
     "difficulty": "easy",
     "test_cases": {
       "input": "[2, 7, 11, 15], target = 9",
@@ -14,7 +14,7 @@
     "id": 2,
     "title": "Reverse Linked List",
     "description": "Reverse a singly linked list and return the reversed list.",
-    "category": "Linked List",
+    "category": ["Linked List"],
     "difficulty": "easy",
     "test_cases": {
       "input": "[1, 2, 3, 4, 5]",
@@ -25,7 +25,7 @@
     "id": 3,
     "title": "Longest Substring Without Repeating Characters",
     "description": "Find the length of the longest substring without repeating characters.",
-    "category": "String",
+    "category": ["String", "Sliding Window"],
     "difficulty": "medium",
     "test_cases": {
       "input": "\"abcabcbb\"",
@@ -36,7 +36,7 @@
     "id": 4,
     "title": "Merge Intervals",
     "description": "Merge all overlapping intervals and return an array of the non-overlapping intervals.",
-    "category": "Array",
+    "category": ["Array", "Sorting"],
     "difficulty": "medium",
     "test_cases": {
       "input": "[[1,3],[2,6],[8,10],[15,18]]",
@@ -47,7 +47,7 @@
     "id": 5,
     "title": "Trapping Rain Water",
     "description": "Given n non-negative integers representing an elevation map, compute how much water it can trap after raining.",
-    "category": "Array",
+    "category": ["Array", "Two Pointers"],
     "difficulty": "hard",
     "test_cases": {
       "input": "[0,1,0,2,1,0,1,3,2,1,2,1]",
@@ -58,7 +58,7 @@
     "id": 6,
     "title": "Word Break",
     "description": "Given a string s and a dictionary of words, return true if s can be segmented into a space-separated sequence of dictionary words.",
-    "category": "Dynamic Programming",
+    "category": ["Dynamic Programming", "String"],
     "difficulty": "medium",
     "test_cases": {
       "input": "\"leetcode\", wordDict = [\"leet\", \"code\"]",
@@ -69,7 +69,7 @@
     "id": 7,
     "title": "Binary Tree Inorder Traversal",
     "description": "Given a binary tree, return the inorder traversal of its nodes' values.",
-    "category": "Tree",
+    "category": ["Tree"],
     "difficulty": "easy",
     "test_cases": {
       "input": "[1,null,2,3]",
@@ -80,7 +80,7 @@
     "id": 8,
     "title": "Find Median from Data Stream",
     "description": "The median is the middle value in an ordered integer list. Implement a data structure that efficiently supports finding the median.",
-    "category": "Heap",
+    "category": ["Heap"],
     "difficulty": "hard",
     "test_cases": {
       "input": "[[1], [2], [3]]",
@@ -91,7 +91,7 @@
     "id": 9,
     "title": "Kth Largest Element in an Array",
     "description": "Find the Kth largest element in an unsorted array.",
-    "category": "Array",
+    "category": ["Array", "Sorting"],
     "difficulty": "medium",
     "test_cases": {
       "input": "[3,2,1,5,6,4], k = 2",
@@ -102,7 +102,7 @@
     "id": 10,
     "title": "Coin Change",
     "description": "Given different denominations of coins, compute the fewest number of coins needed to make up a given amount.",
-    "category": "Dynamic Programming",
+    "category": ["Dynamic Programming"],
     "difficulty": "medium",
     "test_cases": {
       "input": "[1, 2, 5], amount = 11",

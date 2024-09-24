@@ -22,7 +22,7 @@ const PeerprepDropdown: React.FC<PeerprepDropdownProps> = ({
       <select
         value={value}
         onChange={onChange}
-        className={`text-black border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+        className={`text-black border rounded p-2 focus:outline-none focus:ring-2 focus:ring-gray-300 ${className}`}
       >
         {options.map((option) => (
           <option className="capitalize" key={option} value={option}>
