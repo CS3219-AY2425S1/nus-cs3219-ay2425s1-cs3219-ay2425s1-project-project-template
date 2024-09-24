@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { register, UserCredentials } from '../login/authService';
+import { useNavigate } from 'react-router-dom';
+import { register, UserCredentials } from './authService';
 import RegistrationView from './RegistrationView';
 
 const RegistrationController: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const navigate = useNavigate(); 
 
   const handleRegistration = async (username: string, email: string, password: string, confirmPassword: string) => {
     if (password !== confirmPassword) {
@@ -20,7 +22,7 @@ const RegistrationController: React.FC = () => {
     try {
       const response = await register(userCredentials);
       console.log("Registration successful:", response);
-      // Redirect to login or dashboard upon success
+      navigate("/questions")
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage("Registration failed: " + error.message);
@@ -31,8 +33,8 @@ const RegistrationController: React.FC = () => {
   };
 
   const handleLoginRedirect = () => {
-    // Logic to navigate to the LoginView, could be using react-router
     console.log("Navigating to login page...");
+    navigate("/login")
   };
 
   return (
