@@ -12,20 +12,20 @@ export const DifficultyLabel: FC<DifficultyLabelProps> = ({ difficulty }) => {
     let bgColor = ''
     switch (difficulty) {
         case Difficulty.Easy:
-            textColor = 'text-green-600'
-            bgColor = 'bg-green-100'
+            textColor = 'text-green'
+            bgColor = 'bg-green-light'
             break
         case Difficulty.Medium:
-            textColor = 'text-amber-600'
-            bgColor = 'bg-amber-100'
+            textColor = 'text-amber'
+            bgColor = 'bg-amber-light'
             break
         case Difficulty.Hard:
-            textColor = 'text-red-600'
-            bgColor = 'bg-red-100'
+            textColor = 'text-red'
+            bgColor = 'bg-red-light'
             break
         default:
-            textColor = 'text-purple-600'
-            bgColor = 'bg-purple-100'
+            textColor = 'text-theme'
+            bgColor = 'bg-theme-100'
     }
 
     return <CustomLabel title={difficulty} textColor={textColor} bgColor={bgColor} />
