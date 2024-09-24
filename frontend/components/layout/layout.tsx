@@ -15,13 +15,17 @@ export default function RootLayout({
             setIsAuth(true)
         }
     }, [])
+
+    const navbarBlacklist = ['/code'] // Add paths here to hide the navbar
+    const showNavBar = !navbarBlacklist.includes(pathname)
+
     return (
         <>
             {isAuth ? (
                 children
             ) : (
                 <>
-                    <NavBar />
+                    {showNavBar && <NavBar />}
                     <div className={`${inter.className} mx-10 my-6`}>{children}</div>
                 </>
             )}

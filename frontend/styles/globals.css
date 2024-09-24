@@ -3,29 +3,21 @@
 @tailwind utilities;
 
 :root {
-    --theme-900: #3b0764;
-    --theme-600: #7f57c2;
-    --theme-400: #c084fc;
-    --theme-100: #f3e8ff;
-
+    --background: #fff;
+    --foreground: var(--slate-700);
     --slate-100: #f1f5f9;
     --slate-200: #e2e8f0;
     --slate-300: #cbd5e1;
     --slate-400: #94a3b8;
     --slate-700: #334155;
     --slate-800: #1e293b;
-
     --green-pri: #34d399;
     --green-sec: #e1fcef;
-
     --red-pri: #ef4444;
     --red-sec: #fee2e2;
-
     --orange-pri: #fb923c;
     --orange-sec: #ffedd5;
-
-    --background: #fff;
-    --foreground: var(--slate-700);
+    --background: #ffffff;
 }
 
 pre,
@@ -47,8 +39,7 @@ body {
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 240 10% 3.9%;
+        --foreground: 215 28.0% 16.9%;
         --card: 0 0% 100%;
         --card-foreground: 240 10% 3.9%;
         --popover: 0 0% 100%;
@@ -72,6 +63,25 @@ body {
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
+        --white: 0 0% 100%;
+        --theme-900: 274, 86.9%, 21.0%;
+        --theme-700: 263, 70%, 50.4%;
+        --theme-600: 262.1, 83.3%, 57.8%;
+        --theme-400: 270, 95.2%, 75.9%;
+        --theme-100: 268, 100%, 95.5%;
+        --theme-50: 250, 100%, 97.7%;
+        --hover-fill: 210.0, 40.0%, 96.1%;
+        --green-default: 158.1, 64.4%, 51.6%;
+        --green-light: 151.1, 81.8%, 93.5%;
+        --green-dark: 160.1, 84.1%, 39.4%;
+        --red-default: 0, 82.4%, 60.2%;
+        --red-light: 0, 93.3%, 94.12%;
+        --red-dark: 0, 72.2%, 50.6%;
+        --orange-default: 27.0, 96.0%, 61.0%;
+        --orange-light: 34.3, 100%, 91.8%;
+        --orange-dark: 20.5, 90.2%, 48.2%;
+        --secondary: 210, 40%, 96%;
+        --secondary-darker: 214.3, 31.8%, 91.4%;
     }
     .dark {
         --background: 240 10% 3.9%;
@@ -107,5 +117,20 @@ body {
     }
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+#ace-editor {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+#language-mode-select {
+    .border-input {
+        border-color: transparent;
+        border-top-left-radius: 0.5rem;
+    }
+    button {
+        font-size: smaller !important;
     }
 }
