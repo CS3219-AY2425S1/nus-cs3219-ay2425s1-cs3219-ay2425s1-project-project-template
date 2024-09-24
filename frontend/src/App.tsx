@@ -1,23 +1,16 @@
 import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import QuestionPage from "./pages/QuestionPage";
+import LandingPage from "./pages/LandingPage";
 
 const App: React.FC = () => {
   return (
-    <div>
-      <header className="bg-white p-2">
-      <div className="flex lg:flex-1">
-        <a href="#" className="-m-1.5 p-1.5">
-          <span className="sr-only">Your Company</span>
-          <text className="text-amber-600">Peer</text>
-          <text>Prep</text>
-          </a>
-      </div>
-      
-      </header>
-
-      <h1>Hello, World!</h1>
-      
-      <h1 className="text-4xl">TEST</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/question" element={<QuestionPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 
