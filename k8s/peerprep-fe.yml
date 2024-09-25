@@ -20,6 +20,7 @@ spec:
       containers:
       - name: peerprep-fe
         image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
+        # imagePullPolicy: Never # only used for local builds
         ports:
         - containerPort: 3000
 ---
