@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const User = require('../model/User');
 
 // Find user by email
@@ -43,6 +44,35 @@ const deleteAllUsers = async () => {
   return await User.deleteMany();
 };
 
+// Insert default admin data
+const insertDefaultData = async () => {
+  try {
+    // Check if there are any users in the database
+    const usersCount = await User.countDocuments();
+    if (usersCount === 0) {
+      console.log('No users found, inserting default data...');
+
+      // Create a default admin user
+      const hashedPassword = await bcrypt.hash(process.env.EMAIL_PASS, 10);
+      const adminUser = new User({
+        email: process.env.EMAIL_USER,
+        username: 'master_admin',
+        password: hashedPassword,
+        isAdmin: true, // Assuming you have an `isAdmin` field
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await adminUser.save();
+      console.log('Default admin user created.');
+    } else {
+      console.log('Users already exist, skipping default data insertion.');
+    }
+  } catch (err) {
+    console.error('Error inserting default data:', err.message);
+  }
+};
+
 module.exports = {
   findUserByEmail,
   findByToken,
@@ -52,4 +82,5 @@ module.exports = {
   deleteUser,
   getUsers,
   deleteAllUsers,
+  insertDefaultData,
 };
