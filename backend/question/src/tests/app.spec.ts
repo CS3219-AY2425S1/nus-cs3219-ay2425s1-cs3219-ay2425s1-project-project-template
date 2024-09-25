@@ -168,6 +168,10 @@ describe("Test Update", () => {
       .send(updateQuestion);
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("questionid", questionId);
+    expect(res.body).toHaveProperty("title", updateQuestion.title);
+    expect(res.body).toHaveProperty("description", updateQuestion.description);
+    expect(res.body).toHaveProperty("category", updateQuestion.category);
+    expect(res.body).toHaveProperty("complexity", updateQuestion.complexity);
   });
 
   // Empty update
