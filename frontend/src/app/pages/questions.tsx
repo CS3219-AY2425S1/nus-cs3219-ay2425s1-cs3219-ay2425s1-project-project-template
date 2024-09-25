@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react'
+import { Check, ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react'
 
 interface Question {
   id: number
@@ -78,17 +78,30 @@ export default function Questions() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Interview Questions</h1>
-        <div>
-          <label htmlFor="file-upload" className="bg-black text-white py-2 px-4 rounded-md flex items-center hover:bg-gray-800 transition-colors cursor-pointer">
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Upload Questions JSON
-          </label>
-          <input id="file-upload" type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
+        <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">Interview Questions</h1>
+            
         </div>
-      </div>
 
+        <div className="flex justify-between items-end mb-6">
+        <div className="bg-gray-100 p-6 rounded-lg shadow min-w-72">
+            <div className="flex items-center justify-between">
+                <div>
+                    <p className="text-3xl font-bold">3</p>
+                    <p className="text-sm">Problems Solved</p>
+                </div>
+                <Check className="w-12 h-12 text-black" />
+            </div>
+        </div>
+
+        <div>
+            <label htmlFor="file-upload" className="bg-black text-white py-2 px-6 rounded-md flex items-center hover:bg-gray-800 transition-colors cursor-pointer">
+                    <PlusIcon className="w-5 h-5 mr-2" />
+                    Upload JSON
+                </label>
+            <input id="file-upload" type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
+            </div>
+        </div>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -97,6 +110,7 @@ export default function Questions() {
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Complexity</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
             </tr>
           </thead>
@@ -109,6 +123,9 @@ export default function Questions() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{question.category}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ComplexityBadge complexity={question.complexity} />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Check />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button
