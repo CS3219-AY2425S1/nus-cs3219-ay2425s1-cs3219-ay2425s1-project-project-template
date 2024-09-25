@@ -48,9 +48,6 @@ router.get("/all", async (req: Request, res: Response) => {
       .lean()
       .sort({ questionid: "ascending" })
       .exec();
-    if (!questions) {
-      return res.status(404).json({ message: "No questions found" });
-    }
     return res.json(questions);
   } catch (error) {
     return res.status(500).send("Internal server error");
@@ -103,13 +100,14 @@ router.post(
     try {
       const updatedQuestion = await Question.findOneAndUpdate(
         { questionid: questionId },
-        { $set: updateData }
+        { $set: updateData },
+        { new: true }
       );
       return res.json(updatedQuestion);
     } catch (error) {
       //to catch pre-middleware defined error
       if (error instanceof Error) {
-        return res.status(400).json({ message: "Question not found" });
+        return res.status(404).json(error.message);
       }
       return res.status(500).send("Internal server error");
     }
@@ -135,7 +133,7 @@ router.post(
     } catch (error) {
       //to catch pre-middleware defined error
       if (error instanceof Error) {
-        return res.status(400).json({ message: "Question not found" });
+        return res.status(404).json(error.message);
       }
       return res.status(500).send("Internal server error");
     }

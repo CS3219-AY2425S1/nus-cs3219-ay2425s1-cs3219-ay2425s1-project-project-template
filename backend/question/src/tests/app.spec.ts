@@ -197,8 +197,8 @@ describe("Test Update", () => {
     const res = await request
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe("Question not found");
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toBe("Document not found");
   });
 });
 
@@ -228,7 +228,7 @@ describe("Test Delete", () => {
   test("POST - non-existent id delete", async () => {
     const questionId = 999999;
     const res = await request.post(`/api/${questionId}/delete`).send();
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe("Question not found");
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toBe("Document not found");
   });
 });
