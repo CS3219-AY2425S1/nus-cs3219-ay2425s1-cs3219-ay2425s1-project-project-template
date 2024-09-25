@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Text, useToast }  from '@chakra-ui/react';
 import { executeCode } from '../api';
+
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8001');
 
 const Output = ({editorRef, language}) => {
     const toast = useToast();
@@ -9,14 +13,36 @@ const Output = ({editorRef, language}) => {
     const [isError, setIsError] = useState(false);
 
 
+    useEffect(() => {
+        socket.on('updateOutput',
+            (result) => {
+                result.stderr ? setIsError(true) : setIsError(false);
+                result.stderr ? setOutput(result.stderr.split("\n")) : setOutput(result.stdout.split("\n"));
+            });
+
+        return () => {
+            socket.off('updateOutput');
+        };
+    });
+
     const runCode = async () => {
         const sourceCode = editorRef.current.getValue();
         if (!sourceCode) return;
         try{
             setIsLoading(true);
             const {run:result} = await executeCode(language, sourceCode);
-            result.stderr ? setIsError(true) : setIsError(false);
-            result.stdout ? setOutput(result.stdout.split("\n")) : setOutput(result.stderr.split("\n"));
+
+            // Check if there is an error in the output
+            if (result.stderr) {
+                setIsError(true);
+                setOutput(result.stderr.split("\n"));
+            } else {
+                setIsError(false);
+                setOutput(result.stdout.split("\n"));
+            }
+            
+            // Emit the result to the server
+            socket.emit('codeExecution', result); 
         } catch (error) {
             // would only occur if api is down
             console.log(error);
