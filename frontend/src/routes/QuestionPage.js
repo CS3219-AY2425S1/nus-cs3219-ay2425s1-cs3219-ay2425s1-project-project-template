@@ -41,9 +41,15 @@ const QuestionPage = () => {
   const [title, setTitle] = useState('Some Title');
   const [question, setQuestion] = useState('');
 
+  //REMOVE THIS BEFORE SUBMITTING
+  const [titleSlug] = useState('test-question')
+
 
   const clearState = async () => {
-    
+    /** 
+     * 
+    //THIS IS FOR TESTING THE API!!!!!!!
+
     const response = await fetch('http://127.0.0.1:8000/question/', {
       method: 'GET', // Explicitly specifying the GET method
   });
@@ -52,45 +58,56 @@ const QuestionPage = () => {
                 alert(JSON.stringify(data)); 
                 }
                 else{alert("gg")}
-                
+      
+            */    
 
     setDifficulty("easy");
     setTopic("loops");
     setTitle("Some Title");
     setQuestion("");
+    setMode("create");
   }
 
   // Handle API call on button press
   const handleSetQuestion = async () => {
     // Prepare data
     const data = {
-      difficulty,
-      topic,
       title,
       question,
+      difficulty,
+      topic,
+      titleSlug,
     };
 
-    try {
-      // Make API call (replace 'your-api-url' with your actual API endpoint)
-      const response = await fetch('your-api-url', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        // Clear the question field if the request was successful
-        setQuestion('');
-        alert('Question submitted successfully!');
-      } else {
-        alert('Failed to submit question.');
+    if (mode=="create"){
+      try {
+        const response = await fetch('http://127.0.0.1:8000/question/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+  
+        if (response.ok) {
+          // Clear the fields if the request was successful
+          setDifficulty("easy");
+          setTopic("loops");
+          setTitle("Some Title");
+          setQuestion("");
+          alert('Question submitted successfully!');
+        } else {
+          alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the question. Error:'+error);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred.');
+    } else{
+      alert("not in create mode")
     }
+
+    
   };
 
 
