@@ -180,9 +180,9 @@ describe('User Routes', () => {
         })
 
         describe('DELETE /users/:id', () => {
-            it('should return 200 for successful deletion', async () => {
+            it('should return 204 for successful deletion', async () => {
                 const response = await authenticatedTestAgent.delete(`/users/${user.id}`).send()
-                expect(response.status).toBe(200)
+                expect(response.status).toBe(204)
             })
             //handleAccessControl will return 403 as the id of the token does not match the id in the request
             it('should return 403 for requests with invalid ids', async () => {

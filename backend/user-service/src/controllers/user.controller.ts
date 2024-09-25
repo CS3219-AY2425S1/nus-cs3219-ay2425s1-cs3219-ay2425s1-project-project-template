@@ -7,15 +7,15 @@ import {
     updateUser,
 } from '../models/user.repository'
 
+import { ValidationError } from 'class-validator'
+import { Response } from 'express'
+import { hashPassword } from '../common/password.util'
 import { CreateUserDto } from '../types/CreateUserDto'
 import { IUser } from '../types/IUser'
-import { Response } from 'express'
 import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
-import { ValidationError } from 'class-validator'
-import { hashPassword } from '../common/password.util'
 
 export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
     const createDto = CreateUserDto.fromRequest(request)
@@ -60,8 +60,13 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
         return
     }
 
-    const user = await updateUser(id, createDto)
-    response.status(200).json(user).send()
+    const updatedUser = await updateUser(id, createDto)
+    if (!updatedUser) {
+        response.status(404).send()
+        return
+    }
+    const dto = UserDto.fromModel(updatedUser)
+    response.status(200).json(dto).send()
 }
 
 export async function handleGetCurrentProfile(
@@ -82,7 +87,7 @@ export async function handleGetCurrentProfile(
 export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
     const id = request.params.id
     await deleteUser(id)
-    response.status(200).send()
+    response.status(204).send()
 }
 
 export async function handleUpdatePassword(request: TypedRequest<UserPasswordDto>, response: Response): Promise<void> {
@@ -97,6 +102,11 @@ export async function handleUpdatePassword(request: TypedRequest<UserPasswordDto
     const id = request.params.id
     createDto.password = await hashPassword(createDto.password)
 
-    const user = await updateUser(id, createDto)
-    response.status(200).json(user).send()
+    const updatedUser = await updateUser(id, createDto)
+    if (!updatedUser) {
+        response.status(404).send()
+        return
+    }
+    const dto = UserDto.fromModel(updatedUser)
+    response.status(200).json(dto).send()
 }

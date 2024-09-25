@@ -1,7 +1,8 @@
-import { Model, model } from 'mongoose'
+import { FilterQuery, Model, model, SortOrder } from 'mongoose'
 
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
+import { QuestionDto } from '../types/QuestionDto'
 import questionSchema from './question.model'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
@@ -18,8 +19,54 @@ export async function findOneQuestionByTitle(title: string): Promise<IQuestion |
     return questionModel.findOne({ title })
 }
 
+export async function findPaginatedQuestionsWithSortAndFilter(
+    start: number,
+    limit: number,
+    sortBy: string[][],
+    filterBy: string[][]
+): Promise<IQuestion[]> {
+    return questionModel
+        .find({
+            $and: getFilterQueryOptions(filterBy),
+        })
+        .sort(sortBy.map(([key, order]): [string, SortOrder] => [key, order as SortOrder]))
+        .limit(limit)
+        .skip(start)
+}
+
+export async function findPaginatedQuestionsWithSort(
+    start: number,
+    limit: number,
+    sortBy: string[][]
+): Promise<IQuestion[]> {
+    return questionModel
+        .find()
+        .sort(sortBy.map(([key, order]): [string, SortOrder] => [key, order as SortOrder]))
+        .limit(limit)
+        .skip(start)
+}
+
+export async function findPaginatedQuestionsWithFilter(
+    start: number,
+    limit: number,
+    filterBy: string[][]
+): Promise<IQuestion[]> {
+    return questionModel
+        .find({
+            $and: getFilterQueryOptions(filterBy),
+        })
+        .limit(limit)
+        .skip(start)
+}
+
 export async function findPaginatedQuestions(start: number, limit: number): Promise<IQuestion[]> {
     return questionModel.find().limit(limit).skip(start)
+}
+
+export async function findQuestionCountWithFilter(filterBy: string[][]): Promise<number> {
+    return questionModel.countDocuments({
+        $and: getFilterQueryOptions(filterBy),
+    })
 }
 
 export async function findQuestionCount(): Promise<number> {
@@ -36,4 +83,16 @@ export async function updateQuestion(id: string, dto: CreateQuestionDto): Promis
 
 export async function deleteQuestion(id: string): Promise<void> {
     await questionModel.findByIdAndDelete(id)
+}
+
+function getFilterQueryOptions(filterBy: string[][]): FilterQuery<IQuestion>[] {
+    return filterBy.map(([key, value]) => {
+        const query: { [key: string]: string | object } = {}
+        if (QuestionDto.isValidTextSearchFilter(key)) {
+            query[key] = { $regex: value, $options: 'i' }
+        } else {
+            query[key] = value
+        }
+        return query
+    })
 }
