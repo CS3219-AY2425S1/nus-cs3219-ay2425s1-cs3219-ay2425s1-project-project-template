@@ -1,8 +1,8 @@
 import express from "express";
 import questionRoutes from "./routes/questionRoutes";
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import cors from "cors";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
 dotenv.config();
 
 /**
@@ -15,7 +15,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use('/api', questionRoutes)
+app.use("/api", questionRoutes);
 
 const PORT = process.env.PORT || "3003";
 
@@ -28,11 +28,15 @@ async function connect() {
   }
 }
 
-connect();
+if (process.env.NODE_ENV === "DEV" || process.env.NODE_ENV === "PRODUCTION") {
+  connect();
+}
 
-app.listen(PORT, (err?: Error) => {
-    if (err) {
-      return console.error(err);
-    }
-    return console.log(`App is running on port ${PORT}`);
-  });
+const server = app.listen(PORT, (err?: Error) => {
+  if (err) {
+    return console.error(err);
+  }
+  return console.log(`App is running on port ${PORT}`);
+});
+
+export { app, server };
