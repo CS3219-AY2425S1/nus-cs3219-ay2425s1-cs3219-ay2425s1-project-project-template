@@ -24,17 +24,14 @@ const questionSchema: Schema = new Schema({
     description: {
         type: String,
         required: true,
-        alias: "text",
     },
     category: {
         type: String,
         required: true,
-        alias: "topics",
     },
     complexity: {
         type: String,
         required: true,
-        alias: "difficulty",
     },
 }, { collection: "questions" });
 
@@ -51,7 +48,7 @@ questionSchema.pre('findOneAndUpdate', async function (next) {
 questionSchema.pre('findOneAndDelete', async function (next) {
     const doc = await this.model.findOne(this.getQuery());
     if (!doc) {
-        return next(new Error('Document not found'));
+        return next(new Error("Document not found"));
     }
     next();
 });

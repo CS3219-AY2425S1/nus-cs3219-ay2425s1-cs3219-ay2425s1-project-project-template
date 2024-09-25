@@ -39,9 +39,6 @@ router.get('/all', async (req: Request, res: Response) => {
             .lean()
             .sort({ questionid: 'ascending' })
             .exec();
-        if (!questions) {
-            return res.status(404).json({ message: 'No questions found' });
-        }
         return res.json(questions);
     }
     catch (error) {
@@ -103,16 +100,14 @@ router.post('/:id/update',
             .findOneAndUpdate(
                 { questionid: questionId },
                 { $set: updateData },
+                { new: true }
             );
-        if (!updatedQuestion) {
-            return res.status(404).json({ message: 'Question not found' });
-        }
         return res.json(updatedQuestion);
     }
     catch (error) {
         //to catch pre-middleware defined error
         if (error instanceof Error) {
-            return res.status(400).json({ message: 'Question not found' });
+            return res.status(404).json(error.message);
         }
         return res.status(500).send('Internal server error');
     }
@@ -132,15 +127,12 @@ router.post('/:id/delete', [
         const deletedQuestion = await Question
             .findOneAndDelete({ questionid: questionId })
             .exec();
-        if (!deletedQuestion) {
-            return res.status(404).json({ message: 'Question not found' });
-        }
         return res.json(deletedQuestion);
     }
     catch (error) {
         //to catch pre-middleware defined error
         if (error instanceof Error) {
-            return res.status(400).json({ message: 'Question not found' });
+            return res.status(404).json(error.message);
         }
         return res.status(500).send('Internal server error');
     }
