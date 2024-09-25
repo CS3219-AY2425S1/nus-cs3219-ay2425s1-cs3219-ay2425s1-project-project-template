@@ -1,10 +1,63 @@
 # Question Service
 
-## Pre-requisites
+## Quick start (for testers)
+
+### Pre-requisites
+
+1. Python 3.12
+2. Docker (for local MongDB server)
+
+### Running the server
+
+**Before you begin**
+
+From the project root,
+
+```bash
+cd backend/question-service
+```
+
+1. Create Python virual environment
+
+```bash
+python3 -m venv env
+```
+
+2. Activate the virtual environment
+
+```bash
+source env/bin/activate
+```
+
+3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Start local MongoDB server
+
+```bash
+make db
+```
+
+5. Start question-service backend
+
+```bash
+uvicorn question_service.main:app --reload
+```
+
+---
+
+## Quick start (for developers)
+
+### Pre-requisites
 
 1. Python 3.12
 2. [`pipx`](https://pipx.pypa.io/stable/installation/)
+   - From Python3, you cannot `pip install` Python programs globally
 3. [Poetry](https://python-poetry.org/docs/#installing-with-pipx) -- _dependency management for Python_
+   - `pipx install poetry`
 4. Docker (for local MongoDB server)
 
 ---
@@ -58,7 +111,11 @@ make server
 
 ---
 
-## Dev
+### Exporting `requirements.txt`
+
+```bash
+poetry export -o requirements.txt
+```
 
 ### Adding packages
 
