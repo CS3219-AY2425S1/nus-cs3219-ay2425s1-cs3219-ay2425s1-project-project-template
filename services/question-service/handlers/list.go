@@ -108,7 +108,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	totalIter, err := query.Documents(ctx).GetAll()
 	totalCount := len(totalIter)
 	if err != nil {
-		http.Error(w, "Failed to count questions: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to count questions", http.StatusInternalServerError)
 		return
 	}
 
@@ -148,14 +148,14 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			http.Error(w, "Failed to retrieve questions: ", http.StatusInternalServerError)
+			http.Error(w, "Failed to retrieve questions", http.StatusInternalServerError)
 			return
 		}
 
 		// Map data
 		var question models.Question
 		if err := doc.DataTo(&question); err != nil {
-			http.Error(w, "Failed to parse question: ", http.StatusInternalServerError)
+			http.Error(w, "Failed to parse question", http.StatusInternalServerError)
 			return
 		}
 		question.DocRefID = doc.Ref.ID
