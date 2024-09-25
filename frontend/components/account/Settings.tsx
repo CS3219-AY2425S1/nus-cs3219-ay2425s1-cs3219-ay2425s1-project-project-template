@@ -1,61 +1,74 @@
+import { useState } from 'react'
+import InputField from '../ui/custom-input'
 import DeleteDialog from './DeleteDialog'
 import usePasswordToggle from './UsePasswordToggle'
 
 function Setting() {
-    // Password Toggle hook
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
+
+    const validateForm = (): boolean => {
+        if (!email) {
+            alert('Email is required')
+            return false
+        }
+        if (!password || !confirmPassword) {
+            alert('Both password fields are required')
+            return false
+        }
+        if (password !== confirmPassword) {
+            alert('Passwords do not match')
+            return false
+        }
+        // Additional validation logic can go here, such as email format validation
+        return true
+    }
+
+    // Submit handler
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault() // Prevents default form submission behavior
+        if (validateForm()) {
+            // Form is valid, handle form submission (e.g., send data to server)
+            console.log('Form submitted:', { email, password })
+        }
+    }
 
     return (
         <>
             <div className="flex flex-col h-full">
                 <div className="flex flex-[4] flex-row">
-                    <form className="flex flex-[4] flex-col w-full space-y-8 pt-3">
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Email
-                            </label>
-                            <input
-                                type="text"
-                                id="email"
-                                placeholder="name@example.com"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                            />
-                        </div>
+                    <form className="flex flex-[4] flex-col w-full space-y-8 pt-3" onSubmit={handleSubmit}>
+                        <InputField
+                            id="email"
+                            label="Email"
+                            type="text"
+                            placeholder="name@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={passwordInputType}
-                                    id="password"
-                                    placeholder="Enter Password"
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                                />
-                                <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                    {passwordToggleIcon}
-                                </span>
-                            </div>
-                        </div>
+                        <InputField
+                            id="password"
+                            label="Password"
+                            type={passwordInputType}
+                            placeholder="Enter Password"
+                            icon={passwordToggleIcon}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
 
-                        <div>
-                            <label htmlFor="password_repeat" className="block text-sm font-medium text-gray-700">
-                                Confirm Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={confirmPasswordInputType}
-                                    id="password_repeat"
-                                    placeholder="Enter Password"
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                                />
-                                <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                    {confirmPasswordToggleIcon}
-                                </span>
-                            </div>
-                        </div>
+                        <InputField
+                            id="password_repeat"
+                            label="Confirm Password"
+                            type={confirmPasswordInputType}
+                            placeholder="Enter Password"
+                            icon={confirmPasswordToggleIcon}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
 
                         <button
                             type="submit"
