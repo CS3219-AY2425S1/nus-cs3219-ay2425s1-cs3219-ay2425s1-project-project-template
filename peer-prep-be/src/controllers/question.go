@@ -142,3 +142,21 @@ func UpdateQuestion(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
 }
+
+func DeleteQuestion(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	questionId := c.Param("questionId")
+	defer cancel()
+
+	objId, err := primitive.ObjectIDFromHex(questionId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	result, err := questionCollection.DeleteOne(ctx, bson.M{"question_id": objId})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
+}

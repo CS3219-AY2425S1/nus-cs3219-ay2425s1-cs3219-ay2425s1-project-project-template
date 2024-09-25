@@ -10,4 +10,5 @@ func QuestionRoute(e *echo.Echo) {
 	e.GET("/questions", controllers.GetQuestions) // To add sorting, filter + pagination
 	e.POST("/question", controllers.CreateQuestion)
 	e.PUT("/questions/:questionId", controllers.UpdateQuestion)
+	e.DELETE("/questions/:questionId", controllers.DeleteQuestion)
 }
