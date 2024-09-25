@@ -26,7 +26,7 @@ python3 -m venv env
 2. Activate the virtual environment
 
 ```bash
-source env/bin/activate
+source env/bin/activate or ./env/Scripts/activate
 ```
 
 3. Install dependencies
