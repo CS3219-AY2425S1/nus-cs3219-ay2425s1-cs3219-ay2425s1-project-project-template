@@ -87,7 +87,7 @@ export async function handleGetCurrentProfile(
 export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
     const id = request.params.id
     await deleteUser(id)
-    response.status(200).send()
+    response.status(204).send()
 }
 
 export async function handleUpdatePassword(request: TypedRequest<UserPasswordDto>, response: Response): Promise<void> {
