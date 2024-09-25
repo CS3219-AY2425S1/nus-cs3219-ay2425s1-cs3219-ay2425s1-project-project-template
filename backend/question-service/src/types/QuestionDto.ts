@@ -60,10 +60,10 @@ export class QuestionDto {
     }
 
     static isValidFilter(key: string): boolean {
-        return ['title'].includes(key)
+        return ['title', 'categories'].includes(key)
     }
 
     static isValidSort(key: string, order: string): boolean {
-        return ['asc', 'desc'].includes(order) && ['categories', 'complexity'].includes(key)
+        return ['asc', 'desc'].includes(order) && ['complexity'].includes(key)
     }
 }

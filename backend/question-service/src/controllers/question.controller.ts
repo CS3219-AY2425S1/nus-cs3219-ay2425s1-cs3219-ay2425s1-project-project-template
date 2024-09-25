@@ -68,6 +68,8 @@ export async function handleGetPaginatedQuestions(request: IPaginationRequest, r
         response.status(400).json('INVALID_FILTER').send()
         return
     }
+    // We sort the filters so that title always comes first so that it is a prefix of either the full compound index or the categories compound index
+    filterBy.sort((a, b) => (a.at(0) === 'title' && b.at(0) !== 'title' ? -1 : 1))
 
     // We should probably do singleton pattern for question repository and implement method overloading...
     let count: number
