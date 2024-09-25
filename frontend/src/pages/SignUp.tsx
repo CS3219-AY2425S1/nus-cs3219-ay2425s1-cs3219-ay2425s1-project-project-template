@@ -54,6 +54,7 @@ const SignUp = () => {
           password: "",
           confirmPassword: "",
         });
+        navigate("/");
       } catch (error) {
         if (error instanceof Error) {
           toast.error(error.message);
