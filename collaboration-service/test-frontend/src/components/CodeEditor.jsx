@@ -23,17 +23,37 @@ const CodeEditor = () => {
 
     const onSelect = (language) => {
         setLanguage(language);
+
+        // Set the editor value to the code snippet for the selected language
         setValue(CODE_SNIPPETS[language]);
         console.log("language selected");
+
+        // Emit the selected language and code snippet to the server
         socket.emit('selectLanguage', language);
+        socket.emit('edit', CODE_SNIPPETS[language]);
+    };
+
+    const handleEdit = () => {
+        const updatedContent = editorRef.current.getValue();
+        setValue(updatedContent); 
+
+        // Only emit changes if the change was initiated by the user
+        if (userChangeRef.current) {
+            console.log("content updated");
+            socket.emit('edit', updatedContent);
+        }
+        userChangeRef.current = true; // Reset flag to true for user-initiated changes
     };
 
     useEffect(() => {
         socket.on('updateContent',
             (updatedContent) => {
-                if (editorRef.current.getValue() === updatedContent) return;
+                if (editorRef.current.getValue() === updatedContent) {
+                    return;
+                }
                 userChangeRef.current = false; // Set flag to false for server-initiated changes
                 setValue(updatedContent);
+                // editorRef.current.setValue(updatedContent); // causes cursor to move to front of editor when typing too fast
             });
 
         socket.on('updateLanguage',
@@ -47,15 +67,7 @@ const CodeEditor = () => {
         };
     });
 
-    const handleEdit = () => {
-        const updatedContent = editorRef.current.getValue();
-        setValue(updatedContent);
-        if (userChangeRef.current) {
-            console.log("content updated");
-            socket.emit('edit', updatedContent);
-        }
-        userChangeRef.current = true; // Reset flag to true for user-initiated changes
-    };
+    
 
     return (
         <Box>
