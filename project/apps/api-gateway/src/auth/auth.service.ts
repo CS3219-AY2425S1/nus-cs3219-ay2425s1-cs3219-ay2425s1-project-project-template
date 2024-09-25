@@ -3,6 +3,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { SignInDto, SignUpDto } from '@repo/dtos/auth';
+import { UserDetails } from 'src/supabase/collection';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
     }
 
     // Step 2: Insert profile data into profiles table
-    const { error: profileError } = await this.supabaseService
+    const { data: userData, error: profileError } = await this.supabaseService
       .getClient()
       .from(this.PROFILES_TABLE)
       .insert([
@@ -40,18 +41,16 @@ export class AuthService {
           username,
           email,
         },
-      ]);
+      ])
+      .returns<UserDetails[]>()
+      .single();
 
     if (profileError) {
       // Delete the created user if profile creation fails
       await this.supabaseService.getClient().auth.admin.deleteUser(user.id);
       throw new BadRequestException(profileError.message);
     }
-    const userData = {
-      email,
-      username,
-      id: user.id,
-    };
+
     // Return user and session information
     return { userData, session };
   }
@@ -75,6 +74,7 @@ export class AuthService {
       .from(this.PROFILES_TABLE)
       .select(`id, email, username`)
       .eq('id', user.id)
+      .returns<UserDetails[]>()
       .single();
 
     if (profileError) {
