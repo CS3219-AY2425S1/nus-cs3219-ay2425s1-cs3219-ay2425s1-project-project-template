@@ -27,10 +27,7 @@
               }
             ],
             "styles": [
-<<<<<<< HEAD
               "@angular/material/prebuilt-themes/magenta-violet.css",
-=======
->>>>>>> 8806ae07732d77a0ef01cfc09179368ca7a2cb90
               "src/styles.css"
             ],
             "scripts": []
@@ -89,10 +86,7 @@
               }
             ],
             "styles": [
-<<<<<<< HEAD
               "@angular/material/prebuilt-themes/magenta-violet.css",
-=======
->>>>>>> 8806ae07732d77a0ef01cfc09179368ca7a2cb90
               "src/styles.css"
             ],
             "scripts": []
