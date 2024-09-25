@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    user = new User({ email, username, password: hashedPassword });
+    user = new User({ email, username, password: hashedPassword, isAdmin: false });
     await saveUser(user);
     res.json({ message: 'User registered successfully.' });
   } catch (err) {

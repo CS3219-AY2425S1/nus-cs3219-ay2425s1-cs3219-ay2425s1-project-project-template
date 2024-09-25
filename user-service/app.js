@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes'); 
+const authRoutes = require('./routes/authRoutes');
 const User = require('./model/User');
 
 // Initialize Express app
@@ -27,22 +27,20 @@ app.use((req, res, next) => {
 
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
 
-  // Browsers usually send this before PUT or POST Requests
   if (req.method === "OPTIONS") {
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
     return res.status(200).json({});
   }
 
-  // Continue Route Processing
   next();
 });
 
 // Routes
 app.use('/api/user', userRoutes);
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
@@ -62,15 +60,11 @@ app.get('/users', async (req, res) => {
 // Route to delete all users
 app.delete('/users', async (req, res) => {
   try {
-    await User.deleteMany();
-    res.json({ message: 'All users deleted successfully.' });
+    await User.deleteMany({ email: { $ne:  process.env.EMAIL_USER } });
+    res.json({ message: 'All users except main account deleted successfully.' });
   } catch (err) {
     res.status(500).json({ error: 'Server error.' });
   }
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+module.exports = app;

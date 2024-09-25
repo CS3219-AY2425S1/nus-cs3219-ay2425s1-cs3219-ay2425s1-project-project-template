@@ -41,7 +41,7 @@ const getUsers = async () => {
 
 // Delete all users
 const deleteAllUsers = async () => {
-  return await User.deleteMany();
+  await User.deleteMany({ email: { $ne:  process.env.EMAIL_USER } });
 };
 
 // Insert default admin data
@@ -58,9 +58,7 @@ const insertDefaultData = async () => {
         email: process.env.EMAIL_USER,
         username: 'master_admin',
         password: hashedPassword,
-        isAdmin: true, // Assuming you have an `isAdmin` field
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        isAdmin: true,
       });
 
       await adminUser.save();

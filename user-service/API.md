@@ -123,7 +123,6 @@ endpoint: `http://localhost:3001`
     { "message": "User's admin status updated to true." }
     ```
   - **Errors**:
-    - `404 Not Found`: Profile not found.
     - `500 Internal Server Error`: Server error message.
 
 ---
@@ -143,7 +142,7 @@ endpoint: `http://localhost:3001`
 - **Output**:
   - **Success**:
     ```json
-    { "token": "jwt_token" }
+    { "token": "jwt_token", "user_id": "..." }
     ```
   - **Errors**:
     - `400 Bad Request`: Invalid email or password.

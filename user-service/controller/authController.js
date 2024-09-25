@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
     await updateUserById(user._id, { lastLogin: user.lastLogin });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1y' });
-    res.json({ token });
+    res.json({ token: token, user_id: user._id.toString() });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
