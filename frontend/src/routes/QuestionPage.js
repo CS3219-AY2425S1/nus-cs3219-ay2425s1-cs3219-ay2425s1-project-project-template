@@ -4,6 +4,7 @@ import './QuestionPage.css';
 const QuestionPage = () => {
 
   //shared logic between left and right, probably just the edit/create new qn state
+  const apiurl = "http://127.0.0.1:8000/question/"
 
   //Either create or edit mode.
   const [mode, setMode] = useState("create");
@@ -37,12 +38,25 @@ const QuestionPage = () => {
   //Right side logic
   const [difficulty, setDifficulty] = useState('easy');
   const [topic, setTopic] = useState('loops');
+  const [title, setTitle] = useState('Some Title');
   const [question, setQuestion] = useState('');
 
 
-  const clearState = () => {
+  const clearState = async () => {
+    
+    const response = await fetch('http://127.0.0.1:8000/question/', {
+      method: 'GET', // Explicitly specifying the GET method
+  });
+                if (response.ok) {
+                  const data = await response.json();
+                alert(JSON.stringify(data)); 
+                }
+                else{alert("gg")}
+                
+
     setDifficulty("easy");
     setTopic("loops");
+    setTitle("Some Title");
     setQuestion("");
   }
 
@@ -52,6 +66,7 @@ const QuestionPage = () => {
     const data = {
       difficulty,
       topic,
+      title,
       question,
     };
 
@@ -166,6 +181,16 @@ const QuestionPage = () => {
             <option value="arrays">Arrays</option>
             <option value="conditions">Conditions</option>
           </select>
+        </div>
+
+        <div class="title-section">
+          <label htmlFor="title">Title:</label>
+          <textarea
+          id="title"
+          className="questionarea"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
 
         <div class="question-section">
