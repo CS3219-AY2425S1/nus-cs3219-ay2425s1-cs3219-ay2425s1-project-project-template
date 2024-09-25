@@ -1,8 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { GenerateJwtDto, ValidateUserCredDto } from './dto';
-
+import { IAuthGenerateJwt, IAuthJwtResponse } from './interfaces';
+import { ValidateUserDto } from './dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -13,13 +13,46 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'generate-jwt' })
-  generateJwt(@Payload() data: GenerateJwtDto) {
-    return this.appService.generateJwt(data);
+  async generateJwt(
+    @Payload() data: IAuthGenerateJwt,
+  ): Promise<IAuthJwtResponse> {
+    let result: IAuthJwtResponse;
+
+    if (data) {
+      try {
+        const createTokenResponse = await this.appService.generateJwt(data);
+        result = {
+          status: HttpStatus.CREATED,
+          message: 'token_create_success',
+          token: createTokenResponse,
+        };
+      } catch (e) {
+        result = {
+          status: HttpStatus.BAD_REQUEST,
+          message: 'token_create_bad_request',
+          token: null,
+        };
+      }
+    } else {
+      result = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'token_create_bad_request',
+        token: null,
+      };
+    }
+
+    return result;
   }
 
-  @MessagePattern({ cmd: 'validate-user-cred' })
-  validateUser(@Payload() data: ValidateUserCredDto) {
-    return this.appService.validateUserCred(data);
+  @MessagePattern({ cmd: 'validate-user' })
+  async validateUser(@Payload() data: ValidateUserDto): Promise<boolean> {
+    let result = false;
+
+    if (data) {
+      result = await this.appService.validateUser(data);
+    }
+
+    return result;
   }
 
   @MessagePattern({ cmd: 'google-auth-redirect' })

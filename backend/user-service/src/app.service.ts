@@ -1,10 +1,10 @@
-import * as bcrypt from 'bcryptjs';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RpcException } from '@nestjs/microservices';
 import { User } from './schema/user.schema';
-import { CreateUserDto } from './dto';
+import { IUser } from './interfaces';
+import * as bcrypt from 'bcryptjs';
+import { GetUserByEmailDto } from './dto';
 
 const SALT_ROUNDS = 10;
 
@@ -12,29 +12,25 @@ const SALT_ROUNDS = 10;
 export class AppService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-  public async createUser(data: CreateUserDto): Promise<User> {
-    const { email, password } = data;
+  public async createUser(data: IUser): Promise<IUser> {
+    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
-    const existingUser = await this.getUserByEmail(email);
-    if (existingUser) {
-      throw new RpcException('User with this email already exists');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const newUser = new this.userModel({
-      email,
+    const userModel = new this.userModel({
+      ...data,
       password: hashedPassword,
     });
-
-    const savedUser = await newUser.save();
-    savedUser.password = undefined;
-
-    return savedUser;
+    return await userModel.save();
   }
 
-  public async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email }).exec();
+  public async getUserByEmail(params: GetUserByEmailDto): Promise<IUser> {
+    const email = params.email;
+    return await this.userModel.findOne({ email }).exec();
+  }
 
-    return user;
+  public async comparePasswords(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
   }
 }

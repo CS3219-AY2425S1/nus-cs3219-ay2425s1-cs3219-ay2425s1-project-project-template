@@ -1,7 +1,25 @@
-import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { LogInDto, SignUpDto, ValidateUserCredDto } from './dto';
+
+import {
+  LogInDto,
+  LogInResponseDto,
+  SignUpDto,
+  SignUpResponseDto,
+  ValidateUserCredDto,
+} from './dto';
+import { GetUserByEmailDto } from '../user/dto/get-user-by-email.dto';
+
+import { IServiceCreateUserResponse } from '../interfaces/user/service-user-create-response.interface';
+import { IServiceCreateTokenResponse } from '../interfaces/auth/service-create-token-response.interface';
+import { IServiceGetUserResponse } from '../interfaces/user/service-user-get-response.interface';
 
 @Injectable()
 export class AuthService {
@@ -10,67 +28,75 @@ export class AuthService {
     @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
   ) {}
 
-  async signUp(data: SignUpDto) {
-    try {
-      const newUser = await firstValueFrom(
-        this.userClient.send({ cmd: 'create-user' }, data),
-      );
+  async signUp(data: SignUpDto): Promise<SignUpResponseDto> {
+    const createUserResponse: IServiceCreateUserResponse = await firstValueFrom(
+      this.userClient.send({ cmd: 'create-user' }, data),
+    );
 
-      const token = await firstValueFrom(
-        this.authClient.send({ cmd: 'generate-jwt' }, newUser),
-      );
-
-      return {
-        token: token,
-        user: newUser,
-      };
-    } catch (error) {
+    if (createUserResponse.status !== HttpStatus.CREATED) {
       throw new HttpException(
-        error.message || 'Error creating user',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        {
+          message: createUserResponse.message,
+          data: null,
+          errors: createUserResponse.errors,
+        },
+        createUserResponse.status,
       );
     }
-  }
 
-  async logIn(data: LogInDto) {
-    try {
-      const user = await firstValueFrom(
-        this.userClient.send(
-          { cmd: 'get-user-by-email' },
-          { email: data.email },
+    const createTokenResponse: IServiceCreateTokenResponse =
+      await firstValueFrom(
+        this.authClient.send(
+          { cmd: 'generate-jwt' },
+          {
+            id: createUserResponse.user.id,
+            email: createUserResponse.user.email,
+          },
         ),
       );
 
-      if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
+    return {
+      message: createUserResponse.message,
+      data: {
+        token: createTokenResponse.token,
+        user: createUserResponse.user,
+      },
+      errors: null,
+    };
+  }
 
-      const payload: ValidateUserCredDto = {
-        password: data.password,
-        hashedPassword: user.password,
-      };
-      const isUserValid = await firstValueFrom(
-        this.authClient.send({ cmd: 'validate-user-cred' }, payload),
-      );
-      if (!isUserValid) {
-        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-      }
+  async logIn(data: LogInDto): Promise<LogInResponseDto> {
+    const getUserResponse: IServiceGetUserResponse = await firstValueFrom(
+      this.userClient.send({ cmd: 'validate-user' }, data),
+    );
 
-      user.password = undefined;
-      const token = await firstValueFrom(
-        this.authClient.send({ cmd: 'generate-jwt' }, user),
-      );
-
-      return {
-        token: token,
-        user: user,
-      };
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Login failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    if (getUserResponse.status !== HttpStatus.OK) {
+      throw new UnauthorizedException({
+        message: getUserResponse.message,
+        data: null,
+        errors: null,
+      });
     }
+
+    const createTokenResponse: IServiceCreateTokenResponse =
+      await firstValueFrom(
+        this.authClient.send(
+          { cmd: 'generate-jwt' },
+          {
+            id: getUserResponse.user.id,
+            email: getUserResponse.user.email,
+          },
+        ),
+      );
+
+    return {
+      message: getUserResponse.message,
+      data: {
+        token: createTokenResponse.token,
+        user: getUserResponse.user,
+      },
+      errors: null,
+    };
   }
 
   async getGoogleAuthRedirect(code: string) {

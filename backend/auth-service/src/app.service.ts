@@ -5,6 +5,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { ClientProxy } from '@nestjs/microservices';
 import { GenerateJwtDto, ValidateUserCredDto } from './dto';
 import { RpcException } from '@nestjs/microservices';
+import { IAuthGenerateJwt } from './interfaces';
 
 @Injectable()
 export class AppService {
@@ -25,22 +26,18 @@ export class AppService {
     return 'This is the auth service!';
   }
 
-  async generateJwt(user: GenerateJwtDto) {
+  async generateJwt(user: IAuthGenerateJwt): Promise<string> {
     const payload = { ...user };
     return this.jwtService.sign(payload);
   }
 
-  async validateUserCred(data: ValidateUserCredDto): Promise<boolean> {
-    try {
-      const { password, hashedPassword } = data;
+  async validateUser(data: ValidateUserCredDto): Promise<boolean> {
+    const { password, hashedPassword } = data;
 
-      if (this.validatePassword(password, hashedPassword)) {
-        return true;
-      }
-      return false;
-    } catch (error) {
-      throw new RpcException('Error validating user credentials');
+    if (this.validatePassword(password, hashedPassword)) {
+      return true;
     }
+    return false;
   }
 
   private async validatePassword(password: string, hashedPassword: string) {

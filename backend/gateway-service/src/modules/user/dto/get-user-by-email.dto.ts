@@ -1,9 +1,6 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class GenerateJwtDto {
-  @IsNotEmpty()
-  id: string;
-
+export class GetUserByEmailDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;

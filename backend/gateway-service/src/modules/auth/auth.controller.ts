@@ -1,8 +1,13 @@
 import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
-import { SignUpDto, LogInDto } from './dto';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  SignUpDto,
+  SignUpResponseDto,
+  LogInDto,
+  LogInResponseDto,
+} from './dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -10,12 +15,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  signUp(@Body() data: SignUpDto) {
+  @ApiCreatedResponse({ type: SignUpResponseDto })
+  signUp(@Body() data: SignUpDto): Promise<SignUpResponseDto> {
     return this.authService.signUp(data);
   }
 
   @Post('login')
-  logIn(@Body() data: LogInDto) {
+  @ApiCreatedResponse({ type: LogInResponseDto })
+  logIn(@Body() data: LogInDto): Promise<LogInResponseDto> {
     return this.authService.logIn(data);
   }
 
