@@ -24,12 +24,6 @@ type SignedDetails struct {
 	jwt.RegisteredClaims
 }
 
-// Reset password request struct to update new password
-type ResetPasswordRequest struct {
-	Token       string `json:"token" binding:"required"`
-	NewPassword string `json:"new_password" binding:"required"`
-}
-
 // Email verification struct for binding email input
 type EmailVerificationRequest struct {
 	Email string `json:"email" binding:"required,email"`
@@ -51,6 +45,9 @@ func GenerateAllTokens(email string, username string, uid string) (signedToken s
 	}
 
 	refreshClaims := &SignedDetails{
+		Email:    email,
+		Username: username,
+		Uid:      uid,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(72 * time.Hour)), // valid for 3 days
 		},
