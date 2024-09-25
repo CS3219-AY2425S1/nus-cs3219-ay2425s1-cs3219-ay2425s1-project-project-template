@@ -31,8 +31,8 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModalProps> = ({
             </DialogHeader>
             <div className="space-y-4">
               <p>
-                Are you sure you want to delete the question titled "
-                {questionTitle}"?
+                Are you sure you want to delete the question titled &quot;
+                {questionTitle}&quot;?
               </p>
             </div>
             <DialogFooter>
