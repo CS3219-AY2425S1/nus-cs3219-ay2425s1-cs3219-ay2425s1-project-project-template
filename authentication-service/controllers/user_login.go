@@ -6,6 +6,7 @@ import (
 
 	"authentication-service/models"
 	"authentication-service/services"
+	"authentication-service/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,6 +34,13 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	// Successful login, generate JWT token
+	token, err := utils.GenerateToken(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		return
+	}
+
 	// Successful login
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
