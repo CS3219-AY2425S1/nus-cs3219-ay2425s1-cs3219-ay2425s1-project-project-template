@@ -5,7 +5,7 @@ const ProfileButton: React.FC = () => {
     <>
       <div className="container">
         <button className="bg-black rounded-full p-6"></button>
-        </div>
+      </div>
     </>
   );
 };

@@ -1,7 +1,7 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import IsConnected from "./IsConnected";
-import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import ProfileButton from "./ProfileButton";
 
 
 const NavBar: React.FC = () => {
@@ -22,13 +22,13 @@ const NavBar: React.FC = () => {
         <div className="container flex space-x-8 justify-end text-2xl text-off-white">
           <Link to="/question">
             <button className="bg-black rounded-[25px] p-4">Register</button>
+          </Link>
+          <Link to="/question">
             <button className="bg-yellow rounded-[25px] p-4">Login</button>
           </Link>
         </div>
       ) : (
-        <div className="container flex space-x-8 justify-end text-2xl text-off-white">
-          <button className="bg-black rounded-[25px] p-4">Logout</button>
-        </div>
+        <ProfileButton />
       )}
     </nav>
   );
