@@ -9,8 +9,10 @@ import { IconType } from "react-icons";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthContext";
-import { googleLogout } from "@react-oauth/google";
+import { googleLogout, useGoogleLogin } from "@react-oauth/google";
 import Cookies from "js-cookie";
+import { usePathname, useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
@@ -39,7 +41,7 @@ const sidebarItems: SidebarMenuItemProps[] = [
   {
     menuLabel: "Home",
     menuIcon: MdHomeFilled,
-    linksTo: "/dashboard",
+    linksTo: "/",
   },
   {
     menuLabel: "Profile",
@@ -62,20 +64,43 @@ const menuItemStyles: MenuItemStyles = {
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { logout } = useAuth();
+  const { user, login, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: (response) => login(response),
+    onError: (error) => {
+      console.error("Login Failed:", error);
+    },
+  });
 
   // check if access token is present using Cookies
   useEffect(() => {
     const access_token = Cookies.get("access_token");
-    if (!access_token && window.location.pathname !== "/") {
-      window.location.href = "/";
+    if (!access_token) {
+      Swal.fire({
+        title: "Access Denied",
+        text: "You need to sign in to use this feature!",
+        icon: "error",
+        showDenyButton: true,
+        confirmButtonText: "Sign in with Google",
+        denyButtonText: "Nevermind"
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          googleLogin();
+          return;
+        }
+        router.push("/");
+      });
     }
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     googleLogout();
     logout();
-    window.location.href = "/";
+    router.push("/");
   }
 
   return (<div className="flex h-full overflow-y-auto">
@@ -102,7 +127,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
               />
             ))}
           </Menu>
-          <Menu
+          {user && <Menu
             menuItemStyles={menuItemStyles}
             rootStyles={{
               marginBottom: "60px",
@@ -114,7 +139,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
             >
               Logout
             </MenuItem>
-          </Menu>
+          </Menu>}
         </div>
       </Sidebar>
       <div className="w-full overflow-y-scroll">{children}</div>
