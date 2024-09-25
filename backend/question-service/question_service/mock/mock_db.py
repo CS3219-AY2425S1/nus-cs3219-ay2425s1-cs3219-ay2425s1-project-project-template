@@ -29,7 +29,7 @@ class MockDB:
         # this method has no validation,
         # the actual repository layer should have validation
         self.db[question["titleSlug"]] = question
-        return
+        return None
 
     def update_question(self, title_slug: str, updated_question: dict) -> dict:
         old_question = self.get_question_by_title(title_slug)

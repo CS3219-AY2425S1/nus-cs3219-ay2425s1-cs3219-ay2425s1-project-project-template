@@ -38,6 +38,7 @@ async def update_question_by_title(titleSlug: str, question_updates: dict):
     question = mock_db.update_question(titleSlug, question_updates)
     return question
 
+
 @router.get("/question/")
 async def get_all_questions() -> dict:
     logger.info(f"Retrieving all questions")
@@ -46,3 +47,11 @@ async def get_all_questions() -> dict:
     if questions is None:
         raise HTTPException(status_code=404, detail="There are no questions in question bank")
     return questions
+
+
+@router.post("/question/")
+async def create_question(question: dict):
+    if not question:
+        raise HTTPException(status_code=400, detail="Invalid question")
+    question = mock_db.create_question(question)
+    return question
