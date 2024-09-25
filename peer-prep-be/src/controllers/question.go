@@ -45,11 +45,11 @@ func CreateQuestion(c echo.Context) error {
 	}
 
 	newQuestion := models.Question{
-		Question_id: primitive.NewObjectID(),
-		Question_title: question.Question_title,
+		Question_id:          primitive.NewObjectID(),
+		Question_title:       question.Question_title,
 		Question_description: question.Question_description,
-		Question_categories: question.Question_categories,
-		Question_complexity: question.Question_complexity,
+		Question_categories:  question.Question_categories,
+		Question_complexity:  question.Question_complexity,
 	}
 
 	result, err := questionCollection.InsertOne(ctx, newQuestion)
@@ -61,28 +61,62 @@ func CreateQuestion(c echo.Context) error {
 }
 
 func GetQuestion(c echo.Context) error {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    questionId := c.Param("questionId") // URL param from GET route
-    var question models.Question
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	questionId := c.Param("questionId") // URL param from GET route
+	var question models.Question
+	defer cancel()
 
-    objId, _ := primitive.ObjectIDFromHex(questionId) // Convert to ObjectID (how MongoDB stores Ids)
+	objId, _ := primitive.ObjectIDFromHex(questionId) // Convert to ObjectID (how MongoDB stores Ids)
 
-    err := questionCollection.FindOne(ctx, bson.M{"question_id": objId}).Decode(&question)
+	err := questionCollection.FindOne(ctx, bson.M{"question_id": objId}).Decode(&question)
 
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
-    }
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
 
-    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": question}})
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": question}})
+}
+
+// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
+func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
+	var findOptions *options.FindOptions
+
+	if sortField != "" {
+		order := 1 // Default to ascending order
+		if sortOrder == "desc" {
+			order = -1 // If 'desc' is provided, sort in descending order
+		}
+
+		// Set the sorting options
+		findOptions = options.Find().SetSort(bson.D{{Key: sortField, Value: order}})
+	} else {
+		// No sorting specified, natural MongoDB order
+		findOptions = options.Find()
+	}
+
+	return findOptions
 }
 
 func GetQuestions(c echo.Context) error {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var questions []models.Question
 	defer cancel()
 
-	cur, err := questionCollection.Find(ctx, bson.D{{}}, options.Find())
+	// Retrieve sorting params from query string
+	sortField := c.QueryParam("sortBy")  // currently only for question_title, included for future extension
+	sortOrder := c.QueryParam("orderBy") // currently expected to only sort in ascending order, included for future extension
+
+	// Process the sorting options (if any)
+	findOptions := ProcessSortParams(sortField, sortOrder) // Note: sorting of strings is case-sensitive by default
+
+	cur, err := questionCollection.Find(ctx, bson.D{}, findOptions)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Error fetching questions",
+			Data:    &echo.Map{"data": err.Error()},
+		})
+	}
 
 	for cur.Next(ctx) {
 		var doc models.Question
@@ -94,11 +128,11 @@ func GetQuestions(c echo.Context) error {
 		questions = append(questions, doc)
 	}
 
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
-    }
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
 
-    return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
 }
 
 func UpdateQuestion(c echo.Context) error {
@@ -127,10 +161,10 @@ func UpdateQuestion(c echo.Context) error {
 	// Update the question in the database
 	update := bson.M{
 		"$set": bson.M{
-			"question_title": question.Question_title,
+			"question_title":       question.Question_title,
 			"question_description": question.Question_description,
-			"question_categories": question.Question_categories,
-			"question_complexity": question.Question_complexity,
+			"question_categories":  question.Question_categories,
+			"question_complexity":  question.Question_complexity,
 		},
 	}
 
