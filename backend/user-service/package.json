@@ -1,7 +1,9 @@
 {
     "name": "user-service",
     "version": "0.1.0",
-    "main": "index.js",
+    "description": "User Service for PeerPrep, responsible for user profile management.",
+    "author": "CS3219 AY2024S1 Group 31",
+    "main": "server.js",
     "scripts": {
         "build": "tsc",
         "test": "jest",
@@ -9,9 +11,7 @@
         "start": "npm run build && node dist/server.js",
         "dev": "nodemon src/server.ts"
     },
-    "author": "",
     "license": "MIT",
-    "description": "",
     "dependencies": {
         "bcrypt": "^5.1.1",
         "class-validator": "^0.14.1",
