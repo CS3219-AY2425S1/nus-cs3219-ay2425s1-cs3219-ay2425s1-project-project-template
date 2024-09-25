@@ -42,4 +42,10 @@ router.delete(
   questionController.deleteQuestion
 );
 
+router.get("/categories/unique", questionController.getAllUniqueCategories);
+router.get(
+  "/complexity/unique",
+  questionController.getAllUniqueComplexityLevels
+);
+
 export default router;
