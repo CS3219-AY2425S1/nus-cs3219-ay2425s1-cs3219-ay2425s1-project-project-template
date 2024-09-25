@@ -24,7 +24,7 @@ export class AuthController {
   @Post('signup')
   @UsePipes(new ZodValidationPipe(signUpSchema))
   async signUp(@Body() body: SignUpDto, @Res() res: Response) {
-    const { user, session } = await this.authService.signUp(body);
+    const { userData, session } = await this.authService.signUp(body);
     res.cookie('token', session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -32,13 +32,13 @@ export class AuthController {
       maxAge: 60 * 60 * 24 * 7 * 1000,
     });
 
-    return res.status(HttpStatus.OK).json({ user });
+    return res.status(HttpStatus.OK).json({ userData });
   }
 
   @Post('signin')
   @UsePipes(new ZodValidationPipe(signInSchema))
   async signIn(@Body() body: SignInDto, @Res() res: Response) {
-    const { user, session } = await this.authService.signIn(body);
+    const { userData, session } = await this.authService.signIn(body);
     res.cookie('token', session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -46,7 +46,7 @@ export class AuthController {
       maxAge: 60 * 60 * 24 * 7 * 1000,
     });
 
-    return res.status(HttpStatus.OK).json({ user });
+    return res.status(HttpStatus.OK).json({ userData });
   }
 
   @Post('signout')

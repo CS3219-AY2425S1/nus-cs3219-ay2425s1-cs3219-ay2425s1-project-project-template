@@ -4,11 +4,23 @@ import { QuestionsController } from './questions/questions.controller';
 import { SupabaseService } from './supabase/supabase.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
+import { SupabaseStrategy } from './auth/supabase.strategy';
+import { LoggerModule } from 'nestjs-pino';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+        },
+      },
     }),
     // Client for Questions Service
     ClientsModule.register([
@@ -22,6 +34,6 @@ import { AuthController } from './auth/auth.controller';
     ]),
   ],
   controllers: [QuestionsController, AuthController],
-  providers: [SupabaseService],
+  providers: [SupabaseService, AuthService, SupabaseStrategy],
 })
 export class ApiGatewayModule {}
