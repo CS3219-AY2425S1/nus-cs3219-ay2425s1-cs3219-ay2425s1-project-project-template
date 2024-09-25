@@ -81,6 +81,11 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(sortFieldsParam) > 1 || len(sortValuesParam) > 1 {
+		http.Error(w, "At most 1 sortField and sortValue pair allowed", http.StatusBadRequest)
+		return
+	}
+
 	sortedById := false
 	for i, sortField := range sortFieldsParam {
 		if !isValidSortField[sortField] {
@@ -108,7 +113,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	totalIter, err := query.Documents(ctx).GetAll()
 	totalCount := len(totalIter)
 	if err != nil {
-		http.Error(w, "Failed to count questions", http.StatusInternalServerError)
+		http.Error(w, "Failed to count questions: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
