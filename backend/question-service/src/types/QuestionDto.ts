@@ -2,9 +2,14 @@ import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUrl, Validation
 
 import { Category } from './Category'
 import { Complexity } from './Complexity'
+import { IQuestion } from './IQuestion'
 import { TypedRequest } from './TypedRequest'
 
-export class CreateQuestionDto {
+export class QuestionDto {
+    @IsString()
+    @IsNotEmpty()
+    id: string
+
     @IsString()
     @IsNotEmpty()
     title: string
@@ -24,7 +29,15 @@ export class CreateQuestionDto {
     @IsUrl()
     link: string
 
-    constructor(title: string, description: string, categories: Category[], complexity: Complexity, link: string) {
+    constructor(
+        id: string,
+        title: string,
+        description: string,
+        categories: Category[],
+        complexity: Complexity,
+        link: string
+    ) {
+        this.id = id
         this.title = title
         this.description = description
         this.categories = categories
@@ -33,9 +46,13 @@ export class CreateQuestionDto {
     }
 
     static fromRequest({
-        body: { title, description, categories, complexity, link },
-    }: TypedRequest<CreateQuestionDto>): CreateQuestionDto {
-        return new CreateQuestionDto(title, description, categories, complexity, link)
+        body: { id, title, description, categories, complexity, link },
+    }: TypedRequest<QuestionDto>): QuestionDto {
+        return new QuestionDto(id, title, description, categories, complexity, link)
+    }
+
+    static fromModel({ id, title, description, categories, complexity, link }: IQuestion): QuestionDto {
+        return new QuestionDto(id, title, description, categories, complexity, link)
     }
 
     async validate(): Promise<ValidationError[]> {

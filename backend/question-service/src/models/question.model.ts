@@ -1,6 +1,7 @@
-import { Schema } from 'mongoose'
+import { Category } from '../types/Category'
 import { Complexity } from '../types/Complexity'
 import { IQuestion } from '../types/IQuestion'
+import { Schema } from 'mongoose'
 
 const questionSchema = new Schema<IQuestion>(
     {
@@ -15,6 +16,7 @@ const questionSchema = new Schema<IQuestion>(
         },
         categories: {
             type: [String],
+            enum: Object.values(Category),
             required: true,
         },
         complexity: {
