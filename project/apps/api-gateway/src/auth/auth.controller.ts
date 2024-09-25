@@ -4,67 +4,49 @@ import {
   Body,
   Res,
   HttpStatus,
-  BadRequestException,
+  UsePipes,
 } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
+
 import { Response } from 'express';
+import { ZodValidationPipe } from '@repo/pipes/zod-validation-pipe.pipe';
+import {
+  signInSchema,
+  SignInDto,
+  signUpSchema,
+  SignUpDto,
+} from '@repo/dtos/auth';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signUp(
-    @Body() body: { email: string; password: string },
-    @Res() res: Response,
-  ) {
-    const { email, password } = body;
-    const { data, error } = await this.supabaseService
-      .getClient()
-      .auth.signUp({ email, password });
+  @UsePipes(new ZodValidationPipe(signUpSchema))
+  async signUp(@Body() body: SignUpDto, @Res() res: Response) {
+    const { user, session } = await this.authService.signUp(body);
+    res.cookie('token', session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 * 1000,
+    });
 
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ error: error.message });
-    }
-    const { user, session } = data;
-    if (user && session) {
-      res.cookie('token', session.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
-      });
-
-      return res.status(HttpStatus.OK).json({ user });
-    }
-    throw new BadRequestException('Unexpected sign-up response.');
+    return res.status(HttpStatus.OK).json({ user });
   }
 
   @Post('signin')
-  async signIn(
-    @Body() body: { email: string; password: string },
-    @Res() res: Response,
-  ) {
-    const { email, password } = body;
-    const { data, error } = await this.supabaseService
-      .getClient()
-      .auth.signInWithPassword({ email, password });
+  @UsePipes(new ZodValidationPipe(signInSchema))
+  async signIn(@Body() body: SignInDto, @Res() res: Response) {
+    const { user, session } = await this.authService.signIn(body);
+    res.cookie('token', session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 * 1000,
+    });
 
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ error: error.message });
-    }
-    const { user, session } = data;
-    if (user && session) {
-      res.cookie('token', session.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
-      });
-
-      return res.status(HttpStatus.OK).json({ user });
-    }
-    throw new BadRequestException('Unexpected sign-in response.');
+    return res.status(HttpStatus.OK).json({ user });
   }
 
   @Post('signout')
