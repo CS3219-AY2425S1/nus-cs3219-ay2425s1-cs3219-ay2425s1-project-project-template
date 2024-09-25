@@ -59,6 +59,10 @@ export class QuestionDto {
         return validate(this)
     }
 
+    static isValidTextSearchFilter(key: string): boolean {
+        return ['title'].includes(key)
+    }
+
     static isValidFilter(key: string): boolean {
         return ['title', 'categories'].includes(key)
     }

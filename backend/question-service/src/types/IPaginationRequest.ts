@@ -13,7 +13,7 @@ export interface IPaginationRequest
     query: {
         page: string
         limit: string
-        sortBy: string
-        filterBy: string
+        sortBy: string | undefined
+        filterBy: string | undefined
     }
 }
