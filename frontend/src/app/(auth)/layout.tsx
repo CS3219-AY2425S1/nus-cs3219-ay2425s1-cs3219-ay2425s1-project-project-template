@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthContext";
 import { googleLogout } from "@react-oauth/google";
 import Cookies from "js-cookie";
+import { usePathname, useRouter } from "next/navigation";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
@@ -63,20 +64,22 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const { user, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // check if access token is present using Cookies
   useEffect(() => {
     const access_token = Cookies.get("access_token");
     console.log(access_token);
-    if (!access_token && window.location.pathname !== "/") {
-      window.location.href = "/";
+    if (!access_token && pathname !== "/") {
+      router.push("/");
     }
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     googleLogout();
     logout();
-    window.location.href = "/";
+    router.push("/");
   }
 
   return (<div className="flex h-full overflow-y-auto">
