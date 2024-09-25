@@ -2,7 +2,14 @@ import { useState, ChangeEvent, FormEvent } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { LoginData } from "../@types/auth";
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Link,
+  Typography,
+} from "@mui/material";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -26,6 +33,10 @@ const Login = () => {
     if (input.email !== "" && input.password !== "") {
       auth.login(input, navigate);
     }
+  };
+
+  const navigateToSignUp = () => {
+    navigate("/signup");
   };
 
   return (
@@ -73,6 +84,13 @@ const Login = () => {
         >
           Login
         </Button>
+        <Link
+          onClick={navigateToSignUp}
+          sx={{ mt: 2, cursor: "pointer" }}
+          underline="hover"
+        >
+          No account yet? Sign up
+        </Link>
       </Box>
     </Container>
   );

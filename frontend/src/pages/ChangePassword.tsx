@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { updateUserProfile } from "../api/userApi";
 import Header from "../components/Header";
+import { toast } from "react-toastify";
 
 const ChangePassword: React.FC = () => {
   const { user, token } = useAuth();
@@ -30,14 +31,15 @@ const ChangePassword: React.FC = () => {
       const response = await updateUserProfile(token, user.id, {
         password: newPassword,
       });
-      if (!response.ok) {
+      if (!response) {
+        toast.success("An error occurred");
         throw new Error("Failed to update password");
       }
-
+      toast.success("Password changed successfully");
       navigate("/dashboard");
     } catch (err) {
       console.error("Error updating password:", err);
-      setError("Failed to update password. Please try again.");
+      toast.error("Failed to update password. Please try again.");
     }
   };
 
