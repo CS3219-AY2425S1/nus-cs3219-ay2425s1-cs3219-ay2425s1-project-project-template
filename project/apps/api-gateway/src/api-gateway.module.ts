@@ -5,7 +5,6 @@ import { SupabaseService } from './supabase/supabase.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { SupabaseStrategy } from './auth/supabase.strategy';
 import { LoggerModule } from 'nestjs-pino';
 import { PassportModule } from '@nestjs/passport';
 
@@ -34,6 +33,6 @@ import { PassportModule } from '@nestjs/passport';
     ]),
   ],
   controllers: [QuestionsController, AuthController],
-  providers: [SupabaseService, AuthService, SupabaseStrategy],
+  providers: [SupabaseService, AuthService],
 })
 export class ApiGatewayModule {}

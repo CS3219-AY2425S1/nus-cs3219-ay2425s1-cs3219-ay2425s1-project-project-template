@@ -10,9 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from 'src/auth/auth.guard';
 @Controller('questions')
-@UseGuards(AuthGuard('supabase'))
+@UseGuards(AuthGuard)
 export class QuestionsController {
   constructor(
     @Inject('QUESTIONS_SERVICE')
