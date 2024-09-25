@@ -6,8 +6,6 @@ import mongooseAutoIncrement from "mongoose-sequence";
  * Only includes the required fields as specified in the project document.
  */
 
-mongoose.set("debug", true);
-
 export type TQuestion = {
   title: string;
   description: string;

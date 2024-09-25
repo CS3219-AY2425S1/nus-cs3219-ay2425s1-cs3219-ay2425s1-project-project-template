@@ -64,7 +64,7 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   try {
     const question = await Question.findOne({ questionid: questionId }).exec();
     if (!question) {
-      return res.status(404).json({ message: "No questions found" });
+      return res.status(404).json({ message: "Question not found" });
     }
     return res.json(question);
   } catch (error) {
