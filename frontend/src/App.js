@@ -1,18 +1,20 @@
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
-import { ReadPage } from "./pages/ReadPage";
+
+import './App.css';
+import { Route, Routes } from 'react-router-dom';
+import HomePage from './HomePage';
+import Question from './Question';
 
 function App() {
   return (
-    <BrowserRouter>
+    <div className="App">
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/question" element={<ReadPage />} />
+        <Route path='/' element={<HomePage />} />
+        <Route path='/question' element={<Question />} />
         <Route path="*" element={<p>404: Page Not Found!</p>} />
       </Routes>
-    </BrowserRouter>
+    </div>
   );
 }
 
 export default App;
+
