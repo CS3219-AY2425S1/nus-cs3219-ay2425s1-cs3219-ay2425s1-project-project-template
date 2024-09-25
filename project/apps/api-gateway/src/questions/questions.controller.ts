@@ -1,8 +1,18 @@
 // apps/backend/api-gateway/src/questions/questions.controller.ts
 
-import { Controller, Get, Param, Inject, Body, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Inject,
+  Body,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { AuthGuard } from 'src/auth/auth.guard';
 @Controller('questions')
+@UseGuards(AuthGuard)
 export class QuestionsController {
   constructor(
     @Inject('QUESTIONS_SERVICE')
