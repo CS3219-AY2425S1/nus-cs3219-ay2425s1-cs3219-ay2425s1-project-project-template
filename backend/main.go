@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	middleware "backend/middleware"
@@ -18,12 +19,13 @@ func main() {
 		port = "8000"
 	}
 
+	allowedOrigin := fmt.Sprintf("http://localhost:%s", port)
 	router := gin.New()
 	router.Use(gin.Logger())
 
 	// Apply CORS middleware with custom configuration
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},               // Allow any origin, url
+		AllowOrigins:     []string{allowedOrigin},     // Allow any origin, url
 		AllowMethods:     []string{"POST", "OPTIONS"}, //For login and sign out methods
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"}, // Headers that can be exposed to the client
