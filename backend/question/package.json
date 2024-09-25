@@ -7,7 +7,7 @@
     "build": "rimraf dist && npx tsc",
     "prestart": "npm run build",
     "start": "cp .env dist/.env && npx tsc -w & nodemon dist/server.js",
-    "test": "cross-env NODE_ENV=TEST && jest"
+    "test": "cross-env NODE_ENV=TEST && jest src/tests/app.spec.ts"
   },
   "author": "",
   "license": "ISC",
