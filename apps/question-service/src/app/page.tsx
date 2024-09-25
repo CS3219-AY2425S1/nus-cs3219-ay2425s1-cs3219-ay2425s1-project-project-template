@@ -23,7 +23,7 @@ import {
 } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState } from "react";
-import { GetQuestions, Question } from "./services/question";
+import { DeleteQuestion as DeleteQuestionByDocref, GetQuestions, Question } from "./services/question";
 import {
   CategoriesOption,
   DifficultyOption,
@@ -32,11 +32,11 @@ import {
 
 type DeletionStage = {} | {index: number, deleteConfirmed: boolean}
 
-function DeleteModal({question, isOpen, okHandler, cancelHandler}: {question: string, isOpen: boolean, okHandler: () => void, cancelHandler: () => void}) {
-  const title: string = `Delete Question \"${question}\"?`
+function DeleteModal({questionTitle, okHandler, cancelHandler}: {questionTitle: string, okHandler: () => void, cancelHandler: () => void}) {
+  const title: string = `Delete Question \"${questionTitle}\"?`
   const text: string = 'This action is irreversible(?)!' 
 
-  return <Modal title={title} open={isOpen} onOk={okHandler} onCancel={cancelHandler}>
+  return <Modal title={title} onOk={okHandler} onCancel={cancelHandler}>
     <p>{text}</p>
   </Modal>
 }
@@ -80,10 +80,12 @@ export default function Home() {
     });
   };
 
-  // Include States for Create/Edit Modal (TODO: Sean)
+  async function deleteQuestion(q: Question) {
+    await DeleteQuestionByDocref(q.docRefId);
+    loadQuestions();
+  }
 
-  // When the page is initialised, fetch all the questions ONCE and display in table
-  useEffect(() => {
+  function loadQuestions() {
     if (!isLoading) {
       setIsLoading(true);
     }
@@ -92,18 +94,11 @@ export default function Home() {
       setQuestions(data);
       setIsLoading(false);
     });
-  }, []);
+  };
+  // Include States for Create/Edit Modal (TODO: Sean)
 
-  function confirmDeletion() {
-    if (!('index' in deletionStage)) {
-      throw new Error('tried to confirm deletion of nonexistent index')
-    }
-    if (questions == undefined) {
-      throw new Error('tried to confirm deletion of nonexistent index')
-    }
-    setQuestions(questions.filter((_, i) => i != deletionStage.index))
-    setDeletionStage({})
-  }
+  // When the page is initialised, fetch all the questions ONCE and display in table
+  useEffect(loadQuestions, []);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -270,11 +265,23 @@ export default function Home() {
           </div>
         </Content>
       </Layout>
-      <DeleteModal 
-        isOpen={'index' in deletionStage} 
-        okHandler={confirmDeletion} 
-        cancelHandler={() => setDeletionStage({})} 
-        question={'index' in deletionStage && questions != undefined ? questions[deletionStage.index].title : 'noname'}/>
+      {("index" in deletionStage && questions != undefined) && <DeleteModal 
+        okHandler={() => {
+          if (!("index" in deletionStage)) {
+            error("Cannot delete: no index");
+            return;
+          }
+          if (deletionStage.deleteConfirmed) {
+            error("Cannot delete: still deleting");
+            return;
+          }
+
+          deleteQuestion(questions[deletionStage.index]).catch(err => {
+            error(err);
+          })
+        }} 
+        cancelHandler={() => setDeletionStage({})}
+        questionTitle={questions[deletionStage.index].title}/>}
     </div>
   );
 }

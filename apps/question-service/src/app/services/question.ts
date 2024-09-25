@@ -1,5 +1,6 @@
 export interface Question {
   id: string;
+  docRefId: string;
   title: string;
   description?: string;
   categories: string[]; // enum[]
@@ -30,3 +31,12 @@ export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
 // Update single question (TODO: Sean)
 
 // Delete single question (TODO: Ryan)
+export async function DeleteQuestion(docRef: String): Promise<void> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions/${docRef}`, {
+    method: "DELETE"
+  }) 
+  // error handling later 
+  // if (!res.ok) {
+  //   throw new Error(`Delete request responded with ${res.status}: ${res.body}`)
+  // }
+}
