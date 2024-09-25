@@ -4,15 +4,12 @@ import Question from '../models/question'
 
 const addQuestion = async (req: Request, res: Response) => {
     const { title, description, categories, difficulty } = req.body
-
-    const cleanedCategories = categories.filter((category: string) => category.trim() !== "")
     const requiredFields: string[] = []
 
     if (!title) requiredFields.push('Title')
     if (!description) requiredFields.push('Description')
-    if (!Array.isArray(cleanedCategories) || cleanedCategories.length === 0) requiredFields.push('Categories')
     if (!difficulty) requiredFields.push('Difficulty')
-    
+
     if (requiredFields.length > 0) {
         return res.status(400).send(`${requiredFields.join(', ')} required`)
     }
@@ -20,7 +17,7 @@ const addQuestion = async (req: Request, res: Response) => {
     const questionExists = await checkQuestionExists(
         title,
         description,
-        cleanedCategories,
+        categories,
         difficulty,
     )
 
