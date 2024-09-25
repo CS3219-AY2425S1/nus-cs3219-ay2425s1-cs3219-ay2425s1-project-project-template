@@ -62,7 +62,7 @@ const menuItemStyles: MenuItemStyles = {
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   // check if access token is present using Cookies
   useEffect(() => {
@@ -103,7 +103,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
               />
             ))}
           </Menu>
-          <Menu
+          {user && <Menu
             menuItemStyles={menuItemStyles}
             rootStyles={{
               marginBottom: "60px",
@@ -115,7 +115,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
             >
               Logout
             </MenuItem>
-          </Menu>
+          </Menu>}
         </div>
       </Sidebar>
       <div className="w-full overflow-y-scroll">{children}</div>
