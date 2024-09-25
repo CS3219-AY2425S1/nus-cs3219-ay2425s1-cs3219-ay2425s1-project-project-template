@@ -8,7 +8,7 @@ const QuestionPage = () => {
 
   //Either create or edit mode.
   const [mode, setMode] = useState("create");
-  const [questionEdit, setEdit] = useState("None");
+  //mode = "edit";
 
 
 
@@ -38,7 +38,7 @@ const QuestionPage = () => {
   //Right side logic
   const [difficulty, setDifficulty] = useState('easy');
   const [topic, setTopic] = useState('loops');
-  const [title, setTitle] = useState('Some Title');
+  const [title, setTitle] = useState('Some_Title');
   const [question, setQuestion] = useState('');
 
   //REMOVE THIS BEFORE SUBMITTING
@@ -93,7 +93,7 @@ const QuestionPage = () => {
           // Clear the fields if the request was successful
           setDifficulty("easy");
           setTopic("loops");
-          setTitle("Some Title");
+          setTitle("Some_Title");
           setQuestion("");
           alert('Question submitted successfully!');
         } else {
@@ -104,7 +104,36 @@ const QuestionPage = () => {
         alert('An error occurred while submitting the question. Error:'+error);
       }
     } else{
-      alert("not in create mode")
+      const patchdata = {
+        question,
+        difficulty,
+        topic,
+        titleSlug,
+      };
+      try {
+        alert(`http://127.0.0.1:8000/question/${title}`)
+        const response = await fetch(`http://127.0.0.1:8000/question/${title}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(patchdata),
+        });
+  
+        if (response.ok) {
+          // Clear the fields if the request was successful
+          setDifficulty("easy");
+          setTopic("loops");
+          setTitle("Some_Title");
+          setQuestion("");
+          alert('Question submitted successfully!');
+        } else {
+          alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the question. Error:'+error);
+      }
     }
 
     
@@ -171,7 +200,7 @@ const QuestionPage = () => {
       <div class="right-section">
 
         <div class="info-row" id="curmode">
-          Mode: {mode === "create" ? "Creating new question" : "Editing question"}
+          Mode: {mode === "create" ? "Creating new question" : `Editing question ${title}`}
         </div>
 
         <div class="row">
@@ -202,12 +231,21 @@ const QuestionPage = () => {
 
         <div class="title-section">
           <label htmlFor="title">Title:</label>
-          <textarea
-          id="title"
-          className="questionarea"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          />
+          {mode === 'edit' ? (
+            <textarea
+              id="title"
+              className="questionarea"
+              value={title}
+              readOnly // Make the textarea read-only
+            />
+          ) : (
+            <textarea
+              id="title"
+              className="questionarea"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          )}
         </div>
 
         <div class="question-section">

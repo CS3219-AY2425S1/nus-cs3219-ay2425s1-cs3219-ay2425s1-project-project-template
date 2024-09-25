@@ -24,7 +24,8 @@
 .info-row{
   display: flex;
   height:5vh;
-  font-size:25px;
+  width:100%;
+  font-size:22px;
 }
 
 .row {
