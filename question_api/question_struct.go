@@ -15,6 +15,7 @@ type Question struct {
 	Difficulty Difficulty `json:"difficulty"`
 	Title 	string    `json:"title"`
 	Description string `json:"description"`
+	Categories []string `json:"categories"`
 	TestCases map[string]string `json:"test_cases"`
 	//Images []string `json:"images"` // for future uses
 }
