@@ -3,8 +3,12 @@ import questionRoutes from "./routes/questionRoutes";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-dotenv.config({ path: "../.env" });
+dotenv.config();
 
+/**
+ * The URI for the MongoDB database is defined in the environment variable MONGODB_URI, inside your .env file.
+ * If you face the error "MongoParseError", check the naming of your env variable & check that the .env file exists (/question/.env).
+ */
 const uri = process.env.MONGODB_URI || "";
 
 const app = express();

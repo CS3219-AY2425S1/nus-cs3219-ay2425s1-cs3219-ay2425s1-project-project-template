@@ -37,6 +37,7 @@ router.get('/all', async (req: Request, res: Response) => {
         const questions = await Question
             .find()
             .lean()
+            .sort({ questionid: 'ascending' })
             .exec();
         console.log(questions);
         return res.json(questions);
@@ -101,6 +102,10 @@ router.post('/:id/update',
         return res.json(updatedQuestion);
     }
     catch (error) {
+        //to catch pre-middleware defined error
+        if (error instanceof Error) {
+            return res.status(400).json({ message: 'Question not found' });
+        }
         return res.status(500).send('Internal server error');
     }
 });
@@ -119,11 +124,19 @@ router.post('/:id/delete', [
         const deletedQuestion = await Question
             .findOneAndDelete({ questionid: questionId })
             .exec();
+        if (!deletedQuestion) {
+            return res.status(404).json({ message: 'Question not found' });
+        }
         return res.json(deletedQuestion);
     }
     catch (error) {
+        //to catch pre-middleware defined error
+        if (error instanceof Error) {
+            return res.status(400).json({ message: 'Question not found' });
+        }
         return res.status(500).send('Internal server error');
     }
+
 });
 
 export default router;

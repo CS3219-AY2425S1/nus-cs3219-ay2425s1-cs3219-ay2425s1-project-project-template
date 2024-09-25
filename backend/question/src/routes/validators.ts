@@ -18,6 +18,11 @@ export const updateQuestionValidators = [
         if (!title && !description && !category && !complexity) {
             throw new Error('At least one field must be provided');
         }
+        for (const field of [title, description, category, complexity]) {
+            if (field) {
+                check(field).isString().isLength({ min: 1 });
+            }
+        }
         return true;
     })
 ];

@@ -40,6 +40,24 @@ const questionSchema: Schema = new Schema({
     },
 }, { collection: "questions" });
 
+// Pre-middleware for findOneAndUpdate
+questionSchema.pre('findOneAndUpdate', async function (next) {
+    const doc = await this.model.findOne(this.getQuery());
+    if (!doc) {
+        return next(new Error("Document not found"));
+    }
+    next();
+});
+
+//Pre-middleware for findOneAndDelete
+questionSchema.pre('findOneAndDelete', async function (next) {
+    const doc = await this.model.findOne(this.getQuery());
+    if (!doc) {
+        return next(new Error('Document not found'));
+    }
+    next();
+});
+
 //questionid will be autoincrementing, starting from a large number to avoid conflicts with the existing data
 // @ts-ignore
 const AutoIncrement = mongooseAutoIncrement(mongoose);
