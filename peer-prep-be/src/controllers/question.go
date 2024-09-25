@@ -101,3 +101,44 @@ func GetQuestions(c echo.Context) error {
     return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
 }
 
+func UpdateQuestion(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// questionId in URL param is in hex format
+	questionId := c.Param("questionId")
+	var question models.Question
+	defer cancel()
+
+	// Convert questionId to ObjectID
+	objId, err := primitive.ObjectIDFromHex(questionId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	// Bind the request body to the question model
+	if err := c.Bind(&question); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	// After binding, validate the fields of question variable
+	if validationErr := validate.Struct(&question); validationErr != nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": validationErr.Error()}})
+	}
+
+	// Update the question in the database
+	update := bson.M{
+		"$set": bson.M{
+			"question_title": question.Question_title,
+			"question_description": question.Question_description,
+			"question_categories": question.Question_categories,
+			"question_complexity": question.Question_complexity,
+		},
+	}
+
+	// Perform the Update operation
+	result, err := questionCollection.UpdateOne(ctx, bson.M{"question_id": objId}, update)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
+}
