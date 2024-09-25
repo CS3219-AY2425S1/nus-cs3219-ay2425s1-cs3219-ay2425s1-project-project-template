@@ -1,4 +1,4 @@
-import app from "../server";
+import { app, server } from "../server";
 import * as db from "./db";
 import supertest from "supertest";
 const request = supertest(app);
@@ -186,6 +186,22 @@ describe("Test Update", () => {
     expect(res.body.errors[0].msg).toBe("At least one field must be provided");
   });
 
+  // Negative id
+  test("POST - negative id update", async () => {
+    const updateQuestion = {
+      title: "Update Title",
+      description: "Update Description",
+      category: "Update Category",
+      complexity: "Update Complexity",
+    };
+    const questionId = -1;
+    const res = await request
+      .post(`/api/${questionId}/update`)
+      .send(updateQuestion);
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toBe("Document not found");
+  });
+
   // Non-existent id
   test("POST - non-existent id update", async () => {
     const updateQuestion = {
@@ -205,11 +221,6 @@ describe("Test Update", () => {
 
 // Test /api/{id}/delete
 describe("Test Delete", () => {
-  afterAll(async () => {
-    await db.clearDatabase();
-    await db.closeDatabase();
-  });
-
   // Valid delete
   test("POST - valid delete", async () => {
     const questionId = 1090;
@@ -232,4 +243,10 @@ describe("Test Delete", () => {
     expect(res.statusCode).toBe(404);
     expect(res.body).toBe("Document not found");
   });
+});
+
+afterAll(async () => {
+  await db.clearDatabase();
+  await db.closeDatabase();
+  await server.close();
 });

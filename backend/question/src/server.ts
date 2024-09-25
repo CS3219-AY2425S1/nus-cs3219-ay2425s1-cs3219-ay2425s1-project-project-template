@@ -32,11 +32,11 @@ if (process.env.NODE_ENV === "DEV" || process.env.NODE_ENV === "PRODUCTION") {
   connect();
 }
 
-app.listen(PORT, (err?: Error) => {
+const server = app.listen(PORT, (err?: Error) => {
   if (err) {
     return console.error(err);
   }
   return console.log(`App is running on port ${PORT}`);
 });
 
-export default app;
+export { app, server };
