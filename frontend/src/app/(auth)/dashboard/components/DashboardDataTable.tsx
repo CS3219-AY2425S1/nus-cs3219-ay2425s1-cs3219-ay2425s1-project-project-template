@@ -103,7 +103,7 @@ export function DashboardDataTable() {
       };
     });
     setData(userHistory);
-  }, [dateFormattingOption]);
+  }, []);
 
   const table = useReactTable({
     data,
