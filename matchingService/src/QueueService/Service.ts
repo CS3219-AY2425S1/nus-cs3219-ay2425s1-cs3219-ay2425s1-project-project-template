@@ -8,15 +8,6 @@ import Producer from "./Producer";
 const TOPIC_LIST: string[] = ["algorithm", "graph", "dp"];
 const DIFFICULTY_LEVELS: string[] = ["easy", "medium", "hard"];
 
-const testMessages: MatchRequest[] = [
-    new MatchRequest("john", "algorithm", "hard"),
-    new MatchRequest("amy", "algorithm", "medium"),
-    new MatchRequest("johhny", "graph", "easy"),
-    new MatchRequest("bob", "graph", "easy"),
-    new MatchRequest("the builder", "dp", "medium"),
-    new MatchRequest("johnny2.0", "algorithm", "hard"),
-];
-
 /**
  * Class representing a Service that initiates groups of Consumers.
  */
@@ -88,16 +79,15 @@ class Service {
         }
     }
 
-    public async startProducers(): Promise<void> {
+    public async sendMessage(matchRequest: MatchRequest): Promise<boolean> {
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             console.error(channel.message);
-            return;
+            return false;
         }
         var producer: Producer = new Producer();
-        for (const testMessage of testMessages) {
-            await producer.sendJsonMessage(testMessage, channel, this.categoryExchange, this.responseExchange);
-        }
+        const result = await producer.sendJsonMessage(matchRequest, channel, this.categoryExchange, this.responseExchange);
+        return result;
     }
 }
 

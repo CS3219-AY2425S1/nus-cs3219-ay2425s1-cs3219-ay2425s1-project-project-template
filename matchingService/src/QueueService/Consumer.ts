@@ -54,11 +54,11 @@ class Consumer {
     }
 
     private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo, channel: Channel, responseExchange: string): void {
-        channel.publish(responseExchange, req1.getQueue(), Buffer.from("Successfully matched"), {
+        channel.publish(responseExchange, req1.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: req1.getCorrelationId(),
             });
-        channel.publish(responseExchange, req2.getQueue(), Buffer.from("Successfully matched"), {
-        correlationId: req2.getCorrelationId(),
+        channel.publish(responseExchange, req2.getQueue(), Buffer.from(JSON.stringify(true)), {
+            correlationId: req2.getCorrelationId(),
         });
         this.pendingMatch = null;
     }
