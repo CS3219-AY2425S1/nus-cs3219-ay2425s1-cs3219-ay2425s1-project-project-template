@@ -49,7 +49,7 @@ export default function AuthPage() {
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" required />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 text-red-500">
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" required />
             </div>
