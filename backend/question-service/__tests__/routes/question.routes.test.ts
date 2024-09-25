@@ -50,6 +50,7 @@ describe('Question Routes', () => {
     afterEach(async () => {
         await mongoose.connection.db!.dropDatabase()
     })
+
     describe('GET /questions', () => {
         beforeEach(async () => {
             await mongoose.model<IQuestion>('Question', questionSchema).bulkWrite(
@@ -158,6 +159,96 @@ describe('Question Routes', () => {
                         Object.values(Complexity).indexOf(questions[index - 1].complexity)
             )
             expect(isSorted).toBe(true)
+        })
+    })
+
+    describe('PUT /questions/:id', () => {
+        let question: IQuestion
+        beforeEach(async () => {
+            question = await mongoose.model<IQuestion>('Question', questionSchema).create(QUESTION_BANK[0])
+        })
+        it('should return 200 OK for successful update', async () => {
+            const response = await testAgent.put(`/questions/${question.id}`).send({
+                id: question.id,
+                title: 'new title',
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(200)
+            expect(response.body.title).toEqual('new title')
+            expect(response.body.description).toEqual('new description')
+            expect(response.body.categories).toEqual([Category.ALGORITHMS])
+            expect(response.body.complexity).toEqual(Complexity.MEDIUM)
+            expect(response.body.link).toEqual('https://www.newlink.com')
+        })
+
+        it('should return 400 BAD REQUEST for invalid requests and a list of errors', async () => {
+            const response = await testAgent.put(`/questions/${question.id}`).send({})
+            expect(response.status).toBe(400)
+            expect(response.body).toHaveLength(6)
+        })
+
+        it('should return 404 NOT FOUND for requests with invalid ids', async () => {
+            const response = await testAgent.put('/questions/000000000000000000000000').send({
+                id: '000000000000000000000000',
+                title: 'new title',
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(404)
+        })
+
+        it('should return 409 CONFLICT for requests with duplicate titles', async () => {
+            await mongoose.model<IQuestion>('Question', questionSchema).create(QUESTION_BANK[1])
+            const response = await testAgent.put(`/questions/${question.id}`).send({
+                id: question.id,
+                title: QUESTION_BANK[1].title,
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(409)
+        })
+    })
+
+    describe('POST /questions/:id', () => {
+        it('should return 201 CREATED for successful creation', async () => {
+            const response = await testAgent.post('/questions').send({
+                title: 'new title',
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(201)
+            expect(response.body.title).toEqual('new title')
+            expect(response.body.description).toEqual('new description')
+            expect(response.body.categories).toEqual([Category.ALGORITHMS])
+            expect(response.body.complexity).toEqual(Complexity.MEDIUM)
+            expect(response.body.link).toEqual('https://www.newlink.com')
+        })
+
+        it('should return 400 BAD REQUEST for invalid requests and a list of errors', async () => {
+            const response = await testAgent.post('/questions').send({})
+            expect(response.status).toBe(400)
+            expect(response.body).toHaveLength(5)
+        })
+
+        it('should return 409 CONFLICT for requests with duplicate titles', async () => {
+            await mongoose.model<IQuestion>('Question', questionSchema).create(QUESTION_BANK[0])
+            const response = await testAgent.post('/questions').send({
+                title: QUESTION_BANK[0].title,
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(409)
         })
     })
 })
