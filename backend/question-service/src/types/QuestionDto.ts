@@ -58,4 +58,12 @@ export class QuestionDto {
     async validate(): Promise<ValidationError[]> {
         return validate(this)
     }
+
+    static isValidFilter(key: string): boolean {
+        return ['title'].includes(key)
+    }
+
+    static isValidSort(key: string, order: string): boolean {
+        return ['asc', 'desc'].includes(order) && ['categories', 'complexity'].includes(key)
+    }
 }

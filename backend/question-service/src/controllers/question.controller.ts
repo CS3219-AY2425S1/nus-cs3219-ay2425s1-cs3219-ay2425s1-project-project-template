@@ -3,13 +3,18 @@ import {
     findOneQuestionById,
     findOneQuestionByTitle,
     findPaginatedQuestions,
+    findPaginatedQuestionsWithFilter,
+    findPaginatedQuestionsWithSort,
+    findPaginatedQuestionsWithSortAndFilter,
     findQuestionCount,
+    findQuestionCountWithFilter,
 } from '../models/question.repository'
 
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IPaginationRequest } from '../types/IPaginationRequest'
+import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
 import { TypedRequest } from '../types/TypedRequest'
 
@@ -44,11 +49,45 @@ export async function handleGetPaginatedQuestions(request: IPaginationRequest, r
         response.status(400).json('INVALID_PAGINATION').send()
         return
     }
-
     const start = (page - 1) * limit
-    const count = await findQuestionCount()
 
-    const questions = await findPaginatedQuestions(start, limit)
+    const sortBy = request.query.sortBy?.split(',').map((sort) => sort.split(':')) ?? []
+    const isValidSort = sortBy.every(
+        (sort: string[]) => sort.at(0) && sort.at(1) && QuestionDto.isValidSort(sort.at(0)!, sort.at(1)!)
+    )
+    if (!isValidSort) {
+        response.status(400).json('INVALID_SORT').send()
+        return
+    }
+
+    const filterBy = request.query.filterBy?.split(',').map((filter) => filter.split(':')) ?? []
+    const isValidFilter = filterBy.every(
+        (filter: string[]) => filter.at(0) && filter.at(1) && QuestionDto.isValidFilter(filter.at(0)!)
+    )
+    if (!isValidFilter) {
+        response.status(400).json('INVALID_FILTER').send()
+        return
+    }
+
+    // We should probably do singleton pattern for question repository and implement method overloading...
+    let count: number
+    if (filterBy.length) {
+        count = await findQuestionCountWithFilter(filterBy)
+    } else {
+        count = await findQuestionCount()
+    }
+
+    let questions: IQuestion[]
+    if (filterBy.length && sortBy.length) {
+        questions = await findPaginatedQuestionsWithSortAndFilter(start, limit, sortBy, filterBy)
+    } else if (filterBy.length && !sortBy.length) {
+        questions = await findPaginatedQuestionsWithFilter(start, limit, filterBy)
+    } else if (!filterBy.length && sortBy.length) {
+        questions = await findPaginatedQuestionsWithSort(start, limit, sortBy)
+    } else {
+        questions = await findPaginatedQuestions(start, limit)
+    }
+
     const nextPage = start + limit < count ? page + 1 : null
 
     response.status(200).json({
