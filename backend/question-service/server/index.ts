@@ -4,6 +4,7 @@ import express from 'express'
 import { connectToDatabase } from './db'
 import { router as addQuestionRoute } from '../routes/addQuestionRoute'
 import { router as deleteQuestionRoute } from '../routes/deleteQuestionRoute'
+import { router as getQuestionRoute } from '../routes/getQuestionRoute'
 
 dotenv.config({ path: './.env' })
 
@@ -18,6 +19,7 @@ connectToDatabase()
 
 app.use(addQuestionRoute)
 app.use(deleteQuestionRoute)
+app.use(getQuestionRoute)
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
