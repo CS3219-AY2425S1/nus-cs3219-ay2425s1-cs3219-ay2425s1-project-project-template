@@ -10,40 +10,98 @@ import (
 	"strings"
 )
 
+var isValidSortField = map[string]bool{
+	"title":      true,
+	"id":         true,
+	"complexity": true,
+	"createdAt":  true,
+}
+
+var isValidSortValue = map[string]bool{
+	"asc":  true,
+	"desc": true,
+}
+
+var getOrderFromSortValue = map[string]firestore.Direction{
+	"asc":  firestore.Asc,
+	"desc": firestore.Desc,
+}
+
+var isValidQueryField = map[string]bool{
+	"title":      true,
+	"complexity": true,
+	"categories": true,
+	"sortField":  true,
+	"sortValue":  true,
+	"limit":      true,
+	"offset":     true,
+	"id":         true,
+	"createdAt":  true,
+}
+
 func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	// Check validity of query parameters
+	for key := range r.URL.Query() {
+		if _, valid := isValidQueryField[key]; !valid {
+			http.Error(w, "Invalid query parameter: "+key, http.StatusBadRequest)
+			return
+		}
+	}
 
 	query := s.Client.Collection("questions").Query
 
 	// Filtering by title
 	titleParam := r.URL.Query().Get("title")
 	if titleParam != "" {
-		query = query.Where("Title", "==", titleParam)
+		query = query.Where("title", "==", titleParam)
 	}
 
 	// Filtering by complexity (multi-select)
 	complexityParam := r.URL.Query().Get("complexity")
 	if complexityParam != "" {
 		complexities := strings.Split(complexityParam, ",")
-		query = query.Where("Complexity", "in", complexities)
+		query = query.Where("complexity", "in", complexities)
 	}
 
 	// Filtering by categories (multi-select)
 	categoriesParam := r.URL.Query().Get("categories")
 	if categoriesParam != "" {
 		categories := strings.Split(categoriesParam, ",")
-		query = query.Where("Categories", "array-contains-any", categories)
+		query = query.Where("categories", "array-contains-any", categories)
 	}
 
 	// Sorting
-	sortField := r.URL.Query().Get("sortField")
-	sortValue := r.URL.Query().Get("sortValue")
-	if sortField != "" {
-		order := firestore.Asc // Default ascending order
-		if sortValue == "desc" {
-			order = firestore.Desc
+	sortFieldsParam := r.URL.Query()["sortField"]
+	sortValuesParam := r.URL.Query()["sortValue"]
+
+	if len(sortFieldsParam) != len(sortValuesParam) {
+		http.Error(w, "Mismatched sortField and sortValue parameters", http.StatusBadRequest)
+		return
+	}
+
+	sortedById := false
+	for i, sortField := range sortFieldsParam {
+		if !isValidSortField[sortField] {
+			http.Error(w, "Invalid sortField: "+sortField, http.StatusBadRequest)
+			return
 		}
-		query = query.OrderBy(sortField, order)
+
+		sortValue := sortValuesParam[i]
+		if !isValidSortValue[sortValue] {
+			http.Error(w, "Invalid sortValue: "+sortValue, http.StatusBadRequest)
+			return
+		}
+
+		query = query.OrderBy(sortField, getOrderFromSortValue[sortValue])
+
+		if sortField == "id" {
+			sortedById = true
+		}
+	}
+	if !sortedById {
+		query = query.OrderBy("id", firestore.Asc)
 	}
 
 	// Count total documents matching the filter
@@ -55,32 +113,28 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Pagination
-	currentPage := 1
 	limitParam := r.URL.Query().Get("limit")
-	limit, err := strconv.Atoi(limitParam) // convert limit to integer
-	if err != nil || limit <= 0 {
-		limit = 10 // Default to 10
-	}
-	startAfterParam := r.URL.Query().Get("startAfter")
-	if startAfterParam != "" {
-		// Calculate current page based on total documents before startAfter
-		beforeIter := query.EndAt(startAfterParam).Documents(ctx)
-		countBeforeStart := 0
-		for {
-			_, err := beforeIter.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				http.Error(w, "Failed to retrieve documents: "+err.Error(), http.StatusInternalServerError)
-				return
-			}
-			countBeforeStart++
+	limit := 10
+	if limitParam != "" {
+		limit, err = strconv.Atoi(limitParam) // convert limit to integer
+		if err != nil || limit <= 0 {
+			http.Error(w, "Invalid limit", http.StatusBadRequest)
+			return
 		}
-		currentPage = (countBeforeStart / limit) + 1
-
-		// start after previous page last question's document reference
-		query = query.StartAfter(startAfterParam)
+	}
+	currentPage := 1
+	offsetParam := r.URL.Query().Get("offset")
+	if offsetParam != "" {
+		offset, err := strconv.Atoi(offsetParam) // convert offset to integer
+		if err != nil {
+			http.Error(w, "Invalid offset", http.StatusBadRequest)
+			return
+		}
+		if offset%limit != 0 {
+			http.Error(w, "Offset does not match limit. Default limit is 10 when unspecified", http.StatusBadRequest)
+		}
+		currentPage = (offset / limit) + 1
+		query = query.Offset(offset)
 	}
 	query = query.Limit(limit)
 
@@ -94,17 +148,17 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			http.Error(w, "Failed to retrieve questions: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Failed to retrieve questions: ", http.StatusInternalServerError)
 			return
 		}
 
 		// Map data
 		var question models.Question
 		if err := doc.DataTo(&question); err != nil {
-			http.Error(w, "Failed to parse question: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Failed to parse question: ", http.StatusInternalServerError)
 			return
 		}
-		question.Ref = doc.Ref.ID
+		question.DocRefID = doc.Ref.ID
 		questions = append(questions, question)
 	}
 
@@ -130,24 +184,102 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 //
 //curl -X GET "http://localhost:8080/questions"
 //
+//curl -X GET "http://localhost:8080/questions?offset=10"
+//
+//
 //curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String"
 //
 //curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures"
 //
-//curl -X GET "http://localhost:8080/questions?sortField=title&sortValue=asc"
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=Easy,Medium"
 //
-//curl -X GET "http://localhost:8080/questions?sortField=title&sortValue=desc"
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String"
 //
-//curl -X GET "http://localhost:8080/questions?sortField=complexity&sortValue=desc"
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&categories=Algorithms,Strings"
+//
+//
+//curl -X GET "http://localhost:8080/questions?sortField=title&sortValue=asc&offset=10"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=createdAt&sortValue=desc&offset=10"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=complexity&sortValue=desc&offset=10"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=id&sortValue=asc&offset=10"
 //
 //curl -X GET "http://localhost:8080/questions?limit=5"
 //
-//curl -X GET "http://localhost:8080/questions?limit=5&startAfter=<last_question_document_ref>"
+//curl -X GET "http://localhost:8080/questions?limit=5&offset=10"
 //
-//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&sortField=title&sortValue=asc&limit=5"
 //
-//curl -X GET "http://localhost:8080/questions?categories=Data%20Structures,Algorithms&complexity=Hard,Easy"
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=Easy,Medium&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=complexity&sortValue=desc"
+//
+//
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=Easy,Medium&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=createdAt&sortValue=desc"
+//
+//
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=Easy,Medium&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=id&sortValue=asc"
+//
+//
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=Easy,Medium&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=Easy,Medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=title&sortValue=asc"
+//
 //
 //curl -X GET "http://localhost:8080/questions?complexity=InvalidComplexity"
+//
+//curl -X GET "http://localhost:8080/questions?InvalidFilterField=InvalidComplexity"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=InvalidSortField&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=complexity&&sortValue=InvalidSortValue"
+//

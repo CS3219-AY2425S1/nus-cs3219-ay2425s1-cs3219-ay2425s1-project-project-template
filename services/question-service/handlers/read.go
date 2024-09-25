@@ -13,10 +13,13 @@ func (s *Service) ReadQuestion(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	id := chi.URLParam(r, "id")
+	docRefID := chi.URLParam(r, "docRefID")
+
+	// Reference document
+	docRef := s.Client.Collection("questions").Doc(docRefID)
 
 	// Get data
-	doc, err := s.Client.Collection("questions").Doc(id).Get(ctx)
+	doc, err := docRef.Get(ctx)
 	if err != nil {
 		if err != iterator.Done {
 			http.Error(w, "Question not found", http.StatusNotFound)
@@ -28,11 +31,11 @@ func (s *Service) ReadQuestion(w http.ResponseWriter, r *http.Request) {
 
 	// Map data
 	var question models.Question
-	question.Ref = doc.Ref.ID
 	if err := doc.DataTo(&question); err != nil {
 		http.Error(w, "Failed to map question data", http.StatusInternalServerError)
 		return
 	}
+	question.DocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)
