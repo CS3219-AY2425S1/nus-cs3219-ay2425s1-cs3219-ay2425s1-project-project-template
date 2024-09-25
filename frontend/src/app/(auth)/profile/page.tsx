@@ -13,13 +13,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
   username: z.string()
-    .optional(),
-  bio: z.string()
-    .optional(),
+    .min(5, "Username must be at least 5 characters"),
+  bio: z.string(),
   linkedin: z.string()
-    .optional(),
+    .refine((val) => val.length == 0 || val.includes("linkedin.com/in/"),
+      { message: "Invalid URL" }),
   github: z.string()
-    .optional(),
+    .refine((val) => val.length == 0 || val.includes("github.com/"),
+      { message: "Invalid URL" }),
 });
 
 const ProfilePage = () => {
