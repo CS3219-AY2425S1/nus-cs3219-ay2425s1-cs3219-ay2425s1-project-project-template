@@ -7,12 +7,8 @@ services:
     container_name: user-service-backend
     ports:
       - "3001:3001"
-    environment:
-      - MONGO_URI=mongodb://user-service-mongo:27017/users
-      - JWT_SECRET=your_jwt_secret
-      - PORT=3001
-      - EMAIL_USER=peerprepuserservice@gmail.com
-      - EMAIL_PASS=dbnvdnadpugvycfr
+    env_file:
+      - .env
     depends_on:
       - user-service-mongo
     volumes:
