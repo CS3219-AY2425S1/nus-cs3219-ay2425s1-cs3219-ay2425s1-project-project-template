@@ -67,11 +67,11 @@ func (s *Service) UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	question.DocRefID = doc.Ref.ID
 	if err := doc.DataTo(&question); err != nil {
 		http.Error(w, "Failed to map question data", http.StatusInternalServerError)
 		return
 	}
+	question.DocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)

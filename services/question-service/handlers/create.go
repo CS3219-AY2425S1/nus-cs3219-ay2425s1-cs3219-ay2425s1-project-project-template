@@ -73,11 +73,11 @@ func (s *Service) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Map data
-		question.DocRefID = doc.Ref.ID
 		if err := doc.DataTo(&question); err != nil {
 			http.Error(w, "Failed to map question data", http.StatusInternalServerError)
 			return err
 		}
+		question.DocRefID = doc.Ref.ID
 
 		return nil
 	})
