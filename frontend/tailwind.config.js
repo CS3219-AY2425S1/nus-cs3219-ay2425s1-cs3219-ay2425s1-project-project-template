@@ -55,6 +55,20 @@ const config = {
           5: 'hsl(var(--chart-5))',
         },
       },
+      typography(theme) {
+        return {
+          DEFAULT: {
+            css: {
+              'code::before': {
+                content: 'none',
+              },
+              'code::after': {
+                content: 'none',
+              },
+            }
+          }
+        }
+      }
     },
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
