@@ -39,7 +39,7 @@ const sidebarItems: SidebarMenuItemProps[] = [
   {
     menuLabel: "Home",
     menuIcon: MdHomeFilled,
-    linksTo: "/dashboard",
+    linksTo: "/",
   },
   {
     menuLabel: "Profile",
