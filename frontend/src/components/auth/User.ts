@@ -6,9 +6,9 @@ export interface AttemptedQuestion {
 }
 
 export interface User {
-  access_token: string;
-  username: string;
-  history: AttemptedQuestion[];
-  linkedin: string;
-  github: string;
+  access_token?: string;
+  username?: string;
+  history?: AttemptedQuestion[];
+  linkedin?: string;
+  github?: string;
 }

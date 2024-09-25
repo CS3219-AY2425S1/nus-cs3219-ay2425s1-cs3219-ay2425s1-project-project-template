@@ -68,7 +68,7 @@ export const columns: ColumnDef<SessionHistory>[] = [
   {
     accessorKey: "reviewDiscussion",
     header: () => <Cell>Review Discussion</Cell>,
-    cell: ({ row }) => {
+    cell: ({}) => {
       return (
         <Cell>
           <Button variant={"ghost"}>
@@ -102,7 +102,7 @@ export function DashboardDataTable() {
       };
     });
     setData(userHistory);
-  }, []);
+  }, [dateFormattingOption]);
 
   const table = useReactTable({
     data,

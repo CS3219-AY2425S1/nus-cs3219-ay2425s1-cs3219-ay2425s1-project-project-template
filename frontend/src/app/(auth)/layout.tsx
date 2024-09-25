@@ -95,7 +95,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         router.push("/");
       });
     }
-  }, [pathname]);
+  }, [pathname, googleLogin, router]);
 
   const handleLogout = () => {
     googleLogout();
