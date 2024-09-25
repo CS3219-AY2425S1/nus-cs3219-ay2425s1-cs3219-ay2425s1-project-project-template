@@ -21,8 +21,43 @@ const questionSchema = new Schema<IQuestion>(
         },
         complexity: {
             type: String,
-            enum: Object.values(Complexity),
+            enum: Object.values(Complexity).map((value: Complexity): string => {
+                switch (value) {
+                    case Complexity.EASY:
+                        return `1${value}`
+                    case Complexity.MEDIUM:
+                        return `2${value}`
+                    case Complexity.HARD:
+                        return `3${value}`
+                    default:
+                        return `1${Complexity.EASY}`
+                }
+            }),
             required: true,
+            set: (value: Complexity): string => {
+                switch (value) {
+                    case Complexity.EASY:
+                        return `1${value}`
+                    case Complexity.MEDIUM:
+                        return `2${value}`
+                    case Complexity.HARD:
+                        return `3${value}`
+                    default:
+                        return `1${Complexity.EASY}`
+                }
+            },
+            get: (value: string): Complexity => {
+                switch (value) {
+                    case '1EASY':
+                        return Complexity.EASY
+                    case '2MEDIUM':
+                        return Complexity.MEDIUM
+                    case '3HARD':
+                        return Complexity.HARD
+                    default:
+                        return Complexity.EASY
+                }
+            },
         },
         link: {
             type: String,
