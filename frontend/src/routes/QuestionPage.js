@@ -14,25 +14,33 @@ const QuestionPage = () => {
 
   //left side logic
   const [questions, setQuestions] = useState([
-    { id: 1, title: "item1", complexity: "Easy", description: "Implement a function to detect if a linked list contains a cycle." },
-    { id: 2, title: "item2", complexity: "Medium", description: "Description for item2" },
-    { id: 3, title: "item3", complexity: "Hard", description: "Description for item3" },
+    { titleSlug:"item-1", title: "item1", complexity: "Easy", description: "Implement a function to detect if a linked list contains a cycle." },
+    { titleSlug:"item-2",  title: "item2", complexity: "Medium", description: "Description for item2" },
+    { titleSlug:"item-3",  title: "item3", complexity: "Hard", description: "Description for item3" },
     // more items...
   ]);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   const handleTitleClick = (question) => {
-    setSelectedQuestion(selectedQuestion === question ? null : question);
+    setSelectedQuestion(question);
+    setMode("create");
+    setTitle("Some_Title");
   };
 
   const handleDelete = () => {
-    // setQuestions(questions.filter((question) => question.id !== selectedQuestion.id));
-    // setSelectedQuestion(null);  // Clear selected question after deletion
-    // call delete api on question id
+    // Remove the selected question and clear the selected question state
+    setQuestions(questions.filter((question) => question.titleSlug !== selectedQuestion.titleSlug));
+    setSelectedQuestion(null);
+    // API call to delete question can be added here
   };
 
-
+  const handleEdit = () => {
+    setMode("edit");
+    setTitle(selectedQuestion.title); // Set the question title to edit
+    console.log(selectedQuestion.title);
+    // Optionally, prefill the form fields with selected question data
+  };
 
 
   //Right side logic
@@ -63,7 +71,7 @@ const QuestionPage = () => {
 
     setDifficulty("easy");
     setTopic("loops");
-    setTitle("Some Title");
+    setTitle("Some_Title");
     setQuestion("");
     setMode("create");
   }
@@ -79,7 +87,7 @@ const QuestionPage = () => {
       titleSlug,
     };
 
-    if (mode=="create"){
+    if (mode === "create"){
       try {
         const response = await fetch('http://127.0.0.1:8000/question/', {
           method: 'POST',
@@ -157,7 +165,7 @@ const QuestionPage = () => {
           <tbody>
             {questions.map((question, index) => (
               <tr
-                key={question.id}
+                key={question.titleSlug}
                 className={`${
                   index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
                 } hover:bg-blue-100 cursor-pointer transition duration-300`}
@@ -177,14 +185,24 @@ const QuestionPage = () => {
               <h2 className="font-bold text-xl">{selectedQuestion.title} - Description</h2>
               <p className="mt-2 text-gray-700">{selectedQuestion.description}</p>
               
-              <div className="mt-4">
+              <div className="mt-4 flex justify-between">
+                {/* Delete Button */}
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                   onClick={handleDelete}
                 >
                   Delete Question
                 </button>
+
+                {/* Edit Button */}
+                <button
+                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 ml-auto"
+                  onClick={handleEdit}
+                >
+                  Edit Question
+                </button>
               </div>
+
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
@@ -200,7 +218,7 @@ const QuestionPage = () => {
       <div class="right-section">
 
         <div class="info-row" id="curmode">
-          Mode: {mode === "create" ? "Creating new question" : `Editing question ${title}`}
+          Mode: {mode === "create" ? "Creating new question" : `Editing question: ${selectedQuestion.title}`}
         </div>
 
         <div class="row">
@@ -235,7 +253,7 @@ const QuestionPage = () => {
             <textarea
               id="title"
               className="questionarea"
-              value={title}
+              value={selectedQuestion.title}
               readOnly // Make the textarea read-only
             />
           ) : (
