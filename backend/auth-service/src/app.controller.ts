@@ -7,11 +7,6 @@ import { ValidateUserDto } from './dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
   @MessagePattern({ cmd: 'generate-jwt' })
   async generateJwt(
     @Payload() data: IAuthGenerateJwt,
@@ -58,9 +53,15 @@ export class AppController {
   @MessagePattern({ cmd: 'google-auth-redirect' })
   async googleAuthRedirect(data: { code: string }) {
     const { code } = data;
-    const tokens = await this.appService.exchangeGoogleCodeForTokens(code);
+    const response = await this.appService.validateGoogleUser(code);
+    console.log(response);
+    return { token: response.token, user: response.user };
+  }
 
-    const jwtToken = this.appService.generateJwt(tokens.user);
-    return { token: jwtToken };
+  @MessagePattern({ cmd: 'github-auth-redirect' })
+  async githubAuthRedirect(data: { code: string }) {
+    const { code } = data;
+    const response = await this.appService.validateGithubUser(code);
+    return { token: response.token, user: response.user };
   }
 }
