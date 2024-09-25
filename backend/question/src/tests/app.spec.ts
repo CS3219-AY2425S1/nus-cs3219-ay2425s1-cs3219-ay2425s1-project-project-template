@@ -14,10 +14,10 @@ describe("Test request with mongoose", () => {
   });
 
   test("GET - /", async () => {
-    const res = await request.get("/").send();
+    const res = await request.get("/api/").send();
     const body = res.body;
     const message = body.message;
     expect(res.statusCode).toBe(200);
-    expect(message).toBe("Hello from question service!");
+    expect(res.text).toBe("Hello from question service!");
   });
 });
