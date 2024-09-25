@@ -107,6 +107,25 @@ endpoint: `http://localhost:3001`
   - **Errors**:
     - `500 Internal Server Error`: Server error message.
 
+### Change admin status Users (Admin Only)
+- **Endpoint**: `PUT /api/user/promote`
+- **Purpose**: Delete all users (Admin only).
+- **Input**: Requires authentication token and admin privileges.
+  ```json
+  {
+    "userId": "user's id here",
+    "isAdmin": true or false
+  }
+  ```
+- **Output**:
+  - **Success**:
+    ```json
+    { "message": "User's admin status updated to true." }
+    ```
+  - **Errors**:
+    - `404 Not Found`: Profile not found.
+    - `500 Internal Server Error`: Server error message.
+
 ---
 
 ## Authentication Routes

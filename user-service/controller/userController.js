@@ -91,6 +91,25 @@ const deleteUsers = async (req, res) => {
   }
 };
 
+// Toggle a user's admin status
+const toggleAdminStatus = async (req, res) => {
+  const { userId, isAdmin } = req.body;
+
+  try {
+    const user = await findUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const updatedUser = await updateUserById(userId, { isAdmin });
+
+    res.json({ message: `User's admin status updated to ${isAdmin}.` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   registerUser,
   updateProfile,
@@ -98,4 +117,5 @@ module.exports = {
   deleteUserById,
   getAllUsers,
   deleteUsers,
+  toggleAdminStatus,
 };

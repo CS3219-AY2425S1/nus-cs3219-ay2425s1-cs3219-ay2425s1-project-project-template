@@ -5,7 +5,8 @@ const {
   viewProfile,
   getAllUsers,
   deleteUserById,
-  deleteUsers
+  deleteUsers,
+  toggleAdminStatus,
 } = require('../controller/userController');
 const {
   authMiddleware,
@@ -32,5 +33,8 @@ router.delete('/profile/:id', authMiddleware, verifyIsOwnerOrAdmin, deleteUserBy
 
 // Delete all users route (only for admin)
 router.delete('/profiles', authMiddleware, verifyIsAdmin, deleteUsers);
+
+// Toggle admin status (only for admin)
+router.put('/promote', authMiddleware, verifyIsAdmin, toggleAdminStatus);
 
 module.exports = router;
