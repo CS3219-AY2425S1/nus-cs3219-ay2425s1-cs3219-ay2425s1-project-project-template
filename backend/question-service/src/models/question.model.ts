@@ -34,6 +34,7 @@ const questionSchema = new Schema<IQuestion>(
                 }
             }),
             required: true,
+            // We need to prepend a number to the enum values so that their lexicographical ordering is the same as their logical ordering when they are sorted by the index
             set: (value: Complexity): string => {
                 switch (value) {
                     case Complexity.EASY:
