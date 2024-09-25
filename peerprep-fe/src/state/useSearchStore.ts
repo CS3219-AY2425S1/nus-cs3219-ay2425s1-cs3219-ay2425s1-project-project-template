@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface SearchState {
   searchTerm: string;
@@ -6,6 +6,6 @@ interface SearchState {
 }
 
 export const useSearchStore = create<SearchState>((set) => ({
-  searchTerm: "",
+  searchTerm: '',
   setSearchTerm: (term) => set({ searchTerm: term }),
 }));

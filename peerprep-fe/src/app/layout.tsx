@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "../styles/globals.css";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import '../styles/globals.css';
 
 const geistSans = localFont({
-  src: "../fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+  src: '../fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
 });
 // const geistMono = localFont({
 //   src: "../fonts/GeistMonoVF.woff",
@@ -14,8 +14,8 @@ const geistSans = localFont({
 // });
 
 export const metadata: Metadata = {
-  title: "PeerPrep | Practice Coding Interviews",
-  description: "PeerPrep is a platform for practicing coding interviews.",
+  title: 'PeerPrep | Practice Coding Interviews',
+  description: 'PeerPrep is a platform for practicing coding interviews.',
 };
 
 export default function RootLayout({

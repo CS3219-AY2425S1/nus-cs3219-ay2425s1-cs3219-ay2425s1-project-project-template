@@ -3,8 +3,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-} from "@/components/ui/select";
-import { FilterSelectProps } from "@/types/types";
+} from '@/components/ui/select';
+import { FilterSelectProps } from '@/types/types';
 
 export function FilterSelect({
   placeholder,
@@ -19,7 +19,7 @@ export function FilterSelect({
       {...(isMulti ? { multiple: true } : {})}
       value={isMulti ? undefined : (value as string)}
     >
-      <SelectTrigger className="w-[120px] bg-gray-800 border-gray-700">
+      <SelectTrigger className="w-[120px] border-gray-700 bg-gray-800">
         {placeholder}
       </SelectTrigger>
       <SelectContent>

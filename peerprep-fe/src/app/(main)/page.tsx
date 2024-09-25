@@ -1,5 +1,5 @@
-import LoggedIn from "./components/LoggedIn";
-import LandingPage from "./components/LandingPage";
+import LoggedIn from './components/LoggedIn';
+import LandingPage from './components/LandingPage';
 
 // TODO: Replace with actual authentication logic
 // change this to false to see landing page

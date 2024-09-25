@@ -1,13 +1,13 @@
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col justify-center items-center p-6">
-      <h1 className="text-4xl font-bold mb-4">Welcome to PeerPrep</h1>
-      <p className="text-xl mb-8">Practice coding interviews with peers</p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-6 text-gray-100">
+      <h1 className="mb-4 text-4xl font-bold">Welcome to PeerPrep</h1>
+      <p className="mb-8 text-xl">Practice coding interviews with peers</p>
       <div className="space-x-4">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
           Sign Up
         </button>
-        <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+        <button className="rounded bg-gray-700 px-4 py-2 font-bold text-white hover:bg-gray-600">
           Learn More
         </button>
       </div>
