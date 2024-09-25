@@ -8,4 +8,5 @@ import (
 func InitialiseRoutes(r *gin.Engine) {
     r.POST("/register", controllers.RegisterUser)
 	r.POST("/login", controllers.LoginUser)
+    r.GET("/jwt", controllers.TokenLogin)
 }
