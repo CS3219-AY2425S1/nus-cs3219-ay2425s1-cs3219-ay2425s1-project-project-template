@@ -40,6 +40,7 @@ router.post(
     }
   }
 );
+
 // Retrieve all questions
 router.get("/all", async (req: Request, res: Response) => {
   try {
@@ -104,9 +105,6 @@ router.post(
         { questionid: questionId },
         { $set: updateData }
       );
-      if (!updatedQuestion) {
-        return res.status(404).json({ message: "No questions found" });
-      }
       return res.json(updatedQuestion);
     } catch (error) {
       //to catch pre-middleware defined error

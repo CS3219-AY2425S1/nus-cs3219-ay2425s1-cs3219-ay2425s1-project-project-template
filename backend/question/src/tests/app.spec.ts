@@ -104,7 +104,7 @@ describe("Test Question API", () => {
 
 // Test /api/all
 describe("Test Get All", () => {
-  // Get all
+  // Get all with questions
   test("GET /api/all - should retrieve all questions", async () => {
     const res = await request.get("/api/all").send();
     const sampleQuestion = res.body[0];
@@ -144,11 +144,11 @@ describe("Test Get by Id", () => {
   });
 
   // Non-existent id
-  // test("GET /api/:id - non existent id", async () => {
-  //   const questionId = 999999;
-  //   const res = await request.get(`/api/${questionId}`).send();
-  //   expect(res.statusCode).toBe(500);
-  // });
+  test("GET /api/:id - non existent id", async () => {
+    const questionId = 999999;
+    const res = await request.get(`/api/${questionId}`).send();
+    expect(res.statusCode).toBe(404);
+  });
 });
 
 // Test /api/{id}/update
@@ -170,7 +170,7 @@ describe("Test Update", () => {
   });
 
   // Empty update
-  test("POST - valid update", async () => {
+  test("POST - empty update", async () => {
     const updateQuestion = {
       title: "",
       description: "",
@@ -186,7 +186,7 @@ describe("Test Update", () => {
   });
 
   // Non-existent id
-  test("POST - valid update", async () => {
+  test("POST - non-existent id update", async () => {
     const updateQuestion = {
       title: "Update Title",
       description: "Update Description",
@@ -217,7 +217,7 @@ describe("Test Delete", () => {
   });
 
   // Negative id
-  test("POST - valid delete", async () => {
+  test("POST - negative id delete", async () => {
     const questionId = -1;
     const res = await request.post(`/api/${questionId}/delete`).send();
     expect(res.statusCode).toBe(400);
@@ -225,7 +225,7 @@ describe("Test Delete", () => {
   });
 
   // Non-existent id
-  test("POST - valid delete", async () => {
+  test("POST - non-existent id delete", async () => {
     const questionId = 999999;
     const res = await request.post(`/api/${questionId}/delete`).send();
     expect(res.statusCode).toBe(400);
