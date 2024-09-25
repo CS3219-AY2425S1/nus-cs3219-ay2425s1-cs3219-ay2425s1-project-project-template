@@ -4,9 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ProblemDialogData } from "@/types/types";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ProblemDialogData } from '@/types/types';
 
 export default function ProblemDialog({
   isOpen,
@@ -21,10 +21,10 @@ export default function ProblemDialog({
 
   const difficultyText =
     problem.difficulty === 1
-      ? "Easy"
+      ? 'Easy'
       : problem.difficulty === 2
-      ? "Medium"
-      : "Hard";
+        ? 'Medium'
+        : 'Hard';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -34,7 +34,7 @@ export default function ProblemDialog({
           <DialogDescription>Difficulty: {difficultyText}</DialogDescription>
         </DialogHeader>
         <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">Description:</h3>
+          <h3 className="mb-2 text-lg font-semibold">Description:</h3>
           <p>{problem.description}</p>
         </div>
         <div className="mt-6 flex justify-end">

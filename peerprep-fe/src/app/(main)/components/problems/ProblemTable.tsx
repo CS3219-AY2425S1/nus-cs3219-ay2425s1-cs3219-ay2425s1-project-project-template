@@ -1,8 +1,8 @@
-"use client";
-import { useSearchStore } from "@/state/useSearchStore";
-import { useMemo } from "react";
-import { Problem } from "@/types/types";
-import ProblemRow from "./ProblemRow";
+'use client';
+import { useSearchStore } from '@/state/useSearchStore';
+import { useMemo } from 'react';
+import { Problem } from '@/types/types';
+import ProblemRow from './ProblemRow';
 
 interface ProblemTableProps {
   problems: Problem[];
@@ -13,7 +13,7 @@ export default function ProblemTable({ problems }: ProblemTableProps) {
 
   const filteredProblems = useMemo(() => {
     return problems.filter((problem) =>
-      problem.title.toLowerCase().includes(searchTerm.toLowerCase())
+      problem.title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [problems, searchTerm]);
 
@@ -21,11 +21,11 @@ export default function ProblemTable({ problems }: ProblemTableProps) {
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="text-left border-b border-gray-700">
-            <th className="py-2 px-4">Status</th>
-            <th className="py-2 px-4">Title</th>
-            <th className="py-2 px-4">Topics</th>
-            <th className="py-2 px-4">Difficulty</th>
+          <tr className="border-b border-gray-700 text-left">
+            <th className="px-4 py-2">Status</th>
+            <th className="px-4 py-2">Title</th>
+            <th className="px-4 py-2">Topics</th>
+            <th className="px-4 py-2">Difficulty</th>
           </tr>
         </thead>
         <tbody>

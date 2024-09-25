@@ -1,14 +1,14 @@
-"use client";
-import React, { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
-import { Problem, ProblemDialogData } from "@/types/types";
-import ProblemDialog from "./ProblemDialog";
+'use client';
+import React, { useState } from 'react';
+import { CheckCircle2 } from 'lucide-react';
+import { Problem, ProblemDialogData } from '@/types/types';
+import ProblemDialog from './ProblemDialog';
 
 function ProblemStatus({ status }: { status: string }) {
-  if (status === "solved") {
-    return <CheckCircle2 className="text-green-500 w-5 h-5" />;
-  } else if (status === "attempted") {
-    return <div className="w-5 h-5 rounded-full border-2 border-yellow-500" />;
+  if (status === 'solved') {
+    return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+  } else if (status === 'attempted') {
+    return <div className="h-5 w-5 rounded-full border-2 border-yellow-500" />;
   }
   return null;
 }
@@ -33,40 +33,40 @@ export default function ProblemRow({ problem }: { problem: Problem }) {
   return (
     <>
       <tr className="border-b border-gray-800">
-        <td className="py-2 px-4 w-28">
+        <td className="w-28 px-4 py-2">
           {/* TODO: change to user status for this question */}
-          <ProblemStatus status={"unsolved"} />
+          <ProblemStatus status={'unsolved'} />
         </td>
         <td
-          className="py-2 px-4 font-medium hover:text-blue-500 cursor-pointer transition-colors"
+          className="cursor-pointer px-4 py-2 font-medium transition-colors hover:text-blue-500"
           onClick={handleProblemClick}
         >
           {problem.title}
         </td>
-        <td className="py-2 px-4">
+        <td className="px-4 py-2">
           {problem.tags.map((tag, index) => (
             <span
               key={index}
-              className="inline-block bg-gray-700 rounded-full px-2 py-1 text-xs font-semibold text-gray-300 mr-1 mb-1"
+              className="mb-1 mr-1 inline-block rounded-full bg-gray-700 px-2 py-1 text-xs font-semibold text-gray-300"
             >
               {tag}
             </span>
           ))}
         </td>
         <td
-          className={`py-2 px-4 ${
+          className={`px-4 py-2 ${
             problem.difficulty == 1
-              ? "text-green-500"
+              ? 'text-green-500'
               : problem.difficulty == 2
-              ? "text-yellow-500"
-              : "text-red-500"
+                ? 'text-yellow-500'
+                : 'text-red-500'
           }`}
         >
           {problem.difficulty == 1
-            ? "Easy"
+            ? 'Easy'
             : problem.difficulty == 2
-            ? "Medium"
-            : "Hard"}
+              ? 'Medium'
+              : 'Hard'}
         </td>
       </tr>
       <ProblemDialog
