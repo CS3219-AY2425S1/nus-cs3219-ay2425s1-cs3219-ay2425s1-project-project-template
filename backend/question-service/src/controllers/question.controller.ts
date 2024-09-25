@@ -1,5 +1,8 @@
+import { ValidationError } from 'class-validator'
+import { Request, Response } from 'express'
 import {
     createQuestion,
+    deleteQuestion,
     findOneQuestionById,
     findOneQuestionByTitle,
     findPaginatedQuestions,
@@ -8,10 +11,8 @@ import {
     findPaginatedQuestionsWithSortAndFilter,
     findQuestionCount,
     findQuestionCountWithFilter,
+    updateQuestion,
 } from '../models/question.repository'
-
-import { ValidationError } from 'class-validator'
-import { Response } from 'express'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IPaginationRequest } from '../types/IPaginationRequest'
 import { IQuestion } from '../types/IQuestion'
@@ -115,4 +116,35 @@ export async function handleGetQuestionById(request: TypedRequest<void>, respons
 
     const dto = QuestionDto.fromModel(question)
     response.status(200).json(dto).send()
+}
+
+export async function handleUpdateQuestion(request: TypedRequest<QuestionDto>, response: Response): Promise<void> {
+    const id = request.params.id
+    const updateDto = QuestionDto.fromRequest(request)
+    const errors = await updateDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const duplicate = await findOneQuestionByTitle(updateDto.title)
+    if (duplicate) {
+        response.status(409).json('DUPLICATE_TITLE').send()
+        return
+    }
+
+    const updatedQuestion = await updateQuestion(id, updateDto)
+    if (!updatedQuestion) {
+        response.status(404).send()
+        return
+    }
+    const dto = QuestionDto.fromModel(updatedQuestion)
+    response.status(200).json(dto).send()
+}
+
+export async function handleDeleteQuestion(request: Request, response: Response): Promise<void> {
+    const id = request.params.id
+    await deleteQuestion(id)
+    response.status(204).send()
 }
