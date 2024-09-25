@@ -80,12 +80,13 @@ export const columns: ColumnDef<SessionHistory>[] = [
   },
 ];
 
+const dateFormattingOption: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+};
+
 export function DashboardDataTable() {
-  const dateFormattingOption: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
   const [data, setData] = React.useState<SessionHistoryFormatted[]>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
