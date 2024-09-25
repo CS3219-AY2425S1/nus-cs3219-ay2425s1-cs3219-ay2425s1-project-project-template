@@ -3,8 +3,8 @@ import MatchRequest from "./MatchRequest";
 class MatchRequestWithQueueInfo extends MatchRequest {
     private replyQueue: string;
     private correlationId: string;
-    constructor(userId: string, topic: string, difficulty: string, replyQueue: string, correlationId: string) {
-        super(userId, topic, difficulty);
+    constructor(userId: string, matchId: string, topic: string, difficulty: string, replyQueue: string, correlationId: string) {
+        super(userId, matchId, topic, difficulty);
         this.replyQueue = replyQueue;
         this.correlationId = correlationId;
     }
@@ -18,7 +18,7 @@ class MatchRequestWithQueueInfo extends MatchRequest {
     }
 
     public static createFromMatchRequest(matchRequest: MatchRequest, replyQueue: string, correlationId: string): MatchRequestWithQueueInfo {
-        return new MatchRequestWithQueueInfo(matchRequest.getUserId(), 
+        return new MatchRequestWithQueueInfo(matchRequest.getUserId(), matchRequest.getMatchId(),
             matchRequest.getTopic(), matchRequest.getDifficulty(), replyQueue, correlationId);
     }
 }

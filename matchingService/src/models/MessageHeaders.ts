@@ -6,3 +6,7 @@ export type MessageHeader = {
 export type ConsumerMessageHeaderReq = MessageHeader & {
     "x-match": "all";
 }
+
+export type CancelMessageHeader = {
+    matchId: string,
+}

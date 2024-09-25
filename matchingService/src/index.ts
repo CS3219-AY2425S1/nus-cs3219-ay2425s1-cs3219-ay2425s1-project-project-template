@@ -4,6 +4,7 @@ import MatchRequest from "./models/MatchRequest";
 
 interface QueueService {
     sendMessage(matchRequest: MatchRequest): Promise<boolean>;
+    cancelMatchRequest(matchId: string): Promise<boolean>;
 }
 
 async function main() {
@@ -13,12 +14,12 @@ async function main() {
 
     app.post("/findMatch", async (req: Request, res: Response) => {
         try {
-            const { name, topic, difficulty } = req.body;
-            if (!name || !topic || !difficulty) {
+            const { name, matchId, topic, difficulty } = req.body;
+            if (!name || !matchId || !topic || !difficulty) {
                 return res.status(400).json({ error: "Invalid request data" });
             }
 
-            const matchRequest = new MatchRequest(name, topic, difficulty);
+            const matchRequest = new MatchRequest(name, matchId, topic, difficulty);
 
             const result: boolean = await amqpService.sendMessage(matchRequest);
 
@@ -32,7 +33,17 @@ async function main() {
             res.status(500).json({ error: "Internal server error" });
         }
     });
-    
+
+    app.delete("/cancelMatch", async (req: Request, res: Response) => {
+        const matchId: string = req.query.matchId as string;
+        const isCancelled: boolean = await amqpService.cancelMatchRequest(matchId);
+        if (isCancelled) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: "Match not found or already processed" });
+        }
+    })
+
     app.listen(3000, () => {
         console.log("Server is running on port 3000");
     });
