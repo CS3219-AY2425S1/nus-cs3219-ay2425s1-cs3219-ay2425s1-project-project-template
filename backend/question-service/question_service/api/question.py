@@ -40,7 +40,6 @@ async def update_question_by_title(titleSlug: str, question_updates: dict):
 
 @router.get("/question/")
 async def get_all_questions() -> dict:
-    # validate params -> return 401 Bad request
     logger.info(f"Retrieving all questions")
 
     questions = mock_db.get_questions()
