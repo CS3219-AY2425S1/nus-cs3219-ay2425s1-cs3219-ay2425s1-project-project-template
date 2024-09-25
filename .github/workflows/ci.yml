@@ -47,7 +47,11 @@ jobs:
 
   matching_service:
     runs-on: ubuntu-latest
-    name: Matching Service
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379 # Default Redis port
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -70,6 +74,10 @@ jobs:
         run: |
           nohup npm run start & sleep 5
           curl --fail ${{ env.MATCHING_SERVICE_URL }} || exit 1
+
+      - name: Run Jest tests
+        working-directory: ./matching-service
+        run: npm run test
 
       - name: Stop the service
         run: pkill node
