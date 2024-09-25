@@ -7,6 +7,10 @@ export function handleEditorChanges(io: Server) {
         socket.on('edit', (content) => {
             io.emit('updateContent', content);
         });
+
+        socket.on('selectLanguage', (language) => {
+            io.emit('updateLanguage', language);
+        });
         
         socket.on('disconnect', () => {
             console.log('user disconnected');

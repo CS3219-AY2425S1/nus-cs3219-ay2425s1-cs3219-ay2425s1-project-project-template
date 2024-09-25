@@ -18,7 +18,9 @@ const io = new Server(server, {
     }
 });
 
-io.use(validateSocketJWT);
+//io.use(validateSocketJWT);
+
+handleEdits(io);
 
 export { server };
 
