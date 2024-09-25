@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"net/http"
+	"net/smtp"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -47,6 +48,79 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	}
 
 	return check, msg
+}
+
+// UpdatePasswordInDatabase updates the password to new password in database
+func UpdatePasswordInDatabase(userID string, newPassword string) error {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": userID} // Match the user by their ID
+	update := bson.D{
+		{"$set", bson.D{{"password", newPassword}, {"updated_at", time.Now()}}},
+	}
+
+	_, err := userCollection.UpdateOne(ctx, filter, update)
+	return err
+}
+
+// ClearResetToken clears the reset token once the password is reset
+func ClearResetToken(userID string) error {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	update := bson.D{
+		{"$unset", bson.D{
+			{"reset_token", ""},
+			{"reset_token_expiration", ""},
+		}},
+	}
+
+	_, err := userCollection.UpdateOne(ctx, bson.M{"_id": userID}, update)
+	return err
+}
+
+// StoreResetTokenInDatabase saves the reset token with an expiration time
+func StoreResetTokenInDatabase(userID string, token string) error {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	update := bson.D{
+		{"$set", bson.D{
+			{"reset_token", token},
+			{"reset_token_expiration", time.Now().Add(1 * time.Hour)},
+		}},
+	}
+
+	_, err := userCollection.UpdateOne(ctx, bson.M{"_id": userID}, update)
+	return err
+}
+
+// to send the reset email (Replace this with real email service)
+func SendResetEmail(email string, token string) {
+	resetLink := "http://localhost:8080/v1/reset-password?token=" + token
+
+	// Replace with your SMTP settings (this is just an example using a basic SMTP server)
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+	authEmail := "noreply.peerprep@gmail.com"
+	authPassword := "aezo ivmc mihq wqii"
+
+	// Email message body
+	subject := "Subject: Password Reset Request\n"
+	body := "To reset your password, please click the following link: " + resetLink + "\n"
+	msg := subject + "\n" + body
+
+	// Set up authentication information.
+	auth := smtp.PlainAuth("", authEmail, authPassword, smtpHost)
+
+	// Send the email
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, authEmail, []string{email}, []byte(msg))
+	if err != nil {
+		fmt.Println("Failed to send email:", err)
+	} else {
+		fmt.Println("Reset email sent to:", email)
+	}
 }
 
 // CreateUser is the api used to tget a single user
@@ -138,5 +212,105 @@ func Login() gin.HandlerFunc {
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
 
 		c.JSON(http.StatusOK, gin.H{"message": "User logged in successfully", "token": token, "refreshToken": refreshToken})
+	}
+}
+
+// Email verification is the api that handles user email confirmation
+func EmailVerification() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req helper.EmailVerificationRequest
+
+		// Bind the request body
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+			return
+		}
+
+		// Check if the email exists in the database
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var user struct {
+			Email string
+			Uid   string
+		}
+		err := userCollection.FindOne(ctx, bson.M{"email": req.Email}).Decode(&user)
+		if err != nil {
+			// Return success even if the email isn't found (to prevent enumeration attacks)
+			c.JSON(http.StatusOK, gin.H{"message": "If the email exists, a reset link will be sent"})
+			return
+		}
+
+		// Generate a reset token (short expiration time)
+		token, _, err := helper.GenerateAllTokens(user.Email, "", user.Uid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating reset token"})
+			return
+		}
+
+		// Save the token to MongoDB with an expiration time (1 hour)
+		err = StoreResetTokenInDatabase(user.Uid, token)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error storing reset token"})
+			return
+		}
+
+		SendResetEmail(user.Email, token)
+
+		c.JSON(http.StatusOK, gin.H{"message": "Reset link sent successfully"})
+	}
+}
+
+// Reset password is the api to update new password
+func ResetPassword() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req helper.ResetPasswordRequest
+
+		// Bind the JSON input (token and new password)
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			return
+		}
+
+		// Validate the token using tokenHelper
+		claims, msg := helper.ValidateToken(req.Token)
+		if msg != "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": msg})
+			return
+		}
+
+		// Retrieve user and check token expiration from MongoDB
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var user struct {
+			ResetToken           string    `bson:"reset_token"`
+			ResetTokenExpiration time.Time `bson:"reset_token_expiration"`
+		}
+
+		err := userCollection.FindOne(ctx, bson.M{"_id": claims.Uid}).Decode(&user)
+		if err != nil || user.ResetToken != req.Token || time.Now().After(user.ResetTokenExpiration) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			return
+		}
+
+		// Hash the new password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			return
+		}
+
+		// Update the user's password
+		err = UpdatePasswordInDatabase(claims.Uid, string(hashedPassword))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+			return
+		}
+
+		// Clear the reset token from the database (prevent reuse)
+		ClearResetToken(claims.Uid)
+
+		c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
 	}
 }

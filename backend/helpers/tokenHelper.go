@@ -24,6 +24,17 @@ type SignedDetails struct {
 	jwt.RegisteredClaims
 }
 
+// Reset password request struct to update new password
+type ResetPasswordRequest struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
+// Email verification struct for binding email input
+type EmailVerificationRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user_db", "user_accounts")
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")

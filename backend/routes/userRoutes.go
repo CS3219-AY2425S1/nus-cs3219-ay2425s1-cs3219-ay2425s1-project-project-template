@@ -10,4 +10,6 @@ import (
 func UserRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.POST("/v1/signup", controller.SignUp())
 	incomingRoutes.POST("/v1/login", controller.Login())
+	incomingRoutes.POST("/v1/reset-password", controller.ResetPassword())
+	incomingRoutes.POST("/v1/email-verification", controller.EmailVerification())
 }
