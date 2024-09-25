@@ -148,6 +148,7 @@ describe("Test Get by Id", () => {
     const questionId = 999999;
     const res = await request.get(`/api/${questionId}`).send();
     expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe("Question not found");
   });
 });
 
