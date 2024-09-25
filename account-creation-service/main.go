@@ -4,7 +4,7 @@ import (
     "log"
     "os"
 
-    "account-creation-service/controllers"
+	"account-creation-service/routes"
     "account-creation-service/services"
     "github.com/gin-gonic/gin"
     "github.com/joho/godotenv"
@@ -19,7 +19,7 @@ func main() {
     defer services.DisconnectDB()
     
     r := gin.Default()
-    r.POST("/register", controllers.RegisterUser)
+	routes.InitialiseRoutes(r)
     port := os.Getenv("PORT")
     if port == "" {
         port = "4040"
