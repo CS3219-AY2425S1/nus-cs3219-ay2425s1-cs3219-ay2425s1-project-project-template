@@ -1,6 +1,6 @@
-version: "3"
 services:
   frontend:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
     build:
       context: ./peerprep-fe
       dockerfile: Dockerfile
@@ -8,9 +8,22 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-
-  # Add other microservices here
-  # backend:
-  #   ...
-  # database:
-  #   ...
+    networks:
+      - peerprep-network
+  question-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest
+    build:
+      context: ./question-service
+      dockerfile: Dockerfile
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=production
+      - PORT=4001
+    networks:
+      - peerprep-network
+    env_file:
+      - ./question-service/.env.dev
+networks:
+  peerprep-network:
+    driver: bridge
