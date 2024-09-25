@@ -14,3 +14,8 @@ export const signIn = async (signInDto: SignInDto) => {
 export const signOut = async () => {
   await apiClient.post("/auth/signout");
 };
+
+export const me = async () => {
+  const res = await apiClient.get("/auth/me");
+  return res.data;
+};

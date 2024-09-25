@@ -1,13 +1,21 @@
-import Router from "next/router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
 import { useLoginState } from "@/contexts/LoginStateContext";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { me, signOut } from "@/lib/api/auth";
 
 export const useMe = () => {
-  const [me] = trpc.me.get.useSuspenseQuery();
-
+  const router = useRouter();
+  const { data, error } = useSuspenseQuery({ queryKey: ["me"], queryFn: me });
   const { removeLoginStateFlag } = useLoginState();
-  const logoutMutation = trpc.auth.logout.useMutation();
+  if (error) {
+    removeLoginStateFlag();
+  }
+  const logoutMutation = useMutation({ mutationFn: signOut });
+  const { userData } = data;
 
   const logout = useCallback(
     (redirectToSignIn = true) => {
@@ -15,7 +23,7 @@ export const useMe = () => {
         onSuccess: async () => {
           removeLoginStateFlag();
           if (redirectToSignIn) {
-            await Router.push("/sign-in");
+            await router.push("/auth");
           }
         },
       });
@@ -23,5 +31,5 @@ export const useMe = () => {
     [logoutMutation, removeLoginStateFlag]
   );
 
-  return { me, logout };
+  return { userData, logout };
 };

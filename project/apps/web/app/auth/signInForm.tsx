@@ -11,14 +11,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signIn } from "@/lib/api/auth";
 import { useZodForm } from "@/lib/form";
+import { useLoginState } from "@/contexts/LoginStateContext";
 
 export function SignInForm() {
   const form = useZodForm({ schema: signInSchema });
+  const { setHasLoginStateFlag } = useLoginState();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: signIn,
+    onSuccess: async () => {
+      setHasLoginStateFlag();
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
   });
   function onSubmit(values: SignInDto) {
     mutation.mutate(values);

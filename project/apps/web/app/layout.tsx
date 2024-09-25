@@ -1,6 +1,8 @@
 import { LoginStateProvider } from "@/contexts/LoginStateContext";
 import "./globals.css";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
+import Suspense from "@/components/Suspense";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RootLayout({
   children,
@@ -11,7 +13,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <LoginStateProvider>
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <Suspense fallback={<Skeleton className="w-screen h-screen" />}>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </Suspense>
         </LoginStateProvider>
       </body>
     </html>

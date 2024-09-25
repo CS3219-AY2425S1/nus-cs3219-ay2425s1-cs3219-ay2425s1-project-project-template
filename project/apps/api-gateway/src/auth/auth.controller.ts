@@ -7,7 +7,6 @@ import {
   UsePipes,
   Req,
   Get,
-  UseGuards,
 } from '@nestjs/common';
 
 import { Response, Request } from 'express';
@@ -19,7 +18,6 @@ import {
   SignUpDto,
 } from '@repo/dtos/auth';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
