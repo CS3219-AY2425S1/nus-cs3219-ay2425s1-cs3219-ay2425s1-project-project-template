@@ -95,6 +95,7 @@ export default function QuestionsPage() {
         isOpen={isAlertOpen}
         leastDestructiveRef={cancelRef}
         onClose={() => setIsAlertOpen(false)}
+        isCentered
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
