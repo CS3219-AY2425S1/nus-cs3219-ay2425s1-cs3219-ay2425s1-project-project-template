@@ -29,7 +29,7 @@ const AuthDashboard = () => {
   useEffect(() => {
     if (!user) return;
     setUserInterviewMetadata(getUserInterviewMetadata());
-  }, []);
+  }, [user]);
 
   const dateFormattingOption: Intl.DateTimeFormatOptions = {
     year: "numeric",

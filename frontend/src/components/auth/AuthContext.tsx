@@ -5,16 +5,16 @@ import { User } from "./User";
 
 interface AuthContextType {
   user: User; // You can define a more specific type for user
-  login: (response: any) => void;
+  login: (response: { access_token: string }) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User>({});
 
-  const login = (response: any) => {
+  const login = (response: { access_token: string }) => {
     const access_token = response.access_token;
 
     // store user data for 1 hour
@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    setUser(null);
+    setUser({});
     Cookies.remove("access_token");
   };
 
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (access_token) {
       setUser({ ...user, access_token });
     }
-  }, []);
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
