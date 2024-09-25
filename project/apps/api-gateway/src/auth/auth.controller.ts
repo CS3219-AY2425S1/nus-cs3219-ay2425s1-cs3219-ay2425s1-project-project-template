@@ -5,9 +5,12 @@ import {
   Res,
   HttpStatus,
   UsePipes,
+  Req,
+  Get,
+  UseGuards,
 } from '@nestjs/common';
 
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ZodValidationPipe } from '@repo/pipes/zod-validation-pipe.pipe';
 import {
   signInSchema,
@@ -16,6 +19,7 @@ import {
   SignUpDto,
 } from '@repo/dtos/auth';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -55,5 +59,15 @@ export class AuthController {
     return res
       .status(HttpStatus.OK)
       .json({ message: 'Signed out successfully' });
+  }
+
+  @Get('me')
+  async me(@Req() request: Request, @Res() res: Response) {
+    const token = request.cookies['token'];
+    if (!token) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ user: null });
+    }
+    const { userData } = await this.authService.me(token);
+    return res.status(HttpStatus.OK).json({ userData });
   }
 }

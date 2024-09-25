@@ -1,6 +1,10 @@
 // src/auth/auth.service.ts
 
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { SignInDto, SignUpDto } from '@repo/dtos/auth';
 import { UserDetails } from 'src/supabase/collection';
@@ -9,6 +13,32 @@ import { UserDetails } from 'src/supabase/collection';
 export class AuthService {
   constructor(private readonly supabaseService: SupabaseService) {}
   private readonly PROFILES_TABLE = 'profiles';
+
+  async me(token: string) {
+    const { data, error } = await this.supabaseService
+      .getClient()
+      .auth.getUser(token);
+
+    if (error) {
+      throw new UnauthorizedException(error.message);
+    }
+    const { user } = data;
+    if (!user || !data) {
+      throw new BadRequestException('Unexpected sign-in response.');
+    }
+    const { data: userData, error: profileError } = await this.supabaseService
+      .getClient()
+      .from(this.PROFILES_TABLE)
+      .select(`id, email, username`)
+      .eq('id', user.id)
+      .returns<UserDetails[]>()
+      .single();
+    if (profileError) {
+      throw new BadRequestException(profileError.message);
+    }
+    return { userData };
+  }
+
   async signUp(signUpDto: SignUpDto) {
     const { email, password, username } = signUpDto;
 
