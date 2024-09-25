@@ -47,7 +47,9 @@ router.get("/all", async (req: Request, res: Response) => {
       .lean()
       .sort({ questionid: "ascending" })
       .exec();
-    console.log(questions);
+    if (!questions) {
+      return res.status(404).json({ message: "No questions found" });
+    }
     return res.json(questions);
   } catch (error) {
     return res.status(500).send("Internal server error");
@@ -63,9 +65,12 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   const questionId = parseInt(req.params.id, 10);
   try {
     const question = await Question.findOne({ questionid: questionId }).exec();
+    if (!question) {
+      return res.status(404).json({ message: "No questions found" });
+    }
     return res.json(question);
   } catch (error) {
-    res.status(500).send("Internal server error");
+    return res.status(500).send("Internal server error");
   }
 });
 
@@ -99,6 +104,9 @@ router.post(
         { questionid: questionId },
         { $set: updateData }
       );
+      if (!updatedQuestion) {
+        return res.status(404).json({ message: "No questions found" });
+      }
       return res.json(updatedQuestion);
     } catch (error) {
       //to catch pre-middleware defined error
