@@ -15,19 +15,19 @@ export enum Languages {
 
 @Schema()
 export class User extends Document {
-  @Prop({required: false, default: ''})
-  username: string
+  @Prop({ required: false, default: '' })
+  username: string;
 
-  @Prop({required: false, default: ''})
+  @Prop({ required: false, default: '' })
   displayName: string;
 
-  @Prop({required: true})
+  @Prop({ required: true })
   email: string;
 
-  @Prop({required: true})
+  @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({required: false, default: ''})
+  @Prop({ required: false, default: '' })
   profilePictureUrl?: string;
 
   @Prop({ required: false, enum: Proficiency, default: Proficiency.BEGINNER })

@@ -13,9 +13,7 @@ import {
   LogInResponseDto,
   SignUpDto,
   SignUpResponseDto,
-  ValidateUserCredDto,
 } from './dto';
-import { GetUserByEmailDto } from '../user/dto/get-user-by-email.dto';
 
 import { IServiceCreateUserResponse } from '../interfaces/user/service-user-create-response.interface';
 import { IServiceCreateTokenResponse } from '../interfaces/auth/service-create-token-response.interface';

@@ -32,7 +32,7 @@ export class AppController {
       } else {
         try {
           const createdUser = await this.appService.createUser(userParams);
-          createdUser.password = undefined;
+
           result = {
             status: HttpStatus.CREATED,
             message: 'user_create_success',

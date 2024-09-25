@@ -19,7 +19,12 @@ export class AppService {
       ...data,
       password: hashedPassword,
     });
-    return await userModel.save();
+
+    const createdUser = await userModel.save();
+    const userObject = createdUser.toObject();
+    delete userObject.password;
+
+    return userObject;
   }
 
   public async getUserByEmail(params: GetUserByEmailDto): Promise<IUser> {
