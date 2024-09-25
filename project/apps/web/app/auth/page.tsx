@@ -10,19 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SignInForm } from "./signInForm";
+import { SignUpForm } from "./signUpForm";
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError("");
-    const formData = new FormData(event.currentTarget);
-    console.log(Object.fromEntries(formData));
-  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -38,34 +30,10 @@ export default function AuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" required />
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" required />
-            </div>
-            <div className="space-y-2 text-red-500">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full">
-              {isSignUp ? "Sign Up" : "Sign In"}
-            </Button>
-          </form>
+          {isSignUp ? <SignUpForm /> : <SignInForm />}{" "}
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="px-2 bg-background text-muted-foreground">
-                Or continue with
-              </span>
             </div>
           </div>
         </CardContent>

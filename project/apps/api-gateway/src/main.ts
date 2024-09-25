@@ -6,7 +6,13 @@ import * as cookieParser from 'cookie-parser';
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule, { bufferLogs: true });
+  const app = await NestFactory.create(ApiGatewayModule, {
+    bufferLogs: true,
+  });
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
   app.useLogger(app.get(Logger));
   app.use(cookieParser());
   app.useGlobalFilters(new RpcExceptionFilter());
