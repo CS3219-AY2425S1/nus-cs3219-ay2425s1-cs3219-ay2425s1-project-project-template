@@ -6,11 +6,12 @@ import {
     findQuestionCount,
 } from '../models/question.repository'
 
-import { CreateQuestionDto } from '../types/CreateQuestionDto'
-import { QuestionDto } from '../types/QuestionDto'
-import { Response } from 'express'
-import { TypedRequest } from '../types/TypedRequest'
 import { ValidationError } from 'class-validator'
+import { Response } from 'express'
+import { CreateQuestionDto } from '../types/CreateQuestionDto'
+import { IPaginationRequest } from '../types/IPaginationRequest'
+import { QuestionDto } from '../types/QuestionDto'
+import { TypedRequest } from '../types/TypedRequest'
 
 export async function handleCreateQuestion(
     request: TypedRequest<CreateQuestionDto>,
@@ -35,9 +36,9 @@ export async function handleCreateQuestion(
     response.status(201).json(dto).send()
 }
 
-export async function handleGetPaginatedQuestions(request: TypedRequest<void>, response: Response): Promise<void> {
-    const page = parseInt(request.query.page as string)
-    const limit = parseInt(request.query.limit as string)
+export async function handleGetPaginatedQuestions(request: IPaginationRequest, response: Response): Promise<void> {
+    const page = parseInt(request.query.page)
+    const limit = parseInt(request.query.limit)
 
     if (isNaN(page) || isNaN(limit) || page <= 0 || limit <= 0) {
         response.status(400).json('INVALID_PAGINATION').send()
