@@ -22,7 +22,6 @@ const QuestionPage = () => {
 
         // Transform the response object into an array
         const arrayData = Object.values(data); // Use data, not jsonData
-        console.log(arrayData);
 
         // Update the questions with the array data
         updateQuestions(arrayData);
@@ -37,12 +36,22 @@ const QuestionPage = () => {
   };
 
     
+  // left side logic
+  const [questions, updateQuestions] = useState([]);
+
+  //Right side logic
+
   //Either create or edit mode.
   const [mode, setMode] = useState("create");
   //mode = "edit";
 
-  // left side logic
-  const [questions, updateQuestions] = useState([]);
+  const [difficulty, setDifficulty] = useState('easy');
+  const [topic, setTopic] = useState('loops');
+  const [title, setTitle] = useState('Some_Title');
+  const [description, setDescription] = useState('');
+
+  //REMOVE THIS BEFORE SUBMITTING
+  const [titleSlug] = useState('test-question');
 
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
@@ -73,20 +82,11 @@ const QuestionPage = () => {
 
   const handleEdit = () => {
     setMode("edit");
-    setTitle(selectedQuestion.title); // Set the question title to edit
+    setTitle(selectedQuestion.title);
+    setDescription(selectedQuestion.description);
     console.log(selectedQuestion.title);
     // Optionally, prefill the form fields with selected question data
   };
-
-
-  //Right side logic
-  const [difficulty, setDifficulty] = useState('easy');
-  const [topic, setTopic] = useState('loops');
-  const [title, setTitle] = useState('Some_Title');
-  const [question, setQuestion] = useState('');
-
-  //REMOVE THIS BEFORE SUBMITTING
-  const [titleSlug] = useState('test-question')
 
 
   const clearState = async () => {
@@ -108,7 +108,7 @@ const QuestionPage = () => {
     setDifficulty("easy");
     setTopic("loops");
     setTitle("Some_Title");
-    setQuestion("");
+    setDescription("");
     setMode("create");
   }
 
@@ -117,7 +117,7 @@ const QuestionPage = () => {
     // Prepare data
     const data = {
       title,
-      question,
+      description,
       difficulty,
       topic,
       titleSlug,
@@ -138,14 +138,13 @@ const QuestionPage = () => {
           setDifficulty("easy");
           setTopic("loops");
           setTitle("Some_Title");
-          setQuestion("");
+          setDescription("");
           
           // get newest question data from response
           const newQuestion = await response.json();
           // Update the questions state to include the new question
-          console.log(newQuestion);
           updateQuestions(prevQuestions => [...prevQuestions, newQuestion]);
-
+          setSelectedQuestion(newQuestion);
           alert('Question submitted successfully!');
         } else {
           alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
@@ -156,14 +155,14 @@ const QuestionPage = () => {
       }
     } else{
       const patchdata = {
-        question,
+        description,
         difficulty,
         topic,
         titleSlug,
       };
       try {
-        alert(`http://127.0.0.1:8000/question/${title}`)
-        const response = await fetch(`http://127.0.0.1:8000/question/${title}`, {
+        alert(`http://127.0.0.1:8000/question/${titleSlug}`)
+        const response = await fetch(`http://127.0.0.1:8000/question/${titleSlug}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -176,8 +175,23 @@ const QuestionPage = () => {
           setDifficulty("easy");
           setTopic("loops");
           setTitle("Some_Title");
-          setQuestion("");
+          setDescription("");
           alert('Question submitted successfully!');
+          setMode("create");
+          
+          const updatedQuestion = await response.json();
+          console.log(updatedQuestion);
+          // Update the questions state to replace the old question
+          updateQuestions(prevQuestions => 
+            prevQuestions.map(question => {
+                if (question.titleSlug === updatedQuestion.titleSlug) {
+                    // console.log('Updating Question:', updatedQuestion);
+                    return updatedQuestion; // Update the question
+                }
+                return question; // Return the original question if no match
+            })
+        );
+
         } else {
           alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
         }
@@ -314,8 +328,10 @@ const QuestionPage = () => {
           <textarea
           id="question"
           className="textarea"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+          value={description}
+          onChange={(e) => 
+            setDescription(e.target.value)
+          }
           />
         </div>
 
