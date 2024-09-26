@@ -1,15 +1,15 @@
+import { IAuthenticatedRequest } from '@repo/request-types/IAuthenticatedRequest'
 import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
 import { ValidationError } from 'class-validator'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { generateOTP, sendMail } from '../common/mail.util'
 import { getHTMLTemplate } from '../common/template.util'
 import { generateAccessToken } from '../common/token.util'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
-import { UserDto } from '../types/UserDto'
 
-export async function handleLogin({ user }: Request, response: Response): Promise<void> {
-    const accessToken = await generateAccessToken(user as UserDto)
+export async function handleLogin({ user }: IAuthenticatedRequest, response: Response): Promise<void> {
+    const accessToken = await generateAccessToken(user)
     response
         .status(201)
         .json({

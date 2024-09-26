@@ -1,11 +1,11 @@
+import { IAuthenticatedRequest } from '@repo/request-types/IAuthenticatedRequest'
 import { Role } from '@repo/user-types/Role'
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Response } from 'express'
 import logger from '../common/logger.util'
-import { UserDto } from '../types/UserDto'
 
 export function handleRoleBasedAccessControl(roles: Role[]) {
-    return (request: Request, response: Response, next: NextFunction) => {
-        const user: UserDto | undefined = request.user as UserDto
+    return (request: IAuthenticatedRequest, response: Response, next: NextFunction) => {
+        const user = request.user
         if (!user) {
             logger.error(
                 `[Access Control] [${request.method} ${request.baseUrl + request.path}] User is not authenticated.`
@@ -23,8 +23,12 @@ export function handleRoleBasedAccessControl(roles: Role[]) {
     }
 }
 
-export async function handleOwnershipAccessControl(request: Request, response: Response, next: NextFunction) {
-    const user: UserDto | undefined = request.user as UserDto
+export async function handleOwnershipAccessControl(
+    request: IAuthenticatedRequest,
+    response: Response,
+    next: NextFunction
+) {
+    const user = request.user
     if (!user) {
         logger.error(
             `[Access Control] [${request.method} ${request.baseUrl + request.path}] User is not authenticated.`
