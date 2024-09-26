@@ -28,23 +28,23 @@ export default function HomeNavBar() {
             justify={"flex-end"}
           >
             <Flex align={"center"}>
-              <Link to="/">
-                <Button variant="ghost" fontWeight="normal" mr={86}>
+              <Link to="/questions">
+                <Button variant="ghost" fontWeight="bold" mr={86}>
                   Questions
                 </Button>
               </Link>
               <Link to="/dashboard">
-                <Button variant="ghost" fontWeight="normal" mr={86}>
+                <Button variant="ghost" fontWeight="bold" mr={86}>
                   Dashboard
                 </Button>
               </Link>
               <Link to="/match-me">
-                <Button variant="ghost" fontWeight="normal" mr={86}>
+                <Button variant="ghost" fontWeight="bold" mr={86}>
                   Match Me
                 </Button>
               </Link>
               <Link to="/about-us">
-                <Button variant="ghost" fontWeight="normal" mr={86}>
+                <Button variant="ghost" fontWeight="bold" mr={86}>
                   About Us
                 </Button>
               </Link>
@@ -55,7 +55,7 @@ export default function HomeNavBar() {
                 fontSize={"sm"}
                 fontWeight={600}
                 color={"white"}
-                bg={"blue.400"}
+                bg={"blue.300"}
                 _hover={{
                   bg: "blue.300",
                 }}

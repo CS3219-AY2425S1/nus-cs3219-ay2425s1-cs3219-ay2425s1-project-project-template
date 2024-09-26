@@ -124,6 +124,7 @@ const QuestionList: React.FC = () => {
           >
             <Thead>
               <Tr>
+                {/* ID Column */}
                 <Th
                   cursor="pointer"
                   bgColor="yellow.300"
@@ -135,6 +136,21 @@ const QuestionList: React.FC = () => {
                     (sortConfig.direction === "asc" ? "↑" : "↓")}{" "}
                   <span>↑↓</span>
                 </Th>
+
+                {/* Title Column */}
+                <Th
+                  cursor="pointer"
+                  bgColor="yellow.300"
+                  onClick={() => handleSort("title")}
+                  fontFamily="Poppins, sans-serif" // Applying Poppins font to headers
+                >
+                  Title{" "}
+                  {sortConfig.key === "title" &&
+                    (sortConfig.direction === "asc" ? "↑" : "↓")}{" "}
+                  <span>↑↓</span>
+                </Th>
+
+                {/* Difficulty Column */}
                 <Th
                   cursor="pointer"
                   bgColor="yellow.300"
@@ -146,17 +162,23 @@ const QuestionList: React.FC = () => {
                     (sortConfig.direction === "asc" ? "↑" : "↓")}{" "}
                   <span>↑↓</span>
                 </Th>
+
+                {/* Topic Column */}
                 <Th bgColor="yellow.300" fontFamily="Poppins, sans-serif">
                   Topic
                 </Th>
               </Tr>
             </Thead>
+
             <Tbody>
               {currentQuestions.map((question) => (
                 <Tr key={question.id}>
                   <Td>
                     <Link to={`/questions/${question.id}`}>{question.id}</Link>
                   </Td>
+
+                  <Td>{question.title}</Td>
+
                   <Td>
                     <Box
                       display="inline-block"
@@ -177,7 +199,8 @@ const QuestionList: React.FC = () => {
                       {question.difficulty}
                     </Box>
                   </Td>
-                  <Td>{question.title}</Td>
+
+                  <Td>{question.category}</Td>
                 </Tr>
               ))}
             </Tbody>
@@ -196,15 +219,13 @@ const QuestionList: React.FC = () => {
             <Button
               onClick={handlePrevPage}
               disabled={currentPage === 1}
-              colorScheme="blue"
-              mr={2} // Adds margin between the buttons
+              mr={2}
             >
               Previous
             </Button>
             <Button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              colorScheme="blue"
             >
               Next
             </Button>

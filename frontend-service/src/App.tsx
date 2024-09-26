@@ -10,10 +10,8 @@ function App() {
     <Box className="app" fontFamily="Poppins, sans-serif">
       <HomeNavBar />
       <Box pt="80px">
-        {" "}
-        {/* Add padding to the top to account for the fixed navbar */}
         <Routes>
-          <Route path="/" element={<QuestionPage />} />
+          <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
         </Routes>
       </Box>
