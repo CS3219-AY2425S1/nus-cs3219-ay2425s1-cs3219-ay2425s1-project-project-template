@@ -196,28 +196,30 @@ const QuestionPage = () => {
     <div className="question-page-container">
       <div className="left-section pr-4 overflow-y-auto" style={{ width: '45%' }}>
         <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
-        <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-lg overflow-hidden shadow-lg">
-          <thead>
-            <tr className="bg-blue-500 text-white">
-              <th className="py-2 px-4 border-b w-1/2">Question Title</th>
-              <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map((question, index) => (
-              <tr
-                key={question.titleSlug}
-                className={`${
-                  index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
-                } hover:bg-blue-100 cursor-pointer transition duration-300`}
-                onClick={() => handleTitleClick(question)}
-              >
-                <td className="py-2 px-4 border-b">{question.title}</td>
-                <td className="py-2 px-4 border-b">{question.difficulty}</td>
+        <div class="overflow-y-auto h-80">
+          <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-lg overflow-hidden shadow-lg">
+            <thead>
+              <tr className="bg-blue-500 text-white">
+                <th className="py-2 px-4 border-b w-1/2">Question Title</th>
+                <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {questions.map((question, index) => (
+                <tr
+                  key={question.titleSlug}
+                  className={`${
+                    index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
+                  } hover:bg-blue-100 cursor-pointer transition duration-300`}
+                  onClick={() => handleTitleClick(question)}
+                >
+                  <td className="py-2 px-4 border-b">{question.title}</td>
+                  <td className="py-2 px-4 border-b">{question.difficulty}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* Display selected question's description and delete button */}
         <div className="mt-4">
