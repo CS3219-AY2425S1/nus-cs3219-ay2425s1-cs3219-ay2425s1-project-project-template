@@ -30,7 +30,7 @@ export const GetQuestions = async (
   let query_params = "";
 
   if (currentPage) {
-    query_params += `?currentPage=${currentPage}`;
+    query_params += `?offset=${(currentPage - 1) * 10}`;
   }
 
   if (limit) {

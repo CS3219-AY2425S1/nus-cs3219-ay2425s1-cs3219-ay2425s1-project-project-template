@@ -37,7 +37,7 @@ export default function Home() {
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined); // Store the total count of questions
   const [totalPages, setTotalPages] = useState<number | undefined>(undefined); // Store the total number of pages
   const [currentPage, setCurrentPage] = useState<number | undefined>(undefined); // Store the current page
-  const [limit, setLimit] = useState<number | undefined>(undefined); // Store the quantity of questions to be displayed
+  const [limit, setLimit] = useState<number | undefined>(10); // Store the quantity of questions to be displayed
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Filtering States
@@ -78,7 +78,7 @@ export default function Home() {
       setIsLoading(true);
     }
 
-    GetQuestions().then((data) => {
+    GetQuestions(currentPage, limit).then((data) => {
       setQuestions(data.questions);
       setTotalCount(data.totalCount);
       setTotalPages(data.totalPages);
@@ -86,7 +86,7 @@ export default function Home() {
       setLimit(data.limit);
       setIsLoading(false);
     });
-  }, []);
+  }, [limit, currentPage]);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -167,6 +167,8 @@ export default function Home() {
     current,
     pageSize
   ) => {
+    console.log(current);
+    console.log(pageSize);
     setCurrentPage(current);
     setLimit(pageSize);
   };
@@ -256,7 +258,7 @@ export default function Home() {
                   total: totalCount,
                   showSizeChanger: true,
                   onShowSizeChange: onShowSizeChange,
-                  showQuickJumper: true,
+                  // showQuickJumper: true,
                   onChange: onPageJump,
                 }}
               />
