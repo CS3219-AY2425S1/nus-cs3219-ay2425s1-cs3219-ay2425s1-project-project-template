@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g01/peer-prep-be/src/configs"
@@ -85,11 +86,14 @@ func GetQuestions(c echo.Context) error {
 	// Retrieve sorting params from query string
 	sortField := c.QueryParam("sortBy")  // currently only for question_title, included for future extension
 	sortOrder := c.QueryParam("orderBy") // currently expected to only sort in ascending order, included for future extension
+	filterField := c.QueryParam("filterBy")
+	filterValues := c.QueryParam("filterValues")
 
 	// Process the sorting options (if any)
+	filter := ProcessFilterParam(filterField, filterValues)
 	findOptions := ProcessSortParams(sortField, sortOrder) // Note: sorting of strings is case-sensitive by default
 
-	cur, err := questionCollection.Find(ctx, bson.D{}, findOptions)
+	cur, err := questionCollection.Find(ctx, filter, findOptions)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
 			Status:  http.StatusInternalServerError,
@@ -193,4 +197,31 @@ func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions 
 	}
 
 	return findOptions
+}
+
+func ProcessFilterParam(filterField string, filterValues string) bson.D {
+	filter := bson.D{{}}
+
+	if filterField != "" && filterValues != "" {
+		values := strings.Split(filterValues, ",")
+
+		if len(values) == 1 {
+			filter = bson.D{{Key: filterField, Value: values[0]}}
+		} else {
+			filterConditions := bson.A{}
+			for _, value := range values {
+				filterConditions = append(filterConditions, bson.D{{Key: filterField, Value: value}})
+			}
+			
+			filter = bson.D{
+				{
+					Key: "$or",
+					Value: filterConditions,
+				},
+			}
+		}
+
+	}
+
+	return filter
 }
