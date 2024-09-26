@@ -23,7 +23,7 @@ import {
 } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState } from "react";
-import { DeleteQuestion as DeleteQuestionByDocref, GetQuestions, Question } from "./services/question";
+import { DeleteQuestion as DeleteQuestionByDocref, GetQuestions, Question } from "./services/question-stub";
 import {
   CategoriesOption,
   DifficultyOption,
@@ -48,6 +48,7 @@ function DeleteModal({isDeleting, questionTitle, okHandler, cancelHandler}: {que
     onOk={okHandler} 
     onCancel={cancelHandler} 
     confirmLoading={isDeleting} 
+    okButtonProps={{danger: true}}
     cancelButtonProps={{disabled: isDeleting}}>
     <p>{text}</p>
   </Modal>
@@ -291,6 +292,9 @@ export default function Home() {
           setDeletionStage({index: deletionStage.index, deleteConfirmed: true})
 
           deleteQuestion(questions[deletionStage.index])
+          .then(() => {
+            success("Question successfully deleted")
+          })
           .catch(err => {
             error(err);
           })
