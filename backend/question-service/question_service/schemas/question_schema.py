@@ -18,12 +18,17 @@ class UpdateQuestionModel(BaseModel):
             }
         }
 
+    @field_validator("topic")
+    @classmethod
+    def validate_topic(cls, v: str) -> str:
+        return _slugify(v)
+
 
 class CreateQuestionModel(BaseModel):
     title: str = Field(min_length=1, max_length=20, pattern=r"^[a-zA-Z0-9 ]+$")
     description: str = Field(min_length=10)
     difficulty: str
-    topic: str
+    topic: str = Field(min_length=1, max_length=30)
 
     class Config:
         json_schema_extra = {
@@ -43,8 +48,16 @@ class CreateQuestionModel(BaseModel):
             raise ValueError("Title cannot be empty")
         return stripped_title
 
+    @field_validator("topic")
+    @classmethod
+    def validate_topic(cls, v: str) -> str:
+        return _slugify(v)
+
     @computed_field
     @property
     def titleSlug(self) -> str:
-        slugified = "-".join(self.title.lower().split())
-        return slugified
+        return _slugify(self.title)
+
+
+def _slugify(s: str) -> str:
+    return "-".join(s.lower().strip().split())
