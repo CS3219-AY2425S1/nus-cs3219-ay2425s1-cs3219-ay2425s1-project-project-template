@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response
 from structlog import get_logger
 
 from ..mock import mock_db
-from ..models import UpdateQuestionModel
+from ..schemas import UpdateQuestionModel
 
 router = APIRouter()
 logger = get_logger()
