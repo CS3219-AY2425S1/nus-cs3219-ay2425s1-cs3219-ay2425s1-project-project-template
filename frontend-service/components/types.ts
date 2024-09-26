@@ -1,7 +1,7 @@
 export interface Question {
-  id: number;
+  questionId: number;
   title: string;
   difficulty: string;
-  category: string;
+  category: string[];
   description: string;
 }

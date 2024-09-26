@@ -9,88 +9,12 @@ const useQuestions = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        // Commenting out the fetch call
-        // const response = await fetch("http://localhost:3001/api/questions");
-        // if (!response.ok) {
-        //   throw new Error("Failed to fetch questions");
-        // }
-        // const data = await response.json();
-        // setQuestions(data);
-
-        // Using mock data directly
-        const mockData: Question[] = [
-          {
-            id: 1,
-            title: "Mock Question 1",
-            difficulty: "Easy",
-            category: "General",
-            description: "This is a mock question description.",
-          },
-          {
-            id: 2,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 3,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 4,
-            title: "Mock Question 2",
-            difficulty: "Hard",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 5,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 6,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 7,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 8,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 9,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-          {
-            id: 10,
-            title: "Mock Question 2",
-            difficulty: "Medium",
-            category: "Science",
-            description: "This is another mock question description.",
-          },
-        ];
-        setQuestions(mockData);
+        const response = await fetch("http://localhost:8080/api/questions");
+        if (!response.ok) {
+          throw new Error("Failed to fetch questions");
+        }
+        const data = await response.json();
+        setQuestions(data);
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);
