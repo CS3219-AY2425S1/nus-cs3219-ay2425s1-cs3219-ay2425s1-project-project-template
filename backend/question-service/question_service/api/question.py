@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Response
 from structlog import get_logger
 
 from ..mock import mock_db
+from ..models import UpdateQuestionModel
 
 router = APIRouter()
 logger = get_logger()
@@ -32,16 +33,16 @@ async def delete_question_by_title(titleSlug: str):
 
 
 @router.patch("/question/{titleSlug}")
-async def update_question_by_title(titleSlug: str, question_updates: dict):
+async def update_question_by_title(titleSlug: str, req: UpdateQuestionModel):
     if not titleSlug:
         raise HTTPException(status_code=400, detail="Invalid title slug")
-    question = mock_db.update_question(titleSlug, question_updates)
+    question = mock_db.update_question(titleSlug, req.model_dump(exclude_unset=True))
     return question
 
 
 @router.get("/question/")
 async def get_all_questions() -> dict:
-    logger.info(f"Retrieving all questions")
+    logger.info("Retrieving all questions")
 
     questions = mock_db.get_questions()
     if questions is None:
