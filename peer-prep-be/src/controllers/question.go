@@ -56,6 +56,7 @@ func CreateQuestion(c echo.Context) error {
 
 	result, err := questionCollection.InsertOne(ctx, newQuestion)
 	if err != nil {
+		cancel()
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
@@ -183,36 +184,29 @@ func DeleteQuestion(c echo.Context) error {
 func SearchQuestion(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var questions []models.Question
-	searchTerm := c.QueryParam("prefix") 
+	defer cancel()
+
+	searchTerm := c.QueryParam("prefix")
 	fmt.Println(searchTerm)
-	escapedSearchTerm := "\\" + searchTerm + "\\"
-	fmt.Println(escapedSearchTerm)
 
 	indexModel := mongo.IndexModel{
-        Keys: bson.D{{"question_title", "text"}}, 
-    }
+		Keys: bson.D{{Key: "question_title", Value: "text"}},
+	}
 
 	indexName, err := questionCollection.Indexes().CreateOne(context.TODO(), indexModel)
 
 	fmt.Println(indexName)
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
-    }
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
 
-    // filter := bson.D{
-    //     {"$text", bson.D{
-    //         {"$search", escapedSearchTerm},
-    //         {"$caseSensitive", false},   
-    //     }},
-    // }
-    filter := bson.D{
-        {"question_title", bson.D{
-            {"$regex", searchTerm},
-			{"$options", "i"}, // Case-insensitive search
-        }},
-    }
+	filter := bson.D{
+		{Key: "question_title", Value: bson.D{
+			{Key: "$regex", Value: searchTerm},
+			{Key: "$options", Value: "i"}, // Case-insensitive search
+		}},
+	}
 
-	defer cancel()
 	cur, err := questionCollection.Find(ctx, filter)
 
 	if err != nil {
@@ -265,10 +259,10 @@ func ProcessFilterParams(filterField string, filterValues string) bson.D {
 			for _, value := range values {
 				filterConditions = append(filterConditions, bson.D{{Key: filterField, Value: value}})
 			}
-			
+
 			filter = bson.D{
 				{
-					Key: "$or",
+					Key:   "$or",
 					Value: filterConditions,
 				},
 			}
