@@ -11,14 +11,14 @@ import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
 
 const NavBar = observer(() => {
-  const { isLogin, isSignUp, isForgotPassword } = useRouterLocation();
+  const { isLogin, isUnauthedRoute } = useRouterLocation();
 
   return (
     <header className='bg-secondary/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
       {/* Desktop Nav */}
       <nav className='hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6'>
         <Logo className='text-md' />
-        {!isLogin && !isSignUp && (
+        {!isUnauthedRoute && (
           <>
             <Button variant='ghost'>Start</Button>
             <Button variant='ghost'>Questions</Button>
@@ -26,14 +26,16 @@ const NavBar = observer(() => {
         )}
         <div className='ml-auto flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4'>
           <ThemeSwitch />
-          {isLogin ? (
-            <Button variant='outline' asChild>
-              <a href={ROUTES.SIGNUP}>Sign Up</a>
-            </Button>
-          ) : isSignUp || isForgotPassword ? (
-            <Button variant='outline' asChild>
-              <a href={ROUTES.LOGIN}>Log In</a>
-            </Button>
+          {isUnauthedRoute ? (
+            isLogin ? (
+              <Button variant='outline' asChild>
+                <a href={ROUTES.SIGNUP}>Sign Up</a>
+              </Button>
+            ) : (
+              <Button variant='outline' asChild>
+                <a href={ROUTES.LOGIN}>Log In</a>
+              </Button>
+            )
           ) : (
             <UserDropdown />
           )}

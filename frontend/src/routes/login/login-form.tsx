@@ -18,7 +18,7 @@ export const LoginForm = () => {
   const { form, onSubmit, isPending } = useLoginForm();
 
   return (
-    <Card className='bg-primary-foreground border-border mx-auto flex w-full max-w-sm flex-col justify-center py-12 md:py-20'>
+    <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center md:ml-auto md:mr-8 md:max-h-[600px]'>
       <CardHeader className='flex items-center pb-10'>
         <CardTitle className='text-3xl'>Welcome Back To</CardTitle>
         <Logo className='text-2xl' />
