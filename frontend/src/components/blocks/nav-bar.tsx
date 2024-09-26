@@ -1,50 +1,43 @@
-import { HamburgerMenuIcon, MoonIcon, PersonIcon, SunIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import { observer } from 'mobx-react';
 
 import { Logo } from '@/components/common/logo';
+import { MobileThemeSwitch } from '@/components/common/mobile-theme-switch';
+import { ThemeSwitch } from '@/components/common/theme-switch';
+import { UserDropdown } from '@/components/common/user-dropdown';
+
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
-import { darkModeStore } from '@/stores/dark-mode-store';
 
 const NavBar = observer(() => {
-  const { isLogin, isSignUp, isForgotPassword } = useRouterLocation();
+  const { isLogin, isUnauthedRoute } = useRouterLocation();
 
   return (
     <header className='bg-secondary/80 border-border/40 sticky top-0 z-50 flex h-16 items-center gap-4 border px-4 backdrop-blur-md md:px-6'>
       {/* Desktop Nav */}
       <nav className='hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6'>
         <Logo className='text-md' />
-        {!isLogin && !isSignUp && (
+        {!isUnauthedRoute && (
           <>
             <Button variant='ghost'>Start</Button>
             <Button variant='ghost'>Questions</Button>
           </>
         )}
         <div className='ml-auto flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4'>
-          <Tabs value={darkModeStore.mode} onValueChange={darkModeStore.toggle}>
-            <TabsList>
-              <TabsTrigger value='light'>
-                <SunIcon />
-              </TabsTrigger>
-              <TabsTrigger value='dark'>
-                <MoonIcon />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          {isLogin ? (
-            <Button variant='outline' asChild>
-              <a href={ROUTES.SIGNUP}>Sign Up</a>
-            </Button>
-          ) : isSignUp || isForgotPassword ? (
-            <Button variant='outline' asChild>
-              <a href={ROUTES.LOGIN}>Log In</a>
-            </Button>
+          <ThemeSwitch />
+          {isUnauthedRoute ? (
+            isLogin ? (
+              <Button variant='outline' asChild>
+                <a href={ROUTES.SIGNUP}>Sign Up</a>
+              </Button>
+            ) : (
+              <Button variant='outline' asChild>
+                <a href={ROUTES.LOGIN}>Log In</a>
+              </Button>
+            )
           ) : (
-            <Button variant='outline' size='icon' className='overflow-hidden rounded-full'>
-              <PersonIcon />
-            </Button>
+            <UserDropdown />
           )}
         </div>
       </nav>
@@ -55,12 +48,7 @@ const NavBar = observer(() => {
           <Logo />
         </div>
         <div>
-          <Button
-            className='rounded-lg p-3'
-            onClick={() => darkModeStore.toggle(darkModeStore.mode === 'light' ? 'dark' : 'light')}
-          >
-            {darkModeStore.mode === 'light' ? <MoonIcon /> : <SunIcon />}
-          </Button>
+          <MobileThemeSwitch />
         </div>
       </div>
     </header>

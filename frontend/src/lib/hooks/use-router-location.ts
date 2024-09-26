@@ -6,18 +6,15 @@ import { ROUTES } from '@/lib/routes';
 export const useRouterLocation = () => {
   const location = useLocation();
 
-  const { isSignUp, isLogin, isForgotPassword } = useMemo(() => {
+  const data = useMemo(() => {
     const { pathname } = location;
     return {
-      isSignUp: pathname === ROUTES.SIGNUP,
+      isUnauthedRoute: [ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.FORGOT_PASSWORD].includes(pathname),
       isLogin: pathname === ROUTES.LOGIN,
-      isForgotPassword: pathname === ROUTES.FORGOT_PASSWORD,
     };
   }, [location]);
   return {
     location,
-    isLogin,
-    isSignUp,
-    isForgotPassword,
+    ...data,
   };
 };

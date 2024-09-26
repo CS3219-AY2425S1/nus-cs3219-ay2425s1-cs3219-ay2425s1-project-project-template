@@ -1,20 +1,32 @@
 import { exit } from 'process';
 
-import express, { json } from 'express';
-import pino from 'pino-http';
-import helmet from 'helmet';
+import cors from 'cors';
 import { sql } from 'drizzle-orm';
+import express, { json } from 'express';
+import helmet from 'helmet';
+import pino from 'pino-http';
 
 import { dbConfig } from '@/config';
 import { db } from '@/lib/db';
-import authRoutes from '@/routes/auth';
 import { logger } from '@/lib/utils';
+import authRoutes from '@/routes/auth';
+import authCheckRoutes from '@/routes/auth-check';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(pino());
 app.use(json());
 app.use(helmet());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: [process.env.PEERPREP_UI_HOST!],
+    credentials: true,
+  })
+);
+
 app.use('/auth', authRoutes);
+app.use('/auth-check', authCheckRoutes);
 app.get('/', async (_req, res) => {
   res.json({
     message: 'OK',
