@@ -32,19 +32,19 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 // Styled components for the dialog
 const StyledDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialog-paper': {
-    backgroundColor: 'rgb(18, 18, 18)',
-    color: 'white',
-    borderRadius: '16px',
-    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-    backdropFilter: 'blur(5px)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+  "& .MuiDialog-paper": {
+    backgroundColor: "rgb(18, 18, 18)",
+    color: "white",
+    borderRadius: "16px",
+    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+    backdropFilter: "blur(5px)",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
   },
 }));
 
 const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
   padding: theme.spacing(2),
 }));
 
@@ -53,36 +53,37 @@ const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
 }));
 
 const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
-  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
   padding: theme.spacing(2),
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
-  '& .MuiInputBase-input': {
-    color: 'white',
+  "& .MuiInputBase-input": {
+    color: "white",
   },
-  '& .MuiInputLabel-root': {
-    color: 'rgba(255, 255, 255, 0.7)',
+  "& .MuiInputLabel-root": {
+    color: "rgba(255, 255, 255, 0.7)",
   },
-  '& .MuiOutlinedInput-root': {
-    '& fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.23)',
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "rgba(255, 255, 255, 0.23)",
     },
-    '&:hover fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.5)',
+    "&:hover fieldset": {
+      borderColor: "rgba(255, 255, 255, 0.5)",
     },
-    '&.Mui-focused fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.7)',
+    "&.Mui-focused fieldset": {
+      borderColor: "rgba(255, 255, 255, 0.7)",
     },
   },
 }));
-
 
 const Example = () => {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string | undefined>
   >({});
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
 
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
@@ -112,9 +113,9 @@ const Example = () => {
         accessorKey: "categories",
         header: "Categories",
         Cell: ({ cell }) => {
-            const value = cell.getValue<string[] | string>();
-            return Array.isArray(value) ? value.join(", ") : value;
-          },
+          const value = cell.getValue<string[] | string>();
+          return Array.isArray(value) ? value.join(", ") : value;
+        },
         muiEditTextFieldProps: {
           required: true,
         },
@@ -185,7 +186,7 @@ const Example = () => {
       : undefined,
     muiTableBodyRowProps: ({ row }) => ({
       onClick: () => handleRowClick(row),
-      style: { cursor: 'pointer' }
+      style: { cursor: "pointer" },
     }),
     muiTableContainerProps: {
       sx: { minHeight: "500px", backgroundColor: "grey.900" }, // Set dark background
@@ -194,6 +195,22 @@ const Example = () => {
       sx: {
         backgroundColor: "grey.900", // Dark header background
         color: "white", // White text
+        "& .MuiTableSortLabel-icon": {
+          color: "grey !important",
+        },
+        "& .MuiIconButton-root": {
+          color: "grey", // Make icon buttons white
+        },
+        "& .MuiInputBase-root": {
+          color: "white", // Make input text color white
+          "& .MuiInputBase-input": {
+            color: "white", // Input text
+          },
+          "& .MuiInputBase-input::placeholder": {
+            color: "grey", // Placeholder text color
+            opacity: 1, // Ensure opacity is 1 for visibility
+          },
+        },
       },
     },
     muiTableBodyCellProps: {
@@ -206,6 +223,7 @@ const Example = () => {
       sx: {
         backgroundColor: "grey.900", // Dark toolbar background
         color: "white", // White text in toolbar
+        fil: "white",
         "& .MuiIconButton-root": {
           color: "white", // Make icon buttons white
         },
@@ -324,7 +342,10 @@ const Example = () => {
                 };
               });
             }}
-            value={(row.original as Question & { description?: string }).description || ''}
+            value={
+              (row.original as Question & { description?: string })
+                .description || ""
+            }
           />
         </DialogContent>
         <DialogActions>
@@ -346,10 +367,13 @@ const Example = () => {
           </IconButton>
         </Tooltip>
         <Tooltip title="Delete">
-          <IconButton color="error" onClick={(e) => {
-            e.stopPropagation();
-            openDeleteConfirmModal(row);
-            }}>
+          <IconButton
+            color="error"
+            onClick={(e) => {
+              e.stopPropagation();
+              openDeleteConfirmModal(row);
+            }}
+          >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -376,13 +400,15 @@ const Example = () => {
   return (
     <>
       <MaterialReactTable table={table} />
-      <StyledDialog 
-        open={!!selectedQuestion} 
+      <StyledDialog
+        open={!!selectedQuestion}
         onClose={closeInfoDialog}
         maxWidth="sm"
         fullWidth
       >
-        <StyledDialogTitle>{selectedQuestion?.title || 'Question Details'}</StyledDialogTitle>
+        <StyledDialogTitle>
+          {selectedQuestion?.title || "Question Details"}
+        </StyledDialogTitle>
         <StyledDialogContent>
           {selectedQuestion && (
             <>
@@ -402,16 +428,21 @@ const Example = () => {
               />
               <StyledTextField
                 label="Categories"
-                value={Array.isArray(selectedQuestion.categories) 
-                  ? selectedQuestion.categories.join(", ") 
-                  : selectedQuestion.categories}
+                value={
+                  Array.isArray(selectedQuestion.categories)
+                    ? selectedQuestion.categories.join(", ")
+                    : selectedQuestion.categories
+                }
                 fullWidth
                 margin="normal"
                 InputProps={{ readOnly: true }}
               />
               <StyledTextField
                 label="Description"
-                value={(selectedQuestion as Question & { description?: string }).description || ''}
+                value={
+                  (selectedQuestion as Question & { description?: string })
+                    .description || ""
+                }
                 fullWidth
                 multiline
                 rows={4}
@@ -422,13 +453,14 @@ const Example = () => {
           )}
         </StyledDialogContent>
         <StyledDialogActions>
-          <Button onClick={closeInfoDialog} style={{ color: 'white' }}>Close</Button>
+          <Button onClick={closeInfoDialog} style={{ color: "white" }}>
+            Close
+          </Button>
         </StyledDialogActions>
       </StyledDialog>
     </>
   );
 };
-
 
 //CREATE hook (post new question to api)
 function useCreateQuestion() {
@@ -441,19 +473,18 @@ function useCreateQuestion() {
     },
     //client side optimistic update
     onMutate: (newQuestionInfo: Question) => {
-      queryClient.setQueryData(
-        ["questions"],
-        (prevQuestions: any) => {
-          const updatedQuestions = Array.isArray(prevQuestions) ? prevQuestions : [];
-          return [
-            ...updatedQuestions,
-            {
-              ...newQuestionInfo,
-              id: (Math.random() + 1).toString(36).substring(7),
-            },
-          ] as Question[];
-        }
-      );
+      queryClient.setQueryData(["questions"], (prevQuestions: any) => {
+        const updatedQuestions = Array.isArray(prevQuestions)
+          ? prevQuestions
+          : [];
+        return [
+          ...updatedQuestions,
+          {
+            ...newQuestionInfo,
+            id: (Math.random() + 1).toString(36).substring(7),
+          },
+        ] as Question[];
+      });
     },
     // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
   });
