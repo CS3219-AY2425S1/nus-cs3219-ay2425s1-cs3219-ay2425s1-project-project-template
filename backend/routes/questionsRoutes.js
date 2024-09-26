@@ -1,9 +1,8 @@
-var express = require('express');
+const express = require('express');
+const router = express.Router();
 
-var router = express.Router();
+const { getQuestions } = require('../controllers/questionController');
 
-router.get('/', function (req, res, next) {
-    res.json({ message: 'Hello World'})
-});
+router.route('/').get(getQuestions)
 
 module.exports = router;

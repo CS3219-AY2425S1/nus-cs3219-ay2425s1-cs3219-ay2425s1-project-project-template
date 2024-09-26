@@ -24,6 +24,7 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
 
-app.use(questionsRouter);
+// All endpoints related to questions service starts with /questions/...
+app.use('/questions', questionsRouter);
 
 module.exports = app
