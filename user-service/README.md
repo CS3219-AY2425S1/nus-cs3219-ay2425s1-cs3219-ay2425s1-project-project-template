@@ -139,7 +139,6 @@
 
   - At least one of the following fields is required: `username` (string), `email` (string), `password` (string), `skillLevel` (string)
 
-
     ```json
     {
       "username": "SampleUserName",
