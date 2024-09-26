@@ -25,7 +25,9 @@ export interface QuestionListResponse {
 export const GetQuestions = async (
   currentPage?: number,
   limit?: number,
-  sortBy?: string
+  sortBy?: string,
+  difficulty?: string[],
+  title?: string
 ): Promise<QuestionListResponse> => {
   let query_url = `${process.env.NEXT_PUBLIC_API_URL}questions`;
   let query_params = "";
@@ -44,6 +46,20 @@ export const GetQuestions = async (
       query_params.length > 0 ? "&" : "?"
     }sortField=${field}&sortValue=${order}`;
   }
+
+  if (difficulty && difficulty.length > 0) {
+    const value = difficulty.join(","); // Change them from ["easy", "medium"] to "easy,medium"
+    query_params += `${query_params.length > 0 ? "&" : "?"}complexity=${value}`;
+  }
+
+  if (title && title != "") {
+    const urlEncodedTitle = encodeURIComponent(title);
+    query_params += `${
+      query_params.length > 0 ? "&" : "?"
+    }title=${urlEncodedTitle}`;
+  }
+
+  // TODO: (Ryan) Filtering via categories
 
   query_url += query_params;
   const response = await fetch(query_url);
