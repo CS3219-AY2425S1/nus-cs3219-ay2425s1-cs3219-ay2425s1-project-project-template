@@ -68,7 +68,7 @@ export const QuestionDetails = () => {
   const { questionId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
   return (
-    <div className='flex h-[calc(100dvh-64px)] w-full flex-col'>
+    <>
       <div className='bg-secondary/50 flex w-full p-4 px-6'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -131,6 +131,6 @@ export const QuestionDetails = () => {
         </Card>
         <div className='flex flex-1 flex-col' />
       </div>
-    </div>
+    </>
   );
 };
