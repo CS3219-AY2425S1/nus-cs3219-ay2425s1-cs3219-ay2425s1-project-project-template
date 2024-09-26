@@ -33,9 +33,18 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
     .catch((err) => {
       if (err !== null) {
         console.error(err);
+        return { status: HttpStatusCode.Unauthorized, data: undefined };
       }
     })
-    .then((response) => {
-      return response?.status === HttpStatusCode.Ok;
+    .then(async (response) => {
+      if (response && response.status < 400) {
+        return {
+          isAuthed: true,
+          expiresAt: response.data ? new Date(response.data.expiresAt) : new Date(),
+        };
+      }
+      return {
+        isAuthed: false,
+      };
     });
 };

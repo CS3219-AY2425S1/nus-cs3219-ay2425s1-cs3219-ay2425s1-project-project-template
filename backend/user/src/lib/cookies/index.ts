@@ -15,8 +15,19 @@ export const isCookieValid = (cookie: string) => {
   });
 };
 
+export type CookiePayload = {
+  id: string;
+};
+
+type CookieType<T> = T & {
+  iat: number;
+  exp: number;
+};
+
 export const decodeCookie = (cookie: string) => {
-  return jwt.decode(cookie);
+  const decoded = jwt.decode(cookie) as CookieType<CookiePayload>;
+
+  return decoded;
 };
 
 // TODO: Insert proper cookie validity logic and middleware

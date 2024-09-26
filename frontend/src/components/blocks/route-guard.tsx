@@ -27,8 +27,10 @@ export const loader =
         queryFn: async () => {
           return await checkIsAuthed();
         },
-        staleTime: (_query) => {
-          return 1000 * 60 * 30;
+        staleTime: ({ state: { data } }) => {
+          const now = new Date();
+          const expiresAt = data?.expiresAt ?? now;
+          return Math.max(expiresAt.getTime() - now.getTime(), 0);
         },
       }),
       authedRoute: authedRoutes.includes(path),
@@ -43,7 +45,7 @@ export const RouteGuard = () => {
       <Await resolve={data}>
         {({ isAuthed, authedRoute, path }) => {
           usePageTitle(path);
-          return isAuthed ? (
+          return isAuthed.isAuthed ? (
             authedRoute ? (
               // Route is authed and user is authed - proceed
               <Outlet />
