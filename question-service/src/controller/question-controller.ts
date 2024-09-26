@@ -153,34 +153,105 @@ export const questionController = {
       //       : { Easy: -1, Medium: -2, Hard: -3 };
       // }
 
+      // Construct sort options dynamically based on `sort` parameter
+      let sortOptions: any = {};
+      const complexityOrder = { EASY: 1, MEDIUM: 2, HARD: 3 }; // Numerical values for complexity ordering
+
+      // Sort by title (ascending or descending)
+      if (sort === "title" || sort === "-title") {
+        sortOptions.title = sort === "title" ? 1 : -1; // Ascending (1) or Descending (-1)
+      }
+
+      // Sort by complexity using numerical values for ordering
+      if (sort === "complexity" || sort === "-complexity") {
+        sortOptions.complexity = sort === "complexity" ? 1 : -1; // Ascending (1) or Descending (-1)
+
+        // Use aggregation to apply custom sorting for complexity field based on defined order
+        const complexitySortOrder = sort === "complexity" ? 1 : -1;
+
+        // Use the aggregation framework to define sorting based on custom complexity order
+        const questions = await Question.aggregate([
+          { $match: filter }, // Apply the filter criteria
+          {
+            $addFields: {
+              // Create a new field for sorting based on custom complexity values
+              complexityOrder: {
+                $switch: {
+                  branches: [
+                    {
+                      case: { $eq: ["$complexity", "EASY"] },
+                      then: complexityOrder.EASY,
+                    },
+                    {
+                      case: { $eq: ["$complexity", "MEDIUM"] },
+                      then: complexityOrder.MEDIUM,
+                    },
+                    {
+                      case: { $eq: ["$complexity", "HARD"] },
+                      then: complexityOrder.HARD,
+                    },
+                  ],
+                  default: 0,
+                },
+              },
+            },
+          },
+          {
+            $sort: {
+              complexityOrder: complexitySortOrder,
+              title: sortOptions.title || 1,
+            },
+          }, // Sort based on complexity order and then by title
+          { $skip: skip }, // Apply pagination
+          { $limit: limit },
+          {
+            $project: {
+              question_id: 1,
+              title: 1,
+              category: 1,
+              complexity: 1,
+            },
+          },
+        ]);
+
+        // Count total number of documents matching the filter
+        const totalQuestions = await Question.countDocuments(filter);
+        return res.status(200).json({
+          questions,
+          totalQuestions,
+          currentPage: page,
+          totalPages: Math.ceil(totalQuestions / limit),
+        });
+      }
+
       // Fetch only the fields you need: question_id, title, category, complexity
       const questions = await Question.find(filter)
         .select("question_id title category complexity") // Specify fields to fetch
-        // .sort(sortOptions) // Apply sorting
+        .sort(sortOptions) // Apply sorting
         .skip(skip)
         .limit(limit);
 
-      // Define complexity order for sorting
-      const complexityOrder: { [key: string]: number } = {
-        Easy: 1,
-        Medium: 2,
-        Hard: 3,
-      };
+      // // Define complexity order for sorting
+      // const complexityOrder: { [key: string]: number } = {
+      //   EASY: 1,
+      //   MEDIUM: 2,
+      //   HARD: 3,
+      // };
 
-      // Apply sorting in the application layer
-      if (sort === "complexity") {
-        questions.sort((a: any, b: any) => {
-          return complexityOrder[a.complexity] - complexityOrder[b.complexity];
-        });
-      } else if (sort === "-complexity") {
-        questions.sort((a: any, b: any) => {
-          return complexityOrder[b.complexity] - complexityOrder[a.complexity];
-        });
-      } else if (sort === "title") {
-        questions.sort((a: any, b: any) => a.title.localeCompare(b.title)); // Ascending
-      } else if (sort === "-title") {
-        questions.sort((a: any, b: any) => b.title.localeCompare(a.title)); // Descending
-      }
+      // // Apply sorting in the application layer
+      // if (sort === "complexity") {
+      //   questions.sort((a: any, b: any) => {
+      //     return complexityOrder[a.complexity] - complexityOrder[b.complexity];
+      //   });
+      // } else if (sort === "-complexity") {
+      //   questions.sort((a: any, b: any) => {
+      //     return complexityOrder[b.complexity] - complexityOrder[a.complexity];
+      //   });
+      // } else if (sort === "title") {
+      //   questions.sort((a: any, b: any) => a.title.localeCompare(b.title)); // Ascending
+      // } else if (sort === "-title") {
+      //   questions.sort((a: any, b: any) => b.title.localeCompare(a.title)); // Descending
+      // }
 
       // Count total number of documents matching the filter
       const totalQuestions = await Question.countDocuments(filter);
