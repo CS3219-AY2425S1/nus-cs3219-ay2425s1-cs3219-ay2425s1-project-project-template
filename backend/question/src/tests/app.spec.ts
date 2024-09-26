@@ -100,6 +100,66 @@ describe("Test Question API", () => {
     expect(res.body.errors[0].msg).toBe("Invalid value");
     expect(res.body.errors[0].path).toBe("complexity");
   });
+
+  // Invalid title
+  test("POST /api/create - invalid title", async () => {
+    const newQuestion = {
+      title: ["test"],
+      description: "This is a sample question",
+      category: "General",
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Invalid value");
+    expect(res.body.errors[0].path).toBe("title");
+  });
+
+  // Invalid description
+  test("POST /api/create - invalid description", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: ["test"],
+      category: "General",
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Invalid value");
+    expect(res.body.errors[0].path).toBe("description");
+  });
+
+  // Invalid category
+  test("POST /api/create - invalid category", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: ["test"],
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Invalid value");
+    expect(res.body.errors[0].path).toBe("category");
+  });
+
+  // Invalid complexity
+  test("POST /api/create - invalid complexity", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: "General",
+      complexity: ["test"],
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Invalid value");
+    expect(res.body.errors[0].path).toBe("complexity");
+  });
 });
 
 // Test /api/all
@@ -230,6 +290,9 @@ describe("Test Delete", () => {
     const questionId = 1090;
     const res = await request.post(`/api/${questionId}/delete`).send();
     expect(res.statusCode).toBe(200);
+    const deleteRes = await request.get(`/api/${questionId}`).send();
+    expect(deleteRes.statusCode).toBe(404);
+    expect(deleteRes.body.message).toBe("Question not found");
   });
 
   // Negative id
