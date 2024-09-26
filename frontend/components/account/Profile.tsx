@@ -22,25 +22,32 @@ function Profile() {
         setFormValues({ ...formValues, [id]: value })
     }
 
-    const validateInput = (values: IProfileFormInput): IProfileFormInput => {
+    const validateInput = (values: IProfileFormInput): [IProfileFormInput, boolean] => {
         const errors = { ...initialValues }
+        let isValid = true
         if (!values.username) {
             errors.username = 'Please Enter a username!'
+            isValid = false
         }
 
         if (!values.proficiency) {
             errors.proficiency = 'Please choose a proficiency level!'
+            isValid = false
         }
 
-        return errors
+        return [errors, isValid]
     }
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault() // Prevents default form submission behavior
-        setFormErrors(validateInput(formValues))
-        // setIsSubmit(true)
-        // Handle submit here, make sure receive 200, if not then return error
-        toast.success('Profile has been updated successfully.')
+        const [errors, isValid] = validateInput(formValues)
+        if (!isValid) {
+            setFormErrors(errors)
+        } else {
+            // setIsSubmit(true)
+            // Handle submit here, make sure receive 200, if not then return error
+            toast.success('Profile has been updated successfully.')
+        }
     }
 
     return (
