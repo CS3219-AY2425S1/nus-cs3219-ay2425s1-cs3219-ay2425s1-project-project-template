@@ -1,3 +1,4 @@
+import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { generateOTP, sendMail } from '../common/mail.util'
@@ -5,7 +6,6 @@ import { getHTMLTemplate } from '../common/template.util'
 import { generateAccessToken } from '../common/token.util'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
-import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 
 export async function handleLogin({ user }: Request, response: Response): Promise<void> {
@@ -19,7 +19,7 @@ export async function handleLogin({ user }: Request, response: Response): Promis
         .send()
 }
 
-export async function handleReset(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
+export async function handleReset(request: ITypedBodyRequest<EmailVerificationDto>, response: Response): Promise<void> {
     const createDto = EmailVerificationDto.fromRequest(request)
     createDto.verificationToken = '0'
     const errors = await createDto.validate()
@@ -51,7 +51,10 @@ export async function handleReset(request: TypedRequest<EmailVerificationDto>, r
     response.status(200).send()
 }
 
-export async function handleVerify(request: TypedRequest<EmailVerificationDto>, response: Response): Promise<void> {
+export async function handleVerify(
+    request: ITypedBodyRequest<EmailVerificationDto>,
+    response: Response
+): Promise<void> {
     const createDto = EmailVerificationDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {

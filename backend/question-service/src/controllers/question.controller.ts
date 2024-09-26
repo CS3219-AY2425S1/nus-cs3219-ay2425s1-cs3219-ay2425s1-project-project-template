@@ -1,3 +1,5 @@
+import { IPaginationRequest } from '@repo/request-types/IPaginationRequest'
+import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import {
@@ -14,13 +16,11 @@ import {
     updateQuestion,
 } from '../models/question.repository'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
-import { IPaginationRequest } from '../types/IPaginationRequest'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
-import { TypedRequest } from '../types/TypedRequest'
 
 export async function handleCreateQuestion(
-    request: TypedRequest<CreateQuestionDto>,
+    request: ITypedBodyRequest<CreateQuestionDto>,
     response: Response
 ): Promise<void> {
     const createDto = CreateQuestionDto.fromRequest(request)
@@ -104,7 +104,7 @@ export async function handleGetPaginatedQuestions(request: IPaginationRequest, r
     })
 }
 
-export async function handleGetQuestionById(request: TypedRequest<void>, response: Response): Promise<void> {
+export async function handleGetQuestionById(request: Request, response: Response): Promise<void> {
     const id = request.params.id
 
     const question = await findOneQuestionById(id)
@@ -118,7 +118,7 @@ export async function handleGetQuestionById(request: TypedRequest<void>, respons
     response.status(200).json(dto).send()
 }
 
-export async function handleUpdateQuestion(request: TypedRequest<QuestionDto>, response: Response): Promise<void> {
+export async function handleUpdateQuestion(request: ITypedBodyRequest<QuestionDto>, response: Response): Promise<void> {
     const id = request.params.id
     const updateDto = QuestionDto.fromRequest(request)
     const errors = await updateDto.validate()
