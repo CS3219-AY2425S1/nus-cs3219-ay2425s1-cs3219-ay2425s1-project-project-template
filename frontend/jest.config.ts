@@ -203,4 +203,4 @@ const config: Config = {
     // watchman: true,
 }
 
-export default createJestConfig(config)
+module.exports = createJestConfig(config)

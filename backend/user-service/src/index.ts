@@ -3,6 +3,7 @@ import 'express-async-errors'
 import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
+import mongoose from 'mongoose'
 import passport from 'passport'
 import defaultErrorHandler from './middlewares/errorHandler.middleware'
 import './middlewares/passportJwt.middleware'
@@ -42,7 +43,7 @@ app.use('/users', userRouter)
 
 // Health Check Route
 app.get('/', (_: Request, response: Response) => {
-    response.status(200).send()
+    response.status(200).json(mongoose.connection.readyState).send()
 })
 
 //  Not Found Route
