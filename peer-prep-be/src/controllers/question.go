@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g01/peer-prep-be/src/configs"
@@ -77,26 +78,6 @@ func GetQuestion(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": question}})
 }
 
-// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
-func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
-	var findOptions *options.FindOptions
-
-	if sortField != "" {
-		order := 1 // Default to ascending order
-		if sortOrder == "desc" {
-			order = -1 // If 'desc' is provided, sort in descending order
-		}
-
-		// Set the sorting options
-		findOptions = options.Find().SetSort(bson.D{{Key: sortField, Value: order}})
-	} else {
-		// No sorting specified, natural MongoDB order
-		findOptions = options.Find()
-	}
-
-	return findOptions
-}
-
 func GetQuestions(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var questions []models.Question
@@ -105,11 +86,14 @@ func GetQuestions(c echo.Context) error {
 	// Retrieve sorting params from query string
 	sortField := c.QueryParam("sortBy")  // currently only for question_title, included for future extension
 	sortOrder := c.QueryParam("orderBy") // currently expected to only sort in ascending order, included for future extension
+	filterField := c.QueryParam("filterBy")
+	filterValues := c.QueryParam("filterValues")
 
 	// Process the sorting options (if any)
+	filter := ProcessFilterParams(filterField, filterValues)
 	findOptions := ProcessSortParams(sortField, sortOrder) // Note: sorting of strings is case-sensitive by default
 
-	cur, err := questionCollection.Find(ctx, bson.D{}, findOptions)
+	cur, err := questionCollection.Find(ctx, filter, findOptions)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
 			Status:  http.StatusInternalServerError,
@@ -193,4 +177,51 @@ func DeleteQuestion(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
+}
+
+// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
+func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
+	var findOptions *options.FindOptions
+
+	if sortField != "" {
+		order := 1 // Default to ascending order
+		if sortOrder == "desc" {
+			order = -1 // If 'desc' is provided, sort in descending order
+		}
+
+		// Set the sorting options
+		findOptions = options.Find().SetCollation(&options.Collation{Locale: "en_US"}).SetSort(bson.D{{Key: sortField, Value: order}})
+	} else {
+		// No sorting specified, natural MongoDB order
+		findOptions = options.Find()
+	}
+
+	return findOptions
+}
+
+func ProcessFilterParams(filterField string, filterValues string) bson.D {
+	filter := bson.D{{}}
+
+	if filterField != "" && filterValues != "" {
+		values := strings.Split(filterValues, ",")
+
+		if len(values) == 1 {
+			filter = bson.D{{Key: filterField, Value: values[0]}}
+		} else {
+			filterConditions := bson.A{}
+			for _, value := range values {
+				filterConditions = append(filterConditions, bson.D{{Key: filterField, Value: value}})
+			}
+			
+			filter = bson.D{
+				{
+					Key: "$or",
+					Value: filterConditions,
+				},
+			}
+		}
+
+	}
+
+	return filter
 }
