@@ -11,8 +11,8 @@ const Questions = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch("");
-        const data = await response.json(); // <--- enter the api here
+        const response = await fetch(""); // <--- enter the api here
+        const data = await response.json();
         setQuestions(data);
       } catch (error) {
         console.error("Error fetching questions:", error);
@@ -23,7 +23,7 @@ const Questions = () => {
   }, []);
 
   return (
-    <div className="h-96 w-full rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
+    <div className="w-full rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">
           Interview Questions
