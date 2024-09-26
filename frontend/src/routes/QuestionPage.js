@@ -7,10 +7,9 @@ const QuestionPage = () => {
 
 
   // Fetch all questions on component mount
-    useEffect(() => {
-      fetchQuestions();
-    }, []);
-
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
 
   // Fetch questions from the API
   const fetchQuestions = async () => {
@@ -34,7 +33,6 @@ const QuestionPage = () => {
     }
   };
 
-    
 
   // //REMOVE THIS BEFORE SUBMITTING
   // const [titleSlug] = useState('test-question');
@@ -44,6 +42,7 @@ const QuestionPage = () => {
    const [questions, updateQuestions] = useState([]);
    const [selectedQuestion, setSelectedQuestion] = useState(null);
    const [mode, setMode] = useState("create"); //Either create or edit mode.
+
 
   // Consolidated state for question data
   const [questionData, setQuestionData] = useState({
@@ -62,6 +61,7 @@ const QuestionPage = () => {
       ...questionData,
       title: "Some_Title",
     });
+    clearState();
   };
   
   const handleDelete = async () => {
@@ -83,16 +83,18 @@ const QuestionPage = () => {
   };
 
   const handleEdit = () => {
-    setMode("edit");
-    setQuestionData({
-      difficulty: selectedQuestion.difficulty,
-      topic: selectedQuestion.topic,
-      title: selectedQuestion.title,
-      description: selectedQuestion.description,
-      titleSlug: selectedQuestion.titleSlug,
-    });
+    if (selectedQuestion) {
+      setMode("edit");
+      setQuestionData({
+        difficulty: selectedQuestion.difficulty,
+        topic: selectedQuestion.topic,
+        title: selectedQuestion.title,
+        description: selectedQuestion.description,
+        titleSlug: selectedQuestion.titleSlug,
+      });
+    }
   };
-
+  
   
   const clearState = async () => {
     //   //THIS IS FOR TESTING THE API!!!!!!!
@@ -246,7 +248,7 @@ const QuestionPage = () => {
           <select 
             id="difficulty" 
             className="dropdown" 
-            value={questionData.difficulty} 
+            value={mode === 'edit' ? selectedQuestion.difficulty : questionData.difficulty}
             onChange={(e) => setQuestionData({ ...questionData, difficulty: e.target.value })}
           >
             <option value="easy">Easy</option>
@@ -258,7 +260,7 @@ const QuestionPage = () => {
           <select 
             id="topic" 
             className="dropdown"
-            value={questionData.topic}
+            value={mode === 'edit' ? selectedQuestion.topic : questionData.topic}
             onChange={(e) => setQuestionData({ ...questionData, topic: e.target.value })}
           >
             <option value="loops">Loops</option>
