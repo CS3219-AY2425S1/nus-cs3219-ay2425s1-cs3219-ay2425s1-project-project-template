@@ -2,12 +2,16 @@ import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import questionRoute from "./routes/questionRoute";
 import 'dotenv/config';
+import cors from "cors";
+
 
 
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cors<Request>());
 
 app.use("/api/question", questionRoute);
 
