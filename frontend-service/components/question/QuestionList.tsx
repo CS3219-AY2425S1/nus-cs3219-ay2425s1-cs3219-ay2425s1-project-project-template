@@ -193,11 +193,13 @@ const QuestionList: React.FC = () => {
             <Tbody>
               {currentQuestions.map((question) => (
                 <Tr key={question.id}>
-                  <Td>
-                    <Link to={`/questions/${question.id}`}>{question.id}</Link>
-                  </Td>
+                  <Td>{question.id}</Td>
 
-                  <Td>{question.title}</Td>
+                  <Td>
+                    <Link to={`/questions/${question.id}`}>
+                      {question.title}
+                    </Link>
+                  </Td>
 
                   <Td>
                     <Box
