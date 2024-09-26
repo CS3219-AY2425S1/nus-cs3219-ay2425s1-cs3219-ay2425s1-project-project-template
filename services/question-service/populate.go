@@ -19,7 +19,7 @@ func populateSampleQuestionsInTransaction(ctx context.Context, client *firestore
 		{
 			Title:      "Reverse a String",
 			Categories: []string{"Strings", "Algorithms"},
-			Complexity: "Easy",
+			Complexity: models.Easy,
 			CreatedAt:  time.Now().AddDate(-1, -5, -12),
 			Description: `Write a function that reverses a string. The input string is given as an array of characters s.
 
@@ -39,28 +39,28 @@ Constraints:
 		{
 			Title:       "Linked List Cycle Detection",
 			Categories:  []string{"Data Structures", "Algorithms"},
-			Complexity:  "Easy",
+			Complexity:  models.Easy,
 			CreatedAt:   time.Now().AddDate(-2, -3, -25),
 			Description: `Implement a function to detect if a linked list contains a cycle.`,
 		},
 		{
 			Title:       "Roman to Integer",
 			Categories:  []string{"Algorithms"},
-			Complexity:  "Easy",
+			Complexity:  models.Easy,
 			CreatedAt:   time.Now().AddDate(-3, -2, -7),
 			Description: `Given a roman numeral, convert it to an integer.`,
 		},
 		{
 			Title:       "Add Binary",
 			Categories:  []string{"Bit Manipulation", "Algorithms"},
-			Complexity:  "Easy",
+			Complexity:  models.Easy,
 			CreatedAt:   time.Now().AddDate(-4, -6, -18),
 			Description: `Given two binary strings a and b, return their sum as a binary string.`,
 		},
 		{
 			Title:      "Fibonacci Number",
 			Categories: []string{"Recursion", "Algorithms"},
-			Complexity: "Easy",
+			Complexity: models.Easy,
 			CreatedAt:  time.Now().AddDate(-1, -11, -30),
 			Description: `The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. That is,
 
@@ -70,14 +70,14 @@ Given n, calculate F(n).`,
 		{
 			Title:       "Implement Stack using Queues",
 			Categories:  []string{"Data Structures"},
-			Complexity:  "Easy",
+			Complexity:  models.Easy,
 			CreatedAt:   time.Now().AddDate(-2, -4, -15),
 			Description: `Implement a last-in- first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty).`,
 		},
 		{
 			Title:      "Combine Two Tables",
 			Categories: []string{"Databases"},
-			Complexity: "Easy",
+			Complexity: models.Easy,
 			CreatedAt:  time.Now().AddDate(-3, -5, -21),
 			Description: `Given table Person with the following columns:
 1. personId (int)
@@ -99,7 +99,7 @@ report null instead. Return the result table in any order.`,
 		{
 			Title:      "Repeated DNA Sequences",
 			Categories: []string{"Algorithms", "Bit Manipulation"},
-			Complexity: "Medium",
+			Complexity: models.Medium,
 			CreatedAt:  time.Now().AddDate(-1, -7, -28),
 			Description: `The DNA sequence is composed of a series of nucleotides abbreviated as 'A', 'C', 'G', and 'T'.
 
@@ -110,7 +110,7 @@ Given a string s that represents a DNA sequence, return all the 10-letter-long s
 		{
 			Title:      "Course Schedule",
 			Categories: []string{"Data Structures", "Algorithms"},
-			Complexity: "Medium",
+			Complexity: models.Medium,
 			CreatedAt:  time.Now().AddDate(-2, -6, -9),
 			Description: `There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
 
@@ -120,14 +120,14 @@ Return true if you can finish all courses. Otherwise, return false.`,
 		{
 			Title:       "LRU Cache Design",
 			Categories:  []string{"Data Structures"},
-			Complexity:  "Medium",
+			Complexity:  models.Medium,
 			CreatedAt:   time.Now().AddDate(-1, -8, -17),
 			Description: `Design and implement an LRU (Least Recently Used) cache.`,
 		},
 		{
 			Title:      "Longest Common Subsequence",
 			Categories: []string{"Strings", "Algorithms"},
-			Complexity: "Medium",
+			Complexity: models.Medium,
 			CreatedAt:  time.Now().AddDate(-3, -9, -3),
 			Description: `Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.
 
@@ -139,14 +139,14 @@ A common subsequence of two strings is a subsequence that is common to both stri
 		{
 			Title:       "Rotate Image",
 			Categories:  []string{"Arrays", "Algorithms"},
-			Complexity:  "Medium",
+			Complexity:  models.Medium,
 			CreatedAt:   time.Now().AddDate(-4, -11, -13),
 			Description: `You are given an n x n 2D matrix representing an image, rotate the image by 90 degrees (clockwise).`,
 		},
 		{
 			Title:      "Airplane Seat Assignment Probability",
 			Categories: []string{"Brainteaser"},
-			Complexity: "Medium",
+			Complexity: models.Medium,
 			CreatedAt:  time.Now().AddDate(-1, -3, -29),
 			Description: `n passengers board an airplane with exactly n seats. The first passenger has lost the ticket and picks a seat randomly. But after that, the rest of the passengers will:
 
@@ -157,14 +157,14 @@ Return the probability that the nth person gets his own seat.`,
 		{
 			Title:       "Validate Binary Search Tree",
 			Categories:  []string{"Data Structures", "Algorithms"},
-			Complexity:  "Medium",
+			Complexity:  models.Medium,
 			CreatedAt:   time.Now().AddDate(-2, -12, -6),
 			Description: `Given the root of a binary tree, determine if it is a valid binary search tree (BST).`,
 		},
 		{
 			Title:      "Sliding Window Maximum",
 			Categories: []string{"Arrays", "Algorithms"},
-			Complexity: "Hard",
+			Complexity: models.Hard,
 			CreatedAt:  time.Now().AddDate(-3, -1, -22),
 			Description: `You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
 
@@ -173,7 +173,7 @@ Return the max sliding window.`,
 		{
 			Title:      "N-Queen Problem",
 			Categories: []string{"Algorithms"},
-			Complexity: "Hard",
+			Complexity: models.Hard,
 			CreatedAt:  time.Now().AddDate(-2, -7, -10),
 			Description: `The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.
 
@@ -184,7 +184,7 @@ Each solution contains a distinct board configuration of the n-queens' placement
 		{
 			Title:      "Serialize and Deserialize a Binary Tree",
 			Categories: []string{"Data Structures", "Algorithms"},
-			Complexity: "Hard",
+			Complexity: models.Hard,
 			CreatedAt:  time.Now().AddDate(-1, -4, -19),
 			Description: `Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
 
@@ -193,7 +193,7 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 		{
 			Title:      "Wildcard Matching",
 			Categories: []string{"Strings", "Algorithms"},
-			Complexity: "Hard",
+			Complexity: models.Hard,
 			CreatedAt:  time.Now().AddDate(-4, -2, -27),
 			Description: `Given an input string (s) and a pattern (p), implement wildcard pattern matching with support for '?' and '*' where:
 
@@ -203,7 +203,7 @@ Design an algorithm to serialize and deserialize a binary tree. There is no rest
 		{
 			Title:      "Chalkboard XOR Game",
 			Categories: []string{"Brainteaser"},
-			Complexity: "Hard",
+			Complexity: models.Hard,
 			CreatedAt:  time.Now().AddDate(-4, -2, -27),
 			Description: `You are given an array of integers nums represents the numbers written on a chalkboard.
 
@@ -216,7 +216,7 @@ Return true if and only if Alice wins the game, assuming both players play optim
 		{
 			Title:      "Trips and Users",
 			Categories: []string{"Databases"},
-			Complexity: "Hard",
+			Complexity: models.Hard,
 			CreatedAt:  time.Now().AddDate(-1, -6, -5),
 			Description: `Given table Trips:
 1. id (int)
