@@ -189,3 +189,17 @@ func RefreshToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Generated new access token", "token": token})
 }
+
+func GetUser(c *gin.Context) {
+	user_id, exists := c.Get("uid")
+	user := models.User{}
+
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+		return
+	}
+
+	userCollection.FindOne(context.TODO(), bson.M{"user_id": user_id}).Decode(&user)
+
+	c.JSON(http.StatusOK, user)
+}
