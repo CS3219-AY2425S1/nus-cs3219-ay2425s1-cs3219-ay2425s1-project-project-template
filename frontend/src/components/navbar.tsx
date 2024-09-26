@@ -12,9 +12,9 @@ const Navbar: React.FC = () => {
         { label: 'Dashboard', href: '/dashboard' },
     ]
     return (
-        <nav className="bg-violet-800 p-3 w-screen h-18 fixed">
+        <nav className="primary-color p-3 w-screen h-18 fixed">
             <div className="mx-auto flex justify-between items-center">
-                <div className="text-white flex text-3xl font-extrabold">
+                <div className="text-white flex text-3xl font-bold">
                     <div className="text-4xl mx-8 ">{'</>'}</div>
                     <Link href="/">peerprep.</Link>
                 </div>
@@ -35,7 +35,7 @@ const Navbar: React.FC = () => {
                     ))}
                 </ul>
                 <div className="flex w-auto justify-between">
-                    <button className="font-black bg-yellow-500 mt-1 h-10 px-4 rounded-lg mx-4">
+                    <button className="font-bold secondary-color mt-1 h-10 px-4 rounded-lg mx-4">
                         Practice{' '}
                         {/* button to call API and brings out matching component*/}
                     </button>
