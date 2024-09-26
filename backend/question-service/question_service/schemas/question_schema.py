@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, computed_field, field_validator
 
 
 class UpdateQuestionModel(BaseModel):
-    description: Optional[str] = Field(default=None, min_length=10, max_length=140)
+    description: Optional[str] = Field(default=None, min_length=10)
     difficulty: Optional[str] = None
     topic: Optional[str] = None
 
