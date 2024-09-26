@@ -24,9 +24,34 @@ type SignedDetails struct {
 	jwt.RegisteredClaims
 }
 
+// Email verification struct for binding email input
+type EmailVerificationRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user_db", "user_accounts")
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
+
+// GenerateAllTokens generates both the detailed token and refresh token
+func GenerateResetTokens(email string, username string, uid string) (signedResetToken string, err error) {
+	resetClaims := &SignedDetails{
+		Email:    email,
+		Username: username,
+		Uid:      uid,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)), // valid for 5 minutes
+		},
+	}
+
+	resetToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, resetClaims).SignedString([]byte(SECRET_KEY))
+	if err != nil {
+		log.Panic(err)
+		return
+	}
+
+	return resetToken, err
+}
 
 // GenerateAllTokens generates both the detailed token and refresh token
 func GenerateAllTokens(email string, username string, uid string) (signedToken string, signedRefreshToken string, err error) {
@@ -35,14 +60,16 @@ func GenerateAllTokens(email string, username string, uid string) (signedToken s
 		Username: username,
 		Uid:      uid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * time.Second)), // valid for 1 hour
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * time.Minute)), // valid for 1 hour
 		},
 	}
 
 	refreshClaims := &SignedDetails{
-		Uid: uid,
+		Email:    email,
+		Username: username,
+		Uid:      uid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Hour)), // valid for 15 days
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * 24 * time.Hour)), // valid for 15 days
 		},
 	}
 

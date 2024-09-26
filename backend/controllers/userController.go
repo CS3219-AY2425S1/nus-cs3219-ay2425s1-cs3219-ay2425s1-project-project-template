@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"net/http"
+	"net/smtp"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 	"backend/database"
 
 	helper "backend/helpers"
-	"backend/models"
+	models "backend/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,7 +50,48 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
-// CreateUser is the api used to get a single user
+// UpdatePasswordInDatabase updates the password to new password in database
+func UpdatePasswordInDatabase(userID string, newPassword string) error {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	filter := bson.M{"user_id": userID}
+	update := bson.D{
+		{"$set", bson.D{{"password", newPassword}, {"updated_at", time.Now()}}},
+	}
+
+	_, err := userCollection.UpdateOne(ctx, filter, update)
+	return err
+}
+
+// to send the reset email (Replace this with real email service)
+func SendResetEmail(email string, token string) {
+	resetLink := "http://localhost:8080/v1/reset-password?token=" + token
+
+	// Replace with your SMTP settings (this is just an example using a basic SMTP server)
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+	authEmail := "noreply.peerprep@gmail.com"
+	authPassword := "aezo ivmc mihq wqii"
+
+	// Email message body
+	subject := "Subject: Password Reset Request\n"
+	body := "To reset your password, please click the following link: " + resetLink + "\n"
+	msg := subject + "\n" + body
+
+	// Set up authentication information.
+	auth := smtp.PlainAuth("", authEmail, authPassword, smtpHost)
+
+	// Send the email
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, authEmail, []string{email}, []byte(msg))
+	if err != nil {
+		fmt.Println("Failed to send email:", err)
+	} else {
+		fmt.Println("Reset email sent to:", email)
+	}
+}
+
+// CreateUser is the api used to tget a single user
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -139,6 +181,93 @@ func Login() gin.HandlerFunc {
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
 
 		c.JSON(http.StatusOK, gin.H{"message": "User logged in successfully", "token": token, "refreshToken": refreshToken})
+	}
+}
+
+// Email verification is the api that handles user email confirmation
+func EmailVerification() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req helper.EmailVerificationRequest
+
+		// Bind the request body
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+			return
+		}
+
+		// Check if the email exists in the database
+		var user models.User
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		err := userCollection.FindOne(ctx, bson.M{"email": req.Email}).Decode(&user)
+		if err != nil {
+			// Return success even if the email isn't found (to prevent enumeration attacks)
+			c.JSON(http.StatusOK, gin.H{"message": "If the email exists, a reset link will be sent"})
+			return
+		}
+
+		// Generate a reset token (short expiration time)
+		resetToken, err := helper.GenerateResetTokens(user.Email, user.Username, user.User_id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating reset token"})
+			return
+		}
+
+		// Save the token to MongoDB with an expiration time (1 hour)
+		//helper.UpdateAllTokens(token, refreshToken, user.User_id)
+
+		SendResetEmail(user.Email, resetToken)
+
+		c.JSON(http.StatusOK, gin.H{"message": "Reset link sent successfully"})
+	}
+}
+
+// Reset password is the api to update new password
+func ResetPassword() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get token from query parameters
+		var token string = c.Query("token")
+
+		if token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+			c.Abort()
+			return
+		}
+
+		claims, err := helper.ValidateToken(token)
+
+		if err != "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.Abort()
+			return
+		}
+
+		if claims == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.Abort()
+			return
+		}
+
+		// Bind the new password from JSON body
+		var req struct {
+			NewPassword string `json:"new_password" binding:"required"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			return
+		}
+
+		// Hash the new password
+		hashedPassword := HashPassword(req.NewPassword)
+
+		fmt.Println("Error in cursor.All: ", claims.Uid)
+		// Update user password and updated_at fields
+		if err := UpdatePasswordInDatabase(claims.Uid, hashedPassword); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Password update failed"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
 	}
 }
 
