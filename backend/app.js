@@ -1,5 +1,10 @@
 const express = require('express')
 const cors = require('cors')
+const dotenv = require('dotenv').config();
+const connectDB = require('./config/db')
+const questionsRouter = require('./routes/questionsRoutes')
+
+connectDB();
 
 const app = express()
 
@@ -13,14 +18,12 @@ app.options(
 
 app.use(cors());
 
-const PORT = 8080;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
 
-app.get('/', (req, res) => {
-    res.json({ message: 'Hello World'})
-})
+app.use(questionsRouter);
 
 module.exports = app
