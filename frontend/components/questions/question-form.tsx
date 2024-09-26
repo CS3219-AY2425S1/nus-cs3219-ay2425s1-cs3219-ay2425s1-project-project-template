@@ -22,31 +22,49 @@ import { Label } from "@/components/ui/label";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 
 interface QuestionFormProps {
-  data: Question | undefined;
+  initialData?: Question;
   isAdmin: boolean | undefined;
-  handleSubmit?: (question: Question) => void;
+  handleSubmit: (question: Question) => void;
+  submitButtonText: string;
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
-  const [question, setQuestion] = useState<Question>();
+  const [question, setQuestion] = useState<Question>(
+    props.initialData || {
+      id: "",
+      title: "",
+      category: "",
+      complexity: "easy",
+      description: "",
+    }
+  );
 
   useEffect(() => {
-    setQuestion(props.data);
-  }, [props.data]);
+    if (props.initialData) {
+      setQuestion(props.initialData);
+    }
+  }, [props.initialData]);
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    props.handleSubmit(question);
+  };
 
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       <Card>
         <CardHeader>
           <CardTitle className="m-4">
             <Label>Title</Label>
             <Input
-              value={question?.title}
+              id="title"
+              value={question.title}
               className="mt-2"
               onChange={(e) =>
-                question && setQuestion({ ...question, title: e.target.value })
+                setQuestion({ ...question, title: e.target.value })
               }
               disabled={!props.isAdmin}
+              required
             />
           </CardTitle>
         </CardHeader>
@@ -54,13 +72,14 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
           <div className="m-4">
             <Label>Category</Label>
             <Input
-              value={question?.category}
+              id="category"
+              value={question.category}
               className="mt-2"
               onChange={(e) =>
-                question &&
                 setQuestion({ ...question, category: e.target.value })
               }
               disabled={!props.isAdmin}
+              required
             />
           </div>
           <div className="m-4">
@@ -68,9 +87,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
             <div className="mt-2">
               {props.isAdmin ? (
                 <Select
-                  value={question?.complexity}
+                  value={question.complexity}
                   onValueChange={(e) =>
-                    question && setQuestion({ ...question, complexity: e })
+                    setQuestion({ ...question, complexity: e })
                   }
                   disabled={!props.isAdmin}
                 >
@@ -85,9 +104,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
                 </Select>
               ) : (
                 <Input
-                  value={question?.complexity}
+                  id="complexity"
+                  value={question.complexity}
                   onChange={(e) =>
-                    question &&
                     setQuestion({ ...question, complexity: e.target.value })
                   }
                   disabled={!props.isAdmin}
@@ -98,26 +117,21 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
           <div className="m-4">
             <Label>Description</Label>
             <AutosizeTextarea
-              value={question?.description}
+              id="description"
+              value={question.description}
               className="mt-2"
               minHeight={200}
               onChange={(e) =>
-                question &&
                 setQuestion({ ...question, description: e.target.value })
               }
               disabled={!props.isAdmin}
+              required
             />
           </div>
         </CardContent>
         <CardFooter>
           {props.isAdmin && (
-            <Button
-              onClick={() =>
-                question && props.handleSubmit && props.handleSubmit(question)
-              }
-            >
-              Save Changes
-            </Button>
+            <Button type="submit">{props.submitButtonText}</Button>
           )}
         </CardFooter>
       </Card>
