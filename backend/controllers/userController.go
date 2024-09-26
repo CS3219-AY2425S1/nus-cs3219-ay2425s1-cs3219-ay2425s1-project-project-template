@@ -161,7 +161,19 @@ func Logout() gin.HandlerFunc {
 			return
 		}
 
-		_, err := userCollection.UpdateOne(
+		var targetUser models.User
+		err := userCollection.FindOne(ctx, bson.M{"user_id": userIdStr}).Decode(&targetUser)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error finding user"})
+			return
+		}
+
+		if targetUser.Refresh_token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User is already logged out"})
+			return
+		}
+
+		_, err = userCollection.UpdateOne(
 			ctx,
 			bson.M{"user_id": userIdStr},
 			bson.M{"$set": bson.M{"refresh_token": ""}},
