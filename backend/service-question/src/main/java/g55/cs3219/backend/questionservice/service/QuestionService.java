@@ -40,6 +40,14 @@ public class QuestionService {
         return questions;
     }
 
+    public List<Question> getQuestionsByCategory(String category) {
+        List<Question> questions = questionRepository.findByCategory(category);
+        if (questions.isEmpty()) {
+            throw new QuestionNotFoundException("No questions found with category: " + category);
+        }
+        return questions;
+    }
+
     public Question createQuestion(Question question) {
         validateQuestion(question);
         if (questionRepository.existsById(question.getId())) {

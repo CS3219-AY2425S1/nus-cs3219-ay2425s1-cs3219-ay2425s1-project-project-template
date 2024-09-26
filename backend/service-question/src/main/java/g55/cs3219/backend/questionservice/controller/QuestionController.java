@@ -25,9 +25,14 @@ public class QuestionController {
         return questionService.getQuestionById(id);
     }
 
-    @GetMapping("/questions/filter")
+    @GetMapping("/questions/filterByDifficulty")
     public List<Question> getQuestionsByDifficulty(@RequestParam(name = "difficulty", required = true) String difficulty) {
         return questionService.getQuestionsByDifficulty(difficulty);
+    }
+
+    @GetMapping("/questions/filterByCategory")
+    public List<Question> getQuestionsByCategory(@RequestParam(name = "category", required = true) String category) {
+        return questionService.getQuestionsByCategory(category);
     }
 
     @PostMapping()
