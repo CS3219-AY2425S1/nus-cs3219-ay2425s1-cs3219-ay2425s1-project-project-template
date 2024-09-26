@@ -7,21 +7,20 @@ const LoginController: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const navigate = useNavigate(); 
 
-  const handleLogin = async (username: string, password: string) => {
-    const credentials: UserCredentials = { username, password };
+  const handleLogin = async (email: string, password: string) => {
+    const credentials: UserCredentials = { email, password };
     try {
       const token = await login(credentials);
       console.log("Logged in successfully! Token:", token);
-      navigate("/questions")
-    } catch (error) {
-      setErrorMessage("Login failed: Invalid username or password.");
+      navigate("/questions");
+    } catch (error: any) {
+      setErrorMessage(error || "Login failed: Invalid email or password.");
     }
-    navigate('/questions');
   };
 
   const handleCreateAccount = () => {
     console.log("Create account clicked");
-    navigate("/register")
+    navigate("/register");
   };
 
   return (

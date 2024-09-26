@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"backend/middleware"
@@ -18,17 +17,16 @@ func main() {
 		port = "8000"
 	}
 
-	allowedOrigin := fmt.Sprintf("http://localhost:%s", port)
 	router := gin.New()
 	router.Use(gin.Logger())
 
 	// Apply CORS middleware with custom configuration
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{allowedOrigin},     // Allow any origin, url
-		AllowMethods:     []string{"POST", "OPTIONS"}, //For login and sign out methods
+		AllowOrigins:     []string{"http://localhost:5173"}, // Ensure it matches your frontend port
+		AllowMethods:     []string{"POST", "GET", "OPTIONS"}, 
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"}, // Headers that can be exposed to the client
-		AllowCredentials: true,                       // Allow credentials (cookies, etc.)
+		ExposeHeaders:    []string{"Content-Length"}, 
+		AllowCredentials: true,                       
 		MaxAge:           12 * 60 * 60,
 	}))
 
@@ -37,12 +35,12 @@ func main() {
 	router.Use(middleware.Authentication())
 
 	routes.QuestionRoutes(router) // Creates Question api routes
-	// API-2
+	// API-1
 	router.GET("/api-1", func(c *gin.Context) {
 		c.JSON(200, gin.H{"success": "Access granted for api-1"})
 	})
 
-	// API-1
+	// API-2
 	router.GET("/api-2", func(c *gin.Context) {
 		c.JSON(200, gin.H{"success": "Access granted for api-2"})
 	})
