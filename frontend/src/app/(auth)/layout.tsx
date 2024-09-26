@@ -105,7 +105,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
   return (<div className="flex h-full overflow-y-auto">
       <Sidebar
-        className="sticky top-0 h-full"
+        className="sticky top-0 h-screen"
         rootStyles={{
           borderColor: "#171C28",
         }}
