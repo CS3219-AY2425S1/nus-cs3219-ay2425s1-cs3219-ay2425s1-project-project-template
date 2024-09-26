@@ -17,7 +17,7 @@ import lombok.ToString;
 public class Question {
 
     @Id
-    private String id;
+    private Long id;
     private String title;
     private String description;
     private String category;
