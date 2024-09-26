@@ -16,10 +16,12 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
     const detailsValue = detailsElement ? detailsElement.value : "";
 
     if (selectedValue == "" || topicValue == "" || titleValue == "" || detailsValue == "") {
+      //alert(selectedValue + topicValue + titleValue + detailsValue);
+      
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
     } else {
-      //alert(selectedValue);
+      //alert(selectedValue + topicValue + titleValue + detailsValue);
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add('hidden');
     }
