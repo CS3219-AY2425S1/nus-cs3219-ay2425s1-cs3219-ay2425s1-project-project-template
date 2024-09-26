@@ -1,21 +1,22 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { login, UserCredentials } from "./authService";
 import LoginView from "./LoginView";
-import { useNavigate } from "react-router-dom";
 
 const LoginController: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleLogin = async (email: string, password: string) => {
     const credentials: UserCredentials = { email, password };
     try {
       const token = await login(credentials);
-      console.log("Login successful! Token:", token);
-      navigate("/register"); // changed to questions
+      console.log("Logged in successfully! Token:", token);
+      navigate("/questions");
     } catch (error) {
       setErrorMessage("Login failed: Invalid email or password.");
     }
+    navigate('/questions');
   };
 
   const handleCreateAccount = () => {
