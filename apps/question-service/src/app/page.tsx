@@ -36,7 +36,7 @@ function DeleteModal({questionTitle, okHandler, cancelHandler}: {questionTitle: 
   const title: string = `Delete Question \"${questionTitle}\"?`
   const text: string = 'This action is irreversible(?)!' 
 
-  return <Modal title={title} onOk={okHandler} onCancel={cancelHandler}>
+  return <Modal open = {true} title={title} onOk={okHandler} onCancel={cancelHandler}>
     <p>{text}</p>
   </Modal>
 }
@@ -59,6 +59,7 @@ export default function Home() {
   // Message States
   const [messageApi, contextHolder] = message.useMessage();
 
+  console.log(("index" in deletionStage && questions != undefined));
   const success = (message: string) => {
     messageApi.open({
       type: "success",
@@ -276,7 +277,11 @@ export default function Home() {
             return;
           }
 
-          deleteQuestion(questions[deletionStage.index]).catch(err => {
+          deleteQuestion(questions[deletionStage.index])
+          .then(() => {
+            setDeletionStage({})
+          })
+          .catch(err => {
             error(err);
           })
         }} 
