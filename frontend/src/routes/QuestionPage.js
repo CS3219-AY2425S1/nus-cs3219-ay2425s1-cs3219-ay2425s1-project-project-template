@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './QuestionPage.css'; 
 
 const QuestionPage = () => {
@@ -225,7 +226,11 @@ const QuestionPage = () => {
               <h2 className="font-bold text-xl">{selectedQuestion.title}</h2>
               <h3 className="text-lg">Difficulty: {selectedQuestion.difficulty}</h3>
               <h3 className="text-lg">Topic: {selectedQuestion.topic}</h3>
-              <p className="mt-2 text-gray-700">{selectedQuestion.description}</p>
+
+              {/* Render the question description as Markdown */}
+              <ReactMarkdown className="mt-2 text-gray-700">
+                {selectedQuestion.description}
+              </ReactMarkdown>
               
               <div className="mt-4 flex justify-between">
                 {/* Delete Button */}
