@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+src/controller/question-controller.tsimport { Request, Response } from 'express';
 import {
   createQuestion as createQuestionService,
   fetchAllQuestions as fetchAllQuestionsService,
@@ -30,7 +30,7 @@ export async function createQuestion(req: Request, res: Response) {
 // Controller to get all questions
 export async function fetchAllQuestions(req: Request, res: Response) {
     try {
-        const questions = await fetchAllQuestionsService();
+        const questions = await fetchAllQuestionsService(req.query);
         res.status(200).json(questions);
     } catch (error) {
         handleError(error, res);

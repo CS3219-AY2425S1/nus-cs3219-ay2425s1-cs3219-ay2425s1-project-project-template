@@ -1,4 +1,4 @@
-import { saveQuestion, getQuestions, getQuestionById, updateQuestionById, deleteQuestionById, getQuestionByTitle } from '../repo/question-repo';
+import { saveQuestion, getQuestions, getQuestionById, updateQuestionById, deleteQuestionById, getQuestionByTitle, getTotalQuestions } from '../repo/question-repo';
 
 export async function createQuestion(questionData: any) {
     if (!questionData.title || !questionData.description) {
@@ -7,8 +7,29 @@ export async function createQuestion(questionData: any) {
     return await saveQuestion(questionData);
 }
 
-export async function fetchAllQuestions() {
-    return await getQuestions();
+export async function fetchAllQuestions(reqQuery: any) {
+    const {sort = 'title', order = 'asc', page = 1, limit = 10 } = reqQuery;
+
+    // Convert `page` and `limit` to numbers
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10); 
+
+    const questions = await getQuestions(sort, order, pageNumber, limitNumber);
+    if (!questions) {
+        throw new Error("Error fetching question");
+    }
+
+    const totalQuestions = await getTotalQuestions(); 
+    if (!totalQuestions) {
+        throw new Error(`Error fetching question`);
+    }
+
+    return {
+        totalQuestions,
+        totalPages: Math.ceil(totalQuestions / limitNumber),
+        currentPage: pageNumber,
+        questions
+    };
 }
 
 export async function fetchQuestionById(id: string) {
