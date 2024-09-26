@@ -82,7 +82,7 @@ export default function Home() {
       setIsLoading(true);
     }
 
-    GetQuestions(currentPage, limit, sortBy, difficulty, delayedSearch).then(
+    GetQuestions(currentPage, limit, sortBy, difficulty, categories, delayedSearch).then(
       (data) => {
         setQuestions(data.questions);
         setTotalCount(data.totalCount);
@@ -92,7 +92,7 @@ export default function Home() {
         setIsLoading(false);
       }
     );
-  }, [limit, currentPage, sortBy, difficulty, delayedSearch]); // TODO: (Ryan) Add dependencies for categories and edit the GetQuestion service function
+  }, [limit, currentPage, sortBy, difficulty, delayedSearch, categories]); // TODO: (Ryan) Add dependencies for categories and edit the GetQuestion service function
 
   // Delay the fetching of data only after user stops typing for awhile
   useEffect(() => {
