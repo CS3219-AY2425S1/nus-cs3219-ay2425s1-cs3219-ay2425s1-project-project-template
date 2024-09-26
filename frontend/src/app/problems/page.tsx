@@ -61,7 +61,7 @@ export default function QuestionsPage() {
                             <TableHead>Description</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Difficulty</TableHead>
-                            <TableHead>Status</TableHead>
+                            {/* <TableHead>Status</TableHead> */}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -82,7 +82,7 @@ export default function QuestionsPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell><Badge variant={question.difficulty.toLowerCase()}>{question.difficulty}</Badge></TableCell>
-                                <TableCell>
+                                {/* <TableCell>
                                     {question.status && (
                                         <TooltipProvider>
                                             <Tooltip>
@@ -95,7 +95,7 @@ export default function QuestionsPage() {
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
-                                </TableCell>
+                                </TableCell> */}
                             </TableRow>
                         ))}
                     </TableBody>
