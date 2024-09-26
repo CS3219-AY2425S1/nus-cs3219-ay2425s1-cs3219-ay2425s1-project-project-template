@@ -13,7 +13,7 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 
 	err := decoder.Decode(&dst)
 	if err != nil {
-		return fmt.Errorf("Invalid request payload")
+		return fmt.Errorf("Invalid request payload: " + err.Error())
 	}
 
 	return nil
