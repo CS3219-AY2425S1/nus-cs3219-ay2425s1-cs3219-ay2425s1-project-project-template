@@ -177,15 +177,6 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	for _, doc := range paginatedResults {
 		// Map data
 		var question models.Question
-		//complexityStr, ok := doc.Data()["complexity"].(string)
-		//if ok {
-		//	complexity, err := models.ParseComplexity(complexityStr)
-		//	if err != nil {
-		//		http.Error(w, "Invalid complexity level in question: "+err.Error(), http.StatusInternalServerError)
-		//		return
-		//	}
-		//	question.Complexity = complexity
-		//}
 		if err := doc.DataTo(&question); err != nil {
 			http.Error(w, "Failed to parse question: "+err.Error(), http.StatusInternalServerError)
 			return
