@@ -10,6 +10,9 @@ const userSchema = new Schema({
         required: true,
         unique: true
     },
+    bio: {
+        type: String
+    },
     username: {
         type: String
     },
@@ -22,8 +25,17 @@ const userSchema = new Schema({
     authorisationRole: {
         type: String,
         enum: [UserRole.ADMIN, UserRole.USER],
+        default: UserRole.USER,
         required: true
     },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    lastLoggedIn: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 const userModel = mongoose.model('User', userSchema);

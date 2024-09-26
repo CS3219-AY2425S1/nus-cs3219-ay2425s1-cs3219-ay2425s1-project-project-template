@@ -5,8 +5,6 @@ import userModel from '../models/userModel';
 const getUserController = async (req: Request, res: Response) => {
     const accessToken = req.headers.access_token;
     
-    console.log(accessToken);
-
     const userInfo = await getUserCredentials(accessToken);
 
     if (userInfo.error) {

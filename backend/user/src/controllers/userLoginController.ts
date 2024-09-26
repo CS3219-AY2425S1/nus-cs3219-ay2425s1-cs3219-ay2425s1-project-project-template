@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import userModel from '../models/userModel';
 import getUserCredentials from '../utils/getUserCredentials';
+import userModel from '../models/userModel';
 
-const createUpdateUserController = async (req: Request, res: Response) => {
+const userLoginController = async (req: Request, res: Response) => {
     const accessToken = req.headers.access_token;
-    const updateFields = req.body;
 
     const userInfo = await getUserCredentials(accessToken);
 
@@ -12,21 +11,26 @@ const createUpdateUserController = async (req: Request, res: Response) => {
         return res.status(401).json(userInfo);
     }
 
-    const { email } = userInfo;
+    const { name, email } = userInfo;
 
     try {
         const userDocument = await userModel.findOneAndUpdate(
             { email },
-            { $set: updateFields},
-            { new: true, runValidators: true }
+            { 
+                $set: { lastLoggedIn: Date.now() },
+                $setOnInsert: { username: name, email }
+            },
+            { upsert: true, new: true, runValidators: true }
         );
+
+        console.log(userDocument)
     
         res.json(userDocument);
     } catch (err) {
         res.status(500).json({
-            error: `Unable to create or update user: ${err}`
+            error: `Unable to login user: ${err}`
         });
     }
 }
 
-export default createUpdateUserController;
+export default userLoginController;
