@@ -1,14 +1,15 @@
-name: PR Style Check
+name: PR Checks
 
 on:
   pull_request:
-    paths:
-      - 'frontend/**'
 
 jobs:
-  style-check:
+  frontend-checks:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        check: ['style', 'build']
+    
     steps:
     - uses: actions/checkout@v4
     
@@ -22,9 +23,16 @@ jobs:
       working-directory: ./frontend
       
     - name: Run ESLint
+      if: matrix.check == 'style'
       run: yarn lint
       working-directory: ./frontend
 
     - name: Run Prettier check
+      if: matrix.check == 'style'
       run: yarn prettier --check .
+      working-directory: ./frontend
+      
+    - name: Build
+      if: matrix.check == 'build'
+      run: yarn build
       working-directory: ./frontend
