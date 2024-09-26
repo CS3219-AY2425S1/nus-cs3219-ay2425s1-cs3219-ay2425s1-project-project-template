@@ -7,14 +7,14 @@ RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY . .
-
+ 
 # Generate a partial monorepo with a pruned lockfile for the app
-RUN npx turbo prune --scope=user-service --docker
+RUN npx turbo prune --scope=question-service --docker
 
 FROM base AS installer
 RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /app
-
+ 
 #############################################
 # ----  Dependencies ----
 COPY --from=builder /app/out/json/ .
@@ -23,18 +23,18 @@ RUN npm install
 #############################################
 # ----  App ----
 COPY --from=builder /app/out/full/ .
-RUN npx turbo build --filter=user-service
+RUN npx turbo build --filter=question-service
 
 #############################################
 # ----  Start ----
 FROM base AS runner
 WORKDIR /app
-
+ 
 # Don't run production as root
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 user-service
-USER user-service
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 question-service
+USER question-service
 
 COPY --from=installer /app .
-
+ 
 EXPOSE ${PORT}
-CMD ["node", "app/backend/user-service/dist/server"]
+CMD ["node", "app/backend/question-service/dist/server"]

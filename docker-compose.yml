@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+    frontend:
+        container_name: frontend
+        build:
+            context: .
+            dockerfile: ./frontend/Dockerfile
+        restart: always
+        ports:
+            - 3000:3000
+        networks:
+            - app_network
+
+    user-service:
+        container_name: user-service
+        build:
+            context: .
+            dockerfile: ./backend/user-service/Dockerfile
+        restart: always
+        ports:
+            - 3002:3002
+        networks:
+            - app_network
+
+    question-service:
+        container_name: question-service
+        build:
+            context: .
+            dockerfile: ./backend/question-service/Dockerfile
+        restart: always
+        ports:
+            - 3004:3004
+        networks:
+            - app_network
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+    app_network:
+        external: true
