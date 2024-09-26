@@ -4,78 +4,147 @@ import './QuestionPage.css';
 const QuestionPage = () => {
 
   //shared logic between left and right, probably just the edit/create new qn state
+  const apiurl = "http://127.0.0.1:8000/question/"
 
   //Either create or edit mode.
   const [mode, setMode] = useState("create");
-  const [questionEdit, setEdit] = useState("None");
+  //mode = "edit";
 
 
 
   //left side logic
   const [questions, setQuestions] = useState([
-    { id: 1, title: "item1", complexity: "Easy", description: "Implement a function to detect if a linked list contains a cycle." },
-    { id: 2, title: "item2", complexity: "Medium", description: "Description for item2" },
-    { id: 3, title: "item3", complexity: "Hard", description: "Description for item3" },
+    { titleSlug:"item-1", title: "item1", complexity: "Easy", description: "Implement a function to detect if a linked list contains a cycle." },
+    { titleSlug:"item-2",  title: "item2", complexity: "Medium", description: "Description for item2" },
+    { titleSlug:"item-3",  title: "item3", complexity: "Hard", description: "Description for item3" },
     // more items...
   ]);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   const handleTitleClick = (question) => {
-    setSelectedQuestion(selectedQuestion === question ? null : question);
+    setSelectedQuestion(question);
+    setMode("create");
+    setTitle("Some_Title");
   };
 
   const handleDelete = () => {
-    // setQuestions(questions.filter((question) => question.id !== selectedQuestion.id));
-    // setSelectedQuestion(null);  // Clear selected question after deletion
-    // call delete api on question id
+    // Remove the selected question and clear the selected question state
+    setQuestions(questions.filter((question) => question.titleSlug !== selectedQuestion.titleSlug));
+    setSelectedQuestion(null);
+    // API call to delete question can be added here
   };
 
-
+  const handleEdit = () => {
+    setMode("edit");
+    setTitle(selectedQuestion.title); // Set the question title to edit
+    console.log(selectedQuestion.title);
+    // Optionally, prefill the form fields with selected question data
+  };
 
 
   //Right side logic
   const [difficulty, setDifficulty] = useState('easy');
   const [topic, setTopic] = useState('loops');
+  const [title, setTitle] = useState('Some_Title');
   const [question, setQuestion] = useState('');
 
+  //REMOVE THIS BEFORE SUBMITTING
+  const [titleSlug] = useState('test-question')
 
-  const clearState = () => {
+
+  const clearState = async () => {
+    /** 
+     * 
+    //THIS IS FOR TESTING THE API!!!!!!!
+
+    const response = await fetch('http://127.0.0.1:8000/question/', {
+      method: 'GET', // Explicitly specifying the GET method
+  });
+                if (response.ok) {
+                  const data = await response.json();
+                alert(JSON.stringify(data)); 
+                }
+                else{alert("gg")}
+      
+            */    
+
     setDifficulty("easy");
     setTopic("loops");
+    setTitle("Some_Title");
     setQuestion("");
+    setMode("create");
   }
 
   // Handle API call on button press
   const handleSetQuestion = async () => {
     // Prepare data
     const data = {
+      title,
+      question,
       difficulty,
       topic,
-      question,
+      titleSlug,
     };
 
-    try {
-      // Make API call (replace 'your-api-url' with your actual API endpoint)
-      const response = await fetch('your-api-url', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        // Clear the question field if the request was successful
-        setQuestion('');
-        alert('Question submitted successfully!');
-      } else {
-        alert('Failed to submit question.');
+    if (mode === "create"){
+      try {
+        const response = await fetch('http://127.0.0.1:8000/question/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+  
+        if (response.ok) {
+          // Clear the fields if the request was successful
+          setDifficulty("easy");
+          setTopic("loops");
+          setTitle("Some_Title");
+          setQuestion("");
+          alert('Question submitted successfully!');
+        } else {
+          alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the question. Error:'+error);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred.');
+    } else{
+      const patchdata = {
+        question,
+        difficulty,
+        topic,
+        titleSlug,
+      };
+      try {
+        alert(`http://127.0.0.1:8000/question/${title}`)
+        const response = await fetch(`http://127.0.0.1:8000/question/${title}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(patchdata),
+        });
+  
+        if (response.ok) {
+          // Clear the fields if the request was successful
+          setDifficulty("easy");
+          setTopic("loops");
+          setTitle("Some_Title");
+          setQuestion("");
+          alert('Question submitted successfully!');
+        } else {
+          alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the question. Error:'+error);
+      }
     }
+
+    
   };
 
 
@@ -96,7 +165,7 @@ const QuestionPage = () => {
           <tbody>
             {questions.map((question, index) => (
               <tr
-                key={question.id}
+                key={question.titleSlug}
                 className={`${
                   index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
                 } hover:bg-blue-100 cursor-pointer transition duration-300`}
@@ -116,14 +185,24 @@ const QuestionPage = () => {
               <h2 className="font-bold text-xl">{selectedQuestion.title} - Description</h2>
               <p className="mt-2 text-gray-700">{selectedQuestion.description}</p>
               
-              <div className="mt-4">
+              <div className="mt-4 flex justify-between">
+                {/* Delete Button */}
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                   onClick={handleDelete}
                 >
                   Delete Question
                 </button>
+
+                {/* Edit Button */}
+                <button
+                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 ml-auto"
+                  onClick={handleEdit}
+                >
+                  Edit Question
+                </button>
               </div>
+
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
@@ -139,7 +218,7 @@ const QuestionPage = () => {
       <div class="right-section">
 
         <div class="info-row" id="curmode">
-          Mode: {mode === "create" ? "Creating new question" : "Editing question"}
+          Mode: {mode === "create" ? "Creating new question" : `Editing question: ${selectedQuestion.title}`}
         </div>
 
         <div class="row">
@@ -166,6 +245,25 @@ const QuestionPage = () => {
             <option value="arrays">Arrays</option>
             <option value="conditions">Conditions</option>
           </select>
+        </div>
+
+        <div class="title-section">
+          <label htmlFor="title">Title:</label>
+          {mode === 'edit' ? (
+            <textarea
+              id="title"
+              className="questionarea"
+              value={selectedQuestion.title}
+              readOnly // Make the textarea read-only
+            />
+          ) : (
+            <textarea
+              id="title"
+              className="questionarea"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          )}
         </div>
 
         <div class="question-section">
