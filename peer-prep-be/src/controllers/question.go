@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -177,6 +178,58 @@ func DeleteQuestion(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
+}
+
+func SearchQuestion(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var questions []models.Question
+	searchTerm := c.QueryParam("prefix") 
+	fmt.Println(searchTerm)
+	escapedSearchTerm := "\\" + searchTerm + "\\"
+	fmt.Println(escapedSearchTerm)
+
+	indexModel := mongo.IndexModel{
+        Keys: bson.D{{"question_title", "text"}}, 
+    }
+
+	indexName, err := questionCollection.Indexes().CreateOne(context.TODO(), indexModel)
+
+	fmt.Println(indexName)
+    if err != nil {
+        return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+    }
+
+    // filter := bson.D{
+    //     {"$text", bson.D{
+    //         {"$search", escapedSearchTerm},
+    //         {"$caseSensitive", false},   
+    //     }},
+    // }
+    filter := bson.D{
+        {"question_title", bson.D{
+            {"$regex", searchTerm},
+			{"$options", "i"}, // Case-insensitive search
+        }},
+    }
+
+	defer cancel()
+	cur, err := questionCollection.Find(ctx, filter)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	for cur.Next(ctx) {
+		var doc models.Question
+		err := cur.Decode(&doc)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+		}
+		questions = append(questions, doc)
+	}
+
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
 }
 
 // Takes in the sortField and sortOrder from the query string and returns the FindOptions object
