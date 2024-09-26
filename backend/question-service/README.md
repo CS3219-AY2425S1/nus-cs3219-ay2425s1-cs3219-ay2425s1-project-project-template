@@ -6,6 +6,7 @@
 
 1. Python 3.12
 2. Docker (for local MongDB server)
+    > *ensure that Docker is running in the background*
 
 ### Running the server
 
@@ -24,10 +25,14 @@ python3 -m venv env
 ```
 
 2. Activate the virtual environment
-
-```bash
-source env/bin/activate or ./env/Scripts/activate
-```
+  - Linux/MacOS
+    ```bash
+    source env/bin/activate
+    ```
+  - Windows
+    ```
+    ./env/Scripts/activate
+    ```
 
 3. Install dependencies
 
@@ -40,6 +45,21 @@ pip install -r requirements.txt
 ```bash
 make db
 ```
+  <details>
+      <summary>Without <code>make</code></summary>
+
+      ```
+      docker run --name question-db -p 27017:27017 -d \
+        -e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+        -e MONGO_INITDB_ROOT_PASSWORD=secret \
+        -e MONGO_INITDB_DATABASE=questions_db \
+        -e INIT_QUESTION_COLLECTION=questions \
+        alxarkar/cs3219-ay2425s1-g40-question
+
+      ```
+
+  </details>
+<br/>
 
 5. Start question-service backend
 
