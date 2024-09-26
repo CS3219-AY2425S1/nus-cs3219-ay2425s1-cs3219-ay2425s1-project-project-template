@@ -23,7 +23,7 @@ import {
 const QuestionList: React.FC = () => {
   const { questions, loading, error } = useQuestions();
   const [search, setSearch] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "both" }); // Default to "both"
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 7;
 
@@ -34,15 +34,13 @@ const QuestionList: React.FC = () => {
     )
     .sort((a, b) => {
       if (sortConfig.key) {
-        return sortConfig.direction === "asc"
-          ? a[sortConfig.key] > b[sortConfig.key]
-            ? 1
-            : -1
-          : a[sortConfig.key] < b[sortConfig.key]
-          ? 1
-          : -1;
+        if (sortConfig.direction === "asc") {
+          return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+        } else if (sortConfig.direction === "desc") {
+          return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+        }
       }
-      return 0;
+      return 0; // No sorting
     });
 
   // Pagination Logic
@@ -68,9 +66,13 @@ const QuestionList: React.FC = () => {
   };
 
   const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+    let direction = "asc"; // Default to ascending
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === "asc") {
+        direction = "desc"; // Change to descending
+      } else if (sortConfig.direction === "desc") {
+        direction = "both"; // Reset to both (no sorting)
+      }
     }
     setSortConfig({ key, direction });
   };
@@ -120,7 +122,7 @@ const QuestionList: React.FC = () => {
             size="lg"
             border="1px"
             borderColor="gray.200"
-            sx={{ fontFamily: "Poppins, sans-serif" }} // Setting Poppins font for the entire table
+            sx={{ fontFamily: "Poppins, sans-serif" }}
           >
             <Thead>
               <Tr>
@@ -129,12 +131,16 @@ const QuestionList: React.FC = () => {
                   cursor="pointer"
                   bgColor="yellow.300"
                   onClick={() => handleSort("id")}
-                  fontFamily="Poppins, sans-serif" // Applying Poppins font to headers
+                  fontFamily="Poppins, sans-serif"
                 >
                   ID{" "}
-                  {sortConfig.key === "id" &&
-                    (sortConfig.direction === "asc" ? "↑" : "↓")}{" "}
-                  <span>↑↓</span>
+                  {sortConfig.key === "id"
+                    ? sortConfig.direction === "asc"
+                      ? "↑"
+                      : sortConfig.direction === "desc"
+                      ? "↓"
+                      : "↑↓"
+                    : "↑↓"}
                 </Th>
 
                 {/* Title Column */}
@@ -142,12 +148,16 @@ const QuestionList: React.FC = () => {
                   cursor="pointer"
                   bgColor="yellow.300"
                   onClick={() => handleSort("title")}
-                  fontFamily="Poppins, sans-serif" // Applying Poppins font to headers
+                  fontFamily="Poppins, sans-serif"
                 >
                   Title{" "}
-                  {sortConfig.key === "title" &&
-                    (sortConfig.direction === "asc" ? "↑" : "↓")}{" "}
-                  <span>↑↓</span>
+                  {sortConfig.key === "title"
+                    ? sortConfig.direction === "asc"
+                      ? "↑"
+                      : sortConfig.direction === "desc"
+                      ? "↓"
+                      : "↑↓"
+                    : "↑↓"}
                 </Th>
 
                 {/* Difficulty Column */}
@@ -155,12 +165,16 @@ const QuestionList: React.FC = () => {
                   cursor="pointer"
                   bgColor="yellow.300"
                   onClick={() => handleSort("difficulty")}
-                  fontFamily="Poppins, sans-serif" // Applying Poppins font to headers
+                  fontFamily="Poppins, sans-serif"
                 >
                   Difficulty{" "}
-                  {sortConfig.key === "difficulty" &&
-                    (sortConfig.direction === "asc" ? "↑" : "↓")}{" "}
-                  <span>↑↓</span>
+                  {sortConfig.key === "difficulty"
+                    ? sortConfig.direction === "asc"
+                      ? "↑"
+                      : sortConfig.direction === "desc"
+                      ? "↓"
+                      : "↑↓"
+                    : "↑↓"}
                 </Th>
 
                 {/* Topic Column */}
@@ -214,7 +228,6 @@ const QuestionList: React.FC = () => {
             Page {currentPage} of {totalPages}
           </Text>
 
-          {/* Next/Previous Buttons on the Right */}
           <Box>
             <Button
               onClick={handlePrevPage}
