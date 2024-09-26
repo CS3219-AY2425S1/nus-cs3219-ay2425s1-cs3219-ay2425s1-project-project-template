@@ -72,6 +72,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              isPassword={true}  // Enable password toggle for the "Password" field
             />
           </div>
           <div className="input-container">
@@ -80,6 +81,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              isPassword={true}  // Enable password toggle for the "Confirm Password" field
             />
           </div>
 

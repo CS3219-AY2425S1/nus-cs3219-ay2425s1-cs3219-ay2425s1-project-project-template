@@ -13,10 +13,9 @@ const LoginController: React.FC = () => {
       const token = await login(credentials);
       console.log("Logged in successfully! Token:", token);
       navigate("/questions");
-    } catch (error) {
-      setErrorMessage("Login failed: Invalid email or password.");
+    } catch (error: any) {
+      setErrorMessage(error || "Login failed: Invalid email or password.");
     }
-    navigate('/questions');
   };
 
   const handleCreateAccount = () => {
