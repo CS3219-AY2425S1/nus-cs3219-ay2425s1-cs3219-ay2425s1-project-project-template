@@ -19,13 +19,19 @@ import {
   Button,
   Flex,
 } from "@chakra-ui/react";
+import { Question } from "../types";
 
 const QuestionList: React.FC = () => {
   const { questions, loading, error } = useQuestions();
   const [search, setSearch] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "both" }); // Default to "both"
+  const [sortConfig, setSortConfig] = useState<{
+    key: SortableKeys;
+    direction: "asc" | "desc" | "both";
+  }>({ key: "id", direction: "both" });
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 7;
+
+  type SortableKeys = keyof Question;
 
   // Filtered and Sorted Questions
   const filteredQuestions = questions
@@ -65,7 +71,7 @@ const QuestionList: React.FC = () => {
     }
   };
 
-  const handleSort = (key) => {
+  const handleSort = (key: string) => {
     let direction = "asc"; // Default to ascending
     if (sortConfig.key === key) {
       if (sortConfig.direction === "asc") {
