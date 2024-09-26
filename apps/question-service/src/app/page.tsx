@@ -72,13 +72,14 @@ export default function Home() {
 
   // Include States for Create/Edit Modal (TODO: Sean)
 
-  // When the page is initialised, fetch all the questions ONCE and display in table
+  // When the page is initialised, fetch all the questions and display in table
+  // When the dependencies/states change, the useEffect hook will trigger to re-fetch the questions
   useEffect(() => {
     if (!isLoading) {
       setIsLoading(true);
     }
 
-    GetQuestions(currentPage, limit).then((data) => {
+    GetQuestions(currentPage, limit, sortBy).then((data) => {
       setQuestions(data.questions);
       setTotalCount(data.totalCount);
       setTotalPages(data.totalPages);
@@ -86,7 +87,7 @@ export default function Home() {
       setLimit(data.limit);
       setIsLoading(false);
     });
-  }, [limit, currentPage]);
+  }, [limit, currentPage, sortBy]);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -167,8 +168,6 @@ export default function Home() {
     current,
     pageSize
   ) => {
-    console.log(current);
-    console.log(pageSize);
     setCurrentPage(current);
     setLimit(pageSize);
   };

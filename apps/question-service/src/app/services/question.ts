@@ -24,7 +24,8 @@ export interface QuestionListResponse {
 // GET request to fetch all the questions (TODO: Ben --> Fetch with filtering/sorting etc)
 export const GetQuestions = async (
   currentPage?: number,
-  limit?: number
+  limit?: number,
+  sortBy?: string
 ): Promise<QuestionListResponse> => {
   let query_url = `${process.env.NEXT_PUBLIC_API_URL}questions`;
   let query_params = "";
@@ -35,6 +36,13 @@ export const GetQuestions = async (
 
   if (limit) {
     query_params += `${query_params.length > 0 ? "&" : "?"}limit=${limit}`;
+  }
+
+  if (sortBy) {
+    const [field, order] = sortBy.split(" ");
+    query_params += `${
+      query_params.length > 0 ? "&" : "?"
+    }sortField=${field}&sortValue=${order}`;
   }
 
   query_url += query_params;
