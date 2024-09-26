@@ -9,4 +9,5 @@ import (
 // UserRoutes function
 func QuestionRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/v1/questions", controller.GetQuestions())
+	incomingRoutes.GET("/v1/questionsById", controller.GetQuestionsById)
 }
