@@ -5,6 +5,7 @@ import { FormState } from "../lib/definitions";
 
 dotenv.config();
 
+// TODO: RSA handshake + AES encryption
 export async function signup(state: FormState, formData: FormData) {
   // TODO: Validate form data
 
@@ -27,29 +28,38 @@ export async function signup(state: FormState, formData: FormData) {
 
   try {
     const data = await response.json();
-    console.log(data);
+    if (data.token) {
+      return {
+        message: data.token,
+      };
+    } else {
+      return {
+        errors: {
+          errorMessage: data.error,
+        },
+      };
+    }
+  } catch (error) {
+    console.error(`error: ${error}`);
     return {
-      message: data.token,
       errors: {
-        name: ["Name is required"],
-        email: ["Email is required"],
-        password: ["Password is required"],
+        errorMessage: data.error
+          ? data.error
+          : "An error occurred while signing up",
       },
     };
-  } catch (error) {
-    console.error(error);
   }
 }
 
 export async function login(state: FormState, formData: FormData) {
   // TODO: Validate form data
   const data = {
-    email: `${formData.get("email")}`,
+    username: `${formData.get("username")}`,
     password: `${formData.get("password")}`,
   };
 
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/auth/login`,
+    `http://gateway-service:${process.env.API_GATEWAY_PORT}/auth/signin`,
     {
       method: "POST",
       headers: {
@@ -61,15 +71,25 @@ export async function login(state: FormState, formData: FormData) {
 
   try {
     const data = await response.json();
-    console.log(data);
+    if (data.token) {
+      return {
+        message: data.token,
+      };
+    } else {
+      return {
+        errors: {
+          errorMessage: data.error
+            ? data.error
+            : "An error occurred while logging in",
+        },
+      };
+    }
+  } catch (error) {
+    console.error(`error: ${error}`);
     return {
-      message: data.token,
       errors: {
-        email: ["Email is required"],
-        password: ["Password is required"],
+        errorMessage: "An error occurred while logging in",
       },
     };
-  } catch (error) {
-    console.error(error);
   }
 }

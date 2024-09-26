@@ -16,6 +16,8 @@ export function SignupForm() {
     if (state?.message) {
       localStorage.setItem("token", state.message);
       router.push("/home");
+    } else if (state?.errors?.errorMessage) {
+      alert(state.errors.errorMessage);
     }
   }, [state]);
 
@@ -37,16 +39,7 @@ export function SignupForm() {
             secure={true}
             placeholder_text="Password"
           />
-          {state?.errors?.password && (
-            <div>
-              <p>Password must:</p>
-              <ul>
-                {state.errors.password.map((error) => (
-                  <li key={error}>- {error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {state?.errors?.password && <p>{state.errors.password}</p>}
         </div>
         <Button type="submit" text="Sign Up" />
       </form>

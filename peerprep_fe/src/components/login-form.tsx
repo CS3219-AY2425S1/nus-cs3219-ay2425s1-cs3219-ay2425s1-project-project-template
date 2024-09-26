@@ -16,6 +16,8 @@ export function LoginForm() {
     if (state?.message) {
       localStorage.setItem("token", state.message);
       router.push("/home");
+    } else if (state?.errors?.errorMessage) {
+      alert(state.errors.errorMessage);
     }
   }, [state]);
 
@@ -23,19 +25,10 @@ export function LoginForm() {
   return (
     <div>
       <form action={action}>
-        <Textfield name="email" secure={false} placeholder_text="Email" />
-        {state?.errors?.email && <p>{state.errors.email}</p>}
+        <Textfield name="username" secure={false} placeholder_text="Name" />
+        {state?.errors?.name && <p>{state.errors.name}</p>}
         <Textfield name="password" secure={true} placeholder_text="Password" />
-        {state?.errors?.password && (
-          <div>
-            <p>Password must:</p>
-            <ul>
-              {state.errors.password.map((error) => (
-                <li key={error}>- {error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {state?.errors?.password && <p>{state.errors.password}</p>}
         <Button type="submit" text="Login" />
       </form>
 
