@@ -1,8 +1,7 @@
-"use client";
-
 import { getUserInterviewMetadata } from "@/api/dashboard";
-import DashboardCard from "@/app/(authenticatedPages)/dashboard/components/DashboardCard";
-import { DashboardDataTable } from "@/app/(authenticatedPages)/dashboard/components/DashboardDataTable";
+import DashboardCard from "@/app/(auth)/dashboard/components/DashboardCard";
+import { DashboardDataTable } from "@/app/(auth)/dashboard/components/DashboardDataTable";
+import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { UserInterviewMetadata } from "@/types/dashboard";
@@ -21,13 +20,17 @@ const initialUserInterviewMetaData: UserInterviewMetadata = {
   },
 };
 
-const Dashboard = () => {
+const AuthDashboard = () => {
+  const { user } = useAuth();
+
   const [userInterviewMetadata, setUserInterviewMetadata] =
     useState<UserInterviewMetadata>(initialUserInterviewMetaData);
 
   useEffect(() => {
+    if (!user) return;
+
     setUserInterviewMetadata(getUserInterviewMetadata());
-  }, []);
+  }, [user]);
 
   const dateFormattingOption: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -61,7 +64,7 @@ const Dashboard = () => {
       </div>
       <DashboardDataTable />
     </Container>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default AuthDashboard;
