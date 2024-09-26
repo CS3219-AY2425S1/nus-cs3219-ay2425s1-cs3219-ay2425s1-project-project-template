@@ -77,4 +77,17 @@ public class QuestionService {
 
         return questionRepository.save(existingQuestion);
     }
+
+    public String deleteQuestion(Integer id) {
+        if (id == null) {
+            throw new InvalidQuestionException("Question ID is required for deletion.");
+        }
+
+        Question existingQuestion = questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException("Question with ID " + id + " not found."));
+
+        questionRepository.delete(existingQuestion);
+
+        return "Question with ID " + id + " has been deleted.";
+    }
 }
