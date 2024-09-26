@@ -7,5 +7,6 @@ import (
 )
 
 func ProfileRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.GET("/v1/profile", controller.GetUser)
+	incomingRoutes.GET("/v1/profile", controller.GetUserProfile)
+	incomingRoutes.POST("/v1/edituser", controller.EditUsername)
 }
