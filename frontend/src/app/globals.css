@@ -41,10 +41,10 @@ body {
         --radius: 0.5rem;
         --color-category-bg: rgba(209, 193, 255, 0.8);
         --color-category-hover: rgba(164, 134, 255, 1);
-        --color-easy-bg: rgba(34, 197, 94, 0.8); 
-        --color-easy-hover: rgba(22, 163, 74, 1); 
-        --color-medium-bg: rgba(249, 115, 22, 0.8); 
-        --color-medium-hover: rgba(234, 88, 12, 1);
+        --color-easy-bg: rgba(111, 223, 208, 0.8); 
+        --color-easy-hover: rgba(111, 223, 208, 1);
+        --color-medium-bg: rgba(255, 172, 7, 0.8); 
+        --color-medium-hover: rgb(255, 170, 0);
         --color-hard-bg: rgba(239, 68, 68, 0.8); 
         --color-hard-hover: rgba(220, 38, 38, 1); 
         --color-completed-bg: rgba(34, 197, 94, 0.8); 
@@ -77,8 +77,8 @@ body {
         --chart-5: 340 75% 55%;
         --color-category-bg: #d1c1ff;
         --color-category-hover: #a486ff;
-        --color-easy-bg: #22c55e;
-        --color-easy-hover: #16a34a; 
+        --color-easy-bg: #a2eae0;
+        --color-easy-hover: #88d5ca; 
         --color-medium-bg: #f97316; 
         --color-medium-hover: #ea580c; 
         --color-hard-bg: #ef4444; 
