@@ -16,6 +16,7 @@ import {
 import Header from "../components/Header";
 import { getAllQuestions } from "../api/questionApi"; // Ensure your API supports pagination & sorting params
 import { Question } from "../@types/question";
+import Highlight from '../components/Highlight'; // Import the Highlight component
 
 const QuestionRepo = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -26,24 +27,26 @@ const QuestionRepo = () => {
 
   const [sortField, setSortField] = useState<string>("title"); // Default sort field
   const [sortOrder, setSortOrder] = useState<string>("asc"); // Default sort order
+  const [searchQuery, setSearchQuery] = useState<string>(""); 
 
-  const fetchQuestions = async (page: number, sort: string, order: string) => {
+  const fetchQuestions = async (page: number, sort: string, order: string, search: string) => {
     try {
       // Fetch questions with pagination and sorting
-      const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order });
+      const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order, search });
       setQuestions(data.questions);
       setCurrentPage(data.currentPage);
       setTotalPages(data.totalPages);
       setTotalQuestions(data.totalQuestions);
     } catch (error) {
       console.error("Failed to fetch questions", error);
+      setQuestions([]); // Clear previous questions
     }
   };
 
   useEffect(() => {
     // Fetch questions when the component mounts or sorting changes
-    fetchQuestions(currentPage, sortField, sortOrder);
-  }, [currentPage, sortField, sortOrder]);
+    fetchQuestions(currentPage, sortField, sortOrder, searchQuery);
+  }, [currentPage, sortField, sortOrder, searchQuery]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -101,6 +104,19 @@ const QuestionRepo = () => {
               <MenuItem value="desc">Descending</MenuItem>
             </TextField>
           </Box>
+  
+          <Box display="flex" alignItems="center" mb={3}>
+            <TextField
+              label="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              size="small"
+              variant="outlined"
+              fullWidth
+            />
+          </Box>
+          
+          {questions.length > 0 ? (
           <Paper elevation={3}>
             <Table>
               <TableHead>
@@ -113,14 +129,23 @@ const QuestionRepo = () => {
               <TableBody>
                 {questions.map((question) => (
                   <TableRow key={question._id}>
-                    <TableCell>{question.title}</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell>{question.complexity}</TableCell>
+                    <TableCell>
+                      <Highlight text={question.title} query={searchQuery} />
+                      </TableCell>
+                    <TableCell>{/* Status Cell */}</TableCell>
+                    <TableCell>
+                    <Highlight text={question.complexity} query={searchQuery} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </Paper>
+          ) : (
+          <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+            No questions found.
+          </Typography>
+          )}
 
           <Box
             display="flex"

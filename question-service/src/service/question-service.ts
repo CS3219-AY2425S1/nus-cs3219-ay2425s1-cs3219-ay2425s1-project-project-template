@@ -8,18 +8,31 @@ export async function createQuestion(questionData: any) {
 }
 
 export async function fetchAllQuestions(reqQuery: any) {
-    const {sort = 'title', order = 'asc', page = 1, limit = 10 } = reqQuery;
+    const {sort = 'title', order = 'asc', page = 1, limit = 10 , search,} = reqQuery;
 
+    // Build filter object
+    let filter: any = {};
+
+    if (search) {
+        const searchRegex = new RegExp(search, 'i'); // Case-insensitive search
+    
+        filter.$or = [
+          { title: { $regex: searchRegex } },
+          { category: { $regex: searchRegex } },
+          { complexity: { $regex: searchRegex } },
+        ];
+      }
+    
     // Convert `page` and `limit` to numbers
     const pageNumber = parseInt(page as string, 10);
     const limitNumber = parseInt(limit as string, 10); 
 
-    const questions = await getQuestions(sort, order, pageNumber, limitNumber);
+    const questions = await getQuestions(sort, order, pageNumber, limitNumber, filter);
     if (!questions) {
         throw new Error("Error fetching question");
     }
 
-    const totalQuestions = await getTotalQuestions(); 
+    const totalQuestions = await getTotalQuestions(filter); 
     if (!totalQuestions) {
         throw new Error(`Error fetching question`);
     }

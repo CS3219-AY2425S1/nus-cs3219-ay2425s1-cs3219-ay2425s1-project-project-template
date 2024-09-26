@@ -6,15 +6,21 @@ export const getAllQuestions = async ({
   page,
   limit,
   sort,
-  order
+  order,
+  search,
 }: {
   page: number;
   limit: number;
   sort: string;
   order: string;
+  search?: string;
 }) => {
   try {
-    const response = await axios.get(`${API_URL}/api/questions?page=${page}&limit=${limit}&sort=${sort}&order=${order}`);
+    let url = `${API_URL}/api/questions?page=${page}&limit=${limit}&sort=${sort}&order=${order}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    const response = await axios.get(url);
     console.log(response);
     return response.data;
   } catch (error) {

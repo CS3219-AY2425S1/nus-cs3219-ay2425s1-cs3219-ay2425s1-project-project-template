@@ -14,7 +14,7 @@ export async function saveQuestion(question: any) {
     return await questionModel.create(question);
 }
 
-export async function getQuestions(sort: any, order: string, pageNumber: number, limitNumber: number) {
+export async function getQuestions(sort: any, order: string, pageNumber: number, limitNumber: number, filter: any,) {
     let sortOption: any = {};
     sortOption[sort] = order === 'asc' ? 1 : -1;
     let questions: any = null; 
@@ -22,6 +22,7 @@ export async function getQuestions(sort: any, order: string, pageNumber: number,
     if (sort === 'complexity') {
         // Sorting by custom complexity levels using the predefined mapping
         questions = questionModel.aggregate([
+            { $match: filter }, // Apply the filter here
             {
                 $addFields: {
                     complexityValue: {
@@ -43,7 +44,8 @@ export async function getQuestions(sort: any, order: string, pageNumber: number,
 
       } else {
           sortOption[sort] = order === 'asc' ? 1 : -1;
-          return await questionModel.find()
+          return await questionModel
+          .find(filter)
           .sort(sortOption)
           .skip((pageNumber - 1) * limitNumber)  
           .limit(limitNumber)
@@ -52,8 +54,8 @@ export async function getQuestions(sort: any, order: string, pageNumber: number,
     return questions; 
 }
 
-export async function getTotalQuestions() {
-    return await questionModel.countDocuments();
+export async function getTotalQuestions(filter: any) {
+    return await questionModel.countDocuments(filter);
 }
 
 export async function getQuestionById(id: string) {
