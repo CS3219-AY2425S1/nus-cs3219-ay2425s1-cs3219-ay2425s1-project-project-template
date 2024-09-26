@@ -23,6 +23,20 @@ const QuestionPage = () => {
 
         // Update the questions with the array data
         updateQuestions(arrayData);
+        
+        // // Loop through each question and set its data
+        // arrayData.forEach(question => {
+        //   setQuestionData({
+        //     difficulty: question.difficulty,
+        //     topic: question.topic,
+        //     title: question.title,
+        //     description: question.description,
+        //     titleSlug: question.titleSlug,
+        //   });
+
+        //   console.log(question);
+        // });
+        
       } else {
         alert('Failed to fetch questions.');
         updateQuestions([]); // Set to an empty array if the request fails
@@ -248,7 +262,7 @@ const QuestionPage = () => {
           <select 
             id="difficulty" 
             className="dropdown" 
-            value={mode === 'edit' ? selectedQuestion.difficulty : questionData.difficulty}
+            value={questionData.difficulty}
             onChange={(e) => setQuestionData({ ...questionData, difficulty: e.target.value })}
           >
             <option value="easy">Easy</option>
@@ -260,7 +274,7 @@ const QuestionPage = () => {
           <select 
             id="topic" 
             className="dropdown"
-            value={mode === 'edit' ? selectedQuestion.topic : questionData.topic}
+            value={questionData.topic}
             onChange={(e) => setQuestionData({ ...questionData, topic: e.target.value })}
           >
             <option value="loops">Loops</option>
