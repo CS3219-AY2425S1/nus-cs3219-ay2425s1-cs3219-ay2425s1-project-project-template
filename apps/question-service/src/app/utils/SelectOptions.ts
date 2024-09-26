@@ -78,49 +78,49 @@ export const CategoriesOption = [
 export const DifficultyOption = [
   {
     label: "Easy",
-    value: "Easy",
+    value: "easy",
   },
   {
     label: "Medium",
-    value: "Medium",
+    value: "medium",
   },
   {
     label: "Hard",
-    value: "Hard",
+    value: "hard",
   },
 ];
 
 export const OrderOption = [
   {
     label: "Id (ASC)",
-    value: "Id (ASC)",
+    value: "id asc",
   },
   {
     label: "Id (DESC)",
-    value: "Id (DESC)",
+    value: "id desc",
   },
   {
     label: "Most Recent",
-    value: "Most Recent",
+    value: "createdAt desc",
   },
   {
     label: "Oldest",
-    value: "Oldest",
+    value: "createdAt asc",
   },
   {
     label: "Alphabetical (A-Z)",
-    value: "Alphabetical (A-Z)", // TODO: Edit the values based on backend in the future
+    value: "title asc",
   },
   {
     label: "Alphabetical (Z-A)",
-    value: "Alphabetical (Z-A)", // TODO: Edit the values based on backend in the future
+    value: "title desc",
   },
   {
     label: "Difficulty (ASC)",
-    value: "Difficulty (ASC)",
+    value: "complexity asc",
   },
   {
     label: "Difficulty (DESC)",
-    value: "Difficulty (DESC)",
+    value: "complexity desc",
   },
 ];

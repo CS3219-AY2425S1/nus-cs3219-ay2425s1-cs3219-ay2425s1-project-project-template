@@ -6,6 +6,8 @@ import {
   Input,
   Layout,
   message,
+  Pagination,
+  PaginationProps,
   Row,
   Select,
   Table,
@@ -32,10 +34,17 @@ import {
 export default function Home() {
   // Table States
   const [questions, setQuestions] = useState<Question[] | undefined>(undefined); // Store the questions
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined); // Store the total count of questions
+  const [totalPages, setTotalPages] = useState<number | undefined>(undefined); // Store the total number of pages
+  const [currentPage, setCurrentPage] = useState<number | undefined>(1); // Store the current page
+  const [limit, setLimit] = useState<number | undefined>(10); // Store the quantity of questions to be displayed
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Filtering States
   const [search, setSearch] = useState<string | undefined>(undefined); // Store the search
+  const [delayedSearch, setDelayedSearch] = useState<string | undefined>(
+    undefined
+  ); // Store the delayed search value
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [difficulty, setDifficulty] = useState<string[]>([]); // Store the selected difficulty level
   const [sortBy, setSortBy] = useState<string | undefined>(undefined); // Store the selected sorting parameter
@@ -66,17 +75,33 @@ export default function Home() {
 
   // Include States for Create/Edit Modal (TODO: Sean)
 
-  // When the page is initialised, fetch all the questions ONCE and display in table
+  // When the page is initialised, fetch all the questions and display in table
+  // When the dependencies/states change, the useEffect hook will trigger to re-fetch the questions
   useEffect(() => {
     if (!isLoading) {
       setIsLoading(true);
     }
 
-    GetQuestions().then((data) => {
-      setQuestions(data);
-      setIsLoading(false);
-    });
-  }, []);
+    GetQuestions(currentPage, limit, sortBy, difficulty, delayedSearch).then(
+      (data) => {
+        setQuestions(data.questions);
+        setTotalCount(data.totalCount);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+        setLimit(data.limit);
+        setIsLoading(false);
+      }
+    );
+  }, [limit, currentPage, sortBy, difficulty, delayedSearch]); // TODO: (Ryan) Add dependencies for categories and edit the GetQuestion service function
+
+  // Delay the fetching of data only after user stops typing for awhile
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDelayedSearch(search);
+      setCurrentPage(1); // Reset the current page
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -137,6 +162,7 @@ export default function Home() {
   // Handler for change in multi-select categories option
   const handleCategoriesChange = (value: string[]) => {
     setCategories(value);
+    setCurrentPage(1); // Reset the current page
   };
 
   // Handler for clearing the filtering options
@@ -148,8 +174,22 @@ export default function Home() {
   };
 
   // Handler for filtering (TODO)
-  const handleFilter = async () => {
-    success("Filtered Successfully!");
+  // const handleFilter = async () => {
+  //   success("Filtered Successfully!");
+  // };
+
+  // Handler for show size change for pagination
+  const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
+    current,
+    pageSize
+  ) => {
+    setCurrentPage(current);
+    setLimit(pageSize);
+  };
+
+  // Handler for change in page jumper
+  const onPageJump: PaginationProps["onChange"] = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -177,6 +217,7 @@ export default function Home() {
                     prefix={<SearchOutlined />}
                     onChange={(e) => setSearch(e.target.value)}
                     value={search}
+                    allowClear
                   />
                 </Col>
                 <Col span={6}>
@@ -190,12 +231,15 @@ export default function Home() {
                     value={categories}
                   />
                 </Col>
-                <Col span={4}>
+                <Col span={6}>
                   <Select
                     mode="multiple"
                     allowClear
                     placeholder="Difficulty"
-                    onChange={(value: string[]) => setDifficulty(value)}
+                    onChange={(value: string[]) => {
+                      setDifficulty(value);
+                      setCurrentPage(1); //Reset the currentpage since filter params changed
+                    }}
                     options={DifficultyOption}
                     className="difficulty-select"
                     value={difficulty}
@@ -211,15 +255,17 @@ export default function Home() {
                     value={sortBy}
                   />
                 </Col>
-                <Col span={4}>
-                  <Button onClick={handleClear}>Clear</Button>
-                  <Button
+                <Col span={2}>
+                  <Button onClick={handleClear} className="clear-button">
+                    Clear
+                  </Button>
+                  {/* <Button
                     type="primary"
                     className="filter-button"
                     onClick={handleFilter}
                   >
                     Filter
-                  </Button>
+                  </Button> */}
                 </Col>
               </Row>
             </div>
@@ -228,6 +274,14 @@ export default function Home() {
                 dataSource={questions}
                 columns={columns}
                 loading={isLoading}
+                pagination={{
+                  current: currentPage,
+                  total: totalCount,
+                  showSizeChanger: true,
+                  onShowSizeChange: onShowSizeChange,
+                  // showQuickJumper: true,
+                  onChange: onPageJump,
+                }}
               />
             </div>
           </div>
