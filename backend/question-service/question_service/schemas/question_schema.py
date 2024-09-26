@@ -3,10 +3,6 @@ from typing import Optional
 from pydantic import BaseModel, Field, computed_field, field_validator
 
 
-class TitleSlug(BaseModel):
-    title_slug: str = Field(min_length=1, max_length=20, pattern=r"^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$")
-
-
 class UpdateQuestionModel(BaseModel):
     description: Optional[str] = Field(default=None, min_length=10, max_length=140)
     difficulty: Optional[str] = None
@@ -25,7 +21,7 @@ class UpdateQuestionModel(BaseModel):
 
 class CreateQuestionModel(BaseModel):
     title: str = Field(min_length=1, max_length=20, pattern=r"^[a-zA-Z0-9 ]+$")
-    description: str = Field(min_length=10, max_length=140)
+    description: str = Field(min_length=10)
     difficulty: str
     topic: str
 
@@ -49,6 +45,6 @@ class CreateQuestionModel(BaseModel):
 
     @computed_field
     @property
-    def titleSlug(self) -> TitleSlug:
+    def titleSlug(self) -> str:
         slugified = "-".join(self.title.lower().split())
-        return TitleSlug(title_slug=slugified)
+        return slugified

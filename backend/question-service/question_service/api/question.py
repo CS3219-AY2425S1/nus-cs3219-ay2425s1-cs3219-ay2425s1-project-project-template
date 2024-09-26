@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response
 from structlog import get_logger
 
 from ..mock import mock_db
-from ..schemas import UpdateQuestionModel
+from ..schemas import CreateQuestionModel, UpdateQuestionModel
 
 router = APIRouter()
 logger = get_logger()
@@ -51,8 +51,8 @@ async def get_all_questions() -> dict:
 
 
 @router.post("/question/")
-async def create_question(question: dict):
+async def create_question(question: CreateQuestionModel):
     if not question:
         raise HTTPException(status_code=400, detail="Invalid question")
-    question = mock_db.create_question(question)
+    question = mock_db.create_question(question.model_dump())
     return question
