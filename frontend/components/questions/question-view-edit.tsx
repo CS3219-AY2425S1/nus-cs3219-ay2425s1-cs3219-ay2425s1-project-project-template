@@ -57,7 +57,6 @@ export default function QuestionViewEdit({
         title: "Unknown Error",
         description: "An unexpected error has occurred",
       });
-      return;
     }
     switch (response.status) {
       case 200:
