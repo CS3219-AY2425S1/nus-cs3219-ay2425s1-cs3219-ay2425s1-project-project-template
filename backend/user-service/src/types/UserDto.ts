@@ -1,10 +1,11 @@
 import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { IUserDto } from '@repo/user-types/IUserDto'
+import { Proficiency } from '@repo/user-types/Proficiency'
+import { Role } from '@repo/user-types/Role'
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, validate, ValidationError } from 'class-validator'
 import { IUser } from './IUser'
-import { Proficiency } from './Proficiency'
-import { Role } from './Role'
 
-export class UserDto {
+export class UserDto implements IUserDto {
     @IsString()
     @IsNotEmpty()
     id: string

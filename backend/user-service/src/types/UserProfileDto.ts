@@ -1,6 +1,6 @@
 import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { Proficiency } from '@repo/user-types/Proficiency'
 import { IsEnum, IsNotEmpty, IsOptional, IsString, ValidationError, validate } from 'class-validator'
-import { Proficiency } from './Proficiency'
 
 export class UserProfileDto {
     @IsString()

@@ -1,7 +1,7 @@
+import { IAccessTokenPayload } from '@repo/user-types/IAccessTokenPayload'
+import { Role } from '@repo/user-types/Role'
 import { SignOptions, sign } from 'jsonwebtoken'
 import config from '../common/config.util'
-import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
-import { Role } from '../types/Role'
 import { UserDto } from '../types/UserDto'
 
 export async function generateAccessToken(user: UserDto): Promise<string> {

@@ -1,6 +1,6 @@
+import { Role } from '@repo/user-types/Role'
 import { NextFunction, Request, Response } from 'express'
 import logger from '../common/logger.util'
-import { Role } from '../types/Role'
 import { UserDto } from '../types/UserDto'
 
 export function handleRoleBasedAccessControl(roles: Role[]) {

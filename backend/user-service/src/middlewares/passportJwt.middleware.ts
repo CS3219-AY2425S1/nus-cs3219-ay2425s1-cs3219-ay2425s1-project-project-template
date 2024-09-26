@@ -1,8 +1,8 @@
+import { IAccessTokenPayload } from '@repo/user-types/IAccessTokenPayload'
 import passport, { DoneCallback } from 'passport'
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt'
 import config from '../common/config.util'
 import { findOneUserById } from '../models/user.repository'
-import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
 import { UserDto } from '../types/UserDto'
 
 const options: StrategyOptions = {

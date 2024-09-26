@@ -1,4 +1,6 @@
 import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { Proficiency } from '@repo/user-types/Proficiency'
+import { Role } from '@repo/user-types/Role'
 import {
     IsEmail,
     IsEnum,
@@ -9,8 +11,6 @@ import {
     validate,
     ValidationError,
 } from 'class-validator'
-import { Proficiency } from './Proficiency'
-import { Role } from './Role'
 
 export class CreateUserDto {
     @IsString()
