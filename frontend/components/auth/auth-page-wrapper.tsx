@@ -24,7 +24,7 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({
   const auth = useAuth();
   const router = useRouter();
 
-  const finalAuthCheck = (
+  const authCheck = (
     user: { isAdmin: boolean } | undefined | null
   ): boolean => {
     if (props?.requireLoggedIn && !user) {
@@ -42,7 +42,7 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({
 
   return (
     <div>
-      {finalAuthCheck(auth?.user) ? (
+      {authCheck(auth?.user) ? (
         children
       ) : (
         <div className="flex items-start justify-center h-2/6">
