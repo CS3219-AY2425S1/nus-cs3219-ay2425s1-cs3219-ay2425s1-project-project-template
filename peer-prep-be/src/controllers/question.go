@@ -77,26 +77,6 @@ func GetQuestion(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": question}})
 }
 
-// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
-func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
-	var findOptions *options.FindOptions
-
-	if sortField != "" {
-		order := 1 // Default to ascending order
-		if sortOrder == "desc" {
-			order = -1 // If 'desc' is provided, sort in descending order
-		}
-
-		// Set the sorting options
-		findOptions = options.Find().SetSort(bson.D{{Key: sortField, Value: order}})
-	} else {
-		// No sorting specified, natural MongoDB order
-		findOptions = options.Find()
-	}
-
-	return findOptions
-}
-
 func GetQuestions(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var questions []models.Question
@@ -193,4 +173,24 @@ func DeleteQuestion(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
+}
+
+// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
+func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
+	var findOptions *options.FindOptions
+
+	if sortField != "" {
+		order := 1 // Default to ascending order
+		if sortOrder == "desc" {
+			order = -1 // If 'desc' is provided, sort in descending order
+		}
+
+		// Set the sorting options
+		findOptions = options.Find().SetCollation(&options.Collation{Locale: "en_US"}).SetSort(bson.D{{Key: sortField, Value: order}})
+	} else {
+		// No sorting specified, natural MongoDB order
+		findOptions = options.Find()
+	}
+
+	return findOptions
 }
