@@ -1,7 +1,13 @@
+import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
+import { useCrumbs } from '@/lib/hooks/use-crumbs';
+
 export const QuestionsList = () => {
+  const { crumbs } = useCrumbs();
   return (
-    <div>
-      <span>Questions Page</span>
-    </div>
+    <WithNavBanner crumbs={crumbs}>
+      <div>
+        <span>Questions Page</span>
+      </div>
+    </WithNavBanner>
   );
 };

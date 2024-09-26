@@ -1,10 +1,11 @@
 import type { BreadCrumb } from '@/stores/breadcrumb-store';
 
 export const ROUTES = {
-  HOME: '/',
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
+
+  HOME: '/',
   QUESTIONS: '/questions',
   QUESTION_DETAILS: '/questions/:questionId',
 };
@@ -39,6 +40,8 @@ const TITLES: Record<string, string> = {
   [ROUTES.LOGIN]: 'Start Interviewing Today',
   [ROUTES.SIGNUP]: 'Create an Account',
   [ROUTES.FORGOT_PASSWORD]: 'Forgot Password',
+  [ROUTES.HOME]: 'Peerprep',
+  [ROUTES.QUESTIONS]: 'Browse Questions',
 };
 
 export const getPageTitle = (path: string) => {
