@@ -10,13 +10,15 @@
 
 ## Running Question Service
 
-1. Open Command Line/Terminal and navigate into the `question-service` directory.
+1. You will need to run user service before running question service. Refer to the README in User Service on how to run. 
 
-2. Run the command: `npm install`. This will install all the necessary dependencies.
+2. Open Command Line/Terminal and navigate into the `question-service` directory.
 
-3. Run the command `npm start` to start the User Service in production mode, or use `npm run dev` for development mode, which includes features like automatic server restart when you make code changes.
+3. Run the command: `npm install`. This will install all the necessary dependencies.
 
-4. Using applications like Postman, you can interact with the Question Service on port 3002. If you wish to change this, please update the `.env` file.
+4. Run the command `npm start` to start the Question Service in production mode, or use `npm run dev` for development mode, which includes features like automatic server restart when you make code changes.
+
+5. Using applications like Postman, you can interact with the Question Service on port 3002. If you wish to change this, please update the `.env` file.
 
 ## Question Service API Guide
 
@@ -56,6 +58,30 @@
 - Headers:
   - No authentication required.
   - Explanation: This endpoint does not require authentication. It allows public access to retrieve all questions from the database.
+ 
+#### Query Parameters 
+- **`page`**: _(Optional)_ The page number for pagination. Default is `1`.
+  - Example: `?page=2`
+  
+- **`limit`**: _(Optional)_ The number of questions to return per page. Default is `10`.
+  - Example: `?limit=5`
+
+- **`sort`**: _(Optional)_ The field by which to sort the results. Default is `title`.
+  - Example: `?sort=complexity`
+  - Supported fields:
+    - `title`: Sort by question title.
+    - `complexity`: Sort by complexity (e.g., `easy`, `medium`, `hard`).
+    - `category`: Sort by question category (if category is an array, it will sort by the first element).
+  
+- **`order`**: _(Optional)_ The sort order, either `asc` (ascending) or `desc` (descending). Default is `asc`.
+  - Example: `?order=desc`
+ 
+### Example Request:
+
+```
+GET http://localhost:3002/api/questions?page=2&limit=5&sort=complexity&order=asc
+```
+
 
 ### Fetch Question by ID
 - Description: This endpoint allows fetching a specific question from the database by its ID.
