@@ -38,12 +38,12 @@ const config: Config = {
   				foreground: 'hsl(var(--secondary-foreground))'
   			},
   			red: '#EF6B73',
-			yellow: {
-				"300": "#FFD280",
-				"500": "#FFCC66",
-			},
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
+				yellow: {
+					"300": "#FFD280",
+					"500": "#FFCC66",
+				},
+  			background: '#FFD280',
+  			foreground: '#000',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
@@ -53,8 +53,10 @@ const config: Config = {
   				foreground: 'hsl(var(--popover-foreground))'
   			},
   			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
+  				// DEFAULT: 'hsl(var(--muted))',
+  				// foreground: 'hsl(var(--muted-foreground))'
+					DEFAULT: '#171C28',
+					foreground: '#8695B7'
   			},
   			accent: {
   				DEFAULT: 'hsl(var(--accent))',
