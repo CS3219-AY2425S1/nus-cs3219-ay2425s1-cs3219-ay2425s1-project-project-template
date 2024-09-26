@@ -27,7 +27,7 @@ const QuestionList: React.FC = () => {
   const [sortConfig, setSortConfig] = useState<{
     key: SortableKeys;
     direction: "asc" | "desc" | "both";
-  }>({ key: "id", direction: "both" });
+  }>({ key: "questionId", direction: "both" });
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 7;
 
@@ -136,11 +136,11 @@ const QuestionList: React.FC = () => {
                 <Th
                   cursor="pointer"
                   bgColor="yellow.300"
-                  onClick={() => handleSort("id")}
+                  onClick={() => handleSort("questionId")}
                   fontFamily="Poppins, sans-serif"
                 >
                   ID{" "}
-                  {sortConfig.key === "id"
+                  {sortConfig.key === "questionId"
                     ? sortConfig.direction === "asc"
                       ? "↑"
                       : sortConfig.direction === "desc"
@@ -192,11 +192,11 @@ const QuestionList: React.FC = () => {
 
             <Tbody>
               {currentQuestions.map((question) => (
-                <Tr key={question.id}>
-                  <Td>{question.id}</Td>
+                <Tr key={question.questionId}>
+                  <Td>{question.questionId}</Td>
 
                   <Td>
-                    <Link to={`/questions/${question.id}`}>
+                    <Link to={`/questions/${question.questionId}`}>
                       {question.title}
                     </Link>
                   </Td>
@@ -222,7 +222,7 @@ const QuestionList: React.FC = () => {
                     </Box>
                   </Td>
 
-                  <Td>{question.category}</Td>
+                  <Td>{question.category.join(', ')}</Td>
                 </Tr>
               ))}
             </Tbody>
