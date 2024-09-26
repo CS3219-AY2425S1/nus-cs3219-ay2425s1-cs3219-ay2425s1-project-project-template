@@ -7,7 +7,7 @@ const connectDB = async () => {
   try {
     const mongodbURI = process.env.MONGODB_URI || ''; // Fetch MongoDB URI from .env
     if (!mongodbURI) {
-      throw new Error('MongoDB URI is not defined in the .env file');
+      throw new Error('MongoDB URI not found');
     }
 
     await mongoose.connect(mongodbURI);

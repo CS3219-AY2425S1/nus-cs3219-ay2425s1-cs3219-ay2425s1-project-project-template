@@ -87,12 +87,12 @@ export const deleteQuestionById = async (req: Request, res: Response): Promise<v
     },
 );
       if (questionFound) {
-        res.status(200).json({ message: 'Question deleted successfully' });
+        res.status(200).json({message: 'Question deleted successfully'});
       } else {
-        res.status(404).json({ message: 'Question not found' });
+        res.status(404).json({message: 'Question not found'});
       }
     } catch (error) {
-      res.status(500).json({ message: 'Failed to delete question', error });
+      res.status(500).json({message: 'Failed to delete question', error});
     }
   };
 
@@ -108,9 +108,28 @@ export const getQuestionById = async (req: Request, res: Response): Promise<void
       if (question) {
         res.status(200).json(question);
       } else {
-        res.status(404).json({ message: 'Question not found' });
+        res.status(404).json({message: 'Question not found'});
       }
     } catch (error) {
-      res.status(500).json({ message: 'Failed to get question', error });
+      res.status(500).json({message: 'Failed to get question', error});
     }
   };
+
+// @desc Get questions by difficulty level
+// @route GET /api/questions?difficulty=<level>
+// @access Public
+export const getQuestionsByDifficulty = async (req: Request, res: Response): Promise<void> => {
+    const level = req.query.difficulty;
+    console.log("Difficulty level:", level);
+    try {
+        const questions = await Question.find({difficulty: level});
+
+        if (questions.length > 0) {
+            res.status(200).json(questions);
+        } else {
+            res.status(404).json({message: "No questions found"});
+        }
+    } catch (error) {
+        res.status(500).json({message: "Failed to get questions", error})
+    }
+};

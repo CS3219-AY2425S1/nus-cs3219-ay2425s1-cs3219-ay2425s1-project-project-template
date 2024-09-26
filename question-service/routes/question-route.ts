@@ -4,7 +4,8 @@ import {
   addQuestion,
   updateQuestionById,
   deleteQuestionById,
-  getQuestionById
+  getQuestionById,
+  getQuestionsByDifficulty
 } from '../controllers/question-controller';
 
 const router = express.Router();
@@ -12,6 +13,7 @@ const router = express.Router();
 // Routes for the question service
 router.get('/', fetchAllQuestions);
 router.post('/', addQuestion);
+router.get('/filter', getQuestionsByDifficulty);
 router.put('/:id', updateQuestionById);
 router.delete('/:id', deleteQuestionById);
 router.get('/:id', getQuestionById);
