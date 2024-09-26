@@ -25,7 +25,7 @@ export type IGetQuestionsResponse = IServiceResponse<{
      * - attempted?: May need joining with users table, or not
      */
   }>;
-  totalQuestions: number;
+  hasNextPage: boolean;
 }>;
 
 //=============================================================================

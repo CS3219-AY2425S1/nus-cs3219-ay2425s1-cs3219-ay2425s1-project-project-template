@@ -1,4 +1,12 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -10,39 +18,96 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
+import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
+import { Input } from '@/components/ui/input';
+
+import { DIFFICULTY_OPTIONS, ROWS_PER_PAGE } from './logic';
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from '@/components/ui/pagination';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useState } from 'react';
 
 interface QuestionTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  totalQuestions: number;
+  isError: boolean;
 }
 
 export function QuestionTable<TData, TValue>({
   columns,
   data,
-  totalQuestions,
+  isError,
 }: QuestionTableProps<TData, TValue>) {
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: ROWS_PER_PAGE,
+  });
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
   const table = useReactTable({
     data,
     columns,
-    manualPagination: true,
+    state: { pagination, columnFilters },
+    filterFns: {},
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
-    rowCount: totalQuestions,
+    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
   });
-  const pageSize = 3;
-  const currentPage = 1;
-  const onPageChange = (value: number) => {
-    console.log(value);
+
+  const handleDifficultyFilterChange = (value: string) => {
+    setColumnFilters(value === 'all' ? [] : [{ id: 'difficulty', value }]);
+  };
+
+  const handleStatusFilterChange = (value: string) => {
+    setColumnFilters(value == 'all' ? [] : [{ id: 'attempted', value: value === 'attempted' }]);
   };
 
   return (
     <div>
+      <div className='flex items-center py-4'>
+        <div className='mr-2'>
+          <Select onValueChange={handleStatusFilterChange}>
+            <SelectTrigger className='w-[110px]'>
+              <SelectValue placeholder='Status' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All</SelectItem>
+              <SelectItem value='attempted'>Attempted</SelectItem>
+              <SelectItem value='not-attempted'>Not attempted</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className='mr-2'>
+          <Select onValueChange={handleDifficultyFilterChange}>
+            <SelectTrigger className='w-[110px]'>
+              <SelectValue placeholder='Difficulty' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All</SelectItem>
+              {DIFFICULTY_OPTIONS.map((difficulty) => {
+                return (
+                  <SelectItem key={difficulty.toLowerCase()} value={difficulty}>
+                    {difficulty}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+        <Input
+          placeholder='Search questions...'
+          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+          onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
+          className='max-w-sm'
+        />
+      </div>
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
@@ -61,7 +126,7 @@ export function QuestionTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {!isError && table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
@@ -93,16 +158,6 @@ export function QuestionTable<TData, TValue>({
               <ArrowLeftIcon />
             </Button>
           </PaginationItem>
-          {Array.from({ length: Math.ceil(totalQuestions / pageSize) }).map((_, index) => (
-            <PaginationItem key={index}>
-              <PaginationLink
-                onClick={() => onPageChange(index)}
-                className={currentPage === index ? 'font-bold' : ''}
-              >
-                {index + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
           <PaginationItem>
             <Button
               variant='outline'

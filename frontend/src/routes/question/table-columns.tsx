@@ -7,10 +7,11 @@ export const columns: ColumnDef<Question>[] = [
   {
     accessorKey: 'attempted',
     header: 'Attempted',
-    cell: ({ row }) => {
-      const attempted = row.getValue<boolean>('attempted');
+    cell: ({ getValue }) => {
+      const attempted = getValue() as boolean;
       return <div className='ml-3'>{attempted && <CheckCircledIcon />}</div>;
     },
+    filterFn: 'equals',
   },
   {
     accessorKey: 'name',
@@ -19,6 +20,8 @@ export const columns: ColumnDef<Question>[] = [
   {
     accessorKey: 'difficulty',
     header: 'Difficulty',
+    cell: ({ getValue }) => getValue(),
+    filterFn: 'equals',
   },
   {
     accessorKey: 'topic',
@@ -28,7 +31,7 @@ export const columns: ColumnDef<Question>[] = [
       return (
         <div>
           {topics.map((topic) => (
-            <Badge className='mr-1 text-xs' variant='outline'>
+            <Badge className='mr-1 text-xs' key={topic} variant='outline'>
               {topic}
             </Badge>
           ))}
