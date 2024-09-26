@@ -1,56 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Questions = () => {
+  const [questions, setQuestions] = useState([]);
   const [openQuestion, setOpenQuestion] = useState(null);
 
-  // Function to toggle the description for a specific question
   const toggleQuestion = (id) => {
     setOpenQuestion(openQuestion === id ? null : id);
   };
-  const questions = [
-    {
-      id: 1,
-      title: "Reverse a String",
-      description: `Write a function that reverses a string.
-                    The input string is given as an array of characters s.
-                    You must do this by modifying the input array in-place with O(1) extra memory.
 
-                    Example 1:
-                    Input: s = ["h","e","l","l","o"]
-                    Output: ["o","l","l","e","h"]
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await fetch("");
+        const data = await response.json(); // <--- enter the api here
+        setQuestions(data);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
 
-                    Example 2:
-                    Input: s = ["H","a","n","n","a","h"]
-                    Output: ["h","a","n","n","a","H"]
-
-                    Constraints:
-                    1 <= s.length <= 10^5
-                    s[i] is a printable ascii character.`,
-      category: "Strings, Algorithm",
-      complexity: "Easy",
-    },
-    {
-      id: 2,
-      title: "Data Structures",
-      description: `Write a function that reverses a string.
-                    The input string is given as an array of characters s.
-                    You must do this by modifying the input array in-place with O(1) extra memory.
-
-                    Example 1:
-                    Input: s = ["h","e","l","l","o"]
-                    Output: ["o","l","l","e","h"]
-
-                    Example 2:
-                    Input: s = ["H","a","n","n","a","h"]
-                    Output: ["h","a","n","n","a","H"]
-
-                    Constraints:
-                    1 <= s.length <= 10^5
-                    s[i] is a printable ascii character.`,
-      category: "Strings, Algorithm",
-      complexity: "Easy",
-    },
-  ];
+    fetchQuestions();
+  }, []);
 
   return (
     <div className="h-96 w-full rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
@@ -58,11 +28,8 @@ const Questions = () => {
         <h2 className="text-lg font-semibold text-white">
           Interview Questions
         </h2>
-        {/* <button className="rounded-full bg-lime-300 px-4 py-2 text-black">
-          <h1>Start Practice</h1>
-        </button> */}
       </div>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {questions.map((item) => (
           <div
             key={item.id}
@@ -73,13 +40,13 @@ const Questions = () => {
               <div className="flex flex-row items-center justify-between">
                 <h3 className="font-semibold">{item.title}</h3>
                 <h3
-                  className={`rounded-full px-4 py-1 text-sm font-light ${
+                  className={`rounded-full px-4 py-1 text-sm font-light text-black ${
                     item.complexity === "Easy"
-                      ? "bg-lime-100/30 text-lime-400"
+                      ? "bg-lime-300"
                       : item.complexity === "Medium"
-                        ? "bg-yellow-100 text-yellow-600"
+                        ? "bg-yellow-400"
                         : item.complexity === "Hard"
-                          ? "bg-red-100 text-red-600"
+                          ? "bg-red-600"
                           : ""
                   }`}
                 >

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 
@@ -24,7 +24,7 @@ const MonthlyProgress = ({ monthlyPracticeData, startMonth }) => {
     ];
     const labels = [];
     for (let i = 0; i < 6; i++) {
-      labels.push(months[(startMonth + i) % 12]); 
+      labels.push(months[(startMonth + i) % 12]);
     }
     return labels;
   };
@@ -34,11 +34,11 @@ const MonthlyProgress = ({ monthlyPracticeData, startMonth }) => {
     datasets: [
       {
         label: "Practice Sessions",
-        data: monthlyPracticeData.slice(0, 6), 
-        backgroundColor: "#a3e635", 
+        data: monthlyPracticeData.slice(0, 6),
+        backgroundColor: "#bcfe4d",
         borderRadius: 8,
-        barPercentage: 0.8, 
-        hoverBackgroundColor: "#84cc16", 
+        barPercentage: 0.8,
+        hoverBackgroundColor: "#84cc16",
       },
     ],
   };
@@ -67,7 +67,7 @@ const MonthlyProgress = ({ monthlyPracticeData, startMonth }) => {
     },
     plugins: {
       legend: {
-        display: false, 
+        display: false,
       },
       tooltip: {
         callbacks: {
@@ -85,7 +85,7 @@ const MonthlyProgress = ({ monthlyPracticeData, startMonth }) => {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl bg-[#191919] p-6 border border-gray-300/30">
+    <div className="w-full max-w-md rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
       <h2 className="mb-4 text-lg font-semibold text-white">
         Monthly Practice Breakdown
       </h2>

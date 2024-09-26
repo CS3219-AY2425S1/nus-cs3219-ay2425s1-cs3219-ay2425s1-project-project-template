@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Line } from "react-chartjs-2";
 import {
   Chart,
@@ -28,7 +28,7 @@ const ProgressOverview = ({ dataPoints }) => {
       {
         label: "Progress",
         data: dataPoints,
-        borderColor: "#a3e635",
+        borderColor: "#bcfe4d",
         backgroundColor: "rgba(163, 230, 53, 0.1)",
         fill: true,
         tension: 0.4,
@@ -43,7 +43,7 @@ const ProgressOverview = ({ dataPoints }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true,
+        display: false,
         position: "top",
         labels: {
           color: "white",

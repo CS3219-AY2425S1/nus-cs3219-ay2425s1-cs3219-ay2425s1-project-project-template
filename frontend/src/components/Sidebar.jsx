@@ -1,4 +1,4 @@
-import React from "react";
+
 import {
   Home,
   Activity,
@@ -19,16 +19,14 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="flex w-20 flex-col items-center space-y-8 py-8 border border-y-0 border-l-0 border-gray-300/20">
-      <div className="mb-8">
-        
-      </div>
+    <aside className="flex w-20 flex-col items-center space-y-8 border border-y-0 border-l-0 border-gray-300/20 py-8">
+      <div className="mb-8"></div>
       {menuItems.map((item, index) => (
         <button
           key={index}
           className={`rounded-lg p-3 ${
             item.active
-              ? "bg-[#c6f04d] text-black"
+              ? "bg-[#bcfe4d] text-black"
               : "text-gray-400 hover:bg-gray-500/30 hover:text-white"
           }`}
         >
