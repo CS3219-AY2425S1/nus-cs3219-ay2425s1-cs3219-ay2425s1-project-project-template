@@ -1,6 +1,7 @@
 package g55.cs3219.backend.questionservice.model;
 
 import jakarta.persistence.Id;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import lombok.ToString;
 public class Question {
 
     @Id
-    private Long id;
+    private Integer questionId;
     private String title;
     private String description;
     private String category;

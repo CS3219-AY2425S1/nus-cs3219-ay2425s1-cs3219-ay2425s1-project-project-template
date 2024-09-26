@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface QuestionRepository extends MongoRepository<Question, Long> {
+public interface QuestionRepository extends MongoRepository<Question, Integer> {
     List<Question> findAll();
     List<Question> findByDifficulty(String difficulty);
 }

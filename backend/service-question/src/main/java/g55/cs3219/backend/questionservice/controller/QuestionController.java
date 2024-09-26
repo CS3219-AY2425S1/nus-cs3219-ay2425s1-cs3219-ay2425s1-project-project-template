@@ -21,13 +21,18 @@ public class QuestionController {
     }
 
     @GetMapping("/{id}")
-    public Question getQuestionById(@PathVariable Long id) {
+    public Question getQuestionById(@PathVariable Integer id) {
         return questionService.getQuestionById(id);
     }
 
     @GetMapping("/questions/filter")
     public List<Question> getQuestionsByDifficulty(@RequestParam(name = "difficulty", required = true) String difficulty) {
         return questionService.getQuestionsByDifficulty(difficulty);
+    }
+
+    @PostMapping()
+    public Question createQuestion(@RequestBody Question question) {
+        return questionService.createQuestion(question);
     }
 
 }
