@@ -2,14 +2,17 @@ import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongo
 import express, { Express } from 'express'
 import 'express-async-errors'
 import mongoose from 'mongoose'
+import { agent, Agent } from 'supertest'
 import { QUESTION_BANK } from '../../__mocks__/question.mock'
-import config from '../../src/common/config.util'
 import logger from '../../src/common/logger.util'
 import connectToDatabase from '../../src/common/mongodb.util'
 import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
 import questionSchema from '../../src/models/question.model'
 import questionRouter from '../../src/routes/question.routes'
+import { Category } from '../../src/types/Category'
+import { Complexity } from '../../src/types/Complexity'
 import { IQuestion } from '../../src/types/IQuestion'
+import { QuestionDto } from '../../src/types/QuestionDto'
 
 jest.mock('../../src/common/config.util', () => ({
     NODE_ENV: 'test',
@@ -19,6 +22,7 @@ jest.mock('../../src/common/config.util', () => ({
 
 describe('Question Routes', () => {
     let app: Express
+    let testAgent: Agent
     let startedContainer: StartedMongoDBContainer
 
     beforeAll(async () => {
@@ -28,12 +32,12 @@ describe('Question Routes', () => {
         const connectionString = `${startedContainer.getConnectionString()}?directConnection=true`
         logger.info(`[Question Routes Test] MongoDB container started on ${connectionString}`)
 
-        jest.replaceProperty(config, 'DB_URL', connectionString)
-
         app = express()
         app.use(express.json())
         app.use('/questions', questionRouter)
         app.use(defaultErrorHandler)
+
+        testAgent = agent(app)
 
         await connectToDatabase(connectionString)
     }, 60000)
@@ -47,23 +51,204 @@ describe('Question Routes', () => {
         await mongoose.connection.db!.dropDatabase()
     })
 
-    // Dummy test, remove when APIs are implemented
-    it('should insert all questions', async () => {
-        await mongoose.model<IQuestion>('Question', questionSchema).bulkWrite(
-            QUESTION_BANK.map((question) => ({
-                insertOne: {
-                    document: question,
-                },
-            }))
-        )
-        const questions = await mongoose.model<IQuestion>('Question', questionSchema).find()
-        expect(questions).toHaveLength(QUESTION_BANK.length)
+    describe('GET /questions', () => {
+        beforeEach(async () => {
+            await mongoose.model<IQuestion>('Question', questionSchema).bulkWrite(
+                QUESTION_BANK.map((question) => ({
+                    insertOne: {
+                        document: question,
+                    },
+                }))
+            )
+            await mongoose.model<IQuestion>('Question', questionSchema).createIndexes()
+        })
+
+        it('should return 200 OK and a list of all the questions with the pagination information', async () => {
+            const queryParams = {
+                page: '1',
+                limit: '10',
+            }
+            const {
+                status,
+                body: { pagination, questions },
+            } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(200)
+            expect(pagination).toEqual({
+                currentPage: 1,
+                nextPage: 2,
+                totalPages: Math.ceil(QUESTION_BANK.length / 10),
+                totalItems: QUESTION_BANK.length,
+            })
+            expect(questions).toHaveLength(10)
+        })
+
+        it('should return 400 BAD REQUEST when the page or limit query parameter is not a number', async () => {
+            const queryParams = {
+                page: 'invalid',
+                limit: '10',
+            }
+            const { status } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(400)
+        })
+
+        it('should return 400 BAD REQUEST when the filter parameters are invalid', async () => {
+            const queryParams = {
+                page: '1',
+                limit: '10',
+                filterBy: 'invalid:invalid',
+            }
+            const { status } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(400)
+        })
+
+        it('should return 400 BAD REQUEST when the sort parameters are invalid', async () => {
+            const queryParams = {
+                page: '1',
+                limit: '10',
+                sortBy: 'invalid:invalid',
+            }
+            const { status } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(400)
+        })
+
+        it('should return 200 OK and a list of filtered questions when a valid title search parameter is provided', async () => {
+            const queryParams = {
+                page: '1',
+                limit: '20',
+                filterBy: 'title:a',
+            }
+            const {
+                status,
+                body: { questions },
+            } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(200)
+            expect(questions).toHaveLength(QUESTION_BANK.filter((q) => q.title.includes('a')).length)
+        })
+
+        it('should return 200 OK and a list of filtered questions when a valid filter parameter is provided', async () => {
+            const queryParams = {
+                page: '1',
+                limit: '20',
+                filterBy: 'title:a,categories:ALGORITHMS',
+            }
+            const {
+                status,
+                body: { questions },
+            } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(200)
+            expect(questions).toHaveLength(
+                QUESTION_BANK.filter((q) => q.title.includes('a') && q.categories.includes(Category.ALGORITHMS)).length
+            )
+        })
+
+        it('should return 200 OK and a list of sorted questions when a valid sort parameter is provided', async () => {
+            const queryParams = {
+                page: '1',
+                limit: '20',
+                sortBy: 'complexity:asc',
+            }
+            const {
+                status,
+                body: { questions },
+            } = await testAgent.get('/questions').query(queryParams)
+            expect(status).toBe(200)
+            const isSorted = questions.every(
+                (question: QuestionDto, index: number) =>
+                    index === 0 ||
+                    Object.values(Complexity).indexOf(question.complexity) >=
+                        Object.values(Complexity).indexOf(questions[index - 1].complexity)
+            )
+            expect(isSorted).toBe(true)
+        })
     })
 
-    describe('GET /questions', () => {
-        it('should return 200 OK', async () => {
-            // Dummy Test
-            expect(true).toBe(true)
+    describe('PUT /questions/:id', () => {
+        let question: IQuestion
+        beforeEach(async () => {
+            question = await mongoose.model<IQuestion>('Question', questionSchema).create(QUESTION_BANK[0])
+        })
+        it('should return 200 OK for successful update', async () => {
+            const response = await testAgent.put(`/questions/${question.id}`).send({
+                id: question.id,
+                title: 'new title',
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(200)
+            expect(response.body.title).toEqual('new title')
+            expect(response.body.description).toEqual('new description')
+            expect(response.body.categories).toEqual([Category.ALGORITHMS])
+            expect(response.body.complexity).toEqual(Complexity.MEDIUM)
+            expect(response.body.link).toEqual('https://www.newlink.com')
+        })
+
+        it('should return 400 BAD REQUEST for invalid requests and a list of errors', async () => {
+            const response = await testAgent.put(`/questions/${question.id}`).send({})
+            expect(response.status).toBe(400)
+            expect(response.body).toHaveLength(6)
+        })
+
+        it('should return 404 NOT FOUND for requests with invalid ids', async () => {
+            const response = await testAgent.put('/questions/000000000000000000000000').send({
+                id: '000000000000000000000000',
+                title: 'new title',
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(404)
+        })
+
+        it('should return 409 CONFLICT for requests with duplicate titles', async () => {
+            await mongoose.model<IQuestion>('Question', questionSchema).create(QUESTION_BANK[1])
+            const response = await testAgent.put(`/questions/${question.id}`).send({
+                id: question.id,
+                title: QUESTION_BANK[1].title,
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(409)
+        })
+    })
+
+    describe('POST /questions/:id', () => {
+        it('should return 201 CREATED for successful creation', async () => {
+            const response = await testAgent.post('/questions').send({
+                title: 'new title',
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(201)
+            expect(response.body.title).toEqual('new title')
+            expect(response.body.description).toEqual('new description')
+            expect(response.body.categories).toEqual([Category.ALGORITHMS])
+            expect(response.body.complexity).toEqual(Complexity.MEDIUM)
+            expect(response.body.link).toEqual('https://www.newlink.com')
+        })
+
+        it('should return 400 BAD REQUEST for invalid requests and a list of errors', async () => {
+            const response = await testAgent.post('/questions').send({})
+            expect(response.status).toBe(400)
+            expect(response.body).toHaveLength(5)
+        })
+
+        it('should return 409 CONFLICT for requests with duplicate titles', async () => {
+            await mongoose.model<IQuestion>('Question', questionSchema).create(QUESTION_BANK[0])
+            const response = await testAgent.post('/questions').send({
+                title: QUESTION_BANK[0].title,
+                description: 'new description',
+                categories: [Category.ALGORITHMS],
+                complexity: Complexity.MEDIUM,
+                link: 'https://www.newlink.com',
+            })
+            expect(response.status).toBe(409)
         })
     })
 })
