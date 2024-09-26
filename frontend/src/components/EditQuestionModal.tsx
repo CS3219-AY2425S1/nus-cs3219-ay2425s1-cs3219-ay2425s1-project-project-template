@@ -1,27 +1,31 @@
 import React from "react";
 
 
-const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
+const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
+  /* Placeholders */
   const oldDifficulty = "Easy";
+  const oldTopic = "Array";
+  const oldTitle = "Two sum";
+  const oldDetails = "Two sum is a question that tests...";
 
   function onSubmit() {
     const selectElement = document.getElementById('difficulty') as HTMLSelectElement | null;
-    const selectedValue = selectElement ? selectElement.value : '';
+    const newSelectedValue = selectElement ? selectElement.value : '';
     
     const topicElement = document.getElementById("topic") as HTMLInputElement | null;
-    const topicValue = topicElement ? topicElement.value : "";
+    const newTopicValue = topicElement ? topicElement.value : "";
     
     const titleElement = document.getElementById("title") as HTMLInputElement | null;
-    const titleValue = titleElement ? titleElement.value : "";
+    const newTitleValue = titleElement ? titleElement.value : "";
     
     const detailsElement = document.getElementById("details") as HTMLInputElement | null;
-    const detailsValue = detailsElement ? detailsElement.value : "";
+    const newDetailsValue = detailsElement ? detailsElement.value : "";
 
-    if (selectedValue == "" || topicValue == "" || titleValue == "" || detailsValue == "") {
+    if (newSelectedValue == "" || newTopicValue == "" || newTitleValue == "" || newDetailsValue == "") {
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
     } else {
-      //alert(selectedValue);
+      alert(newSelectedValue);
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add('hidden');
     
@@ -54,7 +58,7 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
               <label className="font-semibold">Difficulty Level</label>
               <div className="relative mt-1 shadow-md">
                 <select 
-                  name="difficulty" id="difficulty" 
+                  name="difficulty" id="difficulty" value={oldDifficulty} 
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 >
                   <option value="" disabled selected hidden>Choose a difficulty level</option>
@@ -70,9 +74,9 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
               <label className="font-semibold">Topic</label>
               <div className="relative mt-1 shadow-md">
                 <input 
-                  type="text" name="topic" id="topic"
+                  type="text" name="topic" id="topic" value={oldTopic}
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                ></input>
+                >oldTopic</input>
               </div>
             </div>
 
@@ -81,9 +85,9 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
               <label className="font-semibold">Question Title</label>
               <div className="relative mt-1 shadow-md">
                 <input 
-                  type="text" name="title" id="title" 
+                  type="text" name="title" id="title" value={oldTitle}
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                ></input>
+                >oldTitle</input>
               </div>
             </div>
 
@@ -92,10 +96,10 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
               <label className="font-semibold">Question details</label>
               <div className="relative mt-1 shadow-md">
                 <textarea
-                  name="details" id="details" 
+                  name="details" id="details" value={oldDetails}
                   rows={3}
                   className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                ></textarea>
+                >oldDetails</textarea>
               </div>
             </div>
 
@@ -126,4 +130,4 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
   };
 };
 
-export default AddQuestionModal;
+export default EditQuestionModal;
