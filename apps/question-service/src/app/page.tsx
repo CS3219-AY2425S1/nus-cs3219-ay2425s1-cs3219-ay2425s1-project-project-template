@@ -99,26 +99,21 @@ export default function Home() {
     });
   };
 
-  async function deleteQuestion(q: Question) {
-    await DeleteQuestionByDocref(q.docRefId);
-    loadQuestions();
-  }
-
-  function loadQuestions() {
+  async function loadQuestions() {
     if (!isLoading) {
       setIsLoading(true);
     }
 
-    GetQuestions(currentPage, limit).then((data) => {
-      setQuestions(data.questions);
-      setTotalCount(data.totalCount);
-      setTotalPages(data.totalPages);
-      setCurrentPage(data.currentPage);
-      setLimit(data.limit);
-      setIsLoading(false);
-    });
+    let data = await GetQuestions(currentPage, limit);
+    setQuestions(data.questions);
+    setTotalCount(data.totalCount);
+    setTotalPages(data.totalPages);
+    setCurrentPage(data.currentPage);
+    setLimit(data.limit);
+    setIsLoading(false);
   }
-  useEffect(loadQuestions, [limit, currentPage]);
+
+  useEffect(() => {loadQuestions()}, [limit, currentPage]);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -171,11 +166,11 @@ export default function Home() {
             danger
             icon={<DeleteOutlined />}
             onClick={() => {
-              if (questions == undefined) {
+              if (questions === undefined) {
                 throw new Error("questions is undefined")
               }
-              let toDelete = questions.findIndex(row => row.id == id)
-              if (toDelete == -1) {
+              let toDelete = questions.findIndex(row => row.id === id)
+              if (toDelete === -1) {
                 error("Could not find id");
                 return;
               }
@@ -221,6 +216,36 @@ export default function Home() {
     setCurrentPage(pageNumber);
   };
 
+  const confirmDeleteHandler = async () => {
+    if (!("index" in deletionStage) || deletionStage.deleteConfirmed) {
+      error("Cannot delete: invalid deletionStage");
+      return;
+    }
+    if (questions == undefined) {
+      error("Cannot delete: questions does not exist");
+      return;
+    }
+    if (currentPage == undefined) {
+      error("Cannot delete: currentPage does not exist");
+      return;
+    }
+    
+    setDeletionStage({ index: deletionStage.index, deleteConfirmed: true });
+    await DeleteQuestionByDocref(questions[deletionStage.index].docRefId);
+    if (questions.length == 1 && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    } else {
+      try {
+        await loadQuestions();
+      } catch (err) {
+        if (typeof err == 'string') {
+          error(err);
+        }
+      }
+    }
+    setDeletionStage({});
+
+  };
   return (
     <div>
       {contextHolder}
@@ -310,28 +335,7 @@ export default function Home() {
         </Content>
       </Layout>
       {("index" in deletionStage && questions != undefined) && <DeleteModal 
-        okHandler={() => {
-          if (!("index" in deletionStage)) {
-            error("Cannot delete: no index");
-            return;
-          }
-          if (deletionStage.deleteConfirmed) {
-            error("Cannot delete: still deleting");
-            return;
-          }
-          setDeletionStage({index: deletionStage.index, deleteConfirmed: true})
-
-          deleteQuestion(questions[deletionStage.index])
-          .then(() => {
-            success("Question successfully deleted")
-          })
-          .catch(err => {
-            error(err);
-          })
-          .finally(() => {
-            setDeletionStage({})
-          })
-        }} 
+        okHandler={confirmDeleteHandler} 
         cancelHandler={() => setDeletionStage({})}
         questionTitle={questions[deletionStage.index].title}
         isDeleting={deletionStage.deleteConfirmed}/>}
