@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 interface AuthContextType {
   token: string;
-  login: (response: any) => void;
+  login: (response: { access_token: string }) => void;
   logout: () => void;
 }
 

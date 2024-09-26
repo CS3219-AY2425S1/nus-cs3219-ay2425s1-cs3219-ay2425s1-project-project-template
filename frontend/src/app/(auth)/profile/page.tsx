@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { setGetProfile } from "@/api/user";
@@ -45,7 +45,7 @@ const ProfilePage = () => {
       console.error("Profile Fetch Failed:", error);
       // or swal
     });
-  }, [token]);
+  }, [token, form]);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setGetProfile(token, data).then((data) => {
