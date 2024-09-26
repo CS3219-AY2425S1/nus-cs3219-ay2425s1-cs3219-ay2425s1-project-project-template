@@ -10,8 +10,5 @@ COPY . .
 
 EXPOSE 3001
 
-# Keep container running (dummy command)
-CMD ["tail", "-f", "/dev/null"]
-
 # Eventually, run:
-# CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev"]
