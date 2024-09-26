@@ -23,7 +23,7 @@ import {
 } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState } from "react";
-import { DeleteQuestion as DeleteQuestionByDocref, GetQuestions, Question } from "./services/question-stub";
+import { DeleteQuestion as DeleteQuestionByDocref, GetQuestions, Question } from "./services/question";
 import {
   CategoriesOption,
   DifficultyOption,
