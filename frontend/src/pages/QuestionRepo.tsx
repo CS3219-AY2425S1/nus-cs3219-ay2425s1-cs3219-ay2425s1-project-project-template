@@ -14,6 +14,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TextField
 } from "@mui/material";
 import Header from "../components/Header";
 import { getAllQuestions } from "../api/questionApi"; // Ensure your API supports pagination & sorting params
@@ -75,25 +76,34 @@ const QuestionRepo = () => {
           </Typography>
 
           {/* Sorting Controls */}
-          <Box display="flex" justifyContent="space-between" mb={2}>
-            <FormControl>
-              <InputLabel>Sort By</InputLabel>
-              <Select value={sortField} onChange={handleSortChange}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <TextField
+              select
+              label="Sort By"
+              value={sortField}
+              onChange={handleSortChange}
+              size="small"
+              variant="outlined"
+              // sx={{ width: 150 }}
+            >
                 <MenuItem value="title">Title</MenuItem>
                 <MenuItem value="complexity">Complexity</MenuItem>
                 <MenuItem value="category">Category</MenuItem>
-              </Select>
-            </FormControl>
+            </TextField>
 
-            <FormControl>
-              <InputLabel>Order</InputLabel>
-              <Select value={sortOrder} onChange={handleOrderChange}>
-                <MenuItem value="asc">Ascending</MenuItem>
-                <MenuItem value="desc">Descending</MenuItem>
-              </Select>
-            </FormControl>
+            <TextField
+              select
+              label="Order"
+              value={sortOrder}
+              onChange={handleOrderChange}
+              size="small"
+              variant="outlined"
+              // sx={{ width: 150 }}
+            >
+              <MenuItem value="asc">Ascending</MenuItem>
+              <MenuItem value="desc">Descending</MenuItem>
+            </TextField>
           </Box>
-
           <Paper elevation={3}>
             <Table>
               <TableHead>
