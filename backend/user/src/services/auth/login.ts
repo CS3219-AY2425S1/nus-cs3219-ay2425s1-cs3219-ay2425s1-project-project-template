@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { db, users } from '@/lib/db';
 import type { ILoginPayload, ILoginResponse } from './types';
-import { generateCookie } from '@/lib/cookies';
+import { CookiePayload, generateCookie } from '@/lib/cookies';
 import { getIsPasswordValid } from '@/lib/passwords';
 
 const _FAILED_ATTEMPTS_ALLOWED = 3;
@@ -74,7 +74,7 @@ export const loginService = async (payload: ILoginPayload): Promise<ILoginRespon
       unlockTime: null,
     });
   }
-  const jwtToken = generateCookie({ id: user.id });
+  const jwtToken = generateCookie<CookiePayload>({ id: user.id });
   return {
     code: StatusCodes.OK,
     data: {
