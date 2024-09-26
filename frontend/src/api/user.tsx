@@ -23,5 +23,11 @@ export const setGetProfile = async (access_token: string, user: User): Promise<U
     }),
   });
 
-  return response.json();
+  // return response.json();
+  return {
+    username: "Hong Shan",
+    bio: "I live in Redhill",
+    linkedin: "www.linkedin.com/in/hongshan",
+    github: "www.github.com/hongshan",
+  }
 }

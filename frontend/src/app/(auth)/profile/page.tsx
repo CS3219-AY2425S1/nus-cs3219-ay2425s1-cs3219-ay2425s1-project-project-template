@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Swal from "sweetalert2";
 
 const formSchema = z.object({
   username: z.string()
@@ -43,7 +44,11 @@ const ProfilePage = () => {
       form.reset(data);
     }).catch((error) => {
       console.error("Profile Fetch Failed:", error);
-      // or swal
+      Swal.fire({
+        icon: "error",
+        title: "Profile Fetch Failed",
+        text: "Please try again later",
+      });
     });
   }, [token, form]);
 
@@ -51,15 +56,24 @@ const ProfilePage = () => {
     setGetProfile(token, data).then((data) => {
       setUser(data);
       form.reset(data);
+      Swal.fire({
+        icon: "success",
+        title: "Profile Updated",
+        text: "Your profile has been updated successfully",
+      });
     }).catch((error) => {
       console.error("Profile Update Failed:", error);
-      // or swal
+      Swal.fire({
+        icon: "error",
+        title: "Profile Update Failed",
+        text: "Please try again later",
+      })
     });
   };
 
   return (
     <div className="mx-auto max-w-xl my-10 p-4">
-      <h1 className="text-white font-extrabold text-h1">Welcome, {user?.username}</h1>
+      <h1 className="text-white font-extrabold text-h1">Welcome, {user?.username}!</h1>
 
       <Form {...form}>
         <form className="my-10 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
