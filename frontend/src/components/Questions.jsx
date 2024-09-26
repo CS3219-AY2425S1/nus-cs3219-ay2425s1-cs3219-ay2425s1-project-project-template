@@ -53,12 +53,14 @@ const Questions = () => {
   ];
 
   return (
-    <div className="h-96 w-full rounded-3xl bg-[#191919] p-6">
+    <div className="h-96 w-full rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Interview Questions</h2>
-        <button className="rounded-full bg-lime-300 px-4 py-2 text-black">
+        <h2 className="text-lg font-semibold text-white">
+          Interview Questions
+        </h2>
+        {/* <button className="rounded-full bg-lime-300 px-4 py-2 text-black">
           <h1>Start Practice</h1>
-        </button>
+        </button> */}
       </div>
       <div className="space-y-4">
         {questions.map((item) => (
@@ -90,7 +92,7 @@ const Questions = () => {
                 </p>
               )}
               {openQuestion === item.id && (
-                <p className="mt-4 text-sm font-light text-gray-300/30">
+                <p className="mt-4 text-sm font-light text-white">
                   {item.description}
                 </p>
               )}

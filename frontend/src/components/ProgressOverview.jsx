@@ -21,7 +21,7 @@ Chart.register(
   Legend,
 );
 
-const Overview = ({ dataPoints }) => {
+const ProgressOverview = ({ dataPoints }) => {
   const data = {
     labels: dataPoints.map((_, index) => `Day ${index + 1}`),
     datasets: [
@@ -72,7 +72,7 @@ const Overview = ({ dataPoints }) => {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl bg-[#191919] p-6 text-white">
+    <div className="w-full max-w-md rounded-3xl border border-gray-300/30 bg-[#191919] p-6 text-white">
       <h2 className="mb-4 text-lg font-semibold">Progress Overview</h2>
       <div className="h-64">
         <Line data={data} options={options} />
@@ -81,4 +81,4 @@ const Overview = ({ dataPoints }) => {
   );
 };
 
-export default Overview;
+export default ProgressOverview;

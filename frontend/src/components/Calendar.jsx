@@ -94,7 +94,7 @@ export default function TrainingCalendar() {
   };
 
   return (
-    <div className="w-full max-w-sm rounded-3xl bg-[#191919] p-4 text-white">
+    <div className="w-full max-w-sm rounded-3xl bg-[#191919] p-4 text-white border border-gray-300/30">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-md font-semibold">Calendar</h2>
         <div className="relative">
@@ -106,11 +106,11 @@ export default function TrainingCalendar() {
             <ChevronDown className="ml-1 h-4 w-4" />
           </button>
           {isMonthSelectorOpen && (
-            <div className="absolute right-0 z-20 mt-2 w-36 rounded-lg bg-black/30 py-2 shadow-xl backdrop-blur-md">
+            <div className="absolute right-0 z-20 mt-2 w-36 rounded-lg bg-[#0e0e0e] py-2 shadow-xl ">
               {MONTHS.map((month, index) => (
                 <button
                   key={month}
-                  className="block w-full px-4 py-1 text-left text-xs capitalize text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="block w-full px-4 py-1 text-left text-sm capitalize text-gray-300 hover:bg-gray-300/30 hover:text-white"
                   onClick={() => {
                     setSelectedMonth(index);
                     setIsMonthSelectorOpen(false);
