@@ -68,7 +68,7 @@ export const columns: ColumnDef<SessionHistory>[] = [
   {
     accessorKey: "reviewDiscussion",
     header: () => <Cell>Review Discussion</Cell>,
-    cell: ({ row }) => {
+    cell: ({}) => {
       return (
         <Cell>
           <Button variant={"ghost"}>
@@ -80,12 +80,13 @@ export const columns: ColumnDef<SessionHistory>[] = [
   },
 ];
 
+const dateFormattingOption: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+};
+
 export function DashboardDataTable() {
-  const dateFormattingOption: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
   const [data, setData] = React.useState<SessionHistoryFormatted[]>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
