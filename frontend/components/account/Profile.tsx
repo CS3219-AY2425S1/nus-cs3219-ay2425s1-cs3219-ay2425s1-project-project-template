@@ -1,29 +1,66 @@
-import InputField from '../ui/custom-input'
+import { useState } from 'react'
+import { InputField, OptionsField } from '../ui/custom-input'
+
+interface IProfileFormInput {
+    username: string
+    proficiency: string
+}
 
 function Profile() {
+    const initialValues: IProfileFormInput = {
+        username: '',
+        proficiency: '',
+    }
+
+    const [formValues, setFormValues] = useState(initialValues)
+    const [formErrors, setFormErrors] = useState(initialValues)
+    // const [isSubmit, setIsSubmit] = useState(false)
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>): void => {
+        const { id, value } = e.target
+        setFormValues({ ...formValues, [id]: value })
+    }
+
+    const validateInput = (values: IProfileFormInput): IProfileFormInput => {
+        const errors = { ...initialValues }
+        if (!values.username) {
+            errors.username = 'Please Enter a username!'
+        }
+
+        if (!values.proficiency) {
+            errors.proficiency = 'Please choose a proficiency level!'
+        }
+
+        return errors
+    }
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault() // Prevents default form submission behavior
+        setFormErrors(validateInput(formValues))
+        // setIsSubmit(true)
+        // Handle submit here, make sure receive 200, if not then return error
+    }
+
     return (
         <>
             <div className="flex flex-row">
-                <form className="flex flex-[4] flex-col h-full w-full space-y-8 pt-3">
-                    <InputField id="username" label="Username" type="text" placeholder="eg. John Doe" />
+                <form className="flex flex-[4] flex-col h-full w-full space-y-6 pt-4" onSubmit={handleSubmit}>
+                    <InputField
+                        type="text"
+                        id="username"
+                        label="Username"
+                        placeholder="eg. John Doe"
+                        value={formValues.username}
+                        onChange={handleChange}
+                        error={formErrors.username}
+                    />
 
-                    <div>
-                        <label htmlFor="proficiency" className="block text-sm font-medium text-gray-700">
-                            Proficiency
-                        </label>
-                        <select
-                            id="proficiency"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                            defaultValue="placeholder-option"
-                        >
-                            <option value="placeholder-option" disabled>
-                                Select one...
-                            </option>
-                            <option>Beginner</option>
-                            <option>Intermediate</option>
-                            <option>Advanced</option>
-                        </select>
-                    </div>
+                    <OptionsField
+                        id="proficiency"
+                        label="Proficiency"
+                        error={formErrors.proficiency}
+                        onChange={handleChange}
+                    />
 
                     <button
                         type="submit"

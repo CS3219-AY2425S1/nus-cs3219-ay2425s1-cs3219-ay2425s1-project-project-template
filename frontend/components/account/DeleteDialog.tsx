@@ -46,7 +46,7 @@ function DeleteDialog() {
                                 </svg>
                                 Warning
                             </div>
-                            <span className="absolute bottom-2 h-0.5 w-full bg-slate-200"></span>
+                            <span className="absolute bottom-0 h-0.5 w-full bg-slate-200"></span>
                         </DialogTitle>
                         <DialogDescription>
                             Are you sure you want to delete your account? You will not be able to recover your data.

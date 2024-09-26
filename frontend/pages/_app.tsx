@@ -2,7 +2,7 @@ import '@/styles/globals.css'
 
 import { AppProps } from 'next/app'
 import Layout from '@/components/layout/layout'
-import Toaster from '@/components/ui/toaster'
+import { Toaster } from 'sonner'
 
 export default function App({ Component, pageProps }: AppProps) {
     return (
