@@ -33,6 +33,62 @@ const useQuestions = () => {
             category: "Science",
             description: "This is another mock question description.",
           },
+          {
+            id: 3,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 4,
+            title: "Mock Question 2",
+            difficulty: "Hard",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 5,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 6,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 7,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 8,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 9,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
+          {
+            id: 10,
+            title: "Mock Question 2",
+            difficulty: "Medium",
+            category: "Science",
+            description: "This is another mock question description.",
+          },
         ];
         setQuestions(mockData);
       } catch (error) {
