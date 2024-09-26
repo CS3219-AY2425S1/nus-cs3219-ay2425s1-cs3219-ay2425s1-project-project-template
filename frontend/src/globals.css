@@ -6,7 +6,8 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #0e0e0e;
+  background-color: #080808;
+  color: white;
   font-family:
     -apple-system,
     BlinkMacSystemFont,
