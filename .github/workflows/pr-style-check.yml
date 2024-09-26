@@ -1,0 +1,30 @@
+name: PR Style Check
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+
+jobs:
+  style-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: yarn install
+      working-directory: ./frontend
+      
+    - name: Run ESLint
+      run: yarn lint
+      working-directory: ./frontend
+
+    - name: Run Prettier check
+      run: yarn prettier --check .
+      working-directory: ./frontend
