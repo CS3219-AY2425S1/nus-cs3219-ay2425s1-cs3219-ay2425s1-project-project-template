@@ -112,9 +112,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
         <CardFooter>
           {props.isAdmin && (
             <Button
-              onClick={() =>
-                question && props.handleSubmit && props.handleSubmit(question)
-              }
+              onClick={(e) => {
+                e.preventDefault();
+                question && props.handleSubmit && props.handleSubmit(question);
+              }}
             >
               Save Changes
             </Button>

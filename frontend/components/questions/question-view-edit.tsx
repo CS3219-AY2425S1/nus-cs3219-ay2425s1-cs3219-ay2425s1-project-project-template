@@ -5,6 +5,8 @@ import useSWR from "swr";
 import QuestionForm from "@/components/questions/question-form";
 import { useAuth } from "@/app/auth/auth-context";
 import { useEffect, useState } from "react";
+import { updateQuestion } from "@/lib/update-question";
+import { useToast } from "@/components/hooks/use-toast";
 
 const fetcher = async (url: string): Promise<Question> => {
   const token = localStorage.getItem("jwtToken");
@@ -34,8 +36,9 @@ export default function QuestionViewEdit({
   questionId: string;
 }) {
   const auth = useAuth();
+  const { toast } = useToast();
 
-  const { data } = useSWR(
+  const { data, mutate } = useSWR(
     `http://localhost:8000/questions/${questionId}`,
     fetcher
   );
@@ -46,9 +49,37 @@ export default function QuestionViewEdit({
     setQuestion(data);
   }, [data]);
 
-  const handleEdit = (question: Question) => {
-    // Todo: Implement
-    question;
+  const handleEdit = async (question: Question) => {
+    const response = await updateQuestion(question);
+    if (!response.ok) {
+      toast({
+        title: "Unknown Error",
+        description: "An unexpected error has occurred",
+      });
+      return;
+    }
+    switch (response.status) {
+      case 200:
+        toast({
+          title: "Success",
+          description: "Question updated successfully!",
+        });
+        break;
+      case 404:
+        toast({
+          title: "Question not found",
+          description: "Question with specified ID not found",
+        });
+        return;
+      case 409:
+        toast({
+          title: "Duplicated title",
+          description: "The title you entered is already in use",
+        });
+        return;
+    }
+
+    mutate();
   };
 
   return (
