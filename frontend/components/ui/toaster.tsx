@@ -1,29 +1,22 @@
-'use client'
+import { Toaster } from 'sonner'
+import ErrorIcon from '@mui/icons-material/Error'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from './toast'
-
-import { useToast } from './use-toast'
-
-const Toaster = () => {
-    const { toasts } = useToast()
-
+const CustomToaster = () => {
     return (
-        <ToastProvider>
-            {toasts.map(({ id, title, description, action, ...props }) => {
-                return (
-                    <Toast key={id} {...props}>
-                        <div className="grid gap-1">
-                            {title && <ToastTitle>{title}</ToastTitle>}
-                            {description && <ToastDescription>{description}</ToastDescription>}
-                        </div>
-                        {action}
-                        <ToastClose />
-                    </Toast>
-                )
-            })}
-            <ToastViewport />
-        </ToastProvider>
+        <Toaster
+            icons={{
+                success: <CheckCircleIcon sx={{ color: '#34D399' }} />,
+                error: <ErrorIcon sx={{ color: '#FF4B4B' }} />,
+            }}
+            toastOptions={{
+                unstyled: false,
+                className: 'border border-gray-200 rounded-lg gap-4 shadow-md',
+                duration: 2000,
+            }}
+            position="top-center"
+        />
     )
 }
 
-export default Toaster
+export default CustomToaster

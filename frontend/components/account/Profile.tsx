@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { InputField, OptionsField } from '../ui/custom-input'
+import { toast } from 'sonner'
 
 interface IProfileFormInput {
     username: string
@@ -39,6 +40,7 @@ function Profile() {
         setFormErrors(validateInput(formValues))
         // setIsSubmit(true)
         // Handle submit here, make sure receive 200, if not then return error
+        toast.success('Profile has been updated successfully.')
     }
 
     return (
