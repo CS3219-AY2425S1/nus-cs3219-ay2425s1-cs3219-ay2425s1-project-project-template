@@ -1,13 +1,14 @@
 "use client";
 
 import { useAuth } from "@/app/auth/auth-context";
-import QuestionTable from "@/components/questions/questions-table";
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
+
 import LoadingScreen from "@/components/common/loading-screen";
-import { useRouter, useSearchParams } from "next/navigation";
-import QuestionFilter from "./question-filter";
+import QuestionTable from "@/components/questions/questions-table";
+import QuestionFilter from "@/components/questions/question-filter";
 
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
