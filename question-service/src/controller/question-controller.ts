@@ -1,4 +1,4 @@
-src/controller/question-controller.tsimport { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import {
   createQuestion as createQuestionService,
   fetchAllQuestions as fetchAllQuestionsService,
