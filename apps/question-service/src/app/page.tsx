@@ -30,13 +30,25 @@ import {
   OrderOption,
 } from "./utils/SelectOptions";
 
+/**
+ * defines the State of the page whe a user is deleing an object. Has 3 general states:
+ * - {}: user is not deleting anything. The page's normal state
+ * - {index: number, deleteConfirmed: false}: Modal popup asking whether to delete the question, pending user's decision to confirm or cancel
+ * - {index: number, deleteConfirmed: true}: Currently deleting the question and reloading the database
+ */
 type DeletionStage = {} | {index: number, deleteConfirmed: boolean}
 
-function DeleteModal({questionTitle, okHandler, cancelHandler}: {questionTitle: string, okHandler: () => void, cancelHandler: () => void}) {
+function DeleteModal({isDeleting, questionTitle, okHandler, cancelHandler}: {questionTitle: string, okHandler: () => void, cancelHandler: () => void, isDeleting: boolean }) {
   const title: string = `Delete Question \"${questionTitle}\"?`
   const text: string = 'This action is irreversible(?)!' 
 
-  return <Modal open = {true} title={title} onOk={okHandler} onCancel={cancelHandler}>
+  return <Modal 
+    open={true} 
+    title={title} 
+    onOk={okHandler} 
+    onCancel={cancelHandler} 
+    confirmLoading={isDeleting} 
+    cancelButtonProps={{disabled: isDeleting}}>
     <p>{text}</p>
   </Modal>
 }
@@ -59,7 +71,6 @@ export default function Home() {
   // Message States
   const [messageApi, contextHolder] = message.useMessage();
 
-  console.log(("index" in deletionStage && questions != undefined));
   const success = (message: string) => {
     messageApi.open({
       type: "success",
@@ -153,11 +164,12 @@ export default function Home() {
             icon={<DeleteOutlined />}
             onClick={() => {
               if (questions == undefined) {
-                throw new Error()
+                throw new Error("questions is undefined")
               }
               let toDelete = questions.findIndex(row => row.id == id)
               if (toDelete == -1) {
-                throw new Error("could not find id")
+                error("Could not find id");
+                return;
               }
               setDeletionStage({index: toDelete, deleteConfirmed: false})}
             }
@@ -276,17 +288,19 @@ export default function Home() {
             error("Cannot delete: still deleting");
             return;
           }
+          setDeletionStage({index: deletionStage.index, deleteConfirmed: true})
 
           deleteQuestion(questions[deletionStage.index])
-          .then(() => {
-            setDeletionStage({})
-          })
           .catch(err => {
             error(err);
           })
+          .finally(() => {
+            setDeletionStage({})
+          })
         }} 
         cancelHandler={() => setDeletionStage({})}
-        questionTitle={questions[deletionStage.index].title}/>}
+        questionTitle={questions[deletionStage.index].title}
+        isDeleting={deletionStage.deleteConfirmed}/>}
     </div>
   );
 }
