@@ -136,14 +136,14 @@
   - Required: `userId` path parameter
 
 - Body
-
-  - At least one of the following fields is required: `username` (string), `email` (string), `password` (string)
+  - At least one of the following fields is required: `username` (string), `email` (string), `password` (string), `skillLevel` (string)
 
     ```json
     {
       "username": "SampleUserName",
       "email": "sample@gmail.com",
-      "password": "SecurePassword"
+      "password": "SecurePassword",
+      "skillLevel": "SkillLevel",
     }
     ```
 
