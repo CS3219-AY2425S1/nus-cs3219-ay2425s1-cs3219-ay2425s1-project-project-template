@@ -1,5 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
-
 import { Logo } from '@/components/common/logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,18 +11,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/lib/routes';
-import { login } from '@/services/user-service';
 
 import { useLoginForm } from './logic';
 
 export const LoginForm = () => {
-  const { mutate: _sendLoginRequest, status: _status } = useMutation({
-    mutationFn: login,
-  });
-  const { form, onSubmit } = useLoginForm();
+  const { form, onSubmit, isPending } = useLoginForm();
 
   return (
-    <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center'>
+    <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center md:ml-auto md:mr-8 md:max-h-[600px]'>
       <CardHeader className='flex items-center pb-10'>
         <CardTitle className='text-3xl'>Welcome Back To</CardTitle>
         <Logo className='text-2xl' />
@@ -39,7 +33,7 @@ export const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder='jollyRancher' {...field} />
+                    <Input disabled={isPending} placeholder='jollyRancher' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -52,7 +46,7 @@ export const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type='password' placeholder='••••••••' {...field} />
+                    <Input type='password' disabled={isPending} placeholder='••••••••' {...field} />
                   </FormControl>
                   <FormMessage />
                   <div className='flex w-full'>

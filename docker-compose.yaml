@@ -48,5 +48,8 @@ services:
 
 volumes:
   user-db-docker:
+    external: true
   collab-db-docker:
+    external: true
   question-db-docker:
+    external: true
