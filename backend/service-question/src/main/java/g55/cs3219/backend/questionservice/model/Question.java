@@ -25,5 +25,4 @@ public class Question {
     private String category;
     private String difficulty;
 
-    // No need for explicit getters, setters, or constructors – Lombok handles them.
 }

@@ -8,6 +8,8 @@ import java.util.List;
 
 @Repository
 public interface QuestionRepository extends MongoRepository<Question, Integer> {
+
     List<Question> findAll();
     List<Question> findByDifficulty(String difficulty);
+
 }

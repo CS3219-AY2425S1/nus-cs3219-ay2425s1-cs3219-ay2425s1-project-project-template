@@ -1,6 +1,5 @@
 package g55.cs3219.backend.questionservice.controller;
 
-import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
 import g55.cs3219.backend.questionservice.model.Question;
 import g55.cs3219.backend.questionservice.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;

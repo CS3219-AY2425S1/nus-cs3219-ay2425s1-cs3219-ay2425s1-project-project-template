@@ -31,4 +31,5 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInvalidQuestionException(InvalidQuestionException ex) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
+
 }

@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ErrorResponse {
+
     private int status;
     private String message;
 
@@ -13,4 +14,5 @@ public class ErrorResponse {
         this.status = status;
         this.message = message;
     }
+
 }
