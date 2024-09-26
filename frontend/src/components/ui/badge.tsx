@@ -19,6 +19,9 @@ const badgeVariants = cva(
         medium:
           "bg-[var(--color-medium-bg)] text-white shadow hover:bg-[var(--color-medium-hover)]",
         hard: "bg-[var(--color-hard-bg)] text-white shadow hover:bg-[var(--color-hard-hover)]",
+        completed: "bg-[var(--color-completed-bg)] text-white shadow hover:bg-[var(--color-completed-hover)]",
+        unsolved: "bg-[var(--color-unsolved-bg)] text-white shadow hover:bg-[var(--color-unsolved-hover)]",
+        category: "bg-[var(--color-category-bg)] text-[#5932C3] shadow hover:bg-[var(--color-category-hover)]",
       },
     },
     defaultVariants: {

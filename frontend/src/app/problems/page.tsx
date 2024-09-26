@@ -8,23 +8,30 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
+import CompletedIcon from '@mui/icons-material/TaskAlt';
 
 interface Problem {
     title: string
     category: string[]
     difficulty: string
-    status: string
+    status: boolean
 }
 
 export default function Problems(props: { problems: any }) {
     // const { problems } = props
     let problems: Problem[] = [
-        { title: "Two Sum", category: ["Array", "Hash Table"], difficulty: "Easy", status: "Solved" },
-        { title: "Add Two Numbers", category: ["Linked List", "Math"], difficulty: "Medium", status: "Unsolved" },
-        { title: "Longest Substring Without Repeating Characters", category: ["String", "Sliding Window"], difficulty: "Medium", status: "Solved" },
-        { title: "Median of Two Sorted Arrays", category: ["Array", "Binary Search"], difficulty: "Hard", status: "Unsolved" },
-        { title: "Valid Parentheses", category: ["Stack", "String"], difficulty: "Easy", status: "Solved" }
+        { title: "Two Sum", category: ["Array", "Hash Table"], difficulty: "Easy", status: true },
+        { title: "Add Two Numbers", category: ["Linked List", "Math"], difficulty: "Medium", status: false },
+        { title: "Longest Substring Without Repeating Characters", category: ["String", "Sliding Window"], difficulty: "Medium", status: true },
+        { title: "Median of Two Sorted Arrays", category: ["Array", "Binary Search"], difficulty: "Hard", status: false },
+        { title: "Valid Parentheses", category: ["Stack", "String"], difficulty: "Easy", status: true }
     ]
     return (
         <section className="flex h-full justify-center mt-14">
@@ -56,12 +63,25 @@ export default function Problems(props: { problems: any }) {
                                 <TableCell>
                                     <div className="flex flex-wrap gap-2">
                                         {problem.category.map((c: string) => (
-                                            <Badge key={c}>{c}</Badge>
+                                            <Badge variant="category" key={c}>{c}</Badge>
                                         ))}
                                     </div>
                                 </TableCell>
                                 <TableCell><Badge variant={problem.difficulty.toLowerCase()}>{problem.difficulty}</Badge></TableCell>
-                                <TableCell><Badge>{problem.status}</Badge></TableCell>
+                                <TableCell>
+                                    {problem.status && (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <CompletedIcon sx={{ color: 'var(--color-completed-hover)' }} />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Solved</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    )}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

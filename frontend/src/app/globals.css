@@ -39,6 +39,8 @@ body {
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
+        --color-category-bg: rgba(209, 193, 255, 0.8);
+        --color-category-hover: rgba(164, 134, 255, 1);
         --color-easy-bg: rgba(34, 197, 94, 0.8); 
         --color-easy-hover: rgba(22, 163, 74, 1); 
         --color-medium-bg: rgba(249, 115, 22, 0.8); 
@@ -73,14 +75,16 @@ body {
         --chart-3: 30 80% 55%;
         --chart-4: 280 65% 60%;
         --chart-5: 340 75% 55%;
-        --color-easy-bg: #22c55e; /* Tailwind's green-500 */
-        --color-easy-hover: #16a34a; /* Tailwind's green-600 */
-        --color-medium-bg: #f97316; /* Tailwind's orange-500 */
-        --color-medium-hover: #ea580c; /* Tailwind's orange-600 */
-        --color-hard-bg: #ef4444; /* Tailwind's red-500 */
-        --color-hard-hover: #dc2626; /* Tailwind's red-600 */
-        --color-completed-bg: #22c55e; /* Tailwind's green-500 */
-        --color-completed-hover: #16a34a; /* Tailwind's green-600 */
+        --color-category-bg: #d1c1ff;
+        --color-category-hover: #a486ff;
+        --color-easy-bg: #22c55e;
+        --color-easy-hover: #16a34a; 
+        --color-medium-bg: #f97316; 
+        --color-medium-hover: #ea580c; 
+        --color-hard-bg: #ef4444; 
+        --color-hard-hover: #dc2626; 
+        --color-completed-bg: #22c55e; 
+        --color-completed-hover: #16a34a;
     }
 }
 
