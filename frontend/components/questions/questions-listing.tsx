@@ -9,7 +9,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import DeleteQuestionModal from "@/components/questions/delete-question-modal";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { PlusIcon, Upload } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import {
   CreateQuestion,
@@ -59,6 +59,25 @@ export default function QuestionListing() {
 
   const handleView = (question: Question) => {
     router.push(`/app/questions/${question.id}`);
+  };
+
+  const handleCreateNewQuestion = () => {
+    router.push(`/app/questions/create`);
+  };
+
+  const createNewQuestion = () => {
+    return (
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          className="ml-2"
+          onClick={() => handleCreateNewQuestion()}
+        >
+          <PlusIcon className="mr-2" />
+          Create New Question
+        </Button>
+      </div>
+    );
   };
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
@@ -176,22 +195,25 @@ export default function QuestionListing() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Question Listing</h1>
       {auth?.user?.isAdmin && (
-        <div className="mb-4">
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-            id="batch-upload-input"
-          />
-          <label htmlFor="batch-upload-input">
-            <Button variant="outline" asChild>
-              <span>
-                <Upload className="mr-2 h-4 w-4" /> Upload questions from JSON
-                file
-              </span>
-            </Button>
-          </label>
+        <div className="flex justify-between mb-4">
+          <div>
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+              id="batch-upload-input"
+            />
+            <label htmlFor="batch-upload-input">
+              <Button variant="outline" asChild>
+                <span>
+                  <Upload className="mr-2 h-4 w-4" /> Upload questions from JSON
+                  file
+                </span>
+              </Button>
+            </label>
+          </div>
+          <div>{createNewQuestion()}</div>
         </div>
       )}
       <QuestionTable
