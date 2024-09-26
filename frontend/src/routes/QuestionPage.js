@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './QuestionPage.css'; 
 
 const QuestionPage = () => {
@@ -6,19 +6,44 @@ const QuestionPage = () => {
   //shared logic between left and right, probably just the edit/create new qn state
   const apiurl = "http://127.0.0.1:8000/question/"
 
+
+  // Fetch all questions on component mount
+    useEffect(() => {
+      fetchQuestions();
+    }, []);
+
+
+  // Fetch questions from the API
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch(apiurl, { method: 'GET' });
+      if (response.ok) {
+        const data = await response.json();
+
+        // Transform the response object into an array
+        const arrayData = Object.values(data); // Use data, not jsonData
+        console.log(arrayData);
+
+        // Update the questions with the array data
+        updateQuestions(arrayData);
+      } else {
+        alert('Failed to fetch questions.');
+        updateQuestions([]); // Set to an empty array if the request fails
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      updateQuestions([]); // Set to an empty array in case of error
+    }
+  };
+
+    
   //Either create or edit mode.
   const [mode, setMode] = useState("create");
   //mode = "edit";
 
+  // left side logic
+  const [questions, updateQuestions] = useState([]);
 
-
-  //left side logic
-  const [questions, setQuestions] = useState([
-    { titleSlug:"item-1", title: "item1", complexity: "Easy", description: "Implement a function to detect if a linked list contains a cycle." },
-    { titleSlug:"item-2",  title: "item2", complexity: "Medium", description: "Description for item2" },
-    { titleSlug:"item-3",  title: "item3", complexity: "Hard", description: "Description for item3" },
-    // more items...
-  ]);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
@@ -28,11 +53,22 @@ const QuestionPage = () => {
     setTitle("Some_Title");
   };
 
-  const handleDelete = () => {
-    // Remove the selected question and clear the selected question state
-    setQuestions(questions.filter((question) => question.titleSlug !== selectedQuestion.titleSlug));
-    setSelectedQuestion(null);
-    // API call to delete question can be added here
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`${apiurl}${selectedQuestion.titleSlug}/`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        // Remove the deleted question from the list
+        updateQuestions(questions.filter((question) => question.titleSlug !== selectedQuestion.titleSlug));
+        setSelectedQuestion(null);
+        alert('Question deleted successfully!');
+      } else {
+        alert('Failed to delete the question.');
+      }
+    } catch (error) {
+      console.error('Error deleting question:', error);
+    }
   };
 
   const handleEdit = () => {
@@ -103,6 +139,13 @@ const QuestionPage = () => {
           setTopic("loops");
           setTitle("Some_Title");
           setQuestion("");
+          
+          // get newest question data from response
+          const newQuestion = await response.json();
+          // Update the questions state to include the new question
+          console.log(newQuestion);
+          updateQuestions(prevQuestions => [...prevQuestions, newQuestion]);
+
           alert('Question submitted successfully!');
         } else {
           alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
@@ -159,7 +202,7 @@ const QuestionPage = () => {
           <thead>
             <tr className="bg-blue-500 text-white">
               <th className="py-2 px-4 border-b w-1/2">Question Title</th>
-              <th className="py-2 px-4 border-b w-1/4">Complexity</th>
+              <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
             </tr>
           </thead>
           <tbody>
@@ -172,7 +215,7 @@ const QuestionPage = () => {
                 onClick={() => handleTitleClick(question)}
               >
                 <td className="py-2 px-4 border-b">{question.title}</td>
-                <td className="py-2 px-4 border-b">{question.complexity}</td>
+                <td className="py-2 px-4 border-b">{question.difficulty}</td>
               </tr>
             ))}
           </tbody>
