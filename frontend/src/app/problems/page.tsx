@@ -18,7 +18,9 @@ import { Badge } from "@/components/ui/badge"
 import CompletedIcon from '@mui/icons-material/TaskAlt';
 
 interface Problem {
+    id: number
     title: string
+    description: string
     category: string[]
     difficulty: string
     status: boolean
@@ -27,11 +29,11 @@ interface Problem {
 export default function Problems(props: { problems: any }) {
     // const { problems } = props
     let problems: Problem[] = [
-        { title: "Two Sum", category: ["Array", "Hash Table"], difficulty: "Easy", status: true },
-        { title: "Add Two Numbers", category: ["Linked List", "Math"], difficulty: "Medium", status: false },
-        { title: "Longest Substring Without Repeating Characters", category: ["String", "Sliding Window"], difficulty: "Medium", status: true },
-        { title: "Median of Two Sorted Arrays", category: ["Array", "Binary Search"], difficulty: "Hard", status: false },
-        { title: "Valid Parentheses", category: ["Stack", "String"], difficulty: "Easy", status: true }
+        { id: 1, title: "Two Sum", description: "Find two numbers that add up to a target value.", category: ["Array", "Hash Table"], difficulty: "Easy", status: true },
+        { id: 2, title: "Add Two Numbers", description: "Add two numbers represented by linked lists.", category: ["Linked List", "Math"], difficulty: "Medium", status: false },
+        { id: 3, title: "Longest Substring Without Repeating Characters", description: "Find the longest substring without repeating characters.", category: ["String", "Sliding Window"], difficulty: "Medium", status: true },
+        { id: 4, title: "Median of Two Sorted Arrays", description: "Find the median of two sorted arrays.", category: ["Array", "Binary Search"], difficulty: "Hard", status: false },
+        { id: 5, title: "Valid Parentheses", description: "Check if the parentheses are valid.", category: ["Stack", "String"], difficulty: "Easy", status: true }
     ]
     return (
         <section className="flex h-full justify-center mt-14">
@@ -50,7 +52,9 @@ export default function Problems(props: { problems: any }) {
                     <TableCaption>A list of coding problems</TableCaption>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Problem</TableHead>
+                            <TableHead>Id</TableHead>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Description</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Difficulty</TableHead>
                             <TableHead>Status</TableHead>
@@ -59,7 +63,9 @@ export default function Problems(props: { problems: any }) {
                     <TableBody>
                         {problems.map((problem: any, index: number) => (
                             <TableRow key={index} className="h-20"> {/* Increased height */}
+                                <TableCell>{problem.id}</TableCell>
                                 <TableCell>{problem.title}</TableCell>
+                                <TableCell>{problem.description}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-wrap gap-2">
                                         {problem.category.map((c: string) => (
