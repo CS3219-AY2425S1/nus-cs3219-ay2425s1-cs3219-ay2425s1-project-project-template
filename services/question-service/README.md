@@ -54,3 +54,11 @@ The server will be available at http://localhost:8080.
 - `GET /questions`
 - `PUT /questions/{id}`
 - `DELETE /questions/{id}`
+
+## Managing Firebase
+
+To reset and repopulate the database, run the following command:
+
+```bash
+go run populate.go
+```
