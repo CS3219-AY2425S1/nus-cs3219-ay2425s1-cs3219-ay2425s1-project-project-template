@@ -2,8 +2,6 @@ import React from "react";
 
 
 const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
-  const oldDifficulty = "Easy";
-
   function onSubmit() {
     const selectElement = document.getElementById('difficulty') as HTMLSelectElement | null;
     const selectedValue = selectElement ? selectElement.value : '';
@@ -24,7 +22,6 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
       //alert(selectedValue);
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add('hidden');
-    
     }
   }
 
