@@ -222,7 +222,9 @@ const QuestionPage = () => {
         <div className="mt-4">
           {selectedQuestion ? (
             <div className="p-4 border border-gray-300 rounded-lg shadow-lg bg-white">
-              <h2 className="font-bold text-xl">{selectedQuestion.title} - Description</h2>
+              <h2 className="font-bold text-xl">{selectedQuestion.title}</h2>
+              <h3 className="text-lg">Difficulty: {selectedQuestion.difficulty}</h3>
+              <h3 className="text-lg">Topic: {selectedQuestion.topic}</h3>
               <p className="mt-2 text-gray-700">{selectedQuestion.description}</p>
               
               <div className="mt-4 flex justify-between">
