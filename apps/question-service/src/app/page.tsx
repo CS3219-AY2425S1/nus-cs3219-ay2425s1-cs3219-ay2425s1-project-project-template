@@ -6,6 +6,8 @@ import {
   Input,
   Layout,
   message,
+  Pagination,
+  PaginationProps,
   Row,
   Select,
   Table,
@@ -32,6 +34,10 @@ import {
 export default function Home() {
   // Table States
   const [questions, setQuestions] = useState<Question[] | undefined>(undefined); // Store the questions
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined); // Store the total count of questions
+  const [totalPages, setTotalPages] = useState<number | undefined>(undefined); // Store the total number of pages
+  const [currentPage, setCurrentPage] = useState<number | undefined>(undefined); // Store the current page
+  const [limit, setLimit] = useState<number | undefined>(undefined); // Store the quantity of questions to be displayed
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Filtering States
@@ -73,7 +79,11 @@ export default function Home() {
     }
 
     GetQuestions().then((data) => {
-      setQuestions(data);
+      setQuestions(data.questions);
+      setTotalCount(data.totalCount);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.currentPage);
+      setLimit(data.limit);
       setIsLoading(false);
     });
   }, []);
@@ -152,6 +162,20 @@ export default function Home() {
     success("Filtered Successfully!");
   };
 
+  // Handler for show size change for pagination
+  const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
+    current,
+    pageSize
+  ) => {
+    setCurrentPage(current);
+    setLimit(pageSize);
+  };
+
+  // Handler for change in page jumper
+  const onPageJump: PaginationProps["onChange"] = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div>
       {contextHolder}
@@ -228,6 +252,13 @@ export default function Home() {
                 dataSource={questions}
                 columns={columns}
                 loading={isLoading}
+                pagination={{
+                  total: totalCount,
+                  showSizeChanger: true,
+                  onShowSizeChange: onShowSizeChange,
+                  showQuickJumper: true,
+                  onChange: onPageJump,
+                }}
               />
             </div>
           </div>

@@ -1,5 +1,6 @@
 export interface Question {
-  id: string;
+  id: number;
+  docRefId: string;
   title: string;
   description?: string;
   categories: string[]; // enum[]
@@ -11,9 +12,33 @@ export interface Question {
   testCases?: string[];
 }
 
+export interface QuestionListResponse {
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  hasNextPage: boolean;
+  questions: Question[];
+}
+
 // GET request to fetch all the questions (TODO: Ben --> Fetch with filtering/sorting etc)
-export const GetQuestions = async (): Promise<Question[]> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions`);
+export const GetQuestions = async (
+  currentPage?: number,
+  limit?: number
+): Promise<QuestionListResponse> => {
+  let query_url = `${process.env.NEXT_PUBLIC_API_URL}questions`;
+  let query_params = "";
+
+  if (currentPage) {
+    query_params += `?currentPage=${currentPage}`;
+  }
+
+  if (limit) {
+    query_params += `${query_params.length > 0 ? "&" : "?"}limit=${limit}`;
+  }
+
+  query_url += query_params;
+  const response = await fetch(query_url);
   const data = await response.json();
   return data;
 };
