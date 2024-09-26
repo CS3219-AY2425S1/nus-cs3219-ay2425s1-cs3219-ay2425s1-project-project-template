@@ -1,27 +1,43 @@
 "use client";
 
-import { Box, Button, FormControl, FormLabel, Input, Select, Flex, Textarea } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, Flex } from "@chakra-ui/react";
+import { getQuestionById, updateQuestion } from "@/services/questionService";
 import { Question, QuestionComplexity, QuestionTopic } from "@/types/Question";
-import { createQuestion } from "@/services/questionService";
-import { marked } from 'marked';
-import { topicText } from "../page";
+import { marked } from "marked";
+import { topicText } from "../../page";
 import { useRouter } from 'next/navigation';
 
-export default function CreateQuestionPage() {
+export default function Page({ params }: { params: { id: string } }) {
+  const id = params.id;
   const router = useRouter();
 
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("Description<br/>`const input = [1, 2, 3]`");
+  const [description, setDescription] = useState("");
   const [topics, setTopics] = useState<Set<QuestionTopic>>(new Set());
-  const [complexity, setComplexity] = useState<QuestionComplexity | undefined>();
+  const [complexity, setComplexity] = useState<QuestionComplexity | "">("");
   const [link, setLink] = useState("");
+
+  useEffect(() => {
+    async function fetchQuestion() {
+      const question = await getQuestionById(id);
+      if (question) {
+        setTitle(question.title);
+        setDescription(question.description);
+        setTopics(new Set(question.topics));
+        setComplexity(question.complexity);
+        setLink(question.link);
+      }
+    }
+
+    fetchQuestion();
+  }, [id]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value);
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value);
   const handleTopicsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedTopic = e.target.value as QuestionTopic;
-    setTopics(new Set(topics).add(selectedTopic));
+    setTopics((prevTopics) => new Set(prevTopics).add(selectedTopic));
   };
   const handleComplexityChange = (e: React.ChangeEvent<HTMLSelectElement>) => setComplexity(e.target.value as QuestionComplexity);
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value);
@@ -31,21 +47,17 @@ export default function CreateQuestionPage() {
       alert("All fields are required.");
       return;
     }
-
-    const question: Question = {
+    const updatedQuestion: Question = {
+      _id: id,
       title,
       description,
       topics: Array.from(topics),
-      complexity,
+      complexity: complexity as QuestionComplexity,
       link,
     };
 
-    try {
-      await createQuestion(question);
-      router.push('/questions');
-    } catch (error) {
-      alert("Failed to create question. Please try again.");
-    }
+    await updateQuestion(id, updatedQuestion);
+    router.push('/questions');
   };
 
   return (
@@ -90,9 +102,9 @@ export default function CreateQuestionPage() {
           {topics.size > 0 ? (
             Array.from(topics).map((topic: QuestionTopic, idx: number) => (
               topicText(topic, idx, () => {
-                const updatedTopics = new Set(topics);  
-                updatedTopics.delete(topic);  
-                setTopics(updatedTopics);  
+                const updatedTopics = new Set(topics);
+                updatedTopics.delete(topic);
+                setTopics(updatedTopics);
               })
             ))
           ) : (
@@ -117,7 +129,7 @@ export default function CreateQuestionPage() {
       </FormControl>
 
       <Button colorScheme="teal" onClick={handleSubmit}>
-        Create
+        Update
       </Button>
     </Box>
   );

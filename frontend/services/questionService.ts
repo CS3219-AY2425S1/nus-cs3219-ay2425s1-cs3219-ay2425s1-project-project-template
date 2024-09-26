@@ -25,3 +25,19 @@ export const deleteQuestion = async (id: string) => {
       console.error('Error deleting question:', error);
     });
 };
+
+export const updateQuestion = async (id: string, question: Question) => {
+  return await axios.put<Question>(`http://localhost:8000/api/question/${id}`, question)
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error updating question:', error);
+    });
+};
+
+export const getQuestionById = async (id: string) => {
+  return await axios.get<Question>(`http://localhost:8000/api/question/${id}`)
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error fetching question by id:', error);
+    });
+};

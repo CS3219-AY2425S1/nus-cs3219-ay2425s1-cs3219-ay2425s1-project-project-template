@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Table, Text, Thead, Tbody, Tr, Th, Td, TableContainer, Button, Spinner, IconButton, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from '@chakra-ui/react';
-import { TrashIcon } from '@/public/icons/TrashIcon';
-import Link from 'next/link';
 import { Question, QuestionComplexity, QuestionTopic } from '@/types/Question';
 import { fetchQuestions, deleteQuestion } from '@/services/questionService';
 import QuestionModal from './QuestionModal';
+import { TrashIcon } from '@/public/icons/TrashIcon';
+import { EditIcon } from '@/public/icons/EditIcon';
+import { useRouter } from 'next/navigation';
 
 export default function QuestionsPage() {
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(true);
   const [questionData, setQuestionData] = useState<Question[]>([]);
@@ -69,12 +71,19 @@ export default function QuestionsPage() {
                         topicText(topic, idx)
                       ))}
                     </Td>
-                    <Td>
+                    <Td sx={{ py: 3 }}>
                       <IconButton
                         aria-label="Delete question"
                         icon={<TrashIcon />}
-                        onClick={() => openAlert(question._id)}
+                        onClick={() => question._id && openAlert(question._id)}
                         variant="ghost"
+                        _hover={{ bg: 'lightblue' }}
+                      />
+                      <IconButton
+                        aria-label="Edit question"
+                        icon={<EditIcon />}
+                        variant="ghost"
+                        onClick={() => router.push(`./questions/update/${question._id}`)}
                         _hover={{ bg: 'lightblue' }}
                       />
                     </Td>
@@ -83,11 +92,9 @@ export default function QuestionsPage() {
               </Tbody>
             </Table>
           </TableContainer>
-          <Link href="./questions/create" passHref>
-            <Button colorScheme="teal" className='mt-4 mb-4'>
-              Add New Question
-            </Button>
-          </Link>
+          <Button colorScheme="teal" className='mt-4 mb-4' onClick={() => router.push('/questions/create')}>
+            Add New Question
+          </Button>
         </>
       )}
 
@@ -126,17 +133,21 @@ export const difficultyText = (complexity: QuestionComplexity) => {
   return (
     <Text color={
       complexity === QuestionComplexity.EASY ? 'green.500' :
-      complexity === QuestionComplexity.MEDIUM ? 'yellow.500' :
-      complexity === QuestionComplexity.HARD ? 'red.500' : 'gray.500'
+        complexity === QuestionComplexity.MEDIUM ? 'yellow.500' :
+          complexity === QuestionComplexity.HARD ? 'red.500' : 'gray.500'
     } className='font-medium'>
       {complexity.charAt(0).toUpperCase() + complexity.slice(1)}
     </Text>
   )
 }
 
-export const topicText = (topic: QuestionTopic, idx: number) => {
+export const topicText = (topic: QuestionTopic, idx: number, onClick?: () => void) => {
   return (
-    <span key={idx} className='mx-2 bg-gray-200  px-3 py-2 rounded-2xl font-medium'>
+    <span
+      key={idx}
+      className={`mx-2 bg-gray-200 px-3 py-2 rounded-2xl font-medium ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
       {topic
         .split('_')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
