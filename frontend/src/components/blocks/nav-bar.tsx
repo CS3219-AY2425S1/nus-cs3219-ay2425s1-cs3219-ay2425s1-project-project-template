@@ -1,12 +1,13 @@
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import { observer } from 'mobx-react';
+import { Link } from 'react-router-dom';
 
 import { Logo } from '@/components/common/logo';
 import { MobileThemeSwitch } from '@/components/common/mobile-theme-switch';
 import { ThemeSwitch } from '@/components/common/theme-switch';
 import { UserDropdown } from '@/components/common/user-dropdown';
-
 import { Button } from '@/components/ui/button';
+
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
 
@@ -21,7 +22,9 @@ const NavBar = observer(() => {
         {!isUnauthedRoute && (
           <>
             <Button variant='ghost'>Start</Button>
-            <Button variant='ghost'>Questions</Button>
+            <Button variant='ghost' asChild>
+              <Link to={ROUTES.QUESTIONS}>Questions</Link>
+            </Button>
           </>
         )}
         <div className='ml-auto flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4'>

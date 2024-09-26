@@ -1,16 +1,16 @@
 import type { QueryClient } from '@tanstack/react-query';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import {
   Await,
   defer,
   type LoaderFunctionArgs,
-  Navigate,
   Outlet,
   useLoaderData,
+  useNavigate,
 } from 'react-router-dom';
 
 import { usePageTitle } from '@/lib/hooks/use-page-title';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 import { checkIsAuthed } from '@/services/user-service';
 import { Loading } from './loading';
 
@@ -19,48 +19,43 @@ export const loader =
   async ({ request }: LoaderFunctionArgs) => {
     const route = new URL(request.url);
     const path = route.pathname;
-    const unAuthedRoutes = [ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.FORGOT_PASSWORD];
-    const unAuthedRoute = unAuthedRoutes.includes(path);
+    const isUnauthedRoute = UNAUTHED_ROUTES.includes(path);
 
     return defer({
-      isAuthed: await queryClient.ensureQueryData({
+      payload: await queryClient.ensureQueryData({
         queryKey: ['isAuthed'],
         queryFn: async () => {
-          return await checkIsAuthed();
+          return {
+            authedPayload: await checkIsAuthed(),
+            isAuthedRoute: !isUnauthedRoute,
+            path,
+          };
         },
         staleTime: ({ state: { data } }) => {
           const now = new Date();
-          const expiresAt = data?.expiresAt ?? now;
+          const expiresAt = data?.authedPayload?.expiresAt ?? now;
           return Math.max(expiresAt.getTime() - now.getTime(), 0);
         },
       }),
-      authedRoute: !unAuthedRoute,
-      path,
     });
   };
 
 export const RouteGuard = () => {
   const data = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>['data'];
+  const navigate = useNavigate();
   return (
     <Suspense fallback={<Loading />}>
-      <Await resolve={data}>
-        {({ isAuthed, authedRoute, path }) => {
+      <Await resolve={data.payload}>
+        {({ authedPayload, isAuthedRoute, path }) => {
+          const [isLoading, setIsLoading] = useState(true);
+          useEffect(() => {
+            if (authedPayload.isAuthed !== isAuthedRoute) {
+              navigate(isAuthedRoute ? ROUTES.LOGIN : ROUTES.HOME);
+            }
+            setIsLoading(false);
+          }, []);
           usePageTitle(path);
-          return isAuthed.isAuthed ? (
-            authedRoute ? (
-              // Route is authed and user is authed - proceed
-              <Outlet />
-            ) : (
-              // Route is unauthed and user is authed - navigate to home
-              <Navigate to='/' />
-            )
-          ) : authedRoute ? (
-            // Route is authed, but user is not - force login
-            <Navigate to='/login' />
-          ) : (
-            // Route is unauthed and user is not - proceed
-            <Outlet />
-          );
+          return isLoading ? <Loading /> : <Outlet />;
         }}
       </Await>
     </Suspense>

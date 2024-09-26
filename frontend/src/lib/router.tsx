@@ -1,16 +1,17 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import { AuthedLayout } from '@/components/blocks/authed-layout';
+import { AuthedLayout } from '@/components/blocks/authed';
 import { RootLayout } from '@/components/blocks/root-layout';
 import { RouteGuard, loader as routeGuardLoader } from '@/components/blocks/route-guard';
 
 import { ForgotPassword } from '@/routes/forgot-password';
 import { Login } from '@/routes/login';
-import { loader as qnDetailsLoader, QuestionDetails } from '@/routes/questions/details';
+import { QuestionDetails, loader as questionDetailsLoader } from '@/routes/questions/details';
 import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';
 import { ROUTES } from './routes';
+import { QuestionsList } from '@/routes/questions/list';
 
 export const router = createBrowserRouter([
   {
@@ -25,8 +26,12 @@ export const router = createBrowserRouter([
             element: <AuthedLayout />,
             children: [
               {
+                path: ROUTES.QUESTIONS,
+                element: <QuestionsList />,
+              },
+              {
                 path: ROUTES.QUESTION_DETAILS,
-                loader: qnDetailsLoader(queryClient),
+                loader: questionDetailsLoader(queryClient),
                 element: <QuestionDetails />,
               },
             ],

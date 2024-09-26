@@ -1,21 +1,47 @@
+import type { BreadCrumb } from '@/stores/breadcrumb-store';
+
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
-  QUESTION_DETAILS: 'questions/:questionId',
+  QUESTIONS: '/questions',
+  QUESTION_DETAILS: '/questions/:questionId',
 };
 
+const TOP_LEVEL_AUTHED_ROUTES = {
+  [ROUTES.QUESTIONS]: [
+    {
+      path: ROUTES.QUESTIONS,
+      title: 'Questions',
+    },
+  ],
+};
+
+export const getBreadCrumbs = (path: string): Array<BreadCrumb> => {
+  for (const key of Object.keys(TOP_LEVEL_AUTHED_ROUTES)) {
+    if (path.startsWith(key)) {
+      return [
+        {
+          path: ROUTES.HOME,
+          title: 'Home',
+        },
+        ...TOP_LEVEL_AUTHED_ROUTES[key],
+      ];
+    }
+  }
+  return [];
+};
+
+export const UNAUTHED_ROUTES = [ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.FORGOT_PASSWORD];
+
 const TITLES: Record<string, string> = {
-  HOME: '',
-  LOGIN: 'Start Interviewing Today',
-  SIGNUP: 'Create an Account',
-  FORGOT_PASSWORD: 'Forgot Password',
+  [ROUTES.LOGIN]: 'Start Interviewing Today',
+  [ROUTES.SIGNUP]: 'Create an Account',
+  [ROUTES.FORGOT_PASSWORD]: 'Forgot Password',
 };
 
 export const getPageTitle = (path: string) => {
   const title = TITLES[path];
-  return title !== undefined
-    ? ['Peerprep', title].filter((v) => v.length > 0).join(' - ')
-    : 'Peerprep';
+  return title ?? 'Peerprep';
 };

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 
 export const useRouterLocation = () => {
   const location = useLocation();
@@ -9,7 +9,7 @@ export const useRouterLocation = () => {
   const data = useMemo(() => {
     const { pathname } = location;
     return {
-      isUnauthedRoute: [ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.FORGOT_PASSWORD].includes(pathname),
+      isUnauthedRoute: UNAUTHED_ROUTES.includes(pathname),
       isLogin: pathname === ROUTES.LOGIN,
     };
   }, [location]);
