@@ -259,75 +259,139 @@ func paginateResults(results []*firestore.DocumentSnapshot, offset, limit int) [
 //
 //curl -X GET "http://localhost:8080/questions?sortField=title&sortValue=asc&offset=10"
 //
+//curl -X GET "http://localhost:8080/questions?sortField=title&sortValue=desc&offset=10"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=createdAt&sortValue=asc&offset=10"
+//
 //curl -X GET "http://localhost:8080/questions?sortField=createdAt&sortValue=desc&offset=10"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=complexity&sortValue=asc&offset=10"
 //
 //curl -X GET "http://localhost:8080/questions?sortField=complexity&sortValue=desc&offset=10"
 //
 //curl -X GET "http://localhost:8080/questions?sortField=id&sortValue=asc&offset=10"
+//
+//curl -X GET "http://localhost:8080/questions?sortField=id&sortValue=desc&offset=10"
 //
 //curl -X GET "http://localhost:8080/questions?limit=5"
 //
 //curl -X GET "http://localhost:8080/questions?limit=5&offset=10"
 //
 //
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=complexity&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=complexity&sortValue=asc"
 //
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=complexity&sortValue=desc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=complexity&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=complexity&sortValue=asc"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=complexity&sortValue=desc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=complexity&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=complexity&sortValue=desc"
 //
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=complexity&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=complexity&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=complexity&sortValue=asc"
 //
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=complexity&sortValue=desc"
 //
 //
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=createdAt&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=createdAt&sortValue=asc"
 //
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=createdAt&sortValue=desc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=createdAt&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=createdAt&sortValue=asc"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=createdAt&sortValue=desc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=createdAt&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=createdAt&sortValue=desc"
 //
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=createdAt&sortValue=asc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=createdAt&sortValue=desc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=createdAt&sortValue=asc"
 //
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=createdAt&sortValue=desc"
 //
 //
 //curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=id&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=id&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=id&sortValue=desc"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=id&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=id&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=id&sortValue=desc"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=id&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=id&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=id&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=id&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=id&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=id&sortValue=desc"
 //
 //
 //curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=title&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?title=Reverse%20a%20String&sortField=title&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&sortField=title&sortValue=desc"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=title&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&sortField=title&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Data%20Structures&complexity=easy,medium&sortField=title&sortValue=desc"
 //
 //curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=title&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?categories=Algorithms,Strings&title=Reverse%20a%20String&sortField=title&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=title&sortValue=asc"
 //
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&sortField=title&sortValue=desc"
+//
 //curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=title&sortValue=asc"
+//
+//curl -X GET "http://localhost:8080/questions?complexity=easy,medium&title=Reverse%20a%20String&categories=Algorithms,Strings&sortField=title&sortValue=desc"
 //
 //
 //curl -X GET "http://localhost:8080/questions?complexity=InvalidComplexity"
