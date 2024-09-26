@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // store user data for 1 hour
     Cookies.set("access_token", access_token, { expires: 1 / 24 });
-    setUser({ ...user, access_token });
+    setUser(prev => ({ ...prev, access_token }));
   };
 
   const logout = () => {
@@ -30,9 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const access_token = Cookies.get("access_token");
     if (access_token) {
-      setUser({ ...user, access_token });
+      setUser(prev => ({ ...prev, access_token }));
     }
-  }, [user]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

@@ -6,9 +6,10 @@ import Dashboard from "./dashboard/pages/Dashboard";
 
 const Home = () => {
   const { user } = useAuth();
+  console.log(user);
 
   return (
-    user ? <Dashboard/> : <LandingPage/>
+    user?.access_token ? <Dashboard/> : <LandingPage/>
   );
 };
 
