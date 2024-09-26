@@ -1,3 +1,4 @@
+import passport from 'passport'
 import {
     handleCreateQuestion,
     handleDeleteQuestion,
@@ -9,6 +10,8 @@ import {
 import { Router } from 'express'
 
 const router = Router()
+
+router.use(passport.authenticate('jwt', { session: false }))
 
 router.get('/', handleGetPaginatedQuestions)
 router.get('/:id', handleGetQuestionById)
