@@ -90,7 +90,7 @@ func GetQuestions(c echo.Context) error {
 	filterValues := c.QueryParam("filterValues")
 
 	// Process the sorting options (if any)
-	filter := ProcessFilterParam(filterField, filterValues)
+	filter := ProcessFilterParams(filterField, filterValues)
 	findOptions := ProcessSortParams(sortField, sortOrder) // Note: sorting of strings is case-sensitive by default
 
 	cur, err := questionCollection.Find(ctx, filter, findOptions)
@@ -199,7 +199,7 @@ func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions 
 	return findOptions
 }
 
-func ProcessFilterParam(filterField string, filterValues string) bson.D {
+func ProcessFilterParams(filterField string, filterValues string) bson.D {
 	filter := bson.D{{}}
 
 	if filterField != "" && filterValues != "" {
