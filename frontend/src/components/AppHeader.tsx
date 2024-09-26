@@ -28,33 +28,18 @@ const AppHeader: React.FC = () => {
         </div>
 
         <div className="right-section">
-          <button
-            className="user-button"
-            onClick={toggleDropdown}
-          >
+          <button className="user-button" onClick={toggleDropdown}>
             <UserIcon className="w-6 h-6" />
           </button>
           {isDropdownOpen && (
             <div className="dropdown">
-              <a
-                href="#"
-                className="dropdown-item"
-                onClick={closeDropdown}
-              >
+              <a href="#" className="dropdown-item" onClick={closeDropdown}>
                 <UserIcon className="w-4 h-4 inline-block mr-2" /> Profile
               </a>
-              <a
-                href="#"
-                className="dropdown-item"
-                onClick={closeDropdown}
-              >
+              <a href="#" className="dropdown-item" onClick={closeDropdown}>
                 <SettingsIcon className="w-4 h-4 inline-block mr-2" /> Settings
               </a>
-              <a
-                href="#"
-                className="dropdown-item"
-                onClick={closeDropdown}
-              >
+              <a href="#" className="dropdown-item" onClick={closeDropdown}>
                 <LogOutIcon className="w-4 h-4 inline-block mr-2" /> Logout
               </a>
             </div>
@@ -66,3 +51,4 @@ const AppHeader: React.FC = () => {
 };
 
 export default AppHeader;
+  
