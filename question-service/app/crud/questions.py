@@ -38,16 +38,21 @@ async def delete_question(question_id: str):
 
 async def update_question_by_id(question_id: str, question_data: UpdateQuestionModel):
     existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    
     if existing_question is None:
-        return {"error": "does not exist"}
+        return None
+
+    update_data = question_data.model_dump(exclude_unset=True)
+
+    # Check if the new title already exists and belongs to another question
+    if "title" in update_data and update_data["title"] != existing_question["title"]:
+        existing_title = await question_collection.find_one({"title": update_data["title"]})
+        if existing_title and str(existing_title["_id"]) != question_id:
+            return "duplicate_title"
     
-    duplicate_question = await question_collection.find_one({"title": question_data.title})
-    if duplicate_question:
-        return {"error": "duplicate"}
-    
-    updated_data = {"$set": question_data.model_dump(exclude_unset=True)}
-    if not updated_data["$set"]:
+    if not update_data:
         return existing_question
-    
-    await question_collection.update_one({"_id": ObjectId(question_id)}, updated_data)
+
+    await question_collection.update_one({"_id": ObjectId(question_id)}, {"$set": update_data})
     return await question_collection.find_one({"_id": ObjectId(question_id)})
+

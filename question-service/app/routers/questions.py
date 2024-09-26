@@ -47,10 +47,10 @@ async def delete(question_id: str):
 async def update_question(question_id: str, question_data: UpdateQuestionModel):
     updated_question = await update_question_by_id(question_id, question_data)
     
-    if "error" in updated_question:
-        if updated_question["error"] == "does not exist":
-            raise HTTPException(status_code=404, detail="Question with this id does not exist.")
-        if updated_question["error"] == "duplicate":
-            raise HTTPException(status_code=409, detail="Question with this title already exists.")
+    if updated_question is None:
+        raise HTTPException(status_code=404, detail="Question with this id does not exist.")
+    
+    if updated_question == "duplicate_title":
+        raise HTTPException(status_code=409, detail="A question with this title already exists.")
     
     return updated_question
