@@ -42,7 +42,7 @@ export default function Problems(props: { problems: any }) {
                 <Table className="table-auto">
                     <TableCaption>A list of coding problems</TableCaption>
                     <TableHeader>
-                        <TableRow> {/* Increased height */}
+                        <TableRow>
                             <TableHead>Problem</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Difficulty</TableHead>
@@ -60,7 +60,7 @@ export default function Problems(props: { problems: any }) {
                                         ))}
                                     </div>
                                 </TableCell>
-                                <TableCell><Badge>{problem.difficulty}</Badge></TableCell>
+                                <TableCell><Badge variant={problem.difficulty.toLowerCase()}>{problem.difficulty}</Badge></TableCell>
                                 <TableCell><Badge>{problem.status}</Badge></TableCell>
                             </TableRow>
                         ))}
