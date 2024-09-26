@@ -78,7 +78,7 @@ export default function QuestionListing() {
         </Button>
       </div>
     );
-  }
+  };
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -213,9 +213,7 @@ export default function QuestionListing() {
               </Button>
             </label>
           </div>
-          <div>
-            {createNewQuestion()}
-          </div>
+          <div>{createNewQuestion()}</div>
         </div>
       )}
       <QuestionTable
