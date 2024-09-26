@@ -10,41 +10,53 @@ import {
   TableRow,
   Typography,
   IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import Header from "../components/Header";
-import { getAllQuestions } from "../api/questionApi";
+import { getAllQuestions } from "../api/questionApi"; // Ensure your API supports pagination & sorting params
 import { Question } from "../@types/question";
 
 const QuestionRepo = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const entriesPerPage = 10;
 
+  const [sortField, setSortField] = useState<string>("title"); // Default sort field
+  const [sortOrder, setSortOrder] = useState<string>("asc"); // Default sort order
+
+  const fetchQuestions = async (page: number, sort: string, order: string) => {
+    try {
+      // Fetch questions with pagination and sorting
+      const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order });
+      setQuestions(data.questions);
+      setCurrentPage(data.currentPage);
+      setTotalPages(data.totalPages);
+      setTotalQuestions(data.totalQuestions);
+    } catch (error) {
+      console.error("Failed to fetch questions", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const data = await getAllQuestions();
-        setQuestions(data);
-      } catch (error) {
-        console.error("Failed to fetch questions", error);
-      }
-    };
-
-    fetchQuestions();
-  }, []);
-
-  const indexOfLastEntry = currentPage * entriesPerPage;
-  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = questions.slice(indexOfFirstEntry, indexOfLastEntry);
-  const totalEntries = questions.length;
-  const pageNumbers = [];
-
-  for (let i = 1; i <= Math.ceil(totalEntries / entriesPerPage); i++) {
-    pageNumbers.push(i);
-  }
+    // Fetch questions when the component mounts or sorting changes
+    fetchQuestions(currentPage, sortField, sortOrder);
+  }, [currentPage, sortField, sortOrder]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  const handleSortChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setSortField(event.target.value as string);
+  };
+
+  const handleOrderChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setSortOrder(event.target.value as string);
   };
 
   return (
@@ -62,6 +74,26 @@ const QuestionRepo = () => {
             Question Repository
           </Typography>
 
+          {/* Sorting Controls */}
+          <Box display="flex" justifyContent="space-between" mb={2}>
+            <FormControl>
+              <InputLabel>Sort By</InputLabel>
+              <Select value={sortField} onChange={handleSortChange}>
+                <MenuItem value="title">Title</MenuItem>
+                <MenuItem value="complexity">Complexity</MenuItem>
+                <MenuItem value="category">Category</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl>
+              <InputLabel>Order</InputLabel>
+              <Select value={sortOrder} onChange={handleOrderChange}>
+                <MenuItem value="asc">Ascending</MenuItem>
+                <MenuItem value="desc">Descending</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
           <Paper elevation={3}>
             <Table>
               <TableHead>
@@ -72,7 +104,7 @@ const QuestionRepo = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {currentEntries.map((question) => (
+                {questions.map((question) => (
                   <TableRow key={question._id}>
                     <TableCell>{question.title}</TableCell>
                     <TableCell></TableCell>
@@ -90,20 +122,23 @@ const QuestionRepo = () => {
             mt={2}
           >
             <Typography variant="body2">
-              Showing {indexOfFirstEntry + 1} to{" "}
-              {Math.min(indexOfLastEntry, totalEntries)} of {totalEntries}{" "}
-              entries
+              Showing {(currentPage - 1) * entriesPerPage + 1} to{" "}
+              {Math.min(currentPage * entriesPerPage, totalQuestions)} of{" "}
+              {totalQuestions} entries
             </Typography>
+
             <Box>
-              {pageNumbers.map((pageNumber) => (
-                <IconButton
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  color={pageNumber === currentPage ? "primary" : "default"}
-                >
-                  {pageNumber}
-                </IconButton>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNumber) => (
+                  <IconButton
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    color={pageNumber === currentPage ? "primary" : "default"}
+                  >
+                    {pageNumber}
+                  </IconButton>
+                )
+              )}
             </Box>
           </Box>
         </Box>
