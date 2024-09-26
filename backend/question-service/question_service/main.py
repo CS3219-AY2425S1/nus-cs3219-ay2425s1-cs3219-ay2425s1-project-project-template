@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,7 +22,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     }
     err_model = CustomValidationErrorResponse(**errs)
     return JSONResponse(
-        status_code=422,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=jsonable_encoder(err_model),
     )
 
@@ -31,7 +31,12 @@ logger = get_logger()
 app = FastAPI(
     title="Question Service Backend",
     exception_handlers={RequestValidationError: validation_exception_handler},
-    responses={422: {"description": "Validation Error", "model": CustomValidationErrorResponse}},
+    responses={
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Validation Error",
+            "model": CustomValidationErrorResponse,
+        }
+    },
 )
 
 app.add_middleware(

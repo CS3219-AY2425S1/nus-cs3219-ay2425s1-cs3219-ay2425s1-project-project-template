@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response, status
 from structlog import get_logger
 
 from ..mock import mock_db
@@ -13,29 +13,29 @@ async def get_question_by_title(titleSlug: str) -> dict:
     # validate params -> return 401 Bad request
     logger.info(f"Retrieving {titleSlug}")
     if not titleSlug:
-        raise HTTPException(status_code=400, detail="Invalid title slug")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
 
     question = mock_db.get_question_by_title(titleSlug)
     if question is None:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Question not found")
     return question
 
 
 @router.delete("/question/{titleSlug}")
 async def delete_question_by_title(titleSlug: str):
     if not titleSlug:
-        raise HTTPException(status_code=400, detail="Invalid title slug")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
 
     logger.info(f"Delete: {len(mock_db.db)}")
     mock_db.delete_question(titleSlug)
     logger.info(f"{len(mock_db.db)}")
-    return Response(status_code=200)
+    return Response(status_code=status.HTTP_200_OK)
 
 
 @router.patch("/question/{titleSlug}")
 async def update_question_by_title(titleSlug: str, req: UpdateQuestionModel):
     if not titleSlug:
-        raise HTTPException(status_code=400, detail="Invalid title slug")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
     question = mock_db.update_question(titleSlug, req.model_dump(exclude_unset=True))
     return question
 
@@ -46,13 +46,13 @@ async def get_all_questions() -> dict:
 
     questions = mock_db.get_questions()
     if questions is None:
-        raise HTTPException(status_code=404, detail="There are no questions in question bank")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no questions in question bank")
     return questions
 
 
-@router.post("/question/")
+@router.post("/question/", status_code=status.HTTP_201_CREATED)
 async def create_question(question: CreateQuestionModel):
     if not question:
-        raise HTTPException(status_code=400, detail="Invalid question")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid question")
     question = mock_db.create_question(question.model_dump())
     return question
