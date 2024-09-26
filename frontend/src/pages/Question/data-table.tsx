@@ -154,7 +154,7 @@ const Example = () => {
     isLoading: isLoadingQuestions,
   } = useGetQuestions();
   //call UPDATE hook
-  const { mutateAsync: updateQuestion, isPending: isUpdatingQuestion } =
+  const { mutateAsync: updateQuestion, isPending: isUpdatingQuestion, error: updateError } =
     useUpdateQuestion();
   //call DELETE hook
   const { mutateAsync: deleteQuestion, isPending: isDeletingQuestion } =
@@ -179,9 +179,12 @@ const Example = () => {
   //UPDATE action
   const handleSaveQuestion: MRT_TableOptions<Question>["onEditingRowSave"] =
     async ({ values, table }) => {
+      setIsUpdateError(false);
       updateQuestion(values)
         .then(() => table.setEditingRow(null))
-        .catch((_err) => setIsUpdateError(true));
+        .catch((err) => {
+          console.log(err);
+          setIsUpdateError(true)});
          //exit editing mode
     };
 
@@ -350,10 +353,10 @@ const Example = () => {
           {
             isUpdateError 
             ? <Alert variant="outlined" severity="error">
-              {createError instanceof AxiosError 
-                ? (createError.code == "ERR_NETWORK"
+              {updateError instanceof AxiosError 
+                ? (updateError.code == "ERR_NETWORK"
                   ? "Network Error, please check your connection."
-                  : createError.response?.data?.msg
+                  : updateError.response?.data?.msg
                 )
                 : "Unexpected Error Occured"}
             </Alert> 

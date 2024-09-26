@@ -35,6 +35,7 @@ export const getOneQuestion = async (req: Request, res: Response, next: NextFunc
 export const addQuestion = async (req: Request, res: Response, next : NextFunction) => {
     const {qid, title, description, categories, complexity} = req.body;
     try {
+        console.log(req.body)
         const question = await Question.create({qid, title, description, categories, complexity});
         res.status(200).json(question);
     } catch (err) {
