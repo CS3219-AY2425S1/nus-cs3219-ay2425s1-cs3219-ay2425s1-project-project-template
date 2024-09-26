@@ -27,10 +27,11 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { type Question, fakeData, problemComplexity } from "../../makeData";
+import { type Question, problemComplexity } from "../../makeData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
+import { Description } from "@mui/icons-material";
 
 // Styled components for the dialog
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -99,7 +100,15 @@ const Example = () => {
         size: 80,
         muiEditTextFieldProps: {
           required: true,
-          type: "number"
+          type: "number",
+          error: !!validationErrors?.qid,
+          helperText: validationErrors?.qid,
+          onFocus: () => {
+            setValidationErrors({
+              ...validationErrors,
+              qid: undefined
+            })
+          }
         },
       },
       {
@@ -107,6 +116,14 @@ const Example = () => {
         header: "Title",
         muiEditTextFieldProps: {
           required: true,
+          error: !!validationErrors?.title,
+          helperText: validationErrors?.title,
+          onFocus: () => {
+            setValidationErrors({
+              ...validationErrors,
+              title: undefined
+            })
+          }
         },
       },
       {
@@ -116,6 +133,14 @@ const Example = () => {
         editSelectOptions: problemComplexity,
         muiEditTextFieldProps: {
           select: true,
+          error: !!validationErrors?.complexity,
+          helperText: validationErrors?.complexity,
+          onFocus: () => {
+            setValidationErrors({
+              ...validationErrors,
+              complexity: undefined
+            })
+          }
         },
       },
       {
@@ -127,6 +152,14 @@ const Example = () => {
         },
         muiEditTextFieldProps: {
           required: true,
+          error: !!validationErrors?.categories,
+          helperText: validationErrors?.categories,
+          onFocus: () => {
+            setValidationErrors({
+              ...validationErrors,
+              categories: undefined
+            })
+          }
         },
       },
       {
@@ -136,11 +169,19 @@ const Example = () => {
           required: true,
           multiline: true,
           variant: "outlined",
-          rows: 4
+          rows: 4,
+          error: !!validationErrors?.description,
+          helperText: validationErrors?.description,
+          onFocus: () => {
+            setValidationErrors({
+              ...validationErrors,
+              description: undefined
+            })
+          }
         },
       },
     ],
-    [isEditing]
+    [isEditing, validationErrors]
   );
 
   //call CREATE hook
@@ -164,6 +205,12 @@ const Example = () => {
   const handleCreateQuestion: MRT_TableOptions<Question>["onCreatingRowSave"] =
     async ({ values, table }) => {
       setIsCreateError(false);
+      const newValidationErrors = validateQuestion(values);
+      if (Object.values(newValidationErrors).some((error) => error)) {
+        setValidationErrors(newValidationErrors);
+        return;
+      }
+      setValidationErrors({});
       createQuestion(values)
         .then(() => {
           table.setCreatingRow(null);
@@ -180,6 +227,13 @@ const Example = () => {
   const handleSaveQuestion: MRT_TableOptions<Question>["onEditingRowSave"] =
     async ({ values, table }) => {
       setIsUpdateError(false);
+      const newValidationErrors = validateQuestion(values);
+      if (Object.values(newValidationErrors).some((error) => error)) {
+        setValidationErrors(newValidationErrors);
+
+        return;
+      }
+      setValidationErrors({});
       updateQuestion(values)
         .then(() => table.setEditingRow(null))
         .catch((err) => {
@@ -572,6 +626,39 @@ function useDeleteQuestion() {
 }
 
 const queryClient = new QueryClient();
+
+const validateQid = (qid : string) => Number.isInteger(+qid) && (+qid > 0);
+const validateTitle = (title : string) => !!title.trim();
+const validateDescription = (description : string) => !!description.trim();
+const validateComplexity = (complexity : string) =>  ["Easy", "Medium", "Hard"].includes(complexity);
+const validateCategories = (categories : String[] | string) => {
+  if (typeof categories == "string") {
+    return !!categories.trim();
+  }
+  return !!categories[0].trim();
+}
+
+function validateQuestion(question : Question) {
+  return {
+    qid: !validateQid(String(question.qid))
+      ? "Please enter a valid question number."
+      : "",
+    title: !validateTitle(question.title)
+      ? "Please enter a title for the question."
+      : "",
+    description: !validateDescription(question.description)
+      ? "Please enter a description for the question."
+      : "",
+    complexity: !validateComplexity(question.complexity)
+      ? "Please select a complexity."
+      : "",
+    categories: !validateCategories(question.categories)
+      ? "Please categorise the question."
+      : ""
+
+  }
+}
+
 
 const ExampleWithProviders = () => (
   //Put this with your other react-query providers near root of your app
