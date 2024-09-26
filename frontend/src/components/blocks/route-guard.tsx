@@ -19,7 +19,8 @@ export const loader =
   async ({ request }: LoaderFunctionArgs) => {
     const route = new URL(request.url);
     const path = route.pathname;
-    const authedRoutes = [ROUTES.HOME];
+    const unAuthedRoutes = [ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.FORGOT_PASSWORD];
+    const unAuthedRoute = unAuthedRoutes.includes(path);
 
     return defer({
       isAuthed: await queryClient.ensureQueryData({
@@ -33,7 +34,7 @@ export const loader =
           return Math.max(expiresAt.getTime() - now.getTime(), 0);
         },
       }),
-      authedRoute: authedRoutes.includes(path),
+      authedRoute: !unAuthedRoute,
       path,
     });
   };
