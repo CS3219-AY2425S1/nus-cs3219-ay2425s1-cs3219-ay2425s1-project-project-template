@@ -43,8 +43,12 @@ export default function CreateQuestionPage() {
     try {
       await createQuestion(question);
       router.push('/questions');
-    } catch (error) {
-      alert("Failed to create question. Please try again.");
+    } catch (error: any) {
+      if (error.response && error.response.status === 409) {
+        alert("A question with this title already exists.");
+      } else {
+        alert("Failed to create question. Please try again.");
+      }
     }
   };
 
@@ -90,9 +94,9 @@ export default function CreateQuestionPage() {
           {topics.size > 0 ? (
             Array.from(topics).map((topic: QuestionTopic, idx: number) => (
               topicText(topic, idx, () => {
-                const updatedTopics = new Set(topics);  
-                updatedTopics.delete(topic);  
-                setTopics(updatedTopics);  
+                const updatedTopics = new Set(topics);
+                updatedTopics.delete(topic);
+                setTopics(updatedTopics);
               })
             ))
           ) : (

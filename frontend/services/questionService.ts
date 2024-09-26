@@ -15,6 +15,7 @@ export const createQuestion = async (question: Question) => {
     .then(response => response.data)
     .catch(error => {
       console.error('Error creating question:', error);
+      throw error;
     });
 };
 
@@ -31,6 +32,7 @@ export const updateQuestion = async (id: string, question: Question) => {
     .then(response => response.data)
     .catch(error => {
       console.error('Error updating question:', error);
+      throw error;
     });
 };
 

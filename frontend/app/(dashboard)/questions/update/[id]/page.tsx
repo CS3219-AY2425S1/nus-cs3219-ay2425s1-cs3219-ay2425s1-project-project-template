@@ -56,8 +56,16 @@ export default function Page({ params }: { params: { id: string } }) {
       link,
     };
 
-    await updateQuestion(id, updatedQuestion);
-    router.push('/questions');
+    try {
+      await updateQuestion(id, updatedQuestion);
+      router.push('/questions');
+    } catch (error: any) {
+      if (error.response && error.response.status === 409) {
+        alert("A question with this title already exists.");
+      } else {
+        alert("Failed to update question. Please try again.");
+      }
+    }
   };
 
   return (
