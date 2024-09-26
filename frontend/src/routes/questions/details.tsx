@@ -1,24 +1,19 @@
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import Markdown from 'react-markdown';
-import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
+import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
+import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getQuestionDetails } from '@/services/question-service';
-import { Separator } from '@/components/ui/separator';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Fragment } from 'react/jsx-runtime';
-import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+
+import { useCrumbs } from '@/lib/hooks/use-crumbs';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
+import { getQuestionDetails } from '@/services/question-service';
 
 const questionDetailsQuery = (id: number) =>
   queryOptions({
@@ -34,48 +29,14 @@ export const loader =
     return { questionId };
   };
 
-const BreadCrumbLinks = ({ id, title }: { id: number; title: string }) => {
-  const links = [
-    {
-      link: '/',
-      label: 'Home',
-    },
-    {
-      link: '/questions',
-      label: 'Questions',
-    },
-    {
-      link: '/questions/' + id,
-      label: '1. ' + title,
-      isCurrent: true,
-    },
-  ];
-  return links.map(({ link, label, isCurrent }, index) => (
-    <Fragment key={index}>
-      <BreadcrumbItem>
-        <BreadcrumbLink asChild>
-          <Link to={link} className={cn(isCurrent && 'text-secondary-foreground')}>
-            {label}
-          </Link>
-        </BreadcrumbLink>
-      </BreadcrumbItem>
-      {index < links.length - 1 && <BreadcrumbSeparator />}
-    </Fragment>
-  ));
-};
-
 export const QuestionDetails = () => {
   const { questionId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
+  const { crumbs } = useCrumbs({ path: '<CURRENT>', title: `${questionId}. ${details.title}` });
+  usePageTitle(details.title);
+
   return (
-    <>
-      <div className='bg-secondary/50 flex w-full p-4 px-6'>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadCrumbLinks id={details.id} title={details.title} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    <WithNavBanner crumbs={[...crumbs]}>
       <div className='flex flex-1 overflow-hidden'>
         <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
           <ScrollArea className='h-full'>
@@ -131,6 +92,6 @@ export const QuestionDetails = () => {
         </Card>
         <div className='flex flex-1 flex-col' />
       </div>
-    </>
+    </WithNavBanner>
   );
 };

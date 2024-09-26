@@ -10,9 +10,13 @@ export const generateCookie = <T extends object>(payload: T) => {
 };
 
 export const isCookieValid = (cookie: string) => {
-  return jwt.verify(cookie, JWT_SECRET_KEY, {
-    ignoreExpiration: false,
-  });
+  try {
+    return jwt.verify(cookie, JWT_SECRET_KEY, {
+      ignoreExpiration: false,
+    });
+  } catch (error) {
+    return false;
+  }
 };
 
 export type CookiePayload = {
