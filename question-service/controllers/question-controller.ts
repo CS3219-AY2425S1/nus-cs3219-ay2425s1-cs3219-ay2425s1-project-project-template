@@ -6,13 +6,13 @@ import Question from '../models/question-model';
 // @access Public
 export const fetchAllQuestions = async (req: Request, res: Response): Promise<void> => {
     try {
-      // Function provided by Mongoose to fetch all Question documents
       const questions = await Question.find({});
-      
-      // Return all questions in JSON format with status 200
-      res.status(200).json(questions);
+      if (questions) {
+        res.status(200).json(questions);
+      } else {
+        res.status(404).json({ message: 'No questions found' });
+      }
     } catch (error) {
-      // If there's an error, return a server error status with a message
       res.status(500).json({ message: 'Failed to fetch questions', error });
     }
   };
@@ -24,8 +24,6 @@ export const fetchAllQuestions = async (req: Request, res: Response): Promise<vo
 export const addQuestion = async (req: Request, res: Response): Promise<void> => {
     try {
       const { questionId, title, description, category, difficulty } = req.body;
-  
-      // Create a new question using the Question model
       const newQuestion = new Question({
         questionId,
         title,
@@ -50,7 +48,6 @@ export const updateQuestionById = async (req: Request, res: Response): Promise<v
     try {
       const { title, description, category, difficulty } = req.body;
   
-      // Find the question by ID and update its fields
       const updatedQuestion = await Question.findOneAndUpdate(
         {
             questionId: req.params.id
