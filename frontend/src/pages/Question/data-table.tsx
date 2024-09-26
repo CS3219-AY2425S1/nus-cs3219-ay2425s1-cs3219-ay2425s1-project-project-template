@@ -18,6 +18,7 @@ import {
   Tooltip,
   TextField,
   styled,
+  Alert,
 } from "@mui/material";
 import {
   QueryClient,
@@ -29,6 +30,7 @@ import {
 import { type Question, fakeData, problemComplexity } from "../../makeData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import axios, { AxiosError } from "axios";
 
 // Styled components for the dialog
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -79,6 +81,10 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 
 
 const Example = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isCreateError, setIsCreateError] = useState(false);
+  const [isUpdateError, setIsUpdateError] = useState(false);
+  //const [isDeleteError, setIsDeleteError] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string | undefined>
   >({});
@@ -87,10 +93,14 @@ const Example = () => {
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
       {
-        accessorKey: "id",
+        accessorKey: "qid",
         header: "Id",
-        enableEditing: false,
+        enableEditing: !isEditing,
         size: 80,
+        muiEditTextFieldProps: {
+          required: true,
+          type: "number"
+        },
       },
       {
         accessorKey: "title",
@@ -112,19 +122,29 @@ const Example = () => {
         accessorKey: "categories",
         header: "Categories",
         Cell: ({ cell }) => {
-            const value = cell.getValue<string[] | string>();
-            return Array.isArray(value) ? value.join(", ") : value;
-          },
+          const value = cell.getValue<string[] | string>();
+          return Array.isArray(value) ? value.join(", ") : value;
+        },
         muiEditTextFieldProps: {
           required: true,
         },
       },
+      {
+        accessorKey: "description",
+        header: "Description",
+        muiEditTextFieldProps: {
+          required: true,
+          multiline: true,
+          variant: "outlined",
+          rows: 4
+        },
+      },
     ],
-    []
+    [isEditing]
   );
 
   //call CREATE hook
-  const { mutateAsync: createQuestion, isPending: isCreatingQuestion } =
+  const { mutateAsync: createQuestion, isPending: isCreatingQuestion, error: createError} =
     useCreateQuestion();
   //call READ hook
   const {
@@ -143,21 +163,33 @@ const Example = () => {
   //CREATE action
   const handleCreateQuestion: MRT_TableOptions<Question>["onCreatingRowSave"] =
     async ({ values, table }) => {
-      await createQuestion(values);
-      table.setCreatingRow(null); //exit creating mode
+      setIsCreateError(false);
+      createQuestion(values)
+        .then(() => {
+          table.setCreatingRow(null);
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsCreateError(true);
+        });
+
+      ; //exit creating mode
     };
 
   //UPDATE action
   const handleSaveQuestion: MRT_TableOptions<Question>["onEditingRowSave"] =
     async ({ values, table }) => {
-      await updateQuestion(values);
-      table.setEditingRow(null); //exit editing mode
+      updateQuestion(values)
+        .then(() => table.setEditingRow(null))
+        .catch((_err) => setIsUpdateError(true));
+         //exit editing mode
     };
 
   //DELETE action
   const openDeleteConfirmModal = (row: MRT_Row<Question>) => {
     if (window.confirm("Are you sure you want to delete this question?")) {
-      deleteQuestion(row.original.id);
+      deleteQuestion(String(row.original.qid))
+      .catch((err) => console.log(err));
     }
   };
 
@@ -167,6 +199,7 @@ const Example = () => {
   };
 
   const closeInfoDialog = () => {
+    setIsCreateError(false);
     setSelectedQuestion(null);
   };
 
@@ -176,7 +209,7 @@ const Example = () => {
     createDisplayMode: "modal", //default ('row', and 'custom' are also available)
     editDisplayMode: "modal", //default ('row', 'cell', 'table', and 'custom' are also available)
     enableEditing: true,
-    getRowId: (row) => row.id,
+    getRowId: (row) => String(row.qid),
     muiToolbarAlertBannerProps: isLoadingQuestionsError
       ? {
           color: "error",
@@ -269,9 +302,16 @@ const Example = () => {
         },
       },
     },
-    onCreatingRowCancel: () => setValidationErrors({}),
+    onCreatingRowCancel: () => {
+      setIsCreateError(false);
+      setValidationErrors({});
+    },
     onCreatingRowSave: handleCreateQuestion,
-    onEditingRowCancel: () => setValidationErrors({}),
+    onEditingRowCancel: () => {
+      setIsEditing(false);
+      setIsUpdateError(false);
+      setValidationErrors({})
+    },
     onEditingRowSave: handleSaveQuestion,
     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
       <>
@@ -280,22 +320,19 @@ const Example = () => {
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
           {internalEditComponents}
-          <TextField
-            label="Description"
-            name="description"
-            required
-            multiline
-            onChange={(e) => {
-              table.setCreatingRow((prev) => {
-                if (prev === null) return null;
-                if (typeof prev === "boolean") return prev;
-                return {
-                  ...prev,
-                  description: e.target.value,
-                };
-              });
-            }}
-          />
+          {
+            isCreateError 
+            ? <Alert variant="outlined" severity="error">
+              {createError instanceof AxiosError 
+                ? (createError.code == "ERR_NETWORK"
+                  ? "Network Error, please check your connection."
+                  : createError.response?.data?.msg
+                )
+                : "Unexpected Error Occured"}
+            </Alert> 
+            : null
+          }
+          {}
         </DialogContent>
         <DialogActions>
           <MRT_EditActionButtons variant="text" table={table} row={row} />
@@ -310,22 +347,18 @@ const Example = () => {
           sx={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
         >
           {internalEditComponents}
-          <TextField
-            label="Description"
-            name="description"
-            required
-            multiline
-            onChange={(e) => {
-              table.setEditingRow((prev) => {
-                if (prev === null) return null;
-                return {
-                  ...prev,
-                  description: e.target.value,
-                };
-              });
-            }}
-            value={(row.original as Question & { description?: string }).description || ''}
-          />
+          {
+            isUpdateError 
+            ? <Alert variant="outlined" severity="error">
+              {createError instanceof AxiosError 
+                ? (createError.code == "ERR_NETWORK"
+                  ? "Network Error, please check your connection."
+                  : createError.response?.data?.msg
+                )
+                : "Unexpected Error Occured"}
+            </Alert> 
+            : null
+          }
         </DialogContent>
         <DialogActions>
           <MRT_EditActionButtons variant="text" table={table} row={row} />
@@ -338,6 +371,7 @@ const Example = () => {
           <IconButton
             sx={{ color: "white" }}
             onClick={(e) => {
+              setIsEditing(true);
               e.stopPropagation();
               table.setEditingRow(row);
             }}
@@ -359,6 +393,8 @@ const Example = () => {
       <Button
         variant="contained"
         onClick={() => {
+          setIsEditing(false);
+          setIsCreateError(false)
           table.setCreatingRow(true);
         }}
       >
@@ -388,7 +424,7 @@ const Example = () => {
             <>
               <StyledTextField
                 label="ID"
-                value={selectedQuestion.id}
+                value={selectedQuestion.qid}
                 fullWidth
                 margin="normal"
                 InputProps={{ readOnly: true }}
@@ -429,6 +465,21 @@ const Example = () => {
   );
 };
 
+// makes categories an array instead of a string
+function changeCategoryStringToArray(category : String | string[]) : string[] {
+  if (typeof category == "string") {
+    const splitCategory = category.split(',');
+    const arrayCategory = splitCategory.map((c) => c.trim());
+    return arrayCategory;
+  }
+  else {
+    const stringFromArray = category[0];
+    const splitCategory = stringFromArray.split(',');
+    const arrayCategory = splitCategory.map((c) => c.trim());
+    return arrayCategory;
+  }
+}
+
 
 //CREATE hook (post new question to api)
 function useCreateQuestion() {
@@ -436,26 +487,24 @@ function useCreateQuestion() {
   return useMutation({
     mutationFn: async (question: Question) => {
       //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
+      
+      const categoryArray = changeCategoryStringToArray(question.categories);
+      const reqBody = {...question, categories: categoryArray};
+      return await axios.post("http://localhost:4000/api/question", reqBody);
     },
     //client side optimistic update
-    onMutate: (newQuestionInfo: Question) => {
+    
+    onMutate: async (newQuestionInfo: Question) => {
       queryClient.setQueryData(
         ["questions"],
-        (prevQuestions: any) => {
-          const updatedQuestions = Array.isArray(prevQuestions) ? prevQuestions : [];
+        (prevQuestions: Array<Question>) => {
           return [
-            ...updatedQuestions,
-            {
-              ...newQuestionInfo,
-              id: (Math.random() + 1).toString(36).substring(7),
-            },
+            ...prevQuestions, newQuestionInfo
           ] as Question[];
         }
       );
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
+     onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
   });
 }
 
@@ -463,10 +512,9 @@ function useCreateQuestion() {
 function useGetQuestions() {
   return useQuery<Question[]>({
     queryKey: ["questions"],
+    //send api request here,
     queryFn: async () => {
-      //send api request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve(fakeData);
+      return (await axios.get("http://localhost:4000/api/question/")).data;
     },
     refetchOnWindowFocus: false,
   });
@@ -478,21 +526,23 @@ function useUpdateQuestion() {
   return useMutation({
     mutationFn: async (question: Question) => {
       //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
+      const {qid, ...updatebody} = question
+      const categoryArray = changeCategoryStringToArray(updatebody.categories); // index 0 because right now its just array of length 1
+      const reqBody = {...updatebody, categories: categoryArray}
+      return await axios.patch(`http://localhost:4000/api/question/${qid}`, reqBody);
     },
     //client side optimistic update
     onMutate: (newQuestionInfo: Question) => {
       queryClient.setQueryData(["questions"], (prevQuestions: any) => {
         if (!Array.isArray(prevQuestions)) return [newQuestionInfo];
         return prevQuestions.map((prevQuestion: Question) =>
-          prevQuestion.id === newQuestionInfo.id
+          prevQuestion.qid === newQuestionInfo.qid
             ? newQuestionInfo
             : prevQuestion
         );
       });
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
+     onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
   });
 }
 
@@ -502,19 +552,19 @@ function useDeleteQuestion() {
   return useMutation({
     mutationFn: async (questionId: string) => {
       //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
+      const qid = +questionId;
+      return await axios.delete(`http://localhost:4000/api/question/${qid}`);
     },
     //client side optimistic update
     onMutate: (questionId: string) => {
       queryClient.setQueryData(["questions"], (prevQuestions: any) => {
         if (!Array.isArray(prevQuestions)) return [];
         return prevQuestions.filter(
-          (question: Question) => question.id !== questionId
+          (question: Question) => String(question.qid) !== questionId
         );
       });
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
+     onSettled: () => queryClient.invalidateQueries({ queryKey: ['questions'] }), //refetch questions after mutation, disabled for demo
   });
 }
 
