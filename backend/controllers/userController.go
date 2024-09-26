@@ -55,7 +55,7 @@ func UpdatePasswordInDatabase(userID string, newPassword string) error {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	filter := bson.M{"_id": userID}
+	filter := bson.M{"user_id": userID}
 	update := bson.D{
 		{"$set", bson.D{{"password", newPassword}, {"updated_at", time.Now()}}},
 	}
@@ -130,7 +130,7 @@ func SignUp() gin.HandlerFunc {
 		user.ID = primitive.NewObjectID()
 		user.User_id = user.ID.Hex()
 		token, refreshToken, _ := helper.GenerateAllTokens(user.Email, user.Username, user.User_id)
-		user.Token = token
+		// user.Token = token
 		user.Refresh_token = refreshToken
 
 		_, insertErr := userCollection.InsertOne(ctx, user)
@@ -142,12 +142,12 @@ func SignUp() gin.HandlerFunc {
 		defer cancel()
 
 		// send a message to user, successfully created user
-		c.JSON(http.StatusOK, gin.H{"message": "User: " + user.Username + " created successfully"})
+		c.JSON(http.StatusOK, gin.H{"message": "User: " + user.Username + " created successfully", "token": token})
 
 	}
 }
 
-// Login is the api used to tget a single user
+// Login is the api used to get a single user
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -175,6 +175,7 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
+		// Generates a new token and refresh token each time on login
 		token, refreshToken, _ := helper.GenerateAllTokens(foundUser.Email, foundUser.Username, foundUser.User_id)
 
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
@@ -207,16 +208,16 @@ func EmailVerification() gin.HandlerFunc {
 		}
 
 		// Generate a reset token (short expiration time)
-		token, refreshToken, err := helper.GenerateAllTokens(user.Email, user.Username, user.User_id)
+		resetToken, err := helper.GenerateResetTokens(user.Email, user.Username, user.User_id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating reset token"})
 			return
 		}
 
 		// Save the token to MongoDB with an expiration time (1 hour)
-		helper.UpdateAllTokens(token, refreshToken, user.User_id)
+		//helper.UpdateAllTokens(token, refreshToken, user.User_id)
 
-		SendResetEmail(user.Email, token)
+		SendResetEmail(user.Email, resetToken)
 
 		c.JSON(http.StatusOK, gin.H{"message": "Reset link sent successfully"})
 	}
@@ -226,9 +227,25 @@ func EmailVerification() gin.HandlerFunc {
 func ResetPassword() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get token from query parameters
-		token := c.Query("token")
+		var token string = c.Query("token")
+
 		if token == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Token is required"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+			c.Abort()
+			return
+		}
+
+		claims, err := helper.ValidateToken(token)
+
+		if err != "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.Abort()
+			return
+		}
+
+		if claims == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.Abort()
 			return
 		}
 
@@ -241,36 +258,63 @@ func ResetPassword() gin.HandlerFunc {
 			return
 		}
 
-		// MongoDB context with timeout
-		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		defer cancel()
-
-		// Find the user by the token
-		var user models.User
-		err := userCollection.FindOne(ctx, bson.M{"token": token}).Decode(&user)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired token"})
-			return
-		}
-
 		// Hash the new password
 		hashedPassword := HashPassword(req.NewPassword)
 
+		fmt.Println("Error in cursor.All: ", claims.Uid)
 		// Update user password and updated_at fields
-		update := bson.M{
-			"$set": bson.M{
-				"password":   hashedPassword,
-				"updated_at": time.Now(),
-			},
-		}
-
-		// Update the user document based on user_id
-		_, err = userCollection.UpdateOne(ctx, bson.M{"user_id": user.User_id}, update)
-		if err != nil {
+		if err := UpdatePasswordInDatabase(claims.Uid, hashedPassword); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Password update failed"})
 			return
 		}
-
 		c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
 	}
+}
+
+func RefreshToken(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var refreshToken string = c.Request.Header.Get("refresh_token")
+	var targetUser models.User
+
+	if refreshToken == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No refresh token provided"})
+	}
+
+	refreshClaims, err := helper.ParseToken(refreshToken)
+
+	fmt.Println("refreshClaims", refreshClaims.Uid)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	// Check if refresh token has expired
+	if refreshClaims.ExpiresAt.Time.Before(time.Now()) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Refresh token has expired"})
+		return
+	}
+
+	// Validate refresh token with backend
+	err = userCollection.FindOne(ctx, bson.M{"user_id": refreshClaims.Uid}).Decode(&targetUser) // finds user with corresponding email from coll
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+		return
+	}
+
+	if refreshToken != targetUser.Refresh_token {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	token, _, err := helper.GenerateAllTokens(targetUser.Email, targetUser.Username, targetUser.User_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Generated new access token", "token": token})
 }
