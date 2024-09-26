@@ -1,17 +1,17 @@
 {
     "name": "question-service",
+    "description": "Question Service for PeerPrep, responsible for maintaining a question repository.",
+    "author": "CS3219 AY2024S1 Group 31",
     "version": "0.1.0",
-    "main": "index.js",
+    "main": "server.js",
     "scripts": {
         "build": "tsc",
         "test": "jest",
-        "lint": "eslint --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown .",
+        "lint": "eslint . --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown .",
         "start": "npm run build && node dist/server.js",
         "dev": "nodemon src/server.ts"
     },
-    "author": "",
     "license": "MIT",
-    "description": "",
     "dependencies": {
         "class-validator": "^0.14.1",
         "cors": "^2.8.5",
@@ -23,6 +23,8 @@
         "winston": "^3.14.2"
     },
     "devDependencies": {
+        "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/cors": "^2.8.17",
         "@types/dotenv": "^6.1.1",
