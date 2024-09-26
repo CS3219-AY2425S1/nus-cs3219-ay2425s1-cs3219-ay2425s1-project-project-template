@@ -32,5 +32,8 @@ module.exports = {
     "node_modules/",
     "tailwind.config.js",
   ],
+  rules: {
+    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+  },
   overrides: [{ files: ["*.js?(x)", "*.ts?(x)"] }],
 };
