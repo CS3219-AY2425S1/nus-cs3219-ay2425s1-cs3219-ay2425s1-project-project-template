@@ -47,9 +47,9 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
         <img src={logo} alt="Peerprep Logo" className="w-20 h-20" />
         <span className="text-6xl text-white">PeerPrep</span>
       </div>
-      <div className="bg-white bg-opacity-10 p-20 rounded-lg backdrop-blur-md text-center w-auto">
+      <div className="bg-white bg-opacity-10 p-20 rounded-lg backdrop-blur-md text-center w-[450px] max-w-full mx-auto">
         <h2 className="text-white text-2xl font-semibold mb-4">Register</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="input-container">
             <InputBox
               type="text"
@@ -72,6 +72,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              isPassword={true}  // Enable password toggle for the "Password" field
             />
           </div>
           <div className="input-container">
@@ -80,6 +81,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              isPassword={true}  // Enable password toggle for the "Confirm Password" field
             />
           </div>
 
