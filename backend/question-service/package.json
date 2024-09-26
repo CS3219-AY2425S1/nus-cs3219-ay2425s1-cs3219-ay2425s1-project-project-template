@@ -24,6 +24,7 @@
     },
     "devDependencies": {
         "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/cors": "^2.8.17",
         "@types/dotenv": "^6.1.1",
