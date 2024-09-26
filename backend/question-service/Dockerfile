@@ -36,5 +36,4 @@ USER question-service
 
 COPY --from=installer /app .
  
-EXPOSE ${PORT}
-CMD ["node", "app/backend/question-service/dist/server"]
+CMD ["node", "backend/question-service/dist/server"]

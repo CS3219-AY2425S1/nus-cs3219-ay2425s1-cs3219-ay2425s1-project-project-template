@@ -36,5 +36,4 @@ USER user-service
 
 COPY --from=installer /app .
 
-EXPOSE ${PORT}
-CMD ["node", "app/backend/user-service/dist/server"]
+CMD ["node", "backend/user-service/dist/server"]
