@@ -18,7 +18,8 @@ import lombok.ToString;
 public class Question {
 
     @Id
-    private Integer questionId;
+    private Integer id;
+
     private String title;
     private String description;
     private String category;

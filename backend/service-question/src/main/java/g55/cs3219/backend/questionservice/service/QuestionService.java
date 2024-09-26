@@ -42,15 +42,15 @@ public class QuestionService {
 
     public Question createQuestion(Question question) {
         validateQuestion(question);
-        if (questionRepository.existsById(question.getQuestionId())) {
-            throw new DuplicatedQuestionIdException("Duplicate question with ID " + question.getQuestionId() + " already exists.");
+        if (questionRepository.existsById(question.getId())) {
+            throw new DuplicatedQuestionIdException("Duplicate question with ID " + question.getId() + " already exists.");
         }
         return questionRepository.save(question);
     }
 
     private void validateQuestion(Question question) {
         List<String> missingFields = Stream.of(
-                question.getQuestionId() == null ? "questionId" : null,
+                question.getId() == null ? "id" : null,
                 question.getTitle() == null ? "title" : null,
                 question.getDescription() == null ? "description" : null,
                 question.getCategory() == null ? "category" : null,
@@ -62,4 +62,19 @@ public class QuestionService {
         }
     }
 
+    public Question updateQuestion(Integer id, Question updatedQuestion) {
+        if (updatedQuestion.getId() == null) {
+            throw new InvalidQuestionException("Question ID is required for update.");
+        }
+
+        Question existingQuestion = questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException("Question with ID " + id + " not found."));
+
+        existingQuestion.setTitle(updatedQuestion.getTitle());
+        existingQuestion.setDescription(updatedQuestion.getDescription());
+        existingQuestion.setDifficulty(updatedQuestion.getDifficulty());
+        existingQuestion.setCategory(updatedQuestion.getCategory());
+
+        return questionRepository.save(existingQuestion);
+    }
 }

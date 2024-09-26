@@ -4,6 +4,7 @@ import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
 import g55.cs3219.backend.questionservice.model.Question;
 import g55.cs3219.backend.questionservice.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,4 +36,9 @@ public class QuestionController {
         return questionService.createQuestion(question);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Question> updateQuestion(@PathVariable Integer id, @RequestBody Question updatedQuestion) {
+        Question question = questionService.updateQuestion(id, updatedQuestion);
+        return ResponseEntity.ok(question);
+    }
 }
