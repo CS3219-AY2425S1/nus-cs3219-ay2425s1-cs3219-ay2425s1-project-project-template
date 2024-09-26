@@ -256,9 +256,10 @@ const AdminEditUserModal: React.FC<AdminEditUserModalProps> = ({
               </div>
               <div className="grid gap-2 mt-5">
                 <div className="flex items-center">
-                  <Label htmlFor="email">Admin</Label>
+                  <Label htmlFor="isAdmin">Admin</Label>
                 </div>
                 <Switch
+                  id="isAdmin"
                   checked={editingUser?.isAdmin}
                   onCheckedChange={(e) =>
                     setEditingUser({ ...editingUser, isAdmin: e })
