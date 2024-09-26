@@ -10,6 +10,7 @@ const Navbar: React.FC = () => {
         { label: 'Explore', href: '/explore' },
         { label: 'Codespace', href: '/codespace' },
         { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Problems', href: '/problems' },
     ]
     return (
         <nav className="bg-violet-800 p-2 w-screen fixed">
