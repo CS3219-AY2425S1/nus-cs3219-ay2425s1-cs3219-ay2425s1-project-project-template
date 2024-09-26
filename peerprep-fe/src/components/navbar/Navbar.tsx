@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 
 export default function Navbar() {
@@ -14,9 +15,11 @@ export default function Navbar() {
           <Link href="/match" className="text-gray-300 hover:text-white">
             Match
           </Link>
-          <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
-            Sign In
-          </button>
+          <Link href="/signin">
+            <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
+              Sign In
+            </button>
+          </Link>
         </div>
       </div>
     </nav>
