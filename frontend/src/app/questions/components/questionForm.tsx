@@ -53,7 +53,7 @@ export default function QuestionForm() {
         // ✅ This will be type-safe and validated.
         console.log(values)
         try {
-            const response = await fetch('http://localhost:5000/add-question', {
+            const response = await fetch('http://localhost:5001/add-question', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
