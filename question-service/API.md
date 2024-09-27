@@ -151,6 +151,43 @@ endpoint: `http://localhost:8000`
     ]
     ```
 
+### 6. Get Next Avilable ID
+
+- **Endpoint**: `GET /nexid`
+- **Purpose**: Get the ID that will be automatically allocated to the next newly created question.
+- **Input**: None.
+- **Output**:
+  - **Success**:
+
+    ```json
+    {
+      "result": 21
+    }
+    ```
+
+### 6. Get All Topics
+
+- **Endpoint**: `GET /topics`
+- **Purpose**: Get all topics.
+- **Input**: None.
+- **Output**:
+  - **Success**:
+
+    ```json
+    {
+      "result": [
+          "Algorithms",
+          "Arrays",
+          "Bit Manipulation",
+          "Brainteaser",
+          "Data Structures",
+          "Databases",
+          "Recursion",
+          "Strings"
+      ]
+    }
+    ```
+
 ## UPDATE Route
 
 ### 1. Update a Question
