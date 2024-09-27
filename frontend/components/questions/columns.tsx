@@ -73,7 +73,20 @@ export const columns: ColumnDef<Question>[] = [
             )
         },
         cell: ({ cell }) => {
-            return <div className="text-center">{cell.getValue() as React.ReactNode}</div>
+            return (
+                <div
+                    className="text-center"
+                    style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                    }}
+                >
+                    {cell.getValue() as React.ReactNode}
+                </div>
+            )
         },
     },
     {
