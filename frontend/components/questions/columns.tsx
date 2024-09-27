@@ -10,7 +10,7 @@ import SortIcon from '../ui/sort-icon'
 // You can use a Zod schema here if you want.
 export type Question = {
     id: number
-    category: string
+    category: string[]
     description: string
     status: 'failed' | 'completed'
     difficulty: 'easy' | 'medium' | 'hard'
@@ -54,7 +54,13 @@ export const columns: ColumnDef<Question>[] = [
             )
         },
         cell: ({ cell }) => {
-            return <div className="text-center">{cell.getValue() as React.ReactNode}</div>
+            return (
+                <div className="text-center">
+                    {(cell.getValue() as string[]).map((category, index) => (
+                        <span key={index}>{category}</span>
+                    ))}
+                </div>
+            )
         },
     },
     {
