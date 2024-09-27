@@ -40,7 +40,7 @@ export default function QuestionsPage() {
     }, [])
 
     return (
-        <section className="flex h-full justify-center mt-14">
+        <section className="flex flex-grow justify-center">
             <div className="flex-col h-full py-12 w-5/6 2xl:w-3/5">
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl 2xl:text-4xl font-bold text-black text-start">

@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
         { label: 'Problems', href: '/problems' },
     ]
     return (
-        <nav className="bg-violet-800 w-full p-2 fixed top-0">
+        <nav className="bg-violet-800 w-full p-2 top-0">
             <div className="mx-auto flex justify-between items-center 2xl:w-3/5">
                 <div className="text-white flex gap-4 text-xl ml-6 font-extrabold 2xl:text-2xl">
                     <div className="text-xl 2xl:text-2xl">{'</>'}</div>
