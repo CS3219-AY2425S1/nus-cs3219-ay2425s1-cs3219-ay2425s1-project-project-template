@@ -8,7 +8,7 @@ from structlog import get_logger
 from .api import main_router
 from .config import settings
 from .schemas import CustomValidationErrorResponse
-
+from .service.question_service import init_db
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     errs = {
@@ -48,5 +48,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(main_router)
+
+@app.on_event("startup")
+async def start_db():
+    await init_db()
 
 logger.info("📚 Question service started")

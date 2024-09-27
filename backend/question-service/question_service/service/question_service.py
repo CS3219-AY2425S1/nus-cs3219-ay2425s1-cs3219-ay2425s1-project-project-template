@@ -1,8 +1,17 @@
 from typing import List
+from beanie import init_beanie
+import motor.motor_asyncio
 
 from ..models.question_model import Question
 
 question_collection = Question
+
+async def init_db():
+    client = motor.motor_asyncio.AsyncIOMotorClient(
+        "mongodb://localhost:27017/questions_db"
+    )
+
+    await init_beanie(database=client.db_name, document_models=[Question])
 
 
 async def create_question(new_question: Question) -> Question:
