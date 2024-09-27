@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import InputBox from '../../../components/InputBox';
 import LargeButton from '../../../components/SubmitButton';
+import { FaArrowLeft } from 'react-icons/fa';
 import logo from '/peerprep_logo.png';
+import { Box, Icon } from '@chakra-ui/react';
 
 interface ResetPasswordViewProps {
   onSubmit: (newPassword: string) => void;
+  onReturnToLogin : () => void;
   errorMessage?: string;
 }
 
-const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, errorMessage }) => {
+const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, onReturnToLogin, errorMessage }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -22,7 +25,7 @@ const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, errorMe
       return;
     }
 
-    setPasswordError(null); // Clear error if passwords match
+    setPasswordError(null);
     onSubmit(password);
   };
 
@@ -33,6 +36,9 @@ const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, errorMe
         <span className="text-6xl text-white">PeerPrep</span>
       </div>
       <div className="bg-white bg-opacity-10 p-10 rounded-lg backdrop-blur-md text-center w-[350px] max-w-full mx-auto">
+        <Box  onClick={onReturnToLogin}  className="flex items-center justify-start mb-2">
+          <Icon as={FaArrowLeft} color='white' _hover={{ color: 'purple.500' }} className="text-xl mr-2"/>
+        </Box>
         <h2 className="text-white text-2xl font-semibold mb-4">Reset Password</h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           <InputBox

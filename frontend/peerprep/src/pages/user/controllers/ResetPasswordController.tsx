@@ -27,9 +27,15 @@ const ResetPasswordController: React.FC = () => {
     }
   };
 
+  const handleLoginRedirect = () => {
+    console.log("Navigating to login page...");
+    navigate("/login");
+  };
+
   return (
     <ResetPasswordView 
       onSubmit={handleSubmit} 
+      onReturnToLogin={handleLoginRedirect}
       errorMessage={message}
     />
   );

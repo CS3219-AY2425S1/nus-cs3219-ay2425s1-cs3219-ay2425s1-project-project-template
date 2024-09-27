@@ -3,7 +3,7 @@ import InputBox from '../../../components/InputBox';
 import LargeButton from '../../../components/SubmitButton';
 import { FaArrowLeft } from 'react-icons/fa';
 import logo from '/peerprep_logo.png';
-import { Box, Icon, Text} from '@chakra-ui/react';
+import { Box, Icon } from '@chakra-ui/react';
 
 interface ForgotPasswordViewProps {
   onSubmit: (email: string) => void;
