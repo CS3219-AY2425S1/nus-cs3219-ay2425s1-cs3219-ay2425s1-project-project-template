@@ -1,10 +1,10 @@
 import { IAccessTokenPayload } from '@repo/user-types/IAccessTokenPayload'
 import { IUserDto } from '@repo/user-types/IUserDto'
-import axios, { AxiosResponse } from 'axios'
 import { Request } from 'express'
 import passport, { DoneCallback } from 'passport'
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt'
 import config from '../common/config.util'
+import { getUserById } from '../services/user.service'
 
 const options: StrategyOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -17,19 +17,16 @@ const options: StrategyOptions = {
 
 async function handleAuthorisation(request: Request, payload: IAccessTokenPayload, done: DoneCallback): Promise<void> {
     const id = payload.id
-    const authToken = request.headers.authorization
+    const accessToken = request.headers.authorization
 
     // Should replace this with a gRPC call in the future
-    let response: AxiosResponse<IUserDto>
+    let user: IUserDto
     try {
-        response = await axios.get<IUserDto>(`${config.USER_SERVICE_URL}/users/${id}`, {
-            headers: { authorization: authToken },
-        })
+        user = await getUserById(id, accessToken)
     } catch {
         return done(null, false)
     }
 
-    const user = response.data
     if (!user) {
         return done(null, false)
     }
