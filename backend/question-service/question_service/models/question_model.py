@@ -1,10 +1,18 @@
+from enum import Enum
+
 from beanie import Document
+
+
+class Difficulty(Enum):
+    Easy = "Easy"
+    Medium = "Medium"
+    Hard = "Hard"
 
 
 class Question(Document):
     title: str
     titleSlug: str
-    difficulty: str
+    difficulty: Difficulty
     description: str
     topic: str
 

@@ -1,3 +1,3 @@
-from .question_model import Question
+from .question_model import Difficulty, Question
 
-__all__ = [Question]
+__all__ = [Question, Difficulty]

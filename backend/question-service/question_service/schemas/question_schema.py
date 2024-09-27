@@ -2,10 +2,12 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 
+from ..models import Difficulty
+
 
 class UpdateQuestionModel(BaseModel):
     description: Optional[str] = Field(default=None, min_length=10)
-    difficulty: Optional[str] = None
+    difficulty: Optional[Difficulty] = None
     topic: Optional[str] = None
 
     class Config:
@@ -27,7 +29,7 @@ class UpdateQuestionModel(BaseModel):
 class CreateQuestionModel(BaseModel):
     title: str = Field(min_length=1, max_length=20, pattern=r"^[a-zA-Z0-9 ]+$")
     description: str = Field(min_length=10)
-    difficulty: str
+    difficulty: Difficulty
     topic: str = Field(min_length=1, max_length=30)
 
     class Config:
