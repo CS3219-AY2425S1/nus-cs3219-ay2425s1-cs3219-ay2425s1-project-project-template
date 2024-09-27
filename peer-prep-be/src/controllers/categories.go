@@ -76,7 +76,7 @@ func CreateCategory(c echo.Context) error {
 	}
 
 	// Insert new if it does not exist, case insensitive
-	_, err := categoriesCollection.UpdateOne(ctx,
+	updateResult, err := categoriesCollection.UpdateOne(ctx,
 		bson.M{"category_name": newCategory.Category_name}, // Filter by category_name only, not the obj
 		bson.M{"$setOnInsert": bson.M{
 			"category_id":   newCategory.Category_id,
@@ -94,8 +94,16 @@ func CreateCategory(c echo.Context) error {
 		})
 	}
 
+	// Check if a new category was created or if it was already existing
+	if updateResult.UpsertedCount > 0 {
+		// A new category was created
+		return c.JSON(http.StatusCreated, responses.StatusResponse{
+			Message: "Category created successfully",
+		})
+	}
+
 	return c.JSON(http.StatusCreated, responses.StatusResponse{
-		Message: "Category created successfully",
+		Message: "Category already exists",
 	})
 }
 
