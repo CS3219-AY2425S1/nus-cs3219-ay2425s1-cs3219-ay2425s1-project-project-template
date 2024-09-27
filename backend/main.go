@@ -24,7 +24,7 @@ func main() {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"}, // Ensure it matches your frontend port
 		AllowMethods:     []string{"POST", "GET", "OPTIONS"}, 
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "token"},
 		ExposeHeaders:    []string{"Content-Length"}, 
 		AllowCredentials: true,                       
 		MaxAge:           12 * 60 * 60,

@@ -5,15 +5,11 @@ import { Question } from './questionService';
 
 const QuestionController: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
-
+  const [auth, setAuth] = useState<boolean>(true);
   useEffect(() => {
     const fetchQuestions = async () => {
-      try {
-        const data = await questionService.getQuestions();
-        setQuestions(data);
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-      }
+      const fetchedQuestions = await questionService.getQuestions(setAuth);
+      setQuestions(fetchedQuestions);
     };
 
     fetchQuestions();

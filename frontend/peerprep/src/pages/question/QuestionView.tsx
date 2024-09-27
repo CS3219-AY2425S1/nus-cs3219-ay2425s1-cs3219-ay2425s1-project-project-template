@@ -32,14 +32,17 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const getComplexityColor = (complexity: string) => {
+        if (!complexity) return 'white'; // Default color for undefined complexity
         const found = COMPLEXITIES.find(c => c.id.toLowerCase() === complexity.toLowerCase());
         return found ? found.color : 'white';
     };
-
+    
     const getCategoryColor = (category: string) => {
+        if (!category) return 'white'; // Default color for undefined category
         const found = CATEGORIES.find(c => c.id.toLowerCase() === category.toLowerCase());
         return found ? found.color : 'white';
     };
+    
 
     const columns: ColumnDef<Question>[] = useMemo(
         () => [
