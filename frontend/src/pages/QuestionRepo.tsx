@@ -45,12 +45,22 @@ const QuestionRepo = () => {
     try {
       // Fetch questions with pagination and sorting
       const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order, search }, signal);
-      setQuestions(data.questions);
-      setCurrentPage(data.currentPage);
-      setTotalPages(data.totalPages);
-      setTotalQuestions(data.totalQuestions);
+      // Check if data is null or undefined
+      if (!data) {
+        return;
+      }
+      if (data.questions.length === 0) {
+        setError("No questions found.");
+        setQuestions([]);
+      } else {
+        setQuestions(data.questions);
+        setCurrentPage(data.currentPage);
+        setTotalPages(data.totalPages);
+        setTotalQuestions(data.totalQuestions);
+      }
     } catch (error: any) {
       if (axios.isCancel(error)) {
+        console.log("Request canceled:", error.message);
         return;
       }
       console.error("Failed to fetch questions", error);
@@ -67,8 +77,15 @@ const QuestionRepo = () => {
 
     // Fetch questions when the component mounts or sorting changes
     fetchQuestions(currentPage, sortField, sortOrder, debouncedSearchQuery, signal);
+
+    let isMounted = true;
+
     return () => {
-      controller.abort();
+      if (!isMounted) {
+            controller.abort();
+          } else {
+            isMounted = false;
+          }    
     };
   }, [currentPage, sortField, sortOrder, debouncedSearchQuery]);
 
@@ -159,7 +176,7 @@ const QuestionRepo = () => {
             >
               {error}
             </Typography>
-          ) : questions.length > 0 ? (
+          ) :  (
             <>
               <Paper elevation={3}>
                 <Table>
@@ -220,11 +237,7 @@ const QuestionRepo = () => {
             </Box>
           </Box>
           </>
-          ) : (
-            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              No questions found.
-            </Typography>
-          )}
+          ) }
         </Box>
       </Container>
     </>
