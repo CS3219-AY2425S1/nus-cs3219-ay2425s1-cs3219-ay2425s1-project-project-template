@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -9,10 +9,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { SignInForm } from "./signInForm";
-import { SignUpForm } from "./signUpForm";
-import { PublicPageWrapper } from "@/components/AuthWrappers/PublicPageWrapper";
+} from "@/components/ui/Card";
+import { SignInForm } from "./SignInForm";
+import { SignUpForm } from "./SignUpForm";
+import { PublicPageWrapper } from "@/components/auth-wrappers/PublicPageWrapper";
 import { LANDING } from "@/lib/routes";
 
 export default function AuthPage() {

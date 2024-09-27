@@ -1,7 +1,7 @@
 "use client";
 
-import { signUpSchema, SignUpDto } from "@repo/dtos/auth";
-import { Button } from "@/components/ui/button";
+import { signInSchema, SignInDto } from "@repo/dtos/auth";
+import { Button } from "@/components/ui/Button";
 import {
   Form,
   FormControl,
@@ -9,51 +9,39 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/Form";
+import { Input } from "@/components/ui/Input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { signUp } from "@/lib/api/auth";
+import { signIn } from "@/lib/api/auth";
 import { useZodForm } from "@/lib/form";
 import { useLoginState } from "@/contexts/LoginStateContext";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
-export function SignUpForm() {
-  const form = useZodForm({ schema: signUpSchema });
+export function SignInForm() {
+  const form = useZodForm({ schema: signInSchema });
   const { setHasLoginStateFlag } = useLoginState();
-  const queryClient = useQueryClient();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const mutation = useMutation({
-    mutationFn: signUp,
+    mutationFn: signIn,
     onSuccess: async () => {
       setHasLoginStateFlag();
       await queryClient.invalidateQueries({ queryKey: ["me"] });
     },
-    onError: (error) => {
+    onError(error) {
       toast({
         description: error.message,
         variant: "destructive",
       });
     },
   });
-  function onSubmit(values: SignUpDto) {
+  function onSubmit(values: SignInDto) {
     mutation.mutate(values);
   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="email"
@@ -73,19 +61,6 @@ export function SignUpForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>

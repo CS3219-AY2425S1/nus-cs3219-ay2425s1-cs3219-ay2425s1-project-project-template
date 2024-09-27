@@ -1,9 +1,9 @@
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import Suspense from "@/components/Suspense";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { LoginStateProvider } from "@/contexts/LoginStateContext";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/Toaster";
 
 export default function RootLayout({
   children,
