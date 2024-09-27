@@ -20,6 +20,7 @@ import {
   styled,
   Alert,
 } from "@mui/material";
+import { FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import {
   QueryClient,
   QueryClientProvider,
@@ -33,6 +34,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
 import { Description } from "@mui/icons-material";
 
+const complexityTypeOptions = ["Easy", "Medium", "Hard"];
 // Styled components for the dialog
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -129,18 +131,30 @@ const Example = () => {
       {
         accessorKey: "complexity",
         header: "Complexity",
-        editVariant: "select",
-        editSelectOptions: problemComplexity,
-        muiEditTextFieldProps: {
-          select: true,
-          error: !!validationErrors?.complexity,
-          helperText: validationErrors?.complexity,
-          onFocus: () => {
-            setValidationErrors({
-              ...validationErrors,
-              complexity: undefined
-            })
-          }
+        Edit: ({ cell, column, row, table }) => {
+          const [value, setValue] = useState(cell.getValue<string>());
+          return (
+            <TextField
+              select
+              label="Complexity"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              error={!!validationErrors?.complexity}
+              helperText={validationErrors?.complexity}
+              variant="standard"
+              margin="normal"
+              fullWidth
+              onBlur={() => {
+                row._valuesCache[column.id] = value;
+              }}
+            >
+              {complexityTypeOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          );
         },
       },
       {
