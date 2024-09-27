@@ -7,15 +7,17 @@ import {
   Inject,
   Body,
   Post,
+  UseGuards,
   Put,
   Delete,
   Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateQuestionDto, UpdateQuestionDto } from '@repo/dtos/questions';
 
 @Controller('questions')
+@UseGuards(AuthGuard) // Can comment out if we dw auth for now
 export class QuestionsController {
   constructor(
     @Inject('QUESTIONS_SERVICE')
