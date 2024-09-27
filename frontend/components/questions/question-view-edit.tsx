@@ -2,7 +2,7 @@
 
 import { Question, QuestionSchema } from "@/lib/schemas/question-schema";
 import useSWR from "swr";
-import QuestionForm from "@/components/questions/question-form";
+import QuestionFormModal from "@/components/questions/question-form";
 import { useAuth } from "@/app/auth/auth-context";
 import { useEffect, useState } from "react";
 import { updateQuestion } from "@/lib/update-question";
@@ -93,7 +93,7 @@ export default function QuestionViewEdit({
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{question?.title}</h1>
-      <QuestionForm
+      <QuestionFormModal
         initialData={question}
         isAdmin={auth?.user?.isAdmin}
         handleSubmit={handleEdit}

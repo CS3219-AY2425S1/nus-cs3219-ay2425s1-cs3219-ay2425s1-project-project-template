@@ -7,7 +7,6 @@ import useSWR from "swr";
 import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
 import LoadingScreen from "@/components/common/loading-screen";
 import DeleteQuestionModal from "@/components/questions/delete-question-modal";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Upload } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
@@ -15,6 +14,8 @@ import {
   CreateQuestion,
   CreateQuestionArraySchema,
 } from "@/lib/schemas/question-schema";
+import QuestionFormModal from "./question-form";
+import { updateQuestion } from "@/lib/update-question";
 
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -40,7 +41,6 @@ const fetcher = async (url: string): Promise<Question[]> => {
 
 export default function QuestionListing() {
   const auth = useAuth();
-  const router = useRouter();
   const { toast } = useToast();
   const { data, isLoading, mutate } = useSWR(
     "http://localhost:8000/questions",
@@ -48,21 +48,22 @@ export default function QuestionListing() {
   );
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
-  );
+  const [showEditViewModal, setShowEditViewModal] = useState<boolean>(false);
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question>();
 
   useEffect(() => {
     setQuestions(data ?? []);
   }, [data]);
 
   const handleView = (question: Question) => {
-    router.push(`/app/questions/${question.id}`);
+    setSelectedQuestion(question);
+    setShowEditViewModal(true);
   };
 
   const handleCreateNewQuestion = () => {
-    router.push(`/app/questions/create`);
+    setShowCreateModal(true);
   };
 
   const createNewQuestion = () => {
@@ -175,10 +176,88 @@ export default function QuestionListing() {
       });
 
       setShowDeleteModal(false);
-      setSelectedQuestion(null);
+      setSelectedQuestion(undefined);
     } catch (err) {
       toast({
         title: "An error occurred!",
+        description:
+          err instanceof Error ? err.message : "An unknown error occurred",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleEdit = async (question: Question) => {
+    const response = await updateQuestion(question);
+    if (!response.ok) {
+      toast({
+        title: "Unknown Error",
+        description: "An unexpected error has occurred",
+        variant: "destructive",
+      });
+    }
+    switch (response.status) {
+      case 200:
+        toast({
+          title: "Success",
+          description: "Question updated successfully!",
+          variant: "success",
+        });
+        break;
+      case 404:
+        toast({
+          title: "Question not found",
+          description: "Question with specified ID not found",
+          variant: "destructive",
+        });
+        return;
+      case 409:
+        toast({
+          title: "Duplicated title",
+          description: "The title you entered is already in use",
+          variant: "destructive",
+        });
+        return;
+    }
+
+    mutate();
+    setShowEditViewModal(false);
+  };
+
+  const handleCreate = async (newQuestion: Question) => {
+    try {
+      const response = await fetch("http://localhost:8000/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: newQuestion.title,
+          description: newQuestion.description,
+          category: newQuestion.category,
+          complexity: newQuestion.complexity,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status == 409) {
+          throw new Error("A question with this title already exists.");
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Question created successfully!",
+        variant: "success",
+        duration: 3000,
+      });
+
+      setShowCreateModal(false);
+      mutate();
+    } catch (err) {
+      toast({
+        title: "An error occured!",
         description:
           err instanceof Error ? err.message : "An unknown error occurred",
         variant: "destructive",
@@ -227,6 +306,19 @@ export default function QuestionListing() {
         questionTitle={selectedQuestion?.title ?? ""}
         handleDeleteQuestion={handleDeleteQuestion}
         setShowDeleteModal={setShowDeleteModal}
+      />
+      <QuestionFormModal
+        showModal={showEditViewModal}
+        initialData={selectedQuestion}
+        isAdmin={auth?.user?.isAdmin}
+        handleSubmit={handleEdit}
+        submitButtonText="Save Changes"
+      />
+      <QuestionFormModal
+        showModal={showCreateModal}
+        isAdmin={auth?.user?.isAdmin}
+        handleSubmit={handleCreate}
+        submitButtonText="Create Question"
       />
     </div>
   );

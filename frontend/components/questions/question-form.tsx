@@ -2,13 +2,6 @@
 
 import { Question } from "@/lib/schemas/question-schema";
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -19,19 +12,23 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AutosizeTextarea } from "../ui/autosize-textarea";
-import { useToast } from "@/components/hooks/use-toast";
+import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from "@/components/ui/dialog";
 
-interface QuestionFormProps {
+interface QuestionFormModalProps {
+  showModal: boolean;
   initialData?: Question;
   isAdmin: boolean | undefined;
   handleSubmit: (question: Question) => void;
   submitButtonText: string;
 }
 
-const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
-  const { toast } = useToast();
-
+const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
   const [question, setQuestion] = useState<Question>(
     props.initialData || {
       id: "",
@@ -51,109 +48,100 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If no changes, prompt user and prevent API call
-    if (
-      props.initialData &&
-      question.toString() == props.initialData.toString()
-    ) {
-      toast({
-        title: "No changes",
-        description: "Form can only be submitted when changes are made",
-        variant: "destructive",
-      });
-      return;
-    }
-
     props.handleSubmit(question);
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="m-4">
-            <Label>Title</Label>
-            <Input
-              id="title"
-              value={question.title}
-              className="mt-2"
-              onChange={(e) =>
-                setQuestion({ ...question, title: e.target.value })
-              }
-              disabled={!props.isAdmin}
-              required
-            />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="m-4">
-            <Label>Category</Label>
-            <Input
-              id="category"
-              value={question.category}
-              className="mt-2"
-              onChange={(e) =>
-                setQuestion({ ...question, category: e.target.value })
-              }
-              disabled={!props.isAdmin}
-              required
-            />
-          </div>
-          <div className="m-4">
-            <Label>Complexity</Label>
-            <div className="mt-2">
-              {props.isAdmin ? (
-                <Select
-                  value={question.complexity}
-                  onValueChange={(e) =>
-                    setQuestion({ ...question, complexity: e })
-                  }
-                  disabled={!props.isAdmin}
-                >
-                  <SelectTrigger id="complexity">
-                    <SelectValue placeholder="Select complexity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
+    <div>
+      {props.showModal && (
+        <Dialog>
+          <form onSubmit={onSubmit}>
+            <DialogContent>
+              <DialogHeader>
+                <Label>Title</Label>
                 <Input
-                  id="complexity"
-                  value={question.complexity}
+                  id="title"
+                  value={question.title}
+                  className="mt-2"
                   onChange={(e) =>
-                    setQuestion({ ...question, complexity: e.target.value })
+                    setQuestion({ ...question, title: e.target.value })
                   }
                   disabled={!props.isAdmin}
+                  required
                 />
-              )}
-            </div>
-          </div>
-          <div className="m-4">
-            <Label>Description</Label>
-            <AutosizeTextarea
-              id="description"
-              value={question.description}
-              className="mt-2"
-              minHeight={200}
-              onChange={(e) =>
-                setQuestion({ ...question, description: e.target.value })
-              }
-              disabled={!props.isAdmin}
-              required
-            />
-          </div>
-        </CardContent>
-        <CardFooter>
-          {props.isAdmin && (
-            <Button type="submit">{props.submitButtonText}</Button>
-          )}
-        </CardFooter>
-      </Card>
-    </form>
+              </DialogHeader>
+              <div className="m-4">
+                <Label>Category</Label>
+                <Input
+                  id="category"
+                  value={question.category}
+                  className="mt-2"
+                  onChange={(e) =>
+                    setQuestion({ ...question, category: e.target.value })
+                  }
+                  disabled={!props.isAdmin}
+                  required
+                />
+              </div>
+
+              <div className="m-4">
+                <Label>Complexity</Label>
+                <div className="mt-2">
+                  {props.isAdmin ? (
+                    <Select
+                      value={question.complexity}
+                      onValueChange={(e) =>
+                        setQuestion({ ...question, complexity: e })
+                      }
+                      disabled={!props.isAdmin}
+                    >
+                      <SelectTrigger id="complexity">
+                        <SelectValue placeholder="Select complexity" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id="complexity"
+                      value={question.complexity}
+                      onChange={(e) =>
+                        setQuestion({ ...question, complexity: e.target.value })
+                      }
+                      disabled={!props.isAdmin}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="m-4">
+                <Label>Description</Label>
+                <AutosizeTextarea
+                  id="description"
+                  value={question.description}
+                  className="mt-2"
+                  minHeight={200}
+                  onChange={(e) =>
+                    setQuestion({ ...question, description: e.target.value })
+                  }
+                  disabled={!props.isAdmin}
+                  required
+                />
+              </div>
+              <DialogFooter>
+                {props.isAdmin && (
+                  <Button type="submit">{props.submitButtonText}</Button>
+                )}
+              </DialogFooter>
+            </DialogContent>
+          </form>
+        </Dialog>
+      )}
+    </div>
   );
 };
 
-export default QuestionForm;
+export default QuestionFormModal;

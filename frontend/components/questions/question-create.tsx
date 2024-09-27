@@ -1,7 +1,7 @@
 "use client";
 
 import { Question } from "@/lib/schemas/question-schema";
-import QuestionForm from "@/components/questions/question-form";
+import QuestionFormModal from "@/components/questions/question-form";
 import { useAuth } from "@/app/auth/auth-context";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/hooks/use-toast";
@@ -54,7 +54,7 @@ export default function QuestionCreate() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Create a New Question</h1>
-      <QuestionForm
+      <QuestionFormModal
         isAdmin={auth?.user?.isAdmin}
         handleSubmit={handleCreate}
         submitButtonText="Create Question"
