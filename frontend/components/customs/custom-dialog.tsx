@@ -58,7 +58,7 @@ function CustomDialogWithButton(props: CustomDialogProps) {
                                 <ErrorIconDialog />
                                 Warning
                             </div>
-                            <span className="h-0.5 w-full bg-slate-200 mt-3"></span>
+                            <span className="h-0.5 w-full bg-slate-200 mt-5"></span>
                         </DialogTitle>
                         <DialogDescription>{props.description}</DialogDescription>
                     </DialogHeader>
