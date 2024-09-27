@@ -2,11 +2,11 @@ import { initApi } from "../../utils/api.tsx"; // Adjust the import path as need
 import React from "react";
 
 export type Question = {
-  id: number;
-  title: string;
-  description: string;
-  categories: string;
-  complexity: string;
+  ID: number;
+  Title: string;
+  Description: string;
+  Categories: string;
+  Complexity: string;
   link: string;
 };
 
