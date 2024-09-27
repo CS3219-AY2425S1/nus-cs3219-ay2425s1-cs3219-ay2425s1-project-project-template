@@ -57,7 +57,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
       {props.showModal && (
         <Dialog>
           <form onSubmit={onSubmit}>
-            <DialogContent>
+            <DialogContent className="overflow-y-scroll max-h-[80vh]">
               <DialogHeader>
                 <Label>Title</Label>
                 <Input
@@ -71,7 +71,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                   required
                 />
               </DialogHeader>
-              <div className="m-4">
+              <div>
                 <Label>Category</Label>
                 <Input
                   id="category"
@@ -85,7 +85,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                 />
               </div>
 
-              <div className="m-4">
+              <div>
                 <Label>Complexity</Label>
                 <div className="mt-2">
                   {props.isAdmin ? (
@@ -118,7 +118,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                 </div>
               </div>
 
-              <div className="m-4">
+              <div>
                 <Label>Description</Label>
                 <AutosizeTextarea
                   id="description"
