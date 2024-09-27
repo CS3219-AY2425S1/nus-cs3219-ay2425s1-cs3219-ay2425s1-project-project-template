@@ -1,14 +1,9 @@
-import ProfileDropdown from '@/components/ProfileDropdown';
-import AppHeader  from '../components/AppHeader';
-import Sessions from './pages/dashboard'
-import Questions from './pages/questions';
+import Questions from './questions/page';
 
 
 export default function Home() {
   return (
     <>
-      <AppHeader/>
-      {/* <Sessions/> */} 
       <Questions />
     </>
   );
