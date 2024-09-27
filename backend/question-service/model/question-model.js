@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const QuestionModelSchema = moongoose.Schema(
+const QuestionModelSchema = mongoose.Schema(
     {
         id: {
             type: Number,
@@ -25,7 +25,6 @@ const QuestionModelSchema = moongoose.Schema(
 
         complexity: {
             type: String,
-            enum: ['Easy', 'Medium', 'Hard'],
             required: true
         }
     }

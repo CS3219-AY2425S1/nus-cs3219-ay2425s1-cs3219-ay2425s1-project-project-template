@@ -21,6 +21,11 @@ export async function findQuestionById(id) {
   return QuestionModel.findById(id);
 }
 
+//check for duplicates by title and description
+export async function checkDuplicateQuestion(title, description) {
+  return QuestionModel.findOne({ $and: [{ title }, { description }] });
+}
+
 // Find a question using title
 export async function findQuestionByTitle(title) {
   return QuestionModel.findOne({ title });
