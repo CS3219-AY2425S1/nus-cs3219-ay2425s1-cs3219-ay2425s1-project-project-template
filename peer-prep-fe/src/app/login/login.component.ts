@@ -1,7 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-
-import { AuthGoogleService } from '../services/auth-google.service';
 import { P } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
 
@@ -15,7 +13,7 @@ const MODULES: any[] = [FormsModule, ReactiveFormsModule, CommonModule];
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  private authService = inject(AuthGoogleService);
+  //private authService = inject(AuthGoogleService);
 
   createAccountForm = new FormGroup({
     username: new FormControl('', Validators.required), 
@@ -23,9 +21,9 @@ export class LoginComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(6)])
   })
 
-  signInWithGoogle() {
-    this.authService.login();
-  }
+  // signInWithGoogle() {
+  //   this.authService.login();
+  // }
 
   createAccount() {
       let apiUrl: string = "http://localhost:3001/users";
