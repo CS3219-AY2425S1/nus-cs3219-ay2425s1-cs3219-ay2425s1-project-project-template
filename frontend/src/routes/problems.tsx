@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { useQuestions } from '@/hooks/useQuestions';
 
 interface Question {
   id: number;
@@ -102,6 +103,17 @@ const getComplexityColor = (complexity: 'Easy' | 'Medium' | 'Hard') => {
 };
 
 export default function ProblemsRoute() {
+  // const { data, isLoading } = useQuestions();
+
+  // if (isLoading || !data) {
+  //   return (
+  //     <div className='flex flex-col items-center justify-center h-full'>
+  //       <Loader2 className='w-8 h-8 animate-spin' />
+  //       <p className="mt-2">Loading...</p>
+  //     </div>
+  //   );
+  // }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Problem Set</h1>
