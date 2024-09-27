@@ -1,17 +1,17 @@
 .signup-page {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   height: 800px;
   background-color: #ffffff;
 }
 
 .signup-container {
   display: flex;
-  width: 80%;
   max-width: 1000px;
   justify-content: space-between;
   align-items: center;
+  gap: 50px;
 }
 
 .signup-form {
@@ -60,18 +60,32 @@ p {
   margin-top: 20px;
   padding-bottom: 15px;
   text-align: center;
-  text-decoration: underline;
+}
+
+.loginText {
+  color: #0f3dde;
 }
 
 .signup-graphic {
   flex: 1;
+  flex-direction: column;
+  background: linear-gradient(145.02deg, #44cfee 0%, #1e94e9 97.16%);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 10px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
 }
 
 .signup-graphic img {
-  max-width: 250%;
+  max-width: 100%;
   height: auto;
+}
+
+.signup-graphic-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: left;
 }

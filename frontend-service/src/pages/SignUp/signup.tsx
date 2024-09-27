@@ -91,18 +91,24 @@ const Signup: React.FC = () => {
             />
 
             <button type="submit" className="signup-button">
-              Signup
+              Sign Up
             </button>
           </form>
 
           <p className="accountLogin">
-            Already have an account? <a href="/login">Log in here</a>
+            Have an account?{" "}
+            <a href="/login" className="loginText">
+              Log In
+            </a>
           </p>
         </div>
-      </div>
 
-      <div className="signup-graphic">
-        <img src={signupGraphic}></img>
+        <div className="signup-graphic">
+          <img src={signupGraphic}></img>
+          <p className="signup-graphic-text">
+            You can practice anytime, anywhere, and any situations!
+          </p>
+        </div>
       </div>
     </div>
   );
