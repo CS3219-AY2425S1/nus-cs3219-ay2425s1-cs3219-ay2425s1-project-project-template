@@ -1,11 +1,11 @@
 'use client'
 
-import { Payment, columns } from '@/components/questions/columns'
-import { DataTable } from '@/components/questions/data-table'
+import { Question, columns } from '@/components/questions/columns'
+import { DataTable } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 
-async function getData(): Promise<Payment[]> {
+async function getData(): Promise<Question[]> {
     // Fetch data from your API here.
     return [
         {
@@ -109,8 +109,8 @@ async function getData(): Promise<Payment[]> {
     ]
 }
 
-export default function Home() {
-    const [data, setData] = useState<Payment[]>([])
+export default function Questions() {
+    const [data, setData] = useState<Question[]>([])
 
     useEffect(() => {
         async function fetchData() {

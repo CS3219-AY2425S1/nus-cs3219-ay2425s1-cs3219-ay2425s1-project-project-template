@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@/components/questions/data-table'
+import { DataTable } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
 import { EasyBadge, HardBadge, MediumBadge } from '@/components/ui/difficult-badge'
 import SortIcon from '@/components/ui/sort-icon'
@@ -240,7 +240,7 @@ async function getData(): Promise<Session[]> {
     ]
 }
 
-export default function Home() {
+export default function Sessions() {
     const [data, setData] = useState<Session[]>([])
 
     useEffect(() => {

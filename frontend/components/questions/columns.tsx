@@ -8,7 +8,7 @@ import SortIcon from '../ui/sort-icon'
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Payment = {
+export type Question = {
     id: number
     email: string
     category: string
@@ -17,7 +17,7 @@ export type Payment = {
     difficulty: 'easy' | 'medium' | 'hard'
 }
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Question>[] = [
     {
         accessorKey: 'id',
         header: ({ column }) => {
