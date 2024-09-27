@@ -1,0 +1,29 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - REACT_APP_QUESTION_SVC_PORT=${QUESTION_SVC_PORT}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - question-service
+
+  question-service:
+    build:
+      context: ./backend/QuestionService
+      target: dev
+    ports:
+      - ${QUESTION_SVC_PORT}:${QUESTION_SVC_PORT}
+    environment:
+      - PORT=${QUESTION_SVC_PORT}
+      - MONGOURI=${MONGOURI}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    volumes:
+      - ./backend/QuestionService:/app
+      - /app/node_modules
