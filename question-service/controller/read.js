@@ -45,6 +45,27 @@ export const getQuestionByTopic = async (req, res) => {
   }
 };
 
+/**
+ * Multiple Criteria
+ */
+export const getQuestionByFilter = async (req, res) => {
+  try {
+    const possibleTopics = req.body.topics;
+    const possibleDifficulties = req.body.difficulties;
+    const filter = {};
+    if (possibleTopics != undefined) {
+      filter.topics = {$in: possibleTopics};
+    }
+    if (possibleDifficulties != undefined) {
+      filter.difficulty = {$in: possibleDifficulties}
+    }
+    const questions = await Question.find(filter);
+    return res.status(200).json(questions);;
+  } catch (err) {
+    return res.status(500).json({ message: `Unknown error when finding questions with filter!` });
+  }
+};
+
 export const getNextAvailIdHelper = async() => {
   const questionWithMaxId = await Question
     .findOne()
