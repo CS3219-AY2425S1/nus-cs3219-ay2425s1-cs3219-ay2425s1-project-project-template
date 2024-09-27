@@ -7,10 +7,12 @@ import "dotenv/config";
 const app: Application = express();
 
 // console.log("MONGODB_URI: ", process.env.MONGODB_URI);
-
 // Middleware
 app.use(express.json());
 // app.use(authMiddleware);
+var cors = require('cors');
+app.use(cors());
+
 
 // MongoDB connection
 mongoose

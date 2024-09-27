@@ -14,7 +14,7 @@ export const Sidebar = () => {
       <Listbox
         variant="flat"
         aria-label="Listbox menu with sections"
-        className="w-fit "
+        className="w-fit"
       >
         {siteConfig.navItems
           .map((item) => (

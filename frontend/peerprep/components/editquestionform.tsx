@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Input,
   Button,
@@ -20,22 +20,23 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 
-import { complexityColorMap } from "@/app/questions-management/list/columns";
+import {
+  complexityColorMap,
+  Question,
+} from "@/app/questions-management/list/columns";
 import BoxIcon from "./boxicons";
+import MarkdownEditor from "./mdeditor";
 import { WysiMarkEditor } from "./wysimarkeditor";
 import useSWR from "swr";
 import { capitalize, languages } from "@/utils/utils";
-import { useParams } from "next/navigation";
 import Editor from "@monaco-editor/react";
-import "prismjs/components/prism-clike";
-import "prismjs/components/prism-javascript";
-import "prismjs/themes/prism.css";
+import { useParams, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
+import { DeleteConfirmationModal } from "./deleteconfirmationmodal";
 import { SuccessModal } from "./succesmodal";
 import { ErrorModal } from "./errormodal";
 
-interface AddQuestionFormProps {
+interface EditQuestionFormProps {
   initialTitle?: string;
   initialDescription?: string;
   initialComplexity?: string;
@@ -46,37 +47,89 @@ interface AddQuestionFormProps {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function AddQuestionForm({
+export default function EditQuestionForm({
   initialTitle = "",
-  initialDescription = "# Question description \n Write your question description here! \n You can also insert images!",
+  initialDescription = "",
   initialComplexity = "Easy",
   initialCategories = [],
   initialTemplateCode = "",
   initialTestCases = [{ input: "", output: "" }],
-}: AddQuestionFormProps) {
+}: EditQuestionFormProps) {
+  const params = useParams();
   const router = useRouter();
+  const [language, setLanguage] = useState("javascript");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { theme } = useTheme();
 
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [isSuccessModalOpen, setSuccessModalOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isErrorModalOpen, setErrorModalOpen] = useState<boolean>(false);
 
-  const [language, setLanguage] = useState("javascript");
   const [selectedTab, setSelectedComplexity] =
     useState<string>(initialComplexity);
-  const [category, setCategories] = useState<string[]>(initialCategories);
+  const [categories, setCategories] = useState<string[]>(initialCategories);
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const [title, setTitle] = useState<string>(initialTitle);
   const [description, setDescription] = useState<string>(initialDescription);
   const [templateCode, setTemplateCode] = useState<string>(initialTemplateCode);
   const [testCases, setTestCases] =
     useState<{ input: string; output: string }[]>(initialTestCases);
+  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
+    null
+  );
+  const [question, setQuestion] = useState<Question | null>(null);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
     `http://localhost:8003/api/questions/categories/unique`,
     fetcher
   );
+
+  const { data: questionData, isLoading: questionLoading } = useSWR(
+    `http://localhost:8003/api/questions/${params.id ? params.id : ""}`,
+    fetcher
+  );
+
+  useEffect(() => {
+    if (params.id && !questionLoading) {
+      setTitle(questionData?.question.title);
+      setSelectedComplexity(questionData?.question.complexity);
+      setCategories(questionData?.question.category);
+      setDescription(questionData?.question.description);
+      setTemplateCode(questionData?.question.templateCode);
+      setTestCases(
+        questionData?.question.testCases.flatMap((testCasesArray: string[]) =>
+          testCasesArray.map((testCase: string) => {
+            const [input, output] = testCase
+              .split("->")
+              .map((str) => str.trim());
+            return { input, output };
+          })
+        ) || []
+      );
+      setQuestion(questionData?.question);
+    }
+  }, [params.id, questionLoading, questionData]);
+
+  const editorContent = useMemo(() => {
+    return (
+      <Editor
+        className="min-h-[250px] w-[250px]"
+        defaultLanguage="javascript"
+        language={language}
+        value={templateCode}
+        theme={theme === "dark" ? "vs-dark" : "vs-light"}
+        options={{
+          fontSize: 14,
+          minimap: {
+            enabled: false,
+          },
+          contextmenu: false,
+        }}
+        onChange={handleEditorChange}
+      />
+    );
+  }, [language, templateCode, theme]);
 
   const uniqueCategories = React.useMemo(() => {
     return categoryData?.uniqueCategories;
@@ -85,8 +138,8 @@ export default function AddQuestionForm({
   // Handle adding a category
   const addCategory = () => {
     const caps = currentCategory.toUpperCase();
-    if (caps && !category.includes(caps)) {
-      console.log(caps, category);
+    if (caps && !categories.includes(caps)) {
+      console.log(caps, categories);
       setCategories((prevCategories) => [...prevCategories, caps]);
     }
     setCurrentCategory(""); // Clear the input after adding
@@ -143,13 +196,16 @@ export default function AddQuestionForm({
       // Do nothing or handle invalid input case if needed
     }
   };
+  const handleDelete = () => {
+    setQuestionToDelete(question);
+    onOpen();
+  };
 
-  // Form submission handler
-  const handleSubmit = async () => {
+  const updateQuestion = async () => {
     if (
       !title.trim() ||
       !description.trim() ||
-      !category.length ||
+      !categories.length ||
       !templateCode.length ||
       !testCases.every(
         (testCase) =>
@@ -163,11 +219,10 @@ export default function AddQuestionForm({
       return;
     }
 
-    // Prepare data to send
     const formData = {
       title,
       description,
-      category: category,
+      category: categories,
       complexity: selectedTab,
       templateCode,
       testCases: testCases.map(
@@ -175,41 +230,53 @@ export default function AddQuestionForm({
       ),
     };
 
-    console.log(formData);
-
     try {
-      // Send POST request
-      const response = await fetch("http://localhost:8003/api/questions/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData), // Convert data to JSON
-      });
+      const response = await fetch(
+        `http://localhost:8003/api/questions/${params.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
-        // Show success modal
-        setSuccessMessage("Question successfully submitted!");
-        setSuccessModalOpen(true);
+        setSuccessMessage("Question updated successfully!");
+        setSuccessModalOpen(true); // Open the success modal
       } else {
-        // Show error modal with error response message
-        const errorData = await response.json();
-        setErrorMessage(
-          errorData.message ||
-            "Failed to submit the question. Please try again."
-        );
-        setErrorModalOpen(true);
+        setErrorMessage("Failed to update the question. Please try again.");
+        setErrorModalOpen(true); // Show error modal with the error message
       }
     } catch (error) {
-      console.error("Error submitting question:", error);
-      // Show error modal with generic error message
-      setErrorMessage("An error occurred while submitting the question.");
-      setErrorModalOpen(true);
+      console.error("Error updating the question:", error);
+      setErrorMessage("An error occurred while updating the question.");
+      setErrorModalOpen(true); // Show error modal with the error message
     }
   };
 
-  const handleCancel = () => {
-    router.push("/questions-management/list");
+  const deleteQuestion = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8003/api/questions/${params.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        setSuccessMessage("Question deleted successfully!");
+        setSuccessModalOpen(true); // Open the success modal
+      } else {
+        setErrorMessage("Failed to delete the question. Please try again.");
+        setErrorModalOpen(true); // Show error modal with the error message
+      }
+    } catch (error) {
+      console.error("Error deleting the question:", error);
+      setErrorMessage("An error occurred while deleting the question.");
+      setErrorModalOpen(true); // Show error modal with the error message
+    }
   };
 
   return (
@@ -276,8 +343,8 @@ export default function AddQuestionForm({
                 className="max-w-[700px] max-h-[70px]"
               >
                 <div className="flex flex-row gap-2">
-                  {category && category.length > 0
-                    ? category.map((category, index) => (
+                  {categories && categories.length > 0
+                    ? categories.map((category, index) => (
                         <Chip
                           key={index}
                           onClose={() => removeCategory(category)}
@@ -315,21 +382,7 @@ export default function AddQuestionForm({
               ))}
             </Autocomplete>
           </div>
-          <Editor
-            className="min-h-[250px] w-[250px]"
-            defaultLanguage="javascript"
-            language={language}
-            defaultValue={templateCode}
-            theme={theme === "dark" ? "vs-dark" : "vs-light"}
-            options={{
-              fontSize: 14,
-              minimap: {
-                enabled: false,
-              },
-              contextmenu: false,
-            }}
-            onChange={handleEditorChange}
-          />
+          {editorContent}
         </div>
         <div className="flex flex-col gap-4 items-start">
           <span className="text-sm">Testcases</span>
@@ -379,32 +432,32 @@ export default function AddQuestionForm({
             color="danger"
             variant="light"
             className="pr-5"
-            startContent={<BoxIcon name="bx-x" size="20px" />}
-            onClick={handleCancel}
+            startContent={<BoxIcon name="bx-trash" size="20px" />}
+            onClick={handleDelete}
           >
-            Cancel
+            Delete
           </Button>
-          <Button color="secondary" className="pr-5" onClick={handleSubmit}>
+          <Button color="secondary" className="pr-5" onClick={updateQuestion}>
             Done
           </Button>
         </div>
       </div>
+      <DeleteConfirmationModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        questionToDelete={questionToDelete}
+        onConfirm={deleteQuestion}
+      />
       <SuccessModal
-        isOpen={successModalOpen}
+        isOpen={isSuccessModalOpen}
         onOpenChange={setSuccessModalOpen}
         message={successMessage}
-        onConfirm={() => {
-          setSuccessModalOpen(false);
-          router.push("/questions-management/list"); // Redirect to list page after success
-        }}
+        onConfirm={() => router.push("/questions-management/list")} // Redirect to list after confirmation
       />
-
-      {/* Error Modal */}
       <ErrorModal
-        isOpen={errorModalOpen}
+        isOpen={isErrorModalOpen}
         onOpenChange={setErrorModalOpen}
         errorMessage={errorMessage}
-        onClose={setErrorModalOpen}
       />
     </>
   );
