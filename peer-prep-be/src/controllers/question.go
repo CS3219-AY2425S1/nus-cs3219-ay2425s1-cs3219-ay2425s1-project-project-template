@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -55,6 +56,7 @@ func CreateQuestion(c echo.Context) error {
 
 	result, err := questionCollection.InsertOne(ctx, newQuestion)
 	if err != nil {
+		cancel()
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
@@ -179,6 +181,51 @@ func DeleteQuestion(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
 }
 
+func SearchQuestion(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var questions []models.Question
+	defer cancel()
+
+	searchTerm := c.QueryParam("prefix")
+	fmt.Println(searchTerm)
+
+	indexModel := mongo.IndexModel{
+		Keys: bson.D{{Key: "question_title", Value: "text"}},
+	}
+
+	indexName, err := questionCollection.Indexes().CreateOne(context.TODO(), indexModel)
+
+	fmt.Println(indexName)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	filter := bson.D{
+		{Key: "question_title", Value: bson.D{
+			{Key: "$regex", Value: searchTerm},
+			{Key: "$options", Value: "i"}, // Case-insensitive search
+		}},
+	}
+
+	cur, err := questionCollection.Find(ctx, filter)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	for cur.Next(ctx) {
+		var doc models.Question
+		err := cur.Decode(&doc)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+		}
+		questions = append(questions, doc)
+	}
+
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
+}
+
 // Takes in the sortField and sortOrder from the query string and returns the FindOptions object
 func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
 	var findOptions *options.FindOptions
@@ -212,10 +259,10 @@ func ProcessFilterParams(filterField string, filterValues string) bson.D {
 			for _, value := range values {
 				filterConditions = append(filterConditions, bson.D{{Key: filterField, Value: value}})
 			}
-			
+
 			filter = bson.D{
 				{
-					Key: "$or",
+					Key:   "$or",
 					Value: filterConditions,
 				},
 			}
