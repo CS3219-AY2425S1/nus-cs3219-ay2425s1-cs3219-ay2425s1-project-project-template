@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Response, status
+from pymongo.errors import DuplicateKeyError
 from structlog import get_logger
 
 from ..models import Question
@@ -63,5 +64,8 @@ async def get_all_questions() -> list[Question]:
 async def create_question(question: CreateQuestionModel) -> Question:
     if not question:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid question")
-    question = await create_question_db(Question(**question.model_dump()))
+    try:
+        question = await create_question_db(Question(**question.model_dump()))
+    except DuplicateKeyError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Question already exists")
     return question
