@@ -48,7 +48,10 @@ export const QuestionDetails = () => {
                   </CardTitle>
                 </div>
                 <div className='flex flex-wrap items-center gap-1'>
-                  <Badge variant='secondary' className='flex w-min grow-0'>
+                  <Badge
+                    variant={details.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}
+                    className='flex w-min grow-0'
+                  >
                     {details.difficulty}
                   </Badge>
                   <Separator orientation='vertical' className='mx-2 h-4' />
