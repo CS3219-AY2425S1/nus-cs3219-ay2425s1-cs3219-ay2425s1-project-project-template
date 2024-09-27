@@ -1,17 +1,14 @@
 from typing import List
-from beanie import init_beanie
-import motor.motor_asyncio
+
+from beanie import UpdateResponse
+from structlog import get_logger
 
 from ..models.question_model import Question
+from ..schemas import UpdateQuestionModel
 
 question_collection = Question
 
-async def init_db():
-    client = motor.motor_asyncio.AsyncIOMotorClient(
-        "mongodb://localhost:27017/questions_db"
-    )
-
-    await init_beanie(database=client.db_name, document_models=[Question])
+logger = get_logger()
 
 
 async def create_question(new_question: Question) -> Question:
@@ -21,6 +18,7 @@ async def create_question(new_question: Question) -> Question:
 
 async def get_questions() -> List[Question]:
     questions = await question_collection.all().to_list()
+    logger.info(questions)
     return questions
 
 
@@ -29,12 +27,13 @@ async def get_question(title_slug: str) -> Question:
     return question
 
 
-async def update_question(title_slug: str, updated_question: Question) -> Question:
-    question = await question_collection.find_one_and_update(
-        {"titleSlug": title_slug}, {"$set": updated_question.model_dump()}, return_document=True
+# await Product.find_one(Product.name == "Tony's").update({"$set": {Product.price: 3.33}})
+async def update_question(title_slug: str, updated_question: UpdateQuestionModel) -> Question:
+    question = await question_collection.find_one(Question.titleSlug == title_slug).update(
+        {"$set": updated_question.model_dump(exclude_unset=True)}, response_type=UpdateResponse.NEW_DOCUMENT
     )
     return question
 
 
 async def delete_question(title_slug: str) -> None:
-    await question_collection.delete_one({"titleSlug": title_slug})
+    await question_collection.find_one({"titleSlug": title_slug}).delete()

@@ -8,6 +8,9 @@ class Question(Document):
     description: str
     topic: str
 
+    class Settings:
+        name = "questions"
+
     class Config:
         json_schema_extra = {
             "example": {

@@ -1,14 +1,19 @@
+from beanie import init_beanie
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from motor.motor_asyncio import AsyncIOMotorClient
 from structlog import get_logger
 
 from .api import main_router
 from .config import settings
+from .models import Question
 from .schemas import CustomValidationErrorResponse
-from .service.question_service import init_db
+
+logger = get_logger()
+
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     errs = {
@@ -27,7 +32,23 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-logger = get_logger()
+async def app_lifespan(app: FastAPI):
+    # onStart:
+    logger.info("📚 Question service started")
+    client: AsyncIOMotorClient = AsyncIOMotorClient(
+        "mongodb://localhost:27017",
+    )
+
+    await init_beanie(client.questions_db, document_models=[Question])
+    logger.info(f"✅ Connected to MongDB: {client.address}")
+    app.include_router(main_router)
+
+    yield
+
+    # onShutdown:
+    client.close()
+
+
 app = FastAPI(
     title="Question Service Backend",
     exception_handlers={RequestValidationError: validation_exception_handler},
@@ -37,8 +58,8 @@ app = FastAPI(
             "model": CustomValidationErrorResponse,
         }
     },
+    lifespan=app_lifespan,
 )
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ORIGINS,
@@ -47,10 +68,3 @@ app.add_middleware(
     # To update if after auth
     allow_headers=["*"],
 )
-app.include_router(main_router)
-
-@app.on_event("startup")
-async def start_db():
-    await init_db()
-
-logger.info("📚 Question service started")
