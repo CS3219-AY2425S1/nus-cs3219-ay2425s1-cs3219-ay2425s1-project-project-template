@@ -10,7 +10,7 @@ describe('QuestionBoxComponent', () => {
     await TestBed.configureTestingModule({
       imports: [QuestionBoxComponent],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} }, 
+        { provide: MAT_DIALOG_DATA, useValue: {title: 'Test Title', difficulty: 'Easy'} }, 
         { provide: MatDialogRef, useValue: {} }     
       ]
     }).compileComponents();
