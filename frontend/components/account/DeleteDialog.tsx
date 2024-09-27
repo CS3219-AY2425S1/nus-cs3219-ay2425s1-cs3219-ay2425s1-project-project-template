@@ -46,7 +46,7 @@ function DeleteDialog() {
                                 </svg>
                                 Warning
                             </div>
-                            <span className="absolute bottom-0 h-0.5 w-full bg-slate-200"></span>
+                            <span className="h-0.5 w-full bg-slate-200 mt-3"></span>
                         </DialogTitle>
                         <DialogDescription>
                             Are you sure you want to delete your account? You will not be able to recover your data.
@@ -55,7 +55,8 @@ function DeleteDialog() {
                     <DialogFooter>
                         <Button
                             type="submit"
-                            className="text-base bg-purple-500"
+                            variant="primary"
+                            className="text-base bg-btn"
                             onClick={() => {
                                 handleDelete()
                             }}
