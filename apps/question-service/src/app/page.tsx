@@ -35,10 +35,10 @@ import {
 /**
  * defines the State of the page whe a user is deleing an object. Has 3 general states:
  * - {}: user is not deleting anything. The page's normal state
- * - {index: number, deleteConfirmed: false}: Modal popup asking whether to delete the question, pending user's decision to confirm or cancel
- * - {index: number, deleteConfirmed: true}: Currently deleting the question and reloading the database
+ * - {index: docref string, deleteConfirmed: false}: Modal popup asking whether to delete the question, pending user's decision to confirm or cancel
+ * - {index: docref string, deleteConfirmed: true}: Currently deleting the question and reloading the database
  */
-type DeletionStage = {} | {index: number, deleteConfirmed: boolean}
+type DeletionStage = {} | {index: Question, deleteConfirmed: boolean}
 
 function DeleteModal({isDeleting, questionTitle, okHandler, cancelHandler}: {questionTitle: string, okHandler: () => void, cancelHandler: () => void, isDeleting: boolean }) {
   const title: string = `Delete Question \"${questionTitle}\"?`
@@ -65,12 +65,15 @@ export default function Home() {
   const [questions, setQuestions] = useState<Question[] | undefined>(undefined); // Store the questions
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined); // Store the total count of questions
   const [totalPages, setTotalPages] = useState<number | undefined>(undefined); // Store the total number of pages
-  const [currentPage, setCurrentPage] = useState<number | undefined>(undefined); // Store the current page
-  const [limit, setLimit] = useState<number | undefined>(10); // Store the quantity of questions to be displayed
+  const [currentPage, setCurrentPage] = useState<number>(1); // Store the current page
+  const [limit, setLimit] = useState<number>(10); // Store the quantity of questions to be displayed
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Filtering States
   const [search, setSearch] = useState<string | undefined>(undefined); // Store the search
+  const [delayedSearch, setDelayedSearch] = useState<string | undefined>(
+    undefined
+  ); // Store the delayed search value
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [difficulty, setDifficulty] = useState<string[]>([]); // Store the selected difficulty level
   const [sortBy, setSortBy] = useState<string | undefined>(undefined); // Store the selected sorting parameter
@@ -104,7 +107,7 @@ export default function Home() {
       setIsLoading(true);
     }
 
-    let data = await GetQuestions(currentPage, limit);
+    let data = await GetQuestions(currentPage, limit, sortBy, difficulty, delayedSearch);
     setQuestions(data.questions);
     setTotalCount(data.totalCount);
     setTotalPages(data.totalPages);
@@ -113,7 +116,7 @@ export default function Home() {
     setIsLoading(false);
   }
 
-  useEffect(() => {loadQuestions()}, [limit, currentPage]);
+  useEffect(() => {loadQuestions()}, [limit, currentPage, sortBy, difficulty, delayedSearch]);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -156,7 +159,7 @@ export default function Home() {
       title: "Actions",
       key: "actions",
       dataIndex: "id",
-      render: (id: number) => (
+      render: (_: number, question: Question) => (
         <div>
           {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
           <Button className="edit-button" icon={<EditOutlined />}></Button>
@@ -166,15 +169,7 @@ export default function Home() {
             danger
             icon={<DeleteOutlined />}
             onClick={() => {
-              if (questions === undefined) {
-                throw new Error("questions is undefined")
-              }
-              let toDelete = questions.findIndex(row => row.id === id)
-              if (toDelete === -1) {
-                error("Could not find id");
-                return;
-              }
-              setDeletionStage({index: toDelete, deleteConfirmed: false})}
+              setDeletionStage({index: question, deleteConfirmed: false})}
             }
           ></Button>
         </div>
@@ -185,6 +180,7 @@ export default function Home() {
   // Handler for change in multi-select categories option
   const handleCategoriesChange = (value: string[]) => {
     setCategories(value);
+    setCurrentPage(1); // Reset the current page
   };
 
   // Handler for clearing the filtering options
@@ -196,17 +192,15 @@ export default function Home() {
   };
 
   // Handler for filtering (TODO)
-  const handleFilter = async () => {
-    success("Filtered Successfully!");
-  };
+  // const handleFilter = async () => {
+  //   success("Filtered Successfully!");
+  // };
 
   // Handler for show size change for pagination
   const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
     current,
     pageSize
   ) => {
-    console.log(current);
-    console.log(pageSize);
     setCurrentPage(current);
     setLimit(pageSize);
   };
@@ -225,18 +219,16 @@ export default function Home() {
       error("Cannot delete: questions does not exist");
       return;
     }
-    if (currentPage == undefined) {
-      error("Cannot delete: currentPage does not exist");
-      return;
-    }
     
     setDeletionStage({ index: deletionStage.index, deleteConfirmed: true });
-    await DeleteQuestionByDocref(questions[deletionStage.index].docRefId);
+    await DeleteQuestionByDocref(deletionStage.index.docRefId);
     if (questions.length == 1 && currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      success("Question deleted successfully");
     } else {
       try {
         await loadQuestions();
+        success("Question deleted successfully");
       } catch (err) {
         if (typeof err == 'string') {
           error(err);
@@ -271,6 +263,7 @@ export default function Home() {
                     prefix={<SearchOutlined />}
                     onChange={(e) => setSearch(e.target.value)}
                     value={search}
+                    allowClear
                   />
                 </Col>
                 <Col span={6}>
@@ -284,12 +277,15 @@ export default function Home() {
                     value={categories}
                   />
                 </Col>
-                <Col span={4}>
+                <Col span={6}>
                   <Select
                     mode="multiple"
                     allowClear
                     placeholder="Difficulty"
-                    onChange={(value: string[]) => setDifficulty(value)}
+                    onChange={(value: string[]) => {
+                      setDifficulty(value);
+                      setCurrentPage(1); //Reset the currentpage since filter params changed
+                    }}
                     options={DifficultyOption}
                     className="difficulty-select"
                     value={difficulty}
@@ -305,15 +301,17 @@ export default function Home() {
                     value={sortBy}
                   />
                 </Col>
-                <Col span={4}>
-                  <Button onClick={handleClear}>Clear</Button>
-                  <Button
+                <Col span={2}>
+                  <Button onClick={handleClear} className="clear-button">
+                    Clear
+                  </Button>
+                  {/* <Button
                     type="primary"
                     className="filter-button"
                     onClick={handleFilter}
                   >
                     Filter
-                  </Button>
+                  </Button> */}
                 </Col>
               </Row>
             </div>
@@ -323,6 +321,7 @@ export default function Home() {
                 columns={columns}
                 loading={isLoading}
                 pagination={{
+                  current: currentPage,
                   total: totalCount,
                   showSizeChanger: true,
                   onShowSizeChange: onShowSizeChange,
@@ -337,7 +336,7 @@ export default function Home() {
       {("index" in deletionStage && questions != undefined) && <DeleteModal 
         okHandler={confirmDeleteHandler} 
         cancelHandler={() => setDeletionStage({})}
-        questionTitle={questions[deletionStage.index].title}
+        questionTitle={deletionStage.index.title}
         isDeleting={deletionStage.deleteConfirmed}/>}
     </div>
   );
