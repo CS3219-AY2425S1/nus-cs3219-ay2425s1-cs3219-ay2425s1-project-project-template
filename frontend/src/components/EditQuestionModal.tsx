@@ -1,6 +1,7 @@
 import React from "react";
 import {useState} from "react";
 import DeleteQuestionModal from "./DeleteQuestionModal";
+import EditConfirmationModal from "./EditConfirmationModal";
 
 const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
   /* Placeholders */
@@ -13,35 +14,59 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
   const openDeleteModal = () => setDeleteModalOpen(true);
   const closeDeleteModal = () => setDeleteModalOpen(false);
 
-  function onDelete() {
+  const [isEditConfirmationModalOpen, setEditConfirmationModalOpen] = useState(false);
+  const openEditConfirmationModal = () => setEditConfirmationModalOpen(true);
+  const closeEditConfirmationModal = () => setEditConfirmationModalOpen(false);
+
+  const [newDifficultyValue, setNewDifficultyValue] = useState(oldDifficulty);
+  const [newTopicValue, setNewTopicValue] = useState(oldTopic);
+  const [newTitleValue, setNewTitleValue] = useState(oldTitle);
+  const [newDetailsValue, setNewDetailsValue] = useState(oldDetails);
+
+  function getNewValues() {
+    const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
+    const difficultyValue = difficultyElement ? difficultyElement.value : '';
+    setNewDifficultyValue(difficultyValue);
+    
+    const topicElement = document.getElementById("topic") as HTMLInputElement | null;
+    const topicValue = topicElement ? topicElement.value : "";
+    setNewTopicValue(topicValue);
+    
+    const titleElement = document.getElementById("title") as HTMLInputElement | null;
+    const titleValue = titleElement ? titleElement.value : "";
+    setNewTitleValue(titleValue);
+    
+    const detailsElement = document.getElementById("details") as HTMLInputElement | null;
+    const detailsValue = detailsElement ? detailsElement.value : "";
+    setNewDetailsValue(detailsValue);
+  }
+
+  function onDeleteConfirm() {
     alert("Deleted");
     closeDeleteModal();
     onClose();
   }
 
-  function onSubmit() {
-    const selectElement = document.getElementById('difficulty') as HTMLSelectElement | null;
-    const newSelectedValue = selectElement ? selectElement.value : '';
-    
-    const topicElement = document.getElementById("topic") as HTMLInputElement | null;
-    const newTopicValue = topicElement ? topicElement.value : "";
-    
-    const titleElement = document.getElementById("title") as HTMLInputElement | null;
-    const newTitleValue = titleElement ? titleElement.value : "";
-    
-    const detailsElement = document.getElementById("details") as HTMLInputElement | null;
-    const newDetailsValue = detailsElement ? detailsElement.value : "";
+  function onEditConfirm() {
+    alert("Edit");
+    closeEditConfirmationModal();
+    onClose();
+  }
 
-    if (newSelectedValue == "" || newTopicValue == "" || newTitleValue == "" || newDetailsValue == "") {
-      //alert(newSelectedValue + newTopicValue + newTitleValue + newDetailsValue);
-      
+  const onEditSubmit = () => {
+    getNewValues();
+    
+    /* Check if all fields are filled */
+    if (newDifficultyValue == "" || newTopicValue == "" || newTitleValue == "" || newDetailsValue == "") {
+      alert(newDifficultyValue + newTopicValue + newTitleValue + newDetailsValue);
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
     } else {
-      //alert(newSelectedValue + newTopicValue + newTitleValue + newDetailsValue);
+      /* All fields are filled -> ask user to confirm the changes */
+      //alert(newDifficultyValue + newTopicValue + newTitleValue + newDetailsValue);
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add('hidden');
-    
+      openEditConfirmationModal();
     }
   }
 
@@ -64,7 +89,7 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
               </div>
               <div>
                 <p className="text-sm">Editing "{oldTitle}" Question.</p>
-                <button className="text-sm text-indigo-800 hover:bg-gray-200 rounded-lg">Click here to view the original question for reference.</button>
+                {/* <button className="text-sm text-indigo-800 hover:bg-gray-200 rounded-lg">Click here to view the original question for reference.</button> */}
               </div>
             </div>
             
@@ -75,6 +100,7 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
               <div className="relative mt-1 shadow-md">
                 <select 
                   name="difficulty" id="difficulty" defaultValue={oldDifficulty}
+                  onChange={(event) => {setNewDifficultyValue(event.target.value);}}
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 >
                   <option value="" disabled selected hidden>Choose a difficulty level</option>
@@ -91,6 +117,7 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
               <div className="relative mt-1 shadow-md">
                 <input 
                   type="text" name="topic" id="topic" defaultValue={oldTopic}
+                  onChange={(event) => {setNewTopicValue(event.target.value);}}
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 ></input>
               </div>
@@ -102,6 +129,7 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
               <div className="relative mt-1 shadow-md">
                 <input 
                   type="text" name="title" id="title" defaultValue={oldTitle}
+                  onChange={(event) => {setNewTitleValue(event.target.value);}}
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 ></input>
               </div>
@@ -113,6 +141,7 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
               <div className="relative mt-1 shadow-md">
                 <textarea
                   name="details" id="details" defaultValue={oldDetails}
+                  onChange={(event) => {setNewDetailsValue(event.target.value);}}
                   rows={3}
                   className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 ></textarea>
@@ -124,23 +153,37 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ 
               <text  id="emptyMessage" className="flex justify-center text-red-500 hidden">* Please fill in all the empty fields. *</text>
               <div className="flex justify-evenly mt-2">
               <button 
-                  onClick={openDeleteModal} 
-                  id="submit"
+                  onClick={openDeleteModal}
                   className="bg-black bg-opacity-80 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-gray-600"
                 >
                   Delete Question
                 </button>
-                <DeleteQuestionModal isOpen={isDeleteModalOpen} onClose={closeDeleteModal} onDelete={onDelete} />
+                <DeleteQuestionModal 
+                  isOpen={isDeleteModalOpen} 
+                  onClose={closeDeleteModal} 
+                  onDelete={onDeleteConfirm} 
+                  oldDifficulty={oldDifficulty}
+                  oldTopic={oldTopic}
+                  oldTitle={oldTitle}
+                  oldDetails={oldDetails}
+                />
                 <button 
-                  onClick={onSubmit} 
-                  id="submit"
+                  onClick={onEditSubmit}
                   className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
                 >
                   Submit
                 </button>
+                <EditConfirmationModal 
+                  isOpen={isEditConfirmationModalOpen} 
+                  onClose={closeEditConfirmationModal} 
+                  onEditConfirm={onEditConfirm} 
+                  newDifficultyValue={newDifficultyValue}
+                  newTopicValue={newTopicValue}
+                  newTitleValue={newTitleValue}
+                  newDetailsValue={newDetailsValue}
+                />
                 <button 
-                  onClick={onClose} 
-                  id="submit"
+                  onClick={onClose}
                   className="bg-red-500 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-red-400"
                 >
                   Cancel

@@ -1,19 +1,25 @@
 import React from "react";
 
 
-const DeleteQuestionModal: React.FC<{ 
-  isOpen: boolean; onClose: () => void; onDelete: () => void; oldDifficulty: string; oldTopic: string; oldTitle: string; oldDetails: string
-}> = ({ isOpen, onClose, onDelete, oldDifficulty, oldTopic, oldTitle, oldDetails}) => {
+const EditConfirmationModal: React.FC<{ 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onEditConfirm: () => void
+  newDifficultyValue: string;
+  newTopicValue: string;
+  newTitleValue: string;
+  newDetailsValue: string;
+}> = ({ isOpen, onClose, onEditConfirm, newDifficultyValue, newTopicValue, newTitleValue, newDetailsValue}) => {
   
   if (isOpen && location.pathname == "/question") {
     return (
       <>
-        <div id="deleteQuestionModal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div id="editConfirmationModal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-4 w-3/5 h-9/10 fade-in modal-context z-50">
             {/* Header */}
             <div className="justify-start">
               <div className="flex flex-row justify-between items-center">
-                <h2 className="text-red-500 text-2xl font-bold">Deleting Question</h2>
+                <h2 className="text-green text-2xl font-bold">Confirm Changes</h2>
                 <button 
                 onClick={onClose} 
                 id="submit"
@@ -22,7 +28,7 @@ const DeleteQuestionModal: React.FC<{
                 X
               </button>
               </div>
-              <p className="text-sm">Are you sure you wish to delete the following question? This action cannot be reversed!</p>
+              <p className="text-sm">Are you sure of the following changes? This action cannot be reversed!</p>
             </div>
             
             <div className="mt-3"></div>
@@ -31,7 +37,7 @@ const DeleteQuestionModal: React.FC<{
               <label className="font-semibold">Difficulty Level</label>
               <div className="relative mt-1 shadow-md">
                 <select 
-                  name="difficulty" id="difficulty" value={oldDifficulty} disabled
+                  name="difficulty" id="difficulty" value={newDifficultyValue}
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-750 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 >
                   <option value="" disabled selected hidden>Choose a difficulty level</option>
@@ -49,7 +55,7 @@ const DeleteQuestionModal: React.FC<{
                 <text
                   name="topic" id="topic"
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6"
-                >{oldTopic}</text>
+                >{newTopicValue}</text>
               </div>
             </div>
 
@@ -60,7 +66,7 @@ const DeleteQuestionModal: React.FC<{
                 <text
                   type="text" name="title" id="title"
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
-                >{oldTitle}</text>
+                >{newTitleValue}</text>
               </div>
             </div>
 
@@ -69,7 +75,7 @@ const DeleteQuestionModal: React.FC<{
               <label className="font-semibold">Question details</label>
               <div className="relative mt-1 shadow-md">
                 <textarea
-                  id="details" rows={3} value={oldDetails} disabled
+                  id="details" rows={3} value={newDetailsValue} disabled
                   className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
                 ></textarea>
               </div>
@@ -79,10 +85,10 @@ const DeleteQuestionModal: React.FC<{
             <div className="mt-6">
               <div className="flex justify-evenly mt-2">
               <button 
-                  onClick={onDelete}
-                  className="bg-black bg-opacity-80 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-gray-600"
+                  onClick={onEditConfirm}
+                  className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
                 >
-                  Delete
+                  Submit
                 </button>
                 <button 
                   onClick={onClose}
@@ -99,4 +105,4 @@ const DeleteQuestionModal: React.FC<{
   };
 };
 
-export default DeleteQuestionModal;
+export default EditConfirmationModal;

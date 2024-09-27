@@ -3,8 +3,8 @@ import React from "react";
 
 const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
   function onSubmit() {
-    const selectElement = document.getElementById('difficulty') as HTMLSelectElement | null;
-    const selectedValue = selectElement ? selectElement.value : '';
+    const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
+    const difficultyValue = difficultyElement ? difficultyElement.value : '';
     
     const topicElement = document.getElementById("topic") as HTMLInputElement | null;
     const topicValue = topicElement ? topicElement.value : "";
@@ -15,13 +15,13 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
     const detailsElement = document.getElementById("details") as HTMLInputElement | null;
     const detailsValue = detailsElement ? detailsElement.value : "";
 
-    if (selectedValue == "" || topicValue == "" || titleValue == "" || detailsValue == "") {
-      //alert(selectedValue + topicValue + titleValue + detailsValue);
+    if (difficultyValue == "" || topicValue == "" || titleValue == "" || detailsValue == "") {
+      //alert(difficultyValue + topicValue + titleValue + detailsValue);
       
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
     } else {
-      //alert(selectedValue + topicValue + titleValue + detailsValue);
+      //alert(difficultyValue + topicValue + titleValue + detailsValue);
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add('hidden');
     }
