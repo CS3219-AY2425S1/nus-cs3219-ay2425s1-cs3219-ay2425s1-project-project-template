@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from structlog import get_logger
 
 from .api import main_router
-from .config import Config
+from .config import settings
 from .schemas import CustomValidationErrorResponse
 
 
@@ -41,7 +41,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=Config.origins,
+    allow_origins=settings.ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     # To update if after auth
