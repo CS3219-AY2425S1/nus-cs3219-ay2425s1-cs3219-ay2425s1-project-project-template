@@ -2,7 +2,7 @@ import { use, expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Types } from 'mongoose';
-import app from '../../index.js';
+import app from '../../src/index.js';
 import { describe } from 'node:test';
 
 const chai = use(chaiHttp);
