@@ -9,6 +9,9 @@ type MenuDrawerProps = {
     onClose: () => void;
 };
 
+/**
+ * Navigation drawer component 
+ */
 const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
     const drawerBgColor = '#141A67';
     const buttonTextColor = 'white';

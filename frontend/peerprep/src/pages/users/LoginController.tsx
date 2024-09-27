@@ -5,7 +5,11 @@ import LoginView from "./LoginView";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
-const LoginController: React.FC = () => {
+interface LoginControllerProps {
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const LoginController: React.FC<LoginControllerProps> = ({setAuth}) => {
   //const [errorMessage, setErrorMessage] = useState<string>("");
   const navigate = useNavigate(); 
 
@@ -15,6 +19,7 @@ const LoginController: React.FC = () => {
       const token = await login(credentials);
       toast.success("Logged in successfully!"); 
       console.log("Logged in successfully! Token:", token);
+      setAuth(true)
       setTimeout(() => {
         navigate("/questions");
       }, 1000);
