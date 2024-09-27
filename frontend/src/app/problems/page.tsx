@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import CompletedIcon from '@mui/icons-material/TaskAlt';
 import { useEffect, useState } from "react";
+import QuestionDialog from "./QuestionDialog"
 
 export default function QuestionsPage() {
     const [questions, setQuestions] = useState([])
@@ -68,7 +69,7 @@ export default function QuestionsPage() {
                         {questions.map((question: any, index: number) => (
                             <TableRow key={index} className="h-20"> {/* Increased height */}
                                 <TableCell>{question.questionId}</TableCell>
-                                <TableCell>{question.title}</TableCell>
+                                <TableCell><QuestionDialog question={question}/></TableCell>
                                 <TableCell>
                                     {question.description.length > 80
                                         ? `${question.description.slice(0, 80)}...`
