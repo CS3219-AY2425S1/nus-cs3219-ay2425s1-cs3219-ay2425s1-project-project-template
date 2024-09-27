@@ -10,7 +10,7 @@ const Navbar: React.FunctionComponent = () => {
 
   return (
     <div>
-      <Box className="flex justify-start items-center p-2 mb-5">
+      <div className="flex justify-start items-center p-4 bg-gradient-to-br from-[#1D004E] to-[#141A67]">
         <Button
           onClick={onOpen}
           border="2px solid"
@@ -23,7 +23,7 @@ const Navbar: React.FunctionComponent = () => {
         </Button>
         <img src={logo} alt="Peerprep Logo" className="w-10 h-10" />
         <span className="text-4xl text-white">PeerPrep</span>
-      </Box>
+      </div>
       <MenuDrawer isOpen={isOpen} onClose={onClose} />
     </div>
   );

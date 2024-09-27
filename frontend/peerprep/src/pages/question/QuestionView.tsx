@@ -120,7 +120,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
       {/* Drawer for menu */}
       {/* <MenuDrawer isOpen={isOpen} onClose={onClose}/> */}
 
-      <Box className="flex-col justify-center items-center p-2">
+      <Box className="flex-col justify-center items-center px-2">
         {/* Search Filter Input */}
         <h2 className="flex justify-center text-white text-3xl font-semibold">
           Questions
