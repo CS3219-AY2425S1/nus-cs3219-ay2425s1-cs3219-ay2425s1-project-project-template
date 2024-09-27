@@ -14,8 +14,46 @@ export async function saveQuestion(question: any) {
     return await questionModel.create(question);
 }
 
-export async function getQuestions() {
-    return await questionModel.find();
+export async function getQuestions(sort: any, order: string, pageNumber: number, limitNumber: number) {
+    let sortOption: any = {};
+    sortOption[sort] = order === 'asc' ? 1 : -1;
+    let questions: any = null; 
+
+    if (sort === 'complexity') {
+        // Sorting by custom complexity levels using the predefined mapping
+        questions = questionModel.aggregate([
+            {
+                $addFields: {
+                    complexityValue: {
+                    $switch: {
+                        branches: [
+                        { case: { $eq: ['$complexity', 'Easy'] }, then: 1 },
+                        { case: { $eq: ['$complexity', 'Medium'] }, then: 2 },
+                        { case: { $eq: ['$complexity', 'Hard'] }, then: 3 }
+                        ],
+                        default: 4
+                    }
+                    }
+                }
+            },
+
+        { $sort: { complexityValue: order === 'asc' ? 1 : -1 } }
+      ]).skip((pageNumber - 1) * limitNumber)  
+      .limit(limitNumber)
+
+      } else {
+          sortOption[sort] = order === 'asc' ? 1 : -1;
+          return await questionModel.find()
+          .sort(sortOption)
+          .skip((pageNumber - 1) * limitNumber)  
+          .limit(limitNumber)
+      }
+
+    return questions; 
+}
+
+export async function getTotalQuestions() {
+    return await questionModel.countDocuments();
 }
 
 export async function getQuestionById(id: string) {
