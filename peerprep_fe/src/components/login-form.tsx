@@ -26,9 +26,9 @@ export function LoginForm() {
     <div>
       <form action={action}>
         <Textfield name="username" secure={false} placeholder_text="Name" />
-        {state?.errors?.name && <p>{state.errors.name}</p>}
+        <p className="error">{state?.errors?.name}</p>
         <Textfield name="password" secure={true} placeholder_text="Password" />
-        {state?.errors?.password && <p>{state.errors.password}</p>}
+        <p className="error">{state?.errors?.password}</p>
         <Button type="submit" text="Login" />
       </form>
 

@@ -120,20 +120,20 @@ function validateLoginFormData(formData: FormData): FormValidation {
     };
   }
 
-  if (!validatePassword(`${formData.get("password")}`)) {
-    return {
-      success: false,
-      errors: {
-        password: "Password must be at least 8 characters",
-      },
-    };
-  }
-
   if (!validateName(`${formData.get("username")}`)) {
     return {
       success: false,
       errors: {
         name: "Name must be at least 2 characters",
+      },
+    };
+  }
+
+  if (!validatePassword(`${formData.get("password")}`)) {
+    return {
+      success: false,
+      errors: {
+        password: "Password must be at least 8 characters",
       },
     };
   }
