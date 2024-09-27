@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
-
 import signupGraphic from "../../assets/images/signup_graphic.png";
+import { useToast } from "@chakra-ui/react";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,12 +26,25 @@ const Login: React.FC = () => {
       if (response.ok) {
         localStorage.setItem("token", data.data.accessToken);
         navigate("/questions");
-        alert("Login successful");
       } else {
-        setErrorMessage(data.message);
+        toast({
+          title: "Error",
+          description: data.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom",
+        });
       }
     } catch (error) {
-      setErrorMessage("Error during login.");
+      toast({
+        title: "Error",
+        description: "Error during login.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
     }
   };
 
@@ -43,7 +57,7 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleLogin}>
             <label id="email" htmlFor="email">
-              Email*
+              Email
             </label>
             <input
               type="email"
@@ -52,7 +66,7 @@ const Login: React.FC = () => {
               placeholder="Enter your email address"
               required
             ></input>
-            <label htmlFor="password">Password*</label>
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
@@ -65,30 +79,29 @@ const Login: React.FC = () => {
               <label className="remember-me">
                 <input name="checkbox" type="checkbox" />
                 Remember me
-                <a href="#" className="forgot-password">
-                  Forgot Password?
-                </a>
               </label>
+              <a href="#" className="forgot-password">
+                Forgot Password?
+              </a>
             </div>
             <button type="submit" className="login-button">
               Login
             </button>
           </form>
           <p className="accountSignUp">
-            Don't have an account? <a href="/signup">Sign Up here</a>
+            Don't have an account?{" "}
+            <a href="/signup" className="signUpText">
+              Sign Up here
+            </a>
           </p>
         </div>
-      </div>
-      <div className="login-graphic">
-        <img src={signupGraphic}></img>
+
+        <div className="login-graphic">
+          <img src={signupGraphic}></img>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Login;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setErrorMessage(arg0: string) {
-  throw new Error("Function not implemented.");
-}

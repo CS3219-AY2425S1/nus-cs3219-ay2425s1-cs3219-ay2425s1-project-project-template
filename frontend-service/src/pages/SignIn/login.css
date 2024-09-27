@@ -27,7 +27,7 @@ input[type="password"] {
 .login-page {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   height: 800px;
   background-color: #ffffff;
 }
@@ -35,17 +35,16 @@ input[type="password"] {
 .extras {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   width: 100%;
 }
 
 .remember-me {
   display: flex;
   align-items: center;
+  gap: 5px;
 }
 
 .forgot-password {
-  margin-left: 120px;
   color: #007bff;
   text-decoration: underline;
 }
@@ -69,26 +68,33 @@ p {
   margin-top: 20px;
   padding-bottom: 15px;
   text-align: center;
-  text-decoration: underline;
+}
+
+.signUpText {
+  color: #0f3dde;
 }
 
 .login-graphic {
   flex: 1;
+  flex-direction: column;
+  background: linear-gradient(145.02deg, #44cfee 0%, #1e94e9 97.16%);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 10px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
 }
 
 .login-graphic img {
-  max-width: 250%;
+  max-width: 100%;
   height: auto;
 }
 
 .login-container {
   display: flex;
-  width: 80%;
   max-width: 1000px;
   justify-content: space-between;
   align-items: center;
+  gap: 50px;
 }

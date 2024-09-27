@@ -39,6 +39,7 @@ const Signup: React.FC = () => {
 
       const data = await response.json();
       if (response.ok) {
+        localStorage.setItem("token", data.data.accessToken);
         toast({
           title: "Signup successful!",
           description: "Redirecting to login...",
