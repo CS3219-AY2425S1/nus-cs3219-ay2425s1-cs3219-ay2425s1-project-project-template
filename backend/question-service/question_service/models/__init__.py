@@ -1,3 +1,3 @@
-from .question_dto import CreateQuestionModel, UpdateQuestionModel
+from .question_model import Question
 
-__all__ = ["CreateQuestionModel", "UpdateQuestionModel"]
+__all__ = [Question]
