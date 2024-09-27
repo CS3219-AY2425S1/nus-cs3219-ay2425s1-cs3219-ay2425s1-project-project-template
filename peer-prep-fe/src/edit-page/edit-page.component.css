@@ -211,4 +211,22 @@ input[type="checkbox"] {
   transform: scale(1.1);
 }
 
+.error-message-title {
+  color: red;
+  font-size: 15px;
+}
+
+.error-message-description {
+  color: red;
+  font-size: 15px;
+  margin-top: -15px;
+}
+
+.error-message-difficulty {
+  margin-top: 5px;
+  margin-left: 570px;
+  color: red;
+}
+
+
 

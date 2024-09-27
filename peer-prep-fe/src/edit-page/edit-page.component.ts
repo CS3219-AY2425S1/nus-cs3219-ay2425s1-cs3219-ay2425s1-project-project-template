@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {FormsModule} from "@angular/forms";
-import {NgClass, NgForOf} from "@angular/common";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {QuestionService} from "../services/question.service";
+import {HttpClientModule} from "@angular/common/http";
 
 @Component({
   selector: 'app-edit-page',
@@ -11,15 +12,19 @@ import {QuestionService} from "../services/question.service";
   imports: [
     FormsModule,
     NgClass,
-    NgForOf
+    NgForOf,
+    HttpClientModule,
+    ReactiveFormsModule,
+    NgIf
   ],
-  styleUrl: './edit-page.component.css'
+  styleUrls: ['./edit-page.component.css']
 })
+
 export class EditPageComponent implements OnInit {
-  questionTitle: string= '';
+  question_title: string= '';
   questionId: string = '';
-  questionDescription: string = '';
-  categories = [
+  question_description: string = '';
+  question_categories = [
     {name: 'Algorithms', selected: false},
     {name: 'Database', selected: false},
     {name: 'Shell', selected: false},
@@ -27,43 +32,58 @@ export class EditPageComponent implements OnInit {
     {name: 'JavaScript', selected: false},
     {name: 'pandas', selected: false},
   ];
-  difficulty: string = '';
+  question_complexity: string = '';
   dropdownOpen: boolean = false;
+
+  questionForm : FormGroup;
 
   constructor(
     private questionService: QuestionService,
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private fb: FormBuilder
+  ) {
+    this.questionForm = this.fb.group({
+      question_title: ['', Validators.required],
+      question_description: ['', Validators.required],
+    });
+  }
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
-      this.questionId = '66f2a8a8aea02b6b4babc749';
+      this.questionId = params['id'];
       this.loadQuestionData();
     });
   }
 
   loadQuestionData() {
+    if (!this.questionForm.valid) {
+      this.questionForm.markAllAsTouched();
+    }
+
     this.questionService.getQuestion(this.questionId).subscribe((data: any) => {
-      this.questionTitle = data.title;
-      this.questionDescription = data.description;
-      this.categories.forEach(cat => {
-        cat.selected = data.categories.includes(cat.name);
+      const questionData = data.data.data;
+      this.question_title = questionData.question_title;
+      this.question_description = questionData.question_description;
+      const categoriesFromApi = questionData.question_categories || []; // Default to an empty array
+      this.question_categories.forEach(cat => {
+        cat.selected = categoriesFromApi.includes(cat.name);
       });
-      this.difficulty = data.difficulty;
+
+      this.question_complexity = questionData.question_complexity;
     });
   }
 
   setDifficulty(level: string) {
-    this.difficulty = level;
+    this.question_complexity = level;
   }
 
   saveQuestion() {
     const updatedQuestion = {
-      title: this.questionTitle,
-      description: this.questionDescription,
-      categories: this.categories.filter(cat => cat.selected).map(cat => cat.name),
-      difficulty: this.difficulty
+      question_title: this.question_title,
+      question_description: this.question_description,
+      question_categories: this.question_categories.filter(cat => cat.selected).map(cat => cat.name),
+      question_complexity: this.question_complexity
     };
     this.questionService.updateQuestion(this.questionId, updatedQuestion).subscribe((response) => {
         alert('Question updated successfully!');
