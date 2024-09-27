@@ -12,4 +12,5 @@ func RegisterQuestionRoutes(router *mux.Router) {
 	router.HandleFunc("/api/questions/{id}", controllers.UpdateQuestion).Methods("PUT")
 	router.HandleFunc("/api/questions/{id}", controllers.DeleteQuestion).Methods("DELETE")
 	router.HandleFunc("/api/questions/{id}", controllers.GetQuestionByID).Methods("GET")
+	router.HandleFunc("/api/questions", controllers.GetAllQuestions).Methods("GET")
 }
