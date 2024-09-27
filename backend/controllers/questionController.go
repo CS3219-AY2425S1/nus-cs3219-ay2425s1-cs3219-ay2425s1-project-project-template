@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
 	"net/http"
 	"time"
@@ -46,6 +48,46 @@ func GetQuestions() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, questions)
 	}
+}
+
+func GetQuestionsById(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	idsParam := c.Query("id")
+	idsString := strings.Split(idsParam, ",")
+
+	if len(idsString) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Need to have at least one question id in params"})
+	}
+
+	// Convert string ids to int
+	ids := make([]int, len(idsString))
+
+	for i, idstr := range idsString {
+		id, err := strconv.Atoi(idstr)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid question id should be only be integers"})
+			return
+		}
+
+		ids[i] = id
+	}
+
+	var questions []models.Question
+
+	filter := bson.M{"_id": bson.M{"$in": ids}}
+
+	curr, err := coll.Find(ctx, filter)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	curr.All(ctx, &questions)
+	c.JSON(http.StatusOK, gin.H{"message": "Questions retrieve successfully", "questions": questions})
 }
 
 // Util functions

@@ -35,7 +35,7 @@ func main() {
 	router.Use(middleware.Authentication())
 
 	routes.QuestionRoutes(router) // Creates Question api routes
-	// API-1
+	routes.ProfileRoutes(router)  // Creates Profile api routes
 	router.GET("/api-1", func(c *gin.Context) {
 		c.JSON(200, gin.H{"success": "Access granted for api-1"})
 	})
