@@ -2,21 +2,29 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./signup.css";
 import signupGraphic from "../../assets/images/signup_graphic.png";
+import { useToast } from "@chakra-ui/react";
 
 const Signup: React.FC = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Check if passwords match
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match");
+      toast({
+        title: "Error",
+        description: "Passwords do not match.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
       return;
     }
 
@@ -31,14 +39,38 @@ const Signup: React.FC = () => {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.data.accessToken);
-        navigate("/login");
-        alert("Signup successful");
+        toast({
+          title: "Signup successful!",
+          description: "Redirecting to login...",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom",
+        });
+
+        // Wait for 3 seconds, then redirect to login page
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000); // 3 seconds delay before redirecting
       } else {
-        setErrorMessage(data.message);
+        toast({
+          title: "Error",
+          description: data.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom",
+        });
       }
     } catch (error) {
-      setErrorMessage("Error during signup.");
+      toast({
+        title: "Error",
+        description: "Error during signup.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
     }
   };
 
@@ -50,8 +82,6 @@ const Signup: React.FC = () => {
           <p>
             Create an account to get unlimited access to practice questions.
           </p>
-
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
 
           <form onSubmit={handleSignup}>
             <label htmlFor="username">Username*</label>
@@ -104,9 +134,9 @@ const Signup: React.FC = () => {
         </div>
 
         <div className="signup-graphic">
-          <img src={signupGraphic}></img>
+          <img src={signupGraphic} alt="Signup Graphic" />
           <p className="signup-graphic-text">
-            You can practice anytime, anywhere, and any situations!
+            You can practice anytime, anywhere, and in any situations!
           </p>
         </div>
       </div>
@@ -115,8 +145,3 @@ const Signup: React.FC = () => {
 };
 
 export default Signup;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setErrorMessage(arg0: string) {
-  throw new Error("Function not implemented.");
-}
