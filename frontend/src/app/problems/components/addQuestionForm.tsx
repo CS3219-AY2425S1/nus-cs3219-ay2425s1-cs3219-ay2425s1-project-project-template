@@ -43,7 +43,11 @@ const formSchema = z.object({
       
 })
 
-export default function QuestionForm() {
+interface AddQuestionFormProps {
+  onClose: () => void; // Receive the onClose function as a prop
+}
+
+const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose }) => {
 
       const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -93,6 +97,7 @@ export default function QuestionForm() {
             // handle error we can decide later
             console.log("error", err);
         }
+        onClose();
       }
 
 
@@ -189,7 +194,7 @@ export default function QuestionForm() {
               )}
             />
             <div className="flex justify-end w-full space-x-2">
-                <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button">Cancel</Button>
+                <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button" onClick={onClose}>Cancel</Button>
                 <Button className="primary-color hover:bg-violet-900" type="submit">Submit</Button>
             </div>
           </form>
@@ -197,3 +202,4 @@ export default function QuestionForm() {
         </div>
       )
 }
+export default AddQuestionForm;
