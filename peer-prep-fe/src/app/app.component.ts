@@ -7,8 +7,6 @@ import { HomeComponent } from './home/home.component';
 import { FormsModule } from '@angular/forms';
 import { QuestionListComponent } from '../components/question-list/question-list.component';
 
-
-
 const MODULES = [
   CommonModule,
   RouterOutlet,
@@ -22,6 +20,7 @@ const MODULES = [
 @Component({
   selector: 'app-root',
   standalone: true,
+  imports: MODULES,
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
