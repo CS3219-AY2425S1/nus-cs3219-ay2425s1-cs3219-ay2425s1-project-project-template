@@ -1,24 +1,14 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { InputField, OptionsField } from '../ui/custom-input'
 import { toast } from 'sonner'
 import CustomDialogWithButton from '../customs/custom-dialog'
-
-interface IProfileFormInput {
-    username: string
-    proficiency: string
-}
+import validateInput, { initialFormValues } from '@/util/input-validation'
 
 function Profile() {
-    const initialValues: IProfileFormInput = {
-        username: '',
-        proficiency: '',
-    }
-
-    const [formValues, setFormValues] = useState(initialValues)
-    const [formErrors, setFormErrors] = useState(initialValues)
+    const [formValues, setFormValues] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [isDialogOpen, toggleDialogOpen] = useState(false)
     const [isFormSubmit, setIsFormSubmit] = useState(false)
-    const formRef = useRef<HTMLFormElement>(null)
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>): void => {
         const { id, value } = e.target
@@ -29,33 +19,24 @@ function Profile() {
         setFormValues({ ...formValues, proficiency: e })
     }
 
-    const validateInput = (values: IProfileFormInput): boolean => {
-        let isValid = true
-        const errors = { ...initialValues }
-
-        if (!values.username) {
-            errors.username = 'Please Enter a username!'
-            isValid = false
-        }
-
-        if (!values.proficiency) {
-            errors.proficiency = 'Please choose a proficiency level!'
-            isValid = false
-        }
-
-        setFormErrors(errors)
-        return isValid
-    }
-
     const handleFormSubmit = (): void => {
         setIsFormSubmit(true)
         toggleDialogOpen(false)
         toast.success('Profile has been updated successfully.')
-        setFormValues(initialValues)
+        setFormValues({ ...initialFormValues })
     }
 
     const handleUpdateClick = (): void => {
-        if (validateInput(formValues)) {
+        const isTest = {
+            username: true,
+            email: false,
+            password: false,
+            confirmPassword: false,
+            proficiency: true,
+        }
+        const [errors, isValid] = validateInput(isTest, formValues)
+        setFormErrors(errors)
+        if (isValid) {
             toggleDialogOpen(true)
         }
     }
@@ -69,7 +50,7 @@ function Profile() {
     return (
         <>
             <div className="flex flex-row">
-                <form ref={formRef} className="flex flex-[4] flex-col h-full w-full space-y-6 pt-4">
+                <form className="flex flex-[4] flex-col h-full w-full space-y-6 pt-4">
                     <InputField
                         type="text"
                         id="username"
@@ -83,8 +64,9 @@ function Profile() {
                     <OptionsField
                         id="proficiency"
                         label="Proficiency"
-                        error={formErrors.proficiency}
+                        value={formValues.proficiency}
                         onChange={handleProficiencyChange}
+                        error={formErrors.proficiency}
                     />
 
                     <CustomDialogWithButton

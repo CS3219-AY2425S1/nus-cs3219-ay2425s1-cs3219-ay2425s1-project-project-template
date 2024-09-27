@@ -3,18 +3,20 @@ import { ErrorIconToast } from '@/assets/icons/error-icon'
 
 interface InputFieldProps {
     id: string
-    label: string
+    label?: string
     type: string
-    placeholder: string
+    placeholder?: string
     icon?: React.ReactNode
-    value?: string
+    value: string
     error?: string
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    className?: string
 }
 
 interface OptionsFieldProps {
     id: string
     label: string
+    value: string
     error?: string
     onChange?: (e: string) => void
 }
@@ -28,12 +30,15 @@ export const InputField = ({
     value,
     error,
     onChange,
+    className,
 }: InputFieldProps): JSX.Element => {
     return (
-        <div>
-            <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-                {label}
-            </label>
+        <div className="w-full">
+            {label && (
+                <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+                    {label}
+                </label>
+            )}
             <div className="relative">
                 <input
                     type={type}
@@ -41,7 +46,11 @@ export const InputField = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    className={
+                        className
+                            ? className
+                            : 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm'
+                    }
                 />
                 {icon && <span className="absolute right-3 top-5 transform -translate-y-1/2">{icon}</span>}
                 {error ? (
@@ -59,13 +68,13 @@ export const InputField = ({
     )
 }
 
-export const OptionsField = ({ id, label, error, onChange }: OptionsFieldProps): JSX.Element => {
+export const OptionsField = ({ id, label, value, error, onChange }: OptionsFieldProps): JSX.Element => {
     return (
         <div>
             <label htmlFor={id} className="block text-sm font-medium text-gray-700">
                 {label}
             </label>
-            <Select onValueChange={onChange}>
+            <Select value={value} onValueChange={onChange}>
                 <SelectTrigger className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                     <SelectValue placeholder="Select one..." />
                 </SelectTrigger>
