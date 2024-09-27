@@ -87,8 +87,8 @@ const QuestionRepo = () => {
               // sx={{ width: 150 }}
             >
                 <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="complexity">Complexity</MenuItem>
-                <MenuItem value="category">Category</MenuItem>
+                <MenuItem value="complexity">Difficulty</MenuItem>
+                <MenuItem value="category">Topic</MenuItem>
             </TextField>
 
             <TextField
