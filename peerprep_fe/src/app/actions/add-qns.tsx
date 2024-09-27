@@ -5,7 +5,11 @@ import { FormState } from "../lib/definitions";
 
 dotenv.config();
 
-export async function addQuestion(state: FormState, formData: FormData) {
+export async function addQuestion(
+  state: FormState,
+  formData: FormData,
+  token: String
+) {
   // Helper function to ensure the formData value is a string
   const getStringValue = (value: FormDataEntryValue | null): string => {
     return typeof value === "string" ? value : "";
@@ -46,6 +50,7 @@ export async function addQuestion(state: FormState, formData: FormData) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `bearer ${token}`,
     },
     body: JSON.stringify(data),
   });
