@@ -155,8 +155,16 @@ const QuestionPage = () => {
           setSelectedQuestion(newQuestion);
           alert('Question submitted successfully!');
           clearState(); // Clear the state after submitting
+        } else if (response.status == 400) {
+          alert("no duplicate question titles allowed!");
         } else {
-          alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
+          const response_text = await response.text();
+          const text_data = JSON.parse(response_text);
+          if (text_data.errors) {
+            text_data.errors.forEach(error => {
+              alert(error.msg);
+            });
+          }
         }
       } catch (error) {
         console.error('Error:', error);
@@ -182,8 +190,16 @@ const QuestionPage = () => {
           setSelectedQuestion(updatedQuestion);
           alert('Question updated successfully!');
           clearState();
+        } else if (response.status == 400) {
+          alert("no duplicate question titles allowed!");
         } else {
-          alert('Failed to submit question. Make sure questions are not duplicates. Please try again.');
+          const response_text = await response.text();
+          const text_data = JSON.parse(response_text);
+          if (text_data.errors) {
+            text_data.errors.forEach(error => {
+              alert(error.msg);
+            });
+          }
         }
       } catch (error) {
         console.error('Error:', error);
