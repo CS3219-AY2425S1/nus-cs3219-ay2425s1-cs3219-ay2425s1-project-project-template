@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { login, UserCredentials } from "./authService";
-import LoginView from "./LoginView";
+import { login, UserCredentials } from "../authService";
+import LoginView from "../views/LoginView";
 
 const LoginController: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -23,10 +23,16 @@ const LoginController: React.FC = () => {
     navigate("/register");
   };
 
+  const handleForgotPassword = () => {
+    console.log("Forgot Password Clicked");
+    navigate("/forget-password");
+  };
+
   return (
     <LoginView
       onSubmit={handleLogin}
       onCreateAccount={handleCreateAccount}
+      onForgotPassword={handleForgotPassword}
       errorMessage={errorMessage}
     />
   );

@@ -53,3 +53,44 @@ export const register = async (credentials: UserCredentials): Promise<string> =>
     return Promise.reject(error.message || "Registration error");
   }
 };
+
+export const sendResetLink = async (email: string): Promise<void> => {
+  try {
+    const response = await fetch("http://localhost:8080/v1/email-verification", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to send reset link");
+    }
+  } catch (error: any) {
+    return Promise.reject(error.message || "Reset link error");
+  }
+};
+
+export const resetPassword = async (newPassword: string): Promise<void> => {
+  try {
+    const response = await fetch(`http://localhost:8080/v1/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ new_password: newPassword }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to reset password");
+    }
+  } catch (error: any) {
+    return Promise.reject(error.message || "Password reset error");
+  }
+};
+
+
+

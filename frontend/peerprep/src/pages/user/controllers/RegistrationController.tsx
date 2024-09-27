@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { register, UserCredentials } from './authService';
-import RegistrationView from './RegistrationView';
+import { register, UserCredentials } from '../authService';
+import RegistrationView from '../views/RegistrationView';
 import { useNavigate } from "react-router-dom";
 
 
@@ -9,6 +9,11 @@ const RegistrationController: React.FC = () => {
   const navigate = useNavigate();
 
   const handleRegistration = async (username: string, email: string, password: string, confirmPassword: string) => {
+    if (!password || !confirmPassword) {
+      setErrorMessage("Please fill in all fields");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match!");
       return;

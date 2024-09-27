@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import InputBox from '../../components/InputBox';
-import LargeButton from '../../components/SubmitButton';
+import InputBox from '../../../components/InputBox';
+import LargeButton from '../../../components/SubmitButton';
 import logo from '/peerprep_logo.png';
 
 interface LoginViewProps {
   onSubmit: (email: string, password: string) => void;
   onCreateAccount: () => void;
+  onForgotPassword: () => void;
   errorMessage?: string;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorMessage }) => {
+const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, onForgotPassword, errorMessage }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -45,7 +46,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorM
             />
           </div>
           <div className="forgot-password text-right">
-            <a href="#" className="text-purple-400 hover:underline text-sm">Forgot password?</a>
+            <a href="#" onClick={onForgotPassword} className="text-purple-400 hover:underline text-sm">Forgot password?</a>
           </div>
           <LargeButton text="Login" onClick={handleSubmit} />
         </form>
