@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
+import { useToast } from "@/components/hooks/use-toast";
 
 interface QuestionFormProps {
   initialData?: Question;
@@ -29,6 +30,8 @@ interface QuestionFormProps {
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
+  const { toast } = useToast();
+
   const [question, setQuestion] = useState<Question>(
     props.initialData || {
       id: "",
@@ -47,6 +50,20 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // If no changes, prompt user and prevent API call
+    if (
+      props.initialData &&
+      question.toString() == props.initialData.toString()
+    ) {
+      toast({
+        title: "No changes",
+        description: "Form can only be submitted when changes are made",
+        variant: "destructive",
+      });
+      return;
+    }
+
     props.handleSubmit(question);
   };
 
