@@ -14,4 +14,5 @@ export class HomeComponent {
   goToLoginPage() {
     this.router.navigate(['/login']);
   }
+
 }

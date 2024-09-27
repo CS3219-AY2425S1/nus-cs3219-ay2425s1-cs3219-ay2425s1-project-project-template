@@ -5,6 +5,7 @@ import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { HomeComponent } from './home/home.component';
+import { FormsModule } from '@angular/forms'; 
 
 const MODULES = [
   CommonModule,
@@ -14,7 +15,8 @@ const MODULES = [
   DashboardComponent,
   RouterLinkActive,
   RouterLink,
-  MatSlideToggleModule
+  MatSlideToggleModule,
+  FormsModule
 ];
 @Component({
   selector: 'app-root',
