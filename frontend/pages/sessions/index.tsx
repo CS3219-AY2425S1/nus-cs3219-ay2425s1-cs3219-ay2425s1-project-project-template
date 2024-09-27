@@ -27,7 +27,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         onClick={column.getToggleSortingHandler()}
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
@@ -47,7 +47,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         onClick={column.getToggleSortingHandler()}
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
@@ -72,7 +72,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
                         QUESTION
@@ -90,7 +90,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
                         DESCRIPTION
@@ -108,7 +108,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         onClick={column.getToggleSortingHandler()}
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
@@ -153,7 +153,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         onClick={column.getToggleSortingHandler()}
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
@@ -183,7 +183,7 @@ export const columns: ColumnDef<Session>[] = [
             return (
                 <div className="flex justify-center">
                     <Button
-                        variant="ghost"
+                        variant="ghostTab"
                         onClick={column.getToggleSortingHandler()}
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
