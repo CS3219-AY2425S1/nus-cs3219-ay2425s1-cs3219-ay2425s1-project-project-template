@@ -48,7 +48,6 @@ export default function QuestionListing() {
     searchParams.get("complexity") || ""
   );
   const { toast } = useToast();
-  const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
@@ -239,7 +238,7 @@ export default function QuestionListing() {
     router.push("");
   };
 
-  if (isLoading && !data && !data) {
+  if (isLoading && !data) {
     return <LoadingScreen />;
   }
 
