@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
 import {ActivatedRoute, Router} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {NgClass, NgForOf} from "@angular/common";
+import {QuestionService} from "../services/question.service";
 
 @Component({
   selector: 'app-edit-page',
@@ -31,20 +31,20 @@ export class EditPageComponent implements OnInit {
   dropdownOpen: boolean = false;
 
   constructor(
-    private http: HttpClient,
+    private questionService: QuestionService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
-      this.questionId = params['id'];
+      this.questionId = '66f2a8a8aea02b6b4babc749';
       this.loadQuestionData();
     });
   }
 
   loadQuestionData() {
-    this.http.get(`/api/questions/$(this.questionId)`).subscribe((data: any) => {
+    this.questionService.getQuestion(this.questionId).subscribe((data: any) => {
       this.questionTitle = data.title;
       this.questionDescription = data.description;
       this.categories.forEach(cat => {
@@ -65,7 +65,7 @@ export class EditPageComponent implements OnInit {
       categories: this.categories.filter(cat => cat.selected).map(cat => cat.name),
       difficulty: this.difficulty
     };
-    this.http.put(`/api/questions/$(this.questionId)`, updatedQuestion).subscribe((response) => {
+    this.questionService.updateQuestion(this.questionId, updatedQuestion).subscribe((response) => {
         alert('Question updated successfully!');
       },
       (error) => {
