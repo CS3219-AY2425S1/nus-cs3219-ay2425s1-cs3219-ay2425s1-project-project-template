@@ -137,13 +137,14 @@
 
 - Body
 
-  - At least one of the following fields is required: `username` (string), `email` (string), `password` (string)
+  - At least one of the following fields is required: `username` (string), `email` (string), `password` (string), `skillLevel` (string)
 
     ```json
     {
       "username": "SampleUserName",
       "email": "sample@gmail.com",
-      "password": "SecurePassword"
+      "password": "SecurePassword",
+      "skillLevel": "SkillLevel",
     }
     ```
 
@@ -173,7 +174,7 @@
 
 - HTTP Method: `PATCH`
 
-- Endpoint: http://localhost:3001/users/{userId}
+- Endpoint: http://localhost:3001/users/{userId}/privilege
 
 - Parameters
 
