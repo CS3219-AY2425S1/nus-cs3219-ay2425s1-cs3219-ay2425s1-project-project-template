@@ -1,6 +1,6 @@
 import { getUserInterviewMetadata } from "@/api/dashboard";
-import DashboardCard from "@/app/(auth)/dashboard/components/DashboardCard";
-import { DashboardDataTable } from "@/app/(auth)/dashboard/components/DashboardDataTable";
+import DashboardCard from "@/app/(auth)/components/dashboard/DashboardCard";
+import { DashboardDataTable } from "@/app/(auth)/components/dashboard/DashboardDataTable";
 import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
@@ -64,7 +64,7 @@ const AuthDashboard = () => {
       </div>
       <DashboardDataTable />
     </Container>
-  )
-}
+  );
+};
 
 export default AuthDashboard;
