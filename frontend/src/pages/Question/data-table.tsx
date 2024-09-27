@@ -292,6 +292,9 @@ const Example = () => {
         "& .MuiTableSortLabel-icon": {
           color: "grey !important",
         },
+        "& .css-2oais": {
+          color: "grey !important",
+        },
         "& .MuiIconButton-root": {
           color: "grey", // Make icon buttons white
         },
@@ -317,7 +320,6 @@ const Example = () => {
       sx: {
         backgroundColor: "grey.900", // Dark toolbar background
         color: "white", // White text in toolbar
-        fil: "white",
         "& .MuiIconButton-root": {
           color: "white", // Make icon buttons white
         },
