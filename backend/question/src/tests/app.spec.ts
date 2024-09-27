@@ -25,7 +25,7 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: "This is a sample question",
-      category: "General",
+      category: ["General"],
       complexity: "Easy",
     };
 
@@ -37,7 +37,7 @@ describe("Test Question API", () => {
       "description",
       "This is a sample question"
     );
-    expect(res.body.question).toHaveProperty("category", "General");
+    expect(res.body.question).toHaveProperty("category", ["General"]);
     expect(res.body.question).toHaveProperty("complexity", "Easy");
   });
 
@@ -46,7 +46,7 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "",
       description: "This is a sample question",
-      category: "General",
+      category: ["General"],
       complexity: "Easy",
     };
 
@@ -61,7 +61,7 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: "",
-      category: "General",
+      category: ["General"],
       complexity: "Easy",
     };
 
@@ -76,13 +76,13 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: "This is a sample question",
-      category: "",
+      category: [],
       complexity: "Easy",
     };
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Invalid value");
+    expect(res.body.errors[0].msg).toBe("Category must be a non-empty array");
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -91,7 +91,7 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: "This is a sample question",
-      category: "General",
+      category: ["General"],
       complexity: "",
     };
 
@@ -121,7 +121,7 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: ["test"],
-      category: "General",
+      category: ["General"],
       complexity: "Easy",
     };
 
@@ -136,13 +136,43 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: "This is a sample question",
-      category: ["test"],
+      category: "test",
       complexity: "Easy",
     };
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Invalid value");
+    expect(res.body.errors[0].msg).toBe("Category must be a non-empty array");
+    expect(res.body.errors[0].path).toBe("category");
+  });
+
+  // Invalid category
+  test("POST /api/create - invalid category", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: [3, "test"],
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].path).toBe("category");
+  });
+
+  // Invalid category
+  test("POST /api/create - invalid category", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: ["test", ""],
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -151,7 +181,7 @@ describe("Test Question API", () => {
     const newQuestion = {
       title: "Sample Question",
       description: "This is a sample question",
-      category: "General",
+      category: ["General"],
       complexity: ["test"],
     };
 
@@ -176,7 +206,7 @@ describe("Test Get All", () => {
       "description",
       "This is a sample question"
     );
-    expect(sampleQuestion).toHaveProperty("category", "General");
+    expect(sampleQuestion).toHaveProperty("category", ["General"]);
     expect(sampleQuestion).toHaveProperty("complexity", "Easy");
   });
 });
@@ -191,7 +221,7 @@ describe("Test Get by Id", () => {
     expect(res.body).toHaveProperty("questionid", questionId);
     expect(res.body).toHaveProperty("title", "Sample Question");
     expect(res.body).toHaveProperty("description", "This is a sample question");
-    expect(res.body).toHaveProperty("category", "General");
+    expect(res.body).toHaveProperty("category", ["General"]);
     expect(res.body).toHaveProperty("complexity", "Easy");
   });
 
@@ -219,7 +249,7 @@ describe("Test Update", () => {
     const updateQuestion = {
       title: "Update Title",
       description: "Update Description",
-      category: "Update Category",
+      category: ["Update Category"],
       complexity: "Update Complexity",
     };
     const questionId = 1090;
@@ -235,6 +265,19 @@ describe("Test Update", () => {
   });
 
   // Empty update
+  test("POST - empty title update", async () => {
+    const updateQuestion = {
+      title: 3,
+    };
+    const questionId = 1090;
+    const res = await request
+      .post(`/api/${questionId}/update`)
+      .send(updateQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Field must be a string");
+  });
+
+  // Empty field update
   test("POST - empty update", async () => {
     const updateQuestion = {
       title: "",
@@ -250,12 +293,54 @@ describe("Test Update", () => {
     expect(res.body.errors[0].msg).toBe("At least one field must be provided");
   });
 
+  // Update with invalid category
+  test("POST - empty category", async () => {
+    const updateQuestion = {
+      category: []
+    };
+    const questionId = 1090;
+    const res = await request
+      .post(`/api/${questionId}/update`)
+      .send(updateQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must be a non-empty array");
+  });
+
+  // Update with invalid category
+  test("POST - category containing numbers", async () => {
+    const updateQuestion = {
+      category: [3],
+      complexity: ["test"],
+    };
+    const questionId = 1090;
+    const res = await request
+      .post(`/api/${questionId}/update`)
+      .send(updateQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+  });
+
+  // Update with invalid category
+  test("POST - category containing empty string", async () => {
+    const updateQuestion = {
+      description: "This is a sample question",
+      category: ["test", ""],
+      complexity: ["test"],
+    };
+    const questionId = 1090;
+    const res = await request
+      .post(`/api/${questionId}/update`)
+      .send(updateQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+  });
+
   // Negative id
   test("POST - negative id update", async () => {
     const updateQuestion = {
       title: "Update Title",
       description: "Update Description",
-      category: "Update Category",
+      category: ["Update Category"],
       complexity: "Update Complexity",
     };
     const questionId = -1;
@@ -271,7 +356,7 @@ describe("Test Update", () => {
     const updateQuestion = {
       title: "Update Title",
       description: "Update Description",
-      category: "Update Category",
+      category: ["Update Category"],
       complexity: "Update Complexity",
     };
     const questionId = 999999;
