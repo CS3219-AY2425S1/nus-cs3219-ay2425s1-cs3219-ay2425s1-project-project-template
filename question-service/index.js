@@ -47,8 +47,8 @@ const upload = multer({ storage: storage });
 
 app.use('/uploads', express.static('uploads'));
 
-app.get('/img/:name', function (req, res) {
-  const fileName = req.params.name;
+app.get('/img/:filename', function (req, res) {
+  const fileName = req.params.filename;
   const filePath = `./uploads/${fileName}`;
   
   // Check if file exists
@@ -62,7 +62,7 @@ app.get('/img/:name', function (req, res) {
 
 app.post('/img', upload.single('img'), function (req, res, next) {
 
-  return res.send(req.file.path)
+  return res.status(200).json(req.file);
 })
 
 
