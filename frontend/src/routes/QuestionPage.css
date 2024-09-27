@@ -1,6 +1,7 @@
 
 .question-page-container {
   display: flex;
+  padding: 1em;
   flex-direction: row;
   justify-content: space-between;
   background-color: #e5d6d6; 
