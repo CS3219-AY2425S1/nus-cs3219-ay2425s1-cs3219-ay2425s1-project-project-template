@@ -5,7 +5,6 @@ import { getQuestions } from "@/app/actions/questions";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "../../styles/modal.css";
-import React, { useState } from "react";
 import { QuestionForm } from "@/components/question-form";
 import Button from "@/components/button";
 import TableRow from "@/components/table-row";
@@ -54,6 +53,7 @@ export default function Home() {
           }}
         />
       </Header>
+      <Button type="submit" onClick={toggleAddQns} text="Add Question" />
       <table className="min-w-full table-auto bg-white shadow-md rounded-lg mt-4">
         <thead>
         <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
@@ -76,9 +76,6 @@ export default function Home() {
           })}
         </tbody>
       </table>
-        <Button type="submit" onClick={toggleAddQns} text="Add Question" />
-
-
       {addQns && (
         <div className="modal">
           <div onClick={toggleAddQns} className="overlay"></div>
