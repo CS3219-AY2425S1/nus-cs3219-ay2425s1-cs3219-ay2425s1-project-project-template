@@ -15,7 +15,7 @@ interface ActionButtonProp {
 const ActionButton = ({ onClick, color, children }: ActionButtonProp) => {
     // add loading state if needed
     return (
-        <Button onPress={onClick} color={color}>
+        <Button onPress={onClick} color={color} variant='ghost' size='sm'>
             { children }
         </Button>
     );
@@ -30,11 +30,11 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
     } = question;
     // run async functions here
     const handleEditOnClick = () => {
-
+        console.log('edit');
     }
     // run async delete here can set spinner
-    const handleDeleteOnClick = () => {
-
+    const handleDeleteOnClick = (event: PressEvent): void => {
+        console.log('delete');
     }
     return (
         <div className='flex gap-2 justify-center'>
