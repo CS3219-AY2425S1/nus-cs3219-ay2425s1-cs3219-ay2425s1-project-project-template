@@ -1,5 +1,3 @@
-import type { BreadCrumb } from '@/stores/breadcrumb-store';
-
 export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
@@ -17,6 +15,11 @@ const TOP_LEVEL_AUTHED_ROUTES = {
       title: 'Questions',
     },
   ],
+};
+
+export type BreadCrumb = {
+  path: string;
+  title: string;
 };
 
 export const getBreadCrumbs = (path: string): Array<BreadCrumb> => {

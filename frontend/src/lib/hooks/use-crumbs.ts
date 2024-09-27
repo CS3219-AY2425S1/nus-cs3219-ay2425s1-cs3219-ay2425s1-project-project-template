@@ -1,5 +1,5 @@
-import { BreadCrumb } from '@/stores/breadcrumb-store';
-import { getBreadCrumbs } from '../routes';
+import { type BreadCrumb, getBreadCrumbs } from '@/lib/routes';
+
 import { useRouterLocation } from './use-router-location';
 
 export const useCrumbs = (...extraCrumbs: Array<BreadCrumb>) => {
