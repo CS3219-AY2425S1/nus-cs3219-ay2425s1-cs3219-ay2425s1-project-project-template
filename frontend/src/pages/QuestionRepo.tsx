@@ -16,6 +16,10 @@ import {
 import Header from "../components/Header";
 import { getAllQuestions } from "../api/questionApi"; // Ensure your API supports pagination & sorting params
 import { Question } from "../@types/question";
+import Highlight from '../components/Highlight'; 
+import { useDebounce } from "../hooks/useDebounce"; 
+import axios from "axios"; 
+
 
 const QuestionRepo = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -26,24 +30,47 @@ const QuestionRepo = () => {
 
   const [sortField, setSortField] = useState<string>("title"); // Default sort field
   const [sortOrder, setSortOrder] = useState<string>("asc"); // Default sort order
+  
+  const [searchQuery, setSearchQuery] = useState<string>(""); 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchQuestions = async (page: number, sort: string, order: string) => {
+  // debounceHook for limiting searchQuery api calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const fetchQuestions = async (page: number, sort: string, order: string, search: string, signal: AbortSignal) => {
+    setLoading(true);
+    setError(null);
+
     try {
       // Fetch questions with pagination and sorting
-      const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order });
+      const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order, search }, signal);
       setQuestions(data.questions);
       setCurrentPage(data.currentPage);
       setTotalPages(data.totalPages);
       setTotalQuestions(data.totalQuestions);
-    } catch (error) {
+    } catch (error: any) {
+      if (axios.isCancel(error)) {
+        return;
+      }
       console.error("Failed to fetch questions", error);
+      setError("No questions found.");
+      setQuestions([]); // Clear previous questions
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     // Fetch questions when the component mounts or sorting changes
-    fetchQuestions(currentPage, sortField, sortOrder);
-  }, [currentPage, sortField, sortOrder]);
+    fetchQuestions(currentPage, sortField, sortOrder, debouncedSearchQuery, signal);
+    return () => {
+      controller.abort();
+    };
+  }, [currentPage, sortField, sortOrder, debouncedSearchQuery]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -55,6 +82,11 @@ const QuestionRepo = () => {
 
   const handleOrderChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setSortOrder(event.target.value as string);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page on new search
   };
 
   return (
@@ -84,8 +116,8 @@ const QuestionRepo = () => {
               // sx={{ width: 150 }}
             >
                 <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="complexity">Complexity</MenuItem>
-                <MenuItem value="category">Category</MenuItem>
+                <MenuItem value="complexity">Difficulty</MenuItem>
+                <MenuItem value="category">Topic</MenuItem>
             </TextField>
 
             <TextField
@@ -101,26 +133,65 @@ const QuestionRepo = () => {
               <MenuItem value="desc">Descending</MenuItem>
             </TextField>
           </Box>
-          <Paper elevation={3}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Question Title</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Difficulty</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {questions.map((question) => (
-                  <TableRow key={question._id}>
-                    <TableCell>{question.title}</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell>{question.complexity}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
+  
+          <Box display="flex" alignItems="center" mb={3}>
+            <TextField
+              label="Search"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              size="small"
+              variant="outlined"
+              fullWidth
+            />
+          </Box>
+          
+          
+          {/* Conditional Rendering Based on Loading, Error, and Data */}
+          {loading ? (
+            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              Loading...
+            </Typography>
+          ) : error ? (
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{ mt: 2, color: "red" }}
+            >
+              {error}
+            </Typography>
+          ) : questions.length > 0 ? (
+            <>
+              <Paper elevation={3}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Question Title</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Difficulty</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {questions.map((question) => (
+                      <TableRow key={question._id}>
+                        <TableCell>
+                          <Highlight
+                            text={question.title}
+                            query={searchQuery}
+                          />
+                        </TableCell>
+                        <TableCell>{/* Status Cell */}</TableCell>
+                        <TableCell>
+                          <Highlight
+                            text={question.complexity}
+                            query={searchQuery}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Paper>
+
 
           <Box
             display="flex"
@@ -148,6 +219,12 @@ const QuestionRepo = () => {
               )}
             </Box>
           </Box>
+          </>
+          ) : (
+            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              No questions found.
+            </Typography>
+          )}
         </Box>
       </Container>
     </>

@@ -75,11 +75,31 @@
   
 - **`order`**: _(Optional)_ The sort order, either `asc` (ascending) or `desc` (descending). Default is `asc`.
   - Example: `?order=desc`
+
+- **`search`**: _(Optional)_ A search term to filter questions based on the title, topic, or difficulty. The search is case-insensitive.
+  - Example: `?search=fibonacci`
+  - Supported fields:
+    - `title`: Searches for questions whose titles contain the search term.
+    - `topic`: Searches for questions whose topic contain the search term.
+    - `difficulty`: Searches for questions whose difficulty matches the search term.
+ 
  
 ### Example Request:
+- Search for questions related to `fibonacci`
 
 ```
-GET http://localhost:3002/api/questions?page=2&limit=5&sort=complexity&order=asc
+GET http://localhost:3002/api/questions?search=fibonacci
+```
+
+
+- Sort questions by difficulty in descending order
+```
+GET http://localhost:3002/api/questions?sort=complexity&order=desc
+```
+
+- Get the second page of results with 5 questions per page:
+```
+GET http://localhost:3002/api/questions?page=2&limit=5
 ```
 
 
