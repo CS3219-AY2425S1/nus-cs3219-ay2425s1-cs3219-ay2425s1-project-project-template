@@ -9,8 +9,8 @@ export const createQuestionValidators = [
     if (!Array.isArray(category) || category.length === 0) {
       throw new Error("Category must be a non-empty array");
     }
-    //check if array contains only non-empty strings
-    if (!category.every((element) => typeof element === "string" && element.length > 0)) {
+    //check if array contains only non-empty strings and trim whitespace
+    if (!category.every((element) => typeof element === "string" && element.length > 0 && element.trim().length > 0)) {
       throw new Error("Category must contain only non-empty strings");
     }
     return true;
@@ -34,8 +34,8 @@ export const updateQuestionValidators = [
           if (!Array.isArray(field) || field.length === 0) {
             throw new Error("Category must be a non-empty array");
           }
-          //check if array contains only non-empty strings
-          if (!field.every((element) => typeof element === "string" && element.length > 0)) {
+          //check if array contains only non-empty strings and trim whitespace
+          if (!field.every((element) => typeof element === "string" && element.length > 0 && element.trim().length > 0)) {
             throw new Error("Category must contain only non-empty strings");
           }
         } else {

@@ -86,6 +86,21 @@ describe("Test Question API", () => {
     expect(res.body.errors[0].path).toBe("category");
   });
 
+  // Empty category with whitespace only
+  test("POST /api/create - empty category with whitespace string", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: ["   "],
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].path).toBe("category");
+  });
+
   // Empty complexity
   test("POST /api/create - empty complexity", async () => {
     const newQuestion = {
@@ -167,6 +182,21 @@ describe("Test Question API", () => {
       title: "Sample Question",
       description: "This is a sample question",
       category: ["test", ""],
+      complexity: "Easy",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].path).toBe("category");
+  });
+
+  // Invalid category
+  test("POST /api/create - invalid category with whitespace", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: ["   "],
       complexity: "Easy",
     };
 
