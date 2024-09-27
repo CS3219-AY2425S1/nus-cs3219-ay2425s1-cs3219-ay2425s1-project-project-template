@@ -368,12 +368,14 @@ export default function QuestionListing() {
         handleDelete={handleDelete}
       />
       <DeleteQuestionModal
+        key={`delete${selectedQuestion?.id}`}
         showDeleteModal={showDeleteModal}
         questionTitle={selectedQuestion?.title ?? ""}
         handleDeleteQuestion={handleDeleteQuestion}
         setShowDeleteModal={setShowDeleteModal}
       />
       <QuestionFormModal
+        key={`edit${selectedQuestion?.id}`}
         showModal={showEditViewModal}
         setShowModal={setShowEditViewModal}
         initialData={selectedQuestion}
