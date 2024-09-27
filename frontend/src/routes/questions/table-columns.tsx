@@ -14,8 +14,18 @@ export const columns: ColumnDef<Question>[] = [
     filterFn: 'equals',
   },
   {
-    accessorKey: 'name',
-    header: 'Name',
+    accessorKey: 'title',
+    header: 'Title',
+    cell: ({ row }) => {
+      const id: number = row.original.id;
+      const title: string = row.getValue('title');
+      console.log(row);
+      return (
+        <p>
+          {id}.&nbsp;{title}
+        </p>
+      );
+    },
   },
   {
     accessorKey: 'difficulty',

@@ -103,8 +103,8 @@ export function QuestionTable<TData, TValue>({
         </div>
         <Input
           placeholder='Search questions...'
-          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-          onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
+          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+          onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
           className='max-w-sm'
         />
       </div>

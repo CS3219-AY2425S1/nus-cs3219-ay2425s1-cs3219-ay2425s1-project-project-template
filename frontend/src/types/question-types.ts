@@ -1,6 +1,6 @@
 export type Question = {
-  number: number;
-  name: string;
+  id: number;
+  title: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   topic: Array<string>;
   attempted: boolean;
