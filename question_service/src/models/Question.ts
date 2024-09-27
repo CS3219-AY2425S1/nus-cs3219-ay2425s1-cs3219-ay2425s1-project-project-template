@@ -8,7 +8,7 @@ enum DifficultyLevel {
 }
 
 // Define the interface for the Question document
-interface IQuestion extends Document {
+export interface IQuestion extends Document {
   title: string;
   description: string;
   difficultyLevel: DifficultyLevel;
