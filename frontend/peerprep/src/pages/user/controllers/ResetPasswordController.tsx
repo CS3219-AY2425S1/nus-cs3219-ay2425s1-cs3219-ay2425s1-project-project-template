@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { resetPassword } from '../authService';
 import ResetPasswordView from '../views/ResetPasswordView';
 
 const ResetPasswordController: React.FC = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const [searchParams, _] = useSearchParams();
+
+  const token = searchParams.get('token');
+  console.log("token", token)
   
   const handleSubmit = async (newPassword: string) => {
     try {
-      await resetPassword(newPassword);
+      if (token === null) {
+        setMessage('Invalid token');
+        navigate("/login")
+        return;
+      }
+
+      await resetPassword(newPassword, token);
       setMessage('Password reset successfully');
       navigate("/login")
     } catch (error: any) {

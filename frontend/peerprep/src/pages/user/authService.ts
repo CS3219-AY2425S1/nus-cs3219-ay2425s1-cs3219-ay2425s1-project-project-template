@@ -73,12 +73,13 @@ export const sendResetLink = async (email: string): Promise<void> => {
   }
 };
 
-export const resetPassword = async (newPassword: string): Promise<void> => {
+export const resetPassword = async (newPassword: string, token: string): Promise<void> => {
   try {
     const response = await fetch(`http://localhost:8080/v1/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "token": token
       },
       body: JSON.stringify({ new_password: newPassword }),
     });
