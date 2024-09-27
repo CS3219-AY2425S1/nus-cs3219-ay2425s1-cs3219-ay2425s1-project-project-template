@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
+import { Question } from '@/types/question-types';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
-import { Question } from './logic';
 
 export const columns: ColumnDef<Question>[] = [
   {
@@ -20,7 +20,12 @@ export const columns: ColumnDef<Question>[] = [
   {
     accessorKey: 'difficulty',
     header: 'Difficulty',
-    cell: ({ getValue }) => getValue(),
+    cell: ({ getValue }) => {
+      const difficulty = getValue() as string;
+      return (
+        <Badge variant={difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}>{difficulty}</Badge>
+      );
+    },
     filterFn: 'equals',
   },
   {
@@ -31,7 +36,7 @@ export const columns: ColumnDef<Question>[] = [
       return (
         <div>
           {topics.map((topic) => (
-            <Badge className='mr-1 text-xs' key={topic} variant='outline'>
+            <Badge className='mr-1 text-xs' key={topic} variant='secondary'>
               {topic}
             </Badge>
           ))}

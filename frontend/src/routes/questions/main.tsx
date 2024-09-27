@@ -1,11 +1,23 @@
 import { useEffect, useState } from 'react';
 import { columns } from './table-columns';
 import { QuestionTable } from './question-table';
-import { fetchQuestions, Question, ROWS_PER_PAGE } from './logic';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { IGetQuestionsResponse } from '@/types/question-types';
+import { IGetQuestionsResponse, Question } from '@/types/question-types';
+import { useCrumbs } from '@/lib/hooks/use-crumbs';
+import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
+import { dummyData } from '@/assets/dummyData';
 
-export default function Questions() {
+const ROWS_PER_PAGE = 12;
+async function fetchQuestions(): Promise<IGetQuestionsResponse> {
+  return {
+    questions: dummyData,
+    totalQuestions: 20,
+  };
+}
+
+export function Questions() {
+  const { crumbs } = useCrumbs();
+
   const [questions, setQuestions] = useState<Question[]>([]);
 
   const { data, error, fetchNextPage, hasNextPage, isError, isFetchingNextPage } = useInfiniteQuery<
@@ -40,8 +52,10 @@ export default function Questions() {
   }, [data]);
 
   return (
-    <div className='container mx-auto py-10'>
-      <QuestionTable columns={columns} data={questions} isError={isError} />
-    </div>
+    <WithNavBanner crumbs={crumbs}>
+      <div className='container mx-auto py-3'>
+        <QuestionTable columns={columns} data={questions} isError={isError} />
+      </div>
+    </WithNavBanner>
   );
 }

@@ -17,11 +17,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from '@radix-ui/react-icons';
 import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
 import { Input } from '@/components/ui/input';
-
-import { DIFFICULTY_OPTIONS, ROWS_PER_PAGE } from './logic';
 import {
   Select,
   SelectContent,
@@ -30,6 +33,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface QuestionTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,7 +48,7 @@ export function QuestionTable<TData, TValue>({
 }: QuestionTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: ROWS_PER_PAGE,
+    pageSize: 12,
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -74,7 +78,7 @@ export function QuestionTable<TData, TValue>({
       <div className='flex items-center py-4'>
         <div className='mr-2'>
           <Select onValueChange={handleStatusFilterChange}>
-            <SelectTrigger className='w-[110px]'>
+            <SelectTrigger className='w-[140px]'>
               <SelectValue placeholder='Status' />
             </SelectTrigger>
             <SelectContent>
@@ -86,18 +90,14 @@ export function QuestionTable<TData, TValue>({
         </div>
         <div className='mr-2'>
           <Select onValueChange={handleDifficultyFilterChange}>
-            <SelectTrigger className='w-[110px]'>
+            <SelectTrigger className='w-[140px]'>
               <SelectValue placeholder='Difficulty' />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='all'>All</SelectItem>
-              {DIFFICULTY_OPTIONS.map((difficulty) => {
-                return (
-                  <SelectItem key={difficulty.toLowerCase()} value={difficulty}>
-                    {difficulty}
-                  </SelectItem>
-                );
-              })}
+              <SelectItem value='Easy'>Easy</SelectItem>
+              <SelectItem value='Medium'>Medium</SelectItem>
+              <SelectItem value='Hard'>Hard</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -131,7 +131,9 @@ export function QuestionTable<TData, TValue>({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      <Link to={`/questions/${row.id}`}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </Link>
                     </TableCell>
                   ))}
                 </TableRow>
@@ -152,13 +154,26 @@ export function QuestionTable<TData, TValue>({
             <Button
               variant='outline'
               size='sm'
+              onClick={() => table.firstPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <DoubleArrowLeftIcon />
+            </Button>
+          </PaginationItem>
+          <PaginationItem className='mr-1'>
+            <Button
+              variant='outline'
+              size='sm'
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
               <ArrowLeftIcon />
             </Button>
           </PaginationItem>
-          <PaginationItem>
+          <PaginationItem className='text-sm'>
+            {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </PaginationItem>
+          <PaginationItem className='ml-1'>
             <Button
               variant='outline'
               size='sm'
@@ -166,6 +181,16 @@ export function QuestionTable<TData, TValue>({
               disabled={!table.getCanNextPage()}
             >
               <ArrowRightIcon />
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.lastPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <DoubleArrowRightIcon />
             </Button>
           </PaginationItem>
         </PaginationContent>

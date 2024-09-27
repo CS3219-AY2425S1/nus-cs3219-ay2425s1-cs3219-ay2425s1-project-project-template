@@ -1,4 +1,4 @@
-import { Question } from '@/routes/questions/logic';
+import { Question } from '@/types/question-types';
 
 export const dummyData: Question[] = [
   {
