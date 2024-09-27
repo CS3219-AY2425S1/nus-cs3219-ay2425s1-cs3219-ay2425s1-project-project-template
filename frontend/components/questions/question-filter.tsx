@@ -18,6 +18,8 @@ interface QuestionFilterProps {
   onCategoryChange: (search: string) => void;
   complexity: string;
   onComplexityChange: (complexity: string) => void;
+  search: string;
+  onSearchChange: (search: string) => void;
   onReset: () => void;
 }
 
@@ -26,6 +28,8 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
   onCategoryChange,
   complexity,
   onComplexityChange,
+  search,
+  onSearchChange,
   onReset,
 }) => {
   return (
@@ -35,6 +39,17 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="search">Search</Label>
+            <Input
+              id="search"
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search questions"
+              className="mt-1"
+              autoFocus
+            />
+          </div>
           <div>
             <Label htmlFor="category">Category</Label>
             <Input

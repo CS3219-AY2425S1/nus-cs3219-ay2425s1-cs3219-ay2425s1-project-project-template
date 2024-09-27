@@ -2,13 +2,12 @@
 
 import { useAuth } from "@/app/auth/auth-context";
 import { useEffect, useState, ChangeEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
-import { useRouter, useSearchParams } from "next/navigation";
-
-import QuestionTable from "@/components/questions/questions-table";
 import LoadingScreen from "@/components/common/loading-screen";
 import DeleteQuestionModal from "@/components/questions/delete-question-modal";
+import QuestionTable from "@/components/questions/questions-table";
 import QuestionFilter from "@/components/questions/question-filter";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Upload } from "lucide-react";
@@ -49,8 +48,11 @@ export default function QuestionListing() {
     searchParams.get("complexity") || ""
   );
   const { toast } = useToast();
+
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+
   const { data, isLoading, mutate } = useSWR(
-    `http://localhost:8000/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}`,
+    `http://localhost:8000/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
     fetcher,
     {
       keepPreviousData: true,
@@ -79,8 +81,13 @@ export default function QuestionListing() {
     } else {
       params.delete("complexity");
     }
+    if (search) {
+      params.set("search", search);
+    } else {
+      params.delete("search");
+    }
     router.push(`?${params.toString()}`);
-  }, [category, complexity, router, searchParams]);
+  }, [category, complexity, search, router, searchParams]);
 
   const handleView = (question: Question) => {
     router.push(`/app/questions/${question.id}`);
@@ -212,9 +219,10 @@ export default function QuestionListing() {
     }
   };
 
-  const handleSearchChange = (newSearch: string) => {
+  const handleCategoryChange = (newSearch: string) => {
     setCategory(newSearch);
   };
+
   const handleComplexityChange = (newComplexity: string) => {
     if (newComplexity === "all") {
       newComplexity = "";
@@ -222,8 +230,14 @@ export default function QuestionListing() {
     setComplexity(newComplexity);
   };
 
+  const handleSearchChange = (newSearch: string) => {
+    setSearch(newSearch);
+  };
+
   const handleReset = () => {
+    setSearch("");
     setCategory("");
+    setComplexity("");
     router.push("");
   };
 
@@ -258,9 +272,11 @@ export default function QuestionListing() {
       )}
       <QuestionFilter
         category={category}
-        onCategoryChange={handleSearchChange}
+        onCategoryChange={handleCategoryChange}
         complexity={complexity}
         onComplexityChange={handleComplexityChange}
+        search={search}
+        onSearchChange={handleSearchChange}
         onReset={handleReset}
       />
       <QuestionTable
