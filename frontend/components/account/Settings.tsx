@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { InputField } from '../ui/custom-input'
-import DeleteDialog from './DeleteDialog'
 import usePasswordToggle from './UsePasswordToggle'
+import CustomDialogWithButton from '../customs/custom-dialog'
 
 interface ISettingFormInput {
     email: string
@@ -22,16 +22,18 @@ function Setting() {
 
     const [formValues, setFormValues] = useState(initialValues)
     const [formErrors, setFormErrors] = useState(initialValues)
-    // const [isSubmit, setIsSubmit] = useState(false)
+    const [isDeleteDialogOpen, toggleDeleteDialogOpen] = useState(false)
+    const [isUpdateDialogOpen, toggleUpdateDialogOpen] = useState(false)
+    const [isFormSubmit, setIsFormSubmit] = useState(false)
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { id, value } = e.target
         setFormValues({ ...formValues, [id]: value })
     }
 
-    const validateInput = (values: ISettingFormInput): [ISettingFormInput, boolean] => {
+    const validateInput = (values: ISettingFormInput): boolean => {
+        let isValid = true
         const errors: ISettingFormInput = { ...initialValues }
-        let isValid: boolean = true
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
         const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -64,37 +66,47 @@ function Setting() {
             isValid = false
         }
 
-        return [errors, isValid]
+        setFormErrors(errors)
+        return isValid
     }
 
     // Submit handler
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault() // Prevents default form submission behavior
-        const [errors, isValid] = validateInput(formValues)
-        if (!isValid) {
-            setFormErrors(errors)
-        } else {
-            // setIsSubmit(true)
-            // Handle submit here, make sure receive 200, if not then return error
-            toast.success('Profile has been updated successfully.')
+    const handleFormSubmit = () => {
+        setIsFormSubmit(true)
+        toggleUpdateDialogOpen(false)
+        toast.success('Profile has been updated successfully.')
+        setFormValues(initialValues) // Replace with placeholder values if needed
+    }
+
+    const handleUpdateClick = (): void => {
+        if (validateInput(formValues)) {
+            toggleUpdateDialogOpen(true)
         }
+    }
+
+    const manageUpdateDialog = (): void => {
+        if (isUpdateDialogOpen && !isFormSubmit) {
+            toggleUpdateDialogOpen(false)
+        }
+    }
+
+    const handleDeleteConfirm = (): void => {
+        // Delete user from database
+        toggleDeleteDialogOpen(false)
     }
 
     return (
         <>
             <div className="flex flex-col h-full">
                 <div className="flex flex-[4] flex-row">
-                    <form
-                        className="flex flex-[4] flex-col w-full space-y-6 pt-4 justify-start"
-                        onSubmit={handleSubmit}
-                    >
+                    <form className="flex flex-[4] flex-col w-full space-y-6 pt-4 justify-start">
                         <InputField
                             id="email"
                             label="Email"
                             type="text"
                             placeholder="name@example.com"
                             value={formValues.email}
-                            onChange={handleChange}
+                            onChange={handleFormChange}
                             error={formErrors.email}
                         />
 
@@ -105,7 +117,7 @@ function Setting() {
                             placeholder="Enter Password"
                             icon={passwordToggleIcon}
                             value={formValues.password}
-                            onChange={handleChange}
+                            onChange={handleFormChange}
                             error={formErrors.password}
                         />
 
@@ -116,23 +128,37 @@ function Setting() {
                             placeholder="Enter Password"
                             icon={confirmPasswordToggleIcon}
                             value={formValues.confirmPassword}
-                            onChange={handleChange}
+                            onChange={handleFormChange}
                             error={formErrors.confirmPassword}
                         />
 
-                        <button
-                            type="submit"
-                            className="w-fit bg-btn text-white py-2 px-4 rounded-md hover:bg-theme-700"
-                        >
-                            Update Settings
-                        </button>
+                        <CustomDialogWithButton
+                            dialogOpen={isUpdateDialogOpen}
+                            onDialogOpenChange={manageUpdateDialog}
+                            text="Update Settings"
+                            className="w-fit bg-btn text-white text-md py-2 px-4 rounded-md hover:bg-theme-700"
+                            type="button"
+                            variant="primary"
+                            description="Are you sure you want to update your settings?"
+                            onClickTrigger={handleUpdateClick}
+                            onClickConfirm={handleFormSubmit}
+                        />
                     </form>
                     <div className="flex flex-[2]"></div>
                 </div>
                 <div className="flex flex-[1] mr-6 relative flex-col justify-evenly">
                     <span className="absolute block transform -translate-x-1/2 left-1/2 top-0 h-0.5 w-screen bg-slate-200"></span>
                     <p className="pt-4">Would you like to delete your account and all associated data?</p>
-                    <DeleteDialog />
+                    <CustomDialogWithButton
+                        dialogOpen={isDeleteDialogOpen}
+                        onDialogOpenChange={toggleDeleteDialogOpen}
+                        text="Delete Account"
+                        className="w-fit text-red-delete text-md"
+                        type="submit"
+                        variant="outline"
+                        description="Are you sure you want to delete your account? You will not be able to recover your data."
+                        onClickConfirm={handleDeleteConfirm}
+                    />
                 </div>
             </div>
         </>
