@@ -61,7 +61,7 @@ const QuestionPage = () => {
 
   // Consolidated state for question data
   const [questionData, setQuestionData] = useState({
-    difficulty: 'easy',
+    difficulty: 'Easy',
     topic: 'loops',
     title: 'Some_Title',
     description: '',
@@ -124,7 +124,7 @@ const QuestionPage = () => {
     //           */    
 
     setQuestionData({
-      difficulty: "easy",
+      difficulty: "Easy",
       topic: "loops",
       title: "Some_Title",
       description: "",
@@ -274,9 +274,9 @@ const QuestionPage = () => {
             value={questionData.difficulty}
             onChange={(e) => setQuestionData({ ...questionData, difficulty: e.target.value })}
           >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
           </select>
 
           <label htmlFor="topic">Topic:</label>
