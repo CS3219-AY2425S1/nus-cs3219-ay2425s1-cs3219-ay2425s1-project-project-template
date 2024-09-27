@@ -1,5 +1,6 @@
 from beanie import Document
 
+
 class Question(Document):
     title: str
     titleSlug: str
