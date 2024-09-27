@@ -10,7 +10,7 @@ import java.util.List;
 public interface QuestionRepository extends MongoRepository<Question, Integer> {
 
     List<Question> findAll();
-    List<Question> findByCategory(String category);
+    List<Question> findByCategoriesContaining(String category);
     List<Question> findByDifficulty(String difficulty);
 
 }

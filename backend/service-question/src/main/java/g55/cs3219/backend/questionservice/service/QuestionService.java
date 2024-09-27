@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +33,18 @@ public class QuestionService {
                 .orElseThrow(() -> new QuestionNotFoundException("Question with ID " + id + " not found."));
     }
 
+    public List<Question> getQuestionsByFilters(String category, String difficulty) {
+        if (category != null && difficulty != null) {
+            throw new InvalidQuestionException("Cannot filter by both category and difficulty.");
+        } else if (category != null) {
+            return getQuestionsByCategory(category);
+        } else if (difficulty != null) {
+            return getQuestionsByDifficulty(difficulty);
+        } else {
+            throw new InvalidQuestionException("At least one filter is required.");
+        }
+    }
+
     public List<Question> getQuestionsByDifficulty(String difficulty) {
         List<Question> questions = questionRepository.findByDifficulty(difficulty);
         if (questions.isEmpty()) {
@@ -41,7 +54,7 @@ public class QuestionService {
     }
 
     public List<Question> getQuestionsByCategory(String category) {
-        List<Question> questions = questionRepository.findByCategory(category);
+        List<Question> questions = questionRepository.findByCategoriesContaining(category);
         if (questions.isEmpty()) {
             throw new QuestionNotFoundException("No questions found with category: " + category);
         }
@@ -61,9 +74,9 @@ public class QuestionService {
                 question.getId() == null ? "id" : null,
                 question.getTitle() == null ? "title" : null,
                 question.getDescription() == null ? "description" : null,
-                question.getCategory() == null ? "category" : null,
+                question.getCategories() == null ? "categories" : null,
                 question.getDifficulty() == null ? "difficulty" : null
-        ).filter(field -> field != null).collect(Collectors.toList());
+        ).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (!missingFields.isEmpty()) {
             throw new InvalidQuestionException("Missing required fields: " + String.join(", ", missingFields));
@@ -81,7 +94,7 @@ public class QuestionService {
         existingQuestion.setTitle(updatedQuestion.getTitle());
         existingQuestion.setDescription(updatedQuestion.getDescription());
         existingQuestion.setDifficulty(updatedQuestion.getDifficulty());
-        existingQuestion.setCategory(updatedQuestion.getCategory());
+        existingQuestion.setCategories(updatedQuestion.getCategories());
 
         return questionRepository.save(existingQuestion);
     }
