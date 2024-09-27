@@ -1,1 +1,106 @@
 /* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* src/styles.css or src/styles.scss */
+
+.custom-modalbox {
+  border-radius: 15px;
+  width: 600px;
+  height: 400px;
+  background-color: #000000;
+
+  .mat-dialog-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    padding: 16px; 
+    background-color: black; 
+    font-family: "Signika Negative", sans-serif;
+    color: #A4A4A4;
+    overflow: hidden;
+}
+
+.upper-half {
+  display: flex;
+  flex-direction: row;
+  /* justify-content: flex-start; */
+  align-items: center;
+  width: 100%;
+}
+
+.mat-dialog-actions {
+  background-color: black;
+}
+
+.question-title {
+  color: white; 
+  font-size: 1.2rem;
+  font-family: "Signika Negative", sans-serif;
+  margin-bottom: 2px;
+  margin-top: 10px;
+  margin-right: 10px;
+  }
+  
+  .difficulty {
+    padding: 8px 8px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+    margin-left: auto; /* Space between title and difficulty */
+    background-color: #f0f0f0;
+  }
+  
+  .difficulty.Easy {
+    background-color: #159200;
+    color: white;
+  }
+  
+  .difficulty.Medium {
+    background-color: #CEC600;
+    color: white;
+  }
+  
+  .difficulty.Hard {
+    background-color: #A80000;
+    color: white;
+  }
+
+  .close-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+    position: absolute; 
+    right: 5px; 
+    top: 18px;
+    transform: translateY(-50%); 
+
+  }
+}
+
+
+.tourney-title {
+    font-family: "Tourney", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+    text-align: center;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  
+
+
+
+  
