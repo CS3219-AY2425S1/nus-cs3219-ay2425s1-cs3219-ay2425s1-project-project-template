@@ -136,7 +136,7 @@ function Setting() {
                             dialogOpen={isUpdateDialogOpen}
                             onDialogOpenChange={manageUpdateDialog}
                             text="Update Settings"
-                            className="w-fit bg-btn text-white text-md py-2 px-4 rounded-md hover:bg-theme-700"
+                            className="w-fit bg-btn text-white text-sm py-2 px-4 rounded-md hover:bg-theme-700"
                             type="button"
                             variant="primary"
                             description="Are you sure you want to update your settings?"
@@ -153,7 +153,7 @@ function Setting() {
                         dialogOpen={isDeleteDialogOpen}
                         onDialogOpenChange={toggleDeleteDialogOpen}
                         text="Delete Account"
-                        className="w-fit text-red-delete text-md"
+                        className="w-fit text-red-delete text-sm"
                         type="submit"
                         variant="outline"
                         description="Are you sure you want to delete your account? You will not be able to recover your data."
