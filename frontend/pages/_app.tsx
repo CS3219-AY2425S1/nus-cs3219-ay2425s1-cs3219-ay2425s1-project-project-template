@@ -2,13 +2,13 @@ import '@/styles/globals.css'
 
 import { AppProps } from 'next/app'
 import Layout from '@/components/layout/layout'
-import Toaster from '@/components/ui/toaster'
+import CustomToaster from '@/components/customs/custom-toaster'
 
 export default function App({ Component, pageProps }: AppProps) {
     return (
         <Layout>
             <Component {...pageProps} />
-            <Toaster />
+            <CustomToaster />
         </Layout>
     )
 }

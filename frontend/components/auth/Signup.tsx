@@ -2,22 +2,22 @@
 
 import Img from 'next/image'
 import { useState } from 'react'
-import { useToast } from '../ui/use-toast'
+import { toast } from 'sonner'
 
 export default function Signup() {
     const [email, setEmail] = useState('')
     const [name, setName] = useState('')
     const [pw, setPw] = useState('')
     const [confirmPw, setConfirmPw] = useState('')
-    const { toast } = useToast()
+
     const onSignup = async () => {
         if (!email || !name || !pw || !confirmPw) {
-            toast({ variant: 'destructive', description: 'Please fill out all fields' })
+            toast.error('Please fill out all fields')
             return
         }
 
         if (pw !== confirmPw) {
-            toast({ variant: 'destructive', description: 'Passwords do not match' })
+            toast.error('Passwords do not match')
             return
         }
 
@@ -31,9 +31,9 @@ export default function Signup() {
                 body,
             })
             await res.json()
-            toast({ description: 'Logged in successfully' })
+            toast.success('Logged in successfully')
         } catch {
-            toast({ variant: 'destructive', description: 'Failed to login' })
+            toast.success('Failed to login')
         }
     }
     return (
