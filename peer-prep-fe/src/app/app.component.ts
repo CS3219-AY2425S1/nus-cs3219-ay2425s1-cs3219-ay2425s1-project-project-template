@@ -20,7 +20,7 @@ const MODULES = [
   standalone: true,
   imports: MODULES,
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
   title = 'peer-prep-fe'
