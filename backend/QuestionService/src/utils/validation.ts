@@ -8,7 +8,7 @@ export const ValidateBodyForCreate = () => {
             .isInt({min : 1}).withMessage("Question IDs should be integer values starting from 1.").bail(),
         body("title").notEmpty().withMessage("Missing question title."),
         body("complexity").isIn(["Easy", "Medium", "Hard"]).withMessage("Invalid question complexity"),
-        body("categories").isLength({min: 1}).withMessage("Missing question category."),
+        body("categories").isArray({min: 1}).withMessage("Missing question category."),
         body("description").notEmpty().withMessage("Missing question description."),
         (req : Request, res: Response, next : NextFunction) => {
             const err : Result = validationResult(req);
@@ -27,7 +27,7 @@ export const ValidateBodyForPatch = () => {
         body("qid").not().exists().withMessage("Question ID should not be changed."),
         body("title").notEmpty().withMessage("Missing question title."),
         body("complexity").isIn(["Easy", "Medium", "Hard"]).withMessage("Invalid question complexity"),
-        body("categories").isLength({min: 1}).withMessage("Missing question category."),
+        body("categories").isArray({min: 1}).withMessage("Missing question category."),
         body("description").notEmpty().withMessage("Missing question description."),
         (req : Request, res: Response, next : NextFunction) => {
             const err : Result = validationResult(req);

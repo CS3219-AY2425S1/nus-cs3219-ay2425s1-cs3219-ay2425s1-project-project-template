@@ -149,6 +149,12 @@ const Example = () => {
               onBlur={() => {
                 row._valuesCache[column.id] = value;
               }}
+              onFocus={() => {
+                setValidationErrors({
+                  ...validationErrors,
+                  complexity: undefined,
+                });
+              }}
             >
               {complexityTypeOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -570,17 +576,15 @@ const Example = () => {
 };
 
 // makes categories an array instead of a string
-function changeCategoryStringToArray(category: String | string[]): string[] {
-  if (typeof category === "string") {
-    const splitCategory = category.split(",");
-    const arrayCategory = splitCategory.map((c) => c.trim());
-    return arrayCategory;
-  } else {
-    const stringFromArray = category[0];
-    const splitCategory = stringFromArray.split(",");
-    const arrayCategory = splitCategory.map((c) => c.trim());
-    return arrayCategory;
+function changeCategoryStringToArray(categories: string | string[]): string[] {
+  if (Array.isArray(categories)) {
+    categories = categories.join(",");
   }
+  const splitCategories = categories.split(",");
+  const spacesRemoved = splitCategories.map(c => c.trim());
+  const duplicatesRemoved = spacesRemoved.filter((item, pos) => spacesRemoved.indexOf(item) === pos);
+  const emptyRemoved = duplicatesRemoved.filter(c => c);
+  return emptyRemoved;
 }
 
 //CREATE hook (post new question to api)
@@ -678,11 +682,8 @@ const validateTitle = (title: string) => !!title.trim();
 const validateDescription = (description: string) => !!description.trim();
 const validateComplexity = (complexity: string) =>
   ["Easy", "Medium", "Hard"].includes(complexity);
-const validateCategories = (categories: String[] | string) => {
-  if (typeof categories === "string") {
-    return !!categories.trim();
-  }
-  return !!categories[0].trim();
+const validateCategories = (categories: string | string[]) => {
+  return changeCategoryStringToArray(categories).length > 0;
 };
 
 function validateQuestion(question: Question) {
@@ -700,7 +701,7 @@ function validateQuestion(question: Question) {
       ? "Please select a complexity."
       : "",
     categories: !validateCategories(question.categories)
-      ? "Please categorise the question."
+      ? "Please categorise the question (separate with commas)."
       : "",
   };
 }
