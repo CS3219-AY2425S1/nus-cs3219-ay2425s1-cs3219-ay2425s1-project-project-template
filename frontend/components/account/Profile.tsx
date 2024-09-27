@@ -17,9 +17,14 @@ function Profile() {
     const [formErrors, setFormErrors] = useState(initialValues)
     // const [isSubmit, setIsSubmit] = useState(false)
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>): void => {
+    const handleUsernameChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>): void => {
         const { id, value } = e.target
         setFormValues({ ...formValues, [id]: value })
+    }
+
+    const handleProficiencyChange = (e: string): void => {
+        setFormValues({ ...formValues, proficiency: e })
+        console.log(e)
     }
 
     const validateInput = (values: IProfileFormInput): [IProfileFormInput, boolean] => {
@@ -60,7 +65,7 @@ function Profile() {
                         label="Username"
                         placeholder="eg. John Doe"
                         value={formValues.username}
-                        onChange={handleChange}
+                        onChange={handleUsernameChange}
                         error={formErrors.username}
                     />
 
@@ -68,13 +73,10 @@ function Profile() {
                         id="proficiency"
                         label="Proficiency"
                         error={formErrors.proficiency}
-                        onChange={handleChange}
+                        onChange={handleProficiencyChange}
                     />
 
-                    <button
-                        type="submit"
-                        className="w-fit bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600"
-                    >
+                    <button type="submit" className="w-fit bg-btn text-white py-2 px-4 rounded-md hover:bg-purple-700">
                         Update Profile
                     </button>
                 </form>

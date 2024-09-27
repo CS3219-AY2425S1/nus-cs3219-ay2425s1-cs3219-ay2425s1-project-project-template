@@ -1,39 +1,33 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Profile from './Profile'
 import Setting from './Settings'
+import CustomTabs from '../customs/custom-tabs'
+import { useState } from 'react'
 
 const AccountSetting = () => {
+    const accountTabs = ['Profile', 'Setting']
+    const [activeTab, setActiveTab] = useState(0) // 0: Profile, 1: Setting
+
+    const handleActiveTabChange = (tab: number) => {
+        setActiveTab(tab)
+        console.log(activeTab)
+    }
+
     return (
         <>
             <div className="h-[calc(100vh-101px)]">
-                <Tabs defaultValue="profile" className="flex flex-col flex-grow w-full h-full space-y-10">
-                    <div className="flex flex-grow flex-col m-6 ml-12 h-full">
-                        <div className="flex flex-row">
-                            <TabsList className="flex flex-[4] justify-start relative border-b border-gray-300 bg-transparent rounded-none w-full p-0">
-                                <TabsTrigger value="profile" className="relative text-lg font-medium group">
-                                    Profile
-                                    <span className="absolute left-0 bottom-0 w-full h-1 group-hover:bg-purple-500 group-data-[state=active]:bg-purple-500 transition-all"></span>
-                                </TabsTrigger>
-
-                                <TabsTrigger value="settings" className="relative text-lg font-medium group">
-                                    Settings
-                                    <span className="absolute left-0 bottom-0 w-full h-1 group-hover:bg-purple-500 group-data-[state=active]:bg-purple-500 transition-all"></span>
-                                </TabsTrigger>
-                            </TabsList>
-                            <div className="flex flex-[2]"></div>
-                        </div>
-
-                        {/* Profile Tab Content */}
-                        <TabsContent value="profile">
-                            <Profile />
-                        </TabsContent>
-
-                        {/* Settings Tab Content */}
-                        <TabsContent value="settings" className="h-full">
-                            <Setting />
-                        </TabsContent>
+                <div className="flex flex-col flex-grow w-full h-full pl-6 pt-3">
+                    <div className="flex flex-row mb-3">
+                        <CustomTabs
+                            tabs={accountTabs}
+                            handleActiveTabChange={handleActiveTabChange}
+                            isBottomBorder={true}
+                            className="flex flex-[4]"
+                            btnclassName="text-lg"
+                        />
+                        <div className="flex flex-[2]"></div>
                     </div>
-                </Tabs>
+                    {activeTab === 0 ? <Profile /> : <Setting />}
+                </div>
             </div>
         </>
     )

@@ -122,7 +122,7 @@ function Setting() {
 
                         <button
                             type="submit"
-                            className="w-fit bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600"
+                            className="w-fit bg-btn text-white py-2 px-4 rounded-md hover:bg-theme-700"
                         >
                             Update Settings
                         </button>
