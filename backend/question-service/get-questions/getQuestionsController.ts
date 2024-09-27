@@ -4,7 +4,6 @@ import Question from '../models/question'
 const getQuestionsByFilter = async (req: Request, res: Response) => {
     try {
         const { questionId, title, categories, difficulty } = req.query
-
         let filter: any = {}
 
         if (questionId) {
