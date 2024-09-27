@@ -85,3 +85,14 @@ export const getNextAvailId = async (req, res) => {
     return res.status(500).json({ message: `Unknown error when finding next available question ID!` });
   }
 }
+
+export const getAllTopics = async (req, res) => {
+  try {
+    const result = await Question.distinct('topics');
+    return res.status(200).json({
+      result: result
+    })
+  } catch (err) {
+    return res.status(500).json({ message: `Unknown error when finding all topics!` });
+  }
+}
