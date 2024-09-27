@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Header from "@/components/header";
+import Header from "@/components/common/header";
 
-import { LoginForm } from "@/components/login-form";
+import { LoginForm } from "@/components/auth/login-form";
 
 export default function Login() {
   return (

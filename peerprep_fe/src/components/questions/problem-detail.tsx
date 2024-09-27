@@ -1,9 +1,9 @@
 import React from "react";
-import { IQuestion } from "../../../question_service/src/models/Question";
+import { IQuestion } from "../../../../question_service/src/models/Question";
 
 type ProblemDetailProps = {
   question: IQuestion;
-};  
+};
 
 const ProblemDetail: React.FC<ProblemDetailProps> = ({ question }) => {
   return (
