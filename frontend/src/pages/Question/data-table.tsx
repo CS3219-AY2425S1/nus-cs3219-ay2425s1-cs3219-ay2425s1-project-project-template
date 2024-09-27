@@ -185,7 +185,7 @@ const Example = () => {
           required: true,
           multiline: true,
           variant: "outlined",
-          rows: 4,
+          rows: 8,
           error: !!validationErrors?.description,
           helperText: validationErrors?.description,
           onFocus: () => {
@@ -283,6 +283,7 @@ const Example = () => {
   const table = useMaterialReactTable({
     columns,
     data: fetchedQuestions,
+    initialState: { columnVisibility: { description: false } },
     createDisplayMode: "modal", //default ('row', and 'custom' are also available)
     editDisplayMode: "modal", //default ('row', 'cell', 'table', and 'custom' are also available)
     enableEditing: true,
@@ -419,7 +420,7 @@ const Example = () => {
           {isCreateError ? (
             <Alert variant="outlined" severity="error">
               {createError instanceof AxiosError
-                ? createError.code == "ERR_NETWORK"
+                ? createError.code === "ERR_NETWORK"
                   ? "Network Error, please check your connection."
                   : createError.response?.data?.msg
                 : "Unexpected Error Occured"}
@@ -443,7 +444,7 @@ const Example = () => {
           {isUpdateError ? (
             <Alert variant="outlined" severity="error">
               {updateError instanceof AxiosError
-                ? updateError.code == "ERR_NETWORK"
+                ? updateError.code === "ERR_NETWORK"
                   ? "Network Error, please check your connection."
                   : updateError.response?.data?.msg
                 : "Unexpected Error Occured"}
@@ -550,7 +551,8 @@ const Example = () => {
                 }
                 fullWidth
                 multiline
-                rows={4}
+                minRows={4}
+                maxRows={10}
                 margin="normal"
                 InputProps={{ readOnly: true }}
               />
@@ -569,7 +571,7 @@ const Example = () => {
 
 // makes categories an array instead of a string
 function changeCategoryStringToArray(category: String | string[]): string[] {
-  if (typeof category == "string") {
+  if (typeof category === "string") {
     const splitCategory = category.split(",");
     const arrayCategory = splitCategory.map((c) => c.trim());
     return arrayCategory;
@@ -677,7 +679,7 @@ const validateDescription = (description: string) => !!description.trim();
 const validateComplexity = (complexity: string) =>
   ["Easy", "Medium", "Hard"].includes(complexity);
 const validateCategories = (categories: String[] | string) => {
-  if (typeof categories == "string") {
+  if (typeof categories === "string") {
     return !!categories.trim();
   }
   return !!categories[0].trim();

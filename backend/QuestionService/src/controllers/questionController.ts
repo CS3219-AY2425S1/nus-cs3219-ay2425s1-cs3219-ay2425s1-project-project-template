@@ -40,7 +40,7 @@ export const addQuestion = async (req: Request, res: Response, next : NextFuncti
         res.status(200).json(question);
     } catch (err) {
         console.log(err);
-        if (err instanceof mongoose.mongo.MongoError && err.code == DUPKEYERRORCODE) { // this catches duplicate key error
+        if (err instanceof mongoose.mongo.MongoError && err.code === DUPKEYERRORCODE) { // this catches duplicate key error
             return res.status(404).json({msg: `Question ID ${qid} already exists.`});
         }
         next(err);
