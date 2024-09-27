@@ -18,35 +18,59 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 import { Textarea } from "@/components/ui/textarea"
 
-
-  const formSchema = z.object({
-    title: z.string().min(1, {
-        message: "Title must not be blank.",
-      }),
-    difficulty: z.enum(["Easy", "Medium", "Hard"], {
-    errorMap: () => ({ message: "Please select a difficulty level." }),
+const formSchema = z.object({
+  title: z.string().min(1, {
+      message: "Title must not be blank.",
     }),
-    categories: z.string().optional(),
-    description: z.string().min(1, {
-    message: "Description must not be blank.",
-    }),
-        
-  })
+  difficulty: z.enum(["Easy", "Medium", "Hard"], {
+  errorMap: () => ({ message: "Please select a difficulty level." }),
+  }),
+  categories: z.array(z.string()).optional(),
+  description: z.string().min(1, {
+  message: "Description must not be blank.",
+  }),
+      
+})
 
 export default function QuestionForm() {
 
-    const form = useForm<z.infer<typeof formSchema>>({
+      const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
           title: "",
           difficulty: undefined,
-          categories: "",
+          categories: [],
           description: ""
         },
       })
-     
+
+      // to update if we want to include more categories
+      const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser"]
+
+      const handleCategoryToggle = (category: string) => {
+        const currentCategories = form.getValues('categories');
+
+        if (currentCategories!.includes(category)) {
+          form.setValue('categories', currentCategories!.filter(cat => cat !== category));
+          console.log('x')
+        } else {
+          form.setValue('categories', [...currentCategories!, category]);
+          console.log('y')
+        }
+      };
+
+
       // 2. Define a submit handler.
       async function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
@@ -117,7 +141,36 @@ export default function QuestionForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Categories" {...field} />
+                    <div className="space-y-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline">Select Categories</Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56">
+                        <DropdownMenuLabel>Categories</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                          {categories.map(category => (
+                            <DropdownMenuCheckboxItem
+                              key={category}
+                              checked={form.watch('categories')!.includes(category)}
+                              onCheckedChange={() => handleCategoryToggle(category)}
+                            >
+                              {category}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <div className="flex flex-wrap gap-2">
+                      {form.watch('categories')!.map((selectedCategory) => (
+                        <span
+                          key={selectedCategory}
+                          className="bg-violet-200 text-violet-900 px-3 py-1 rounded-full text-sm"
+                        >
+                          {selectedCategory}
+                        </span>
+                      ))}
+                    </div>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,7 +189,7 @@ export default function QuestionForm() {
               )}
             />
             <div className="flex justify-end w-full space-x-2">
-                <Button className="bg-gray-300 text-black hover:bg-gray-400">Cancel</Button>
+                <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button">Cancel</Button>
                 <Button className="primary-color hover:bg-violet-900" type="submit">Submit</Button>
             </div>
           </form>
