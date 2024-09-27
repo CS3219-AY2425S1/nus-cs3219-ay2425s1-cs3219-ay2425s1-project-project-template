@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { stringToDifficulty } from '@/lib/utils';
 
-const QuestionDialog = ({ question } : QuestionProps) => {
+const QuestionDialog = ({ question }: QuestionProps) => {
     return (
         <Dialog>
             <DialogTrigger>
@@ -24,7 +24,7 @@ const QuestionDialog = ({ question } : QuestionProps) => {
             </DialogTrigger>
             <DialogContent className='sm:max-w-3xl'>
                 <DialogHeader>
-                    <DialogTitle className='text-2xl'>
+                    <DialogTitle className='text-2xl mb-2'>
                         {question.questionId}. {question.title}
                     </DialogTitle>
                     <DialogDescription className='flex gap-2'>
