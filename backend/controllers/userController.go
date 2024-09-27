@@ -178,10 +178,55 @@ func Login() gin.HandlerFunc {
 		// Generates a new token and refresh token each time on login
 		token, refreshToken, _ := helper.GenerateAllTokens(foundUser.Email, foundUser.Username, foundUser.User_id)
 
+		c.Set("uid", foundUser.User_id)
+
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
 
 		c.JSON(http.StatusOK, gin.H{"message": "User logged in successfully", "token": token, "refreshToken": refreshToken})
 	}
+}
+
+func Logout() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		userId, exists := c.Get("uid")
+		if !exists {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID not found"})
+			return
+		}
+
+		userIdStr, ok := userId.(string)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID type"})
+			return
+		}
+
+		var targetUser models.User
+		err := userCollection.FindOne(ctx, bson.M{"user_id": userIdStr}).Decode(&targetUser)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error finding user"})
+			return
+		}
+
+		if targetUser.Refresh_token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User is already logged out"})
+			return
+		}
+
+		_, err = userCollection.UpdateOne(
+			ctx,
+			bson.M{"user_id": userIdStr},
+			bson.M{"$set": bson.M{"refresh_token": ""}},
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error logging out"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+  }
 }
 
 // Email verification is the api that handles user email confirmation
