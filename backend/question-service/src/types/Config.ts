@@ -15,7 +15,7 @@ export class Config {
     @IsBase64()
     ACCESS_TOKEN_PUBLIC_KEY: string
 
-    @IsUrl()
+    @IsUrl({ require_tld: false })
     USER_SERVICE_URL: string
 
     constructor(
