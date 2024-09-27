@@ -7,9 +7,10 @@ import (
 
 func QuestionRoute(e *echo.Echo) {
 	e.GET("/questions/:questionId", controllers.GetQuestion)
-	e.GET("/questions", controllers.GetQuestions) 
+	e.GET("/questions", controllers.GetQuestions)
 	e.GET("/questions/search", controllers.SearchQuestion)
 	e.POST("/question", controllers.CreateQuestion)
 	e.PUT("/questions/:questionId", controllers.UpdateQuestion)
 	e.DELETE("/questions/:questionId", controllers.DeleteQuestion)
+	e.GET("/questionCategories", controllers.GetDistinctQuestionCategories)
 }

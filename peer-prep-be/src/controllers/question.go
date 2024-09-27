@@ -60,6 +60,16 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
+	// Update categories collection
+	err = UpsertCategories(ctx, categoriesCollection, question.Question_categories)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Error updating categories",
+			Data:    &echo.Map{"data": err.Error()},
+		})
+	}
+
 	return c.JSON(http.StatusCreated, responses.StatusResponse{Status: http.StatusCreated, Message: successMessage, Data: &echo.Map{"data": result}})
 }
 
@@ -158,6 +168,16 @@ func UpdateQuestion(c echo.Context) error {
 	result, err := questionCollection.UpdateOne(ctx, bson.M{"question_id": objId}, update)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	// Update the categories collection only if a new category is added
+	err = UpsertCategories(ctx, categoriesCollection, question.Question_categories)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Error updating categories",
+			Data:    &echo.Map{"data": err.Error()},
+		})
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
@@ -271,4 +291,41 @@ func ProcessFilterParams(filterField string, filterValues string) bson.D {
 	}
 
 	return filter
+}
+
+func GetDistinctQuestionCategories(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Get the distinct categories from the questions collection
+	categories, err := questionCollection.Distinct(ctx, "question_categories", bson.M{})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
+	}
+
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": categories}})
+}
+
+func UpsertCategories(ctx context.Context, categoriesCollection *mongo.Collection, categoryNames []string) error {
+	for _, categoryName := range categoryNames {
+		// Insert or update category_name
+		newCategoryId := primitive.NewObjectID()
+		_, err := categoriesCollection.UpdateOne(ctx,
+			bson.M{"category_name": categoryName}, // Filter by category_name
+			bson.M{
+				"$setOnInsert": bson.M{
+					"category_id":   newCategoryId,
+					"category_name": categoryName,
+				},
+			},
+			options.Update().SetUpsert(true).SetCollation(&options.Collation{
+				Locale:   "en",
+				Strength: 2, // Case-insensitive match
+			}),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
