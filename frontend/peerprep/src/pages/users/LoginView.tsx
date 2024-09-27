@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import InputBox from '../../components/InputBox';
 import LargeButton from '../../components/SubmitButton';
 import logo from '/peerprep_logo.png';
-
 interface LoginViewProps {
   onSubmit: (email: string, password: string) => void;
   onCreateAccount: () => void;
-  errorMessage?: string;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorMessage }) => {
+const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -49,11 +47,6 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorM
           </div>
           <LargeButton text="Login" onClick={handleSubmit} />
         </form>
-        {errorMessage && (
-          <div className="text-red-500 mt-4">
-            {errorMessage}
-          </div>
-        )}
         <div className="signup-link mt-6 text-sm text-gray-300">
           Don’t have an account? <a href="#" className="text-purple-400 hover:underline" onClick={onCreateAccount}>Create account</a>
         </div>

@@ -6,10 +6,9 @@ import logo from '/peerprep_logo.png';
 interface RegistrationViewProps {
   onSubmit: (username: string, email: string, password: string, confirmPassword: string) => void;
   onLogin: () => void; // New prop to navigate back to login
-  errorMessage?: string; // Optional prop for error message
 }
 
-const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, errorMessage }) => {
+const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -91,7 +90,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
           
           <LargeButton text="Register" onClick={handleSubmit} />
         </form>
-        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
         <div className="login-link mt-6 text-sm text-gray-300">
           Already have an account? <a href="#" className="text-purple-400 hover:underline" onClick={onLogin}>Login</a>
         </div>
