@@ -10,7 +10,6 @@ async function getData(): Promise<Question[]> {
     return [
         {
             id: 1,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'This is a description',
@@ -18,7 +17,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 2,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'This is a description',
@@ -26,7 +24,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 3,
-            email: 'm@example.com',
             category: 'Blgorithms',
             status: 'completed',
             description: 'This is a description',
@@ -34,7 +31,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 4,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'This is a description',
@@ -42,7 +38,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 5,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'This is a description',
@@ -50,7 +45,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 6,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'This is a description',
@@ -58,7 +52,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 7,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'This is a description',
@@ -66,15 +59,14 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 8,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
-            description: 'This is a description',
+            description:
+                'This is some super super unnecessarily long description to test the overflow of the text in the datatable column. This is some super super unnecessarily long description to test the overflow of the text in the datatable column',
             difficulty: 'medium',
         },
         {
             id: 9,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'Test algbat',
@@ -82,7 +74,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 10,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'Appla tat',
@@ -90,7 +81,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 11,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'ZOogo a',
@@ -98,7 +88,6 @@ async function getData(): Promise<Question[]> {
         },
         {
             id: 12,
-            email: 'm@example.com',
             category: 'Algorithms',
             status: 'failed',
             description: 'Baga bia',

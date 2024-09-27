@@ -10,7 +10,6 @@ import SortIcon from '../ui/sort-icon'
 // You can use a Zod schema here if you want.
 export type Question = {
     id: number
-    email: string
     category: string
     description: string
     status: 'failed' | 'completed'
@@ -29,26 +28,6 @@ export const columns: ColumnDef<Question>[] = [
                         className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
                     >
                         <span className="mr-2">#</span>
-                        <SortIcon sortDir={column.getIsSorted()} />
-                    </Button>
-                </div>
-            )
-        },
-        cell: ({ cell }) => {
-            return <div className="text-center">{cell.getValue() as React.ReactNode}</div>
-        },
-    },
-    {
-        accessorKey: 'email',
-        header: ({ column }) => {
-            return (
-                <div className="flex justify-center">
-                    <Button
-                        variant="ghostTab"
-                        onClick={column.getToggleSortingHandler()}
-                        className="text-slate-[#464F60] text-[11px] font-semibold flex items-center"
-                    >
-                        <span className="mr-2">EMAIL</span>
                         <SortIcon sortDir={column.getIsSorted()} />
                     </Button>
                 </div>
