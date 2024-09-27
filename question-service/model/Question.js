@@ -25,6 +25,10 @@ const QuestionSchema = new Schema({
         type: String,
         required: true,
     },
+    images: {
+      type: [String],
+      required: false,
+    }
 });
 
 export default mongoose.model('Question', QuestionSchema);

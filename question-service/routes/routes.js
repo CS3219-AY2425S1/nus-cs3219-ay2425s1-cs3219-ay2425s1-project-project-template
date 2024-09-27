@@ -3,6 +3,7 @@ import { getAllQuestions, getQuestionById, getQuestionByDifficulty, getQuestionB
 import { createNewQuestion } from '../controller/create.js';
 import { updateQuestion } from '../controller/update.js';
 import { deleteQuestion } from '../controller/delete.js';
+
 const router = Router();
 
 /**
@@ -36,5 +37,6 @@ router.put('/:id', updateQuestion);
  */
 
 router.delete('/:id', deleteQuestion);
+
 
 export default router;

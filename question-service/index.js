@@ -31,4 +31,39 @@ app.use((req, res, next) => {
 
 app.use('/', router);
 
+/**
+ * IMAGE HANDLING
+ */
+import multer from 'multer';
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+});
+const upload = multer({ storage: storage });
+
+app.use('/uploads', express.static('uploads'));
+
+app.get('/img/:name', function (req, res) {
+  const fileName = req.params.name;
+  const filePath = `./uploads/${fileName}`;
+  
+  // Check if file exists
+  res.sendFile(filePath, { root: '.' }, function (err) {
+    if (err) {
+      console.error(err);
+      res.status(404).send('Image not found');
+    }
+  });
+});
+
+app.post('/img', upload.single('img'), function (req, res, next) {
+
+  return res.send(req.file.path)
+})
+
+
 export default app;

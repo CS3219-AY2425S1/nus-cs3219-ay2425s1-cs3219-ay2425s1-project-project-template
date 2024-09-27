@@ -26,21 +26,3 @@ async function main() {
     }
   });
 }
-
-
-// async function main() {
-//   try {
-    
-//     await mongoose.connect(mongoDB);
-//     console.log("yay");
-//     const { databases } = await mongoose.connection.listDatabases();
-//     console.log(databases);
-//     console.log("the end");
-    
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
-
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'MongoDB connection error:'));

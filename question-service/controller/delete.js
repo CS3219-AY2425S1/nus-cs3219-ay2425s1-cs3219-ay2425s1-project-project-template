@@ -9,7 +9,6 @@ export const deleteQuestion = async (req, res) => {
       const question = await Question.findOneAndDelete(filter);
       return res.status(200).json(question);;
     } catch (err) {
-      console.log(err);
       return res.status(500).json({ message: `Unknown error when deleting question with id ${id}!` });
     }
 };
