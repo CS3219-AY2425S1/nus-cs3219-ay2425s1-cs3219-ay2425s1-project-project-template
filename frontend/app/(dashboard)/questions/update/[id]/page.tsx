@@ -136,9 +136,14 @@ export default function Page({ params }: { params: { id: string } }) {
         <Input name="link" value={link} onChange={handleLinkChange} />
       </FormControl>
 
-      <Button colorScheme="teal" onClick={handleSubmit}>
-        Update
-      </Button>
+      <Flex justifyContent="space-between">
+        <Button colorScheme="teal" onClick={handleSubmit}>
+          Update
+        </Button>
+        <Button colorScheme="red" onClick={() => router.push('/questions')}>
+          Cancel
+        </Button>
+      </Flex>
     </Box>
   );
 }

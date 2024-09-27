@@ -120,9 +120,14 @@ export default function CreateQuestionPage() {
         <Input name="link" value={link} onChange={handleLinkChange} />
       </FormControl>
 
-      <Button colorScheme="teal" onClick={handleSubmit}>
-        Create
-      </Button>
+      <Flex justifyContent="space-between">
+        <Button colorScheme="teal" onClick={handleSubmit}>
+          Update
+        </Button>
+        <Button colorScheme="red" onClick={() => router.push('/questions')}>
+          Cancel
+        </Button>
+      </Flex>
     </Box>
   );
 }
