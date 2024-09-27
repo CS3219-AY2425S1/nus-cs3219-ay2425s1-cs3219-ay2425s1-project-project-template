@@ -5,6 +5,7 @@ import QuestionPage from "./pages/Question";
 import QuestionDetails from "../components/question/QuestionDetails";
 import HomeNavBar from "../components/HomeNavBar";
 import Login from "./pages/SignIn/login";
+import Signup from "./pages/SignUp/signup";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Box pt="80px">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
         </Routes>
