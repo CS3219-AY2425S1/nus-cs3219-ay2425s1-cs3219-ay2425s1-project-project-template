@@ -1,4 +1,4 @@
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { ITypedBodyRequest } from '@repo/request-types'
 import { IsDate, IsEmail, IsNotEmpty, IsNumberString, ValidationError, validate } from 'class-validator'
 
 export class EmailVerificationDto {

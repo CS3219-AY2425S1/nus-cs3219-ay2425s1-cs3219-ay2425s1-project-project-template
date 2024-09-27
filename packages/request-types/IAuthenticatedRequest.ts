@@ -1,4 +1,4 @@
-import { IUserDto } from '@repo/user-types/IUserDto'
+import { IUserDto } from '@repo/user-types'
 import { Request } from 'express'
 
 export interface IAuthenticatedRequest extends Request {

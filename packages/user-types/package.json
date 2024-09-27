@@ -2,10 +2,6 @@
     "name": "@repo/user-types",
     "version": "0.0.0",
     "private": true,
-    "files": [
-        "IAccessTokenPayload.ts",
-        "IUserDto.ts",
-        "Proficiency.ts",
-        "Role.ts"
-    ]
+    "main": "./index.ts",
+    "types": "./index.ts"
 }

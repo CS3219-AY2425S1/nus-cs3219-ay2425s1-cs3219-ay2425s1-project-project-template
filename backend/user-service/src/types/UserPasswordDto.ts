@@ -1,4 +1,4 @@
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { ITypedBodyRequest } from '@repo/request-types'
 import { IsStrongPassword, ValidationError, validate } from 'class-validator'
 
 export class UserPasswordDto {

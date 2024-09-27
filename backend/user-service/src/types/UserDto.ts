@@ -1,7 +1,5 @@
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
-import { IUserDto } from '@repo/user-types/IUserDto'
-import { Proficiency } from '@repo/user-types/Proficiency'
-import { Role } from '@repo/user-types/Role'
+import { ITypedBodyRequest } from '@repo/request-types'
+import { IUserDto, Proficiency, Role } from '@repo/user-types'
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, validate, ValidationError } from 'class-validator'
 import { IUser } from './IUser'
 

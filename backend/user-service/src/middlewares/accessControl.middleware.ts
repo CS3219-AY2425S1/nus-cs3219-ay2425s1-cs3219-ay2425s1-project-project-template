@@ -1,5 +1,5 @@
-import { IAuthenticatedRequest } from '@repo/request-types/IAuthenticatedRequest'
-import { Role } from '@repo/user-types/Role'
+import { IAuthenticatedRequest } from '@repo/request-types'
+import { Role } from '@repo/user-types'
 import { NextFunction, Response } from 'express'
 import logger from '../common/logger.util'
 

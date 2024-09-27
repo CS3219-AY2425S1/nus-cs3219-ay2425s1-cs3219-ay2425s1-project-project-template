@@ -1,6 +1,4 @@
-import { IAccessTokenPayload } from '@repo/user-types/IAccessTokenPayload'
-import { IUserDto } from '@repo/user-types/IUserDto'
-import { Role } from '@repo/user-types/Role'
+import { IAccessTokenPayload, IUserDto, Role } from '@repo/user-types'
 import { SignOptions, sign } from 'jsonwebtoken'
 import config from '../common/config.util'
 

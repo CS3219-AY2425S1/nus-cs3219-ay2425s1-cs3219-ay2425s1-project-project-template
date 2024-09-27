@@ -1,5 +1,4 @@
-import { IPaginationRequest } from '@repo/request-types/IPaginationRequest'
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { IPaginationRequest, ITypedBodyRequest } from '@repo/request-types'
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import {

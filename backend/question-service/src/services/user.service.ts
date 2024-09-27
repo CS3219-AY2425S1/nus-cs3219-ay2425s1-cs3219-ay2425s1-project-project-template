@@ -1,4 +1,4 @@
-import { IUserDto } from '@repo/user-types/IUserDto'
+import { IUserDto } from '@repo/user-types'
 import axios from 'axios'
 import config from '../common/config.util'
 

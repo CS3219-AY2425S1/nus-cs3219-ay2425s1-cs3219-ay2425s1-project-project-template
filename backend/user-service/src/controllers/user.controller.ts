@@ -1,4 +1,4 @@
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { ITypedBodyRequest } from '@repo/request-types'
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
 import { hashPassword } from '../common/password.util'

@@ -1,4 +1,4 @@
-import { IAccessTokenPayload } from '@repo/user-types/IAccessTokenPayload'
+import { IAccessTokenPayload } from '@repo/user-types'
 import passport, { DoneCallback } from 'passport'
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt'
 import config from '../common/config.util'

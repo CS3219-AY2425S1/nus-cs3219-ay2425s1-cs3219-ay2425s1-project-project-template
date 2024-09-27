@@ -1,6 +1,5 @@
+import { ITypedBodyRequest } from '@repo/request-types'
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUrl, ValidationError, validate } from 'class-validator'
-
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
 import { Category } from './Category'
 import { Complexity } from './Complexity'
 import { IQuestion } from './IQuestion'

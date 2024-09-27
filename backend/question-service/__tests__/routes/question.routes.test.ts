@@ -1,6 +1,4 @@
-import { IAccessTokenPayload } from '@repo/user-types/IAccessTokenPayload'
-import { Proficiency } from '@repo/user-types/Proficiency'
-import { Role } from '@repo/user-types/Role'
+import { IAccessTokenPayload, Proficiency, Role } from '@repo/user-types'
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import express, { Express } from 'express'
 import 'express-async-errors'

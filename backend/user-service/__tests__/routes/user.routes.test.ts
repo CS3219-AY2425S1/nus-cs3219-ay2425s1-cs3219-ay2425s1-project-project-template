@@ -1,5 +1,4 @@
-import { Proficiency } from '@repo/user-types/Proficiency'
-import { Role } from '@repo/user-types/Role'
+import { Proficiency, Role } from '@repo/user-types'
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import { generateKeyPairSync } from 'crypto'
 import express, { Express } from 'express'

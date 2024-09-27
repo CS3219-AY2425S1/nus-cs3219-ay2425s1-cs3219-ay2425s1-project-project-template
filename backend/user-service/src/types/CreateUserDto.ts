@@ -1,6 +1,5 @@
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
-import { Proficiency } from '@repo/user-types/Proficiency'
-import { Role } from '@repo/user-types/Role'
+import { ITypedBodyRequest } from '@repo/request-types'
+import { Proficiency, Role } from '@repo/user-types'
 import {
     IsEmail,
     IsEnum,

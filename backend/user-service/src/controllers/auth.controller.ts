@@ -1,5 +1,4 @@
-import { IAuthenticatedRequest } from '@repo/request-types/IAuthenticatedRequest'
-import { ITypedBodyRequest } from '@repo/request-types/ITypedBodyRequest'
+import { IAuthenticatedRequest, ITypedBodyRequest } from '@repo/request-types'
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
 import { generateOTP, sendMail } from '../common/mail.util'

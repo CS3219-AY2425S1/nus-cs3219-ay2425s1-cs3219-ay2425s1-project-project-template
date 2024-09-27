@@ -2,10 +2,8 @@
     "name": "@repo/request-types",
     "version": "0.0.0",
     "private": true,
-    "files": [
-        "ITypedBodyRequest.ts",
-        "IPaginationRequest.ts"
-    ],
+    "main": "./index.ts",
+    "types": "./index.ts",
     "devDependencies": {
         "@repo/user-types": "*",
         "@types/express": "^4.17.21"
