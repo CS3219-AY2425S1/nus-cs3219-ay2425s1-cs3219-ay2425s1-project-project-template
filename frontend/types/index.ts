@@ -5,8 +5,8 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
 };
 
 export interface Question {
-  questionTitle: string;
-  questionDifficulty: string;
-  questionTopics: string[];
-  questionDescription: string;
+  title: string;
+  complexity: string;
+  category: string[];
+  description: string;
 }
