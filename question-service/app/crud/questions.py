@@ -22,11 +22,16 @@ async def create_question(question: CreateQuestionModel):
     new_question = await question_collection.insert_one(question.model_dump())
     return await question_collection.find_one({"_id": new_question.inserted_id})
 
-async def get_all_questions(search: str = None) -> QuestionCollection:
+async def get_all_questions(category: str, complexity: str, search: str) -> QuestionCollection:
     query = {}
     if search:
-        query = {"title": {"$regex": search, "$options": "i"}}
+        query["title"] = {"$regex": search, "$options": "i"}
+    if category:
+        query["category"] = {"$regex": category, "$options": "i"}
+    if complexity:
+        query["complexity"] = complexity
     questions = await question_collection.find(query).to_list(1000)
+
     return QuestionCollection(questions=questions)
 
 async def get_question_by_id(question_id: str) -> QuestionModel:
