@@ -280,16 +280,12 @@ const QuestionPage = () => {
           </select>
 
           <label htmlFor="topic">Topic:</label>
-          <select 
+          <textarea 
             id="topic" 
-            className="dropdown"
+            className="dropdown1"
             value={questionData.topic}
             onChange={(e) => setQuestionData({ ...questionData, topic: e.target.value })}
-          >
-            <option value="loops">Loops</option>
-            <option value="arrays">Arrays</option>
-            <option value="conditions">Conditions</option>
-          </select>
+          />
         </div>
 
         <div className="title-section">
