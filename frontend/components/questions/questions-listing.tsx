@@ -222,6 +222,7 @@ export default function QuestionListing() {
   const handleCategoryChange = (newSearch: string) => {
     setCategory(newSearch);
   };
+
   const handleComplexityChange = (newComplexity: string) => {
     if (newComplexity === "all") {
       newComplexity = "";
@@ -235,6 +236,8 @@ export default function QuestionListing() {
 
   const handleReset = () => {
     setSearch("");
+    setCategory("");
+    setComplexity("");
     router.push("");
   };
 
