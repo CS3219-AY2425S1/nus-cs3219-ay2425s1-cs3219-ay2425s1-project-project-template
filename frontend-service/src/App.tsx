@@ -4,6 +4,7 @@ import "./App.css";
 import QuestionPage from "./pages/Question";
 import QuestionDetails from "../components/question/QuestionDetails";
 import HomeNavBar from "../components/HomeNavBar";
+import Login from "./pages/SignIn/login";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <HomeNavBar />
       <Box pt="80px">
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
         </Routes>
@@ -19,5 +21,4 @@ function App() {
   );
 }
 
->>>>>>> 17a140bf8978a553a0a44aac1e67a80c7aa83add
 export default App;

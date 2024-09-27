@@ -41,13 +41,13 @@ const Login: React.FC = () => {
             </div>
             <button type="submit" className="login-button">Login</button>
           </form>
-          <p>
+          <p className="accountSignUp">
             Don't have an account? <a href="#">Sign Up here</a>
           </p>
         </div>
-        <div className="login-graphic">
-          <img src={signupGraphic}></img>
-        </div>
+      </div>
+      <div className="login-graphic">
+        <img src={signupGraphic}></img>
       </div>
     </div>
   );

@@ -48,6 +48,11 @@ export default function HomeNavBar() {
                   About Us
                 </Button>
               </Link>
+              <Link to="/login">
+                <Button variant="ghost" fontWeight="bold" mr={86}>
+                  Login
+                </Button>
+              </Link>
               <Button
                 as={Link}
                 to="/my-account"
