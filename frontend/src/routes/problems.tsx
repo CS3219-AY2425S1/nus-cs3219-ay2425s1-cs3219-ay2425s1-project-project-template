@@ -1,109 +1,147 @@
-import { useQuestions } from "@/hooks/useQuestions";
-import { Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 
 interface Question {
   id: number;
   title: string;
-  description: string;
   categories: string[];
-  complexity: "Easy" | "Medium" | "Hard";
+  complexity: 'Easy' | 'Medium' | 'Hard';
+  description: string;
 }
 
-// Sample static data
-// TODO: Replace with actual data from the backend
 const questions: Question[] = [
   {
     id: 1,
-    title: "Question 1",
-    description: "Description 1",
-    categories: ["Category 1", "Category 2"],
-    complexity: "Easy",
+    title: 'Two Sum',
+    categories: ['Array', 'Hash Table'],
+    complexity: 'Easy',
+    description: 'Find two numbers that add up to a target value.',
   },
   {
     id: 2,
-    title: "Question 2",
-    description: "Description 2",
-    categories: ["Category 1", "Category 2"],
-    complexity: "Medium",
+    title: 'Add Two Numbers',
+    categories: ['Linked List', 'Math'],
+    complexity: 'Medium',
+    description: 'Add two numbers represented by linked lists.',
   },
   {
     id: 3,
-    title: "Question 3",
-    description: "Description 3",
-    categories: ["Category 1", "Category 2"],
-    complexity: "Hard",
+    title: 'Longest Substring Without Repeating Characters',
+    categories: ['Hash Table', 'Two Pointers', 'String'],
+    complexity: 'Medium',
+    description: 'Find the longest substring without repeating characters.',
+  },
+  {
+    id: 4,
+    title: 'Median of Two Sorted Arrays',
+    categories: ['Array', 'Binary Search', 'Divide and Conquer'],
+    complexity: 'Hard',
+    description: 'Find the median of two sorted arrays.',
+  },
+  {
+    id: 5,
+    title: 'Longest Palindromic Substring',
+    categories: ['String', 'Dynamic Programming'],
+    complexity: 'Medium',
+    description: 'Find the longest palindromic substring.',
+  },
+  {
+    id: 6,
+    title: 'ZigZag Conversion',
+    categories: ['String'],
+    complexity: 'Medium',
+    description: 'Convert a string to zigzag pattern on a given number of rows.',
+  },
+  {
+    id: 7,
+    title: 'Reverse Integer',
+    categories: ['Math'],
+    complexity: 'Easy',
+    description: 'Reverse digits of an integer.',
+  },
+  {
+    id: 8,
+    title: 'String to Integer (atoi)',
+    categories: ['Math', 'String'],
+    complexity: 'Medium',
+    description: 'Convert a string to an integer.',
+  },
+  {
+    id: 9,
+    title: 'Palindrome Number',
+    categories: ['Math'],
+    complexity: 'Easy',
+    description: 'Determine whether an integer is a palindrome.',
+  },
+  {
+    id: 10,
+    title: 'Regular Expression Matching',
+    categories: ['String', 'Dynamic Programming', 'Backtracking'],
+    complexity: 'Hard',
+    description: 'Implement regular expression matching with support for \'.\' and \'*\'.',
   },
 ];
 
+const getComplexityColor = (complexity: 'Easy' | 'Medium' | 'Hard') => {
+  switch (complexity) {
+    case 'Easy':
+      return 'bg-green-100 text-green-800 border-green-300';
+    case 'Medium':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    case 'Hard':
+      return 'bg-red-100 text-red-800 border-red-300';
+  }
+};
+
 export default function ProblemsRoute() {
-  // const { data, isLoading } = useQuestions();
-
-  // if (isLoading || !data) {
-  //   return (
-  //     <div className='flex flex-col items-center justify-center h-full'>
-  //       <Loader2 className='w-8 h-8 animate-spin' />
-  //       <p className="mt-2">Loading...</p>
-  //     </div>
-  //   );
-  // }
-
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Problems</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {questions.map((question) => (
-          <Card key={question.id}>
-            <CardHeader>
-              <CardTitle>{question.title}</CardTitle>
-              <CardDescription>
+      <h1 className="text-3xl font-bold mb-6">Problem Set</h1>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[30%]">Title</TableHead>
+            <TableHead className="w-[30%]">Categories</TableHead>
+            <TableHead>Complexity</TableHead>
+            <TableHead className="w-[40%]">Description</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {questions.map((question: Question) => (
+            <TableRow key={question.id}>
+              <TableCell className="font-medium">
+                <Link to={`/problems/${question.id}`} className="text-blue-600 hover:underline">
+                  {question.title}
+                </Link>
+              </TableCell>
+              <TableCell>
                 {question.categories.map((category, index) => (
-                  <Badge key={index} variant="outline" className="mr-2">
+                  <Badge key={index} variant="outline" className="mr-1">
                     {category}
                   </Badge>
                 ))}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>{question.description}</p>
-            </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <Badge
-                variant="outline"
-                className={`${getComplexityColor(
-                  question.complexity
-                )} font-semibold`}
-              >
-                {question.complexity}
-              </Badge>
-              <Button asChild>
-                <Link to={`/problems/${question.id}`}>Solve Problem</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              </TableCell>
+              <TableCell>
+                <Badge 
+                  variant="outline"
+                  className={`${getComplexityColor(question.complexity)} font-medium`}
+                >
+                  {question.complexity}
+                </Badge>
+              </TableCell>
+              <TableCell>{question.description}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
-
-const getComplexityColor = (complexity: "Easy" | "Medium" | "Hard") => {
-  switch (complexity) {
-    case "Easy":
-      return "bg-green-200 text-green-800";
-    case "Medium":
-      return "bg-yellow-200 text-yellow-800";
-    case "Hard":
-      return "bg-red-200 text-red-800";
-  }
-};
