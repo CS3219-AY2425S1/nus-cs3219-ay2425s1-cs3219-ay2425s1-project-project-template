@@ -1,23 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css'
-import { login } from '../../authentication/AuthService';
+
 import signupGraphic from '../../assets/images/signup_graphic.png';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
-      await login(email, password);
-      navigate('/home');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setErrorMessage(`Login failed: ${error.message}`);
+      const response = await fetch('http://localhost:3001/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.data.accessToken);
+        navigate("/navbar");
+        alert('Login successful');
+
+      } else {
+        setErrorMessage(data.message);
+      }
+
+    } catch (error) {
+      setErrorMessage('Error during login.');
     }
   };
 
