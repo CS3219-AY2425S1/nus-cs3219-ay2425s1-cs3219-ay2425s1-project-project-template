@@ -14,7 +14,7 @@ import {
   CreateQuestion,
   CreateQuestionArraySchema,
 } from "@/lib/schemas/question-schema";
-import QuestionFormModal from "./question-form";
+import QuestionFormModal from "./question-form-modal";
 import { updateQuestion } from "@/lib/update-question";
 
 const fetcher = async (url: string): Promise<Question[]> => {
@@ -309,6 +309,7 @@ export default function QuestionListing() {
       />
       <QuestionFormModal
         showModal={showEditViewModal}
+        setShowModal={setShowEditViewModal}
         initialData={selectedQuestion}
         isAdmin={auth?.user?.isAdmin}
         handleSubmit={handleEdit}
@@ -316,6 +317,7 @@ export default function QuestionListing() {
       />
       <QuestionFormModal
         showModal={showCreateModal}
+        setShowModal={setShowCreateModal}
         isAdmin={auth?.user?.isAdmin}
         handleSubmit={handleCreate}
         submitButtonText="Create Question"

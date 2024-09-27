@@ -22,6 +22,7 @@ import {
 
 interface QuestionFormModalProps {
   showModal: boolean;
+  setShowModal: (showModal: boolean) => void;
   initialData?: Question;
   isAdmin: boolean | undefined;
   handleSubmit: (question: Question) => void;
@@ -135,6 +136,12 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                 {props.isAdmin && (
                   <Button type="submit">{props.submitButtonText}</Button>
                 )}
+                <Button
+                  variant="destructive"
+                  onClick={() => props.setShowModal(false)}
+                >
+                  Exit
+                </Button>
               </DialogFooter>
             </DialogContent>
           </form>
