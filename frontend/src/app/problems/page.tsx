@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import CompletedIcon from '@mui/icons-material/TaskAlt';
 import { useEffect, useState } from "react";
 import QuestionDialog from "./QuestionDialog"
+import AddQuestionForm from "./components/addQuestionForm"
 
 export default function QuestionsPage() {
     const [questions, setQuestions] = useState([])
@@ -47,7 +48,7 @@ export default function QuestionsPage() {
                     <h1 className="text-3xl 2xl:text-4xl font-bold text-black text-start">
                         Coding Questions
                     </h1>
-                    <Button>Create a new question</Button>
+                    <Button>{/*need to link this to open the add question form*/}Create a new question</Button>
                 </div>
                 <div className="my-12">
                     {/* Search */}
@@ -101,7 +102,7 @@ export default function QuestionsPage() {
                         ))}
                     </TableBody>
                 </Table>
-            </div>
+            </div>    
         </section>
     )
 }

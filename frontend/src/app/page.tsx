@@ -2,13 +2,8 @@ import Image from 'next/image'
 
 export default function Home() {
     return (
-<<<<<<< HEAD
         <section className="bg-violet-800 flex flex-grow items-center justify-start 2xl:justify-center pl-28">
             <div className="text-center 2xl:w-3/5">
-=======
-        <section className="primary-color h-screen flex items-center justify-start pl-28 pt-16">
-            <div className="text-center">
->>>>>>> frontend-branch
                 <h1 className="text-5xl font-bold text-white mb-4 text-start">
                     Connect, collaborate and <br /> code with PeerPrep
                 </h1>
