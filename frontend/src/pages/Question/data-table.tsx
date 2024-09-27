@@ -137,6 +137,7 @@ const Example = () => {
           return (
             <TextField
               select
+              required
               label="Complexity"
               value={value}
               onChange={(e) => setValue(e.target.value)}
