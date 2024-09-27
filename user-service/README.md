@@ -136,6 +136,7 @@
   - Required: `userId` path parameter
 
 - Body
+
   - At least one of the following fields is required: `username` (string), `email` (string), `password` (string), `skillLevel` (string)
 
     ```json
@@ -173,7 +174,7 @@
 
 - HTTP Method: `PATCH`
 
-- Endpoint: http://localhost:3001/users/{userId}
+- Endpoint: http://localhost:3001/users/{userId}/privilege
 
 - Parameters
 

@@ -1,12 +1,14 @@
 "use client";
 
 import { useAuth } from "@/app/auth/auth-context";
-import QuestionTable from "@/components/questions/questions-table";
 import { useEffect, useState, ChangeEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
 import LoadingScreen from "@/components/common/loading-screen";
 import DeleteQuestionModal from "@/components/questions/delete-question-modal";
+import QuestionTable from "@/components/questions/questions-table";
+import QuestionFilter from "@/components/questions/question-filter";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Upload } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
@@ -41,10 +43,23 @@ const fetcher = async (url: string): Promise<Question[]> => {
 
 export default function QuestionListing() {
   const auth = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
+
+  const searchParams = useSearchParams();
+  const [category, setCategory] = useState(searchParams.get("category") || "");
+  const [complexity, setComplexity] = useState(
+    searchParams.get("complexity") || ""
+  );
+
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+
   const { data, isLoading, mutate } = useSWR(
-    "http://localhost:8000/questions",
-    fetcher
+    `http://localhost:8000/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
+    fetcher,
+    {
+      keepPreviousData: true,
+    }
   );
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -56,6 +71,26 @@ export default function QuestionListing() {
   useEffect(() => {
     setQuestions(data ?? []);
   }, [data]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (category) {
+      params.set("category", category);
+    } else {
+      params.delete("category");
+    }
+    if (complexity) {
+      params.set("complexity", complexity);
+    } else {
+      params.delete("complexity");
+    }
+    if (search) {
+      params.set("search", search);
+    } else {
+      params.delete("search");
+    }
+    router.push(`?${params.toString()}`);
+  }, [category, complexity, search, router, searchParams]);
 
   const handleView = (question: Question) => {
     setSelectedQuestion(question);
@@ -266,7 +301,29 @@ export default function QuestionListing() {
     }
   };
 
-  if (isLoading) {
+  const handleCategoryChange = (newSearch: string) => {
+    setCategory(newSearch);
+  };
+
+  const handleComplexityChange = (newComplexity: string) => {
+    if (newComplexity === "all") {
+      newComplexity = "";
+    }
+    setComplexity(newComplexity);
+  };
+
+  const handleSearchChange = (newSearch: string) => {
+    setSearch(newSearch);
+  };
+
+  const handleReset = () => {
+    setSearch("");
+    setCategory("");
+    setComplexity("");
+    router.push("");
+  };
+
+  if (isLoading && !data) {
     return <LoadingScreen />;
   }
 
@@ -295,6 +352,15 @@ export default function QuestionListing() {
           <div>{createNewQuestion()}</div>
         </div>
       )}
+      <QuestionFilter
+        category={category}
+        onCategoryChange={handleCategoryChange}
+        complexity={complexity}
+        onComplexityChange={handleComplexityChange}
+        search={search}
+        onSearchChange={handleSearchChange}
+        onReset={handleReset}
+      />
       <QuestionTable
         data={questions}
         isAdmin={auth?.user?.isAdmin ?? false}
