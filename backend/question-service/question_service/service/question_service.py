@@ -21,6 +21,7 @@ async def update_question(title_slug: str, updated_question: Question) -> Questi
         {"$set": updated_question.model_dump()},
         return_document=True
     )
+    return question
 
 async def delete_question(title_slug: str) -> None:
     await question_collection.delete_one({"title_slug": title_slug})
