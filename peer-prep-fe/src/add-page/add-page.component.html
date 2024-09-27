@@ -8,9 +8,9 @@
    <div class="question-title">
     <h2>QUESTION TITLE</h2>
     <div class="title-box">
-      <textarea class="editable-box" placeholder="Enter question title here..." formControlName="title"></textarea>
+      <textarea class="editable-box" placeholder="Enter question title here..." formControlName="question_title"></textarea>
     </div>
-     <div *ngIf="questionForm.get('title')?.touched && questionForm.get('title')?.invalid" class="error-message-title">
+     <div *ngIf="questionForm.get('question_title')?.touched && questionForm.get('question_title')?.invalid" class="error-message-title">
        Title is required.
      </div>
   </div>
@@ -18,9 +18,9 @@
     <div class="question-description">
       <h2>QUESTION DESCRIPTION</h2>
       <div class="description-box">
-        <textarea class="editable-box" placeholder="Enter question description here..." formControlName="description"></textarea>
+        <textarea class="editable-box" placeholder="Enter question description here..." formControlName="question_description"></textarea>
       </div>
-      <div *ngIf="questionForm.get('description')?.touched && questionForm.get('description')?.invalid" class="error-message-description">
+      <div *ngIf="questionForm.get('question_description')?.touched && questionForm.get('question_description')?.invalid" class="error-message-description">
         Description is required.
       </div>
     </div>
@@ -34,7 +34,7 @@
           Select all that applies
         </button>
         <div class="dropdown-menu" [class.show]="dropdownOpen">
-          <div *ngFor="let category of categories" class="dropdown-item">
+          <div *ngFor="let category of question_categories" class="dropdown-item">
             <label class="dropdown-label">
               {{category.name}}
               <input type="checkbox" [(ngModel)]="category.selected"/>
@@ -44,9 +44,9 @@
       </div>
 
       <div class="difficulty-buttons">
-        <button class="diff-butt" type="button" [ngClass]="{'selected': difficulty === 'easy'}" (click)="setDifficulty('easy')">Easy</button>
-        <button class="diff-butt" type="button" [ngClass]="{'selected': difficulty === 'medium'}" (click)="setDifficulty('medium')">Medium</button>
-        <button class="diff-butt" type="button" [ngClass]="{'selected': difficulty === 'hard'}" (click)="setDifficulty('hard')">Hard</button>
+        <button class="diff-butt" type="button" [ngClass]="{'selected': question_complexity === 'Easy'}" (click)="setDifficulty('Easy')">Easy</button>
+        <button class="diff-butt" type="button" [ngClass]="{'selected': question_complexity === 'Medium'}" (click)="setDifficulty('Medium')">Medium</button>
+        <button class="diff-butt" type="button" [ngClass]="{'selected': question_complexity === 'Hard'}" (click)="setDifficulty('Hard')">Hard</button>
       </div>
     </div>
   </div>

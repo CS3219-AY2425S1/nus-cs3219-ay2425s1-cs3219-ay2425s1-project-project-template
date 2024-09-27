@@ -17,4 +17,7 @@ export class QuestionService {
     return this.http.put(`${this.baseUrl}/${id}`, updatedQuestion);
   }
 
+  addQuestion(newQuestion: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}`, newQuestion);
+  }
 }

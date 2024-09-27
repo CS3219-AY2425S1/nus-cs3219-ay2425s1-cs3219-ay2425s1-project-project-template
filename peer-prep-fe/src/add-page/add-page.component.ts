@@ -3,6 +3,7 @@ import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormsModule, Validators, FormGroup, ReactiveFormsModule, FormControl} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 import {ActivatedRoute, Router, Routes} from "@angular/router";
+import {QuestionService} from "../services/question.service";
 
 @Component({
   selector: 'app-add-page',
@@ -19,9 +20,9 @@ import {ActivatedRoute, Router, Routes} from "@angular/router";
 })
 export class AddPageComponent {
 
-  questionTitle: string= '';
-  questionDescription: string = '';
-  categories = [
+  question_title: string= '';
+  question_description: string = '';
+  question_categories = [
     {name: 'Algorithms', selected: false},
     {name: 'Database', selected: false},
     {name: 'Shell', selected: false},
@@ -29,59 +30,45 @@ export class AddPageComponent {
     {name: 'JavaScript', selected: false},
     {name: 'pandas', selected: false},
   ];
-  difficulty: string = 'easy';
+  question_complexity: string = 'Easy';
   dropdownOpen: boolean = false;
 
-  // constructor(
-  //   private http: HttpClient,
-  //   private router: Router,
-  //   private route: ActivatedRoute
-  // ) {}
   questionForm : FormGroup;
-  constructor(private fb: FormBuilder, private router : Router) {
+
+  constructor(
+    private questionService: QuestionService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private fb: FormBuilder
+  ) {
     this.questionForm = this.fb.group({
-      title: ['', Validators.required],
-      description:['', Validators.required],
+      question_title: ['', Validators.required],
+      question_description: ['', Validators.required],
     });
   }
 
-  // questionForm: FormGroup;
-  // constructor(private router: Router, private fb: FormBuilder) {
-  //   this.questionForm = this.fb.group({
-  //     title: ['', Validators.required],
-  //     description:['', Validators.required],
-  //     categories: this.fb.array([]),
-  //     difficulty: ['', Validators.required]
-  //   })
-  // }
-
-
   setDifficulty(level: string) {
-    this.difficulty = level;
+    this.question_complexity = level;
   }
 
-  // saveQuestion() {
-  //   const updatedQuestion = {
-  //     title: this.questionTitle,
-  //     description: this.questionDescription,
-  //     categories: this.categories.filter(cat => cat.selected).map(cat => cat.name),
-  //     difficulty: this.difficulty
-  //   };
-  //   this.http.put(`/api/questions/$(this.questionId)`, updatedQuestion).subscribe((response) => {
-  //       alert('Question updated successfully!');
-  //     },
-  //     (error) => {
-  //       alert('Error updating question');
-  //     }
-  //   );
-  // }
 
   saveQuestion() {
-    if (this.questionForm.valid) {
-      alert("Success");
-    } else {
+    if (!this.questionForm.valid) {
       this.questionForm.markAllAsTouched();
     }
+    const newQuestion = {
+      question_title: this.question_title,
+      question_description: this.question_description,
+      question_categories: this.question_categories.filter(cat => cat.selected).map(cat => cat.name),
+      question_complexity: this.question_complexity
+    };
+    this.questionService.addQuestion(newQuestion).subscribe((response) => {
+        alert('Question updated successfully!');
+      },
+      (error) => {
+        alert('Error updating question');
+      }
+    );
   }
 
   toggleDropdown() {
