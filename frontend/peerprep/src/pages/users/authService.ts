@@ -4,6 +4,11 @@ export interface UserCredentials {
   password: string;
 }
 
+export interface LoginTokens {
+  token: string;
+  refreshToken: string;
+}
+
 export const login = async (credentials: UserCredentials): Promise<{ token: string, refreshToken: string }> => {
   try {
     const response = await fetch("http://localhost:8080/v1/login", {
@@ -20,7 +25,11 @@ export const login = async (credentials: UserCredentials): Promise<{ token: stri
       throw new Error(errorData.message || "Invalid email or password");
     }
 
-    const data = await response.json();
+    const data : LoginTokens = await response.json();
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("refreshToken", data.refreshToken);
+
     return {
       token: data.token,
       refreshToken: data.refreshToken,
@@ -53,3 +62,26 @@ export const register = async (credentials: UserCredentials): Promise<string> =>
     return Promise.reject(error.message || "Registration error");
   }
 };
+
+export const logout = async () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  // try {
+  //   const response = await fetch("http://localhost:8080/v1/logout", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     credentials: 'include',
+  //   });
+
+  //   if (!response.ok) {
+  //     const errorData = await response.json();
+  //     throw new Error(errorData.message || "Logout failed");
+  //   }
+
+  //   return;
+  // } catch (error: any) {
+  //   return Promise.reject(error.message || "Logout error");
+  // }
+}
