@@ -11,7 +11,7 @@ async def get_questions() -> List[Question]:
     questions = await question_collection.all().to_list()
     return questions     
     
-async def get_question_by_title(title_slug: str) -> Question:
+async def get_question(title_slug: str) -> Question:
     question = await question_collection.find_one({"title_slug": title_slug})
     return question
 

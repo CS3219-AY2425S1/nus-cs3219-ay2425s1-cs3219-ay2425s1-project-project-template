@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response, status
 from structlog import get_logger
 
 from ..schemas import CreateQuestionModel, UpdateQuestionModel
-from ..service import delete_question, get_question_by_title, update_question_by_title, get_questions
+from ..service.question_service import *
 
 router = APIRouter()
 logger = get_logger()
@@ -15,7 +15,7 @@ async def get_question_by_title(titleSlug: str):
     if not titleSlug:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
 
-    question = await get_question_by_title(titleSlug)
+    question = await get_question(titleSlug)
     if question is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Question not found")
     return question
@@ -35,7 +35,7 @@ async def delete_question_by_title(titleSlug: str):
 async def update_question_by_title(titleSlug: str, req: UpdateQuestionModel):
     if not titleSlug:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
-    question = await update_question_by_title(titleSlug, req)
+    question = await update_question(titleSlug, req)
     return question
 
 
