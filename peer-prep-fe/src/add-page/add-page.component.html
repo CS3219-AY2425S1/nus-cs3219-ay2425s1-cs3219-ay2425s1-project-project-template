@@ -8,7 +8,7 @@
    <div class="question-title">
     <h2>QUESTION TITLE</h2>
     <div class="title-box">
-      <textarea class="editable-box" placeholder="Enter question title here..." formControlName="question_title"></textarea>
+      <textarea [(ngModel)]="question_title" class="editable-box" placeholder="Enter question title here..." formControlName="question_title"></textarea>
     </div>
      <div *ngIf="questionForm.get('question_title')?.touched && questionForm.get('question_title')?.invalid" class="error-message-title">
        Title is required.
@@ -18,7 +18,7 @@
     <div class="question-description">
       <h2>QUESTION DESCRIPTION</h2>
       <div class="description-box">
-        <textarea class="editable-box" placeholder="Enter question description here..." formControlName="question_description"></textarea>
+        <textarea [(ngModel)]="question_description" class="editable-box" placeholder="Enter question description here..." formControlName="question_description"></textarea>
       </div>
       <div *ngIf="questionForm.get('question_description')?.touched && questionForm.get('question_description')?.invalid" class="error-message-description">
         Description is required.

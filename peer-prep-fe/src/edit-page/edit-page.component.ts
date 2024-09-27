@@ -26,7 +26,7 @@ export class EditPageComponent implements OnInit {
   question_description: string = '';
   question_categories = [
     {name: 'Algorithms', selected: false},
-    {name: 'Database', selected: false},
+    {name: 'Databases', selected: false},
     {name: 'Shell', selected: false},
     {name: 'Concurrency', selected: false},
     {name: 'JavaScript', selected: false},
