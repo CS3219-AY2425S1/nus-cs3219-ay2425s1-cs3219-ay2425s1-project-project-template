@@ -1,21 +1,21 @@
 from fastapi import APIRouter, HTTPException, Response, status
 from structlog import get_logger
 
-from ..mock import mock_db
 from ..schemas import CreateQuestionModel, UpdateQuestionModel
+from ..service import delete_question, get_question_by_title, update_question_by_title, get_questions
 
 router = APIRouter()
 logger = get_logger()
 
 
 @router.get("/question/{titleSlug}")
-async def get_question_by_title(titleSlug: str) -> dict:
+async def get_question_by_title(titleSlug: str):
     # validate params -> return 401 Bad request
     logger.info(f"Retrieving {titleSlug}")
     if not titleSlug:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
 
-    question = mock_db.get_question_by_title(titleSlug)
+    question = await get_question_by_title(titleSlug)
     if question is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Question not found")
     return question
@@ -26,9 +26,8 @@ async def delete_question_by_title(titleSlug: str):
     if not titleSlug:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
 
-    logger.info(f"Delete: {len(mock_db.db)}")
-    mock_db.delete_question(titleSlug)
-    logger.info(f"{len(mock_db.db)}")
+    logger.info(f"Delete: {titleSlug}")
+    await delete_question(titleSlug)
     return Response(status_code=status.HTTP_200_OK)
 
 
@@ -36,15 +35,15 @@ async def delete_question_by_title(titleSlug: str):
 async def update_question_by_title(titleSlug: str, req: UpdateQuestionModel):
     if not titleSlug:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid title slug")
-    question = mock_db.update_question(titleSlug, req.model_dump(exclude_unset=True))
+    question = await update_question_by_title(titleSlug, req)
     return question
 
 
 @router.get("/question/")
-async def get_all_questions() -> dict:
+async def get_all_questions():
     logger.info("Retrieving all questions")
 
-    questions = mock_db.get_questions()
+    questions = await get_questions()
     if questions is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no questions in question bank")
     return questions
@@ -54,5 +53,5 @@ async def get_all_questions() -> dict:
 async def create_question(question: CreateQuestionModel):
     if not question:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid question")
-    question = mock_db.create_question(question.model_dump())
+    question = await create_question(question)
     return question
