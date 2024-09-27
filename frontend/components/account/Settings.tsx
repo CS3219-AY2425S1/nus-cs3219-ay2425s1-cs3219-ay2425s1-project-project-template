@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { InputField } from '../ui/custom-input'
+import { InputField } from '../customs/custom-input'
 import usePasswordToggle from './UsePasswordToggle'
 import CustomDialogWithButton from '../customs/custom-dialog'
 import validateInput, { initialFormValues } from '@/util/input-validation'
@@ -25,7 +25,7 @@ function Setting() {
         setIsFormSubmit(true)
         toggleUpdateDialogOpen(false)
         toast.success('Profile has been updated successfully.')
-        setFormValues({ ...initialFormValues }) // Replace with placeholder values if needed
+        setFormValues({ ...initialFormValues })
     }
 
     const handleUpdateClick = (): void => {

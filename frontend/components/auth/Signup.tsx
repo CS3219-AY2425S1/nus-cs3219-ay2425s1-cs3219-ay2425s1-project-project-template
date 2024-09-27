@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { Button } from '../ui/button'
-import { InputField } from '../ui/custom-input'
+import { InputField } from '../customs/custom-input'
 import validateInput, { initialFormValues } from '@/util/input-validation'
+import usePasswordToggle from '../account/UsePasswordToggle'
+import { toast } from 'sonner'
 
 export default function Signup() {
     const inputFields = {
@@ -15,6 +17,8 @@ export default function Signup() {
 
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
+    const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { id, value } = e.target
@@ -47,26 +51,55 @@ export default function Signup() {
             // } catch {
             //     toast.success('Failed to login')
             // }
+            toast.success('Signed Up successfully')
         }
     }
 
     return (
         <>
-            {Object.keys(inputFields).map((key) => {
-                const fieldKey = key as keyof typeof inputFields
-                return (
-                    <InputField
-                        key={fieldKey}
-                        id={fieldKey}
-                        type={fieldKey.includes('Password') ? 'password' : 'text'}
-                        placeholder={inputFields[fieldKey]}
-                        value={formValues[fieldKey]}
-                        error={formErrors[fieldKey]}
-                        onChange={handleFormChange}
-                        className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
-                    />
-                )
-            })}
+            <InputField
+                id="username"
+                type="text"
+                placeholder="Username"
+                value={formValues.username}
+                onChange={handleFormChange}
+                error={formErrors.username}
+                className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+            />
+
+            <InputField
+                id="email"
+                type="text"
+                placeholder="Email"
+                value={formValues.email}
+                onChange={handleFormChange}
+                error={formErrors.email}
+                className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+            />
+
+            <InputField
+                id="password"
+                type={passwordInputType}
+                placeholder="Password"
+                icon={passwordToggleIcon}
+                value={formValues.password}
+                onChange={handleFormChange}
+                error={formErrors.password}
+                className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+                page="auth"
+            />
+
+            <InputField
+                id="confirmPassword"
+                type={confirmPasswordInputType}
+                placeholder="Confirm Password"
+                icon={confirmPasswordToggleIcon}
+                value={formValues.confirmPassword}
+                onChange={handleFormChange}
+                error={formErrors.confirmPassword}
+                className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+                page="auth"
+            />
 
             <Button onClick={onSignup} variant="primary" className="w-full text-md mt-5 h-[42px]">
                 Sign Up
