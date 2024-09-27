@@ -10,18 +10,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { stringToDifficulty } from '@/lib/utils';
 
-interface QuestionProps {
-    question: {
-        questionId: number;
-        title: string;
-        description?: string;
-        categories: string[];
-        difficulty: string;
-    };
-}
-
-const QuestionDialog: React.FC<QuestionProps> = ({ question }) => {
+const QuestionDialog = ({ question } : QuestionProps) => {
     return (
         <Dialog>
             <DialogTrigger>
@@ -38,7 +29,7 @@ const QuestionDialog: React.FC<QuestionProps> = ({ question }) => {
                     </DialogTitle>
                     <DialogDescription className='flex gap-2'>
                         <div>
-                            <Badge variant={question.difficulty.toLowerCase()}>{question.difficulty}</Badge>
+                            <Badge variant={stringToDifficulty(question.difficulty)}>{question.difficulty}</Badge>
                         </div>
                         <Separator orientation='vertical' />
                         <div className='flex gap-2'>
