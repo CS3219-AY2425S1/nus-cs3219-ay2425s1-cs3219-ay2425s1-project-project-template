@@ -41,11 +41,11 @@ export default function Login() {
                 const fieldKey = key as keyof typeof inputFields
                 return (
                     <InputField
-                        key={fieldKey} // Make sure to add a unique `key` prop when mapping
-                        id={fieldKey} // Use the field key as the id
-                        type={fieldKey.includes('Password') ? 'password' : 'text'} // Determine input type
-                        placeholder={inputFields[fieldKey]} // Access placeholder from inputFields
-                        value={formValues[fieldKey]} // Access the value from formValues
+                        key={fieldKey}
+                        id={fieldKey}
+                        type={fieldKey.includes('Password') ? 'password' : 'text'}
+                        placeholder={inputFields[fieldKey]}
+                        value={formValues[fieldKey]}
                         onChange={handleFormChange}
                         className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
                     />
