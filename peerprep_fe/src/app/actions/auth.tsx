@@ -7,7 +7,10 @@ dotenv.config();
 
 // TODO: RSA handshake + AES encryption
 export async function signup(state: FormState, formData: FormData) {
-  // TODO: Validate form data
+  const result = validateSignUpFormData(formData);
+  if (!result.success) {
+    return { errors: result.errors };
+  }
 
   const data = {
     username: `${formData.get("username")}`,
@@ -19,40 +22,32 @@ export async function signup(state: FormState, formData: FormData) {
     `http://gateway-service:${process.env.API_GATEWAY_PORT}/auth/signup`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }
   );
 
   try {
-    const data = await response.json();
-    if (data.token) {
-      return {
-        message: data.token,
-      };
+    const responseData = await response.json();
+    if (responseData.token) {
+      return { message: responseData.token };
     } else {
-      return {
-        errors: {
-          errorMessage: data.error,
-        },
-      };
+      return { errors: { errorMessage: responseData.error } };
     }
   } catch (error) {
     console.error(`error: ${error}`);
     return {
-      errors: {
-        errorMessage: data.error
-          ? data.error
-          : "An error occurred while signing up",
-      },
+      errors: { errorMessage: "An error occurred while signing up" },
     };
   }
 }
 
 export async function login(state: FormState, formData: FormData) {
-  // TODO: Validate form data
+  const result = validateLoginFormData(formData);
+  if (!result.success) {
+    return { errors: result.errors };
+  }
+
   const data = {
     username: `${formData.get("username")}`,
     password: `${formData.get("password")}`,
@@ -62,34 +57,118 @@ export async function login(state: FormState, formData: FormData) {
     `http://gateway-service:${process.env.API_GATEWAY_PORT}/auth/signin`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }
   );
 
   try {
-    const data = await response.json();
-    if (data.token) {
-      return {
-        message: data.token,
-      };
+    const responseData = await response.json();
+    if (responseData.token) {
+      return { message: responseData.token };
     } else {
       return {
-        errors: {
-          errorMessage: data.error
-            ? data.error
-            : "An error occurred while logging in",
-        },
+        errors: { errorMessage: "An error occurred while logging in" },
       };
     }
   } catch (error) {
     console.error(`error: ${error}`);
     return {
+      errors: { errorMessage: "An error occurred while logging in" },
+    };
+  }
+}
+
+function validateEmail(email: string): boolean {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
+function validatePassword(password: string): boolean {
+  return password.length >= 8;
+}
+
+function validateName(name: string): boolean {
+  return name.length >= 2;
+}
+
+interface FormValidation {
+  success: boolean;
+  errors?: {
+    name?: string;
+    email?: string;
+    password?: string;
+  };
+}
+
+function validateLoginFormData(formData: FormData): FormValidation {
+  if (!formData.get("username")) {
+    return {
+      success: false,
       errors: {
-        errorMessage: "An error occurred while logging in",
+        name: "Name is required",
       },
     };
   }
+
+  if (!formData.get("password")) {
+    return {
+      success: false,
+      errors: {
+        password: "Password is required",
+      },
+    };
+  }
+
+  if (!validateName(`${formData.get("username")}`)) {
+    return {
+      success: false,
+      errors: {
+        name: "Name must be at least 2 characters",
+      },
+    };
+  }
+
+  if (!validatePassword(`${formData.get("password")}`)) {
+    return {
+      success: false,
+      errors: {
+        password: "Password must be at least 8 characters",
+      },
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
+
+function validateSignUpFormData(formData: FormData): FormValidation {
+  const result = validateLoginFormData(formData);
+
+  if (!result.success) {
+    return result;
+  }
+
+  if (!formData.get("email")) {
+    return {
+      success: false,
+      errors: {
+        email: "Email is required",
+      },
+    };
+  }
+
+  if (!validateEmail(`${formData.get("email")}`)) {
+    return {
+      success: false,
+      errors: {
+        email: "Invalid email",
+      },
+    };
+  }
+
+  return {
+    success: true,
+  };
 }

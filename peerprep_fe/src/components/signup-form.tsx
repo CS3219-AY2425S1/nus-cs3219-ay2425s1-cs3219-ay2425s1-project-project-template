@@ -27,11 +27,11 @@ export function SignupForm() {
       <form action={action}>
         <div>
           <Textfield name="username" secure={false} placeholder_text="Name" />
-          {state?.errors?.name && <p>{state.errors.name}</p>}
+          <p className="error">{state?.errors?.name}</p>
         </div>
         <div>
           <Textfield name="email" secure={false} placeholder_text="Email" />
-          {state?.errors?.email && <p>{state.errors.email}</p>}
+          <p className="error">{state?.errors?.email}</p>
         </div>
         <div>
           <Textfield
@@ -39,7 +39,7 @@ export function SignupForm() {
             secure={true}
             placeholder_text="Password"
           />
-          {state?.errors?.password && <p>{state.errors.password}</p>}
+          <p className="error">{state?.errors?.password}</p>
         </div>
         <Button type="submit" text="Sign Up" />
       </form>
