@@ -13,7 +13,7 @@ export async function createQuestion(req, res) {
     try {
         const {id, title, description, category, complexity} = req.body;
         if (id && title && description && category && complexity) {
-            // Check duplicates
+            //Check duplicatesS
             const questionExists = await _checkDuplicateQuestion(title, description);
             if (questionExists) {
                 return res.status(409).json({ message: "Question already exists"});
@@ -72,7 +72,11 @@ export async function updateQuestionById(req, res) {
             return res.status(404).json({ message: "Question not found"});
         }
         const { title, description, category, complexity } = req.body;
+
         const question = await _updateQuestionById(id, title, description, category, complexity);
+        if (!question) {
+            return res.status(404).json({ message: "Question not found"});
+        }
         return res.status(200).json(question);
     } catch (error) {
         return res.status(500).json({ message: error.message});
@@ -82,9 +86,12 @@ export async function updateQuestionById(req, res) {
 export async function deleteQuestionById(req, res) {
     try {
         const { id } = req.params;
-        await _deleteQuestionById(id);
+        const deletedQuestion = await _deleteQuestionById(id);
+        if (!deletedQuestion) {
+            return res.status(404).json({ message: "Question not found"});
+        }
         return res.status(200).json({ message: "Question deleted successfully"});
     } catch (error) {
         return res.status(500).json({ message: error.message});
     }
-}
+}   

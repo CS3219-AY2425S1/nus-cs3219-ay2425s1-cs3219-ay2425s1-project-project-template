@@ -59,5 +59,5 @@ export async function updateQuestionById(id, title, description, category, compl
 
 // Delete the question using Id
 export async function deleteQuestionById(id) {
-  return QuestionModel.findByIdAndDelete(id);
+  return QuestionModel.findOneAndDelete({id});
 }
