@@ -14,7 +14,7 @@ RUN go mod download
 COPY ./src ./src
 
 # Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -o test_run ./src/test.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o test_run ./src/server.go
 
 # Second stage: Create a minimal image to run the app
 FROM alpine:latest
@@ -26,7 +26,7 @@ WORKDIR /root/
 COPY --from=builder /app/test_run .
 
 # Expose the application's port
-EXPOSE 8080
+EXPOSE 1323
 
 # Command to run the executable
 CMD ["./test_run"]

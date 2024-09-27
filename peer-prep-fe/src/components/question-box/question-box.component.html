@@ -1,0 +1,6 @@
+<div class="question-box">
+  <button class="question-title" (click)="openModal()">
+    {{ index + 1 }}. {{ question.title.toUpperCase() }}
+  </button>
+  <span class="difficulty" [ngClass]="question.difficulty">{{ question.difficulty }}</span>
+</div>
