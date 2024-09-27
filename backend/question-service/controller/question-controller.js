@@ -13,11 +13,11 @@ export async function createQuestion(req, res) {
     try {
         const {id, title, description, category, complexity} = req.body;
         if (id && title && description && category && complexity) {
-            // Check duplicates
-            //const questionExists = await checkDuplicateQuestion(id);
-            // if (questionExists) {
-            //     return res.status(409).json({ message: "Question already exists"});
-            // }
+            //Check duplicates
+            const questionExists = await _checkDuplicateQuestion(title, description);
+            if (questionExists) {
+                return res.status(409).json({ message: "Question already exists"});
+            }
             
             const questionCreated = await _createQuestion(id, title, description, category, complexity);
             return res.status(201).json(questionCreated);
@@ -29,18 +29,6 @@ export async function createQuestion(req, res) {
     }
 };
 
-export async function checkDuplicateQuestion(req, res) {
-    try {
-        const { title, description } = req.params;
-        const question = await _checkDuplicateQuestion(title, description);
-        if (question) {
-            return res.status(409).json({ message: "Question already exists"});
-        }
-        return res.status(200).json({ message: "Question does not exist"});
-    } catch (error) {
-        return res.status(500).json({ message: error.message});
-    } 
-}
 export async function findAllQuestions(req, res) {
     try {
         const questions = await _findAllQuestions();
@@ -78,9 +66,11 @@ export async function findQuestionByTitleAndComplexity(req, res) {
 
 export async function updateQuestionById(req, res) {
     try {
-        const { id } = req.params;
-        const { title, description, category, complexity } = req.body;
+        const { id, title, description, category, complexity } = req.body;
         const question = await _updateQuestionById(id, title, description, category, complexity);
+        if (!question) {
+            return res.status(404).json({ message: "Question not found"});
+        }
         return res.status(200).json(question);
     } catch (error) {
         return res.status(500).json({ message: error.message});
@@ -90,9 +80,12 @@ export async function updateQuestionById(req, res) {
 export async function deleteQuestionById(req, res) {
     try {
         const { id } = req.params;
-        await _deleteQuestionById(id);
+        const deletedQuestion = await _deleteQuestionById(id);
+        if (!deletedQuestion) {
+            return res.status(404).json({ message: "Question not found"});
+        }
         return res.status(200).json({ message: "Question deleted successfully"});
     } catch (error) {
         return res.status(500).json({ message: error.message});
     }
-}
+}   
