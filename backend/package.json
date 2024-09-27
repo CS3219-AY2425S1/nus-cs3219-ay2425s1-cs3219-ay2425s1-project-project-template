@@ -6,6 +6,9 @@
     "dev": "cd question-service && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "workspaces": [
+    "question-service"
+  ],
   "author": "",
   "license": "ISC",
   "description": ""

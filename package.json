@@ -6,6 +6,7 @@
     "scripts": {
         "frontend": "cd frontend && npm run dev",
         "backend": "cd backend && npm run dev",
+        "install": "concurrently \"cd frontend && npm install\" \"cd backend && npm install\"",
         "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
         "format": "prettier --write \"**/*.{js,ts,json,md,css,html}\"",
         "test": "echo \"Error: no test specified\" && exit 1"
