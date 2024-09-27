@@ -10,6 +10,10 @@ export type Question = {
   link: string;
 };
 
+// Do not have to recreate API object here
+// This is done on the top level in <App/> component => You can think of useContext as a global state where u can retrieve
+// the prop when calling useApiContext(). In this case, the state retrieve is the axios instance.
+// 
 export const questionService = {
   getQuestions: async (setAuth: React.Dispatch<React.SetStateAction<boolean>>): Promise<Question[]> => {
     const api = initApi(setAuth); // Initialize the Axios instance with setAuth
