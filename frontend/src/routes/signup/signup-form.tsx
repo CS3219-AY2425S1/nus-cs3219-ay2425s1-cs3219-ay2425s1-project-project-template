@@ -1,5 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -12,17 +10,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/lib/routes';
-import { signUp } from '@/services/user-service';
 
 import { useSignupForm } from './logic';
 
 export const SignUpForm = () => {
-  const { mutate: _sendSignUpRequest, status: _status } = useMutation({
-    mutationFn: signUp,
-  });
-  const { form, onSubmit } = useSignupForm();
+  const { form, onSubmit, isPending: isDisabled } = useSignupForm();
   return (
-    <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center border'>
+    <Card className='bg-primary-foreground border-border flex  max-w-sm flex-col justify-center border'>
       <CardHeader className='flex items-center'>
         <CardTitle className='text-3xl'>Create An Account</CardTitle>
       </CardHeader>
@@ -37,7 +31,7 @@ export const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='John' {...field} />
+                      <Input disabled={isDisabled} placeholder='John' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -50,7 +44,7 @@ export const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Smith' {...field} />
+                      <Input disabled={isDisabled} placeholder='Smith' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -64,7 +58,7 @@ export const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder='johnSmith01' {...field} />
+                    <Input disabled={isDisabled} placeholder='johnSmith01' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -77,7 +71,12 @@ export const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type='email' placeholder='johnSmith@email.com' {...field} />
+                    <Input
+                      type='email'
+                      disabled={isDisabled}
+                      placeholder='johnSmith@email.com'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,7 +89,12 @@ export const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type='password' placeholder='••••••••' {...field} />
+                    <Input
+                      type='password'
+                      disabled={isDisabled}
+                      placeholder='••••••••'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,13 +107,18 @@ export const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input type='password' placeholder='••••••••' {...field} />
+                    <Input
+                      type='password'
+                      disabled={isDisabled}
+                      placeholder='••••••••'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type='submit' className='mt-4 w-full'>
+            <Button type='submit' disabled={isDisabled} className='mt-4 w-full'>
               Sign Up
             </Button>
           </form>

@@ -13,5 +13,6 @@ COPY --from=build --chown=node:node /data/question-express/dist ./dist
 
 ARG env
 COPY ".env.${env}" .
-EXPOSE 8001
+ARG port
+EXPOSE ${port}
 CMD [ "npm", "run", "start" ]

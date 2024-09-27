@@ -1,23 +1,20 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 
 export const useRouterLocation = () => {
   const location = useLocation();
 
-  const { isSignUp, isLogin, isForgotPassword } = useMemo(() => {
+  const data = useMemo(() => {
     const { pathname } = location;
     return {
-      isSignUp: pathname === ROUTES.SIGNUP,
+      isUnauthedRoute: UNAUTHED_ROUTES.includes(pathname),
       isLogin: pathname === ROUTES.LOGIN,
-      isForgotPassword: pathname === ROUTES.FORGOT_PASSWORD,
     };
   }, [location]);
   return {
     location,
-    isLogin,
-    isSignUp,
-    isForgotPassword,
+    ...data,
   };
 };
