@@ -56,6 +56,7 @@ export default function QuestionViewEdit({
       toast({
         title: "Unknown Error",
         description: "An unexpected error has occurred",
+        variant: "destructive",
       });
     }
     switch (response.status) {
@@ -63,18 +64,21 @@ export default function QuestionViewEdit({
         toast({
           title: "Success",
           description: "Question updated successfully!",
+          variant: "success",
         });
         break;
       case 404:
         toast({
           title: "Question not found",
           description: "Question with specified ID not found",
+          variant: "destructive",
         });
         return;
       case 409:
         toast({
           title: "Duplicated title",
           description: "The title you entered is already in use",
+          variant: "destructive",
         });
         return;
     }
