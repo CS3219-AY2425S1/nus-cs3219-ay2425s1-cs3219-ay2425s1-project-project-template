@@ -5,6 +5,7 @@ enum DifficultyLevel {
   }
 
 interface QuestionDto {
+    id: string;
     title: string;
     description: string;
     difficultyLevel: DifficultyLevel;
