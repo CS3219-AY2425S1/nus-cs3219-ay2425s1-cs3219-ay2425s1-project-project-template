@@ -4,7 +4,7 @@ import {
     deleteQuestionById as _deleteQuestionById,
     findAllQuestions as _findAllQuestions,
     findQuestionById as _findQuestionById,
-    findQuestionByTitleAndComplexity as _findQuestionByTitleAndComplexity,
+    findQuestionByComplexity as _findQuestionByComplexity,
     updateQuestionById as _updateQuestionById,
 } from "../model/repository.js";
 
@@ -14,10 +14,10 @@ export async function createQuestion(req, res) {
         const {id, title, description, category, complexity} = req.body;
         if (id && title && description && category && complexity) {
             // Check duplicates
-            //const questionExists = await checkDuplicateQuestion(id);
-            // if (questionExists) {
-            //     return res.status(409).json({ message: "Question already exists"});
-            // }
+            const questionExists = await _checkDuplicateQuestion(title, description);
+            if (questionExists) {
+                return res.status(409).json({ message: "Question already exists"});
+            }
             
             const questionCreated = await _createQuestion(id, title, description, category, complexity);
             return res.status(201).json(questionCreated);
@@ -29,18 +29,6 @@ export async function createQuestion(req, res) {
     }
 };
 
-export async function checkDuplicateQuestion(req, res) {
-    try {
-        const { title, description } = req.params;
-        const question = await _checkDuplicateQuestion(title, description);
-        if (question) {
-            return res.status(409).json({ message: "Question already exists"});
-        }
-        return res.status(200).json({ message: "Question does not exist"});
-    } catch (error) {
-        return res.status(500).json({ message: error.message});
-    } 
-}
 export async function findAllQuestions(req, res) {
     try {
         const questions = await _findAllQuestions();
@@ -63,10 +51,10 @@ export async function findQuestionById(req, res) {
     }
 };
 
-export async function findQuestionByTitleAndComplexity(req, res) {
+export async function findQuestionByComplexity(req, res) {
     try {
-        const { title, complexity } = req.params;
-        const question = await _findQuestionByTitleAndComplexity(title, complexity);
+        const { complexity } = req.params;
+        const question = await _findQuestionByComplexity(complexity);
         if (!question) {
             return res.status(404).json({ message: "Question not found"});
         }
@@ -79,6 +67,10 @@ export async function findQuestionByTitleAndComplexity(req, res) {
 export async function updateQuestionById(req, res) {
     try {
         const { id } = req.params;
+        const questionExists = await _findQuestionById(id);
+        if (!questionExists) {
+            return res.status(404).json({ message: "Question not found"});
+        }
         const { title, description, category, complexity } = req.body;
         const question = await _updateQuestionById(id, title, description, category, complexity);
         return res.status(200).json(question);

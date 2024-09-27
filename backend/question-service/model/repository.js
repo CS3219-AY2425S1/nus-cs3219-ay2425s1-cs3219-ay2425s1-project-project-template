@@ -18,7 +18,7 @@ export async function createQuestion(id, title, description, category, complexit
 
 // Find questions using id
 export async function findQuestionById(id) {
-  return QuestionModel.findById(id);
+  return QuestionModel.find({ id });
 }
 
 //check for duplicates by title and description
@@ -37,13 +37,8 @@ export async function findAllQuestions() {
 }
 
 // Find a question using category and complexity
-export async function findQuestionByTitleAndComplexity(title, complexity) {
-  return QuestionModel.findOne({ 
-    $and: [
-      { title }, 
-      { complexity },
-    ],
-  });
+export async function findQuestionByComplexity(complexity) {
+  return QuestionModel.findOne({ complexity });
 }
 
 // Update question using Id

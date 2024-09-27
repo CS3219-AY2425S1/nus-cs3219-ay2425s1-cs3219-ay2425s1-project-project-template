@@ -25,6 +25,7 @@ const QuestionModelSchema = mongoose.Schema(
 
         complexity: {
             type: String,
+            enum: ["Easy", "Medium", "Hard"],
             required: true
         }
     }
