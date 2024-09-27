@@ -34,4 +34,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.COLLECTION_NAME)

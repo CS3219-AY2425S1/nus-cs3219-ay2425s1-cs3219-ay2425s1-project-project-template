@@ -18,7 +18,6 @@ async def create_question(new_question: Question) -> Question:
 
 async def get_questions() -> List[Question]:
     questions = await question_collection.all().to_list()
-    logger.info(questions)
     return questions
 
 
