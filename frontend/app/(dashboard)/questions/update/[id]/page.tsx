@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, Flex } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, Flex, useToast } from "@chakra-ui/react";
 import { getQuestionById, updateQuestion } from "@/services/questionService";
 import { Question, QuestionComplexity, QuestionTopic } from "@/types/Question";
 import { marked } from "marked";
@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 export default function Page({ params }: { params: { id: string } }) {
   const id = params.id;
   const router = useRouter();
+  const toast = useToast();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -44,7 +45,14 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const handleSubmit = async () => {
     if (!title || !description || topics.size === 0 || !complexity || !link) {
-      alert("All fields are required.");
+      toast.closeAll();
+      toast({
+        title: "All fields are required.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
     const updatedQuestion: Question = {
@@ -61,9 +69,23 @@ export default function Page({ params }: { params: { id: string } }) {
       router.push('/questions');
     } catch (error: any) {
       if (error.response && error.response.status === 409) {
-        alert("A question with this title already exists.");
+        toast.closeAll();
+        toast({
+          title: "A question with this title already exists.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
       } else {
-        alert("Failed to update question. Please try again.");
+        toast.closeAll();
+        toast({
+          title: "Failed to update question. Please try again.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
       }
     }
   };
@@ -136,7 +158,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <Input name="link" value={link} onChange={handleLinkChange} />
       </FormControl>
 
-      <Flex justifyContent="space-between">
+      <Flex alignItems="center" gap={4}>
         <Button colorScheme="teal" onClick={handleSubmit}>
           Update
         </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, FormControl, FormLabel, Input, Select, Flex, Textarea } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormLabel, Input, Select, Flex, Textarea, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import { Question, QuestionComplexity, QuestionTopic } from "@/types/Question";
 import { createQuestion } from "@/services/questionService";
@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 
 export default function CreateQuestionPage() {
   const router = useRouter();
+  const toast = useToast();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("Description<br/>`const input = [1, 2, 3]`");
@@ -28,7 +29,14 @@ export default function CreateQuestionPage() {
 
   const handleSubmit = async () => {
     if (!title || !description || topics.size === 0 || !complexity || !link) {
-      alert("All fields are required.");
+      toast.closeAll();
+      toast({
+        title: "All fields are required.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
@@ -45,9 +53,23 @@ export default function CreateQuestionPage() {
       router.push('/questions');
     } catch (error: any) {
       if (error.response && error.response.status === 409) {
-        alert("A question with this title already exists.");
+        toast.closeAll();
+        toast({
+          title: "A question with this title already exists.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
       } else {
-        alert("Failed to create question. Please try again.");
+        toast.closeAll();
+        toast({
+          title: "Failed to create question. Please try again.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
       }
     }
   };
@@ -120,7 +142,7 @@ export default function CreateQuestionPage() {
         <Input name="link" value={link} onChange={handleLinkChange} />
       </FormControl>
 
-      <Flex justifyContent="space-between">
+      <Flex alignItems="center" gap={4}>
         <Button colorScheme="teal" onClick={handleSubmit}>
           Update
         </Button>
