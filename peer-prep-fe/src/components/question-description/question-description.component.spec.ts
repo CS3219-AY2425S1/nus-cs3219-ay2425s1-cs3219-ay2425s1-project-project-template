@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { QuestionDescriptionComponent } from './question-description.component';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 describe('QuestionDescriptionComponent', () => {
   let component: QuestionDescriptionComponent;
@@ -8,27 +8,19 @@ describe('QuestionDescriptionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [QuestionDescriptionComponent], 
+      imports: [QuestionDescriptionComponent], 
       providers: [
-        {
-          provide: MAT_DIALOG_DATA, 
-          useValue: { questionTitle: 'Sample Title', questionDifficulty: 'Easy' } 
-        },
-        {
-          provide: MatDialogRef, 
-          useValue: {} 
-        }
+        { provide: MAT_DIALOG_DATA, useValue: {} }, 
+        { provide: MatDialogRef, useValue: {} }     
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QuestionDescriptionComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); 
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 });
