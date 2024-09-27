@@ -123,13 +123,13 @@ export default function AdminUserManagement() {
                       setShowModal(true);
                     }}
                   >
-                    <PencilIcon />
+                    <PencilIcon className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={() => handleDelete(user.id)}
                   >
-                    <Trash2Icon />
+                    <Trash2Icon className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>
