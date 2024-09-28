@@ -5,7 +5,7 @@ const Topbar = () => {
   return (
     <header className="bg-white text-black p-4 shadow">
       <div className="px-4 flex justify-between items-center">
-        <h1 className="text-lg font-medium">Question Repository</h1>
+        <h1 className="text-lg font-medium">PeerPrep</h1>
         {/* //TODO: Replace with real user data */}
         <div className="flex items-center space-x-2">
           <Avatar>

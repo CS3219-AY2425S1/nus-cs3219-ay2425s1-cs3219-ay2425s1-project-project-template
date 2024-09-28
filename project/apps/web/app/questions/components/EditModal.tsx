@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreateQuestionDto, createQuestionSchema } from "@repo/dtos/questions";
+import { UpdateQuestionDto, updateQuestionSchema } from "@repo/dtos/questions";
 import { Complexity, Category } from "@repo/dtos/questions";
 import {
   Dialog,
@@ -31,29 +31,33 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
-interface CreateModalProps {
+interface EditModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  onCreate: (data: CreateQuestionDto) => void;
+  onSubmit: (data: UpdateQuestionDto) => void;
+  initialValues: UpdateQuestionDto;
 }
 
-export default function CreateModal({
+export default function EditModal({
   open,
   setOpen,
-  onCreate,
-}: CreateModalProps) {
+  onSubmit,
+  initialValues,
+}: EditModalProps) {
   const form = useZodForm({
-    schema: createQuestionSchema,
+    schema: updateQuestionSchema,
     defaultValues: {
-      q_title: "",
-      q_desc: "",
-      q_complexity: Complexity.Easy,
-      q_category: [],
+      q_title: initialValues.q_title,
+      q_desc: initialValues.q_desc,
+      q_complexity: initialValues.q_complexity,
+      q_category: initialValues.q_category,
     },
   });
 
   const categories = Object.values(Category);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>(
+    initialValues.q_category,
+  );
 
   const toggleCategory = (category: Category) => {
     const updatedCategories = selectedCategories.includes(category)
@@ -64,25 +68,38 @@ export default function CreateModal({
     form.setValue("q_category", updatedCategories);
   };
 
-  const handleSubmit = (data: CreateQuestionDto) => {
-    data.q_category = selectedCategories;
-    onCreate(data);
+  const handleSubmit = (data: UpdateQuestionDto) => {
+    const updatedData: UpdateQuestionDto = {
+      ...data,
+      id: initialValues.id,
+    };
+
+    onSubmit(updatedData);
     setOpen(false);
   };
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      form.reset({
+        q_title: initialValues.q_title,
+        q_desc: initialValues.q_desc,
+        q_complexity: initialValues.q_complexity,
+        q_category: initialValues.q_category,
+        id: initialValues.id,
+      });
+      setSelectedCategories(initialValues.q_category);
+    } else {
       form.reset();
       form.clearErrors();
       setSelectedCategories([]);
     }
-  }, [open, form]);
+  }, [open, form, initialValues]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Question</DialogTitle>
+          <DialogTitle>Edit Question</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -190,7 +207,7 @@ export default function CreateModal({
                 Cancel
               </Button>
               <Button type="submit" variant="default">
-                Create
+                Confirm
               </Button>
             </DialogFooter>
           </form>
