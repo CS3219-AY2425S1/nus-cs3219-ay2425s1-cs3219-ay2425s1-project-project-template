@@ -1,7 +1,7 @@
 
 import { Request, Response } from 'express';
-import { registrationValidator } from '../utils/signUpValidator';
-import { registerUser as registerUserService } from '../services/userSignUpService';
+import { registrationValidator } from '../auth_utils/signUpValidator';
+import { registerUser as registerUserService } from '../db_utils/userSignUpService';
 import { connectToDatabase } from '../../config/db';
 
 const registerUser = async (req: Request, res: Response) => {

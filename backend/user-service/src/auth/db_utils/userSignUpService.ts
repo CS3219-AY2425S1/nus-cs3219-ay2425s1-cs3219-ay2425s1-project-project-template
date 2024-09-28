@@ -1,5 +1,5 @@
 import User from '../../models/user';
-import { hashPassword } from '../utils/passwordHasher';
+import { hashPassword } from '../auth_utils/passwordHasher';
 
 interface RegisterInput {
     name: string;
