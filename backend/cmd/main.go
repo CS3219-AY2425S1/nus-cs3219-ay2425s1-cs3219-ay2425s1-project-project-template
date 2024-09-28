@@ -11,6 +11,7 @@ import (
 	"backend/internal/routes"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -64,6 +65,11 @@ func main() {
 	// Initialize the router
 	r := mux.NewRouter()
 
+	// Enable CORS
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+	origins := handlers.AllowedOrigins([]string{"*"}) // Allow all origins or specify your frontend's origin
+
 	// Register the routes for the API
 	routes.RegisterQuestionRoutes(r)
 
@@ -73,5 +79,5 @@ func main() {
 		port = "5050"
 	}
 	log.Println("Starting the server on port", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Fatal(http.ListenAndServe(":5050", handlers.CORS(headers, methods, origins)(r)))
 }

@@ -2,7 +2,6 @@
 
 import QuestionTable from "@/components/questions/QuestionTable";
 import DefaultLayout from "@/layouts/default";
-import { Question } from "@/types/questions";
 import { useQuestions } from "@/hooks/questions";
 
 const QuestionsPage = () => {
@@ -11,7 +10,13 @@ const QuestionsPage = () => {
   return (
     <DefaultLayout>
       <div className="flex items-center justify-center">
-        <QuestionTable questions={questions || []} />
+        {isLoading ? (
+          <p>Loading questions...</p>
+        ) : error ? (
+          <p>Error: {error.message}</p>
+        ) : (
+          <QuestionTable questions={questions?.questions || []} />
+        )}
       </div>
     </DefaultLayout>
   );

@@ -20,7 +20,7 @@ interface QuestionTableProps {
 }
 
 const columns = [
-  { name: "Id", uid: "questionId" },
+  { name: "Index", uid: "index" },
   { name: "Title", uid: "title" },
   { name: "Category", uid: "category" },
   { name: "Difficulty", uid: "complexity" },
@@ -60,26 +60,24 @@ export default function QuestionTable({ questions }: QuestionTableProps) {
   }, []);
 
   return (
-    <div className="flex relative flex-col items-center w-9/12">
+    <div className="flex relative flex-col items-center w-10/12">
       <div className="flex w-full justify-between">
         <h2>Questions</h2>
         <Button>Add</Button>
       </div>
       <div className="mt-5 h-52 w-full">
-        <Table aria-label="Example empty table">
+        <Table aria-label="Example table with index">
           <TableHeader columns={columns}>
-            {(column) => {
-              return (
-                <TableColumn
-                  key={column.uid}
-                  align={column.uid === "action" ? "center" : "start"}
-                >
-                  {column.name}
-                </TableColumn>
-              );
-            }}
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === "action" ? "center" : "start"}
+              >
+                {column.name}
+              </TableColumn>
+            )}
           </TableHeader>
-          <TableBody items={questions}>
+          <TableBody emptyContent={"No questions to display"} items={questions}>
             {(item) => (
               <TableRow key={item.questionId}>
                 {(columnKey) => (

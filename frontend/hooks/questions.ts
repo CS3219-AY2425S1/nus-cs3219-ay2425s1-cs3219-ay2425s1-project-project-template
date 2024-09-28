@@ -2,16 +2,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import axios from "@/utils/axios";
-import { Question } from "@/types/questions";
+import { Question, QuestionList } from "@/types/questions";
 
 // Fetch questions list
 export const useQuestions = () => {
-  return useQuery<Question[], Error>({
+  return useQuery<QuestionList, Error>({
     queryKey: ["questions"],
-    queryFn: async (): Promise<Question[]> => {
+    queryFn: async (): Promise<QuestionList> => {
       const response = await axios.get("/questions");
-      console.log(response)
-      
+
       return response.data;
     },
   });

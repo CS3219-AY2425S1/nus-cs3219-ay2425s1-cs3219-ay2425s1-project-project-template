@@ -5,3 +5,8 @@ export interface Question {
   category: string[]; // Category or topic to which the question belongs
   description: string; // Detailed description of the question
 }
+
+export interface QuestionList {
+  questions: Question[];
+  totalPages: string;
+}
