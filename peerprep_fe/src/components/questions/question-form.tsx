@@ -9,7 +9,9 @@ import { useRouter } from "next/navigation";
 
 export function QuestionForm() {
   // Tracks the form submission state
-  const [state, action] = useFormState(addQuestion, undefined);
+  const token = localStorage.getItem("token");
+  const onSubmit = addQuestion(token);
+  const [state, action] = useFormState(onSubmit, undefined);
   const router = useRouter();
 
   useEffect(() => {
