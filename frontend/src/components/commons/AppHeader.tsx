@@ -24,8 +24,8 @@ const AppHeader: React.FC = () => {
             <span className="text-xl font-bold">PeerPrep</span>
           </Link>
           <nav className="hidden md:flex space-x-4 px-5 items-center">
-            <Link href="#" className="hover:underline">Sessions</Link>
-            <Link href="#" className="hover:underline">Questions</Link>
+            <Link href="./sessions" className="hover:underline">Sessions</Link>
+            <Link href="./questions" className="hover:underline">Questions</Link>
           </nav>
         </div>
 
