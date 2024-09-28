@@ -1,11 +1,10 @@
 "use server";
 
 import dotenv from "dotenv";
-import { FormState } from "../lib/definitions";
+import { FormState } from "../types/AuthTypes";
 
 dotenv.config();
 
-// TODO: RSA handshake + AES encryption
 export async function signup(state: FormState, formData: FormData) {
   const result = validateSignUpFormData(formData);
   if (!result.success) {

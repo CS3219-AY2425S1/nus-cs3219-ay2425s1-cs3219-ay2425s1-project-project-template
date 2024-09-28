@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }: Props) => {
   useEffect(() => {
     if (!token) {
       const storedToken = localStorage.getItem("token");
+      // TODO: Add token validation
       if (storedToken) {
         setToken(storedToken);
       } else {
