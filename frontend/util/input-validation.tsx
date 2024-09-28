@@ -7,6 +7,7 @@ export const initialFormValues: IValidateFormInput = {
     confirmPassword: '',
     proficiency: '',
     loginPassword: '',
+    otp: '',
 }
 
 const validateInput = (
@@ -18,6 +19,7 @@ const validateInput = (
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
     const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+    const otpRegex = /^[0-9]{6}$/
 
     if (test.username) {
         if (!testValue.username) {
@@ -69,6 +71,16 @@ const validateInput = (
     if (test.loginPassword) {
         if (!testValue.loginPassword) {
             errors.loginPassword = 'Password is required!'
+            isValid = false
+        }
+    }
+
+    if (test.otp) {
+        if (!testValue.otp) {
+            errors.otp = 'Please enter the OTP!'
+            isValid = false
+        } else if (!otpRegex.test(testValue.otp)) {
+            errors.otp = 'Invalid OTP!'
             isValid = false
         }
     }

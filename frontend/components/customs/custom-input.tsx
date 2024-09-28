@@ -1,4 +1,6 @@
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '../ui/input-otp'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
 import { ErrorIconToast } from '@/assets/icons/error-icon'
 
 interface InputFieldProps {
@@ -16,7 +18,7 @@ interface InputFieldProps {
 
 interface OptionsFieldProps {
     id: string
-    label: string
+    label?: string
     value: string
     error?: string
     onChange?: (e: string) => void
@@ -63,6 +65,36 @@ export const InputField = (props: InputFieldProps): JSX.Element => {
                     </div>
                 )}
             </div>
+        </div>
+    )
+}
+
+export const OTPField = ({ id, value, error, onChange }: OptionsFieldProps): JSX.Element => {
+    return (
+        <div>
+            <InputOTP id={id} maxLength={6} value={value} onChange={onChange}>
+                <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                </InputOTPGroup>
+            </InputOTP>
+            {error ? (
+                <div className="flex flex-row gap-1 h-min mt-1">
+                    <ErrorIconToast />
+                    <p className="text-xs text-red-delete">{error}</p>
+                </div>
+            ) : (
+                <div className="flex flex-row gap-1 h-min mt-1">
+                    <p className="text-xs text-red-delete">&nbsp;</p>
+                </div>
+            )}
         </div>
     )
 }

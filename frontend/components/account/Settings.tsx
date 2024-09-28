@@ -37,6 +37,7 @@ function Setting() {
             confirmPassword: true,
             proficiency: false,
             loginPassword: false,
+            otp: false,
         }
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)

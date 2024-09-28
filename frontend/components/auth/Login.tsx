@@ -27,6 +27,7 @@ export default function Login() {
             username: false,
             confirmPassword: false,
             proficiency: false,
+            otp: false,
         }
 
         const [errors, isValid] = validateInput(isTest, formValues)

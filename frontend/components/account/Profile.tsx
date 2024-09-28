@@ -35,6 +35,7 @@ function Profile() {
             confirmPassword: false,
             proficiency: true,
             loginPassword: false,
+            otp: false,
         }
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)
