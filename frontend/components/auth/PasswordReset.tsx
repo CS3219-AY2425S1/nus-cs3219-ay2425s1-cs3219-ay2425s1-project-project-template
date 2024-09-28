@@ -138,33 +138,35 @@ export function PasswordReset() {
     )
 
     const enterNewPassword = (
-        <DialogContent className="min-h-[400px] sm:max-w-[425px]">
+        <DialogContent className="min-h-[375px] sm:max-w-[425px]">
             <DialogHeader>
                 <DialogTitle>Create your new password</DialogTitle>
                 <DialogDescription>Enter your new password below.</DialogDescription>
             </DialogHeader>
-            <InputField
-                id="password"
-                type={passwordInputType}
-                placeholder="Enter new password"
-                icon={passwordToggleIcon}
-                value={formValues.password}
-                onChange={handleFormChange}
-                error={formErrors.password}
-                className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
-                page="auth"
-            />
-            <InputField
-                id="confirmPassword"
-                type={confirmPasswordInputType}
-                placeholder="Confirm your new password"
-                icon={confirmPasswordToggleIcon}
-                value={formValues.confirmPassword}
-                onChange={handleFormChange}
-                error={formErrors.confirmPassword}
-                className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
-                page="auth"
-            />
+            <div className="h-full">
+                <InputField
+                    id="password"
+                    type={passwordInputType}
+                    placeholder="Enter new password"
+                    icon={passwordToggleIcon}
+                    value={formValues.password}
+                    onChange={handleFormChange}
+                    error={formErrors.password}
+                    className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+                    page="auth"
+                />
+                <InputField
+                    id="confirmPassword"
+                    type={confirmPasswordInputType}
+                    placeholder="Confirm your new password"
+                    icon={confirmPasswordToggleIcon}
+                    value={formValues.confirmPassword}
+                    onChange={handleFormChange}
+                    error={formErrors.confirmPassword}
+                    className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+                    page="auth"
+                />
+            </div>
             <DialogFooter>
                 <Button type="submit" className="bg-purple-600 hover:bg-[#A78BFA]" onClick={onReset}>
                     Reset Password
