@@ -88,7 +88,7 @@ export default function AdminUserManagement() {
   };
 
   return (
-    <AuthPageWrapper requireAdmin>
+    <>
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">User Management</h1>
         <AdminEditUserModal
@@ -137,6 +137,6 @@ export default function AdminUserManagement() {
           </TableBody>
         </Table>
       </div>
-    </AuthPageWrapper>
+    </>
   );
 }

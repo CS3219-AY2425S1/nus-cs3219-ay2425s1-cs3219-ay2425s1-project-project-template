@@ -309,7 +309,7 @@ export default function UserSettings({ userId }: { userId: string }) {
   }
 
   return (
-    <AuthPageWrapper requireLoggedIn>
+    <>
       {error ? (
         <div>Error: Failed to load user data</div>
       ) : !user ? (
@@ -496,6 +496,6 @@ export default function UserSettings({ userId }: { userId: string }) {
           </Tabs>
         </div>
       )}
-    </AuthPageWrapper>
+    </>
   );
 }
