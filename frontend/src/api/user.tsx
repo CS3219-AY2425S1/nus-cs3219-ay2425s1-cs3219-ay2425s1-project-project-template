@@ -22,6 +22,7 @@ export const setGetProfile = async (access_token: string, user: User): Promise<U
       github,
     }),
   });
+  console.log(response.json());
 
   // return response.json();
   return {

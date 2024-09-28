@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 interface ContainerProps {
   withHeader?: boolean; // Lazy way to handle adding of headers to pages that need them
-  className: string;
-  children: React.ReactNode;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 const Container = ({

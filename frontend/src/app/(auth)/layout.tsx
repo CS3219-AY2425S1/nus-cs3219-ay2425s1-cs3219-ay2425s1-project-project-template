@@ -51,7 +51,7 @@ const sidebarItems: SidebarMenuItemProps[] = [
   {
     menuLabel: "Find Match",
     menuIcon: IoMdSearch,
-    linksTo: "/find-match",
+    linksTo: "/match",
   },
 ];
 
@@ -85,7 +85,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         icon: "error",
         showDenyButton: true,
         confirmButtonText: "Sign in with Google",
-        denyButtonText: "Nevermind"
+        denyButtonText: "Nevermind",
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
@@ -101,9 +101,10 @@ const Layout = ({ children }: { children: ReactNode }) => {
     googleLogout();
     logout();
     router.push("/");
-  }
+  };
 
-  return (<div className="flex h-full overflow-y-auto">
+  return (
+    <div className="flex h-full overflow-y-auto">
       <Sidebar
         className="sticky top-0 h-screen"
         rootStyles={{
@@ -139,7 +140,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
             >
               Logout
             </MenuItem>
-          </Menu>}
+          </Menu>
+          }
         </div>
       </Sidebar>
       <div className="w-full overflow-y-scroll">{children}</div>
