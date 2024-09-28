@@ -146,7 +146,7 @@ export function PasswordReset() {
                 <DialogTitle>Create your new password</DialogTitle>
                 <DialogDescription>Enter your new password below.</DialogDescription>
             </DialogHeader>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 h-full">
                 <InputField
                     id="password"
                     type={passwordInputType}
