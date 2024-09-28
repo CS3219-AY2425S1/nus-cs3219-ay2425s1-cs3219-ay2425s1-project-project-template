@@ -10,15 +10,18 @@ import {
 } from "@chakra-ui/react";
 import { ColumnFilter } from "@tanstack/react-table";
 import { FaSearch } from "react-icons/fa";
-import { COMPLEXITIES, CATEGORIES } from '../data'; // Assuming data exists for both
-import DropdownFilter from './DropdownFilter';
+import { COMPLEXITIES, CATEGORIES } from "../constants/data"; // Assuming data exists for both
+import DropdownFilter from "./DropdownFilter";
 
 interface FiltersProps {
   columnFilters: ColumnFilter[];
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFilter[]>>;
 }
 
-const Filters: React.FC<FiltersProps> = ({ columnFilters, setColumnFilters }) => {
+const Filters: React.FC<FiltersProps> = ({
+  columnFilters,
+  setColumnFilters,
+}) => {
   const questions = columnFilters.find((f) => f.id === "title")?.value || "";
 
   const onFilterChange = (id: string, value: string) =>
@@ -29,7 +32,7 @@ const Filters: React.FC<FiltersProps> = ({ columnFilters, setColumnFilters }) =>
           id,
           value,
         })
-    );    
+    );
 
   return (
     <HStack mb={6} spacing={4} align="center">
@@ -45,7 +48,7 @@ const Filters: React.FC<FiltersProps> = ({ columnFilters, setColumnFilters }) =>
           bg={"rgba(255, 255, 255, 0.1)"}
           _hover={{
             bg: "rgba(255, 255, 255, 0.2)",
-            boxShadow: "white", 
+            boxShadow: "white",
           }}
           _focus={{
             bg: "purple",
@@ -59,7 +62,9 @@ const Filters: React.FC<FiltersProps> = ({ columnFilters, setColumnFilters }) =>
           onChange={(e) => onFilterChange("title", e.target.value)}
         />
       </InputGroup>
-      <Text textColor={"white"} size={"lg"}>COMPLEXITY</Text>
+      <Text textColor={"white"} size={"lg"}>
+        COMPLEXITY
+      </Text>
       <DropdownFilter
         label="Difficulty"
         filters={COMPLEXITIES}
@@ -68,7 +73,9 @@ const Filters: React.FC<FiltersProps> = ({ columnFilters, setColumnFilters }) =>
         filterKey="complexity"
         color="purple.300"
       />
-      <Text textColor={"white"} size={"lg"}>TOPIC</Text>
+      <Text textColor={"white"} size={"lg"}>
+        TOPIC
+      </Text>
       <DropdownFilter
         label="Topics"
         filters={CATEGORIES}

@@ -17,10 +17,10 @@ import {
   Icon,
   useDisclosure,
 } from "@chakra-ui/react";
-import MenuDrawer from "../../components/MenuDrawer";
+import MenuDrawer from "../../components/layout/MenuDrawer";
 import { FiAlignJustify } from "react-icons/fi";
 import Filters from "../../components/Filter";
-import { CATEGORIES, COMPLEXITIES } from "../../data";
+import { CATEGORIES, COMPLEXITIES } from "../../constants/data";
 import DataTable from "../../components/DataTable";
 
 type QuestionViewProps = {

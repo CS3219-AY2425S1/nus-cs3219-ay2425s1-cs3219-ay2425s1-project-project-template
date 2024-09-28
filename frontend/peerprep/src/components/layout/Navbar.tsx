@@ -3,7 +3,7 @@ import { Box, Button, Icon, useDisclosure } from "@chakra-ui/react";
 import { FiAlignJustify } from "react-icons/fi";
 import logo from "/peerprep_logo.png";
 
-import MenuDrawer from "../MenuDrawer";
+import MenuDrawer from "./MenuDrawer";
 
 const Navbar: React.FunctionComponent = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();

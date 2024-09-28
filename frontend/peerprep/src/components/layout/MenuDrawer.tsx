@@ -13,7 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { FiLogOut } from "react-icons/fi";
 import logo from "/peerprep_logo.png";
-import { menuItems } from "../data";
+import { menuItems } from "../../constants/data";
+import { useNavigate } from "react-router-dom";
 
 type MenuDrawerProps = {
   isOpen: boolean;
@@ -26,6 +27,7 @@ type MenuDrawerProps = {
 const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
   const drawerBgColor = "#141A67";
   const buttonTextColor = "white";
+  const navigate = useNavigate();
 
   return (
     <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
@@ -52,6 +54,7 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
                 leftIcon={<item.icon />}
                 _hover={{ borderColor: "white" }}
                 color={buttonTextColor}
+                onClick={() => navigate(item.route)}
               >
                 {item.label}
               </Button>
