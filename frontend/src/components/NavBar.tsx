@@ -20,7 +20,7 @@ const NavBar: React.FC = () => {
       <IsConnected isConnected={false} />
       {location.pathname === "/" ? (
         <div className="container flex space-x-8 justify-end text-2xl text-off-white">
-          <Link to="/question">
+          <Link to="/dashboard">
             <button className="bg-black rounded-[25px] p-4">Register</button>
           </Link>
           <Link to="/question">
