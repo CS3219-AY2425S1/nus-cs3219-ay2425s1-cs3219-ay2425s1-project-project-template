@@ -46,8 +46,10 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
 	}
 
+	new_question_id := primitive.NewObjectID()
+
 	newQuestion := models.Question{
-		Question_id:          primitive.NewObjectID(),
+		Question_id:          new_question_id,
 		Question_title:       question.Question_title,
 		Question_description: question.Question_description,
 		Question_categories:  question.Question_categories,
@@ -60,16 +62,7 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
-	// Update categories collection
-	err = UpsertCategories(ctx, categoriesCollection, question.Question_categories)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "Error updating categories",
-			Data:    &echo.Map{"data": err.Error()},
-		})
-	}
-
+	result.InsertedID = new_question_id
 	return c.JSON(http.StatusCreated, responses.StatusResponse{Status: http.StatusCreated, Message: successMessage, Data: &echo.Map{"data": result}})
 }
 
@@ -168,16 +161,6 @@ func UpdateQuestion(c echo.Context) error {
 	result, err := questionCollection.UpdateOne(ctx, bson.M{"question_id": objId}, update)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
-	}
-
-	// Update the categories collection only if a new category is added
-	err = UpsertCategories(ctx, categoriesCollection, question.Question_categories)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "Error updating categories",
-			Data:    &echo.Map{"data": err.Error()},
-		})
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": result}})
@@ -304,28 +287,4 @@ func GetDistinctQuestionCategories(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": categories}})
-}
-
-func UpsertCategories(ctx context.Context, categoriesCollection *mongo.Collection, categoryNames []string) error {
-	for _, categoryName := range categoryNames {
-		// Insert or update category_name
-		newCategoryId := primitive.NewObjectID()
-		_, err := categoriesCollection.UpdateOne(ctx,
-			bson.M{"category_name": categoryName}, // Filter by category_name
-			bson.M{
-				"$setOnInsert": bson.M{
-					"category_id":   newCategoryId,
-					"category_name": categoryName,
-				},
-			},
-			options.Update().SetUpsert(true).SetCollation(&options.Collation{
-				Locale:   "en",
-				Strength: 2, // Case-insensitive match
-			}),
-		)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
