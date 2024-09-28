@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:20-alpine
+FROM node:20
 
 # Create a non-privileged user
 RUN useradd -ms /bin/sh -u 1001 app
@@ -10,11 +10,13 @@ USER app
 # Set working directory
 WORKDIR /app
 
+COPY --chown=app:app package.json package-lock.json ./
+
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the application code
-COPY --chown=app:app . .
+COPY --chown=app:app . /app
 
 # # Compile TypeScript to JavaScript
 # RUN npm run build

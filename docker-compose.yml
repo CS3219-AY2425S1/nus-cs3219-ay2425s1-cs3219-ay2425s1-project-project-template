@@ -12,11 +12,11 @@ services:
       - demo-network
     develop:
       watch:
-        - action: sync+restart
-          path: ./user-service/src
-          target: /usr/src/app
+        - action: sync
+          path: ./user-service
+          target: /app
           ignore:
-            - /usr/src/app/node_modules/
+            - /usr/src/user-service/node_modules/
 
   question-service:
     build: ./question-service
@@ -29,11 +29,11 @@ services:
       - demo-network
     develop:
       watch:
-        - action: sync+restart
-          path: ./question-service/src
-          target: /usr/src/app
+        - action: sync
+          path: ./question-service
+          target: /app
           ignore:
-            - /usr/src/app/node_modules/
+            - /usr/src/question-service/node_modules/
 
   frontend:
     build: ./frontend
@@ -47,11 +47,11 @@ services:
       - demo-network
     develop:
       watch:
-        - action: sync+restart
-          path: ./frontend/src
-          target: /usr/src/app
+        - action: sync
+          path: ./frontend
+          target: /app
           ignore:
-            - /usr/src/app/node_modules/
+            - /usr/src/frontend/node_modules/
 
 networks:
   demo-network:
