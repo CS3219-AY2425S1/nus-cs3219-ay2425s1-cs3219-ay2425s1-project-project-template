@@ -5,10 +5,11 @@ import LandingPage from "./components/landing-page/LandingPage";
 import Dashboard from "./components/dashboard/Dashboard";
 
 const Home = () => {
-  const { user } = useAuth();
-  console.log(user);
+  const { token } = useAuth();
 
-  return user?.access_token ? <Dashboard /> : <LandingPage />;
+  return (
+    token ? <Dashboard/> : <LandingPage/>
+  );
 };
 
 export default Home;

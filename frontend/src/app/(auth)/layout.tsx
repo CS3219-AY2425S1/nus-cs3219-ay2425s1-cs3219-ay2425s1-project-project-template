@@ -51,7 +51,7 @@ const sidebarItems: SidebarMenuItemProps[] = [
   {
     menuLabel: "Find Match",
     menuIcon: IoMdSearch,
-    linksTo: "/find-match",
+    linksTo: "/match",
   },
 ];
 
@@ -64,7 +64,7 @@ const menuItemStyles: MenuItemStyles = {
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { user, login, logout } = useAuth();
+  const { token, login, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -106,7 +106,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex h-full overflow-y-auto">
       <Sidebar
-        className="sticky top-0 h-full"
+        className="sticky top-0 h-screen"
         rootStyles={{
           borderColor: "#171C28",
         }}
@@ -128,21 +128,20 @@ const Layout = ({ children }: { children: ReactNode }) => {
               />
             ))}
           </Menu>
-          {user && (
-            <Menu
-              menuItemStyles={menuItemStyles}
-              rootStyles={{
-                marginBottom: "60px",
-              }}
+          {token && <Menu
+            menuItemStyles={menuItemStyles}
+            rootStyles={{
+              marginBottom: "60px",
+            }}
+          >
+            <MenuItem
+              icon={<RiLogoutBoxLine size={iconSize} />}
+              onClick={handleLogout}
             >
-              <MenuItem
-                icon={<RiLogoutBoxLine size={iconSize} />}
-                onClick={handleLogout}
-              >
-                Logout
-              </MenuItem>
-            </Menu>
-          )}
+              Logout
+            </MenuItem>
+          </Menu>
+          }
         </div>
       </Sidebar>
       <div className="w-full overflow-y-scroll">{children}</div>
