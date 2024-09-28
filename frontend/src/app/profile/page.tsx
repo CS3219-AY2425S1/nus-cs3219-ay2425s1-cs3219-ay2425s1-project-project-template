@@ -34,7 +34,7 @@ const ProfilePage: React.FC = () => {
 
     useEffect(() => {
         if (!isAuthenticated) {
-          router.push('/dashboard');
+          router.push('/');
         }
       }, [isAuthenticated, router]);
 
