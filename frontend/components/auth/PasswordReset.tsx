@@ -89,6 +89,7 @@ export function PasswordReset() {
             toast.success('Password reset successfully!')
             setFormStep(ResetPasswordSteps.Step1)
             setOpen(false)
+            setFormValues({ ...initialFormValues })
         }
     }
 
