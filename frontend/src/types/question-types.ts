@@ -2,7 +2,7 @@ export type Question = {
   id: number;
   title: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  topic: Array<string>;
+  topics: Array<string>;
   attempted: boolean;
 };
 
