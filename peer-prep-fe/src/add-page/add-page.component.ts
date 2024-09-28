@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormsModule, Validators, FormGroup, ReactiveFormsModule, FormControl} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 import {ActivatedRoute, Router, Routes} from "@angular/router";
 import {QuestionService} from "../services/question.service";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {EditPageComponent} from "../edit-page/edit-page.component";
 
 @Component({
   selector: 'app-add-page',
@@ -23,11 +25,13 @@ export class AddPageComponent {
   question_description: string = '';
   question_categories = [
     {name: 'Algorithms', selected: false},
+    {name: 'Arrays', selected: false},
+    {name: 'Bit Manipulation', selected: false},
+    {name: 'Brainteaser', selected: false},
     {name: 'Databases', selected: false},
-    {name: 'Shell', selected: false},
-    {name: 'Concurrency', selected: false},
-    {name: 'JavaScript', selected: false},
-    {name: 'pandas', selected: false},
+    {name: 'Data Structures', selected: false},
+    {name: 'Recursion', selected: false},
+    {name: 'Strings', selected: false},
   ];
   question_complexity: string = 'Easy';
   dropdownOpen: boolean = false;
@@ -38,7 +42,9 @@ export class AddPageComponent {
     private questionService: QuestionService,
     private router: Router,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialogRef: MatDialogRef<EditPageComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.questionForm = this.fb.group({
       question_title: ['', Validators.required],
@@ -63,10 +69,11 @@ export class AddPageComponent {
     };
     console.log(newQuestion);
     this.questionService.addQuestion(newQuestion).subscribe((response) => {
-        alert('Question updated successfully!');
+        alert('Question added successfully!');
+        this.dialogRef.close();
       },
       (error) => {
-        alert('Error updating question');
+        alert('Error adding question');
       }
     );
   }
@@ -75,7 +82,7 @@ export class AddPageComponent {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  navigateToList() {
-    this.router.navigate(['/list-of-questions']);
+  navigateBack() {
+    this.dialogRef.close();
   }
 }

@@ -8,6 +8,7 @@
   margin-left: auto;
   margin-right: auto;
   font-family: "Signika", sans-serif;
+  height: 700px;
 }
 
 .question-title {
@@ -102,7 +103,7 @@
   position: absolute;
   width: 80%;
   border: 1px solid #ccc;
-  max-height: 200px;
+  max-height: 100px;
   overflow-y: auto;
   box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
   z-index: 1;

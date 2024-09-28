@@ -34,7 +34,7 @@ export class QuestionBoxComponent {
   openEditModal() {
    this.dialog.open(EditPageComponent, {
      data: {
-       questionId: '66f2a8a8aea02b6b4babc748',
+       questionId: '66f7e238315ce6a3b381c481',
      },
      panelClass: 'custom-modalbox',
      width: '800px',

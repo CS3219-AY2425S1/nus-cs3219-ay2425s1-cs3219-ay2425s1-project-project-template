@@ -98,6 +98,7 @@ export class EditPageComponent implements OnInit {
     };
     this.questionService.updateQuestion(this.questionId, updatedQuestion).subscribe((response) => {
         alert('Question updated successfully!');
+        this.dialogRef.close();
       },
       (error) => {
         alert('Error updating question');
