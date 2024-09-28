@@ -1,4 +1,4 @@
-  "use client"
+"use client"
 
 import React, { useState } from 'react'
 import { Check, CheckIcon, ChevronDownIcon, ChevronUpIcon, PlusIcon, X } from 'lucide-react'
@@ -138,11 +138,11 @@ export default function Questions() {
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Id</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Number</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Title</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Category</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Complexity</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
+            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Question Complexity</th>
+            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
           </tr>
         </thead>
@@ -151,16 +151,16 @@ export default function Questions() {
             <React.Fragment key={question.id}>
               <tr className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{question.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500
                     transform hover:scale-[1.03] transition duration-200 ease-in-out cursor-pointer"
                   onClick={() => toggleQuestion(question.id)}>
                   {question.title}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{question.category}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-center">
                   <ComplexityBadge complexity={question.complexity} />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap flex justify-center">
                   <Check />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
