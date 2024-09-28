@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { AwaitedReactNode, JSXElementConstructor, ReactElement, ReactNode } from 'react'
 import { CalendarIcon, ClockIcon, CheckIcon, PlusIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
