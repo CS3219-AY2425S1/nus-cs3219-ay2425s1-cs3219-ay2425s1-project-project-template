@@ -44,20 +44,8 @@ const QuestionPage = () => {
   // State for questions and the current question data
    const [questions, updateQuestions] = useState([]);
    const [selectedQuestion, setSelectedQuestion] = useState(null);
-   const [mode, setMode] = useState("create"); //Either create or edit mode.
 
-
-  // Consolidated state for question data
-  const [questionData, setQuestionData] = useState({
-    difficulty: 'Easy',
-    topic: 'loops',
-    title: 'Some_Title',
-    description: '',
-    titleSlug: 'test-question' // Static value; consider changing if needed
-  });
-
-
-  const handleTitleClick = (question) => {
+   const handleTitleClick = (question) => {
     setSelectedQuestion(question);
   };
   
@@ -78,19 +66,6 @@ const QuestionPage = () => {
       toast.error('Error deleting question:', error);
     }
   };
-
-  
-  
-  const clearState = async () => {
-    setQuestionData({
-      difficulty: "Easy",
-      topic: "loops",
-      title: "Some_Title",
-      description: "",
-      titleSlug: "test-question",
-    });
-    setMode("create");
-  }
 
   const handleEditQuestion = async (editedQuestion) => {
     try {
