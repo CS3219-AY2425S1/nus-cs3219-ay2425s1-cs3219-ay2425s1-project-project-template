@@ -260,12 +260,12 @@ func paginateResults(results []*firestore.DocumentSnapshot, offset, limit int) [
 	return results[start:end]
 }
 
-// GetKeywordsFromTitle Get keywords from question's title
+// getKeywordsFromTitle Get keywords from question's title
 func getKeywordsFromTitle(title string) []string {
 	return strings.Split(strings.ToLower(strings.TrimSpace(title)), " ")
 }
 
-// TitleContainsKeywords Check if title contains all keywords
+// titleContainsKeywords Check if title contains all keywords
 func titleContainsKeywords(title string, keywords []string) bool {
 	titleWordsSet := make(map[string]bool)
 	titleWords := strings.Split(strings.ToLower(strings.TrimSpace(title)), " ")
