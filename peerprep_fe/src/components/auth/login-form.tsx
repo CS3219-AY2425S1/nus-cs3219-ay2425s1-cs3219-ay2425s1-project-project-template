@@ -1,20 +1,22 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormState } from "react-dom";
 import Textfield from "@/components/common/text-field";
 import Button from "@/components/common/button";
 import TextButton from "@/components/common/text-button";
 import { login } from "@/app/actions/auth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 
 export function LoginForm() {
   const [state, action] = useFormState(login, undefined);
   const router = useRouter();
+  const { updateToken } = useAuth();
 
   useEffect(() => {
     if (state?.message) {
-      localStorage.setItem("token", state.message);
+      updateToken(state.message);
       router.push("/home");
     } else if (state?.errors?.errorMessage) {
       alert(state.errors.errorMessage);

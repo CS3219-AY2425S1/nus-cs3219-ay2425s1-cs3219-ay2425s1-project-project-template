@@ -8,6 +8,7 @@ import "../../styles/modal.css";
 import { QuestionForm } from "@/components/questions/question-form";
 import Button from "@/components/common/button";
 import TableRow from "@/components/questions/table-row";
+import { useAuth } from "@/contexts/auth-context";
 
 enum ModalActionType {
   EDIT,
@@ -59,20 +60,19 @@ export default function Home() {
     isVisible: false,
     isDetailShown: false,
   });
+  const { token } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log(token);
+    if (token) {
+      console.log(token);
+      // // TODO: Validate token is still valid
 
-    if (!token) {
-      router.push("/auth/login");
+      getQuestions(token).then((data) => {
+        setQuestions(data?.message);
+      });
     }
-    // // TODO: Validate token is still valid
-
-    getQuestions(token).then((data) => {
-      setQuestions(data?.message);
-    });
-  }, []);
+    console.log("No token found");
+  }, [token]);
 
   const onClickAdd = () =>
     dispatchModal({
@@ -90,7 +90,6 @@ export default function Home() {
         <Button
           text="Logout"
           onClick={() => {
-            logout();
             router.push("/auth/login");
           }}
         />
@@ -136,8 +135,4 @@ export default function Home() {
       )}
     </div>
   );
-}
-
-export async function logout() {
-  localStorage.removeItem("token");
 }

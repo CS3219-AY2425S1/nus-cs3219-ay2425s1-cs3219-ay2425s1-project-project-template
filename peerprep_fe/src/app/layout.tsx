@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Albert_Sans } from "next/font/google";
 import "@/styles/globals.css";
-import { ThemeProvider } from "@/components/common/theme-provider";
+import { Providers } from "@/contexts/providers";
 
 const albert_sans = Albert_Sans({
   subsets: ["latin"],
@@ -21,14 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
