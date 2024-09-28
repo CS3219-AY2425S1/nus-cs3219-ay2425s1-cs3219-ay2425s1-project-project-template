@@ -40,7 +40,9 @@ const Navbar: React.FC = () => {
                         Practice{' '}
                         {/* button to call API and brings out matching component*/}
                     </button>
-                    <div className="w-10 h-10 rounded-full bg-white mx-4"></div>
+                    <Link href="/profile">
+                        <div className="w-10 h-10 rounded-full bg-white mx-4 cursor-pointer hover:bg-gray-200 transition-colors"></div>
+                    </Link>
                 </div>
             </div>
         </nav>
