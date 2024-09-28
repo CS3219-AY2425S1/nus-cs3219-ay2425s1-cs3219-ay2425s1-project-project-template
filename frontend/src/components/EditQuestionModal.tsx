@@ -11,7 +11,7 @@ const EditQuestionModal: React.FC<{
   oldDetails: string;
   questionID: string;
 }> = ({ onClose, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID }) => {
-  const editQuestion = async (questionID, difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
+  const editQuestion = async (questionID: string, difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
     try {
       console.log("trying");
       const response = await fetch(`http://localhost:8080/questions/${questionID}`, {
@@ -32,9 +32,9 @@ const EditQuestionModal: React.FC<{
       const data = await response.json();
       console.log(data);
     } catch (error) {
-        console.error('Error adding question:', error);
+        console.error('Error editing question:', error);
     }
-};
+  };
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const openDeleteModal = () => setDeleteModalOpen(true);
@@ -221,15 +221,15 @@ const EditQuestionModal: React.FC<{
             >
               Delete Question
             </button>
-            <DeleteQuestionModal
-              isOpen={isDeleteModalOpen}
+            {isDeleteModalOpen && <DeleteQuestionModal
               onClose={closeDeleteModal}
               onDelete={onDeleteConfirm}
               oldDifficulty={oldDifficulty}
               oldTopic={oldTopic}
               oldTitle={oldTitle}
               oldDetails={oldDetails}
-            />
+              questionID={questionID}
+            />}
             <button
               onClick={onEditSubmit}
               className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
