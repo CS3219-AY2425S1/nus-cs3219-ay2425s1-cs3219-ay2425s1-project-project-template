@@ -1,38 +1,88 @@
 "use client";
 
-import Header from "@/components/header";
-import { useEffect } from "react";
+import Header from "@/components/common/header";
+import { getQuestions } from "@/app/actions/questions";
+import { useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import "../../styles/modal.css";
-import React, { useState } from "react";
-import { QuestionForm } from "@/components/question-form";
-import Button from "@/components/button";
+import { QuestionForm } from "@/components/questions/question-form";
+import Button from "@/components/common/button";
+import TableRow from "@/components/questions/table-row";
+
+enum ModalActionType {
+  EDIT,
+  ADD,
+  CLOSE,
+}
+
+interface ModalState {
+  isVisible: boolean;
+  isDetailShown: boolean;
+  details?: QuestionDto;
+}
+
+interface ModalAction {
+  type: ModalActionType;
+  details?: QuestionDto;
+}
+
+function modalReducer(state: ModalState, action: ModalAction) {
+  const { type, details } = action;
+
+  switch (type) {
+    case ModalActionType.EDIT:
+      return {
+        isVisible: true,
+        isDetailShown: true,
+        details: details,
+      };
+    case ModalActionType.ADD:
+      return {
+        ...state,
+        isVisible: true,
+        isDetailShown: false,
+      };
+    case ModalActionType.CLOSE:
+      return {
+        ...state,
+        isVisible: false,
+      };
+    default:
+      throw Error("Unknown action " + type);
+  }
+}
 
 export default function Home() {
   const router = useRouter();
+  const [questions, setQuestions] = useState<QuestionDto[]>([]);
+  const [modalState, dispatchModal] = useReducer(modalReducer, {
+    isVisible: false,
+    isDetailShown: false,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    alert(token);
+    console.log(token);
 
     if (!token) {
       router.push("/auth/login");
     }
-    // TODO: Validate token is still valid
-  });
+    // // TODO: Validate token is still valid
 
-  const [addQns, setAddQns] = useState(false);
+    getQuestions(token).then((data) => {
+      setQuestions(data?.message);
+    });
+  }, []);
 
-  const toggleAddQns = () => {
-    setAddQns(!addQns);
-  };
+  const onClickAdd = () =>
+    dispatchModal({
+      type: ModalActionType.ADD,
+    });
 
-  if(addQns) {
-    document.body.classList.add('active-modal')
-  } else {
-    document.body.classList.remove('active-modal')
-  }
- 
+  const closeModal = () =>
+    dispatchModal({
+      type: ModalActionType.CLOSE,
+    });
 
   return (
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10">
@@ -45,16 +95,42 @@ export default function Home() {
           }}
         />
       </Header>
-      Home Page
-        <Button type="submit" onClick={toggleAddQns} text="Add Question" />
-
-
-      {addQns && (
+      <Button type="submit" onClick={onClickAdd} text="Add Question" />
+      <table className="min-w-full table-auto bg-white shadow-md mt-4">
+        <thead>
+          <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+            <th className="py-3 px-6 text-left">Questions</th>
+            <th className="py-3 px-6 text-left">Difficulty</th>
+            <th className="py-3 px-6 text-left">Topics</th>
+            <th className="py-3 px-6 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="text-gray-600 text-sm font-light">
+          {questions.map((question, index) => {
+            return (
+              <TableRow
+                id={question._id}
+                title={question.title}
+                difficulty={question.difficultyLevel}
+                topics={question.topic}
+                key={index}
+                onClickEdit={() =>
+                  dispatchModal({
+                    type: ModalActionType.EDIT,
+                    details: question,
+                  })
+                }
+              />
+            );
+          })}
+        </tbody>
+      </table>
+      {modalState.isVisible && (
         <div className="modal">
-          <div onClick={toggleAddQns} className="overlay"></div>
+          <div onClick={closeModal} className="overlay"></div>
           <div className="modal-content">
-          <QuestionForm />
-          <Button type="reset" onClick={toggleAddQns} text="CLOSE" />
+            <QuestionForm />
+            <Button type="reset" onClick={closeModal} text="CLOSE" />
           </div>
         </div>
       )}

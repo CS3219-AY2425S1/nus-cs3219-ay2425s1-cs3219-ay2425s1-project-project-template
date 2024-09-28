@@ -1,6 +1,6 @@
 import React from "react";
-import Header from "@/components/header";
-import ProblemDetail from "@/components/problem-detail";
+import Header from "@/components/common/header";
+import ProblemDetail from "@/components/questions/problem-detail";
 import { IQuestion } from "../../../../question_service/src/models/Question";
 
 type ProblemProps = {
@@ -18,7 +18,6 @@ const Problem: React.FC<ProblemProps> = ({ question }) => {
       </main>
     </div>
   );
-}
+};
 
 export default Problem;
-

@@ -1,9 +1,9 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import Textfield from "@/components/text-field";
-import Button from "@/components/button";
-import TextButton from "@/components/text-button";
+import Textfield from "@/components/common/text-field";
+import Button from "@/components/common/button";
+import TextButton from "@/components/common/text-button";
 import { login } from "@/app/actions/auth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";

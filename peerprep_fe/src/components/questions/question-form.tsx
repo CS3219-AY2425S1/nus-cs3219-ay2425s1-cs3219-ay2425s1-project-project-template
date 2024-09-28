@@ -1,10 +1,9 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import Textfield from "@/components/text-field";
-import LargeTextfield from "@/components/large-text-field";
-import Button from "@/components/button";
-import { addQuestion } from "@/app/actions/add-qns"; // Add-question function from your previous code
+import LargeTextfield from "@/components/common/large-text-field";
+import Button from "@/components/common/button";
+import { addQuestion } from "@/app/actions/questions";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -30,12 +29,20 @@ export function QuestionForm() {
       <form action={action}>
         {/* Input for question title */}
         <div>
-          <LargeTextfield name="title" secure={false} placeholder_text="Title" />
+          <LargeTextfield
+            name="title"
+            secure={false}
+            placeholder_text="Title"
+          />
         </div>
-        
+
         {/* Input for question description */}
         <div>
-          <LargeTextfield name="description" secure={false} placeholder_text="Description" />
+          <LargeTextfield
+            name="description"
+            secure={false}
+            placeholder_text="Description"
+          />
         </div>
 
         {/* Input for difficulty level (Easy, Medium, Hard) */}
@@ -61,7 +68,7 @@ export function QuestionForm() {
           <LargeTextfield
             name="examples"
             secure={false}
-            placeholder_text='Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)'
+            placeholder_text="Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)"
           />
         </div>
 

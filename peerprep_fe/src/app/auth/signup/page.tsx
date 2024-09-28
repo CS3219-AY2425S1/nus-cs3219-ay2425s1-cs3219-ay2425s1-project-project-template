@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Header from "@/components/header";
-import { SignupForm } from "@/components/signup-form";
+import Header from "@/components/common/header";
+import { SignupForm } from "@/components/auth/signup-form";
 
 export default function Signup() {
   return (

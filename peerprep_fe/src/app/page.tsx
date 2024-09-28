@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Header from "@/components/header";
-import Button from "@/components/button";
+import Header from "@/components/common/header";
+import Button from "@/components/common/button";
 
 export default function Home() {
   return (
