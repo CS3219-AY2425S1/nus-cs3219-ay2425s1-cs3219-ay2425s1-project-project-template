@@ -59,7 +59,7 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
       questionId: question["Question ID"],
       questionName: question["Question Title"],
       questionDescription: question["Question Description"], 
-      questionTopics: question["Question Categories"], 
+      questionTopics: JSON.parse(question["Question Categories"]), 
       link: question["Link"],
       questionDifficulty: question["Question Complexity"],
     });
@@ -77,29 +77,25 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
     }
 
     if (isEditing) {
-      handleEdit(questionId, questionName, questionDescription, questionTopics, link, questionDifficulty);
+      handleEdit(questionId, questionName, questionDescription, JSON.stringify(questionTopics), link, questionDifficulty);
       setIsEditing(false); 
     } else {
-      handleCreate(questionId, questionName, questionDescription, questionTopics, link, questionDifficulty);
+      handleCreate(questionId, questionName, questionDescription, JSON.stringify(questionTopics), link, questionDifficulty);
     }
     toggleForm();
     resetForm();
 
   }
 
-  const handleTopicClick = (topic) => {
-    setFormData(prevData => {
-      let selectedTopics = prevData.questionTopics;
+ const handleTopicClick = (topic) => {
+  setFormData(prevData => {
+    const selectedTopics = prevData.questionTopics.includes(topic)
+      ? prevData.questionTopics.filter(t => t !== topic) // Deselect topic
+      : [...prevData.questionTopics, topic]; // Select topic
 
-      if (selectedTopics.includes(topic)) {
-        selectedTopics = selectedTopics.filter(t => t !== topic); // Deselect topic
-      } else {
-        selectedTopics = [...selectedTopics, topic]; // Select topic
-      }
-
-      return { ...prevData, questionTopics: selectedTopics };
-    });
-  };
+    return { ...prevData, questionTopics: selectedTopics };
+  });
+};
 
   const handleDifficultyClick = (difficulty) => {
     setFormData(prevData => ({
@@ -125,15 +121,13 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
 
   const formatString = (input) => {
     if (Array.isArray(input)) {
-        input = input.join(', '); 
-        console.log(input);
-    } else if (typeof input !== 'string') {
-        console.error('Expected a string or an array but received:', input);
-        return ''; 
+      return input.join(', ').replace(/[\[\]"]/g, "").trim();
+    } else if (typeof input === 'string') {
+      return input.replace(/[\[\]"]/g, "").replace(/,/g, ", ").trim();
     }
-    
-    return input.replace(/[\[\]"]/g, "");
-};
+    return ''; // Fallback for unexpected types
+  };
+  
   
 
   return (
@@ -153,7 +147,14 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
                 <h3>{isEditing? 'Edit question' : 'Add question'}</h3>
                 <div>
                   <label>ID:</label>
-                  <input type="number" name="questionId" value={formData.questionId} onChange={handleChange} required />
+                  <input 
+                    type="number" 
+                    name="questionId" 
+                    value={formData.questionId} 
+                    onChange={handleChange} 
+                    required 
+                    disabled={isEditing} // Disable when editing
+                  />
                 </div>
                 <div>
                   <label>Title:</label>
