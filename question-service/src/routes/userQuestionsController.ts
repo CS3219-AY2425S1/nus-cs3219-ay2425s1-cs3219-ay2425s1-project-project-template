@@ -2,10 +2,12 @@
 import express, { Request, Response } from 'express';
 import { Collection } from 'mongodb';
 import { connectToDB } from '../db/mongoClient';
-import { UserQuestions } from '../models/types';
+import { UserQuestionsSchema } from '../models/types';
+import { z } from 'zod';
 
 const router = express.Router();
 let questionsCollection: Collection<UserQuestions>;
+type UserQuestions = z.infer<typeof UserQuestionsSchema>;
 
 // Middleware to connect to MongoDB and get the collection
 router.use(async (_, res, next) => {
@@ -19,7 +21,7 @@ router.use(async (_, res, next) => {
 });
 
 // GET all items
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_, res: Response) => {
   try {
     const items = await questionsCollection.find().toArray();
     res.status(200).json(items);
@@ -27,7 +29,5 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch items' });
   }
 });
-
-// POST new item
 
 export default router;
