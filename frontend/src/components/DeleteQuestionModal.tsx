@@ -56,13 +56,13 @@ const DeleteQuestionModal: React.FC<{
             <label className="font-semibold">Difficulty Level</label>
             <div className="relative mt-1 shadow-md">
               <select 
-                name="difficulty" id="difficulty" value={oldDifficulty} disabled
+                name="difficulty" id="difficulty" defaultValue={oldDifficulty} disabled
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-750 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
               >
-                <option value="" disabled selected hidden>Choose a difficulty level</option>
-                <option disabled className="text-green ">Easy</option>
-                <option disabled className="text-orange-500">Medium</option>
-                <option disabled className="text-red-700">Hard</option>
+                <option value="" disabled hidden>Choose a difficulty level</option>
+                <option value="EASY" disabled className="text-green ">Easy</option>
+                <option value="MEDIUM" disabled className="text-orange-500">Medium</option>
+                <option value="HARD" disabled className="text-red-700">Hard</option>
               </select>
             </div>
           </div>
