@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import logo from '.././styles/logo.svg';
 import '.././styles/App.css';
 import GeneralNavbar from "../components/GeneralNavbar";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -17,18 +18,30 @@ const Home = () => {
       if (!cookies.token) {
         navigate("/login");
       }
-      const { data } = await axios.post(
-        "http://localhost:3001",
-        {},
-        { withCredentials: true }
-      );
-      const { status, user } = data;
-      setUsername(user);
-      return status
-        ? toast(`Hello ${user}`, {
-            position: "top-right",
-          })
-        : (removeCookie("token"), navigate("/login"));
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/auth/verify-token",
+          { 
+            headers: {
+              Authorization: `Bearer ${cookies.token}`
+            },
+            withCredentials: true
+          }
+        );
+        if (response.status === 200) {
+          const { message, data } = response.data;
+          const user = data.username;
+          setUsername(user);
+        } else {
+          console.error(response.data.message);
+          removeCookie("token");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error(error);
+        removeCookie("token");
+        navigate("/login");
+      }
     };
     verifyCookie();
   }, [cookies, navigate, removeCookie]);

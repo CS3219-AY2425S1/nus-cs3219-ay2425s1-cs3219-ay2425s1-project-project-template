@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useCookies } from "react-cookie";
 import AuthLayout from "../components/AuthLayout";
 import '../styles/AuthForm.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies([]);
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
@@ -32,21 +34,25 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(
+      const response = await axios.post(
         "http://localhost:3001/auth/login",
         {
           ...inputValue,
         },
         { withCredentials: true }
       );
-      const { success, message } = data;
-      if (success) {
+      if (response.status === 200) {
+        const { message, data } = response.data;
+        const { accessToken } = data;
+
+        setCookie("token", accessToken, { path: "/", maxAge: 86400 });
+
         handleSuccess(message);
         setTimeout(() => {
-          navigate("/");
+          navigate("/home");
         }, 1000);
       } else {
-        handleError(message);
+        handleError(response.data.message);
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {

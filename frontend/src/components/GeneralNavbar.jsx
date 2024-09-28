@@ -1,10 +1,21 @@
+import React from 'react';
 import { Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 import { NavbarContainer } from './NavbarContainer';
 import { NavbarLogo } from './NavbarLogo';
 import { NavbarLink } from './NavbarLink';
 import { NavbarButton } from './NavbarButton';
 
 export default function GeneralNavbar() {
+    const navigate = useNavigate();
+    const [cookies, removeCookie] = useCookies(["token"]);
+
+    const handleLogout = () => {
+        removeCookie("token");
+        navigate("/login");
+    };
+
     return (
         <NavbarContainer>
             {/* Left Side: Logo */}
@@ -21,7 +32,7 @@ export default function GeneralNavbar() {
             {/* Right Side: Logout Button */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <NavbarButton
-                    to="/logout"
+                    onClick={handleLogout}
                     color="#8576FF"
                     textColor="#fff"
                     hoverColor="#6a4bcf"

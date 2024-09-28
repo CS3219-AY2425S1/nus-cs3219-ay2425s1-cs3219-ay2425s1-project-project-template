@@ -39,21 +39,20 @@ const SignUp = () => {
       return;
     }
     try {
-      const { data } = await axios.post(
+      const response = await axios.post(
         "http://localhost:3001/users/",
         {
           ...inputValue,
         },
         { withCredentials: true }
       );
-      const { success, message } = data;
-      if (success) {
-        handleSuccess(message);
+      if (response.status === 201) {
+        handleSuccess(response.data.message);
         setTimeout(() => {
           navigate("/login");
         }, 1000);
       } else {
-        handleError(message);
+        handleError(response.data.message);
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
