@@ -5,6 +5,8 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import LoginController from "./pages/users/LoginController";
 import QuestionController from "./pages/question/QuestionController";
 import RegistrationController from "./pages/users/RegistrationController";
@@ -13,6 +15,8 @@ import DashboardView from "./pages/dashboard/DashboardView";
 import { initApi } from "./utils/api";
 
 const App: React.FC = () => {
+  const queryClient = new QueryClient();
+
   const [isAuth, setAuth] = React.useState(
     localStorage.getItem("token") ? true : false
   );
@@ -20,19 +24,24 @@ const App: React.FC = () => {
   const api = initApi(setAuth);
 
   return (
-    <Router>
-      <Routes>
-        <Route element={<PrivateRoutes isAuth={isAuth} api={api} />}>
-          {/* Put axios api instance into a context */}
-          <Route path="/questions" element={<QuestionController />} />
-          <Route path="/dashboard" element={<DashboardView />} />
-        </Route>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route element={<PrivateRoutes isAuth={isAuth} api={api} />}>
+            {/* Put axios api instance into a context */}
+            <Route path="/questions" element={<QuestionController />} />
+            <Route path="/dashboard" element={<DashboardView />} />
+          </Route>
 
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginController setAuth={setAuth} />} />
-        <Route path="/register" element={<RegistrationController />} />
-      </Routes>
-    </Router>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route
+            path="/login"
+            element={<LoginController setAuth={setAuth} />}
+          />
+          <Route path="/register" element={<RegistrationController />} />
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 };
 

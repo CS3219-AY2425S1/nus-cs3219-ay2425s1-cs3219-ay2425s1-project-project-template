@@ -3,6 +3,7 @@ import { ApiContext } from "../context/ApiContext";
 import { AxiosInstance } from "axios";
 
 import Navbar from "../components/layout/Navbar";
+import { UserContext, UserProvider } from "../context/UserContext";
 
 /**
  * Helper component to protect routes that require authentication
@@ -16,8 +17,10 @@ const PrivateRoutes = ({
 }) => {
   return isAuth ? (
     <ApiContext.Provider value={api}>
-      <Navbar />
-      <Outlet />
+      <UserProvider isAuth={isAuth}>
+        <Navbar />
+        <Outlet />
+      </UserProvider>
     </ApiContext.Provider>
   ) : (
     <Navigate to="/login" />

@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button, Avatar } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 
+import { UserContext } from "../../context/UserContext";
 import Page from "../../components/layout/Page";
 import Dropdown from "./Dropdown";
 
@@ -11,6 +12,9 @@ const DashboardView = () => {
   const difficulties: string[] = ["Easy", "Medium", "Hard"];
   const services: string[] = ["View Questions", "Let's Match"];
   const navigate = useNavigate();
+
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   return (
     <Page>
@@ -21,7 +25,7 @@ const DashboardView = () => {
               <Avatar size="2xl" src="" />
             </div>
             <div className="col-span-2 text-[50px] content-center">
-              Welcome Back, User!
+              Welcome Back, {user?.username || "User"}
             </div>
           </div>
           <div className="border-2 rounded-3xl m-10 p-6 grid grid-cols-3 content-center">
