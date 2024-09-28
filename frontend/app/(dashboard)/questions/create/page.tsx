@@ -144,7 +144,7 @@ export default function CreateQuestionPage() {
 
       <Flex alignItems="center" gap={4}>
         <Button colorScheme="teal" onClick={handleSubmit}>
-          Update
+          Create
         </Button>
         <Button colorScheme="red" onClick={() => router.push('/questions')}>
           Cancel
