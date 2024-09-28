@@ -24,6 +24,13 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
 
   const handleDeleteOnClick = () => {
     setIsDeleting(true);
+
+    if (!question.questionId) {
+      console.error("Question ID is undefined, cannot delete question.");
+      return;
+    }
+    setIsDeleting(true);
+
     deleteQuestion(question.questionId, {
       onSuccess: () => {
         setIsDeleting(false);

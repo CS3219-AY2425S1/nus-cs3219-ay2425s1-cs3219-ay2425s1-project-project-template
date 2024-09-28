@@ -6,22 +6,24 @@ import { Input, Textarea } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
 
-import { Question } from "@/types";
+import { Question } from "@/types/questions";
 import { getAllQuestionTopics } from "@/utils/questions";
 
 interface QuestionFormProps {
   formType: string;
   initialData?: Question;
+  onSubmit: (data: Question) => void;
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
   formType,
   initialData,
+  onSubmit,
 }) => {
   const router = useRouter();
 
   const [questionTitle, setQuestionTitle] = useState<string>(
-    initialData ? initialData.questionTitle : "",
+    initialData ? initialData.title : "",
   );
   const [questionDifficulty, setQuestionDifficulty] = useState<string>("");
   const [questionTopics, setQuestionTopics] = useState<string[]>([]);
@@ -71,13 +73,17 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       return;
     }
 
-    console.log({
-      questionTitle,
-      questionDifficulty,
-      questionTopics,
-      questionDescription,
-    });
+    // Prepare the data and pass it to the onSubmit function
+    const questionData = {
+      title: questionTitle,
+      complexity: questionDifficulty,
+      category: questionTopics,
+      description: questionDescription,
+    };
+
+    onSubmit(questionData as Question);
   };
+
 
   return (
     <>

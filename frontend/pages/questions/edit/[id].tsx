@@ -2,6 +2,8 @@ import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
 import { useGetQuestion } from "@/hooks/questions";
 import { useRouter } from "next/router";
+import { useUpdateQuestions } from "@/hooks/questions";
+import { Question } from "@/types/questions";
 
 const EditQuestionsPage = () => {
   const router = useRouter();
@@ -9,6 +11,24 @@ const EditQuestionsPage = () => {
 
   // Fetch the question using useGetQuestion hook
   const { data: question, isLoading, error } = useGetQuestion(id as string);
+
+  // Mutation hook to update the question
+  const { mutate: updateQuestion } = useUpdateQuestions();
+
+  // Handle the form submission for updating the question
+  const handleSubmit = (updatedData: Question) => {
+    updateQuestion(
+      { ...updatedData, questionId: id as string }, // Pass the updated question with ID
+      {
+        onSuccess: () => {
+          router.push("/questions"); // Redirect to questions list on success
+        },
+        onError: (error) => {
+          console.error("Error updating the question:", error);
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -25,9 +45,11 @@ const EditQuestionsPage = () => {
   return (
     <DefaultLayout>
       <div className="flex items-center justify-center">
-        <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
-          <QuestionForm formType="Edit" />
-        </div>
+        <QuestionForm
+          formType="Edit"
+          initialData={question}
+          onSubmit={handleSubmit}
+        />
       </div>
     </DefaultLayout>
   );
