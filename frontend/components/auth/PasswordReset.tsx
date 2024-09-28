@@ -19,6 +19,7 @@ import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 
 export function PasswordReset() {
+    const [open, setOpen] = useState(false)
     const [formStep, setFormStep] = useState<ResetPasswordSteps>(ResetPasswordSteps.Step1)
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
@@ -86,7 +87,7 @@ export function PasswordReset() {
 
         if (isValid) {
             toast.success('Password reset successfully!')
-            setFormStep(ResetPasswordSteps.Step4)
+            setOpen(false)
         }
     }
 
@@ -136,7 +137,7 @@ export function PasswordReset() {
     )
 
     const enterNewPassword = (
-        <DialogContent className="min-h-[350px] sm:max-w-[425px]">
+        <DialogContent className="min-h-[400px] sm:max-w-[425px]">
             <DialogHeader>
                 <DialogTitle>Create your new password</DialogTitle>
                 <DialogDescription>Enter your new password below.</DialogDescription>
@@ -172,7 +173,7 @@ export function PasswordReset() {
     )
 
     return (
-        <Dialog open={formStep !== ResetPasswordSteps.Step4}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <p className="underline cursor-pointer">Forgot your password?</p>
             </DialogTrigger>
