@@ -17,7 +17,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateQuestionDto, UpdateQuestionDto } from '@repo/dtos/questions';
 
 @Controller('questions')
-@UseGuards(AuthGuard) // Can comment out if we dw auth for now
+// @UseGuards(AuthGuard) // comment out if we dw auth for now
 export class QuestionsController {
   constructor(
     @Inject('QUESTIONS_SERVICE')

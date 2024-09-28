@@ -1,7 +1,7 @@
 "use client";
 
 import { signInSchema, SignInDto } from "@repo/dtos/auth";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,13 +9,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/Form";
-import { Input } from "@/components/ui/Input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signIn } from "@/lib/api/auth";
 import { useZodForm } from "@/lib/form";
 import { useLoginState } from "@/contexts/LoginStateContext";
 import { useToast } from "@/hooks/useToast";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
 export function SignInForm() {
   const form = useZodForm({ schema: signInSchema });
@@ -27,7 +28,7 @@ export function SignInForm() {
     mutationFn: signIn,
     onSuccess: async () => {
       setHasLoginStateFlag();
-      await queryClient.invalidateQueries({ queryKey: ["me"] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ME] });
     },
     onError(error) {
       toast({

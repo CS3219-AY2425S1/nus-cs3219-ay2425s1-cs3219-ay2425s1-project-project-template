@@ -1,9 +1,9 @@
 import { Inter, Roboto } from "next/font/google";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import Suspense from "@/components/Suspense";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LoginStateProvider } from "@/contexts/LoginStateContext";
-import { Toaster } from "@/components/ui/Toaster";
+import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
 
