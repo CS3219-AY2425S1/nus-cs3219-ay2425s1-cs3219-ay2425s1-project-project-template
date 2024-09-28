@@ -1,13 +1,26 @@
+import QuestionTable from "@/components/questions/QuestionTable";
 import DefaultLayout from "@/layouts/default";
+import { Question } from "@/types/questions";
+// import { DUMMY_DATA } from "../api/questions";
 
-const QuestionsPage = () => {
+interface QuestionPageProps {
+  questions: Question[];
+}
+
+const QuestionsPage = ({ questions }: QuestionPageProps) => {
   return (
     <DefaultLayout>
-      <div>
-        <h1>Placeholder for Questions</h1>
-      </div>
+        <QuestionTable questions={questions} />
     </DefaultLayout>
   );
 };
 
+// export async function getStaticProps() {
+//   return {
+//     props: {
+//       questions: DUMMY_DATA
+//     },
+//     revalidate: 1
+//   }
+// }
 export default QuestionsPage;
