@@ -26,6 +26,7 @@ func GetMatchingQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerF
 		query = strings.ReplaceAll(query, "-", " ")
 		
 		title_filter := bson.D{bson.E{Key: "title", Value: bson.D{bson.E{Key: "$regex", Value: "(?i)" + query}}}}
+		
 		var id_filter bson.D
 		
 		if id, err := strconv.Atoi(query); err == nil {
@@ -35,8 +36,10 @@ func GetMatchingQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerF
 		var filter bson.D
 		
 		if id_filter == nil {
+			//query is a string
 			filter = title_filter
 		} else {
+			//query is an integer
 			filter = bson.D{bson.E{Key: "$or", Value: []bson.D{id_filter, title_filter}}}
 		}
 
