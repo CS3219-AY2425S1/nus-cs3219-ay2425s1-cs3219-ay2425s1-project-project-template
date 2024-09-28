@@ -74,12 +74,16 @@ export default function Home() {
       });
     }
     console.log("No token found");
-  }, [token]);
+  }, [token, modalState]);
 
   const onClickAdd = () =>
     dispatchModal({
       type: ModalActionType.ADD,
     });
+
+  const handleDelete = (id: string) => {
+    setQuestions(questions.filter((question) => question._id != id));
+  };
 
   const closeModal = () =>
     dispatchModal({
@@ -121,6 +125,7 @@ export default function Home() {
                     details: question,
                   })
                 }
+                handleDelete={handleDelete}
               />
             );
           })}
