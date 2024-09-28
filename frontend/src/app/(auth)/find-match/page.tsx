@@ -23,6 +23,22 @@ function capitalizeWord(word: string) {
   return word[0].toUpperCase() + word.substr(1).toLowerCase();
 }
 
+export const preferredLanguagesList = Object.values(QuestionLanguages).map(
+  (ql) => {
+    return {
+      label: capitalizeWord(ql),
+      value: ql,
+    };
+  }
+);
+
+export const topicsList = Object.values(QuestionTopics).map((qt) => {
+  return {
+    label: capitalizeWord(qt),
+    value: qt,
+  };
+});
+
 const FindPeerHeader = () => {
   return (
     <div className="flex flex-col mt-8">
@@ -43,21 +59,8 @@ const FindPeer = () => {
     defaultValues: {
       questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
       preferredLanguages: QuestionLanguages.PYTHON.valueOf(),
+      questionTopics: "",
     },
-  });
-
-  const preferredLanguagesList = Object.values(QuestionLanguages).map((ql) => {
-    return {
-      label: capitalizeWord(ql),
-      value: ql,
-    };
-  });
-
-  const topicsList = Object.values(QuestionTopics).map((qt) => {
-    return {
-      label: capitalizeWord(qt),
-      value: qt,
-    };
   });
 
   const onSubmit = (data) => {
@@ -112,7 +115,7 @@ const FindPeer = () => {
             <span className="text-sm text-primary-400">Topics</span>
             <FormField
               control={form.control}
-              name="preferredLanguages"
+              name="questionTopics"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

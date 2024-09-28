@@ -1,8 +1,12 @@
+"use client";
+
 import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/LeetcodeDashboardTable";
-import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
-import Header from "@/components/ui/Header";
 import { PlusIcon } from "lucide-react";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/AddQuestionDialog";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const LeetcodeDashboardHeader = () => {
   return (
@@ -24,9 +28,14 @@ const LeetcodeDashboard = () => {
     <Container>
       <LeetcodeDashboardHeader />
       <div className="flex justify-end mb-4">
-        <Button>
-          <PlusIcon /> Add A Question
-        </Button>
+        <Dialog>
+          <DialogTrigger>
+            <Button>
+              <PlusIcon /> Add A Question
+            </Button>
+          </DialogTrigger>
+          <AddQuestionDialog />
+        </Dialog>
       </div>
       <LeetcodeDashboardTable />
     </Container>
