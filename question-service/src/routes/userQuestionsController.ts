@@ -28,6 +28,4 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// POST new item
-
 export default router;

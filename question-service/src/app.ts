@@ -30,9 +30,9 @@ app.use(
 // different routes
 app.use(`${apiVersion}/questions`, questionsRouter);
 app.use(`${apiVersion}/userquestions`, userQuestionsRouter);
-app.use(`${apiVersion}/createquestion`, insertQuestionsRouter);
-app.use(`${apiVersion}/updatequestion`, updateQuestionsRouter);
-app.use(`${apiVersion}/deletequestion`, deleteQuestionsRouter);
+// app.use(`${apiVersion}/createquestion`, insertQuestionsRouter);
+// app.use(`${apiVersion}/updatequestion`, updateQuestionsRouter);
+// app.use(`${apiVersion}/deletequestion`, deleteQuestionsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
