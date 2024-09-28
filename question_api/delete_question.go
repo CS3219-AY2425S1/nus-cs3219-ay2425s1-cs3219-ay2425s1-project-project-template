@@ -7,17 +7,14 @@ Since deletion is a dangerous operation, it will perform a delete only on an exa
 package main
 
 import (
-	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"net/http"
-	"go.mongodb.org/mongo-driver/bson"
+	"fmt"
 )
 
 func DeleteQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// attempt to convert the ID to an integer
 		id, err := strconv.Atoi(ctx.Param("id"))
 		
 		if err != nil {
@@ -26,19 +23,28 @@ func DeleteQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 			return
 		}
 
-		deleteStatus, err := db.questions.DeleteOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
-		
-		if err != nil {
-			ctx.JSON(http.StatusBadGateway, gin.H{"Error deleting question": err.Error()})
-			logger.Log.Warn(fmt.Sprintf("Failed to delete question with ID %d: %s", id, err.Error()))
-			return
-		} else if deleteStatus.DeletedCount == 0 {
-			ctx.JSON(http.StatusNotFound, gin.H{"Error deleting question": "Question not found"})
-			logger.Log.Warn(fmt.Sprintf("Question with ID %d not found", id))
-			return
+		if status, err := db.DeleteQuestion(logger, id); err != nil {
+			ctx.JSON(status, err.Error())
+		} else {
+			ctx.JSON(status, "Question deleted successfully")
+			logger.Log.Warn(fmt.Sprintf("Question with ID %d deleted successfully", id))
 		}
 
-		ctx.JSON(http.StatusNoContent, gin.H{"Success": "Question deleted successfully"})
-		logger.Log.Warn(fmt.Sprintf("Question with ID %d deleted successfully", id))
+		// deleteStatus, err := db.questions.DeleteOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
+		
+		// if err != nil {
+		// 	ctx.JSON(http.StatusBadGateway, gin.H{"Error deleting question": err.Error()})
+		// 	logger.Log.Warn(fmt.Sprintf("Failed to delete question with ID %d: %s", id, err.Error()))
+		// 	return
+		// } else if deleteStatus.DeletedCount == 0 {
+		// 	ctx.JSON(http.StatusNotFound, gin.H{"Error deleting question": "Question not found"})
+		// 	logger.Log.Warn(fmt.Sprintf("Question with ID %d not found", id))
+		// 	return
+		// }
+
+		// ctx.JSON(http.StatusNoContent, gin.H{"Success": "Question deleted successfully"})
+		// logger.Log.Warn(fmt.Sprintf("Question with ID %d deleted successfully", id))
+
+
 	}
 }

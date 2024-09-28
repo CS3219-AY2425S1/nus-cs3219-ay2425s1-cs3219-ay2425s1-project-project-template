@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -64,4 +65,19 @@ func (db *QuestionDB) UpsertQuestion(logger *Logger, question *Question) (int, e
 	}
 
 	return http.StatusOK, nil
+}
+
+func (db *QuestionDB) DeleteQuestion(logger *Logger, id int) (int, error) {
+	deleteStatus, err := db.questions.DeleteOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
+
+	if err != nil {
+		logger.Log.Error("Error deleting question", err.Error())
+		return http.StatusBadGateway, err
+	} else if deleteStatus.DeletedCount == 0 {
+		msg := fmt.Sprintf("Question with ID %d not found when deleting question", id)
+		logger.Log.Warn(msg)
+		return http.StatusNotFound, errors.New(msg)
+	}
+
+	return http.StatusNoContent, nil
 }
