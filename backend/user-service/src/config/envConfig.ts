@@ -5,7 +5,7 @@ import logger from '../utils/logger';
 require('dotenv').config({ path: path.resolve(__dirname, './../../.env') })
 
 const env = process.env.NODE_ENV || 'development';
-logger.info(__dirname)
+
 dotenv.config({ path: path.resolve(__dirname, `./../../.env.${env}`) });
 
 const requiredEnvVars = ['JWT_SECRET', 'DATABASE_CONNECTION', 'PORT'];
