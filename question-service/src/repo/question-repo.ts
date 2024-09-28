@@ -63,7 +63,7 @@ export async function getQuestionById(id: string) {
 }
 
 export async function getQuestionByTitle(title: string) {
-    return await questionModel.findOne({ title });
+    return await questionModel.findOne({ title: { $regex: new RegExp('^' + title + '$', 'i') } }).exec();
 }
 
 export async function updateQuestionById(id: string, title: string, description: string, category: [string], complexity: string) {
