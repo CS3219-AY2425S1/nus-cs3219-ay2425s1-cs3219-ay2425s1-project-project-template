@@ -81,7 +81,6 @@ const EditQuestionModal: React.FC<{
   }
 
   function onDeleteConfirm() {
-    alert("Deleted");
     closeDeleteModal();
     onClose();
   }
@@ -89,7 +88,6 @@ const EditQuestionModal: React.FC<{
   function onEditConfirm() {
     getNewValues();
 
-    alert("Edit");
     editQuestion(questionID, newDifficultyValue, newTopicValue, newTitleValue, newDetailsValue);
     closeEditConfirmationModal();
     onClose();

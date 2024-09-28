@@ -61,7 +61,7 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
       titleValue == "" ||
       detailsValue == ""
     ) {
-      alert(difficultyValue + topicList + titleValue + detailsValue);
+      //alert(difficultyValue + topicList + titleValue + detailsValue);
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
       return;
