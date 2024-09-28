@@ -15,7 +15,7 @@ export default function LargeTextfield({
       type={secure ? "password" : "text"}
       className="bg-slate-200 dark:bg-slate-700 rounded-lg w-full h-16 p-4 my-3 focus:outline-none"
       placeholder={placeholder_text}
-      value={text}
+      defaultValue={text}
     />
   );
 }
