@@ -13,6 +13,7 @@ import { googleLogout, useGoogleLogin } from "@react-oauth/google";
 import Cookies from "js-cookie";
 import { usePathname, useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { FaCode } from "react-icons/fa";
 
 interface SidebarMenuItemProps {
   menuLabel: string;
@@ -52,6 +53,11 @@ const sidebarItems: SidebarMenuItemProps[] = [
     menuLabel: "Find Match",
     menuIcon: IoMdSearch,
     linksTo: "/find-match",
+  },
+  {
+    menuLabel: "LeetCode Dashboard",
+    menuIcon: FaCode,
+    linksTo: "/leetcode-dashboard",
   },
 ];
 

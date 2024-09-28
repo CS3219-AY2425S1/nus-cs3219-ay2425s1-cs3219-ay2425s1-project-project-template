@@ -13,3 +13,9 @@ export enum QuestionTopics {
   GRAPHS = "graphs",
   TREES = "trees",
 }
+
+export interface QuestionMinified {
+  questionId: string;
+  questionTitle: string;
+  questionDifficulty: string;
+}
