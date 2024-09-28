@@ -1,11 +1,8 @@
 import request from 'supertest'
+import configMock from '../__mocks__/config.mock'
 import app from '../src/index'
 
-jest.mock('../src/common/config.util', () => ({
-    NODE_ENV: 'test',
-    PORT: '3004',
-    DB_URL: 'placeholder',
-}))
+jest.mock('../src/common/config.util', () => configMock)
 
 describe('Index', () => {
     describe('GET /', () => {

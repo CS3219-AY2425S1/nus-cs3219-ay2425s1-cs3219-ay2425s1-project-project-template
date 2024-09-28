@@ -1,8 +1,8 @@
-import 'express-async-errors'
-
+import { Proficiency, Role } from '@repo/user-types'
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import { generateKeyPairSync } from 'crypto'
 import express, { Express } from 'express'
+import 'express-async-errors'
 import mongoose from 'mongoose'
 import { agent, Agent } from 'supertest'
 import logger from '../../src/common/logger.util'
@@ -13,8 +13,6 @@ import '../../src/middlewares/passportJwt.middleware'
 import userSchema from '../../src/models/user.model'
 import userRouter from '../../src/routes/user.routes'
 import { IUser } from '../../src/types/IUser'
-import { Proficiency } from '../../src/types/Proficiency'
-import { Role } from '../../src/types/Role'
 import { UserDto } from '../../src/types/UserDto'
 
 // Mock the environment variables

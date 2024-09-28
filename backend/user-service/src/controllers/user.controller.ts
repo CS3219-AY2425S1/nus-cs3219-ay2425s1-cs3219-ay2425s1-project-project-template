@@ -1,3 +1,7 @@
+import { ITypedBodyRequest } from '@repo/request-types'
+import { ValidationError } from 'class-validator'
+import { Response } from 'express'
+import { hashPassword } from '../common/password.util'
 import {
     createUser,
     deleteUser,
@@ -6,18 +10,13 @@ import {
     findUsersByUsernameAndEmail,
     updateUser,
 } from '../models/user.repository'
-
-import { ValidationError } from 'class-validator'
-import { Response } from 'express'
-import { hashPassword } from '../common/password.util'
 import { CreateUserDto } from '../types/CreateUserDto'
 import { IUser } from '../types/IUser'
-import { TypedRequest } from '../types/TypedRequest'
 import { UserDto } from '../types/UserDto'
 import { UserPasswordDto } from '../types/UserPasswordDto'
 import { UserProfileDto } from '../types/UserProfileDto'
 
-export async function handleCreateUser(request: TypedRequest<CreateUserDto>, response: Response): Promise<void> {
+export async function handleCreateUser(request: ITypedBodyRequest<CreateUserDto>, response: Response): Promise<void> {
     const createDto = CreateUserDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
@@ -43,7 +42,10 @@ export async function handleCreateUser(request: TypedRequest<CreateUserDto>, res
     response.status(201).json(dto).send()
 }
 
-export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>, response: Response): Promise<void> {
+export async function handleUpdateProfile(
+    request: ITypedBodyRequest<UserProfileDto>,
+    response: Response
+): Promise<void> {
     const createDto = UserProfileDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
@@ -70,7 +72,7 @@ export async function handleUpdateProfile(request: TypedRequest<UserProfileDto>,
 }
 
 export async function handleGetCurrentProfile(
-    request: TypedRequest<UserProfileDto>,
+    request: ITypedBodyRequest<UserProfileDto>,
     response: Response
 ): Promise<void> {
     const id = request.params.id
@@ -84,13 +86,16 @@ export async function handleGetCurrentProfile(
     }
 }
 
-export async function handleDeleteUser(request: TypedRequest<void>, response: Response): Promise<void> {
+export async function handleDeleteUser(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const id = request.params.id
     await deleteUser(id)
     response.status(204).send()
 }
 
-export async function handleUpdatePassword(request: TypedRequest<UserPasswordDto>, response: Response): Promise<void> {
+export async function handleUpdatePassword(
+    request: ITypedBodyRequest<UserPasswordDto>,
+    response: Response
+): Promise<void> {
     const createDto = UserPasswordDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {

@@ -1,5 +1,4 @@
-import { Proficiency } from './Proficiency'
-import { Role } from './Role'
+import { Proficiency, Role } from '@repo/user-types'
 
 export interface IUser {
     id: string

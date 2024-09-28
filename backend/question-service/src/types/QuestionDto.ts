@@ -1,9 +1,8 @@
+import { ITypedBodyRequest } from '@repo/request-types'
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUrl, ValidationError, validate } from 'class-validator'
-
 import { Category } from './Category'
 import { Complexity } from './Complexity'
 import { IQuestion } from './IQuestion'
-import { TypedRequest } from './TypedRequest'
 
 export class QuestionDto {
     @IsString()
@@ -47,7 +46,7 @@ export class QuestionDto {
 
     static fromRequest({
         body: { id, title, description, categories, complexity, link },
-    }: TypedRequest<QuestionDto>): QuestionDto {
+    }: ITypedBodyRequest<QuestionDto>): QuestionDto {
         return new QuestionDto(id, title, description, categories, complexity, link)
     }
 

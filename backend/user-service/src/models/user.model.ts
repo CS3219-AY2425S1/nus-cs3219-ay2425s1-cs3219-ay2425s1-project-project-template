@@ -1,7 +1,6 @@
+import { Proficiency, Role } from '@repo/user-types'
 import { Schema } from 'mongoose'
 import { IUser } from '../types/IUser'
-import { Proficiency } from '../types/Proficiency'
-import { Role } from '../types/Role'
 
 const userSchema = new Schema<IUser>(
     {

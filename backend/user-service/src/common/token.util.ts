@@ -1,10 +1,8 @@
+import { IAccessTokenPayload, IUserDto, Role } from '@repo/user-types'
 import { SignOptions, sign } from 'jsonwebtoken'
 import config from '../common/config.util'
-import { IAccessTokenPayload } from '../types/IAccessTokenPayload'
-import { Role } from '../types/Role'
-import { UserDto } from '../types/UserDto'
 
-export async function generateAccessToken(user: UserDto): Promise<string> {
+export async function generateAccessToken(user: IUserDto): Promise<string> {
     const payload: Partial<IAccessTokenPayload> = {
         id: user.id,
         admin: user.role === Role.ADMIN,

@@ -3,12 +3,11 @@
 import Img from 'next/image'
 import { PasswordReset } from './PasswordReset'
 import { useState } from 'react'
-import { useToast } from '../ui/use-toast'
+import { toast } from 'sonner'
 
 export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const { toast } = useToast()
     const onLogin = async () => {
         try {
             const body = JSON.stringify({ email, password })
@@ -20,9 +19,10 @@ export default function Login() {
                 body,
             })
             await res.json()
-            toast({ description: 'Logged in successfully' })
+
+            toast.success('Logged in successfully')
         } catch {
-            toast({ variant: 'destructive', description: 'Failed to login' })
+            toast.error('Failed to login')
         }
     }
     return (

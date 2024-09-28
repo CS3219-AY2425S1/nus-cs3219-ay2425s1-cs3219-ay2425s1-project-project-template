@@ -8,6 +8,7 @@ interface CustomTabsProps {
     size?: ButtonProps['size']
     handleActiveTabChange: (idx: number) => void
     className?: string
+    btnclassName?: string
 }
 
 export default function CustomTabs({
@@ -17,6 +18,7 @@ export default function CustomTabs({
     type,
     size,
     className,
+    btnclassName,
 }: CustomTabsProps) {
     const [activeTab, setActiveTab] = useState(0)
 
@@ -43,7 +45,7 @@ export default function CustomTabs({
                     variant={tabVariant(index)}
                     size={size || 'default'}
                     onClick={() => handleSetActiveTab(index)}
-                    className={isBottomBorder ? '-mb-[0.1rem]' : ''}
+                    className={`${isBottomBorder ? '-mb-[0.1rem]' : ''} ${btnclassName}`}
                 >
                     {tab}
                 </Button>

@@ -1,7 +1,6 @@
+import { ITypedBodyRequest } from '@repo/request-types'
+import { Proficiency } from '@repo/user-types'
 import { IsEnum, IsNotEmpty, IsOptional, IsString, ValidationError, validate } from 'class-validator'
-
-import { Proficiency } from './Proficiency'
-import { TypedRequest } from './TypedRequest'
 
 export class UserProfileDto {
     @IsString()
@@ -17,7 +16,7 @@ export class UserProfileDto {
         this.proficiency = proficiency
     }
 
-    static fromRequest({ body: { username, proficiency } }: TypedRequest<UserProfileDto>): UserProfileDto {
+    static fromRequest({ body: { username, proficiency } }: ITypedBodyRequest<UserProfileDto>): UserProfileDto {
         return new UserProfileDto(username, proficiency)
     }
 
