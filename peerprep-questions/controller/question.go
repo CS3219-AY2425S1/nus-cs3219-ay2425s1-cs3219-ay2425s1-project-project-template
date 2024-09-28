@@ -7,6 +7,7 @@ import (
 
 	"github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g32/peerprep-questions/model"
 	repository "github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g32/peerprep-questions/respository"
+	"github.com/go-chi/chi"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -32,7 +33,7 @@ func (qc QuestionController) CreateQuestion(w http.ResponseWriter, r *http.Reque
 	// Set to DB
 	result, err := qc.questionRepository.CreateQuestion(question)
 	if err != nil {
-		log.Fatal("Error creating question")
+		log.Printf("Error creating question")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -48,7 +49,7 @@ func (qc QuestionController) ListQuestions(w http.ResponseWriter, r *http.Reques
 	// Get from DB
 	questions, err := qc.questionRepository.ListQuestions()
 	if err != nil {
-		log.Fatal("Error getting all question")
+		log.Printf("Error getting all question")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -88,16 +89,16 @@ func (qc QuestionController) DeleteQuestion(w http.ResponseWriter, r *http.Reque
 }
 
 func (qc QuestionController) GetQuestion(w http.ResponseWriter, r *http.Request) {
-	// var question model.Question
-	// if err := json.NewDecoder(r.Body).Decode(&question); err != nil {
-	// 	http.Error(w, "Invalid input", http.StatusBadRequest)
-	// 	return
-	// }
+	id := chi.URLParam(r, "id")
+	log.Printf("Getting question with id %v", id)
 
-	// // Validation
+	question, err := qc.questionRepository.GetQuestion(id)
+	if err != nil {
+		log.Printf("Error getting question: %v", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-	// // Set to DB
-
-	// w.WriteHeader(http.StatusCreated)
-	// json.NewEncoder(w).Encode(question)
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(question)
 }
