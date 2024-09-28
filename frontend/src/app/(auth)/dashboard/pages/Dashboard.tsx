@@ -21,16 +21,15 @@ const initialUserInterviewMetaData: UserInterviewMetadata = {
 };
 
 const AuthDashboard = () => {
-  const { user } = useAuth();
+  const { token } = useAuth();
 
   const [userInterviewMetadata, setUserInterviewMetadata] =
     useState<UserInterviewMetadata>(initialUserInterviewMetaData);
 
   useEffect(() => {
-    if (!user) return;
-
+    if (!token) return;
     setUserInterviewMetadata(getUserInterviewMetadata());
-  }, [user]);
+  }, [token]);
 
   const dateFormattingOption: Intl.DateTimeFormatOptions = {
     year: "numeric",

@@ -64,7 +64,7 @@ const menuItemStyles: MenuItemStyles = {
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { user, login, logout } = useAuth();
+  const { token, login, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -105,7 +105,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
   return (<div className="flex h-full overflow-y-auto">
       <Sidebar
-        className="sticky top-0 h-full"
+        className="sticky top-0 h-screen"
         rootStyles={{
           borderColor: "#171C28",
         }}
@@ -127,7 +127,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
               />
             ))}
           </Menu>
-          {user && <Menu
+          {token && <Menu
             menuItemStyles={menuItemStyles}
             rootStyles={{
               marginBottom: "60px",

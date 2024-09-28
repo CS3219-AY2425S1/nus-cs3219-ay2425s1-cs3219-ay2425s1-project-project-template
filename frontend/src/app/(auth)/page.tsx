@@ -5,11 +5,10 @@ import LandingPage from "./dashboard/pages/LandingPage";
 import Dashboard from "./dashboard/pages/Dashboard";
 
 const Home = () => {
-  const { user } = useAuth();
-  console.log(user);
+  const { token } = useAuth();
 
   return (
-    user?.access_token ? <Dashboard/> : <LandingPage/>
+    token ? <Dashboard/> : <LandingPage/>
   );
 };
 
