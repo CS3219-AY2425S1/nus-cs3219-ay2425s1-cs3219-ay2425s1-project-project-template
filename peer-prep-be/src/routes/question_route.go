@@ -12,5 +12,5 @@ func QuestionRoute(e *echo.Echo) {
 	e.POST("/question", controllers.CreateQuestion)
 	e.PUT("/questions/:questionId", controllers.UpdateQuestion)
 	e.DELETE("/questions/:questionId", controllers.DeleteQuestion)
-	e.GET("/questionCategories", controllers.GetDistinctQuestionCategories)
+	e.GET("/questions/categories", controllers.GetDistinctQuestionCategories)
 }

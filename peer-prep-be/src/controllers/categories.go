@@ -102,7 +102,7 @@ func CreateCategory(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusCreated, responses.StatusResponse{
+	return c.JSON(http.StatusConflict, responses.StatusResponse{
 		Message: "Category already exists",
 	})
 }
