@@ -32,6 +32,12 @@
   cursor: pointer;
 }
 
+.delete-icon {
+  background-color: transparent;
+  border: transparent;
+  cursor: pointer;
+}
+
 .difficulty {
     padding: 8px 12px;
     border-radius: 15px;

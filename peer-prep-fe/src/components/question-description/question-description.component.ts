@@ -14,8 +14,9 @@ import { QuestionCategoriesComponent } from '../question-categories/question-cat
 export class QuestionDescriptionComponent {
   // @Input () questionTitle!: string
   // @Input () questionDifficulty!: string
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { 
-    questionTitle: string; 
-    questionDifficulty: string 
+  constructor(@Inject(MAT_DIALOG_DATA) public data: {
+    questionTitle: string;
+    questionDifficulty: string;
+    questionDescription: string;
   }) {}
 }
