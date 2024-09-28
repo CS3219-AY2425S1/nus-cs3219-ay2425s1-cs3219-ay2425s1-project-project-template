@@ -7,7 +7,7 @@ import {
   Inject,
   Body,
   Post,
-  UseGuards,
+  // UseGuards,
   Put,
   Delete,
   Query,
@@ -15,7 +15,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthGuard } from 'src/auth/auth.guard';
+// import { AuthGuard } from 'src/auth/auth.guard';
 import {
   CreateQuestionDto,
   createQuestionSchema,
