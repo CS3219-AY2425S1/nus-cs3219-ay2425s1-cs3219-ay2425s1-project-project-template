@@ -1,28 +1,71 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 
 const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
+  const [difficultyValue, setDifficultyValue] = useState("");
+  const [topicValue, setTopicValue] = useState([""]);
+  const [titleValue, setTitleValue] = useState("");
+  const [detailsValue, setDetailsValue] = useState("");
+  const [canSubmit, setCanSubmit] = useState(false);
+
+  useEffect(() => {
+    const addQuestion = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/questions', {
+                mode: "cors",
+                method: 'POST',
+                headers: {
+                  "Access-Control-Allow-Origin": "http://localhost:8080",
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  title: titleValue,
+                  description: detailsValue,
+                  categories: topicValue,
+                  complexity: difficultyValue
+                })
+              });
+
+            const data = await response.json();
+            console.log(data);
+        } catch (error) {
+            console.error('Error adding question:', error);
+        }
+    };
+    
+    if (canSubmit) {
+      addQuestion();
+    }
+  }, [canSubmit]);
+
   function onSubmit() {
     const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
     const difficultyValue = difficultyElement ? difficultyElement.value : '';
+    setDifficultyValue(difficultyValue);
     
     const topicElement = document.getElementById("topic") as HTMLInputElement | null;
     const topicValue = topicElement ? topicElement.value : "";
+    const topicList = topicValue.split(',').map(item => item.trim());
+    setTopicValue(topicList);
     
     const titleElement = document.getElementById("title") as HTMLInputElement | null;
     const titleValue = titleElement ? titleElement.value : "";
+    setTitleValue(titleValue);
     
     const detailsElement = document.getElementById("details") as HTMLInputElement | null;
     const detailsValue = detailsElement ? detailsElement.value : "";
+    setDetailsValue(detailsValue);
 
     if (difficultyValue == "" || topicValue == "" || titleValue == "" || detailsValue == "") {
       //alert(difficultyValue + topicValue + titleValue + detailsValue);
       
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
+      return;
     } else {
-      //alert(difficultyValue + topicValue + titleValue + detailsValue);
+      setCanSubmit(true);
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add('hidden');
+      onClose();
     }
   }
 
@@ -54,11 +97,12 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
                 <select 
                   name="difficulty" id="difficulty" 
                   className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+                  defaultValue={""}
                 >
-                  <option value="" disabled selected hidden>Choose a difficulty level</option>
-                  <option className="text-green ">Easy</option>
-                  <option className="text-orange-500">Medium</option>
-                  <option className="text-red-700">Hard</option>
+                  <option value="" disabled hidden>Choose a difficulty level</option>
+                  <option value="EASY" className="text-green ">Easy</option>
+                  <option value="MEDIUM" className="text-orange-500">Medium</option>
+                  <option value="HARD" className="text-red-700">Hard</option>
                 </select>
               </div>
             </div>
@@ -66,6 +110,7 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
             {/* Topic */}
             <div className="mt-2">
               <label className="font-semibold">Topic</label>
+              <p className="text-xs text-gray-500">Separate different topic categories using commas. E.g., Arrays, Databases </p>
               <div className="relative mt-1 shadow-md">
                 <input 
                   type="text" name="topic" id="topic"
@@ -99,7 +144,7 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
 
             {/* Action buttons */}
             <div className="mt-6">
-              <text  id="emptyMessage" className="flex justify-center text-red-500 hidden">* Please fill in all the empty fields. *</text>
+              <p id="emptyMessage" className="flex justify-center text-red-500 hidden">* Please fill in all the empty fields. *</p>
               <div className="flex justify-evenly mt-2">
                 <button 
                   onClick={onSubmit} 
