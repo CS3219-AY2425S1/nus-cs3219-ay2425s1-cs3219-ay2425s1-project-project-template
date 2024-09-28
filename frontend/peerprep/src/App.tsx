@@ -23,15 +23,13 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginController setAuth={setAuth} />} />
         <Route element={<PrivateRoutes isAuth={isAuth} api={api} />}>
           {/* Put axios api instance into a context */}
           <Route path="/questions" element={<QuestionController />} />
         </Route>
-
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginController setAuth={setAuth} />} />
         <Route path="/register" element={<RegistrationController />} />
-        <Route path="/questions" element={<QuestionController />} />
         <Route path="/forget-password" element={<ForgetPasswordController />} />
         <Route path="/reset-password" element={<ResetPasswordController />} />
       </Routes>

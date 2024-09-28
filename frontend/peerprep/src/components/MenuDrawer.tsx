@@ -26,7 +26,7 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
         if (!confirmLogout) return;
 
         try {
-            api.post("/logout")
+            await api.post("/logout");
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
             navigate("/login");
@@ -37,10 +37,9 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
                 isClosable: true,
             });
         } catch (error: any) {
-            console.error("Logout error:", error || "Logout failed.");
             toast({
                 title: "Logout failed.",
-                description: error || "Unable to log out.",
+                description: error.message || "Unable to log out.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
