@@ -80,7 +80,6 @@ function App() {
   
   return (
     <>
-      <Navbar/>
       <div className='question-list'>
           <QuestionTable questions={questions} handleDelete={deleteQuestion} handleCreate={createQuestion} />
       </div>

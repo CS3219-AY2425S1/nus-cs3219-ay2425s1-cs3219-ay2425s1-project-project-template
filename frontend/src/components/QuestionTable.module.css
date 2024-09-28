@@ -1,13 +1,22 @@
+* {
+    box-sizing: border-box;
+}
+
+.questionTable {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
 .tableHeader {
     width: 100%;
     height: 10%;
     background-color: #fffb;
-    padding: .8rem 1rem;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
 
 .tableSection {
     width: 95%;
@@ -28,7 +37,7 @@
 .tableSection table, th, td {
     border-collapse: collapse;
     padding: 1rem;
-    text-align: left;
+    text-align: center;
 }
 
 .tableSection thead th {
@@ -66,4 +75,8 @@
 .complexity.hard {
     background-color: #d893a3;
     color: #b30021;
+}
+
+.form {
+    background-color: white;
 }
