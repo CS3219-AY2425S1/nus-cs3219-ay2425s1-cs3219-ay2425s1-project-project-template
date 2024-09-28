@@ -1,5 +1,5 @@
 import React from "react";
-import {useState} from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ProfileButton from "./ProfileButton.tsx";
 import AddQuestionModal from "./AddQuestionModal.tsx";
@@ -22,20 +22,21 @@ const AdminNavBar: React.FC = () => {
         />
       </div>
       {/* Conditionally render extra div based on location */}
-      {location.pathname != "/" && (
-        <div className="container text-off-white">
-            <button 
-              onClick = {openAddModal}
+      {location.pathname == "/question" ||
+        (location.pathname == "/dashboard" && (
+          <div className="container text-off-white">
+            <button
+              onClick={() => openAddModal()}
               className="bg-green rounded-[25px] p-4 text-2xl hover:bg-emerald-700"
             >
               Add question
             </button>
-            <AddQuestionModal isOpen={isAddModalOpen} onClose={closeAddModal} />
-        </div>
-      )}
+            {isAddModalOpen && <AddQuestionModal onClose={closeAddModal} />}
+          </div>
+        ))}
       {/* Profile button */}
       <div>
-        <ProfileButton/>
+        <ProfileButton />
       </div>
     </nav>
   );
