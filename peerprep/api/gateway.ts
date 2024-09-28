@@ -52,7 +52,7 @@ export async function addQuestion(body: QuestionFullBody): Promise<StatusBody> {
         `${process.env.NEXT_PUBLIC_QUESTION_SERVICE}/questions`,
         {
           method: "POST",
-          body: JSON.stringify(body),
+          body: JSON.stringify(body).replace(/(\"difficulty\":)\"([1-3])\"/, `$1$2`),
           headers: {
             "Content-type": "application/json; charset=UTF-8"
           }

@@ -20,7 +20,7 @@ function NewQuestion({}: Props) {
     description: "",
   });
 
-  const handleTextInput = (e: ChangeEvent<HTMLInputElement>) => setFormData({
+  const handleTextInput = (e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => setFormData({
     ...formData,
     [e.target.name]: e.target.value
   });
@@ -63,14 +63,14 @@ function NewQuestion({}: Props) {
   return (
     <div>
       <form style={{color: "black", padding: "5px"}} onSubmit={handleSubmission}>
-        <input type="text" name="title" /><br/>
+        <input type="text" name="title" value={formData.title} onChange={handleTextInput}/><br/>
         <input type="radio" id="easy" name="difficulty" value={1} onChange={handleTextInput} />
         <label htmlFor="easy">Easy</label><br/>
         <input type="radio" id="med" name="difficulty" value={2} onChange={handleTextInput} />
         <label htmlFor="med">Medium</label><br/>
         <input type="radio" id="hard" name="difficulty" value={3} onChange={handleTextInput} />
         <label htmlFor="hard">Hard</label><br/>
-        <textarea name="description" /><br/>
+        <textarea name="description" value={formData.description} onChange={handleTextInput}/><br/>
         {testCases.map((elem, idx) => (
           <>
             <input
