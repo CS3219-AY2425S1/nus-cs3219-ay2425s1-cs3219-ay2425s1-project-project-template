@@ -1,14 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Slide, ToastContainer } from 'react-toastify';
 import './App.css'; // Import your CSS file here
+
+import 'react-toastify/dist/ReactToastify.css';
 import EditorPage from './routes/EditorPage';
-import LoginPage from './routes/LoginPage';
-import RegisterPage from './routes/RegisterPage';
 import QuestionPage from './routes/QuestionPage';
+import RegisterPage from './routes/RegisterPage';
 
 
 function App() {
   return (
+    <>
     <Router>
       <Routes>
         <Route path="/" element={<QuestionPage />} />
@@ -17,6 +20,12 @@ function App() {
         <Route path="/question" element={<QuestionPage />} />
       </Routes>
     </Router>
+    <ToastContainer
+      position='bottom-center'
+      transition={Slide}
+      theme='colored'
+    />
+    </>
   );
 }
 

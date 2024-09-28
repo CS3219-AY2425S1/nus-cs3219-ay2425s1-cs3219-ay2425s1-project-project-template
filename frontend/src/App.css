@@ -41,7 +41,6 @@ body {
   display:flex;
   margin: 0;
   padding: 0;
-  background-color: #e5d6d6;
   overflow: hidden; /* Optional: to prevent scrolling */
 }
 
