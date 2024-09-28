@@ -1,10 +1,9 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {QuestionService} from "../services/question.service";
-import {HttpClientModule} from "@angular/common/http";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-edit-page',
@@ -16,7 +15,8 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
     NgForOf,
     HttpClientModule,
     ReactiveFormsModule,
-    NgIf
+    NgIf,
+    MatDialogModule
   ],
   styleUrls: ['./edit-page.component.css']
 })
@@ -42,8 +42,6 @@ export class EditPageComponent implements OnInit {
 
   constructor(
     private questionService: QuestionService,
-    private router: Router,
-    private route: ActivatedRoute,
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EditPageComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any

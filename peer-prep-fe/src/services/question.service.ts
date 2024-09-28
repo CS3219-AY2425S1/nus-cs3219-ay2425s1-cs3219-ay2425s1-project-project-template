@@ -5,6 +5,7 @@ import {Observable} from "rxjs";
 @Injectable({
   providedIn: 'root'
 })
+
 export class QuestionService {
   private baseUrl = 'http://localhost:8080/questions'
   constructor(private http: HttpClient) { }

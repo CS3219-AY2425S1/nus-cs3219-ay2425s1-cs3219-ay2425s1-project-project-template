@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Question } from '../../app/models/question.model';
 import { CommonModule } from '@angular/common';
 import { QuestionDescriptionComponent } from '../question-description/question-description.component';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {EditPageComponent} from "../../edit-page/edit-page.component";
 
 @Component({

@@ -1,11 +1,14 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, NgModule} from '@angular/core';
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormsModule, Validators, FormGroup, ReactiveFormsModule, FormControl} from "@angular/forms";
-import {HttpClient} from "@angular/common/http";
-import {ActivatedRoute, Router, Routes} from "@angular/router";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {QuestionService} from "../services/question.service";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {EditPageComponent} from "../edit-page/edit-page.component";
+
+@NgModule({
+  imports: [HttpClientModule]
+})
 
 @Component({
   selector: 'app-add-page',
@@ -16,7 +19,7 @@ import {EditPageComponent} from "../edit-page/edit-page.component";
     FormsModule,
     NgClass,
     NgIf,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   styleUrl: './add-page.component.css'
 })
@@ -40,8 +43,6 @@ export class AddPageComponent {
 
   constructor(
     private questionService: QuestionService,
-    private router: Router,
-    private route: ActivatedRoute,
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EditPageComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
