@@ -4,19 +4,38 @@ import React, { useState } from 'react'
 import { Check, CheckIcon, PlusIcon, X, Pencil, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
-import { Card } from '@/components/ui/card'
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { MultiSelect } from "@/components/ui/multi-select"
+
+enum QuestionCategory {
+  STRINGS = 'Strings',
+  ALGORITHMS = 'Algorithms',
+  DATA_STRUCTURES = 'Data Structures',
+  BIT_MANIPULATION = 'Bit Manipulation',
+  RECURSION = 'Recursion',
+  DATABASES = 'Databases',
+  ARRAYS = 'Arrays',
+  BRAINTEASER = 'Brainteaser',
+  OTHER = 'Other',
+}
+
+enum QuestionComplexity {
+  EASY = 'Easy',
+  MEDIUM = 'Medium',
+  HARD = 'Hard',
+}
 
 interface Question {
   id: number
   title: string
   description: string
-  category: string
-  complexity: 'Easy' | 'Medium' | 'Hard'
+  categories: QuestionCategory[]
+  complexity: QuestionComplexity
   completed: boolean
 }
 
@@ -25,73 +44,49 @@ const initialQuestions: Question[] = [
     id: 1,
     title: "Two Sum",
     description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-    category: "Array",
-    complexity: "Easy",
+    categories: [QuestionCategory.ARRAYS, QuestionCategory.ALGORITHMS],
+    complexity: QuestionComplexity.EASY,
     completed: true
   },
   {
     id: 2,
     title: "Add Two Numbers",
     description: "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
-    category: "Linked List",
-    complexity: "Medium",
+    categories: [QuestionCategory.DATA_STRUCTURES, QuestionCategory.ALGORITHMS],
+    complexity: QuestionComplexity.MEDIUM,
     completed: false
   },
   {
     id: 3,
     title: "Median of Two Sorted Arrays",
     description: "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
-    category: "Array",
-    complexity: "Hard",
+    categories: [QuestionCategory.ARRAYS, QuestionCategory.ALGORITHMS],
+    complexity: QuestionComplexity.HARD,
     completed: false
   },
   {
     id: 4,
     title: "Reverse a String",
-    description: "Write a function that reverses a string. The input string is given as an array of characters.You must do this by modifying the input array in-place with O(1) extra memory. Constraints1 <= s.length <= 105 s[i] is a printable ascii  character. ",
-    category: "Strings, Algorithms",
-    complexity: "Easy",
+    description: "Write a function that reverses a string. The input string is given as an array of characters. You must do this by modifying the input array in-place with O(1) extra memory.",
+    categories: [QuestionCategory.STRINGS, QuestionCategory.ALGORITHMS],
+    complexity: QuestionComplexity.EASY,
     completed: true
   },
   {
     id: 5,
     title: "Longest Common Subsequence",
-    description: `Given two strings text1 and text2, return the length of their longest common 
-    subsequence. If there is no common subsequence, return 0. A subsequence of a string is a new
-    string generated from the original string with some characters (can be none) deleted without
-    changing the relative order of the remaining characters. For example, 'ace' is a subsequence 
-    of 'abcde'. A common subsequence of two strings is a subsequence that is common to both strings.
-    Example 1:
-    Input: text1 = "abcde", text2 = "ace" 
-    Output: 3  
-    Explanation: The longest common subsequence is "ace" and its length is 3.
-
-    Example 2:
-
-    Input: text1 = "abc", text2 = "abc"
-    Output: 3
-    Explanation: The longest common subsequence is "abc" and its length is 3.
-
-    Example 3:
-
-    Input: text1 = "abc", text2 = "def"
-    Output: 0
-    Explanation: There is no such common subsequence, so the result is 0.
-
-    
-    Constraints: 1 <= text1.length, text2.length <= 1000, text1 and text2 consist of only lowercase 
-    English character`, 
-    category: "Strings, Algorithms",
-    complexity: "Medium",
+    description: "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.",
+    categories: [QuestionCategory.STRINGS, QuestionCategory.ALGORITHMS, QuestionCategory.RECURSION],
+    complexity: QuestionComplexity.MEDIUM,
     completed: false
   }
 ]
 
-const ComplexityBadge: React.FC<{ complexity: Question['complexity'] }> = ({ complexity }) => {
+const ComplexityBadge: React.FC<{ complexity: QuestionComplexity }> = ({ complexity }) => {
   const colorClass = {
-    Easy: 'bg-green-100 text-green-800',
-    Medium: 'bg-yellow-100 text-yellow-800',
-    Hard: 'bg-red-100 text-red-800'
+    [QuestionComplexity.EASY]: 'bg-green-100 text-green-800',
+    [QuestionComplexity.MEDIUM]: 'bg-yellow-100 text-yellow-800',
+    [QuestionComplexity.HARD]: 'bg-red-100 text-red-800'
   }[complexity]
 
   return (
@@ -117,8 +112,8 @@ export default function Questions() {
       id: Math.max(...questions.map(q => q.id)) + 1,
       title: '',
       description: '',
-      category: '',
-      complexity: 'Easy',
+      categories: [],
+      complexity: QuestionComplexity.EASY,
       completed: false
     })
     setIsEditDialogOpen(true)
@@ -143,6 +138,11 @@ export default function Questions() {
     setIsEditDialogOpen(false)
     setEditingQuestion(null)
   }
+
+  const categoryOptions = Object.values(QuestionCategory).map(category => ({
+    label: category,
+    value: category,
+  }))
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -171,7 +171,7 @@ export default function Questions() {
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Number</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Title</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Category</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Categories</th>
               <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Question Complexity</th>
               <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
@@ -193,7 +193,7 @@ export default function Questions() {
                         <DialogTitle className="text-xl font-bold">{question.title}</DialogTitle>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
-                        <p className="text-sm text-gray-500"><span className="font-semibold">Category:</span> {question.category}</p>
+                        <p className="text-sm text-gray-500"><span className="font-semibold">Categories:</span> {question.categories.join(', ')}</p>
                         <p className="text-sm text-gray-500"><span className="font-semibold">Complexity:</span> <ComplexityBadge complexity={question.complexity} /></p>
                         <p className="text-sm text-gray-500"><span className="font-semibold">Completed:</span> {question.completed ? 'Yes' : 'No'}</p>
                         <p className="text-sm text-gray-500"><span className="font-semibold">Description:</span> {question.description}</p>
@@ -201,7 +201,7 @@ export default function Questions() {
                     </DialogContent>
                   </Dialog>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{question.category}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{question.categories.join(', ')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <ComplexityBadge complexity={question.complexity} />
                 </td>
@@ -241,13 +241,13 @@ export default function Questions() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">
-                Category
+              <Label htmlFor="categories" className="text-right">
+                Categories
               </Label>
-              <Input
-                id="category"
-                value={editingQuestion?.category || ''}
-                onChange={(e) => setEditingQuestion(q => q ? {...q, category: e.target.value} : null)}
+              <MultiSelect
+                options={categoryOptions}
+                onValueChange={(selected) => setEditingQuestion(q => q ? {...q, categories: selected as QuestionCategory[]} : null)}
+                defaultValue={editingQuestion?.categories || []}
                 className="col-span-3"
               />
             </div>
@@ -257,15 +257,15 @@ export default function Questions() {
               </Label>
               <Select
                 value={editingQuestion?.complexity}
-                onValueChange={(value: 'Easy' | 'Medium' | 'Hard') => setEditingQuestion(q => q ? {...q, complexity: value} : null)}
+                onValueChange={(value: QuestionComplexity) => setEditingQuestion(q => q ? {...q, complexity: value} : null)}
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select complexity" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Easy">Easy</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Hard">Hard</SelectItem>
+                  <SelectItem value={QuestionComplexity.EASY}>Easy</SelectItem>
+                  <SelectItem value={QuestionComplexity.MEDIUM}>Medium</SelectItem>
+                  <SelectItem value={QuestionComplexity.HARD}>Hard</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -287,7 +287,7 @@ export default function Questions() {
                 id="description"
                 value={editingQuestion?.description || ''}
                 onChange={(e) => setEditingQuestion(q => q ? {...q, description: e.target.value} : null)}
-                className="col-span-3 min-h-[10em]"
+                className="col-span-3"
               />
             </div>
           </div>
