@@ -4,9 +4,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 //matches if the id is equal to the query, or if the title contains the query
@@ -22,14 +24,29 @@ func GetMatchingQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerF
 		
 		// replace all dashes with spaces
 		query = strings.ReplaceAll(query, "-", " ")
-		questions, err := db.GetMatchingQuestions(query)
-
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"Error finding questions": err.Error()})
-			logger.Log.Error("Error retrieving questions: ", err.Error())
-			return
+		
+		title_filter := bson.D{bson.E{Key: "title", Value: bson.D{bson.E{Key: "$regex", Value: "(?i)" + query}}}}
+		var id_filter bson.D
+		
+		if id, err := strconv.Atoi(query); err == nil {
+			id_filter = bson.D{bson.E{Key: "id", Value: id}}
+		}
+		
+		var filter bson.D
+		
+		if id_filter == nil {
+			filter = title_filter
+		} else {
+			filter = bson.D{bson.E{Key: "$or", Value: []bson.D{id_filter, title_filter}}}
 		}
 
+		questions, err := db.GetAllQuestionsWithQuery(logger, filter)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadGateway, err.Error())
+			return
+		}
+		
 		if len(questions) == 0 {
 			ctx.JSON(http.StatusNotFound, gin.H{"No questions match the query": query})
 			logger.Log.Warn(fmt.Sprintf("No questions found matching the query: %s", query))
