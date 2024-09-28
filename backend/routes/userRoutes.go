@@ -17,5 +17,5 @@ func UserRoutes(incomingRoutes *gin.Engine) {
 
 	// Protected routes
 	incomingRoutes.POST("/v1/reset-password", middleware.Authentication(), controller.ResetPassword())
-	incomingRoutes.POST("/v1/logout/", middleware.Authentication(), controller.Logout())
+	incomingRoutes.POST("/v1/logout", middleware.Authentication(), controller.Logout())
 }
