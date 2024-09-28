@@ -192,14 +192,18 @@ export default function Home() {
       key: "complexity",
       render: (difficulty: string) => {
         let color = "";
-        if (difficulty === "Easy") {
+        if (difficulty === "easy") {
           color = "#2DB55D";
-        } else if (difficulty === "Medium") {
+        } else if (difficulty === "medium") {
           color = "orange";
-        } else if (difficulty === "Hard") {
+        } else if (difficulty === "hard") {
           color = "red";
         }
-        return <div style={{ color }}>{difficulty}</div>;
+        return (
+          <div style={{ color }}>
+            {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+          </div>
+        );
       },
     },
     {
