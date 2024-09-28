@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (db *QuestionDB) GetAllQuestionsWithQuery(logger *Logger, filter bson.D) ([]Question, error) {
@@ -47,4 +48,20 @@ func (db *QuestionDB) AddQuestion(logger *Logger, question *Question) (int, erro
 
 	db.IncrementNextQuestionId(question.ID + 1, logger)
 	return http.StatusOK, nil
-}	
+}
+
+func (db *QuestionDB) UpsertQuestion(logger *Logger, question *Question) (int, error) {
+
+	filter := bson.D{bson.E{Key: "id", Value: question.ID}}
+	setter := bson.M{"$set": question}
+	upsert := options.Update().SetUpsert(true)
+	
+	_, err := db.questions.UpdateOne(context.Background(), filter, setter, upsert)
+
+	if err != nil {
+		logger.Log.Error("Error while upserting question", err.Error())
+		return http.StatusBadGateway, err
+	}
+
+	return http.StatusOK, nil
+}

@@ -4,13 +4,10 @@
 package main
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // for PUT requests, to replace an entire question with a new question, or create a new question if the id does not yet exist
@@ -24,8 +21,9 @@ func ReplaceQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 			return
 		}
 
-		new_question := Question{}
+		var new_question Question
 		err = ctx.BindJSON(&new_question)
+		
 		if err != nil {
 			logger.Log.Error("error", "Failed to bind JSON", err)
 			ctx.JSON(http.StatusBadGateway, gin.H{"Error replacing question": err.Error()})
@@ -33,70 +31,39 @@ func ReplaceQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		}
 
 		if id_param >= db.FindNextQuestionId() {
-			// ID is greater than the next ID, so we will create a new question. This is equivalent to a POST request.
 			logger.Log.Info("Attempting to update a question with an ID greater than next ID, creating a new question")
+			status, err := db.AddQuestion(logger, &new_question)
 
-			if db.QuestionExists(&new_question) {
-				ctx.JSON(http.StatusConflict, gin.H{"Error adding question": "Question already exists"})
-				logger.Log.Warn("Cannot add question: question already exists")
+			if err != nil {
+				ctx.JSON(status, err.Error())
 				return
 			}
 
-			new_question.ID = db.FindNextQuestionId()
-
-			if new_question.ID == -1 {
-				ctx.JSON(http.StatusBadGateway, gin.H{"Error adding question": "Could not find next question ID"})
-				logger.Log.Error("Could not find next question ID")
-				return
-			}
-
-			if _, err := db.questions.InsertOne(context.Background(), new_question); err != nil {
-				ctx.JSON(http.StatusBadGateway, gin.H{"Error adding question": err.Error()})
-				logger.Log.Error("Error adding question: ", err.Error())
-				return
-			}
-
-			db.IncrementNextQuestionId(new_question.ID+1, logger)
-			ctx.JSON(http.StatusCreated, gin.H{"Success": "Question added successfully"})
-			logger.Log.Info("Question added successfully with ID: ", new_question.ID)
+			ctx.JSON(status, "Question added successfully")
+			logger.Log.Info("Question added successfully")
 			return
 		}
 
 		logger.Log.Info("Replacing question with ID: ", id_param)
-
-		new_question.ID = id_param //ensure the ID is the same as the ID in the URL
-
+		new_question.ID = id_param
+		
 		// used	to ensure that replacing a question will not cause a conflict with another question
 		// e.g new question shares same title as question A, but is used to replace question B. This will result in 2 question A's in the database.
 		if db.QuestionExistsExceptId(&new_question) {
-			ctx.JSON(http.StatusConflict, gin.H{"Error adding question": "Question already exists"})
-			logger.Log.Warn("Cannot add question: question already exists")
+			ctx.JSON(http.StatusConflict, "Question already exists")
+			logger.Log.Warn("Cannot replace question: question already exists")
 			return
 		}
 
-		var count *mongo.UpdateResult
-		count, err = db.questions.ReplaceOne(context.Background(), bson.D{bson.E{Key: "id", Value: id_param}}, new_question)
-
+		status, err := db.UpsertQuestion(logger, &new_question)
+		
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"Error replacing question": err.Error()})
-			logger.Log.Error("Failed to replace question: ", err)
+			ctx.JSON(status, err.Error())
 			return
 		}
 
-		if count.MatchedCount == 0 {
-			//the reason the ID does not exist is likely because the previous question with this ID was deleted.
-			//simply insert the new question with the same ID, to fill in the gap.
-			if db.QuestionExists(&new_question) {
-				ctx.JSON(http.StatusConflict, gin.H{"Error adding question": "Question already exists"})
-				logger.Log.Warn("Cannot add question: question already exists")
-				return
-			}
+		ctx.JSON(status, "Question updated successfully")
+		logger.Log.Info("Question upserted successfully")
 
-			db.questions.InsertOne(context.Background(), new_question)
-			ctx.JSON(http.StatusCreated, gin.H{"Success": "Question replaced successfully"})
-			return
-		}
-
-		ctx.JSON(http.StatusOK, gin.H{"Success": "Question replaced successfully"})
 	}
 }
