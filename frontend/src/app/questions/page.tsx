@@ -181,9 +181,10 @@ export default function Questions() {
                 <tr>
                   <td colSpan={6} className="px-6 py-4 whitespace-normal text-sm text-gray-500 bg-gray-50">
                     <strong className="font-medium">Description:</strong> {' '}
+
                     <Dialog>
                       <DialogTrigger asChild>
-                        <span className="cursor-pointer transform hover:scale-[1.03] transition duration-200 ease-in-out">
+                        <span className="cursor-pointer block transform hover:scale-[1.01] transition duration-200 ease-in-out">
                           {truncateDescription(question.description)}
                         </span>
                       </DialogTrigger>
