@@ -7,7 +7,7 @@ import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
 
 import { Question } from "@/types/questions";
-import { getAllQuestionTopics } from "@/utils/questions";
+import { getAllQuestionCategories } from "@/utils/questions";
 
 interface QuestionFormProps {
   formType: string;
@@ -25,7 +25,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const router = useRouter();
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
-  const allQuestionTopics = getAllQuestionTopics();
+  const allCategories = getAllQuestionCategories();
 
   const handleTitleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -56,6 +56,22 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setFormData({
       ...formData,
       description: e.target.value,
+    });
+  };
+
+  const handleExamplesOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      examples: e.target.value,
+    });
+  };
+
+  const handleConstraintsOnChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setFormData({
+      ...formData,
+      constraints: e.target.value,
     });
   };
 
@@ -90,7 +106,6 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
     onSubmit(formData);
   };
-
 
   return (
     <>
@@ -130,24 +145,41 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           isInvalid={!!errors.category}
           isRequired={true}
           label="Select Topics"
+          selectedKeys={formData.category}
           selectionMode="multiple"
-          value={formData.category}
           variant="underlined"
           onChange={handleCategoryOnChange}
         >
-          {allQuestionTopics.map((topic) => (
+          {allCategories.map((topic) => (
             <SelectItem key={topic}>{topic}</SelectItem>
           ))}
         </Select>
       </div>
-      <div className="flex mb-4">
+      <div className="flex mb-2">
         <Textarea
           errorMessage="Please provide the question description."
           isInvalid={!!errors.description}
+          isRequired={true}
           label="Input Question Description"
-          minRows={5}
+          minRows={4}
           value={formData.description}
           onChange={handleDescriptionOnChange}
+        />
+      </div>
+      <div className="flex mb-4">
+        <Textarea
+          label="[Optional] Input Question Examples."
+          minRows={2}
+          value={formData.examples}
+          onChange={handleExamplesOnChange}
+        />
+      </div>
+      <div className="flex mb-4">
+        <Textarea
+          label="[Optional] Input Question Constraints."
+          minRows={2}
+          value={formData.constraints}
+          onChange={handleConstraintsOnChange}
         />
       </div>
       <div className="flex justify-end space-x-4">

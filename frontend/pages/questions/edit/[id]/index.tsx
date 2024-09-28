@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
@@ -20,7 +20,23 @@ const EditQuestionsPage = () => {
     complexity: "",
     category: [],
     description: "",
+    examples: "",
+    constraints: "",
   });
+
+  // Update formData when question is fetched
+  useEffect(() => {
+    if (question) {
+      setFormData({
+        title: question.title || "",
+        complexity: question.complexity || "",
+        category: question.category || [],
+        description: question.description || "",
+        examples: question.examples || "",
+        constraints: question.constraints || "",
+      });
+    }
+  }, [question]);
 
   // Mutation hook to update the question
   const { mutate: updateQuestion } = useUpdateQuestions();
@@ -31,36 +47,40 @@ const EditQuestionsPage = () => {
       { ...updatedData, questionId: id as string }, // Pass the updated question with ID
       {
         onSuccess: () => {
+          alert("Question successfully updated!");
           router.push("/questions"); // Redirect to questions list on success
         },
         onError: (error) => {
-          console.error("Error updating the question:", error);
+          if (error.response) {
+            alert(`Error adding the question: ${error.response.data}`);
+          } else {
+            alert(`Error adding the question: ${error.message}`);
+            console.error("Error adding the question:", error);
+          }
         },
       },
     );
   };
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>Error loading question. Please try again later.</p>;
-  }
-
-  if (!question) {
-    return <p>Question not found.</p>;
-  }
-
   return (
     <DefaultLayout>
       <div className="flex items-center justify-center">
-        <QuestionForm
-          formData={formData}
-          formType="Edit"
-          setFormData={setFormData}
-          onSubmit={handleOnSubmit}
-        />
+        <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p>Error loading question. Please try again later.</p>
+          ) : !question ? (
+            <p>Question does not exist!</p>
+          ) : (
+            <QuestionForm
+              formData={formData}
+              formType="Edit"
+              setFormData={setFormData}
+              onSubmit={handleOnSubmit}
+            />
+          )}
+        </div>
       </div>
     </DefaultLayout>
   );

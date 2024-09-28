@@ -4,6 +4,8 @@ export interface Question {
   complexity: string; // Complexity level (e.g., easy, medium, hard)
   category: string[]; // Category or topic to which the question belongs
   description: string; // Detailed description of the question
+  examples: string;
+  constraints: string;
 }
 
 export interface QuestionList {

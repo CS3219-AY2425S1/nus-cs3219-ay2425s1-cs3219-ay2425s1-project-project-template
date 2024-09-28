@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Key as ReactKey } from "react";
 import { Button } from "@nextui-org/button";
+import { Link } from "@nextui-org/link";
 import {
   Table,
   TableHeader,
@@ -63,7 +64,9 @@ export default function QuestionTable({ questions }: QuestionTableProps) {
     <div className="flex relative flex-col items-center w-10/12">
       <div className="flex w-full justify-between">
         <h2>Questions</h2>
-        <Button>Add</Button>
+        <Button as={Link} href="/questions/add">
+          Add
+        </Button>
       </div>
       <div className="mt-5 h-52 w-full">
         <Table aria-label="Example table with index">
