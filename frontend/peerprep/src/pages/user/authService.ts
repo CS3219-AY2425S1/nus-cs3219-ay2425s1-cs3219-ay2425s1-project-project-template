@@ -1,12 +1,19 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export interface UserCredentials {
   username?: string;
   email: string;
   password: string;
 }
 
+export interface LoginTokens {
+  token: string;
+  refreshToken: string;
+}
+
 export const login = async (credentials: UserCredentials): Promise<{ token: string, refreshToken: string }> => {
   try {
-    const response = await fetch("http://localhost:8080/v1/login", {
+    const response = await fetch(`${API_URL}/v1/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -20,7 +27,11 @@ export const login = async (credentials: UserCredentials): Promise<{ token: stri
       throw new Error(errorData.message || "Invalid email or password");
     }
 
-    const data = await response.json();
+    const data : LoginTokens = await response.json();
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("refreshToken", data.refreshToken);
+
     return {
       token: data.token,
       refreshToken: data.refreshToken,
@@ -56,7 +67,7 @@ export const register = async (credentials: UserCredentials): Promise<string> =>
 
 export const sendResetLink = async (email: string): Promise<void> => {
   try {
-    const response = await fetch("http://localhost:8080/v1/email-verification", {
+    const response = await fetch(`${API_URL}/v1/email-verification`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -75,7 +86,7 @@ export const sendResetLink = async (email: string): Promise<void> => {
 
 export const resetPassword = async (newPassword: string, token: string): Promise<void> => {
   try {
-    const response = await fetch(`http://localhost:8080/v1/reset-password`, {
+    const response = await fetch(`${API_URL}/v1/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -92,6 +103,3 @@ export const resetPassword = async (newPassword: string, token: string): Promise
     return Promise.reject(error.message || "Password reset error");
   }
 };
-
-
-

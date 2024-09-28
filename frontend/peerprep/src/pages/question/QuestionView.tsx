@@ -16,6 +16,12 @@ import {
     Button,
     Icon,
     useDisclosure,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalCloseButton,
+    ModalBody,
 } from '@chakra-ui/react';
 import MenuDrawer from '../../components/MenuDrawer';
 import { FiAlignJustify } from 'react-icons/fi';
@@ -29,28 +35,32 @@ type QuestionViewProps = {
 
 const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
     const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+    const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
+    const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null); // State for the selected question
 
     const getComplexityColor = (complexity: string) => {
+        if (!complexity) return 'white'; // Default color for undefined complexity
         const found = COMPLEXITIES.find(c => c.id.toLowerCase() === complexity.toLowerCase());
         return found ? found.color : 'white';
     };
-
+    
     const getCategoryColor = (category: string) => {
+        if (!category) return 'white';
         const found = CATEGORIES.find(c => c.id.toLowerCase() === category.toLowerCase());
         return found ? found.color : 'white';
     };
-
+    
     const columns: ColumnDef<Question>[] = useMemo(
         () => [
-            { header: "ID", accessorKey: "id" },
-            { header: "Title", accessorKey: "title" },
+            { header: "ID", accessorKey: "ID" },
+            { header: "Title", accessorKey: "Title" },
             {
                 header: "Topic",
-                accessorKey: "categories",
+                accessorKey: "Categories",
                 cell: ({ getValue }) => {
                     const category = getValue<string>();
-                    const color = getCategoryColor(category)
+                    const color = getCategoryColor(category);
                     return (
                         <Text
                             color={color}
@@ -64,7 +74,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
             },
             {
                 header: "Complexity",
-                accessorKey: "complexity",
+                accessorKey: "Complexity",
                 cell: ({ getValue }) => {
                     const complexity = getValue<string>();
                     const color = getComplexityColor(complexity);
@@ -75,26 +85,40 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                             </Text>
                         </Badge>
                     );
-                }
+                },
+                enableSorting: true, // Enable sorting on this column
             },
             {
                 header: "Question",
                 accessorKey: "link",
-                cell: ({ getValue }) => (
-                    <a href={getValue<string>()} className="text-blue-500" target="_blank" rel="noopener noreferrer">
-                        View
-                    </a>
-                ),
+                cell: ({ row }) => {
+                    return (
+                        <Button
+                            onClick={() => {
+                                setSelectedQuestion(row.original); // Set the selected question data
+                                onModalOpen(); // Open the modal
+                                onMenuClose(); // Close the menu if it is open
+                            }}
+                            colorScheme="blue"
+                            variant="link"
+                        >
+                            View
+                        </Button>
+                    );
+                },
             },
         ],
-        []
+        [onModalOpen, onMenuClose]
     );
 
     return (
         <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
             <Box className="flex justify-start items-center p-2 mb-5">
                 <Button 
-                    onClick={onOpen} 
+                    onClick={() => {
+                        onMenuOpen(); // Open the menu
+                        onModalClose(); // Close the modal if it is open
+                    }} 
                     border="2px solid"
                     borderColor="white"
                     bg="transparent"
@@ -111,7 +135,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                 <span className="text-4xl text-white">PeerPrep</span>
             </Box>
             {/* Drawer for menu */}
-            <MenuDrawer isOpen={isOpen} onClose={onClose}/>
+            <MenuDrawer isOpen={isMenuOpen} onClose={() => {
+                onMenuClose();
+                onModalClose(); // Ensure modal closes if menu closes
+            }}/>
 
             <Box className="flex-col justify-center items-center p-2">
                 {/* Search Filter Input */}
@@ -119,6 +146,22 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                 <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilter} />
                 {/* Table Display */}
                 <DataTable columns={columns} data={questions} columnFilters={columnFilters} setColumnFilters={setColumnFilter}/>
+
+                {/* Modal for Question Details */}
+                <Modal isOpen={isModalOpen} onClose={() => {
+                    onModalClose(); // Close modal
+                    onMenuClose(); // Ensure menu closes if modal closes
+                }} isCentered>
+                    <ModalOverlay />
+                    <ModalContent bg="#371F76"> 
+                        <ModalHeader color="white">{selectedQuestion?.Title}</ModalHeader> {/* Set text color to white */}
+                        <ModalCloseButton />
+                        <ModalBody>
+                            <Text color="white">{selectedQuestion?.Description}</Text> {/* Set text color to white */}
+                            <br /> {/* Add a line break for spacing */}
+                        </ModalBody>
+                    </ModalContent>
+                </Modal>
             </Box>
         </Box>
     );

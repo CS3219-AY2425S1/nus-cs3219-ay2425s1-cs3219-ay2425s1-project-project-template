@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import QuestionView from './QuestionView';
-import { questionService } from './questionService';
-import { Question } from './questionService';
+import React, { useEffect, useState } from "react";
+import QuestionView from "./QuestionView";
+import { Question } from "./questionService";
+import { useApiContext } from "../../context/ApiContext";
 
 const QuestionController: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const data = await questionService.getQuestions();
-        setQuestions(data);
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-      }
-    };
+  const api = useApiContext();
 
-    fetchQuestions();
+  useEffect(() => {
+    api
+      .get("/questions")
+      .then((response) => {
+        // use the api instance to make post request using axios post method
+        if (response.status === 200) {
+          setQuestions(response.data);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
   return <QuestionView questions={questions} />;
