@@ -1,22 +1,27 @@
-import React, { useState } from 'react';
-import InputBox from '../../components/InputBox';
-import LargeButton from '../../components/SubmitButton';
-import logo from '/peerprep_logo.png';
+import React, { useState } from "react";
+import InputBox from "../../components/InputBox";
+import LargeButton from "../../components/SubmitButton";
+import logo from "/peerprep_logo.png";
+
+import { useButtonWithLoading } from "../../hooks/ButtonHooks";
 
 interface LoginViewProps {
-  onSubmit: (email: string, password: string) => void;
+  onSubmit: (email: string, password: string) => Promise<void>;
   onCreateAccount: () => void;
   errorMessage?: string;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorMessage }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const LoginView: React.FC<LoginViewProps> = ({
+  onSubmit,
+  onCreateAccount,
+  errorMessage,
+}) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(email, password);
-  };
+  const [isSubmitting, onSubmitWithLoading] = useButtonWithLoading(() =>
+    onSubmit(email, password)
+  );
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]">
@@ -26,7 +31,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorM
       </div>
       <div className="bg-white bg-opacity-10 p-20 rounded-lg backdrop-blur-md text-center w-auto">
         <h2 className="text-white text-2xl font-semibold mb-4">Login</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4">
           <div className="input-container">
             <InputBox
               type="email"
@@ -41,21 +46,35 @@ const LoginView: React.FC<LoginViewProps> = ({ onSubmit, onCreateAccount, errorM
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              isPassword={true}  // Enable password toggle functionality
+              isPassword={true} // Enable password toggle functionality
             />
           </div>
           <div className="forgot-password text-right">
-            <a href="#" className="text-purple-400 hover:underline text-sm">Forgot password?</a>
+            <a href="#" className="text-purple-400 hover:underline text-sm">
+              Forgot password?
+            </a>
           </div>
-          <LargeButton text="Login" onClick={handleSubmit} />
+          <LargeButton
+            text="Login"
+            onClick={(e) => {
+              e.preventDefault();
+              onSubmitWithLoading();
+            }}
+            isLoading={isSubmitting}
+          />
         </form>
         {errorMessage && (
-          <div className="text-red-500 mt-4">
-            {errorMessage}
-          </div>
+          <div className="text-red-500 mt-4">{errorMessage}</div>
         )}
         <div className="signup-link mt-6 text-sm text-gray-300">
-          Don’t have an account? <a href="#" className="text-purple-400 hover:underline" onClick={onCreateAccount}>Create account</a>
+          Don’t have an account?{" "}
+          <a
+            href="#"
+            className="text-purple-400 hover:underline"
+            onClick={onCreateAccount}
+          >
+            Create account
+          </a>
         </div>
       </div>
     </div>

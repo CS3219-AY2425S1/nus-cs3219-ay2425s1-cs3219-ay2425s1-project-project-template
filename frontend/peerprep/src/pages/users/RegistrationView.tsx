@@ -1,30 +1,42 @@
-import React, { useState } from 'react';
-import InputBox from '../../components/InputBox';
-import LargeButton from '../../components/SubmitButton';
-import logo from '/peerprep_logo.png';
+import React, { useState } from "react";
+import InputBox from "../../components/InputBox";
+import LargeButton from "../../components/SubmitButton";
+import logo from "/peerprep_logo.png";
+import { useButtonWithLoading } from "../../hooks/ButtonHooks";
 
 interface RegistrationViewProps {
-  onSubmit: (username: string, email: string, password: string, confirmPassword: string) => void;
+  onSubmit: (
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => Promise<void>;
   onLogin: () => void; // New prop to navigate back to login
   errorMessage?: string; // Optional prop for error message
 }
 
-const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, errorMessage }) => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+const RegistrationView: React.FC<RegistrationViewProps> = ({
+  onSubmit,
+  onLogin,
+  errorMessage,
+}) => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [formError, setFormError] = useState<string | null>(null); // General form error
   const [passwordError, setPasswordError] = useState<string | null>(null); // Password-specific error
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [isLoading, submitFormWithLoading] = useButtonWithLoading(() =>
+    onSubmit(username, email, password, confirmPassword)
+  );
 
+  const checkIsValidForm = (): boolean => {
     // Check if any field is empty
     if (!username || !email || !password || !confirmPassword) {
       setFormError("All fields are required."); // Set error if any field is empty
-      return;
+      return false;
     }
 
     // Clear the form error if all fields are filled
@@ -33,12 +45,20 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
     // Check if passwords match
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match!"); // Set password mismatch error
-      return;
+      return false;
     }
 
     setPasswordError(null); // Clear password error if they match
     setFormError(null); // Clear form error
-    onSubmit(username, email, password, confirmPassword); // Call onSubmit with valid inputs
+    return true;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkIsValidForm()) {
+      return;
+    }
+    submitFormWithLoading();
   };
 
   return (
@@ -72,7 +92,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              isPassword={true}  // Enable password toggle for the "Password" field
+              isPassword={true} // Enable password toggle for the "Password" field
             />
           </div>
           <div className="input-container">
@@ -81,19 +101,30 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onSubmit, onLogin, 
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              isPassword={true}  // Enable password toggle for the "Confirm Password" field
+              isPassword={true} // Enable password toggle for the "Confirm Password" field
             />
           </div>
 
           {/* Display form validation errors */}
           {formError && <p className="text-red-500">{formError}</p>}
           {passwordError && <p className="text-red-500">{passwordError}</p>}
-          
-          <LargeButton text="Register" onClick={handleSubmit} />
+
+          <LargeButton
+            text="Register"
+            onClick={handleSubmit}
+            isLoading={isLoading}
+          />
         </form>
         {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
         <div className="login-link mt-6 text-sm text-gray-300">
-          Already have an account? <a href="#" className="text-purple-400 hover:underline" onClick={onLogin}>Login</a>
+          Already have an account?{" "}
+          <a
+            href="#"
+            className="text-purple-400 hover:underline"
+            onClick={onLogin}
+          >
+            Login
+          </a>
         </div>
       </div>
     </div>
