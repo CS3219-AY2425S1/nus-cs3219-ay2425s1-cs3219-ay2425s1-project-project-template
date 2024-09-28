@@ -1,47 +1,43 @@
 import React, {useEffect, useState} from "react";
 
 const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
-  const [difficultyValue, setDifficultyValue] = useState("");
-  const [topicValue, setTopicValue] = useState([""]);
-  const [titleValue, setTitleValue] = useState("");
-  const [detailsValue, setDetailsValue] = useState("");
-  const [canSubmit, setCanSubmit] = useState(false);
+  //const [difficultyValue, setDifficultyValue] = useState("");
+  //const [topicValue, setTopicValue] = useState([""]);
+  //const [titleValue, setTitleValue] = useState("");
+  //const [detailsValue, setDetailsValue] = useState("");
+  //const [canSubmit, setCanSubmit] = useState(false);
 
-  useEffect(() => {
-    const addQuestion = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/questions', {
-                mode: "cors",
-                method: 'POST',
-                headers: {
-                  "Access-Control-Allow-Origin": "http://localhost:8080",
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  title: titleValue,
-                  description: detailsValue,
-                  categories: topicValue,
-                  complexity: difficultyValue
-                })
-              });
+  const addQuestion = async (difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
+      try {
+        console.log("trying");
+        const response = await fetch('http://localhost:8080/questions', {
+            mode: "cors",
+            method: 'POST',
+            headers: {
+              "Access-Control-Allow-Origin": "http://localhost:8080",
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: titleValue,
+              description: detailsValue,
+              categories: topicValue,
+              complexity: difficultyValue
+            })
+          });
 
-            const data = await response.json();
-            console.log(data);
-        } catch (error) {
-            console.error('Error adding question:', error);
-        }
-    };
-    
-    if (canSubmit) {
-      console.log("adding question");
-      addQuestion();
-    }
-  }, [canSubmit]);
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+          console.error('Error adding question:', error);
+      }
+  };
+  
+  
 
   function onSubmit() {
     const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
     const difficultyValue = difficultyElement ? difficultyElement.value : '';
-    setDifficultyValue(difficultyValue);
+    //setDifficultyValue(difficultyValue);
     
     const topicElement = document.getElementById("topic") as HTMLInputElement | null;
     const topicValue = topicElement ? topicElement.value : "";
@@ -49,15 +45,15 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
       .split(',')
       .map(item => item.trim())
       .filter(item => item !== "");
-    setTopicValue(topicList);
+    //setTopicValue(topicList);
     
     const titleElement = document.getElementById("title") as HTMLInputElement | null;
     const titleValue = titleElement ? titleElement.value : "";
-    setTitleValue(titleValue);
+    //setTitleValue(titleValue);
     
     const detailsElement = document.getElementById("details") as HTMLInputElement | null;
     const detailsValue = detailsElement ? detailsElement.value : "";
-    setDetailsValue(detailsValue);
+    //setDetailsValue(detailsValue);
 
     if (
       difficultyValue == "" ||
@@ -65,16 +61,15 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
       titleValue == "" ||
       detailsValue == ""
     ) {
-      setCanSubmit(false);
       alert(difficultyValue + topicList + titleValue + detailsValue);
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add('visible');
-    } else {
-      setCanSubmit(true);
-      document.getElementById("emptyMessage")?.classList.remove("visible");
-      document.getElementById("emptyMessage")?.classList.add('hidden');
-      onClose();
+      return;
     }
+
+    console.log("can submit");
+    addQuestion(difficultyValue, topicList, titleValue, detailsValue);
+    onClose();
   }
 
   return (
@@ -89,7 +84,7 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
             <div className="flex flex-row justify-between items-center">
               <h2 className="text-2xl font-bold">Add Question</h2>
               <button
-                onClick={() => onClose()}
+                onClick={onClose}
                 id="submit"
                 className="px-2 rounded-lg hover:bg-gray-200"
               >
