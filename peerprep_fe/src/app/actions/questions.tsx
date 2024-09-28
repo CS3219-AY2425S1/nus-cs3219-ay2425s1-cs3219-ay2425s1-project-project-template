@@ -36,7 +36,7 @@ export async function editQuestion(
 ) {
   const { id, ...questionDetails } = question;
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/${id}`,
+    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
     {
       method: "PUT",
       headers: {
@@ -140,7 +140,7 @@ export async function addQuestion(
 
 export async function deleteQuestion(id: string, token?: string | null) {
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/${id}`,
+    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
     {
       method: "DELETE",
       headers: {
@@ -149,6 +149,8 @@ export async function deleteQuestion(id: string, token?: string | null) {
       },
     }
   );
+
+  console.log(response);
 
   try {
     const data = await response.json();
