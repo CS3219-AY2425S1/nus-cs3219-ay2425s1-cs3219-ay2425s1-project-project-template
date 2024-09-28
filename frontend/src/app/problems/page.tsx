@@ -117,7 +117,7 @@ export default function QuestionsPage() {
                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-xl font-bold mb-4">Create New Question</h2>
                         
-                        <AddQuestionForm onClose={handleCloseCard} />
+                        <AddQuestionForm onClose={handleCloseCard} refetch={fetchQuestions} />
                         </div>
                     </div>
                     )}
