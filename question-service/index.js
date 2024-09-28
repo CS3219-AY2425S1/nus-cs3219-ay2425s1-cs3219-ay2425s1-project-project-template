@@ -45,12 +45,10 @@ const storage = multer.diskStorage({
   }
 });
 
-app.use('/uploads', express.static('uploads'));
-
 app.get('/img/:filename', function (req, res) {
   const fileName = req.params.filename;
   const filePath = `./uploads/${fileName}`;
-  
+
   // Check if file exists
   res.sendFile(filePath, { root: '.' }, function (err) {
     if (err) {
