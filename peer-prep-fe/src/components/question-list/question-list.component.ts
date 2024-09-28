@@ -44,4 +44,27 @@ export class QuestionListComponent implements OnInit {
   refreshQuestions(hasSort?: boolean) {
     this.loadQuestions(hasSort);
   }
+
+  loadSearchedQuestions(searchTerm?: string) {
+    if (searchTerm) {
+      // default alphabetical sorting for now
+      this.questionService.searchQuestion(searchTerm).subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    } else {
+      // gets default ordering of questions
+      this.questionService.getAllQuestion().subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    }
+  }
+
+
+  refreshQuestionsSearch(searchTerm?: string) {
+    this.loadSearchedQuestions(searchTerm);
+  }
 }
