@@ -46,10 +46,10 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
 	}
 
-	new_question_id := primitive.NewObjectID()
+	newQuestionId := primitive.NewObjectID()
 
 	newQuestion := models.Question{
-		Question_id:          new_question_id,
+		Question_id:          newQuestionId,
 		Question_title:       question.Question_title,
 		Question_description: question.Question_description,
 		Question_categories:  question.Question_categories,
@@ -62,7 +62,7 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
-	result.InsertedID = new_question_id
+	result.InsertedID = newQuestionId
 	return c.JSON(http.StatusCreated, responses.StatusResponse{Status: http.StatusCreated, Message: successMessage, Data: &echo.Map{"data": result}})
 }
 
