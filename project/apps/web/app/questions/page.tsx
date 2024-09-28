@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { QuestionDto, CreateQuestionDto } from "@repo/dtos/questions";
 import {
   Table,
   TableBody,
@@ -9,34 +12,50 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { QUERY_KEYS } from "@/constants/queryKeys";
-import { apiCall } from "@/lib/api/apiClient";
-import { Question } from "@/types/question";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import CreateModal from "./components/CreateModal";
+import { createQuestion, fetchQuestions } from "@/lib/api/question";
 
-const fetchQuestions = async (): Promise<Question[]> => {
-  return await apiCall("get", "/questions");
-};
+export default function QuestionRepository() {
+  const queryClient = useQueryClient();
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
 
-export default function Home() {
-  const { data } = useQuery<Question[]>({
+  const { data } = useQuery<QuestionDto[]>({
     queryKey: [QUERY_KEYS.QUESTION],
     queryFn: fetchQuestions,
   });
+
+  const mutation = useMutation({
+    mutationFn: (newQuestion: CreateQuestionDto) => createQuestion(newQuestion),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.QUESTION] });
+      setCreateModalOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error creating question:", error);
+    },
+  });
+
+  const handleCreateQuestion = (newQuestion: CreateQuestionDto) => {
+    mutation.mutate(newQuestion);
+  };
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center my-4">
         <h1 className="text-xl font-semibold">Questions</h1>
-        <Button
-          className="text-md font-semibold"
-          variant="ghost"
-          onClick={() => console.log("Create button clicked")}
-        >
-          + Create
+        <Button variant="outline" onClick={() => setCreateModalOpen(true)}>
+          <Plus className="h-4 w-4" />
         </Button>
       </div>
+
+      <CreateModal
+        open={isCreateModalOpen}
+        setOpen={setCreateModalOpen}
+        onCreate={handleCreateQuestion}
+      />
 
       <Table>
         <TableHeader>
