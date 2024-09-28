@@ -22,7 +22,7 @@ const registerUser = async (req: Request, res: Response) => {
         res.status(201).json({ message: 'User registered successfully.', userId: user._id });
     } catch (error: any) {
         if (error.message === 'User already exists') {
-            return res.status(409).json({ message: error.message });
+            return res.status(409).json({ message: 'User already exists. Please proceed to sign in.' });
         }
         console.error('Error registering user:', error);
         res.status(500).json({ message: 'Internal server error.' });
