@@ -8,6 +8,7 @@ import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
 import { Input } from "@nextui-org/input";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 import NavLink from "./navLink";
 
@@ -16,6 +17,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
 
 export const Navbar = () => {
+  const router = useRouter();
   const searchInput = (
     <Input
       aria-label="Search"
@@ -47,11 +49,17 @@ export const Navbar = () => {
           </NextLink>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
-              <NavLink href={item.href}>{item.label}</NavLink>
-            </NavbarItem>
-          ))}
+          {siteConfig.navItems.map((item) => {
+            const isActive = router.pathname === item.href;
+
+            return (
+              <NavbarItem key={item.href} isActive={isActive}>
+                <NavLink href={item.href} isActive={isActive}>
+                  {item.label}
+                </NavLink>
+              </NavbarItem>
+            );
+          })}
         </div>
       </NavbarContent>
 

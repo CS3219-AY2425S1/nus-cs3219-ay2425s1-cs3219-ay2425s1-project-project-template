@@ -1,19 +1,42 @@
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
 import { Question } from "@/types/questions";
+import { useAddQuestions } from "@/hooks/questions";
 
 const AddQuestionsPage = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<Question>({
     title: "",
     complexity: "",
     category: [],
     description: "",
+    examples: "",
+    constraints: "",
   });
 
+  const { mutate: addQuestion } = useAddQuestions();
+
   const handleOnSubmit = (updatedData: Question) => {
-    console.log(updatedData);
+    addQuestion(
+      { ...updatedData },
+      {
+        onSuccess: () => {
+          alert("Question successfully added!");
+          router.push("/questions"); // Redirect to questions list on success
+        },
+        onError: (error) => {
+          if (error.response) {
+            alert(`Error adding the question: ${error.response.data}`);
+          } else {
+            alert(`Error adding the question: ${error.message}`);
+            console.error("Error adding the question:", error);
+          }
+        },
+      },
+    );
   };
 
   return (

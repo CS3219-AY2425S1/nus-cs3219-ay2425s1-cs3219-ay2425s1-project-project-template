@@ -1,5 +1,6 @@
 // Requests to API endpoints for questions
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 import axios from "@/utils/axios";
 import { Question, QuestionList } from "@/types/questions";
@@ -33,7 +34,7 @@ export const useGetQuestion = (id: string) => {
 export const useAddQuestions = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Question, Error, Question>({
+  return useMutation<Question, AxiosError, Question>({
     mutationFn: async (question: Question) => {
       return axios.post("/questions", question);
     },
@@ -47,7 +48,7 @@ export const useAddQuestions = () => {
 export const useUpdateQuestions = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Question, Error, Question>({
+  return useMutation<Question, AxiosError, Question>({
     mutationFn: async (question: Question) => {
       return axios.put(`/questions/${question.questionId}`, question);
     },
