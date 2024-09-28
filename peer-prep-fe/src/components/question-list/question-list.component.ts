@@ -16,6 +16,7 @@ import {QuestionService} from "../../services/question.service";
 export class QuestionListComponent implements OnInit {
 
   questions: Question[] = [];
+  // filteredQuestions: Question[] = [];
 
   constructor(private questionService : QuestionService) { }
 
@@ -23,25 +24,42 @@ export class QuestionListComponent implements OnInit {
     this.loadQuestions();
   }
 
-  loadQuestions(hasSort?: boolean) {
-    if (hasSort) {
-      // default alphabetical sorting for now
-      this.questionService.getAllQuestionSorted("question_title", "asc").subscribe((data: any) => {
-        this.questions = data.data.data;
-      }, (error) => {
-        console.error('Error fetching: ', error);
-      })
-    } else {
-      // gets default ordering of questions
-      this.questionService.getAllQuestion().subscribe((data: any) => {
-        this.questions = data.data.data;
-      }, (error) => {
-        console.error('Error fetching: ', error);
-      })
-    }
+  loadQuestions() {
+    // gets default ordering of questions
+    this.questionService.getAllQuestion().subscribe((data: any) => {
+      this.questions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
+  }
+
+  loadSortedQuestions() {
+    this.questionService.getAllQuestionSorted("question_title", "asc").subscribe((data: any) => {
+      this.questions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
+  }
+
+  loadFilteredQuestions(filterBy?: string, filterValues?: string) {
+    this.questionService.getFilteredQuestions(filterBy, filterValues).subscribe((data: any) => {
+      this.questions = data.data.data;
+      // this.filteredQuestions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
+  }
+
+  applyFilter(event: { filterBy: string, filterValues: string} ) {
+    this.loadFilteredQuestions(event.filterBy, event.filterValues);
+    console.log('Filtering by:', event.filterBy, event.filterValues);
   }
 
   refreshQuestions(hasSort?: boolean) {
-    this.loadQuestions(hasSort);
+    if (hasSort) {
+      this.loadSortedQuestions();
+    } else {
+      this.loadQuestions();
+    }
   }
 }

@@ -20,6 +20,16 @@ export class QuestionService {
     return this.http.get<Question[]>(url);
   }
 
+  getFilteredQuestions(filterBy?: string, filterValues?: string): Observable<Question[]> {
+    const url = filterBy ? `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}` : this.baseUrl;
+    // const url = `${this.baseUrl}?filterBy=question_categories&filterValues=Arrays`;
+    return this.http.get<Question[]>(url);
+  }
+  
+  getQuestionCategories(): Observable<string> {
+    return this.http.get<string>(`${this.baseUrl}/categories`);
+  }
+
   getQuestion(id: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/${id}`);
   }
