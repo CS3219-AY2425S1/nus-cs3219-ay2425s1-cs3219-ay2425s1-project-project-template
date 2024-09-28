@@ -10,4 +10,6 @@ import (
 func QuestionRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/v1/questions", controller.GetQuestions())
 	incomingRoutes.GET("/v1/questionsById", controller.GetQuestionsById)
+	incomingRoutes.PUT("/v1/questions/:id", controller.UpdateQuestion)
+	incomingRoutes.DELETE("/v1/questions/:id", controller.DeleteQuestion)
 }

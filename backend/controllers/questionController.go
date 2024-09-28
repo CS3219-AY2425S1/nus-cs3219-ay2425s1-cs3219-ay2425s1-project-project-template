@@ -175,3 +175,61 @@ an integer.
 	}
 
 }
+
+func UpdateQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid question id, must be an integer"})
+		return
+	}
+
+	var updatedQuestion models.Question
+	if err := c.ShouldBindJSON(&updatedQuestion); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+		return
+	}
+
+	filter := bson.M{"_id": id}
+	update := bson.M{
+		"$set": bson.M{
+			"title":       updatedQuestion.Title,
+			"description": updatedQuestion.Description,
+			"categories":  updatedQuestion.Categories,
+			"complexity":  updatedQuestion.Complexity,
+			"link":        updatedQuestion.Link,
+		},
+	}
+
+	_, err = coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating question", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Question updated successfully"})
+}
+
+func DeleteQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid question id, must be an integer"})
+		return
+	}
+
+	filter := bson.M{"_id": id}
+	_, err = coll.DeleteOne(ctx, filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error deleting question", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Question deleted successfully"})
+}
