@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { Panel, PanelGroup } from "react-resizable-panels";
 import './QuestionPage.css';
-
 const QuestionPage = () => {
 
   const apiurl = "http://127.0.0.1:8000/question/"
@@ -210,49 +210,46 @@ const QuestionPage = () => {
 
   return (
     <div className="question-page-container">
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
-        <div className='flex flex-col overflow-auto h-96 rounded-xl'>
-          <table className="min-w-full table-fixed bg-white border border-gray-300">
-            <thead className='bg-blue-500 text-white sticky top-0 '>
-              <tr className='text-left'>
-                <th className="py-2 px-4 border-b w-1/2">Question Title</th>
-                <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
-                <th className="py-2 px-4 border-b w-1/4">Topic</th>
-              </tr>
-            </thead>
-            <tbody className='h-96 overflow-y-auto'>
-              {questions.map((question, index) => (
-                <tr
-                  key={question.titleSlug}
-                  className={`${
-                    index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
-                  } hover:bg-blue-100 cursor-pointer transition duration-300`}
-                  onClick={() => handleTitleClick(question)}
-                >
-                  <td className="py-2 px-4 border-b">{question.title}</td>
-                  <td className="py-2 px-4 border-b">{question.difficulty}</td>
-                  <td className="py-2 px-4 border-b">{question.topic}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
+      <PanelGroup direction="horizontal">
+        <>  
+          <Panel id="questions" order={1} className='m-1'>
+            <div className='flex flex-col overflow-auto h-96 rounded-xl'>
+              <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-xl">
+                <thead className='bg-blue-500 text-white sticky top-0 '>
+                  <tr className='text-left'>
+                    <th className="py-2 px-4 border-b w-1/2">Question Title</th>
+                    <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
+                    <th className="py-2 px-4 border-b w-1/4">Topic</th>
+                  </tr>
+                </thead>
+                <tbody className='h-96 overflow-y-auto'>
+                  {questions.map((question, index) => (
+                    <tr
+                      key={question.titleSlug}
+                      className={`${
+                        index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
+                      } hover:bg-blue-100 cursor-pointer transition duration-300`}
+                      onClick={() => handleTitleClick(question)}
+                    >
+                      <td className="py-2 px-4 border-b">{question.title}</td>
+                      <td className="py-2 px-4 border-b">{question.difficulty}</td>
+                      <td className="py-2 px-4 border-b">{question.topic}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        </>
+        
 
         {/* Display selected question's description and delete button */}
-        <div className="mt-4">
-          {selectedQuestion ? (
-            <div className="p-4 border border-gray-300 rounded-lg shadow-lg bg-white">
-              <h2 className="font-bold text-xl">{selectedQuestion.title}</h2>
-              <h3 className="text-lg">Difficulty: {selectedQuestion.difficulty}</h3>
-              <h3 className="text-lg">Topic: {selectedQuestion.topic}</h3>
-
-              {/* Render the question description as Markdown */}
-              <ReactMarkdown className="mt-2 text-gray-700">
-                {selectedQuestion.description}
-              </ReactMarkdown>
-              
-              <div className="mt-4 flex justify-between">
+        {selectedQuestion && (
+          <>
+            <Panel id="details" order={2} className='m-1' style={{overflowY: "scroll", overflowX: "auto"}}>
+            <div className="sticky top-0 mb-2 flex w-full justify-between gap-x-1 bg-white p-3 rounded-xl shadow-md">
+                <button onClick={() => setSelectedQuestion(null)}>Hide</button>
                 {/* Delete Button */}
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -268,16 +265,24 @@ const QuestionPage = () => {
                 >
                   Edit Question
                 </button>
-              </div>
+            </div>
+            <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white overflow-auto">
+              <h2 className="font-bold text-xl">{selectedQuestion.title}</h2>
+              <h3 className="text-lg">Difficulty: {selectedQuestion.difficulty}</h3>
+              <h3 className="text-lg">Topic: {selectedQuestion.topic}</h3>
+
+              {/* Render the question description as Markdown */}
+              <ReactMarkdown className="mt-2 text-gray-700">
+                {selectedQuestion.description}
+              </ReactMarkdown>
+              
 
             </div>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Select a question to see the description.</p>
-            </div>
-          )}
-        </div>
-      </div>
+            </Panel>
+          </>
+        )
+        }
+        </PanelGroup>
 
       {/* <div className="right-section" style={{ width: '55%' }}>
         <div className="info-row" id="curmode">
