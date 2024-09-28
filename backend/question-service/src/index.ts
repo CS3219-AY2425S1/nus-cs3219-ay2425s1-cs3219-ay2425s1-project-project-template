@@ -2,7 +2,9 @@ import cors from 'cors'
 import express, { Express, NextFunction, Request, Response } from 'express'
 import 'express-async-errors'
 import helmet from 'helmet'
+import passport from 'passport'
 import defaultErrorHandler from './middlewares/errorHandler.middleware'
+import './middlewares/passportJwt.middleware'
 import questionRouter from './routes/question.routes'
 
 const app: Express = express()
@@ -12,6 +14,8 @@ app.use(express.json())
 app.use(cors()) // config cors so that front-end can use
 app.options('*', cors())
 app.use(helmet())
+
+app.use(passport.initialize())
 
 // To handle CORS Errors
 app.use((request: Request, response: Response, next: NextFunction) => {

@@ -1,10 +1,9 @@
+import { ITypedBodyRequest } from '@repo/request-types'
+import { IUserDto, Proficiency, Role } from '@repo/user-types'
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, validate, ValidationError } from 'class-validator'
 import { IUser } from './IUser'
-import { Proficiency } from './Proficiency'
-import { Role } from './Role'
-import { TypedRequest } from './TypedRequest'
 
-export class UserDto {
+export class UserDto implements IUserDto {
     @IsString()
     @IsNotEmpty()
     id: string
@@ -35,15 +34,7 @@ export class UserDto {
         return new UserDto(id, username, email, role, proficiency)
     }
 
-    static fromRequest({
-        body: { id, username, email, role, proficiency },
-    }: TypedRequest<{
-        id: string
-        username: string
-        email: string
-        role: Role
-        proficiency: Proficiency | undefined
-    }>): UserDto {
+    static fromRequest({ body: { id, username, email, role, proficiency } }: ITypedBodyRequest<UserDto>): UserDto {
         return new UserDto(id, username, email, role, proficiency)
     }
 

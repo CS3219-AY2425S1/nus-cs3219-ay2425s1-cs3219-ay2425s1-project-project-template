@@ -1,6 +1,5 @@
+import { ITypedBodyRequest } from '@repo/request-types'
 import { IsStrongPassword, ValidationError, validate } from 'class-validator'
-
-import { TypedRequest } from './TypedRequest'
 
 export class UserPasswordDto {
     @IsStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })
@@ -10,7 +9,7 @@ export class UserPasswordDto {
         this.password = password
     }
 
-    static fromRequest({ body: { password } }: TypedRequest<UserPasswordDto>): UserPasswordDto {
+    static fromRequest({ body: { password } }: ITypedBodyRequest<UserPasswordDto>): UserPasswordDto {
         return new UserPasswordDto(password)
     }
 

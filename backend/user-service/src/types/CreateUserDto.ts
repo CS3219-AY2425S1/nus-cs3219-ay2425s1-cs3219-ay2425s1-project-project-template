@@ -1,3 +1,5 @@
+import { ITypedBodyRequest } from '@repo/request-types'
+import { Proficiency, Role } from '@repo/user-types'
 import {
     IsEmail,
     IsEnum,
@@ -8,9 +10,6 @@ import {
     validate,
     ValidationError,
 } from 'class-validator'
-import { Proficiency } from './Proficiency'
-import { Role } from './Role'
-import { TypedRequest } from './TypedRequest'
 
 export class CreateUserDto {
     @IsString()
@@ -40,7 +39,7 @@ export class CreateUserDto {
 
     static fromRequest({
         body: { username, email, password, role, proficiency },
-    }: TypedRequest<CreateUserDto>): CreateUserDto {
+    }: ITypedBodyRequest<CreateUserDto>): CreateUserDto {
         return new CreateUserDto(username, email, password, role, proficiency)
     }
 

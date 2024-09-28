@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose'
-
 import { CreateUserDto } from '../types/CreateUserDto'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
 import { IUser } from '../types/IUser'

@@ -1,6 +1,5 @@
+import { ITypedBodyRequest } from '@repo/request-types'
 import { IsDate, IsEmail, IsNotEmpty, IsNumberString, ValidationError, validate } from 'class-validator'
-
-import { TypedRequest } from './TypedRequest'
 
 export class EmailVerificationDto {
     @IsEmail()
@@ -21,7 +20,7 @@ export class EmailVerificationDto {
 
     static fromRequest({
         body: { email, verificationToken },
-    }: TypedRequest<EmailVerificationDto>): EmailVerificationDto {
+    }: ITypedBodyRequest<EmailVerificationDto>): EmailVerificationDto {
         return new EmailVerificationDto(email, verificationToken)
     }
 
