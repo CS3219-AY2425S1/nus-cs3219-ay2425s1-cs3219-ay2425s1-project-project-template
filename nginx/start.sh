@@ -1,2 +1,2 @@
 #!/bin/bash
-cat /tmp/default.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
+envsubst '\$USER_SERVICE_ADDR' < /tmp/default.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
