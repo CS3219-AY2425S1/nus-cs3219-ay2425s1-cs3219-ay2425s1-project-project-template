@@ -6,9 +6,7 @@ interface CustomLabelProps {
 
 export default function CustomLabel({ title, textColor, bgColor }: CustomLabelProps) {
     return (
-        <span
-            className={`${textColor} ${bgColor} px-3 rounded-xl text-center flex items-center justify-center margin-auto capitalize`}
-        >
+        <span className={`${textColor} ${bgColor} px-3 py-1 rounded-xl text-center margin-auto capitalize w-fit`}>
             {title}
         </span>
     )
