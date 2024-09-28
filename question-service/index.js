@@ -43,7 +43,6 @@ const storage = multer.diskStorage({
     cb(null, file.originalname)
   }
 });
-const upload = multer({ storage: storage });
 
 app.use('/uploads', express.static('uploads'));
 
@@ -60,10 +59,27 @@ app.get('/img/:filename', function (req, res) {
   });
 });
 
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 } // Limit to 2MB
+});
+
 app.post('/img', upload.single('img'), function (req, res, next) {
 
   return res.status(200).json(req.file);
 })
+
+import fs from 'fs';
+
+// Check if the directory exists, if not, create it
+const uploadsDir = './uploads';
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log(`Directory ${uploadsDir} created.`);
+} else {
+  // console.log(`Directory ${uploadsDir} already exists.`);
+}
 
 
 export default app;
