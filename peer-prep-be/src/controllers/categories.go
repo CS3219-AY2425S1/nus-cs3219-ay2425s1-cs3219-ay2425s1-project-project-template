@@ -26,6 +26,7 @@ func GetCategories(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status: http.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}
@@ -33,11 +34,13 @@ func GetCategories(c echo.Context) error {
 	var categories []models.Category
 	if err = cursor.All(ctx, &categories); err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status: http.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{
+		Status: http.StatusOK,
 		Message: "Success",
 		Data:    &echo.Map{"categories": categories},
 	})
@@ -51,6 +54,7 @@ func CreateCategory(c echo.Context) error {
 
 	if err := c.Bind(&category); err != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{
+			Status:  http.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -90,6 +94,7 @@ func CreateCategory(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status: http.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}
@@ -98,11 +103,13 @@ func CreateCategory(c echo.Context) error {
 	if updateResult.UpsertedCount > 0 {
 		// A new category was created
 		return c.JSON(http.StatusCreated, responses.StatusResponse{
+			Status: http.StatusCreated,
 			Message: "Category created successfully",
 		})
 	}
 
 	return c.JSON(http.StatusConflict, responses.StatusResponse{
+		Status: http.StatusConflict,
 		Message: "Category already exists",
 	})
 }
@@ -116,6 +123,7 @@ func UpdateCategory(c echo.Context) error {
 	_, err := primitive.ObjectIDFromHex(categoryId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{
+			Status:  http.StatusBadRequest,
 			Message: "Invalid category ID: " + err.Error(),
 		})
 	}
@@ -123,6 +131,7 @@ func UpdateCategory(c echo.Context) error {
 	var category models.Category
 	if err := c.Bind(&category); err != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{
+			Status:  http.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -138,11 +147,13 @@ func UpdateCategory(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{
+		Status:  http.StatusOK,
 		Message: "Category updated successfully",
 	})
 }
@@ -155,6 +166,7 @@ func DeleteCategory(c echo.Context) error {
 	_, err := primitive.ObjectIDFromHex(categoryId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{
+			Status:  http.StatusBadRequest,
 			Message: "Invalid category ID: " + err.Error(),
 		})
 	}
@@ -163,11 +175,13 @@ func DeleteCategory(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
+			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, responses.StatusResponse{
+		Status:  http.StatusOK,
 		Message: "Category deleted successfully",
 	})
 }
