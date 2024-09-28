@@ -3,17 +3,8 @@
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import Datatable from '@/components/customs/datatable'
-import {
-    Difficulty,
-    FormType,
-    IFormFields,
-    IPagination,
-    IQuestion,
-    ISortBy,
-    QuestionStatus,
-    SortDirection,
-} from '@/types'
-import { columns } from './questions-datatable-columns'
+import { Difficulty, IPagination, IQuestion, ISortBy, QuestionStatus, SortDirection } from '@/types'
+import { columns, formFields } from './props'
 import { mockQuestionsData } from '@/mock-data'
 import CustomModal from '@/components/customs/custom-modal'
 import CustomForm from '@/components/customs/custom-form'
@@ -71,37 +62,6 @@ export default function Questions() {
             status: QuestionStatus.NOT_ATTEMPTED,
         })
     }
-
-    const formFields: IFormFields[] = [
-        {
-            label: 'Title',
-            accessKey: 'title',
-            formType: FormType.TEXT,
-            placeholder: 'Enter title',
-            required: true,
-        },
-        {
-            label: 'Category',
-            accessKey: 'category',
-            formType: FormType.MULTISELECT,
-            required: true,
-            selectOptions: ['Algorithm', 'String', 'Hashtable', 'Dynamic Programming'], // Todo: retrieve set from BE
-        },
-        {
-            label: 'Difficulty',
-            accessKey: 'difficulty',
-            formType: FormType.SELECT,
-            required: true,
-            selectOptions: Object.values(Difficulty),
-        },
-        {
-            label: 'Description',
-            accessKey: 'description',
-            formType: FormType.TEXTAREA,
-            placeholder: 'Enter description',
-            required: true,
-        },
-    ]
 
     useEffect(() => {
         async function fetchData() {

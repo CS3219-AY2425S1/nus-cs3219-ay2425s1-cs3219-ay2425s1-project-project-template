@@ -1,6 +1,6 @@
 import { TickIcon, ExclamationIcon } from '@/assets/icons'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
-import { IDatatableColumn, QuestionStatus } from '@/types'
+import { Difficulty, FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
 
 const columns: IDatatableColumn[] = [
     {
@@ -52,7 +52,38 @@ const columns: IDatatableColumn[] = [
     },
 ]
 
-export { columns }
+const formFields: IFormFields[] = [
+    {
+        label: 'Title',
+        accessKey: 'title',
+        formType: FormType.TEXT,
+        placeholder: 'Enter title',
+        required: true,
+    },
+    {
+        label: 'Category',
+        accessKey: 'category',
+        formType: FormType.MULTISELECT,
+        required: true,
+        selectOptions: ['Algorithm', 'String', 'Hashtable', 'Dynamic Programming'], // Todo: retrieve set from BE
+    },
+    {
+        label: 'Difficulty',
+        accessKey: 'difficulty',
+        formType: FormType.SELECT,
+        required: true,
+        selectOptions: Object.values(Difficulty),
+    },
+    {
+        label: 'Description',
+        accessKey: 'description',
+        formType: FormType.TEXTAREA,
+        placeholder: 'Enter description',
+        required: true,
+    },
+]
+
+export { columns, formFields }
 
 export default function None() {
     ;<></>
