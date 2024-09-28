@@ -124,12 +124,14 @@ export function PasswordReset() {
                 <DialogTitle>Enter your OTP</DialogTitle>
                 <DialogDescription>Enter the OTP sent to your email address to reset your password.</DialogDescription>
             </DialogHeader>
-            <OTPField
-                id="otp"
-                value={formValues.otp}
-                onChange={(o: string) => setFormValues({ ...formValues, otp: o })}
-                error={formErrors.otp}
-            />
+            <div className="flex justify-center">
+                <OTPField
+                    id="otp"
+                    value={formValues.otp}
+                    onChange={(o: string) => setFormValues({ ...formValues, otp: o })}
+                    error={formErrors.otp}
+                />
+            </div>
             <DialogFooter>
                 <Button type="submit" className="bg-purple-600 hover:bg-[#A78BFA]" onClick={onEnterOTP}>
                     Verify
