@@ -1,8 +1,21 @@
 "use server";
 
 import dotenv from "dotenv";
+import { parseFormData } from "../utility/QuestionsHelper";
 
 dotenv.config();
+
+interface Response {
+  message: any;
+  errors: {
+    errorMessage: string[];
+  };
+}
+
+export type FormRequest = (
+  token: string | null,
+  formData: FormData
+) => Promise<Partial<Response>>;
 
 export async function getQuestions(token?: string | null) {
   const response = await fetch(
@@ -22,7 +35,7 @@ export async function getQuestions(token?: string | null) {
     return {
       message: data,
       errors: {
-        questions: ["Unable to get questions"],
+        errorMessage: ["Unable to get questions"],
       },
     };
   } catch (error) {
@@ -32,24 +45,26 @@ export async function getQuestions(token?: string | null) {
 
 export async function editQuestion(
   question: QuestionDto,
-  token?: string | null
+  token: string | null,
+  formData: FormData
 ) {
-  const { id, ...questionDetails } = question;
+  const { _id, ...rest } = question;
+  const questionData = parseFormData(formData);
+
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
+    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions/${_id}`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `bearer ${token}`,
       },
-      body: JSON.stringify(questionDetails),
+      body: JSON.stringify(questionData),
     }
   );
 
   try {
     const data = await response.json();
-    console.log(data);
     return {
       message: data,
       errors: {
@@ -61,55 +76,19 @@ export async function editQuestion(
   }
 }
 
-export async function addQuestion(
-  state: QuestionDto,
-  formData: FormData,
-  token: String
-) {
+export async function addQuestion(token: string | null, formData: FormData) {
   // Helper function to ensure the formData value is a string
-  const getStringValue = (value: FormDataEntryValue | null): string => {
-    return typeof value === "string" ? value : "";
-  };
-
-  // Parse form data into the correct format
-  const topics = getStringValue(formData.get("topic"))
-    .split(",")
-    .map((item) => item.trim());
-
-  const examples = getStringValue(formData.get("examples"))
-    .split(";")
-    .map((item) => {
-      const [input, output, explanation] = item.split("|");
-      return {
-        input: input.trim(),
-        output: output.trim(),
-        explanation: explanation ? explanation.trim() : undefined,
-      };
-    });
-
-  const constraints = getStringValue(formData.get("constraints"))
-    .split(";")
-    .map((item) => item.trim());
-
-  // Prepare the data to be sent
-  const data = {
-    title: getStringValue(formData.get("title")),
-    description: getStringValue(formData.get("description")),
-    difficultyLevel: getStringValue(formData.get("difficultyLevel")), // Should be validated on the frontend to be one of "Easy", "Medium", or "Hard"
-    topic: topics,
-    examples: examples,
-    constraints: constraints,
-  };
+  const questionData = parseFormData(formData);
 
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/questions`,
+    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `bearer ${token}`,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(questionData),
     }
   );
 
@@ -149,8 +128,6 @@ export async function deleteQuestion(id: string, token?: string | null) {
       },
     }
   );
-
-  console.log(response);
 
   try {
     const data = await response.json();

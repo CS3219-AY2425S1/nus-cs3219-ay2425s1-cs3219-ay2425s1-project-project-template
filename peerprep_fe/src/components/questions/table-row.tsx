@@ -8,16 +8,21 @@ export default function TableRow({
   difficulty,
   topics,
   onClickEdit,
+  handleDelete,
 }: {
   id: string;
   title: string;
   difficulty: string;
   topics: string[];
   onClickEdit: VoidFunction;
+  handleDelete: (id: string) => void;
 }) {
   const token = localStorage.getItem("token");
   const questionLink = title.toLocaleLowerCase().replace(/\s/g, "_");
-  const onClickDelete = () => deleteQuestion(id, token);
+  const onClickDelete = () => {
+    handleDelete(id);
+    deleteQuestion(id, token);
+  };
 
   return (
     <tr className="border-b border-gray-200 hover:bg-gray-100">
