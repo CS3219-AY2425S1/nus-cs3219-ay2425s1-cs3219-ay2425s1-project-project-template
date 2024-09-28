@@ -1,31 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { columns } from './table-columns';
 import { QuestionTable } from './question-table';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { IGetQuestionsResponse, Question } from '@/types/question-types';
+import { IGetQuestionsResponse } from '@/types/question-types';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
-import { dummyData } from '@/assets/dummyData';
-
-const ROWS_PER_PAGE = 12;
-async function fetchQuestions(): Promise<IGetQuestionsResponse> {
-  return {
-    questions: dummyData,
-    totalQuestions: 20,
-  };
-}
+import { fetchQuestions, ROWS_PER_PAGE } from '@/services/question-service';
 
 export function Questions() {
   const { crumbs } = useCrumbs();
-
-  const [questions, setQuestions] = useState<Question[]>([]);
 
   const { data, error, fetchNextPage, hasNextPage, isError, isFetchingNextPage } = useInfiniteQuery<
     IGetQuestionsResponse,
     Error
   >({
     queryKey: ['questions'],
-    queryFn: fetchQuestions,
+    queryFn: ({ pageParam }) => fetchQuestions(pageParam as number | undefined),
     initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => {
       const nextPage = pages.length;
@@ -44,11 +34,11 @@ export function Questions() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  useEffect(() => {
+  const questions = useMemo(() => {
     if (data) {
-      const newQuestions = data.pages.flatMap((page) => page.questions);
-      setQuestions(newQuestions);
+      return data.pages.flatMap((page) => page.questions);
     }
+    return [];
   }, [data]);
 
   return (

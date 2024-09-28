@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Question } from '@/types/question-types';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
+import { Link } from 'react-router-dom';
 
 export const columns: ColumnDef<Question>[] = [
   {
@@ -19,11 +20,10 @@ export const columns: ColumnDef<Question>[] = [
     cell: ({ row }) => {
       const id: number = row.original.id;
       const title: string = row.getValue('title');
-      console.log(row);
       return (
-        <p>
+        <Link to={`/questions/${row.original.id}`} className='hover:underline'>
           {id}.&nbsp;{title}
-        </p>
+        </Link>
       );
     },
   },

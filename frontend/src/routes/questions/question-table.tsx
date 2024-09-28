@@ -33,7 +33,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 interface QuestionTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -131,9 +130,7 @@ export function QuestionTable<TData, TValue>({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      <Link to={`/questions/${row.id}`}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </Link>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
