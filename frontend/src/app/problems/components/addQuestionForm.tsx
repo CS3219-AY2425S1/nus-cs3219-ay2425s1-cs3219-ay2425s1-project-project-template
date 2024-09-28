@@ -149,7 +149,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose }) => {
                     <div className="space-y-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline">Select Categories</Button>
+                        <Button variant="secondary">Select Categories</Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56">
                         <DropdownMenuLabel>Categories</DropdownMenuLabel>
@@ -195,7 +195,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose }) => {
             />
             <div className="flex justify-end w-full space-x-2">
                 <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button" onClick={onClose}>Cancel</Button>
-                <Button className="primary-color hover:bg-violet-900" type="submit">Submit</Button>
+                <Button type="submit">Submit</Button>
             </div>
           </form>
         </Form>
