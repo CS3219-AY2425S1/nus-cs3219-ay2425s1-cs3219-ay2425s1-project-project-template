@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function CreateQuestionModal() {
+export default function CreateQuestionModal({ createQuestionHandler }) {
   const [isOpen, setIsOpen] = useState(false);
   const [questionData, setQuestionData] = useState({
     title: "",
@@ -50,7 +50,7 @@ export default function CreateQuestionModal() {
                   </button>
                   <button
                     className="bg-blue-500 text-white font-semibold text-sm px-4 py-2 rounded-2xl hover:bg-blue-600"
-                    onClick={() => {}}
+                    onClick={() => createQuestionHandler(questionData)}
                   >
                     Create
                   </button>

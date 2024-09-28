@@ -134,52 +134,45 @@ const QuestionPage = () => {
     }
   }
   // Handle API call on button press
-  const handleSetQuestion = async () => {
-    const data = {
-      ...questionData,
-    };
-
-    if (mode === "create") {
+  const handleCreateQuestion = async (newQuestion) => {
       try {
         const response = await fetch(apiurl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newQuestion),
         });
 
         if (response.ok) {
           const newQuestion = await response.json();
           updateQuestions(prevQuestions => [...prevQuestions, newQuestion]);
           setSelectedQuestion(newQuestion);
-          alert('Question submitted successfully!');
-          clearState(); // Clear the state after submitting
-        } else if (response.status == 400) {
-          alert("no duplicate question titles allowed!");
+          toast.success('Question submitted successfully!');
+          return;
+        } else if (response.status === 400) {
+          toast.error("No duplicate question titles allowed!");
+          return;
         } else {
           const response_text = await response.text();
           const text_data = JSON.parse(response_text);
           if (text_data.errors) {
             text_data.errors.forEach(error => {
-              alert(error.msg);
+              toast.error(capitalize(error.loc) + ": " + error.msg);
             });
           }
+          return;
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while submitting the question. Error: ' + error);
+        toast.error('An error occurred while submitting the question. Error: ' + error);
       }
-    } else {
-
-    }
   };
 
   return (
     <div className="question-page-container">
       <h1 className="text-3xl font-bold mb-4">Question Repository</h1>
       <div className='justify-end ml-auto m-2'>
-        <CreateQuestionModal />
+        <CreateQuestionModal createQuestionHandler={handleCreateQuestion} />
       </div>
       <PanelGroup direction="horizontal">
         <>  
