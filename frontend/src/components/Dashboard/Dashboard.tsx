@@ -29,12 +29,19 @@ const Dashboard: React.FC = () => {
   const closeEditModal = () => setEditModalIsOpen(false);
 
   const [questionTitleToEdit, setQuestionTitleToEdit] = useState("");
+  const [oldDifficulty, setOldDifficulty] = useState("");
+  const [oldTopic, setOldTopic] = useState([""]);
+  const [oldTitle, setOldTitle] = useState("");
+  const [oldDetails, setOldDetails] = useState("");
+  const [questionID, setQuestionID] = useState("");
 
-  const openEditModal = (questionTitle: string) => {
-    console.log(questionTitle);
-    setQuestionTitleToEdit(questionTitle);
+  const openEditModal = (oldDifficulty: string, oldTopic: string[], oldTitle: string, oldDetails: string, questionID: string) => {
     setEditModalIsOpen(true);
-    console.log(editModalIsOpen);
+    setOldDifficulty(oldDifficulty);
+    setOldTopic(oldTopic);
+    setOldTitle(oldTitle);
+    setOldDetails(oldDetails);
+    setQuestionID(questionID);
   };
 
   const columns: Column[] = useMemo(() => COLUMNS, []);
@@ -53,7 +60,11 @@ const Dashboard: React.FC = () => {
       {editModalIsOpen && (
         <EditQuestionModal
           onClose={closeEditModal}
-          questionTitle={questionTitleToEdit}
+          oldDifficulty={oldDifficulty}
+          oldTopic={oldTopic}
+          oldTitle={oldTitle}
+          oldDetails={oldDetails}
+          questionID={questionID}
         />
       )}
       ;{/* Add your table or other components here */}
@@ -100,7 +111,9 @@ const Dashboard: React.FC = () => {
                       {...cell.getCellProps()}
                       key={cell.column.id}
                       className="py-3 px-6 text-left"
-                      onClick={() => openEditModal(row.allCells[0].value)}
+                      onClick={() => {
+                        openEditModal(row.allCells[3].value, row.allCells[2].value, row.allCells[0].value, row.allCells[1].value, (row.original as any).id);
+                    }}
                     >
                       {cell.column.Header === "Categories"
                         ? (cell.value.reduce(

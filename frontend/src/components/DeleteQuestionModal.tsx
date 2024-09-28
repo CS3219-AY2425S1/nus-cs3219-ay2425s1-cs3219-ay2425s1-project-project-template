@@ -2,7 +2,7 @@ import React from "react";
 
 
 const DeleteQuestionModal: React.FC<{ 
-  isOpen: boolean; onClose: () => void; onDelete: () => void; oldDifficulty: string; oldTopic: string; oldTitle: string; oldDetails: string
+  isOpen: boolean; onClose: () => void; onDelete: () => void; oldDifficulty: string; oldTopic: string[]; oldTitle: string; oldDetails: string
 }> = ({ isOpen, onClose, onDelete, oldDifficulty, oldTopic, oldTitle, oldDetails}) => {
   
   if (isOpen && location.pathname == "/question") {
