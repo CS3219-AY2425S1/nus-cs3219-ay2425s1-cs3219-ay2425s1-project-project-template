@@ -1,20 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import validateInput, { initialFormValues } from '@/util/input-validation'
+
 import { Button } from '../ui/button'
 import { InputField } from '../customs/custom-input'
-import validateInput, { initialFormValues } from '@/util/input-validation'
-import usePasswordToggle from '../account/UsePasswordToggle'
 import { toast } from 'sonner'
+import usePasswordToggle from '../account/UsePasswordToggle'
+import { useState } from 'react'
 
 export default function Signup() {
-    const inputFields = {
-        username: 'Username',
-        email: 'Email',
-        password: 'Password',
-        confirmPassword: 'Confirm Password',
-    }
-
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
@@ -32,6 +26,7 @@ export default function Signup() {
             password: true,
             confirmPassword: true,
             proficiency: false,
+            loginPassword: false,
         }
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)

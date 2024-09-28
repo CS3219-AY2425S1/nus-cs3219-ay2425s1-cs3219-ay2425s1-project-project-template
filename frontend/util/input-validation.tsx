@@ -6,6 +6,7 @@ export const initialFormValues: IValidateFormInput = {
     password: '',
     confirmPassword: '',
     proficiency: '',
+    loginPassword: '',
 }
 
 const validateInput = (
@@ -61,6 +62,13 @@ const validateInput = (
     if (test.proficiency) {
         if (!testValue.proficiency) {
             errors.proficiency = 'Please choose a proficiency level!'
+            isValid = false
+        }
+    }
+
+    if (test.loginPassword) {
+        if (!testValue.loginPassword) {
+            errors.loginPassword = 'Password is required!'
             isValid = false
         }
     }

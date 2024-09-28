@@ -1,19 +1,17 @@
 'use client'
 
-import { PasswordReset } from './PasswordReset'
-import { useState } from 'react'
-import { initialFormValues } from '@/util/input-validation'
+import validateInput, { initialFormValues } from '@/util/input-validation'
+
 import { Button } from '../ui/button'
 import { InputField } from '../customs/custom-input'
-import usePasswordToggle from '../account/UsePasswordToggle'
+import { PasswordReset } from './PasswordReset'
 import { toast } from 'sonner'
+import usePasswordToggle from '../account/UsePasswordToggle'
+import { useState } from 'react'
 
 export default function Login() {
-    const inputFields = {
-        email: 'Email',
-        password: 'Password',
-    }
     const [formValues, setFormValues] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -22,6 +20,22 @@ export default function Login() {
     }
 
     const onLogin = async () => {
+        const isTest = {
+            email: true,
+            loginPassword: true,
+            password: false,
+            username: false,
+            confirmPassword: false,
+            proficiency: false,
+        }
+
+        const [errors, isValid] = validateInput(isTest, formValues)
+        setFormErrors(errors)
+
+        if (isValid) {
+            toast.success('Logged in successfully')
+        }
+
         // try {
         //     const body = JSON.stringify({ email, password })
         //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
@@ -36,7 +50,6 @@ export default function Login() {
         // } catch {
         //     toast.error('Failed to login')
         // }
-        toast.success('Logged in successfully')
     }
 
     return (
@@ -47,16 +60,18 @@ export default function Login() {
                 placeholder="Email"
                 value={formValues.email}
                 onChange={handleFormChange}
+                error={formErrors.email}
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
             />
 
             <InputField
-                id="password"
+                id="loginPassword"
                 type={passwordInputType}
                 placeholder="Password"
                 icon={passwordToggleIcon}
-                value={formValues.password}
+                value={formValues.loginPassword}
                 onChange={handleFormChange}
+                error={formErrors.loginPassword}
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
                 page="auth"
             />

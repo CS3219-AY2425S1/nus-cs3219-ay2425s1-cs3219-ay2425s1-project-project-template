@@ -4,6 +4,7 @@ export interface IValidateFormInput {
     password: string
     confirmPassword: string
     proficiency: string
+    loginPassword: string
 }
 
 export interface IValidateFormInputBoolean {
@@ -12,4 +13,5 @@ export interface IValidateFormInputBoolean {
     password: boolean
     confirmPassword: boolean
     proficiency: boolean
+    loginPassword: boolean
 }
