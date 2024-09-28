@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from './QuestionTable.module.css'; // Import CSS Module
 
-const QuestionTable = ({ questions, handleDelete, handleCreate }) => {
+const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     questionId: '',
@@ -11,6 +11,8 @@ const QuestionTable = ({ questions, handleDelete, handleCreate }) => {
     link: '',
     questionDifficulty: 'Easy', // Default value
   });
+
+  const [isEditing, setIsEditing] = useState(false); // New state for editing
 
   const toggleForm = () => {
     setShowForm(prevForm => !prevForm); //ensures latest state value
@@ -25,18 +27,33 @@ const QuestionTable = ({ questions, handleDelete, handleCreate }) => {
     })
   }
 
+  const handleEditClick = (question) => {
+    setIsEditing(true);
+    setFormData({
+      questionId: question["Question ID"],
+      questionName: question["Question Title"],
+      questionDescription: question["Question Description"], // Adjust as necessary
+      questionTopics: question["Question Categories"], // Adjust as necessary
+      link: question["Link"],
+      questionDifficulty: question["Question Complexity"],
+    });
+    toggleForm(); // Show the form for editing
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const topicsArray = Array.isArray(formData.questionTopics) 
         ? formData.questionTopics 
         : JSON.parse(formData.questionTopics);
-
     console.log(formData)
-        
     const { questionId, questionName, questionDescription, questionTopics, link, questionDifficulty } = formData;
-    handleCreate(questionId, questionName, questionDescription, topicsArray, link, questionDifficulty);
-
+    if (isEditing) {
+      handleEdit(questionId, questionName, questionDescription, topicsArray, link, questionDifficulty);
+      setIsEditing(false); 
+    } else {
+      handleCreate(questionId, questionName, questionDescription, topicsArray, link, questionDifficulty);
+    }
+    toggleForm();
 
   }
 
@@ -136,6 +153,10 @@ const QuestionTable = ({ questions, handleDelete, handleCreate }) => {
                   <a href={question["Link"]} target="_blank" rel="noopener noreferrer">
                     View Problem
                   </a>
+                </td>
+                <td>
+                  <button onClick={() => handleEditClick(question)}>Edit</button>
+                  <button onClick={() => handleDelete(question["Question ID"])}>delete</button>
                 </td>
               </tr>
             ))}
