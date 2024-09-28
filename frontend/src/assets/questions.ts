@@ -1,4 +1,6 @@
-export const questions = [
+import { Question } from '@/types/question-types';
+
+export const questionDetails = [
   {
     id: 1,
     title: 'Reverse a String',
@@ -176,3 +178,11 @@ export const questions = [
     leetcode: 'https://leetcode.com/problems/trips-and-users/',
   },
 ];
+
+export const questions: Question[] = questionDetails.map((question) => ({
+  id: question.id,
+  title: question.title,
+  difficulty: question.difficulty as 'Easy' | 'Medium' | 'Hard',
+  topics: question.topics,
+  attempted: false,
+}));

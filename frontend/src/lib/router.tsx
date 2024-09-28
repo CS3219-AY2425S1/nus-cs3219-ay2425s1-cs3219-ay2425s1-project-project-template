@@ -11,7 +11,7 @@ import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';
 import { ROUTES } from './routes';
-import { QuestionsList } from '@/routes/questions/list';
+import { Questions } from '@/routes/questions/main';
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: ROUTES.QUESTIONS,
-                element: <QuestionsList />,
+                element: <Questions />,
               },
               {
                 path: ROUTES.QUESTION_DETAILS,
