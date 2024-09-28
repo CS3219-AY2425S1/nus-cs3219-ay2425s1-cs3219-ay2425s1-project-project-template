@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {EditPageComponent} from "../../edit-page/edit-page.component";
 import {MatDialog} from "@angular/material/dialog";
 import {AddPageComponent} from "../../add-page/add-page.component";
@@ -11,9 +11,11 @@ import {AddPageComponent} from "../../add-page/add-page.component";
   styleUrl: './search-and-filter.component.css'
 })
 export class SearchAndFilterComponent {
+  @Output() refresh = new EventEmitter<void>();
+
   constructor(private dialog: MatDialog) {}
   openAddModal() {
-    this.dialog.open(AddPageComponent, {
+    const dialogRef = this.dialog.open(AddPageComponent, {
       panelClass: 'custom-modalbox',
       width: '800px',
       height: '600px',
@@ -21,6 +23,10 @@ export class SearchAndFilterComponent {
         top: '200px',
       },
       disableClose: true
+    });
+
+    dialogRef.componentInstance.addComplete.subscribe(() => {
+      this.refresh.emit();
     });
   }
 }

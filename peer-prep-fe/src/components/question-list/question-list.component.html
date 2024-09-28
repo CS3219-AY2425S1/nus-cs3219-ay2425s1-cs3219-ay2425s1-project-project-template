@@ -1,12 +1,15 @@
 <div>
     <h1 class="tourney-title">List of Questions</h1>
-    <app-search-and-filter></app-search-and-filter>
+    <app-search-and-filter (refresh)="refreshQuestions()"></app-search-and-filter>
     <div class="question-list">
       <ul>
-        <li *ngFor="let question of questions; let i = index">
-          <app-question-box [question]="question" [index]="i"></app-question-box>
+        <li>
+          <app-question-box
+            *ngFor="let question of questions; let index = index"
+            [question]="question"
+            [index]="index"
+            (refresh)="refreshQuestions()"></app-question-box>
         </li>
       </ul>
     </div>
   </div>
-  
