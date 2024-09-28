@@ -7,7 +7,8 @@ const QuestionDisplay: React.FC = () => {
         const fetchData = async () => {
             try {
                 const response = await fetch('https:localhost:8080/questions');
-                setQuestion(response.data);
+                const data = await response.json();
+                setQuestion(data._embedded.questionList);
             } catch (error) {
                 console.error('Error fetching question:', error);
             }
