@@ -3,8 +3,8 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background-color: #2a2a2a; 
-    padding: 10px 15px; 
+    background-color: #2a2a2a;
+    padding: 10px 15px;
     border-radius: 10px;
     margin-bottom: 10px;
     width: 750px;
@@ -22,29 +22,34 @@
     background-color: transparent;
     cursor: pointer;
     border: none;
-   
-  }
+    max-width: 600px;
+}
+
+.edit-icon {
+  background-color: transparent;
+  border: transparent;
+  color: white;
+  cursor: pointer;
+}
 
 .difficulty {
     padding: 8px 12px;
     border-radius: 15px;
     font-size: 14px;
     font-family: Arial, Helvetica, sans-serif;
-    margin-left: 50px;
-   
 }
-  
-  .difficulty.Easy {
-    background-color: #159200;
-    color: white;
-  }
-  
-  .difficulty.Medium {
-    background-color: #CEC600;
-    color: white;
-  }
-  
-  .difficulty.Hard {
-    background-color: #A80000;
-    color: white;
-  }
+
+.difficulty.Easy {
+  background-color: #159200;
+  color: white;
+}
+
+.difficulty.Medium {
+  background-color: #CEC600;
+  color: white;
+}
+
+.difficulty.Hard {
+  background-color: #A80000;
+  color: white;
+}

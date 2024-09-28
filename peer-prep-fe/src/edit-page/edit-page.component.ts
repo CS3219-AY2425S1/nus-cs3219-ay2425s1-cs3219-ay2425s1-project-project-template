@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {QuestionService} from "../services/question.service";
 import {HttpClientModule} from "@angular/common/http";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-edit-page',
@@ -26,11 +27,13 @@ export class EditPageComponent implements OnInit {
   question_description: string = '';
   question_categories = [
     {name: 'Algorithms', selected: false},
+    {name: 'Arrays', selected: false},
+    {name: 'Bit Manipulation', selected: false},
+    {name: 'Brainteaser', selected: false},
     {name: 'Databases', selected: false},
-    {name: 'Shell', selected: false},
-    {name: 'Concurrency', selected: false},
-    {name: 'JavaScript', selected: false},
-    {name: 'pandas', selected: false},
+    {name: 'Data Structures', selected: false},
+    {name: 'Recursion', selected: false},
+    {name: 'Strings', selected: false},
   ];
   question_complexity: string = '';
   dropdownOpen: boolean = false;
@@ -41,7 +44,9 @@ export class EditPageComponent implements OnInit {
     private questionService: QuestionService,
     private router: Router,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialogRef: MatDialogRef<EditPageComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.questionForm = this.fb.group({
       question_title: ['', Validators.required],
@@ -49,11 +54,17 @@ export class EditPageComponent implements OnInit {
     });
   }
 
+  // ngOnInit() {
+  //   this.route.params.subscribe((params) => {
+  //     this.questionId = params['id'];
+  //     this.loadQuestionData();
+  //   });
+  // }
   ngOnInit() {
-    this.route.params.subscribe((params) => {
-      this.questionId = params['id'];
+    if(this.data?.questionId) {
+      this.questionId = this.data.questionId;
       this.loadQuestionData();
-    });
+    }
   }
 
   loadQuestionData() {
@@ -98,8 +109,8 @@ export class EditPageComponent implements OnInit {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  navigateToList() {
-    this.router.navigate(['/list-of-questions']);
+  navigateBack() {
+    this.dialogRef.close();
   }
 }
 

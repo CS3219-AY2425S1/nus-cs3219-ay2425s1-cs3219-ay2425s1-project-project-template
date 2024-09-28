@@ -1,7 +1,7 @@
 <div class="edit-question-container">
   <div class = header>
     <h1>EDIT QUESTION</h1>
-    <button class="back-button" (click)="navigateToList()">&#10005;</button>
+    <button class="back-button" (click)="navigateBack()">&#10005;</button>
   </div>
 
   <form [formGroup]="questionForm" (ngSubmit)="saveQuestion()">

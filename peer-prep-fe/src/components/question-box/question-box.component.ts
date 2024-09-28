@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { Question } from '../../app/models/question.model';  
+import { Question } from '../../app/models/question.model';
 import { CommonModule } from '@angular/common';
 import { QuestionDescriptionComponent } from '../question-description/question-description.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {EditPageComponent} from "../../edit-page/edit-page.component";
 
 @Component({
   selector: 'app-question-box',
@@ -13,8 +14,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 })
 
 export class QuestionBoxComponent {
-  @Input() question!: Question; 
-  @Input() index!: number; 
+  @Input() question!: Question;
+  @Input() index!: number;
 
  constructor(private dialog: MatDialog) {}
 
@@ -28,6 +29,21 @@ export class QuestionBoxComponent {
       width: '400px'
 
     });
+  }
+
+  openEditModal() {
+   this.dialog.open(EditPageComponent, {
+     data: {
+       questionId: '66f2a8a8aea02b6b4babc748',
+     },
+     panelClass: 'custom-modalbox',
+     width: '800px',
+     height: '600px',
+     position: {
+       top: '200px',
+     },
+     disableClose: true
+   });
   }
 }
 
