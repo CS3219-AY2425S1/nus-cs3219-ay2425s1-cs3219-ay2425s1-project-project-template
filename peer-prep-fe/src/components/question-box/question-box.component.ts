@@ -25,12 +25,12 @@ export class QuestionBoxComponent {
     this.dialog.open(QuestionDescriptionComponent, {
       data: {
         questionTitle: this.question.question_title,
+        questionCategories: this.question.question_categories,
         questionDifficulty: this.question.question_complexity,
         questionDescription: this.question.question_description
       },
       panelClass: 'custom-modalbox',
       width: '400px'
-
     });
   }
 
