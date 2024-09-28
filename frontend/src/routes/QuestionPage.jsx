@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Panel, PanelGroup } from "react-resizable-panels";
+import { toast } from 'react-toastify';
 import CreateQuestionModal from '../component/question/CreateQuestionModal';
 import EditQuestionModal from '../component/question/EditQuestionModal';
 import Pill from '../ui/Pill';
@@ -29,33 +30,15 @@ const QuestionPage = () => {
         // Update the questions with the array data
         updateQuestions(arrayData);
         
-        // // Loop through each question and set its data
-        // arrayData.forEach(question => {
-        //   setQuestionData({
-        //     difficulty: question.difficulty,
-        //     topic: question.topic,
-        //     title: question.title,
-        //     description: question.description,
-        //     titleSlug: question.titleSlug,
-        //   });
-
-        //   console.log(question);
-        // });
-        
       } else {
-        alert('Failed to fetch questions.');
+        toast.error('Something went wrong. Failed to fetch questions.');
         updateQuestions([]); // Set to an empty array if the request fails
       }
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      toast.error('Something went wrong. Failed to fetch questions')
       updateQuestions([]); // Set to an empty array in case of error
     }
   };
-
-
-  // //REMOVE THIS BEFORE SUBMITTING
-  // const [titleSlug] = useState('test-question');
-
 
   // State for questions and the current question data
    const [questions, updateQuestions] = useState([]);
@@ -298,67 +281,6 @@ const QuestionPage = () => {
         )
         }
         </PanelGroup>
-
-      {/* <div className="right-section" style={{ width: '55%' }}>
-        <div className="info-row" id="curmode">
-          Mode: {mode === "create" ? "Creating new question" : `Editing question: ${selectedQuestion.title}`}
-        </div>
-
-        <div className="row">
-          <label htmlFor="difficulty">Difficulty:</label>
-          <select 
-            id="difficulty" 
-            className="dropdown" 
-            value={questionData.difficulty}
-            onChange={(e) => setQuestionData({ ...questionData, difficulty: e.target.value })}
-          >
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-          </select>
-
-          <label htmlFor="topic">Topic:</label>
-          <textarea 
-            id="topic" 
-            className="dropdown1"
-            value={questionData.topic}
-            onChange={(e) => setQuestionData({ ...questionData, topic: e.target.value })}
-          />
-        </div>
-
-        <div className="title-section">
-          <label htmlFor="title">Title:</label>
-          <textarea
-            id="title"
-            className="questionarea"
-            value={mode === 'edit' ? selectedQuestion.title : questionData.title}
-            onChange={(e) => setQuestionData({ ...questionData, title: e.target.value })}
-            readOnly={mode === 'edit'} // Make the textarea read-only if in edit mode
-          />
-        </div>
-
-        <div className="question-section">
-          <label htmlFor="question">Question:</label>
-          <textarea
-            id="question"
-            className="textarea"
-            value={questionData.description}
-            onChange={(e) => setQuestionData({ ...questionData, description: e.target.value })}
-          />
-        </div>
-
-        <div className="button-section">
-          <div className="button-box">
-            <button className="clear-question-button" onClick={clearState}>Clear/Exit</button>
-          </div>
-
-          <div className="button-box-right" onClick={handleSetQuestion}>
-            <button className="set-question-button">
-              {mode === "create" ? "Submit Question" : "Update Question"}
-            </button>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };
