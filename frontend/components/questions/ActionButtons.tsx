@@ -1,9 +1,7 @@
-import { Button } from "@nextui-org/button";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-
 import { PencilIcon, TrashIcon } from "../icons";
-
 import { useDeleteQuestions } from "@/hooks/questions";
 import { Question } from "@/types/questions";
 
@@ -14,6 +12,7 @@ interface ActionButtonsProps {
 export default function ActionButtons({ question }: ActionButtonsProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const { mutate: deleteQuestion } = useDeleteQuestions();
 
@@ -24,15 +23,14 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
     });
   };
 
-  const handleDeleteOnClick = () => {
+  const confirmDelete = () => {
     setIsDeleting(true);
 
     if (!question.questionId) {
       console.error("Question ID is undefined, cannot delete question.");
-
+      setIsDeleting(false);
       return;
     }
-    setIsDeleting(true);
 
     deleteQuestion(question.questionId, {
       onSuccess: () => {
@@ -48,12 +46,42 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
 
   return (
     <div className="flex gap-2 justify-center">
-      <Button isIconOnly onClick={handleEditOnClick}>
+      {/* Edit Button */}
+      <Button isIconOnly onPress={handleEditOnClick}>
         <PencilIcon />
       </Button>
-      <Button isIconOnly disabled={isDeleting} onClick={handleDeleteOnClick}>
+
+      {/* Delete Button */}
+      <Button isIconOnly disabled={isDeleting} onPress={onOpen}>
         <TrashIcon />
       </Button>
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Confirm Deletion
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to delete this question? This action
+                  cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="primary" onPress={confirmDelete}>
+                  Delete
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
