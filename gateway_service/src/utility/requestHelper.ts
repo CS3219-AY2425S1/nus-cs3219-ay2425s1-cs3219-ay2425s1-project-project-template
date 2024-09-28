@@ -50,7 +50,7 @@ export function sendPostRequest(path: string, service: string) {
 export function sendDeleteRequest(path: string, service: string, id: string) {
   return async (req: Request, res: Response) => {
     try {
-      let resp = await axios.delete(`${service}/${path}`);
+      let resp = await axios.delete(`${service}/${path}/${id}`);
       res.status(200).json(resp.data);
     } catch (error: any) {
       if (error.response) {
