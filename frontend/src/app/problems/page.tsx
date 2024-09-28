@@ -18,9 +18,20 @@ import {
 import { Badge } from "@/components/ui/badge"
 import CompletedIcon from '@mui/icons-material/TaskAlt';
 import { useEffect, useState } from "react";
+import QuestionDialog from "./QuestionDialog"
+import AddQuestionForm from "./components/addQuestionForm"
 
 export default function QuestionsPage() {
     const [questions, setQuestions] = useState([])
+    const [isAddQuestionDisplayed, setIsAddQuestionDisplayed] = useState(false);
+
+    const handleOpenCard = () => {
+        setIsAddQuestionDisplayed(true);
+    };
+  
+    const handleCloseCard = () => {
+        setIsAddQuestionDisplayed(false);
+    };
 
     const fetchQuestions = async () => {
         try {
@@ -40,13 +51,13 @@ export default function QuestionsPage() {
     }, [])
 
     return (
-        <section className="flex h-full justify-center mt-14">
+        <section className="flex flex-grow justify-center">
             <div className="flex-col h-full py-12 w-5/6 2xl:w-3/5">
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl 2xl:text-4xl font-bold text-black text-start">
                         Coding Questions
                     </h1>
-                    <Button>Create a new question</Button>
+                    <Button onClick={handleOpenCard}>{/*need to link this to open the add question form*/}Create a new question</Button>
                 </div>
                 <div className="my-12">
                     {/* Search */}
@@ -68,7 +79,7 @@ export default function QuestionsPage() {
                         {questions.map((question: any, index: number) => (
                             <TableRow key={index} className="h-20"> {/* Increased height */}
                                 <TableCell>{question.questionId}</TableCell>
-                                <TableCell>{question.title}</TableCell>
+                                <TableCell><QuestionDialog question={question}/></TableCell>
                                 <TableCell>
                                     {question.description.length > 80
                                         ? `${question.description.slice(0, 80)}...`
@@ -100,7 +111,17 @@ export default function QuestionsPage() {
                         ))}
                     </TableBody>
                 </Table>
-            </div>
+                {/* Popup card for the form */}
+                    {isAddQuestionDisplayed && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <h2 className="text-xl font-bold mb-4">Create New Question</h2>
+                        
+                        <AddQuestionForm onClose={handleCloseCard} />
+                        </div>
+                    </div>
+                    )}
+            </div>    
         </section>
     )
 }
