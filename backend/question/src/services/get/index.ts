@@ -15,7 +15,6 @@ export const searchQuestionsByTitleService = async (
       title: questions.title,
       difficulty: questions.difficulty,
       topic: questions.topic,
-      attempted: questions.attempted,
     })
     .from(questions)
     .where(sql`${questions.title} ILIKE ${searchPattern}`); // Use ILIKE for case-insensitive matching

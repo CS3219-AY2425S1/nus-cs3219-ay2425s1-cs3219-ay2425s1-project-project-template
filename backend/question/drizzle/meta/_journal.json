@@ -15,6 +15,13 @@
       "when": 1727504673110,
       "tag": "0001_neat_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727510874424,
+      "tag": "0002_glorious_onslaught",
+      "breakpoints": true
     }
   ]
 }
