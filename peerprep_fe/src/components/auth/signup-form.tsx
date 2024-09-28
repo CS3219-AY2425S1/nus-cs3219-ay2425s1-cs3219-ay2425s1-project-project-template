@@ -5,18 +5,18 @@ import Textfield from "@/components/text-field";
 import Button from "@/components/button";
 import TextButton from "@/components/text-button";
 import { signup } from "@/app/actions/auth";
-import { useEffect, useContext } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/contexts/auth-provider";
+import { useAuth } from "@/contexts/auth-provider";
 
 export function SignupForm() {
   const [state, action] = useFormState(signup, undefined);
   const router = useRouter();
-  const { setToken } = useContext(AuthContext);
+  const { updateToken } = useAuth();
 
   useEffect(() => {
     if (state?.message) {
-      const { setToken } = useContext(AuthContext);
+      updateToken(state.message);
       router.push("/home");
     } else if (state?.errors?.errorMessage) {
       alert(state.errors.errorMessage);
