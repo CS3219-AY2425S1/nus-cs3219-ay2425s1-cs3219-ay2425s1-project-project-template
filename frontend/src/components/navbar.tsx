@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import classnames from 'classnames'
 import { usePathname } from 'next/navigation'
+import { CodeXml } from 'lucide-react';
 
 const Navbar: React.FC = () => {
     const currentPath = usePathname()
@@ -16,8 +17,10 @@ const Navbar: React.FC = () => {
         <nav className="bg-violet-800 w-full p-2 top-0">
             <div className="mx-auto flex justify-between items-center 2xl:w-3/5">
                 <div className="text-white flex gap-4 text-xl ml-6 font-extrabold 2xl:text-2xl">
-                    <div className="text-xl 2xl:text-2xl">{'</>'}</div>
-                    <Link href="/">peerprep.</Link>
+                    <Link className="flex gap-4 justify-center items-center" href="/">
+                        <CodeXml className="w-7 h-7 2xl:w-8 2xl:h-8" />
+                        peerprep.
+                    </Link>
                 </div>
                 <ul className="flex justify-end w-4/5 text-sm 2xl:text-md">
                     {routes.map((route) => (
