@@ -43,7 +43,6 @@ const QuestionPage = () => {
 
   // Add questions
   const handleAddQuestion = async (newQuestion) => {
-    toggleDialog();
 
     try {
       const response = await fetch("http://localhost:8080/questions", {
@@ -58,8 +57,13 @@ const QuestionPage = () => {
         const savedQuestion = await response.json();
         console.log("savedQuestion:", savedQuestion);
         setQuestions((prevQuestions) => [...prevQuestions, savedQuestion]);
+        toggleDialog();
       } else {
         console.error("Failed to add question");
+        var responseMessage = await response.json()
+        const errorWindow = window.alert(
+          responseMessage.message
+        );
       }
     } catch (error) {
       console.error("Error adding question:", error);
