@@ -3,10 +3,10 @@ import { useState } from "react";
 import DeleteQuestionModal from "./DeleteQuestionModal";
 import EditConfirmationModal from "./EditConfirmationModal";
 
-const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
-  isOpen,
-  onClose,
-}) => {
+const EditQuestionModal: React.FC<{
+  onClose: () => void;
+  questionTitle: String;
+}> = ({ onClose, questionTitle }) => {
   /* Placeholders */
   const oldDifficulty = "Easy";
   const oldTopic = "Array";
@@ -90,159 +90,157 @@ const EditQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     }
   };
 
-  if (isOpen && location.pathname == "/question") {
-    return (
-      <>
-        <div
-          id="editQuestionModal"
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 text-black"
-        >
-          <div className="bg-white rounded-lg p-4 w-3/5 h-9/10 fade-in modal-context z-50">
-            {/* Header */}
-            <div className="justify-start">
-              <div className="flex flex-row justify-between items-center">
-                <h2 className="text-2xl font-bold">Edit Question</h2>
-                <button
-                  onClick={onClose}
-                  id="submit"
-                  className="px-2 rounded-lg hover:bg-gray-200"
-                >
-                  X
-                </button>
-              </div>
-              <div>
-                <p className="text-sm">Editing "{oldTitle}" Question.</p>
-                {/* <button className="text-sm text-indigo-800 hover:bg-gray-200 rounded-lg">Click here to view the original question for reference.</button> */}
-              </div>
-            </div>
-
-            <div className="mt-3"></div>
-            {/* Difficulty */}
-            <div>
-              <label className="font-semibold">Difficulty Level</label>
-              <div className="relative mt-1 shadow-md">
-                <select
-                  name="difficulty"
-                  id="difficulty"
-                  defaultValue={oldDifficulty}
-                  onChange={(event) => {
-                    setNewDifficultyValue(event.target.value);
-                  }}
-                  className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                >
-                  <option value="" disabled selected hidden>
-                    Choose a difficulty level
-                  </option>
-                  <option className="text-green ">Easy</option>
-                  <option className="text-orange-500">Medium</option>
-                  <option className="text-red-700">Hard</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Topic */}
-            <div className="mt-2">
-              <label className="font-semibold">Topic</label>
-              <div className="relative mt-1 shadow-md">
-                <input
-                  type="text"
-                  name="topic"
-                  id="topic"
-                  defaultValue={oldTopic}
-                  onChange={(event) => {
-                    setNewTopicValue(event.target.value);
-                  }}
-                  className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                ></input>
-              </div>
-            </div>
-
-            {/* Question Title */}
-            <div className="mt-2">
-              <label className="font-semibold">Question Title</label>
-              <div className="relative mt-1 shadow-md">
-                <input
-                  type="text"
-                  name="title"
-                  id="title"
-                  defaultValue={oldTitle}
-                  onChange={(event) => {
-                    setNewTitleValue(event.target.value);
-                  }}
-                  className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                ></input>
-              </div>
-            </div>
-
-            {/* Question details */}
-            <div className="mt-2">
-              <label className="font-semibold">Question details</label>
-              <div className="relative mt-1 shadow-md">
-                <textarea
-                  name="details"
-                  id="details"
-                  defaultValue={oldDetails}
-                  onChange={(event) => {
-                    setNewDetailsValue(event.target.value);
-                  }}
-                  rows={3}
-                  className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                ></textarea>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="mt-6">
-              <text
-                id="emptyMessage"
-                className="flex justify-center text-red-500 hidden"
+  return (
+    <>
+      <div
+        id="editQuestionModal"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 text-black"
+      >
+        <div className="bg-white rounded-lg p-4 w-3/5 h-9/10 fade-in modal-context z-50">
+          {/* Header */}
+          <div className="justify-start">
+            <div className="flex flex-row justify-between items-center">
+              <h2 className="text-2xl font-bold">Edit Question</h2>
+              <button
+                onClick={() => onClose()}
+                id="submit"
+                className="px-2 rounded-lg hover:bg-gray-200"
               >
-                * Please fill in all the empty fields. *
-              </text>
-              <div className="flex justify-evenly mt-2">
-                <button
-                  onClick={openDeleteModal}
-                  className="bg-black bg-opacity-80 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-gray-600"
-                >
-                  Delete Question
-                </button>
-                <DeleteQuestionModal
-                  isOpen={isDeleteModalOpen}
-                  onClose={closeDeleteModal}
-                  onDelete={onDeleteConfirm}
-                  oldDifficulty={oldDifficulty}
-                  oldTopic={oldTopic}
-                  oldTitle={oldTitle}
-                  oldDetails={oldDetails}
-                />
-                <button
-                  onClick={onEditSubmit}
-                  className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
-                >
-                  Submit
-                </button>
-                <EditConfirmationModal
-                  isOpen={isEditConfirmationModalOpen}
-                  onClose={closeEditConfirmationModal}
-                  onEditConfirm={onEditConfirm}
-                  newDifficultyValue={newDifficultyValue}
-                  newTopicValue={newTopicValue}
-                  newTitleValue={newTitleValue}
-                  newDetailsValue={newDetailsValue}
-                />
-                <button
-                  onClick={onClose}
-                  className="bg-red-500 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-red-400"
-                >
-                  Cancel
-                </button>
-              </div>
+                X
+              </button>
+            </div>
+            <div>
+              <p className="text-sm">Editing "{oldTitle}" Question.</p>
+              {/* <button className="text-sm text-indigo-800 hover:bg-gray-200 rounded-lg">Click here to view the original question for reference.</button> */}
+            </div>
+          </div>
+
+          <div className="mt-3"></div>
+          {/* Difficulty */}
+          <div>
+            <label className="font-semibold">Difficulty Level</label>
+            <div className="relative mt-1 shadow-md">
+              <select
+                name="difficulty"
+                id="difficulty"
+                defaultValue={oldDifficulty}
+                onChange={(event) => {
+                  setNewDifficultyValue(event.target.value);
+                }}
+                className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+              >
+                <option value="" disabled selected hidden>
+                  Choose a difficulty level
+                </option>
+                <option className="text-green ">Easy</option>
+                <option className="text-orange-500">Medium</option>
+                <option className="text-red-700">Hard</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Topic */}
+          <div className="mt-2">
+            <label className="font-semibold">Topic</label>
+            <div className="relative mt-1 shadow-md">
+              <input
+                type="text"
+                name="topic"
+                id="topic"
+                defaultValue={oldTopic}
+                onChange={(event) => {
+                  setNewTopicValue(event.target.value);
+                }}
+                className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+              ></input>
+            </div>
+          </div>
+
+          {/* Question Title */}
+          <div className="mt-2">
+            <label className="font-semibold">Question Title</label>
+            <div className="relative mt-1 shadow-md">
+              <input
+                type="text"
+                name="title"
+                id="title"
+                defaultValue={oldTitle}
+                onChange={(event) => {
+                  setNewTitleValue(event.target.value);
+                }}
+                className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+              ></input>
+            </div>
+          </div>
+
+          {/* Question details */}
+          <div className="mt-2">
+            <label className="font-semibold">Question details</label>
+            <div className="relative mt-1 shadow-md">
+              <textarea
+                name="details"
+                id="details"
+                defaultValue={oldDetails}
+                onChange={(event) => {
+                  setNewDetailsValue(event.target.value);
+                }}
+                rows={3}
+                className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="mt-6">
+            <text
+              id="emptyMessage"
+              className="flex justify-center text-red-500 hidden"
+            >
+              * Please fill in all the empty fields. *
+            </text>
+            <div className="flex justify-evenly mt-2">
+              <button
+                onClick={openDeleteModal}
+                className="bg-black bg-opacity-80 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-gray-600"
+              >
+                Delete Question
+              </button>
+              <DeleteQuestionModal
+                isOpen={isDeleteModalOpen}
+                onClose={closeDeleteModal}
+                onDelete={onDeleteConfirm}
+                oldDifficulty={oldDifficulty}
+                oldTopic={oldTopic}
+                oldTitle={oldTitle}
+                oldDetails={oldDetails}
+              />
+              <button
+                onClick={onEditSubmit}
+                className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
+              >
+                Submit
+              </button>
+              <EditConfirmationModal
+                isOpen={isEditConfirmationModalOpen}
+                onClose={closeEditConfirmationModal}
+                onEditConfirm={onEditConfirm}
+                newDifficultyValue={newDifficultyValue}
+                newTopicValue={newTopicValue}
+                newTitleValue={newTitleValue}
+                newDetailsValue={newDetailsValue}
+              />
+              <button
+                onClick={onClose}
+                className="bg-red-500 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-red-400"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
 };
 
 export default EditQuestionModal;

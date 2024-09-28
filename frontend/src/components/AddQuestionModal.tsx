@@ -124,12 +124,9 @@ const AddQuestionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* Action buttons */}
           <div className="mt-6">
-            <text
-              id="emptyMessage"
-              className="flex justify-center text-red-500"
-            >
+            <p id="emptyMessage" className="flex justify-center text-red-500">
               * Please fill in all the empty fields. *
-            </text>
+            </p>
             <div className="flex justify-evenly mt-2">
               <button
                 onClick={onSubmit}

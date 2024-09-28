@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTable, Column } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
+import EditQuestionModal from "../EditQuestionModal";
 
 const Dashboard: React.FC = () => {
   const [Data, setData] = useState([]);
@@ -24,6 +25,18 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
+  const [editModalIsOpen, setEditModalIsOpen] = useState(false);
+  const closeEditModal = () => setEditModalIsOpen(false);
+
+  const [questionTitleToEdit, setQuestionTitleToEdit] = useState("");
+
+  const openEditModal = (questionTitle: string) => {
+    console.log(questionTitle);
+    setQuestionTitleToEdit(questionTitle);
+    setEditModalIsOpen(true);
+    console.log(editModalIsOpen);
+  };
+
   const columns: Column[] = useMemo(() => COLUMNS, []);
   const data = useMemo(() => Data, [Data]);
 
@@ -37,7 +50,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="overflow-x-auto">
-      {/* Add your table or other components here */}
+      {editModalIsOpen && (
+        <EditQuestionModal
+          onClose={closeEditModal}
+          questionTitle={questionTitleToEdit}
+        />
+      )}
+      ;{/* Add your table or other components here */}
       <table
         {...getTableProps()}
         className="min-w-full bg-off-white shadow-md rounded-lg"
@@ -81,6 +100,7 @@ const Dashboard: React.FC = () => {
                       {...cell.getCellProps()}
                       key={cell.column.id}
                       className="py-3 px-6 text-left"
+                      onClick={() => openEditModal(row.allCells[0].value)}
                     >
                       {cell.column.Header === "Categories"
                         ? (cell.value.reduce(
