@@ -1,27 +1,28 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import Textfield from "@/components/common/text-field";
-import Button from "@/components/common/button";
-import TextButton from "@/components/common/text-button";
+import { useFormState } from "react-dom";
+import Textfield from "@/components/text-field";
+import Button from "@/components/button";
+import TextButton from "@/components/text-button";
 import { signup } from "@/app/actions/auth";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
+import { AuthContext } from "@/contexts/auth-provider";
 
 export function SignupForm() {
   const [state, action] = useFormState(signup, undefined);
   const router = useRouter();
+  const { setToken } = useContext(AuthContext);
 
   useEffect(() => {
     if (state?.message) {
-      localStorage.setItem("token", state.message);
+      const { setToken } = useContext(AuthContext);
       router.push("/home");
     } else if (state?.errors?.errorMessage) {
       alert(state.errors.errorMessage);
     }
   }, [state]);
 
-  // TODO: Make errors look better
   return (
     <div>
       <form action={action}>

@@ -90,7 +90,6 @@ export default function Home() {
         <Button
           text="Logout"
           onClick={() => {
-            logout();
             router.push("/auth/login");
           }}
         />
@@ -138,6 +137,4 @@ export default function Home() {
   );
 }
 
-export async function logout() {
-  localStorage.removeItem("token");
 }
