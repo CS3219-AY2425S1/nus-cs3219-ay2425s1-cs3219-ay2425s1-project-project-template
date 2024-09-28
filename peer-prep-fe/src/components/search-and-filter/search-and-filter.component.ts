@@ -13,9 +13,17 @@ import { QuestionService } from '../../services/question.service';
 })
 export class SearchAndFilterComponent {
   @Output() refresh = new EventEmitter<void>();
+  @Output() sort = new EventEmitter<void>(); // event for when "SORT" button is clicked
 
-  constructor(private dialog: MatDialog, private questionService : QuestionService) {}
+  constructor(private dialog: MatDialog) {}
+
+  sortQuestions() {
+    console.log('Sort button clicked');
+    this.sort.emit(); 
+  }
+
   openAddModal() {
+    console.log('Add button clicked');
     const dialogRef = this.dialog.open(AddPageComponent, {
       panelClass: 'custom-modalbox',
       width: '800px',
