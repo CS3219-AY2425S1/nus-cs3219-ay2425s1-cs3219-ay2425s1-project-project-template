@@ -6,7 +6,7 @@
 
 1. Python 3.12
 2. Docker (for local MongDB server)
-    > *ensure that Docker is running in the background*
+   > _ensure that Docker is running in the background_
 
 ### Running the server
 
@@ -25,14 +25,15 @@ python3 -m venv env
 ```
 
 2. Activate the virtual environment
-  - Linux/MacOS
-    ```bash
-    source env/bin/activate
-    ```
-  - Windows
-    ```
-    ./env/Scripts/activate
-    ```
+
+- Linux/MacOS
+  ```bash
+  source env/bin/activate
+  ```
+- Windows
+  ```
+  ./env/Scripts/activate
+  ```
 
 3. Install dependencies
 
@@ -45,6 +46,7 @@ pip install -r requirements.txt
 ```bash
 make db
 ```
+
   <details>
       <summary>Without <code>make</code></summary>
 
@@ -104,12 +106,9 @@ make db
 
     ```bash
     docker run --name question-db -p 27017:27017 -d \
-    	-e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
-    	-e MONGO_INITDB_ROOT_PASSWORD=secret \
-    	-e MONGO_INITDB_DATABASE=questions_db \
-    	-e INIT_QUESTION_COLLECTION=questions \
-    	alxarkar/cs3219-ay2425s1-g40-question
-
+        -e MONGO_INITDB_DATABASE=questions_db \
+        -e INIT_QUESTION_COLLECTION=questions \
+        alxarkar/cs3219-ay2425s1-g40-question
     ```
 
 </details>
@@ -171,6 +170,7 @@ make test
 - Endpoint: http://localhost:3001/question
 
 - Body
+
   - Required: `title` (string), `description` (string), `difficulty` (string/Enum), `topic` (string)
 
     ```json
@@ -184,12 +184,12 @@ make test
 
 - Responses:
 
-    | Response Code               | Explanation                                                   |
-    |-----------------------------|---------------------------------------------------------------|
-    | 201 (Created)               | Question created successfully, created question data returned |
-    | 400 (Bad Request)           | Missing fields                                                |
-    | 409 (Conflict)              | Duplicate title encountered                                   |
-    | 500 (Internal Server Error) | Database or server error                                      |
+  | Response Code               | Explanation                                                   |
+  | --------------------------- | ------------------------------------------------------------- |
+  | 201 (Created)               | Question created successfully, created question data returned |
+  | 400 (Bad Request)           | Missing fields                                                |
+  | 409 (Conflict)              | Duplicate title encountered                                   |
+  | 500 (Internal Server Error) | Database or server error                                      |
 
 ### Get Question
 
@@ -202,17 +202,15 @@ make test
 - Endpoint: http://localhost:3001/question/{titleSlug}
 
 - Parameters
-    - Required: `titleSlug` path parameter
-    - Example: `http://localhost:3001/question/reverse-string`
-
-   
+  - Required: `titleSlug` path parameter
+  - Example: `http://localhost:3001/question/reverse-string`
 - Responses:
 
-    | Response Code               | Explanation                                     |
-    |-----------------------------|-------------------------------------------------|
-    | 200 (OK)                    | Success, question returned                      |
-    | 404 (Not Found)             | Question with the specified titleSlug not found |
-    | 500 (Internal Server Error) | Database or server error                        |
+  | Response Code               | Explanation                                     |
+  | --------------------------- | ----------------------------------------------- |
+  | 200 (OK)                    | Success, question returned                      |
+  | 404 (Not Found)             | Question with the specified titleSlug not found |
+  | 500 (Internal Server Error) | Database or server error                        |
 
 ### Get All Questions
 
@@ -222,11 +220,11 @@ make test
 
 - Responses:
 
-    | Response Code               | Explanation                                      |
-    |-----------------------------|--------------------------------------------------|
-    | 200 (OK)                    | Success, all questions returned                  |
-    | 404 (Error)                 | No questions in database                         |
-    | 500 (Internal Server Error) | Database or server error                         |
+  | Response Code               | Explanation                     |
+  | --------------------------- | ------------------------------- |
+  | 200 (OK)                    | Success, all questions returned |
+  | 404 (Error)                 | No questions in database        |
+  | 500 (Internal Server Error) | Database or server error        |
 
 ### Update Question
 
@@ -237,13 +235,15 @@ make test
 - Endpoint: http://localhost:3001/users/{titleSlug}
 
 - Parameters
+
   - Required: `titleSlug` path parameter
 
 - Body
+
   - At least one of the following fields is required: `title` (string), `description` (string), `difficulty` (string/Enum), `topic` (string)
 
     ```json
-     {
+    {
       "title": "SampleQuestion",
       "description": "SampleQuestionDescription",
       "difficulty": "Easy/Medium/Hard",
@@ -253,14 +253,14 @@ make test
 
 - Responses:
 
-    | Response Code               | Explanation                                           |
-    |-----------------------------|-------------------------------------------------------|
-    | 200 (OK)                    | Question updated successfully, updated question data returned |
-    | 400 (Bad Request)           | Missing fields                                        |
-    | 403 (Forbidden)             | Access denied for non-admin users updating questions  |
-    | 404 (Not Found)             | Question with the specified ID not found              |
-    | 409 (Conflict)              | Duplicate title  encountered                          |
-    | 500 (Internal Server Error) | Database or server error                              |
+  | Response Code               | Explanation                                                   |
+  | --------------------------- | ------------------------------------------------------------- |
+  | 200 (OK)                    | Question updated successfully, updated question data returned |
+  | 400 (Bad Request)           | Missing fields                                                |
+  | 403 (Forbidden)             | Access denied for non-admin users updating questions          |
+  | 404 (Not Found)             | Question with the specified ID not found                      |
+  | 409 (Conflict)              | Duplicate title encountered                                   |
+  | 500 (Internal Server Error) | Database or server error                                      |
 
 ### Delete Question
 
@@ -270,6 +270,7 @@ make test
 - Parameters
 
   - Required: `titleSlug` path parameter
+
 - Headers
 
   - Required: `Authorization: Bearer <JWT_ACCESS_TOKEN>`
@@ -280,10 +281,10 @@ make test
 
 - Responses:
 
-    | Response Code               | Explanation                                          |
-    |-----------------------------|------------------------------------------------------|
-    | 200 (OK)                    | Question deleted successfully                        |
-    | 401 (Unauthorized)          | Access denied due to missing/invalid/expired JWT     |
-    | 403 (Forbidden)             | Access denied for non-admin users deleting questions |
-    | 404 (Not Found)             | Question with the specified titleSlug not found      |
-    | 500 (Internal Server Error) | Database or server error                             |
+  | Response Code               | Explanation                                          |
+  | --------------------------- | ---------------------------------------------------- |
+  | 200 (OK)                    | Question deleted successfully                        |
+  | 401 (Unauthorized)          | Access denied due to missing/invalid/expired JWT     |
+  | 403 (Forbidden)             | Access denied for non-admin users deleting questions |
+  | 404 (Not Found)             | Question with the specified titleSlug not found      |
+  | 500 (Internal Server Error) | Database or server error                             |
