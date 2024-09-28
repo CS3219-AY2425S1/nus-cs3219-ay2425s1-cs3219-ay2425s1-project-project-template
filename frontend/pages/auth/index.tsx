@@ -5,8 +5,9 @@ import Login from '../../components/auth/Login'
 import Signup from '../../components/auth/Signup'
 import { useState } from 'react'
 
-export default function Home() {
+export default function Auth() {
     const [isLoginPage, setIsLoginPage] = useState(false)
+
     return (
         <div className="grid grid-cols-2 h-screen">
             <div className="w-full h-full bg-gradient-to-b from-[#FCF7FC] via-[#FCF7FC] to-[#E8E1F6] flex flex-col justify-center">
@@ -28,7 +29,15 @@ export default function Home() {
                         {isLoginPage ? 'Sign up' : 'Log in'}
                     </button>
                 </div>
-                {isLoginPage ? <Login /> : <Signup />}
+                <div className="flex flex-col items-center sm:items-start w-full mx-auto max-w-md">
+                    <div className="flex flex-col items-center justify-center my-5 w-full gap-8">
+                        <Image src="/logo.svg" alt="Logo" width={30} height={30} className="my-2 mx-8" />
+                        <h2 className="text-2xl font-bold mb-4">Start your journey with us!</h2>
+                    </div>
+                    <div className="flex flex-col items-center gap-3 mt-3 w-full">
+                        {isLoginPage ? <Login /> : <Signup />}
+                    </div>
+                </div>
             </div>
         </div>
     )

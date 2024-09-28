@@ -1,27 +1,17 @@
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { InputField } from '../ui/custom-input'
-import usePasswordToggle from './UsePasswordToggle'
-import CustomDialogWithButton from '../customs/custom-dialog'
+import validateInput, { initialFormValues } from '@/util/input-validation'
 
-interface ISettingFormInput {
-    email: string
-    password: string
-    confirmPassword: string
-}
+import CustomDialogWithButton from '../customs/custom-dialog'
+import { InputField } from '../customs/custom-input'
+import { toast } from 'sonner'
+import usePasswordToggle from '../../hooks/UsePasswordToggle'
+import { useState } from 'react'
 
 function Setting() {
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 
-    const initialValues: ISettingFormInput = {
-        email: '',
-        password: '',
-        confirmPassword: '',
-    }
-
-    const [formValues, setFormValues] = useState(initialValues)
-    const [formErrors, setFormErrors] = useState(initialValues)
+    const [formValues, setFormValues] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [isDeleteDialogOpen, toggleDeleteDialogOpen] = useState(false)
     const [isUpdateDialogOpen, toggleUpdateDialogOpen] = useState(false)
     const [isFormSubmit, setIsFormSubmit] = useState(false)
@@ -31,55 +21,27 @@ function Setting() {
         setFormValues({ ...formValues, [id]: value })
     }
 
-    const validateInput = (values: ISettingFormInput): boolean => {
-        let isValid = true
-        const errors: ISettingFormInput = { ...initialValues }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
-        const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
-
-        const validateEmail = (email: string): boolean => emailRegex.test(email)
-        const validatePassword = (password: string): boolean => passwordRegex.test(password)
-
-        if (!values.email) {
-            errors.email = 'Email is required!'
-            isValid = false
-        } else if (!validateEmail(values.email)) {
-            errors.email = 'Invalid Email!'
-            isValid = false
-        }
-
-        if (!values.password) {
-            errors.password = 'Password is required!'
-            isValid = false
-        } else if (!validatePassword(values.password)) {
-            errors.password =
-                'Weak password, please ensure you have at least 8 characters, one upper and lower case letter, one digit and one special character.'
-            isValid = false
-        }
-
-        if (!values.confirmPassword) {
-            errors.confirmPassword = 'Please re-enter your password!'
-            isValid = false
-        } else if (values.password !== values.confirmPassword) {
-            errors.confirmPassword = "Passwords don't match!"
-            isValid = false
-        }
-
-        setFormErrors(errors)
-        return isValid
-    }
-
     // Submit handler
     const handleFormSubmit = () => {
         setIsFormSubmit(true)
         toggleUpdateDialogOpen(false)
         toast.success('Profile has been updated successfully.')
-        setFormValues(initialValues) // Replace with placeholder values if needed
+        setFormValues({ ...initialFormValues })
     }
 
     const handleUpdateClick = (): void => {
-        if (validateInput(formValues)) {
+        const isTest = {
+            username: false,
+            email: true,
+            password: true,
+            confirmPassword: true,
+            proficiency: false,
+            loginPassword: false,
+            otp: false,
+        }
+        const [errors, isValid] = validateInput(isTest, formValues)
+        setFormErrors(errors)
+        if (isValid) {
             toggleUpdateDialogOpen(true)
         }
     }
