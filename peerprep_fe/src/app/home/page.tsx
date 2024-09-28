@@ -9,6 +9,8 @@ import { QuestionForm } from "@/components/questions/question-form";
 import Button from "@/components/common/button";
 import TableRow from "@/components/questions/table-row";
 import { useAuth } from "@/contexts/auth-context";
+import { editQuestion, addQuestion } from "@/app/actions/questions";
+import { FormType } from "@/components/questions/question-form";
 
 enum ModalActionType {
   EDIT,
@@ -128,7 +130,15 @@ export default function Home() {
         <div className="modal">
           <div onClick={closeModal} className="overlay"></div>
           <div className="modal-content">
-            <QuestionForm />
+            <QuestionForm
+              state={modalState.isDetailShown ? modalState.details : undefined}
+              onSubmit={
+                modalState.isDetailShown
+                  ? editQuestion.bind(null, modalState.details!)
+                  : addQuestion
+              }
+              type={modalState.isDetailShown ? FormType.EDIT : FormType.ADD}
+            />
             <Button type="reset" onClick={closeModal} text="CLOSE" />
           </div>
         </div>

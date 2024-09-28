@@ -1,33 +1,32 @@
 "use client";
 
-import { useFormState } from "react-dom";
 import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
-import { addQuestion } from "@/app/actions/questions";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import type { FormRequest } from "@/app/actions/questions";
 
-export function QuestionForm() {
+export enum FormType {
+  EDIT = "Edit",
+  ADD = "Add",
+}
+
+export function QuestionForm({
+  state,
+  onSubmit,
+  type,
+}: {
+  state?: QuestionDto;
+  onSubmit: any;
+  type: FormType;
+}) {
   // Tracks the form submission state
   const token = localStorage.getItem("token");
-  const onSubmit = addQuestion(token);
-  const [state, action] = useFormState(onSubmit, undefined);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (state?.message) {
-      // Assuming the message contains a token
-      localStorage.setItem("token", state.message);
-      router.push("/home"); // Redirect to /home on success
-    } else if (state?.errors?.errorMessage) {
-      // Show error alert if an error occurs
-      alert(state.errors.errorMessage);
-    }
-  }, [state]);
+  const action = onSubmit.bind(null, token);
 
   return (
     <div>
-      <h1>Add Question</h1>
+      <h1 className="font-bold text-slate-200 dark:text-slate-700">
+        {type} Question
+      </h1>
       <form action={action}>
         {/* Input for question title */}
         <div>
@@ -35,6 +34,7 @@ export function QuestionForm() {
             name="title"
             secure={false}
             placeholder_text="Title"
+            text={state?.title}
           />
         </div>
 
@@ -44,17 +44,20 @@ export function QuestionForm() {
             name="description"
             secure={false}
             placeholder_text="Description"
+            text={state?.description}
           />
         </div>
 
         {/* Input for difficulty level (Easy, Medium, Hard) */}
-        <div>
-          <LargeTextfield
-            name="difficultyLevel"
-            secure={false}
-            placeholder_text="Difficulty Level (Easy, Medium, Hard)"
-          />
-        </div>
+        <select
+          name="difficultyLevel"
+          className="bg-slate-200 dark:bg-slate-700 rounded-lg w-full h-16 p-4 my-3 focus:outline-none"
+          defaultValue={state?.difficultyLevel}
+        >
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
 
         {/* Input for topics (comma-separated) */}
         <div>
@@ -62,6 +65,7 @@ export function QuestionForm() {
             name="topic"
             secure={false}
             placeholder_text="Topics (comma-separated, e.g., Array, Hash Table)"
+            text={state?.topic?.join(", ")}
           />
         </div>
 
@@ -71,6 +75,7 @@ export function QuestionForm() {
             name="examples"
             secure={false}
             placeholder_text="Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)"
+            text={state?.examples?.join("|")}
           />
         </div>
 
@@ -80,11 +85,12 @@ export function QuestionForm() {
             name="constraints"
             secure={false}
             placeholder_text='Constraints (semicolon-separated, e.g., "2 <= nums.length <= 10^4; -10^9 <= nums[i] <= 10^9")'
+            text={state?.constraints?.join("; ")}
           />
         </div>
 
         {/* Submit button */}
-        <Button type="submit" text="Add Question" />
+        <Button type="submit" text={`${type} Question`} />
       </form>
     </div>
   );
