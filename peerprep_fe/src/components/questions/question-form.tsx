@@ -75,7 +75,12 @@ export function QuestionForm({
             name="examples"
             secure={false}
             placeholder_text="Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)"
-            text={state?.examples?.join("|")}
+            text={state?.examples
+              ?.map(
+                (entry) =>
+                  `${entry.input}, ${entry.output}, ${entry.explanation}`
+              )
+              .join("|")}
           />
         </div>
 
