@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Panel, PanelGroup } from "react-resizable-panels";
+import CreateQuestionModal from '../component/question/CreateQuestionModal';
 import Pill from '../ui/Pill';
 import './QuestionPage.css';
 
@@ -213,13 +214,9 @@ const QuestionPage = () => {
   return (
     <div className="question-page-container">
       <h1 className="text-3xl font-bold mb-4">Question Repository</h1>
-      <button
-        className="bg-zinc-200 hover:bg-lime-600 text-sm text-lime-600 px-4 py-2 rounded-2xl  font-semibold
-        hover:text-white"
-        onClick={() => {}}
-      >
-        Add question
-      </button>
+      <div className='justify-end ml-auto m-2'>
+        <CreateQuestionModal />
+      </div>
       <PanelGroup direction="horizontal">
         <>  
           <Panel id="questions" order={1} className='m-1'>
