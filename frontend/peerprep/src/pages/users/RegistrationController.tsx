@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { register, UserCredentials } from './authService';
 import RegistrationView from './RegistrationView';
 import { useNavigate } from "react-router-dom";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+import axios, { AxiosError } from 'axios';
 
 const RegistrationController: React.FC = () => {
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  //const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
   const handleRegistration = async (username: string, email: string, password: string, confirmPassword: string) => {
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match!");
+      toast.error("Passwords do not match!"); 
       return;
     }
 
@@ -24,12 +26,15 @@ const RegistrationController: React.FC = () => {
       
       const response = await register(userCredentials);
       console.log("Registration successful:", response);
-      navigate("/login");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setErrorMessage("Registration failed: " + error.message);
+      toast.success("Registration successful! Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000); 
+    } catch (error: Error | AxiosError) {
+      if (axios.isAxiosError(error)) {
+        toast.error("Registration failed: " + error.message);
       } else {
-        setErrorMessage("Registration failed: Unknown error");
+        toast.error("Registration failed: Unknown error");
       }
     }
   };
@@ -40,11 +45,13 @@ const RegistrationController: React.FC = () => {
   };
 
   return (
+    <>
+    <ToastContainer />
     <RegistrationView 
       onSubmit={handleRegistration} 
-      onLogin={handleLoginRedirect} 
-      errorMessage={errorMessage} 
+      onLogin={handleLoginRedirect}
     />
+    </>
   );
 };
 

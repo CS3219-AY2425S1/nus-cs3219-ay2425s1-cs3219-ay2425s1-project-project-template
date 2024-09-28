@@ -1,3 +1,4 @@
+import axios, { AxiosError } from 'axios';
 export interface UserCredentials {
   username?: string;
   email: string;
@@ -35,8 +36,12 @@ export const login = async (credentials: UserCredentials): Promise<{ token: stri
       refreshToken: data.refreshToken,
     };
 
-  } catch (error: any) {
-    return Promise.reject(error.message || "Login error");
+  } catch (error: Error | AxiosError) {
+    if (axios.isAxiosError(error)) {
+      return Promise.reject(error.message || "Login error"); 
+    } else {
+      return Promise.reject("Login error");
+    }
   }
 };
 
@@ -58,8 +63,12 @@ export const register = async (credentials: UserCredentials): Promise<string> =>
 
     const data = await response.json();
     return data.message; 
-  } catch (error: any) {
-    return Promise.reject(error.message || "Registration error");
+  } catch (error: Error | AxiosError) {
+    if (axios.isAxiosError(error)) {
+      return Promise.reject(error.message || "Registration error");
+    } else {
+      return Promise.reject("Registration error");
+    }
   }
 };
 

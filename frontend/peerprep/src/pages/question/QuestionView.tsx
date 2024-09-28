@@ -2,12 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Question } from './questionService'; 
 import logo from '/peerprep_logo.png';
 import {
-    useReactTable,
     ColumnFilter,
     ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
 } from '@tanstack/react-table';
 import {
     Badge,
