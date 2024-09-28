@@ -5,7 +5,7 @@ import React from "react"
 export const initApi = (setAuth: React.Dispatch<React.SetStateAction<boolean>>) : AxiosInstance => {
  // initialise axios with setAuth in middleware
   const api = axios.create({
-    baseURL: "http://localhost:8080/v1",
+    baseURL: `${import.meta.env.VITE_API_URL}/v1`,
     headers: {
       "Content-Type": "application/json",
     },

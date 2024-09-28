@@ -7,9 +7,9 @@ import {
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import LoginController from "./pages/users/LoginController";
+import LoginController from "./pages/user/controllers/LoginController";
 import QuestionController from "./pages/question/QuestionController";
-import RegistrationController from "./pages/users/RegistrationController";
+import RegistrationController from "./pages/user/controllers/RegistrationController";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Drawer,
   DrawerOverlay,
@@ -10,11 +10,13 @@ import {
   Button,
   Icon,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/react";
 import { FiLogOut } from "react-icons/fi";
 import logo from "/peerprep_logo.png";
 import { menuItems } from "../../constants/data";
 import { useNavigate } from "react-router-dom";
+import { useApiContext } from "../../context/ApiContext";
 
 type MenuDrawerProps = {
   isOpen: boolean;
@@ -28,6 +30,34 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
   const drawerBgColor = "#141A67";
   const buttonTextColor = "white";
   const navigate = useNavigate();
+  const api = useApiContext();
+  const toast = useToast();
+
+  const handleLogOut = async () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (!confirmLogout) return;
+
+    try {
+      await api.post("/logout");
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      navigate("/login");
+      toast({
+        title: "Logged out.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Logout failed.",
+        description: error.message || "Unable to log out.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
@@ -64,7 +94,8 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
 
         <Box position="absolute" bottom="0" width="100%" p={4}>
           <Button
-            onClick={onClose}
+            onClick={handleLogOut}
+            aria-label="Logout"
             p={5}
             bg="#141A67"
             color={buttonTextColor}

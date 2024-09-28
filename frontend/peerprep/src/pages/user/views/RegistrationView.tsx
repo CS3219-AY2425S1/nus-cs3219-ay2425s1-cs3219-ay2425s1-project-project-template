@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import InputBox from "../../components/InputBox";
-import LargeButton from "../../components/SubmitButton";
+import InputBox from "../../../components/InputBox";
+import LargeButton from "../../../components/SubmitButton";
 import logo from "/peerprep_logo.png";
-import { useButtonWithLoading } from "../../hooks/ButtonHooks";
+import { useButtonWithLoading } from "../../../hooks/ButtonHooks";
 
 interface RegistrationViewProps {
   onSubmit: (
@@ -12,13 +12,11 @@ interface RegistrationViewProps {
     confirmPassword: string
   ) => Promise<void>;
   onLogin: () => void; // New prop to navigate back to login
-  errorMessage?: string; // Optional prop for error message
 }
 
 const RegistrationView: React.FC<RegistrationViewProps> = ({
   onSubmit,
   onLogin,
-  errorMessage,
 }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -111,7 +109,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
             isLoading={isLoading}
           />
         </form>
-        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
         <div className="login-link mt-6 text-sm text-gray-300">
           Already have an account?{" "}
           <a

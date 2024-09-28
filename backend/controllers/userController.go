@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"net/http"
 	"net/smtp"
@@ -66,7 +67,7 @@ func UpdatePasswordInDatabase(userID string, newPassword string) error {
 
 // to send the reset email (Replace this with real email service)
 func SendResetEmail(email string, token string) {
-	resetLink := "http://localhost:8080/v1/reset-password?token=" + token
+	resetLink := "http://localhost:8080/v1/verify-reset?token=" + token
 
 	// Replace with your SMTP settings (this is just an example using a basic SMTP server)
 	smtpHost := "smtp.gmail.com"
@@ -248,6 +249,7 @@ func EmailVerification() gin.HandlerFunc {
 		err := userCollection.FindOne(ctx, bson.M{"email": req.Email}).Decode(&user)
 		if err != nil {
 			// Return success even if the email isn't found (to prevent enumeration attacks)
+			log.Print("email not found")
 			c.JSON(http.StatusOK, gin.H{"message": "If the email exists, a reset link will be sent"})
 			return
 		}
@@ -268,8 +270,7 @@ func EmailVerification() gin.HandlerFunc {
 	}
 }
 
-// Reset password is the api to update new password
-func ResetPassword() gin.HandlerFunc {
+func VerifyResetToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get token from query parameters
 		var token string = c.Query("token")
@@ -294,10 +295,33 @@ func ResetPassword() gin.HandlerFunc {
 			return
 		}
 
+		redirect_url := os.Getenv("FRONTEND_URL") + "/reset-password?token=" + token
+
+		log.Print("Redirecting to: ", redirect_url)
+
+		// Reroute to the frontend page
+		c.Redirect(http.StatusFound, redirect_url)
+	}
+}
+
+// Reset password is the api to update new password
+func ResetPassword() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		user, exists := c.Get("uid")
+
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+			return
+		}
+
+		uid := user.(string)
+
 		// Bind the new password from JSON body
 		var req struct {
 			NewPassword string `json:"new_password" binding:"required"`
 		}
+
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 			return
@@ -306,9 +330,9 @@ func ResetPassword() gin.HandlerFunc {
 		// Hash the new password
 		hashedPassword := HashPassword(req.NewPassword)
 
-		fmt.Println("Error in cursor.All: ", claims.Uid)
+		fmt.Println("Error in cursor.All: ", uid)
 		// Update user password and updated_at fields
-		if err := UpdatePasswordInDatabase(claims.Uid, hashedPassword); err != nil {
+		if err := UpdatePasswordInDatabase(uid, hashedPassword); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Password update failed"})
 			return
 		}

@@ -1,20 +1,19 @@
 import React, { useState } from "react";
-import InputBox from "../../components/InputBox";
-import LargeButton from "../../components/SubmitButton";
+import InputBox from "../../../components/InputBox";
+import LargeButton from "../../../components/SubmitButton";
 import logo from "/peerprep_logo.png";
 
-import { useButtonWithLoading } from "../../hooks/ButtonHooks";
-
+import { useButtonWithLoading } from "../../../hooks/ButtonHooks";
 interface LoginViewProps {
   onSubmit: (email: string, password: string) => Promise<void>;
   onCreateAccount: () => void;
-  errorMessage?: string;
+  onForgotPassword: () => void;
 }
 
 const LoginView: React.FC<LoginViewProps> = ({
   onSubmit,
   onCreateAccount,
-  errorMessage,
+  onForgotPassword,
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +47,11 @@ const LoginView: React.FC<LoginViewProps> = ({
             />
           </div>
           <div className="forgot-password text-right">
-            <a href="#" className="text-purple-400 hover:underline text-sm">
+            <a
+              href="#"
+              onClick={onForgotPassword}
+              className="text-purple-400 hover:underline text-sm"
+            >
               Forgot password?
             </a>
           </div>
@@ -61,9 +64,6 @@ const LoginView: React.FC<LoginViewProps> = ({
             isLoading={isSubmitting}
           />
         </form>
-        {errorMessage && (
-          <div className="text-red-500 mt-4">{errorMessage}</div>
-        )}
         <div className="signup-link mt-6 text-sm text-gray-300">
           Don’t have an account?{" "}
           <a
