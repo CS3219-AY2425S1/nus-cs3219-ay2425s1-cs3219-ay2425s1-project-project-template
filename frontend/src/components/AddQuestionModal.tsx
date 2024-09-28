@@ -27,6 +27,7 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
 
         const data = await response.json();
         console.log(data);
+        onClose();
       } catch (error) {
           console.error('Error adding question:', error);
       }
@@ -69,7 +70,6 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
 
     console.log("can submit");
     addQuestion(difficultyValue, topicList, titleValue, detailsValue);
-    onClose();
   }
 
   return (

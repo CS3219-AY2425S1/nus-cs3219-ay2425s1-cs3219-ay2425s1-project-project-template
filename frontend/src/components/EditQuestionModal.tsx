@@ -31,6 +31,8 @@ const EditQuestionModal: React.FC<{
 
       const data = await response.json();
       console.log(data);
+      closeEditConfirmationModal();
+      onClose();
     } catch (error) {
         console.error('Error editing question:', error);
     }
@@ -89,8 +91,6 @@ const EditQuestionModal: React.FC<{
     getNewValues();
 
     editQuestion(questionID, newDifficultyValue, newTopicValue, newTitleValue, newDetailsValue);
-    closeEditConfirmationModal();
-    onClose();
   }
 
   const onEditSubmit = () => {
