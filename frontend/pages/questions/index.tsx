@@ -3,163 +3,24 @@
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import Datatable from '@/components/customs/datatable'
-import { Difficulty, IDatatableColumn, IPagination, IQuestion, ISortBy, QuestionStatus, SortDirection } from '@/types'
-import { ExclamationIcon, TickIcon } from '@/assets/icons'
-import { DifficultyLabel } from '@/components/customs/difficulty-label'
+import {
+    Difficulty,
+    FormType,
+    IFormFields,
+    IPagination,
+    IQuestion,
+    ISortBy,
+    QuestionStatus,
+    SortDirection,
+} from '@/types'
+import { columns } from './questions-datatable-columns'
+import { mockQuestionsData } from '@/mock-data'
+import CustomModal from '@/components/customs/custom-modal'
+import CustomForm from '@/components/customs/custom-form'
 
 async function getData(): Promise<IQuestion[]> {
-    return [
-        {
-            id: 1,
-            category: ['Algorithms'],
-            status: QuestionStatus.FAILED,
-            description: 'This is a description',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 2,
-            category: ['Algorithms'],
-            status: QuestionStatus.FAILED,
-            description: 'This is a description',
-            difficulty: Difficulty.Easy,
-            title: 'Title of the question',
-        },
-        {
-            id: 3,
-            category: ['Algorithms'],
-            status: QuestionStatus.COMPLETED,
-            description: 'This is a description',
-            difficulty: Difficulty.Hard,
-            title: 'Title of the question',
-        },
-        {
-            id: 4,
-            category: ['Algorithms'],
-            status: QuestionStatus.NOT_ATTEMPTED,
-            description: 'This is a description',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 5,
-            category: ['Strings'],
-            status: QuestionStatus.COMPLETED,
-            description: 'This is a description',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 6,
-            category: ['Algorithms'],
-            status: QuestionStatus.COMPLETED,
-            description: 'This is a description',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 7,
-            category: ['Strings'],
-            status: QuestionStatus.FAILED,
-            description: 'This is a description',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 8,
-            category: ['Algorithms'],
-            status: QuestionStatus.FAILED,
-            description:
-                'This is some super super unnecessarily long description to test the overflow of the text in the datatable column. This is some super super unnecessarily long description to test the overflow of the text in the datatable column',
-            difficulty: Difficulty.Medium,
-            title: 'Another title of the question',
-        },
-        {
-            id: 9,
-            category: ['Algorithms, Strings'],
-            status: QuestionStatus.NOT_ATTEMPTED,
-            description: 'Test algbat',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 10,
-            category: ['Algorithms'],
-            status: QuestionStatus.FAILED,
-            description: 'Appla tat',
-            difficulty: Difficulty.Medium,
-            title: 'Another title of the question',
-        },
-        {
-            id: 11,
-            category: ['Algorithms'],
-            status: QuestionStatus.NOT_ATTEMPTED,
-            description: 'ZOogo a',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-        {
-            id: 12,
-            category: ['Algorithms'],
-            status: QuestionStatus.COMPLETED,
-            description: 'Baga bia',
-            difficulty: Difficulty.Medium,
-            title: 'Title of the question',
-        },
-
-        // ...
-    ]
+    return mockQuestionsData
 }
-
-const columns: IDatatableColumn[] = [
-    {
-        key: 'id',
-        isHidden: true,
-    },
-    {
-        key: 'category',
-    },
-    {
-        key: 'description',
-        maxWidth: '45%',
-        formatter: (value) => {
-            return (
-                <div
-                    style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                    }}
-                >
-                    {value}
-                </div>
-            )
-        },
-    },
-    {
-        key: 'status',
-        formatter: (value) => {
-            return (
-                <div className="flex items-center justify-center">
-                    {value === QuestionStatus.COMPLETED ? (
-                        <TickIcon />
-                    ) : value === QuestionStatus.FAILED ? (
-                        <ExclamationIcon />
-                    ) : null}
-                </div>
-            )
-        },
-    },
-    {
-        key: 'difficulty',
-        isSortable: true,
-        formatter: (value) => {
-            return <DifficultyLabel difficulty={value} />
-        },
-    },
-]
 
 export default function Questions() {
     const [data, setData] = useState<IQuestion[]>([])
@@ -173,15 +34,74 @@ export default function Questions() {
         sortKey: 'id',
         direction: SortDirection.NONE,
     })
+    const [modalData, setModalData] = useState({
+        title: '',
+        content: '',
+        isOpen: false,
+    })
+
+    const [questionData, setQuestionData] = useState<IQuestion>({
+        title: '',
+        description: '',
+        category: [],
+        difficulty: Difficulty.Easy,
+        status: QuestionStatus.NOT_ATTEMPTED,
+    })
 
     const sortHandler = (sortBy: ISortBy) => {
-        console.log(sortBy)
         setSortBy(sortBy)
     }
 
-    const paginationHandler = (page?: number, limit?: number) => {
-        console.log(page, limit)
+    const paginationHandler = (page?: number, limit?: number) => {}
+
+    const handleCloseModal = () => {
+        clearFormData()
+        setModalData({
+            ...modalData,
+            isOpen: false,
+        })
     }
+
+    const clearFormData = () => {
+        setQuestionData({
+            title: '',
+            description: '',
+            category: [],
+            difficulty: Difficulty.Easy,
+            status: QuestionStatus.NOT_ATTEMPTED,
+        })
+    }
+
+    const formFields: IFormFields[] = [
+        {
+            label: 'Title',
+            accessKey: 'title',
+            formType: FormType.TEXT,
+            placeholder: 'Enter title',
+            required: true,
+        },
+        {
+            label: 'Category',
+            accessKey: 'category',
+            formType: FormType.MULTISELECT,
+            required: true,
+            selectOptions: ['Algorithm', 'String', 'Hashtable', 'Dynamic Programming'], // Todo: retrieve set from BE
+        },
+        {
+            label: 'Difficulty',
+            accessKey: 'difficulty',
+            formType: FormType.SELECT,
+            required: true,
+            selectOptions: Object.values(Difficulty),
+        },
+        {
+            label: 'Description',
+            accessKey: 'description',
+            formType: FormType.TEXTAREA,
+            placeholder: 'Enter description',
+            required: true,
+        },
+    ]
 
     useEffect(() => {
         async function fetchData() {
@@ -193,9 +113,14 @@ export default function Questions() {
 
     return (
         <div className="m-8">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold my-6">Questions</h2>
-                <Button className="bg-purple-600 hover:bg-[#A78BFA]">Create</Button>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">Questions</h2>
+                <Button
+                    variant={'primary'}
+                    onClick={() => setModalData({ ...modalData, title: 'Create new question', isOpen: true })}
+                >
+                    Create
+                </Button>
             </div>
             <Datatable
                 data={data}
@@ -205,6 +130,11 @@ export default function Questions() {
                 sortHandler={sortHandler}
                 paginationHandler={paginationHandler}
             />
+            {modalData.isOpen && (
+                <CustomModal title={modalData.title} className="h-3/4 w-3/4" closeHandler={handleCloseModal}>
+                    <CustomForm fields={formFields} data={questionData} submitHandler={() => {}} />
+                </CustomModal>
+            )}
         </div>
     )
 }

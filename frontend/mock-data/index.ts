@@ -1,3 +1,4 @@
+import { QuestionStatus } from '@/types'
 import { Difficulty } from '@/types/difficulty'
 
 interface ICollaborator {
@@ -78,4 +79,104 @@ const mockTestCaseData = [
     },
 ]
 
-export { mockCollaboratorData, mockUserData, mockChatData, mockQuestionData, mockTestCaseData }
+const mockQuestionsData = [
+    {
+        id: 1,
+        category: ['Algorithms'],
+        status: QuestionStatus.FAILED,
+        description: 'This is a description',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 2,
+        category: ['Algorithms'],
+        status: QuestionStatus.FAILED,
+        description: 'This is a description',
+        difficulty: Difficulty.Easy,
+        title: 'Title of the question',
+    },
+    {
+        id: 3,
+        category: ['Algorithms'],
+        status: QuestionStatus.COMPLETED,
+        description: 'This is a description',
+        difficulty: Difficulty.Hard,
+        title: 'Title of the question',
+    },
+    {
+        id: 4,
+        category: ['Algorithms'],
+        status: QuestionStatus.NOT_ATTEMPTED,
+        description: 'This is a description',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 5,
+        category: ['Strings'],
+        status: QuestionStatus.COMPLETED,
+        description: 'This is a description',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 6,
+        category: ['Algorithms'],
+        status: QuestionStatus.COMPLETED,
+        description: 'This is a description',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 7,
+        category: ['Strings'],
+        status: QuestionStatus.FAILED,
+        description: 'This is a description',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 8,
+        category: ['Algorithms'],
+        status: QuestionStatus.FAILED,
+        description:
+            'This is some super super unnecessarily long description to test the overflow of the text in the datatable column. This is some super super unnecessarily long description to test the overflow of the text in the datatable column',
+        difficulty: Difficulty.Medium,
+        title: 'Another title of the question',
+    },
+    {
+        id: 9,
+        category: ['Algorithms, Strings'],
+        status: QuestionStatus.NOT_ATTEMPTED,
+        description: 'Test algbat',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 10,
+        category: ['Algorithms'],
+        status: QuestionStatus.FAILED,
+        description: 'Appla tat',
+        difficulty: Difficulty.Medium,
+        title: 'Another title of the question',
+    },
+    {
+        id: 11,
+        category: ['Algorithms'],
+        status: QuestionStatus.NOT_ATTEMPTED,
+        description: 'ZOogo a',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+    {
+        id: 12,
+        category: ['Algorithms'],
+        status: QuestionStatus.COMPLETED,
+        description: 'Baga bia',
+        difficulty: Difficulty.Medium,
+        title: 'Title of the question',
+    },
+]
+
+export { mockCollaboratorData, mockUserData, mockChatData, mockQuestionData, mockTestCaseData, mockQuestionsData }
