@@ -1,17 +1,19 @@
 # Backend Guide
 
-This document serves as a simple guide to our backend system.
+This document serves as a simple guide to our backend question service.
 
 ## Setting Up
 
-1) Create a config.env file, which should include:
-
-- MONGO_URI
+1) Create a .env file, which should include:
+    - MONGO_URI=mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster0.1wrlm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    - PORT=8000
 
 2) Ensure that MongoDB Cloud allows your IP address.
 
-## Background
+## To Run
 
-The initial backend set up was based on this [MERN stack tutorial](https://www.mongodb.com/resources/languages/mern-stack-tutorial)
+1) Run "npm run start" or "npm run dev" accordingly.
 
-The MongoDB set up was based on [this](https://www.mongodb.com/docs/drivers/node/v4.1/quick-start/) tutorial by MongoDB
+## Docker
+
+The docker file is included for running with docker.
