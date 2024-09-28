@@ -8,9 +8,7 @@ export default function Pill({ type, data }) {
         topic: "py-1 px-2 text-xs rounded-xl inline-block whitespace-nowrap text-center bg-slate-200 text-slate-900 align-baseline font-semibold leading-none" 
     }
 
-    console.log(type)
     const variant = variants[type] || variants.difficulty
-    console.log(variant)
     return (
         <span className={`${variant}`}>{data}</span>
     )

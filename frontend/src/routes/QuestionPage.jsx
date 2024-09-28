@@ -42,10 +42,10 @@ const QuestionPage = () => {
   };
 
   // State for questions and the current question data
-   const [questions, updateQuestions] = useState([]);
-   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [questions, updateQuestions] = useState([]);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
 
-   const handleTitleClick = (question) => {
+  const handleTitleClick = (question) => {
     setSelectedQuestion(question);
   };
   

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function EditQuestionModal({ selectedQuestion, editQuestionHandler }) {
   const [isOpen, setIsOpen] = useState(false);
   const [question, setSelectedQuestion] = useState(selectedQuestion)
-
+  useEffect(() => {
+    setSelectedQuestion(selectedQuestion);
+  }, [selectedQuestion]);
   return (
     <>
       <button
