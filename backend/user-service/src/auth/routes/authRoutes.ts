@@ -3,6 +3,7 @@ import { registerUser } from '../controllers/userSignUpController';
 import { userLoginController } from '../controllers/logInController';
 import { authenticate, AuthenticatedRequest } from '../../middleware/authMiddleware';
 import { authStatusController } from '../controllers/checkAuthStatusController';
+import { getUserProfile } from '../controllers/getUserProfileController';
 const router = express.Router();
 
 // POST /api/users/register
@@ -20,6 +21,8 @@ router.post('/logout', authenticate, (req: AuthenticatedRequest, res: express.Re
 });
 // GET /api/users/status
 router.get('/status', authStatusController);
+// GET /api/users/profile
+router.get('/profile', authenticate, getUserProfile);
 // Example Protected Route
 router.get('/protected', authenticate, (req: AuthenticatedRequest, res: express.Response) => {
     res.status(200).json({ message: 'This is a protected route.', user: req.user });

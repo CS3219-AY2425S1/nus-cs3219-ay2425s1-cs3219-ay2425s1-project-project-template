@@ -1,36 +1,45 @@
-// src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger'; // Ensure you have a logger middleware set up
-import { config } from '../config/envConfig';
-import { verifyToken } from '../auth/auth_utils/jwtUtils';
-
-interface AuthenticatedUser {
-    userId: string;
-    email: string;
-}
+import { verifyToken } from '../auth/auth_utils/jwtUtils'; 
+import User from '../models/user';
+import logger from '../utils/logger';
 
 interface AuthenticatedRequest extends Request {
-    user?: AuthenticatedUser;
+    user?: {
+        id: string;
+        name: string;
+        email: string;
+    };
 }
 
-const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
 
-    logger.info(`Authentication attempt. Token present: ${!!token}`);
-
     if (!token) {
-        logger.warn('Unauthorized access attempt: No token provided.');
-        return res.status(401).json({ message: 'Unauthorized: No token provided.' });
+        logger.warn('No token provided.');
+        return res.status(401).json({ message: 'Authentication token missing.' });
     }
-    
+
     try {
-        const decoded = verifyToken(token) as AuthenticatedUser;
-        req.user = decoded;
-        logger.info(`Authenticated user: ${decoded.email}`);
+        const decoded = verifyToken(token) as { userId: string; email: string };
+
+        // Fetch user from database
+        const user = await User.findById(decoded.userId).select('-password'); // excl password
+
+        if (!user) {
+            logger.warn('User not found.');
+            return res.status(401).json({ message: 'Invalid authentication token.' });
+        }
+
+        req.user = {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+        };
+
         next();
-    } catch (error) {
-        logger.warn('Unauthorized access attempt: Invalid token.');
-        return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
+    } catch (error: any) {
+        logger.error('Error verifying token:', error);
+        return res.status(401).json({ message: 'Invalid authentication token.' });
     }
 };
 

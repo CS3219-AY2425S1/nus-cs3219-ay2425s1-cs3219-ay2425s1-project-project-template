@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '../../config/envConfig';
 import logger from '../../utils/logger';
 import { verifyToken } from '../auth_utils/jwtUtils';
 

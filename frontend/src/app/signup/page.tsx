@@ -81,7 +81,7 @@ const SignUp: React.FC = () => {
         )}
         {successMessage && (
           <div className="p-4 text-sm text-green-700 bg-green-100 border border-green-400 rounded">
-            {successMessage} Redirecting to login...
+            {successMessage} Sign up successful! Redirecting to login...
           </div>
         )}
         <form className="space-y-4" onSubmit={handleSignUp}>

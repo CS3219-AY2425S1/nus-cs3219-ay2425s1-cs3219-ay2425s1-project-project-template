@@ -1,9 +1,5 @@
-// src/auth/services/userLogInService.ts
-import { config } from '../../config/envConfig'; // Import centralized config
-
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import logger from '../../utils/logger';
 import { generateToken } from '../auth_utils/jwtUtils';
 
@@ -12,7 +8,17 @@ interface LoginInput {
     password: string;
 }
 
-export const loginUser = async ({ email, password }: LoginInput): Promise<string> => {
+interface UserInfo {
+    name: string;
+    email: string;
+}
+
+interface LoginResponse {
+    token: string;
+    user: UserInfo;
+}
+
+export const loginUser = async ({ email, password }: LoginInput): Promise<LoginResponse> => {
     const user = await User.findOne({ email });
     if (!user) {
         logger.warn('User not found.');
@@ -25,7 +31,13 @@ export const loginUser = async ({ email, password }: LoginInput): Promise<string
         throw new Error('Invalid email or password');
     }
 
-    const token = generateToken(user)
+    const token = generateToken(user);
+    
+    const userInfo: UserInfo = {
+        name: user.name,
+        email: user.email,
+        
+    };
 
-    return token;
+    return { token, user: userInfo };
 };

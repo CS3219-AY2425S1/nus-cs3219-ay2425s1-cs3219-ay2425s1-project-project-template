@@ -38,11 +38,9 @@ const Login: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Login successful
-        await refreshAuth(); // Update auth status in context
-        router.push('/dashboard'); // Redirect to dashboard
+        await refreshAuth(); 
+        router.push('/dashboard'); // redirect to dashboard
       } else {
-        // Handle errors
         setError(data.message || 'Login failed. Please try again.');
       }
     } catch (err) {

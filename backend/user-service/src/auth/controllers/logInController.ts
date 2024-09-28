@@ -20,7 +20,7 @@ const userLoginController = async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
 
-        const token = await loginUser({ email, password });
+        const { token, user } = await loginUser({ email, password });
 
         // Define cookie options
         const cookieOptions: CookieOptions = {
@@ -34,7 +34,7 @@ const userLoginController = async (req: Request, res: Response) => {
         res.cookie('token', token, cookieOptions);
 
         logger.info(`User logged in successfully: ${email}`);
-        res.status(200).json({ message: 'Logged in successfully.' });
+        res.status(200).json({ message: 'Logged in successfully.', user });
     } catch (error: any) {
         if (error.message === 'Invalid email or password') {
             logger.warn(`Login failed for ${email}: ${error.message}`);
@@ -44,6 +44,5 @@ const userLoginController = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
-
 
 export { userLoginController };
