@@ -2,6 +2,7 @@ import passport from 'passport'
 import {
     handleCreateQuestion,
     handleDeleteQuestion,
+    handleGetCategories,
     handleGetFilters,
     handleGetPaginatedQuestions,
     handleGetQuestionById,
@@ -24,5 +25,6 @@ router.put('/:id', handleRoleBasedAccessControl([Role.ADMIN]), handleUpdateQuest
 router.delete('/:id', handleRoleBasedAccessControl([Role.ADMIN]), handleDeleteQuestion)
 router.get('/filters', handleGetFilters)
 router.get('/sorts', handleGetSorts)
+router.get('/categories', handleGetCategories)
 
 export default router

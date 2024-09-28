@@ -18,6 +18,7 @@ import {
     isValidSort,
     updateQuestion,
 } from '../models/question.repository'
+import { Category } from '../types/Category'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
@@ -160,4 +161,11 @@ export async function handleGetFilters(request: Request, response: Response): Pr
 export async function handleGetSorts(request: Request, response: Response): Promise<void> {
     const sorts = getSortKeysAndOrders()
     response.status(200).json(sorts).send()
+}
+
+export async function handleGetCategories(request: Request, response: Response): Promise<void> {
+    const categories = {
+        categories: Object.values(Category),
+    }
+    response.status(200).json(categories).send()
 }
