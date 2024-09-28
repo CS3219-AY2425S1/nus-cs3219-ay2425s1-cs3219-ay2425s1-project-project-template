@@ -86,7 +86,7 @@ export function PasswordReset() {
 
         if (isValid) {
             toast.success('Password reset successfully!')
-            setFormStep(ResetPasswordSteps.Step1)
+            setFormStep(ResetPasswordSteps.Step4)
         }
     }
 
@@ -172,7 +172,7 @@ export function PasswordReset() {
     )
 
     return (
-        <Dialog>
+        <Dialog open={formStep !== ResetPasswordSteps.Step4}>
             <DialogTrigger asChild>
                 <p className="underline cursor-pointer">Forgot your password?</p>
             </DialogTrigger>
