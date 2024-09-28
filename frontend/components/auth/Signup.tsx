@@ -5,7 +5,7 @@ import validateInput, { initialFormValues } from '@/util/input-validation'
 import { Button } from '../ui/button'
 import { InputField } from '../customs/custom-input'
 import { toast } from 'sonner'
-import usePasswordToggle from '../account/UsePasswordToggle'
+import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 
 export default function Signup() {

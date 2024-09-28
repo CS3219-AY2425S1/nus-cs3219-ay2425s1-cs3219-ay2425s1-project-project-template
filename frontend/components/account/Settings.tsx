@@ -3,7 +3,7 @@ import validateInput, { initialFormValues } from '@/util/input-validation'
 import CustomDialogWithButton from '../customs/custom-dialog'
 import { InputField } from '../customs/custom-input'
 import { toast } from 'sonner'
-import usePasswordToggle from './UsePasswordToggle'
+import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 
 function Setting() {
