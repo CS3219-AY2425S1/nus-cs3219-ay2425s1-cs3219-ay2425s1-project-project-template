@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Panel, PanelGroup } from "react-resizable-panels";
+import Pill from '../ui/Pill';
 import './QuestionPage.css';
+
 const QuestionPage = () => {
 
   const apiurl = "http://127.0.0.1:8000/question/"
@@ -210,13 +212,20 @@ const QuestionPage = () => {
 
   return (
     <div className="question-page-container">
-      <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
+      <h1 className="text-3xl font-bold mb-4">Question Repository</h1>
+      <button
+        className="bg-zinc-200 hover:bg-lime-600 text-sm text-lime-600 px-4 py-2 rounded-2xl  font-semibold
+        hover:text-white"
+        onClick={() => {}}
+      >
+        Add question
+      </button>
       <PanelGroup direction="horizontal">
         <>  
           <Panel id="questions" order={1} className='m-1'>
             <div className='flex flex-col overflow-auto h-96 rounded-xl'>
               <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-xl">
-                <thead className='bg-blue-500 text-white sticky top-0 '>
+                <thead className='bg-blue-200 text-slate-900 sticky top-0 '>
                   <tr className='text-left'>
                     <th className="py-2 px-4 border-b w-1/2">Question Title</th>
                     <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
@@ -228,13 +237,18 @@ const QuestionPage = () => {
                     <tr
                       key={question.titleSlug}
                       className={`${
-                        index % 2 === 0 ? 'bg-blue-50' : 'bg-white'
+                        index % 2 === 0 ? 'bg-blue-50/50' : 'bg-white'
                       } hover:bg-blue-100 cursor-pointer transition duration-300`}
                       onClick={() => handleTitleClick(question)}
                     >
-                      <td className="py-2 px-4 border-b">{question.title}</td>
-                      <td className="py-2 px-4 border-b">{question.difficulty}</td>
-                      <td className="py-2 px-4 border-b">{question.topic}</td>
+                      <td className="py-2 px-4 border-b font-semibold">{question.title}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        <Pill type={question.difficulty} data={question.difficulty} />
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        <Pill type="topic" data={question.topic} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -247,32 +261,42 @@ const QuestionPage = () => {
         {/* Display selected question's description and delete button */}
         {selectedQuestion && (
           <>
-            <Panel id="details" order={2} className='m-1' style={{overflowY: "scroll", overflowX: "auto"}}>
-            <div className="sticky top-0 mb-2 flex w-full justify-between gap-x-1 bg-white p-3 rounded-xl shadow-md">
-                <button onClick={() => setSelectedQuestion(null)}>Hide</button>
+            <Panel id="details" order={2} className='m-1 h-full' style={{overflowY: "scroll", overflowX: "auto"}}>
+            <div className="sticky top-0 flex w-full justify-between gap-x-1 bg-white/95 p-3 shadow-sm rounded-t-xl border align-middle">
+                <button 
+                  className='bg-zinc-200 hover:bg-zinc-400 rounded-2xl px-4 py-2 text-sm font-semibold text-slate-900 border'
+                  onClick={() => setSelectedQuestion(null)}>
+                    Hide
+                  </button>
                 {/* Delete Button */}
-                <button
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  onClick={handleDelete}
-                >
-                  Delete Question
-                </button>
+                <div className='ml-auto space-x-1'>
+                  <button
+                    className="bg-zinc-200 hover:bg-red-600 text-sm text-red-500 px-4 py-2 rounded-2xl  font-semibold
+                    hover:text-white"
+                    onClick={handleDelete}
+                  >
+                    Delete
+                  </button>
 
-                {/* Edit Button */}
-                <button
-                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 ml-auto"
-                  onClick={handleEdit}
-                >
-                  Edit Question
-                </button>
+                  {/* Edit Button */}
+                  <button
+                    className="bg-blue-500 text-white font-semibold text-sm px-4 py-2 rounded-2xl hover:bg-blue-600"
+                    onClick={handleEdit}
+                  >
+                    Edit Question
+                  </button>
+                </div>
+
             </div>
-            <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white overflow-auto">
-              <h2 className="font-bold text-xl">{selectedQuestion.title}</h2>
-              <h3 className="text-lg">Difficulty: {selectedQuestion.difficulty}</h3>
-              <h3 className="text-lg">Topic: {selectedQuestion.topic}</h3>
-
+            <div className="h-fit p-4 border border-gray-300 rounded-b-xl bg-white overflow-auto">
+              <div className='m-1 mb-5'>
+                <h1 className="font-bold text-2xl">{selectedQuestion.title}</h1>
+                <Pill type={selectedQuestion.difficulty} data={selectedQuestion.difficulty} />
+                <Pill type={"topic"} data={selectedQuestion.topic} />
+              </div>
+              <hr />
               {/* Render the question description as Markdown */}
-              <ReactMarkdown className="mt-2 text-gray-700">
+              <ReactMarkdown className="mt-5 text-gray-700">
                 {selectedQuestion.description}
               </ReactMarkdown>
               
