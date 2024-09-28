@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
-import { Question, difficulties } from "../shared/Question";
+import { Question, StatusBody, Difficulty } from "@/api/structs";
 import PeerprepDropdown from "../shared/PeerprepDropdown";
 import PeerprepSearchBar from "../shared/PeerprepSearchBar";
 
@@ -9,7 +9,7 @@ const QuestionList: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [difficultyFilter, setDifficultyFilter] = useState<string>(
-    difficulties[0]
+    Difficulty[0]
   );
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   // will prolly have to search by name later
@@ -44,14 +44,14 @@ const QuestionList: React.FC = () => {
 
   const filteredQuestions = questions.filter((question) => {
     const matchesDifficulty =
-      difficultyFilter === difficulties[0] ||
-      difficulties[question.difficulty] === difficultyFilter;
+      difficultyFilter === Difficulty[0] ||
+      Difficulty[question.difficulty] === difficultyFilter;
     const matchesCategory =
       categoryFilter === categories[0] ||
-      question.categories.includes(categoryFilter);
+      (question.categories ?? []).includes(categoryFilter);
     const matchesSearch =
       searchFilter === "" ||
-      question.title.toLowerCase().includes(searchFilter.toLowerCase());
+      (question.title ?? "").toLowerCase().includes(searchFilter.toLowerCase());
 
     return matchesDifficulty && matchesCategory && matchesSearch;
   });
@@ -70,7 +70,7 @@ const QuestionList: React.FC = () => {
           label="Difficulty"
           value={difficultyFilter}
           onChange={(e) => setDifficultyFilter(e.target.value)}
-          options={difficulties}
+          options={Object.keys(Difficulty).filter((key) => isNaN(Number(key)))}
         />
         <PeerprepDropdown
           label="Category"

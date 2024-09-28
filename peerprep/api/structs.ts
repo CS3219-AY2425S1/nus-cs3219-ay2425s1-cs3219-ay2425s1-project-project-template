@@ -1,13 +1,15 @@
 export enum Difficulty {
+  All = 0,
   Easy = 1,
   Medium,
-  Hard
+  Hard,
 }
 
 export interface QuestionBody {
   difficulty: Difficulty;
   title: string;
   description: string;
+  categories: string[];
 }
 
 export interface TestCase {

@@ -1,19 +1,20 @@
 import React from "react";
-import { Question, difficulties } from "../shared/Question";
+import { Question, StatusBody, Difficulty } from "@/api/structs";
 import PeerprepButton from "../shared/PeerprepButton";
+import { redirect } from "next/navigation";
 
 type QuestionCardProps = {
   question: Question;
 };
 
 const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
-  const getDifficultyClass = (difficulty: string) => {
+  const getDifficultyClass = (difficulty: Difficulty) => {
     switch (difficulty) {
-      case "easy":
+      case Difficulty.Easy:
         return "text-green-500"; // Green for easy
-      case "medium":
+      case Difficulty.Medium:
         return "text-yellow-500"; // Yellow for medium
-      case "hard":
+      case Difficulty.Hard:
         return "text-red-500"; // Red for hard
       default:
         return "text-gray-100"; // Default color
@@ -27,15 +28,16 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         <p className="text-sm">
           Difficulty:{" "}
           <span
-            className={`capitalize ${getDifficultyClass(
-              difficulties[question.difficulty]
-            )}`}
+            className={`capitalize ${getDifficultyClass(question.difficulty)}`}
           >
-            {difficulties[question.difficulty]}
+            {Difficulty[question.difficulty]}
           </span>
         </p>
         <p className="text-sm">
-          Categories: <span>{question.categories.join(", ")}</span>
+          Categories:{" "}
+          <span>
+            {question.categories ? question.categories.join(", ") : "None"}
+          </span>
         </p>
       </div>
 
