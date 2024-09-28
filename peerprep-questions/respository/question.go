@@ -98,3 +98,18 @@ func (qr QuestionRepository) DeleteQuestion(id string) error {
 	}
 	return nil
 }
+
+func (qr QuestionRepository) UpdateQuestion(id string, updateRequest model.UpdateQuestionRequest) error {
+	questionId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.InvalidInputError{}
+	}
+	filter := bson.M{"_id": questionId}
+	collection := db.GetCollection(qr.mongoClient, "questions")
+	update := bson.M{"$set": updateRequest}
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}

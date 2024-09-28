@@ -60,18 +60,29 @@ func (qc QuestionController) ListQuestions(w http.ResponseWriter, r *http.Reques
 }
 
 func (qc QuestionController) UpdateQuestion(w http.ResponseWriter, r *http.Request) {
-	// var question model.Question
-	// if err := json.NewDecoder(r.Body).Decode(&question); err != nil {
-	// 	http.Error(w, "Invalid input", http.StatusBadRequest)
-	// 	return
-	// }
+	id := chi.URLParam(r, "id")
+	log.Printf("Updating question with id %v", id)
 
-	// // Validation
+	// parse request body into update request
+	updateRequest := model.UpdateQuestionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&updateRequest); err != nil {
+		log.Printf("Invalid input error: %v", err)
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
 
-	// // Set to DB
-
-	// w.WriteHeader(http.StatusCreated)
-	// json.NewEncoder(w).Encode(question)
+	err := qc.questionRepository.UpdateQuestion(id, updateRequest)
+	if err != nil {
+		if errors.Is(err, model.InvalidInputError{}) {
+			log.Printf("Invalid input error: %v", err)
+			http.Error(w, "Invalid input", http.StatusBadRequest)
+		} else {
+			log.Printf("Error updating question: %v", err)
+			w.WriteHeader(http.StatusNotFound)
+		}
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (qc QuestionController) DeleteQuestion(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +94,7 @@ func (qc QuestionController) DeleteQuestion(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		if errors.Is(err, model.InvalidInputError{}) {
 			log.Printf("Invalid input error: %v", err)
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, "Invalid input", http.StatusBadRequest)
 		} else {
 			log.Printf("Error deleting question: %v", err)
 			w.WriteHeader(http.StatusNotFound)
@@ -101,7 +112,7 @@ func (qc QuestionController) GetQuestion(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		if errors.Is(err, model.InvalidInputError{}) {
 			log.Printf("Invalid input error: %v", err)
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, "Invalid input", http.StatusBadRequest)
 		} else {
 			log.Printf("Error getting question: %v", err)
 			w.WriteHeader(http.StatusNotFound)
