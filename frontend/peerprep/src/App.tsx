@@ -12,6 +12,7 @@ import QuestionController from "./pages/question/QuestionController";
 import RegistrationController from "./pages/users/RegistrationController";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
+import ProfileView from "./pages/profile/ProfileView";
 import { initApi } from "./utils/api";
 
 const App: React.FC = () => {
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             {/* Put axios api instance into a context */}
             <Route path="/questions" element={<QuestionController />} />
             <Route path="/dashboard" element={<DashboardView />} />
+            <Route path="/profile" element={<ProfileView />} />
           </Route>
 
           <Route path="/" element={<Navigate to="/login" />} />

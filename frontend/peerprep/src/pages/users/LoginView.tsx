@@ -34,7 +34,6 @@ const LoginView: React.FC<LoginViewProps> = ({
         <form className="space-y-4">
           <div className="input-container">
             <InputBox
-              type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -42,7 +41,6 @@ const LoginView: React.FC<LoginViewProps> = ({
           </div>
           <div className="input-container">
             <InputBox
-              type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

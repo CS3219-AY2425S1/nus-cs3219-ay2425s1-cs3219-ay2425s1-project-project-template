@@ -30,12 +30,11 @@ export const menuItems = [
     color: "white",
     route: "/questions",
   },
-
   {
-    label: "Account Settings",
+    label: "Profile",
     icon: IoMdSettings,
     color: "white",
-    route: "/settings",
+    route: "/profile",
   },
   // {
   //     label: 'History',

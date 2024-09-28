@@ -5,7 +5,7 @@ import { ReactNode } from "react";
  */
 const Page = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67] text-white p-10">
       {children}
     </div>
   );

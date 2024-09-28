@@ -72,7 +72,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="input-container">
             <InputBox
-              type="text"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -80,7 +79,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
           </div>
           <div className="input-container">
             <InputBox
-              type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -88,7 +86,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
           </div>
           <div className="input-container">
             <InputBox
-              type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -97,7 +94,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
           </div>
           <div className="input-container">
             <InputBox
-              type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

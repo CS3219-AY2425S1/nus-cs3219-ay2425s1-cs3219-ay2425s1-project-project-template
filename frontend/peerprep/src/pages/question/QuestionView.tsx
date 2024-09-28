@@ -118,50 +118,50 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
   );
 
   return (
-    <Box
-      className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
-      p={4}
-    >
-      <Box className="flex-col justify-center items-center p-2">
-        {/* Search Filter Input */}
-        <h2 className="flex justify-center text-white text-3xl font-semibold">
-          Questions
-        </h2>
-        <Filters
-          columnFilters={columnFilters}
-          setColumnFilters={setColumnFilter}
-        />
-        {/* Table Display */}
-        <DataTable
-          columns={columns}
-          data={questions}
-          columnFilters={columnFilters}
-          setColumnFilters={setColumnFilter}
-        />
+    // <Box
+    //   className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
+    //   p={4}
+    // >
+    <Box className="flex-col justify-center items-center p-2">
+      {/* Search Filter Input */}
+      <h2 className="flex justify-center text-white text-3xl font-semibold">
+        Questions
+      </h2>
+      <Filters
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilter}
+      />
+      {/* Table Display */}
+      <DataTable
+        columns={columns}
+        data={questions}
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilter}
+      />
 
-        {/* Modal for Question Details */}
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => {
-            onModalClose(); // Close modal
-            onMenuClose(); // Ensure menu closes if modal closes
-          }}
-          isCentered
-        >
-          <ModalOverlay />
-          <ModalContent bg="#371F76">
-            <ModalHeader color="white">{selectedQuestion?.Title}</ModalHeader>{" "}
+      {/* Modal for Question Details */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          onModalClose(); // Close modal
+          onMenuClose(); // Ensure menu closes if modal closes
+        }}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent bg="#371F76">
+          <ModalHeader color="white">{selectedQuestion?.Title}</ModalHeader>{" "}
+          {/* Set text color to white */}
+          <ModalCloseButton />
+          <ModalBody>
+            <Text color="white">{selectedQuestion?.Description}</Text>{" "}
             {/* Set text color to white */}
-            <ModalCloseButton />
-            <ModalBody>
-              <Text color="white">{selectedQuestion?.Description}</Text>{" "}
-              {/* Set text color to white */}
-              <br /> {/* Add a line break for spacing */}
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      </Box>
+            <br /> {/* Add a line break for spacing */}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
+    // </Box>
   );
 };
 
