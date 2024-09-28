@@ -8,7 +8,7 @@ export function sendPutRequest(path: string, service: string, id: string) {
       res.json(resp.data);
     } catch (error: any) {
       if (error.response) {
-        res.status(error.response.status).json(error.response.body);
+        res.status(error.response.status).json(error.response?.data?.error);
       } else {
         res.status(400).send(error.message);
       }
@@ -24,7 +24,7 @@ export function sendGetRequest(path: string, service: string, id: string = "") {
       res.status(200).json(resp.data);
     } catch (error: any) {
       if (error.response) {
-        res.status(error.response.status).json(error.response.body);
+        res.status(error.response.status).json(error.response?.data?.error);
       } else {
         res.status(400).send(error.message);
       }
@@ -39,7 +39,7 @@ export function sendPostRequest(path: string, service: string) {
       res.status(200).json(resp.data);
     } catch (error: any) {
       if (error.response) {
-        res.status(error.response.status).json(error.response.body);
+        res.status(error.response.status).json(error.response?.data?.error);
       } else {
         res.status(400).send(error.message);
       }
@@ -54,7 +54,7 @@ export function sendDeleteRequest(path: string, service: string, id: string) {
       res.status(200).json(resp.data);
     } catch (error: any) {
       if (error.response) {
-        res.status(error.response.status).json(error.response.body);
+        res.status(error.response.status).json(error.response?.data?.error);
       } else {
         res.status(400).send(error.message);
       }
