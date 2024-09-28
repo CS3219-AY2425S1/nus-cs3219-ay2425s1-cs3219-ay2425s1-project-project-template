@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './QuestionPage.css'; 
+import './QuestionPage.css';
 
 const QuestionPage = () => {
 
@@ -210,17 +210,18 @@ const QuestionPage = () => {
 
   return (
     <div className="question-page-container">
-      <div className="left-section pr-4 overflow-y-auto" style={{ width: '45%' }}>
+      <div>
         <h1 className="text-2xl font-bold mb-4">Question Repository</h1>
-        <div class="overflow-y-auto h-80">
-          <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-blue-500 text-white">
+        <div className='flex flex-col overflow-auto h-96 rounded-xl'>
+          <table className="min-w-full table-fixed bg-white border border-gray-300">
+            <thead className='bg-blue-500 text-white sticky top-0 '>
+              <tr className='text-left'>
                 <th className="py-2 px-4 border-b w-1/2">Question Title</th>
                 <th className="py-2 px-4 border-b w-1/4">Difficulty</th>
+                <th className="py-2 px-4 border-b w-1/4">Topic</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='h-96 overflow-y-auto'>
               {questions.map((question, index) => (
                 <tr
                   key={question.titleSlug}
@@ -231,6 +232,7 @@ const QuestionPage = () => {
                 >
                   <td className="py-2 px-4 border-b">{question.title}</td>
                   <td className="py-2 px-4 border-b">{question.difficulty}</td>
+                  <td className="py-2 px-4 border-b">{question.topic}</td>
                 </tr>
               ))}
             </tbody>
@@ -277,7 +279,7 @@ const QuestionPage = () => {
         </div>
       </div>
 
-      <div className="right-section" style={{ width: '55%' }}>
+      {/* <div className="right-section" style={{ width: '55%' }}>
         <div className="info-row" id="curmode">
           Mode: {mode === "create" ? "Creating new question" : `Editing question: ${selectedQuestion.title}`}
         </div>
@@ -336,7 +338,7 @@ const QuestionPage = () => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
