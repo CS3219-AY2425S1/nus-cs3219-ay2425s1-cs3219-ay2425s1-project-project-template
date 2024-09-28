@@ -84,3 +84,17 @@ func (qr QuestionRepository) GetQuestion(id string) (model.Question, error) {
 	}
 	return question, nil
 }
+
+func (qr QuestionRepository) DeleteQuestion(id string) error {
+	questionId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.InvalidInputError{}
+	}
+	filter := bson.M{"_id": questionId}
+	collection := db.GetCollection(qr.mongoClient, "questions")
+	_, err = collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+	return nil
+}
