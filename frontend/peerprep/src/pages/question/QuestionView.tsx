@@ -46,7 +46,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
     };
     
     const getCategoryColor = (category: string) => {
-        if (!category) return 'white';
+        if (!category) return 'white'; // Default color for undefined category
         const found = CATEGORIES.find(c => c.id.toLowerCase() === category.toLowerCase());
         return found ? found.color : 'white';
     };
