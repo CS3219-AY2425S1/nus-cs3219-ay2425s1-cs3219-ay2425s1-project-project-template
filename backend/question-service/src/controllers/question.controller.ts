@@ -103,6 +103,7 @@ export async function handleGetPaginatedQuestions(request: IPaginationRequest, r
             nextPage,
             totalPages: Math.ceil(count / limit),
             totalItems: count,
+            limit,
         },
         questions: questions.map(QuestionDto.fromModel),
     })
