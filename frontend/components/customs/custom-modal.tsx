@@ -1,4 +1,4 @@
-import CloseIcon from '@/assets/icons'
+import { CloseIcon } from '@/assets/icons'
 import { Button } from '../ui/button'
 
 interface CustomModalProps {
