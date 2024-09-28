@@ -37,7 +37,7 @@ import com.example.questionbank.model.Question;
  * and {@link CollectionModel}.
  *
  */
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @SuppressWarnings({"FinalParameters", "HiddenField"})
 public class QuestionController {
