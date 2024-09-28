@@ -27,7 +27,7 @@ const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ i
     }
   }
 
-  if (isOpen && location.pathname == "/question") {
+  if (isOpen && location.pathname != "/") {
     return (
       <>
         <div id="addQuestionModal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 text-black">

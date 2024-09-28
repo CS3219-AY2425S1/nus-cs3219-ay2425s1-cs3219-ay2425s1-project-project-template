@@ -22,7 +22,7 @@ const AdminNavBar: React.FC = () => {
         />
       </div>
       {/* Conditionally render extra div based on location */}
-      {location.pathname == "/question" && (
+      {location.pathname != "/" && (
         <div className="container text-off-white">
             <button 
               onClick = {openAddModal}
