@@ -36,7 +36,6 @@ interface Question {
   description: string
   categories: QuestionCategory[]
   complexity: QuestionComplexity
-  completed: boolean
 }
 
 const initialQuestions: Question[] = [
@@ -45,40 +44,35 @@ const initialQuestions: Question[] = [
     title: "Two Sum",
     description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
     categories: [QuestionCategory.ARRAYS, QuestionCategory.ALGORITHMS],
-    complexity: QuestionComplexity.EASY,
-    completed: true
+    complexity: QuestionComplexity.EASY
   },
   {
     id: 2,
     title: "Add Two Numbers",
     description: "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
     categories: [QuestionCategory.DATA_STRUCTURES, QuestionCategory.ALGORITHMS],
-    complexity: QuestionComplexity.MEDIUM,
-    completed: false
+    complexity: QuestionComplexity.MEDIUM
   },
   {
     id: 3,
     title: "Median of Two Sorted Arrays",
     description: "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
     categories: [QuestionCategory.ARRAYS, QuestionCategory.ALGORITHMS],
-    complexity: QuestionComplexity.HARD,
-    completed: false
+    complexity: QuestionComplexity.HARD
   },
   {
     id: 4,
     title: "Reverse a String",
     description: "Write a function that reverses a string. The input string is given as an array of characters. You must do this by modifying the input array in-place with O(1) extra memory.",
     categories: [QuestionCategory.STRINGS, QuestionCategory.ALGORITHMS],
-    complexity: QuestionComplexity.EASY,
-    completed: true
+    complexity: QuestionComplexity.EASY
   },
   {
     id: 5,
     title: "Longest Common Subsequence",
     description: "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.",
     categories: [QuestionCategory.STRINGS, QuestionCategory.ALGORITHMS, QuestionCategory.RECURSION],
-    complexity: QuestionComplexity.MEDIUM,
-    completed: false
+    complexity: QuestionComplexity.MEDIUM
   }
 ]
 
@@ -96,6 +90,28 @@ const ComplexityBadge: React.FC<{ complexity: QuestionComplexity }> = ({ complex
   )
 }
 
+const CategoryBadge: React.FC<{category: QuestionCategory}> = ({ category }) => {
+  // const colorClass = {
+  //   // [QuestionCategory.STRINGS]: "bg-blue-100 text-blue-800", 
+  //   // [QuestionCategory.ALGORITHMS]: "bg-yellow-100 text-yellow-800",
+  //   // [QuestionCategory.DATA_STRUCTURES]: "bg-green-100 text-green-800",
+  //   // [QuestionCategory.BIT_MANIPULATION]: "bg-red-100 text-red-800",
+  //   // [QuestionCategory.RECURSION]: "bg-purple-100 text-purple-800",
+  //   // [QuestionCategory.DATABASES]: "bg-teal-100 text-teal-800",
+  //   // [QuestionCategory.ARRAYS]: "bg-indigo-100 text-indigo-800",
+  //   // [QuestionCategory.BRAINTEASER]: "bg-pink-100 text-pink-800",
+  //   // [QuestionCategory.OTHER]: "bg-gray-100 text-gray-800",
+  // }[category];
+  const colorClass = "bg-gray-100 text-gray-800";
+
+  return (
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}
+    >
+      {category}
+    </span>
+  );
+};
 export default function Questions() {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
@@ -114,7 +130,6 @@ export default function Questions() {
       description: '',
       categories: [],
       complexity: QuestionComplexity.EASY,
-      completed: false
     })
     setIsEditDialogOpen(true)
   }
@@ -173,7 +188,6 @@ export default function Questions() {
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Title</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Categories</th>
               <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Question Complexity</th>
-              <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
             </tr>
           </thead>
@@ -193,26 +207,30 @@ export default function Questions() {
                         <DialogTitle className="text-xl font-bold">{question.title}</DialogTitle>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
-                        <p className="text-sm text-gray-500"><span className="font-semibold">Categories:</span> {question.categories.join(', ')}</p>
+                        <p className="text-sm text-gray-500"><span className="font-semibold">Categories: </span> 
+                        {question.categories.map((category) => (
+                          <CategoryBadge key={category} category={category} />
+                        ))}
+                        </p>
                         <p className="text-sm text-gray-500"><span className="font-semibold">Complexity:</span> <ComplexityBadge complexity={question.complexity} /></p>
-                        <p className="text-sm text-gray-500"><span className="font-semibold">Completed:</span> {question.completed ? 'Yes' : 'No'}</p>
                         <p className="text-sm text-gray-500"><span className="font-semibold">Description:</span> {question.description}</p>
                       </div>
                     </DialogContent>
                   </Dialog>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{question.categories.join(', ')}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {question.categories.map((category) => (
+                          <CategoryBadge key={category} category={category} />
+                        ))}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <ComplexityBadge complexity={question.complexity} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                  {question.completed ? <Check className="text-green-500" /> : <X className="text-red-500" />}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <button
                     onClick={() => handleEditQuestion(question)}
                     className="text-indigo-600 hover:text-indigo-900"
-                    aria-label="Edit question"
+                    aria-label="Edit Question"
                   >
                     <Pencil className="h-5 w-5" />
                   </button>
@@ -270,16 +288,6 @@ export default function Questions() {
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="completed" className="text-right">
-                Completed
-              </Label>
-              <Switch
-                id="completed"
-                checked={editingQuestion?.completed || false}
-                onCheckedChange={(checked) => setEditingQuestion(q => q ? {...q, completed: checked} : null)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">
                 Description
               </Label>
@@ -287,14 +295,26 @@ export default function Questions() {
                 id="description"
                 value={editingQuestion?.description || ''}
                 onChange={(e) => setEditingQuestion(q => q ? {...q, description: e.target.value} : null)}
-                className="col-span-3"
+                className="col-span-3 min-h-[10em]"
               />
             </div>
           </div>
           <DialogFooter>
+          <div className="flex justify-start w-full">
             {editingQuestion?.id && (
-              <Button variant="destructive" onClick={() => setIsDeleteConfirmOpen(true)}>
-                Delete
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsDeleteConfirmOpen(true)}
+                  className="h-8 w-8 p-0"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+          </div>
+            {editingQuestion?.id && (
+              <Button variant="secondary" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
               </Button>
             )}
             <Button onClick={handleSaveQuestion}>Save</Button>
