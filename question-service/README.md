@@ -5,8 +5,8 @@ This document serves as a simple guide to our backend question service.
 ## Setting Up
 
 1) Create a .env file, which should include:
-    - MONGO_URI=mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster0.1wrlm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-    - PORT=8000
+    - MONGO_URI
+    - PORT
 
 2) Ensure that MongoDB Cloud allows your IP address.
 
