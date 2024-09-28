@@ -1,6 +1,9 @@
+import TitleBar from '@/components/shared/TitleBar'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Container from '@/components/shared/Container'
+import styles from '@/style/layout.module.css';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,8 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <h1>NavBar</h1>
-        {children}
+        <TitleBar />
+        <Container className={styles.main_container}>{children}</Container>
       </body>
     </html>
   )
