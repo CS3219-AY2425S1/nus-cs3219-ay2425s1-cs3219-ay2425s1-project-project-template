@@ -15,8 +15,8 @@
 }
 
 .category-display {
-  width: 120px;
-  height: 40px;
+  height: 35px;
+  max-width: 90vw;
   background-color: #F7B32B;
   color: white;
   border: 2px solid white;
@@ -31,7 +31,7 @@
 
 .complexity-display {
   width: 120px;
-  height: 40px;
+  height: 35px;
   background-color: #F7B32B;
   color: white;
   border: 2px solid white;
@@ -50,6 +50,7 @@
 }
 
 .question-title {
+  max-width: 90vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -102,18 +103,6 @@
 }
 
 .edit-button {
-  background-color: #F7B32B;
-  color: white;
-  border: 2px solid white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.7);
-  padding: 6px 15px;
-  font-size: 16px;
-  font-family: cursive;
-  cursor: pointer;
-  transition: box-shadow 0.25s ease;
-}
-
-.delete-button {
   background-color: #F7B32B;
   color: white;
   border: 2px solid white;

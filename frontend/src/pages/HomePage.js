@@ -5,64 +5,11 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QUESTIONS_SERVICE_HOST = "http://localhost:3001/";
+const QUESTIONS_SERVICE_HOST = "http://localhost:3001";
 
 export const HomePage = () => {
   const [questions, setQuestions] = useState([]);
   const navigate = useNavigate();
-
-  const dummyData = [
-    { id: 1, title: "Two Sum", category: "Array", complexity: "Easy" },
-    {
-      id: 2,
-      title: "Add Two Numbers",
-      category: "Linked List",
-      complexity: "Medium",
-    },
-    {
-      id: 3,
-      title: "Longest Substring Without Repeating Characters",
-      category: "String",
-      complexity: "Medium",
-    },
-    {
-      id: 4,
-      title: "Valid Parentheses",
-      category: "Stack",
-      complexity: "Easy",
-    },
-    {
-      id: 5,
-      title: "Merge Two Sorted Lists",
-      category: "Linked List",
-      complexity: "Easy",
-    },
-    {
-      id: 6,
-      title: "Search in Rotated Sorted Array",
-      category: "Binary Search",
-      complexity: "Medium",
-    },
-    {
-      id: 7,
-      title: "Climbing Stairs",
-      category: "Dynamic Programming",
-      complexity: "Easy",
-    },
-    { id: 8, title: "Maximum Subarray", category: "Array", complexity: "Easy" },
-    {
-      id: 9,
-      title: "Product of Array Except Self",
-      category: "Array",
-      complexity: "Medium",
-    },
-    {
-      id: 10,
-      title: "Top K Frequent Elements",
-      category: "Heap",
-      complexity: "Medium",
-    },
-  ];
 
   const getQuestions = async () => {
     try {
@@ -90,6 +37,15 @@ export const HomePage = () => {
     navigate(`/questions/${id}`);
   };
 
+  const splitCategory = (categories) => {
+    var output = "";
+    for (const category of categories) {
+      output += category + ", ";
+    }
+    // Removes the last comma
+    return output.substring(0, output.length - 2);
+  }
+
   useEffect(() => {
     getQuestions();
   }, []);
@@ -109,11 +65,11 @@ export const HomePage = () => {
             </tr>
           </thead>
           <tbody>
-            {dummyData.map((item) => (
+            {questions.map((item) => (
               <tr key={item.id}>
                 <td>
                   <span
-                    onClick={() => goToQuestion(item.id)}
+                    onClick={() => goToQuestion(item.question_id)}
                     style={{ color: "black", cursor: "pointer" }}
                     onMouseEnter={(e) => {
                       e.target.style.color = "darkblue";
@@ -127,7 +83,7 @@ export const HomePage = () => {
                     {item.title}
                   </span>
                 </td>
-                <td>{item.category}</td>
+                <td>{splitCategory(item.category)}</td>
                 <td>{item.complexity}</td>
                 <td>
                   <button
@@ -141,7 +97,7 @@ export const HomePage = () => {
             ))}
           </tbody>
         </table>
-        <button className="create-btn">Create</button>
+        <button className="create-btn" onClick={() => {goToQuestion("new")}}>Create</button>
       </header>
     </div>
   );
