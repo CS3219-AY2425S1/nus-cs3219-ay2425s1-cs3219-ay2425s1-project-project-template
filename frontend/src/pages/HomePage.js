@@ -48,7 +48,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     getQuestions();
-  }, []);
+  });
 
   return (
     <div className="App">
@@ -66,7 +66,7 @@ export const HomePage = () => {
           </thead>
           <tbody>
             {questions.map((item) => (
-              <tr key={item.id}>
+              <tr key={item._id}>
                 <td>
                   <span
                     onClick={() => goToQuestion(item.question_id)}
@@ -88,7 +88,7 @@ export const HomePage = () => {
                 <td>
                   <button
                     className="delete-btn"
-                    onClick={() => deleteQuestion(item.id)}
+                    onClick={() => deleteQuestion(item._id)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
@@ -97,7 +97,7 @@ export const HomePage = () => {
             ))}
           </tbody>
         </table>
-        <button className="create-btn" onClick={() => {goToQuestion("new")}}>Create</button>
+        <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button>
       </header>
     </div>
   );
