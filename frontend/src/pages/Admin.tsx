@@ -4,8 +4,12 @@ import {
   Button,
   Card,
   Container,
+  FileInput,
   Group,
+  Image as MantineImage,
   Modal,
+  MultiSelect,
+  Select,
   Stack,
   Text,
   TextInput,
@@ -13,78 +17,132 @@ import {
   Title,
 } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Question {
   id: string;
+  _id: string;
   title: string;
   description: string;
+  topics: string[];
+  difficulty: string;
+  images: string[];
 }
 
+const API_BASE_URL = 'http://localhost:8000';
+
+const difficulties = ['Easy', 'Medium', 'Hard'];
+const topics = [
+  'Strings',
+  'Algorithms',
+  'Bit Manipulation',
+  'Data Structures',
+  'Recursion',
+  'Databases',
+  'Arrays',
+  'Brainteaser',
+];
+
 function QuestionEditor() {
-  const [questions, questionsHandlers] = useListState<Question>([
-    {
-      id: '1',
-      title: 'Reverse a String',
-      description:
-        'Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory. \n\nExample 1: Input: s = ["h","e","l","l","o"] Output: ["o","l","l","e","h"] Example 2: Input: s = ["H","a","n","n","a"," h"] Output: ["h","a","n","n","a","H"] Constraints: 1 <= s.length <= 105 s[i] is a printable ascii character.',
-    },
-    {
-      id: '2',
-      title: 'Linked List Cycle Detection',
-      description:
-        'Implement a function to detect if a linked list contains a cycle.',
-    },
-    {
-      id: '3',
-      title: 'Roman to Integer',
-      description: 'Given a roman numeral, convert it to an integer. ',
-    },
-    {
-      id: '4',
-      title: 'Add Binary',
-      description:
-        'Given two binary strings a and b, return their sum as a binary string. ',
-    },
-    {
-      id: '5',
-      title: 'Fibonacci Number',
-      description:
-        'The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. That is, F(0) = 0, F(1) = 1 F(n) = F(n - 1) + F(n - 2), for n > 1. Given n, calculate F(n). ',
-    },
-    {
-      id: '6',
-      title: 'Implement Stack using Queues',
-      description:
-        'Implement a last-infirst-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty). ',
-    },
-    {
-      id: '7',
-      title: 'Combine Two Tables',
-      description:
-        'Given table Person with the following columns: 1. personId (int) 2. lastName (varchar) 3. firstName (varchar) personId is the primary key. And table Address with the following columns: 1. addressId (int) 2. personId (int) 3. city (varchar) 4. state (varchar) addressId is the primary key. Write a solution to report the first name, last name, city, and state of each person in the Person table. If the address of a personId is not present in the Address table, report null instead. Return the result table in any order',
-    },
-  ]);
+  const [questions, questionsHandlers] = useListState<Question>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [newDifficulty, setNewDifficulty] = useState<string | null>(null);
+  const [newTopic, setNewTopic] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [filterDifficulty, setFilterDifficulty] = useState<string | null>(null);
+  const [filterTopic, setFilterTopic] = useState<string[]>([]);
+  const [newImageFiles, setImageFiles] = useState<File[]>([]);
+  const [newImageNames, setImageNames] = useState<string[]>([]);
+  const [imageSrc, setImageSrc] = useState('');
 
-  const addQuestion = () => {
-    if (newTitle.trim() && newDescription.trim()) {
-      questionsHandlers.append({
-        id: Date.now().toString(),
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    const response = await fetch(`${API_BASE_URL}/all`);
+    if (!response.ok) {
+      const message = `An error occurred: ${response.statusText}`;
+      console.error(message);
+      return;
+    }
+    const records = await response.json();
+    questionsHandlers.setState(records);
+  };
+
+  const uploadImages = async () => {
+    const formData = new FormData();
+    newImageFiles.forEach((file) => {
+      formData.append('img', file);
+    });
+
+    const response = await fetch(`${API_BASE_URL}/img`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Failed to upload image');
+    } else {
+      setImageNames([...newImageNames, data.filename]);
+    }
+  };
+
+  const getImage = async (filename: string) => {
+    const response = await fetch(`${API_BASE_URL}/img/${filename}`);
+    if (!response.ok) {
+      console.error('Failed to fetch image');
+    } else {
+      const blob = await response.blob();
+      // Create an object URL from the blob
+      const url = URL.createObjectURL(blob);
+      setImageSrc(url);
+    }
+  };
+
+  const addQuestion = async () => {
+    if (
+      newTitle.trim() &&
+      newDescription.trim() &&
+      newDifficulty &&
+      newTopic.length > 0
+    ) {
+      const newQuestion = {
         title: newTitle,
         description: newDescription,
+        difficulty: newDifficulty,
+        topics: newTopic,
+        images: newImageNames,
+      };
+      const response = await fetch(`${API_BASE_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newQuestion),
       });
-      setNewTitle('');
-      setNewDescription('');
+      if (!response.ok) {
+        throw new Error('Failed to add question');
+      }
+      const data = await response.json();
+      questionsHandlers.append(data);
+      resetForm();
       setIsAddModalOpen(false);
     }
   };
 
-  const deleteQuestion = (id: string) => {
+  const deleteQuestion = async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete question');
+    }
     questionsHandlers.filter((item) => item.id !== id);
   };
 
@@ -94,19 +152,45 @@ function QuestionEditor() {
       setEditingId(id);
       setNewTitle(question.title);
       setNewDescription(question.description);
+      setNewDifficulty(question.difficulty);
+      setNewTopic(question.topics);
       setIsUpdateModalOpen(true);
     }
   };
 
-  const updateQuestion = () => {
-    if (editingId && newTitle.trim() && newDescription.trim()) {
+  const updateQuestion = async () => {
+    if (
+      editingId &&
+      newTitle.trim() &&
+      newDescription.trim() &&
+      newDifficulty &&
+      newTopic.length > 0
+    ) {
+      const updatedQuestion = {
+        id: Date.now().toString(),
+        title: newTitle,
+        description: newDescription,
+        difficulty: newDifficulty,
+        topics: newTopic,
+        images: newImageNames,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/${editingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedQuestion),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update question');
+      }
+      const data = await response.json();
       questionsHandlers.applyWhere(
         (item) => item.id === editingId,
-        (item) => ({ ...item, title: newTitle, description: newDescription }),
+        () => data,
       );
-      setEditingId(null);
-      setNewTitle('');
-      setNewDescription('');
+      resetForm();
       setIsUpdateModalOpen(false);
     }
   };
@@ -120,6 +204,25 @@ function QuestionEditor() {
         {paragraph}
       </Text>
     ));
+  };
+
+  const filteredQuestions = useMemo(() => {
+    return questions.filter(
+      (question) =>
+        (!filterDifficulty || question.difficulty === filterDifficulty) &&
+        (filterTopic.length === 0 ||
+          filterTopic.some((topic) => question.topics.includes(topic))),
+    );
+  }, [questions, filterDifficulty, filterTopic]);
+
+  const resetForm = () => {
+    setEditingId(null);
+    setNewTitle('');
+    setNewDescription('');
+    setNewDifficulty(null);
+    setNewTopic([]);
+    setImageNames([]);
+    setImageFiles([]);
   };
 
   return (
@@ -146,6 +249,26 @@ function QuestionEditor() {
                 Add Question
               </Button>
             </Group>
+            <Group justify="apart" mb="md">
+              <Select
+                description="Difficulty"
+                placeholder="Select Difficulty"
+                clearable
+                data={difficulties}
+                value={filterDifficulty}
+                onChange={setFilterDifficulty}
+                style={{ width: '300px' }}
+              />
+              <MultiSelect
+                description="Topic"
+                clearable
+                placeholder={filterTopic.length > 0 ? '' : 'Select Topic'}
+                data={topics}
+                value={filterTopic}
+                onChange={setFilterTopic}
+                style={{ width: '300px' }}
+              />
+            </Group>
             <Accordion
               styles={{
                 root: {
@@ -164,11 +287,31 @@ function QuestionEditor() {
                 },
               }}
             >
-              {questions.map((question) => (
-                <Accordion.Item key={question.id} value={question.id}>
-                  <Accordion.Control>{question.title}</Accordion.Control>
+              {filteredQuestions.map((question) => (
+                <Accordion.Item key={question._id} value={question._id}>
+                  <Accordion.Control>
+                    <Stack justify="apart">
+                      <Text>{question.title}</Text>
+                      <Group>
+                        <Text size="sm">
+                          {'Difficulty: ' + question.difficulty}
+                        </Text>
+                        <Text size="sm">
+                          {'Topics: ' + question.topics.join(' | ')}
+                        </Text>
+                      </Group>
+                    </Stack>
+                  </Accordion.Control>
                   <Accordion.Panel>
                     {renderDescription(question.description)}
+                    {/* {question.images.map((image, index) => (
+                      <MantineImage
+                        key={index}
+                        src={getImage(image)}
+                        alt={`Image ${index + 1}`}
+                        mt="md"
+                      />
+                    ))} */}
                     <Group>
                       <Button
                         variant="outline"
@@ -193,10 +336,14 @@ function QuestionEditor() {
           </Card>
 
           <Modal
-            opened={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            title="Add New Question"
-            size="md"
+            opened={isAddModalOpen || isUpdateModalOpen}
+            onClose={() => {
+              resetForm();
+              setIsAddModalOpen(false);
+              setIsUpdateModalOpen(false);
+            }}
+            title={isAddModalOpen ? 'Add New Question' : 'Update Question'}
+            size="lg"
             centered
             closeButtonProps={{ size: 'xs' }}
           >
@@ -207,6 +354,22 @@ function QuestionEditor() {
                 value={newTitle}
                 onChange={(event) => setNewTitle(event.currentTarget.value)}
               />
+              <Group>
+                <Select
+                  label="Difficulty"
+                  placeholder="Select difficulty"
+                  data={difficulties}
+                  value={newDifficulty}
+                  onChange={setNewDifficulty}
+                />
+                <MultiSelect
+                  label="Topic"
+                  placeholder="Select topic"
+                  data={topics}
+                  value={newTopic}
+                  onChange={setNewTopic}
+                />
+              </Group>
               <Textarea
                 label="Description"
                 placeholder="Enter question description"
@@ -217,36 +380,16 @@ function QuestionEditor() {
                   setNewDescription(event.currentTarget.value)
                 }
               />
-              <Button onClick={addQuestion}>Add Question</Button>
-            </Stack>
-          </Modal>
-
-          <Modal
-            opened={isUpdateModalOpen}
-            onClose={() => setIsUpdateModalOpen(false)}
-            title="Update Question"
-            size="md"
-            centered
-            closeButtonProps={{ size: 'sm' }}
-          >
-            <Stack>
-              <TextInput
-                label="Title"
-                placeholder="Enter question title"
-                value={newTitle}
-                onChange={(event) => setNewTitle(event.currentTarget.value)}
+              {/* <FileInput
+                placeholder="Choose Images"
+                multiple
+                value={newImageFiles}
+                onChange={setImageFiles}
               />
-              <Textarea
-                label="Description"
-                placeholder="Enter question description"
-                autosize
-                minRows={1}
-                value={newDescription}
-                onChange={(event) =>
-                  setNewDescription(event.currentTarget.value)
-                }
-              />
-              <Button onClick={updateQuestion}>Update Question</Button>
+              <Button onClick={uploadImages}>Upload Image</Button> */}
+              <Button onClick={isAddModalOpen ? addQuestion : updateQuestion}>
+                {isAddModalOpen ? 'Add Question' : 'Update Question'}
+              </Button>
             </Stack>
           </Modal>
         </Container>
