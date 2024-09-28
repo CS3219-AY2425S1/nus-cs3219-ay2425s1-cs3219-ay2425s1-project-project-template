@@ -81,7 +81,7 @@ const mockTestCaseData = [
 
 const mockQuestionsData = [
     {
-        id: 1,
+        id: '1',
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description: 'This is a description',
@@ -89,7 +89,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 2,
+        id: '2',
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description: 'This is a description',
@@ -97,7 +97,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 3,
+        id: '3',
         category: ['Algorithms'],
         status: QuestionStatus.COMPLETED,
         description: 'This is a description',
@@ -105,7 +105,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 4,
+        id: '4',
         category: ['Algorithms'],
         status: QuestionStatus.NOT_ATTEMPTED,
         description: 'This is a description',
@@ -113,7 +113,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 5,
+        id: '5',
         category: ['Strings'],
         status: QuestionStatus.COMPLETED,
         description: 'This is a description',
@@ -121,7 +121,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 6,
+        id: '6',
         category: ['Algorithms'],
         status: QuestionStatus.COMPLETED,
         description: 'This is a description',
@@ -129,7 +129,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 7,
+        id: '7',
         category: ['Strings'],
         status: QuestionStatus.FAILED,
         description: 'This is a description',
@@ -137,7 +137,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 8,
+        id: '8',
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description:
@@ -146,7 +146,7 @@ const mockQuestionsData = [
         title: 'Another title of the question',
     },
     {
-        id: 9,
+        id: '9',
         category: ['Algorithms, Strings'],
         status: QuestionStatus.NOT_ATTEMPTED,
         description: 'Test algbat',
@@ -154,7 +154,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 10,
+        id: '10',
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description: 'Appla tat',
@@ -162,7 +162,7 @@ const mockQuestionsData = [
         title: 'Another title of the question',
     },
     {
-        id: 11,
+        id: '11',
         category: ['Algorithms'],
         status: QuestionStatus.NOT_ATTEMPTED,
         description: 'ZOogo a',
@@ -170,7 +170,7 @@ const mockQuestionsData = [
         title: 'Title of the question',
     },
     {
-        id: 12,
+        id: '12',
         category: ['Algorithms'],
         status: QuestionStatus.COMPLETED,
         description: 'Baga bia',

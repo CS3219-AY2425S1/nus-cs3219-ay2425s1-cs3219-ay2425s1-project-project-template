@@ -6,7 +6,7 @@ export enum QuestionStatus {
     NOT_ATTEMPTED = 'not_attempted',
 }
 export interface IQuestion {
-    id?: number
+    id?: string
     title: string
     description: string
     difficulty: Difficulty

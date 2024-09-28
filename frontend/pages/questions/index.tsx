@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import Datatable from '@/components/customs/datatable'
-import { Difficulty, IPagination, IQuestion, ISortBy, QuestionStatus, SortDirection } from '@/types'
+import { Difficulty, IPagination, IQuestion, ISortBy, Modification, QuestionStatus, SortDirection } from '@/types'
 import { columns, formFields } from './props'
 import { mockQuestionsData } from '@/mock-data'
 import CustomModal from '@/components/customs/custom-modal'
@@ -13,10 +13,6 @@ async function getData(): Promise<IQuestion[]> {
     return mockQuestionsData
 }
 
-enum Modification {
-    CREATE = 'create',
-    UPDATE = 'updated',
-}
 export default function Questions() {
     const [data, setData] = useState<IQuestion[]>([])
     const [pagination, setPagination] = useState<IPagination>({
@@ -37,6 +33,7 @@ export default function Questions() {
     })
 
     const [questionData, setQuestionData] = useState<IQuestion>({
+        id: '1',
         title: '',
         description: '',
         category: [],
@@ -62,12 +59,18 @@ export default function Questions() {
 
     const clearFormData = () => {
         setQuestionData({
+            ...questionData,
             title: '',
             description: '',
             category: [],
             difficulty: Difficulty.Easy,
             status: QuestionStatus.NOT_ATTEMPTED,
         })
+    }
+
+    const actionsHandler = (modicationType: Modification, elemId?: string) => {
+        if (!elemId) return
+        console.log(modicationType, elemId)
     }
 
     useEffect(() => {
@@ -103,6 +106,7 @@ export default function Questions() {
                 sortBy={sortBy}
                 sortHandler={sortHandler}
                 paginationHandler={paginationHandler}
+                actionsHandler={actionsHandler}
             />
             {modalData.isOpen && (
                 <CustomModal title={modalData.title} className="h-3/4 w-3/4" closeHandler={handleCloseModal}>

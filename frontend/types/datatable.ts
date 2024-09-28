@@ -1,4 +1,5 @@
 interface IRowData {
+    id?: string
     [key: string]: any
 }
 
@@ -33,6 +34,7 @@ interface IDatatableProps {
     sortBy?: ISortBy
     paginationHandler: (page: number, limit: number) => void
     sortHandler: (sortBy: ISortBy) => void
+    actionsHandler: (type: Modification, id?: string) => void
 }
 
 export enum SortDirection {
@@ -41,4 +43,11 @@ export enum SortDirection {
     NONE = 'null',
 }
 
+enum Modification {
+    CREATE = 'create',
+    UPDATE = 'updated',
+    DELETE = 'deleted',
+}
+
 export type { IRowData, IDatatableColumn, IDatatableProps, IPagination, ISortBy }
+export { Modification }

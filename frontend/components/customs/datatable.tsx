@@ -1,4 +1,4 @@
-import { IDatatableProps, LanguageMode, SortDirection } from '@/types'
+import { IDatatableProps, LanguageMode, Modification, SortDirection } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import CustomSelect from './custom-select'
 import { DeleteIcon, EditIcon, LeftIcon, RightIcon } from '@/assets/icons'
@@ -13,6 +13,7 @@ export default function Datatable({
     sortBy,
     paginationHandler,
     sortHandler,
+    actionsHandler,
 }: IDatatableProps) {
     const pageOptions = [5, 10, 20, 50]
 
@@ -98,14 +99,22 @@ export default function Datatable({
                                 }
                                 if (col.key === 'actions') {
                                     return (
-                                        <TableCell>
+                                        <TableCell key={col.key}>
                                             {col.isEdit && (
-                                                <Button variant="iconNoBorder" size="icon">
+                                                <Button
+                                                    variant="iconNoBorder"
+                                                    size="icon"
+                                                    onClick={() => actionsHandler(Modification.UPDATE, elem?.id)}
+                                                >
                                                     <EditIcon />
                                                 </Button>
                                             )}
                                             {col.isDelete && (
-                                                <Button variant="iconNoBorder" size="icon">
+                                                <Button
+                                                    variant="iconNoBorder"
+                                                    size="icon"
+                                                    onClick={() => actionsHandler(Modification.DELETE, elem?.id)}
+                                                >
                                                     <DeleteIcon />
                                                 </Button>
                                             )}
