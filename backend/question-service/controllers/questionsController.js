@@ -49,6 +49,19 @@ const updateQuestion = async (req, res) => {
         return res.status(401).json({ "message": `No question matches ID ${ questionId}.` });
     }
 
+    // Check for duplicate titles
+    const currentTitle = await QuestionSchema.findById(req.body._id, 'title').exec()
+    const duplicateTitleCheck = (await QuestionSchema.countDocuments({ title: req.body.title }) > 1) || (await QuestionSchema.countDocuments({ title: req.body.title }) == 1 && currentTitle.title != req.body.title)
+    if (duplicateTitleCheck) {
+        return res.status(409).json({ 'message': 'A question with this title already exists!' })
+    }
+
+    const currentDescription = await QuestionSchema.findById(req.body._id, 'description').exec()
+    const duplicateDescCheck = (await QuestionSchema.countDocuments({ description: req.body.description }) > 1) || (await QuestionSchema.countDocuments({ description: req.body.description }) == 1 && currentDescription.description != req.body.description)
+    if (duplicateDescCheck) {
+        return res.status(409).json({ 'message': 'A question with this description already exists!' })
+    }
+
     if (req.body?.title) question.title = req.body.title;
     if (req.body?.description) question.description = req.body.description;
     if (req.body?.category) question.category = req.body.category;

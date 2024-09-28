@@ -111,16 +111,19 @@ const QuestionPage = () => {
             q._id === savedQuestion._id ? savedQuestion : q
           )
         );
+        toggleDialog();
       } else {
-        const errorMessage = await response.text();
         console.error(
-          `Failed to edit question: ${response.status} ${errorMessage}`
+          `Failed to edit question: ${response.status} ${response.statusText}`
+        );
+        var responseMessage = await response.json()
+        const errorWindow = window.alert(
+          responseMessage.message
         );
       }
     } catch (error) {
       console.error("Error editing question:", error);
     }
-    toggleDialog();
   };
 
   // Delete question
