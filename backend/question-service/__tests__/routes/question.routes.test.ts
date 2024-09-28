@@ -28,7 +28,7 @@ jest.mock('../../src/services/user.service.ts', () => {
             id: '000000000000000000000000',
             username: 'test',
             email: 'test@gmail.com',
-            role: Role.USER,
+            role: Role.ADMIN,
             proficiency: Proficiency.BEGINNER,
         }),
     }
