@@ -5,7 +5,10 @@ export const getAllQuestions = async (req, res) => {
       const questions = await Question.find();
       return res.status(200).json(questions);;
     } catch (err) {
-      return res.status(500).json({ message: "Unknown error when finding all questions!" });
+      return res.status(500).json({ 
+        message: "Error when finding all questions!",
+        error: err
+       });
     }
 };
 
@@ -17,7 +20,10 @@ export const getQuestionById = async (req, res) => {
     });
     return res.status(200).json(question);;
   } catch (err) {
-    return res.status(500).json({ message: `Unknown error when finding question with id ${id}!` });
+    return res.status(500).json({ 
+      message: `Error when finding question with id ${id}!`,
+      error: err
+     });
   }
 };
 
@@ -29,7 +35,10 @@ export const getQuestionByDifficulty = async (req, res) => {
     });
     return res.status(200).json(questions);;
   } catch (err) {
-    return res.status(500).json({ message: `Unknown error when finding question with difficulty ${difficulty}!` });
+    return res.status(500).json({ 
+      message: `Error when finding question with difficulty "${difficulty}"!`,
+      error: err 
+    });
   }
 };
 
@@ -41,7 +50,10 @@ export const getQuestionByTopic = async (req, res) => {
     });
     return res.status(200).json(questions);;
   } catch (err) {
-    return res.status(500).json({ message: `Unknown error when finding question with topic ${topic}!` });
+    return res.status(500).json({ 
+      message: `Error when finding question with topic "${topic}"!`,
+      error: err
+     });
   }
 };
 
@@ -62,7 +74,10 @@ export const getQuestionByFilter = async (req, res) => {
     const questions = await Question.find(filter);
     return res.status(200).json(questions);;
   } catch (err) {
-    return res.status(500).json({ message: `Unknown error when finding questions with filter!` });
+    return res.status(500).json({ 
+      message: `Error when finding questions with filter!`,
+      error: err
+     });
   }
 };
 
@@ -82,7 +97,10 @@ export const getNextAvailId = async (req, res) => {
       result: result
     })
   } catch (err) {
-    return res.status(500).json({ message: `Unknown error when finding next available question ID!` });
+    return res.status(500).json({ 
+      message: `Error when finding next available question ID!`,
+      error: err
+   });
   }
 }
 
@@ -93,6 +111,9 @@ export const getAllTopics = async (req, res) => {
       result: result
     })
   } catch (err) {
-    return res.status(500).json({ message: `Unknown error when finding all topics!` });
+    return res.status(500).json({ 
+      smessage: `Error when finding all topics!`,
+      error: err
+     });
   }
 }
