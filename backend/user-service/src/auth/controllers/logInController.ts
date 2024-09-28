@@ -3,6 +3,8 @@ import { loginUser } from '../db_utils/userLogInService';
 import { connectToDatabase } from '../../config/db';
 import { logInValidator } from '../auth_utils/loginValidator';
 import logger from '../../utils/logger';
+import { config } from '../../config/envConfig';
+import ms from 'ms'
 
 const userLoginController = async (req: Request, res: Response) => {
     // Validate input
@@ -25,7 +27,7 @@ const userLoginController = async (req: Request, res: Response) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 14 * 24 * 60 * 60 * 1000, // 2 weeks in ms
+            maxAge: ms(config.jwtExpiresIn), // should be 2 weeks in ms, but expiration can be changed in .env
         };
 
         // Set the token in an HttpOnly cookie

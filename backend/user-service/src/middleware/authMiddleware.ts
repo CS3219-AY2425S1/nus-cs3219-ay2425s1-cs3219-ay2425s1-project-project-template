@@ -1,12 +1,11 @@
 // src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import logger from '../utils/logger'; // Ensure you have a logger middleware set up
+import { config } from '../config/envConfig';
 
-dotenv.config({ path: '../../.env' });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const JWT_SECRET = config.jwtSecret || 'your_jwt_secret_key';
 
 interface AuthenticatedUser {
     userId: string;

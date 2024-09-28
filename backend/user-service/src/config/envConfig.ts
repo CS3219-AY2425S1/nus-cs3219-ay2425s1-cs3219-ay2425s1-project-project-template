@@ -1,11 +1,14 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import logger from '../utils/logger';
+
+require('dotenv').config({ path: path.resolve(__dirname, './../../.env') })
 
 const env = process.env.NODE_ENV || 'development';
+logger.info(__dirname)
+dotenv.config({ path: path.resolve(__dirname, `./../../.env.${env}`) });
 
-dotenv.config({ path: path.resolve(__dirname, `../../.env.${env}`) });
-
-const requiredEnvVars = ['JWT_SECRET', 'DATABASE_CONNECTION'];
+const requiredEnvVars = ['JWT_SECRET', 'DATABASE_CONNECTION', 'PORT'];
 
 // Validate that all required environment variables are set
 requiredEnvVars.forEach((varName) => {
