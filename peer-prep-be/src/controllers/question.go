@@ -23,6 +23,55 @@ var validate = validator.New()
 var errMessage = "error"
 var successMessage = "success"
 
+// Helper Functions
+// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
+func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
+	var findOptions *options.FindOptions
+
+	if sortField != "" {
+		order := 1 // Default to ascending order
+		if sortOrder == "desc" {
+			order = -1 // If 'desc' is provided, sort in descending order
+		}
+
+		// Set the sorting options
+		findOptions = options.Find().SetCollation(&options.Collation{Locale: "en_US"}).SetSort(bson.D{{Key: sortField, Value: order}})
+	} else {
+		// No sorting specified, natural MongoDB order
+		findOptions = options.Find()
+	}
+
+	return findOptions
+}
+
+func ProcessFilterParams(filterField string, filterValues string) bson.D {
+	filter := bson.D{{}}
+
+	if filterField != "" && filterValues != "" {
+		values := strings.Split(filterValues, ",")
+
+		if len(values) == 1 {
+			filter = bson.D{{Key: filterField, Value: values[0]}}
+		} else {
+			filterConditions := bson.A{}
+			for _, value := range values {
+				filterConditions = append(filterConditions, bson.D{{Key: filterField, Value: value}})
+			}
+
+			filter = bson.D{
+				{
+					Key:   "$or",
+					Value: filterConditions,
+				},
+			}
+		}
+
+	}
+
+	return filter
+}
+
+// Services
 func CreateQuestion(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var existingQuestion models.Question
@@ -46,8 +95,10 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
 	}
 
+	newQuestionId := primitive.NewObjectID()
+
 	newQuestion := models.Question{
-		Question_id:          primitive.NewObjectID(),
+		Question_id:          newQuestionId,
 		Question_title:       question.Question_title,
 		Question_description: question.Question_description,
 		Question_categories:  question.Question_categories,
@@ -60,6 +111,7 @@ func CreateQuestion(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
+	result.InsertedID = newQuestionId
 	return c.JSON(http.StatusCreated, responses.StatusResponse{Status: http.StatusCreated, Message: successMessage, Data: &echo.Map{"data": result}})
 }
 
@@ -226,49 +278,15 @@ func SearchQuestion(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": questions}})
 }
 
-// Takes in the sortField and sortOrder from the query string and returns the FindOptions object
-func ProcessSortParams(sortField string, sortOrder string) *options.FindOptions {
-	var findOptions *options.FindOptions
+func GetDistinctQuestionCategories(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	if sortField != "" {
-		order := 1 // Default to ascending order
-		if sortOrder == "desc" {
-			order = -1 // If 'desc' is provided, sort in descending order
-		}
-
-		// Set the sorting options
-		findOptions = options.Find().SetCollation(&options.Collation{Locale: "en_US"}).SetSort(bson.D{{Key: sortField, Value: order}})
-	} else {
-		// No sorting specified, natural MongoDB order
-		findOptions = options.Find()
+	// Get the distinct categories from the questions collection
+	categories, err := questionCollection.Distinct(ctx, "question_categories", bson.M{})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{Status: http.StatusInternalServerError, Message: errMessage, Data: &echo.Map{"data": err.Error()}})
 	}
 
-	return findOptions
-}
-
-func ProcessFilterParams(filterField string, filterValues string) bson.D {
-	filter := bson.D{{}}
-
-	if filterField != "" && filterValues != "" {
-		values := strings.Split(filterValues, ",")
-
-		if len(values) == 1 {
-			filter = bson.D{{Key: filterField, Value: values[0]}}
-		} else {
-			filterConditions := bson.A{}
-			for _, value := range values {
-				filterConditions = append(filterConditions, bson.D{{Key: filterField, Value: value}})
-			}
-
-			filter = bson.D{
-				{
-					Key:   "$or",
-					Value: filterConditions,
-				},
-			}
-		}
-
-	}
-
-	return filter
+	return c.JSON(http.StatusOK, responses.StatusResponse{Status: http.StatusOK, Message: successMessage, Data: &echo.Map{"data": categories}})
 }
