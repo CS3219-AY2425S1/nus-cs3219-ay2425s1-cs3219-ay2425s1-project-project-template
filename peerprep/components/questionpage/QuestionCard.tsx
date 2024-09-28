@@ -35,7 +35,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           </span>
         </p>
         <p className="text-sm">
-          Categories: <span>{question.category.join(", ")}</span>
+          Categories: <span>{question.categories.join(", ")}</span>
         </p>
       </div>
 

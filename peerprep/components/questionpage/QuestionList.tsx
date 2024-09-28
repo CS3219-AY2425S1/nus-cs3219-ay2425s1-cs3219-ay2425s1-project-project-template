@@ -21,13 +21,15 @@ const QuestionList: React.FC = () => {
     // make use of gateway.ts later
     const fetchQuestions = async () => {
       try {
-        const response = await fetch("/data/dummyquestions.json");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_QUESTION_SERVICE}/questions`
+        );
         const data: Question[] = await response.json();
         setQuestions(data);
 
         // get all present categories in all qns
         const uniqueCategories = Array.from(
-          new Set(data.flatMap((question) => question.category))
+          new Set(data.flatMap((question) => question.categories))
         );
         setCategories(["all", ...uniqueCategories]);
       } catch (error) {
@@ -46,7 +48,7 @@ const QuestionList: React.FC = () => {
       difficulties[question.difficulty] === difficultyFilter;
     const matchesCategory =
       categoryFilter === categories[0] ||
-      question.category.includes(categoryFilter);
+      question.categories.includes(categoryFilter);
     const matchesSearch =
       searchFilter === "" ||
       question.title.toLowerCase().includes(searchFilter.toLowerCase());

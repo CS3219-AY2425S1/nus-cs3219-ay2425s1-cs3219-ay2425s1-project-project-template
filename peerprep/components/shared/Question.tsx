@@ -2,7 +2,7 @@ export interface Question {
   id: number;
   title: string;
   description: string;
-  category: string[];
+  categories: string[];
   difficulty: number;
   test_cases: {
     [key: string]: string;
