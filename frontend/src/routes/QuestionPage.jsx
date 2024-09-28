@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Panel, PanelGroup } from "react-resizable-panels";
 import CreateQuestionModal from '../component/question/CreateQuestionModal';
+import EditQuestionModal from '../component/question/EditQuestionModal';
 import Pill from '../ui/Pill';
 import './QuestionPage.css';
 
@@ -276,12 +277,7 @@ const QuestionPage = () => {
                   </button>
 
                   {/* Edit Button */}
-                  <button
-                    className="bg-blue-500 text-white font-semibold text-sm px-4 py-2 rounded-2xl hover:bg-blue-600"
-                    onClick={handleEdit}
-                  >
-                    Edit Question
-                  </button>
+                  <EditQuestionModal selectedQuestion={selectedQuestion}/>
                 </div>
 
             </div>
@@ -296,8 +292,6 @@ const QuestionPage = () => {
               <ReactMarkdown className="mt-5 text-gray-700">
                 {selectedQuestion.description}
               </ReactMarkdown>
-              
-
             </div>
             </Panel>
           </>
