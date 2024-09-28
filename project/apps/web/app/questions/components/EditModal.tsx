@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UpdateQuestionDto, updateQuestionSchema } from "@repo/dtos/questions";
-import { Complexity, Category } from "@repo/dtos/questions";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { CATEGORY, COMPLEXITY } from "@/constants/question";
 
 interface EditModalProps {
   open: boolean;
@@ -54,12 +54,12 @@ export default function EditModal({
     },
   });
 
-  const categories = Object.values(Category);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>(
+  const categories = Object.values(CATEGORY);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialValues.q_category,
   );
 
-  const toggleCategory = (category: Category) => {
+  const toggleCategory = (category: string) => {
     const updatedCategories = selectedCategories.includes(category)
       ? selectedCategories.filter((cat) => cat !== category)
       : [...selectedCategories, category];
@@ -155,7 +155,7 @@ export default function EditModal({
                         <SelectValue placeholder="Select complexity" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.values(Complexity).map((level) => (
+                        {Object.values(COMPLEXITY).map((level) => (
                           <SelectItem key={level} value={level}>
                             {level}
                           </SelectItem>

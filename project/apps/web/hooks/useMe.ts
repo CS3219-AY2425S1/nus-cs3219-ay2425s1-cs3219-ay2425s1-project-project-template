@@ -11,7 +11,7 @@ import { QUERY_KEYS } from "@/constants/queryKeys";
 export const useMe = () => {
   const router = useRouter();
   const { data, error } = useSuspenseQuery({
-    queryKey: [QUERY_KEYS.ME],
+    queryKey: [QUERY_KEYS.Me],
     queryFn: me,
   });
   const { removeLoginStateFlag } = useLoginState();

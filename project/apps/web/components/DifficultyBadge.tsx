@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { Complexity } from "@repo/dtos/questions";
+import { COMPLEXITY } from "@/constants/question";
 import { cn } from "@/lib/utils";
 
 interface DifficultyBadgeProps {
-  complexity: Complexity;
+  complexity: string;
   className?: string;
 }
 
@@ -11,13 +11,13 @@ const DifficultyBadge = ({ complexity, className }: DifficultyBadgeProps) => {
   let colorClass = "";
 
   switch (complexity) {
-    case Complexity.Easy:
+    case COMPLEXITY.Easy:
       colorClass = "bg-green-400 text-white hover:bg-green-400";
       break;
-    case Complexity.Medium:
+    case COMPLEXITY.Medium:
       colorClass = "bg-yellow-400 text-white hover:bg-yellow-400";
       break;
-    case Complexity.Hard:
+    case COMPLEXITY.Hard:
       colorClass = "bg-red-400 text-white hover:bg-red-400";
       break;
     default:

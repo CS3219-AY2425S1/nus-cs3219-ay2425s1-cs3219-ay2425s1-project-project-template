@@ -28,7 +28,7 @@ export function SignInForm() {
     mutationFn: signIn,
     onSuccess: async () => {
       setHasLoginStateFlag();
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ME] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Me] });
     },
     onError(error) {
       toast({

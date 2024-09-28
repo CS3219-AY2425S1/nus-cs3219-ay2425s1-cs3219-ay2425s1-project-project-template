@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import {
   QuestionDto,
   CreateQuestionDto,
@@ -41,7 +41,7 @@ const QuestionRepository = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   const { data } = useQuery<QuestionDto[]>({
-    queryKey: [QUERY_KEYS.QUESTION],
+    queryKey: [QUERY_KEYS.Question],
     queryFn: fetchQuestions,
   });
 
@@ -49,7 +49,7 @@ const QuestionRepository = () => {
     mutationFn: (newQuestion: CreateQuestionDto) => createQuestion(newQuestion),
     onMutate: () => setConfirmLoading(true),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.QUESTION] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
       setCreateModalOpen(false);
     },
     onSettled: () => setConfirmLoading(false),
@@ -63,7 +63,7 @@ const QuestionRepository = () => {
       updateQuestion(updatedQuestion),
     onMutate: () => setConfirmLoading(true),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.QUESTION] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
       setEditModalOpen(false);
     },
     onSettled: () => setConfirmLoading(false),
@@ -76,7 +76,7 @@ const QuestionRepository = () => {
     mutationFn: (id: string) => deleteQuestion(id),
     onMutate: () => setConfirmLoading(true),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.QUESTION] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
       setDeleteModalOpen(false);
     },
     onSettled: () => setConfirmLoading(false),

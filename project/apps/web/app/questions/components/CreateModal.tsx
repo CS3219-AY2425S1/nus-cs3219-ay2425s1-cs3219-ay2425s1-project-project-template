@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CreateQuestionDto, createQuestionSchema } from "@repo/dtos/questions";
-import { Complexity, Category } from "@repo/dtos/questions";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { CATEGORY, COMPLEXITY } from "@/constants/question";
 
 interface CreateModalProps {
   open: boolean;
@@ -47,15 +47,15 @@ export default function CreateModal({
     defaultValues: {
       q_title: "",
       q_desc: "",
-      q_complexity: Complexity.Easy,
+      q_complexity: undefined,
       q_category: [],
     },
   });
 
-  const categories = Object.values(Category);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const categories = Object.values(CATEGORY);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const toggleCategory = (category: Category) => {
+  const toggleCategory = (category: string) => {
     const updatedCategories = selectedCategories.includes(category)
       ? selectedCategories.filter((cat) => cat !== category)
       : [...selectedCategories, category];
@@ -138,7 +138,7 @@ export default function CreateModal({
                         <SelectValue placeholder="Select complexity" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.values(Complexity).map((level) => (
+                        {Object.values(COMPLEXITY).map((level) => (
                           <SelectItem key={level} value={level}>
                             {level}
                           </SelectItem>
