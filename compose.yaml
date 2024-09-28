@@ -7,6 +7,8 @@ services:
       - ./nginx/default.conf:/tmp/default.conf
       - /etc/letsencrypt:/etc/letsencrypt
       - react-build:/app/dist
+    environment:
+      USER_SERVICE_ADDR: user-service:3001
     ports:
       - "80:80"
       - "443:443"
@@ -35,8 +37,6 @@ services:
     build:
       context: ./user-service
     container_name: user-service-backend
-    ports:
-      - "3001:3001"
     env_file:
       - .env
     depends_on:
@@ -47,8 +47,6 @@ services:
 
   user-service-mongo:
     image: mongo:4.2
-    ports:
-      - "27017:27017"
     volumes:
       - mongo-data:/data/db
 
