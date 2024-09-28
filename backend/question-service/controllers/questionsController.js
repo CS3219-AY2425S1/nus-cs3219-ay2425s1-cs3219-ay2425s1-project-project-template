@@ -56,6 +56,7 @@ const updateQuestion = async (req, res) => {
         return res.status(409).json({ 'message': 'A question with this title already exists!' })
     }
 
+    // Check for duplicate descriptions
     const currentDescription = await QuestionSchema.findById(req.body._id, 'description').exec()
     const duplicateDescCheck = (await QuestionSchema.countDocuments({ description: req.body.description }) > 1) || (await QuestionSchema.countDocuments({ description: req.body.description }) == 1 && currentDescription.description != req.body.description)
     if (duplicateDescCheck) {
