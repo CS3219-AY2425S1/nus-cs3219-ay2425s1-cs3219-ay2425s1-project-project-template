@@ -16,6 +16,7 @@ import {EditPageComponent} from "../edit-page/edit-page.component";
     NgClass,
     NgIf,
     ReactiveFormsModule,
+    HttpClientModule
   ],
   styleUrl: './add-page.component.css'
 })
