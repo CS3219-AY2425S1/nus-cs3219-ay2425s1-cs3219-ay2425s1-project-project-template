@@ -1,11 +1,8 @@
 // src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import logger from '../utils/logger'; // Ensure you have a logger middleware set up
 import { config } from '../config/envConfig';
-
-
-const JWT_SECRET = config.jwtSecret || 'your_jwt_secret_key';
+import { verifyToken } from '../auth/auth_utils/jwtUtils';
 
 interface AuthenticatedUser {
     userId: string;
@@ -27,7 +24,7 @@ const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFuncti
     }
     
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+        const decoded = verifyToken(token) as AuthenticatedUser;
         req.user = decoded;
         logger.info(`Authenticated user: ${decoded.email}`);
         next();

@@ -5,6 +5,7 @@ import User from '../../models/user';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from '../../utils/logger';
+import { generateToken } from '../auth_utils/jwtUtils';
 
 interface LoginInput {
     email: string;
@@ -24,12 +25,7 @@ export const loginUser = async ({ email, password }: LoginInput): Promise<string
         throw new Error('Invalid email or password');
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-        { userId: user._id, email: user.email },
-        config.jwtSecret,
-        { expiresIn: config.jwtExpiresIn }
-    );
+    const token = generateToken(user)
 
     return token;
 };
