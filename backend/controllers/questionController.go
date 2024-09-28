@@ -214,7 +214,7 @@ func AddQuestionToDb() gin.HandlerFunc {
 			return
 		}
 
-		result, err := coll.InsertOne(ctx, question)
+		_, err := coll.InsertOne(ctx, question)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add question to the database"})
 			return
@@ -222,7 +222,6 @@ func AddQuestionToDb() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Question added successfully",
-			"_id":     result.InsertedID,
 		})
 	}
 }
