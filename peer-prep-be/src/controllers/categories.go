@@ -42,7 +42,7 @@ func GetCategories(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.StatusResponse{
 		Status: http.StatusOK,
 		Message: "Success",
-		Data:    &echo.Map{"categories": categories},
+		Data:    &echo.Map{"data": categories},
 	})
 }
 
@@ -148,7 +148,7 @@ func UpdateCategory(c echo.Context) error {
 	}
 
 	// Perform the Update operation
-	updateResult, err := categoriesCollection.UpdateOne(ctx, bson.M{"_id": categoryId}, update)
+	updateResult, err := categoriesCollection.UpdateOne(ctx, bson.M{"category_id": categoryId}, update)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{

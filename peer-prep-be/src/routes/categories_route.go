@@ -6,7 +6,7 @@ import (
 )
 
 func CategoriesRoute(e *echo.Echo) {
-	e.GET("/categories", controllers.GetCategories)
+	e.GET("/categories", controllers.GetCategories) // Need a get Category by categoryId?
 	e.PUT("/categories/:categoryId", controllers.UpdateCategory)
 	e.POST("/categories", controllers.CreateCategory)
 	e.DELETE("/categories/:categoryId", controllers.DeleteCategory)
