@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import fs from 'fs';
 
 import router from "./routes/routes.js";
 
@@ -68,8 +69,6 @@ app.post('/img', upload.single('img'), function (req, res, next) {
 
   return res.status(200).json(req.file);
 })
-
-import fs from 'fs';
 
 // Check if the directory exists, if not, create it
 const uploadsDir = './uploads';
