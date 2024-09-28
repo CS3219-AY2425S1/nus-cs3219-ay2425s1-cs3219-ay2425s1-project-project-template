@@ -32,21 +32,32 @@
 
 .tableSection table {
     width: 100%;
+    
 }
 
 .tableSection table, th, td {
     border-collapse: collapse;
-    padding: 1rem;
     text-align: center;
 }
 
-.tableSection thead th {
+.tableSection th {
+    padding: 1rem;
+}
+
+.tableSection td {
+    padding: 1rem 0rem;
+}
+
+.tableSection thead {
     top: 0;
     left: 0;
     background-color: #d5d1defe;
     cursor: pointer;
     text-transform: capitalize;
+    width: 100%;
 }
+
+
 
 .tableSection tbody tr:nth-child(even) {
     background-color: #0000000b;
@@ -78,6 +89,7 @@
 }
 
 
+
 /* form css */
 .overlay {
     position: fixed;
@@ -90,9 +102,9 @@
     justify-content: center;
     align-items: center;
     z-index: 100; /* Ensure it's above the other content */
-  }
-  
-  .modal {
+}
+
+.modal {
     background-color: white;
     padding: 2rem;
     border-radius: 8px;
@@ -100,14 +112,14 @@
     z-index: 101;
     max-width: 500px;
     width: 100%;
-  }
+}
 
-  .blurred {
+.blurred {
     filter: blur(2px);
-    pointer-events: none; /* Prevent interaction with blurred content */
-  }
-  
-  .closeButton {
+    pointer-events: none; 
+}
+
+.closeButton {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -115,33 +127,103 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-  }
+}
 
-  form {
+form {
     display: flex;
     flex-direction: column;
     gap: 13px;
-  }
+}
 
-  form h3 {
+form h3 {
     width: 100%;
     text-align: center;
     margin: 0px;
-  }
+}
 
-  form div {
+form div {
     display: grid;
-  }
+}
 
-  input {
+input {
     border: none;
     border:solid 1px #ccc;
     border-radius: 10px;
     padding: 10px
-  }
+}
 
- textarea {
+textarea {
     border: none;
     border:solid 1px #ccc;
     border-radius: 10px;
- }
+    padding: 10px;
+    height: 100px;
+}
+
+ /* topic bubble */
+
+.topicsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.topicBubble {
+    background-color: #505050;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.selected {
+    background-color: #4caf50;
+    color: white;
+    border-color: #4caf50;
+}
+
+.difficultyContainer {
+    display: flex;
+    gap: 10px; /* Adjust spacing between buttons */
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bubbleButton {
+    padding: 15px 30px;
+    border-radius: 30px;
+    border: none;
+    background-color: #d5d1defe; /* Default background color */
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.1s ease;
+}
+
+.bubbleButton.selected.easy {
+    background-color: #86e49d;
+    color: #006b21;
+}
+
+.bubbleButton.selected.medium {
+    background-color: #ebc474;
+    color: #926100;
+}
+
+.bubbleButton.selected.hard {
+    background-color: #d893a3; 
+    color: #b30021;
+}
+
+form>button {
+    border-radius: 25px;
+    border: none;
+    margin: 25px 0px 15px 0px;
+    transition: background-color 0.3s ease;
+}
+
+form>button:hover {
+    background-color: #66FCF1;
+    color: black;
+}
