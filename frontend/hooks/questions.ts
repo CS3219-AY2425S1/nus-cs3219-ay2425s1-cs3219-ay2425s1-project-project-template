@@ -1,14 +1,16 @@
 // Requests to API endpoints for questions
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "../utils/axios";
-import { Question } from "@/types/questions";
+
+import axios from "@/utils/axios";
+import { Question, QuestionList } from "@/types/questions";
 
 // Fetch questions list
 export const useQuestions = () => {
-  return useQuery<Question[], Error>({
+  return useQuery<QuestionList, Error>({
     queryKey: ["questions"],
-    queryFn: async (): Promise<Question[]> => {
+    queryFn: async (): Promise<QuestionList> => {
       const response = await axios.get("/questions");
+
       return response.data;
     },
   });
@@ -20,6 +22,7 @@ export const useGetQuestion = (id: string) => {
     queryKey: ["question", id],
     queryFn: async () => {
       const response = await axios.get(`/questions/${id}`);
+
       return response.data;
     },
     enabled: !!id, // Only fetch if id is available
@@ -43,6 +46,7 @@ export const useAddQuestions = () => {
 // Update a question
 export const useUpdateQuestions = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Question, Error, Question>({
     mutationFn: async (question: Question) => {
       return axios.put(`/questions/${question.questionId}`, question);

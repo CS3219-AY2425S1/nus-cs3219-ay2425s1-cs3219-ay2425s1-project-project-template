@@ -11,56 +11,71 @@ import { getAllQuestionTopics } from "@/utils/questions";
 
 interface QuestionFormProps {
   formType: string;
-  initialData?: Question;
+  formData: Question;
+  setFormData: (formData: Question) => void;
   onSubmit: (data: Question) => void;
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
   formType,
-  initialData,
+  formData,
+  setFormData,
   onSubmit,
 }) => {
   const router = useRouter();
-
-  const [questionTitle, setQuestionTitle] = useState<string>(
-    initialData ? initialData.title : "",
-  );
-  const [questionDifficulty, setQuestionDifficulty] = useState<string>("");
-  const [questionTopics, setQuestionTopics] = useState<string[]>([]);
-  const [questionDescription, setQuestionDescription] = useState<string>("");
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
   const allQuestionTopics = getAllQuestionTopics();
 
-  const handleQuestionDifficultyChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setQuestionDifficulty(e.target.value);
+  const handleTitleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      title: e.target.value,
+    });
   };
 
-  const handleQuestionTopicsChange = (
+  const handleComplexityOnChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    setQuestionTopics(e.target.value.split(","));
+    setFormData({
+      ...formData,
+      complexity: e.target.value,
+    });
+  };
+
+  const handleCategoryOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      category: e.target.value.split(","),
+    });
+  };
+
+  const handleDescriptionOnChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setFormData({
+      ...formData,
+      description: e.target.value,
+    });
   };
 
   const isValid = () => {
     const newErrors: { [key: string]: boolean } = {};
 
-    if (!questionTitle) {
-      newErrors.questionTitle = true;
+    if (!formData.title) {
+      newErrors.title = true;
     }
 
-    if (!questionDifficulty) {
-      newErrors.questionDifficulty = true;
+    if (!formData.complexity) {
+      newErrors.complexity = true;
     }
 
-    if (questionTopics.length === 0) {
-      newErrors.questionTopics = true;
+    if (formData.category.length === 0) {
+      newErrors.category = true;
     }
 
-    if (!questionDescription) {
-      newErrors.questionDescription = true;
+    if (!formData.description) {
+      newErrors.description = true;
     }
 
     setErrors(newErrors);
@@ -73,15 +88,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       return;
     }
 
-    // Prepare the data and pass it to the onSubmit function
-    const questionData = {
-      title: questionTitle,
-      complexity: questionDifficulty,
-      category: questionTopics,
-      description: questionDescription,
-    };
-
-    onSubmit(questionData as Question);
+    onSubmit(formData);
   };
 
 
@@ -92,24 +99,24 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         <p className="basis-1/4 self-end">Question Title</p>
         <Input
           errorMessage="Please input a question title."
-          isInvalid={!!errors.questionTitle}
+          isInvalid={!!errors.title}
           isRequired={true}
           label="Input Question Title"
-          value={questionTitle}
+          value={formData.title}
           variant="underlined"
-          onChange={(e) => setQuestionTitle(e.target.value)}
+          onChange={handleTitleOnChange}
         />
       </div>
       <div className="flex mb-4">
-        <p className="basis-1/4 self-end">Question Difficulty</p>
+        <p className="basis-1/4 self-end">Question Complexity</p>
         <Select
-          errorMessage="Please select the question difficulty."
-          isInvalid={!!errors.questionDifficulty}
+          errorMessage="Please select the question complexity."
+          isInvalid={!!errors.complexity}
           isRequired={true}
           label="Select Difficulty"
-          selectedKeys={[questionDifficulty]}
+          selectedKeys={[formData.complexity]}
           variant="underlined"
-          onChange={handleQuestionDifficultyChange}
+          onChange={handleComplexityOnChange}
         >
           <SelectItem key="Easy">Easy</SelectItem>
           <SelectItem key="Medium">Medium</SelectItem>
@@ -117,16 +124,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         </Select>
       </div>
       <div className="flex mb-4">
-        <p className="basis-1/4 self-end">Question Topics</p>
+        <p className="basis-1/4 self-end">Question Category</p>
         <Select
-          errorMessage="Please select a topic."
-          isInvalid={!!errors.questionTopics}
+          errorMessage="Please select a category."
+          isInvalid={!!errors.category}
           isRequired={true}
           label="Select Topics"
           selectionMode="multiple"
-          value={questionTopics}
+          value={formData.category}
           variant="underlined"
-          onChange={handleQuestionTopicsChange}
+          onChange={handleCategoryOnChange}
         >
           {allQuestionTopics.map((topic) => (
             <SelectItem key={topic}>{topic}</SelectItem>
@@ -136,10 +143,11 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       <div className="flex mb-4">
         <Textarea
           errorMessage="Please provide the question description."
-          isInvalid={!!errors.questionDescription}
+          isInvalid={!!errors.description}
           label="Input Question Description"
-          value={questionDescription}
-          onChange={(e) => setQuestionDescription(e.target.value)}
+          minRows={5}
+          value={formData.description}
+          onChange={handleDescriptionOnChange}
         />
       </div>
       <div className="flex justify-end space-x-4">
@@ -147,7 +155,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           Cancel
         </Button>
         <Button color="primary" onClick={handleSubmit}>
-          Add
+          {formType}
         </Button>
       </div>
     </>
