@@ -1,6 +1,6 @@
 // src/routes/items.ts
 import express, { Request, Response } from 'express';
-import { Collection } from 'mongodb';
+import { Collection, ObjectId } from 'mongodb';
 import { connectToDB } from '../db/mongoClient';
 import { Questions } from '../models/types';
 
@@ -39,15 +39,18 @@ router.put('/:questionId', async (req: Request, res: Response) => {
     }
 
     const result = await questionsCollection.updateOne(
-      { _question_id: Number(questionId) },
-      { $set: updatedQuestion }
+      { _id: new ObjectId(questionId) },
+      { $set: updatedQuestion },
     );
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Question not found.' });
     }
 
-    res.status(200).json({ message: 'Question updated successfully' });
+    res.status(200).json({
+      message: 'Question updated successfully',
+      data: [{ _id: questionId }],
+    });
   } catch (error) {
     console.error('Error updating question:', error);
     res.status(500).json({ error: 'Failed to update question' });
@@ -58,11 +61,19 @@ router.put('/:questionId', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const newQuestion: Questions = req.body; // Assume the body contains a question object
-    
-    const { _question_id, difficulty, description, examples, constraints, tags, title_slug, title, pictures } = newQuestion;
+
+    const {
+      difficulty,
+      description,
+      examples,
+      constraints,
+      tags,
+      title_slug,
+      title,
+      pictures,
+    } = newQuestion;
 
     if (
-      typeof _question_id !== 'number' ||
       typeof difficulty !== 'number' ||
       typeof description !== 'string' ||
       !Array.isArray(examples) ||
@@ -71,12 +82,17 @@ router.post('/', async (req: Request, res: Response) => {
       typeof title_slug !== 'string' ||
       typeof title !== 'string'
     ) {
-      return res.status(400).json({ error: 'Invalid question data. Please check your input.' });
+      return res
+        .status(400)
+        .json({ error: 'Invalid question data. Please check your input.' });
     }
 
     const result = await questionsCollection.insertOne(newQuestion);
 
-    res.status(201).json({ message: 'Question inserted successfully', questionId: result.insertedId });
+    res.status(201).json({
+      message: 'Question inserted successfully',
+      data: [{ _id: result.insertedId }],
+    });
   } catch (error) {
     console.error('Error inserting question:', error);
     res.status(500).json({ error: 'Failed to insert question' });
@@ -88,13 +104,22 @@ router.delete('/:questionId', async (req: Request, res: Response) => {
   const { questionId } = req.params;
 
   try {
-    const result = await questionsCollection.deleteOne({ _question_id: Number(questionId) });
+    const result = await questionsCollection.deleteOne({
+      _id: new ObjectId(questionId),
+    });
 
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'Question not found.' });
     }
 
-    res.status(200).json({ message: 'Question deleted successfully' });
+    res.status(200).json({
+      message: 'Question deleted successfully',
+      data: [
+        {
+          _id: questionId,
+        },
+      ],
+    });
   } catch (error) {
     console.error('Error deleting question:', error);
     res.status(500).json({ error: 'Failed to delete question' });

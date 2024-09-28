@@ -21,7 +21,7 @@ export default function ProblemRow({ problem }: { problem: Problem }) {
   const handleProblemClick = async () => {
     // Fetch problem details here (replace with actual API call)
     const details: ProblemDialogData = {
-      question_id: problem.question_id,
+      _id: problem._id,
       title: problem.title,
       difficulty: problem.difficulty,
       description: problem.description,
