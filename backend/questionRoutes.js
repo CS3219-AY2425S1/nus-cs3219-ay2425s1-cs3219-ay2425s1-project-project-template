@@ -5,11 +5,19 @@ const router = new express.Router();
 // POST endpoint to create a new question
 router.post('/questions', async (req, res) => {
     try {
+        var data = req.body;
+        // find the highest question_id in the collection
+        const lastQuestion = await Question.findOne().sort({ question_id: -1 });
+        // increment question_id by 1 or start from 1 (if empty)
+        const newQuestionId = lastQuestion ? lastQuestion.question_id + 1 : 1;
+        Object.assign(data, {question_id: newQuestionId});
+        
         const newQuestion = new Question(req.body);
         await newQuestion.save();
         res.status(201).send(newQuestion);
     } catch (error) {
-          res.status(400).send(error);
+        console.log(error);
+        res.status(400).send(error);
     }
 });
 

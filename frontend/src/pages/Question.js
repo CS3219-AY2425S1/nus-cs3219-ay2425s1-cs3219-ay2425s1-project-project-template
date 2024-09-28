@@ -2,15 +2,23 @@ import "../styles/question.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Select from 'react-select';
 
 // This should be dynamic routing and go by question ID
 export const Question = () => {
 
   const QUESTIONS_SERVICE_HOST = "http://localhost:3001";
   const navigate = useNavigate();
+  const params = useParams();
 
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState([]);
+  const categoryValues = [{value: "Algorithms", label: "Algorithms"}, {value: "Arrays", label: "Arrays"}, 
+    {value: "Bit Manipulation", label: "Bit Manipulation"}, {value: "Brainteaser", label: "Brainteaser" }, 
+    {value: "Databases", label: "Databases"}, {value: "Data Structures", label: "Data Structures"},
+    {value: "Recursion", label: "Recursion"}, {value: "Strings", label: "Strings"}
+  ]
   const [complexity, setComplexity] = useState("");
+  const complexityValues = [{value: "Easy", label: "Easy"}, {value: "Medium", label: "Medium"}, {value: "Hard", label: "Hard"}];
   const [title, setTitle] = useState("");
   const [descriptionText, setDescriptionText] = useState("");
 
@@ -34,13 +42,26 @@ export const Question = () => {
     setDescriptionText(e.target.value);
   }
 
-  const splitCategory = (categories) => {
-    var output = "";
-    for (const category of categories) {
-      output += category + ", ";
+  const createCategoryArray = (categories) => {
+    var output = [];
+    for (var topic of categories) {
+      output.push({label: topic, value: topic});
     }
-    // Removes the last comma
-    return output.substring(0, output.length - 2);
+    setCategory(output);
+  }
+
+  const revertCategoryArray = (categories) => {
+    var output = [];
+    for (var topic of categories) {
+      output.push(topic.value);
+    }
+    return output;
+  }
+
+  const cancelChanges = (e) => {
+    setHasEdited(false);
+    setEditMode(false);
+    getQuestionData(params.id);
   }
 
   const getQuestionData = async (id) => {
@@ -48,19 +69,42 @@ export const Question = () => {
       const response = await axios.get(`${QUESTIONS_SERVICE_HOST}/questions/${id}`);
       if (response.status === 404 || response.status === 500) {
         //404 not found
-        navigate('/*')
+        navigate("/*")
       }
-      console.log(response.data);
-      setCategory(splitCategory(response.data.category));
+      createCategoryArray(response.data.category);
       setComplexity(response.data.complexity);
       setTitle(response.data.title);
       setDescriptionText(response.data.description);
     } catch (error) {
-      navigate('/*');
+      navigate("/*")
     }
   }
 
-  const params = useParams();
+  const createQuestion = async (e) => {
+    if ((Array.isArray(category) && category.length === 0) || complexity.trim() === "" || title.trim() === "" || 
+      descriptionText.trim() === "") {
+      alert("Some fields are empty!");
+    } else {
+      try {
+        const response = await axios.post(`${QUESTIONS_SERVICE_HOST}/questions`, {
+          complexity: complexity,
+          category: revertCategoryArray(category),
+          title: title,
+          description: descriptionText,
+          web_link: "www.google.com"
+        });
+        if (response.status == 201) {
+          alert("Successfully created question!");
+        } else {
+          alert("Unable to create question :(");
+        }
+      } catch (error) {
+        console.log(error);
+        alert("An error occured!");
+      }
+    }
+  }
+
   useEffect(() => {
     if (params.id === "new") {
       //new question
@@ -74,11 +118,15 @@ export const Question = () => {
   return(
     <div className="question">
       <div className="row1">
-        <div className="complexity-display">
-          {complexity}
+        <div>
+          <Select className="basic-single" classNamePrefix="complexity" value={complexityValues.find(option => option.value === complexity)}
+            onChange={selectedOption => {setHasEdited(true); setComplexity(selectedOption.value)}} 
+            isDisabled={!editMode} options={complexityValues} menuPlacement="auto" />
         </div>
-        <div className="category-display">
-          {category}
+        <div>
+          <Select className="basic-multi-select" isMulti value={category} classNamePrefix="category"
+            onChange={selected => {setCategory(selected); setHasEdited(true)}}
+            isDisabled={!editMode} options={categoryValues} />
         </div>
       </div>
       <div className="row2">
@@ -92,8 +140,8 @@ export const Question = () => {
         </textarea>
       </div>
       <div className="row4">
-        {createMode ? <button className="edit-button">Create</button> : <button className="edit-button" onClick={changeEditMode}>{editMode ? (hasEdited ? "Save" : "Cancel") : "Edit"}</button>}
-        {hasEdited ? <button className="edit-button">Cancel</button> : null}
+        {createMode ? <button className="edit-button" onClick={createQuestion}>Create</button> : <button className="edit-button" onClick={changeEditMode}>{editMode ? (hasEdited ? "Save" : "Cancel") : "Edit"}</button>}
+        {createMode ? null : (hasEdited ? <button className="edit-button" onClick={cancelChanges}>Cancel</button> : null)}
       </div>
     </div>
   );
