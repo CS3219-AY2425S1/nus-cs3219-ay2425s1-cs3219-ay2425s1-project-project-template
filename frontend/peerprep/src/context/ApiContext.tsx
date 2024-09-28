@@ -1,27 +1,18 @@
-import { createContext, useContext } from 'react';
-import { AxiosInstance } from 'axios';
+import { createContext, useContext } from "react";
+import { AxiosInstance, AxiosResponse } from "axios";
 
 export const ApiContext = createContext<AxiosInstance | null>(null); // Define context type here
 
+export type GetRequest = () => AxiosResponse<any>;
+export type PostRequest = (data: any) => Promise<void>;
+
 // Custom hook to use the context
-export const useApiContext = (method : string, url: string) => {
+export const useApiContext = (): AxiosInstance => {
   const context = useContext(ApiContext);
 
   if (context === null) {
-    throw new Error('useApi must be used within an ApiProvider');
+    throw new Error("useApi must be used within an ApiProvider");
   }
 
-  switch(method) {
-    case "GET":
-        return async () => {
-            context.get(url);
-        }
-    case "POST":
-        return async (data: any) => {
-            context.post(url, data);
-        }
-
-    default: 
-        return () => {}
-  }
+  return context;
 };
