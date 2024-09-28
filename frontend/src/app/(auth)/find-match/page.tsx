@@ -53,15 +53,17 @@ const FindPeer = () => {
     };
   });
 
-  const topicsList = Object.values(QuestionTopics).map((qt) => {
-    return {
-      label: capitalizeWord(qt),
-      value: qt,
-    };
-  });
+  const topicsList = Object.values(QuestionTopics)
+    .map((qt) => {
+      return {
+        label: capitalizeWord(qt),
+        value: qt,
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const onSubmit = (data) => {
-    console.log(data); // This prevents redirection, as no page reload happens
+    console.log(data);
   };
 
   return (
