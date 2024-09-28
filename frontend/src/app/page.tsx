@@ -1,10 +1,5 @@
-import Questions from './questions/page';
-
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <>
-      <Questions />
-    </>
-  );
+  return redirect("/questions");
 }

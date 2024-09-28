@@ -67,15 +67,6 @@ export default function SessionsPage() {
               <ClockIcon className="w-10 h-10" />
             </div>
           </Card>
-          <Card className="bg-accent text-accent-foreground p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold">56</h3>
-                <p className="text-sm">Problems Solved</p>
-              </div>
-              <CheckIcon className="w-10 h-10" />
-            </div>
-          </Card>
           </div>
 
           <div className="flex justify-between items-center mb-6">
