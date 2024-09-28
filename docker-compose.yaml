@@ -39,6 +39,15 @@ services:
     networks:
       - app-network
 
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:5173"
+    networks:
+      - app-network
+
 volumes:
   mongo-data:
     driver: local
