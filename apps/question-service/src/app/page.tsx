@@ -34,7 +34,8 @@ import {
   CategoriesOption,
   DifficultyOption,
   OrderOption,
-} from "./utils/SelectOptions";
+} from "../utils/SelectOptions";
+import Link from "next/link";
 
 /**
  * defines the State of the page whe a user is deleing an object. Has 3 general states:
@@ -167,7 +168,16 @@ export default function Home() {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      render: (text: string) => <Button type="link">{text}</Button>, // TODO (Sean): Onclick links to the individual question page
+      render: (text: string, question: Question) => (
+        <Link
+          href={{
+            pathname: `/question/${question.id}`,
+            query: { data: question.docRefId }, // the data
+          }}
+        >
+          <Button type="link">{text}</Button>
+        </Link>
+      ), // TODO (Sean): Onclick links to the individual question page
     },
     {
       title: "Categories",
