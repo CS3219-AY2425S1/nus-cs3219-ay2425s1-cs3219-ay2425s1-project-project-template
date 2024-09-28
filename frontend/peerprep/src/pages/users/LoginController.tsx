@@ -4,6 +4,7 @@ import { login, UserCredentials } from "./authService";
 import LoginView from "./LoginView";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import axios, { AxiosError } from "axios";
 
 interface LoginControllerProps {
   setAuth: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,9 +24,8 @@ const LoginController: React.FC<LoginControllerProps> = ({setAuth}) => {
       setTimeout(() => {
         navigate("/questions");
       }, 1000);
-    } catch (error: unknown) {
-      //setErrorMessage(error || "Login failed: Invalid email or password.");
-      if (error instanceof Error) {
+    } catch (error: Error | AxiosError) {
+      if (axios.isAxiosError(error)) {
         toast.error(error.message || "Login failed: Invalid email or password.");
       } else {
         toast.error("Login failed: Invalid email or password.");

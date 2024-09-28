@@ -4,6 +4,7 @@ import RegistrationView from './RegistrationView';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import axios, { AxiosError } from 'axios';
 
 const RegistrationController: React.FC = () => {
   //const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -29,8 +30,8 @@ const RegistrationController: React.FC = () => {
       setTimeout(() => {
         navigate("/login");
       }, 1000); 
-    } catch (error: unknown) {
-      if (error instanceof Error) {
+    } catch (error: Error | AxiosError) {
+      if (axios.isAxiosError(error)) {
         toast.error("Registration failed: " + error.message);
       } else {
         toast.error("Registration failed: Unknown error");
