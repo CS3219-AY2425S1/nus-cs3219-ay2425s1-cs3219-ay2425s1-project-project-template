@@ -29,10 +29,6 @@ const QuestionPage = () => {
 
         // Update the questions with the array data
         updateQuestions(arrayData);
-        
-      } else {
-        toast.error('Something went wrong. Failed to fetch questions.');
-        updateQuestions([]); // Set to an empty array if the request fails
       }
     } catch (error) {
       toast.error('Something went wrong. Failed to fetch questions')
@@ -58,12 +54,6 @@ const QuestionPage = () => {
 
   const handleTitleClick = (question) => {
     setSelectedQuestion(question);
-    setMode("create");
-    setQuestionData({
-      ...questionData,
-      title: "Some_Title",
-    });
-    clearState();
   };
   
   const handleDelete = async () => {
@@ -75,41 +65,18 @@ const QuestionPage = () => {
         // Remove the deleted question from the list
         updateQuestions(questions.filter((question) => question.titleSlug !== selectedQuestion.titleSlug));
         setSelectedQuestion(null);
-        alert('Question deleted successfully!');
+        toast.success('Question deleted successfully!');
       } else {
-        alert('Failed to delete the question.');
+        toast.error('Failed to delete the question.');
       }
     } catch (error) {
-      console.error('Error deleting question:', error);
+      toast.error('Error deleting question:', error);
     }
   };
 
-  const handleEdit = () => {
-    if (selectedQuestion) {
-      setMode("edit");
-      setQuestionData({
-        difficulty: selectedQuestion.difficulty,
-        topic: selectedQuestion.topic,
-        title: selectedQuestion.title,
-        description: selectedQuestion.description,
-        titleSlug: selectedQuestion.titleSlug,
-      });
-    }
-  };
   
   
   const clearState = async () => {
-    //   //THIS IS FOR TESTING THE API!!!!!!!
-    //   const response = await fetch('http://127.0.0.1:8000/question/', {
-    //     method: 'GET', // Explicitly specifying the GET method
-    // });
-    //               if (response.ok) {
-    //                 const data = await response.json();
-    //               alert(JSON.stringify(data)); 
-    //               }
-    //               else{alert("gg")}
-    //           */    
-
     setQuestionData({
       difficulty: "Easy",
       topic: "loops",

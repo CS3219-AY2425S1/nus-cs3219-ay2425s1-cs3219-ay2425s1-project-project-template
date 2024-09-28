@@ -20,7 +20,13 @@ function App() {
         <Route path="/question" element={<QuestionPage />} />
       </Routes>
     </Router>
-    <ToastContainer position='bottom-center' transition={Slide} theme='colored'/>
+    <ToastContainer
+      position='bottom-center'
+      transition={Slide}
+      theme='colored'
+      hideProgressBar={true}
+      autoClose={false}
+    />
     </>
   );
 }
