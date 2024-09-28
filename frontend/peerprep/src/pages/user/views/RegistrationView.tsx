@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import InputBox from '../../components/InputBox';
-import LargeButton from '../../components/SubmitButton';
+import InputBox from '../../../components/InputBox';
+import LargeButton from '../../../components/SubmitButton';
 import logo from '/peerprep_logo.png';
 
 interface RegistrationViewProps {

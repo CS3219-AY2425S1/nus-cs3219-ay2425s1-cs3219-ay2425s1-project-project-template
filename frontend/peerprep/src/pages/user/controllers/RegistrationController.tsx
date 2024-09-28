@@ -1,16 +1,20 @@
 import React from 'react';
-import { register, UserCredentials } from './authService';
-import RegistrationView from './RegistrationView';
+import { register, UserCredentials } from '../authService';
+import RegistrationView from '../views/RegistrationView';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
-import axios, { AxiosError } from 'axios';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegistrationController: React.FC = () => {
   //const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
   const handleRegistration = async (username: string, email: string, password: string, confirmPassword: string) => {
+    if (!password || !confirmPassword) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match!"); 
       return;
@@ -30,8 +34,8 @@ const RegistrationController: React.FC = () => {
       setTimeout(() => {
         navigate("/login");
       }, 1000); 
-    } catch (error: Error | AxiosError) {
-      if (axios.isAxiosError(error)) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
         toast.error("Registration failed: " + error.message);
       } else {
         toast.error("Registration failed: Unknown error");

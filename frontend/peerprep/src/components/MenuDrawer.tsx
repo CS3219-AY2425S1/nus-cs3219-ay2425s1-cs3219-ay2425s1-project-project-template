@@ -1,8 +1,10 @@
 import React from 'react';
-import { Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, Box, Button, Icon, useColorModeValue } from '@chakra-ui/react';
+import { Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, Box, Button, useToast } from '@chakra-ui/react';
 import { FiLogOut } from 'react-icons/fi';
 import logo from '/peerprep_logo.png';
 import { menuItems } from '../data';
+import { useNavigate } from 'react-router-dom';
+import { useApiContext } from '../context/ApiContext';
 
 type MenuDrawerProps = {
     isOpen: boolean;
@@ -15,14 +17,41 @@ type MenuDrawerProps = {
 const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
     const drawerBgColor = '#141A67';
     const buttonTextColor = 'white';
+    const navigate = useNavigate();
+    const api = useApiContext();
+    const toast = useToast();
+    
+    const handleLogOut = async () => {
+        const confirmLogout = window.confirm("Are you sure you want to log out?");
+        if (!confirmLogout) return;
+
+        try {
+            await api.post("/logout");
+            localStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            navigate("/login");
+            toast({
+                title: "Logged out.",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+        } catch (error: any) {
+            toast({
+                title: "Logout failed.",
+                description: error.message || "Unable to log out.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+        }
+    }
 
     return (
         <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
             <DrawerOverlay />
             <DrawerContent bg={drawerBgColor} color={buttonTextColor}>
-                <DrawerCloseButton
-                    marginTop={2}
-                    _hover={{ borderColor: "white"}}/>
+                <DrawerCloseButton marginTop={2} _hover={{ borderColor: "white" }} />
                 <DrawerHeader marginTop={2}>
                     <div className="flex items-center">
                         <img src={logo} alt="Peerprep Logo" className="w-10 h-10 mr-1" />
@@ -41,7 +70,7 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
                                 mb={2}
                                 justifyContent="start"
                                 leftIcon={<item.icon />} 
-                                _hover={{ borderColor: "white"}}
+                                _hover={{ borderColor: "white" }}
                                 color={buttonTextColor}
                             >
                                 {item.label}
@@ -52,12 +81,13 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
 
                 <Box position="absolute" bottom="0" width="100%" p={4}>
                     <Button 
-                        onClick={onClose}
+                        onClick={handleLogOut}
+                        aria-label="Logout"
                         p={5}
-                        bg="#141A67" 
+                        bg={drawerBgColor} 
                         color={buttonTextColor}
                         leftIcon={<FiLogOut />}
-                        _hover={{ borderColor: "white"}}
+                        _hover={{ borderColor: "white" }}
                         width="100%"
                     >
                         Log Out
