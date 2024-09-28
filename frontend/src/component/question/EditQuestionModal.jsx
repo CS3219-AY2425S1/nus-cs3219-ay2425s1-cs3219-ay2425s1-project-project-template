@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function EditQuestionModal({ selectedQuestion }) {
+export default function EditQuestionModal({ selectedQuestion, editQuestionHandler }) {
   const [isOpen, setIsOpen] = useState(false);
   const [question, setSelectedQuestion] = useState(selectedQuestion)
   return (
@@ -43,7 +43,7 @@ export default function EditQuestionModal({ selectedQuestion }) {
                   </button>
                   <button
                     className="bg-blue-500 text-white font-semibold text-sm px-4 py-2 rounded-2xl hover:bg-blue-600"
-                    onClick={() => {}}
+                    onClick={() => {editQuestionHandler(question)}}
                   >
                     Save
                   </button>

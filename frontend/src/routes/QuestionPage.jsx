@@ -7,6 +7,11 @@ import EditQuestionModal from '../component/question/EditQuestionModal';
 import Pill from '../ui/Pill';
 import './QuestionPage.css';
 
+function capitalize(s)
+{
+    return s && s[0].toUpperCase() + s.slice(1);
+}
+
 const QuestionPage = () => {
 
   const apiurl = "http://127.0.0.1:8000/question/"
@@ -87,6 +92,47 @@ const QuestionPage = () => {
     setMode("create");
   }
 
+  const handleEditQuestion = async (editedQuestion) => {
+    try {
+      const response = await fetch(`${apiurl}${editedQuestion.titleSlug}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedQuestion),
+      });
+
+      if (response.ok) {
+        const updatedQuestion = await response.json();
+        updateQuestions(prevQuestions => 
+          prevQuestions.map(question => 
+            question.titleSlug === updatedQuestion.titleSlug ? updatedQuestion : question
+          )
+        );
+        setSelectedQuestion(updatedQuestion);
+        toast.success('Question updated successfully!');
+        return
+      } else if (response.status === 400) {
+        toast.error("No duplicate question titles allowed!");
+        return
+      } else if (response.status === 422) {
+        const response_text = await response.text();
+        const text_data = JSON.parse(response_text);
+        if (text_data.errors) {
+          text_data.errors.forEach(error => {
+            toast.error(capitalize(error.loc) + ": " + error.msg);
+          });
+        }
+        return
+      }
+      else if (response.status === 404) {
+        toast.error("Cannot ”find the question you are trying to edit")
+        return;
+      }
+    } catch (error) {
+      toast.error('An error occurred while submitting the question. Error: ' + error);
+    }
+  }
   // Handle API call on button press
   const handleSetQuestion = async () => {
     const data = {
@@ -125,40 +171,7 @@ const QuestionPage = () => {
         alert('An error occurred while submitting the question. Error: ' + error);
       }
     } else {
-      try {
-        const response = await fetch(`${apiurl}${questionData.titleSlug}/`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
 
-        if (response.ok) {
-          const updatedQuestion = await response.json();
-          updateQuestions(prevQuestions => 
-            prevQuestions.map(question => 
-              question.titleSlug === updatedQuestion.titleSlug ? updatedQuestion : question
-            )
-          );
-          setSelectedQuestion(updatedQuestion);
-          alert('Question updated successfully!');
-          clearState();
-        } else if (response.status == 400) {
-          alert("no duplicate question titles allowed!");
-        } else {
-          const response_text = await response.text();
-          const text_data = JSON.parse(response_text);
-          if (text_data.errors) {
-            text_data.errors.forEach(error => {
-              alert(error.msg);
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while submitting the question. Error: ' + error);
-      }
     }
   };
 
@@ -227,7 +240,7 @@ const QuestionPage = () => {
                   </button>
 
                   {/* Edit Button */}
-                  <EditQuestionModal selectedQuestion={selectedQuestion}/>
+                  <EditQuestionModal selectedQuestion={selectedQuestion} editQuestionHandler={handleEditQuestion} />
                 </div>
 
             </div>
