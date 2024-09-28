@@ -12,17 +12,6 @@ import {
 import { useQuestions } from "@/hooks/useQuestions";
 import { Question } from "@/types/question";
 
-const getDifficultyColor = (difficulty: "Easy" | "Medium" | "Hard") => {
-  switch (difficulty) {
-    case "Easy":
-      return "bg-green-100 text-green-800 border-green-300";
-    case "Medium":
-      return "bg-yellow-100 text-yellow-800 border-yellow-300";
-    case "Hard":
-      return "bg-red-100 text-red-800 border-red-300";
-  }
-};
-
 export default function ProblemsRoute() {
   const { data: questions, isLoading } = useQuestions();
 
@@ -40,48 +29,60 @@ export default function ProblemsRoute() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Problem Set</h1>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[30%]">Title</TableHead>
-            <TableHead className="w-[30%]">Categories</TableHead>
-            <TableHead>Difficulty</TableHead>
-            <TableHead className="w-[40%]">Description</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {questions && questions.map((question: Question) => (
-            <TableRow key={question.id}>
-              <TableCell className="font-medium">
-                <Link
-                  to={`/problems/${question.id}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  {question.title}
-                </Link>
-              </TableCell>
-              <TableCell>
-                {question.categories.map((category, index) => (
-                  <Badge key={index} variant="outline" className="mr-1">
-                    {category}
-                  </Badge>
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div className="max-h-[70vh] overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[30%]">Title</TableHead>
+                <TableHead className="w-[30%]">Categories</TableHead>
+                <TableHead>Difficulty</TableHead>
+                <TableHead className="w-[40%]">Description</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {questions &&
+                questions.map((question: Question) => (
+                  <TableRow key={question.id}>
+                    <TableCell className="font-medium">
+                      <Link
+                        to={`/problems/${question.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {question.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      {question.categories.map((category, index) => (
+                        <Badge key={index} variant="outline" className="mr-1">
+                          {category}
+                        </Badge>
+                      ))}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="font-medium"
+                        difficulty={
+                          question.difficulty.toLowerCase() as
+                            | "easy"
+                            | "medium"
+                            | "hard"
+                        }
+                      >
+                        {question.difficulty}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{`${question.description.substring(
+                      0,
+                      100
+                    )}...`}</TableCell>
+                  </TableRow>
                 ))}
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className={`${getDifficultyColor(
-                    question.difficulty
-                  )} font-medium`}
-                >
-                  {question.difficulty}
-                </Badge>
-              </TableCell>
-              <TableCell>{question.description}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }
