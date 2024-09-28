@@ -39,9 +39,9 @@ const EditConfirmationModal: React.FC<{
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-750 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
               >
                 <option value="" disabled selected hidden>Choose a difficulty level</option>
-                <option disabled className="text-green ">Easy</option>
-                <option disabled className="text-orange-500">Medium</option>
-                <option disabled className="text-red-700">Hard</option>
+                <option value="EASY" disabled className="text-green ">Easy</option>
+                <option value="MEDIUM" disabled className="text-orange-500">Medium</option>
+                <option value="HARD" disabled className="text-red-700">Hard</option>
               </select>
             </div>
           </div>
