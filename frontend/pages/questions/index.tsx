@@ -55,7 +55,12 @@ export default function Questions() {
         })
     }
 
-    const handleSubmitQuestionData = () => {}
+    const handleSubmitQuestionData = () => {
+        // change to switch statement
+        if (modalData.type === Modification.CREATE) {
+            // call post api
+        }
+    }
 
     const clearFormData = () => {
         setQuestionData({
@@ -68,9 +73,18 @@ export default function Questions() {
         })
     }
 
-    const actionsHandler = (modicationType: Modification, elemId?: string) => {
+    const actionsHandler = async (modicationType: Modification, elemId?: string) => {
         if (!elemId) return
-        console.log(modicationType, elemId)
+        if (modicationType === Modification.UPDATE) {
+            // get question data from api with elemId
+            // const questionData = await getQuestion()
+            // set question data
+            setModalData({
+                ...modalData,
+                isOpen: true,
+                title: 'Update question',
+            })
+        }
     }
 
     useEffect(() => {
