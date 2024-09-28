@@ -1,3 +1,5 @@
+import axios, { AxiosError } from 'axios';
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export interface UserCredentials {
@@ -37,8 +39,12 @@ export const login = async (credentials: UserCredentials): Promise<{ token: stri
       refreshToken: data.refreshToken,
     };
 
-  } catch (error: any) {
-    return Promise.reject(error.message || "Login error");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return Promise.reject(error.message || "Login error"); 
+    } else {
+      return Promise.reject("Login error");
+    }
   }
 };
 
@@ -60,8 +66,12 @@ export const register = async (credentials: UserCredentials): Promise<string> =>
 
     const data = await response.json();
     return data.message; 
-  } catch (error: any) {
-    return Promise.reject(error.message || "Registration error");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return Promise.reject(error.message || "Registration error");
+    } else {
+      return Promise.reject("Registration error");
+    }
   }
 };
 
