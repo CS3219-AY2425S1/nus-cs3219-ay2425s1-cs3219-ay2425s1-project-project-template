@@ -6,10 +6,6 @@ import {QuestionService} from "../services/question.service";
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {EditPageComponent} from "../edit-page/edit-page.component";
 
-@NgModule({
-  imports: [HttpClientModule]
-})
-
 @Component({
   selector: 'app-add-page',
   templateUrl: './add-page.component.html',
