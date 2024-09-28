@@ -14,6 +14,7 @@ import { TickIcon } from './tick'
 import { WarningIcon } from './warning'
 import LeftIcon from './left'
 import RightIcon from './right'
+import CloseIcon from './close'
 
 export {
     CsharpIcon,
@@ -32,4 +33,5 @@ export {
     WarningIcon,
     LeftIcon,
     RightIcon,
+    CloseIcon,
 }
