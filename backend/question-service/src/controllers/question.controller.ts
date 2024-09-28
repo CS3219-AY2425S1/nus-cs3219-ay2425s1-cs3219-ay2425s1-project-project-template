@@ -12,6 +12,10 @@ import {
     findPaginatedQuestionsWithSortAndFilter,
     findQuestionCount,
     findQuestionCountWithFilter,
+    getFilterKeys,
+    getSortKeysAndOrders,
+    isValidFilter,
+    isValidSort,
     updateQuestion,
 } from '../models/question.repository'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
@@ -52,19 +56,19 @@ export async function handleGetPaginatedQuestions(request: IPaginationRequest, r
     const start = (page - 1) * limit
 
     const sortBy = request.query.sortBy?.split(',').map((sort) => sort.split(':')) ?? []
-    const isValidSort = sortBy.every(
-        (sort: string[]) => sort.at(0) && sort.at(1) && QuestionDto.isValidSort(sort.at(0)!, sort.at(1)!)
+    const isSortsValid = sortBy.every(
+        (sort: string[]) => sort.at(0) && sort.at(1) && isValidSort(sort.at(0)!, sort.at(1)!)
     )
-    if (!isValidSort) {
+    if (!isSortsValid) {
         response.status(400).json('INVALID_SORT').send()
         return
     }
 
     const filterBy = request.query.filterBy?.split(',').map((filter) => filter.split(':')) ?? []
-    const isValidFilter = filterBy.every(
-        (filter: string[]) => filter.at(0) && filter.at(1) && QuestionDto.isValidFilter(filter.at(0)!)
+    const isFiltersValid = filterBy.every(
+        (filter: string[]) => filter.at(0) && filter.at(1) && isValidFilter(filter.at(0)!)
     )
-    if (!isValidFilter) {
+    if (!isFiltersValid) {
         response.status(400).json('INVALID_FILTER').send()
         return
     }
@@ -146,4 +150,14 @@ export async function handleDeleteQuestion(request: Request, response: Response)
     const id = request.params.id
     await deleteQuestion(id)
     response.status(204).send()
+}
+
+export async function handleGetFilters(request: Request, response: Response): Promise<void> {
+    const filters = getFilterKeys()
+    response.status(200).json(filters).send()
+}
+
+export async function handleGetSorts(request: Request, response: Response): Promise<void> {
+    const sorts = getSortKeysAndOrders()
+    response.status(200).json(sorts).send()
 }
