@@ -97,7 +97,7 @@ function getFilterQueryOptions(filterBy: string[][]): FilterQuery<IQuestion>[] {
 }
 
 export function getFilterKeys(): { keys: string[] } {
-    return { keys: ['title, categories'] }
+    return { keys: ['title', 'categories'] }
 }
 
 export function getSortKeysAndOrders(): { keys: string[]; orders: string[] } {
