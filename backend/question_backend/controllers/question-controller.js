@@ -169,7 +169,7 @@ export const updateQuestion = [
                 return res.status(404).json({ message: "Question not found" });
             }
 
-            if (title && title !== question.title) {
+            if (title) {
                 const existingQuestion = await checkExistingQuestion(title);
                 if (existingQuestion) {
                     return res.status(409).json({ message: "A question with this title already exists" });
