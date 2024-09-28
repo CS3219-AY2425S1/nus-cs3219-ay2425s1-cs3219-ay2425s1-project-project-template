@@ -27,11 +27,25 @@ export function SignupForm() {
     <div>
       <form action={action}>
         <div>
-          <Textfield name="username" secure={false} placeholder_text="Name" />
+          <Textfield
+            name="username"
+            secure={false}
+            placeholder_text="Name"
+            required={true}
+            minLength={2}
+            maxLength={20}
+          />
           <p className="error">{state?.errors?.name}</p>
         </div>
         <div>
-          <Textfield name="email" secure={false} placeholder_text="Email" />
+          <Textfield
+            name="email"
+            secure={false}
+            placeholder_text="Email"
+            required={true}
+            minLength={5}
+            maxLength={50}
+          />
           <p className="error">{state?.errors?.email}</p>
         </div>
         <div>
@@ -39,6 +53,9 @@ export function SignupForm() {
             name="password"
             secure={true}
             placeholder_text="Password"
+            required={true}
+            minLength={8}
+            maxLength={20}
           />
           <p className="error">{state?.errors?.password}</p>
         </div>

@@ -27,9 +27,23 @@ export function LoginForm() {
   return (
     <div>
       <form action={action}>
-        <Textfield name="username" secure={false} placeholder_text="Name" />
+        <Textfield
+          name="username"
+          secure={false}
+          placeholder_text="Name"
+          required={true}
+          minLength={2}
+          maxLength={20}
+        />
         <p className="error">{state?.errors?.name}</p>
-        <Textfield name="password" secure={true} placeholder_text="Password" />
+        <Textfield
+          name="password"
+          secure={true}
+          placeholder_text="Password"
+          required={true}
+          minLength={8}
+          maxLength={20}
+        />
         <p className="error">{state?.errors?.password}</p>
         <Button type="submit" text="Login" />
       </form>
