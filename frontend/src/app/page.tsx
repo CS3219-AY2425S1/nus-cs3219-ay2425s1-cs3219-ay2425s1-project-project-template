@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
 export default function Home() {
@@ -13,13 +14,9 @@ export default function Home() {
                     <br />
                     and prepare for technical interviews - all in one place.
                 </p>
-                <div className="flex justify-start">
-                    <button className="mt-6 px-8 py-3 mr-4 secondary-color text-white font-bold rounded-lg">
-                        Get Started
-                    </button>
-                    <button className="mt-6 px-8 py-3 primary-color text-yellow-500 border border-yellow-500 font-bold rounded-lg">
-                        Find out more
-                    </button>
+                <div className="flex my-10 gap-8 justify-start">
+                    <Button size='xl' variant='default' className='font-bold'>Get Started</Button>
+                    <Button size='xl' variant='outline' className='font-bold'>Find out more</Button>
                 </div>
             </div>
         </section>
