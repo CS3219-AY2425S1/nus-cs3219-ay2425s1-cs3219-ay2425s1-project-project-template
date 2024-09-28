@@ -1,9 +1,10 @@
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { InputField } from '../customs/custom-input'
-import usePasswordToggle from './UsePasswordToggle'
-import CustomDialogWithButton from '../customs/custom-dialog'
 import validateInput, { initialFormValues } from '@/util/input-validation'
+
+import CustomDialogWithButton from '../customs/custom-dialog'
+import { InputField } from '../customs/custom-input'
+import { toast } from 'sonner'
+import usePasswordToggle from './UsePasswordToggle'
+import { useState } from 'react'
 
 function Setting() {
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
@@ -35,6 +36,7 @@ function Setting() {
             password: true,
             confirmPassword: true,
             proficiency: false,
+            loginPassword: false,
         }
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)

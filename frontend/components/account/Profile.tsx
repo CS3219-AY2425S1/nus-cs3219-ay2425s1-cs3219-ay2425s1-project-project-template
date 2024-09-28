@@ -1,8 +1,9 @@
-import { useState } from 'react'
 import { InputField, OptionsField } from '../customs/custom-input'
-import { toast } from 'sonner'
-import CustomDialogWithButton from '../customs/custom-dialog'
 import validateInput, { initialFormValues } from '@/util/input-validation'
+
+import CustomDialogWithButton from '../customs/custom-dialog'
+import { toast } from 'sonner'
+import { useState } from 'react'
 
 function Profile() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
@@ -33,6 +34,7 @@ function Profile() {
             password: false,
             confirmPassword: false,
             proficiency: true,
+            loginPassword: false,
         }
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)
