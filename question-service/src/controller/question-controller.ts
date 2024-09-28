@@ -21,8 +21,11 @@ function handleError(error: unknown, res: Response) {
 export async function createQuestion(req: Request, res: Response) {
     try {
         const question = await createQuestionService(req.body);
-        res.status(201).json(question);
-    } catch (error) {
+        return res.status(201).json(question);
+    } catch (error: any) {
+        if (error.message === 'DUPLICATE_QUESTION') {
+            return res.status(409).json({ error: 'Question already exists' });
+        }
         handleError(error, res);
     }
 }

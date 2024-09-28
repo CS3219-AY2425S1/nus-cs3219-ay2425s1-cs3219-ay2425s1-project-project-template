@@ -4,6 +4,13 @@ export async function createQuestion(questionData: any) {
     if (!questionData.title || !questionData.description) {
         throw new Error("Title and description are required");
     }
+    const existingQuestion = await getQuestionByTitle(questionData.title);
+    
+    if (existingQuestion) {
+        throw new Error('DUPLICATE_QUESTION');  // Throw an error if duplicate is found
+    }
+
+    // Create the question if no duplicate exists
     return await saveQuestion(questionData);
 }
 
