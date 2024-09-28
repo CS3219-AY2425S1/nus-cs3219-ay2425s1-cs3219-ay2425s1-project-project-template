@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 const QuestionDetail = ({ question, onClose }) => {
   const [isHovered, setIsHovered] = useState(false); // State for hover
 
