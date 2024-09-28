@@ -166,7 +166,6 @@ func Login() gin.HandlerFunc {
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Email not found"})
-			log.Fatal(err.Error())
 			return
 		}
 

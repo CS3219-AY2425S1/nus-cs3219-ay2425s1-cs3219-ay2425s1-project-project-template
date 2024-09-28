@@ -1,16 +1,20 @@
-import { Icon } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Icon } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface InputBoxProps {
-  type: string;
   placeholder: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  isPassword?: boolean;  // Optional prop to determine if input is a password
+  isPassword?: boolean; // Optional prop to determine if input is a password
 }
 
-const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, value, onChange, isPassword = false }) => {
+const InputBox: React.FC<InputBoxProps> = ({
+  placeholder,
+  value,
+  onChange,
+  isPassword = false,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -20,7 +24,7 @@ const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, value, onChange,
   return (
     <div className="relative w-full">
       <input
-        type={isPassword && !showPassword ? 'password' : 'text'}
+        type={isPassword && !showPassword ? "password" : "text"}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
@@ -33,7 +37,7 @@ const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, value, onChange,
           onClick={togglePasswordVisibility}
           className="absolute inset-y-0 right-3 flex items-center text-gray-400"
         >
-          <Icon as={showPassword ? FaEye : FaEyeSlash}/>
+          <Icon as={showPassword ? FaEye : FaEyeSlash} />
         </a>
       )}
     </div>

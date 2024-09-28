@@ -1,24 +1,32 @@
-import React, { useState } from 'react';
-import InputBox from '../../../components/InputBox';
-import LargeButton from '../../../components/SubmitButton';
-import { FaArrowLeft } from 'react-icons/fa';
-import logo from '/peerprep_logo.png';
-import { Box, Icon } from '@chakra-ui/react';
+import React, { useState } from "react";
+import InputBox from "../../../components/InputBox";
+import LargeButton from "../../../components/SubmitButton";
+import { FaArrowLeft } from "react-icons/fa";
+import logo from "/peerprep_logo.png";
+import { Box, Icon } from "@chakra-ui/react";
+import { useButtonWithLoading } from "../../../hooks/ButtonHooks";
 
 interface ResetPasswordViewProps {
-  onSubmit: (newPassword: string) => void;
-  onReturnToLogin : () => void;
+  onSubmit: (newPassword: string) => Promise<void>;
+  onReturnToLogin: () => void;
   errorMessage?: string;
 }
 
-const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, onReturnToLogin, errorMessage }) => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({
+  onSubmit,
+  onReturnToLogin,
+  errorMessage,
+}) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isLoading, onSubmitWithLoading] = useButtonWithLoading(() =>
+    onSubmit(password)
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Check if passwords match
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match!");
@@ -26,7 +34,7 @@ const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, onRetur
     }
 
     setPasswordError(null);
-    onSubmit(password);
+    onSubmitWithLoading();
   };
 
   return (
@@ -36,33 +44,49 @@ const ResetPasswordView: React.FC<ResetPasswordViewProps> = ({ onSubmit, onRetur
         <span className="text-6xl text-white">PeerPrep</span>
       </div>
       <div className="bg-white bg-opacity-10 p-10 rounded-lg backdrop-blur-md text-center w-[350px] max-w-full mx-auto">
-        <Box  onClick={onReturnToLogin}  className="flex items-center justify-start mb-2">
-          <Icon as={FaArrowLeft} color='white' _hover={{ color: 'purple.500' }} className="text-xl mr-2"/>
+        <Box
+          onClick={onReturnToLogin}
+          className="flex items-center justify-start mb-2"
+        >
+          <Icon
+            as={FaArrowLeft}
+            color="white"
+            _hover={{ color: "purple.500" }}
+            className="text-xl mr-2"
+          />
         </Box>
-        <h2 className="text-white text-2xl font-semibold mb-4">Reset Password</h2>
+        <h2 className="text-white text-2xl font-semibold mb-4">
+          Reset Password
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           <InputBox
-            type="password"
             placeholder="Enter new password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             isPassword={true}
           />
           <InputBox
-            type="password"
             placeholder="Confirm new password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             isPassword={true}
           />
-          <LargeButton text="Reset Password" onClick={handleSubmit} />
+          <LargeButton
+            text="Reset Password"
+            onClick={handleSubmit}
+            isLoading={isLoading}
+          />
         </form>
-        
+
         {/* Display password mismatch error */}
-        {passwordError && <div className="text-red-500 mt-4">{passwordError}</div>}
+        {passwordError && (
+          <div className="text-red-500 mt-4">{passwordError}</div>
+        )}
 
         {/* Display general error message */}
-        {errorMessage && <div className="text-red-500 mt-4">{errorMessage}</div>}
+        {errorMessage && (
+          <div className="text-red-500 mt-4">{errorMessage}</div>
+        )}
       </div>
     </div>
   );
