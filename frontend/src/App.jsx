@@ -7,6 +7,7 @@ function App() {
 
 
   const [questions, setQuestions] = useState([]);
+  
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -29,7 +30,7 @@ function App() {
 
   const deleteQuestion = async (questionId) => {
     try {
-      const response = await fetch(`http://localhost:4000/question/{questionId}`, {
+      const response = await fetch(`http://localhost:4000/question/${questionId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -37,7 +38,7 @@ function App() {
       }
       const data = await response.json();
       if (data.success) {
-        console.log(`successfully deleted question {questionId}`);
+        console.log(`successfully deleted question ${questionId}`);
         // refetch new question without deleted question
         fetchQuestions();
       }
@@ -48,8 +49,11 @@ function App() {
 
   const createQuestion = async (questionId, questionName, questionDescription, questionTopics, link, questionDifficulty) => {
     try {
-      const response = await fetch(`http://localhost:4000/question`, {
+      const response = await fetch('http://localhost:4000/question', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Indicate that the request body is JSON
+        },
         body: JSON.stringify({
           id: questionId,
           name: questionName,
@@ -64,11 +68,11 @@ function App() {
       }
       const data = await response.json();
       if (data.success) {
-        console.log(`successfully added question {questionId}`);
+        console.log(`successfully added question ${questionId}`);
         // refetch new question without deleted question
         fetchQuestions();
       }
-    } catch {
+    } catch (error) {
       console.log(error);
     }
   }
@@ -78,7 +82,7 @@ function App() {
     <>
       <Navbar/>
       <div className='question-list'>
-          <QuestionTable questions={questions} handleDelete={deleteQuestion} />
+          <QuestionTable questions={questions} handleDelete={deleteQuestion} handleCreate={createQuestion} />
       </div>
     </>
   )

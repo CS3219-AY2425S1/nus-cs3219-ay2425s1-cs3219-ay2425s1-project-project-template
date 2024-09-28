@@ -1,7 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from './QuestionTable.module.css'; // Import CSS Module
 
 const QuestionTable = ({ questions, handleDelete, handleCreate }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    questionId: '',
+    questionName: '',
+    questionDescription: '',
+    questionTopics: '',
+    link: '',
+    questionDifficulty: 'Easy', // Default value
+  });
+
+  const toggleForm = () => {
+    setShowForm(prevForm => !prevForm); //ensures latest state value
+  }
+
+  // updates dynamically
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    })
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const topicsArray = Array.isArray(formData.questionTopics) 
+        ? formData.questionTopics 
+        : JSON.parse(formData.questionTopics);
+
+    console.log(formData)
+        
+    const { questionId, questionName, questionDescription, questionTopics, link, questionDifficulty } = formData;
+    handleCreate(questionId, questionName, questionDescription, topicsArray, link, questionDifficulty);
+
+
+  }
+
   const getComplexityClass = (complexity) => {
     switch (complexity) {
       case 'Easy':
@@ -16,17 +54,61 @@ const QuestionTable = ({ questions, handleDelete, handleCreate }) => {
   };
 
   const formatString = (input) => {
-    // Check if the input is an array or a string
-    
-    return input.replace(/[\[\]"]/g, ""); // Remove brackets and quotes from a string
-  };
+    // Check if the input is an array
+    if (Array.isArray(input)) {
+        input = input.join(', '); 
+    } else if (typeof input !== 'string') {
+        console.error('Expected a string or an array but received:', input);
+        return ''; // or some default value
+    }
+
+    // Perform the replacement if it's a string
+    return input.replace(/[\[\]"]/g, "");
+};
   
 
   return (
+    
     <div className={styles.questionTable}>
       <section className={styles.tableHeader}>
         <h1>Question List</h1>
+        <button onClick={toggleForm}>Add Question</button>
       </section>
+      {showForm && (
+        <section className={styles.formSection}>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div>
+              <label>ID:</label>
+              <input type="text" name="questionId" value={formData.questionId} onChange={handleChange} required />
+            </div>
+            <div>
+              <label>Title:</label>
+              <input type="text" name="questionName" value={formData.questionName} onChange={handleChange} required />
+            </div>
+            <div>
+              <label>Description:</label>
+              <textarea name="questionDescription" value={formData.questionDescription} onChange={handleChange} required />
+            </div>
+            <div>
+              <label>Topics:</label>
+              <input type="text" name="questionTopics" value={formData.questionTopics} onChange={handleChange} required />
+            </div>
+            <div>
+              <label>Link:</label>
+              <input type="url" name="link" value={formData.link} onChange={handleChange} required />
+            </div>
+            <div>
+              <label>Difficulty:</label>
+              <select name="questionDifficulty" value={formData.questionDifficulty} onChange={handleChange}>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+            <button type="submit">Submit</button>
+          </form>
+        </section>
+      )}
       <section className={styles.tableSection}>
         <table className={styles.table}>
           <thead>
