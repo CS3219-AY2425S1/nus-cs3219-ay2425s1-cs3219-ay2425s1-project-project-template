@@ -1,5 +1,5 @@
 import { exit } from 'process';
-
+import questionsRouter from './routes/question-routes';
 import express, { json } from 'express';
 import pino from 'pino-http';
 import { sql } from 'drizzle-orm';
@@ -10,7 +10,7 @@ import { logger } from '@/lib/utils';
 const app = express();
 app.use(pino());
 app.use(json());
-
+app.use('/questions', questionsRouter);
 app.get('/', async (_req, res) => {
   res.json({
     message: 'OK',

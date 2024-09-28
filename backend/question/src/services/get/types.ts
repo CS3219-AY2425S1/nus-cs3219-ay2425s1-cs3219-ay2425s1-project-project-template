@@ -14,18 +14,14 @@ export type IGetQuestionsPayload = {
 };
 
 export type IGetQuestionsResponse = IServiceResponse<{
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   questions: Array<{
-    // TODO: Add schema from DB
-    /**
-     * - name
-     * - number
-     * - difficulty
-     * - topic
-     * - attempted?: May need joining with users table, or not
-     */
+    id: string; // name or title of the question
+    title: string; // question's unique identifier or number
+    difficulty: string; // difficulty level (e.g., 'easy', 'medium', 'hard')
+    topic: Array<string>; // array of topics the question belongs to
+    attempted?: boolean; // whether the user has attempted this question
   }>;
-  totalQuestions: number;
+  totalQuestions: number; // total number of questions matching the query
 }>;
 
 //=============================================================================
