@@ -1,15 +1,13 @@
-// frontend/src/app/login/login.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/authContext'; // Import useAuth hook
+import { useAuth } from '@/context/authContext';
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const { isAuthenticated, refreshAuth } = useAuth(); // Destructure from context
+  const { isAuthenticated, refreshAuth } = useAuth();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import classnames from 'classnames';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/authContext';
 
 const Navbar: React.FC = () => {
     const currentPath = usePathname();
@@ -23,30 +24,8 @@ const Navbar: React.FC = () => {
         { label: 'Login', href: '/login' },
     ];
 
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-    useEffect(() => {
-        const checkAuthStatus = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/users/status', {
-                    method: 'GET',
-                    credentials: 'include', // Ensure cookies are sent with the request
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsAuthenticated(data.isAuthenticated);
-                } else {
-                    setIsAuthenticated(false);
-                }
-            } catch (error) {
-                console.error('Error fetching auth status:', error);
-                setIsAuthenticated(false);
-            }
-        };
-
-        checkAuthStatus();
-    }, []);
+    
+    const { isAuthenticated, refreshAuth } = useAuth();
 
     return (
         <nav className="bg-violet-800 w-full p-2 top-0">
