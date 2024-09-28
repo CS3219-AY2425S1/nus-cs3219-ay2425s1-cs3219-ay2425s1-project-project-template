@@ -7,6 +7,7 @@ import (
 	"github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g32/peerprep-questions/db"
 	"github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g32/peerprep-questions/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -65,4 +66,21 @@ func (qr QuestionRepository) ListQuestions() ([]model.Question, error) {
 	}
 
 	return questions, nil
+}
+
+// get question with specific id
+func (qr QuestionRepository) GetQuestion(id string) (model.Question, error) {
+	var question model.Question
+	questionId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.Question{}, err
+	}
+	filter := bson.M{"_id": questionId}
+	collection := db.GetCollection(qr.mongoClient, "questions")
+	err = collection.FindOne(context.Background(), filter).Decode(&question)
+
+	if err != nil {
+		return model.Question{}, err
+	}
+	return question, nil
 }
