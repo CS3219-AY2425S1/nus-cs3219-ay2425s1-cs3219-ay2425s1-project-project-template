@@ -70,7 +70,7 @@ const Filters: React.FC<FiltersProps> = ({
         filters={COMPLEXITIES}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
-        filterKey="complexity"
+        filterKey="Complexity"
         color="purple.300"
       />
       <Text textColor={"white"} size={"lg"}>
@@ -81,7 +81,7 @@ const Filters: React.FC<FiltersProps> = ({
         filters={CATEGORIES}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
-        filterKey="categories"
+        filterKey="Categories"
         color="purple.300"
       />
     </HStack>
