@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 
 const QuestionDisplay: React.FC = () => {
     const [question, setQuestion] = useState<string>('');
@@ -7,8 +6,8 @@ const QuestionDisplay: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('https:localhost:8080/questions');
-                setQuestion(response.data.question);
+                const response = await fetch('https:localhost:8080/questions');
+                setQuestion(response.data);
             } catch (error) {
                 console.error('Error fetching question:', error);
             }
