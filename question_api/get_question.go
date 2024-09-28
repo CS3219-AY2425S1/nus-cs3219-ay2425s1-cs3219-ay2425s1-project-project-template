@@ -3,7 +3,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -24,22 +23,28 @@ func GetQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 			return
 		}
 
-		question_cursor := db.questions.FindOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
-		
-		if question_cursor.Err() != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"Error retrieving question": "Question not found"})
+
+		var questions []Question
+		questions, err = db.GetAllQuestionsWithQuery(logger, bson.D{bson.E{Key: "id", Value: id}})
+
+		if err != nil {
+			ctx.JSON(http.StatusBadGateway, err.Error())
+			return
+		}
+
+		if len(questions) == 0 {
+			ctx.JSON(http.StatusNotFound, "Question not found")
 			logger.Log.Warn(fmt.Sprintf("Question with ID %d not found", id))
 			return
 		}
 
-		var question Question
-		if err := question_cursor.Decode(&question); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"Error retrieving question": "Error decoding question"})
-			logger.Log.Error("Error decoding question: ", err)
+		if len(questions) > 1 {
+			ctx.JSON(http.StatusBadGateway, "more than one question found")
+			logger.Log.Error("Multiple questions with the same id")
 			return
 		}
 
-		ctx.JSON(http.StatusOK, question)
+		ctx.JSON(http.StatusOK, questions[0])
 		logger.Log.Info(fmt.Sprintf("Question with ID %d returned successfully", id))
 	}
 }

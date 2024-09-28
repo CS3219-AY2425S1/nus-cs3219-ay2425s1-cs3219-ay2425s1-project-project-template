@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 func GetAllQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		questions, err := db.GetAllQuestions(logger)
+		questions, err := db.GetAllQuestionsWithQuery(logger, bson.D{})
 
 		if err != nil {
 			ctx.JSON(http.StatusBadGateway, err.Error())
