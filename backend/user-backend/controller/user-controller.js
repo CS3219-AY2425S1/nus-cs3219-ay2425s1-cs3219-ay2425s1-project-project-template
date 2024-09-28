@@ -52,7 +52,9 @@ export async function getUser(req, res) {
 
     return res.status(200).json({
       message: `Found user`,
-      data: await formatPartialUserResponse(user)
+      data: await (req.user.isAdmin || req.user.id === userId 
+        ? formatFullUserResponse(user)
+        : formatPartialUserResponse(user))
     });
 
   } catch (err) {
