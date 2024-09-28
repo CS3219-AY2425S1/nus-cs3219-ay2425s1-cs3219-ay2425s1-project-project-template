@@ -6,7 +6,7 @@ const QuestionModelSchema = new Schema({
     title: {
         type: String,
         required: true,
-        unique: true
+        // unique: true
     },
     description: {
         type: String,
@@ -21,5 +21,7 @@ const QuestionModelSchema = new Schema({
         required: true
     },
 });
+
+QuestionModelSchema.index({ title: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
 
 export default mongoose.model("QuestionModel", QuestionModelSchema);
