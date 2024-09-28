@@ -53,3 +53,7 @@ const columns: IDatatableColumn[] = [
 ]
 
 export { columns }
+
+export default function None() {
+    ;<></>
+}

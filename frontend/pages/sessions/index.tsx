@@ -258,3 +258,7 @@
 //         </div>
 //     )
 // }
+
+export default function Sessions() {
+    ;<></>
+}
