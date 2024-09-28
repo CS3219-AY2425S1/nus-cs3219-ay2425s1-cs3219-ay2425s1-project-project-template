@@ -1,9 +1,9 @@
-"use client"
+  "use client"
 
 import React, { useState } from 'react'
 import { Check, CheckIcon, ChevronDownIcon, ChevronUpIcon, PlusIcon, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Card } from '@/components/ui/card'
 
 interface Question {
@@ -39,9 +39,40 @@ const initialQuestions: Question[] = [
   {
     id: 4,
     title: "Reverse a String",
-    description: " Write a function that reverses a string. The input string is given as an array of characters.You must do this by modifying the input array in-place with O(1) extra memory. Constraints1 <= s.length <= 105 s[i] is a printable ascii  character. ",
+    description: "Write a function that reverses a string. The input string is given as an array of characters.You must do this by modifying the input array in-place with O(1) extra memory. Constraints1 <= s.length <= 105 s[i] is a printable ascii  character. ",
     category: "Strings, Algorithms",
     complexity: "Easy"
+  },
+  {
+    id: 5,
+    title: "Longest Common Subsequence",
+    description: `Given two strings text1 and text2, return the length of their longest common 
+    subsequence. If there is no common subsequence, return 0. A subsequence of a string is a new
+    string generated from the original string with some characters (can be none) deleted without
+    changing the relative order of the remaining characters. For example, 'ace' is a subsequence 
+    of 'abcde'. A common subsequence of two strings is a subsequence that is common to both strings.
+    Example 1:
+    Input: text1 = "abcde", text2 = "ace" 
+    Output: 3  
+    Explanation: The longest common subsequence is "ace" and its length is 3.
+
+    Example 2:
+
+    Input: text1 = "abc", text2 = "abc"
+    Output: 3
+    Explanation: The longest common subsequence is "abc" and its length is 3.
+
+    Example 3:
+
+    Input: text1 = "abc", text2 = "def"
+    Output: 0
+    Explanation: There is no such common subsequence, so the result is 0.
+
+    
+    Constraints: 1 <= text1.length, text2.length <= 1000, text1 and text2 consist of only lowercase 
+    English character`, 
+    category: "Strings, Algorithms",
+    complexity: "Medium"
   }
 ]
 
@@ -58,7 +89,11 @@ const ComplexityBadge: React.FC<{ complexity: Question['complexity'] }> = ({ com
     </span>
   )
 }
-
+const truncateDescription = (description: string, lines: number = 4) => {
+  const words = description.split(' ')
+  const truncatedString = words.slice(0, lines * 20).join(' ')
+  return truncatedString.length < description.length ? `${truncatedString}...` : truncatedString
+}
 export default function Questions() {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [expandedQuestionId, setExpandedQuestionId] = useState<number | null>(null)
@@ -145,7 +180,20 @@ export default function Questions() {
               {expandedQuestionId === question.id && (
                 <tr>
                   <td colSpan={6} className="px-6 py-4 whitespace-normal text-sm text-gray-500 bg-gray-50">
-                    <strong className="font-medium">Description:</strong> {question.description}
+                    <strong className="font-medium">Description:</strong> {' '}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <span className="cursor-pointer transform hover:scale-[1.03] transition duration-200 ease-in-out">
+                          {truncateDescription(question.description)}
+                        </span>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>{question.title}</DialogTitle>
+                        </DialogHeader>
+                        <p className="mt-2 text-sm text-gray-500">{question.description}</p>
+                      </DialogContent>
+                    </Dialog>
                   </td>
                 </tr>
               )}
