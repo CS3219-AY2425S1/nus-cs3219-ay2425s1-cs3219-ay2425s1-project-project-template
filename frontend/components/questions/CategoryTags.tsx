@@ -5,7 +5,7 @@ const CATEGORY_TAG_COLORS: { [key: string]: string } = {
 }
 
 interface CategoryTagsProps {
-    questionId: number;
+    questionId: string;
     categories: string[];
 }
 export default function CategoryTags({ questionId, categories }: CategoryTagsProps) {
