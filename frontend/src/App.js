@@ -24,8 +24,6 @@ function App() {
       position='bottom-center'
       transition={Slide}
       theme='colored'
-      hideProgressBar={true}
-      autoClose={false}
     />
     </>
   );

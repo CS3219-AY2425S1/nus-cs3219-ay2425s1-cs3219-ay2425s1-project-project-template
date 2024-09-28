@@ -213,7 +213,7 @@ const QuestionPage = () => {
 
             </div>
             <div className="h-fit p-4 border border-gray-300 rounded-b-xl bg-white overflow-auto">
-              <div className='m-1 mb-5'>
+              <div className='m-1 mb-5 space-x-1'>
                 <h1 className="font-bold text-2xl">{selectedQuestion.title}</h1>
                 <Pill type={selectedQuestion.difficulty} data={selectedQuestion.difficulty} />
                 <Pill type={"topic"} data={selectedQuestion.topic} />

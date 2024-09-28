@@ -5,7 +5,7 @@ export default function CreateQuestionModal({ createQuestionHandler }) {
   const [questionData, setQuestionData] = useState({
     title: "",
     description: "",
-    difficulty: "",
+    difficulty: "Easy",
     topic: ""
   })
 
