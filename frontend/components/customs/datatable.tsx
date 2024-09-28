@@ -63,7 +63,7 @@ export default function Datatable({
                                 <TableHead
                                     key={elem.key}
                                     className="capitalize"
-                                    style={elem.maxWidth ? { width: elem.maxWidth } : {}}
+                                    style={{ width: elem.width, maxWidth: elem.maxWidth }}
                                 >
                                     <div className="flex items-center justify-center gap-1">
                                         {elem.key}

@@ -8,11 +8,15 @@ const columns: IDatatableColumn[] = [
         isHidden: true,
     },
     {
+        key: 'title',
+        width: '20%',
+    },
+    {
         key: 'category',
     },
     {
         key: 'description',
-        maxWidth: '45%',
+        width: '35%',
         formatter: (value) => {
             return (
                 <div
@@ -54,6 +58,7 @@ const columns: IDatatableColumn[] = [
         key: 'actions',
         isEdit: true,
         isDelete: true,
+        width: '12%',
     },
 ]
 

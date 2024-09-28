@@ -6,6 +6,7 @@ interface IRowData {
 interface IDatatableColumn {
     key: string
     isHidden?: boolean
+    width?: string
     maxWidth?: string
     formatter?: (value: any) => React.ReactNode
     isSortable?: boolean
