@@ -93,7 +93,8 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
-                            rows={4}
+                            minRows={4}
+                            maxRows={16}
                             className="text-field"
                         />
                         <TextField
@@ -133,6 +134,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
+                            maxRows={16}
                             className="text-field"
                         />
                         <TextField
@@ -144,6 +146,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
+                            maxRows={16}
                             className="text-field"
                         />
                         <TextField

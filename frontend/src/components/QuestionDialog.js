@@ -29,7 +29,7 @@ const QuestionDialog = ({ open, question, onClose }) => {
                 </IconButton>
                 
                 <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1, fontWeight: 'bold', fontFamily: 'Poppins' }}>
-                    <strong>Topic (s):</strong> {question.topic.join(', ')} &nbsp;&nbsp;&nbsp;&nbsp;
+                    <strong>Topic(s):</strong> {question.topic.join(', ')} &nbsp;&nbsp;&nbsp;&nbsp;
                     <strong>Difficulty:</strong> {question.difficulty}
                 </Typography>
             </DialogTitle>

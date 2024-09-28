@@ -103,7 +103,8 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
-              rows={4}
+              minRows={4}
+              maxRows={16}
               value={questionData.description}
               onChange={handleInputChange}
               className="text-field"
@@ -147,6 +148,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              maxRows={16}
               value={questionData.input}
               onChange={handleInputChange}
               className="text-field"
@@ -160,6 +162,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              maxRows={16}
               value={questionData.expected_output}
               onChange={handleInputChange}
               className="text-field"
