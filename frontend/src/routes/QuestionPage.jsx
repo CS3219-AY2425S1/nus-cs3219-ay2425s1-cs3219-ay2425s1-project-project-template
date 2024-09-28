@@ -146,13 +146,14 @@ const QuestionPage = () => {
   return (
     <div className="question-page-container">
       <h1 className="text-3xl font-bold mb-4">Question Repository</h1>
-      <div className='justify-end ml-auto m-2'>
+      <div className='justify-end ml-auto m-2 space-x-2'>
         <CreateQuestionModal createQuestionHandler={handleCreateQuestion} />
+        {selectedQuestion && <EditQuestionModal selectedQuestion={selectedQuestion} editQuestionHandler={handleEditQuestion} />}
       </div>
-      <PanelGroup direction="horizontal">
+      <PanelGroup direction="horizontal" className='z-0'>
         <>  
           <Panel id="questions" order={1} className='m-1'>
-            <div className='flex flex-col overflow-auto h-96 rounded-xl'>
+            <div className='flex flex-col overflow-auto h-96 rounded-xl will-change-transform z-0 relative'>
               <table className="min-w-full table-fixed bg-white border border-gray-300 rounded-xl">
                 <thead className='bg-blue-200 text-slate-900 sticky top-0 '>
                   <tr className='text-left'>
@@ -206,9 +207,6 @@ const QuestionPage = () => {
                   >
                     Delete
                   </button>
-
-                  {/* Edit Button */}
-                  <EditQuestionModal selectedQuestion={selectedQuestion} editQuestionHandler={handleEditQuestion} />
                 </div>
 
             </div>
