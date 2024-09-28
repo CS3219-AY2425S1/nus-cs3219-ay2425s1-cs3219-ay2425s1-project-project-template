@@ -14,7 +14,7 @@ import {
   TableProps,
   Tabs,
   Tag,
-  Modal
+  Modal,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
@@ -25,7 +25,11 @@ import {
 } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState } from "react";
-import { DeleteQuestion as DeleteQuestionByDocref, GetQuestions, Question } from "./services/question";
+import {
+  DeleteQuestion as DeleteQuestionByDocref,
+  GetQuestions,
+  Question,
+} from "./services/question";
 import {
   CategoriesOption,
   DifficultyOption,
@@ -38,28 +42,40 @@ import {
  * - {index: docref string, deleteConfirmed: false}: Modal popup asking whether to delete the question, pending user's decision to confirm or cancel
  * - {index: docref string, deleteConfirmed: true}: Currently deleting the question and reloading the database
  */
-type DeletionStage = {} | {index: Question, deleteConfirmed: boolean}
+type DeletionStage = {} | { index: Question; deleteConfirmed: boolean };
 
-function DeleteModal({isDeleting, questionTitle, okHandler, cancelHandler}: {questionTitle: string, okHandler: () => void, cancelHandler: () => void, isDeleting: boolean }) {
-  const title: string = `Delete Question \"${questionTitle}\"?`
-  const text: string = 'This action is irreversible(?)!' 
+function DeleteModal({
+  isDeleting,
+  questionTitle,
+  okHandler,
+  cancelHandler,
+}: {
+  questionTitle: string;
+  okHandler: () => void;
+  cancelHandler: () => void;
+  isDeleting: boolean;
+}) {
+  const title: string = `Delete Question \"${questionTitle}\"?`;
+  const text: string = "This action is irreversible(?)!";
 
-  return <Modal 
-    open={true} 
-    title={title} 
-    onOk={okHandler} 
-    onCancel={cancelHandler} 
-    confirmLoading={isDeleting} 
-    okButtonProps={{danger: true}}
-    cancelButtonProps={{disabled: isDeleting}}>
-    <p>{text}</p>
-  </Modal>
+  return (
+    <Modal
+      open={true}
+      title={title}
+      onOk={okHandler}
+      onCancel={cancelHandler}
+      confirmLoading={isDeleting}
+      okButtonProps={{ danger: true }}
+      cancelButtonProps={{ disabled: isDeleting }}
+    >
+      <p>{text}</p>
+    </Modal>
+  );
 }
 
 export default function Home() {
-
   // State of Deletion
-  const [deletionStage, setDeletionStage] = useState<DeletionStage>({})
+  const [deletionStage, setDeletionStage] = useState<DeletionStage>({});
 
   // Table States
   const [questions, setQuestions] = useState<Question[] | undefined>(undefined); // Store the questions
@@ -107,7 +123,13 @@ export default function Home() {
       setIsLoading(true);
     }
 
-    let data = await GetQuestions(currentPage, limit, sortBy, difficulty, delayedSearch);
+    let data = await GetQuestions(
+      currentPage,
+      limit,
+      sortBy,
+      difficulty,
+      delayedSearch
+    );
     setQuestions(data.questions);
     setTotalCount(data.totalCount);
     setTotalPages(data.totalPages);
@@ -116,7 +138,22 @@ export default function Home() {
     setIsLoading(false);
   }
 
-  useEffect(() => {loadQuestions()}, [limit, currentPage, sortBy, difficulty, delayedSearch]);
+  useEffect(() => {
+    loadQuestions();
+  }, [limit, currentPage, sortBy, difficulty, delayedSearch]);
+
+  useEffect(() => {
+    loadQuestions();
+  }, [limit, currentPage, sortBy, difficulty, delayedSearch]);
+
+  // Delay the fetching of data only after user stops typing for awhile
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDelayedSearch(search);
+      setCurrentPage(1); // Reset the current page
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   // Table column specification
   const columns: TableProps<Question>["columns"] = [
@@ -169,8 +206,8 @@ export default function Home() {
             danger
             icon={<DeleteOutlined />}
             onClick={() => {
-              setDeletionStage({index: question, deleteConfirmed: false})}
-            }
+              setDeletionStage({ index: question, deleteConfirmed: false });
+            }}
           ></Button>
         </div>
       ),
@@ -219,7 +256,7 @@ export default function Home() {
       error("Cannot delete: questions does not exist");
       return;
     }
-    
+
     setDeletionStage({ index: deletionStage.index, deleteConfirmed: true });
     await DeleteQuestionByDocref(deletionStage.index.docRefId);
     if (questions.length == 1 && currentPage > 1) {
@@ -230,13 +267,12 @@ export default function Home() {
         await loadQuestions();
         success("Question deleted successfully");
       } catch (err) {
-        if (typeof err == 'string') {
+        if (typeof err == "string") {
           error(err);
         }
       }
     }
     setDeletionStage({});
-
   };
   return (
     <div>
@@ -333,11 +369,14 @@ export default function Home() {
           </div>
         </Content>
       </Layout>
-      {("index" in deletionStage && questions != undefined) && <DeleteModal 
-        okHandler={confirmDeleteHandler} 
-        cancelHandler={() => setDeletionStage({})}
-        questionTitle={deletionStage.index.title}
-        isDeleting={deletionStage.deleteConfirmed}/>}
+      {"index" in deletionStage && questions != undefined && (
+        <DeleteModal
+          okHandler={confirmDeleteHandler}
+          cancelHandler={() => setDeletionStage({})}
+          questionTitle={deletionStage.index.title}
+          isDeleting={deletionStage.deleteConfirmed}
+        />
+      )}
     </div>
   );
 }
