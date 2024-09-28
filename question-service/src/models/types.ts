@@ -1,19 +1,24 @@
-import { UUID } from 'crypto';
+import { z } from 'zod';
+import { ObjectId } from 'mongodb';
 
-export interface Questions {
-  _question_id: number;
-  difficulty: number; // 1, 2, 3
-  description: string;
-  examples: string[];
-  constraints: string;
-  tags: string[];
-  title_slug: string;
-  title: string;
-  pictures?: File[];
-}
+// object id schema
+const objectIdSchema = z.instanceof(ObjectId);
 
-export interface UserQuestions {
-  _user_id: UUID;
-  _question_id: UUID;
-  status: string; // 'completed', 'in-progress', 'not-started'
-}
+export const QuestionsSchema = z.object({
+  _id: objectIdSchema,
+  difficulty: z.number(),
+  description: z.string(),
+  examples: z.array(z.string()),
+  constraints: z.string(),
+  tags: z.array(z.string()),
+  title_slug: z.string(),
+  title: z.string(),
+  pictures: z.array(z.instanceof(File)).optional(),
+});
+
+export const UserQuestionsSchema = z.object({
+  _id: objectIdSchema,
+  _user_id: objectIdSchema,
+  _question_id: objectIdSchema,
+  status: z.enum(['completed', 'in-progress', 'not-started']),
+});

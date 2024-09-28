@@ -2,9 +2,12 @@
 import express, { Request, Response } from 'express';
 import { Collection, ObjectId } from 'mongodb';
 import { connectToDB } from '../db/mongoClient';
-import { Questions } from '../models/types';
+import { QuestionsSchema } from '../models/types';
+import { z } from 'zod';
 
 const router = express.Router();
+type Questions = z.infer<typeof QuestionsSchema>;
+
 let questionsCollection: Collection<Questions>;
 
 // Middleware to connect to MongoDB and get the collection
@@ -19,7 +22,7 @@ router.use(async (_, res, next) => {
 });
 
 // GET all items
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_, res: Response) => {
   try {
     const items = await questionsCollection.find().toArray();
     res.status(200).json(items);
@@ -29,18 +32,19 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Update a question
-router.put('/:questionId', async (req: Request, res: Response) => {
-  const { questionId } = req.params;
-  const updatedQuestion: Questions = req.body;
+router.put('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const parsedResult = QuestionsSchema.safeParse(req.body);
+  if (!parsedResult.success) {
+    return res
+      .status(400)
+      .json({ error: 'Invalid question data. Please check your input.' });
+  }
 
   try {
-    if (!updatedQuestion || typeof updatedQuestion !== 'object') {
-      return res.status(400).json({ error: 'Invalid question data.' });
-    }
-
     const result = await questionsCollection.updateOne(
-      { _id: new ObjectId(questionId) },
-      { $set: updatedQuestion },
+      { _id: new ObjectId(id) },
+      { $set: parsedResult.data },
     );
 
     if (result.matchedCount === 0) {
@@ -49,7 +53,7 @@ router.put('/:questionId', async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Question updated successfully',
-      data: [{ _id: questionId }],
+      data: [{ _id: id }],
     });
   } catch (error) {
     console.error('Error updating question:', error);
@@ -58,54 +62,29 @@ router.put('/:questionId', async (req: Request, res: Response) => {
 });
 
 // POST a new question
-router.post('/', async (req: Request, res: Response) => {
+router.post('/post', async (req: Request, res: Response) => {
+  const parseResult = QuestionsSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    return res
+      .status(400)
+      .json({ error: 'Invalid question data. Please check your input.' });
+  }
   try {
-    const newQuestion: Questions = req.body; // Assume the body contains a question object
-
-    const {
-      difficulty,
-      description,
-      examples,
-      constraints,
-      tags,
-      title_slug,
-      title,
-      pictures,
-    } = newQuestion;
-
-    if (
-      typeof difficulty !== 'number' ||
-      typeof description !== 'string' ||
-      !Array.isArray(examples) ||
-      typeof constraints !== 'string' ||
-      !Array.isArray(tags) ||
-      typeof title_slug !== 'string' ||
-      typeof title !== 'string'
-    ) {
-      return res
-        .status(400)
-        .json({ error: 'Invalid question data. Please check your input.' });
-    }
-
-    const result = await questionsCollection.insertOne(newQuestion);
-
-    res.status(201).json({
-      message: 'Question inserted successfully',
-      data: [{ _id: result.insertedId }],
-    });
+    const result = await questionsCollection.insertOne(parseResult.data);
+    res.status(201).json(result);
   } catch (error) {
-    console.error('Error inserting question:', error);
     res.status(500).json({ error: 'Failed to insert question' });
   }
 });
 
 // DELETE a question
-router.delete('/:questionId', async (req: Request, res: Response) => {
-  const { questionId } = req.params;
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
 
   try {
     const result = await questionsCollection.deleteOne({
-      _id: new ObjectId(questionId),
+      _id: new ObjectId(id),
     });
 
     if (result.deletedCount === 0) {
@@ -116,7 +95,7 @@ router.delete('/:questionId', async (req: Request, res: Response) => {
       message: 'Question deleted successfully',
       data: [
         {
-          _id: questionId,
+          _id: id,
         },
       ],
     });
