@@ -149,7 +149,7 @@ const SignUp: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full px-4 py-2 font-semibold text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+            className={`w-full px-4 py-2 font-semibold text-white bg-violet-800 rounded-md hover:bg-violet-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
               loading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
