@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { QuestionDescriptionComponent } from '../question-description/question-description.component';
 import {MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {EditPageComponent} from "../../edit-page/edit-page.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-question-box',
@@ -22,8 +23,8 @@ export class QuestionBoxComponent {
   openModal() {
     this.dialog.open(QuestionDescriptionComponent, {
       data: {
-        questionTitle: this.question.title,
-        questionDifficulty: this.question.difficulty
+        questionTitle: this.question.question_title,
+        questionDifficulty: this.question.question_complexity
       },
       panelClass: 'custom-modalbox',
       width: '400px'
@@ -34,7 +35,7 @@ export class QuestionBoxComponent {
   openEditModal() {
    this.dialog.open(EditPageComponent, {
      data: {
-       questionId: '66f7e238315ce6a3b381c481',
+       questionId: this.question.question_id,
      },
      panelClass: 'custom-modalbox',
      width: '800px',

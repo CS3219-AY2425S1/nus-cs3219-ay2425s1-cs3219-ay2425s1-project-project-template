@@ -52,12 +52,6 @@ export class EditPageComponent implements OnInit {
     });
   }
 
-  // ngOnInit() {
-  //   this.route.params.subscribe((params) => {
-  //     this.questionId = params['id'];
-  //     this.loadQuestionData();
-  //   });
-  // }
   ngOnInit() {
     if(this.data?.questionId) {
       this.questionId = this.data.questionId;

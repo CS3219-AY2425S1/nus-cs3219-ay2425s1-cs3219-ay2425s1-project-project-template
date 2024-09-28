@@ -65,7 +65,6 @@ export class AddPageComponent {
       Question_categories: this.question_categories.filter(cat => cat.selected).map(cat => cat.name),
       Question_complexity: this.question_complexity
     };
-    console.log(newQuestion);
     this.questionService.addQuestion(newQuestion).subscribe((response) => {
         alert('Question added successfully!');
         this.dialogRef.close();
