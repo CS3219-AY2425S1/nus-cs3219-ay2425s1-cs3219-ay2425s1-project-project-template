@@ -37,8 +37,8 @@
 }
 
 .back-button:hover {
-  color: mediumvioletred;
-  transform: scale(2.1);
+  /* color: mediumvioletred; */
+  transform: scale(1.5);
 }
 
 .description-box {
