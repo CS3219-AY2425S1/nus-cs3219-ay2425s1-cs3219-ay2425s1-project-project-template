@@ -15,6 +15,8 @@ import { WarningIcon } from './warning'
 import LeftIcon from './left'
 import RightIcon from './right'
 import CloseIcon from './close'
+import EditIcon from './edit'
+import DeleteIcon from './delete'
 
 export {
     CsharpIcon,
@@ -34,4 +36,6 @@ export {
     LeftIcon,
     RightIcon,
     CloseIcon,
+    EditIcon,
+    DeleteIcon,
 }
