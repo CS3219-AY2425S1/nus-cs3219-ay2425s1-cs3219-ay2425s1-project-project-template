@@ -150,6 +150,7 @@ export function PasswordReset() {
                 onChange={handleFormChange}
                 error={formErrors.password}
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+                page="auth"
             />
             <InputField
                 id="confirmPassword"
@@ -160,6 +161,7 @@ export function PasswordReset() {
                 onChange={handleFormChange}
                 error={formErrors.confirmPassword}
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
+                page="auth"
             />
             <DialogFooter>
                 <Button type="submit" className="bg-purple-600 hover:bg-[#A78BFA]" onClick={onReset}>
