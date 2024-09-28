@@ -15,13 +15,13 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
         outline: "text-foreground",
-        easy: "bg-[var(--color-easy-bg)] text-white shadow hover:bg-[var(--color-easy-hover)]",
+        easy: "border-transparent bg-[var(--color-easy-bg)] text-white shadow hover:bg-[var(--color-easy-hover)]",
         medium:
-          "bg-[var(--color-medium-bg)] text-white shadow hover:bg-[var(--color-medium-hover)]",
-        hard: "bg-[var(--color-hard-bg)] text-white shadow hover:bg-[var(--color-hard-hover)]",
-        completed: "bg-[var(--color-completed-bg)] text-white shadow hover:bg-[var(--color-completed-hover)]",
-        unsolved: "bg-[var(--color-unsolved-bg)] text-white shadow hover:bg-[var(--color-unsolved-hover)]",
-        category: "bg-[var(--color-category-bg)] text-[#5932C3] shadow hover:bg-[var(--color-category-hover)]",
+          "border-transparent bg-[var(--color-medium-bg)] text-white shadow hover:bg-[var(--color-medium-hover)]",
+        hard: "border-transparent bg-[var(--color-hard-bg)] text-white shadow hover:bg-[var(--color-hard-hover)]",
+        completed: "border-transparent bg-[var(--color-completed-bg)] text-white shadow hover:bg-[var(--color-completed-hover)]",
+        unsolved: "border-transparent bg-[var(--color-unsolved-bg)] text-white shadow hover:bg-[var(--color-unsolved-hover)]",
+        category: "border-transparent bg-[var(--color-category-bg)] text-[#5932C3] shadow hover:bg-[var(--color-category-hover)]",
       },
     },
     defaultVariants: {
