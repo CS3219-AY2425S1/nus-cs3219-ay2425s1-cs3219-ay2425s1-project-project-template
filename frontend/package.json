@@ -20,7 +20,6 @@
     "clsx": "^2.1.1",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.445.0",
-    "monaco-editor": "^0.52.0",
     "next": "14.2.11",
     "react": "^18",
     "react-dom": "^18",
