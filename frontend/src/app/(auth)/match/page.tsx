@@ -18,6 +18,11 @@ import {
 } from "@/types/find-match";
 import { useForm } from "react-hook-form";
 
+interface FindMatchFormOutput {
+  questionDifficulty: string;
+  preferredLanguages: string;
+}
+
 function capitalizeWord(word: string) {
   if (!word) return word;
   return word[0].toUpperCase() + word.substr(1).toLowerCase();
@@ -63,8 +68,24 @@ const FindPeer = () => {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data); // This prevents redirection, as no page reload happens
+  const preferredLanguagesList = Object.values(QuestionLanguages).map((ql) => {
+    return {
+      label: capitalizeWord(ql),
+      value: ql,
+    };
+  });
+
+  const topicsList = Object.values(QuestionTopics)
+    .map((qt) => {
+      return {
+        label: capitalizeWord(qt),
+        value: qt,
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const onSubmit = (data: FindMatchFormOutput) => {
+    console.log(data);
   };
 
   return (

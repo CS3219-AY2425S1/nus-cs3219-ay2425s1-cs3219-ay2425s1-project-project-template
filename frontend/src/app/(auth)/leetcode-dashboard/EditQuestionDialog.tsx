@@ -1,6 +1,6 @@
 "use client";
 
-import { topicsList } from "@/app/(auth)/find-match/page";
+import { topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -21,9 +21,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { QuestionDifficulty } from "@/types/find-match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 import { z } from "zod";
 
-const EditQuestionDialog = () => {
+const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
+
+const EditQuestionDialog = ({ id }: { id: string }) => {
   const formSchema = z.object({
     questionTitle: z.string().min(2, {
       message: "Title must be at least 2 characters.",
@@ -50,7 +53,33 @@ const EditQuestionDialog = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const url = `${QUESTION_SERVICE}/${id}/update`;
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    })
+      .then((res) => {
+        if (res.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Question updated successfully!",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Failed to update question.",
+          });
+        }
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to update question.",
+        });
+      });
   }
 
   return (

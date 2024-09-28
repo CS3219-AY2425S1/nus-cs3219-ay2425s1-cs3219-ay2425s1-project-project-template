@@ -1,6 +1,6 @@
 "use client";
 
-import { topicsList } from "@/app/(auth)/find-match/page";
+import { topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -21,7 +21,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { QuestionDifficulty } from "@/types/find-match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 import { z } from "zod";
+
+const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
 const AddQuestionDialog = () => {
   const formSchema = z.object({
@@ -49,8 +52,37 @@ const AddQuestionDialog = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const url = `${QUESTION_SERVICE}/create`;
+    console.log("url", url);
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: values.questionTitle,
+        description: values.questionDescription,
+        category: values.questionTopics,
+        complexity: values.questionDifficulty,
+      }),
+    }).then((response) => {
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Question Added",
+          text: "Question has been added successfully.",
+        });
+      }
+
+      return response.json();
+    }).catch((error) => {
+      Swal.fire({
+        icon: "error",
+        title: "Question Add Failed",
+        text: "Please try again later.",
+      })
+    });
   }
 
   return (

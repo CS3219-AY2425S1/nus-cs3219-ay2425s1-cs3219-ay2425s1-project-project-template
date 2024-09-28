@@ -79,9 +79,9 @@ export function LeetcodeDashboardTable() {
     pageIndex: 0,
     pageSize: 10,
   });
+  
   React.useEffect(() => {
-    const leetcodeData = getLeetcodeDashboardData();
-    setData(leetcodeData);
+    getLeetcodeDashboardData().then((data) => setData(data));
   }, []);
 
   const table = useReactTable({

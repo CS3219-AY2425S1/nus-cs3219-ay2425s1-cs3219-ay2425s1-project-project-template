@@ -1,56 +1,11 @@
 import { QuestionDifficulty, QuestionMinified } from "@/types/find-match";
 
-export const getLeetcodeDashboardData = (): QuestionMinified[] => {
-  return [
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-    {
-      questionId: "123",
-      questionTitle: "Two Sum 2",
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
-    },
-  ];
-};
+const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
+
+export const getLeetcodeDashboardData = async () => {
+  const url = `${QUESTION_SERVICE}/all`;
+  const response = await fetch(url);
+  const data = await response.json();
+  console.log(data);
+  return data;
+}
