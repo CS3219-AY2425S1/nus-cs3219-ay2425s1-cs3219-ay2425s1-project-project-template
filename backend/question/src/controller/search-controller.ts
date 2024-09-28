@@ -7,7 +7,7 @@ export const searchQuestionsByTitle = async (req: Request, res: Response): Promi
   const limit = parseInt(req.query.limit as string) || 10;
 
   if (!title) {
-    return res.status(200).json({ message: 'Title is required' });
+    return res.status(200);
   }
 
   try {
