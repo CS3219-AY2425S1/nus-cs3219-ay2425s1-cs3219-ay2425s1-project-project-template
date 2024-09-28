@@ -7,6 +7,7 @@ export enum QuestionCategory {
     DATABASES = 'Databases',
     ARRAYS = 'Arrays',
     BRAINTEASER = 'Brainteaser',
+    OTHER = 'Other',
   }
   
   export enum QuestionComplexity {
