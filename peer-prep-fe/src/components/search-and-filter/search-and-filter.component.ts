@@ -14,7 +14,7 @@ import { QuestionService } from '../../services/question.service';
 export class SearchAndFilterComponent {
   @Output() refresh = new EventEmitter<void>();
 
-  constructor(private dialog: MatDialog, questionService : QuestionService) {}
+  constructor(private dialog: MatDialog, private questionService : QuestionService) {}
   openAddModal() {
     const dialogRef = this.dialog.open(AddPageComponent, {
       panelClass: 'custom-modalbox',
@@ -31,7 +31,11 @@ export class SearchAndFilterComponent {
     });
   }
 
-  searchQuestions() {
-    this.qu
+  searchQuestions(searchTerm: string) {
+    this.questionService.searchQuestion(searchTerm).subscribe((data: any) => {
+      this.questions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
   }
 }
