@@ -47,7 +47,6 @@ export class QuestionListComponent implements OnInit {
 
   loadSearchedQuestions(searchTerm?: string) {
     if (searchTerm) {
-      // default alphabetical sorting for now
       this.questionService.searchQuestion(searchTerm).subscribe((data: any) => {
         this.questions = data.data.data;
       }, (error) => {
