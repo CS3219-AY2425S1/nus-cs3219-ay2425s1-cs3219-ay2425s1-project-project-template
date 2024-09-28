@@ -8,7 +8,12 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:8080/questions');
+                const response = await fetch('http://localhost:8080/questions', {
+                    mode: "cors",
+                    headers: {
+                      "Access-Control-Allow-Origin": "http://localhost:8080",
+                    },
+                  });
                 const data = await response.json();
                 setData(data._embedded.questionList);
             } catch (error) {

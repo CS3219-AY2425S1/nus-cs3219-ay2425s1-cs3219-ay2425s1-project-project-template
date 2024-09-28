@@ -1,6 +1,5 @@
 import React from "react";
 
-
 const AddQuestionModal: React.FC<{ isOpen: boolean; onClose: () => void}> = ({ isOpen, onClose}) => {
   function onSubmit() {
     const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
