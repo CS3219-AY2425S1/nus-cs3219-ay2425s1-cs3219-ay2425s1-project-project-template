@@ -94,7 +94,6 @@ func GetQuestionsById(c *gin.Context) {
 func addQuestionsToDb() {
 	leetCodeQuestions := []interface{}{
 		models.Question{
-			ID:    1,
 			Title: "Reverse a String",
 			Description: `Write a function that 
 reverses a string. The 
@@ -133,7 +132,6 @@ character.`,
 			Link:       "https://leetcode.com/problems/reverse-string/",
 		},
 		models.Question{
-			ID:    2,
 			Title: "Two Sum",
 			Description: `
 Implement a function 
@@ -145,7 +143,6 @@ list contains a cycle.
 			Link:       "https://leetcode.com/problems/two-sum/",
 		},
 		models.Question{
-			ID:    3,
 			Title: "Roman To Integer",
 			Description: `
 Given a roman 
@@ -174,4 +171,58 @@ an integer.
 		fmt.Printf("Inserted document with _id: %v\n", id)
 	}
 
+}
+
+// func AddQuestionToDb(title, description, categories, complexity, link string) {
+// 	question := models.Question{
+// 		Title:       title,
+// 		Description: description,
+// 		Categories:  categories,
+// 		Complexity:  complexity,
+// 		Link:        link,
+// 	}
+
+// 	// Insert the new question into the database
+// 	result, err := coll.InsertOne(context.TODO(), question)
+// 	if err != nil {
+// 		log.Fatal("Error inserting new question into the collection: ", err)
+// 	}
+
+// 	fmt.Printf("Document inserted with _id: %v\n", result.InsertedID)
+// }
+
+func validateQuestion(question *models.Question) bool {
+	return question.Title != "" && question.Description != "" &&
+		question.Categories != "" && question.Complexity != "" && question.Link != ""
+}
+
+func AddQuestionToDb() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var question models.Question
+
+		if err := c.BindJSON(&question); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+			return
+		}
+
+		// Validate required fields
+		if !validateQuestion(&question) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
+			return
+		}
+
+		result, err := coll.InsertOne(ctx, question)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add question to the database"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Question added successfully",
+			"_id":     result.InsertedID,
+		})
+	}
 }
