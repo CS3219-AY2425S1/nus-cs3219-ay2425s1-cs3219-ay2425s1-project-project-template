@@ -3,6 +3,9 @@
     {{ index + 1 }}. {{ question.question_title.toUpperCase() }}
   </button>
   <div class="misc">
+    <button class="delete-icon" (click)="openDeleteModal()">
+      <i class="fa-solid fa-trash fa-2xl" style="color: #ffffff;"></i>
+    </button>
     <button class="edit-icon" (click)="openEditModal()">
       <i class="far fa-pencil fa-2x"></i>
     </button>
