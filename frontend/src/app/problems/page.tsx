@@ -15,23 +15,47 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+  
+  import { Ellipsis } from 'lucide-react'
+
 import { Badge } from "@/components/ui/badge"
 import CompletedIcon from '@mui/icons-material/TaskAlt';
 import { useEffect, useState } from "react";
 import QuestionDialog from "./QuestionDialog"
 import AddQuestionForm from "./components/addQuestionForm"
+import EditQuestionForm from "./components/editQuestionForm"
 
 export default function QuestionsPage() {
-    const [questions, setQuestions] = useState([])
+    const [questions, setQuestions] = useState([]);
+    const [questionId, setQuestionId] = useState([]);
     const [isAddQuestionDisplayed, setIsAddQuestionDisplayed] = useState(false);
+    const [isEditQuestionDisplayed, setIsEditQuestionDisplayed] = useState(false);
 
-    const handleOpenCard = () => {
+    const handleOpenAddCard = () => {
         setIsAddQuestionDisplayed(true);
     };
   
-    const handleCloseCard = () => {
+    const handleCloseAddCard = () => {
         setIsAddQuestionDisplayed(false);
     };
+
+    const handleOpenEditCard = (questionId) => {
+        setQuestionId(questionId);
+        setIsEditQuestionDisplayed(true);
+    }
+
+    const handleCloseEditCard = () => {
+        setIsEditQuestionDisplayed(false);
+    }
 
     const fetchQuestions = async () => {
         try {
@@ -57,7 +81,7 @@ export default function QuestionsPage() {
                     <h1 className="text-3xl 2xl:text-4xl font-bold text-black text-start">
                         Coding Questions
                     </h1>
-                    <Button onClick={handleOpenCard}>{/*need to link this to open the add question form*/}Create a new question</Button>
+                    <Button onClick={handleOpenAddCard}>{/*need to link this to open the add question form*/}Create a new question</Button>
                 </div>
                 <div className="my-12">
                     {/* Search */}
@@ -107,17 +131,40 @@ export default function QuestionsPage() {
                                         </TooltipProvider>
                                     )}
                                 </TableCell> */}
+                                <TableCell>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Ellipsis />
+                                        </DropdownMenuTrigger>
+                                         <DropdownMenuContent className="w-56">
+                                          <DropdownMenuItem onSelect={() => handleOpenEditCard(question.questionId)}>
+                                            Edit Question
+                                          </DropdownMenuItem>
+                                         </DropdownMenuContent>
+                                      </DropdownMenu>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
-                {/* Popup card for the form */}
+                {/* Popup card for the add question form */}
                     {isAddQuestionDisplayed && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-xl font-bold mb-4">Create New Question</h2>
                         
-                        <AddQuestionForm onClose={handleCloseCard} />
+                        <AddQuestionForm onClose={handleCloseAddCard} />
+                        </div>
+                    </div>
+                    )}
+
+                {/* Popup card for the edit question form */}
+                {isEditQuestionDisplayed && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <h2 className="text-xl font-bold mb-4">Edit Question</h2>
+                        
+                        <EditQuestionForm questionId={questionId} onClose={handleCloseEditCard} />
                         </div>
                     </div>
                     )}
