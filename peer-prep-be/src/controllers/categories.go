@@ -74,8 +74,10 @@ func CreateCategory(c echo.Context) error {
 	// 	return c.JSON(http.StatusBadRequest, responses.StatusResponse{Message: "Category already exists"})
 	// }
 
+	newCategoryId := primitive.NewObjectID()
+
 	newCategory := models.Category{
-		Category_id:   primitive.NewObjectID(),
+		Category_id:   newCategoryId,
 		Category_name: category.Category_name,
 	}
 
@@ -98,6 +100,8 @@ func CreateCategory(c echo.Context) error {
 			Message: err.Error(),
 		})
 	}
+	
+	updateResult.UpsertedID = newCategoryId;
 
 	// Check if a new category was created or if it was already existing
 	if updateResult.UpsertedCount > 0 {
@@ -105,6 +109,7 @@ func CreateCategory(c echo.Context) error {
 		return c.JSON(http.StatusCreated, responses.StatusResponse{
 			Status: http.StatusCreated,
 			Message: "Category created successfully",
+			Data: &echo.Map{"data": updateResult},
 		})
 	}
 
@@ -143,7 +148,7 @@ func UpdateCategory(c echo.Context) error {
 	}
 
 	// Perform the Update operation
-	_, err = categoriesCollection.UpdateOne(ctx, bson.M{"_id": categoryId}, update)
+	updateResult, err := categoriesCollection.UpdateOne(ctx, bson.M{"_id": categoryId}, update)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
@@ -155,6 +160,7 @@ func UpdateCategory(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.StatusResponse{
 		Status:  http.StatusOK,
 		Message: "Category updated successfully",
+		Data: &echo.Map{"data": updateResult},
 	})
 }
 
