@@ -28,6 +28,7 @@ export enum QuestionTopic {
 }
 
 export type Question = {
+    _id?: string; // TODO: Remove optional 
     title: string;
     description: string;
     topics: QuestionTopic[];
