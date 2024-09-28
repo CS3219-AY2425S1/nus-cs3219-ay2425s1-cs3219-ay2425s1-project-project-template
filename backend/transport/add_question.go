@@ -1,14 +1,17 @@
 // this is a method used to add questions to the database. This function will eventually be only called by admins.
-package main
+package transport
 
 import (
 	"net/http"
+	"peerprep/common"
+	"peerprep/database"
+
 	"github.com/gin-gonic/gin"
 )
 
-func AddQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
+func AddQuestionWithLogger(db *database.QuestionDB, logger *common.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var question Question
+		var question common.Question
 
 		if err := ctx.BindJSON(&question); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"Error adding question": err.Error()})

@@ -1,5 +1,5 @@
 // defines the JSON format of quesitons.
-package main
+package common
 
 type Difficulty int 
 

@@ -1,17 +1,19 @@
 //updates a question with a given id. The id must be matched perfectly.
 //Updating questions will not increment the next id like that of a post request, unless the supplied id is greater or equal to the next id.
 
-package main
+package transport
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"peerprep/common"
+	"peerprep/database"
 )
 
 // for PUT requests, to replace an entire question with a new question, or create a new question if the id does not yet exist
-func ReplaceQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
+func ReplaceQuestionWithLogger(db *database.QuestionDB, logger *common.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id_param, err := strconv.Atoi(ctx.Param("id"))
 
@@ -21,7 +23,7 @@ func ReplaceQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 			return
 		}
 
-		var new_question Question
+		var new_question common.Question
 		err = ctx.BindJSON(&new_question)
 		
 		if err != nil {

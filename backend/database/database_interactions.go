@@ -1,5 +1,5 @@
 // contains the database-related functions for the questions API.
-package main
+package database
 
 import (
 	"context"
@@ -9,9 +9,10 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"peerprep/common"
 )
 
-func (db *QuestionDB) GetAllQuestionsWithQuery(logger *Logger, filter bson.D) ([]Question, error) {
+func (db *QuestionDB) GetAllQuestionsWithQuery(logger *common.Logger, filter bson.D) ([]common.Question, error) {
 	questionCursor, err := db.questions.Find(context.Background(), filter)
 
 	if err != nil {
@@ -19,7 +20,7 @@ func (db *QuestionDB) GetAllQuestionsWithQuery(logger *Logger, filter bson.D) ([
 		return nil, err
 	}
 
-	var questions []Question
+	var questions []common.Question
 
 	if err = questionCursor.All(context.Background(), &questions); err != nil {
 		logger.Log.Error("Error decoding questions: ", err.Error())
@@ -29,7 +30,7 @@ func (db *QuestionDB) GetAllQuestionsWithQuery(logger *Logger, filter bson.D) ([
 	return questions, nil
 }
 
-func (db *QuestionDB) AddQuestion(logger *Logger, question *Question) (int, error) {
+func (db *QuestionDB) AddQuestion(logger *common.Logger, question *common.Question) (int, error) {
 	if db.QuestionExists(question) {
 		logger.Log.Warn("Cannot add question: question already exists")
 		return http.StatusConflict, errors.New("question already exists")
@@ -51,7 +52,7 @@ func (db *QuestionDB) AddQuestion(logger *Logger, question *Question) (int, erro
 	return http.StatusOK, nil
 }
 
-func (db *QuestionDB) UpsertQuestion(logger *Logger, question *Question) (int, error) {
+func (db *QuestionDB) UpsertQuestion(logger *common.Logger, question *common.Question) (int, error) {
 
 	filter := bson.D{bson.E{Key: "id", Value: question.ID}}
 	setter := bson.M{"$set": question}
@@ -67,7 +68,7 @@ func (db *QuestionDB) UpsertQuestion(logger *Logger, question *Question) (int, e
 	return http.StatusOK, nil
 }
 
-func (db *QuestionDB) DeleteQuestion(logger *Logger, id int) (int, error) {
+func (db *QuestionDB) DeleteQuestion(logger *common.Logger, id int) (int, error) {
 	deleteStatus, err := db.questions.DeleteOne(context.Background(), bson.D{bson.E{Key: "id", Value: id}})
 
 	if err != nil {

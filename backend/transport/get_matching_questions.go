@@ -1,9 +1,11 @@
 // this is used to get all questions that match a query. The query can be on either the title or the id of the question
-package main
+package transport
 
 import (
 	"fmt"
 	"net/http"
+	"peerprep/common"
+	"peerprep/database"
 	"strconv"
 	"strings"
 
@@ -12,7 +14,7 @@ import (
 )
 
 //matches if the id is equal to the query, or if the title contains the query
-func GetMatchingQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
+func GetMatchingQuestionsWithLogger(db *database.QuestionDB, logger *common.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		query := ctx.Param("query")
 		

@@ -1,14 +1,16 @@
 // This is used to keep track of all the endpoints that we are using in the application
-package main
+package transport
 
 import (
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"peerprep/common"
+	"peerprep/database"
 )
 
-func SetAllEndpoints(router *gin.Engine, db *QuestionDB, logger *Logger) {
+func SetAllEndpoints(router *gin.Engine, db *database.QuestionDB, logger *common.Logger) {
 	router.GET("/questions", GetAllQuestionsWithLogger(db, logger))
 	router.POST("/questions", AddQuestionWithLogger(db, logger))
 	router.GET("/questions/search/:query", GetMatchingQuestionsWithLogger(db, logger))

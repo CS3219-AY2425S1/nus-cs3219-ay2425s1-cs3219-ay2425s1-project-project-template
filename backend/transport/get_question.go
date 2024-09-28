@@ -1,10 +1,12 @@
 // This is used to get a specific question using the unique ID of the question.
 // The endpoint is defined as /questions/solve/id=<id>
-package main
+package transport
 
 import (
 	"fmt"
 	"net/http"
+	"peerprep/common"
+	"peerprep/database"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +14,7 @@ import (
 )
 
 
-func GetQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
+func GetQuestionWithLogger(db *database.QuestionDB, logger *common.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// get the numeric ID from the URL
 		id, err := strconv.Atoi(ctx.Param("id"))
@@ -24,7 +26,7 @@ func GetQuestionWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
 		}
 
 
-		var questions []Question
+		var questions []common.Question
 		questions, err = db.GetAllQuestionsWithQuery(logger, bson.D{bson.E{Key: "id", Value: id}})
 
 		if err != nil {

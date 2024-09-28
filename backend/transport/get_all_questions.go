@@ -1,13 +1,15 @@
 // endpoint to get all questions
-package main
+package transport
 
 import (
 	"net/http"
+	"peerprep/common"
+	"peerprep/database"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 )
-func GetAllQuestionsWithLogger(db *QuestionDB, logger *Logger) gin.HandlerFunc {
+func GetAllQuestionsWithLogger(db *database.QuestionDB, logger *common.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		questions, err := db.GetAllQuestionsWithQuery(logger, bson.D{})
 

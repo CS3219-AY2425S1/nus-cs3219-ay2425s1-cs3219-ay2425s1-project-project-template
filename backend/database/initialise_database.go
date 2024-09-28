@@ -1,5 +1,5 @@
 // this is used to initialise the database connection
-package main
+package database
 
 import (
 	"context"
@@ -11,9 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func initialiseDB() (*mongo.Client, error) {
+func InitialiseDB() (*mongo.Client, error) {
 	// Load environment variables
-	err := godotenv.Load("../questionDB.env")
+	err := godotenv.Load("questionDB.env")
 
 	if err != nil {
 		log.Fatal("Error loading environment variables: " + err.Error())
