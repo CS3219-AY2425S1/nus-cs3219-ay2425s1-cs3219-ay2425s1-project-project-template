@@ -12,25 +12,17 @@ import { getAllQuestionTopics } from "@/utils/questions";
 interface QuestionFormProps {
   formType: string;
   formData: Question;
-  handleSubmit: (FormData: Question) => void;
   setFormData: (formData: Question) => void;
-  initialData?: Question;
   onSubmit: (data: Question) => void;
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
   formType,
-  initialData,
+  formData,
+  setFormData,
   onSubmit,
 }) => {
   const router = useRouter();
-
-  const [questionTitle, setQuestionTitle] = useState<string>(
-    initialData ? initialData.title : "",
-  );
-  const [questionDifficulty, setQuestionDifficulty] = useState<string>("");
-  const [questionTopics, setQuestionTopics] = useState<string[]>([]);
-  const [questionDescription, setQuestionDescription] = useState<string>("");
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
   const allQuestionTopics = getAllQuestionTopics();
@@ -91,22 +83,12 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAdd = () => {
+  const handleSubmit = () => {
     if (!isValid()) {
       return;
     }
 
-    handleSubmit(formData);
-    console.log("Add button pressed");
-    // Prepare the data and pass it to the onSubmit function
-    const questionData = {
-      title: questionTitle,
-      complexity: questionDifficulty,
-      category: questionTopics,
-      description: questionDescription,
-    };
-
-    onSubmit(questionData as Question);
+    onSubmit(formData);
   };
 
 
@@ -172,8 +154,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         <Button color="danger" onClick={() => router.push("/questions")}>
           Cancel
         </Button>
-        <Button color="primary" onClick={handleAdd}>
-          Add
+        <Button color="primary" onClick={handleSubmit}>
+          {formType}
         </Button>
       </div>
     </>

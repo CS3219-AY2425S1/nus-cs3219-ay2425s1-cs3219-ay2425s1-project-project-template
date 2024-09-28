@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
-import { Question } from "@/types";
+import { Question } from "@/types/questions";
 
 const AddQuestionsPage = () => {
   const [formData, setFormData] = useState<Question>({
@@ -12,8 +12,8 @@ const AddQuestionsPage = () => {
     description: "",
   });
 
-  const handleSubmit = (formData: Question) => {
-    console.log(formData);
+  const handleOnSubmit = (updatedData: Question) => {
+    console.log(updatedData);
   };
 
   return (
@@ -23,8 +23,8 @@ const AddQuestionsPage = () => {
           <QuestionForm
             formData={formData}
             formType="Add"
-            handleSubmit={handleSubmit}
             setFormData={setFormData}
+            onSubmit={handleOnSubmit}
           />
         </div>
       </div>

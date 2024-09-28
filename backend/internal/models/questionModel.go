@@ -7,7 +7,7 @@ type Question struct {
 	QuestionID  string    `json:"questionId"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Category    string    `json:"category"`
+	Category    []string    `json:"category"`
 	Complexity  string    `json:"complexity"`
 	ImageURL    string    `json:"imageUrl"`
 	CreatedAt   time.Time `json:"createdAt"`

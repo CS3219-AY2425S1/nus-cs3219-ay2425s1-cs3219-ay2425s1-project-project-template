@@ -9,10 +9,11 @@ import { Link } from "@nextui-org/link";
 import { Input } from "@nextui-org/input";
 import NextLink from "next/link";
 
+import NavLink from "./navLink";
+
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
-import NavLink from "./navLink";
 
 export const Navbar = () => {
   const searchInput = (
@@ -48,9 +49,7 @@ export const Navbar = () => {
         <div className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
-              <NavLink href={ item.href }>
-                { item.label }
-              </NavLink>
+              <NavLink href={item.href}>{item.label}</NavLink>
             </NavbarItem>
           ))}
         </div>

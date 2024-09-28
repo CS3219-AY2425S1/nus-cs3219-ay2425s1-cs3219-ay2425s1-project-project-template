@@ -1,9 +1,9 @@
-import { Question } from "@/types/questions";
-import type { PressEvent } from "@react-types/shared";
 import { Button } from "@nextui-org/button";
-import { useDeleteQuestions } from "@/hooks/questions";
 import { useRouter } from "next/router";
 import { useState } from "react";
+
+import { useDeleteQuestions } from "@/hooks/questions";
+import { Question } from "@/types/questions";
 
 interface ActionButtonsProps {
   question: Question;
@@ -27,6 +27,7 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
 
     if (!question.questionId) {
       console.error("Question ID is undefined, cannot delete question.");
+
       return;
     }
     setIsDeleting(true);
@@ -45,13 +46,13 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
 
   return (
     <div className="flex gap-2 justify-center">
-      <Button onClick={handleEditOnClick} color="warning">
+      <Button color="warning" onClick={handleEditOnClick}>
         <p>Edit</p>
       </Button>
       <Button
-        onClick={handleDeleteOnClick}
         color="danger"
         disabled={isDeleting}
+        onClick={handleDeleteOnClick}
       >
         <p>{isDeleting ? "Deleting..." : "Delete"}</p>
       </Button>
