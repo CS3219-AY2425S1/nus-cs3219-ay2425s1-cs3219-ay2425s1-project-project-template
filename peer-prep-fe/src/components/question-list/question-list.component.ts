@@ -30,4 +30,8 @@ export class QuestionListComponent implements OnInit {
       console.error('Error fetching: ', error);
     })
   }
+
+  refreshQuestions() {
+    this.loadQuestions();
+  }
 }

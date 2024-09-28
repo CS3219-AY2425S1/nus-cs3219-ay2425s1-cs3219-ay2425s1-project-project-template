@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {QuestionService} from "../services/question.service";
@@ -22,6 +22,8 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/
 })
 
 export class EditPageComponent implements OnInit {
+  @Output() editComplete = new EventEmitter<void>();
+
   question_title: string= '';
   questionId: string = '';
   question_description: string = '';
@@ -91,6 +93,7 @@ export class EditPageComponent implements OnInit {
     this.questionService.updateQuestion(this.questionId, updatedQuestion).subscribe((response) => {
         alert('Question updated successfully!');
         this.dialogRef.close();
+        this.onEditComplete();
       },
       (error) => {
         alert('Error updating question');
@@ -104,6 +107,10 @@ export class EditPageComponent implements OnInit {
 
   navigateBack() {
     this.dialogRef.close();
+  }
+
+  onEditComplete() {
+    this.editComplete.emit();
   }
 }
 

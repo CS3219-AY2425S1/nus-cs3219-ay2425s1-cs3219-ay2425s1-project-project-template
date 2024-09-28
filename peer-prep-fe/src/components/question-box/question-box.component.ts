@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { Question } from '../../app/models/question.model';
 import { CommonModule } from '@angular/common';
 import { QuestionDescriptionComponent } from '../question-description/question-description.component';
@@ -17,6 +17,7 @@ import {Router} from "@angular/router";
 export class QuestionBoxComponent {
   @Input() question!: Question;
   @Input() index!: number;
+  @Output() refresh = new EventEmitter<void>();
 
  constructor(private dialog: MatDialog) {}
 
@@ -24,7 +25,8 @@ export class QuestionBoxComponent {
     this.dialog.open(QuestionDescriptionComponent, {
       data: {
         questionTitle: this.question.question_title,
-        questionDifficulty: this.question.question_complexity
+        questionDifficulty: this.question.question_complexity,
+        questionDescription: this.question.question_description
       },
       panelClass: 'custom-modalbox',
       width: '400px'
@@ -33,7 +35,7 @@ export class QuestionBoxComponent {
   }
 
   openEditModal() {
-   this.dialog.open(EditPageComponent, {
+   const dialogRef = this.dialog.open(EditPageComponent, {
      data: {
        questionId: this.question.question_id,
      },
@@ -44,6 +46,10 @@ export class QuestionBoxComponent {
        top: '200px',
      },
      disableClose: true
+   });
+
+   dialogRef.componentInstance.editComplete.subscribe(() => {
+     this.refresh.emit();
    });
   }
 }
