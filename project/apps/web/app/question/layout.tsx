@@ -1,11 +1,11 @@
 import Topbar from "@/components/Topbar";
 import { ReactNode } from "react";
 
-interface QuestionsLayoutProps {
+interface QuestionLayoutProps {
   children: ReactNode;
 }
 
-const QuestionsLayout = ({ children }: QuestionsLayoutProps) => {
+const QuestionLayout = ({ children }: QuestionLayoutProps) => {
   return (
     <>
       <Topbar />
@@ -14,4 +14,4 @@ const QuestionsLayout = ({ children }: QuestionsLayoutProps) => {
   );
 };
 
-export default QuestionsLayout;
+export default QuestionLayout;
