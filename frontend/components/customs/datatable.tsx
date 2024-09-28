@@ -1,7 +1,7 @@
 import { IDatatableProps, LanguageMode, SortDirection } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import CustomSelect from './custom-select'
-import { LeftIcon, RightIcon } from '@/assets/icons'
+import { DeleteIcon, EditIcon, LeftIcon, RightIcon } from '@/assets/icons'
 import { Button } from '../ui/button'
 import SortIcon from './sort-icon'
 
@@ -95,6 +95,22 @@ export default function Datatable({
                             {columns.map((col) => {
                                 if (col.isHidden) {
                                     return null
+                                }
+                                if (col.key === 'actions') {
+                                    return (
+                                        <TableCell>
+                                            {col.isEdit && (
+                                                <Button variant="iconNoBorder" size="icon">
+                                                    <EditIcon />
+                                                </Button>
+                                            )}
+                                            {col.isDelete && (
+                                                <Button variant="iconNoBorder" size="icon">
+                                                    <DeleteIcon />
+                                                </Button>
+                                            )}
+                                        </TableCell>
+                                    )
                                 }
                                 return (
                                     <TableCell key={col.key}>

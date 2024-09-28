@@ -13,6 +13,10 @@ async function getData(): Promise<IQuestion[]> {
     return mockQuestionsData
 }
 
+enum Modification {
+    CREATE = 'create',
+    UPDATE = 'updated',
+}
 export default function Questions() {
     const [data, setData] = useState<IQuestion[]>([])
     const [pagination, setPagination] = useState<IPagination>({
@@ -29,6 +33,7 @@ export default function Questions() {
         title: '',
         content: '',
         isOpen: false,
+        type: Modification.CREATE,
     })
 
     const [questionData, setQuestionData] = useState<IQuestion>({
@@ -52,6 +57,8 @@ export default function Questions() {
             isOpen: false,
         })
     }
+
+    const handleSubmitQuestionData = () => {}
 
     const clearFormData = () => {
         setQuestionData({
@@ -77,7 +84,14 @@ export default function Questions() {
                 <h2 className="text-xl font-bold">Questions</h2>
                 <Button
                     variant={'primary'}
-                    onClick={() => setModalData({ ...modalData, title: 'Create new question', isOpen: true })}
+                    onClick={() =>
+                        setModalData({
+                            ...modalData,
+                            title: 'Create new question',
+                            isOpen: true,
+                            type: Modification.CREATE,
+                        })
+                    }
                 >
                     Create
                 </Button>
@@ -92,7 +106,7 @@ export default function Questions() {
             />
             {modalData.isOpen && (
                 <CustomModal title={modalData.title} className="h-3/4 w-3/4" closeHandler={handleCloseModal}>
-                    <CustomForm fields={formFields} data={questionData} submitHandler={() => {}} />
+                    <CustomForm fields={formFields} data={questionData} submitHandler={handleSubmitQuestionData} />
                 </CustomModal>
             )}
         </div>

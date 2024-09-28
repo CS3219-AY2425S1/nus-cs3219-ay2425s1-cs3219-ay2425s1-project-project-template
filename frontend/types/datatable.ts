@@ -9,6 +9,8 @@ interface IDatatableColumn {
     formatter?: (value: any) => React.ReactNode
     isSortable?: boolean
     sortingFn?: (value: any) => any
+    isEdit?: boolean
+    isDelete?: boolean
 }
 
 interface IPagination {

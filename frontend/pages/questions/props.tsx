@@ -50,6 +50,11 @@ const columns: IDatatableColumn[] = [
             return <DifficultyLabel difficulty={value} />
         },
     },
+    {
+        key: 'actions',
+        isEdit: true,
+        isDelete: true,
+    },
 ]
 
 const formFields: IFormFields[] = [
