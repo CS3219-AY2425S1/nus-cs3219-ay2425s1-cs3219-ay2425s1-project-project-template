@@ -23,7 +23,6 @@ import ProfileTab from "@/components/user-settings/profile-tab";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
-import AuthPageWrapper from "../auth/auth-page-wrapper";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 
 const fetcher = async (url: string): Promise<User> => {

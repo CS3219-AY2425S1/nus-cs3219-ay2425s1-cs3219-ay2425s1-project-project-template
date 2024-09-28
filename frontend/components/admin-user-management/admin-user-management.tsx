@@ -15,7 +15,6 @@ import {
 import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
-import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 
 const fetcher = async (url: string): Promise<User[]> => {
