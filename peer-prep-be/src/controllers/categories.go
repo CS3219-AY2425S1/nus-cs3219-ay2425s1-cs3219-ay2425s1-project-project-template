@@ -177,7 +177,7 @@ func DeleteCategory(c echo.Context) error {
 		})
 	}
 
-	_, err = categoriesCollection.DeleteOne(ctx, bson.M{"_id": categoryId})
+	_, err = categoriesCollection.DeleteOne(ctx, bson.M{"category_id": categoryId})
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.StatusResponse{
