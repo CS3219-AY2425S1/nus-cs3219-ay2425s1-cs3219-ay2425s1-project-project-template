@@ -144,7 +144,7 @@ const EditQuestionModal: React.FC<{
         <div className="mt-3"></div>
         {/* Difficulty */}
         <div>
-          <label className="font-semibold">Difficulty Level</label>
+          <label className="font-semibold">Complexity Level</label>
           <div className="relative mt-1 shadow-md">
             <select
               name="difficulty"
@@ -164,7 +164,8 @@ const EditQuestionModal: React.FC<{
 
         {/* Topic */}
         <div className="mt-2">
-          <label className="font-semibold">Topic</label>
+          <label className="font-semibold">Categories</label>
+          <p className="text-xs text-gray-500">Separate different topic categories using commas. E.g., Arrays, Databases </p>
           <div className="relative mt-1 shadow-md">
             <input
               type="text"
@@ -192,7 +193,7 @@ const EditQuestionModal: React.FC<{
 
         {/* Question details */}
         <div className="mt-2">
-          <label className="font-semibold">Question details</label>
+          <label className="font-semibold">Question description</label>
           <div className="relative mt-1 shadow-md">
             <textarea
               name="details"

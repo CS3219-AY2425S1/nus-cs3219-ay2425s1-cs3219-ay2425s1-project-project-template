@@ -97,14 +97,14 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
           <div className="mt-3"></div>
           {/* Difficulty */}
           <div>
-            <label className="font-semibold">Difficulty Level</label>
+            <label className="font-semibold">Complexity Level</label>
             <div className="relative mt-1 shadow-md">
               <select 
                 name="difficulty" id="difficulty" 
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
                 defaultValue={""}
               >
-                <option value="" disabled hidden>Choose a difficulty level</option>
+                <option value="" disabled hidden>Choose a complexity level</option>
                 <option value="EASY" className="text-green ">Easy</option>
                 <option value="MEDIUM" className="text-orange-500">Medium</option>
                 <option value="HARD" className="text-red-700">Hard</option>
@@ -114,7 +114,7 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
 
           {/* Topic */}
           <div className="mt-2">
-            <label className="font-semibold">Topic</label>
+            <label className="font-semibold">Categories</label>
             <p className="text-xs text-gray-500">Separate different topic categories using commas. E.g., Arrays, Databases </p>
             <div className="relative mt-1 shadow-md">
               <input 
@@ -139,7 +139,7 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
 
           {/* Question details */}
           <div className="mt-2">
-            <label className="font-semibold">Question details</label>
+            <label className="font-semibold">Question description</label>
             <div className="relative mt-1 shadow-md">
               <textarea
                 name="details"
