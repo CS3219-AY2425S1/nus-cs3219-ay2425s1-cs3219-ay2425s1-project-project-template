@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -6,113 +8,34 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { useQuestions } from '@/hooks/useQuestions';
+} from "@/components/ui/table";
+import { useQuestions } from "@/hooks/useQuestions";
+import { Question } from "@/types/question";
 
-interface Question {
-  id: number;
-  title: string;
-  categories: string[];
-  complexity: 'Easy' | 'Medium' | 'Hard';
-  description: string;
-}
-
-const questions: Question[] = [
-  {
-    id: 1,
-    title: 'Two Sum',
-    categories: ['Array', 'Hash Table'],
-    complexity: 'Easy',
-    description: 'Find two numbers that add up to a target value.',
-  },
-  {
-    id: 2,
-    title: 'Add Two Numbers',
-    categories: ['Linked List', 'Math'],
-    complexity: 'Medium',
-    description: 'Add two numbers represented by linked lists.',
-  },
-  {
-    id: 3,
-    title: 'Longest Substring Without Repeating Characters',
-    categories: ['Hash Table', 'Two Pointers', 'String'],
-    complexity: 'Medium',
-    description: 'Find the longest substring without repeating characters.',
-  },
-  {
-    id: 4,
-    title: 'Median of Two Sorted Arrays',
-    categories: ['Array', 'Binary Search', 'Divide and Conquer'],
-    complexity: 'Hard',
-    description: 'Find the median of two sorted arrays.',
-  },
-  {
-    id: 5,
-    title: 'Longest Palindromic Substring',
-    categories: ['String', 'Dynamic Programming'],
-    complexity: 'Medium',
-    description: 'Find the longest palindromic substring.',
-  },
-  {
-    id: 6,
-    title: 'ZigZag Conversion',
-    categories: ['String'],
-    complexity: 'Medium',
-    description: 'Convert a string to zigzag pattern on a given number of rows.',
-  },
-  {
-    id: 7,
-    title: 'Reverse Integer',
-    categories: ['Math'],
-    complexity: 'Easy',
-    description: 'Reverse digits of an integer.',
-  },
-  {
-    id: 8,
-    title: 'String to Integer (atoi)',
-    categories: ['Math', 'String'],
-    complexity: 'Medium',
-    description: 'Convert a string to an integer.',
-  },
-  {
-    id: 9,
-    title: 'Palindrome Number',
-    categories: ['Math'],
-    complexity: 'Easy',
-    description: 'Determine whether an integer is a palindrome.',
-  },
-  {
-    id: 10,
-    title: 'Regular Expression Matching',
-    categories: ['String', 'Dynamic Programming', 'Backtracking'],
-    complexity: 'Hard',
-    description: 'Implement regular expression matching with support for \'.\' and \'*\'.',
-  },
-];
-
-const getComplexityColor = (complexity: 'Easy' | 'Medium' | 'Hard') => {
-  switch (complexity) {
-    case 'Easy':
-      return 'bg-green-100 text-green-800 border-green-300';
-    case 'Medium':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    case 'Hard':
-      return 'bg-red-100 text-red-800 border-red-300';
+const getDifficultyColor = (difficulty: "Easy" | "Medium" | "Hard") => {
+  switch (difficulty) {
+    case "Easy":
+      return "bg-green-100 text-green-800 border-green-300";
+    case "Medium":
+      return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    case "Hard":
+      return "bg-red-100 text-red-800 border-red-300";
   }
 };
 
 export default function ProblemsRoute() {
-  // const { data, isLoading } = useQuestions();
+  const { data: questions, isLoading } = useQuestions();
 
-  // if (isLoading || !data) {
-  //   return (
-  //     <div className='flex flex-col items-center justify-center h-full'>
-  //       <Loader2 className='w-8 h-8 animate-spin' />
-  //       <p className="mt-2">Loading...</p>
-  //     </div>
-  //   );
-  // }
+  console.log(questions);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin" />
+        <p className="mt-2">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -122,15 +45,18 @@ export default function ProblemsRoute() {
           <TableRow>
             <TableHead className="w-[30%]">Title</TableHead>
             <TableHead className="w-[30%]">Categories</TableHead>
-            <TableHead>Complexity</TableHead>
+            <TableHead>Difficulty</TableHead>
             <TableHead className="w-[40%]">Description</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {questions.map((question: Question) => (
+          {questions && questions.map((question: Question) => (
             <TableRow key={question.id}>
               <TableCell className="font-medium">
-                <Link to={`/problems/${question.id}`} className="text-blue-600 hover:underline">
+                <Link
+                  to={`/problems/${question.id}`}
+                  className="text-blue-600 hover:underline"
+                >
                   {question.title}
                 </Link>
               </TableCell>
@@ -142,11 +68,13 @@ export default function ProblemsRoute() {
                 ))}
               </TableCell>
               <TableCell>
-                <Badge 
+                <Badge
                   variant="outline"
-                  className={`${getComplexityColor(question.complexity)} font-medium`}
+                  className={`${getDifficultyColor(
+                    question.difficulty
+                  )} font-medium`}
                 >
-                  {question.complexity}
+                  {question.difficulty}
                 </Badge>
               </TableCell>
               <TableCell>{question.description}</TableCell>
