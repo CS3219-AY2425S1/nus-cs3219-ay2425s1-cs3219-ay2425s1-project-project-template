@@ -21,7 +21,7 @@ import {
     ButtonGroup, 
     IconButton,
 } from '@chakra-ui/react';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import MenuDrawer from "../../components/layout/MenuDrawer";
 import { FiAlignJustify } from 'react-icons/fi';
 import Filters from '../../components/Filter';
@@ -31,9 +31,10 @@ import QuestionModal from '../../components/QuestionModel';
 
 type QuestionViewProps = {
   questions: Question[];
+  onDeleteQuestion: (title: string) => void;
 };
 
-const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
+const QuestionView: React.FC<QuestionViewProps> = ({ questions, onDeleteQuestion }) => {
   const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
   const {
     isOpen: isMenuOpen,
@@ -171,6 +172,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
                             onMenuClose();
                         }}
                     />
+                    {/* Delete Button */}
+                    <IconButton
+                    icon={<Icon as={FaTrash} />}
+                    aria-label="Delete"
+                    colorScheme="red"
+                    onClick={() => {
+                      onDeleteQuestion(row.original.Title); // Call the delete handler
+                    }}
+                  />
                 </ButtonGroup>
             ),
         },
