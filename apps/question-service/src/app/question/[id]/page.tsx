@@ -10,6 +10,7 @@ import {
   Row,
   TableProps,
   Tag,
+  Select,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
@@ -55,7 +56,7 @@ export default function Home() {
   const [complexity, setComplexity] = useState<string | undefined>(undefined);
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
-  const [selectedItem, setSelectedItem] = useState("Python"); // State to hold the selected menu item
+  const [selectedItem, setSelectedItem] = useState("python"); // State to hold the selected language item
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
@@ -70,25 +71,6 @@ export default function Home() {
       setDescription(data.description);
     });
   }, [docRefId]);
-
-  // Function to handle the item selection
-  const handleMenuClick = (e: any) => {
-    const selected = ProgrammingLanguageOptions.find(
-      (item) => item.key === e.key
-    );
-    if (selected) {
-      setSelectedItem(selected.label);
-    }
-  };
-
-  // Menu component
-  const menu = (
-    <Menu onClick={handleMenuClick}>
-      {ProgrammingLanguageOptions.map((item) => (
-        <Menu.Item key={item.key}>{item.label}</Menu.Item>
-      ))}
-    </Menu>
-  );
 
   return (
     <div>
@@ -179,13 +161,12 @@ export default function Home() {
                       <text className="language-text">
                         Select Language:&nbsp;
                       </text>
-                      <Dropdown
+                      <Select
                         className="select-language-button"
-                        overlay={menu}
-                        trigger={["click"]}
-                      >
-                        <Button>{selectedItem}</Button>
-                      </Dropdown>
+                        defaultValue={selectedItem}
+                        onSelect={(val) => setSelectedItem(val)}
+                        options={ProgrammingLanguageOptions}
+                      />
                     </div>
                   </div>
                   <div className="code-editor-code-div">

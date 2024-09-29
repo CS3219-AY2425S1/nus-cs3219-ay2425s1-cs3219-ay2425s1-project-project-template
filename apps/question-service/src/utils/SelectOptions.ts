@@ -127,15 +127,15 @@ export const OrderOption = [
 
 export const ProgrammingLanguageOptions = [
   {
-    key: "1",
+    value: "python",
     label: "Python",
   },
   {
-    key: "2",
+    value: "java",
     label: "Java",
   },
   {
-    key: "3",
+    value: "c++",
     label: "C++",
   },
 ];
