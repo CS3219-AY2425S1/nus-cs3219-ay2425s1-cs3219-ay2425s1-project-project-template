@@ -20,7 +20,7 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { Question } from '../pages/question/questionService'; 
-import { CATEGORIES, COMPLEXITIES } from '../data';
+import { CATEGORIES, COMPLEXITIES } from '../constants/data';
 
 type QuestionModalProps = {
   isOpen: boolean;
@@ -41,7 +41,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ isOpen, onClose, onSave, 
     if (isOpen && initialQuestion) {
       setTitle(initialQuestion.Title);
       setDescription(initialQuestion.Description);
-      setSelectedCategories(initialQuestion.Categories.split(',')); // Assuming Categories is a comma-separated string
+      setSelectedCategories(initialQuestion.Categories.split(', ')); // Assuming Categories is a comma-separated string
       setComplexity(initialQuestion.Complexity);
       setLink(initialQuestion.link);
     } else {
