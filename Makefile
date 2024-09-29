@@ -2,7 +2,7 @@ setup:
 	./scripts/install-deps.sh
 	./scripts/ensure-volume.sh
 
-seed:
+migrate-seed:
 	./scripts/migrate-seed-databases.sh
 
 db-up:
