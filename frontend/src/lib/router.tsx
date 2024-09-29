@@ -7,11 +7,11 @@ import { RouteGuard, loader as routeGuardLoader } from '@/components/blocks/rout
 import { ForgotPassword } from '@/routes/forgot-password';
 import { Login } from '@/routes/login';
 import { QuestionDetails, loader as questionDetailsLoader } from '@/routes/questions/details';
+import { Questions, loader as questionsLoader } from '@/routes/questions/main';
 import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';
 import { ROUTES } from './routes';
-import { Questions } from '@/routes/questions/main';
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +27,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: ROUTES.QUESTIONS,
+                loader: questionsLoader(queryClient),
                 element: <Questions />,
               },
               {
