@@ -5,8 +5,6 @@ import Container from "@/components/ui/Container";
 import { PlusIcon } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/AddQuestionDialog";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 const LeetcodeDashboardHeader = () => {
   return (
@@ -29,15 +27,14 @@ const LeetcodeDashboard = () => {
       <LeetcodeDashboardHeader />
       <div className="flex justify-end mb-4">
         <Dialog>
-          <DialogTrigger>
-            <Button>
-              <PlusIcon /> Add A Question
-            </Button>
+          {/* Unable to reuse Button as cannot render Button inside DialogTrigger (causes hydration error) */}
+          <DialogTrigger className="bg-yellow-500 text-primary-foreground hover:bg-yellow-300 rounded flex text-primary-900 p-3">
+            <PlusIcon /> Add A Question
           </DialogTrigger>
           <AddQuestionDialog />
         </Dialog>
       </div>
-      <LeetcodeDashboardTable />
+      {/* <LeetcodeDashboardTable /> */}
     </Container>
   );
 };
