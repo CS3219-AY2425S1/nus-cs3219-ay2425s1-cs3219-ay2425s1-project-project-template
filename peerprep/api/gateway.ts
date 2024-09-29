@@ -6,6 +6,7 @@ const questions: { [key: string]: Question } = {
     "difficulty": 2,
     "title": "Two Sum",
     "description": "Given an array of integers, return indices of the two numbers such that they add up to a specific target.",
+    "categories": ["Hash Table", "Array"], 
     "test_cases": {
 	  	"[2, 7, 11, 15], 9" : "[0, 1]",
   		"[3, 2, 4], 6"      : "[1, 2]",
@@ -17,6 +18,7 @@ const questions: { [key: string]: Question } = {
     "difficulty": 1,
     "title": "Reverse Integer",
     "description": "Given a 32-bit signed integer, reverse digits of an integer.",
+    "categories": ["Math"],
     "test_cases": {
 		  "123" : "321",
 		  "1"   : "1",
@@ -36,13 +38,13 @@ export async function fetchQuestion(questionId: string): Promise<Question|Status
     const response = await fetch(`${process.env.NEXT_PUBLIC_QUESTION_SERVICE}/questions/solve/${questionId}`);
     if (!response.ok) {
       return {
-        ...(await response.json()),
-        status: response.status
+        error: await response.text(),
+        status: response.status 
       };
     }
     return await response.json() as Question;
   } catch (err: any) {
-    return { error: err.message, status: 0};
+    return { error: err.message, status: 400};
   }
 }
 
