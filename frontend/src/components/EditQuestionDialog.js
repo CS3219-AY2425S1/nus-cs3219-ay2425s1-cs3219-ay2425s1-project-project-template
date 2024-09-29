@@ -69,7 +69,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
           window.location.reload(); // Refresh the page after the update
           handleClose();
       } catch (error) {
-          setErrorMessage('Error updating question: ' + error);
+          setErrorMessage('Error updating question: ' + error.response.data.message); // Set error message
           setErrorOpen(true); // Open error dialog
       }
     };

@@ -59,7 +59,7 @@ const CreateQuestion = ({ open, handleClose }) => {
             window.location.reload();
             handleClose(); // Close the dialog after submission
         } catch (error) {
-            setErrorMessage('Error creating question: ' + error.message); // Set error message
+            setErrorMessage('Error creating question: ' + error.response.data.message); // Set error message
             setErrorOpen(true); // Open error dialog
         }
     };
