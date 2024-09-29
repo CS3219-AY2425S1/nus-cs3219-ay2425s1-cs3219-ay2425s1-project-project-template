@@ -25,8 +25,11 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { getLeetcodeDashboardData } from "@/api/leetcode-dashboard";
 import { QuestionMinified } from "@/types/find-match";
 import MoonLoader from "react-spinners/MoonLoader";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/EditQuestionDialog";
+import { motion } from "framer-motion";
+import Modal from "react-modal";
+import Swal from "sweetalert2";
+import { useEffect, useState } from "react";
 
 const Cell = ({
   className,
@@ -38,62 +41,119 @@ const Cell = ({
   return <div className={cn("text-center", className)}>{children}</div>;
 };
 
-export const columns: ColumnDef<QuestionMinified>[] = [
-  {
-    accessorKey: "questionid",
-    header: () => <Cell>ID</Cell>,
-    cell: ({ row }) => (
-      <Cell className="capitalize">{row.getValue("questionid")}</Cell>
-    ),
-  },
-  {
-    accessorKey: "title",
-    header: () => <Cell>Question Title</Cell>,
-    cell: ({ row }) => <Cell>{row.getValue("title")}</Cell>,
-  },
-  {
-    accessorKey: "complexity",
-    header: () => <Cell>Difficulty</Cell>,
-    cell: ({ row }) => {
-      return <Cell>{row.getValue("complexity")}</Cell>;
-    },
-  },
-  {
-    accessorKey: "category",
-    header: () => <Cell>Topics</Cell>,
-    cell: ({ row }) => {
-      return <Cell>{row.getValue("category")}</Cell>;
-    },
-  },
-  {
-    accessorKey: "actions",
-    header: () => <Cell>Actions</Cell>,
-    cell: ({ row }) => {
-      return (
-        <Cell>
-          <Dialog>
-            <DialogTrigger>
-              <HiOutlinePencil />
-              <EditQuestionDialog />
-            </DialogTrigger>
-          </Dialog>
-          <Button variant={"ghost"}>
-            <FaRegTrashAlt />
-          </Button>
-        </Cell>
-      );
-    },
-  },
-];
-
 export function LeetcodeDashboardTable() {
-  const [data, setData] = React.useState<QuestionMinified[]>([]);
+  const [data, setData] = useState<QuestionMinified[]>([]);
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [editingQuestionId, setEditingQuestionId] = React.useState<
+    string | null
+  >(null);
+
+  function handleDelete(questionid: string) {
+    Swal.fire({
+      icon: "error",
+      title: "Confirm delete?",
+      text: "Are you sure you want to delete this question?",
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Question deleted successfully!", "", "success");
+      }
+    });
+  }
+
+  function openModal(questionId: string) {
+    setIsOpen(true);
+    setEditingQuestionId(questionId);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+    setEditingQuestionId(null);
+  }
+
+  const modalAnimation = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.9 },
+  };
+
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  React.useEffect(() => {
+  const columns: ColumnDef<QuestionMinified>[] = [
+    {
+      accessorKey: "questionid",
+      header: () => <Cell>ID</Cell>,
+      cell: ({ row }) => (
+        <Cell className="capitalize">{row.getValue("questionid")}</Cell>
+      ),
+    },
+    {
+      accessorKey: "title",
+      header: () => <Cell>Question Title</Cell>,
+      cell: ({ row }) => <Cell>{row.getValue("title")}</Cell>,
+    },
+    {
+      accessorKey: "complexity",
+      header: () => <Cell>Difficulty</Cell>,
+      cell: ({ row }) => {
+        return <Cell>{row.getValue("complexity")}</Cell>;
+      },
+    },
+    {
+      accessorKey: "category",
+      header: () => <Cell>Topics</Cell>,
+      cell: ({ row }) => {
+        return <Cell>{row.getValue("category")}</Cell>;
+      },
+    },
+    {
+      accessorKey: "actions",
+      header: () => <Cell>Actions</Cell>,
+      cell: ({ row }) => {
+        const questionId: string = row.getValue("questionid");
+        return (
+          <Cell>
+            <Button onClick={() => openModal(questionId)} variant={"ghost"}>
+              <HiOutlinePencil />
+            </Button>
+            <Modal
+              isOpen={editingQuestionId === questionId}
+              onRequestClose={closeModal}
+              ariaHideApp={false}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-none"
+              style={{
+                overlay: {
+                  backgroundColor: "rgba(29, 36, 51, 0.8)",
+                },
+              }}
+            >
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={modalAnimation}
+                transition={{ duration: 0.3 }}
+              >
+                <EditQuestionDialog
+                  setClose={closeModal}
+                  questionId={questionId}
+                />
+              </motion.div>
+            </Modal>
+            <Button variant={"ghost"} onClick={() => handleDelete(questionId)}>
+              <FaRegTrashAlt />
+            </Button>
+          </Cell>
+        );
+      },
+    },
+  ];
+
+  useEffect(() => {
     getLeetcodeDashboardData().then((data) => setData(data));
   }, []);
 

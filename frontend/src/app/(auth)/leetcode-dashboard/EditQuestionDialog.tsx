@@ -3,11 +3,6 @@
 import { topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -20,13 +15,33 @@ import { MultiSelect } from "@/components/ui/multiselect";
 import { Textarea } from "@/components/ui/textarea";
 import { QuestionDifficulty } from "@/types/find-match";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import { z } from "zod";
+import MoonLoader from "react-spinners/MoonLoader";
+import { fetchSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
-const EditQuestionDialog = ({ id }: { id: string }) => {
+interface EditQuestionDialogProp {
+  setClose: () => void;
+  questionId: string;
+}
+
+const initialValues = {
+  questionTitle: "",
+  questionDifficulty: "",
+  questionTopics: [],
+  questionDescription: "",
+};
+
+const EditQuestionDialog = ({
+  setClose,
+  questionId,
+}: EditQuestionDialogProp) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [leetcodeData, setLeetcodeData] = useState(initialValues);
   const formSchema = z.object({
     questionTitle: z.string().min(2, {
       message: "Title must be at least 2 characters.",
@@ -44,49 +59,70 @@ const EditQuestionDialog = ({ id }: { id: string }) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      questionTitle: "",
-      questionDifficulty: "",
-      questionTopics: [],
-      questionDescription: "",
-    },
+    defaultValues: leetcodeData,
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const url = `${QUESTION_SERVICE}/${id}/update`;
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
-      .then((res) => {
-        if (res.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Question updated successfully!",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Failed to update question.",
-          });
-        }
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "Failed to update question.",
-        });
-      });
+  const { reset } = form;
+
+  useEffect(() => {
+    fetchSingleLeetcodeQuestion(questionId).then((resp) => {
+      const questionData = {
+        questionTitle: resp.title,
+        questionDifficulty: resp.complexity,
+        questionTopics: resp.category.map((x: string) => x.toLowerCase()),
+        questionDescription: resp.description,
+      };
+      console.log(questionData);
+      setLeetcodeData(questionData);
+      reset(questionData);
+    });
+  }, [questionId, reset]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+    // setIsSubmitting(true);
+    // const url = `${QUESTION_SERVICE}/create`;
+    // await fetch(url, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     title: values.questionTitle,
+    //     description: values.questionDescription,
+    //     category: values.questionTopics,
+    //     complexity: values.questionDifficulty,
+    //   }),
+    // })
+    //   .then((response) => {
+    //     if (response.ok) {
+    //       Swal.fire({
+    //         icon: "success",
+    //         title: "Question Added",
+    //         text: "Question has been added successfully.",
+    //       });
+    //     }
+
+    //     return response.json();
+    //   })
+    //   .catch((error) => {
+    //     Swal.fire({
+    //       icon: "error",
+    //       title: "Question Add Failed",
+    //       text: "Please try again later.",
+    //     });
+    //   })
+    //   .finally(() => {
+    //     setIsSubmitting(false);
+    //     setClose();
+    //   });
   }
 
   return (
-    <DialogContent className="bg-primary-700 h-80%">
-      <DialogHeader className="text-[32px] font-semibold text-yellow-500">
+    <div className="bg-primary-700 p-10 w-[60vw] rounded-lg pb-14">
+      <div className="text-[32px] font-semibold text-yellow-500">
         Edit Question
-      </DialogHeader>
+      </div>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)} // Ensure form.handleSubmit is used correctly
@@ -123,7 +159,7 @@ const EditQuestionDialog = ({ id }: { id: string }) => {
                     className="w-full bg-primary-800 text-white p-2 rounded-md border border-white capitalize"
                     {...field} // Connect field to the select element
                   >
-                    <option value="">Select difficulty</option>
+                    <div>Select difficulty</div>
                     {Object.values(QuestionDifficulty).map((qd) => (
                       <option value={qd} key={qd}>
                         <span className="capitalize">{qd}</span>
@@ -145,9 +181,9 @@ const EditQuestionDialog = ({ id }: { id: string }) => {
                 <FormControl>
                   <MultiSelect
                     options={topicsList}
-                    onValueChange={field.onChange} // Bind field.onChange for multi-select
-                    value={field.value} // Bind the value for controlled component
-                    placeholder="Select options"
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    placeholder="Select topics"
                     variant="inverted"
                     className="bg-primary-800"
                   />
@@ -167,19 +203,20 @@ const EditQuestionDialog = ({ id }: { id: string }) => {
                   <Textarea
                     placeholder="Type your description here."
                     className="text-white bg-primary-800"
-                    {...field} // Bind the Textarea to form control
+                    rows={6}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <DialogClose>
-            <Button type="submit">Submit</Button>
-          </DialogClose>
+          <Button type="submit" className="mt-8">
+            {isSubmitting ? <MoonLoader size="20" /> : "Submit"}
+          </Button>
         </form>
       </Form>
-    </DialogContent>
+    </div>
   );
 };
 
