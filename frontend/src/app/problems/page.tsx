@@ -9,21 +9,16 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
-import CompletedIcon from '@mui/icons-material/TaskAlt';
 import { useEffect, useState } from "react";
 import QuestionDialog from "./QuestionDialog"
 import AddQuestionForm from "./components/addQuestionForm"
+import { useAuth } from "@/context/authContext"
 
 export default function QuestionsPage() {
     const [questions, setQuestions] = useState([])
     const [isAddQuestionDisplayed, setIsAddQuestionDisplayed] = useState(false);
+    const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
 
     const handleOpenCard = () => {
         setIsAddQuestionDisplayed(true);
@@ -57,7 +52,8 @@ export default function QuestionsPage() {
                     <h1 className="text-3xl 2xl:text-4xl font-bold text-black text-start">
                         Coding Questions
                     </h1>
-                    <Button onClick={handleOpenCard}>{/*need to link this to open the add question form*/}Create a new question</Button>
+                    {isAdmin && 
+                    <Button onClick={handleOpenCard}>{/*need to link this to open the add question form*/}Create a new question</Button>}
                 </div>
                 <div className="my-12">
                     {/* Search */}
