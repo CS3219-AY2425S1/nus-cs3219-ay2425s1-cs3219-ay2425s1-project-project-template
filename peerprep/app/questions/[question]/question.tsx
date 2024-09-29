@@ -1,8 +1,10 @@
 "use client";
+import { deleteQuestion } from "@/api/gateway";
 import { Question, Difficulty } from "@/api/structs";
 import Chip from "@/components/shared/Chip";
 import PeerprepButton from "@/components/shared/PeerprepButton";
 import styles from "@/style/question.module.css";
+import { useRouter } from "next/navigation";
 
 interface Props {
   question: Question;
@@ -23,6 +25,7 @@ function DifficultyChip({ diff }: DifficultyChipProps) {
 }
 
 function QuestionBlock({ question }: Props) {
+  const router = useRouter();
   const keys = question.test_cases ? Object.keys(question.test_cases) : [];
 
   const createRow = (key: string) => (
@@ -33,6 +36,24 @@ function QuestionBlock({ question }: Props) {
       </td>
     </tr>
   );
+
+  const handleDelete = async () => {
+    if (
+      confirm(
+        `Are you sure you want to delete ${question.title}? (ID: ${question.id}) `
+      )
+    ) {
+      const status = await deleteQuestion(question);
+      if (status.error) {
+        alert(`Failed to delete question. Code ${status.status}:  ${status.error}`);
+        return;
+      }
+      console.log(`Successfully deleted the question.`);
+      router.push("/questions");
+    } else {
+      console.log("Deletion cancelled.");
+    }
+  }
 
   return (
     <>
@@ -46,10 +67,7 @@ function QuestionBlock({ question }: Props) {
           </div>
           <PeerprepButton
             className={` ${styles.button}`}
-            onClick={
-              /* TODO: Replace this function with gateway.delete*/ () =>
-                console.log("Delete Me!")
-            }
+            onClick={handleDelete}
           >
             Delete
           </PeerprepButton>
