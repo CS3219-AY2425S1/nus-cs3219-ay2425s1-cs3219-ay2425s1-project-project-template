@@ -1,7 +1,8 @@
 import { useCallback } from "react";
 import { Key as ReactKey } from "react";
+
+import Link from "next/link";
 import { Button } from "@nextui-org/button";
-import { Link } from "@nextui-org/link";
 import {
   Table,
   TableHeader,
@@ -11,6 +12,7 @@ import {
   TableCell,
 } from "@nextui-org/table";
 
+import NavLink from "../navLink";
 import CategoryTags from "@/components/questions/CategoryTags";
 import DifficultyTags from "@/components/questions/DifficultyTags";
 import ActionButtons from "@/components/questions/ActionButtons";
@@ -18,21 +20,26 @@ import { Question } from "@/types/questions";
 
 interface QuestionTableProps {
   questions: Question[];
+  bottomContent: React.ReactNode;
 }
 
 const columns = [
-  { name: "Index", uid: "index" },
+  { name: "No.", uid: "index" },
   { name: "Title", uid: "title" },
   { name: "Category", uid: "category" },
   { name: "Difficulty", uid: "complexity" },
   { name: "Action", uid: "action" },
 ];
 
-export default function QuestionTable({ questions }: QuestionTableProps) {
+export default function QuestionTable({ questions, bottomContent }: QuestionTableProps) {
+  questions = questions.map((question, idx) => ({ ...question, index: idx + 1 }));
   const renderCell = useCallback((question: Question, columnKey: ReactKey) => {
     const questionValue = question[columnKey as keyof Question];
 
     switch (columnKey) {
+      case "index": {
+        return <NavLink href={`/questions/question-description?id=${question.questionId}`} isActive={true}>{questionValue}</NavLink>
+      }
       case "title": {
         const titleString: string = questionValue as string;
 
@@ -61,7 +68,7 @@ export default function QuestionTable({ questions }: QuestionTableProps) {
   }, []);
 
   return (
-    <div className="flex relative flex-col items-center w-10/12">
+    <div className="flex flex-col items-center w-10/12">
       <div className="flex w-full justify-between">
         <h2>Questions</h2>
         <Button as={Link} href="/questions/add">
@@ -69,7 +76,7 @@ export default function QuestionTable({ questions }: QuestionTableProps) {
         </Button>
       </div>
       <div className="mt-5 h-52 w-full">
-        <Table aria-label="Example table with index">
+        <Table aria-label="Example table with index" bottomContent={bottomContent}>
           <TableHeader columns={columns}>
             {(column) => (
               <TableColumn
