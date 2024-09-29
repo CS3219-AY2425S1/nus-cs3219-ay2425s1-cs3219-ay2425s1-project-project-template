@@ -31,7 +31,7 @@ export async function signup(state: FormState, formData: FormData) {
     if (responseData.token) {
       return { message: responseData.token };
     } else {
-      return { errors: { errorMessage: responseData.error } };
+      return { errors: { errorMessage: responseData } };
     }
   } catch (error) {
     console.error(`error: ${error}`);
@@ -67,7 +67,7 @@ export async function login(state: FormState, formData: FormData) {
       return { message: responseData.token };
     } else {
       return {
-        errors: { errorMessage: "An error occurred while logging in" },
+        errors: { errorMessage: responseData },
       };
     }
   } catch (error) {

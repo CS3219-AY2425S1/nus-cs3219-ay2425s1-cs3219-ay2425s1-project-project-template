@@ -50,7 +50,7 @@ export async function getQuestions(token?: string | null) {
 export async function editQuestion(
   question: QuestionDto,
   token: string | null,
-  formState: FormState,
+  formState: Response,
   formData: FormData
 ) {
   const { _id, ...rest } = question;
@@ -69,16 +69,15 @@ export async function editQuestion(
   );
 
   try {
-    const data = await response.json();
+    const result = await response.json();
     if (response.ok) {
       return {
-        message: data,
+        message: result,
       };
     } else {
       return {
-        message: data,
         errors: {
-          errorMessage: [`${data.message}`],
+          errorMessage: result,
         },
       };
     }
@@ -89,7 +88,7 @@ export async function editQuestion(
 
 export async function addQuestion(
   token: string | null,
-  formState: FormState,
+  formState: Response,
   formData: FormData
 ) {
   // Helper function to ensure the formData value is a string
@@ -110,22 +109,17 @@ export async function addQuestion(
   try {
     const result = await response.json();
     if (response.ok) {
-      if (result.ok) {
-        return {
-          message: result.token,
-        };
-      }
+      return {
+        message: result,
+      };
     } else {
       return {
         errors: {
-          errorMessage: result?.errorResponse?.errmsg
-            ? result.errorResponse?.errmsg
-            : "An error occurred while adding the question.",
+          errorMessage: result,
         },
       };
     }
   } catch (error) {
-    console.error(`error: ${error}`);
     return {
       errors: {
         errorMessage: "An error occurred while adding the question.",

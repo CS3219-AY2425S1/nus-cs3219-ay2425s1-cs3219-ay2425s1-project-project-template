@@ -103,9 +103,9 @@ export function QuestionForm({
           />
         </div>
 
+        <p className="error">{formState?.errors?.errorMessage}</p>
         {/* Submit button */}
         <Button type="submit" text={`${type} Question`} />
-        <p className="error">{formState?.errors?.errorMessage}</p>
       </form>
     </div>
   );
