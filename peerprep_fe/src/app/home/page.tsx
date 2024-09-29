@@ -62,7 +62,7 @@ export default function Home() {
     isVisible: false,
     isDetailShown: false,
   });
-  const { token } = useAuth();
+  const { token, deleteToken } = useAuth();
 
   useEffect(() => {
     if (token) {
@@ -96,6 +96,7 @@ export default function Home() {
         <Button
           text="Logout"
           onClick={() => {
+            deleteToken();
             router.push("/auth/login");
           }}
         />
