@@ -27,7 +27,7 @@ export default function TableRow({
   return (
     <tr className="border-b border-gray-200 hover:bg-gray-100">
       <td className="py-3 px-6 text-left whitespace-nowrap font-bold">
-        <TextButton text={title} link={`questions/${questionLink}`} />
+        <TextButton text={title} link={`questions/${id}`} />
       </td>
       <td className="py-3 px-6 text-left">{difficulty}</td>
       <td className="py-3 px-6 text-left flex-row">

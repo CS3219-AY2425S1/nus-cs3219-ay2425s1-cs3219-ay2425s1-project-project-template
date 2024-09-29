@@ -47,6 +47,33 @@ export async function getQuestions(token?: string | null) {
   }
 }
 
+export async function getQuestion(id: string, token?: string | null) {
+  // console.log("id", id);
+  const response = await fetch(
+    `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `bearer ${token}`,
+      },
+    }
+  );
+
+  try {
+    const data = await response.json();
+    console.log(data);
+    return {
+      message: data,
+      errors: {
+        errorMessage: ["Unable to get question"],
+      },
+    };
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function editQuestion(
   question: QuestionDto,
   token: string | null,

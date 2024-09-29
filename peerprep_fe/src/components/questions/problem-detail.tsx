@@ -1,14 +1,20 @@
 import React from "react";
-import { IQuestion } from "../../../../question_service/src/models/Question";
 
 type ProblemDetailProps = {
-  question: IQuestion;
+  question: QuestionDto | undefined;
 };
 
 const ProblemDetail: React.FC<ProblemDetailProps> = ({ question }) => {
   return (
-    <div>
-      <h1 className="text-3xl font-bold">{question.title}</h1>
+    <div className="w-full h-full">
+      <div>
+        <div className="text-xl">Title:</div>
+        <div className="pt-1 text-xl font-bold">{question?.title}</div>
+      </div>
+      <div className="pt-8">
+        <div className="text-xl">Description:</div>
+        <div className="pt-1 text-xl font-bold">{question?.description}</div>
+      </div>
     </div>
   );
 };
