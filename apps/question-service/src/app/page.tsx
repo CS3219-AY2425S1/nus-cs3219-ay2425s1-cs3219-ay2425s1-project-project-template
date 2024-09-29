@@ -181,7 +181,7 @@ export default function Home() {
       dataIndex: "categories",
       key: "categories",
       render: (categories: string[]) =>
-        categories.map((category) => <Tag>{category}</Tag>),
+        categories.map((category) => <Tag key={category}>{category}</Tag>),
     },
     {
       title: "Difficulty",
@@ -364,6 +364,7 @@ export default function Home() {
             </div>
             <div className="content-table">
               <Table
+                rowKey="id"
                 dataSource={questions}
                 columns={columns}
                 loading={isLoading}

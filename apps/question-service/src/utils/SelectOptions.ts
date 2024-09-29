@@ -127,3 +127,18 @@ export const OrderOption = [
     value: "complexity desc",
   },
 ];
+
+export const ProgrammingLanguageOptions = [
+  {
+    value: "python",
+    label: "Python",
+  },
+  {
+    value: "java",
+    label: "Java",
+  },
+  {
+    value: "c++",
+    label: "C++",
+  },
+];
