@@ -98,12 +98,13 @@ public class QuestionService implements QuestionServiceInterface {
     @Override
     public Question updateQuestion(String id,
                                    Question updatedQuestion) {
+        System.out.println(updatedQuestion.toString());
         if (!QuestionValidator.isValidQuestion(updatedQuestion)) {
             throw new IllegalArgumentException("Invalid new question data");
         }
-        if (repository.findQuestionByTitle(updatedQuestion.getTitle())
-                .isPresent()
-        ) {
+        Question ExistingQuestion = repository.findById(id).orElseThrow(() -> new QuestionNotFoundException(id));
+
+        if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle()) && repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
             throw new TitleAlreadyExistsException(updatedQuestion.getTitle());
         }
 
