@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function SignUpPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,32 +19,27 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // setError('');
-    // const apiEndpoint = 'http://localhost:4040/api/auth/signup';
-    // const result = await fetch(apiEndpoint, {
-    // 	method: 'POST',
-    // 	headers: {
-    // 		'Content-Type': 'application/json',
-    // 	},
-    // 	body: JSON.stringify({ email, password }),
-    // 	});
+    setError('');
+    const apiEndpoint = 'http://localhost:4040/signup';
+    const type = 'user';
+    const result = await fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, name, password, type }),
+    });
 
-    // const data = await result.json();
-    // const message = data.message;
-    // const isAuth = message === "Login successful";
-    const isAuth = true;
+    const data = await result.json();
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    if (isAuth) {
-      // const token = data.token;
-      // localStorage.setItem('token', token);
-      // go to homepage
+    if (false) {
       router.push('/');
     } else {
-      setError('Account creation failed');
-      console.error('Login failed');
+      setError(data.error || 'Account creation failed');
+      console.error('Account creation failed');
     }
   };
 
@@ -68,6 +64,15 @@ export default function SignUpPage() {
           </p>
         </div>
         <form onSubmit={handleSignUp} className="space-y-4">
+          <div>
+            <Input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
           <div>
             <Input
               type="email"

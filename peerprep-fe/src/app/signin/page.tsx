@@ -17,27 +17,23 @@ export default function LoginForm() {
   // handle login here
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // setError('');
-    // const apiEndpoint = 'http://localhost:4040/api/auth/login';
-    // const result = await fetch(apiEndpoint, {
-    // 	method: 'POST',
-    // 	headers: {
-    // 		'Content-Type': 'application/json',
-    // 	},
-    // 	body: JSON.stringify({ email, password }),
-    // 	});
+    setError('');
+    const apiEndpoint = 'http://localhost:4040/login';
+    const result = await fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // const data = await result.json();
-    // const message = data.message;
-    // const isAuth = message === "Login successful";
-    const isAuth = false;
-    if (isAuth) {
-      // const token = data.token;
-      // localStorage.setItem('token', token);
-      // go to homepage
+    const data = await result.json();
+    if (result.ok) {
+      const token = data.token;
+      localStorage.setItem('token', token);
       router.push('/');
     } else {
-      setError('Please provide correct email and password');
+      setError(data.error || 'Please provide correct email and password');
       console.error('Login failed');
     }
   };
