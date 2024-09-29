@@ -12,6 +12,17 @@ import {
     Modification,
 } from './datatable'
 import { IFormFields, FormType } from './form'
+import { ISession } from './session'
 
 export { Difficulty, LanguageMode, SortDirection, QuestionStatus, FormType, Modification }
-export type { IQuestion, ITestcase, IDatatableColumn, IRowData, IDatatableProps, IPagination, ISortBy, IFormFields }
+export type {
+    IQuestion,
+    ITestcase,
+    IDatatableColumn,
+    IRowData,
+    IDatatableProps,
+    IPagination,
+    ISortBy,
+    IFormFields,
+    ISession,
+}

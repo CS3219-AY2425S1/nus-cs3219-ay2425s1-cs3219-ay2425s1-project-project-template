@@ -13,6 +13,7 @@ interface IDatatableColumn {
     sortingFn?: (value: any) => any
     isEdit?: boolean
     isDelete?: boolean
+    offAutoCapitalize?: boolean
 }
 
 interface IPagination {

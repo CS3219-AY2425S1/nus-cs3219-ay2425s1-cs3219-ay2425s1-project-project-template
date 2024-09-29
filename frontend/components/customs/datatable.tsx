@@ -1,4 +1,4 @@
-import { IDatatableProps, LanguageMode, Modification, SortDirection } from '@/types'
+import { IDatatableProps, Modification, SortDirection } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import CustomSelect from './custom-select'
 import { DeleteIcon, EditIcon, LeftIcon, RightIcon } from '@/assets/icons'
@@ -122,7 +122,7 @@ export default function Datatable({
                                     )
                                 }
                                 return (
-                                    <TableCell key={col.key}>
+                                    <TableCell key={col.key} className={col.offAutoCapitalize ? '' : 'capitalize'}>
                                         {col.formatter ? col.formatter(elem[col.key]) : elem[col.key]}
                                     </TableCell>
                                 )
@@ -132,7 +132,7 @@ export default function Datatable({
                 </TableBody>
             </Table>
             {/* <Pagination /> */}
-            <div className="w-100 p-3 rounded-xl flex items-center justify-between bg-slate-100 border-[1px] border-slate-100 border-t-0 rounded-t-none text-xs text-gray-400">
+            <div className="w-100 py-2 px-5 rounded-xl flex items-center justify-between bg-slate-100 border-[1px] border-slate-100 border-t-0 rounded-t-none text-xs text-gray-400">
                 <div className="flex items-center gap-3">
                     Rows per page
                     <CustomSelect

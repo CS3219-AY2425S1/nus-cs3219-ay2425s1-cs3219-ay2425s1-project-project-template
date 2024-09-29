@@ -1,5 +1,6 @@
 import { QuestionStatus } from '@/types'
 import { Difficulty } from '@/types/difficulty'
+import { ISession } from '@/types/session'
 
 interface ICollaborator {
     name: string
@@ -179,4 +180,45 @@ const mockQuestionsData = [
     },
 ]
 
-export { mockCollaboratorData, mockUserData, mockChatData, mockQuestionData, mockTestCaseData, mockQuestionsData }
+const mockSessionsData: ISession[] = [
+    {
+        id: '1',
+        name: 'Olivian Martin',
+        email: 'olvia.martin@email.com',
+        question: 'reverse a string',
+        description: 'reverse the given string, returning the chracters in reverse order',
+        status: 'failed',
+        difficulty: 'easy',
+        time: 1727445395396,
+    },
+    {
+        id: '2',
+        name: 'Billy Russo',
+        email: 'billy.russo@email.com',
+        question: 'reverse a string',
+        description: 'reverse the given string, returning the chracters in reverse order',
+        status: 'completed',
+        difficulty: 'medium',
+        time: 1727745397396,
+    },
+    {
+        id: '1',
+        name: 'Charlie munger',
+        email: 'charlie.mnunger@email.com',
+        question: 'reverse a string',
+        description: 'reverse the given string, returning the chracters in reverse order',
+        status: 'failed',
+        difficulty: 'hard',
+        time: 1797445395396,
+    },
+]
+
+export {
+    mockCollaboratorData,
+    mockUserData,
+    mockChatData,
+    mockQuestionData,
+    mockTestCaseData,
+    mockQuestionsData,
+    mockSessionsData,
+}
