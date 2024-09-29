@@ -1,6 +1,6 @@
 <div>
     <h1 class="tourney-title">List of Questions</h1>
-    <app-search-and-filter (refresh)="refreshQuestions()"></app-search-and-filter>
+    <app-search-and-filter (refresh)="refreshQuestions()" (sort)="refreshQuestions(true)" (search)="refreshQuestionsSearch($event)"></app-search-and-filter>
     <div class="question-list">
       <ul>
         <li>

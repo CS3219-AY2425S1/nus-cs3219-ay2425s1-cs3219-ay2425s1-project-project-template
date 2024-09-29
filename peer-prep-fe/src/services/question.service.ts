@@ -13,6 +13,13 @@ export class QuestionService {
   getAllQuestion(): Observable<Question[]> {
     return this.http.get<Question[]>(this.baseUrl);
   }
+
+  // separate function from ^ for clarity 
+  getAllQuestionSorted(sortBy?: string, orderBy?:string): Observable<Question[]> {
+    const url = (sortBy && orderBy) ? `${this.baseUrl}?sortBy=${sortBy}&orderBy=${orderBy}` : this.baseUrl;
+    return this.http.get<Question[]>(url);
+  }
+
   getQuestion(id: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/${id}`);
   }
@@ -25,6 +32,9 @@ export class QuestionService {
     return this.http.post(this.baseUrl, newQuestion);
   }
 
+  searchQuestion(searchTerm: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/search?prefix=${searchTerm}`);
+  }
   deleteQuestion(id: string): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }

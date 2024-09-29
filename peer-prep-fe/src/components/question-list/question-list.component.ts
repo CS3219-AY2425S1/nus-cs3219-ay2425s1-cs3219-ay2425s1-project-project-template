@@ -24,15 +24,47 @@ export class QuestionListComponent implements OnInit {
     this.loadQuestions();
   }
 
-  loadQuestions() {
-    this.questionService.getAllQuestion().subscribe((data: any) => {
-      this.questions = data.data.data;
-    }, (error) => {
-      console.error('Error fetching: ', error);
-    })
+  loadQuestions(hasSort?: boolean) {
+    if (hasSort) {
+      // default alphabetical sorting for now
+      this.questionService.getAllQuestionSorted("question_title", "asc").subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    } else {
+      // gets default ordering of questions
+      this.questionService.getAllQuestion().subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    }
   }
 
-  refreshQuestions() {
-    this.loadQuestions();
+  refreshQuestions(hasSort?: boolean) {
+    this.loadQuestions(hasSort);
+  }
+
+  loadSearchedQuestions(searchTerm?: string) {
+    if (searchTerm) {
+      this.questionService.searchQuestion(searchTerm).subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    } else {
+      // gets default ordering of questions
+      this.questionService.getAllQuestion().subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    }
+  }
+
+
+  refreshQuestionsSearch(searchTerm?: string) {
+    this.loadSearchedQuestions(searchTerm);
   }
 }

@@ -12,11 +12,10 @@ import { QuestionCategoriesComponent } from '../question-categories/question-cat
   styleUrl: './question-description.component.css'
 })
 export class QuestionDescriptionComponent {
-  // @Input () questionTitle!: string
-  // @Input () questionDifficulty!: string
-  constructor(@Inject(MAT_DIALOG_DATA) public data: {
-    questionTitle: string;
-    questionDifficulty: string;
-    questionDescription: string;
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { 
+    questionTitle: string; 
+    questionDescription: string, 
+    questionCategories: string[],
+    questionDifficulty: string 
   }) {}
 }

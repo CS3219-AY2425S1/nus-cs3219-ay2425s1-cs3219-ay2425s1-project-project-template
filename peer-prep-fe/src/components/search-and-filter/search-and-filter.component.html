@@ -1,13 +1,13 @@
 <div class="container">
     <div class="search-container">
-        <input class="search-bar" type="search" placeholder="Search..." />
-        <i class="fa-solid fa-magnifying-glass search-icon" style="color: white"></i>
+        <input class="search-bar" type="search" placeholder="Search..." [(ngModel)]="searchTerm" />
+        <button type="submit" (click)="searchQuestions()">
+            <i class="fa-solid fa-magnifying-glass search-icon"> </i>
+        </button>
     </div>
     <div class="button-container">
-        <button id="button">SORT</button>
+        <button id="button" (click)="sortQuestions()">SORT</button>
         <button id="button">FILTER</button>
         <button id="button" (click)="openAddModal()" >ADD QUESTION</button>
     </div>
 </div>
-
-

@@ -11,13 +11,15 @@
     <p>
     QUESTION DESCRIPTION
     </p>
-<app-question-explanation-box></app-question-explanation-box>
+<app-question-explanation-box [questionDescription]="data.questionDescription"></app-question-explanation-box>
 </div>
 <div>
     <p>
 CATEGORIES
     </p>
-<app-question-categories></app-question-categories>
+    <div class = "categories-row"> 
+        <app-question-categories *ngFor="let category of data.questionCategories;" [questionCategory]="category"></app-question-categories>
+    </div>
 </div>
 </div>
 
