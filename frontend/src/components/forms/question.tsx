@@ -96,7 +96,7 @@ export function QuestionForm({
               <FormLabel>Title</FormLabel>
               <FormControl>
                 <Input
-                  placeholder='Two Sum'
+                  placeholder='E.g. Two Sum'
                   disabled={form.formState.isSubmitting}
                   {...field}
                 />
@@ -204,14 +204,25 @@ export function QuestionForm({
           <FormItem key={field.id}>
             <FormLabel>Constraint {index + 1}</FormLabel>
             <div className='flex gap-2'>
-              <FormControl>
-                <Input
-                  placeholder='Add constraint'
-                  {...field}
-                  disabled={form.formState.isSubmitting || action === 'edit'}
-                />
-              </FormControl>
-
+              <FormField
+                control={form.control}
+                name={`constraints.${index}.constraint`}
+                render={({ field }) => (
+                  <FormItem className='flex-grow'>
+                    <FormControl>
+                      <Input
+                        placeholder='Input'
+                        className='w-full'
+                        disabled={
+                          form.formState.isSubmitting || action === 'edit'
+                        }
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button
                 variant='secondary'
                 size='icon'
