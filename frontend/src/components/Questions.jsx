@@ -29,7 +29,7 @@ const Questions = () => {
           Interview Questions
         </h2>
       </div>
-      <div className="space-y-2">
+      <div className="h-[18rem] space-y-2 overflow-y-auto">
         {questions.map((item) => (
           <div
             key={item.id}
@@ -40,13 +40,13 @@ const Questions = () => {
               <div className="flex flex-row items-center justify-between">
                 <h3 className="font-semibold">{item.title}</h3>
                 <h3
-                  className={`rounded-full px-4 py-1 text-sm font-light text-black ${
+                  className={`rounded-full px-4 py-1 text-xs font-light ${
                     item.complexity === "Easy"
-                      ? "bg-lime-300"
+                      ? "bg-lime-300 text-gray-900"
                       : item.complexity === "Medium"
-                        ? "bg-yellow-400"
+                        ? "bg-yellow-400 text-gray-900"
                         : item.complexity === "Hard"
-                          ? "bg-red-600"
+                          ? "bg-red-500 text-white"
                           : ""
                   }`}
                 >
