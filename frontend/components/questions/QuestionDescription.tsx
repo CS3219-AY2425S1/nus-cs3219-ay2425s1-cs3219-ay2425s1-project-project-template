@@ -1,4 +1,3 @@
-
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
 
@@ -32,7 +31,7 @@ export default function QuestionDescription({
         <CategoryTags categories={category} questionId={questionId as string} />
         <p className="my-3">Question:</p>
         <pre className="bg-gray-700 p-2 rounded-lg ">
-          <code className="text-white"> {description} </code>
+          <code className="text-white text-pretty">{description}</code>
         </pre>
       </CardBody>
       <CardFooter>
