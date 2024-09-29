@@ -208,7 +208,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Calculate pagination info
-	totalCount := len(questions)
+	totalCount := len(filteredResults)
 	totalPages := (totalCount + limit - 1) / limit
 	currentPage := (offset / limit) + 1
 	if len(questions) == 0 {
@@ -267,14 +267,22 @@ func getKeywordsFromTitle(title string) []string {
 
 // titleContainsKeywords Check if title contains all keywords
 func titleContainsKeywords(title string, keywords []string) bool {
-	titleWordsSet := make(map[string]bool)
-	titleWords := strings.Split(strings.ToLower(strings.TrimSpace(title)), " ")
-	for _, titleWord := range titleWords {
-		titleWordsSet[titleWord] = true
-	}
+	// TODO: Implement using trie for better performance
+	titleWords := strings.Fields(strings.ToLower(strings.TrimSpace(title)))
 
+	// Iterate through each keyword.
 	for _, keyword := range keywords {
-		if !titleWordsSet[keyword] {
+		keyword = strings.ToLower(strings.TrimSpace(keyword)) // Normalize the keyword.
+		matched := false
+		// Check if the keyword is a prefix of any word in the title.
+		for _, titleWord := range titleWords {
+			if strings.HasPrefix(titleWord, keyword) {
+				matched = true
+				break
+			}
+		}
+		// If the keyword is not a prefix of any title word, return false.
+		if !matched {
 			return false
 		}
 	}
