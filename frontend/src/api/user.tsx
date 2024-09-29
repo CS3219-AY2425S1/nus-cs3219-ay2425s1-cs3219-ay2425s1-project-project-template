@@ -1,8 +1,11 @@
+/* eslint-disable */
+
 import { User } from "@/types/user";
 
-export const setGetProfile = async (): // access_token: string,
-// user: User
-Promise<User> => {
+export const setGetProfile = async (
+  access_token: string,
+  user: User
+): Promise<User> => {
   // const username = user.username;
   // const bio = user.bio;
   // const linkedin = user.linkedin;
