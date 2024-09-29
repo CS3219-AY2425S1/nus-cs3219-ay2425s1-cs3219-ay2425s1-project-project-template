@@ -114,6 +114,9 @@ export default function Home() {
     undefined
   );
 
+  // State for refreshing data
+  const [refresh, setRefresh] = useState(false);
+
   const handleEditClick = (index: number, question: Question) => {
     // Open the modal for the specific question
     const updatedModals =
@@ -149,6 +152,7 @@ export default function Home() {
       handleModalClose(index);
       editForm.resetFields();
       success("Problem Updated!");
+      setRefresh(!refresh);
     } catch (err: any) {
       error(err.message);
     }
@@ -161,6 +165,7 @@ export default function Home() {
       setIsNewProblemModelOpen(false);
       form.resetFields();
       success("New Problem Created!");
+      setRefresh(!refresh);
     } catch (err: any) {
       error(err.message);
     }
@@ -215,7 +220,15 @@ export default function Home() {
 
   useEffect(() => {
     loadQuestions();
-  }, [limit, currentPage, sortBy, difficulty, categories, delayedSearch]);
+  }, [
+    limit,
+    currentPage,
+    sortBy,
+    difficulty,
+    categories,
+    delayedSearch,
+    refresh,
+  ]);
 
   // Delay the fetching of data only after user stops typing for awhile
   useEffect(() => {
