@@ -1,15 +1,14 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require('cors');
-// const userRouter = require('./userRoutes');
-const questionRoutes = require('./questionRoutes');
 const app = express();
 
-// Use CORS to allow requests
+const cors = require('cors');
 app.use(cors());
 
+const questionRoutes = require('./questionRoutes');
+
 app.use(express.json());
-// app.use(userRouter);
+app.use(questionRoutes);
 
 const mongoose = require("mongoose");
 const dbConnectionString = process.env.MONGODB_URI;
