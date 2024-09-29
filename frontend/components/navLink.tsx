@@ -3,10 +3,16 @@ import { ReactNode } from "react";
 
 interface NavLinkProps {
   children: ReactNode;
-  href: string,
-  isActive: boolean;
+  href: string;
+  isActive?: boolean;
+  hover?: boolean;
 }
-export default function NavLink({ href, isActive, children }: NavLinkProps) {
+export default function NavLink({
+  href,
+  isActive,
+  children,
+  hover,
+}: NavLinkProps) {
   let className;
 
   if (isActive) {
@@ -14,10 +20,19 @@ export default function NavLink({ href, isActive, children }: NavLinkProps) {
   } else {
     className = "text-white";
   }
-
-  return (
-    <NextLink className={className} href={href}>
-      {children}
-    </NextLink>
-  );
+  if (hover) {
+    return (
+      <div className="p-1 rounded-md hover:bg-slate-400">
+        <NextLink className={className} href={href}>
+          <p className="text-center">{children}</p>
+        </NextLink>
+      </div>
+    );
+  } else {
+    return (
+      <NextLink className={className} href={href}>
+        {children}
+      </NextLink>
+    );
+  }
 }

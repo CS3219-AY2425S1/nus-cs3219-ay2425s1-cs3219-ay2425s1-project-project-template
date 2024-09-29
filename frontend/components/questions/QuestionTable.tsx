@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { Key as ReactKey } from "react";
-
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@nextui-org/table";
 
 import NavLink from "../navLink";
+
 import CategoryTags from "@/components/questions/CategoryTags";
 import DifficultyTags from "@/components/questions/DifficultyTags";
 import ActionButtons from "@/components/questions/ActionButtons";
@@ -31,14 +31,27 @@ const columns = [
   { name: "Action", uid: "action" },
 ];
 
-export default function QuestionTable({ questions, bottomContent }: QuestionTableProps) {
-  questions = questions.map((question, idx) => ({ ...question, index: idx + 1 }));
+export default function QuestionTable({
+  questions,
+  bottomContent,
+}: QuestionTableProps) {
+  questions = questions.map((question, idx) => ({
+    ...question,
+    index: idx + 1,
+  }));
   const renderCell = useCallback((question: Question, columnKey: ReactKey) => {
     const questionValue = question[columnKey as keyof Question];
 
     switch (columnKey) {
       case "index": {
-        return <NavLink href={`/questions/question-description?id=${question.questionId}`} isActive={true}>{questionValue}</NavLink>
+        return (
+          <NavLink
+            hover={true}
+            href={`/questions/question-description?id=${question.questionId}`}
+          >
+            {questionValue}
+          </NavLink>
+        );
       }
       case "title": {
         const titleString: string = questionValue as string;
@@ -76,7 +89,10 @@ export default function QuestionTable({ questions, bottomContent }: QuestionTabl
         </Button>
       </div>
       <div className="mt-5 h-52 w-full">
-        <Table aria-label="Example table with index" bottomContent={bottomContent}>
+        <Table
+          aria-label="Example table with index"
+          bottomContent={bottomContent}
+        >
           <TableHeader columns={columns}>
             {(column) => (
               <TableColumn
