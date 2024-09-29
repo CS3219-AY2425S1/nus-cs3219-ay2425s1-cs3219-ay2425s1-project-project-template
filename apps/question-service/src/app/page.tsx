@@ -32,6 +32,7 @@ import {
   Question,
   CreateQuestion,
   NewQuestion,
+  EditQuestion,
 } from "./services/question";
 import {
   CategoriesOption,
@@ -134,6 +135,22 @@ export default function Home() {
       const updatedModals = [...isEditModalOpen];
       updatedModals[index] = false; // Close the specific modal
       setIsEditModalOpen(updatedModals);
+    }
+  };
+
+  const handleEditQuestion = async (
+    values: NewQuestion,
+    index: number,
+    docRefId: string
+  ) => {
+    try {
+      const editedQuestion = await EditQuestion(values, docRefId);
+      // Reset form or update UI as needed
+      handleModalClose(index);
+      editForm.resetFields();
+      success("Problem Updated!");
+    } catch (err: any) {
+      error(err.message);
     }
   };
 
@@ -278,7 +295,7 @@ export default function Home() {
               {...layout}
               form={editForm}
               onFinish={(values) => {
-                // handleEditQuestion(values); TODO!!! (SEAN) follow the create concept and display error and success values
+                handleEditQuestion(values, index, question.docRefId);
               }}
             >
               <Form.Item

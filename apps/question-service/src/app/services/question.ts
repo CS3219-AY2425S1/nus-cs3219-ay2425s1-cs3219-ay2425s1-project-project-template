@@ -108,7 +108,29 @@ export const CreateQuestion = async (
   }
 };
 
-// Update single question (TODO: Sean)
+export const EditQuestion = async (
+  question: NewQuestion,
+  docRefId: string
+): Promise<Question> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRefId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(question),
+    }
+  );
+
+  if (response.status === 200) {
+    return response.json();
+  } else {
+    throw new Error(
+      `Error updating question: ${response.status} ${response.statusText}`
+    );
+  }
+};
 
 // Delete single question (TODO: Ryan)
 export async function DeleteQuestion(docRef: String): Promise<void> {
