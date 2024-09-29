@@ -22,13 +22,19 @@ const QuestionsPage = () => {
         : isError
         ? <p>Had Trouble Fetching Questions!</p>
         : 
-            <QuestionTable questions={questionList?.questions || []} />
+            
+            <div>
+              <QuestionTable 
+                questions={questionList?.questions || []}
+                bottomContent={<Pagination 
+                  total={parseInt(questionList?.totalPages || '1')} 
+                  page={pageNumber}
+                  onChange={handleOnPageClick}/>}
+              />
+            </div>
       }
       </DefaultLayout>
-      <Pagination 
-        total={parseInt(questionList?.totalPages || '1')} 
-        initialPage={1}
-        onChange={handleOnPageClick}/>
+
     </>
   );
 };

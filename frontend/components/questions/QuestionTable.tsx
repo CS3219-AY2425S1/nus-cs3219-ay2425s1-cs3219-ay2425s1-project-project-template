@@ -18,6 +18,7 @@ import { Question } from "@/types/questions";
 
 interface QuestionTableProps {
   questions: Question[];
+  bottomContent: React.ReactNode;
 }
 
 const columns = [
@@ -28,7 +29,7 @@ const columns = [
   { name: "Action", uid: "action" },
 ];
 
-export default function QuestionTable({ questions }: QuestionTableProps) {
+export default function QuestionTable({ questions, bottomContent }: QuestionTableProps) {
   questions = questions.map((question, idx) => ({ ...question, index: idx + 1 }));
   const renderCell = useCallback((question: Question, columnKey: ReactKey) => {
     const questionValue = question[columnKey as keyof Question];
@@ -62,7 +63,7 @@ export default function QuestionTable({ questions }: QuestionTableProps) {
   }, []);
 
   return (
-    <div className="flex relative flex-col items-center w-10/12">
+    <div className="flex flex-col items-center w-10/12">
       <div className="flex w-full justify-between">
         <h2>Questions</h2>
         <Button as={Link} href="/questions/add">
@@ -70,7 +71,7 @@ export default function QuestionTable({ questions }: QuestionTableProps) {
         </Button>
       </div>
       <div className="mt-5 h-52 w-full">
-        <Table aria-label="Example table with index">
+        <Table aria-label="Example table with index" bottomContent={bottomContent}>
           <TableHeader columns={columns}>
             {(column) => (
               <TableColumn
