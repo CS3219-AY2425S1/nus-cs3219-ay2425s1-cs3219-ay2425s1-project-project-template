@@ -1,42 +1,75 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 
-const AddQuestionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
+  //const [difficultyValue, setDifficultyValue] = useState("");
+  //const [topicValue, setTopicValue] = useState([""]);
+  //const [titleValue, setTitleValue] = useState("");
+  //const [detailsValue, setDetailsValue] = useState("");
+  //const [canSubmit, setCanSubmit] = useState(false);
+
+  const addQuestion = async (difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
+      try {
+        console.log("trying");
+        const response = await fetch('http://localhost:8080/questions', {
+            mode: "cors",
+            method: 'POST',
+            headers: {
+              "Access-Control-Allow-Origin": "http://localhost:8080",
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: titleValue,
+              description: detailsValue,
+              categories: topicValue,
+              complexity: difficultyValue
+            })
+          });
+
+        const data = await response.json();
+        console.log(data);
+        onClose();
+      } catch (error) {
+          console.error('Error adding question:', error);
+      }
+  };
+  
+  
+
   function onSubmit() {
-    const difficultyElement = document.getElementById(
-      "difficulty"
-    ) as HTMLSelectElement | null;
-    const difficultyValue = difficultyElement ? difficultyElement.value : "";
-
-    const topicElement = document.getElementById(
-      "topic"
-    ) as HTMLInputElement | null;
+    const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
+    const difficultyValue = difficultyElement ? difficultyElement.value : '';
+    //setDifficultyValue(difficultyValue);
+    
+    const topicElement = document.getElementById("topic") as HTMLInputElement | null;
     const topicValue = topicElement ? topicElement.value : "";
-
-    const titleElement = document.getElementById(
-      "title"
-    ) as HTMLInputElement | null;
+    const topicList = topicValue
+      .split(',')
+      .map(item => item.trim())
+      .filter(item => item !== "");
+    //setTopicValue(topicList);
+    
+    const titleElement = document.getElementById("title") as HTMLInputElement | null;
     const titleValue = titleElement ? titleElement.value : "";
-
-    const detailsElement = document.getElementById(
-      "details"
-    ) as HTMLInputElement | null;
+    //setTitleValue(titleValue);
+    
+    const detailsElement = document.getElementById("details") as HTMLInputElement | null;
     const detailsValue = detailsElement ? detailsElement.value : "";
+    //setDetailsValue(detailsValue);
 
     if (
       difficultyValue == "" ||
-      topicValue == "" ||
+      topicList.length == 0 ||
       titleValue == "" ||
       detailsValue == ""
     ) {
-      //alert(difficultyValue + topicValue + titleValue + detailsValue);
-
+      //alert(difficultyValue + topicList + titleValue + detailsValue);
       document.getElementById("emptyMessage")?.classList.remove("hidden");
-      document.getElementById("emptyMessage")?.classList.add("visible");
-    } else {
-      //alert(difficultyValue + topicValue + titleValue + detailsValue);
-      document.getElementById("emptyMessage")?.classList.remove("visible");
-      document.getElementById("emptyMessage")?.classList.add("hidden");
+      document.getElementById("emptyMessage")?.classList.add('visible');
+      return;
     }
+
+    console.log("can submit");
+    addQuestion(difficultyValue, topicList, titleValue, detailsValue);
   }
 
   return (
@@ -51,46 +84,41 @@ const AddQuestionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="flex flex-row justify-between items-center">
               <h2 className="text-2xl font-bold">Add Question</h2>
               <button
-                onClick={() => onClose()}
+                onClick={onClose}
                 id="submit"
                 className="px-2 rounded-lg hover:bg-gray-200"
               >
                 X
               </button>
             </div>
-            <p className="text-sm">
-              Fill in all the fields. Click "Submit" when done.
-            </p>
+            <p className="text-sm">Fill in all the fields. Click "Submit" when done.</p>
           </div>
-
+            
           <div className="mt-3"></div>
           {/* Difficulty */}
           <div>
-            <label className="font-semibold">Difficulty Level</label>
+            <label className="font-semibold">Complexity Level</label>
             <div className="relative mt-1 shadow-md">
-              <select
-                name="difficulty"
-                id="difficulty"
+              <select 
+                name="difficulty" id="difficulty" 
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+                defaultValue={""}
               >
-                <option value="" disabled selected hidden>
-                  Choose a difficulty level
-                </option>
-                <option className="text-green ">Easy</option>
-                <option className="text-orange-500">Medium</option>
-                <option className="text-red-700">Hard</option>
+                <option value="" disabled hidden>Choose a complexity level</option>
+                <option value="EASY" className="text-green ">Easy</option>
+                <option value="MEDIUM" className="text-orange-500">Medium</option>
+                <option value="HARD" className="text-red-700">Hard</option>
               </select>
             </div>
           </div>
 
           {/* Topic */}
           <div className="mt-2">
-            <label className="font-semibold">Topic</label>
+            <label className="font-semibold">Categories</label>
+            <p className="text-xs text-gray-500">Separate different topic categories using commas. E.g., Arrays, Databases </p>
             <div className="relative mt-1 shadow-md">
-              <input
-                type="text"
-                name="topic"
-                id="topic"
+              <input 
+                type="text" name="topic" id="topic"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
               ></input>
             </div>
@@ -111,7 +139,7 @@ const AddQuestionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* Question details */}
           <div className="mt-2">
-            <label className="font-semibold">Question details</label>
+            <label className="font-semibold">Question description</label>
             <div className="relative mt-1 shadow-md">
               <textarea
                 name="details"
@@ -124,19 +152,17 @@ const AddQuestionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* Action buttons */}
           <div className="mt-6">
-            <p id="emptyMessage" className="flex justify-center text-red-500">
-              * Please fill in all the empty fields. *
-            </p>
+            <p id="emptyMessage" className="flex justify-center text-red-500 hidden">* Please fill in all the empty fields. *</p>
             <div className="flex justify-evenly mt-2">
-              <button
-                onClick={onSubmit}
+              <button 
+                onClick={onSubmit} 
                 id="submit"
                 className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
               >
                 Submit
               </button>
-              <button
-                onClick={() => onClose()}
+              <button 
+                onClick={onClose} 
                 id="submit"
                 className="bg-red-500 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-red-400"
               >
