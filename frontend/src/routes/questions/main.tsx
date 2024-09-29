@@ -4,6 +4,7 @@ import { Await, defer, useLoaderData, type LoaderFunctionArgs } from 'react-rout
 
 import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 import { Loading } from '@/components/blocks/loading';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { fetchQuestions, ROWS_PER_PAGE } from '@/services/question-service';
 import type { IGetQuestionsResponse } from '@/types/question-types';
@@ -69,12 +70,14 @@ export function Questions() {
 
   return (
     <WithNavBanner crumbs={crumbs}>
-      <div className='container mx-auto py-3'>
-        <Suspense fallback={<Loading />}>
-          <Await resolve={initialData.initialPage}>
-            <QuestionTable columns={columns} data={questions} isError={isError} />
-          </Await>
-        </Suspense>
+      <div className='flex w-full flex-1 overflow-hidden py-3'>
+        <ScrollArea className='size-full px-6'>
+          <Suspense fallback={<Loading />}>
+            <Await resolve={initialData.initialPage}>
+              <QuestionTable columns={columns} data={questions} isError={isError} />
+            </Await>
+          </Suspense>
+        </ScrollArea>
       </div>
     </WithNavBanner>
   );
