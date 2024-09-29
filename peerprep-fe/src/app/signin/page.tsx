@@ -18,7 +18,7 @@ export default function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const apiEndpoint = 'http://localhost:4040/login';
+    const apiEndpoint = 'http://localhost:4040/api/v1/login';
     const result = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {

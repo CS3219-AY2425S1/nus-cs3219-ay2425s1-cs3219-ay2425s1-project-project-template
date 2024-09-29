@@ -6,7 +6,7 @@ import (
 )
 
 func InitialiseRoutes(r *gin.Engine) {
-    r.POST("/register", controllers.RegisterUser)
-	r.POST("/login", controllers.LoginUser)
-    r.GET("/jwt", controllers.TokenLogin)
+    r.POST("/api/v1/register", controllers.RegisterUser)
+	r.POST("/api/v1/login", controllers.LoginUser)
+    r.GET("/api/v1/jwt", controllers.TokenLogin)
 }
