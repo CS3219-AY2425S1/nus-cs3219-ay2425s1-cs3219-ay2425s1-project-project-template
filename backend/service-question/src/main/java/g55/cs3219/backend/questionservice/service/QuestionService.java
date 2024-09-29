@@ -24,6 +24,7 @@ public class QuestionService {
         if (questions.isEmpty()) {
             throw new QuestionNotFoundException("No questions found.");
         }
+        questions.sort((q1, q2) -> q1.getId() - q2.getId());
         return questions;
     }
 
