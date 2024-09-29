@@ -43,7 +43,10 @@ const DeleteQuestionAlertDialog: React.FC<DeleteQuestionAlertDialogProps> = ({ q
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="destructive">Delete Question</Button>
+          <div className="flex space-x-4 justify-end">
+            <Button onClick={onClose}>Cancel</Button>
+            <Button variant="destructive">Delete Question</Button>
+          </div>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -54,7 +57,7 @@ const DeleteQuestionAlertDialog: React.FC<DeleteQuestionAlertDialogProps> = ({ q
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onConfirm}>Continue</AlertDialogAction>
+            <AlertDialogAction className="bg-red-700" onClick={onConfirm}>Continue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
