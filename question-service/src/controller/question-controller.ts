@@ -27,7 +27,7 @@ export const questionController = {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    if (!templateCode || !testCases /*|| !Array.isArray(testCases)*/) {
+    if (!templateCode /*|| !testCases || !Array.isArray(testCases)*/) {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
@@ -35,7 +35,9 @@ export const questionController = {
 
     try {
       // Check for duplicates based on the question title
-      const existingQuestion = await Question.findOne({ title });
+      const existingQuestion = await Question.findOne({
+        title: { $regex: `^${title}$`, $options: "i" }, // Case-insensitive exact match
+      });
       if (existingQuestion) {
         return res
           .status(400)
@@ -314,6 +316,17 @@ export const questionController = {
       const question = await Question.findOne({ question_id: id });
       if (!question)
         return res.status(404).json({ message: "Question not found" });
+      // Check for duplicate titles, case-insensitive, excluding the current question
+      const duplicateTitleCheck = await Question.findOne({
+        title: { $regex: `^${title}$`, $options: "i" }, // Case-insensitive exact match
+        _id: { $ne: question._id }, // Exclude the current question from the duplicate check
+      });
+
+      if (duplicateTitleCheck) {
+        return res
+          .status(400)
+          .json({ error: "A question with this title already exists." });
+      }
 
       // let updatedDescription = description;
       // if (req.files) {
