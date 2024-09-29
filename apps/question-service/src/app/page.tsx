@@ -14,6 +14,7 @@ import {
   TableProps,
   Tabs,
   Tag,
+  Modal,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
@@ -24,20 +25,65 @@ import {
 } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState } from "react";
-import { GetQuestions, Question } from "./services/question";
+import {
+  DeleteQuestion as DeleteQuestionByDocref,
+  GetQuestions,
+  Question,
+} from "./services/question";
 import {
   CategoriesOption,
   DifficultyOption,
   OrderOption,
-} from "./utils/SelectOptions";
+} from "../utils/SelectOptions";
+import Link from "next/link";
+
+/**
+ * defines the State of the page whe a user is deleing an object. Has 3 general states:
+ * - {}: user is not deleting anything. The page's normal state
+ * - {index: docref string, deleteConfirmed: false}: Modal popup asking whether to delete the question, pending user's decision to confirm or cancel
+ * - {index: docref string, deleteConfirmed: true}: Currently deleting the question and reloading the database
+ */
+type DeletionStage = {} | { index: Question; deleteConfirmed: boolean };
+
+function DeleteModal({
+  isDeleting,
+  questionTitle,
+  okHandler,
+  cancelHandler,
+}: {
+  questionTitle: string;
+  okHandler: () => void;
+  cancelHandler: () => void;
+  isDeleting: boolean;
+}) {
+  const title: string = `Delete Question \"${questionTitle}\"?`;
+  const text: string = "This action is irreversible(?)!";
+
+  return (
+    <Modal
+      open={true}
+      title={title}
+      onOk={okHandler}
+      onCancel={cancelHandler}
+      confirmLoading={isDeleting}
+      okButtonProps={{ danger: true }}
+      cancelButtonProps={{ disabled: isDeleting }}
+    >
+      <p>{text}</p>
+    </Modal>
+  );
+}
 
 export default function Home() {
+  // State of Deletion
+  const [deletionStage, setDeletionStage] = useState<DeletionStage>({});
+
   // Table States
   const [questions, setQuestions] = useState<Question[] | undefined>(undefined); // Store the questions
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined); // Store the total count of questions
   const [totalPages, setTotalPages] = useState<number | undefined>(undefined); // Store the total number of pages
-  const [currentPage, setCurrentPage] = useState<number | undefined>(1); // Store the current page
-  const [limit, setLimit] = useState<number | undefined>(10); // Store the quantity of questions to be displayed
+  const [currentPage, setCurrentPage] = useState<number>(1); // Store the current page
+  const [limit, setLimit] = useState<number>(10); // Store the quantity of questions to be displayed
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Filtering States
@@ -73,26 +119,30 @@ export default function Home() {
     });
   };
 
-  // Include States for Create/Edit Modal (TODO: Sean)
-
-  // When the page is initialised, fetch all the questions and display in table
-  // When the dependencies/states change, the useEffect hook will trigger to re-fetch the questions
-  useEffect(() => {
+  async function loadQuestions() {
     if (!isLoading) {
       setIsLoading(true);
     }
 
-    GetQuestions(currentPage, limit, sortBy, difficulty, categories, delayedSearch).then(
-      (data) => {
-        setQuestions(data.questions);
-        setTotalCount(data.totalCount);
-        setTotalPages(data.totalPages);
-        setCurrentPage(data.currentPage);
-        setLimit(data.limit);
-        setIsLoading(false);
-      }
+    let data = await GetQuestions(
+      currentPage,
+      limit,
+      sortBy,
+      difficulty,
+      categories,
+      delayedSearch
     );
-  }, [limit, currentPage, sortBy, difficulty, delayedSearch, categories]); // TODO: (Ryan) Add dependencies for categories and edit the GetQuestion service function
+    setQuestions(data.questions);
+    setTotalCount(data.totalCount);
+    setTotalPages(data.totalPages);
+    setCurrentPage(data.currentPage);
+    setLimit(data.limit);
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    loadQuestions();
+  }, [limit, currentPage, sortBy, difficulty, categories, delayedSearch]);
 
   // Delay the fetching of data only after user stops typing for awhile
   useEffect(() => {
@@ -115,7 +165,16 @@ export default function Home() {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      render: (text: string) => <Button type="link">{text}</Button>, // TODO (Sean): Onclick links to the individual question page
+      render: (text: string, question: Question) => (
+        <Link
+          href={{
+            pathname: `/question/${question.id}`,
+            query: { data: question.docRefId }, // the data
+          }}
+        >
+          <Button type="link">{text}</Button>
+        </Link>
+      ), // TODO (Sean): Onclick links to the individual question page
     },
     {
       title: "Categories",
@@ -130,21 +189,25 @@ export default function Home() {
       key: "complexity",
       render: (difficulty: string) => {
         let color = "";
-        if (difficulty === "Easy") {
+        if (difficulty === "easy") {
           color = "#2DB55D";
-        } else if (difficulty === "Medium") {
+        } else if (difficulty === "medium") {
           color = "orange";
-        } else if (difficulty === "Hard") {
+        } else if (difficulty === "hard") {
           color = "red";
         }
-        return <div style={{ color }}>{difficulty}</div>;
+        return (
+          <div style={{ color }}>
+            {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+          </div>
+        );
       },
     },
     {
       title: "Actions",
       key: "actions",
       dataIndex: "id",
-      render: (id: number) => (
+      render: (_: number, question: Question) => (
         <div>
           {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
           <Button className="edit-button" icon={<EditOutlined />}></Button>
@@ -153,6 +216,9 @@ export default function Home() {
             className="delete-button"
             danger
             icon={<DeleteOutlined />}
+            onClick={() => {
+              setDeletionStage({ index: question, deleteConfirmed: false });
+            }}
           ></Button>
         </div>
       ),
@@ -192,6 +258,33 @@ export default function Home() {
     setCurrentPage(pageNumber);
   };
 
+  const confirmDeleteHandler = async () => {
+    if (!("index" in deletionStage) || deletionStage.deleteConfirmed) {
+      error("Cannot delete: invalid deletionStage");
+      return;
+    }
+    if (questions == undefined) {
+      error("Cannot delete: questions does not exist");
+      return;
+    }
+
+    setDeletionStage({ index: deletionStage.index, deleteConfirmed: true });
+    await DeleteQuestionByDocref(deletionStage.index.docRefId);
+    if (questions.length == 1 && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      success("Question deleted successfully");
+    } else {
+      try {
+        await loadQuestions();
+        success("Question deleted successfully");
+      } catch (err) {
+        if (typeof err == "string") {
+          error(err);
+        }
+      }
+    }
+    setDeletionStage({});
+  };
   return (
     <div>
       {contextHolder}
@@ -287,6 +380,14 @@ export default function Home() {
           </div>
         </Content>
       </Layout>
+      {"index" in deletionStage && questions != undefined && (
+        <DeleteModal
+          okHandler={confirmDeleteHandler}
+          cancelHandler={() => setDeletionStage({})}
+          questionTitle={deletionStage.index.title}
+          isDeleting={deletionStage.deleteConfirmed}
+        />
+      )}
     </div>
   );
 }
