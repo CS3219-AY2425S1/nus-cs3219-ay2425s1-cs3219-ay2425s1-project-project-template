@@ -5,3 +5,11 @@ export interface Question {
   category: string[];
   complexity: string;
 }
+
+interface CreateQuestionFormData {
+  title: string;
+  description: string;
+  complexity: string;
+  categories: string[];
+  categoryInput: string;
+}
