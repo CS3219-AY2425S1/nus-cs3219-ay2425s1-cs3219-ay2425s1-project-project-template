@@ -8,19 +8,20 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-	fontSize: {
-		xs: "14px",
-		sm: "16px",
-		md: "18px",
-		lg: "20px",
-		h3: "32px",
-		h2: "40px",
-		h1: "48px"
-	},
+
 	colors: {
 		white: "#FFFFFF"
 	},
   	extend: {
+		fontSize: {
+			xs: "14px",
+			sm: "16px",
+			md: "18px",
+			lg: "20px",
+			h3: "32px",
+			h2: "40px",
+			h1: "48px"
+		},
   		colors: {
   			primary: {
   				'300': '#D7DCE2',

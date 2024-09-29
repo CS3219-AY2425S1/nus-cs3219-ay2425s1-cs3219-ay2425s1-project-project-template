@@ -16,16 +16,12 @@ import {
   QuestionLanguages,
   QuestionTopics,
 } from "@/types/find-match";
+import { capitalizeWords } from "@/utils/string_utils";
 import { useForm } from "react-hook-form";
 
 interface FindMatchFormOutput {
   questionDifficulty: string;
   preferredLanguages: string;
-}
-
-function capitalizeWord(word: string) {
-  if (!word) return word;
-  return word[0].toUpperCase() + word.substr(1).toLowerCase();
 }
 
 const FindPeerHeader = () => {
@@ -48,12 +44,13 @@ const FindPeer = () => {
     defaultValues: {
       questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
       preferredLanguages: QuestionLanguages.PYTHON.valueOf(),
+      questionTopics: "",
     },
   });
 
   const preferredLanguagesList = Object.values(QuestionLanguages).map((ql) => {
     return {
-      label: capitalizeWord(ql),
+      label: capitalizeWords(ql),
       value: ql,
     };
   });
@@ -61,7 +58,7 @@ const FindPeer = () => {
   const topicsList = Object.values(QuestionTopics)
     .map((qt) => {
       return {
-        label: capitalizeWord(qt),
+        label: capitalizeWords(qt),
         value: qt,
       };
     })
@@ -119,7 +116,7 @@ const FindPeer = () => {
             <span className="text-sm text-primary-400">Topics</span>
             <FormField
               control={form.control}
-              name="preferredLanguages"
+              name="questionTopics"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

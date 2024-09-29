@@ -1,3 +1,5 @@
+// eslint-disable no-invalid-page-export
+
 export enum QuestionDifficulty {
   EASY = "easy",
   MEDIUM = "medium",
@@ -75,4 +77,22 @@ export enum QuestionTopics {
   DYNAMIC_PROGRAMMING = "Dynamic Programming",
   BINARY_SEARCH_TREE = "Binary Search Tree",
   BINARY_TREE = "Binary Tree",
+  HASH_SUM = "Hash Sum",
+}
+
+export interface QuestionMinified {
+  questionid: string;
+  title: string;
+  complexity: string;
+}
+
+export interface NewQuestionData {
+  title: string;
+  description: string;
+  category: string[];
+  complexity: string;
+}
+
+export interface QuestionFull extends NewQuestionData {
+  questionId: string;
 }
