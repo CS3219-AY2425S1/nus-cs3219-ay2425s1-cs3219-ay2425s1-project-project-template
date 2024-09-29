@@ -81,7 +81,8 @@ function QuestionEditor() {
   const isTitleUnique = (title: string, excludeId?: string) => {
     return !questions.some(
       (q) =>
-        q.title.toLowerCase() === title.toLowerCase() && q.id !== excludeId,
+        q.title.toLowerCase().trim() === title.toLowerCase().trim() &&
+        q.id !== excludeId,
     );
   };
 
@@ -182,7 +183,7 @@ function QuestionEditor() {
     notifications.show({
       title: 'Success',
       message: 'Question deleted successfully',
-      color: 'red',
+      color: 'green',
     });
   };
 
