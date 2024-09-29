@@ -1,13 +1,9 @@
 import { createQuestion, updateQuestion } from "../services/QuestionService";
 import { useForm } from "react-hook-form";
 
-const modalType = (question) => {
-  return question ? "Edit" : "Create";
-};
-
 const QuestionModal = (props) => {
-  const { question, closeModal } = props;
-  const modalTitle = question ? "Create Question" : "Edit Question";
+  const { question, closeModal, setQuestions } = props;
+  const modalTitle = question ? "Edit Question" : "Create Question";
   const defaultValues = question
     ? {
         title: question.title,
@@ -31,6 +27,7 @@ const QuestionModal = (props) => {
   const sendPostQuestion = async (questionData) => {
     try {
       const response = await createQuestion(questionData);
+      setQuestions((prevQuestions) => [...prevQuestions, response]);
       closeModal();
     } catch (error) {
       console.error(error);
@@ -39,7 +36,14 @@ const QuestionModal = (props) => {
 
   const sendUpdateQuestion = async (questionData) => {
     try {
-      const response = await updateQuestion(questionData);
+      const response = await updateQuestion(question._id, questionData);
+      const updatedQuestion = questionData;
+      updatedQuestion._id = question._id;
+      setQuestions((questions) =>
+        questions.map((q) => {
+          return q._id === question._id ? updatedQuestion : q;
+        }),
+      );
       closeModal();
     } catch (error) {
       console.error(error);
@@ -48,15 +52,15 @@ const QuestionModal = (props) => {
 
   const onSubmit = (questionData) => {
     if (question) {
-      sendPostQuestion(questionData);
-    } else {
       sendUpdateQuestion(questionData);
+    } else {
+      sendPostQuestion(questionData);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 text-black shadow-lg">
         <h2 className="mb-4 text-xl font-bold">{modalTitle}</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Title Input */}
