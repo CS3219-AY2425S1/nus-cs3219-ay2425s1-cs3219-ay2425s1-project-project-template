@@ -15,6 +15,7 @@ import {
   Tabs,
   Tag,
   Modal,
+  Form,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
@@ -30,7 +31,7 @@ import {
   GetQuestions,
   Question,
   CreateQuestion,
-  NewQuestion
+  NewQuestion,
 } from "./services/question";
 import {
   CategoriesOption,
@@ -102,48 +103,23 @@ export default function Home() {
   const [messageApi, contextHolder] = message.useMessage();
 
   // States for Create New Problem Modal
+  const [form] = Form.useForm();
   const [isNewProblemModalOpen, setIsNewProblemModelOpen] = useState(false);
-  const [newProblemCategories, setNewProblemCategories] = useState<string[]>([]);
-  const [newProblemDifficulty, setNewProblemDifficulty] = useState<string[]>([]); // Store the selected difficulty level
 
-  const [newTitle, setNewTitle] = useState('sampleTitle');
-  const [newDescription, setNewDescription] = useState('sampleDescription');
-  const [newCategories, setNewCategories] = useState<string[]>(['Algorithms']);
-  const [newComplexity, setNewComplexity] = useState(1);
-  const [newProblemError, setNewProblemError] = useState<string | null>(null);
-
-  const handleCreateQuestion = async () => {
-    const newQuestion: NewQuestion = {
-      newTitle,
-      newDescription,
-      newCategories,
-      newComplexity,
-      // Add assets and testCases if needed
-    };
-      try {
-        const createdQuestion: Question = await CreateQuestion(newQuestion);
-        console.log("Question created successfully:", createdQuestion);
-        // Reset form or update UI as needed
-      } catch (err: any) {
-        setNewProblemError(err.message);
-      }
-    };
+  const handleCreateQuestion = async (values: NewQuestion) => {
+    try {
+      const createdQuestion = await CreateQuestion(values);
+      // Reset form or update UI as needed
+      setIsNewProblemModelOpen(false);
+      form.resetFields();
+      success("New Problem Created!");
+    } catch (err: any) {
+      error(err.message);
+    }
+  };
 
   const showNewProblemModal = () => {
     setIsNewProblemModelOpen(true);
-  };
-
-  const handleNewProblemSubmit = () => {
-    setIsNewProblemModelOpen(false);
-  };
-
-  const handleNewProblemReturn = () => {
-    setIsNewProblemModelOpen(false);
-  };
-
-  // Handler for change in multi-select categories option
-  const handleNewProblemCategoriesChange = (value: string[]) => {
-    setNewProblemCategories(value);
   };
 
   const success = (message: string) => {
@@ -258,7 +234,7 @@ export default function Home() {
       render: (_: number, question: Question) => (
         <div>
           {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
-          
+
           <Button className="edit-button" icon={<EditOutlined />}></Button>
           {/* TODO (Ryan): Include Pop-up confirmation for delete when clicked and link to delete API --> can also explore success notification or look into react-toast*/}
           <Button
@@ -334,6 +310,12 @@ export default function Home() {
     }
     setDeletionStage({});
   };
+
+  const layout = {
+    labelCol: { span: 4 },
+    wrapperCol: { span: 20 },
+  };
+
   return (
     <div>
       {contextHolder}
@@ -345,71 +327,112 @@ export default function Home() {
               <div className="content-title">Problems</div>
               <div className="create-button">
                 {/* TODO (Sean): Launch a popup modal that links to the backend api to create a new entry in db, --> look into success/error notification/react toast */}
-                <Button type="primary" icon={<PlusCircleOutlined />} onClick={showNewProblemModal}>
+                <Button
+                  type="primary"
+                  icon={<PlusCircleOutlined />}
+                  onClick={showNewProblemModal}
+                >
                   Create New Problem
                 </Button>
-                <Modal 
-                  
+                <Modal
                   title="Create New Problem"
-                  open={isNewProblemModalOpen} 
-                  onOk={handleNewProblemSubmit} 
-                  onCancel={handleNewProblemReturn}
-                  // footer={[
-                  //   <Button key="back" onClick={handleNewProblemReturn}>
-                  //     Return
-                  //   </Button>,
-                  //   <Button key="submit" type="primary" onClick={handleNewProblemSubmit}>
-                  //     Submit
-                  //   </Button>,
-                  // ]}
+                  open={isNewProblemModalOpen}
+                  // onOk={() => setIsNewProblemModelOpen(false)} // Replace with handleSubmit
+                  onCancel={() => setIsNewProblemModelOpen(false)}
+                  footer={null}
+                  width={600}
                 >
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                  />
-                  {/* Add other input fields for description, categories, complexity, etc. */}
-                  <button onClick={handleCreateQuestion}>Create Question</button>
-
-                </Modal>
-                {/* <Modal 
-                  title="Create New Problem"
-                  open={isNewProblemModalOpen} 
-                  onOk={handleNewProblemSubmit} 
-                  onCancel={handleNewProblemReturn}
-                  footer={[
-                    <Button key="back" onClick={handleNewProblemReturn}>
-                      Return
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleNewProblemSubmit}>
-                      Submit
-                    </Button>,
-                  ]}
-                >
-                  <TextArea className="create-title" placeholder="Problem Title" rows={1} maxLength={1}></TextArea>
-                  <Select
-                    allowClear
-                    placeholder="Difficulty"
-                    onChange={(value: string[]) => {
-                      setNewProblemDifficulty(value);
+                  <Form
+                    name="create-form"
+                    {...layout}
+                    form={form}
+                    onFinish={(values) => {
+                      handleCreateQuestion(values);
                     }}
-                    options={DifficultyOption}
-                    className="new-problem-difficulty-select"
-                    value={newProblemDifficulty}
-                  />
-                  <Select
-                    mode="multiple"
-                    allowClear
-                    placeholder="Categories"
-                    onChange={handleNewProblemCategoriesChange}
-                    options={CategoriesOption}
-                    className="new-problem-categories-multi-select"
-                    value={newProblemCategories}
-                  />
-                  <TextArea className="create-description" placeholder="Description"></TextArea>
-                  <TextArea className="create-problem-id" placeholder="Problem ID"></TextArea>
-                </Modal> */}
+                  >
+                    <Form.Item
+                      name="title"
+                      label="Title"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter question title!",
+                        },
+                      ]}
+                    >
+                      <Input name="title" />
+                    </Form.Item>
+                    <Form.Item
+                      name="description"
+                      label="Description"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter question description!",
+                        },
+                      ]}
+                    >
+                      <TextArea name="description" />
+                    </Form.Item>
+                    <Form.Item
+                      name="complexity"
+                      label="Complexity"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select a complexity!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        options={[
+                          {
+                            label: "Easy",
+                            value: "easy",
+                          },
+                          {
+                            label: "Medium",
+                            value: "medium",
+                          },
+                          {
+                            label: "Hard",
+                            value: "hard",
+                          },
+                        ]}
+                        onChange={(value) =>
+                          form.setFieldValue("complexity", value)
+                        }
+                        allowClear
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="categories"
+                      label="Categories"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select the relevant categories!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        mode="multiple"
+                        options={CategoriesOption}
+                        onChange={(value) =>
+                          form.setFieldValue("categories", value)
+                        }
+                        allowClear
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      style={{ display: "flex", justifyContent: "flex-end" }}
+                    >
+                      <Button type="primary" htmlType="submit">
+                        Create
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Modal>
               </div>
             </div>
             {/* TODO (Ben/Ryan): Include and link search & filter parameters */}
