@@ -24,6 +24,7 @@ import { HiOutlinePencil } from "react-icons/hi";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { getLeetcodeDashboardData } from "@/api/leetcode-dashboard";
 import { QuestionMinified } from "@/types/find-match";
+import MoonLoader from "react-spinners/MoonLoader";
 
 const Cell = ({
   className,
@@ -151,11 +152,10 @@ export function LeetcodeDashboardTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
+                <TableCell colSpan={columns.length}>
+                  <div className="w-full flex justify-center items-center">
+                    <MoonLoader color="#FFFFFF" size="30" />
+                  </div>
                 </TableCell>
               </TableRow>
             )}
