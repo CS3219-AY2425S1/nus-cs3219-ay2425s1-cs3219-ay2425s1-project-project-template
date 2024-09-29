@@ -1,23 +1,62 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { GithubIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
+  const router = useRouter();
+  // handle login here
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // setError('');
+    // const apiEndpoint = 'http://localhost:4040/api/auth/login';
+    // const result = await fetch(apiEndpoint, {
+    // 	method: 'POST',
+    // 	headers: {
+    // 		'Content-Type': 'application/json',
+    // 	},
+    // 	body: JSON.stringify({ email, password }),
+    // 	});
+
+    // const data = await result.json();
+    // const message = data.message;
+    // const isAuth = message === "Login successful";
+    const isAuth = false;
+    if (isAuth) {
+      // const token = data.token;
+      // localStorage.setItem('token', token);
+      // go to homepage
+      router.push('/');
+    } else {
+      setError('Please provide correct email and password');
+      console.error('Login failed');
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900">
       <div className="w-full max-w-md space-y-6 rounded-lg bg-gray-800 p-8 shadow-xl">
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            {/* <AlertCircle className="h-4 w-4" /> */}
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-white">PeerPrep</h2>
           <p className="text-sm text-gray-400">Sign in to your account</p>
         </div>
-        <form className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <Input
               type="email"
@@ -86,7 +125,7 @@ export default function LoginForm() {
           </Button>
         </div>
         <div className="flex justify-center text-center text-sm text-gray-400">
-          Don't have an account?
+          Do not have an account?
           <span className="mx-1" />
           <Link href="/signup" className="text-blue-500 hover:underline">
             Sign up

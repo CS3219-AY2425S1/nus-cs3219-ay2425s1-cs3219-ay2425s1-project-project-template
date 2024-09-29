@@ -12,7 +12,8 @@ docker run -p 4040:4040 --env-file .env acc account-creation-service
 ## Example Usage
 
 1. Make sure your json struct has a similar structure:
-``` {
+
+```{
   "email": "example@example.com",
   "name": "exampleUser",
   "password": "securePassword123",
@@ -44,3 +45,4 @@ fetch("http://localhost:4040/register", requestOptions)
   .then((response) => response.text())
   .then((result) => console.log(result))
   .catch((error) => console.error(error));```
+```

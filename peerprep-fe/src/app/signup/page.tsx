@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { GithubIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function SignUpPage() {
@@ -11,10 +13,50 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // setError('');
+    // const apiEndpoint = 'http://localhost:4040/api/auth/signup';
+    // const result = await fetch(apiEndpoint, {
+    // 	method: 'POST',
+    // 	headers: {
+    // 		'Content-Type': 'application/json',
+    // 	},
+    // 	body: JSON.stringify({ email, password }),
+    // 	});
+
+    // const data = await result.json();
+    // const message = data.message;
+    // const isAuth = message === "Login successful";
+    const isAuth = true;
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    if (isAuth) {
+      // const token = data.token;
+      // localStorage.setItem('token', token);
+      // go to homepage
+      router.push('/');
+    } else {
+      setError('Account creation failed');
+      console.error('Login failed');
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900">
       <div className="w-full max-w-md space-y-6 rounded-lg bg-gray-800 p-8 shadow-xl">
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            {/* <AlertCircle className="h-4 w-4" /> */}
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-white">Create your account</h2>
           <p className="text-sm text-gray-400">
@@ -25,7 +67,7 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
-        <form className="space-y-4">
+        <form onSubmit={handleSignUp} className="space-y-4">
           <div>
             <Input
               type="email"
