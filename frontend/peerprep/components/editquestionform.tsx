@@ -462,7 +462,7 @@ export default function EditQuestionForm({
         isOpen={isSuccessModalOpen}
         onOpenChange={setSuccessModalOpen}
         message={successMessage}
-        onConfirm={() => router.push("/questions-management/list")} // Redirect to list after confirmation
+        onConfirm={() => router.push("/")} // Redirect to list after confirmation
       />
       <ErrorModal
         isOpen={isErrorModalOpen}

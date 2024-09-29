@@ -209,7 +209,7 @@ export default function AddQuestionForm({
   };
 
   const handleCancel = () => {
-    router.push("/questions-management/list");
+    router.push("/");
   };
 
   return (
@@ -405,12 +405,12 @@ export default function AddQuestionForm({
         isOpen={successModalOpen}
         onOpenChange={() => {
           setSuccessModalOpen;
-          router.push("/questions-management/list");
+          router.push("/");
         }}
         message={successMessage}
         onConfirm={() => {
           setSuccessModalOpen(false);
-          router.push("/questions-management/list");
+          router.push("/");
         }}
       />
       <ErrorModal
