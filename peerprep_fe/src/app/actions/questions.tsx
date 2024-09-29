@@ -115,7 +115,7 @@ export async function addQuestion(
     } else {
       return {
         errors: {
-          errorMessage: result,
+          errorMessage: result.message,
         },
       };
     }
