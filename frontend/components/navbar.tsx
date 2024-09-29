@@ -8,8 +8,7 @@ import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 
-import NavLink from "./navLink";
-
+import NavLink from "@/components/navlink";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";

@@ -12,8 +12,7 @@ import {
 } from "@nextui-org/table";
 import { Pagination } from "@nextui-org/pagination";
 
-import NavLink from "../navLink";
-
+import NavLink from "@/components/navlink";
 import CategoryTags from "@/components/questions/CategoryTags";
 import DifficultyTags from "@/components/questions/DifficultyTags";
 import ActionButtons from "@/components/questions/ActionButtons";

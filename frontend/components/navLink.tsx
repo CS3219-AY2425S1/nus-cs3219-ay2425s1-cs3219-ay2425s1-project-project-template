@@ -21,6 +21,6 @@ const NavLink: React.FC<NavLinkProps> = ({ href, isActive, children }) => {
       {children}
     </NextLink>
   );
-}
+};
 
 export default NavLink;
