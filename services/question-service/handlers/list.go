@@ -51,12 +51,6 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 
 	query := s.Client.Collection("questions").Query
 
-	// Filtering by title
-	titleParam := r.URL.Query().Get("title")
-	if titleParam != "" {
-		query = query.Where("title", "==", titleParam)
-	}
-
 	// Filtering by complexity (multi-select)
 	complexityParam := r.URL.Query().Get("complexity")
 	if complexityParam != "" {
@@ -65,7 +59,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 		for _, complexityStr := range complexityStrs {
 			complexityType, err := models.ParseComplexity(complexityStr)
 			if err != nil {
-				http.Error(w, "Failed to filter by complexity: "+err.Error(), http.StatusInternalServerError)
+				http.Error(w, "Failed to filter by complexity: "+err.Error(), http.StatusBadRequest)
 				return
 			}
 			complexityInts = append(complexityInts, int(complexityType))
@@ -73,15 +67,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 		query = query.Where("complexity", "in", complexityInts)
 	}
 
-	// Filtering by categories (multi-select): Partially using array-contains-any first
-	categoriesParam := r.URL.Query().Get("categories")
-	var categories []string
-	if categoriesParam != "" {
-		categories = strings.Split(categoriesParam, ",")
-		query = query.Where("categories", "array-contains-any", categories)
-	}
-
-	// Sorting
+	// Sorting (Generalisable to multiple fields but limited by firebase composite indexes)
 	sortFieldsParam := r.URL.Query()["sortField"]
 	sortValuesParam := r.URL.Query()["sortValue"]
 
@@ -123,12 +109,27 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to to get fetch questions: "+err.Error(), http.StatusInternalServerError)
 	}
 
+	// Parse categories from query param (multi-select)
+	categoriesParam := r.URL.Query().Get("categories")
+	var categories []string
+	if categoriesParam != "" {
+		categories = strings.Split(categoriesParam, ",")
+	}
+
+	// Parse title keywords from title query param
+	titleParam := r.URL.Query().Get("title")
+	var keywordsQuery []string
+	if titleParam != "" {
+		keywordsQuery = getKeywordsFromTitle(titleParam)
+	}
+
 	// Filter the results to check if the document contains all categories (implementation of array-contains-all)
 	var filteredResults []*firestore.DocumentSnapshot
-	if categories != nil {
-		for _, doc := range results {
-			data := doc.Data()
+	for _, doc := range results {
+		data := doc.Data()
 
+		var passedCategoryFilterDoc *firestore.DocumentSnapshot
+		if categories != nil {
 			// Retrieve the "categories" field from the document and convert to []string
 			if docCategories, ok := data["categories"].([]interface{}); ok {
 				stringCategories := make([]string, len(docCategories))
@@ -139,12 +140,33 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if containsAllCategoriesSet(stringCategories, categories) {
-					filteredResults = append(filteredResults, doc)
+					passedCategoryFilterDoc = doc
 				}
 			}
+		} else {
+			passedCategoryFilterDoc = doc
 		}
-	} else {
-		filteredResults = results
+
+		if passedCategoryFilterDoc == nil {
+			continue
+		}
+
+		var passedTitleKeywordsFilterDoc *firestore.DocumentSnapshot
+		if keywordsQuery != nil {
+			if docTitle, ok := data["title"].(string); ok {
+				if titleContainsKeywords(docTitle, keywordsQuery) {
+					passedTitleKeywordsFilterDoc = passedCategoryFilterDoc
+				}
+			}
+		} else {
+			passedTitleKeywordsFilterDoc = passedCategoryFilterDoc
+		}
+
+		if passedTitleKeywordsFilterDoc == nil {
+			continue
+		}
+
+		filteredResults = append(filteredResults, passedTitleKeywordsFilterDoc)
 	}
 
 	// Pagination
@@ -189,6 +211,9 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 	totalCount := len(filteredResults)
 	totalPages := (totalCount + limit - 1) / limit
 	currentPage := (offset / limit) + 1
+	if len(questions) == 0 {
+		currentPage = 0
+	}
 	hasNextPage := totalPages > currentPage
 
 	// Construct response
@@ -233,6 +258,34 @@ func paginateResults(results []*firestore.DocumentSnapshot, offset, limit int) [
 		end = len(results)
 	}
 	return results[start:end]
+}
+
+// getKeywordsFromTitle Get keywords from question's title
+func getKeywordsFromTitle(title string) []string {
+	return strings.Split(strings.ToLower(strings.TrimSpace(title)), " ")
+}
+
+// titleContainsKeywords Check if title contains all keywords
+func titleContainsKeywords(title string, queryKeywords []string) bool {
+	// TODO: Implement using trie for better performance
+	titleWords := strings.Fields(strings.ToLower(strings.TrimSpace(title)))
+
+	// Iterate through each keyword.
+	for _, queryKeyword := range queryKeywords {
+		matched := false
+		// Check if the queryKeyword is a prefix of any word in the title.
+		for _, titleWord := range titleWords {
+			if strings.HasPrefix(titleWord, queryKeyword) {
+				matched = true
+				break
+			}
+		}
+		// If the queryKeyword is not a prefix of any title word, return false.
+		if !matched {
+			return false
+		}
+	}
+	return true
 }
 
 //Manual test cases
