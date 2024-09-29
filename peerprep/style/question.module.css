@@ -35,26 +35,20 @@
 }
 
 .easy {
-  padding: 1px;
   background-color: beige;
   border: 1px solid darkgreen;
-  border-radius: 5%;
   color: darkgreen;
 }
 
 .med {
-  padding: 1px;
   background-color: azure;
   border: 1px solid darkgoldenrod;
-  border-radius: 5%;
   color: darkgoldenrod;
 }
 
 .hard {
-  padding: 1px;
   background-color: mintcream;
   border: 1px solid red;
-  border-radius: 5%;
   color: red;
 }
 

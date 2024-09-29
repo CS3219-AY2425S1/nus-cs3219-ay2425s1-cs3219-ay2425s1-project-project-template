@@ -1,4 +1,5 @@
 import { Question, StatusBody, Difficulty } from "@/api/structs";
+import Chip from "@/components/shared/Chip";
 import styles from '@/style/question.module.css';
 
 interface Props {
@@ -7,9 +8,11 @@ interface Props {
 
 const difficultyColor = (diff: Difficulty) => {
   return (
-    diff === Difficulty.Easy ? <p className={`${styles.title} ${styles.easy}`}>Easy</p>
-    : diff === Difficulty.Medium ? <p className={`${styles.title} ${styles.med}`}>Med</p>
-    : <p className={`${styles.title} ${styles.hard}`}>Hard</p>
+    diff === Difficulty.Easy
+    ? <Chip className={styles.easy}>Easy</Chip>
+    : diff === Difficulty.Medium
+    ? <Chip className={styles.med}>Med</Chip>
+    : <Chip className={styles.hard}>Hard</Chip>
   );
 }
 
