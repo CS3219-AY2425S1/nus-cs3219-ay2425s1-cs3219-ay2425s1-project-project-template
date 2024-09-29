@@ -4,6 +4,10 @@ import { COOKIE_NAME } from '@/lib/cookies';
 import {
   loginService,
   registerService,
+  checkEmailValidService,
+  checkUsernameValidService,
+  type IEmailValidPayload,
+  type IUsernameValidPayload,
   type ILoginPayload,
   type IRegisterPayload,
 } from '@/services/auth';
@@ -68,4 +72,30 @@ export const register: IRouteHandler = async (req, res) => {
     message: 'User registered successfully',
     user: data.user, // Return user data if needed
   });
+};
+
+export const checkUsernameValid: IRouteHandler = async (req, res) => {
+  const { username }: IUsernameValidPayload = req.body;
+  if (!username) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed Request');
+  }
+  const { code, data, error } = await checkUsernameValidService({ username });
+  if (error || code !== StatusCodes.OK || !data) {
+    const sanitizedErr = error?.message ?? 'An error occurred.';
+    return res.status(code).json(sanitizedErr);
+  }
+  return res.status(StatusCodes.OK).json(data);
+};
+
+export const checkEmailValid: IRouteHandler = async (req, res) => {
+  const { email }: IEmailValidPayload = req.body;
+  if (!email) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed Request');
+  }
+  const { code, data, error } = await checkEmailValidService({ email });
+  if (error || code !== StatusCodes.OK || !data) {
+    const sanitizedErr = error?.message ?? 'An error occurred.';
+    return res.status(code).json(sanitizedErr);
+  }
+  return res.status(StatusCodes.OK).json(data);
 };
