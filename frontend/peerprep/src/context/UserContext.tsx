@@ -48,6 +48,7 @@ export const UserProvider = ({
         return undefined;
       }
     },
+    refetchOnWindowFocus: false,
   });
 
   const user = data === undefined ? null : data;
