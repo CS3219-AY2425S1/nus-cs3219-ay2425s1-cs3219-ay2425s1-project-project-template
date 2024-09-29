@@ -1,10 +1,10 @@
 import { createAxiosInstance } from "./Api";
 
-const baseURL = process.env.QUESTION_SERVICE_BASEURL;
+const questionServiceBaseURL = import.meta.env.VITE_QUESTION_SERVICE_BASEURL;
 
-const questionApi = createAxiosInstance(baseURL);
+const questionApi = createAxiosInstance(questionServiceBaseURL);
 
 export const getQuestions = async () => {
-  const response = await questionApi.get("/questions");
+  const response = await questionApi.get("/question");
   return response.data;
 };
