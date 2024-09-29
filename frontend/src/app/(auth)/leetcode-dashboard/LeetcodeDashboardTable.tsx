@@ -47,26 +47,31 @@ const Cell = ({
 export function LeetcodeDashboardTable() {
   const [data, setData] = useState<QuestionMinified[]>([]);
   const [modalIsOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
   >(null);
 
   function handleDelete(questionId: string) {
+    setIsDeleting(true);
     Swal.fire({
-      icon: "error",
+      icon: "warning",
       title: "Confirm delete?",
       text: "Are you sure you want to delete this question?",
       showCancelButton: true,
       confirmButtonText: "Confirm",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const res = await deleteSingleLeetcodeQuestion(questionId);
-        if (res.ok) {
-          Swal.fire("Question deleted successfully!", "", "success");
-        } else {
-          Swal.fire("An error occured, please try again later");
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        try {
+          await deleteSingleLeetcodeQuestion(questionId);
+          return Swal.fire("Question deleted successfully!", "", "success");
+        } catch (error) {
+          Swal.showValidationMessage(`Failed to delete question: ${error}`);
+        } finally {
+          setIsDeleting(false);
         }
-      }
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
     });
   }
 
@@ -163,7 +168,7 @@ export function LeetcodeDashboardTable() {
 
   useEffect(() => {
     getLeetcodeDashboardData().then((data) => setData(data));
-  }, []);
+  }, [data]);
 
   const table = useReactTable({
     data,

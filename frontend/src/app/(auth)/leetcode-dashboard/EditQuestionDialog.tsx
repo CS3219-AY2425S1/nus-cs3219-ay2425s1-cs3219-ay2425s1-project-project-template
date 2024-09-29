@@ -93,15 +93,11 @@ const EditQuestionDialog = ({
       questionId: questionId,
     })
       .then((response) => {
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Question Added",
-            text: "Question has been modified successfully.",
-          });
-        }
-
-        return response.json();
+        Swal.fire({
+          icon: "success",
+          title: "Question Added",
+          text: "Question has been modified successfully.",
+        });
       })
       .catch((error) => {
         Swal.fire({
