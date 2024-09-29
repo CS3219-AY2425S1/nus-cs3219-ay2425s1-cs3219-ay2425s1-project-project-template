@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
+import DashboardPageForUsers from "./pages/DashBoardForUsersPage";
 
 const App: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const App: React.FC = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/question" element={<QuestionPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboardForUsers" element={<DashboardPageForUsers />} />
       </Routes>
     </BrowserRouter>
   );

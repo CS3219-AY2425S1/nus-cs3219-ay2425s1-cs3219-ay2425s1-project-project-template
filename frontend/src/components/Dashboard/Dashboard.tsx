@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useTable, Column } from "react-table"; // Import the 'Column' type
+import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
 import EditQuestionModal from "../EditQuestionModal";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const Dashboard: React.FC = () => {
   const [Data, setData] = useState([]);
@@ -9,19 +11,16 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/questions", {
-          mode: "cors",
+        const response = await axios.get("http://localhost:8080/questions", {
           headers: {
             "Access-Control-Allow-Origin": "http://localhost:8080",
           },
         });
-        const data = await response.json();
-        setData(data._embedded.questionList);
+        setData(response.data._embedded.questionList);
       } catch (error) {
         console.error("Error fetching question:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -60,6 +59,21 @@ const Dashboard: React.FC = () => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
+    const location = useLocation();
+
+    const onClick = (row: Row<{}>) => {
+      if (location.pathname === "/dashboard") {
+        openEditModal(
+          row.allCells[3].value,
+          row.allCells[2].value,
+          row.allCells[0].value,
+          row.allCells[1].value,
+          row.original.id
+        );
+      } else if (location.pathname === "/dashboardForUsers") {
+          window.location.href = `/question`;
+      }
+    }
   return (
     <div className="overflow-x-auto">
       {editModalIsOpen && (
@@ -116,16 +130,7 @@ const Dashboard: React.FC = () => {
                       {...cell.getCellProps()}
                       key={cell.column.id}
                       className="py-3 px-6 text-left"
-                      onClick={() => {
-                        console.log(row.original.id);
-                        openEditModal(
-                          row.allCells[3].value,
-                          row.allCells[2].value,
-                          row.allCells[0].value,
-                          row.allCells[1].value,
-                          row.original.id
-                        );
-                      }}
+                      onClick={() => onClick(row)}
                     >
                       {cell.column.Header === "Categories"
                         ? (cell.value.reduce(

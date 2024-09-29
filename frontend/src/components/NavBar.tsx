@@ -17,19 +17,24 @@ const NavBar: React.FC = () => {
         />
       </div>
       {/* Conditionally render extra div based on location */}
-      <IsConnected isConnected={false} />
-      {location.pathname === "/" ? (
-        <div className="container flex space-x-8 justify-end text-2xl text-off-white">
-          <Link to="/dashboard">
-            <button className="bg-black rounded-[25px] p-4">Register</button>
-          </Link>
-          <Link to="/question">
-            <button className="bg-yellow rounded-[25px] p-4">Login</button>
-          </Link>
-        </div>
-      ) : (
-        <ProfileButton />
-      )}
+      <div>
+        <IsConnected isConnected={false} />
+      </div>
+      <div>
+        {location.pathname === "/" ? (
+          <div className="container flex space-x-8 justify-end text-2xl text-off-white">
+            <Link to="/dashboard">
+              <button className="bg-black rounded-[25px] p-4 whitespace-nowrap">Enter as Admin</button>
+            </Link>
+            <Link to="/dashboardForUsers">
+              <button className="bg-yellow rounded-[25px] p-4 whitespace-nowrap">Enter as User</button>
+            </Link>
+          </div>
+        ) : (
+          
+            <ProfileButton />
+        )}
+      </div>
     </nav>
   );
 };
