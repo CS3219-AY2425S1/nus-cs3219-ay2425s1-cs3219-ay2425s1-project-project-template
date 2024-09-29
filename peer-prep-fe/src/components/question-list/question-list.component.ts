@@ -4,12 +4,13 @@ import { SearchAndFilterComponent } from '../search-and-filter/search-and-filter
 import { Question } from '../../app/models/question.model';
 import { QuestionBoxComponent } from '../question-box/question-box.component';
 import {QuestionService} from "../../services/question.service";
+import {HttpClientModule} from "@angular/common/http";
 
 
 @Component({
   selector: 'app-question-list',
   standalone: true,
-  imports: [CommonModule, SearchAndFilterComponent, QuestionBoxComponent],
+  imports: [CommonModule, SearchAndFilterComponent, QuestionBoxComponent, HttpClientModule],
   templateUrl: './question-list.component.html',
   styleUrl: './question-list.component.css'
 })

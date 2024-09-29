@@ -5,6 +5,7 @@ import { QuestionDescriptionComponent } from '../question-description/question-d
 import {MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {EditPageComponent} from "../../edit-page/edit-page.component";
 import {Router} from "@angular/router";
+import {DeletePageComponent} from "../../delete-page/delete-page.component";
 
 @Component({
   selector: 'app-question-box',
@@ -51,6 +52,22 @@ export class QuestionBoxComponent {
    dialogRef.componentInstance.editComplete.subscribe(() => {
      this.refresh.emit();
    });
+  }
+
+  openDeleteModal() {
+    const dialogRef = this.dialog.open(DeletePageComponent, {
+      data: {
+        questionId: this.question.question_id,
+      },
+      panelClass: 'custom-modalbox',
+      width: '400px',
+      height: '300px',
+      disableClose: true
+    });
+
+    dialogRef.componentInstance.deleteComplete.subscribe(() => {
+      this.refresh.emit();
+    });
   }
 }
 
