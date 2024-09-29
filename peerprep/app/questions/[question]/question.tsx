@@ -1,12 +1,18 @@
-import { Question, StatusBody, Difficulty } from "@/api/structs";
+'use client';
+import { Question, Difficulty } from "@/api/structs";
 import Chip from "@/components/shared/Chip";
+import PeerprepButton from "@/components/shared/PeerprepButton";
 import styles from '@/style/question.module.css';
 
 interface Props {
   question : Question;
 }
 
-const difficultyColor = (diff: Difficulty) => {
+interface DifficultyChipProps {
+  diff: Difficulty
+}
+
+function DifficultyChip({ diff }: DifficultyChipProps) {
   return (
     diff === Difficulty.Easy
     ? <Chip className={styles.easy}>Easy</Chip>
@@ -30,10 +36,23 @@ function QuestionBlock({ question }: Props) {
     <>
       <div className={styles.qn_container}>
         <div className={styles.title_wrapper}>
-          <h1 className={styles.title}>Q{question.id}: {question.title}</h1>
-          {difficultyColor(question.difficulty)}
+          <div className={styles.label_wrapper}>
+            <h1 className={styles.title}>Q{question.id}: {question.title}</h1>
+            <DifficultyChip diff={question.difficulty} />
+          </div>
+          <PeerprepButton className={` ${styles.button}`}
+            onClick={/* TODO: Replace this function with gateway.delete*/() => console.log("Delete Me!")}>
+            Delete
+          </PeerprepButton>
         </div>
-        <br/>
+        <div className={styles.label_wrapper}>
+          <p>Categories: </p>
+          {question.categories.length == 0
+          ? (<p>No categories listed.</p>)
+          : question.categories.map((elem, idx) => (
+            <p key={idx}>{elem}</p>
+          ))}
+        </div>
         <p>{question.description}</p>
         <br/>
         {question.test_cases && (

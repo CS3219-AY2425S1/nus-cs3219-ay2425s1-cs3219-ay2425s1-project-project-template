@@ -25,7 +25,22 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding: 0px 5px 0px 0px;
+}
+
+.label_wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
   padding: 0px 5px;
+}
+
+.button {
+  padding: 4px;
+  font-size: smaller;
 }
 
 .title {
