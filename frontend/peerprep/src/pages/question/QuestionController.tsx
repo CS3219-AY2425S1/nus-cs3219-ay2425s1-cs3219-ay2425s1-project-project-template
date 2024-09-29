@@ -9,10 +9,10 @@ const QuestionController: React.FC = () => {
   const api = useApiContext();
 
   useEffect(() => {
-    // Fetch the questions when the component mounts
     api
       .get("/questions")
       .then((response) => {
+        // use the api instance to make post request using axios post method
         if (response.status === 200) {
           setQuestions(response.data);
         }
@@ -29,7 +29,7 @@ const QuestionController: React.FC = () => {
       console.error("No valid TITLE provided for deletion.");
       return; // Early exit if TITLE is undefined
     }
-
+  
     // Proceed with deleting from state
     setQuestions((prevQuestions) => prevQuestions.filter((q) => q.Title !== title));
   
@@ -37,10 +37,10 @@ const QuestionController: React.FC = () => {
     api
       .delete(`/questions/${title}`)
       .then((response) => {
-        console.log(`Question with ID ${title} deleted successfully.`);
+        console.log(`Question with title ${title} deleted successfully.`);
       })
       .catch((error) => {
-        console.error(`Error deleting question with TITLE ${title}:`, error);
+        console.error(`Error deleting question with title ${title}:`, error);
       });
   };
   
