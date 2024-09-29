@@ -112,6 +112,7 @@ describe('Question Routes', () => {
                     nextPage: 2,
                     totalPages: Math.ceil(QUESTION_BANK.length / 10),
                     totalItems: QUESTION_BANK.length,
+                    limit: 10,
                 })
                 expect(questions).toHaveLength(10)
             })
