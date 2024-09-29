@@ -132,12 +132,13 @@ const Questions = () => {
           </div>
         ))}
       </div>
-      <QuestionModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        questionData={currentQuestion}
-        onSubmit={handleEditSubmit}
-      />
+      {showModal && (
+        <QuestionModal
+          closeModal={() => setShowModal(false)}
+          setQuestions={setQuestions}
+          question={currentQuestion}
+        />
+      )}
     </div>
   );
 };
