@@ -6,7 +6,7 @@ export const getAllQuestions = async ({
   page,
   limit,
   sort,
-  order
+  order,
 }: {
   page: number;
   limit: number;
@@ -14,11 +14,23 @@ export const getAllQuestions = async ({
   order: string;
 }) => {
   try {
-    const response = await axios.get(`${API_URL}/api/questions?page=${page}&limit=${limit}&sort=${sort}&order=${order}`);
+    const response = await axios.get(
+      `${API_URL}/api/questions?page=${page}&limit=${limit}&sort=${sort}&order=${order}`
+    );
     console.log(response);
     return response.data;
   } catch (error) {
     console.error("Error fetching questions:", error);
+    throw error;
+  }
+};
+
+export const fetchQuestionById = async (id: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/questions/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching question:", error);
     throw error;
   }
 };

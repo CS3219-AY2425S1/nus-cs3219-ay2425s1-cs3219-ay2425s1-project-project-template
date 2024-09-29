@@ -11,11 +11,12 @@ import {
   Typography,
   IconButton,
   MenuItem,
-  TextField
+  TextField,
 } from "@mui/material";
 import Header from "../components/Header";
 import { getAllQuestions } from "../api/questionApi"; // Ensure your API supports pagination & sorting params
 import { Question } from "../@types/question";
+import { useNavigate } from "react-router-dom";
 
 const QuestionRepo = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -27,10 +28,21 @@ const QuestionRepo = () => {
   const [sortField, setSortField] = useState<string>("title"); // Default sort field
   const [sortOrder, setSortOrder] = useState<string>("asc"); // Default sort order
 
+  const navigate = useNavigate();
+
+  const handleRowClick = (id: string) => {
+    navigate(`/questions/${id}`);
+  };
+
   const fetchQuestions = async (page: number, sort: string, order: string) => {
     try {
       // Fetch questions with pagination and sorting
-      const data = await getAllQuestions({ page, limit: entriesPerPage, sort, order });
+      const data = await getAllQuestions({
+        page,
+        limit: entriesPerPage,
+        sort,
+        order,
+      });
       setQuestions(data.questions);
       setCurrentPage(data.currentPage);
       setTotalPages(data.totalPages);
@@ -73,7 +85,12 @@ const QuestionRepo = () => {
           </Typography>
 
           {/* Sorting Controls */}
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+          >
             <TextField
               select
               label="Sort By"
@@ -83,9 +100,9 @@ const QuestionRepo = () => {
               variant="outlined"
               // sx={{ width: 150 }}
             >
-                <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="complexity">Complexity</MenuItem>
-                <MenuItem value="category">Category</MenuItem>
+              <MenuItem value="title">Title</MenuItem>
+              <MenuItem value="complexity">Complexity</MenuItem>
+              <MenuItem value="category">Category</MenuItem>
             </TextField>
 
             <TextField
@@ -112,7 +129,12 @@ const QuestionRepo = () => {
               </TableHead>
               <TableBody>
                 {questions.map((question) => (
-                  <TableRow key={question._id}>
+                  <TableRow
+                    key={question._id}
+                    hover
+                    onClick={() => handleRowClick(question._id)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <TableCell>{question.title}</TableCell>
                     <TableCell></TableCell>
                     <TableCell>{question.complexity}</TableCell>
