@@ -23,6 +23,20 @@ const peerSessions = [
     topics: ["Dynamic Programming", "Recursion"],
     result: "Failed",
   },
+  {
+    id: 3,
+    date: "2024-09-18",
+    peerName: "Sarah James",
+    topics: ["Dynamic Programming", "Recursion"],
+    result: "Success",
+  },
+  {
+    id: 4,
+    date: "2024-09-18",
+    peerName: "Robert Wu",
+    topics: ["Dynamic Programming", "Recursion"],
+    result: "Success",
+  },
 ];
 
 const suggestedQuestion = {

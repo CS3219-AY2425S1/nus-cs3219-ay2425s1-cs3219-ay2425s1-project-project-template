@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Dashboard />,
     errorElement: <ErrorPage />,
   },
   {
