@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"question-service/models"
 	"question-service/utils"
@@ -76,5 +75,5 @@ func (s *Service) UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)
 
-	fmt.Fprintf(w, "Question with ID %s updated successfully", question.DocRefID)
+	// fmt.Fprintf(w, "Question with ID %s updated successfully", question.DocRefID)
 }
