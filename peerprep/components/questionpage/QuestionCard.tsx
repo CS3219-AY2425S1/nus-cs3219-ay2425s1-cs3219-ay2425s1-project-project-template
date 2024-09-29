@@ -1,9 +1,11 @@
 "use client";
+import { deleteQuestion } from "@/api/gateway";
 import React from "react";
 import { Question, Difficulty } from "@/api/structs";
 import PeerprepButton from "../shared/PeerprepButton";
 import { useRouter } from "next/navigation";
 import styles from "@/style/questionCard.module.css";
+import QuestionList from "./QuestionList";
 
 type QuestionCardProps = {
   question: Question;
@@ -11,6 +13,23 @@ type QuestionCardProps = {
 
 const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   const router = useRouter();
+  const handleDelete = async () => {
+    if (
+      confirm(
+        `Are you sure you want to delete ${question.title}? (ID: ${question.id}) `
+      )
+    ) {
+      const status = await deleteQuestion(question);
+      if (status.error) {
+        console.log("Failed to delete question.");
+        console.log(`Code ${status.status}:  ${status.error}`);
+        return;
+      }
+      console.log(`Successfully deleted the question.`);
+    } else {
+      console.log("Deletion cancelled.");
+    }
+  };
 
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
@@ -55,12 +74,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         <PeerprepButton onClick={() => router.push(`questions/${question.id}`)}>
           View
         </PeerprepButton>
-        <PeerprepButton
-          // no functionality here yet
-          onClick={() => console.log(`Deleting question ${question.id}`)}
-        >
-          Delete
-        </PeerprepButton>
+        <PeerprepButton onClick={handleDelete}>Delete</PeerprepButton>
       </div>
     </div>
   );

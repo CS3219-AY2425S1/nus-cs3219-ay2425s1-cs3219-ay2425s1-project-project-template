@@ -29,6 +29,8 @@ export interface StatusBody {
   error?: string;
 }
 
-export function isError(obj: Question | StatusBody): obj is StatusBody {
+export function isError(
+  obj: Question[] | Question | StatusBody
+): obj is StatusBody {
   return (obj as StatusBody).status !== undefined;
 }
