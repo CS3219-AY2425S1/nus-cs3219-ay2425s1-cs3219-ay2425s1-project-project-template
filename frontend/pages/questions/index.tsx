@@ -1,6 +1,6 @@
 "use client";
+
 import { useState } from "react";
-import { Pagination } from "@nextui-org/pagination";
 
 import { useQuestions } from "@/hooks/questions";
 import QuestionTable from "@/components/questions/QuestionTable";
@@ -23,14 +23,10 @@ const QuestionsPage = () => {
         ) : (
           <div>
             <QuestionTable
-              bottomContent={
-                <Pagination
-                  page={pageNumber}
-                  total={parseInt(questionList?.totalPages || "1")}
-                  onChange={handleOnPageClick}
-                />
-              }
+              handlePageOnClick={handleOnPageClick}
+              pageNumber={pageNumber}
               questions={questionList?.questions || []}
+              totalPages={parseInt(questionList?.totalPages || "1")}
             />
           </div>
         )}

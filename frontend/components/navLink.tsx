@@ -7,12 +7,13 @@ interface NavLinkProps {
   isActive?: boolean;
   hover?: boolean;
 }
-export default function NavLink({
+
+const NavLink: React.FC<NavLinkProps> = ({
   href,
   isActive,
   children,
   hover,
-}: NavLinkProps) {
+}) => {
   let className;
 
   if (isActive) {
@@ -20,6 +21,7 @@ export default function NavLink({
   } else {
     className = "text-white";
   }
+
   if (hover) {
     return (
       <div className="p-1 rounded-md hover:bg-slate-400">
@@ -35,4 +37,6 @@ export default function NavLink({
       </NextLink>
     );
   }
-}
+};
+
+export default NavLink;

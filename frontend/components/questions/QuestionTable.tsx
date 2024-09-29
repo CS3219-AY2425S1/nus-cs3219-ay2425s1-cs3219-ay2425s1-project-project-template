@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { Key as ReactKey } from "react";
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
@@ -10,9 +10,9 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
+import { Pagination } from "@nextui-org/pagination";
 
-import NavLink from "../navLink";
-
+import NavLink from "@/components/navlink";
 import CategoryTags from "@/components/questions/CategoryTags";
 import DifficultyTags from "@/components/questions/DifficultyTags";
 import ActionButtons from "@/components/questions/ActionButtons";
@@ -20,7 +20,9 @@ import { Question } from "@/types/questions";
 
 interface QuestionTableProps {
   questions: Question[];
-  bottomContent: React.ReactNode;
+  totalPages: number;
+  pageNumber: number;
+  handlePageOnClick: (page: number) => void;
 }
 
 const columns = [
@@ -31,10 +33,12 @@ const columns = [
   { name: "Action", uid: "action" },
 ];
 
-export default function QuestionTable({
+const QuestionTable: React.FC<QuestionTableProps> = ({
   questions,
-  bottomContent,
-}: QuestionTableProps) {
+  totalPages,
+  pageNumber,
+  handlePageOnClick,
+}) => {
   questions = questions.map((question, idx) => ({
     ...question,
     index: idx + 1,
@@ -90,8 +94,21 @@ export default function QuestionTable({
       </div>
       <div className="mt-5 h-52 w-full">
         <Table
-          aria-label="Example table with index"
-          bottomContent={bottomContent}
+          aria-label="Question Table"
+          bottomContent={
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="secondary"
+                loop={true}
+                page={pageNumber}
+                total={totalPages}
+                onChange={handlePageOnClick}
+              />
+            </div>
+          }
         >
           <TableHeader columns={columns}>
             {(column) => (
@@ -116,4 +133,6 @@ export default function QuestionTable({
       </div>
     </div>
   );
-}
+};
+
+export default QuestionTable;

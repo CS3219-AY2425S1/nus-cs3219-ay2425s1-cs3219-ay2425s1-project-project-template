@@ -10,8 +10,7 @@ import {
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-import { PencilIcon, TrashIcon } from "../icons";
-
+import { PencilIcon, TrashIcon } from "@/components/icons";
 import { useDeleteQuestions } from "@/hooks/questions";
 import { Question } from "@/types/questions";
 
@@ -19,7 +18,7 @@ interface ActionButtonsProps {
   question: Question;
 }
 
-export default function ActionButtons({ question }: ActionButtonsProps) {
+const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -47,6 +46,7 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
         setIsDeleting(false);
       },
       onError: (error) => {
+        alert(`Error: ${error}`);
         setIsDeleting(false);
       },
     });
@@ -92,4 +92,6 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
       </Modal>
     </div>
   );
-}
+};
+
+export default ActionButtons;
