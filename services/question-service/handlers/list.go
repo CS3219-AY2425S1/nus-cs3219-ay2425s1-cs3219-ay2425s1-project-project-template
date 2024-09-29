@@ -59,7 +59,7 @@ func (s *Service) ListQuestions(w http.ResponseWriter, r *http.Request) {
 		for _, complexityStr := range complexityStrs {
 			complexityType, err := models.ParseComplexity(complexityStr)
 			if err != nil {
-				http.Error(w, "Failed to filter by complexity: "+err.Error(), http.StatusInternalServerError)
+				http.Error(w, "Failed to filter by complexity: "+err.Error(), http.StatusBadRequest)
 				return
 			}
 			complexityInts = append(complexityInts, int(complexityType))
