@@ -23,7 +23,7 @@ const NavBar: React.FC = () => {
           <Link to="/dashboard">
             <button className="bg-black rounded-[25px] p-4">Register</button>
           </Link>
-          <Link to="/question">
+          <Link to="/dashboard">
             <button className="bg-yellow rounded-[25px] p-4">Login</button>
           </Link>
         </div>
