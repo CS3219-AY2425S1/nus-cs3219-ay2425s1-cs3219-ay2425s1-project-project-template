@@ -4,7 +4,7 @@ import {
   getQuestionDetailsService,
   getRandomQuestionService,
   searchQuestionsByTitleService,
-} from '../services/get/';
+} from '../services/get/index';
 import {
   IGetQuestionsPayload,
   IGetQuestionPayload,
@@ -43,11 +43,10 @@ export const getQuestionDetails = async (req: Request, res: Response): Promise<R
 
 export const getRandomQuestion = async (req: Request, res: Response): Promise<Response> => {
   const payload: IGetRandomQuestionPayload = {
-    userId: parseInt(req.params.userId),
-    difficulty: req.query.difficulty as string,
-    topic: req.query.topic as string[],
+    attemptedQuestions: req.body.attemptedQuestions,
+    difficulty: req.body.difficulty,
+    topic: req.body.topic,
   };
-
   try {
     const result = await getRandomQuestionService(payload);
     return res.status(result.code).json(result);
