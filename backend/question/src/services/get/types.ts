@@ -32,7 +32,6 @@ export type IGetQuestionPayload = {
 };
 
 export type IGetQuestionResponse = IServiceResponse<{
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   question?: {
     title: string; // name or title of the question
     description: string; // question description
