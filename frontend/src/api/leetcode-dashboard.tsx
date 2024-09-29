@@ -5,11 +5,13 @@ import {
 } from "@/types/find-match";
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
+console.log(QUESTION_SERVICE);
 
 export const createSingleLeetcodeQuestion = async (
   data: NewQuestionData
 ): Promise<QuestionFull> => {
   const url = `${QUESTION_SERVICE}/create`;
+  console.log(url);
   const resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -32,6 +34,7 @@ export const getLeetcodeDashboardData = async (): Promise<
   QuestionMinified[]
 > => {
   const url = `${QUESTION_SERVICE}/all`;
+  console.log(url);
   const response = await fetch(url);
   const data = await response.json();
   return data;
@@ -54,6 +57,7 @@ export const updateSingleLeetcodeQuestion = async ({
   complexity,
 }: QuestionFull) => {
   const url = `${QUESTION_SERVICE}/${questionId}/update`;
+  console.log(url);
   const resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -76,6 +80,7 @@ export const updateSingleLeetcodeQuestion = async ({
 
 export const deleteSingleLeetcodeQuestion = async (questionId: string) => {
   const url = `${QUESTION_SERVICE}/${questionId}/delete`;
+  console.log(url);
   const resp = await fetch(url, {
     method: "POST",
     headers: {
