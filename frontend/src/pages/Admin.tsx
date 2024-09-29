@@ -7,16 +7,21 @@ import {
   FileInput,
   Group,
   Image as MantineImage,
+  MantineProvider,
   Modal,
   MultiSelect,
+  Portal,
   Select,
   Stack,
   Text,
   TextInput,
   Textarea,
   Title,
+  createTheme,
 } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
+import { Notifications, notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 import { useEffect, useMemo, useState } from 'react';
 
 interface Question {
@@ -73,6 +78,13 @@ function QuestionEditor() {
     questionsHandlers.setState(records);
   };
 
+  const isTitleUnique = (title: string, excludeId?: string) => {
+    return !questions.some(
+      (q) =>
+        q.title.toLowerCase() === title.toLowerCase() && q.id !== excludeId,
+    );
+  };
+
   const uploadImages = async () => {
     const formData = new FormData();
     newImageFiles.forEach((file) => {
@@ -106,6 +118,24 @@ function QuestionEditor() {
   };
 
   const addQuestion = async () => {
+    if (newTitle.trim() === '') {
+      notifications.show({
+        title: 'Error',
+        message: 'Title cannot be empty',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (!isTitleUnique(newTitle)) {
+      notifications.show({
+        title: 'Error',
+        message: 'A question with this title already exists',
+        color: 'red',
+      });
+      return;
+    }
+
     if (
       newTitle.trim() &&
       newDescription.trim() &&
@@ -133,6 +163,11 @@ function QuestionEditor() {
       questionsHandlers.append(data);
       resetForm();
       setIsAddModalOpen(false);
+      notifications.show({
+        title: 'Success',
+        message: 'Question added successfully',
+        color: 'green',
+      });
     }
   };
 
@@ -144,6 +179,11 @@ function QuestionEditor() {
       throw new Error('Failed to delete question');
     }
     questionsHandlers.filter((item) => item.id !== id);
+    notifications.show({
+      title: 'Success',
+      message: 'Question deleted successfully',
+      color: 'red',
+    });
   };
 
   const startEditing = (id: string) => {
@@ -159,6 +199,24 @@ function QuestionEditor() {
   };
 
   const updateQuestion = async () => {
+    if (newTitle.trim() === '') {
+      notifications.show({
+        title: 'Error',
+        message: 'Title cannot be empty',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (!isTitleUnique(newTitle, editingId)) {
+      notifications.show({
+        title: 'Error',
+        message: 'A question with this title already exists',
+        color: 'red',
+      });
+      return;
+    }
+
     if (
       editingId &&
       newTitle.trim() &&
@@ -192,6 +250,11 @@ function QuestionEditor() {
       );
       resetForm();
       setIsUpdateModalOpen(false);
+      notifications.show({
+        title: 'Success',
+        message: 'Question updated successfully',
+        color: 'blue',
+      });
     }
   };
 
@@ -235,12 +298,14 @@ function QuestionEditor() {
           <Button>Log in</Button>
         </Group>
       </AppShell.Header>
+
       <AppShell.Main
         h="calc(100vh - 80px)"
         w="100%"
         bg="slate.9"
         style={{ overflowY: 'auto' }}
       >
+        <Notifications position="top-right" zIndex={9000} autoClose={2000} />
         <Container mt="xl" size="90%">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Group justify="apart" mb="md">
