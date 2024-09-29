@@ -1,5 +1,5 @@
 interface Problem {
-  question_id: number;
+  _id: number;
   title: string;
   difficulty: number;
   description: string;
@@ -11,7 +11,7 @@ interface Problem {
 }
 
 interface ProblemDialogData {
-  question_id: number;
+  _id: number;
   title: string;
   difficulty: number;
   description: string;

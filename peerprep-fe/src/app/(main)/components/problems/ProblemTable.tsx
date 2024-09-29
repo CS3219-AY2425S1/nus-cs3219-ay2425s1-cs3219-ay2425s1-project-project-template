@@ -29,8 +29,9 @@ export default function ProblemTable({ problems }: ProblemTableProps) {
           </tr>
         </thead>
         <tbody>
-          {filteredProblems.map((problem, index) => (
-            <ProblemRow key={index} problem={problem} />
+          {filteredProblems.map((problem) => (
+            // should not use index as key
+            <ProblemRow key={problem._id} problem={problem} />
           ))}
         </tbody>
       </table>

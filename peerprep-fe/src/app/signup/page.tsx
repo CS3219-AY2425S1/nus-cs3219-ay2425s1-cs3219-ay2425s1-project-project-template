@@ -20,7 +20,7 @@ export default function SignUpPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const apiEndpoint = 'http://localhost:4040/signup';
+    const apiEndpoint = 'http://localhost:4040/register';
     const type = 'user';
     const result = await fetch(apiEndpoint, {
       method: 'POST',

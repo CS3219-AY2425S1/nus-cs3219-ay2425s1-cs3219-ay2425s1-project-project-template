@@ -1,7 +1,7 @@
 {
 	"scripts": {
 		"pre-commit": "npm run --workspaces pre-commit",
-		"prepare": "husky"
+		"prepare": "husky prepare"
 	},
 	"devDependencies": {
 		"husky": "^9.1.6"
