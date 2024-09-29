@@ -38,7 +38,7 @@ export default function QuestionTable({ questions, bottomContent }: QuestionTabl
 
     switch (columnKey) {
       case "index": {
-        return <NavLink href={`question-description?id=${question.questionId}`} isActive={true}>{questionValue}</NavLink>
+        return <NavLink href={`/questions/question-description?id=${question.questionId}`} isActive={true}>{questionValue}</NavLink>
       }
       case "title": {
         const titleString: string = questionValue as string;
