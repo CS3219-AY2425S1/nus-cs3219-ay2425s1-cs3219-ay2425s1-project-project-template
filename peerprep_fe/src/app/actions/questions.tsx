@@ -34,7 +34,6 @@ export async function getQuestions(token?: string | null) {
 
   try {
     const data = await response.json();
-    console.log(data);
     return {
       message: data,
       errors: {
@@ -47,7 +46,6 @@ export async function getQuestions(token?: string | null) {
 }
 
 export async function getQuestion(id: string, token?: string | null) {
-  // console.log("id", id);
   const response = await fetch(
     `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
     {
@@ -61,7 +59,6 @@ export async function getQuestion(id: string, token?: string | null) {
 
   try {
     const data = await response.json();
-    console.log(data);
     return {
       message: data,
       errors: {
@@ -184,7 +181,6 @@ export async function deleteQuestion(id: string, token?: string | null) {
 
   try {
     const data = await response.json();
-    console.log(data);
     return {
       message: data,
       errors: {
