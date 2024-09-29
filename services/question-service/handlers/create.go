@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"question-service/models"
@@ -130,7 +129,7 @@ func (s *Service) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)
 
-	fmt.Fprintf(w, "Question with ID %s created successfully", question.DocRefID)
+	// fmt.Fprintf(w, "Question with ID %s created successfully", question.DocRefID)
 }
 
 // Manual test cases

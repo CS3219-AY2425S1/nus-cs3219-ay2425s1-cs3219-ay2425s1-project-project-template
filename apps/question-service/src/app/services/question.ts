@@ -21,6 +21,13 @@ export interface QuestionListResponse {
   questions: Question[];
 }
 
+export interface NewQuestion {
+  title: string;
+  description: string;
+  categories: string[];
+  complexity: string;
+}
+
 // GET request to fetch all the questions (TODO: Ben --> Fetch with filtering/sorting etc)
 export const GetQuestions = async (
   currentPage?: number,
@@ -80,14 +87,60 @@ export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
   return data;
 };
 
-// Update single question (TODO: Sean)
+// Upload single question (TODO: Sean)
+export const CreateQuestion = async (
+  question: NewQuestion
+): Promise<Question> => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(question),
+  });
+
+  if (response.status === 200) {
+    return response.json();
+  } else {
+    throw new Error(
+      `Error creating question: ${response.status} ${response.statusText}`
+    );
+  }
+};
+
+export const EditQuestion = async (
+  question: NewQuestion,
+  docRefId: string
+): Promise<Question> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRefId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(question),
+    }
+  );
+
+  if (response.status === 200) {
+    return response.json();
+  } else {
+    throw new Error(
+      `Error updating question: ${response.status} ${response.statusText}`
+    );
+  }
+};
 
 // Delete single question (TODO: Ryan)
 export async function DeleteQuestion(docRef: String): Promise<void> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions/${docRef}`, {
-    method: "DELETE"
-  }) 
-  // error handling later 
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRef}`,
+    {
+      method: "DELETE",
+    }
+  );
+  // error handling later
   // if (!res.ok) {
   //   throw new Error(`Delete request responded with ${res.status}: ${res.body}`)
   // }
