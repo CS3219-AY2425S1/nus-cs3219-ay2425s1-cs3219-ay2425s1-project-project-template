@@ -3,6 +3,7 @@ const cors = require('cors')
 const dotenv = require('dotenv').config();
 const connectDB = require('./config/db')
 const questionsRouter = require('./routes/questionsRoutes')
+const usersRouter = require('./routes/usersRoutes')
 
 connectDB();
 
@@ -26,7 +27,11 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
 
-// All endpoints related to questions service starts with /api/questions/...
+// /api/users/login
+// /api/users/signup
+app.use('/api/users', usersRouter);
+
+// /api/questions/signup
 app.use('/api/questions', questionsRouter);
 
 module.exports = app
