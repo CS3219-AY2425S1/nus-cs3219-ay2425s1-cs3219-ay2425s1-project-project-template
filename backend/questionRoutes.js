@@ -46,17 +46,17 @@ router.get('/questions/:id', async (req, res) => {
 // PATCH endpoint to update a question by ID
 router.patch('/questions/:id', async (req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ['title', 'description', 'category', 'complexity', 'web_link'];
+    const allowedUpdates = ['title', 'description', 'category', 'complexity', 'web_link', 'question_id'];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
     if (!isValidOperation) {
         return res.status(400).send({ error: 'Invalid updates!' });
     }
     try {
-        const question = await Question.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        const question = await Question.findOneAndUpdate({question_id: req.params.id}, req.body, { new: true, runValidators: true });
         if (!question) {
             return res.status(404).send();
         }
-        res.send(question);
+        res.status(200).send();
     } catch (error) {
         res.status(400).send(error);
     }

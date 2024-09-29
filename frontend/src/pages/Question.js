@@ -27,6 +27,8 @@ export const Question = () => {
   const [editMode, setEditMode] = useState(false);
   const [hasEdited, setHasEdited] = useState(false);
 
+  const [webLink, setWebLink] = useState("");
+
   const changeEditMode = (e) => {
     setHasEdited(false);
     setEditMode(prevState => !prevState);
@@ -58,13 +60,34 @@ export const Question = () => {
     return output;
   }
 
+  const saveQuestion = async (e) => {
+    try {
+      const response = await axios.patch(`${QUESTIONS_SERVICE_HOST}/questions/${params.id}`, {
+        title: title,
+        description: descriptionText,
+        category: revertCategoryArray(category),
+        complexity: complexity,
+        web_link: webLink,
+        question_id: params.id
+      })
+      if (response.status === 400 || response.status === 404) {
+        alert("Failed to save question!");
+      } else {
+        getQuestionData(params.id);
+        alert("Successfully updated!");
+      }
+    } catch(error) {
+      console.log(error);
+    }
+  }
+
   const cancelChanges = (e) => {
-    setHasEdited(false);
-    setEditMode(false);
     getQuestionData(params.id);
   }
 
   const getQuestionData = async (id) => {
+    setHasEdited(false);
+    setEditMode(false);
     try {
       const response = await axios.get(`${QUESTIONS_SERVICE_HOST}/questions/${id}`);
       if (response.status === 404 || response.status === 500) {
@@ -75,6 +98,7 @@ export const Question = () => {
       setComplexity(response.data.complexity);
       setTitle(response.data.title);
       setDescriptionText(response.data.description);
+      setWebLink(response.data.web_link);
     } catch (error) {
       navigate("/*")
     }
@@ -93,8 +117,10 @@ export const Question = () => {
           description: descriptionText,
           web_link: "www.google.com"
         });
-        if (response.status == 201) {
+        if (response.status === 201) {
           alert("Successfully created question!");
+          //console.log(response.data);
+          navigate(`/questions/${response.data.question_id}`);
         } else {
           alert("Unable to create question :(");
         }
@@ -140,8 +166,11 @@ export const Question = () => {
         </textarea>
       </div>
       <div className="row4">
-        {createMode ? <button className="edit-button" onClick={createQuestion}>Create</button> : <button className="edit-button" onClick={changeEditMode}>{editMode ? (hasEdited ? "Save" : "Cancel") : "Edit"}</button>}
-        {createMode ? null : (hasEdited ? <button className="edit-button" onClick={cancelChanges}>Cancel</button> : null)}
+        {createMode ? <button className="edit-button" onClick={createQuestion}>Create</button> : null}
+        {!createMode ? (editMode ? (hasEdited ? <button className="edit-button" onClick={saveQuestion}>Save</button> : null)  
+          : <button className="edit-button" onClick={changeEditMode}>Edit</button>)
+          : null}
+        {createMode ? null : (editMode ? <button className="edit-button" onClick={cancelChanges}>Cancel</button> : null)}
       </div>
     </div>
   );
