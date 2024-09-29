@@ -40,6 +40,7 @@ import {
 } from "../utils/SelectOptions";
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
+import { title } from "process";
 
 /**
  * defines the State of the page whe a user is deleing an object. Has 3 general states:
@@ -106,6 +107,36 @@ export default function Home() {
   const [form] = Form.useForm();
   const [isNewProblemModalOpen, setIsNewProblemModelOpen] = useState(false);
 
+  // States for Edit Existing Problem Modal
+  const [editForm] = Form.useForm();
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean[] | undefined>(
+    undefined
+  );
+
+  const handleEditClick = (index: number, question: Question) => {
+    // Open the modal for the specific question
+    const updatedModals =
+      isEditModalOpen && isEditModalOpen.map((_, idx) => idx === index);
+    setIsEditModalOpen(updatedModals); // Only the selected question's modal is open
+
+    // Set the form value
+    editForm.setFieldsValue({
+      title: question.title,
+      description: question.description,
+      complexity: question.complexity,
+      categories: question.categories,
+    });
+  };
+
+  // Function to handle modal close
+  const handleModalClose = (index: number) => {
+    if (isEditModalOpen) {
+      const updatedModals = [...isEditModalOpen];
+      updatedModals[index] = false; // Close the specific modal
+      setIsEditModalOpen(updatedModals);
+    }
+  };
+
   const handleCreateQuestion = async (values: NewQuestion) => {
     try {
       const createdQuestion = await CreateQuestion(values);
@@ -162,6 +193,7 @@ export default function Home() {
     setCurrentPage(data.currentPage);
     setLimit(data.limit);
     setIsLoading(false);
+    setIsEditModalOpen(Array(data.questions.length).fill(false));
   }
 
   useEffect(() => {
@@ -231,11 +263,108 @@ export default function Home() {
       title: "Actions",
       key: "actions",
       dataIndex: "id",
-      render: (_: number, question: Question) => (
+      render: (_: number, question: Question, index: number) => (
         <div>
           {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
-
-          <Button className="edit-button" icon={<EditOutlined />}></Button>
+          <Modal
+            title="Edit Problem"
+            open={isEditModalOpen && isEditModalOpen[index]}
+            onCancel={() => handleModalClose(index)}
+            footer={null}
+            width={600}
+          >
+            <Form
+              name="edit-form"
+              {...layout}
+              form={editForm}
+              onFinish={(values) => {
+                // handleEditQuestion(values); TODO!!! (SEAN) follow the create concept and display error and success values
+              }}
+            >
+              <Form.Item
+                name="title"
+                label="Title"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter question title!",
+                  },
+                ]}
+              >
+                <Input name="title" />
+              </Form.Item>
+              <Form.Item
+                name="description"
+                label="Description"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter question description!",
+                  },
+                ]}
+              >
+                <TextArea name="description" />
+              </Form.Item>
+              <Form.Item
+                name="complexity"
+                label="Complexity"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a complexity!",
+                  },
+                ]}
+              >
+                <Select
+                  options={[
+                    {
+                      label: "Easy",
+                      value: "easy",
+                    },
+                    {
+                      label: "Medium",
+                      value: "medium",
+                    },
+                    {
+                      label: "Hard",
+                      value: "hard",
+                    },
+                  ]}
+                  onChange={(value) => form.setFieldValue("complexity", value)}
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item
+                name="categories"
+                label="Categories"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the relevant categories!",
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  options={CategoriesOption}
+                  onChange={(value) => form.setFieldValue("categories", value)}
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item
+                style={{ display: "flex", justifyContent: "flex-end" }}
+              >
+                <Button type="primary" htmlType="submit">
+                  Save
+                </Button>
+              </Form.Item>
+            </Form>
+          </Modal>
+          <Button
+            className="edit-button"
+            icon={<EditOutlined />}
+            onClick={() => handleEditClick(index, question)}
+          ></Button>
           {/* TODO (Ryan): Include Pop-up confirmation for delete when clicked and link to delete API --> can also explore success notification or look into react-toast*/}
           <Button
             className="delete-button"
