@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+
 html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #0e0e0e;
+  background-color: #080808;
+  color: white;
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -23,4 +25,10 @@ body {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+@layer base {
+  :root {
+    --color-primary: 
+  }
 }

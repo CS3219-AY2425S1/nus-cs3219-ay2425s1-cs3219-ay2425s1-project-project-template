@@ -1,4 +1,4 @@
-const HomePage = () => {
+const Home = () => {
   return (
     <div className="flex items-center justify-center">
       <div className="relative m-4 h-[calc(100vh-6rem)] w-[calc(100vw-2rem)] overflow-hidden rounded-3xl px-8">
@@ -15,4 +15,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Home;
