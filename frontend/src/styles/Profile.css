@@ -1,0 +1,102 @@
+/* Container for the entire profile */
+.profile-container {
+    padding: 50px;
+  }
+  
+  /* Header Section: Title and subtitle */
+  .profile-header {
+    text-align: left;
+    margin-bottom: 30px;
+  }
+  
+  .profile-title {
+    margin: 0;
+    font-size: 36px;
+    font-weight: bold;
+    color: #242183; /* Adjust color as needed */
+  }
+  
+  .profile-subtitle {
+    margin: 0;
+    font-size: 25px;
+    color: #000000;
+  }
+  
+  /* Profile Content: Profile pic and user info */
+  .profile-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px; /* Gap between profile picture and user info */
+  }
+  
+  /* Profile picture section */
+  .profile-pic-section {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .profile-pic {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    border: 4px solid #242183; /* Profile picture border color */
+  }
+  
+  .edit-pic {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  
+  .edit-pic input[type="file"] {
+    display: none;
+  }
+  
+  /* User info section: Username, email, and password */
+  .user-info-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    font-size: 16px;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 600;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #6a4bcf;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .save-btn {
+    background-color: #007bff;
+  }
+  
+  .change-password-btn {
+    background-color: #242183;
+    color: white;
+  }
+  
