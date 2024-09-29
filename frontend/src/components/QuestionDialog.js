@@ -74,7 +74,7 @@ const QuestionDialog = ({ open, question, onClose }) => {
                                 <img 
                                     src={image} 
                                     alt={`Question Image ${index + 1}`}
-                                    objectFit="contain" 
+                                    objectfit="contain" 
                                     style={{ borderRadius: '5px', maxWidth: '100%', maxHeight: '200px' }}
                                 />
                                 <Typography variant="body2" sx={{ fontFamily: 'Poppins', marginBottom: 1 }}>

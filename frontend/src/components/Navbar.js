@@ -12,13 +12,13 @@ export default function Navbar() {
     const location = useLocation();
 
     useEffect(() => {
-        axios.get('/api/user')
-            .then(res => {
-                setUser(res.data);
-            })
-            .catch(err => {
-                console.log(err);
-            });
+        // axios.get('/api/user')
+        //     .then(res => {
+        //         setUser(res.data);
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //     });
     }, []);
 
     const handleOpenMenu = (event) => {

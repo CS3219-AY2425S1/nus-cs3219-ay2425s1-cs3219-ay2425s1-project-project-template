@@ -79,7 +79,7 @@ export default function QuestionTable() {
                 const rowIndex = index + page * rowsPerPage + 1;
                 const isEvenRow = index % 2 === 0;
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code} style={{ backgroundColor: isEvenRow ? '#EBEBEB' : '#F7F7F7' }}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex} style={{ backgroundColor: isEvenRow ? '#EBEBEB' : '#F7F7F7' }}>
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>{rowIndex}</TableCell>
                     
                     <TableCell>
