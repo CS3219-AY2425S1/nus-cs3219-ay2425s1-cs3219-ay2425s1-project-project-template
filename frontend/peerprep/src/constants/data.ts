@@ -15,6 +15,9 @@ export const CATEGORIES = [
   { id: "Algorithms", color: "orange.300" },
   { id: "Bit Manipulation", color: "purple.300" },
   { id: "Recursion", color: "yellow.300" },
+  { id: "Databases", color: "pink.300" },
+  { id: "Arrays", color: "cyan.300" },
+  { id: "Brain Teasers", color: "red.300" },
 ];
 
 export const menuItems = [
