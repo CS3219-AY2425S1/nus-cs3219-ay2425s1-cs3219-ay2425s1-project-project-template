@@ -6,21 +6,21 @@ import EditQuestionModal from "../EditQuestionModal";
 const Dashboard: React.FC = () => {
   const [Data, setData] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://localhost:8080/questions', {
-                    mode: "cors",
-                    headers: {
-                      "Access-Control-Allow-Origin": "http://localhost:8080",
-                    },
-                  });
-                const data = await response.json();
-                setData(data._embedded.questionList);
-            } catch (error) {
-                console.error('Error fetching question:', error);
-            }
-        };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/questions", {
+          mode: "cors",
+          headers: {
+            "Access-Control-Allow-Origin": "http://localhost:8080",
+          },
+        });
+        const data = await response.json();
+        setData(data._embedded.questionList);
+      } catch (error) {
+        console.error("Error fetching question:", error);
+      }
+    };
 
     fetchData();
   }, []);
@@ -35,7 +35,13 @@ const Dashboard: React.FC = () => {
   const [oldDetails, setOldDetails] = useState("");
   const [questionID, setQuestionID] = useState("");
 
-  const openEditModal = (oldDifficulty: string, oldTopic: string[], oldTitle: string, oldDetails: string, questionID: string) => {
+  const openEditModal = (
+    oldDifficulty: string,
+    oldTopic: string[],
+    oldTitle: string,
+    oldDetails: string,
+    questionID: string
+  ) => {
     setEditModalIsOpen(true);
     setOldDifficulty(oldDifficulty);
     setOldTopic(oldTopic);
@@ -67,7 +73,7 @@ const Dashboard: React.FC = () => {
           questionID={questionID}
         />
       )}
-      ;{/* Add your table or other components here */}
+      {/* Add your table or other components here */}
       <table
         {...getTableProps()}
         className="min-w-full bg-off-white shadow-md rounded-lg"
@@ -112,8 +118,14 @@ const Dashboard: React.FC = () => {
                       key={cell.column.id}
                       className="py-3 px-6 text-left"
                       onClick={() => {
-                        openEditModal(row.allCells[3].value, row.allCells[2].value, row.allCells[0].value, row.allCells[1].value, (row.original as any).id);
-                    }}
+                        openEditModal(
+                          row.allCells[3].value,
+                          row.allCells[2].value,
+                          row.allCells[0].value,
+                          row.allCells[1].value,
+                          (row.original as any).id
+                        );
+                      }}
                     >
                       {cell.column.Header === "Categories"
                         ? (cell.value.reduce(
