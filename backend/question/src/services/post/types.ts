@@ -2,7 +2,7 @@ export interface ICreateQuestionPayload {
   title: string;
   description: string;
   difficulty: string;
-  topics: number[];
+  topics: string[];
 }
 
 export interface IUpdateQuestionPayload extends ICreateQuestionPayload {

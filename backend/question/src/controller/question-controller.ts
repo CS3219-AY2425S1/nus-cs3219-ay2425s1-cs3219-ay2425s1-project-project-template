@@ -7,17 +7,17 @@ import {
   getRandomQuestionService,
   searchQuestionsByTitleService,
 } from '@/services/get/index';
-import {
+import type {
   ICreateQuestionPayload,
   IDeleteQuestionPayload,
   IUpdateQuestionPayload,
-} from '../services/post/types';
+} from '@/services/post/types';
 
 import {
   createQuestionService,
   deleteQuestionService,
   updateQuestionService,
-} from '../services/post';
+} from '@/services/post';
 import type {
   IGetQuestionsPayload,
   IGetQuestionPayload,
@@ -25,12 +25,13 @@ import type {
 } from '@/services/get/types';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
+  const { questionName, difficulty, topic, pageNum, recordsPerPage } = req.query;
   const payload: IGetQuestionsPayload = {
-    questionName: req.query.questionName as string,
-    difficulty: req.query.difficulty as string,
-    topic: req.query.topic as string[],
-    pageNum: parseInt(req.query.pageNum as string) || 0,
-    recordsPerPage: parseInt(req.query.recordsPerPage as string) || 20,
+    questionName: questionName as string,
+    difficulty: difficulty as string,
+    topic: topic as string[],
+    pageNum: parseInt(pageNum as string) || 0,
+    recordsPerPage: parseInt(recordsPerPage as string) || 20,
   };
 
   try {
@@ -101,40 +102,62 @@ export const searchQuestionsByTitle = async (req: Request, res: Response): Promi
     const result = await searchQuestionsByTitleService(title.toString(), page, limit);
     return res.status(result.code).json(result);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
 
 export const createQuestion = async (req: Request, res: Response): Promise<Response> => {
+  const { title, description, difficulty, topics } = req.body;
+
+  if (!title || !description || !difficulty) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed');
+  }
+
   const payload: ICreateQuestionPayload = {
-    title: req.body.title,
-    description: req.body.description,
-    difficulty: req.body.difficulty,
-    topics: req.body.topics,
+    title,
+    description,
+    difficulty,
+    topics,
   };
 
   try {
     const result = await createQuestionService(payload);
-    return res.status(result.code).json(result);
+    if (!result.data || result.code >= 400) {
+      return res.status(result.code).json({
+        message: result.message ?? 'An error occurred',
+      });
+    }
+    return res.status(result.code).json(result.data);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
 
 export const updateQuestion = async (req: Request, res: Response): Promise<Response> => {
+  const { title, description, difficulty, topics } = req.body;
+  if (!title && !description && !difficulty && (!topics || !Array.isArray(topics))) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed');
+  }
+
   const payload: IUpdateQuestionPayload = {
     id: parseInt(req.params.questionId),
-    title: req.body.title,
-    description: req.body.description,
-    difficulty: req.body.difficulty,
-    topics: req.body.topics,
+    title,
+    description,
+    difficulty,
+    topics,
   };
 
   try {
     const result = await updateQuestionService(payload);
     return res.status(result.code).json(result);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
 
@@ -145,7 +168,7 @@ export const deleteQuestion = async (req: Request, res: Response): Promise<Respo
 
   try {
     const result = await deleteQuestionService(payload);
-    return res.status(result.code).json(result);
+    return res.status(result.code).json(result.success ? 'Ok' : result.message);
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
