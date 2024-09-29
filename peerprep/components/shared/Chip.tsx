@@ -1,5 +1,5 @@
-import React from 'react'
-import styles from '@/style/layout.module.css';
+import React from "react";
+import styles from "@/style/layout.module.css";
 
 interface Props {
   className: string;
@@ -7,11 +7,7 @@ interface Props {
 }
 
 function Chip({ className, children }: Props) {
-  return (
-    <p className={`${styles.chip} ${className}`}>
-      {children}
-    </p>
-  )
+  return <p className={`${styles.chip} ${className}`}>{children}</p>;
 }
 
 export default Chip;
