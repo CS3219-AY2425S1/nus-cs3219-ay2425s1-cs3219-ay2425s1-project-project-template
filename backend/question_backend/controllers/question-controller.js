@@ -7,8 +7,12 @@ import multer from 'multer';
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-function validateQuestionFields(req, res) {
-    let { title, description, topic, difficulty, input, expected_output, leetcode_link } = req.body;
+function normalizeTitle(title) {
+    return title.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function validateQuestionFields(fields) {
+    let { title, description, topic, difficulty, input, expected_output, leetcode_link } = fields;
 
     title = title.trim();
     description = description.trim();
@@ -21,19 +25,21 @@ function validateQuestionFields(req, res) {
     } else if (typeof topic === 'string') {
         topic = [topic.trim()];
     } else {
-        return res.status(400).json({ message: "Topic must be an array of strings or a single string" });
+        return { valid: false, message: "Topic must be an array of strings or a single string" };
     }
 
     // Check if all required fields are provided
     if (!title || !description || !topic.length || !difficulty || !input || !expected_output) {
-        return res.status(400).json({ message: "All fields are required" });
+        return { valid: false, message: "All fields are required" };
     }
 
-    return { title, description, topic, difficulty, input, expected_output, leetcode_link };
+    return { valid: true, data: { title, description, topic, difficulty, input, expected_output, leetcode_link } };
 }
 
 async function checkExistingQuestion(title) {
-    return await Question.findOne({ title });
+    const normalizedTitle = normalizeTitle(title);
+    const regex = new RegExp(`^${normalizedTitle.replace(/\s+/g, '\\s*')}$`, 'i');
+    return await Question.findOne({ title: { $regex: regex } });
 }
 
 async function saveNewQuestion(newQuestion, res) {
@@ -96,9 +102,11 @@ async function deleteOldImages(question, allImages) {
 export const createQuestion = [
     upload.array('imageFiles'),
     async (req, res) => {
-        const validation = validateQuestionFields(req, res);
-        if (!validation) return;
-        const { title, description, topic, difficulty, input, expected_output, leetcode_link } = validation;
+        const validation = validateQuestionFields(req.body);
+        if (!validation.valid) {
+            return res.status(400).json({ message: validation.message });
+        }
+        const { title, description, topic, difficulty, input, expected_output, leetcode_link } = validation.data;
         
         const imageFiles = req.files;
         let { images } = req.body;
@@ -169,7 +177,15 @@ export const updateQuestion = [
                 return res.status(404).json({ message: "Question not found" });
             }
 
-            if (title && title !== question.title) {
+            // Validate updated fields
+            const validation = validateQuestionFields({ ...question.toObject(), ...req.body });
+            if (!validation.valid) {
+                return res.status(400).json({ message: validation.message });
+            }
+            const { description, topic, difficulty, input, expected_output, leetcode_link } = validation.data;
+
+            // Check if title is unique
+            if (title) {
                 const existingQuestion = await checkExistingQuestion(title);
                 if (existingQuestion && existingQuestion.id !== id) {
                     return res.status(409).json({ message: "A question with this title already exists" });
