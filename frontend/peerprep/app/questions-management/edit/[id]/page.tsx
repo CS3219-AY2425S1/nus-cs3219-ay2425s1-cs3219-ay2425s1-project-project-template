@@ -1,10 +1,10 @@
 "use client";
-import AddQuestionForm from "@/components/addquestionform";
+import EditQuestionForm from "@/components/editquestionform";
 
 export default function AddQuestionsPage() {
   return (
     <div className="flex">
-      <AddQuestionForm />
+      <EditQuestionForm />
     </div>
   );
 }

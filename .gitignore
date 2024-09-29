@@ -131,3 +131,5 @@ dist
 
 # Redis dump
 redis-data/
+
+frontend/peerprep/next.config.js

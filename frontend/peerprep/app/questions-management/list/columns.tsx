@@ -1,6 +1,8 @@
 "use client";
 import BoxIcon from "@/components/boxicons";
+import { capitalize } from "@/utils/utils";
 import { Button, Chip } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 export type Question = {
   _id: string;
@@ -29,19 +31,16 @@ export const columns = [
   },
 ];
 
-const complexityColorMap: Record<string, "success" | "warning" | "danger"> = {
-  Easy: "success",
-  Medium: "warning",
-  Hard: "danger",
+export const complexityColorMap: Record<
+  string,
+  "success" | "warning" | "danger"
+> = {
+  EASY: "success",
+  MEDIUM: "warning",
+  HARD: "danger",
 };
 
 export const complexityOptions = ["Easy", "Medium", "Hard"];
-
-export let categoryOptions: string[] = [];
-
-export const setCategoryOptions = (newOptions: string[]) => {
-  categoryOptions = newOptions;
-};
 
 export function renderCell(
   question: Question,
@@ -49,6 +48,11 @@ export function renderCell(
   handleDelete: (question: Question) => void
 ) {
   const cellValue = question[columnKey as keyof Question];
+  const router = useRouter();
+
+  const handleRowAction = (key) => {
+    router.push(`/questions-management/edit/${key}`);
+  };
 
   switch (columnKey) {
     case "title":
@@ -58,12 +62,14 @@ export function renderCell(
         <Chip
           className="capitalize"
           color={
-            complexityColorMap[cellValue as keyof typeof complexityColorMap]
+            complexityColorMap[
+              String(cellValue) as keyof typeof complexityColorMap
+            ]
           }
           size="sm"
           variant="flat"
         >
-          {cellValue}
+          {capitalize(String(cellValue))}
         </Chip>
       );
     case "category":
@@ -71,7 +77,7 @@ export function renderCell(
         <div className="flex space-x-2">
           {question.category.map((cat) => (
             <Chip key={cat} className="capitalize" size="sm" variant="flat">
-              {cat}
+              {capitalize(String(cat))}
             </Chip>
           ))}
         </div>
@@ -84,7 +90,7 @@ export function renderCell(
             isIconOnly
             variant="light"
             className="cursor-pointer text-lg text-default-400 active:opacity-50"
-            onPress={() => alert(`Opening item ${question._id}...`)}
+            onPress={() => handleRowAction(question.question_id)}
           >
             <BoxIcon name="bxs-edit" />
           </Button>
