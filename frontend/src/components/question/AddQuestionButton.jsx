@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
 //src/components/AddQuestionButton.js
+import React from 'react';
 
 const AddQuestionButton = ({ onClick }) => {
   return (
