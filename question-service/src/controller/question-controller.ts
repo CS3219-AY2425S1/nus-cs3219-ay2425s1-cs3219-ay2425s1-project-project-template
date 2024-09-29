@@ -27,7 +27,7 @@ export const questionController = {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    if (!templateCode /*|| !testCases || !Array.isArray(testCases)*/) {
+    if (!templateCode || !testCases /*|| !Array.isArray(testCases)*/) {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
@@ -300,7 +300,7 @@ export const questionController = {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    if (!templateCode /*|| !testCases || !Array.isArray(testCases)*/) {
+    if (!templateCode || !testCases /*|| !Array.isArray(testCases)*/) {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
