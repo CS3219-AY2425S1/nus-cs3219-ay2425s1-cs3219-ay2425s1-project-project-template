@@ -3,6 +3,7 @@ import React from "react";
 import { Question, Difficulty } from "@/api/structs";
 import PeerprepButton from "../shared/PeerprepButton";
 import { useRouter } from "next/navigation";
+import styles from "@/style/questionCard.module.css";
 
 type QuestionCardProps = {
   question: Question;
@@ -14,29 +15,31 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
       case Difficulty.Easy:
-        return "text-green-500"; // Green for easy
+        return "text-difficulty-easy"; // Green for easy
       case Difficulty.Medium:
-        return "text-yellow-500"; // Yellow for medium
+        return "text-difficulty-med"; // Yellow for medium
       case Difficulty.Hard:
-        return "text-red-500"; // Red for hard
+        return "text-difficulty-hard"; // Red for hard
       default:
-        return "text-gray-100"; // Default color
+        return "text-secondary-text"; // Default color
     }
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center w-full h-auto p-4 bg-gray-700 shadow-md rounded-lg mb-4">
-      <div className="flex-none w-full sm:w-1/3 overflow-hidden">
-        <h2 className="text-lg font-bold">{question.title}</h2>
-        <p className="text-sm">
+    <div className={styles.container}>
+      <div className="flex-none w-full sm:w-1/3">
+        <h2 className={styles.title}>{question.title}</h2>
+        <p className={styles.bodytext}>
           Difficulty:{" "}
           <span
-            className={`capitalize ${getDifficultyColor(question.difficulty)}`}
+            className={`capitalize font-bold ${getDifficultyColor(
+              question.difficulty
+            )}`}
           >
             {Difficulty[question.difficulty]}
           </span>
         </p>
-        <p className="text-sm">
+        <p className={styles.bodytext}>
           Categories:{" "}
           <span>
             {question.categories ? question.categories.join(", ") : "None"}
@@ -44,17 +47,16 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         </p>
       </div>
 
-      <div className="flex-none w-full sm:w-1/2 max-h-16 overflow-hidden">
-        <p className="text-sm text-wrap truncate text-left">
-          {question.description}
-        </p>
+      <div className="flex-none w-full sm:w-1/2 max-h-16">
+        <p className={styles.bodytext}>{question.description}</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row ml-0 sm:ml-10 mr-0 sm:mr-10 w-full sm:w-1/6 items-center space-x-0 sm:space-x-2 space-y-2 sm:space-y-0">
+      <div className={styles.buttonContainer}>
         <PeerprepButton onClick={() => router.push(`questions/${question.id}`)}>
           View
         </PeerprepButton>
         <PeerprepButton
+          // no functionality here yet
           onClick={() => console.log(`Deleting question ${question.id}`)}
         >
           Delete

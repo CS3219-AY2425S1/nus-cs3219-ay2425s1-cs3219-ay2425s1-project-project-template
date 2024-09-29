@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import styles from "@/style/elements.module.css";
 type PeerprepDropdownProps<T> = {
   label: string;
   value: T;
@@ -21,7 +22,7 @@ const PeerprepDropdown = <T extends string | number>({
       <select
         value={value}
         onChange={onChange}
-        className={`text-black border rounded p-2 focus:outline-none focus:ring-2 focus:ring-gray-300 ${className}`}
+        className={`${styles.select} ${className}`}
       >
         {options
           .filter((option) => option)

@@ -17,8 +17,6 @@ const QuestionList: React.FC = () => {
   const [categories, setCategories] = useState<string[]>(["all"]);
 
   useEffect(() => {
-    // uhhhhh this should be changed to fetch on filter/search change
-    // make use of gateway.ts later
     const fetchQuestions = async () => {
       try {
         const response = await fetch(
