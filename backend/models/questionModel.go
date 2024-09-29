@@ -1,7 +1,7 @@
 package models
 
 type Question struct {
-	ID          string `bson:"_id" json:"_id"`
+	ID          string `bson:"_id"`
 	Title       string `bson:"title"`
 	Description string `bson:"description"`
 	Categories  string `bson:"categories"`
