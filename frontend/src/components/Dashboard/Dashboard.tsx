@@ -46,21 +46,21 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
-    const location = useLocation();
+  const location = useLocation();
 
-    const onClick = (row: Row<{}>) => {
-      if (location.pathname === "/dashboard") {
-        openEditModal(
-          row.allCells[3].value,
-          row.allCells[2].value,
-          row.allCells[0].value,
-          row.allCells[1].value,
-          row.original.id
-        );
-      } else if (location.pathname === "/dashboardForUsers") {
-          window.location.href = `/question`;
-      }
+  const onClick = (row: Row<{}>) => {
+    if (location.pathname === "/dashboard") {
+      openEditModal(
+        row.allCells[3].value,
+        row.allCells[2].value,
+        row.allCells[0].value,
+        row.allCells[1].value,
+        row.original.id
+      );
+    } else if (location.pathname === "/dashboardForUsers") {
+      window.location.href = `/question/${row.original.id}`;
     }
+  };
   return (
     <div className="overflow-x-auto">
       {editModalIsOpen && (

@@ -10,7 +10,7 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/question" element={<QuestionPage />} />
+        <Route path="/question/:title" element={<QuestionPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/dashboardForUsers" element={<DashboardPageForUsers />} />
       </Routes>
