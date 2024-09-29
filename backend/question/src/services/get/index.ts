@@ -1,5 +1,5 @@
 import { db } from '../../lib/db/index';
-import { and, arrayOverlaps, eq, ilike, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, eq, ilike, notInArray, sql } from 'drizzle-orm';
 import { questions } from '../../lib/db/schema';
 import {
   IGetQuestionsPayload,
@@ -88,7 +88,7 @@ export const getQuestionDetailsService = async (
 export const getRandomQuestionService = async (
   payload: IGetRandomQuestionPayload
 ): Promise<IGetRandomQuestionResponse> => {
-  const { difficulty, topic } = payload;
+  const { attemptedQuestions, difficulty, topic } = payload;
   const whereClause = [];
 
   if (difficulty) {
@@ -97,6 +97,10 @@ export const getRandomQuestionService = async (
 
   if (topic && topic.length > 0) {
     whereClause.push(arrayOverlaps(questions.topic, topic));
+  }
+
+  if (attemptedQuestions && attemptedQuestions.length > 0) {
+    whereClause.push(notInArray(questions.id, attemptedQuestions));
   }
 
   // randomize the order of questions

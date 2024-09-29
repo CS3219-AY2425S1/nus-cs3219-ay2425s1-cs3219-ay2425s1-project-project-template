@@ -15,8 +15,8 @@ export type IGetQuestionsPayload = {
 
 export type IGetQuestionsResponse = IServiceResponse<{
   questions: Array<{
-    id: string; // name or title of the question
-    title: string; // question's unique identifier or number
+    id: number; // question's unique identifier or number
+    title: string; // name or title of the question
     difficulty: string; // difficulty level (e.g., 'easy', 'medium', 'hard')
     topic: Array<string>; // array of topics the question belongs to
     attempted?: boolean; // whether the user has attempted this question
@@ -45,9 +45,9 @@ export type IGetQuestionResponse = IServiceResponse<{
 // /random (For matching)
 //=============================================================================
 export type IGetRandomQuestionPayload = {
-  userId: number;
+  attemptedQuestions?: number[];
   difficulty?: string;
-  topic?: Array<string>;
+  topic?: string[];
 };
 
 export type IGetRandomQuestionResponse = IServiceResponse<{

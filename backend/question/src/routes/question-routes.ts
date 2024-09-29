@@ -4,7 +4,7 @@ import {
   getQuestions,
   getQuestionDetails,
   getRandomQuestion,
-} from '../controller/search-controller';
+} from '../controller/question-controller';
 
 const router = Router();
 
@@ -14,6 +14,6 @@ router.get('/', getQuestions);
 
 router.get('/:questionId', getQuestionDetails);
 
-router.get('/random', getRandomQuestion);
+router.post('/random', getRandomQuestion);
 
 export default router;

@@ -1,5 +1,5 @@
 {
-  "id": "5dc3ebe6-ff0a-454d-b059-92180971dcfa",
+  "id": "d8e4806c-713c-4202-a3f8-4a8be2c8b711",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,10 +10,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "email": {
           "name": "email",
@@ -44,6 +43,25 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "failed_attempts": {
+          "name": "failed_attempts",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "unlock_time": {
+          "name": "unlock_time",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attempted_questions": {
+          "name": "attempted_questions",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
