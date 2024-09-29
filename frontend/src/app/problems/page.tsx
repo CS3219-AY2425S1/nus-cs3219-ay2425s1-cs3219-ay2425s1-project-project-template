@@ -22,7 +22,7 @@ import {
 
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react";
-import QuestionDialog from "./QuestionDialog"
+import QuestionDialog from "./components/QuestionDialog"
 import AddQuestionForm from "./components/addQuestionForm"
 import EditQuestionForm from "./components/editQuestionForm"
 import { useAuth } from "@/context/authContext"

@@ -90,6 +90,9 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         // ✅ This will be type-safe and validated.
         console.log(values)
         try {
+            if (values.categories) {
+              values.categories.sort();
+            }
             const response = await fetch(`http://localhost:5001/edit-question/${questionId}`, {
                 method: 'PATCH',
                 headers: {
