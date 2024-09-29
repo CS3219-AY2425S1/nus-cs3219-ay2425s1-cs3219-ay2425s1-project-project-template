@@ -129,6 +129,10 @@ const QuestionRepo = () => {
     navigate("/questions/manage");
   };
 
+  const handleRowClick = (id: string) => {
+    navigate(`/questions/${id}`);
+  };
+
   return (
     <>
       <Header />
@@ -226,7 +230,12 @@ const QuestionRepo = () => {
                   </TableHead>
                   <TableBody>
                     {questions.map((question) => (
-                      <TableRow key={question._id}>
+                      <TableRow
+                        key={question._id}
+                        hover
+                        onClick={() => handleRowClick(question._id)}
+                        style={{ cursor: "pointer" }}
+                      >
                         <TableCell>
                           <Highlight
                             text={question.title}
