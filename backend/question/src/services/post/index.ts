@@ -32,7 +32,7 @@ export const updateQuestionService = async (payload: IUpdateQuestionPayload) => 
         difficulty: payload.difficulty,
         topic: payload.topics.map(String),
       })
-      .where(eq(questions.id, String(payload.id)))
+      .where(eq(questions.id, Number(payload.id)))
       .returning();
 
     if (!updatedQuestion) {
@@ -50,7 +50,7 @@ export const deleteQuestionService = async (payload: IDeleteQuestionPayload) => 
   try {
     const [deletedQuestion] = await db
       .delete(questions)
-      .where(eq(questions.id, String(payload.id)))
+      .where(eq(questions.id, payload.id))
       .returning();
 
     if (!deletedQuestion) {
