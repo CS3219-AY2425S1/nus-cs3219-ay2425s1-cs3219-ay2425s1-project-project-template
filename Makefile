@@ -1,5 +1,7 @@
 setup:
 	./scripts/install-deps.sh
+	./scripts/ensure-volume.sh
+	
 
 db-up:
 	./scripts/ensure-volume.sh

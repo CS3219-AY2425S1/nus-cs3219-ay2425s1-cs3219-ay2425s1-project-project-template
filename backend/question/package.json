@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "seed": "env-cmd -f .env.local ts-node src/seeder/question-seeder.ts",
-    "dev": "npm run seed && env-cmd -f .env.local nodemon src/index.ts | pino-pretty",
+    "dev": "env-cmd -f .env.local nodemon src/index.ts | pino-pretty",
     "build": "env-cmd -f .env.local tsc && tsc-alias",
     "start": "env-cmd -f .env.local node dist/index.js",
     "build:prod": "env-cmd -f .env.prod tsc && tsc-alias",

@@ -9,7 +9,8 @@
     "build:prod": "env-cmd -f .env.prod tsc && tsc-alias",
     "start:prod": "env-cmd -f .env.local node dist/index.js",
     "db:generate": "env-cmd -f .env.local drizzle-kit generate",
-    "db:migrate": "env-cmd -f .env.local tsx drizzle.migrate.ts",
+    "db:migrate": "env-cmd -f .env.local tsx ./src/lib/db/migrate.ts",
+    "db:seed": "env-cmd -f .env.local tsx ./src/lib/db/seed.ts",
     "db:inspect": "env-cmd -f .env.local drizzle-kit studio",
     "fmt": "prettier --config .prettierrc src --write",
     "test": "echo \"Error: no test specified\" && exit 1"

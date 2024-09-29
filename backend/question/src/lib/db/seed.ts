@@ -27,17 +27,17 @@ const seedQuestions = async () => {
       }
     });
   } catch (error) {
-    console.log('Error seeding question data', error);
+    console.log('[Questions]: Error seeding question data', error);
     process.exit(1);
   }
 };
 
 void seedQuestions()
   .then(() => {
-    console.log('Seeding completed successfully.');
+    console.log('[Questions]: Seeding completed successfully.');
     process.exit(0);
   })
   .catch((error) => {
-    console.error('Error during seeding:', error);
+    console.error('[Questions]: Error during seeding:', error);
     process.exit(1);
   });
