@@ -81,6 +81,9 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
+    if (values.categories) {
+      values.categories.sort();
+    }
     try {
       const response = await fetch('http://localhost:5001/add-question', {
         method: 'POST',
