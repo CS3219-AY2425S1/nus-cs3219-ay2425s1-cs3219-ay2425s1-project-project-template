@@ -1,8 +1,10 @@
 import { Menu } from "antd";
 import { Header as AntdHeader } from "antd/es/layout/layout";
+import { useRouter } from "next/navigation";
 import "./styles.scss";
 
 const Header = (): JSX.Element => {
+  const { push } = useRouter();
   // Stores the details for the header buttons
   const items = [
     {
@@ -28,6 +30,9 @@ const Header = (): JSX.Element => {
         defaultSelectedKeys={["0"]}
         items={items}
         style={{ flex: 1, minWidth: 0 }}
+        onClick={(info) => {
+          push("/");
+        }}
       />
     </AntdHeader>
   );
