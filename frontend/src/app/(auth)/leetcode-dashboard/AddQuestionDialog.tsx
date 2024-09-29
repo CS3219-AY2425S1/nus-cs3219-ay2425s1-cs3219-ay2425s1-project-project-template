@@ -3,11 +3,6 @@
 import { topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -26,7 +21,11 @@ import { z } from "zod";
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
-const AddQuestionDialog = () => {
+interface AddQuestionDialogProp {
+  setClose: () => void;
+}
+
+const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
   const formSchema = z.object({
     questionTitle: z.string().min(2, {
       message: "Title must be at least 2 characters.",
@@ -66,30 +65,33 @@ const AddQuestionDialog = () => {
         category: values.questionTopics,
         complexity: values.questionDifficulty,
       }),
-    }).then((response) => {
-      if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Question Added",
-          text: "Question has been added successfully.",
-        });
-      }
+    })
+      .then((response) => {
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Question Added",
+            text: "Question has been added successfully.",
+          });
+        }
 
-      return response.json();
-    }).catch((error) => {
-      Swal.fire({
-        icon: "error",
-        title: "Question Add Failed",
-        text: "Please try again later.",
+        return response.json();
       })
-    });
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: "Question Add Failed",
+          text: "Please try again later.",
+        });
+      })
+      .finally(() => setClose());
   }
 
   return (
-    <DialogContent className="bg-primary-700 h-80%">
-      <DialogHeader className="text-[32px] font-semibold text-yellow-500">
+    <div className="bg-primary-700 p-10 w-[40vw] h-[80vh] rounded-lg">
+      <div className="text-[32px] font-semibold text-yellow-500">
         Add Question
-      </DialogHeader>
+      </div>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)} // Ensure form.handleSubmit is used correctly
@@ -177,12 +179,10 @@ const AddQuestionDialog = () => {
               </FormItem>
             )}
           />
-          <DialogClose>
-            <Button type="submit">Submit</Button>
-          </DialogClose>
+          <Button type="submit">Submit</Button>
         </form>
       </Form>
-    </DialogContent>
+    </div>
   );
 };
 

@@ -1,10 +1,12 @@
 "use client";
 
+import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/AddQuestionDialog";
 import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/LeetcodeDashboardTable";
+import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { PlusIcon } from "lucide-react";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/AddQuestionDialog";
+import { useState } from "react";
+import Modal from "react-modal";
 
 const LeetcodeDashboardHeader = () => {
   return (
@@ -22,17 +24,39 @@ const LeetcodeDashboardHeader = () => {
 };
 
 const LeetcodeDashboard = () => {
+  const [modalIsOpen, setIsOpen] = useState(false);
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
   return (
     <Container>
       <LeetcodeDashboardHeader />
       <div className="flex justify-end mb-4">
-        <Dialog>
-          {/* Unable to reuse Button as cannot render Button inside DialogTrigger (causes hydration error) */}
-          <DialogTrigger className="bg-yellow-500 text-primary-foreground hover:bg-yellow-300 rounded flex text-primary-900 p-3">
-            <PlusIcon /> Add A Question
-          </DialogTrigger>
-          <AddQuestionDialog />
-        </Dialog>
+        <Button
+          onClick={openModal}
+          className="bg-yellow-500 hover:bg-yellow-300 text-black hover:text-primary-800 flex flex-row gap-2"
+        >
+          <PlusIcon />
+          Add a Question
+        </Button>
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          style={{
+            overlay: {
+              backgroundColor: "rgba(29, 36, 51, 0.8)",
+            },
+          }}
+        >
+          <AddQuestionDialog setClose={closeModal} />
+        </Modal>
       </div>
       <LeetcodeDashboardTable />
     </Container>

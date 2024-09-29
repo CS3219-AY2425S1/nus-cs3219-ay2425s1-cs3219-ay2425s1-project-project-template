@@ -25,6 +25,8 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { getLeetcodeDashboardData } from "@/api/leetcode-dashboard";
 import { QuestionMinified } from "@/types/find-match";
 import MoonLoader from "react-spinners/MoonLoader";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/EditQuestionDialog";
 
 const Cell = ({
   className,
@@ -66,12 +68,15 @@ export const columns: ColumnDef<QuestionMinified>[] = [
   {
     accessorKey: "actions",
     header: () => <Cell>Actions</Cell>,
-    cell: ({}) => {
+    cell: ({ row }) => {
       return (
         <Cell>
-          <Button variant={"ghost"}>
-            <HiOutlinePencil />
-          </Button>
+          <Dialog>
+            <DialogTrigger>
+              <HiOutlinePencil />
+              <EditQuestionDialog />
+            </DialogTrigger>
+          </Dialog>
           <Button variant={"ghost"}>
             <FaRegTrashAlt />
           </Button>

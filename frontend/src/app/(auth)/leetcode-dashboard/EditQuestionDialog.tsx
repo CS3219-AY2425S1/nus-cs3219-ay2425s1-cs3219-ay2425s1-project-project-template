@@ -85,7 +85,7 @@ const EditQuestionDialog = ({ id }: { id: string }) => {
   return (
     <DialogContent className="bg-primary-700 h-80%">
       <DialogHeader className="text-[32px] font-semibold text-yellow-500">
-        Add Question
+        Edit Question
       </DialogHeader>
       <Form {...form}>
         <form
