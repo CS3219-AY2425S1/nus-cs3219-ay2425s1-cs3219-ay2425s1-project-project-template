@@ -185,7 +185,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const columns: ColumnDef<Question>[] = useMemo(
     () => [
-      { header: "ID", accessorKey: "ID" },
+      {
+        header: "#",
+        accessorFn: (_, rowIndex) => rowIndex + 1,
+        id: "rowNumber",
+        cell: ({ getValue }) => getValue<number>(),
+      },
       { header: "Title", accessorKey: "Title" },
       {
         header: "Topic",

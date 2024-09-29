@@ -65,6 +65,7 @@ const DataTable = <T,>({ columns, data, columnFilters, setColumnFilters }: DataT
                                     px={6} 
                                     py={4}
                                     fontSize={'large'}
+                                    textTransform="capitalize" 
                                     textAlign="center" 
                                     borderRight="2px solid" 
                                     borderColor="gray.300"
