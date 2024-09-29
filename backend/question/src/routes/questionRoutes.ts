@@ -28,6 +28,14 @@ router.post(
     }
     try {
       const { title, description, category, complexity } = req.body;
+
+      const existingQuestion = await Question.findOne({ title: title.trim() });
+      if (existingQuestion) {
+        return res.status(400).json({
+          message: "A question with this title already exists",
+        });
+      }
+
       const question = { title, description, category, complexity };
       const newQuestion = new Question(question);
       await newQuestion.save();
@@ -85,6 +93,15 @@ router.post(
     const questionId = parseInt(req.params.id);
     const updateData: Partial<TQuestion> = {};
     if (req.body.title) {
+      const existingQuestion = await Question.findOne({
+        title: req.body.title.trim(),
+      });
+      if (existingQuestion) {
+        return res.status(400).json({
+          message: "A question with this title already exists",
+        });
+      }
+
       updateData.title = req.body.title;
     }
     if (req.body.description) {

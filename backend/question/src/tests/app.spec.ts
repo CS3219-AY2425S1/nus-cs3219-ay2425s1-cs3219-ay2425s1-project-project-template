@@ -97,7 +97,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -172,7 +174,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -187,7 +191,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -202,7 +208,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -219,6 +227,20 @@ describe("Test Question API", () => {
     expect(res.statusCode).toBe(400);
     expect(res.body.errors[0].msg).toBe("Invalid value");
     expect(res.body.errors[0].path).toBe("complexity");
+  });
+
+  // Duplicate question
+  test("POST /api/create - duplicate question", async () => {
+    const newQuestion = {
+      title: "Sample Question",
+      description: "This is a sample question",
+      category: ["General"],
+      complexity: "test",
+    };
+
+    const res = await request.post("/api/create").send(newQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe("A question with this title already exists");
   });
 });
 
@@ -326,7 +348,7 @@ describe("Test Update", () => {
   // Update with invalid category
   test("POST - empty category", async () => {
     const updateQuestion = {
-      category: []
+      category: [],
     };
     const questionId = 1090;
     const res = await request
@@ -347,7 +369,9 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
   });
 
   // Update with invalid category
@@ -362,13 +386,15 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
   });
 
   // Negative id
   test("POST - negative id update", async () => {
     const updateQuestion = {
-      title: "Update Title",
+      title: "Update Title Again",
       description: "Update Description",
       category: ["Update Category"],
       complexity: "Update Complexity",
@@ -384,7 +410,7 @@ describe("Test Update", () => {
   // Non-existent id
   test("POST - non-existent id update", async () => {
     const updateQuestion = {
-      title: "Update Title",
+      title: "Update Title Again",
       description: "Update Description",
       category: ["Update Category"],
       complexity: "Update Complexity",
@@ -395,6 +421,22 @@ describe("Test Update", () => {
       .send(updateQuestion);
     expect(res.statusCode).toBe(404);
     expect(res.body).toBe("Document not found");
+  });
+
+  // Duplicate question
+  test("POST - non-existent id update", async () => {
+    const updateQuestion = {
+      title: "Update Title",
+      description: "Update Description",
+      category: ["Update Category"],
+      complexity: "Update Complexity",
+    };
+    const questionId = 999999;
+    const res = await request
+      .post(`/api/${questionId}/update`)
+      .send(updateQuestion);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe("A question with this title already exists");
   });
 });
 
