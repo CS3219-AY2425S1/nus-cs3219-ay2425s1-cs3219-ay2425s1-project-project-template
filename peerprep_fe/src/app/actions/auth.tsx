@@ -18,7 +18,7 @@ export async function signup(state: FormState, formData: FormData) {
   };
 
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/auth/signup`,
+    `http://${process.env.USER_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/auth/signup`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -53,7 +53,7 @@ export async function login(state: FormState, formData: FormData) {
   };
 
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/auth/signin`,
+    `http://${process.env.USER_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/auth/signin`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

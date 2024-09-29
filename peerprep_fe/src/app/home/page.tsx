@@ -111,7 +111,7 @@ export default function Home() {
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">
-          {questions.map((question, index) => {
+          {questions?.map((question, index) => {
             return (
               <TableRow
                 id={question._id}
