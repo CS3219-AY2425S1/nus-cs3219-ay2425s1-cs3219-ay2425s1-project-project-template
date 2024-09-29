@@ -8,12 +8,15 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors()); // config cors so that front-end can use
+app.use(cors({
+  origin: "http://localhost:3000",  // Explicitly allow your frontend origin
+  credentials: true                 // Allow credentials (cookies, headers, etc.)
+})); // config cors so that front-end can use
 app.options("*", cors());
 
 // To handle CORS Errors
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // "*" -> Allow all links to access
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // "*" -> Allow all links to access
 
   res.header(
     "Access-Control-Allow-Headers",
