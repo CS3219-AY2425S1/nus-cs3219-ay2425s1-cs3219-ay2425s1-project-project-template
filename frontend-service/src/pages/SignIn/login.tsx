@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css'
-
 import signupGraphic from '../../assets/images/signup_graphic.png';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     try {
       const response = await fetch('http://localhost:3001/auth/login', {
         method: 'POST',
@@ -18,19 +20,20 @@ const Login: React.FC = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-
+      console.log("world");
       const data = await response.json();
+      console.log("hello");
       if (response.ok) {
         localStorage.setItem('token', data.data.accessToken);
-        navigate("/navbar");
         alert('Login successful');
+        navigate('/home');
 
       } else {
-        setErrorMessage(data.message);
+        throw new Error(data.message);
       }
 
     } catch (error) {
-      setErrorMessage('Error during login.');
+      setError('Error during login.');
     }
   };
 
@@ -67,9 +70,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setErrorMessage(arg0: string) {
-  throw new Error('Function not implemented.');
-}
 
