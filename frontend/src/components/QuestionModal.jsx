@@ -1,5 +1,7 @@
 import { createQuestion, updateQuestion } from "../services/QuestionService";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const QuestionModal = (props) => {
   const { question, closeModal, setQuestions } = props;
@@ -30,7 +32,7 @@ const QuestionModal = (props) => {
       setQuestions((prevQuestions) => [...prevQuestions, response]);
       closeModal();
     } catch (error) {
-      console.error(error);
+      toast.error("Failed to create question");
     }
   };
 
@@ -46,6 +48,7 @@ const QuestionModal = (props) => {
       );
       closeModal();
     } catch (error) {
+      toast.error("Failed to update question");
       console.error(error);
     }
   };

@@ -7,6 +7,7 @@ import ProgressOverview from "../components/ProgressOverview";
 import Welcome from "../components/Welcome";
 import History from "../components/History";
 import MonthlyProgress from "../components/MonthlyProgress";
+import { ToastContainer } from "react-toastify";
 
 const peerSessions = [
   {
@@ -47,6 +48,7 @@ const suggestedQuestion = {
 export default function Dashboard() {
   return (
     <div className="max-h-screen">
+      <ToastContainer />
       <div className="overflow-hidden">
         <Header />
         <div className="flex">

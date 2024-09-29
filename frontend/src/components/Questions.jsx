@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { deleteQuestion, getQuestions } from "../services/QuestionService";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import QuestionModal from "./QuestionModal";
 
@@ -34,6 +36,7 @@ const Questions = () => {
       setQuestions(updatedQuestions);
     } catch (error) {
       console.error("Error deleting question:", error);
+      toast.error("Failed to delete question");
     }
   };
 
