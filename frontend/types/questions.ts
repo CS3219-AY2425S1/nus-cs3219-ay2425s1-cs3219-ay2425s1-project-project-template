@@ -6,6 +6,7 @@ export interface Question {
   description: string; // Detailed description of the question
   examples: string;
   constraints: string;
+  index?: number;
 }
 
 export interface QuestionList {

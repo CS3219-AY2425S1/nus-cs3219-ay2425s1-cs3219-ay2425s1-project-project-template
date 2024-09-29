@@ -21,7 +21,7 @@ const QuestionsPage = () => {
         ) : isError ? (
           <p>Had Trouble Fetching Questions!</p>
         ) : (
-          <div>
+          <div className="flex justify-center">
             <QuestionTable
               handlePageOnClick={handleOnPageClick}
               pageNumber={pageNumber}
