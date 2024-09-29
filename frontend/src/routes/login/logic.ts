@@ -9,7 +9,13 @@ import { useNavigate } from 'react-router-dom';
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, getEmptyFieldErrorMessage('Username')),
-  password: z.string().min(1, getEmptyFieldErrorMessage('Password')),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
 });
 
 type ILoginFormSchema = z.infer<typeof loginFormSchema>;
