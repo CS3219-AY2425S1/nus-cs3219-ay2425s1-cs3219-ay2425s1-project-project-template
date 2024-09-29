@@ -1,11 +1,18 @@
 package g55.cs3219.backend.questionservice.service;
 
+import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
+
 import g55.cs3219.backend.questionservice.exception.DuplicatedQuestionIdException;
 import g55.cs3219.backend.questionservice.exception.InvalidQuestionException;
 import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
+import g55.cs3219.backend.questionservice.model.DatabaseSequence;
 import g55.cs3219.backend.questionservice.model.Question;
 import g55.cs3219.backend.questionservice.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +26,15 @@ public class QuestionService {
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Autowired
+    private MongoOperations mongoOperations;
+
     public List<Question> getAllQuestions() {
         List<Question> questions = questionRepository.findAll();
         if (questions.isEmpty()) {
             throw new QuestionNotFoundException("No questions found.");
         }
-        questions.sort((q1, q2) -> q1.getId() - q2.getId());
+        questions.sort((q1, q2) -> (int) (q1.getId() - q2.getId()));
         return questions;
     }
 
@@ -63,19 +73,29 @@ public class QuestionService {
 
     public Question createQuestion(Question question) {
         validateQuestion(question);
-        if (questionRepository.existsById(question.getId())) {
-            throw new DuplicatedQuestionIdException("Duplicate question with ID " + question.getId() + " already exists.");
-        }
-        return questionRepository.save(question);
+
+        Question newQuestion = new Question();
+        newQuestion.setId(generateSequence(Question.SEQUENCE_NAME));
+        newQuestion.setTitle(question.getTitle());
+        newQuestion.setDescription(question.getDescription());
+        newQuestion.setDifficulty(question.getDifficulty());
+        newQuestion.setCategories(question.getCategories());
+        newQuestion.setExamples(question.getExamples());
+        newQuestion.setConstraints(question.getConstraints());
+        newQuestion.setLink(question.getLink());
+
+        return questionRepository.save(newQuestion);
     }
 
     private void validateQuestion(Question question) {
         List<String> missingFields = Stream.of(
-                question.getId() == null ? "id" : null,
                 question.getTitle() == null ? "title" : null,
                 question.getDescription() == null ? "description" : null,
                 question.getCategories() == null ? "categories" : null,
-                question.getDifficulty() == null ? "difficulty" : null
+                question.getDifficulty() == null ? "difficulty" : null,
+                question.getExamples() == null ? "examples" : null,
+                question.getConstraints() == null ? "constraints" : null,
+                question.getLink() == null ? "link" : null
         ).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (!missingFields.isEmpty()) {
@@ -110,6 +130,13 @@ public class QuestionService {
         questionRepository.delete(existingQuestion);
 
         return "Question with ID " + id + " has been deleted.";
+    }
+
+    public int generateSequence(String seqName) {
+        DatabaseSequence counter = mongoOperations.findAndModify(query(where("_id").is(seqName)),
+                new Update().inc("seq",1), options().returnNew(true).upsert(true),
+                DatabaseSequence.class);
+        return !Objects.isNull(counter) ? (int) counter.getSeq() : 1;
     }
 
 }
