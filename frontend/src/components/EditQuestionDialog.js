@@ -90,6 +90,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              inputProps={{ maxLength: 100 }}
               value={questionData.title}
               onChange={handleInputChange}
               className="text-field"
@@ -105,6 +106,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               multiline
               minRows={4}
               maxRows={16}
+              inputProps={{ maxLength: 3000 }}
               value={questionData.description}
               onChange={handleInputChange}
               className="text-field"
@@ -118,6 +120,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              inputProps={{ maxLength: 200 }}
               value={questionData.topic}
               onChange={handleInputChange}
               className="text-field"
@@ -149,6 +152,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               fullWidth
               multiline
               maxRows={16}
+              inputProps={{ maxLength: 500 }}
               value={questionData.input}
               onChange={handleInputChange}
               className="text-field"
@@ -163,6 +167,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               fullWidth
               multiline
               maxRows={16}
+              inputProps={{ maxLength: 500 }}
               value={questionData.expected_output}
               onChange={handleInputChange}
               className="text-field"
@@ -175,6 +180,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              inputProps={{ maxLength: 3000 }}
               value={questionData.images}
               onChange={handleInputChange}
               className="text-field"
@@ -187,6 +193,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              inputProps={{ maxLength: 200 }}
               value={questionData.leetcode_link}
               onChange={handleInputChange}
               className="text-field"

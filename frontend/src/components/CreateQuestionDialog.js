@@ -82,6 +82,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
+                            inputProps={{ maxLength: 100 }}
                             className="text-field"
                         />
                         <TextField
@@ -95,6 +96,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             multiline
                             minRows={4}
                             maxRows={16}
+                            inputProps={{ maxLength: 3000 }}
                             className="text-field"
                         />
                         <TextField
@@ -106,6 +108,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
+                            inputProps={{ maxLength: 200 }}
                             className="text-field"
                         />
                         <TextField
@@ -135,6 +138,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             fullWidth
                             multiline
                             maxRows={16}
+                            inputProps={{ maxLength: 500 }}
                             className="text-field"
                         />
                         <TextField
@@ -147,6 +151,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             fullWidth
                             multiline
                             maxRows={16}
+                            inputProps={{ maxLength: 500 }}
                             className="text-field"
                         />
                         <TextField
@@ -157,6 +162,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
+                            inputProps={{ maxLength: 3000 }}
                             className="text-field"
                         />
                         <input
@@ -176,6 +182,7 @@ const CreateQuestion = ({ open, handleClose }) => {
                             type="text"
                             fullWidth
                             multiline
+                            inputProps={{ maxLength: 200 }}
                             className="text-field"
                         />
                     </DialogContent>
