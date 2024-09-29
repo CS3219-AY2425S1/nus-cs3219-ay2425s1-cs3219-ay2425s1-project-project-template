@@ -4,10 +4,16 @@ import { ReactNode } from "react";
 interface NavLinkProps {
   children: ReactNode;
   href: string;
-  isActive: boolean;
+  isActive?: boolean;
+  hover?: boolean;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ href, isActive, children }) => {
+const NavLink: React.FC<NavLinkProps> = ({
+  href,
+  isActive,
+  children,
+  hover,
+}) => {
   let className;
 
   if (isActive) {
@@ -16,11 +22,21 @@ const NavLink: React.FC<NavLinkProps> = ({ href, isActive, children }) => {
     className = "text-white";
   }
 
-  return (
-    <NextLink className={className} href={href}>
-      {children}
-    </NextLink>
-  );
+  if (hover) {
+    return (
+      <div className="p-1 rounded-md hover:bg-slate-400">
+        <NextLink className={className} href={href}>
+          <p className="text-center">{children}</p>
+        </NextLink>
+      </div>
+    );
+  } else {
+    return (
+      <NextLink className={className} href={href}>
+        {children}
+      </NextLink>
+    );
+  }
 };
 
 export default NavLink;

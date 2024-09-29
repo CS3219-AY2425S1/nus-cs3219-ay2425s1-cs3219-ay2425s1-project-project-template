@@ -32,7 +32,6 @@ const AddQuestionsPage = () => {
             alert(`Error adding the question: ${error.response.data}`);
           } else {
             alert(`Error adding the question: ${error.message}`);
-            console.error("Error adding the question:", error);
           }
         },
       },

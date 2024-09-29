@@ -36,7 +36,6 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
     setIsDeleting(true);
 
     if (!question.questionId) {
-      console.error("Question ID is undefined, cannot delete question.");
       setIsDeleting(false);
 
       return;
@@ -45,11 +44,9 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
     deleteQuestion(question.questionId, {
       onSuccess: () => {
         setIsDeleting(false);
-        console.log("Question deleted:", question.questionId);
       },
       onError: (error) => {
         setIsDeleting(false);
-        console.error("Error deleting the question:", error);
       },
     });
   };

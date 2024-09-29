@@ -50,8 +50,8 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
       case "index": {
         return (
           <NavLink
+            hover={true}
             href={`/questions/question-description?id=${question.questionId}`}
-            isActive={true}
           >
             {questionValue}
           </NavLink>
