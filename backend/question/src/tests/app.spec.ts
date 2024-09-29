@@ -97,7 +97,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -172,7 +174,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -187,7 +191,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -202,7 +208,9 @@ describe("Test Question API", () => {
 
     const res = await request.post("/api/create").send(newQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
     expect(res.body.errors[0].path).toBe("category");
   });
 
@@ -227,10 +235,13 @@ describe("Test Get All", () => {
   // Get all with questions
   test("GET /api/all - should retrieve all questions", async () => {
     const res = await request.get("/api/all").send();
-    const sampleQuestion = res.body[0];
+    const sampleQuestion = res.body.questions[0];
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBe(1);
+    expect(Array.isArray(res.body.questions)).toBe(true);
+    expect(res.body.questions.length).toBe(1);
+    expect(res.body.currentPage).toBe(1);
+    expect(res.body.totalPages).toBe(1);
+    expect(res.body.totalQuestions).toBe(1);
     expect(sampleQuestion).toHaveProperty("title", "Sample Question");
     expect(sampleQuestion).toHaveProperty(
       "description",
@@ -326,7 +337,7 @@ describe("Test Update", () => {
   // Update with invalid category
   test("POST - empty category", async () => {
     const updateQuestion = {
-      category: []
+      category: [],
     };
     const questionId = 1090;
     const res = await request
@@ -347,7 +358,9 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
   });
 
   // Update with invalid category
@@ -362,7 +375,9 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(400);
-    expect(res.body.errors[0].msg).toBe("Category must contain only non-empty strings");
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
   });
 
   // Negative id

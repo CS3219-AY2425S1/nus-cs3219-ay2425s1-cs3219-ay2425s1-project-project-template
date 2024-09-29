@@ -43,12 +43,34 @@ router.post(
 
 // Retrieve all questions
 router.get("/all", async (req: Request, res: Response) => {
+  const pagination = parseInt(req.body.pagination as string, 10) || 1; // Default page is 1
+  const page_size = parseInt(req.body.page_size as string, 10) || 10; // Default limit is 10
+  const skip = (pagination - 1) * page_size; // Calculate how many documents to skip
   try {
-    const questions = await Question.find()
+    const questions = await Question.find(
+      {},
+      {
+        questionid: 1,
+        title: 1,
+        description: 1,
+        complexity: 1,
+        category: 1,
+      }
+    )
       .lean()
       .sort({ questionid: "ascending" })
+      .skip(skip)
+      .limit(page_size)
       .exec();
-    return res.json(questions);
+
+    const total = await Question.countDocuments().exec();
+
+    return res.json({
+      questions,
+      currentPage: pagination,
+      totalPages: Math.ceil(total / page_size),
+      totalQuestions: total,
+    });
   } catch (error) {
     return res.status(500).send("Internal server error");
   }
@@ -62,7 +84,10 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   }
   const questionId = parseInt(req.params.id, 10);
   try {
-    const question = await Question.findOne({ questionid: questionId }).exec();
+    const question = await Question.findOne(
+      { questionid: questionId },
+      { questionid: 1, title: 1, description: 1, complexity: 1, category: 1 }
+    ).exec();
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
