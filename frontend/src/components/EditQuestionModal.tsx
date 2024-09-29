@@ -10,63 +10,53 @@ const EditQuestionModal: React.FC<{
   oldTitle: string;
   oldDetails: string;
   questionID: string;
-  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
-}> = ({ onClose, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID, setQuestions }) => {
-  const editQuestion = (questionID: string, difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
-      fetch(`http://localhost:8080/questions/${questionID}`, {
-          mode: "cors",
-          method: 'PUT',
-          headers: {
-            "Access-Control-Allow-Origin": "http://localhost:8080",
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: questionID,
-            title: titleValue,
-            description: detailsValue,
-            categories: topicValue,
-            complexity: difficultyValue
-          })
-        }).then(response => {
-          response.json();
-          retrieveAndSetQuestionList();
-        })
-        .then(data => console.log(data))
-        .catch(error => {
-          alert('Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again.');
-          console.error('Error editing question:', error);
-        });
-
-
-      closeEditConfirmationModal();
-      onClose();
-  };
-
-  const retrieveAndSetQuestionList = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/questions", {
-        mode: "cors",
-        headers: {
-          "Access-Control-Allow-Origin": "http://localhost:8080",
-        },
+  fetchData: () => Promise<void>;
+}> = ({
+  onClose,
+  oldDifficulty,
+  oldTopic,
+  oldTitle,
+  oldDetails,
+  questionID,
+  fetchData,
+}) => {
+  const editQuestion = (
+    questionID: string,
+    difficultyValue: string,
+    topicValue: string[],
+    titleValue: string,
+    detailsValue: string
+  ) => {
+    fetch(`http://localhost:8080/questions/${questionID}`, {
+      mode: "cors",
+      method: "PUT",
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:8080",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: questionID,
+        title: titleValue,
+        description: detailsValue,
+        categories: topicValue,
+        complexity: difficultyValue,
+      }),
+    })
+      .then((response) => {
+        response.json();
+        fetchData();
+      })
+      .then((data) => console.log(data))
+      .catch((error) => {
+        alert(
+          "Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again."
+        );
+        console.error("Error editing question:", error);
       });
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch questions");
-      }
 
-      const data = await response.json();
-      
-      // Assuming the API returns a structure like data._embedded.questionList
-      setQuestions(data._embedded.questionList); 
-      console.log("Testing: Question list should appear below");
-      console.log(data._embedded.questionList);
-      
-    } catch (error) {
-      console.error("Error fetching questions:", error);
-    }
-  }
-  
+    closeEditConfirmationModal();
+    onClose();
+  };
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const openDeleteModal = () => setDeleteModalOpen(true);
@@ -94,9 +84,9 @@ const EditQuestionModal: React.FC<{
     ) as HTMLInputElement | null;
     const topicValue = topicElement ? topicElement.value : "";
     const topicList = topicValue
-      .split(',')
-      .map(item => item.trim())
-      .filter(item => item !== "");
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "");
     setNewTopicValue(topicList);
 
     const titleElement = document.getElementById(
@@ -119,7 +109,13 @@ const EditQuestionModal: React.FC<{
 
   function onEditConfirm() {
     getNewValues();
-    editQuestion(questionID, newDifficultyValue, newTopicValue, newTitleValue, newDetailsValue);
+    editQuestion(
+      questionID,
+      newDifficultyValue,
+      newTopicValue,
+      newTitleValue,
+      newDetailsValue
+    );
   }
 
   const onEditSubmit = () => {
@@ -184,9 +180,15 @@ const EditQuestionModal: React.FC<{
               <option value="" disabled hidden>
                 Choose a difficulty level
               </option>
-              <option value="EASY" className="text-green ">Easy</option>
-              <option value="MEDIUM" className="text-orange-500">Medium</option>
-              <option value="HARD" className="text-red-700">Hard</option>
+              <option value="EASY" className="text-green ">
+                Easy
+              </option>
+              <option value="MEDIUM" className="text-orange-500">
+                Medium
+              </option>
+              <option value="HARD" className="text-red-700">
+                Hard
+              </option>
             </select>
           </div>
         </div>
@@ -194,7 +196,10 @@ const EditQuestionModal: React.FC<{
         {/* Topic */}
         <div className="mt-2">
           <label className="font-semibold">Categories</label>
-          <p className="text-xs text-gray-500">Separate different topic categories using commas. E.g., Arrays, Databases </p>
+          <p className="text-xs text-gray-500">
+            Separate different topic categories using commas. E.g., Arrays,
+            Databases{" "}
+          </p>
           <div className="relative mt-1 shadow-md">
             <input
               type="text"
@@ -249,30 +254,34 @@ const EditQuestionModal: React.FC<{
             >
               Delete Question
             </button>
-            {isDeleteModalOpen && <DeleteQuestionModal
-              onClose={closeDeleteModal}
-              onDelete={onDeleteConfirm}
-              oldDifficulty={oldDifficulty}
-              oldTopic={oldTopic}
-              oldTitle={oldTitle}
-              oldDetails={oldDetails}
-              questionID={questionID}
-              setQuestions={setQuestions}
-            />}
+            {isDeleteModalOpen && (
+              <DeleteQuestionModal
+                onClose={closeDeleteModal}
+                onDelete={onDeleteConfirm}
+                oldDifficulty={oldDifficulty}
+                oldTopic={oldTopic}
+                oldTitle={oldTitle}
+                oldDetails={oldDetails}
+                questionID={questionID}
+                fetchData={fetchData}
+              />
+            )}
             <button
               onClick={onEditSubmit}
               className="bg-green rounded-lg px-4 py-1.5 text-white text-lg hover:bg-emerald-400"
             >
               Submit
             </button>
-            {isEditConfirmationModalOpen && <EditConfirmationModal
-              onClose={closeEditConfirmationModal}
-              onEditConfirm={onEditConfirm}
-              newDifficultyValue={newDifficultyValue}
-              newTopicValue={newTopicValue}
-              newTitleValue={newTitleValue}
-              newDetailsValue={newDetailsValue}
-            />}
+            {isEditConfirmationModalOpen && (
+              <EditConfirmationModal
+                onClose={closeEditConfirmationModal}
+                onEditConfirm={onEditConfirm}
+                newDifficultyValue={newDifficultyValue}
+                newTopicValue={newTopicValue}
+                newTitleValue={newTitleValue}
+                newDetailsValue={newDetailsValue}
+              />
+            )}
             <button
               onClick={onClose}
               className="bg-red-500 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-red-400"

@@ -1,17 +1,16 @@
 import React, { useMemo, useState } from "react";
-import { useTable, Column } from "react-table"; // Import the 'Column' type
+import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
 import EditQuestionModal from "../EditQuestionModal";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
   questions: Array<any>;
-  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+  fetchData: () => Promise<void>;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
+const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
@@ -36,7 +35,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
     setQuestionID(questionID);
   };
 
-  const columns: Column[] = useMemo(() => COLUMNS, []);
+  const columns: Column<any>[] = useMemo(() => COLUMNS, []);
   const data = useMemo(() => questions, [questions]);
 
   const tableInstance = useTable({
@@ -72,7 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
           oldTitle={oldTitle}
           oldDetails={oldDetails}
           questionID={questionID}
-          setQuestions={setQuestions}
+          fetchData={fetchData}
         />
       )}
       {/* Add your table or other components here */}

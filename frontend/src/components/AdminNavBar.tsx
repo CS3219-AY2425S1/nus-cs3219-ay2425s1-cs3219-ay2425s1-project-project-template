@@ -5,17 +5,15 @@ import ProfileButton from "./ProfileButton.tsx";
 import AddQuestionModal from "./AddQuestionModal.tsx";
 
 interface AdminNavBarProps {
-  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+  fetchData: React.Dispatch<React.SetStateAction<never[]>>;
 }
 
-const AdminNavBar: React.FC<AdminNavBarProps> = ({ setQuestions }) => {
+const AdminNavBar: React.FC<AdminNavBarProps> = ({ fetchData }) => {
   const location = useLocation();
 
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
-
-  useEffect(() => console.log(setQuestions), []);
 
   return (
     <nav className="bg-off-white w-full p-4 flex items-center justify-between">
@@ -37,7 +35,9 @@ const AdminNavBar: React.FC<AdminNavBarProps> = ({ setQuestions }) => {
             >
               Add question
             </button>
-            {isAddModalOpen && <AddQuestionModal setQuestions={setQuestions} onClose={closeAddModal} />}
+            {isAddModalOpen && (
+              <AddQuestionModal fetchData={fetchData} onClose={closeAddModal} />
+            )}
           </div>
         ))}
       {/* Profile button */}
