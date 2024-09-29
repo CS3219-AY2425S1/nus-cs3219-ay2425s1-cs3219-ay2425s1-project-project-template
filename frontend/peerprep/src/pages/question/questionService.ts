@@ -10,6 +10,14 @@ export type Question = {
   link: string;
 };
 
+export type QuestionRequest = {
+  Title: string;
+  Description: string;
+  Categories: string;
+  Complexity: string;
+  link: string;
+};
+
 // Do not have to recreate API object here
 // This is done on the top level in <App/> component => You can think of useContext as a global state where u can retrieve
 // the prop when calling useApiContext(). In this case, the state retrieve is the axios instance.

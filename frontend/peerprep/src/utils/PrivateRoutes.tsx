@@ -3,6 +3,7 @@ import { ApiContext } from "../context/ApiContext";
 import { AxiosInstance } from "axios";
 
 import Navbar from "../components/layout/Navbar";
+import { ToastContainer } from "react-toastify";
 import Page from "../components/layout/Page";
 import { UserProvider } from "../context/UserContext";
 
@@ -19,6 +20,7 @@ const PrivateRoutes = ({
   return isAuth ? (
     <ApiContext.Provider value={api}>
       <UserProvider isAuth={isAuth}>
+        <ToastContainer />
         <Navbar />
         <Page>
           <Outlet />

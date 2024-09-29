@@ -1,39 +1,48 @@
 import React, { useState, useMemo } from "react";
-import { Question } from "./questionService";
+import { QueryObserverResult } from "@tanstack/react-query";
+import axios from "axios";
+
+import { Question, QuestionRequest } from "./questionService";
 import logo from "/peerprep_logo.png";
+import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
 import {
-  ColumnFilter,
-  ColumnDef
-} from "@tanstack/react-table";
-import {
-    Badge,
-    Box,
-    Text,
-    Button,
-    Icon,
-    useDisclosure,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalCloseButton,
-    ModalBody,
-    ButtonGroup, 
-    IconButton,
-} from '@chakra-ui/react';
-import { FaEdit } from 'react-icons/fa';
+  Badge,
+  Box,
+  Text,
+  Button,
+  Icon,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ButtonGroup,
+  IconButton,
+} from "@chakra-ui/react";
+import { useApiContext } from "../../context/ApiContext";
+
+import { FaEdit } from "react-icons/fa";
 import MenuDrawer from "../../components/layout/MenuDrawer";
-import { FiAlignJustify } from 'react-icons/fi';
-import Filters from '../../components/Filter';
+import { FiAlignJustify } from "react-icons/fi";
+import Filters from "../../components/Filter";
 import { COMPLEXITIES, CATEGORIES } from "../../constants/data";
-import DataTable from '../../components/DataTable';
-import QuestionModal from '../../components/QuestionModel';
+import DataTable from "../../components/DataTable";
+import QuestionModal from "../../components/QuestionModal";
+import { toast, Zoom } from "react-toastify";
+import { Axios, AxiosError } from "axios";
+import { a } from "framer-motion/client";
 
 type QuestionViewProps = {
   questions: Question[];
+  refetchQuestions: () => Promise<QueryObserverResult<Question[], Error>>;
 };
 
-const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
+const QuestionView: React.FC<QuestionViewProps> = ({
+  questions,
+  refetchQuestions,
+}) => {
   const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
   const {
     isOpen: isMenuOpen,
@@ -48,48 +57,78 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     null
   ); // State for the selected question
-    const { 
-        isOpen: isQuestionModalOpen, 
-        onOpen : onQuestionModalOpen, 
-        onClose : onQuestionModalClose 
-    } = useDisclosure();
+  const {
+    isOpen: isQuestionModalOpen,
+    onOpen: onQuestionModalOpen,
+    onClose: onQuestionModalClose,
+  } = useDisclosure();
 
-    // Handle Add Function
-    const handleAdd = (newQuestion: { title: string; description: string; categories: string; complexity: string; link: string }) => {
-        // Get the highest existing ID
-        const lastQuestionId = questions.length > 0 ? Math.max(...questions.map(q => q.ID)) : 0;
-        
-        // Create the new question object with incremented ID
-        const newQuestionWithId: Question = {
-            ID: lastQuestionId + 1,
-            Title: newQuestion.title,
-            Description: newQuestion.description,
-            Categories: newQuestion.categories,
-            Complexity: newQuestion.complexity,
-            link: newQuestion.link,
-        };
-        
-        console.log('Added Question:', newQuestionWithId);
-        onQuestionModalClose();  // Close the modal after adding
-    };
-    
+  const api = useApiContext();
 
-    const handleEdit = (updatedQuestion: { title: string; description: string; categories: string; complexity: string; link: string }) => {
-        if (selectedQuestion) {
-            const newQuestionWithId: Question = {
-                ID: selectedQuestion.ID,
-                Title: updatedQuestion.title,
-                Description: updatedQuestion.description,
-                Categories: updatedQuestion.categories,
-                Complexity: updatedQuestion.complexity,
-                link: updatedQuestion.link,
-            };
-            // Logic to save the edited question
-            console.log('Editing Question:', newQuestionWithId);
-            setSelectedQuestion(newQuestionWithId);
-            onQuestionModalClose();
-        }
+  // Handle Add Function
+  const handleAdd = async (newQuestion: {
+    title: string;
+    description: string;
+    categories: string;
+    complexity: string;
+    link: string;
+  }) => {
+    // Create the new question object with incremented ID
+    const newQuestionWithId: QuestionRequest = {
+      // ID: lastQuestionId + 1,
+      Title: newQuestion.title,
+      Description: newQuestion.description,
+      Categories: newQuestion.categories,
+      Complexity: newQuestion.complexity,
+      link: newQuestion.link,
     };
+
+    try {
+      const response = await api.post("/createQuestion", newQuestionWithId);
+      if (response.status === 200) {
+        toast.success("Question added successfully");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        // Backend-specific error handling for 400 Bad Request
+        toast.error(
+          `Failed to add question: ${
+            error.response.data.error || "Invalid data provided"
+          }`
+        );
+      } else {
+        // General error handling
+        toast.error("Failed to add question.");
+      }
+      console.error("Error adding question:", error);
+    }
+
+    await refetchQuestions();
+    onQuestionModalClose(); // Close the modal after adding
+  };
+
+  const handleEdit = (updatedQuestion: {
+    title: string;
+    description: string;
+    categories: string;
+    complexity: string;
+    link: string;
+  }) => {
+    if (selectedQuestion) {
+      const newQuestionWithId: Question = {
+        ID: selectedQuestion.ID,
+        Title: updatedQuestion.title,
+        Description: updatedQuestion.description,
+        Categories: updatedQuestion.categories,
+        Complexity: updatedQuestion.complexity,
+        link: updatedQuestion.link,
+      };
+      // Logic to save the edited question
+      console.log("Editing Question:", newQuestionWithId);
+      setSelectedQuestion(newQuestionWithId);
+      onQuestionModalClose();
+    }
+  };
 
   const getComplexityColor = (complexity: string) => {
     if (!complexity) return "white"; // Default color for undefined complexity
@@ -157,78 +196,101 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
           );
         },
       },
-        {
-            header: "Actions",
-            cell: ({ row }) => (
-                <ButtonGroup size="sm" isAttached>
-                    <IconButton
-                        icon={<Icon as={FaEdit}/>}
-                        aria-label="Edit"
-                        colorScheme="purple"
-                        onClick={() => {
-                            setSelectedQuestion(row.original);
-                            onQuestionModalOpen();
-                            onMenuClose();
-                        }}
-                    />
-                </ButtonGroup>
-            ),
-        },
+      {
+        header: "Actions",
+        cell: ({ row }) => (
+          <ButtonGroup size="sm" isAttached>
+            <IconButton
+              icon={<Icon as={FaEdit} />}
+              aria-label="Edit"
+              colorScheme="purple"
+              onClick={() => {
+                setSelectedQuestion(row.original);
+                onQuestionModalOpen();
+                onMenuClose();
+              }}
+            />
+          </ButtonGroup>
+        ),
+      },
     ],
     [onModalOpen, onMenuClose]
   );
 
-    return (
-        <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
-            {/* Drawer for menu */}
-            <MenuDrawer isOpen={isMenuOpen} onClose={() => {
-                onMenuClose();
-                onModalClose(); // Ensure modal closes if menu closes
-            }}/>
+  return (
+    <Box
+      className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
+      p={4}
+    >
+      {/* Drawer for menu */}
+      <MenuDrawer
+        isOpen={isMenuOpen}
+        onClose={() => {
+          onMenuClose();
+          onModalClose(); // Ensure modal closes if menu closes
+        }}
+      />
 
-            <Box className="flex-col justify-center items-center p-2">
-                {/* Search Filter Input */}
-                <h2 className="flex justify-center text-white text-3xl font-semibold">Questions</h2>
-                <Box className='flex justify-between'>
-                    <Filters 
-                        columnFilters={columnFilters} 
-                        setColumnFilters={setColumnFilter} />
-                    <Button 
-                        colorScheme='purple'
-                        onClick={() => {
-                            setSelectedQuestion(null);
-                            onQuestionModalOpen();
-                        }}>Add Question</Button>
-                </Box>
-                {/* Table Display */}
-                <DataTable columns={columns} data={questions} columnFilters={columnFilters} setColumnFilters={setColumnFilter}/>
-
-                {/* Modal for Question Details */}
-                <Modal isOpen={isModalOpen} onClose={() => {
-                    onModalClose(); // Close modal
-                    onMenuClose(); // Ensure menu closes if modal closes
-                }} isCentered>
-                    <ModalOverlay />
-                    <ModalContent bg="#371F76"> 
-                        <ModalHeader color="white">{selectedQuestion?.Title}</ModalHeader> {/* Set text color to white */}
-                        <ModalCloseButton />
-                        <ModalBody>
-                            <Text color="white">{selectedQuestion?.Description}</Text> {/* Set text color to white */}
-                            <br /> {/* Add a line break for spacing */}
-                        </ModalBody>
-                    </ModalContent>
-                </Modal>
-                
-                {/* Single Question Modal for both Add and Edit */}
-                <QuestionModal
-                    isOpen={isQuestionModalOpen}
-                    onClose={onQuestionModalClose}
-                    onSave={selectedQuestion? handleEdit : handleAdd}
-                    initialQuestion={selectedQuestion}
-                />
-            </Box>
+      <Box className="flex-col justify-center items-center p-2">
+        {/* Search Filter Input */}
+        <h2 className="flex justify-center text-white text-3xl font-semibold">
+          Questions
+        </h2>
+        <Box className="flex justify-between">
+          <Filters
+            columnFilters={columnFilters}
+            setColumnFilters={setColumnFilter}
+          />
+          <Button
+            colorScheme="purple"
+            onClick={() => {
+              setSelectedQuestion(null);
+              onQuestionModalOpen();
+            }}
+          >
+            Add Question
+          </Button>
         </Box>
-    );
+        {/* Table Display */}
+        <DataTable
+          columns={columns}
+          data={questions}
+          columnFilters={columnFilters}
+          setColumnFilters={setColumnFilter}
+        />
+
+        {/* Modal for Question Details */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => {
+            onModalClose(); // Close modal
+            onMenuClose(); // Ensure menu closes if modal closes
+          }}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent bg="#371F76">
+            <ModalHeader color="white">{selectedQuestion?.Title}</ModalHeader>{" "}
+            {/* Set text color to white */}
+            <ModalCloseButton />
+            <ModalBody>
+              <Text color="white">{selectedQuestion?.Description}</Text>{" "}
+              {/* Set text color to white */}
+              <br /> {/* Add a line break for spacing */}
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+
+        {/* Single Question Modal for both Add and Edit */}
+        <QuestionModal
+          isOpen={isQuestionModalOpen}
+          onClose={onQuestionModalClose}
+          onSave={selectedQuestion ? handleEdit : handleAdd}
+          initialQuestion={selectedQuestion}
+        />
+      </Box>
+    </Box>
+  );
 };
 
 export default QuestionView;

@@ -1,9 +1,10 @@
-import axios, { AxiosInstance } from "axios"
-import React from "react"
+import axios, { AxiosInstance } from "axios";
+import React from "react";
 
-
-export const initApi = (setAuth: React.Dispatch<React.SetStateAction<boolean>>) : AxiosInstance => {
- // initialise axios with setAuth in middleware
+export const initApi = (
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>
+): AxiosInstance => {
+  // initialise axios with setAuth in middleware
   const api = axios.create({
     baseURL: `${import.meta.env.VITE_API_URL}/v1`,
     headers: {
@@ -12,35 +13,37 @@ export const initApi = (setAuth: React.Dispatch<React.SetStateAction<boolean>>) 
   });
 
   // set api middleware
-  api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      config.headers.token = token;
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.token = token;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  });
+  );
 
-  api.interceptors.response.use((response) => {
-    return response;
-  }, 
-  (error) => {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (error.response.status === 401 && refreshToken != null) {
-      // handle refresh api call
-    }
+  // api.interceptors.response.use((response) => {
+  //   return response;
+  // },
+  // (error) => {
+  //   const refreshToken = localStorage.getItem("refreshToken");
+  //   if (error.response.status === 401 && refreshToken != null) {
+  //     // handle refresh api call
+  //   }
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    setAuth(false);
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("refreshToken");
+  //   setAuth(false);
 
-    // Navigate to login page
+  //   // Navigate to login page
 
-    return Promise.reject(error);
-  });
+  //   return Promise.reject(error);
+  // });
 
-  return api
-}
+  return api;
+};
