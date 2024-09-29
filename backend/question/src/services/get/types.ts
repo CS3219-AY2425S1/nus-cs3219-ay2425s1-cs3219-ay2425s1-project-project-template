@@ -28,22 +28,17 @@ export type IGetQuestionsResponse = IServiceResponse<{
 // /details
 //=============================================================================
 export type IGetQuestionPayload = {
-  questionNum: number;
+  questionId: number;
 };
 
 export type IGetQuestionResponse = IServiceResponse<{
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  question: {
-    // TODO: Add schema from db
-    /**
-     * - name
-     * - number
-     * - description
-     * - difficulty
-     * - topic
-     * - submissionHistory?: TBC
-     */
-  };
+  question?: {
+    title: string; // name or title of the question
+    description: string; // question description
+    difficulty: string; // difficulty level (e.g., 'easy', 'medium', 'hard')
+    topic: Array<string>; // array of topics the question belongs to
+  } | null;
 }>;
 
 //=============================================================================
@@ -56,16 +51,10 @@ export type IGetRandomQuestionPayload = {
 };
 
 export type IGetRandomQuestionResponse = IServiceResponse<{
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   question: {
-    // TODO: Add schema from db
-    /**
-     * - name
-     * - number
-     * - description
-     * - difficulty
-     * - topic
-     * - submissionHistory?: TBC
-     */
-  };
+    title: string; // name or title of the question
+    description: string; // question description
+    difficulty: string; // difficulty level (e.g., 'easy', 'medium', 'hard')
+    topic: Array<string>; // array of topics the question belongs to
+  } | null;
 }>;

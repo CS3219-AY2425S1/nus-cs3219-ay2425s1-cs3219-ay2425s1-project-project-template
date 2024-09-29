@@ -1,5 +1,60 @@
 import { Request, Response } from 'express';
-import { searchQuestionsByTitleService } from '../services/get/index';
+import {
+  getQuestionsService,
+  getQuestionDetailsService,
+  getRandomQuestionService,
+  searchQuestionsByTitleService,
+} from '../services/get/';
+import {
+  IGetQuestionsPayload,
+  IGetQuestionPayload,
+  IGetRandomQuestionPayload,
+} from '../services/get/types';
+
+export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
+  const payload: IGetQuestionsPayload = {
+    questionName: req.query.questionName as string,
+    difficulty: req.query.difficulty as string,
+    topic: req.query.topic as string[],
+    pageNum: parseInt(req.query.pageNum as string) || 0,
+    recordsPerPage: parseInt(req.query.recordsPerPage as string) || 20,
+  };
+
+  try {
+    const result = await getQuestionsService(payload);
+    return res.status(result.code).json(result);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const getQuestionDetails = async (req: Request, res: Response): Promise<Response> => {
+  const payload: IGetQuestionPayload = {
+    questionId: parseInt(req.params.questionId),
+  };
+
+  try {
+    const result = await getQuestionDetailsService(payload);
+    return res.status(result.code).json(result);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const getRandomQuestion = async (req: Request, res: Response): Promise<Response> => {
+  const payload: IGetRandomQuestionPayload = {
+    userId: parseInt(req.params.userId),
+    difficulty: req.query.difficulty as string,
+    topic: req.query.topic as string[],
+  };
+
+  try {
+    const result = await getRandomQuestionService(payload);
+    return res.status(result.code).json(result);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'An error occurred', error });
+  }
+};
 
 export const searchQuestionsByTitle = async (req: Request, res: Response): Promise<Response> => {
   const { title } = req.query;
@@ -7,12 +62,12 @@ export const searchQuestionsByTitle = async (req: Request, res: Response): Promi
   const limit = parseInt(req.query.limit as string) || 10;
 
   if (!title) {
-    return res.status(200);
+    return res.status(400).json({ success: false, message: 'Title is required' });
   }
 
   try {
     const result = await searchQuestionsByTitleService(title.toString(), page, limit);
-    return res.status(200).json(result);
+    return res.status(result.code).json(result);
   } catch (error) {
     return res.status(500).json({ success: false, message: 'An error occurred', error });
   }
