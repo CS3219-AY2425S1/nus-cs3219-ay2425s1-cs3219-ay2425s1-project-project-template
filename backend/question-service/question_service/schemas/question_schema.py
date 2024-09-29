@@ -8,7 +8,7 @@ from ..models import Difficulty
 class UpdateQuestionModel(BaseModel):
     description: Optional[str] = Field(default=None, min_length=10)
     difficulty: Optional[Difficulty] = None
-    topic: Optional[str] = Field(default=None, min_length=1, max_length=30, pattern=r"^[a-zA-Z0-9 \-]+$")
+    topic: Optional[str] = Field(default=None, min_length=1, max_length=30, pattern=r"^[a-zA-Z0-9 ]+$")
 
     class Config:
         require_by_default = False
