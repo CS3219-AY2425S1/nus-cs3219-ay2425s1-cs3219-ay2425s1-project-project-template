@@ -140,10 +140,10 @@ const QuestionModal = (props) => {
                 })}
                 className="mt-1 w-full rounded-lg bg-gray-300/10 p-2 text-sm focus:outline-none"
               >
-                <option value="">Select complexity</option>{" "}
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
+                <option value="" className="text-black">Select complexity</option>{" "}
+                <option value="Easy" className="text-black">Easy</option>
+                <option value="Medium" className="text-black">Medium</option>
+                <option value="Hard" className="text-black">Hard</option>
               </select>
               {errors.complexity && (
                 <p className="text-sm text-red-500">
