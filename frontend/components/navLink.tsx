@@ -22,7 +22,7 @@ export default function NavLink({
   }
   if (hover) {
     return (
-      <div className="p-1 rounded-md hover:bg-slate-400">
+      <div className="p-1 rounded-md hover:bg-blue-900">
         <NextLink className={className} href={href}>
           <p className="text-center">{children}</p>
         </NextLink>

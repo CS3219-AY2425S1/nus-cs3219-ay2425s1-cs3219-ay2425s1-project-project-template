@@ -47,7 +47,7 @@ export default function QuestionTable({
         return (
           <NavLink
             hover={true}
-            href={`/questions/question-description?id=${question.questionId}`}
+            href={`/questions/question-description?id=${question.questionId}&index=${question.index}`}
           >
             {questionValue}
           </NavLink>
