@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import {
-  QuestionDto,
-  CreateQuestionDto,
-  UpdateQuestionDto,
-} from "@repo/dtos/questions";
+import { Suspense, useState } from "react";
+import { Plus } from "lucide-react";
+import { QuestionDto, CreateQuestionDto } from "@repo/dtos/questions";
 import {
   Table,
   TableBody,
@@ -16,35 +12,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { QUERY_KEYS } from "@/constants/queryKeys";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CreateModal from "./components/CreateModal";
-import EditModal from "./components/EditModal";
-import {
-  createQuestion,
-  deleteQuestion,
-  fetchQuestions,
-  updateQuestion,
-} from "@/lib/api/question";
-import DeleteModal from "./components/DeleteModal";
+import { createQuestion, fetchQuestions } from "@/lib/api/question";
 import Link from "next/link";
 import DifficultyBadge from "@/components/DifficultyBadge";
+import QuestionsSkeleton from "./components/QuestionsSkeleton";
+import EmptyPlaceholder from "./components/EmptyPlaceholder";
 
-const QuestionRepository = () => {
+const QuestionRepositoryContent = () => {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [editQuestion, setEditQuestion] = useState<QuestionDto | null>(null);
-  const [delQuestion, setDelQuestion] = useState<QuestionDto | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const { data } = useQuery<QuestionDto[]>({
+  const { data } = useSuspenseQuery<QuestionDto[]>({
     queryKey: [QUERY_KEYS.Question],
     queryFn: fetchQuestions,
   });
-
   const createMutation = useMutation({
     mutationFn: (newQuestion: CreateQuestionDto) => createQuestion(newQuestion),
     onMutate: () => setConfirmLoading(true),
@@ -58,43 +48,8 @@ const QuestionRepository = () => {
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (updatedQuestion: UpdateQuestionDto) =>
-      updateQuestion(updatedQuestion),
-    onMutate: () => setConfirmLoading(true),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
-      setEditModalOpen(false);
-    },
-    onSettled: () => setConfirmLoading(false),
-    onError: (error) => {
-      console.error("Error updating question:", error);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteQuestion(id),
-    onMutate: () => setConfirmLoading(true),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
-      setDeleteModalOpen(false);
-    },
-    onSettled: () => setConfirmLoading(false),
-    onError: (error) => {
-      console.error("Error deleting question:", error);
-    },
-  });
-
   const handleCreateQuestion = (newQuestion: CreateQuestionDto) => {
     createMutation.mutate(newQuestion);
-  };
-
-  const handleEditQuestion = (updatedQuestion: UpdateQuestionDto) => {
-    updateMutation.mutate(updatedQuestion);
-  };
-
-  const handleDeleteQuestion = (id: string) => {
-    deleteMutation.mutate(id);
   };
 
   return (
@@ -110,92 +65,66 @@ const QuestionRepository = () => {
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Difficulty</TableHead>
-            <TableHead>Categories</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody
-          className={`${confirmLoading ? "opacity-50" : "opacity-100"}`}
-        >
-          {data?.map((question) => (
-            <TableRow key={question.id}>
-              <TableCell style={{ width: "30%" }}>
-                <Link
-                  href={`/question/${question.id}`}
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  {question.q_title}
-                </Link>
-              </TableCell>
-              <TableCell style={{ width: "10%" }}>
-                <DifficultyBadge complexity={question.q_complexity} />
-              </TableCell>
-              <TableCell style={{ width: "50%" }}>
-                <div className="flex flex-wrap gap-2 max-w-md">
-                  {question.q_category.map((category) => (
-                    <Badge key={category} variant="secondary" className="mr-2">
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell style={{ width: "10%" }}>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    disabled={confirmLoading}
-                    onClick={() => {
-                      setEditQuestion(question);
-                      setEditModalOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    disabled={confirmLoading}
-                    onClick={() => {
-                      setDelQuestion(question);
-                      setDeleteModalOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+      {data?.length === 0 ? (
+        <EmptyPlaceholder />
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Difficulty</TableHead>
+              <TableHead>Categories</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody
+            className={`${confirmLoading ? "opacity-50" : "opacity-100"}`}
+          >
+            {data?.map((question) => (
+              <TableRow key={question.id}>
+                <TableCell style={{ width: "40%" }}>
+                  <Link
+                    href={`/question/${question.id}`}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {question.q_title}
+                  </Link>
+                </TableCell>
+                <TableCell style={{ width: "10%" }}>
+                  <DifficultyBadge complexity={question.q_complexity} />
+                </TableCell>
+                <TableCell style={{ width: "50%" }}>
+                  <div className="flex flex-wrap gap-2 max-w-md">
+                    {question.q_category.map((category) => (
+                      <Badge
+                        key={category}
+                        variant="secondary"
+                        className="mr-2"
+                      >
+                        {category}
+                      </Badge>
+                    ))}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
       <CreateModal
         open={isCreateModalOpen}
         setOpen={setCreateModalOpen}
         onCreate={handleCreateQuestion}
       />
-
-      {editQuestion && (
-        <EditModal
-          open={isEditModalOpen}
-          setOpen={setEditModalOpen}
-          onSubmit={handleEditQuestion}
-          initialValues={editQuestion}
-        />
-      )}
-
-      {delQuestion && (
-        <DeleteModal
-          open={isDeleteModalOpen}
-          setOpen={setDeleteModalOpen}
-          onDelete={() => handleDeleteQuestion(delQuestion.id)}
-          questionTitle={delQuestion.q_title}
-        />
-      )}
     </div>
+  );
+};
+
+const QuestionRepository = () => {
+  return (
+    <Suspense fallback={<QuestionsSkeleton />}>
+      <QuestionRepositoryContent />
+    </Suspense>
   );
 };
 

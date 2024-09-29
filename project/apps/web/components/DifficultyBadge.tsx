@@ -7,22 +7,21 @@ interface DifficultyBadgeProps {
   className?: string;
 }
 
-const DifficultyBadge = ({ complexity, className }: DifficultyBadgeProps) => {
-  let colorClass = "";
-
+const getBadgeColor = (complexity: string) => {
   switch (complexity) {
     case COMPLEXITY.Easy:
-      colorClass = "bg-green-400 text-white hover:bg-green-400";
-      break;
+      return "bg-green-400 text-white hover:bg-green-400";
     case COMPLEXITY.Medium:
-      colorClass = "bg-yellow-400 text-white hover:bg-yellow-400";
-      break;
+      return "bg-yellow-400 text-white hover:bg-yellow-400";
     case COMPLEXITY.Hard:
-      colorClass = "bg-red-400 text-white hover:bg-red-400";
-      break;
+      return "bg-red-400 text-white hover:bg-red-400";
     default:
-      colorClass = "bg-secondary text-white";
+      return "bg-secondary text-white";
   }
+};
+
+const DifficultyBadge = ({ complexity, className }: DifficultyBadgeProps) => {
+  const colorClass = getBadgeColor(complexity);
 
   return (
     <Badge style={{ userSelect: "none" }} className={cn(className, colorClass)}>

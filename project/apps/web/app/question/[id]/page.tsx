@@ -1,11 +1,28 @@
-import { notFound } from "next/navigation";
-import { fetchQuestionById } from "@/lib/api/question";
-import { QuestionDto } from "@repo/dtos/questions";
+"use client";
+
+import { Suspense } from "react";
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { notFound, useRouter } from "next/navigation";
+import {
+  fetchQuestionById,
+  updateQuestion,
+  deleteQuestion,
+} from "@/lib/api/question";
+import { QuestionDto, UpdateQuestionDto } from "@repo/dtos/questions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import DifficultyBadge from "@/components/DifficultyBadge";
 import { Badge } from "@/components/ui/badge";
+import { QUERY_KEYS } from "@/constants/queryKeys";
+import QuestionSkeleton from "./components/QuestionSkeleton";
+import EditModal from "./components/EditModal";
+import DeleteModal from "./components/DeleteModal";
+import { useState } from "react";
 
 interface QuestionPageProps {
   params: {
@@ -13,15 +30,57 @@ interface QuestionPageProps {
   };
 }
 
-const QuestionPage = async ({ params }: QuestionPageProps) => {
-  const { id } = params;
+const QuestionPageContent = ({ id }: { id: string }) => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
-  let question: QuestionDto | null = null;
-  try {
-    question = await fetchQuestionById(id);
-  } catch (error) {
-    console.error("Error fetching question:", error);
-  }
+  const { data: question } = useSuspenseQuery<QuestionDto>({
+    queryKey: [QUERY_KEYS.Question, id],
+    queryFn: () => fetchQuestionById(id),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (updatedQuestion: UpdateQuestionDto) =>
+      updateQuestion(updatedQuestion),
+    onMutate: () => setConfirmLoading(true),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.Question, id],
+      });
+      setEditModalOpen(false);
+    },
+    onSettled: () => setConfirmLoading(false),
+    onError: (error) => {
+      console.error("Error updating question:", error);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteQuestion(id),
+    onMutate: () => setConfirmLoading(true),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.Question, id],
+      });
+      setDeleteModalOpen(false);
+      router.push("/questions");
+    },
+    onSettled: () => setConfirmLoading(false),
+    onError: (error) => {
+      console.error("Error deleting question:", error);
+    },
+  });
+
+  const handleEditQuestion = (updatedQuestion: UpdateQuestionDto) => {
+    updateMutation.mutate(updatedQuestion);
+  };
+
+  const handleDeleteQuestion = () => {
+    deleteMutation.mutate(id);
+  };
 
   if (!question) {
     return notFound();
@@ -40,7 +99,26 @@ const QuestionPage = async ({ params }: QuestionPageProps) => {
       </div>
 
       {/* Question Details */}
-      <div className="bg-white shadow-md rounded-lg p-6">
+      <div
+        className={`bg-white shadow-md rounded-lg p-6 relative ${confirmLoading ? "opacity-50" : "opacity-100"}`}
+      >
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Button
+            variant="outline"
+            disabled={confirmLoading}
+            onClick={() => setEditModalOpen(true)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={confirmLoading}
+            onClick={() => setDeleteModalOpen(true)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         <div className="flex items-center mb-4 gap-4">
           <h1 className="text-2xl font-bold text-gray-800">
             {question.q_title}
@@ -61,7 +139,35 @@ const QuestionPage = async ({ params }: QuestionPageProps) => {
           </div>
         </div>
       </div>
+
+      {question && (
+        <EditModal
+          open={isEditModalOpen}
+          setOpen={setEditModalOpen}
+          onSubmit={handleEditQuestion}
+          initialValues={question}
+        />
+      )}
+
+      {question && (
+        <DeleteModal
+          open={isDeleteModalOpen}
+          setOpen={setDeleteModalOpen}
+          onDelete={handleDeleteQuestion}
+          questionTitle={question.q_title}
+        />
+      )}
     </div>
+  );
+};
+
+const QuestionPage = ({ params }: QuestionPageProps) => {
+  const { id } = params;
+
+  return (
+    <Suspense fallback={<QuestionSkeleton />}>
+      <QuestionPageContent id={id} />
+    </Suspense>
   );
 };
 

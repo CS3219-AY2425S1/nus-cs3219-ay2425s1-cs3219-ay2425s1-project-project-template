@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useZodForm } from "@/lib/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,34 +53,21 @@ export default function CreateModal({
   });
 
   const categories = Object.values(CATEGORY);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
-  const toggleCategory = (category: string) => {
-    const updatedCategories = selectedCategories.includes(category)
-      ? selectedCategories.filter((cat) => cat !== category)
-      : [...selectedCategories, category];
-
-    setSelectedCategories(updatedCategories);
-    form.setValue("q_category", updatedCategories);
-  };
 
   const handleSubmit = (data: CreateQuestionDto) => {
-    data.q_category = selectedCategories;
     onCreate(data);
-    setOpen(false);
   };
 
   useEffect(() => {
     if (!open) {
       form.reset();
       form.clearErrors();
-      setSelectedCategories([]);
     }
   }, [open, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Create New Question</DialogTitle>
         </DialogHeader>
@@ -155,7 +142,7 @@ export default function CreateModal({
             <FormField
               control={form.control}
               name="q_category"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-black">Categories</FormLabel>
                   <FormControl>
@@ -163,11 +150,15 @@ export default function CreateModal({
                       {categories.map((cat) => (
                         <Badge
                           key={cat}
-                          onClick={() => toggleCategory(cat)}
+                          onClick={() =>
+                            field.value?.includes(cat)
+                              ? field.onChange(
+                                  field.value?.filter((value) => value !== cat),
+                                )
+                              : field.onChange([...field.value, cat])
+                          }
                           variant={
-                            selectedCategories.includes(cat)
-                              ? "default"
-                              : "secondary"
+                            field.value?.includes(cat) ? "default" : "secondary"
                           }
                           className="cursor-pointer"
                         >
@@ -189,7 +180,11 @@ export default function CreateModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="default">
+              <Button
+                type="submit"
+                variant="default"
+                disabled={Object.keys(form.formState.errors).length !== 0}
+              >
                 Create
               </Button>
             </DialogFooter>
