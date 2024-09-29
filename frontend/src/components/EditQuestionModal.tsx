@@ -257,6 +257,7 @@ const EditQuestionModal: React.FC<{
               oldTitle={oldTitle}
               oldDetails={oldDetails}
               questionID={questionID}
+              setQuestions={setQuestions}
             />}
             <button
               onClick={onEditSubmit}
