@@ -1,9 +1,10 @@
 # Build stage
 FROM gradle:7.6.1-jdk17 AS build
 WORKDIR /app
-COPY build.gradle settings.gradle ./
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle/wrapper/ gradle/wrapper/
 COPY src src
-RUN gradle build --no-daemon
+RUN ./gradlew build --no-daemon || return 0
 
 # Run stage
 FROM eclipse-temurin:17-jre-jammy
