@@ -32,7 +32,7 @@ export class QuestionDB {
   
     const query = this.questionModel.find(filterQuery);
   
-    return await query.select('questionId title categories complexity').exec();
+    return await query.select('_id, title categories complexity').exec();
   }
 
   async findOneQuestionInDB(questionId: string): Promise<Question> {

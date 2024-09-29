@@ -60,13 +60,19 @@ describe('QuestionsService', () => {
 
   describe('findAll', () => {
     it('should return an array of questions', async () => {
+      const mockQuestion2 = {
+        _id: new mongoose.Types.ObjectId(),
+        title: 'Test findAll',
+        categories: [QuestionCategory.ALGORITHMS],
+        complexity: QuestionComplexity.MEDIUM,
+      };
       const filterDto: FilterQuestionDto = {};
-      questionDB.findAllQuestionsInDB.mockResolvedValue([mockQuestion]);
+      questionDB.findAllQuestionsInDB.mockResolvedValue([mockQuestion2]);
 
       const result = await service.findAll(filterDto);
 
       expect(questionDB.findAllQuestionsInDB).toHaveBeenCalledWith(filterDto);
-      expect(result).toEqual([mockQuestion]);
+      expect(result).toEqual([mockQuestion2]);
     });
   });
 

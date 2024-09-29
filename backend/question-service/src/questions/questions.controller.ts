@@ -35,7 +35,7 @@ export class QuestionsController {
   async findAll(
     @Query('categories') categories?: QuestionCategory[],
     @Query('complexity') complexity?: QuestionComplexity
-  ) {
+  ): Promise<Partial<Question>[]> {
     try {
       const filterDto: FilterQuestionDto = {};
 

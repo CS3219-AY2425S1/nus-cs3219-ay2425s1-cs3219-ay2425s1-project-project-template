@@ -22,15 +22,6 @@ describe('QuestionsController', () => {
     complexity: QuestionComplexity.EASY,
   };
 
-  const mockQuestion2: Question = {
-    _id: new mongoose.Types.ObjectId(),
-    title: 'Second Test Question',
-    description: 'This is another test question',
-    categories: [QuestionCategory.DATA_STRUCTURES],
-    complexity: QuestionComplexity.MEDIUM,
-  };
-  
-
   const mockQuestionsService = {
     create: jest.fn(),
     findAll: jest.fn(),
@@ -90,7 +81,22 @@ describe('QuestionsController', () => {
 
   describe('findAll', () => {
     it('should return an array of questions', async () => {
-      const mockQuestions = [mockQuestion, mockQuestion2];
+      const mockQuestion3: Partial<Question> = {
+        _id: new mongoose.Types.ObjectId(),
+        title: 'Third Test Question',
+        categories: [QuestionCategory.ALGORITHMS],
+        complexity: QuestionComplexity.EASY,
+      };
+    
+      const mockQuestion4: Partial<Question> = {
+        _id: new mongoose.Types.ObjectId(),
+        title: 'Fourth Test Question',
+        categories: [QuestionCategory.DATA_STRUCTURES],
+        complexity: QuestionComplexity.MEDIUM,
+      };
+      
+    
+      const mockQuestions = [mockQuestion3, mockQuestion4];
       mockQuestionsService.findAll.mockResolvedValue(mockQuestions);
 
       const result = await controller.findAll();
@@ -100,7 +106,13 @@ describe('QuestionsController', () => {
     });
 
     it('should filter questions by category and complexity', async () => {
-      const mockQuestions = [mockQuestion];
+      const mockQuestion3: Partial<Question> = {
+        _id: new mongoose.Types.ObjectId(),
+        title: 'Third Test Question',
+        categories: [QuestionCategory.ALGORITHMS],
+        complexity: QuestionComplexity.EASY,
+      };
+      const mockQuestions = [mockQuestion3];
       mockQuestionsService.findAll.mockResolvedValue(mockQuestions);
 
       const result = await controller.findAll([QuestionCategory.ALGORITHMS], QuestionComplexity.EASY);
