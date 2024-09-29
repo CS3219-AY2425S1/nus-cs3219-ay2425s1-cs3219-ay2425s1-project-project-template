@@ -55,16 +55,15 @@ export const createQuestionSchema = z.object({
     .min(1, 'At least one example is required'),
   constraints: z.array(
     z.object({
-      constraint: z.string().min(1, 'Constraint is required'),
+      constraint: z.string().min(1),
     })
   ),
-  categories: z
-    .array(
-      z.object({
-        category: z.string().min(1),
-      })
-    )
-    .min(1, 'At least one category is required'),
+  categories: z.array(
+    z.object({
+      category: z.string().min(1),
+    })
+  ),
+
   difficulty: z.enum(DIFFICULTY_ENUM),
   link: z.string().url('Invalid URL'),
 });

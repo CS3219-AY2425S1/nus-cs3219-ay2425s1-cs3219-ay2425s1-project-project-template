@@ -9,21 +9,29 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useCreateQuestion } from '@/hooks/useQuestion';
 import { useQuestions } from '@/hooks/useQuestions';
 import { CreateQuestionData, Question } from '@/types/question';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export default function ProblemsRoute() {
   const { data: questions, isLoading } = useQuestions();
   const [open, setOpen] = useState(false);
 
-  const onSubmit = (data: CreateQuestionData) => {
-    console.log(data);
-  };
+  const { mutateAsync: createQuestion } = useCreateQuestion();
 
-  console.log(questions);
+  const onSubmit = async (data: CreateQuestionData) => {
+    try {
+      await createQuestion(data);
+      toast.success('Question created successfully');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error creating question');
+    }
+  };
 
   if (isLoading) {
     return (

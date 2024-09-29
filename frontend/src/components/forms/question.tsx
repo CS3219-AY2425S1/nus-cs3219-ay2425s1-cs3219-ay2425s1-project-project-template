@@ -1,54 +1,61 @@
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  CATEGORY_ENUM,
-  CreateQuestionData,
-  createQuestionSchema,
+    CATEGORY_ENUM,
+    CreateQuestionData,
+    createQuestionSchema,
 } from '@/types/question';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Trash } from 'lucide-react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Loader2, Trash } from 'lucide-react';
+import {
+    FieldErrors,
+    SubmitHandler,
+    useFieldArray,
+    useForm,
+} from 'react-hook-form';
 
 type QuestionFormProps = {
-  onSubmit: (data: CreateQuestionData) => void;
+  onSubmit: SubmitHandler<CreateQuestionData>;
 };
 
 export function QuestionForm({ onSubmit }: QuestionFormProps) {
   const form = useForm<CreateQuestionData>({
     resolver: zodResolver(createQuestionSchema),
     defaultValues: {
-      title: '',
-      description: '',
-      examples: [{ input: '', output: '' }],
+      title: 'Two Sum',
+      description:
+        'Given an array of integers, return indices of the two numbers such that they add up to a specific target.',
+      examples: [{ input: 'hello', output: 'world' }],
       constraints: [],
       categories: [],
       difficulty: 'Easy',
-      link: '',
+      link: 'https://leetcode.com/problems/two-sum/',
     },
   });
+
   const examplesControl = useFieldArray({
     control: form.control,
     name: 'examples',
@@ -64,9 +71,16 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
     name: 'categories',
   });
 
+  const onErrors = (errors: FieldErrors<CreateQuestionData>) => {
+    console.error(errors);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+      <form
+        onSubmit={form.handleSubmit(onSubmit, onErrors)}
+        className='space-y-4'
+      >
         <FormField
           control={form.control}
           name='title'
@@ -74,7 +88,11 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder='Two Sum' {...field} />
+                <Input
+                  placeholder='Two Sum'
+                  disabled={form.formState.isSubmitting}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -89,8 +107,9 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
               <FormControl>
                 <Textarea
                   placeholder='Describe the problem...'
-                  {...field}
                   rows={6}
+                  disabled={form.formState.isSubmitting}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -110,8 +129,9 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                     <FormControl>
                       <Input
                         placeholder='Input'
-                        {...field}
                         className='w-full'
+                        disabled={form.formState.isSubmitting}
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -125,6 +145,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                   type='button'
                   onClick={() => examplesControl.remove(index)}
                   className='flex-shrink-0'
+                  disabled={form.formState.isSubmitting}
                 >
                   <Trash className='w-4 h-4' />
                 </Button>
@@ -137,7 +158,11 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder='Output' {...field} />
+                    <Input
+                      placeholder='Output'
+                      {...field}
+                      disabled={form.formState.isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,6 +176,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
           size='sm'
           type='button'
           onClick={() => examplesControl.append({ input: '', output: '' })}
+          disabled={form.formState.isSubmitting}
         >
           Add Example
         </Button>
@@ -168,7 +194,11 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
             <FormLabel>Constraint {index + 1}</FormLabel>
             <div className='flex gap-2'>
               <FormControl>
-                <Input placeholder='Add constraint' {...field} />
+                <Input
+                  placeholder='Add constraint'
+                  {...field}
+                  disabled={form.formState.isSubmitting}
+                />
               </FormControl>
 
               <Button
@@ -177,6 +207,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                 type='button'
                 className='flex-shrink-0'
                 onClick={() => constraintsControl.remove(index)}
+                disabled={form.formState.isSubmitting}
               >
                 <Trash className='w-4 h-4' />
               </Button>
@@ -189,6 +220,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
           size='sm'
           type='button'
           onClick={() => constraintsControl.append({ constraint: '' })}
+          disabled={form.formState.isSubmitting}
         >
           Add Constraint
         </Button>
@@ -200,12 +232,21 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
             <p className='text-sm text-gray-500'>No categories added</p>
           </div>
         )}
+
         {categoriesControl.fields.map((field, index) => (
           <FormItem className='flex-grow'>
             <FormLabel>Category {index + 1}</FormLabel>
             <div key={field.id} className='flex gap-2'>
               <FormControl>
-                <Select {...field}>
+                <Select
+                  onValueChange={(value) => {
+                    categoriesControl.update(index, {
+                      category: value,
+                    });
+                  }}
+                  value={field.category}
+                  disabled={form.formState.isSubmitting}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder='Select a category' />
                   </SelectTrigger>
@@ -224,6 +265,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                 type='button'
                 className='flex-shrink-0'
                 onClick={() => categoriesControl.remove(index)}
+                disabled={form.formState.isSubmitting}
               >
                 <Trash className='w-4 h-4' />
               </Button>
@@ -236,6 +278,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
           size='sm'
           type='button'
           onClick={() => categoriesControl.append({ category: '' })}
+          disabled={form.formState.isSubmitting}
         >
           Add Category
         </Button>
@@ -247,7 +290,13 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
             <FormItem>
               <FormLabel>Difficulty</FormLabel>
               <FormControl>
-                <Select {...field}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  disabled={form.formState.isSubmitting}
+                  value={field.value}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder='Select a difficulty' />
                   </SelectTrigger>
@@ -270,6 +319,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
               <FormLabel>Link to Leetcode</FormLabel>
               <FormControl>
                 <Input
+                  disabled={form.formState.isSubmitting}
                   type='url'
                   placeholder='E.g. https://leetcode.com/problems/two-sum/'
                   {...field}
@@ -280,8 +330,15 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
           )}
         />
 
-        <Button type='submit' className='w-full'>
-          Submit
+        <Button
+          type='submit'
+          className='w-full'
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting && (
+            <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+          )}
+          {form.formState.isSubmitting ? 'Submitting...' : 'Submit'}
         </Button>
       </form>
     </Form>
@@ -295,7 +352,7 @@ export function QuestionDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateQuestionData) => void;
+  onSubmit: SubmitHandler<CreateQuestionData>;
 }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -304,7 +361,12 @@ export function QuestionDialog({
           <DialogTitle>Create Question</DialogTitle>
           <DialogDescription>Create a new question</DialogDescription>
         </DialogHeader>
-        <QuestionForm onSubmit={onSubmit} />
+        <QuestionForm
+          onSubmit={async (data) => {
+            await onSubmit(data);
+            onClose();
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
