@@ -1,5 +1,5 @@
 // src/App.js
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -13,6 +13,14 @@ import "./styles/App.css"; // css file
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const immediatelyDirectToQuestionPage = false; 
+
+  // Effect to handle navigation
+  useEffect(() => {
+    if (immediatelyDirectToQuestionPage) {
+      navigate("/questions");
+    }
+  }, [immediatelyDirectToQuestionPage, navigate]);
 
   return (
     <div
