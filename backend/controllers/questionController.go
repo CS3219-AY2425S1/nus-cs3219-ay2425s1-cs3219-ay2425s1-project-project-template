@@ -4,6 +4,7 @@ import (
 	"backend/database"
 	helper "backend/helpers"
 	"backend/models"
+	"log"
 
 	"context"
 	"fmt"
@@ -223,6 +224,7 @@ func AddQuestionToDb() gin.HandlerFunc {
 		}
 
 		helper.ParseQuestionForDb(&question)
+		helper.CreateUniqueIdQuestion(&question)
 
 		_, err := coll.InsertOne(ctx, question)
 		if err != nil {
@@ -234,4 +236,81 @@ func AddQuestionToDb() gin.HandlerFunc {
 			"message": "Question added successfully",
 		})
 	}
+}
+
+func UpdateQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var updatedQuestion models.Question
+	if err := c.ShouldBindJSON(&updatedQuestion); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+		return
+	}
+
+	fmt.Printf("Updated Question: %+v\n", updatedQuestion)
+
+	filter := bson.M{"_id": updatedQuestion.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"title":       updatedQuestion.Title,
+			"description": updatedQuestion.Description,
+			"categories":  updatedQuestion.Categories,
+			"complexity":  updatedQuestion.Complexity,
+			"link":        updatedQuestion.Link,
+		},
+	}
+
+	result, err := coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating question", "error": err.Error()})
+		return
+	}
+
+	if result.MatchedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Question not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Question updated successfully"})
+}
+
+func DeleteQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// var jsonBody map[string]string
+	// if err := c.ShouldBindJSON(&jsonBody); err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+	// 	return
+	// }
+
+	id := c.Query("id")
+	log.Print(id)
+
+	if id == "" {
+ 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+		return
+	}
+
+	// id, exists := jsonBody["_id"]
+	// if !exists {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "Missing '_id' field in request body"})
+	// 	return
+	// }
+
+	filter := bson.M{"_id": id}
+	result, err := coll.DeleteOne(ctx, filter)
+
+	if result.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Question not found"})
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error deleting question", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Question deleted successfully"})
 }
