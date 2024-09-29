@@ -5,6 +5,7 @@ import axios from "axios";
 import { Question, QuestionRequest } from "./questionService";
 import logo from "/peerprep_logo.png";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
+import { useApiContext } from "../../context/ApiContext";
 import {
   Badge,
   Box,
@@ -21,9 +22,7 @@ import {
   ButtonGroup,
   IconButton,
 } from "@chakra-ui/react";
-import { useApiContext } from "../../context/ApiContext";
-
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import MenuDrawer from "../../components/layout/MenuDrawer";
 import { FiAlignJustify } from "react-icons/fi";
 import Filters from "../../components/Filter";
@@ -37,6 +36,7 @@ import { a } from "framer-motion/client";
 type QuestionViewProps = {
   questions: Question[];
   refetchQuestions: () => Promise<QueryObserverResult<Question[], Error>>;
+  // onDeleteQuestion: (title: string) => void;
 };
 
 const QuestionView: React.FC<QuestionViewProps> = ({
@@ -208,6 +208,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({
                 setSelectedQuestion(row.original);
                 onQuestionModalOpen();
                 onMenuClose();
+              }}
+            />
+            {/* Delete Button */}
+            <IconButton
+              icon={<Icon as={FaTrash} />}
+              aria-label="Delete"
+              colorScheme="red"
+              onClick={() => {
+                // onDeleteQuestion(row.original.Title); // Call the delete handler
               }}
             />
           </ButtonGroup>

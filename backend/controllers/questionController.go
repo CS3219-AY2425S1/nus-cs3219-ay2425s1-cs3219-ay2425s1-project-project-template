@@ -2,11 +2,14 @@ package controllers
 
 import (
 	"backend/database"
+	helper "backend/helpers"
 	"backend/models"
+	"log"
 
 	"context"
 	"fmt"
-	"log"
+
+	// "log"
 	"strconv"
 	"strings"
 
@@ -20,9 +23,9 @@ import (
 
 var coll *mongo.Collection = database.OpenCollection(database.Client, "question_db", "questions")
 
-func init() {
-	addQuestionsToDb()
-}
+// func init() {
+// 	addQuestionsToDb()
+// }
 
 func GetQuestions() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -91,87 +94,87 @@ func GetQuestionsById(c *gin.Context) {
 }
 
 // Util functions
-func addQuestionsToDb() {
-	leetCodeQuestions := []interface{}{
-		models.Question{
-			Title: "Reverse a String",
-			Description: `Write a function that 
-reverses a string. The 
-input string is given as 
-an array of characters 
-s. 
+// func addQuestionsToDb() {
+// 	leetCodeQuestions := []interface{}{
+// 		models.Question{
+// 			Title: "Reverse a String",
+// 			Description: `Write a function that 
+// reverses a string. The 
+// input string is given as 
+// an array of characters 
+// s. 
   
-You must do this by 
-modifying the input 
-array in-place with 
-O(1) extra memory. 
+// You must do this by 
+// modifying the input 
+// array in-place with 
+// O(1) extra memory. 
   
   
-Example 1: 
+// Example 1: 
   
-Input: s = 
-["h","e","l","l","o"] 
-Output: 
-["o","l","l","e","h"] 
-Example 2: 
+// Input: s = 
+// ["h","e","l","l","o"] 
+// Output: 
+// ["o","l","l","e","h"] 
+// Example 2: 
   
-Input: s = 
-["H","a","n","n","a","
- h"] 
-Output: 
-["h","a","n","n","a","
- H"] 
+// Input: s = 
+// ["H","a","n","n","a","
+//  h"] 
+// Output: 
+// ["h","a","n","n","a","
+//  H"] 
   
-Constraints: 
+// Constraints: 
   
-1 <= s.length <= 105 
-s[i] is a printable ascii 
-character.`,
-			Categories: "Strings, Algorithms",
-			Complexity: "Easy",
-			Link:       "https://leetcode.com/problems/reverse-string/",
-		},
-		models.Question{
-			Title: "Two Sum",
-			Description: `
-Implement a function 
-to detect if a linked 
-list contains a cycle.
-			`,
-			Categories: "Data Structures, Algorithms",
-			Complexity: "Easy",
-			Link:       "https://leetcode.com/problems/two-sum/",
-		},
-		models.Question{
-			Title: "Roman To Integer",
-			Description: `
-Given a roman 
-numeral, convert it to 
-an integer.  
-`,
-			Categories: "Algorithms",
-			Complexity: "Easy",
-			Link:       "https://leetcode.com/problems/roman-to-integer/",
-		},
-	}
+// 1 <= s.length <= 105 
+// s[i] is a printable ascii 
+// character.`,
+// 			Categories: "Strings, Algorithms",
+// 			Complexity: "Easy",
+// 			Link:       "https://leetcode.com/problems/reverse-string/",
+// 		},
+// 		models.Question{
+// 			Title: "Two Sum",
+// 			Description: `
+// Implement a function 
+// to detect if a linked 
+// list contains a cycle.
+// 			`,
+// 			Categories: "Data Structures, Algorithms",
+// 			Complexity: "Easy",
+// 			Link:       "https://leetcode.com/problems/two-sum/",
+// 		},
+// 		models.Question{
+// 			Title: "Roman To Integer",
+// 			Description: `
+// Given a roman 
+// numeral, convert it to 
+// an integer.  
+// `,
+// 			Categories: "Algorithms",
+// 			Complexity: "Easy",
+// 			Link:       "https://leetcode.com/problems/roman-to-integer/",
+// 		},
+// 	}
 
-	_, err := coll.DeleteMany(context.TODO(), bson.D{})
-	if err != nil {
-		log.Fatal("Error deleting questions collection: ", err)
-	}
+// 	_, err := coll.DeleteMany(context.TODO(), bson.D{})
+// 	if err != nil {
+// 		log.Fatal("Error deleting questions collection: ", err)
+// 	}
 
-	result, err := coll.InsertMany(context.TODO(), leetCodeQuestions)
+// 	result, err := coll.InsertMany(context.TODO(), leetCodeQuestions)
 
-	if err != nil {
-		log.Fatal("Error inserting questions collection: ", err)
-	}
+// 	if err != nil {
+// 		log.Fatal("Error inserting questions collection: ", err)
+// 	}
 
-	fmt.Printf("Documents inserted: %v\n", len(result.InsertedIDs))
-	for _, id := range result.InsertedIDs {
-		fmt.Printf("Inserted document with _id: %v\n", id)
-	}
+// 	fmt.Printf("Documents inserted: %v\n", len(result.InsertedIDs))
+// 	for _, id := range result.InsertedIDs {
+// 		fmt.Printf("Inserted document with _id: %v\n", id)
+// 	}
 
-}
+// }
 
 // func AddQuestionToDb(title, description, categories, complexity, link string) {
 // 	question := models.Question{
@@ -191,10 +194,6 @@ an integer.
 // 	fmt.Printf("Document inserted with _id: %v\n", result.InsertedID)
 // }
 
-func validateQuestion(question *models.Question) bool {
-	return question.Title != "" && question.Description != "" &&
-		question.Categories != "" && question.Complexity != "" && question.Link != ""
-}
 
 func AddQuestionToDb() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -209,10 +208,23 @@ func AddQuestionToDb() gin.HandlerFunc {
 		}
 
 		// Validate required fields
-		if !validateQuestion(&question) {
+		if !helper.IsQuestionFieldsEmpty(&question) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
 			return
 		}
+
+		if !helper.IsValidComplexity(&question) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Complexity should be either easy, medium or hard"})
+			return
+		}
+
+		if !helper.HasDuplicateTitle(&question, coll, ctx) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Question with the same title already exists"})
+			return
+		}
+
+		helper.ParseQuestionForDb(&question)
+		helper.CreateUniqueIdQuestion(&question)
 
 		_, err := coll.InsertOne(ctx, question)
 		if err != nil {
@@ -224,4 +236,81 @@ func AddQuestionToDb() gin.HandlerFunc {
 			"message": "Question added successfully",
 		})
 	}
+}
+
+func UpdateQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var updatedQuestion models.Question
+	if err := c.ShouldBindJSON(&updatedQuestion); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+		return
+	}
+
+	fmt.Printf("Updated Question: %+v\n", updatedQuestion)
+
+	filter := bson.M{"_id": updatedQuestion.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"title":       updatedQuestion.Title,
+			"description": updatedQuestion.Description,
+			"categories":  updatedQuestion.Categories,
+			"complexity":  updatedQuestion.Complexity,
+			"link":        updatedQuestion.Link,
+		},
+	}
+
+	result, err := coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating question", "error": err.Error()})
+		return
+	}
+
+	if result.MatchedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Question not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Question updated successfully"})
+}
+
+func DeleteQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// var jsonBody map[string]string
+	// if err := c.ShouldBindJSON(&jsonBody); err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+	// 	return
+	// }
+
+	id := c.Query("id")
+	log.Print(id)
+
+	if id == "" {
+ 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+		return
+	}
+
+	// id, exists := jsonBody["_id"]
+	// if !exists {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "Missing '_id' field in request body"})
+	// 	return
+	// }
+
+	filter := bson.M{"_id": id}
+	result, err := coll.DeleteOne(ctx, filter)
+
+	if result.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Question not found"})
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error deleting question", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Question deleted successfully"})
 }
