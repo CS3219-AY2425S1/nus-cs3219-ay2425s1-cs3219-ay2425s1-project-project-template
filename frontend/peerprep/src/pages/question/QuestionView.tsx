@@ -1,9 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { QueryObserverResult } from "@tanstack/react-query";
-import axios from "axios";
 
 import { Question, QuestionRequest } from "./questionService";
-import logo from "/peerprep_logo.png";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
 import { useApiContext } from "../../context/ApiContext";
 import {
@@ -24,14 +22,11 @@ import {
 } from "@chakra-ui/react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import MenuDrawer from "../../components/layout/MenuDrawer";
-import { FiAlignJustify } from "react-icons/fi";
 import Filters from "../../components/Filter";
 import { COMPLEXITIES, CATEGORIES } from "../../constants/data";
 import DataTable from "../../components/DataTable";
 import QuestionModal from "../../components/QuestionModal";
-import { toast, Zoom } from "react-toastify";
-import { Axios, AxiosError } from "axios";
-import { a } from "framer-motion/client";
+import { toast } from "react-toastify";
 
 type QuestionViewProps = {
   questions: Question[];
@@ -107,7 +102,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onQuestionModalClose(); // Close the modal after adding
   };
 
-  const handleEdit = (updatedQuestion: {
+  const handleEdit = async (updatedQuestion: {
     title: string;
     description: string;
     categories: string;
@@ -124,10 +119,52 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         link: updatedQuestion.link,
       };
       // Logic to save the edited question
-      console.log("Editing Question:", newQuestionWithId);
-      setSelectedQuestion(newQuestionWithId);
+      try {
+        const response = await api.put("/questionsById", newQuestionWithId);
+        if (response.status === 200) {
+          toast.success("Question updated successfully");
+        }
+      } catch (error: any) {
+        if (error.response && error.response.status === 400) {
+          // Backend-specific error handling for 400 Bad Request
+          toast.error(
+            `Failed to add question: ${
+              error.response.data.error || "Invalid data provided"
+            }`
+          );
+        } else {
+          // General error handling
+          toast.error("Failed to add question.");
+        }
+        console.error("Error adding question:", error);
+      }
+      await refetchQuestions();
+      setSelectedQuestion(null);
       onQuestionModalClose();
     }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await api.delete(`/questionsById?id=${id}`);
+      if (response.status === 200) {
+        toast.success("Question deleted successfully");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        // Backend-specific error handling for 400 Bad Request
+        toast.error(
+          `Failed to delete question: ${
+            error.response.data.error || "Invalid data provided"
+          }`
+        );
+      } else {
+        // General error handling
+        toast.error("Failed to delete question.");
+      }
+    }
+
+    await refetchQuestions();
   };
 
   const getComplexityColor = (complexity: string) => {
@@ -216,6 +253,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               aria-label="Delete"
               colorScheme="red"
               onClick={() => {
+                handleDelete(row.original.ID);
                 // onDeleteQuestion(row.original.Title); // Call the delete handler
               }}
             />
