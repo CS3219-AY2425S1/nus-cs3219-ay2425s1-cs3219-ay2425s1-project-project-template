@@ -118,16 +118,16 @@ const Dashboard = () => {
   }, [sortBy]);
 
   useEffect(() => {
-    const filtered = questionAttempts.filter((attempt) =>
-      attempt.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      attempt.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      attempt.difficulty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      attempt.peer.toLowerCase().includes(searchQuery.toLowerCase()) // Add checks for peer and difficulty as well
+    const filtered = questionAttempts.filter(
+      (attempt) =>
+        attempt.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        attempt.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        attempt.difficulty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        attempt.peer.toLowerCase().includes(searchQuery.toLowerCase()) // Add checks for peer and difficulty as well
     );
     setFilteredQuestions(filtered);
     setCurrentPage(1);
   }, [searchQuery]);
-  
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -135,19 +135,19 @@ const Dashboard = () => {
 
   const highlightText = (text: string, searchQuery: string) => {
     if (!searchQuery) return text;
-  
+
     // Escape special regex characters in the search query
     const escapeRegExp = (string: string) => {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     };
-  
+
     // Create a regular expression for the search term
     const escapedSearchTerm = escapeRegExp(searchQuery);
-    const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
-  
+    const regex = new RegExp(`(${escapedSearchTerm})`, "gi");
+
     // Split the text by the search term
     const parts = text.split(regex);
-  
+
     return (
       <>
         {parts.map((part, index) =>
@@ -265,10 +265,18 @@ const Dashboard = () => {
                 <TableBody>
                   {currentEntries.map((attempt, index) => (
                     <TableRow key={index}>
-                      <TableCell>{highlightText(attempt.question, searchQuery)}</TableCell>
-                      <TableCell>{highlightText(attempt.topic, searchQuery)}</TableCell>
-                      <TableCell>{highlightText(attempt.peer,searchQuery)}</TableCell>
-                      <TableCell>{highlightText(attempt.difficulty,searchQuery)}</TableCell>
+                      <TableCell>
+                        {highlightText(attempt.question, searchQuery)}
+                      </TableCell>
+                      <TableCell>
+                        {highlightText(attempt.topic, searchQuery)}
+                      </TableCell>
+                      <TableCell>
+                        {highlightText(attempt.peer, searchQuery)}
+                      </TableCell>
+                      <TableCell>
+                        {highlightText(attempt.difficulty, searchQuery)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
