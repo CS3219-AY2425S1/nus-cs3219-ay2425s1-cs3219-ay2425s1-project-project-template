@@ -13,7 +13,7 @@ import "./styles/App.css"; // css file
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const immediatelyDirectToQuestionPage = false; 
+  const immediatelyDirectToQuestionPage = true; 
 
   // Effect to handle navigation
   useEffect(() => {
