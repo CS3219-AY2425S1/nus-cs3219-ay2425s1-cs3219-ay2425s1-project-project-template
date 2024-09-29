@@ -152,19 +152,17 @@ export default function QuestionsPage() {
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-xl font-bold mb-4">Create New Question</h2>
-                        
-                        <AddQuestionForm onClose={handleCloseAddCard} />
+                    <AddQuestionForm onClose={handleCloseCard} refetch={fetchQuestions} />    
                         </div>
                     </div>
                     )}
 
                 {/* Popup card for the edit question form */}
-                {isEditQuestionDisplayed && (
+                    {isEditQuestionDisplayed && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                        <h2 className="text-xl font-bold mb-4">Edit Question</h2>
-                        
-                        <EditQuestionForm questionId={questionId} onClose={handleCloseEditCard} />
+                          <h2 className="text-xl font-bold mb-4">Edit Question</h2>
+                    <EditQuestionForm questionId={questionId} onClose={handleCloseEditCard} />
                         </div>
                     </div>
                     )}
