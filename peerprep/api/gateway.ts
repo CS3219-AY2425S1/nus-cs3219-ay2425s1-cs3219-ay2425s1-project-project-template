@@ -43,13 +43,13 @@ export async function fetchQuestion(
     );
     if (!response.ok) {
       return {
-        ...(await response.json()),
+        error: await response.text(),
         status: response.status,
       };
     }
     return (await response.json()) as Question;
   } catch (err: any) {
-    return { error: err.message, status: 0 };
+    return { error: err.message, status: 400 };
   }
 }
 
