@@ -1,7 +1,16 @@
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from "@nextui-org/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { PencilIcon, TrashIcon } from "../icons";
+
+import { PencilIcon, TrashIcon } from "@/components/icons";
 import { useDeleteQuestions } from "@/hooks/questions";
 import { Question } from "@/types/questions";
 
@@ -29,6 +38,7 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
     if (!question.questionId) {
       console.error("Question ID is undefined, cannot delete question.");
       setIsDeleting(false);
+
       return;
     }
 

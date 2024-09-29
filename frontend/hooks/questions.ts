@@ -7,16 +7,17 @@ import { Question, QuestionList } from "@/types/questions";
 
 const fetchQuestionFromPage = async (page: number) => {
   const { data } = await axios.get(`/questions?page=${page}&limit=10`);
+
   return data;
-}
+};
+
 // Fetch questions list
 export const useQuestions = (page: number) => {
   return useQuery<QuestionList, Error>({
     queryKey: ["questions", page],
-    queryFn: () => fetchQuestionFromPage(page), // Corrected syntax
+    queryFn: () => fetchQuestionFromPage(page),
   });
 };
-
 
 // Fetch a single question
 export const useGetQuestion = (id: string) => {

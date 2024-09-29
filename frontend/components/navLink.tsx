@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 interface NavLinkProps {
   children: ReactNode;
-  href: string,
+  href: string;
   isActive: boolean;
 }
 export default function NavLink({ href, isActive, children }: NavLinkProps) {

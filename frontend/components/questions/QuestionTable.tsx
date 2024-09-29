@@ -1,6 +1,5 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { Key as ReactKey } from "react";
-
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
 import {
@@ -11,8 +10,10 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
+import { Pagination } from "@nextui-org/pagination";
 
 import NavLink from "../navLink";
+
 import CategoryTags from "@/components/questions/CategoryTags";
 import DifficultyTags from "@/components/questions/DifficultyTags";
 import ActionButtons from "@/components/questions/ActionButtons";
@@ -20,7 +21,9 @@ import { Question } from "@/types/questions";
 
 interface QuestionTableProps {
   questions: Question[];
-  bottomContent: React.ReactNode;
+  totalPages: number;
+  pageNumber: number;
+  handlePageOnClick: (page: number) => void;
 }
 
 const columns = [
@@ -31,14 +34,29 @@ const columns = [
   { name: "Action", uid: "action" },
 ];
 
-export default function QuestionTable({ questions, bottomContent }: QuestionTableProps) {
-  questions = questions.map((question, idx) => ({ ...question, index: idx + 1 }));
+const QuestionTable: React.FC<QuestionTableProps> = ({
+  questions,
+  totalPages,
+  pageNumber,
+  handlePageOnClick,
+}) => {
+  questions = questions.map((question, idx) => ({
+    ...question,
+    index: idx + 1,
+  }));
   const renderCell = useCallback((question: Question, columnKey: ReactKey) => {
     const questionValue = question[columnKey as keyof Question];
 
     switch (columnKey) {
       case "index": {
-        return <NavLink href={`/questions/question-description?id=${question.questionId}`} isActive={true}>{questionValue}</NavLink>
+        return (
+          <NavLink
+            href={`/questions/question-description?id=${question.questionId}`}
+            isActive={true}
+          >
+            {questionValue}
+          </NavLink>
+        );
       }
       case "title": {
         const titleString: string = questionValue as string;
@@ -76,7 +94,23 @@ export default function QuestionTable({ questions, bottomContent }: QuestionTabl
         </Button>
       </div>
       <div className="mt-5 h-52 w-full">
-        <Table aria-label="Example table with index" bottomContent={bottomContent}>
+        <Table
+          aria-label="Question Table"
+          bottomContent={
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="secondary"
+                loop={true}
+                page={pageNumber}
+                total={totalPages}
+                onChange={handlePageOnClick}
+              />
+            </div>
+          }
+        >
           <TableHeader columns={columns}>
             {(column) => (
               <TableColumn
@@ -100,4 +134,6 @@ export default function QuestionTable({ questions, bottomContent }: QuestionTabl
       </div>
     </div>
   );
-}
+};
+
+export default QuestionTable;

@@ -4,9 +4,7 @@ import {
   NavbarBrand,
   NavbarItem,
 } from "@nextui-org/navbar";
-import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
-import { Input } from "@nextui-org/input";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 
@@ -14,7 +12,7 @@ import NavLink from "./navLink";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
+import { GithubIcon, Logo } from "@/components/icons";
 
 export const Navbar = () => {
   const router = useRouter();
