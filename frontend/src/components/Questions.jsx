@@ -23,6 +23,7 @@ const Questions = () => {
         setQuestions(questions);
       } catch (error) {
         console.error("Error fetching questions:", error);
+        toast.error("Failed to fetch questions");
       }
     };
 
@@ -34,6 +35,7 @@ const Questions = () => {
       const response = await deleteQuestion(id);
       const updatedQuestions = questions.filter((q) => q._id !== id);
       setQuestions(updatedQuestions);
+      toast.success("Question deleted successfully");
     } catch (error) {
       console.error("Error deleting question:", error);
       toast.error("Failed to delete question");

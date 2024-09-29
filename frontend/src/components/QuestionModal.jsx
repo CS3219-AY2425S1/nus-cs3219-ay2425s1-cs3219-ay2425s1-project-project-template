@@ -30,6 +30,7 @@ const QuestionModal = (props) => {
     try {
       const response = await createQuestion(questionData);
       setQuestions((prevQuestions) => [...prevQuestions, response]);
+      toast.success("Question created successfully");
       closeModal();
     } catch (error) {
       toast.error("Failed to create question");
@@ -46,6 +47,7 @@ const QuestionModal = (props) => {
           return q._id === question._id ? updatedQuestion : q;
         }),
       );
+      toast.success("Question updated successfully");
       closeModal();
     } catch (error) {
       toast.error("Failed to update question");
@@ -140,10 +142,18 @@ const QuestionModal = (props) => {
                 })}
                 className="mt-1 w-full rounded-lg bg-gray-300/10 p-2 text-sm focus:outline-none"
               >
-                <option value="" className="text-black">Select complexity</option>{" "}
-                <option value="Easy" className="text-black">Easy</option>
-                <option value="Medium" className="text-black">Medium</option>
-                <option value="Hard" className="text-black">Hard</option>
+                <option value="" className="text-black">
+                  Select complexity
+                </option>{" "}
+                <option value="Easy" className="text-black">
+                  Easy
+                </option>
+                <option value="Medium" className="text-black">
+                  Medium
+                </option>
+                <option value="Hard" className="text-black">
+                  Hard
+                </option>
               </select>
               {errors.complexity && (
                 <p className="text-sm text-red-500">
