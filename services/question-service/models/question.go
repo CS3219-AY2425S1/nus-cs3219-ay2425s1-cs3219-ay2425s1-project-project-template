@@ -8,6 +8,13 @@ import (
 
 type ComplexityType int
 
+//const (
+//	Empty ComplexityType = iota
+//	Easy
+//	Medium
+//	Hard
+//)
+
 const (
 	Easy ComplexityType = iota
 	Medium
@@ -40,6 +47,7 @@ func ParseComplexity(complexityStr string) (ComplexityType, error) {
 	case "hard":
 		return Hard, nil
 	default:
+		//return Empty, fmt.Errorf("invalid complexity level: %s", complexityStr)
 		return Easy, fmt.Errorf("invalid complexity level: %s", complexityStr)
 	}
 }
