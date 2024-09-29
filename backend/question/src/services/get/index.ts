@@ -1,4 +1,4 @@
-import { and, arrayOverlaps, eq, ilike, notInArray, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, eq, ilike, inArray, not, sql } from 'drizzle-orm';
 
 import { db } from '@/lib/db/index';
 import { questions } from '@/lib/db/schema';
@@ -92,30 +92,44 @@ export const getQuestionDetailsService = async (
 export const getRandomQuestionService = async (
   payload: IGetRandomQuestionPayload
 ): Promise<IGetRandomQuestionResponse> => {
-  const { attemptedQuestions, difficulty, topic } = payload;
+  const { difficulty, topic, attemptedQuestions } = payload;
   const whereClause = [];
 
+  console.log('Starting query construction');
+
   if (difficulty) {
+    console.log(`Adding difficulty filter: ${difficulty}`);
     whereClause.push(eq(questions.difficulty, difficulty));
   }
 
-  if (topic && topic.length > 0) {
-    whereClause.push(arrayOverlaps(questions.topic, topic));
+  const topicArray = (Array.isArray(topic) ? topic : [topic]).filter(
+    (t): t is string => t !== undefined
+  );
+  if (topicArray.length > 0) {
+    whereClause.push(arrayOverlaps(questions.topic, topicArray));
   }
 
   if (attemptedQuestions && attemptedQuestions.length > 0) {
-    whereClause.push(notInArray(questions.id, attemptedQuestions));
+    console.log(`Excluding attempted questions: ${attemptedQuestions.join(', ')}`);
+    whereClause.push(not(inArray(questions.id, attemptedQuestions)));
   }
 
-  // randomize the order of questions
-  const query = db
-    .select()
-    .from(questions)
-    .where(and(...whereClause))
-    .orderBy(sql`RANDOM()`)
-    .limit(1);
+  console.log(`Where clause conditions: ${whereClause.length}`);
+
+  let query = db.select().from(questions);
+
+  if (whereClause.length > 0) {
+    query = query.where(and(...whereClause)) as typeof query;
+  }
+
+  query = (query as any).orderBy(sql`RANDOM()`).limit(1);
+
+  console.log('Executing query');
+  console.log(query.toSQL()); // This will log the SQL query
 
   const result = await query;
+
+  console.log(`Query result: ${JSON.stringify(result)}`);
 
   if (result.length === 0) {
     return {
@@ -126,7 +140,6 @@ export const getRandomQuestionService = async (
       },
     };
   }
-
   return {
     code: StatusCodes.OK,
     data: { question: result[0] },
