@@ -1,14 +1,16 @@
-import { db } from '../../lib/db/index';
 import { and, arrayOverlaps, eq, ilike, notInArray, sql } from 'drizzle-orm';
-import { questions } from '../../lib/db/schema';
-import {
+
+import { db } from '@/lib/db/index';
+import { questions } from '@/lib/db/schema';
+
+import type {
   IGetQuestionsPayload,
   IGetQuestionsResponse,
   IGetQuestionPayload,
   IGetQuestionResponse,
   IGetRandomQuestionPayload,
   IGetRandomQuestionResponse,
-} from '../get/types';
+} from './types';
 
 export const getQuestionsService = async (
   payload: IGetQuestionsPayload

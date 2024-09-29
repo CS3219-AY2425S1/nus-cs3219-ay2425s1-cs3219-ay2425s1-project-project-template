@@ -4,12 +4,12 @@ import {
   getQuestionDetailsService,
   getRandomQuestionService,
   searchQuestionsByTitleService,
-} from '../services/get/index';
-import {
+} from '@/services/get/index';
+import type {
   IGetQuestionsPayload,
   IGetQuestionPayload,
   IGetRandomQuestionPayload,
-} from '../services/get/types';
+} from '@/services/get/types';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
   const payload: IGetQuestionsPayload = {

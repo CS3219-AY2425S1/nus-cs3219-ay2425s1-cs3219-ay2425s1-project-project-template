@@ -1,10 +1,11 @@
 import { Router } from 'express';
+
 import {
   searchQuestionsByTitle,
   getQuestions,
   getQuestionDetails,
   getRandomQuestion,
-} from '../controller/question-controller';
+} from '@/controller/question-controller';
 
 const router = Router();
 
