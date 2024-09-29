@@ -13,15 +13,17 @@ function App() {
       const response = await fetch('http://localhost:4000/questions');
       console.log(response);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch questions');
       }
       const data = await response.json();
-      console.log(data);
+      data.sort((a, b) => a["Question ID"] - b["Question ID"]);
       setQuestions(data);
+      console.log(data);
     } catch (error) {
       console.log(error);
+      alert(error);
     }
-    console.log('fetched')
   }
 
   useEffect(() => {
@@ -36,7 +38,8 @@ function App() {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch questions');
       }
       const data = await response.json();
     
@@ -46,6 +49,7 @@ function App() {
     
     } catch {
       console.log(error);
+      alert(error);
     }
   }
 
@@ -66,7 +70,8 @@ function App() {
         })
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch questions');
       }
       const data = await response.json();
       console.log(data);
@@ -80,6 +85,7 @@ function App() {
       // }
     } catch (error) {
       console.log(error);
+      alert(error);
     }
   }
 
@@ -100,7 +106,8 @@ function App() {
         })
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to edit questions');
       }
       const data = await response.json();
       console.log(data);
@@ -114,6 +121,7 @@ function App() {
       // }
     } catch (error) {
       console.log(error);
+      alert(error);
     }
   }
   
