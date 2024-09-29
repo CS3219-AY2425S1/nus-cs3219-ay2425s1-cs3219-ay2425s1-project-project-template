@@ -17,7 +17,6 @@ export const getAllQuestions = async ({
     const response = await axios.get(
       `${API_URL}/api/questions?page=${page}&limit=${limit}&sort=${sort}&order=${order}`
     );
-    console.log(response);
     return response.data;
   } catch (error) {
     console.error("Error fetching questions:", error);

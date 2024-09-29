@@ -12,13 +12,16 @@ import {
   IconButton,
   MenuItem,
   TextField,
+  Button,
 } from "@mui/material";
 import Header from "../components/Header";
 import { getAllQuestions } from "../api/questionApi"; // Ensure your API supports pagination & sorting params
 import { Question } from "../@types/question";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const QuestionRepo = () => {
+  const { user } = useAuth();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -69,6 +72,10 @@ const QuestionRepo = () => {
     setSortOrder(event.target.value as string);
   };
 
+  const navigateToManageQuestions = () => {
+    navigate("/questions/manage");
+  };
+
   return (
     <>
       <Header />
@@ -83,40 +90,50 @@ const QuestionRepo = () => {
           <Typography variant="h6" gutterBottom>
             Question Repository
           </Typography>
-
           {/* Sorting Controls */}
           <Box
             display="flex"
-            justifyContent="space-between"
             alignItems="center"
-            mb={3}
+            justifyContent="space-between"
+            mt={2}
           >
-            <TextField
-              select
-              label="Sort By"
-              value={sortField}
-              onChange={handleSortChange}
-              size="small"
-              variant="outlined"
-              // sx={{ width: 150 }}
-            >
-              <MenuItem value="title">Title</MenuItem>
-              <MenuItem value="complexity">Complexity</MenuItem>
-              <MenuItem value="category">Category</MenuItem>
-            </TextField>
+            <Box display="flex" alignItems="center" mb={3}>
+              <TextField
+                select
+                label="Sort By"
+                value={sortField}
+                onChange={handleSortChange}
+                size="small"
+                variant="outlined"
+                sx={{ mr: 2 }}
+              >
+                <MenuItem value="title">Title</MenuItem>
+                <MenuItem value="complexity">Complexity</MenuItem>
+                <MenuItem value="category">Category</MenuItem>
+              </TextField>
 
-            <TextField
-              select
-              label="Order"
-              value={sortOrder}
-              onChange={handleOrderChange}
-              size="small"
-              variant="outlined"
-              // sx={{ width: 150 }}
-            >
-              <MenuItem value="asc">Ascending</MenuItem>
-              <MenuItem value="desc">Descending</MenuItem>
-            </TextField>
+              <TextField
+                select
+                label="Order"
+                value={sortOrder}
+                onChange={handleOrderChange}
+                size="small"
+                variant="outlined"
+                // sx={{ width: 150 }}
+              >
+                <MenuItem value="asc">Ascending</MenuItem>
+                <MenuItem value="desc">Descending</MenuItem>
+              </TextField>
+            </Box>
+            {user?.isAdmin && (
+              <Button
+                variant="outlined"
+                onClick={navigateToManageQuestions}
+                sx={{ mb: 2 }}
+              >
+                + Create Question
+              </Button>
+            )}
           </Box>
           <Paper elevation={3}>
             <Table>
