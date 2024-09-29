@@ -27,11 +27,15 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
 
-// /api/users/login
-// /api/users/signup
+// POST /api/users/login to login
+// POST /api/users/signup
 app.use('/api/users', usersRouter);
 
-// /api/questions/signup
+// GET /api/questions/:id to get question
+// GET /api/questions/ to get all questions
+// POST /api/questions to add new question
+// PUT /api/questions/:id to update a question
+// DELETE /api/questions/:id to update a question
 app.use('/api/questions', questionsRouter);
 
 module.exports = app
