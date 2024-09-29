@@ -18,7 +18,7 @@ interface ActionButtonsProps {
   question: Question;
 }
 
-export default function ActionButtons({ question }: ActionButtonsProps) {
+const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -94,4 +94,6 @@ export default function ActionButtons({ question }: ActionButtonsProps) {
       </Modal>
     </div>
   );
-}
+};
+
+export default ActionButtons;

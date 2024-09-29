@@ -6,7 +6,8 @@ interface NavLinkProps {
   href: string;
   isActive: boolean;
 }
-export default function NavLink({ href, isActive, children }: NavLinkProps) {
+
+const NavLink: React.FC<NavLinkProps> = ({ href, isActive, children }) => {
   let className;
 
   if (isActive) {
@@ -21,3 +22,5 @@ export default function NavLink({ href, isActive, children }: NavLinkProps) {
     </NextLink>
   );
 }
+
+export default NavLink;

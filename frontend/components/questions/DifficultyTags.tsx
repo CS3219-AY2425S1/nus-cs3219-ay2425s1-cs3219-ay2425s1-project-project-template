@@ -7,7 +7,8 @@ const DIFFICULTY_COLOURS: { [key: string]: string } = {
 interface DifficultyTagProps {
   difficulty: string;
 }
-export default function DifficultyTags({ difficulty }: DifficultyTagProps) {
+
+const DifficultyTags: React.FC<DifficultyTagProps> = ({ difficulty }) => {
   return (
     <p
       className={`text-semibold ${DIFFICULTY_COLOURS[difficulty.toLocaleLowerCase()]} capitalize`}
@@ -15,4 +16,6 @@ export default function DifficultyTags({ difficulty }: DifficultyTagProps) {
       {difficulty}
     </p>
   );
-}
+};
+
+export default DifficultyTags;

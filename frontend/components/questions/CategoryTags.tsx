@@ -39,10 +39,10 @@ interface CategoryTagsProps {
 }
 
 // React component to display the colored category tags
-export default function CategoryTags({
+const CategoryTags: React.FC<CategoryTagsProps> = ({
   questionId,
   categories,
-}: CategoryTagsProps) {
+}) => {
   // Assign colors to categories
   const categoryColors = assignColorsToCategories();
 
@@ -59,4 +59,6 @@ export default function CategoryTags({
       ))}
     </ul>
   );
-}
+};
+
+export default CategoryTags;
