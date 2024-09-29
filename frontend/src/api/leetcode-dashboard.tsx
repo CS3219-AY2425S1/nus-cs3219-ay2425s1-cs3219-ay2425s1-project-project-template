@@ -40,7 +40,7 @@ export const getLeetcodeDashboardData = async (): Promise<
 
 export const fetchSingleLeetcodeQuestion = async (
   questionId: string
-): Promise<any> => {
+): Promise<QuestionFull> => {
   const url = `${QUESTION_SERVICE}/${questionId}`;
   const response = await fetch(url);
   const data = await response.json();

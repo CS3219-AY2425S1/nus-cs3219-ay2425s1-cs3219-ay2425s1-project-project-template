@@ -1,6 +1,5 @@
 "use client";
 
-import { topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,14 +20,9 @@ import Swal from "sweetalert2";
 import { z } from "zod";
 import MoonLoader from "react-spinners/MoonLoader";
 import { createSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
+import { topicsList } from "@/utils/constants";
 
-const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
-
-interface AddQuestionDialogProp {
-  setClose: () => void;
-}
-
-const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
+const AddQuestionDialog = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formSchema = z.object({
@@ -65,14 +59,14 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
       category: values.questionTopics,
       complexity: values.questionDifficulty,
     })
-      .then((response) => {
+      .then(() => {
         Swal.fire({
           icon: "success",
           title: "Question Added",
           text: "Question has been added successfully.",
         });
       })
-      .catch((error) => {
+      .catch(() => {
         Swal.fire({
           icon: "error",
           title: "Question Add Failed",
@@ -81,7 +75,6 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
       })
       .finally(() => {
         setIsSubmitting(false);
-        setClose();
       });
   }
 

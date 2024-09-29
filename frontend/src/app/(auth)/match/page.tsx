@@ -16,35 +16,13 @@ import {
   QuestionLanguages,
   QuestionTopics,
 } from "@/types/find-match";
+import { capitalizeWords } from "@/utils/string_utils";
 import { useForm } from "react-hook-form";
 
 interface FindMatchFormOutput {
   questionDifficulty: string;
   preferredLanguages: string;
 }
-
-export function capitalizeWords(input: string): string {
-  return input
-    .split(" ") // Split the string by spaces to get each word
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and lowercase the rest
-    .join(" "); // Join the words back into a single string
-}
-
-export const preferredLanguagesList = Object.values(QuestionLanguages).map(
-  (ql) => {
-    return {
-      label: ql,
-      value: ql,
-    };
-  }
-);
-
-export const topicsList = Object.values(QuestionTopics).map((qt) => {
-  return {
-    label: qt,
-    value: qt,
-  };
-});
 
 const FindPeerHeader = () => {
   return (

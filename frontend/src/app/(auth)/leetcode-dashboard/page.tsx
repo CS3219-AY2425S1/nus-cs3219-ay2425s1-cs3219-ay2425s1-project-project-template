@@ -72,7 +72,7 @@ const LeetcodeDashboard = () => {
             variants={modalAnimation}
             transition={{ duration: 0.3 }}
           >
-            <AddQuestionDialog setClose={closeModal} />
+            <AddQuestionDialog />
           </motion.div>
         </Modal>
       </div>

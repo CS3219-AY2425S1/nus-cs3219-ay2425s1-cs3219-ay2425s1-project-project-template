@@ -46,15 +46,12 @@ const Cell = ({
 
 export function LeetcodeDashboardTable() {
   const [data, setData] = useState<QuestionMinified[]>([]);
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
   >(null);
   const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-fetch
 
   function handleDelete(questionId: string) {
-    setIsDeleting(true);
     Swal.fire({
       icon: "warning",
       title: "Confirm delete?",
@@ -71,8 +68,6 @@ export function LeetcodeDashboardTable() {
           setRefreshKey((prev) => prev + 1);
         } catch (error) {
           Swal.showValidationMessage(`Failed to delete question: ${error}`);
-        } finally {
-          setIsDeleting(false);
         }
       },
       allowOutsideClick: () => !Swal.isLoading(),
@@ -80,12 +75,10 @@ export function LeetcodeDashboardTable() {
   }
 
   function openModal(questionId: string) {
-    setIsOpen(true);
     setEditingQuestionId(questionId);
   }
 
   function closeModal() {
-    setIsOpen(false);
     setEditingQuestionId(null);
   }
 
@@ -155,10 +148,7 @@ export function LeetcodeDashboardTable() {
                 variants={modalAnimation}
                 transition={{ duration: 0.3 }}
               >
-                <EditQuestionDialog
-                  setClose={closeModal}
-                  questionId={questionId}
-                />
+                <EditQuestionDialog questionId={questionId} />
               </motion.div>
             </Modal>
             <Button variant={"ghost"} onClick={() => handleDelete(questionId)}>
@@ -171,10 +161,7 @@ export function LeetcodeDashboardTable() {
   ];
 
   useEffect(() => {
-    setIsDeleting(true);
-    getLeetcodeDashboardData()
-      .then((data) => setData(data))
-      .finally(() => setIsDeleting(false));
+    getLeetcodeDashboardData().then((data) => setData(data));
   }, [refreshKey]);
 
   const table = useReactTable({

@@ -1,6 +1,5 @@
 "use client";
 
-import { capitalizeWords, topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,27 +23,31 @@ import {
   fetchSingleLeetcodeQuestion,
   updateSingleLeetcodeQuestion,
 } from "@/api/leetcode-dashboard";
-
-const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
+import { capitalizeWords } from "@/utils/string_utils";
+import { topicsList } from "@/utils/constants";
 
 interface EditQuestionDialogProp {
-  setClose: () => void;
   questionId: string;
 }
 
-const initialValues = {
+interface EditQuestionValues {
+  questionTitle: string;
+  questionDifficulty: string;
+  questionTopics: string[];
+  questionDescription: string;
+}
+
+const initialValues: EditQuestionValues = {
   questionTitle: "",
   questionDifficulty: "",
   questionTopics: [],
   questionDescription: "",
 };
 
-const EditQuestionDialog = ({
-  setClose,
-  questionId,
-}: EditQuestionDialogProp) => {
+const EditQuestionDialog = ({ questionId }: EditQuestionDialogProp) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [leetcodeData, setLeetcodeData] = useState(initialValues);
+  const [leetcodeData, setLeetcodeData] =
+    useState<EditQuestionValues>(initialValues);
   const formSchema = z.object({
     questionTitle: z.string().min(2, {
       message: "Title must be at least 2 characters.",
@@ -75,8 +78,6 @@ const EditQuestionDialog = ({
         questionTopics: resp.category.map((x: string) => capitalizeWords(x)),
         questionDescription: resp.description,
       };
-      console.log(questionData.questionTopics);
-      console.log(typeof questionData.questionTopics);
       setLeetcodeData(questionData);
       reset(questionData);
     });
@@ -92,14 +93,14 @@ const EditQuestionDialog = ({
       complexity: values.questionDifficulty,
       questionId: questionId,
     })
-      .then((response) => {
+      .then(() => {
         Swal.fire({
           icon: "success",
           title: "Question Added",
           text: "Question has been modified successfully.",
         });
       })
-      .catch((error) => {
+      .catch(() => {
         Swal.fire({
           icon: "error",
           title: "Question Add Failed",
@@ -108,7 +109,6 @@ const EditQuestionDialog = ({
       })
       .finally(() => {
         setIsSubmitting(false);
-        setClose();
       });
   }
 
