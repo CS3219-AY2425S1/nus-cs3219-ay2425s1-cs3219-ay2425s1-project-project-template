@@ -45,7 +45,9 @@ function QuestionBlock({ question }: Props) {
     ) {
       const status = await deleteQuestion(question);
       if (status.error) {
-        alert(`Failed to delete question. Code ${status.status}:  ${status.error}`);
+        alert(
+          `Failed to delete question. Code ${status.status}:  ${status.error}`
+        );
         return;
       }
       console.log(`Successfully deleted the question.`);
@@ -53,7 +55,7 @@ function QuestionBlock({ question }: Props) {
     } else {
       console.log("Deletion cancelled.");
     }
-  }
+  };
 
   return (
     <>
