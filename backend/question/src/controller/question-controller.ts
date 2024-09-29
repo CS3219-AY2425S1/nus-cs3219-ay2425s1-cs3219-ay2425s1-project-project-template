@@ -7,6 +7,17 @@ import {
   getRandomQuestionService,
   searchQuestionsByTitleService,
 } from '@/services/get/index';
+import {
+  ICreateQuestionPayload,
+  IDeleteQuestionPayload,
+  IUpdateQuestionPayload,
+} from '../services/post/types';
+
+import {
+  createQuestionService,
+  deleteQuestionService,
+  updateQuestionService,
+} from '../services/post';
 import type {
   IGetQuestionsPayload,
   IGetQuestionPayload,
@@ -86,6 +97,52 @@ export const searchQuestionsByTitle = async (req: Request, res: Response): Promi
 
   try {
     const result = await searchQuestionsByTitleService(title.toString(), page, limit);
+    return res.status(result.code).json(result);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const createQuestion = async (req: Request, res: Response): Promise<Response> => {
+  const payload: ICreateQuestionPayload = {
+    title: req.body.title,
+    description: req.body.description,
+    difficulty: req.body.difficulty,
+    topics: req.body.topics,
+  };
+
+  try {
+    const result = await createQuestionService(payload);
+    return res.status(result.code).json(result);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const updateQuestion = async (req: Request, res: Response): Promise<Response> => {
+  const payload: IUpdateQuestionPayload = {
+    id: parseInt(req.params.questionId),
+    title: req.body.title,
+    description: req.body.description,
+    difficulty: req.body.difficulty,
+    topics: req.body.topics,
+  };
+
+  try {
+    const result = await updateQuestionService(payload);
+    return res.status(result.code).json(result);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const deleteQuestion = async (req: Request, res: Response): Promise<Response> => {
+  const payload: IDeleteQuestionPayload = {
+    id: parseInt(req.params.questionId),
+  };
+
+  try {
+    const result = await deleteQuestionService(payload);
     return res.status(result.code).json(result);
   } catch (error) {
     return res
