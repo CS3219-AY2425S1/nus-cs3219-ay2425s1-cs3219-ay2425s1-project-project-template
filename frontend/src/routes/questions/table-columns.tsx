@@ -39,10 +39,10 @@ export const columns: ColumnDef<Question>[] = [
     filterFn: 'equals',
   },
   {
-    accessorKey: 'topics',
+    accessorKey: 'topic',
     header: 'Topics',
     cell: ({ row }) => {
-      const topics: string[] = row.getValue('topics');
+      const topics: string[] = row.getValue('topic');
       return (
         <div>
           {topics.map((topic) => (

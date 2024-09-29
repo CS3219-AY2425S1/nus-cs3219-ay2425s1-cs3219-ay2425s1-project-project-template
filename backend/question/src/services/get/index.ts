@@ -36,7 +36,8 @@ export const getQuestionsService = async (
     .from(questions)
     .where(and(...whereClause))
     .limit(recordsPerPage)
-    .offset(offset);
+    .offset(offset)
+    .orderBy(questions.id);
 
   const [results, totalCount] = await Promise.all([
     query,
