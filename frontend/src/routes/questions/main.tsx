@@ -10,6 +10,7 @@ import type { IGetQuestionsResponse } from '@/types/question-types';
 
 import { QuestionTable } from './question-table';
 import { columns } from './table-columns';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const getListQuestionsQueryConfig = (pageNumber?: number) =>
   queryOptions({
@@ -69,12 +70,14 @@ export function Questions() {
 
   return (
     <WithNavBanner crumbs={crumbs}>
-      <div className='container mx-auto py-3'>
-        <Suspense fallback={<Loading />}>
-          <Await resolve={initialData.initialPage}>
-            <QuestionTable columns={columns} data={questions} isError={isError} />
-          </Await>
-        </Suspense>
+      <div className='flex w-full flex-1 overflow-hidden py-3'>
+        <ScrollArea className='size-full px-6'>
+          <Suspense fallback={<Loading />}>
+            <Await resolve={initialData.initialPage}>
+              <QuestionTable columns={columns} data={questions} isError={isError} />
+            </Await>
+          </Suspense>
+        </ScrollArea>
       </div>
     </WithNavBanner>
   );

@@ -73,7 +73,7 @@ export function QuestionTable<TData, TValue>({
   };
 
   return (
-    <div>
+    <div className='flex size-full flex-col'>
       <div className='flex items-center py-4'>
         <div className='mr-2'>
           <Select onValueChange={handleStatusFilterChange}>
@@ -107,11 +107,14 @@ export function QuestionTable<TData, TValue>({
           className='max-w-sm'
         />
       </div>
-      <div className='rounded-md border'>
+      <div className='border-border rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow
+                className='border-border/60 bg-primary-foreground text-primary'
+                key={headerGroup.id}
+              >
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -127,7 +130,7 @@ export function QuestionTable<TData, TValue>({
           <TableBody>
             {!isError && table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className='border-border/60 even:bg-secondary/10'>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
