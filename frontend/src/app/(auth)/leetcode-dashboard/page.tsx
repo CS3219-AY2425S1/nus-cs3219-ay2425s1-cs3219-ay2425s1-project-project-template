@@ -34,7 +34,7 @@ const LeetcodeDashboard = () => {
           <AddQuestionDialog />
         </Dialog>
       </div>
-      {/* <LeetcodeDashboardTable /> */}
+      <LeetcodeDashboardTable />
     </Container>
   );
 };

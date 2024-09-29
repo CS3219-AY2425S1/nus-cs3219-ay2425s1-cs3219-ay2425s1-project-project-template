@@ -78,7 +78,7 @@ export enum QuestionTopics {
 }
 
 export interface QuestionMinified {
-  questionId: string;
-  questionTitle: string;
-  questionDifficulty: string;
+  questionid: string;
+  title: string;
+  complexity: string;
 }

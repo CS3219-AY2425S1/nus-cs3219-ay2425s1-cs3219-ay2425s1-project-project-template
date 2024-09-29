@@ -37,22 +37,29 @@ const Cell = ({
 
 export const columns: ColumnDef<QuestionMinified>[] = [
   {
-    accessorKey: "questionId",
+    accessorKey: "questionid",
     header: () => <Cell>ID</Cell>,
     cell: ({ row }) => (
-      <Cell className="capitalize">{row.getValue("questionId")}</Cell>
+      <Cell className="capitalize">{row.getValue("questionid")}</Cell>
     ),
   },
   {
-    accessorKey: "questionTitle",
+    accessorKey: "title",
     header: () => <Cell>Question Title</Cell>,
-    cell: ({ row }) => <Cell>{row.getValue("questionTitle")}</Cell>,
+    cell: ({ row }) => <Cell>{row.getValue("title")}</Cell>,
   },
   {
-    accessorKey: "questionDifficulty",
+    accessorKey: "complexity",
     header: () => <Cell>Difficulty</Cell>,
     cell: ({ row }) => {
-      return <Cell>{row.getValue("questionDifficulty")}</Cell>;
+      return <Cell>{row.getValue("complexity")}</Cell>;
+    },
+  },
+  {
+    accessorKey: "category",
+    header: () => <Cell>Topics</Cell>,
+    cell: ({ row }) => {
+      return <Cell>{row.getValue("category")}</Cell>;
     },
   },
   {
@@ -79,7 +86,7 @@ export function LeetcodeDashboardTable() {
     pageIndex: 0,
     pageSize: 10,
   });
-  
+
   React.useEffect(() => {
     getLeetcodeDashboardData().then((data) => setData(data));
   }, []);
