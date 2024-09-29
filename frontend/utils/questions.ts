@@ -1,7 +1,7 @@
 export const getAllQuestionCategories = (): string[] => {
   const categories = [
     "Algorithms",
-    "Array",
+    "Arrays",
     "Backtracking",
     "Biconnected Component",
     "Binary Indexed Tree",
