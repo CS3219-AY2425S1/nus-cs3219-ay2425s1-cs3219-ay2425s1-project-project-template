@@ -41,6 +41,10 @@ const HomePage = () => {
         complexity: "",
     });
 
+    // State for Description Dialog
+    const [openDescriptionDialog, setOpenDescriptionDialog] = useState(false);
+    const [selectedDescription, setSelectedDescription] = useState("");
+
     // State for Snackbar Notifications
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -57,7 +61,6 @@ const HomePage = () => {
     const fetchQuestions = async () => {
         try {
             const response = await axios.get(API_BASE_URL);
-            console.log(response.data)
             setQuestions(response.data);
             setLoading(false);
         } catch (err) {
@@ -89,7 +92,7 @@ const HomePage = () => {
         setOpenDialog(true);
     };
 
-    // Handle closing the dialog
+    // Handle closing the add/edit dialog
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setCurrentQuestion({
@@ -100,7 +103,7 @@ const HomePage = () => {
         });
     };
 
-    // Handle input changes in the dialog
+    // Handle input changes in the add/edit dialog
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setCurrentQuestion((prev) => ({
@@ -175,6 +178,18 @@ const HomePage = () => {
         }
     };
 
+    // Handle opening the description dialog
+    const handleOpenDescriptionDialog = (description) => {
+        setSelectedDescription(description);
+        setOpenDescriptionDialog(true);
+    };
+
+    // Handle closing the description dialog
+    const handleCloseDescriptionDialog = () => {
+        setOpenDescriptionDialog(false);
+        setSelectedDescription("");
+    };
+
     // Handle closing the snackbar
     const handleCloseSnackbar = () => {
         setSnackbar((prev) => ({ ...prev, open: false }));
@@ -213,9 +228,6 @@ const HomePage = () => {
                                 <strong>Title</strong>
                             </TableCell>
                             <TableCell>
-                                <strong>Description</strong>
-                            </TableCell>
-                            <TableCell>
                                 <strong>Category</strong>
                             </TableCell>
                             <TableCell>
@@ -229,8 +241,15 @@ const HomePage = () => {
                     <TableBody>
                         {questions.map((question) => (
                             <TableRow key={question._id}>
-                                <TableCell>{question.title}</TableCell>
-                                <TableCell>{question.description}</TableCell>
+                                <TableCell>
+                                    <Button
+                                        color="primary"
+                                        onClick={() => handleOpenDescriptionDialog(question.description)}
+                                        style={{ textTransform: "none", padding: 0 }}
+                                    >
+                                        {question.title}
+                                    </Button>
+                                </TableCell>
                                 <TableCell>{question.category}</TableCell>
                                 <TableCell>{question.complexity}</TableCell>
                                 <TableCell align="center">
@@ -245,7 +264,7 @@ const HomePage = () => {
                         ))}
                         {questions.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={5} align="center">
+                                <TableCell colSpan={4} align="center">
                                     No questions available.
                                 </TableCell>
                             </TableRow>
@@ -308,6 +327,19 @@ const HomePage = () => {
                     </Button>
                     <Button onClick={handleSubmit} color="primary">
                         {dialogMode === "add" ? "Add" : "Update"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Description Dialog */}
+            <Dialog open={openDescriptionDialog} onClose={handleCloseDescriptionDialog} fullWidth>
+                <DialogTitle>Question Description</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1">{selectedDescription}</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDescriptionDialog} color="primary">
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>
