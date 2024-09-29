@@ -14,6 +14,7 @@ function App() {
       <HomeNavBar />
       <Box pt="80px">
         <Routes>
+          <Route path="/" element={<QuestionPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
