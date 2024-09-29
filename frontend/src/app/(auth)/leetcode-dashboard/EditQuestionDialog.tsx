@@ -1,6 +1,6 @@
 "use client";
 
-import { topicsList } from "@/app/(auth)/match/page";
+import { capitalizeWords, topicsList } from "@/app/(auth)/match/page";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -69,10 +69,11 @@ const EditQuestionDialog = ({
       const questionData = {
         questionTitle: resp.title,
         questionDifficulty: resp.complexity,
-        questionTopics: resp.category.map((x: string) => x.toLowerCase()),
+        questionTopics: resp.category.map((x: string) => capitalizeWords(x)),
         questionDescription: resp.description,
       };
-      console.log(questionData);
+      console.log(questionData.questionTopics);
+      console.log(typeof questionData.questionTopics);
       setLeetcodeData(questionData);
       reset(questionData);
     });
@@ -175,22 +176,27 @@ const EditQuestionDialog = ({
           <FormField
             control={form.control}
             name="questionTopics"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary-500">Topics</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={topicsList}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    placeholder="Select topics"
-                    variant="inverted"
-                    className="bg-primary-800"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              console.log(field);
+              return (
+                <FormItem>
+                  <FormLabel className="text-primary-500">Topics</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      key={field.value.join(",")}
+                      options={topicsList}
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      placeholder="Select topics"
+                      variant="inverted"
+                      className="bg-primary-800"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField

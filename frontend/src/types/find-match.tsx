@@ -75,6 +75,7 @@ export enum QuestionTopics {
   DYNAMIC_PROGRAMMING = "Dynamic Programming",
   BINARY_SEARCH_TREE = "Binary Search Tree",
   BINARY_TREE = "Binary Tree",
+  HASH_SUM = "Hash Sum",
 }
 
 export interface QuestionMinified {

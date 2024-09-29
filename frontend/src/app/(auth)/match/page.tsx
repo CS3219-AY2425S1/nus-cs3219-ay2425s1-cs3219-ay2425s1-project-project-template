@@ -23,15 +23,17 @@ interface FindMatchFormOutput {
   preferredLanguages: string;
 }
 
-function capitalizeWord(word: string) {
-  if (!word) return word;
-  return word[0].toUpperCase() + word.substr(1).toLowerCase();
+export function capitalizeWords(input: string): string {
+  return input
+    .split(" ") // Split the string by spaces to get each word
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and lowercase the rest
+    .join(" "); // Join the words back into a single string
 }
 
 export const preferredLanguagesList = Object.values(QuestionLanguages).map(
   (ql) => {
     return {
-      label: capitalizeWord(ql),
+      label: ql,
       value: ql,
     };
   }
@@ -39,7 +41,7 @@ export const preferredLanguagesList = Object.values(QuestionLanguages).map(
 
 export const topicsList = Object.values(QuestionTopics).map((qt) => {
   return {
-    label: capitalizeWord(qt),
+    label: qt,
     value: qt,
   };
 });
@@ -70,7 +72,7 @@ const FindPeer = () => {
 
   const preferredLanguagesList = Object.values(QuestionLanguages).map((ql) => {
     return {
-      label: capitalizeWord(ql),
+      label: capitalizeWords(ql),
       value: ql,
     };
   });
@@ -78,7 +80,7 @@ const FindPeer = () => {
   const topicsList = Object.values(QuestionTopics)
     .map((qt) => {
       return {
-        label: capitalizeWord(qt),
+        label: capitalizeWords(qt),
         value: qt,
       };
     })
