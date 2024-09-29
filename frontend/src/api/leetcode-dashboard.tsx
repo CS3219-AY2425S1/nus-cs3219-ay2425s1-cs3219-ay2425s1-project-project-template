@@ -6,13 +6,26 @@ import {
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
-export const createSingleLeetcodeQuestion = async ({
-  title,
-  description,
-  category,
-  complexity,
-}: NewQuestionData) => {
+export const createSingleLeetcodeQuestion = async (
+  data: NewQuestionData
+): Promise<QuestionFull> => {
   const url = `${QUESTION_SERVICE}/create`;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  // Check if the response is not OK (e.g., status code 400, 500)
+  if (!resp.ok) {
+    throw new Error(`Failed to create the question: ${resp.statusText}`);
+  }
+
+  // Parse and return the JSON response
+  const result: QuestionFull = await resp.json();
+  return result;
 };
 
 export const getLeetcodeDashboardData = async (): Promise<
@@ -60,7 +73,7 @@ export const updateSingleLeetcodeQuestion = async ({
     throw new Error("Failed to update the question");
   }
 
-  return await resp.json();
+  return resp.json();
 };
 
 export const deleteSingleLeetcodeQuestion = async (questionId: string) => {

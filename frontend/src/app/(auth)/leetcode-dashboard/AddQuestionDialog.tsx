@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import { z } from "zod";
 import MoonLoader from "react-spinners/MoonLoader";
+import { createSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
@@ -57,29 +58,19 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    const url = `${QUESTION_SERVICE}/create`;
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: values.questionTitle,
-        description: values.questionDescription,
-        category: values.questionTopics,
-        complexity: values.questionDifficulty,
-      }),
+
+    createSingleLeetcodeQuestion({
+      title: values.questionTitle,
+      description: values.questionDescription,
+      category: values.questionTopics,
+      complexity: values.questionDifficulty,
     })
       .then((response) => {
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Question Added",
-            text: "Question has been added successfully.",
-          });
-        }
-
-        return response.json();
+        Swal.fire({
+          icon: "success",
+          title: "Question Added",
+          text: "Question has been added successfully.",
+        });
       })
       .catch((error) => {
         Swal.fire({
