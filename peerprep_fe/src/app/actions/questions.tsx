@@ -1,21 +1,25 @@
 "use server";
 
 import dotenv from "dotenv";
-import { parseFormData } from "../utility/QuestionsHelper";
+import { parseFormData } from "../utility/questionsHelper";
+import { FormState } from "../types/AuthTypes";
 
 dotenv.config();
 
-interface Response {
-  message: any;
-  errors: {
-    errorMessage: string[];
-  };
-}
+type Response =
+  | {
+      message?: string;
+      errors?: {
+        errorMessage?: string[];
+      };
+    }
+  | undefined;
 
 export type FormRequest = (
   token: string | null,
+  formState: Response,
   formData: FormData
-) => Promise<Partial<Response>>;
+) => Promise<Response>;
 
 export async function getQuestions(token?: string | null) {
   const response = await fetch(
@@ -46,6 +50,7 @@ export async function getQuestions(token?: string | null) {
 export async function editQuestion(
   question: QuestionDto,
   token: string | null,
+  formState: Response,
   formData: FormData
 ) {
   const { _id, ...rest } = question;
@@ -64,19 +69,28 @@ export async function editQuestion(
   );
 
   try {
-    const data = await response.json();
-    return {
-      message: data,
-      errors: {
-        questions: [`${data.message}`],
-      },
-    };
+    const result = await response.json();
+    if (response.ok) {
+      return {
+        message: result,
+      };
+    } else {
+      return {
+        errors: {
+          errorMessage: result,
+        },
+      };
+    }
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function addQuestion(token: string | null, formData: FormData) {
+export async function addQuestion(
+  token: string | null,
+  formState: Response,
+  formData: FormData
+) {
   // Helper function to ensure the formData value is a string
   const questionData = parseFormData(formData);
 
@@ -94,21 +108,18 @@ export async function addQuestion(token: string | null, formData: FormData) {
 
   try {
     const result = await response.json();
-    if (result.token) {
+    if (response.ok) {
       return {
-        message: result.token,
+        message: result,
       };
     } else {
       return {
         errors: {
-          errorMessage: result.error
-            ? result.error
-            : "An error occurred while adding the question.",
+          errorMessage: result,
         },
       };
     }
   } catch (error) {
-    console.error(`error: ${error}`);
     return {
       errors: {
         errorMessage: "An error occurred while adding the question.",

@@ -5,23 +5,23 @@ export function parseFormData(formData: FormData) {
 
   // Parse form data into the correct format
   const topics = getStringValue(formData.get("topic"))
-    .split(",")
-    .map((item) => item.trim());
+    ?.split(",")
+    ?.map((item) => item.trim());
 
   const examples = getStringValue(formData.get("examples"))
-    .split(";")
-    .map((item) => {
-      const [input, output, explanation] = item.split("|");
+    ?.split(";")
+    ?.map((item) => {
+      const [input, output, explanation] = item?.split("|");
       return {
-        input: input.trim(),
-        output: output.trim(),
-        explanation: explanation ? explanation.trim() : undefined,
+        input: input?.trim(),
+        output: output?.trim(),
+        explanation: explanation ? explanation?.trim() : undefined,
       };
     });
 
   const constraints = getStringValue(formData.get("constraints"))
-    .split(";")
-    .map((item) => item.trim());
+    ?.split(";")
+    ?.map((item) => item.trim());
 
   // Prepare the data to be sent
   const data = {

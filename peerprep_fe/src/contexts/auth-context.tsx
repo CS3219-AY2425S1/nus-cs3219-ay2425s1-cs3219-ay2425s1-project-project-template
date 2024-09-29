@@ -8,6 +8,7 @@ import {
   useContext,
 } from "react";
 import { useRouter } from "next/navigation";
+import { useCookies } from "next-client-cookies";
 
 interface TAuthContext {
   token: string | null;
@@ -28,20 +29,28 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
+  const cookies = useCookies();
 
   const updateToken = (token: string) => {
-    localStorage.setItem("token", token);
+    const expireDate = new Date();
+    expireDate.setTime(expireDate.getTime() + 1000 * 60 * 60 * 12);
+
+    cookies.set("token", token, {
+      sameSite: "strict",
+      secure: true,
+      expires: expireDate,
+    });
     setToken(token);
   };
 
   const deleteToken = () => {
-    localStorage.removeItem("token");
+    cookies.remove("token");
     setToken(null);
   };
 
   useEffect(() => {
     if (!token) {
-      const storedToken = localStorage.getItem("token");
+      const storedToken = cookies.get("token");
       // TODO: Add token validation
       if (storedToken) {
         setToken(storedToken);

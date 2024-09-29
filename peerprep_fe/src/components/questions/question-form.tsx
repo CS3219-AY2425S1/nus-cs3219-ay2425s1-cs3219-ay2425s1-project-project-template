@@ -1,7 +1,9 @@
 "use client";
 
+import { useFormState } from "react-dom";
 import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
+import { useAuth } from "@/contexts/auth-context";
 import type { FormRequest } from "@/app/actions/questions";
 
 export enum FormType {
@@ -15,12 +17,15 @@ export function QuestionForm({
   type,
 }: {
   state?: QuestionDto;
-  onSubmit: any;
+  onSubmit: FormRequest;
   type: FormType;
 }) {
   // Tracks the form submission state
-  const token = localStorage.getItem("token");
-  const action = onSubmit.bind(null, token);
+  const { token } = useAuth();
+  const [formState, action] = useFormState(
+    onSubmit.bind(null, token),
+    undefined
+  );
 
   return (
     <div>
@@ -35,6 +40,7 @@ export function QuestionForm({
             secure={false}
             placeholder_text="Title"
             text={state?.title}
+            required
           />
         </div>
 
@@ -45,6 +51,7 @@ export function QuestionForm({
             secure={false}
             placeholder_text="Description"
             text={state?.description}
+            required
           />
         </div>
 
@@ -66,6 +73,7 @@ export function QuestionForm({
             secure={false}
             placeholder_text="Topics (comma-separated, e.g., Array, Hash Table)"
             text={state?.topic?.join(", ")}
+            required
           />
         </div>
 
@@ -77,10 +85,10 @@ export function QuestionForm({
             placeholder_text="Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)"
             text={state?.examples
               ?.map(
-                (entry) =>
-                  `${entry.input}, ${entry.output}, ${entry.explanation}`
+                (entry) => `${entry.input}|${entry.output}|${entry.explanation}`
               )
-              .join("|")}
+              ?.join("; ")}
+            required
           />
         </div>
 
@@ -91,9 +99,11 @@ export function QuestionForm({
             secure={false}
             placeholder_text='Constraints (semicolon-separated, e.g., "2 <= nums.length <= 10^4; -10^9 <= nums[i] <= 10^9")'
             text={state?.constraints?.join("; ")}
+            required
           />
         </div>
 
+        <p className="error">{formState?.errors?.errorMessage}</p>
         {/* Submit button */}
         <Button type="submit" text={`${type} Question`} />
       </form>
