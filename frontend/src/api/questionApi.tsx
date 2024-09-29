@@ -1,4 +1,5 @@
 import axios from "axios";
+import { CreateQuestionFormData } from "../@types/question";
 
 const API_URL = import.meta.env.VITE_QUESTION_API_URL;
 
@@ -39,6 +40,30 @@ export const getAllQuestions = async (
 export const fetchQuestionById = async (id: string) => {
   try {
     const response = await axios.get(`${API_URL}/api/questions/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching question:", error);
+    throw error;
+  }
+};
+
+export const createQuestion = async (
+  data: CreateQuestionFormData,
+  token: string
+) => {
+  const payload = {
+    title: data.title,
+    description: data.description,
+    complexity: data.complexity,
+    category: data.categories,
+  };
+  try {
+    const response = await axios.post(`${API_URL}/api/questions`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching question:", error);
