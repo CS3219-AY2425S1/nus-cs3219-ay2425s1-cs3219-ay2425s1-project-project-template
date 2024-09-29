@@ -9,8 +9,7 @@ describe('SearchAndFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SearchAndFilterComponent], // For components
-      imports: [HttpClientTestingModule, ReactiveFormsModule] // For modules
+      imports: [HttpClientTestingModule, ReactiveFormsModule, SearchAndFilterComponent] 
     })
     .compileComponents();
 
