@@ -20,12 +20,14 @@
   position: relative;
   z-index: 1;
   margin-top: -15vh;
+  width: 50vw;
 }
 
 h1 {
   color: white;
   font-family: "Tourney", sans-serif;
   text-align: center;
+  font-size: 4em;
 }
 
 h2 {

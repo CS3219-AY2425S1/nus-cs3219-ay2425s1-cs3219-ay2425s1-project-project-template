@@ -1,9 +1,10 @@
 
-<nav>
+<nav class="navbar">
   <header id="header">Peer Prep</header>
-  
+  <a *ngIf="userName" class="username">-{{userName}}-</a>
   <a class='button' routerLink='/about-us' routerLinkActive='activebutton'>About Us</a>
   <a class='button' routerLink='/contacts' routerLinkActive='activebutton'>Contact Us</a>
+  <button class="logout-button" *ngIf="isLoggedIn()" (click)="logout()">Logout</button>
 </nav>
 <div id="container"></div>
 <app-question-list></app-question-list>
