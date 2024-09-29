@@ -2,20 +2,24 @@
 
 import dotenv from "dotenv";
 import { parseFormData } from "../utility/questionsHelper";
+import { FormState } from "../types/AuthTypes";
 
 dotenv.config();
 
-interface Response {
-  message: any;
-  errors: {
-    errorMessage: string[];
-  };
-}
+type Response =
+  | {
+      message?: string;
+      errors?: {
+        errorMessage?: string[];
+      };
+    }
+  | undefined;
 
 export type FormRequest = (
   token: string | null,
+  formState: Response,
   formData: FormData
-) => Promise<Partial<Response> | undefined>;
+) => Promise<Response>;
 
 export async function getQuestions(token?: string | null) {
   const response = await fetch(
@@ -46,6 +50,7 @@ export async function getQuestions(token?: string | null) {
 export async function editQuestion(
   question: QuestionDto,
   token: string | null,
+  formState: FormState,
   formData: FormData
 ) {
   const { _id, ...rest } = question;
@@ -65,18 +70,28 @@ export async function editQuestion(
 
   try {
     const data = await response.json();
-    return {
-      message: data,
-      errors: {
-        errorMessage: [`${data.message}`],
-      },
-    };
+    if (response.ok) {
+      return {
+        message: data,
+      };
+    } else {
+      return {
+        message: data,
+        errors: {
+          errorMessage: [`${data.message}`],
+        },
+      };
+    }
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function addQuestion(token: string | null, formData: FormData) {
+export async function addQuestion(
+  token: string | null,
+  formState: FormState,
+  formData: FormData
+) {
   // Helper function to ensure the formData value is a string
   const questionData = parseFormData(formData);
 
@@ -95,7 +110,7 @@ export async function addQuestion(token: string | null, formData: FormData) {
   try {
     const result = await response.json();
     if (response.ok) {
-      if (result.token) {
+      if (result.ok) {
         return {
           message: result.token,
         };
@@ -103,8 +118,8 @@ export async function addQuestion(token: string | null, formData: FormData) {
     } else {
       return {
         errors: {
-          errorMessage: result.error
-            ? result.error
+          errorMessage: result?.errorResponse?.errmsg
+            ? result.errorResponse?.errmsg
             : "An error occurred while adding the question.",
         },
       };

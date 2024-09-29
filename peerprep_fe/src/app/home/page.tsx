@@ -91,7 +91,7 @@ export default function Home() {
     });
 
   return (
-    <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10">
+    <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10 overscroll-contain">
       <Header>
         <Button
           text="Logout"
@@ -101,7 +101,7 @@ export default function Home() {
         />
       </Header>
       <Button type="submit" onClick={onClickAdd} text="Add Question" />
-      <table className="min-w-full table-auto bg-white shadow-md mt-4">
+      <table className="min-w-full table-auto bg-white shadow-md mt-4 scroll-smooth">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-left">Questions</th>
