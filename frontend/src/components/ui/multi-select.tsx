@@ -293,7 +293,7 @@ export const MultiSelect = React.forwardRef<
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem
+                {/* <CommandItem
                   key="all"
                   onSelect={toggleAll}
                   className="cursor-pointer"
@@ -309,7 +309,7 @@ export const MultiSelect = React.forwardRef<
                     <CheckIcon className="h-4 w-4" />
                   </div>
                   <span>(Select All)</span>
-                </CommandItem>
+                </CommandItem> */}
                 {options.map((option) => {
                   const isSelected = selectedValues.includes(option.value);
                   return (
