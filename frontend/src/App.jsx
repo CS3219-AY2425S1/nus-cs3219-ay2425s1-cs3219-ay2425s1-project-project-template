@@ -11,25 +11,25 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 import NavBar from "./components/NavBar";
 
 function App() {
-  return (
-    <>
-      <NavBar />
-      <Routes>
-      <Route path="*" element={<NotFound/>} />
-        {/* Public Routes */}
-        <Route path="/sign-up" element={<SignUp/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/forgot-password" element={<ForgotPassword/>} />
-        
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute /> }>
-          <Route path="/home" element={<Home/>} />
-          <Route path="/account-settings" element={<AccountSettings/>} />
-          <Route path="/confirm-logout" element={<ConfirmLogout/>} />
-        </Route>
-      </Routes>
-    </>
-  )
+    return (
+        <>
+            <NavBar />
+            <Routes>
+                <Route path="*" element={<NotFound />} />
+                {/* Public Routes */}
+                <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/home" element={<Home />} />
+
+                {/* Protected Routes */}
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/account-settings" element={<AccountSettings />} />
+                    <Route path="/confirm-logout" element={<ConfirmLogout />} />
+                </Route>
+            </Routes>
+        </>
+    );
 }
 
 export default App;
