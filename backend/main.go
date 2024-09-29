@@ -23,7 +23,7 @@ func main() {
 	// Apply CORS middleware with custom configuration
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"}, // Ensure it matches your frontend port
-		AllowMethods:     []string{"POST", "GET", "OPTIONS"},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization", "token"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,

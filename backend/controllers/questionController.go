@@ -49,6 +49,10 @@ func GetQuestions() gin.HandlerFunc {
 			panic(err)
 		}
 
+		if questions == nil {
+			questions = []models.Question{}
+		}
+
 		c.JSON(http.StatusOK, questions)
 	}
 }

@@ -95,6 +95,7 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
             <MenuItemOption
               key="all"
               value="all"
+              color={"black"}
               _hover={{ bg: "gray.700", color: "white" }}
               _checked={{ bg: color, color: "white" }}
             >
