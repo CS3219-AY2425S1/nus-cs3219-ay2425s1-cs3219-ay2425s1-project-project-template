@@ -23,7 +23,7 @@ export type FormRequest = (
 
 export async function getQuestions(token?: string | null) {
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions`,
+    `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions`,
     {
       method: "GET",
       headers: {
@@ -57,7 +57,7 @@ export async function editQuestion(
   const questionData = parseFormData(formData);
 
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions/${_id}`,
+    `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions/${_id}`,
     {
       method: "PUT",
       headers: {
@@ -95,7 +95,7 @@ export async function addQuestion(
   const questionData = parseFormData(formData);
 
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions`,
+    `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions`,
     {
       method: "POST",
       headers: {
@@ -130,7 +130,7 @@ export async function addQuestion(
 
 export async function deleteQuestion(id: string, token?: string | null) {
   const response = await fetch(
-    `http://gateway-service:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
+    `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
     {
       method: "DELETE",
       headers: {
