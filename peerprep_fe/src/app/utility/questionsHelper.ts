@@ -1,4 +1,7 @@
 export function parseFormData(formData: FormData) {
+  var status = true;
+  var message = "";
+
   const getStringValue = (value: FormDataEntryValue | null): string => {
     return typeof value === "string" ? value : "";
   };
@@ -12,6 +15,13 @@ export function parseFormData(formData: FormData) {
     ?.split(";")
     ?.map((item) => {
       const [input, output, explanation] = item?.split("|");
+
+      if (!(input && output && explanation)) {
+        status = false;
+        message =
+          "Please format the examples as input|output|explanation with each entry separated by a semicolon";
+      }
+
       return {
         input: input?.trim(),
         output: output?.trim(),
@@ -33,5 +43,9 @@ export function parseFormData(formData: FormData) {
     constraints: constraints,
   };
 
-  return data;
+  return {
+    questionData: data,
+    status: status,
+    message: message,
+  };
 }

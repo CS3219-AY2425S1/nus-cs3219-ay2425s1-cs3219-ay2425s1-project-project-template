@@ -2,7 +2,6 @@
 
 import dotenv from "dotenv";
 import { parseFormData } from "../utility/questionsHelper";
-import { FormState } from "../types/AuthTypes";
 
 dotenv.config();
 
@@ -81,7 +80,15 @@ export async function editQuestion(
   formData: FormData
 ) {
   const { _id, ...rest } = question;
-  const questionData = parseFormData(formData);
+  const { questionData, status, message } = parseFormData(formData);
+
+  if (!status) {
+    return {
+      errors: {
+        errorMessage: message,
+      },
+    };
+  }
 
   const response = await fetch(
     `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions/${_id}`,
@@ -119,7 +126,15 @@ export async function addQuestion(
   formData: FormData
 ) {
   // Helper function to ensure the formData value is a string
-  const questionData = parseFormData(formData);
+  const { questionData, status, message } = parseFormData(formData);
+
+  if (!status) {
+    return {
+      errors: {
+        errorMessage: message,
+      },
+    };
+  }
 
   const response = await fetch(
     `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions`,
@@ -142,7 +157,7 @@ export async function addQuestion(
     } else {
       return {
         errors: {
-          errorMessage: result.message,
+          errorMessage: result?.message ? result?.message : result,
         },
       };
     }
