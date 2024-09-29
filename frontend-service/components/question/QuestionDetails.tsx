@@ -6,7 +6,7 @@ import "./QuestionDetails.css";
 const QuestionDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { questions, loading, error } = useQuestions();
-  const question = questions.find((q) => q.id === parseInt(id || "", 10));
+  const question = questions.find((q) => q.questionId === parseInt(id || "", 10));
 
   if (loading) {
     return <div>Loading...</div>;

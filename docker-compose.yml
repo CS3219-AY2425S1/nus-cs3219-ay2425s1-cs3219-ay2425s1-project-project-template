@@ -7,16 +7,25 @@ services:
     depends_on:
       - question-service
       - user-service
+    volumes:
+      - ./frontend-service:/app
+      - /app/node_modules
 
   question-service:
     build: ./question-service
     ports:
-      - 3001:3001
+      - 8080:8080
+    volumes:
+      - ./question-service:/app
+      - /app/node_modules
 
   user-service:
     build: ./user-service
     ports:
-      - 3002:3002
+      - 3001:3001
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
 
 # Notes:
 #
