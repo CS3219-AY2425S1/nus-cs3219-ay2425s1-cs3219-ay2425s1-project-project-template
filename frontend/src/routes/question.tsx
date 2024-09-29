@@ -94,7 +94,7 @@ export default function QuestionRoute() {
   }
 
   return (
-    <Card className='relative'>
+    <Card className='relative w-full max-w-3xl'>
       <CardHeader>
         <CardTitle className='mb-2'>{question.title}</CardTitle>
         <div className=''>
