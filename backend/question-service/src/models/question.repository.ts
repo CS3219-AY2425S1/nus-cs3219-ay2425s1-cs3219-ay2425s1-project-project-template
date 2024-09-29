@@ -2,7 +2,6 @@ import { FilterQuery, Model, model, SortOrder } from 'mongoose'
 
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
-import { QuestionDto } from '../types/QuestionDto'
 import questionSchema from './question.model'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
@@ -88,11 +87,38 @@ export async function deleteQuestion(id: string): Promise<void> {
 function getFilterQueryOptions(filterBy: string[][]): FilterQuery<IQuestion>[] {
     return filterBy.map(([key, value]) => {
         const query: { [key: string]: string | object } = {}
-        if (QuestionDto.isValidTextSearchFilter(key)) {
+        if (isValidTextSearchFilter(key)) {
             query[key] = { $regex: value, $options: 'i' }
         } else {
             query[key] = value
         }
         return query
     })
+}
+
+export function getFilterKeys(): { keys: string[] } {
+    return { keys: ['title', 'categories'] }
+}
+
+export function getSortKeysAndOrders(): { keys: string[]; orders: string[] } {
+    return { keys: ['complexity'], orders: ['asc', 'desc'] }
+}
+
+export function getSearchKeys(): { keys: string[] } {
+    return { keys: ['title'] }
+}
+
+export function isValidTextSearchFilter(key: string): boolean {
+    const { keys } = getSearchKeys()
+    return keys.includes(key)
+}
+
+export function isValidFilter(key: string): boolean {
+    const { keys } = getFilterKeys()
+    return keys.includes(key)
+}
+
+export function isValidSort(key: string, order: string): boolean {
+    const { keys, orders } = getSortKeysAndOrders()
+    return orders.includes(order) && keys.includes(key)
 }

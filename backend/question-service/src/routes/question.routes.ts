@@ -2,8 +2,11 @@ import passport from 'passport'
 import {
     handleCreateQuestion,
     handleDeleteQuestion,
+    handleGetCategories,
+    handleGetFilters,
     handleGetPaginatedQuestions,
     handleGetQuestionById,
+    handleGetSorts,
     handleUpdateQuestion,
 } from '../controllers/question.controller'
 
@@ -20,5 +23,8 @@ router.get('/:id', handleGetQuestionById)
 router.post('/', handleRoleBasedAccessControl([Role.ADMIN]), handleCreateQuestion)
 router.put('/:id', handleRoleBasedAccessControl([Role.ADMIN]), handleUpdateQuestion)
 router.delete('/:id', handleRoleBasedAccessControl([Role.ADMIN]), handleDeleteQuestion)
+router.get('/filters', handleGetFilters)
+router.get('/sorts', handleGetSorts)
+router.get('/categories', handleGetCategories)
 
 export default router
