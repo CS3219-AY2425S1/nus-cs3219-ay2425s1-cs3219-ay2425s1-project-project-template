@@ -8,11 +8,11 @@ import RadioButtonGroup from '@/components/shared/form/RadioButtonGroup';
 import FormTextAreaInput from '@/components/shared/form/FormTextAreaInput';
 import { useRouter } from 'next/navigation';
 
-type Props = {}
+type Props = {};
 
 interface Mapping {
-  key: string,
-  value: string
+  key: string;
+  value: string;
 }
 
 function NewQuestion({}: Props) {
@@ -78,17 +78,19 @@ function NewQuestion({}: Props) {
     const values = [...testCases];
     values.splice(idx, 1);
     setTestCases(values);
-  }
-  
+  };
+
   const handleSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const question: QuestionFullBody = {
       ...formData,
-      test_cases: testCases.map((elem: Mapping) => ({
-        [elem.key]: elem.value
-      })).reduce((res, item) => ({...res, ...item}), {})
-    }
+      test_cases: testCases
+        .map((elem: Mapping) => ({
+          [elem.key]: elem.value,
+        }))
+        .reduce((res, item) => ({ ...res, ...item }), {}),
+    };
     const status = await addQuestion(question);
     if (status.error) {
       console.log("Failed to add question.");
@@ -149,7 +151,7 @@ function NewQuestion({}: Props) {
           }>Submit</button>
       </form>
     </div>
-  )
+  );
 }
 
 export default NewQuestion;
