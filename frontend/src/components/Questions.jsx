@@ -29,9 +29,9 @@ const Questions = () => {
     fetchQuestions();
   }, []);
 
-  const sendDeleteQuestion = (id) => {
+  const sendDeleteQuestion = async (id) => {
     try {
-      deleteQuestion(id);
+      const response = await deleteQuestion(id);
       const updatedQuestions = questions.filter((q) => q._id !== id);
       setQuestions(updatedQuestions);
     } catch (error) {
