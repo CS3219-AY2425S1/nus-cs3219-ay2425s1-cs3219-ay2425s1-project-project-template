@@ -6,6 +6,12 @@ const router = express.Router();
 // Create a new question
 router.post("/questions", async (req, res) => {
   try {
+    // Check if a question with the same title already exists
+    const existingQuestion = await Question.findOne({ title: req.body.title });
+    if (existingQuestion) {
+      return res.status(400).json({ error: "Error: Question already exists" });
+    }
+
     const newQuestion = new Question(req.body);
     await newQuestion.save();
     res.status(201).json(newQuestion);
