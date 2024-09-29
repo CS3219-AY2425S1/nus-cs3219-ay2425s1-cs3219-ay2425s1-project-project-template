@@ -34,7 +34,6 @@ export const getLeetcodeDashboardData = async (): Promise<
   const url = `${QUESTION_SERVICE}/all`;
   const response = await fetch(url);
   const data = await response.json();
-  // console.log(data);
   return data;
 };
 
@@ -44,7 +43,6 @@ export const fetchSingleLeetcodeQuestion = async (
   const url = `${QUESTION_SERVICE}/${questionId}`;
   const response = await fetch(url);
   const data = await response.json();
-  // console.log(data);
   return data;
 };
 

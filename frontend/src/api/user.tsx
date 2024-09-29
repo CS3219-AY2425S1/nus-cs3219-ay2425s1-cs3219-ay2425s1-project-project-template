@@ -1,6 +1,9 @@
 import { User } from "@/types/user";
 
-export const setGetProfile = async (access_token: string, user: User): Promise<User> => {
+export const setGetProfile = async (
+  access_token: string,
+  user: User
+): Promise<User> => {
   const username = user.username;
   const bio = user.bio;
   const linkedin = user.linkedin;
@@ -22,7 +25,6 @@ export const setGetProfile = async (access_token: string, user: User): Promise<U
       github,
     }),
   });
-  console.log(response.json());
 
   // return response.json();
   return {
@@ -30,5 +32,5 @@ export const setGetProfile = async (access_token: string, user: User): Promise<U
     bio: "I live in Redhill",
     linkedin: "www.linkedin.com/in/hongshan",
     github: "www.github.com/hongshan",
-  }
-}
+  };
+};

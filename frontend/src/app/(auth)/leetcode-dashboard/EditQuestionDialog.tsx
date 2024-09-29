@@ -84,7 +84,6 @@ const EditQuestionDialog = ({ questionId }: EditQuestionDialogProp) => {
   }, [questionId, reset]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     setIsSubmitting(true);
     updateSingleLeetcodeQuestion({
       title: values.questionTitle,
@@ -170,7 +169,6 @@ const EditQuestionDialog = ({ questionId }: EditQuestionDialogProp) => {
             control={form.control}
             name="questionTopics"
             render={({ field }) => {
-              console.log(field);
               return (
                 <FormItem>
                   <FormLabel className="text-primary-500">Topics</FormLabel>
