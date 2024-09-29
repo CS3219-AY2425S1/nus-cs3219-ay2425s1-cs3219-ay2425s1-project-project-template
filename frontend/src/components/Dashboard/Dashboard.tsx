@@ -1,30 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTable, Column } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
 import EditQuestionModal from "../EditQuestionModal";
 
-const Dashboard: React.FC = () => {
-  const [Data, setData] = useState([]);
+// You can replace `any` with the actual type of questionList
+interface DashboardProps {
+  questions: Array<any>;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/questions", {
-          mode: "cors",
-          headers: {
-            "Access-Control-Allow-Origin": "http://localhost:8080",
-          },
-        });
-        const data = await response.json();
-        setData(data._embedded.questionList);
-      } catch (error) {
-        console.error("Error fetching question:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+const Dashboard: React.FC<DashboardProps> = ({ questions }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
@@ -50,7 +34,7 @@ const Dashboard: React.FC = () => {
   };
 
   const columns: Column[] = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => Data, [Data]);
+  const data = useMemo(() => questions, [questions]);
 
   const tableInstance = useTable({
     columns: columns,
