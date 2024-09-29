@@ -26,12 +26,14 @@ import QuestionDialog from "./QuestionDialog"
 import AddQuestionForm from "./components/addQuestionForm"
 import EditQuestionForm from "./components/editQuestionForm"
 import { useAuth } from "@/context/authContext"
+import DeleteQuestionAlertDialog from "./components/deleteQuestionAlertDialog";
 
 export default function QuestionsPage() {
     const [questions, setQuestions] = useState([]);
-    const [questionId, setQuestionId] = useState([]);
+    const [questionId, setQuestionId] = useState(0);
     const [isAddQuestionDisplayed, setIsAddQuestionDisplayed] = useState(false);
     const [isEditQuestionDisplayed, setIsEditQuestionDisplayed] = useState(false);
+    const [isDeleteDialogDisplayed, setIsDeleteDialogDisplayed] = useState(false);
     const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
 
     const handleOpenAddCard = () => {
@@ -42,13 +44,21 @@ export default function QuestionsPage() {
         setIsAddQuestionDisplayed(false);
     };
 
-    const handleOpenEditCard = (questionId) => {
+    const handleOpenEditCard = (questionId:number) => {
         setQuestionId(questionId);
         setIsEditQuestionDisplayed(true);
     }
 
     const handleCloseEditCard = () => {
         setIsEditQuestionDisplayed(false);
+    }
+
+    const handleOpenDeleteDialog = (questionId:number) => {
+        setQuestionId(questionId);
+        setIsDeleteDialogDisplayed(true);
+    }
+    const handleCloseDeleteDialog = () => {
+        setIsDeleteDialogDisplayed(false);
     }
 
     const fetchQuestions = async () => {
@@ -130,11 +140,15 @@ export default function QuestionsPage() {
                                     {isAdmin && 
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                          <Ellipsis />
+                                          <Ellipsis className="hover:cursor-pointer"/>
                                         </DropdownMenuTrigger>
                                          <DropdownMenuContent className="w-56">
                                           <DropdownMenuItem onSelect={() => handleOpenEditCard(question.questionId)}>
                                             Edit Question
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem onSelect={() => handleOpenDeleteDialog(question.questionId)}>
+                                          
+                                          Delete Question
                                           </DropdownMenuItem>
                                          </DropdownMenuContent>
                                     </DropdownMenu>}
@@ -162,6 +176,14 @@ export default function QuestionsPage() {
                         </div>
                     </div>
                     )}
+
+                    {isDeleteDialogDisplayed && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                            <h2 className="text-xl font-bold mb-4">Delete Question</h2>
+                            <DeleteQuestionAlertDialog questionId={questionId} onClose={handleCloseDeleteDialog} refetch={fetchQuestions} />
+                            </div>
+                        </div>)}
             </div>    
         </section>
     )

@@ -50,7 +50,7 @@ const formSchema = z.object({
 });
 
 interface EditQuestionFormProps {
-  questionId: any,
+  questionId: number,
   onClose: () => void, // Receive the onClose function as a prop
   refetch: () => void;
 }
