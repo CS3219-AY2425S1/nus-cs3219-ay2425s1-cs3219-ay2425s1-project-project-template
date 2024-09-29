@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="w-screen h-screen flex flex-col">
       <AdminNavBar setQuestions={setQuestions}/>
-      <Dashboard questions={questions} />
+      <Dashboard questions={questions} setQuestions={setQuestions} />
     </div>
   );
 };

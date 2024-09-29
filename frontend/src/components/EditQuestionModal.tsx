@@ -10,7 +10,8 @@ const EditQuestionModal: React.FC<{
   oldTitle: string;
   oldDetails: string;
   questionID: string;
-}> = ({ onClose, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID }) => {
+  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+}> = ({ onClose, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID, setQuestions }) => {
   const editQuestion = (questionID: string, difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
       fetch(`http://localhost:8080/questions/${questionID}`, {
           mode: "cors",
@@ -26,15 +27,46 @@ const EditQuestionModal: React.FC<{
             categories: topicValue,
             complexity: difficultyValue
           })
-        }).then(response => response.json())
+        }).then(response => {
+          response.json();
+          retrieveAndSetQuestionList();
+        })
         .then(data => console.log(data))
         .catch(error => {
           alert('Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again.');
           console.error('Error editing question:', error);
         });
+
+
       closeEditConfirmationModal();
       onClose();
   };
+
+  const retrieveAndSetQuestionList = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/questions", {
+        mode: "cors",
+        headers: {
+          "Access-Control-Allow-Origin": "http://localhost:8080",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch questions");
+      }
+
+      const data = await response.json();
+      
+      // Assuming the API returns a structure like data._embedded.questionList
+      setQuestions(data._embedded.questionList); 
+      console.log("Testing: Question list should appear below");
+      console.log(data._embedded.questionList);
+      
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  }
+  
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const openDeleteModal = () => setDeleteModalOpen(true);

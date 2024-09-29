@@ -6,9 +6,10 @@ import EditQuestionModal from "../EditQuestionModal";
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
   questions: Array<any>;
+  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ questions }) => {
+const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
@@ -54,6 +55,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions }) => {
           oldTitle={oldTitle}
           oldDetails={oldDetails}
           questionID={questionID}
+          setQuestions={setQuestions}
         />
       )}
       {/* Add your table or other components here */}
