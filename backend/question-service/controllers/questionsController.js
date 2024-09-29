@@ -9,8 +9,14 @@ const getAllQuestions = async (req, res) => {
 
 const createQuestion = async (req, res) => {
     if (!(req?.body?.title && req?.body?.description && req?.body?.category && req?.body?.complexity)) {
-        return res.status(400).json({ 'message': 'title, description, category and complexity are required!' });
-    }    
+        return res.status(400).json({ 'message': 'Title, description, category and complexity are required!' });
+    }
+    if (await QuestionSchema.countDocuments({ title: req.body.title }) > 0) {
+        return res.status(409).json({ 'message': 'A question with this title already exists!' })
+    }
+    if (await QuestionSchema.countDocuments({ description: req.body.description }) > 0) {
+        return res.status(409).json({ 'message': 'A question with this description already exists!' })
+    }
     try {
         const result = await QuestionSchema.create({
             title: req.body.title,
@@ -19,7 +25,7 @@ const createQuestion = async (req, res) => {
             complexity: req.body.complexity
         });
 
-        res.status(201).json(result);
+        return res.status(201).json(result);
     } catch (err) {
         console.error(err);
     }
@@ -41,6 +47,20 @@ const updateQuestion = async (req, res) => {
 
     if (!question) {
         return res.status(401).json({ "message": `No question matches ID ${ questionId}.` });
+    }
+
+    // Check for duplicate titles
+    const currentTitle = await QuestionSchema.findById(req.body._id, 'title').exec()
+    const duplicateTitleCheck = (await QuestionSchema.countDocuments({ title: req.body.title }) > 1) || (await QuestionSchema.countDocuments({ title: req.body.title }) == 1 && currentTitle.title != req.body.title)
+    if (duplicateTitleCheck) {
+        return res.status(409).json({ 'message': 'A question with this title already exists!' })
+    }
+
+    // Check for duplicate descriptions
+    const currentDescription = await QuestionSchema.findById(req.body._id, 'description').exec()
+    const duplicateDescCheck = (await QuestionSchema.countDocuments({ description: req.body.description }) > 1) || (await QuestionSchema.countDocuments({ description: req.body.description }) == 1 && currentDescription.description != req.body.description)
+    if (duplicateDescCheck) {
+        return res.status(409).json({ 'message': 'A question with this description already exists!' })
     }
 
     if (req.body?.title) question.title = req.body.title;
