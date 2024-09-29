@@ -173,7 +173,7 @@ export default function Home() {
     const timeout = setTimeout(() => {
       setDelayedSearch(search);
       setCurrentPage(1); // Reset the current page
-    }, 800);
+    }, 500);
     return () => clearTimeout(timeout);
   }, [search]);
 
