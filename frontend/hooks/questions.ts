@@ -5,17 +5,18 @@ import { AxiosError } from "axios";
 import axios from "@/utils/axios";
 import { Question, QuestionList } from "@/types/questions";
 
+const fetchQuestionFromPage = async (page: number) => {
+  const { data } = await axios.get(`/questions?page=${page}&limit=10`);
+  return data;
+}
 // Fetch questions list
-export const useQuestions = () => {
+export const useQuestions = (page: number) => {
   return useQuery<QuestionList, Error>({
-    queryKey: ["questions"],
-    queryFn: async (): Promise<QuestionList> => {
-      const response = await axios.get("/questions");
-
-      return response.data;
-    },
+    queryKey: ["questions", page],
+    queryFn: () => fetchQuestionFromPage(page), // Corrected syntax
   });
 };
+
 
 // Fetch a single question
 export const useGetQuestion = (id: string) => {

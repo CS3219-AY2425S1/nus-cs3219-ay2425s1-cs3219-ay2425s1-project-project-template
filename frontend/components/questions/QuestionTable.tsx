@@ -21,7 +21,7 @@ interface QuestionTableProps {
 }
 
 const columns = [
-  { name: "Index", uid: "index" },
+  { name: "No.", uid: "index" },
   { name: "Title", uid: "title" },
   { name: "Category", uid: "category" },
   { name: "Difficulty", uid: "complexity" },
@@ -29,6 +29,7 @@ const columns = [
 ];
 
 export default function QuestionTable({ questions }: QuestionTableProps) {
+  questions = questions.map((question, idx) => ({ ...question, index: idx + 1 }));
   const renderCell = useCallback((question: Question, columnKey: ReactKey) => {
     const questionValue = question[columnKey as keyof Question];
 
