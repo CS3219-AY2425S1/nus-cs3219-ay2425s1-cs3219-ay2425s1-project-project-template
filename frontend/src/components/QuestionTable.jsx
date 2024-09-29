@@ -69,11 +69,14 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
   const handleSubmit = (e) => {
     e.preventDefault();
     const { questionId, questionName, questionDescription, questionTopics, link, questionDifficulty } = formData;
-
-    // Validation checks
+    if (questionId <= 0) {
+      alert("Question ID must be greater than 0.");
+      return; 
+    }
+    // should not reach here 
     if (!questionId || !questionName || !questionDescription || !link || questionTopics.length === 0 || !questionDifficulty) {
       alert("Please fill in all fields. At least one topic must be selected, and a difficulty must be chosen.");
-      return; // Prevent submission if validation fails
+      return; 
     }
 
     if (isEditing) {
