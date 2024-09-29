@@ -51,10 +51,11 @@ const formSchema = z.object({
 
 interface EditQuestionFormProps {
   questionId: any,
-  onClose: () => void; // Receive the onClose function as a prop
+  onClose: () => void, // Receive the onClose function as a prop
+  refetch: () => void;
 }
 
-const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose }) => {
+const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose, refetch }) => {
 
       const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -104,8 +105,10 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         } catch(err) {
             // handle error we can decide later
             console.log("error", err);
+        } finally {
+          refetch();
+          onClose();
         }
-        onClose();
       }
 
 

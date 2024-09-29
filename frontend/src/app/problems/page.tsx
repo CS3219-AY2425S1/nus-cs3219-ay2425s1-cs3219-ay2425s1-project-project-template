@@ -127,6 +127,7 @@ export default function QuestionsPage() {
                                     )}
                                 </TableCell> */}
                                 <TableCell>
+                                    {isAdmin && 
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                           <Ellipsis />
@@ -136,7 +137,7 @@ export default function QuestionsPage() {
                                             Edit Question
                                           </DropdownMenuItem>
                                          </DropdownMenuContent>
-                                      </DropdownMenu>
+                                    </DropdownMenu>}
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -157,7 +158,7 @@ export default function QuestionsPage() {
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                           <h2 className="text-xl font-bold mb-4">Edit Question</h2>
-                    <EditQuestionForm questionId={questionId} onClose={handleCloseEditCard} />
+                    <EditQuestionForm questionId={questionId} onClose={handleCloseEditCard} refetch={fetchQuestions} />
                         </div>
                     </div>
                     )}
