@@ -27,6 +27,7 @@ import { capitalizeWords } from "@/utils/string_utils";
 import { topicsList } from "@/utils/constants";
 
 interface EditQuestionDialogProp {
+  handleClose: () => void;
   questionId: string;
 }
 
@@ -44,7 +45,10 @@ const initialValues: EditQuestionValues = {
   questionDescription: "",
 };
 
-const EditQuestionDialog = ({ questionId }: EditQuestionDialogProp) => {
+const EditQuestionDialog = ({
+  questionId,
+  handleClose,
+}: EditQuestionDialogProp) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leetcodeData, setLeetcodeData] =
     useState<EditQuestionValues>(initialValues);
@@ -107,6 +111,7 @@ const EditQuestionDialog = ({ questionId }: EditQuestionDialogProp) => {
         });
       })
       .finally(() => {
+        handleClose();
         setIsSubmitting(false);
       });
   }

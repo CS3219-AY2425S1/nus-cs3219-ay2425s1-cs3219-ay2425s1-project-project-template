@@ -117,7 +117,11 @@ export function LeetcodeDashboardTable() {
       accessorKey: "category",
       header: () => <Cell>Topics</Cell>,
       cell: ({ row }) => {
-        return <Cell>{row.getValue("category")}</Cell>;
+        const categoryValue = row.getValue("category");
+        const result: string = Array.isArray(categoryValue)
+          ? categoryValue.join(", ")
+          : String(categoryValue);
+        return <Cell>{result}</Cell>;
       },
     },
     {
@@ -148,7 +152,10 @@ export function LeetcodeDashboardTable() {
                 variants={modalAnimation}
                 transition={{ duration: 0.3 }}
               >
-                <EditQuestionDialog questionId={questionId} />
+                <EditQuestionDialog
+                  questionId={questionId}
+                  handleClose={closeModal}
+                />
               </motion.div>
             </Modal>
             <Button variant={"ghost"} onClick={() => handleDelete(questionId)}>
@@ -161,7 +168,7 @@ export function LeetcodeDashboardTable() {
   ];
 
   useEffect(() => {
-    getLeetcodeDashboardData().then((data) => setData(data));
+    getLeetcodeDashboardData().then((data) => setData(data.reverse()));
   }, [refreshKey]);
 
   const table = useReactTable({

@@ -22,7 +22,11 @@ import MoonLoader from "react-spinners/MoonLoader";
 import { createSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
 import { topicsList } from "@/utils/constants";
 
-const AddQuestionDialog = () => {
+interface AddQuestionDialogProps {
+  handleClose: () => void;
+}
+
+const AddQuestionDialog = ({ handleClose }: AddQuestionDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formSchema = z.object({
@@ -75,6 +79,7 @@ const AddQuestionDialog = () => {
       })
       .finally(() => {
         setIsSubmitting(false);
+        handleClose();
       });
   }
 
