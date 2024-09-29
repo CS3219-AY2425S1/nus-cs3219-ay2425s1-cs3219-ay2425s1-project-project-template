@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
+import ErrorMessage from './ErrorMessageDialog'
 import questionService from '../services/question-service';
 import '../styles/create-question-dialog.css';
 
@@ -22,6 +23,8 @@ const EditQuestion = ({ open, handleClose, question }) => {
     });
 
     const [imageFiles, setImageFiles] = React.useState([]);
+    const [errorOpen, setErrorOpen] = React.useState(false); // State to control error dialog visibility
+    const [errorMessage, setErrorMessage] = React.useState(''); // State to store error message
 
     const handleInputChange = (event) => {
       const { name, value } = event.target;
@@ -34,6 +37,10 @@ const EditQuestion = ({ open, handleClose, question }) => {
 
     const handleImageFilesChange = (event) => {
       setImageFiles(event.target.files);
+    };
+    
+    const handleErrorClose = () => {
+      setErrorOpen(false); // Close the error dialog
     };
 
     const handleSubmit = async (event) => {
@@ -62,11 +69,13 @@ const EditQuestion = ({ open, handleClose, question }) => {
           window.location.reload(); // Refresh the page after the update
           handleClose();
       } catch (error) {
-          console.error('Error updating question:', error);
+          setErrorMessage('Error updating question: ' + error.response.data.message); // Set error message
+          setErrorOpen(true); // Open error dialog
       }
     };
     
     return (
+      <>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle className="dialog-title">Edit Question</DialogTitle>
         <form onSubmit={handleSubmit}>
@@ -94,7 +103,8 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
-              rows={4}
+              minRows={4}
+              maxRows={16}
               value={questionData.description}
               onChange={handleInputChange}
               className="text-field"
@@ -138,6 +148,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              maxRows={16}
               value={questionData.input}
               onChange={handleInputChange}
               className="text-field"
@@ -151,6 +162,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
+              maxRows={16}
               value={questionData.expected_output}
               onChange={handleInputChange}
               className="text-field"
@@ -195,6 +207,13 @@ const EditQuestion = ({ open, handleClose, question }) => {
           </DialogActions>
         </form>
       </Dialog>
+
+      <ErrorMessage
+                open={errorOpen}
+                handleClose={handleErrorClose}
+                errorMessage={errorMessage}
+            />
+      </>
     );
   };
 
