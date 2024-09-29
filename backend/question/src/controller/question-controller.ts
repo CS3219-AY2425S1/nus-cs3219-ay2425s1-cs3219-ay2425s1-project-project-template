@@ -1,4 +1,6 @@
-import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import type { Request, Response } from 'express';
+
 import {
   getQuestionsService,
   getQuestionDetailsService,
@@ -10,7 +12,6 @@ import type {
   IGetQuestionPayload,
   IGetRandomQuestionPayload,
 } from '@/services/get/types';
-import { StatusCodes } from 'http-status-codes';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
   const payload: IGetQuestionsPayload = {
@@ -23,7 +24,7 @@ export const getQuestions = async (req: Request, res: Response): Promise<Respons
 
   try {
     const result = await getQuestionsService(payload);
-    if (!result.data || result.code < 400) {
+    if (!result.data || result.code >= 400) {
       return res.status(result.code).json({
         message: result.error?.message ?? 'An error occurred',
       });
@@ -43,7 +44,7 @@ export const getQuestionDetails = async (req: Request, res: Response): Promise<R
 
   try {
     const result = await getQuestionDetailsService(payload);
-    if (!result.data || result.code < 400) {
+    if (!result.data || result.code >= 400) {
       return res.status(result.code).json({
         message: result.error?.message ?? 'An error occurred',
       });

@@ -1,5 +1,5 @@
 import { questionApiClient } from './api-clients';
-import { questionDetails, questions } from '@/assets/questions';
+import { questions } from '@/assets/questions';
 import type { IGetQuestionsResponse } from '@/types/question-types';
 
 const QUESTION_SERVICE_ROUTES = {
@@ -7,12 +7,25 @@ const QUESTION_SERVICE_ROUTES = {
   GET_QUESTION_DETAILS: '/questions/<questionId>',
 };
 
-type QuestionDetails = (typeof questionDetails)[number];
+// type QuestionDetails = (typeof questionDetails)[number];
+type IGetQuestionDetailsResponse = {
+  question: {
+    title: string;
+    description: string;
+    topic: Array<string>;
+    difficulty: string;
+    id?: string;
+  };
+};
 
-export const getQuestionDetails = (questionId: number): Promise<QuestionDetails> => {
-  return questionApiClient.get(
-    QUESTION_SERVICE_ROUTES.GET_QUESTION_DETAILS.replace(/<questionId>/, String(questionId))
-  );
+type IQuestionDetails = Required<IGetQuestionDetailsResponse>['question'];
+
+export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDetailsResponse> => {
+  return questionApiClient
+    .get(QUESTION_SERVICE_ROUTES.GET_QUESTION_DETAILS.replace(/<questionId>/, String(questionId)))
+    .then((v) => {
+      return v.data as IGetQuestionDetailsResponse;
+    });
   // // return questionApiClient.get
   // console.log(questionDetails.find(({ id }) => id === questionId));
   // return new Promise((resolve, _reject) => {
