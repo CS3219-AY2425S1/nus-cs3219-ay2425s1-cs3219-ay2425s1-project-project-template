@@ -4,13 +4,13 @@ import { Await, defer, useLoaderData, type LoaderFunctionArgs } from 'react-rout
 
 import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 import { Loading } from '@/components/blocks/loading';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { fetchQuestions, ROWS_PER_PAGE } from '@/services/question-service';
 import type { IGetQuestionsResponse } from '@/types/question-types';
 
 import { QuestionTable } from './question-table';
 import { columns } from './table-columns';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const getListQuestionsQueryConfig = (pageNumber?: number) =>
   queryOptions({
