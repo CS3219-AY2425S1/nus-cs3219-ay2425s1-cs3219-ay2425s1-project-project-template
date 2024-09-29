@@ -17,6 +17,10 @@ const editQuestion = async (req: Request, res: Response) => {
         if (categories) updatedFields.categories = categories
         if (difficulty) updatedFields.difficulty = difficulty
 
+        if (Object.keys(updatedFields).length === 0) {
+            return res.status(400).send('At least one field required to update question')
+        }
+
         const updatedQuestion = await Question.findOneAndUpdate(
             { questionId },
             { $set: updatedFields },
