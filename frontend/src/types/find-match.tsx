@@ -83,3 +83,14 @@ export interface QuestionMinified {
   title: string;
   complexity: string;
 }
+
+export interface NewQuestionData {
+  title: string;
+  description: string;
+  category: string[];
+  complexity: string;
+}
+
+export interface QuestionFull extends NewQuestionData {
+  questionId: string;
+}

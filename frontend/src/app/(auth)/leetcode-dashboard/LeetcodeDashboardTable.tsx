@@ -22,7 +22,10 @@ import {
 import { cn } from "@/lib/utils";
 import { HiOutlinePencil } from "react-icons/hi";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { getLeetcodeDashboardData } from "@/api/leetcode-dashboard";
+import {
+  deleteSingleLeetcodeQuestion,
+  getLeetcodeDashboardData,
+} from "@/api/leetcode-dashboard";
 import { QuestionMinified } from "@/types/find-match";
 import MoonLoader from "react-spinners/MoonLoader";
 import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/EditQuestionDialog";
@@ -48,16 +51,21 @@ export function LeetcodeDashboardTable() {
     string | null
   >(null);
 
-  function handleDelete(questionid: string) {
+  function handleDelete(questionId: string) {
     Swal.fire({
       icon: "error",
       title: "Confirm delete?",
       text: "Are you sure you want to delete this question?",
       showCancelButton: true,
       confirmButtonText: "Confirm",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire("Question deleted successfully!", "", "success");
+        const res = await deleteSingleLeetcodeQuestion(questionId);
+        if (res.ok) {
+          Swal.fire("Question deleted successfully!", "", "success");
+        } else {
+          Swal.fire("An error occured, please try again later");
+        }
       }
     });
   }

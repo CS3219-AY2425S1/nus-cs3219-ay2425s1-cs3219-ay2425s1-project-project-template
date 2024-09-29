@@ -20,7 +20,10 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import { z } from "zod";
 import MoonLoader from "react-spinners/MoonLoader";
-import { fetchSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
+import {
+  fetchSingleLeetcodeQuestion,
+  updateSingleLeetcodeQuestion,
+} from "@/api/leetcode-dashboard";
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
@@ -81,42 +84,36 @@ const EditQuestionDialog = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    // setIsSubmitting(true);
-    // const url = `${QUESTION_SERVICE}/create`;
-    // await fetch(url, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     title: values.questionTitle,
-    //     description: values.questionDescription,
-    //     category: values.questionTopics,
-    //     complexity: values.questionDifficulty,
-    //   }),
-    // })
-    //   .then((response) => {
-    //     if (response.ok) {
-    //       Swal.fire({
-    //         icon: "success",
-    //         title: "Question Added",
-    //         text: "Question has been added successfully.",
-    //       });
-    //     }
+    setIsSubmitting(true);
+    updateSingleLeetcodeQuestion({
+      title: values.questionTitle,
+      description: values.questionDescription,
+      category: values.questionTopics,
+      complexity: values.questionDifficulty,
+      questionId: questionId,
+    })
+      .then((response) => {
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Question Added",
+            text: "Question has been modified successfully.",
+          });
+        }
 
-    //     return response.json();
-    //   })
-    //   .catch((error) => {
-    //     Swal.fire({
-    //       icon: "error",
-    //       title: "Question Add Failed",
-    //       text: "Please try again later.",
-    //     });
-    //   })
-    //   .finally(() => {
-    //     setIsSubmitting(false);
-    //     setClose();
-    //   });
+        return response.json();
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: "Question Add Failed",
+          text: "Please try again later.",
+        });
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+        setClose();
+      });
   }
 
   return (
@@ -126,7 +123,7 @@ const EditQuestionDialog = ({
       </div>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)} // Ensure form.handleSubmit is used correctly
+          onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >
           <FormField
@@ -158,7 +155,7 @@ const EditQuestionDialog = ({
                 <FormControl>
                   <select
                     className="w-full bg-primary-800 text-white p-2 rounded-md border border-white capitalize"
-                    {...field} // Connect field to the select element
+                    {...field}
                   >
                     <div>Select difficulty</div>
                     {Object.values(QuestionDifficulty).map((qd) => (
