@@ -41,6 +41,7 @@ export default function Sessions() {
                 hideIdx={false}
                 pagination={pagination}
                 paginationHandler={paginationHandler}
+                sortBy={sortBy}
                 sortHandler={sortHandler}
                 actionsHandler={() => {}}
             />

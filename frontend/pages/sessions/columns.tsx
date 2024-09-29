@@ -51,6 +51,7 @@ export const columns: IDatatableColumn[] = [
         formatter: (value) => {
             return <span>{convertTimestamp(value)}</span>
         },
+        isSortable: true,
     },
 ]
 
