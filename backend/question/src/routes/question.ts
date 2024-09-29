@@ -20,8 +20,8 @@ router.get('/:questionId', getQuestionDetails);
 
 router.post('/random', getRandomQuestion);
 
-router.post('/questions', createQuestion);
-router.put('/questions/:questionId', updateQuestion);
-router.delete('/questions/:questionId', deleteQuestion);
+router.post('/create', createQuestion);
+router.put('/:questionId', updateQuestion);
+router.delete('/:questionId', deleteQuestion);
 
 export default router;

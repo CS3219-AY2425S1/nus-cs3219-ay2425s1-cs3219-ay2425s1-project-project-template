@@ -78,6 +78,8 @@ export const getRandomQuestion = async (req: Request, res: Response): Promise<Re
     const result = await getRandomQuestionService(payload);
     return res.status(result.code).json(result);
   } catch (error) {
+    console.log('error', error);
+
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'An error occurred', error });
