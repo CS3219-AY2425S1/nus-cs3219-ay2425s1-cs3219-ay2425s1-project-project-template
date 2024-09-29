@@ -1,59 +1,66 @@
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
-    CATEGORY_ENUM,
-    CreateQuestionData,
-    createQuestionSchema,
+  CATEGORY_ENUM,
+  CreateQuestionData,
+  createQuestionSchema,
 } from '@/types/question';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Trash } from 'lucide-react';
 import {
-    FieldErrors,
-    SubmitHandler,
-    useFieldArray,
-    useForm,
+  FieldErrors,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
 } from 'react-hook-form';
 
 type QuestionFormProps = {
   onSubmit: SubmitHandler<CreateQuestionData>;
+  defaultValues?: CreateQuestionData;
+  action: 'create' | 'edit';
 };
 
-export function QuestionForm({ onSubmit }: QuestionFormProps) {
+const formDefaultValues: CreateQuestionData = {
+  title: '',
+  description: '',
+  examples: [{ input: '', output: '' }],
+  constraints: [],
+  categories: [],
+  difficulty: 'Easy',
+  link: '',
+};
+
+export function QuestionForm({
+  onSubmit,
+  defaultValues = formDefaultValues,
+  action = 'create',
+}: QuestionFormProps) {
   const form = useForm<CreateQuestionData>({
     resolver: zodResolver(createQuestionSchema),
-    defaultValues: {
-      title: 'Two Sum',
-      description:
-        'Given an array of integers, return indices of the two numbers such that they add up to a specific target.',
-      examples: [{ input: 'hello', output: 'world' }],
-      constraints: [],
-      categories: [],
-      difficulty: 'Easy',
-      link: 'https://leetcode.com/problems/two-sum/',
-    },
+    defaultValues: structuredClone(defaultValues),
   });
 
   const examplesControl = useFieldArray({
@@ -130,7 +137,9 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                       <Input
                         placeholder='Input'
                         className='w-full'
-                        disabled={form.formState.isSubmitting}
+                        disabled={
+                          form.formState.isSubmitting || action === 'edit'
+                        }
                         {...field}
                       />
                     </FormControl>
@@ -145,7 +154,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                   type='button'
                   onClick={() => examplesControl.remove(index)}
                   className='flex-shrink-0'
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || action === 'edit'}
                 >
                   <Trash className='w-4 h-4' />
                 </Button>
@@ -161,7 +170,9 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                     <Input
                       placeholder='Output'
                       {...field}
-                      disabled={form.formState.isSubmitting}
+                      disabled={
+                        form.formState.isSubmitting || action === 'edit'
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -176,7 +187,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
           size='sm'
           type='button'
           onClick={() => examplesControl.append({ input: '', output: '' })}
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || action === 'edit'}
         >
           Add Example
         </Button>
@@ -197,7 +208,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                 <Input
                   placeholder='Add constraint'
                   {...field}
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || action === 'edit'}
                 />
               </FormControl>
 
@@ -207,7 +218,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
                 type='button'
                 className='flex-shrink-0'
                 onClick={() => constraintsControl.remove(index)}
-                disabled={form.formState.isSubmitting}
+                disabled={form.formState.isSubmitting || action === 'edit'}
               >
                 <Trash className='w-4 h-4' />
               </Button>
@@ -220,7 +231,7 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
           size='sm'
           type='button'
           onClick={() => constraintsControl.append({ constraint: '' })}
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || action === 'edit'}
         >
           Add Constraint
         </Button>
@@ -333,35 +344,54 @@ export function QuestionForm({ onSubmit }: QuestionFormProps) {
         <Button
           type='submit'
           className='w-full'
-          disabled={form.formState.isSubmitting}
+          disabled={
+            form.formState.isSubmitting ||
+            !form.formState.isValid ||
+            !form.formState.dirtyFields
+          }
         >
           {form.formState.isSubmitting && (
             <Loader2 className='w-4 h-4 mr-2 animate-spin' />
           )}
-          {form.formState.isSubmitting ? 'Submitting...' : 'Submit'}
+          {form.formState.isSubmitting
+            ? 'Submitting...'
+            : action === 'create'
+            ? 'Create'
+            : 'Update'}
         </Button>
       </form>
     </Form>
   );
 }
 
+type QuestionDialogProps = {
+  open: boolean;
+  onClose: () => void;
+} & QuestionFormProps;
+
 export function QuestionDialog({
   open,
   onClose,
   onSubmit,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: SubmitHandler<CreateQuestionData>;
-}) {
+  action,
+  defaultValues,
+}: QuestionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className='max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle>Create Question</DialogTitle>
-          <DialogDescription>Create a new question</DialogDescription>
+          <DialogTitle>
+            {action === 'create' ? 'Create Question' : 'Edit Question'}
+          </DialogTitle>
+          <DialogDescription>
+            {action === 'create'
+              ? 'Create a new question'
+              : 'Edit the existing question'}
+          </DialogDescription>
         </DialogHeader>
         <QuestionForm
+          action={action}
+          defaultValues={defaultValues}
           onSubmit={async (data) => {
             await onSubmit(data);
             onClose();

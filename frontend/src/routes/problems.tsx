@@ -48,6 +48,7 @@ export default function ProblemsRoute() {
         <h1 className='text-3xl font-bold'>Problem Set</h1>
         <Button onClick={() => setOpen(true)}>Create Question</Button>
         <QuestionDialog
+          action='create'
           open={open}
           onClose={() => setOpen(false)}
           onSubmit={onSubmit}
