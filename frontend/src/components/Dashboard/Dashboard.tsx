@@ -1,29 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
+import React, { useMemo, useState } from "react";
+import { useTable, Column } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
 import EditQuestionModal from "../EditQuestionModal";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
-const Dashboard: React.FC = () => {
-  const [Data, setData] = useState([]);
+// You can replace `any` with the actual type of questionList
+interface DashboardProps {
+  questions: Array<any>;
+  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/questions", {
-          headers: {
-            "Access-Control-Allow-Origin": "http://localhost:8080",
-          },
-        });
-        setData(response.data._embedded.questionList);
-      } catch (error) {
-        console.error("Error fetching question:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
+const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
@@ -49,7 +37,7 @@ const Dashboard: React.FC = () => {
   };
 
   const columns: Column[] = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => Data, [Data]);
+  const data = useMemo(() => questions, [questions]);
 
   const tableInstance = useTable({
     columns: columns,
@@ -84,6 +72,7 @@ const Dashboard: React.FC = () => {
           oldTitle={oldTitle}
           oldDetails={oldDetails}
           questionID={questionID}
+          setQuestions={setQuestions}
         />
       )}
       {/* Add your table or other components here */}

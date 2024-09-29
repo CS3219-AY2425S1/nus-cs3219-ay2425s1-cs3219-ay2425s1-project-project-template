@@ -1,6 +1,12 @@
 import React, {useEffect, useState} from "react";
+import Dashboard from "./Dashboard/Dashboard";
 
-const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
+interface AddQuestionModalProps {
+  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+  onClose: () => void;
+}
+
+const AddQuestionModal: React.FC<AddQuestionModalProps> = ({setQuestions, onClose}) => {
   //const [difficultyValue, setDifficultyValue] = useState("");
   //const [topicValue, setTopicValue] = useState([""]);
   //const [titleValue, setTitleValue] = useState("");
@@ -29,13 +35,39 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
         console.log(data);
         onClose();
       } catch (error) {
-          console.error('Error adding question:', error);
+        alert('Error adding question. The question you are adding may be a duplicate (having the same title as an existing question). Please try again.');
+        console.error('Error adding question:', error);
       }
   };
   
+  const retrieveAndSetQuestionList = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/questions", {
+        mode: "cors",
+        headers: {
+          "Access-Control-Allow-Origin": "http://localhost:8080",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch questions");
+      }
+
+      const data = await response.json();
+      
+      // Assuming the API returns a structure like data._embedded.questionList
+      setQuestions(data._embedded.questionList); 
+      console.log("Testing: Question list should appear below");
+      console.log(data._embedded.questionList);
+      
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  }
   
 
-  function onSubmit() {
+  async function onSubmit() {
+    console.log("Testing submit button")
     const difficultyElement = document.getElementById('difficulty') as HTMLSelectElement | null;
     const difficultyValue = difficultyElement ? difficultyElement.value : '';
     //setDifficultyValue(difficultyValue);
@@ -69,7 +101,10 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
     }
 
     console.log("can submit");
-    addQuestion(difficultyValue, topicList, titleValue, detailsValue);
+    await addQuestion(difficultyValue, topicList, titleValue, detailsValue);
+
+    // Retrieve new question list after adding
+    retrieveAndSetQuestionList();
   }
 
   return (

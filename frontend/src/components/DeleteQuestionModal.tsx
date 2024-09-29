@@ -8,8 +8,9 @@ const DeleteQuestionModal: React.FC<{
   oldTopic: string[]; 
   oldTitle: string; 
   oldDetails: string; 
-  questionID: string
-}> = ({onClose, onDelete, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID}) => {
+  questionID: string;
+  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+}> = ({onClose, onDelete, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID, setQuestions}) => {
   
   const deleteQuestion = async (questionID: string) => {
     try {
@@ -26,10 +27,37 @@ const DeleteQuestionModal: React.FC<{
         if (!response.ok) {
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
+      retrieveAndSetQuestionList();
     } catch (error) {
-        console.error('Error deleting question:', error);
+      alert('Error deleting question. Please try again.');
+      console.error('Error deleting question:', error);
     }
   };
+
+  const retrieveAndSetQuestionList = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/questions", {
+        mode: "cors",
+        headers: {
+          "Access-Control-Allow-Origin": "http://localhost:8080",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch questions");
+      }
+
+      const data = await response.json();
+      
+      // Assuming the API returns a structure like data._embedded.questionList
+      setQuestions(data._embedded.questionList); 
+      console.log("Testing: Question list should appear below");
+      console.log(data._embedded.questionList);
+      
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  }
 
   return (
     <>
