@@ -46,6 +46,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
         setIsDeleting(false);
       },
       onError: (error) => {
+        alert(`Error: ${error}`);
         setIsDeleting(false);
       },
     });
