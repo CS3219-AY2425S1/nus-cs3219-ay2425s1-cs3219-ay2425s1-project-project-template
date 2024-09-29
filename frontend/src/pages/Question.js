@@ -77,7 +77,12 @@ export const Question = () => {
         alert("Successfully updated!");
       }
     } catch(error) {
-      console.log(error);
+      if (error.response.data.code === 11000) {
+        //duplicate
+        alert("Question titles must be unique!");
+      } else {
+        alert("An error occured!");
+      }
     }
   }
 
@@ -125,8 +130,12 @@ export const Question = () => {
           alert("Unable to create question :(");
         }
       } catch (error) {
-        console.log(error);
-        alert("An error occured!");
+        if (error.response.data.code === 11000) {
+          //duplicate
+          alert("Question titles must be unique!");
+        } else {
+          alert("An error occured!");
+        }
       }
     }
   }
