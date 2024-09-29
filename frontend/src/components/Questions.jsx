@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getQuestions } from "../services/QuestionService";
 
 const Questions = () => {
   const [questions, setQuestions] = useState([]);
@@ -11,9 +12,8 @@ const Questions = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch(""); // <--- enter the api here
-        const data = await response.json();
-        setQuestions(data);
+        const questions = await getQuestions();
+        setQuestions(questions);
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
