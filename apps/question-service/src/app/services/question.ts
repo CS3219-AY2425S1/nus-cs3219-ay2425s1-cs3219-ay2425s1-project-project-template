@@ -1,5 +1,3 @@
-import { stringify } from 'querystring'
-
 export interface Question {
   id: number;
   docRefId: string;
@@ -33,35 +31,42 @@ export const GetQuestions = async (
   title?: string
 ): Promise<QuestionListResponse> => {
   let query_url = `${process.env.NEXT_PUBLIC_API_URL}questions`;
-  const params: NodeJS.Dict<number | string | string[]> = {}
+  let query_params = "";
 
   if (currentPage) {
-    params.offset = (currentPage - 1) * 10;
+    query_params += `?offset=${(currentPage - 1) * 10}`;
   }
 
   if (limit) {
-    params.limit = limit;
+    query_params += `${query_params.length > 0 ? "&" : "?"}limit=${limit}`;
   }
 
   if (sortBy) {
     const [field, order] = sortBy.split(" ");
-    params.sortField = field;
-    params.sortValue = order;
+    query_params += `${
+      query_params.length > 0 ? "&" : "?"
+    }sortField=${field}&sortValue=${order}`;
   }
 
   if (difficulties && difficulties.length > 0) {
-    params.complexity = difficulties;
-  }
-  
-  if (title && title != "") {
-    params.title = title
-  }
-  
-  if (categories && categories.length > 0) {
-    params.categories = categories;
+    const value = difficulties.join(","); // Change them from ["easy", "medium"] to "easy,medium"
+    query_params += `${query_params.length > 0 ? "&" : "?"}complexity=${value}`;
   }
 
-  const response = await fetch(`${query_url}?${stringify(params)}`);
+  if (categories && categories.length > 0) {
+    const value = categories.join(",");
+    query_params += `${query_params.length > 0 ? "&" : "?"}categories=${value}`;
+  }
+
+  if (title && title != "") {
+    const urlEncodedTitle = encodeURIComponent(title);
+    query_params += `${
+      query_params.length > 0 ? "&" : "?"
+    }title=${urlEncodedTitle}`;
+  }
+
+  query_url += query_params;
+  const response = await fetch(query_url);
   const data = await response.json();
   return data;
 };
