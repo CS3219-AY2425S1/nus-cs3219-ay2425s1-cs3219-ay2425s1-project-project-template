@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 // src/components/EditQuestionForm.js
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const EditQuestionForm = ({ question, onUpdate }) => {
   const [title, setTitle] = useState(question.title);

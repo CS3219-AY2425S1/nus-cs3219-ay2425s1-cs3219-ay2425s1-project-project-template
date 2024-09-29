@@ -1,7 +1,7 @@
 // src/pages/DashboardPage.js
 
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import Calendar from "../components/dashboard/Calendar"; // Import the Calendar component
 

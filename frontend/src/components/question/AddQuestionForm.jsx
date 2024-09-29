@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 // src/components/AddQuestionForm.js
-import React, { useState } from "react";
+import  { useState } from "react";
 
 const AddQuestionForm = ({ onAdd }) => {
   const [title, setTitle] = useState("");
