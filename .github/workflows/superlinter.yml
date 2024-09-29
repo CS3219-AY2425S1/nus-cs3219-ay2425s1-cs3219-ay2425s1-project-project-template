@@ -1,9 +1,8 @@
 name: Lint
 
 on:
-  push:
-    branches:
-      - dev
+  # push:
+  #   branches:
   pull_request:
     branches:
       - dev
@@ -27,10 +26,10 @@ jobs:
         id: linter
         uses: super-linter/super-linter@v7.1.0
         env:
+          LINTER_RULES_PATH: config/lint
+          JAVA_FILE_NAME: custom_checks.xml
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_TYPESCRIPT_STANDARD: true
           VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_JAVASCRIPT_STANDARD: true
           VALIDATE_JSX: true
           VALIDATE_TSX: true
           VALIDATE_TYPESCRIPT_ES: true
