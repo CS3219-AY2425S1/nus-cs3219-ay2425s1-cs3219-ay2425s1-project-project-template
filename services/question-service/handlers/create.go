@@ -24,7 +24,48 @@ func (s *Service) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	// TODO: Duplicate checking for question name
+	// Check if title is empty
+	if question.Title == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
+
+	// Check if description is empty
+	if question.Description == "" {
+		http.Error(w, "Description is required", http.StatusBadRequest)
+		return
+	}
+
+	//// Check if complexity is empty
+	//// Decode JSON already checks for valid complexity
+	//if question.Complexity == models.Empty {
+	//	http.Error(w, "Complexity is required", http.StatusBadRequest)
+	//	return
+	//}
+
+	// Check if categories is empty
+	if len(question.Categories) == 0 {
+		http.Error(w, "Categories is required", http.StatusBadRequest)
+		return
+	}
+
+	// Check if title is unique
+	iter := s.Client.Collection("questions").Where("title", "==", question.Title).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			http.Error(w, "Error fetching question", http.StatusInternalServerError)
+			return
+		}
+
+		if doc != nil {
+			http.Error(w, "Question title already exists", http.StatusBadRequest)
+			return
+		}
+	}
 
 	// Reference to the document where we store the last ID
 	counterDocRef := s.Client.Collection("counters").Doc("questions")
@@ -91,3 +132,81 @@ func (s *Service) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Question with ID %s created successfully", question.DocRefID)
 }
+
+// Manual test cases
+//
+// Successful case
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question",
+//"description": "This is a sample description.",
+//"complexity": "medium",
+//"categories": ["Data Structures", "Algorithms"]
+//}'
+//
+// Missing question
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"description": "This is a sample description.",
+//"complexity": "medium",
+//"categories": ["Data Structures", "Algorithms"]
+//}'
+//
+// Missing description
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question 1",
+//"complexity": "medium",
+//"categories": ["Data Structures", "Algorithms"]
+//}'
+//
+// Missing complexity
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question 2",
+//"description": "This is a sample description.",
+//"categories": ["Data Structures", "Algorithms"]
+//}'
+//
+// Missing categories
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question 3",
+//"description": "This is a sample description.",
+//"complexity": "medium",
+//}'
+//
+// Invalid complexity
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question 4",
+//"description": "This is a sample description.",
+//"complexity": "extreme",
+//"categories": ["Data Structures", "Algorithms"]
+//}'
+//
+// Duplicate question title
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question",
+//"description": "This is a sample description.",
+//"complexity": "medium",
+//"categories": ["Data Structures", "Algorithms"]
+//}'
+//
+// Incorrect JSON
+//curl -X POST http://localhost:8080/questions \
+//-H "Content-Type: application/json" \
+//-d '{
+//"title": "Sample Question",
+//"description": "This is a sample description.",
+//"complexity": "medium",
+//"categories": ["Data Structures", "Algorithms"
+//}'
