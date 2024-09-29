@@ -6,15 +6,15 @@ import '../styles/questions.css';
 const Questions = () => {
     return (
         <div>
-        <GeneralNavbar />
-        <h1>Questions</h1>
-        <p className="description">View all the questions stored in database.</p>
-        <div className="question-table-container">
-            <div className="admin-button">
-                <AddQuestionButton/>
+            <GeneralNavbar />
+            <h1>Questions</h1>
+            <p className="description">View all the questions stored in database.</p>
+            <div className="question-table-container">
+                <div className="admin-button">
+                    <AddQuestionButton/>
+                </div>
+                <QuestionTable />
             </div>
-            <QuestionTable />
-        </div>
         </div>
     );
 }
