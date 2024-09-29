@@ -5,6 +5,7 @@ import { RootLayout } from '@/components/blocks/root-layout';
 import { RouteGuard, loader as routeGuardLoader } from '@/components/blocks/route-guard';
 
 import { ForgotPassword } from '@/routes/forgot-password';
+import { HomePage } from '@/routes/home';
 import { Login } from '@/routes/login';
 import { QuestionDetails, loader as questionDetailsLoader } from '@/routes/questions/details';
 import { Questions, loader as questionsLoader } from '@/routes/questions/main';
@@ -22,9 +23,12 @@ export const router = createBrowserRouter([
         loader: routeGuardLoader(queryClient),
         children: [
           {
-            path: ROUTES.HOME,
             element: <AuthedLayout />,
             children: [
+              {
+                path: ROUTES.HOME,
+                element: <HomePage />, // A temporary redirect to /questions for now.
+              },
               {
                 path: ROUTES.QUESTIONS,
                 loader: questionsLoader(queryClient),

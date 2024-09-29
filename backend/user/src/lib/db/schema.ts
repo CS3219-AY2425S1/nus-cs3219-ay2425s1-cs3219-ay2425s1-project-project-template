@@ -1,8 +1,8 @@
-import { pgTable, smallint, timestamp, serial, varchar, integer } from 'drizzle-orm/pg-core';
+import { integer, pgTable, smallint, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 // Define the user table
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(), // UUID as primary key with a default random value
+  id: uuid('id').primaryKey().notNull().defaultRandom(), // UUID as primary key with a default random value
   email: varchar('email', { length: 255 }).unique().notNull(), // Email field, unique and required
   username: varchar('username', { length: 255 }).unique().notNull(), // Username field, unique and required
   firstName: varchar('first_name', { length: 255 }).notNull(), // First name field, required

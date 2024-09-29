@@ -11,6 +11,7 @@ import type {
   IGetRandomQuestionPayload,
   IGetRandomQuestionResponse,
 } from './types';
+import { StatusCodes } from 'http-status-codes';
 
 export const getQuestionsService = async (
   payload: IGetQuestionsPayload
@@ -35,7 +36,8 @@ export const getQuestionsService = async (
     .from(questions)
     .where(and(...whereClause))
     .limit(recordsPerPage)
-    .offset(offset);
+    .offset(offset)
+    .orderBy(questions.id);
 
   const [results, totalCount] = await Promise.all([
     query,
@@ -47,7 +49,7 @@ export const getQuestionsService = async (
   ]);
 
   return {
-    code: 200,
+    code: StatusCodes.OK,
     data: {
       questions: results.map((q) => ({
         id: q.id,
@@ -73,7 +75,7 @@ export const getQuestionDetailsService = async (
 
   if (result.length === 0) {
     return {
-      code: 404,
+      code: StatusCodes.NOT_FOUND,
       data: { question: null },
       error: {
         message: 'Question not found',
@@ -82,7 +84,7 @@ export const getQuestionDetailsService = async (
   }
 
   return {
-    code: 200,
+    code: StatusCodes.OK,
     data: { question: result[0] },
   };
 };
@@ -117,7 +119,7 @@ export const getRandomQuestionService = async (
 
   if (result.length === 0) {
     return {
-      code: 404,
+      code: StatusCodes.NOT_FOUND,
       data: { question: null },
       error: {
         message: 'No matching questions found',
@@ -126,7 +128,7 @@ export const getRandomQuestionService = async (
   }
 
   return {
-    code: 200,
+    code: StatusCodes.OK,
     data: { question: result[0] },
   };
 };
@@ -156,7 +158,7 @@ export const searchQuestionsByTitleService = async (
 
   // Return the results as per IGetQuestionsResponse format
   return {
-    code: 200,
+    code: StatusCodes.OK,
     data: {
       questions: results, // Directly returning the query results
       totalQuestions: results.length, // Count of questions returned

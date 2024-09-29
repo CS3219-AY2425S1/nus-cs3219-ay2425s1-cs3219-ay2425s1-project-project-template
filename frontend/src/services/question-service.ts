@@ -1,26 +1,40 @@
-// import { questionApiClient } from "./api-clients"
-import { questionDetails, questions } from '@/assets/questions';
-import { IGetQuestionsResponse } from '@/types/question-types';
+import type { IGetQuestionsResponse } from '@/types/question-types';
 
-type QuestionDetails = (typeof questionDetails)[number];
+import { questionApiClient } from './api-clients';
 
-export const getQuestionDetails = (questionId: number): Promise<QuestionDetails> => {
-  // return questionApiClient.get
-  console.log(questionDetails.find(({ id }) => id === questionId));
-  return new Promise((resolve, _reject) => {
-    setTimeout(() => resolve(questionDetails.find(({ id }) => id === questionId)!), 1000);
-  });
+const QUESTION_SERVICE_ROUTES = {
+  GET_QUESTIONS: '/questions',
+  GET_QUESTION_DETAILS: '/questions/<questionId>',
+};
+
+type IGetQuestionDetailsResponse = {
+  question: {
+    title: string;
+    description: string;
+    topic: Array<string>;
+    difficulty: string;
+    id?: string;
+  };
+};
+
+export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDetailsResponse> => {
+  // TODO: Add error handling and notifs
+  return questionApiClient
+    .get(QUESTION_SERVICE_ROUTES.GET_QUESTION_DETAILS.replace(/<questionId>/, String(questionId)))
+    .then((v) => {
+      return v.data as IGetQuestionDetailsResponse;
+    });
 };
 
 export const ROWS_PER_PAGE = 8;
-export async function fetchQuestions(pageParam: number = 0): Promise<IGetQuestionsResponse> {
-  // return questionApiClient.get
-  const start = pageParam * ROWS_PER_PAGE;
-  const end = start + ROWS_PER_PAGE;
-  await new Promise((r) => setTimeout(r, 10));
+export async function fetchQuestions(pageNum: number = 0): Promise<IGetQuestionsResponse> {
+  const params = new URLSearchParams({
+    pageNum: String(pageNum),
+    recordsPerPage: String(ROWS_PER_PAGE),
+  }).toString();
 
-  return {
-    questions: questions.slice(start, end),
-    totalQuestions: questions.length,
-  };
+  // TODO: Add error handling and notifs
+  return questionApiClient
+    .get(QUESTION_SERVICE_ROUTES.GET_QUESTIONS + `?${params}`)
+    .then((res) => res.data as IGetQuestionsResponse);
 }

@@ -1,4 +1,5 @@
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import rehypeKatex from 'rehype-katex';
@@ -32,8 +33,14 @@ export const loader =
 export const QuestionDetails = () => {
   const { questionId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
-  const { crumbs } = useCrumbs({ path: '<CURRENT>', title: `${questionId}. ${details.title}` });
-  usePageTitle(details.title);
+  const questionDetails = useMemo(() => {
+    return details.question;
+  }, [details]);
+  const { crumbs } = useCrumbs({
+    path: '<CURRENT>',
+    title: `${questionId}. ${questionDetails.title}`,
+  });
+  usePageTitle(details.question.title);
 
   return (
     <WithNavBanner crumbs={[...crumbs]}>
@@ -44,19 +51,19 @@ export const QuestionDetails = () => {
               <div className='flex flex-col gap-4'>
                 <div className='flex w-full items-center gap-4'>
                   <CardTitle className='text-2xl'>
-                    {details.id}.&nbsp;{details.title}
+                    {questionDetails.id}.&nbsp;{questionDetails.title}
                   </CardTitle>
                 </div>
                 <div className='flex flex-wrap items-center gap-1'>
                   <Badge
-                    variant={details.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}
+                    variant={questionDetails.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}
                     className='flex w-min grow-0'
                   >
-                    {details.difficulty}
+                    {questionDetails.difficulty}
                   </Badge>
                   <Separator orientation='vertical' className='mx-2 h-4' />
                   <span className='text-sm font-medium'>Topics:</span>
-                  {details.topics.map((v, i) => (
+                  {questionDetails.topic.map((v, i) => (
                     <Badge
                       variant='secondary'
                       className='flex w-min grow-0 whitespace-nowrap'
@@ -88,7 +95,7 @@ export const QuestionDetails = () => {
                   },
                 }}
               >
-                {details.description}
+                {questionDetails.description}
               </Markdown>
             </CardContent>
           </ScrollArea>
