@@ -102,36 +102,38 @@ export default function Home() {
         />
       </Header>
       <Button type="submit" onClick={onClickAdd} text="Add Question" />
-      <table className="min-w-full table-auto bg-white shadow-md mt-4 scroll-smooth">
-        <thead>
-          <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Questions</th>
-            <th className="py-3 px-6 text-left">Difficulty</th>
-            <th className="py-3 px-6 text-left">Topics</th>
-            <th className="py-3 px-6 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="text-gray-600 text-sm font-light">
-          {questions?.map((question, index) => {
-            return (
-              <TableRow
-                id={question._id}
-                title={question.title}
-                difficulty={question.difficultyLevel}
-                topics={question.topic}
-                key={index}
-                onClickEdit={() =>
-                  dispatchModal({
-                    type: ModalActionType.EDIT,
-                    details: question,
-                  })
-                }
-                handleDelete={handleDelete}
-              />
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto bg-white shadow-md   scroll-smooth">
+          <thead className="sticky top-0">
+            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+              <th className="py-3 px-6 text-left">Questions</th>
+              <th className="py-3 px-6 text-left">Difficulty</th>
+              <th className="py-3 px-6 text-left">Topics</th>
+              <th className="py-3 px-6 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600 text-sm font-light overflow-y-scroll">
+            {questions?.map((question, index) => {
+              return (
+                <TableRow
+                  id={question._id}
+                  title={question.title}
+                  difficulty={question.difficultyLevel}
+                  topics={question.topic}
+                  key={index}
+                  onClickEdit={() =>
+                    dispatchModal({
+                      type: ModalActionType.EDIT,
+                      details: question,
+                    })
+                  }
+                  handleDelete={handleDelete}
+                />
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       {modalState.isVisible && (
         <div className="modal">
           <div onClick={closeModal} className="overlay"></div>
@@ -144,6 +146,7 @@ export default function Home() {
                   : addQuestion
               }
               type={modalState.isDetailShown ? FormType.EDIT : FormType.ADD}
+              afterSubmit={closeModal}
             />
             <Button type="reset" onClick={closeModal} text="CLOSE" />
           </div>

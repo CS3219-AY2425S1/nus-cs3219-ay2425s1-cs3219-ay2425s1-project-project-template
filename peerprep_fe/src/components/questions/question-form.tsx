@@ -5,6 +5,7 @@ import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
 import { useAuth } from "@/contexts/auth-context";
 import type { FormRequest } from "@/app/actions/questions";
+import { useEffect } from "react";
 
 export enum FormType {
   EDIT = "Edit",
@@ -15,10 +16,12 @@ export function QuestionForm({
   state,
   onSubmit,
   type,
+  afterSubmit,
 }: {
   state?: QuestionDto;
   onSubmit: FormRequest;
   type: FormType;
+  afterSubmit: VoidFunction;
 }) {
   // Tracks the form submission state
   const { token } = useAuth();
@@ -26,6 +29,12 @@ export function QuestionForm({
     onSubmit.bind(null, token),
     undefined
   );
+
+  useEffect(() => {
+    if (formState?.message) {
+      afterSubmit();
+    }
+  }, [formState]);
 
   return (
     <div>
