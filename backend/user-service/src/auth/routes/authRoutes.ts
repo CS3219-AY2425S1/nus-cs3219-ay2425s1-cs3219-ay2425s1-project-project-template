@@ -5,6 +5,7 @@ import { authenticate, AuthenticatedRequest } from '../../middleware/authMiddlew
 import { authStatusController } from '../controllers/checkAuthStatusController';
 import { getUserProfile } from '../controllers/getUserProfileController';
 import { authenticateAdmin } from '../../middleware/authAdminMiddleware';
+import { checkAdminController } from '../controllers/checkAdminController';
 const router = express.Router();
 
 /**
@@ -37,9 +38,7 @@ router.get('/profile', authenticate, getUserProfile);
  */
 // GET /api/users/isAdmin
 // Checks whether the user is signed in (whether the cookie is valid/present)
-router.get('/isAdmin', authenticateAdmin, (req: AuthenticatedRequest, res: express.Response) => {
-    res.status(200).json({ isAdmin: true, user: req.user });
-});
+router.get('/isAdmin', checkAdminController);
 
 /**
  * FOR REFERENCE
