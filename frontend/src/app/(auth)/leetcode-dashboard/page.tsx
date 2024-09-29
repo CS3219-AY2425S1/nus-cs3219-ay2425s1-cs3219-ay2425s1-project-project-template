@@ -7,6 +7,7 @@ import Container from "@/components/ui/Container";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import Modal from "react-modal";
+import { motion } from "framer-motion";
 
 const LeetcodeDashboardHeader = () => {
   return (
@@ -34,6 +35,13 @@ const LeetcodeDashboard = () => {
     setIsOpen(false);
   }
 
+  // Define modal animation
+  const modalAnimation = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.9 },
+  };
+
   return (
     <Container>
       <LeetcodeDashboardHeader />
@@ -48,14 +56,24 @@ const LeetcodeDashboard = () => {
         <Modal
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          ariaHideApp={false}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-none"
           style={{
             overlay: {
               backgroundColor: "rgba(29, 36, 51, 0.8)",
             },
           }}
         >
-          <AddQuestionDialog setClose={closeModal} />
+          {/* Animated modal content */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={modalAnimation}
+            transition={{ duration: 0.3 }}
+          >
+            <AddQuestionDialog setClose={closeModal} />
+          </motion.div>
         </Modal>
       </div>
       <LeetcodeDashboardTable />

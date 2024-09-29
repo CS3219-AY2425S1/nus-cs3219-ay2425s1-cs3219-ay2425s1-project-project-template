@@ -88,7 +88,7 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
   }
 
   return (
-    <div className="bg-primary-700 p-10 w-[40vw] h-[80vh] rounded-lg">
+    <div className="bg-primary-700 p-10 w-[60vw] h-[80vh] rounded-lg">
       <div className="text-[32px] font-semibold text-yellow-500">
         Add Question
       </div>
@@ -172,7 +172,8 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
                   <Textarea
                     placeholder="Type your description here."
                     className="text-white bg-primary-800"
-                    {...field} // Bind the Textarea to form control
+                    rows={6}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
