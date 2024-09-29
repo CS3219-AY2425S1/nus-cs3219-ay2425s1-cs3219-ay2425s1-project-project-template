@@ -85,7 +85,7 @@ const QuestionDetails = () => {
         >
           <Button
             variant="outlined"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/questions")}
             sx={{ mb: 2 }}
           >
             Back To Question Repository

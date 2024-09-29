@@ -88,7 +88,11 @@ const ManageQuestions = () => {
     <>
       <Header />
       <Container maxWidth="lg" sx={{ mt: 3 }}>
-        <Button variant="outlined" onClick={() => navigate(-1)} sx={{ mb: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={() => navigate("/questions")}
+          sx={{ mb: 2 }}
+        >
           Back To Question Repository
         </Button>
         <Box
