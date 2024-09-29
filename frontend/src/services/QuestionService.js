@@ -33,7 +33,7 @@ export const updateQuestion = async (id, question) => {
 
 export const createQuestion = async (question) => {
   const response = await questionApi.post("/question", question);
-  if (response.status !== 200) {
+  if (response.status !== 201) {
     throw new Error("Error creating question");
   } else {
     return response.data;
