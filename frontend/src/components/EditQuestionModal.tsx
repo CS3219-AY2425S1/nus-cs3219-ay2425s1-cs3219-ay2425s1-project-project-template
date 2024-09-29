@@ -192,12 +192,12 @@ const EditQuestionModal: React.FC<{
 
           {/* Action buttons */}
           <div className="mt-6">
-            <text
+            <p
               id="emptyMessage"
               className="flex justify-center text-red-500 hidden"
             >
               * Please fill in all the empty fields. *
-            </text>
+            </p>
             <div className="flex justify-evenly mt-2">
               <button
                 onClick={openDeleteModal}
