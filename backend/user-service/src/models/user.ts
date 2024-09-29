@@ -6,6 +6,7 @@ export interface IUser extends Document {
     password: string;
     attemptedQuestions: Types.ObjectId[];
     completedQuestions: Types.ObjectId[];
+    isAdmin: boolean; // New field
     createdAt: Date;
     updatedAt: Date;
 }
@@ -17,6 +18,7 @@ const UserSchema = new Schema<IUser>(
         password: { type: String, required: true },
         attemptedQuestions: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
         completedQuestions: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
+        isAdmin: { type: Boolean, default: false },
     },
     {
         timestamps: true,

@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import logger from '../../utils/logger';
 import { verifyToken } from '../auth_utils/jwtUtils';
 
+/**
+ * This returns isAuthenticated, which is a boolen for whether the user is signed in.
+ */
 const authStatusController = (req: Request, res: Response) => {
     const token = req.cookies.token;
 

@@ -19,6 +19,7 @@ export const registerUser = async ({ name, email, password }: RegisterInput) => 
         name,
         email,
         password: hashedPassword,
+        isAdmin: false
     });
 
     await newUser.save();
