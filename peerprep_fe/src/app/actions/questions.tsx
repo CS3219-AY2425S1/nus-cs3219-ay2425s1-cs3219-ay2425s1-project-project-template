@@ -1,7 +1,7 @@
 "use server";
 
 import dotenv from "dotenv";
-import { parseFormData } from "../utility/QuestionsHelper";
+import { parseFormData } from "../utility/questionsHelper";
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ interface Response {
 export type FormRequest = (
   token: string | null,
   formData: FormData
-) => Promise<Partial<Response>>;
+) => Promise<Partial<Response> | undefined>;
 
 export async function getQuestions(token?: string | null) {
   const response = await fetch(
@@ -68,7 +68,7 @@ export async function editQuestion(
     return {
       message: data,
       errors: {
-        questions: [`${data.message}`],
+        errorMessage: [`${data.message}`],
       },
     };
   } catch (error) {
@@ -94,10 +94,12 @@ export async function addQuestion(token: string | null, formData: FormData) {
 
   try {
     const result = await response.json();
-    if (result.token) {
-      return {
-        message: result.token,
-      };
+    if (response.ok) {
+      if (result.token) {
+        return {
+          message: result.token,
+        };
+      }
     } else {
       return {
         errors: {
