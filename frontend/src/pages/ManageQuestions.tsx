@@ -21,7 +21,7 @@ const ManageQuestions = () => {
   const [formData, setFormData] = useState<CreateQuestionFormData>({
     title: "",
     description: "",
-    complexity: "easy",
+    complexity: "Easy",
     categories: [],
     categoryInput: "",
   });
@@ -100,7 +100,7 @@ const ManageQuestions = () => {
           bgcolor="background.paper"
         >
           <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
-            Create a New Question
+            Create a new question
           </Typography>
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
@@ -134,9 +134,9 @@ const ManageQuestions = () => {
                 fullWidth
                 required
               >
-                <MenuItem value="easy">Easy</MenuItem>
-                <MenuItem value="medium">Medium</MenuItem>
-                <MenuItem value="hard">Hard</MenuItem>
+                <MenuItem value="Easy">Easy</MenuItem>
+                <MenuItem value="Medium">Medium</MenuItem>
+                <MenuItem value="Hard">Hard</MenuItem>
               </TextField>
 
               <Box>

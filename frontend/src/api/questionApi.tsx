@@ -70,3 +70,17 @@ export const createQuestion = async (
     throw error;
   }
 };
+
+export const deleteQuestionById = async (id: string, token: string) => {
+  try {
+    await axios.delete(`${API_URL}/api/questions/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching question:", error);
+    throw error;
+  }
+};

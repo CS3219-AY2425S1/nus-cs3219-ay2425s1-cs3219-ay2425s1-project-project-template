@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { fetchQuestionById } from "../api/questionApi";
+import { deleteQuestionById, fetchQuestionById } from "../api/questionApi";
 import { useEffect, useState } from "react";
 import { Question } from "../@types/question";
 import {
@@ -12,12 +12,17 @@ import {
   Divider,
   Button,
 } from "@mui/material";
+import { toast } from "react-toastify";
+import { useAuth } from "../hooks/useAuth";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 
 const QuestionDetails = () => {
   const { id } = useParams<{ id: string | undefined }>();
   const navigate = useNavigate();
   const [question, setQuestion] = useState<Question>();
   const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -52,13 +57,61 @@ const QuestionDetails = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (id) {
+      try {
+        await deleteQuestionById(id, token);
+        toast.success("Question deleted successfully");
+        navigate("/questions");
+      } catch (error) {
+        console.error("Failed to delete question:", error);
+        toast.error("Failed to delete question. Please try again.");
+      }
+    }
+  };
+
   return (
     <>
       <Header></Header>
       <Container maxWidth="lg" sx={{ mt: 3 }}>
-        <Button variant="outlined" onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-          Back To Question Repository
-        </Button>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mt={2}
+        >
+          <Button
+            variant="outlined"
+            onClick={() => navigate(-1)}
+            sx={{ mb: 2 }}
+          >
+            Back To Question Repository
+          </Button>
+          <Box display="flex" alignItems="center">
+            <Button
+              variant="contained"
+              sx={{
+                mb: 2,
+                mr: 2,
+                color: "white",
+                backgroundColor: "green",
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                mb: 2,
+                color: "white",
+                backgroundColor: "red",
+              }}
+              onClick={() => setDeleteModalOpen(true)}
+            >
+              Delete
+            </Button>
+          </Box>
+        </Box>
         <Box
           p={3}
           border={1}
@@ -107,6 +160,11 @@ const QuestionDetails = () => {
           )}
         </Box>
       </Container>
+      <DeleteConfirmationModal
+        open={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </>
   );
 };
