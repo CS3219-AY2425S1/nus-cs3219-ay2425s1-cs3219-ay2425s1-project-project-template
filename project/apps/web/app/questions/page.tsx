@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CreateModal from "./components/CreateModal";
+import { toast } from "@/hooks/use-toast";
 import { createQuestion, fetchQuestions } from "@/lib/api/question";
 import Link from "next/link";
 import DifficultyBadge from "@/components/DifficultyBadge";
@@ -41,10 +42,12 @@ const QuestionRepositoryContent = () => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
       setCreateModalOpen(false);
+      toast({ variant: "success", title: "Success", description: "Question created successfully"});
     },
     onSettled: () => setConfirmLoading(false),
     onError: (error) => {
       console.error("Error creating question:", error);
+      toast({ variant: "destructive", title: "Error", description: "Error creating question: " + error });
     },
   });
 

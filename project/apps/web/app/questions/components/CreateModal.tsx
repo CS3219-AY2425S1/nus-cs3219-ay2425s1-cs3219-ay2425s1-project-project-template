@@ -65,6 +65,13 @@ export default function CreateModal({
     }
   }, [open, form]);
 
+  // Function to display the label with an asterisk for required fields
+  const renderLabelWithAsterisk = (label: string) => (
+    <span>
+      {label} <span className="text-red-500">*</span>
+    </span>
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent aria-describedby={undefined}>
@@ -83,7 +90,9 @@ export default function CreateModal({
               name="q_title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-black">Title</FormLabel>
+                  <FormLabel className="text-black">
+                    {renderLabelWithAsterisk("Title")}
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter title" {...field} />
                   </FormControl>
@@ -98,7 +107,9 @@ export default function CreateModal({
               name="q_desc"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-black">Description</FormLabel>
+                  <FormLabel className="text-black">
+                    {renderLabelWithAsterisk("Description")}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       className="resize-y max-h-64"
@@ -118,7 +129,9 @@ export default function CreateModal({
               name="q_complexity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-black">Complexity</FormLabel>
+                  <FormLabel className="text-black">
+                    {renderLabelWithAsterisk("Complexity")}
+                  </FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
@@ -144,7 +157,9 @@ export default function CreateModal({
               name="q_category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-black">Categories</FormLabel>
+                  <FormLabel className="text-black">
+                    {renderLabelWithAsterisk("Categories")}
+                  </FormLabel>
                   <FormControl>
                     <div className="flex flex-wrap gap-2">
                       {categories.map((cat) => (

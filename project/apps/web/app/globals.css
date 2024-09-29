@@ -46,6 +46,9 @@ h6 {
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
 
+    --green: 120 100% 25%;
+    --green-foreground: 0 0% 100%;
+
     --ring: 215 20.2% 65.1%;
 
     --radius: 0.5rem;

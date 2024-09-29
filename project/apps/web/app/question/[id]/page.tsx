@@ -23,6 +23,7 @@ import QuestionSkeleton from "./components/QuestionSkeleton";
 import EditModal from "./components/EditModal";
 import DeleteModal from "./components/DeleteModal";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface QuestionPageProps {
   params: {
@@ -51,10 +52,12 @@ const QuestionPageContent = ({ id }: { id: string }) => {
         queryKey: [QUERY_KEYS.Question, id],
       });
       setEditModalOpen(false);
+      toast({ variant: "success", title: "Success", description: "Question updated successfully" });
     },
     onSettled: () => setConfirmLoading(false),
     onError: (error) => {
       console.error("Error updating question:", error);
+      toast({ variant: "destructive", title: "Error", description: "Error updating question" + error });
     },
   });
 
@@ -67,10 +70,12 @@ const QuestionPageContent = ({ id }: { id: string }) => {
       });
       setDeleteModalOpen(false);
       router.push("/questions");
+      toast({ variant: "success", title: "Success", description: "Question deleted successfully" });
     },
     onSettled: () => setConfirmLoading(false),
     onError: (error) => {
       console.error("Error deleting question:", error);
+      toast({ variant: "destructive", title: "Error", description: "Error deleting question" + error });
     },
   });
 
