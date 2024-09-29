@@ -21,7 +21,7 @@ const QuestionDetails = () => {
   const navigate = useNavigate();
   const [question, setQuestion] = useState<Question>();
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
@@ -33,16 +33,19 @@ const QuestionDetails = () => {
             setError(null);
           } else {
             setError("Question not found");
+            navigate("/404");
           }
         })
         .catch((error) => {
           console.error("Error fetching question details:", error);
           setError("Error fetching question details");
+          navigate("/404");
         });
     } else {
       setError("Invalid question ID");
+      navigate("/404");
     }
-  }, [id]);
+  }, [id, navigate]);
 
   const getChipColor = (complexity: string) => {
     switch (complexity) {
@@ -87,30 +90,33 @@ const QuestionDetails = () => {
           >
             Back To Question Repository
           </Button>
-          <Box display="flex" alignItems="center">
-            <Button
-              variant="contained"
-              sx={{
-                mb: 2,
-                mr: 2,
-                color: "white",
-                backgroundColor: "green",
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
-              sx={{
-                mb: 2,
-                color: "white",
-                backgroundColor: "red",
-              }}
-              onClick={() => setDeleteModalOpen(true)}
-            >
-              Delete
-            </Button>
-          </Box>
+          {user?.isAdmin && (
+            <Box display="flex" alignItems="center">
+              <Button
+                variant="contained"
+                sx={{
+                  mb: 2,
+                  mr: 2,
+                  color: "white",
+                  backgroundColor: "green",
+                }}
+                onClick={() => navigate(`/questions/${id}/edit`)}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="contained"
+                sx={{
+                  mb: 2,
+                  color: "white",
+                  backgroundColor: "red",
+                }}
+                onClick={() => setDeleteModalOpen(true)}
+              >
+                Delete
+              </Button>
+            </Box>
+          )}
         </Box>
         <Box
           p={3}
@@ -133,7 +139,14 @@ const QuestionDetails = () => {
                   alignItems="center"
                   mb={2}
                 >
-                  <Typography variant="h5">{question.title}</Typography>
+                  <Box
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    <Typography variant="h5">{question.title}</Typography>
+                  </Box>
                   <Chip
                     label={question.complexity}
                     color={getChipColor(question.complexity)}
@@ -141,18 +154,35 @@ const QuestionDetails = () => {
                   />
                 </Stack>
                 <Divider sx={{ mb: 2 }} />
-                <Typography variant="body1" paragraph>
-                  {question.description.split("\n").map((line, index) => (
-                    <span key={index}>
-                      {line}
-                      <br />
-                    </span>
-                  ))}
-                </Typography>
+                <Box
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  <Typography variant="body1" paragraph>
+                    {question.description.split("\n").map((line, index) => (
+                      <span key={index}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                  </Typography>
+                </Box>
                 <Divider sx={{ mt: 2, mb: 2 }} />
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
                   {question.category?.map((topic) => (
-                    <Chip key={topic} label={topic} variant="outlined" />
+                    <Chip
+                      key={topic}
+                      label={topic}
+                      variant="outlined"
+                      sx={{
+                        maxWidth: 200,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    />
                   ))}
                 </Stack>
               </>

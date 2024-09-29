@@ -84,3 +84,32 @@ export const deleteQuestionById = async (id: string, token: string) => {
     throw error;
   }
 };
+
+export const updateQuestion = async (
+  id: string,
+  data: CreateQuestionFormData,
+  token: string
+) => {
+  const payload = {
+    title: data.title,
+    description: data.description,
+    complexity: data.complexity,
+    category: data.categories,
+  };
+  try {
+    const response = await axios.put(
+      `${API_URL}/api/questions/${id}`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching question:", error);
+    throw error;
+  }
+};

@@ -9,6 +9,7 @@ import QuestionRepo from "../pages/QuestionRepo";
 import QuestionDetails from "../pages/QuestionDetails";
 import ManageQuestions from "../pages/ManageQuestions";
 import AdminRoute from "./AdminRoutes";
+import EditQuestion from "../pages/EditQuestion";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,16 @@ const router = createBrowserRouter([
       {
         path: ":id",
         element: <QuestionDetails />,
+      },
+      {
+        path: ":id/edit",
+        element: <AdminRoute />,
+        children: [
+          {
+            path: "",
+            element: <EditQuestion />,
+          },
+        ],
       },
     ],
   },

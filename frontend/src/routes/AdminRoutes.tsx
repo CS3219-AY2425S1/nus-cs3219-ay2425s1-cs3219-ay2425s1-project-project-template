@@ -9,7 +9,7 @@ const AdminRoute = () => {
   }
 
   if (!isAuthenticated || !user?.isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/404" replace />;
   }
 
   return <Outlet />;
