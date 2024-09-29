@@ -266,22 +266,21 @@ func getKeywordsFromTitle(title string) []string {
 }
 
 // titleContainsKeywords Check if title contains all keywords
-func titleContainsKeywords(title string, keywords []string) bool {
+func titleContainsKeywords(title string, queryKeywords []string) bool {
 	// TODO: Implement using trie for better performance
 	titleWords := strings.Fields(strings.ToLower(strings.TrimSpace(title)))
 
 	// Iterate through each keyword.
-	for _, keyword := range keywords {
-		keyword = strings.ToLower(strings.TrimSpace(keyword)) // Normalize the keyword.
+	for _, queryKeyword := range queryKeywords {
 		matched := false
-		// Check if the keyword is a prefix of any word in the title.
+		// Check if the queryKeyword is a prefix of any word in the title.
 		for _, titleWord := range titleWords {
-			if strings.HasPrefix(titleWord, keyword) {
+			if strings.HasPrefix(titleWord, queryKeyword) {
 				matched = true
 				break
 			}
 		}
-		// If the keyword is not a prefix of any title word, return false.
+		// If the queryKeyword is not a prefix of any title word, return false.
 		if !matched {
 			return false
 		}
