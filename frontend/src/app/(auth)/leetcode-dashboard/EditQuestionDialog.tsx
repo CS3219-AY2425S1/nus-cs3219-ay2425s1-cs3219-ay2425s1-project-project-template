@@ -96,14 +96,14 @@ const EditQuestionDialog = ({ questionId }: EditQuestionDialogProp) => {
       .then(() => {
         Swal.fire({
           icon: "success",
-          title: "Question Added",
+          title: "Question Edited",
           text: "Question has been modified successfully.",
         });
       })
       .catch(() => {
         Swal.fire({
           icon: "error",
-          title: "Question Add Failed",
+          title: "Question Edit Failed",
           text: "Please try again later.",
         });
       })
