@@ -11,19 +11,22 @@ import {
 // Function for creating a question
 export async function createQuestion(req, res) {
     try {
-        const {id, title, description, category, complexity} = req.body;
-        if (id && title && description && category && complexity) {
-            //Check duplicatesS
-            const questionExists = await _checkDuplicateQuestion(title, description);
-            if (questionExists) {
-                return res.status(409).json({ message: "Question already exists"});
-            }
-            
-            const questionCreated = await _createQuestion(id, title, description, category, complexity);
-            return res.status(201).json(questionCreated);
-        } else {
-            return res.status(400).json({ message: "All fields are required"});
+        const {title, description, category, complexity} = req.body;
+        
+        // Validate that all required fields are present
+        if (!title || !description || !category || !complexity) {
+            return res.status(400).json({ message: "All fields are required" });
         }
+
+        //Check duplicates questions using title and description
+        const questionExists = await _checkDuplicateQuestion(title, description);
+        if (questionExists) {
+            return res.status(409).json({ message: "Question already exists"});
+        }
+            
+        const questionCreated = await _createQuestion(title, description, category, complexity);
+        return res.status(201).json(questionCreated);
+ 
     } catch (error) {
         return res.status(500).json({ message: "Not working: " + error.message});
     }
@@ -72,6 +75,12 @@ export async function updateQuestionById(req, res) {
             return res.status(404).json({ message: "Question not found"});
         }
         const { title, description, category, complexity } = req.body;
+
+        //Check duplicates questions using title and description
+        const duplicateQuestionExists = await _checkDuplicateQuestion(title, description);
+        if (duplicateQuestionExists) {
+            return res.status(409).json({ message: "Question already exists"});
+        }
 
         const question = await _updateQuestionById(id, title, description, category, complexity);
         if (!question) {

@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get("/", findAllQuestions);
 router.get("/:id", findQuestionById);
-router.get("/:complexity", findQuestionByComplexity);
+router.get("/complexity/:complexity", findQuestionByComplexity);
 router.post("/", createQuestion);
 router.put("/:id", updateQuestionById);
 router.delete("/:id", deleteQuestionById);

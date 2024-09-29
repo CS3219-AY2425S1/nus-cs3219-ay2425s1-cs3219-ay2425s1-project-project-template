@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 
 const QuestionModelSchema = mongoose.Schema(
     {
-        id: {
-            type: Number,
-            required: true,
-            unique: true
+        qid: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false
         },
 
         title: {
