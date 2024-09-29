@@ -180,27 +180,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({ questions }) => {
 
     return (
         <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
-            <Box className="flex justify-start items-center p-2 mb-5">
-                <Button 
-                    onClick={() => {
-                        onMenuOpen(); // Open the menu
-                        onModalClose(); // Close the modal if it is open
-                    }} 
-                    border="2px solid"
-                    borderColor="white"
-                    bg="transparent"
-                    _hover={{ bg: 'purple' }}
-                    className="mr-4"
-                >
-                    <Icon 
-                        as={FiAlignJustify} 
-                        color="white" 
-                        className="bg-opacity-0" 
-                    />
-                </Button>
-                <img src={logo} alt="Peerprep Logo" className="w-10 h-10" />
-                <span className="text-4xl text-white">PeerPrep</span>
-            </Box>
             {/* Drawer for menu */}
             <MenuDrawer isOpen={isMenuOpen} onClose={() => {
                 onMenuClose();
