@@ -143,10 +143,6 @@ export default function Home() {
     loadQuestions();
   }, [limit, currentPage, sortBy, difficulty, delayedSearch]);
 
-  useEffect(() => {
-    loadQuestions();
-  }, [limit, currentPage, sortBy, difficulty, delayedSearch]);
-
   // Delay the fetching of data only after user stops typing for awhile
   useEffect(() => {
     const timeout = setTimeout(() => {
