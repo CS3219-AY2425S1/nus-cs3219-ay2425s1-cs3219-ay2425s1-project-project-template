@@ -15,7 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signIn } from "@/lib/api/auth";
 import { useZodForm } from "@/lib/form";
 import { useLoginState } from "@/contexts/LoginStateContext";
-import { useToast } from "@/hooks/useToast";
+import { useToast } from "@/hooks/use-toast";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 
 export function SignInForm() {
