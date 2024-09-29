@@ -5,14 +5,15 @@ import { QuestionsModule } from './questions/questions.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 
-
 @Module({
-  imports: [QuestionsModule,
+  imports: [
+    QuestionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI),],
+    MongooseModule.forRoot(process.env.MONGODB_URI),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
