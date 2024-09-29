@@ -29,7 +29,7 @@ const EditQuestionModal: React.FC<{
         }).then(response => response.json())
         .then(data => console.log(data))
         .catch(error => {
-          alert('Error adding question. The question you are adding may be a duplicate (having the same title as an existing question). Please try again.');
+          alert('Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again.');
           console.error('Error editing question:', error);
         });
       closeEditConfirmationModal();
