@@ -28,7 +28,6 @@ const Dashboard: React.FC = () => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
-  const [questionTitleToEdit, setQuestionTitleToEdit] = useState("");
   const [oldDifficulty, setOldDifficulty] = useState("");
   const [oldTopic, setOldTopic] = useState([""]);
   const [oldTitle, setOldTitle] = useState("");
@@ -118,12 +117,13 @@ const Dashboard: React.FC = () => {
                       key={cell.column.id}
                       className="py-3 px-6 text-left"
                       onClick={() => {
+                        console.log(row.original.id);
                         openEditModal(
                           row.allCells[3].value,
                           row.allCells[2].value,
                           row.allCells[0].value,
                           row.allCells[1].value,
-                          (row.original as any).id
+                          row.original.id
                         );
                       }}
                     >

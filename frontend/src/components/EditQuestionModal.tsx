@@ -11,10 +11,8 @@ const EditQuestionModal: React.FC<{
   oldDetails: string;
   questionID: string;
 }> = ({ onClose, oldDifficulty, oldTopic, oldTitle, oldDetails, questionID }) => {
-  const editQuestion = async (questionID: string, difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
-    try {
-      console.log("trying");
-      const response = await fetch(`http://localhost:8080/questions/${questionID}`, {
+  const editQuestion = (questionID: string, difficultyValue: string, topicValue: string[], titleValue: string, detailsValue: string) => {
+      fetch(`http://localhost:8080/questions/${questionID}`, {
           mode: "cors",
           method: 'PUT',
           headers: {
@@ -22,20 +20,15 @@ const EditQuestionModal: React.FC<{
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            id: questionID,
             title: titleValue,
             description: detailsValue,
             categories: topicValue,
             complexity: difficultyValue
           })
-        });
-
-      const data = await response.json();
-      console.log(data);
+        }).then(response => response.json()).then(data => console.log(data)).catch(error => console.error('Error editing question:', error));
       closeEditConfirmationModal();
       onClose();
-    } catch (error) {
-        console.error('Error editing question:', error);
-    }
   };
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -89,7 +82,6 @@ const EditQuestionModal: React.FC<{
 
   function onEditConfirm() {
     getNewValues();
-
     editQuestion(questionID, newDifficultyValue, newTopicValue, newTitleValue, newDetailsValue);
   }
 
