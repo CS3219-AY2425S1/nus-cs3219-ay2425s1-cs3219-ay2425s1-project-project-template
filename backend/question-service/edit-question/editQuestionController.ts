@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import Question from '../models/question'
+import { checkQuestionExists, getQuestionById } from '../utils/utils'
 
 const editQuestion = async (req: Request, res: Response) => {
     const { questionId } = req.params
@@ -7,6 +8,12 @@ const editQuestion = async (req: Request, res: Response) => {
 
     if (!questionId) {
         return res.status(400).send('Question ID required')
+    }
+
+    const existingQuestion = await getQuestionById(parseInt(questionId))
+
+    if (!existingQuestion) {
+        return res.status(404).send('Question not found')
     }
 
     try {
@@ -19,6 +26,17 @@ const editQuestion = async (req: Request, res: Response) => {
 
         if (Object.keys(updatedFields).length === 0) {
             return res.status(400).send('At least one field required to update question')
+        }
+
+        const isDuplicate = await checkQuestionExists(
+            updatedFields.title || existingQuestion.title,
+            updatedFields.description || existingQuestion.description,
+            updatedFields.categories || existingQuestion.categories,
+            updatedFields.difficulty || existingQuestion.difficulty
+        )
+
+        if (isDuplicate) {
+            return res.status(400).send('Question already exists')
         }
 
         const updatedQuestion = await Question.findOneAndUpdate(

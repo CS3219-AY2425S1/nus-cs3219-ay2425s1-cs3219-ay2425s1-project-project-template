@@ -23,6 +23,19 @@ const checkQuestionExists = async (
     }
 }
 
+const getQuestionById = async (questionId: number) => {
+    try {
+        const question = await Question.findOne({ questionId })
+
+        if (question) {
+            return question
+        }
+        return 
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 const getNextQuestionId = async () => {
     try {
         const maxId = await Question.find().sort({ questionId: -1 }).limit(1)
@@ -36,4 +49,4 @@ const getNextQuestionId = async () => {
     }
 }
 
-export { checkQuestionExists, getNextQuestionId }
+export { checkQuestionExists, getQuestionById, getNextQuestionId }
