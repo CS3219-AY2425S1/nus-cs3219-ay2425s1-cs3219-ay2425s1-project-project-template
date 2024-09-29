@@ -134,9 +134,9 @@ const Questions = () => {
       </div>
       {showModal && (
         <QuestionModal
-          question={currentQuestion}
           closeModal={() => setShowModal(false)}
           setQuestions={setQuestions}
+          question={currentQuestion}
         />
       )}
     </div>
