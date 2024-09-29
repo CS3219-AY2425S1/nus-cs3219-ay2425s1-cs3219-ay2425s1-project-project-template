@@ -51,7 +51,7 @@ export default function AddQuestionForm({
   initialDescription = "# Question description \n Write your question description here! \n You can also insert images!",
   initialComplexity = "Easy",
   initialCategories = [],
-  initialTemplateCode = "",
+  initialTemplateCode = "/** PUT YOUR TEMPLATE CODE HERE **/",
   initialTestCases = [{ input: "", output: "" }],
 }: AddQuestionFormProps) {
   const router = useRouter();
@@ -123,7 +123,7 @@ export default function AddQuestionForm({
   };
 
   function handleEditorChange(value?: string) {
-    setTemplateCode(value || "");
+    setTemplateCode(value || "/** PUT YOUR TEMPLATE CODE HERE **/");
   }
 
   useEffect(() => {
@@ -195,15 +195,15 @@ export default function AddQuestionForm({
         // Show error modal with error response message
         const errorData = await response.json();
         setErrorMessage(
-          errorData.message ||
-            "Failed to submit the question. Please try again."
+          errorData.error || "Failed to submit the question. Please try again."
         );
         setErrorModalOpen(true);
       }
     } catch (error) {
-      console.error("Error submitting question:", error);
       // Show error modal with generic error message
-      setErrorMessage("An error occurred while submitting the question.");
+      setErrorMessage(
+        "An error occurred while submitting the question. Please try again later"
+      );
       setErrorModalOpen(true);
     }
   };
@@ -224,9 +224,12 @@ export default function AddQuestionForm({
           size="md"
           value={title}
           onValueChange={setTitle}
+          isRequired
         />
         <div className="flex flex-col gap-2 items-start">
-          <span className="text-sm">Complexity</span>
+          <span className="text-sm">
+            Complexity<span className="text-red-500">*</span>
+          </span>
           <Tabs
             variant="bordered"
             color={complexityColorMap[selectedTab]}
@@ -245,8 +248,11 @@ export default function AddQuestionForm({
           <div className="flex flex-row gap-2">
             <Autocomplete
               allowsCustomValue
+              label="Press plus to add the category"
+              placeholder="Add a category"
+              isRequired
               variant="flat"
-              className="w-[200px] text-left"
+              className="w-[250px] text-left"
               description="You can add new categories too"
               inputValue={currentCategory}
               onInputChange={setCurrentCategory}
@@ -293,7 +299,9 @@ export default function AddQuestionForm({
           </div>
         </div>
         <div className="flex flex-col gap-2 items-start">
-          <span className="text-sm">Description</span>
+          <span className="text-sm">
+            Description<span className="text-red-500">*</span>
+          </span>
           <WysiMarkEditor
             initialValue={description}
             onChange={(value) => setDescription(value)}
@@ -301,7 +309,9 @@ export default function AddQuestionForm({
         </div>
         <div className="flex flex-col gap-4 items-start">
           <div className="flex flex-row gap-2 items-center">
-            <span className="text-sm">Template Code</span>
+            <span className="text-sm">
+              Template Code<span className="text-red-500">*</span>
+            </span>
             <Autocomplete
               inputValue={language}
               onInputChange={handleLanguageInputChange}
@@ -332,7 +342,9 @@ export default function AddQuestionForm({
           />
         </div>
         <div className="flex flex-col gap-4 items-start">
-          <span className="text-sm">Testcases</span>
+          <span className="text-sm">
+            Testcases<span className="text-red-500">*</span>
+          </span>
           {testCases.map((testCase, index) => (
             <div key={index} className="flex gap-2 items-center">
               <Input
@@ -391,15 +403,16 @@ export default function AddQuestionForm({
       </div>
       <SuccessModal
         isOpen={successModalOpen}
-        onOpenChange={setSuccessModalOpen}
+        onOpenChange={() => {
+          setSuccessModalOpen;
+          router.push("/questions-management/list");
+        }}
         message={successMessage}
         onConfirm={() => {
           setSuccessModalOpen(false);
-          router.push("/questions-management/list"); // Redirect to list page after success
+          router.push("/questions-management/list");
         }}
       />
-
-      {/* Error Modal */}
       <ErrorModal
         isOpen={errorModalOpen}
         onOpenChange={setErrorModalOpen}

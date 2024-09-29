@@ -291,6 +291,7 @@ export default function EditQuestionForm({
           size="md"
           value={title}
           onValueChange={setTitle}
+          isRequired
         />
         <div className="flex flex-col gap-2 items-start">
           <span className="text-sm">Complexity</span>
@@ -312,8 +313,11 @@ export default function EditQuestionForm({
           <div className="flex flex-row gap-2">
             <Autocomplete
               allowsCustomValue
+              label="Press plus to add the category"
+              placeholder="Add a category"
+              isRequired
               variant="flat"
-              className="w-[200px] text-left"
+              className="w-[250px] text-left"
               description="You can add new categories too"
               inputValue={currentCategory}
               onInputChange={setCurrentCategory}
@@ -360,7 +364,9 @@ export default function EditQuestionForm({
           </div>
         </div>
         <div className="flex flex-col gap-2 items-start">
-          <span className="text-sm">Description</span>
+          <span className="text-sm">
+            Description<span className="text-red-500">*</span>
+          </span>{" "}
           <WysiMarkEditor
             initialValue={description}
             onChange={(value) => setDescription(value)}
@@ -368,7 +374,9 @@ export default function EditQuestionForm({
         </div>
         <div className="flex flex-col gap-4 items-start">
           <div className="flex flex-row gap-2 items-center">
-            <span className="text-sm">Template Code</span>
+            <span className="text-sm">
+              Template Code<span className="text-red-500">*</span>
+            </span>{" "}
             <Autocomplete
               inputValue={language}
               onInputChange={handleLanguageInputChange}
@@ -385,7 +393,9 @@ export default function EditQuestionForm({
           {editorContent}
         </div>
         <div className="flex flex-col gap-4 items-start">
-          <span className="text-sm">Testcases</span>
+          <span className="text-sm">
+            Testcases<span className="text-red-500">*</span>
+          </span>
           {testCases.map((testCase, index) => (
             <div key={index} className="flex gap-2 items-center">
               <Input
