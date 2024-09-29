@@ -1,7 +1,6 @@
-/* eslint-disable react/prop-types */
 // src/pages/Calendar.js
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Calendar.css"; 
 
 const Calendar = ({

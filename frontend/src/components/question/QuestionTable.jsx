@@ -1,6 +1,5 @@
-/* eslint-disable react/prop-types */
 // src/components/QuestionTable.js
-import { useState } from "react";
+import React, { useState } from "react";
 import "./QuestionTable.css"; // Import the CSS file
 
 const complexityOrder = {

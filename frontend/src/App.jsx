@@ -1,5 +1,5 @@
 // src/App.js
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
