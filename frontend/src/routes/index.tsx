@@ -6,6 +6,10 @@ import ProtectedRoute from "./ProtectedRoutes";
 import EditProfile from "../pages/EditProfile";
 import ChangePassword from "../pages/ChangePassword";
 import QuestionRepo from "../pages/QuestionRepo";
+import QuestionDetails from "../pages/QuestionDetails";
+import ManageQuestions from "../pages/ManageQuestions";
+import AdminRoute from "./AdminRoutes";
+import EditQuestion from "../pages/EditQuestion";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +45,30 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <QuestionRepo />,
+      },
+      {
+        path: "manage",
+        element: <AdminRoute />,
+        children: [
+          {
+            path: "",
+            element: <ManageQuestions />,
+          },
+        ],
+      },
+      {
+        path: ":id",
+        element: <QuestionDetails />,
+      },
+      {
+        path: ":id/edit",
+        element: <AdminRoute />,
+        children: [
+          {
+            path: "",
+            element: <EditQuestion />,
+          },
+        ],
       },
     ],
   },

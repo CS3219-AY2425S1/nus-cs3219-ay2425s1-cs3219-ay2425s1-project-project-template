@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface HighlightProps {
   text: string;
@@ -8,17 +8,13 @@ interface HighlightProps {
 const Highlight: React.FC<HighlightProps> = ({ text, query }) => {
   if (!query) return <>{text}</>;
 
-  const regex = new RegExp(`(${query})`, 'gi');
+  const regex = new RegExp(`(${query})`, "gi");
   const parts = text.split(regex);
 
   return (
     <>
       {parts.map((part, index) =>
-        regex.test(part) ? (
-          <b key={index}>{part}</b>
-        ) : (
-          part
-        )
+        regex.test(part) ? <b key={index}>{part}</b> : part
       )}
     </>
   );
