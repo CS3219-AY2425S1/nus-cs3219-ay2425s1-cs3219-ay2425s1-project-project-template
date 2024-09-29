@@ -39,7 +39,7 @@ const QuestionController: React.FC = () => {
   });
 
   if (questions === undefined) {
-    return <div>No Questions Available</div>;
+    return <div>Fetching...</div>;
   }
 
   return (
