@@ -129,6 +129,7 @@ export default function Home() {
       limit,
       sortBy,
       difficulty,
+      categories,
       delayedSearch
     );
     setQuestions(data.questions);
@@ -141,7 +142,7 @@ export default function Home() {
 
   useEffect(() => {
     loadQuestions();
-  }, [limit, currentPage, sortBy, difficulty, delayedSearch]);
+  }, [limit, currentPage, sortBy, difficulty, categories, delayedSearch]);
 
   // Delay the fetching of data only after user stops typing for awhile
   useEffect(() => {
