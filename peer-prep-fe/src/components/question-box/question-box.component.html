@@ -1,11 +1,14 @@
 <div class="question-box">
   <button class="question-title" (click)="openModal()">
-    {{ index + 1 }}. {{ question.title.toUpperCase() }}
+    {{ index + 1 }}. {{ question.question_title.toUpperCase() }}
   </button>
   <div class="misc">
-    <button class="edit-icon" (click)="openEditModal()">
-      <i class="far fa-pencil fa-2x"></i>
+    <button class="delete-icon" (click)="openDeleteModal()">
+      <i class="fa-solid fa-trash fa-2xl" style="color: #ffffff; "></i>
     </button>
-    <span class="difficulty" [ngClass]="question.difficulty">{{ question.difficulty }}</span>
+    <button class="edit-icon" (click)="openEditModal()">
+      <i class="fa-solid fa-pencil fa-2xl" style="color: #ffffff;"></i>
+    </button>
+    <span class="difficulty" [ngClass]="question.question_complexity">{{ question.question_complexity }}</span>
   </div>
 </div>

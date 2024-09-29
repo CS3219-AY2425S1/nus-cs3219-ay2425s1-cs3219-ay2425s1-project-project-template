@@ -1,4 +1,4 @@
-import {Component, Inject, NgModule} from '@angular/core';
+import {Component, EventEmitter, Inject, NgModule, Output} from '@angular/core';
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormsModule, Validators, FormGroup, ReactiveFormsModule, FormControl} from "@angular/forms";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
@@ -21,6 +21,8 @@ import {EditPageComponent} from "../edit-page/edit-page.component";
   styleUrl: './add-page.component.css'
 })
 export class AddPageComponent {
+  @Output() addComplete = new EventEmitter<void>();
+
   question_title: string= '';
   question_description: string = '';
   question_categories = [
@@ -65,10 +67,10 @@ export class AddPageComponent {
       Question_categories: this.question_categories.filter(cat => cat.selected).map(cat => cat.name),
       Question_complexity: this.question_complexity
     };
-    console.log(newQuestion);
     this.questionService.addQuestion(newQuestion).subscribe((response) => {
         alert('Question added successfully!');
         this.dialogRef.close();
+        this.onAddComplete();
       },
       (error) => {
         alert('Error adding question');
@@ -82,5 +84,9 @@ export class AddPageComponent {
 
   navigateBack() {
     this.dialogRef.close();
+  }
+
+  onAddComplete() {
+    this.addComplete.emit();
   }
 }
