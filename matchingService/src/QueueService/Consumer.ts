@@ -115,11 +115,12 @@ class Consumer {
         }
         console.log(cancellationResponseQueue.getQueue());
         console.log("Consumer: Replying to queue", cancellationResponseQueue.getQueue());
+        this.pendingMatch = null; // Remove existing pending match
+        this.deleteCancellationMatchRequest(matchId);
         // respond to match request
         channel.publish(directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
             correlationId: matchCorrelationId,
         });
-        this.deleteCancellationMatchRequest(matchId);
         // respond to cancel request
         channel.publish(directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: cancellationResponseQueue.getCorrelationId(),
@@ -138,7 +139,7 @@ class Consumer {
         var req: CancelRequest = this.parseCancelRequest(content);
         var reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
         this.cancelledMatches.set(req.getMatchId(), reqWithInfo)
-        if (this.pendingMatch?.getMatchId() == reqWithInfo.getMatchId()) {
+        if (this.pendingMatch?.getMatchId() == reqWithInfo.getMatchId()) { // Check if the current match in memory is the one to be canceled
             this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingMatch.getCorrelationId(), 
                 this.pendingMatch.getQueue(), channel, directExchange);
             return;
