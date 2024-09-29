@@ -51,6 +51,7 @@ export function LeetcodeDashboardTable() {
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
   >(null);
+  const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-fetch
 
   function handleDelete(questionId: string) {
     setIsDeleting(true);
@@ -64,7 +65,10 @@ export function LeetcodeDashboardTable() {
       preConfirm: async () => {
         try {
           await deleteSingleLeetcodeQuestion(questionId);
-          return Swal.fire("Question deleted successfully!", "", "success");
+          Swal.fire("Question deleted successfully!", "", "success");
+
+          // Trigger data refresh
+          setRefreshKey((prev) => prev + 1);
         } catch (error) {
           Swal.showValidationMessage(`Failed to delete question: ${error}`);
         } finally {
@@ -167,8 +171,11 @@ export function LeetcodeDashboardTable() {
   ];
 
   useEffect(() => {
-    getLeetcodeDashboardData().then((data) => setData(data));
-  }, [data]);
+    setIsDeleting(true);
+    getLeetcodeDashboardData()
+      .then((data) => setData(data))
+      .finally(() => setIsDeleting(false));
+  }, [refreshKey]);
 
   const table = useReactTable({
     data,
