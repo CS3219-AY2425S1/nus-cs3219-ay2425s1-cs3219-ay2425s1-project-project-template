@@ -24,6 +24,8 @@ services:
     build: ./question-service
     ports:
       - 3002:3002
+    environment:
+      - USER_SERVICE_URL=http://user-service:3001
     # volumes:
     #   - ./question-service/src:/usr/src/app
     #   - /usr/src/app/node_modules  # Avoid overwriting node_modules
