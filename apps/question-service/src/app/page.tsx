@@ -29,6 +29,8 @@ import {
   DeleteQuestion as DeleteQuestionByDocref,
   GetQuestions,
   Question,
+  CreateQuestion,
+  NewQuestion
 } from "./services/question";
 import {
   CategoriesOption,
@@ -36,6 +38,7 @@ import {
   OrderOption,
 } from "../utils/SelectOptions";
 import Link from "next/link";
+import TextArea from "antd/es/input/TextArea";
 
 /**
  * defines the State of the page whe a user is deleing an object. Has 3 general states:
@@ -97,6 +100,51 @@ export default function Home() {
 
   // Message States
   const [messageApi, contextHolder] = message.useMessage();
+
+  // States for Create New Problem Modal
+  const [isNewProblemModalOpen, setIsNewProblemModelOpen] = useState(false);
+  const [newProblemCategories, setNewProblemCategories] = useState<string[]>([]);
+  const [newProblemDifficulty, setNewProblemDifficulty] = useState<string[]>([]); // Store the selected difficulty level
+
+  const [newTitle, setNewTitle] = useState('sampleTitle');
+  const [newDescription, setNewDescription] = useState('sampleDescription');
+  const [newCategories, setNewCategories] = useState<string[]>(['Algorithms']);
+  const [newComplexity, setNewComplexity] = useState(1);
+  const [newProblemError, setNewProblemError] = useState<string | null>(null);
+
+  const handleCreateQuestion = async () => {
+    const newQuestion: NewQuestion = {
+      newTitle,
+      newDescription,
+      newCategories,
+      newComplexity,
+      // Add assets and testCases if needed
+    };
+      try {
+        const createdQuestion: Question = await CreateQuestion(newQuestion);
+        console.log("Question created successfully:", createdQuestion);
+        // Reset form or update UI as needed
+      } catch (err: any) {
+        setNewProblemError(err.message);
+      }
+    };
+
+  const showNewProblemModal = () => {
+    setIsNewProblemModelOpen(true);
+  };
+
+  const handleNewProblemSubmit = () => {
+    setIsNewProblemModelOpen(false);
+  };
+
+  const handleNewProblemReturn = () => {
+    setIsNewProblemModelOpen(false);
+  };
+
+  // Handler for change in multi-select categories option
+  const handleNewProblemCategoriesChange = (value: string[]) => {
+    setNewProblemCategories(value);
+  };
 
   const success = (message: string) => {
     messageApi.open({
@@ -174,7 +222,7 @@ export default function Home() {
         >
           <Button type="link">{text}</Button>
         </Link>
-      ), // TODO (Sean): Onclick links to the individual question page
+      ),
     },
     {
       title: "Categories",
@@ -210,6 +258,7 @@ export default function Home() {
       render: (_: number, question: Question) => (
         <div>
           {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
+          
           <Button className="edit-button" icon={<EditOutlined />}></Button>
           {/* TODO (Ryan): Include Pop-up confirmation for delete when clicked and link to delete API --> can also explore success notification or look into react-toast*/}
           <Button
@@ -296,9 +345,71 @@ export default function Home() {
               <div className="content-title">Problems</div>
               <div className="create-button">
                 {/* TODO (Sean): Launch a popup modal that links to the backend api to create a new entry in db, --> look into success/error notification/react toast */}
-                <Button type="primary" icon={<PlusCircleOutlined />}>
+                <Button type="primary" icon={<PlusCircleOutlined />} onClick={showNewProblemModal}>
                   Create New Problem
                 </Button>
+                <Modal 
+                  
+                  title="Create New Problem"
+                  open={isNewProblemModalOpen} 
+                  onOk={handleNewProblemSubmit} 
+                  onCancel={handleNewProblemReturn}
+                  // footer={[
+                  //   <Button key="back" onClick={handleNewProblemReturn}>
+                  //     Return
+                  //   </Button>,
+                  //   <Button key="submit" type="primary" onClick={handleNewProblemSubmit}>
+                  //     Submit
+                  //   </Button>,
+                  // ]}
+                >
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                  />
+                  {/* Add other input fields for description, categories, complexity, etc. */}
+                  <button onClick={handleCreateQuestion}>Create Question</button>
+
+                </Modal>
+                {/* <Modal 
+                  title="Create New Problem"
+                  open={isNewProblemModalOpen} 
+                  onOk={handleNewProblemSubmit} 
+                  onCancel={handleNewProblemReturn}
+                  footer={[
+                    <Button key="back" onClick={handleNewProblemReturn}>
+                      Return
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleNewProblemSubmit}>
+                      Submit
+                    </Button>,
+                  ]}
+                >
+                  <TextArea className="create-title" placeholder="Problem Title" rows={1} maxLength={1}></TextArea>
+                  <Select
+                    allowClear
+                    placeholder="Difficulty"
+                    onChange={(value: string[]) => {
+                      setNewProblemDifficulty(value);
+                    }}
+                    options={DifficultyOption}
+                    className="new-problem-difficulty-select"
+                    value={newProblemDifficulty}
+                  />
+                  <Select
+                    mode="multiple"
+                    allowClear
+                    placeholder="Categories"
+                    onChange={handleNewProblemCategoriesChange}
+                    options={CategoriesOption}
+                    className="new-problem-categories-multi-select"
+                    value={newProblemCategories}
+                  />
+                  <TextArea className="create-description" placeholder="Description"></TextArea>
+                  <TextArea className="create-problem-id" placeholder="Problem ID"></TextArea>
+                </Modal> */}
               </div>
             </div>
             {/* TODO (Ben/Ryan): Include and link search & filter parameters */}

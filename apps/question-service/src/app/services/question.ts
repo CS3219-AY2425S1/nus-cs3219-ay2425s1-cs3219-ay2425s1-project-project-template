@@ -21,6 +21,13 @@ export interface QuestionListResponse {
   questions: Question[];
 }
 
+export interface NewQuestion {
+  newTitle: string;
+  newDescription: string;
+  newCategories: string[];
+  newComplexity: string;
+}
+
 // GET request to fetch all the questions (TODO: Ben --> Fetch with filtering/sorting etc)
 export const GetQuestions = async (
   currentPage?: number,
@@ -80,7 +87,41 @@ export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
   return data;
 };
 
+// Upload single question (TODO: Sean)
+export const CreateQuestion = async (question: NewQuestion): Promise<Question> => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(question),
+    });
+
+    if (!response.ok) {
+      // Attempt to parse error message from server
+      let errorMessage = `Error creating question: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.error) {
+          errorMessage = `Error creating question: ${errorData.error}`;
+        }
+      } catch (e) {
+        // If response is not JSON, keep the default error message
+      }
+      throw new Error(errorMessage);
+    }
+
+    const createdQuestion: Question = await response.json();
+    return createdQuestion;
+  } catch (error) {
+    console.error("CreateQuestion failed:", error);
+    throw error;
+  }
+};
+
 // Update single question (TODO: Sean)
+
 
 // Delete single question (TODO: Ryan)
 export async function DeleteQuestion(docRef: String): Promise<void> {
