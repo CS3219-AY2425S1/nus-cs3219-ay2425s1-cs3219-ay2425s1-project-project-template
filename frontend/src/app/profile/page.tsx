@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 const ProfilePage: React.FC = () => {
     const router = useRouter();
-    const { isAuthenticated, user, refreshAuth } = useAuth();
+    const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
 
     const handleLogout = async () => {
         try {
@@ -30,16 +30,11 @@ const ProfilePage: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/');
-        }
-    }, [isAuthenticated, router]);
 
     if (!user) {
         // Optionally, show a loading state while fetching user data
         return (
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex flex-grow items-center justify-center min-h-screen">
                 <p>Loading profile...</p>
             </div>
         );
@@ -57,6 +52,7 @@ const ProfilePage: React.FC = () => {
                     <div>
                         <h2 className="text-xl font-bold">{user.name}</h2>
                         <p className="text-gray-600">{user.email}</p>
+                        <p className="text-gray-600">Role: {isAdmin ? 'Admin' : 'User'}</p>
                     </div>
                 </div>
                 {/* Add more profile-related sections here */}

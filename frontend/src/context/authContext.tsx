@@ -13,6 +13,7 @@ interface User {
 interface AuthContextType {
     isAuthenticated: boolean;
     user: User | null;
+    isAdmin: boolean;
     refreshAuth: () => Promise<void>;
 }
 
@@ -34,6 +35,7 @@ export const useAuth = (): AuthContextType => {
  */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [user, setUser] = useState<User | null>(null);
 
     const refreshAuth = async () => {
@@ -49,18 +51,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(data)
                     setUser(data.user);
+                    setIsAdmin(data.user.isAdmin);
                 } else {
                     console.error('Failed to fetch user profile.');
                     setUser(null);
                     setIsAuthenticated(false);
+                    setIsAdmin(false);
                 }
             } else {
                 setUser(null);
+                setIsAdmin(false);
             }
         } catch (error) {
             console.error('Error refreshing auth status:', error);
             setIsAuthenticated(false);
+            setIsAdmin(false);
             setUser(null);
         }
     };
@@ -70,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, refreshAuth }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, refreshAuth }}>
             {children}
         </AuthContext.Provider>
     );

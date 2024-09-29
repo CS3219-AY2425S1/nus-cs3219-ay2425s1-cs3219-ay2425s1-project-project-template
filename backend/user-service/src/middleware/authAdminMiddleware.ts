@@ -4,7 +4,7 @@ import User from '../models/user';
 import logger from '../utils/logger';
 
 /**
- * Authentication middleware for regular users. Used to protect routes that can only be accessed users & admins who are signe in.
+ * Authentication middleware for administrators. Used to protect routes that can only be accessed by admins.
  */
 interface AuthenticatedRequest extends Request {
     user?: {
@@ -15,7 +15,7 @@ interface AuthenticatedRequest extends Request {
     };
 }
 
-const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const authenticateAdmin = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
 
     if (!token) {
@@ -34,6 +34,11 @@ const authenticate = async (req: AuthenticatedRequest, res: Response, next: Next
             return res.status(401).json({ message: 'Invalid authentication token.' });
         }
 
+        if (!user.isAdmin) {
+            logger.warn('User is not an administrator.');
+            return res.status(403).json({ message: 'Access Denied.' });
+        }
+
         req.user = {
             id: user._id.toString(),
             name: user.name,
@@ -48,4 +53,4 @@ const authenticate = async (req: AuthenticatedRequest, res: Response, next: Next
     }
 };
 
-export { authenticate, AuthenticatedRequest };
+export { authenticateAdmin, AuthenticatedRequest };

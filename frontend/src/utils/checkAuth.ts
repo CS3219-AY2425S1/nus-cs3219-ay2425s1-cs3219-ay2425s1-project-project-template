@@ -3,7 +3,7 @@ export interface AuthStatus {
   }
   
   /**
-   * Checks the authentication status of the user by making a request to the backend.
+   * Checks the authentication status (signed in or not) of the user by making a request to the backend.
    * @returns A promise that resolves to an object containing the authentication status.
    */
   export const checkAuthStatus = async (): Promise<AuthStatus> => {
