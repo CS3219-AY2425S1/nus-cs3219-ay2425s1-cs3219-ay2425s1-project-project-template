@@ -1,15 +1,23 @@
-// import { questionApiClient } from "./api-clients"
+import { questionApiClient } from './api-clients';
 import { questionDetails, questions } from '@/assets/questions';
-import { IGetQuestionsResponse } from '@/types/question-types';
+import type { IGetQuestionsResponse } from '@/types/question-types';
+
+const QUESTION_SERVICE_ROUTES = {
+  GET_QUESTIONS: '/questions',
+  GET_QUESTION_DETAILS: '/questions/<questionId>',
+};
 
 type QuestionDetails = (typeof questionDetails)[number];
 
 export const getQuestionDetails = (questionId: number): Promise<QuestionDetails> => {
-  // return questionApiClient.get
-  console.log(questionDetails.find(({ id }) => id === questionId));
-  return new Promise((resolve, _reject) => {
-    setTimeout(() => resolve(questionDetails.find(({ id }) => id === questionId)!), 1000);
-  });
+  return questionApiClient.get(
+    QUESTION_SERVICE_ROUTES.GET_QUESTION_DETAILS.replace(/<questionId>/, String(questionId))
+  );
+  // // return questionApiClient.get
+  // console.log(questionDetails.find(({ id }) => id === questionId));
+  // return new Promise((resolve, _reject) => {
+  //   setTimeout(() => resolve(questionDetails.find(({ id }) => id === questionId)!), 1000);
+  // });
 };
 
 export const ROWS_PER_PAGE = 8;

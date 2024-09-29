@@ -22,6 +22,14 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
+        '/question-service': {
+          target: env.VITE_QUESTION_SERVICE,
+          rewrite: (path) => path.replace(/^\/question-service/, ''),
+          changeOrigin: true,
+          cookiePathRewrite: {
+            '*': '/',
+          },
+        },
       },
     },
   };

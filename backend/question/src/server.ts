@@ -1,15 +1,26 @@
 import { exit } from 'process';
-import questionsRouter from './routes/question-routes';
+
+import cors from 'cors';
 import express, { json } from 'express';
 import pino from 'pino-http';
 import { sql } from 'drizzle-orm';
+import helmet from 'helmet';
 
+import questionsRouter from '@/routes/question';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 
 const app = express();
 app.use(pino());
 app.use(json());
+app.use(helmet());
+app.use(
+  cors({
+    origin: [process.env.PEERPREP_UI_HOST!],
+    credentials: true,
+  })
+);
+
 app.use('/questions', questionsRouter);
 app.get('/', async (_req, res) => {
   res.json({

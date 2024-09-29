@@ -10,6 +10,7 @@ import type {
   IGetQuestionPayload,
   IGetRandomQuestionPayload,
 } from '@/services/get/types';
+import { StatusCodes } from 'http-status-codes';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
   const payload: IGetQuestionsPayload = {
@@ -22,9 +23,16 @@ export const getQuestions = async (req: Request, res: Response): Promise<Respons
 
   try {
     const result = await getQuestionsService(payload);
-    return res.status(result.code).json(result);
+    if (!result.data || result.code < 400) {
+      return res.status(result.code).json({
+        message: result.error?.message ?? 'An error occurred',
+      });
+    }
+    return res.status(result.code).json(result.data);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
 
@@ -35,9 +43,16 @@ export const getQuestionDetails = async (req: Request, res: Response): Promise<R
 
   try {
     const result = await getQuestionDetailsService(payload);
-    return res.status(result.code).json(result);
+    if (!result.data || result.code < 400) {
+      return res.status(result.code).json({
+        message: result.error?.message ?? 'An error occurred',
+      });
+    }
+    return res.status(result.code).json(result.data);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
 
@@ -51,7 +66,9 @@ export const getRandomQuestion = async (req: Request, res: Response): Promise<Re
     const result = await getRandomQuestionService(payload);
     return res.status(result.code).json(result);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
 
@@ -61,13 +78,17 @@ export const searchQuestionsByTitle = async (req: Request, res: Response): Promi
   const limit = parseInt(req.query.limit as string) || 10;
 
   if (!title) {
-    return res.status(400).json({ success: false, message: 'Title is required' });
+    return res
+      .status(StatusCodes.UNPROCESSABLE_ENTITY)
+      .json({ success: false, message: 'Title is required' });
   }
 
   try {
     const result = await searchQuestionsByTitleService(title.toString(), page, limit);
     return res.status(result.code).json(result);
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'An error occurred', error });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
   }
 };
