@@ -41,8 +41,8 @@ const matchPassword = (password, hash) => {
  * @param {string} username 
  * @returns signed jwt expires in 1800s 
  */
-const generateAccessToken = (email) => {
-    return jwt.sign(email, process.env.TOKEN_SECRET, { expiresIn: '1800s' });
+const generateAccessToken = (username) => {
+    return jwt.sign(username, process.env.TOKEN_SECRET, { expiresIn: '1800s' });
 }
 
 /**
@@ -50,10 +50,11 @@ const generateAccessToken = (email) => {
  * Sends back json with json web token attached with successful login.
  */
 exports.postLogin = async (req, res, next) => {
-    const email = req.body.email;
+    console.log(req.body)
+    const username = req.body.username;
     const password = req.body.password;
 
-    let user = await User.findOne({ email: email });
+    let user = await User.findOne({ username: username });
 
     if (!user) {
         return res.status(400).json({ message: "User not found." })
@@ -62,7 +63,7 @@ exports.postLogin = async (req, res, next) => {
     const doMatch = matchPassword(password, user.password)
 
     if (doMatch) {
-        const token = generateAccessToken({ email: email });
+        const token = generateAccessToken({ username: username });
         res.json({token: token});
     } else {
         res.status(400).json({ message: "Something went wrong." })
@@ -71,10 +72,10 @@ exports.postLogin = async (req, res, next) => {
 
 exports.postSignup = async (req, res, next) => {
     try {
-        const email = req.body.email;
+        const username = req.body.username;
         const password = req.body.password;
 
-        let existingUser = await User.findOne({ email: email });
+        let existingUser = await User.findOne({ username: username });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists." });
         }
@@ -82,7 +83,7 @@ exports.postSignup = async (req, res, next) => {
         const hashedPassword = hashPassword(password);
 
         let newUser = new User({
-            email: email,
+            username: username,
             password: hashedPassword
         });
 

@@ -12,7 +12,7 @@ const app = express()
 app.options(
     '*',
     cors({
-        origin: 'http://localhost:3000',
+        origin: 'http://localhost:5173',
         optionsSuccessStatus: 200
     })
 )
