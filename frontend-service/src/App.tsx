@@ -1,19 +1,24 @@
-import { Routes, Route } from 'react-router-dom';
-import './App.css'
-import Login from './pages/SignIn/login';
-import Navbar from './navbar';
+import { Route, Routes } from "react-router-dom";
+import { Box } from "@chakra-ui/react";
+import "./App.css";
+import QuestionPage from "./pages/Question";
+import QuestionDetails from "../components/question/QuestionDetails";
+import HomeNavBar from "../components/HomeNavBar";
+import Login from "./pages/SignIn/login";
 
-
-const App: React.FC = () => {
+function App() {
   return (
-    <div>
-      <Navbar />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </div>
+    <Box className="app" fontFamily="Poppins, sans-serif">
+      <HomeNavBar />
+      <Box pt="80px">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/questions" element={<QuestionPage />} />
+          <Route path="/questions/:id" element={<QuestionDetails />} />
+        </Routes>
+      </Box>
+    </Box>
   );
-};
-
+}
 
 export default App;
