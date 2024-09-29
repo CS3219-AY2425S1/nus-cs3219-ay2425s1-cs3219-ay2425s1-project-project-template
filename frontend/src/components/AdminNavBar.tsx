@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import ProfileButton from "./ProfileButton.tsx";
 import AddQuestionModal from "./AddQuestionModal.tsx";
 
-const AdminNavBar: React.FC = () => {
+const AdminNavBar: React.FC<{}> = () => {
   const location = useLocation();
 
   const [isAddModalOpen, setAddModalOpen] = useState(false);
@@ -31,7 +31,7 @@ const AdminNavBar: React.FC = () => {
             >
               Add question
             </button>
-            {isAddModalOpen && <AddQuestionModal onClose={closeAddModal} />}
+            {isAddModalOpen && <AddQuestionModal onClose={closeAddModal}/>}
           </div>
         ))}
       {/* Profile button */}

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
+import Dashboard from "./Dashboard/Dashboard";
 
-const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
+const AddQuestionModal: React.FC<{onClose: () => void;}> = ({onClose}) => {
   //const [difficultyValue, setDifficultyValue] = useState("");
   //const [topicValue, setTopicValue] = useState([""]);
   //const [titleValue, setTitleValue] = useState("");
@@ -29,7 +30,8 @@ const AddQuestionModal: React.FC<{onClose: () => void}> = ({onClose}) => {
         console.log(data);
         onClose();
       } catch (error) {
-          console.error('Error adding question:', error);
+        alert('Error adding question. The question you are adding may be a duplicate (having the same title as an existing question). Please try again.');
+        console.error('Error adding question:', error);
       }
   };
   
