@@ -1,34 +1,88 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { SearchAndFilterComponent } from '../search-and-filter/search-and-filter.component';
-import { Question } from '../../app/models/question.model'; 
+import { Question } from '../../app/models/question.model';
 import { QuestionBoxComponent } from '../question-box/question-box.component';
+import {QuestionService} from "../../services/question.service";
+import {HttpClientModule} from "@angular/common/http";
 
 
 @Component({
   selector: 'app-question-list',
   standalone: true,
-  imports: [CommonModule, SearchAndFilterComponent, QuestionBoxComponent],
+  imports: [CommonModule, SearchAndFilterComponent, QuestionBoxComponent, HttpClientModule],
   templateUrl: './question-list.component.html',
   styleUrl: './question-list.component.css'
 })
 export class QuestionListComponent implements OnInit {
 
-  questions: Question[] = [
-    { title: 'Valid Parantheses', difficulty: 'Easy' },
-    { title: 'Merge Two Sorted Lists', difficulty: 'Easy' },
-    { title: 'Implement Stack Using Queues', difficulty: 'Easy' },
-    { title: 'Remove Element', difficulty: 'Easy' },
-    { title: 'Find The Index Of The First Occurrence In A String', difficulty: 'Easy' },
-    { title: 'Divide Two Integers', difficulty: 'Medium' },
-    { title: 'Generate Parentheses', difficulty: 'Medium' },
-    { title: 'Swap Nodes In Pairs', difficulty: 'Medium' },
-    { title: 'Merge K Sorted Lists', difficulty: 'Hard' },
-    { title: 'Reverse Nodes In K-Group', difficulty: 'Hard' }
-  ];
+  questions: Question[] = [];
+  // filteredQuestions: Question[] = [];
 
-  constructor() { }
+  constructor(private questionService : QuestionService) { }
 
   ngOnInit(): void {
+    this.loadQuestions();
+  }
+
+  loadQuestions() {
+    // gets default ordering of questions
+    this.questionService.getAllQuestion().subscribe((data: any) => {
+      this.questions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
+  }
+
+  loadSortedQuestions() {
+    this.questionService.getAllQuestionSorted("question_title", "asc").subscribe((data: any) => {
+      this.questions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
+  }
+
+  loadFilteredQuestions(filterBy?: string, filterValues?: string) {
+    this.questionService.getFilteredQuestions(filterBy, filterValues).subscribe((data: any) => {
+      this.questions = data.data.data;
+      // this.filteredQuestions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
+  }
+
+  applyFilter(event: { filterBy: string, filterValues: string} ) {
+    this.loadFilteredQuestions(event.filterBy, event.filterValues);
+    console.log('Filtering by:', event.filterBy, event.filterValues);
+  }
+
+  refreshQuestions(hasSort?: boolean) {
+    if (hasSort) {
+      this.loadSortedQuestions();
+    } else {
+      this.loadQuestions();
+    }
+  }
+
+  loadSearchedQuestions(searchTerm?: string) {
+    if (searchTerm) {
+      this.questionService.searchQuestion(searchTerm).subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    } else {
+      // gets default ordering of questions
+      this.questionService.getAllQuestion().subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    }
+  }
+
+
+  refreshQuestionsSearch(searchTerm?: string) {
+    this.loadSearchedQuestions(searchTerm);
   }
 }
