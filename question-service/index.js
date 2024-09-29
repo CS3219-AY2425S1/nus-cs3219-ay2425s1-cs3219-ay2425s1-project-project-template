@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import fs from 'fs';
 
 import router from "./routes/routes.js";
 
@@ -33,37 +34,14 @@ app.use('/', router);
 
 /**
  * IMAGE HANDLING
- */
-import multer from 'multer';
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads')
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname)
-  }
-});
-const upload = multer({ storage: storage });
+ */ 
 
-app.use('/uploads', express.static('uploads'));
+// Check if the directory exists, if not, create it
+const uploadsDir = './uploads';
 
-app.get('/img/:filename', function (req, res) {
-  const fileName = req.params.filename;
-  const filePath = `./uploads/${fileName}`;
-  
-  // Check if file exists
-  res.sendFile(filePath, { root: '.' }, function (err) {
-    if (err) {
-      console.error(err);
-      res.status(404).send('Image not found');
-    }
-  });
-});
-
-app.post('/img', upload.single('img'), function (req, res, next) {
-
-  return res.status(200).json(req.file);
-})
-
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log(`Directory ${uploadsDir} created.`);
+}
 
 export default app;
