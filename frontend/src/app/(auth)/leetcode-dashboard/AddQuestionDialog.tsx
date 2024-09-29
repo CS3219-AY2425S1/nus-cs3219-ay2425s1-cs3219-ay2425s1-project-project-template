@@ -15,9 +15,11 @@ import { MultiSelect } from "@/components/ui/multiselect";
 import { Textarea } from "@/components/ui/textarea";
 import { QuestionDifficulty } from "@/types/find-match";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import { z } from "zod";
+import MoonLoader from "react-spinners/MoonLoader";
 
 const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
@@ -26,6 +28,8 @@ interface AddQuestionDialogProp {
 }
 
 const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const formSchema = z.object({
     questionTitle: z.string().min(2, {
       message: "Title must be at least 2 characters.",
@@ -52,8 +56,8 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
     const url = `${QUESTION_SERVICE}/create`;
-    console.log("url", url);
     await fetch(url, {
       method: "POST",
       headers: {
@@ -84,11 +88,14 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
           text: "Please try again later.",
         });
       })
-      .finally(() => setClose());
+      .finally(() => {
+        setIsSubmitting(false);
+        setClose();
+      });
   }
 
   return (
-    <div className="bg-primary-700 p-10 w-[60vw] h-[80vh] rounded-lg">
+    <div className="bg-primary-700 p-10 w-[60vw] rounded-lg pb-14">
       <div className="text-[32px] font-semibold text-yellow-500">
         Add Question
       </div>
@@ -180,7 +187,9 @@ const AddQuestionDialog = ({ setClose }: AddQuestionDialogProp) => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit" className="mt-8">
+            {isSubmitting ? <MoonLoader size="20" /> : "Submit"}
+          </Button>
         </form>
       </Form>
     </div>
