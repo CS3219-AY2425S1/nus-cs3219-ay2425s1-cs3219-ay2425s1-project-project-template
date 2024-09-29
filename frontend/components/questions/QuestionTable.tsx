@@ -1,7 +1,8 @@
 import { useCallback } from "react";
 import { Key as ReactKey } from "react";
+
+import Link from "next/link";
 import { Button } from "@nextui-org/button";
-import { Link } from "@nextui-org/link";
 import {
   Table,
   TableHeader,
@@ -11,6 +12,7 @@ import {
   TableCell,
 } from "@nextui-org/table";
 
+import NavLink from "../navLink";
 import CategoryTags from "@/components/questions/CategoryTags";
 import DifficultyTags from "@/components/questions/DifficultyTags";
 import ActionButtons from "@/components/questions/ActionButtons";
@@ -35,6 +37,9 @@ export default function QuestionTable({ questions, bottomContent }: QuestionTabl
     const questionValue = question[columnKey as keyof Question];
 
     switch (columnKey) {
+      case "index": {
+        return <NavLink href={`question-description?id=${question.questionId}`} isActive={true}>{questionValue}</NavLink>
+      }
       case "title": {
         const titleString: string = questionValue as string;
 
