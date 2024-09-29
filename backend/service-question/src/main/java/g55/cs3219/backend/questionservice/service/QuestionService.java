@@ -4,7 +4,6 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
 
-import g55.cs3219.backend.questionservice.exception.DuplicatedQuestionIdException;
 import g55.cs3219.backend.questionservice.exception.InvalidQuestionException;
 import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
 import g55.cs3219.backend.questionservice.model.DatabaseSequence;
