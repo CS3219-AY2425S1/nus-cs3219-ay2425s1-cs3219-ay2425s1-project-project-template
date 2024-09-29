@@ -36,7 +36,7 @@ func IsValidComplexity(question *models.Question) bool {
 
 	complexity = strings.ToLower(complexity)
 
-	if complexity == "easy" || complexity == "medium" || complexity == "hard" {
+	if complexity == "easy" || complexity == "med" || complexity == "hard" {
 		return true
 	}
 

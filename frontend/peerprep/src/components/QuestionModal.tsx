@@ -68,7 +68,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     onSave({
       title,
       description,
-      categories: selectedCategories.join(","),
+      categories: selectedCategories.join(", "),
       complexity,
       link,
     }); // Concatenate categories
