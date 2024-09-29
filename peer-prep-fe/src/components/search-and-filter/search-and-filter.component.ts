@@ -5,11 +5,12 @@ import { QuestionService } from '../../services/question.service';
 import {MatDialog} from "@angular/material/dialog";
 import {AddPageComponent} from "../../add-page/add-page.component";
 import { Category } from '../../app/models/category.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-search-and-filter',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './search-and-filter.component.html',
   styleUrl: './search-and-filter.component.css'
 })
@@ -17,6 +18,9 @@ export class SearchAndFilterComponent {
   @Output() refresh = new EventEmitter<void>();
   @Output() sort = new EventEmitter<void>(); // event for when "SORT" button is clicked
   @Output() filter = new EventEmitter<{ filterBy: string, filterValues: string }>();
+  @Output() search = new EventEmitter<string>();
+
+  searchTerm: string = '';  // Declare the searchTerm property
 
   categories: string[] = [];
   showFilterOptions = false;  // Controls showing filter options
@@ -86,5 +90,10 @@ export class SearchAndFilterComponent {
     dialogRef.componentInstance.addComplete.subscribe(() => {
       this.refresh.emit();
     });
+  }
+
+  searchQuestions() {
+    console.log("Search button clicked")
+    this.search.emit(this.searchTerm);
   }
 }

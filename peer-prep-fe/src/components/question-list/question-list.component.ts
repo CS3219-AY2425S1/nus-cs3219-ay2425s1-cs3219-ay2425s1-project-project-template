@@ -4,12 +4,13 @@ import { SearchAndFilterComponent } from '../search-and-filter/search-and-filter
 import { Question } from '../../app/models/question.model';
 import { QuestionBoxComponent } from '../question-box/question-box.component';
 import {QuestionService} from "../../services/question.service";
+import {HttpClientModule} from "@angular/common/http";
 
 
 @Component({
   selector: 'app-question-list',
   standalone: true,
-  imports: [CommonModule, SearchAndFilterComponent, QuestionBoxComponent],
+  imports: [CommonModule, SearchAndFilterComponent, QuestionBoxComponent, HttpClientModule],
   templateUrl: './question-list.component.html',
   styleUrl: './question-list.component.css'
 })
@@ -61,5 +62,27 @@ export class QuestionListComponent implements OnInit {
     } else {
       this.loadQuestions();
     }
+  }
+
+  loadSearchedQuestions(searchTerm?: string) {
+    if (searchTerm) {
+      this.questionService.searchQuestion(searchTerm).subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    } else {
+      // gets default ordering of questions
+      this.questionService.getAllQuestion().subscribe((data: any) => {
+        this.questions = data.data.data;
+      }, (error) => {
+        console.error('Error fetching: ', error);
+      })
+    }
+  }
+
+
+  refreshQuestionsSearch(searchTerm?: string) {
+    this.loadSearchedQuestions(searchTerm);
   }
 }

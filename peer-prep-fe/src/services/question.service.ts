@@ -41,4 +41,12 @@ export class QuestionService {
   addQuestion(newQuestion: any): Observable<any> {
     return this.http.post(this.baseUrl, newQuestion);
   }
+
+  searchQuestion(searchTerm: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/search?prefix=${searchTerm}`);
+  }
+  deleteQuestion(id: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${id}`);
+  }
+
 }

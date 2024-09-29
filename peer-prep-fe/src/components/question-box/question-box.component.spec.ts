@@ -11,9 +11,15 @@ describe('QuestionBoxComponent', () => {
     await TestBed.configureTestingModule({
       imports: [QuestionBoxComponent],
       providers: [
-        { 
-          provide: MAT_DIALOG_DATA, 
-          useValue: { questionTitle: 'Mock Title', questionDifficulty: 'easy' } 
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            question_id: '123',
+            question_title: 'Mock Title',
+            question_complexity: 'Easy',
+            question_description: 'Test Description',
+            question_categories: [],
+          }
         },
         { provide: MatDialogRef, useValue: {} }
       ]
@@ -22,8 +28,14 @@ describe('QuestionBoxComponent', () => {
     fixture = TestBed.createComponent(QuestionBoxComponent);
     component = fixture.componentInstance;
 
-    component.question = { title: 'Mock Title', difficulty: 'easy' } as Question; 
-    component.index = 0; 
+    component.question = {
+      question_id: '123',
+      question_title: 'Mock Title',
+      question_complexity: 'Easy',
+      question_description: 'Test Description',
+      question_categories: [],
+    } as Question;
+    component.index = 0;
 
     fixture.detectChanges();
   });

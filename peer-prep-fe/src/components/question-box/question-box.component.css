@@ -25,10 +25,22 @@
     max-width: 600px;
 }
 
+.misc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .edit-icon {
   background-color: transparent;
   border: transparent;
   color: white;
+  cursor: pointer;
+}
+
+.delete-icon {
+  background-color: transparent;
+  border: transparent;
   cursor: pointer;
 }
 
