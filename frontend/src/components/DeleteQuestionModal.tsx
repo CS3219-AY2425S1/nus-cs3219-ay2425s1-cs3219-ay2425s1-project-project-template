@@ -27,7 +27,8 @@ const DeleteQuestionModal: React.FC<{
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
     } catch (error) {
-        console.error('Error deleting question:', error);
+      alert('Error deleting question. Please try again.');
+      console.error('Error deleting question:', error);
     }
   };
 

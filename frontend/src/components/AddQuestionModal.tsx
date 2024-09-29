@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import Dashboard from "./Dashboard/Dashboard";
 
 interface AddQuestionModalProps {
   setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
@@ -34,7 +35,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({setQuestions, onClos
         console.log(data);
         onClose();
       } catch (error) {
-          console.error('Error adding question:', error);
+        alert('Error adding question. The question you are adding may be a duplicate (having the same title as an existing question). Please try again.');
+        console.error('Error adding question:', error);
       }
   };
   

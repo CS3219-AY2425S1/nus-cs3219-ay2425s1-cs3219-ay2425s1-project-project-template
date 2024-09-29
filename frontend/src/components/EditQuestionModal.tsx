@@ -26,7 +26,12 @@ const EditQuestionModal: React.FC<{
             categories: topicValue,
             complexity: difficultyValue
           })
-        }).then(response => response.json()).then(data => console.log(data)).catch(error => console.error('Error editing question:', error));
+        }).then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => {
+          alert('Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again.');
+          console.error('Error editing question:', error);
+        });
       closeEditConfirmationModal();
       onClose();
   };
