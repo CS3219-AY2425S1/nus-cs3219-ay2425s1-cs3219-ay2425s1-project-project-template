@@ -8,6 +8,7 @@ export interface QuestionBody {
   difficulty: Difficulty;
   title: string;
   description: string;
+  categories: string[];
 }
 
 export interface TestCase {
@@ -28,5 +29,5 @@ export interface StatusBody {
 }
 
 export function isError(obj: Question | StatusBody): obj is StatusBody {
-  return (obj as StatusBody).error !== undefined;
+  return (obj as StatusBody).status !== undefined;
 }
