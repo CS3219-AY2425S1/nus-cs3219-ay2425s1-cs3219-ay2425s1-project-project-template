@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 // enum values for categories and complexities of a question.
 // const CATEGORIES = ['Strings', 'Algorithms', 'Data Structures', 'Bit Manipulation', 'Recursion', 'Databases', 'Brainteaser', 'Arrays']
-const COMPLEXITIES = ['Easy', 'Medium', 'Hard']
+// const COMPLEXITIES = ['Easy', 'Medium', 'Hard']
 
 const questionSchema = new mongoose.Schema({
     title: {
@@ -19,7 +19,6 @@ const questionSchema = new mongoose.Schema({
     },
     complexity: {
         type: String,
-        enum: COMPLEXITIES,
         required: true
     }
 });
