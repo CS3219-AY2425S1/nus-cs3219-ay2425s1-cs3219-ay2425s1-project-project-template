@@ -1,5 +1,4 @@
 "use client";
-
 import {
   ReactNode,
   createContext,
@@ -7,7 +6,7 @@ import {
   useState,
   useContext,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useCookies } from "next-client-cookies";
 
 interface TAuthContext {
@@ -29,12 +28,12 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const cookies = useCookies();
 
   const updateToken = (token: string) => {
     const expireDate = new Date();
     expireDate.setTime(expireDate.getTime() + 1000 * 60 * 60 * 12);
-
     cookies.set("token", token, {
       sameSite: "strict",
       secure: true,
@@ -49,16 +48,19 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    if (!token) {
-      const storedToken = cookies.get("token");
-      // TODO: Add token validation
-      if (storedToken) {
-        setToken(storedToken);
-      } else {
+    const storedToken = cookies.get("token");
+    // TODO: Add token validation
+    if (storedToken) {
+      setToken(storedToken);
+      if (pathname.startsWith("/auth") || pathname === "/") {
+        router.push("/home");
+      }
+    } else {
+      if (!pathname.startsWith("/auth")) {
         router.push("/auth/login");
       }
     }
-  }, [token]);
+  }, [pathname]);
 
   return (
     <AuthContext.Provider value={{ token, updateToken, deleteToken }}>
