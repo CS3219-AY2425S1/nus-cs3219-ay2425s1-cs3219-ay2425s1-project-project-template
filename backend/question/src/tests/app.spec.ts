@@ -431,7 +431,7 @@ describe("Test Update", () => {
       category: ["Update Category"],
       complexity: "Update Complexity",
     };
-    const questionId = 999999;
+    const questionId = 1;
     const res = await request
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
