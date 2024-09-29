@@ -38,6 +38,8 @@ const QuestionController: React.FC = () => {
     placeholderData: keepPreviousData,
   });
 
+  console.log("Question", questions);
+
   if (questions === undefined) {
     return <div>Fetching...</div>;
   }

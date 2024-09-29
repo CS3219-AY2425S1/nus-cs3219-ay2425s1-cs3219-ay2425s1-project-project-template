@@ -75,7 +75,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       Description: newQuestion.description,
       Categories: newQuestion.categories,
       Complexity: newQuestion.complexity,
-      link: newQuestion.link,
+      Link: newQuestion.link,
     };
 
     try {
@@ -116,7 +116,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         Description: updatedQuestion.description,
         Categories: updatedQuestion.categories,
         Complexity: updatedQuestion.complexity,
-        link: updatedQuestion.link,
+        Link: updatedQuestion.link,
       };
       // Logic to save the edited question
       try {
@@ -221,7 +221,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       },
       {
         header: "Question",
-        accessorKey: "link",
+        accessorKey: "Question",
         cell: ({ row }) => {
           return (
             <Button
@@ -234,6 +234,24 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               variant="link"
             >
               View
+            </Button>
+          );
+        },
+      },
+      {
+        header: "Link",
+        accessorKey: "Link",
+        cell: ({ getValue }) => {
+          const link = getValue<string>();
+          return (
+            <Button
+              as="a"
+              href={link}
+              target="_blank"
+              colorScheme="blue"
+              variant="link"
+            >
+              Go To Link
             </Button>
           );
         },
@@ -268,7 +286,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     ],
     [onModalOpen, onMenuClose]
   );
-
   return (
     <Box
       className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
