@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import userRoutes from "./api/routes/userRoutes";
 import questionRoutes from "./api/routes/questionRoutes";
@@ -11,6 +11,19 @@ const app = express();
 const port = process.env.API_GATEWAY_PORT;
 
 app.use(express.json());
+
+const logRequestTimestamp = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  next();
+};
+
+// Apply the logging middleware to all routes
+app.use(logRequestTimestamp);
 
 // Routes
 app.use("/auth", userRoutes);
