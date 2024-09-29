@@ -10,13 +10,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-
-import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -28,17 +21,18 @@ import {
   import { Ellipsis } from 'lucide-react'
 
 import { Badge } from "@/components/ui/badge"
-import CompletedIcon from '@mui/icons-material/TaskAlt';
 import { useEffect, useState } from "react";
 import QuestionDialog from "./QuestionDialog"
 import AddQuestionForm from "./components/addQuestionForm"
 import EditQuestionForm from "./components/editQuestionForm"
+import { useAuth } from "@/context/authContext"
 
 export default function QuestionsPage() {
     const [questions, setQuestions] = useState([]);
     const [questionId, setQuestionId] = useState([]);
     const [isAddQuestionDisplayed, setIsAddQuestionDisplayed] = useState(false);
     const [isEditQuestionDisplayed, setIsEditQuestionDisplayed] = useState(false);
+    const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
 
     const handleOpenAddCard = () => {
         setIsAddQuestionDisplayed(true);
@@ -81,7 +75,8 @@ export default function QuestionsPage() {
                     <h1 className="text-3xl 2xl:text-4xl font-bold text-black text-start">
                         Coding Questions
                     </h1>
-                    <Button onClick={handleOpenAddCard}>{/*need to link this to open the add question form*/}Create a new question</Button>
+                    {isAdmin && 
+                    <Button onClick={handleOpenAddCard}>{/*need to link this to open the add question form*/}Create a new question</Button>}
                 </div>
                 <div className="my-12">
                     {/* Search */}
@@ -152,7 +147,7 @@ export default function QuestionsPage() {
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-xl font-bold mb-4">Create New Question</h2>
-                    <AddQuestionForm onClose={handleCloseCard} refetch={fetchQuestions} />    
+                    <AddQuestionForm onClose={handleCloseAddCard} refetch={fetchQuestions} />    
                         </div>
                     </div>
                     )}
