@@ -41,7 +41,7 @@ class Consumer {
     public async receiveCancelRequests(channel: Channel, directExchange: string) {
         channel.consume("cancellation", (msg) => {
             this.handleCancellationRequest(msg, channel, directExchange);
-        })
+        }, { noAck: true }); // Enable auto ack of message
     }
 
     public async receiveMessages(topic: string, difficulty: string, directExchange: string, channel: Channel): Promise<void> {
