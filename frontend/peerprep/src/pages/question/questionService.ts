@@ -4,7 +4,7 @@ export type Question = {
   Description: string;
   Categories: string;
   Complexity: string;
-  link: string;
+  Link: string;
 };
 
 export type QuestionRequest = {
@@ -12,7 +12,7 @@ export type QuestionRequest = {
   Description: string;
   Categories: string;
   Complexity: string;
-  link: string;
+  Link: string;
 };
 
 // Do not have to recreate API object here

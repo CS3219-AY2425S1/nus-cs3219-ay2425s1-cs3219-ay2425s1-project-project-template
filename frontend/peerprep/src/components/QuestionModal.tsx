@@ -54,7 +54,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       setDescription(initialQuestion.Description);
       setSelectedCategories(initialQuestion.Categories.split(", ")); // Assuming Categories is a comma-separated string
       setComplexity(initialQuestion.Complexity);
-      setLink(initialQuestion.link);
+      setLink(initialQuestion.Link);
     } else {
       setTitle("");
       setDescription("");
