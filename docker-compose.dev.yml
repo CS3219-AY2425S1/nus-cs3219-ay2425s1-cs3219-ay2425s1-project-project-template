@@ -11,6 +11,7 @@ services:
     environment:
       - FRONTEND_PORT=${FRONTEND_PORT}
       - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      - GATEWAY_SERVICE_ROUTE=gateway-service
     ports:
       - "3000:3000"
 
@@ -26,6 +27,8 @@ services:
       - USER_SERVICE_PORT=${USER_SERVICE_PORT}
       - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
       - JWT_SECRET=${JWT_SECRET}
+      - USER_SERVICE_ROUTE=user-service
+      - QUESTION_SERVICE_ROUTE=question-service
     ports:
       - "5003:5003"
 
