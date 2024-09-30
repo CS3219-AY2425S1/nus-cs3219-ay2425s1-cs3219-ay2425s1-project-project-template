@@ -1,6 +1,7 @@
 import TextButton from "@/components/common/text-button";
 import Button from "@/components/common/button";
 import { deleteQuestion } from "@/app/actions/questions";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function TableRow({
   id,
@@ -17,8 +18,7 @@ export default function TableRow({
   onClickEdit: VoidFunction;
   handleDelete: (id: string) => void;
 }) {
-  const token = localStorage.getItem("token");
-  const questionLink = title.toLocaleLowerCase().replace(/\s/g, "_");
+  const { token } = useAuth();
   const onClickDelete = () => {
     handleDelete(id);
     deleteQuestion(id, token);
