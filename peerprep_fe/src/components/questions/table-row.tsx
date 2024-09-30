@@ -19,9 +19,15 @@ export default function TableRow({
   handleDelete: (id: string) => void;
 }) {
   const { token } = useAuth();
-  const onClickDelete = () => {
-    handleDelete(id);
-    deleteQuestion(id, token);
+  const onClickDelete = async () => {
+    const response = await deleteQuestion(id, token);
+
+    if (response.errors) {
+      console.log("Error deleting question");
+      console.log(response.errors);
+    } else {
+      handleDelete(id);
+    }
   };
 
   return (

@@ -177,8 +177,6 @@ export async function addQuestion(
 
 export async function deleteQuestion(id: string, token?: string | null) {
   try {
-    console.log("deleteQuestion", id);
-    console.log("token", token);
     const response = await fetch(
       `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/api/questions/questions/${id}`,
       {
@@ -195,12 +193,18 @@ export async function deleteQuestion(id: string, token?: string | null) {
     }
 
     const data = await response.json();
-    return {
-      message: data,
-      errors: {
-        questions: [`${data.message}`],
-      },
-    };
+    if (response.ok) {
+      return {
+        message: data,
+      };
+    } else {
+      return {
+        message: data,
+        errors: {
+          questions: [`${data.message}`],
+        },
+      };
+    }
   } catch (error: any) {
     console.error(error);
     return {
