@@ -2,8 +2,20 @@ import GeneralNavbar from "../components/GeneralNavbar";
 import QuestionTable from '../components/QuestionTable'
 import AddQuestionButton from '../components/AddQuestionButtons'
 import '../styles/questions.css';
+import { useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Questions = () => {
+    
+  const navigate = useNavigate();
+  const { username, removeCookie } = useAuth();
+
+  const Logout = () => {
+    removeCookie("token");
+    navigate("/login");
+  };
+  
     return (
         <div>
             <GeneralNavbar />

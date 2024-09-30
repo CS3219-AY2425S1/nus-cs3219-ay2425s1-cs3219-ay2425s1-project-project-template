@@ -7,7 +7,7 @@ export const NavbarLogo = () => {
     return (
         <Box
             sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
         >
             <img src={Logo} alt="Logo" style={{ height: 70 }} />
         </Box>

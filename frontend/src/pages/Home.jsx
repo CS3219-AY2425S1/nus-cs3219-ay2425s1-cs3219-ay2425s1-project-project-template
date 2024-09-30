@@ -7,48 +7,18 @@ import { ToastContainer, toast } from "react-toastify";
 import logo from '.././styles/logo.svg';
 import '.././styles/App.css';
 import GeneralNavbar from "../components/GeneralNavbar";
+import useAuth from "../hooks/useAuth";
 import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
   const navigate = useNavigate();
-  const [cookies, removeCookie] = useCookies([]);
-  const [username, setUsername] = useState("");
-  useEffect(() => {
-    const verifyCookie = async () => {
-      if (!cookies.token) {
-        navigate("/login");
-      }
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/auth/verify-token",
-          { 
-            headers: {
-              Authorization: `Bearer ${cookies.token}`
-            },
-            withCredentials: true
-          }
-        );
-        if (response.status === 200) {
-          const { message, data } = response.data;
-          const user = data.username;
-          setUsername(user);
-        } else {
-          console.error(response.data.message);
-          removeCookie("token");
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error(error);
-        removeCookie("token");
-        navigate("/login");
-      }
-    };
-    verifyCookie();
-  }, [cookies, navigate, removeCookie]);
+  const { username, removeCookie } = useAuth();
+
   const Logout = () => {
     removeCookie("token");
-    navigate("/signup");
+    navigate("/login");
   };
+
   return (
     <>
       <div className="home_page">
