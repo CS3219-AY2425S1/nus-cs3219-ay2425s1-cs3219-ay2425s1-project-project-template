@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      target: dev
+      target: ${BUILD_ENV}
     ports:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
     environment:
@@ -12,17 +12,32 @@ services:
       - ./frontend:/app
       - /app/node_modules
     depends_on:
+      - user-service
       - question-service
+
+  user-service:
+    build:
+      context: ./backend/UserService
+      target: ${BUILD_ENV}
+    ports:
+      - ${USER_SVC_PORT}:${USER_SVC_PORT}
+    environment:
+      - PORT=${USER_SVC_PORT}
+      - DB_LOCAL_URI=${USER_DB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./backend/UserService:/app
+      - /app/node_modules
 
   question-service:
     build:
       context: ./backend/QuestionService
-      target: dev
+      target: ${BUILD_ENV}
     ports:
       - ${QUESTION_SVC_PORT}:${QUESTION_SVC_PORT}
     environment:
       - PORT=${QUESTION_SVC_PORT}
-      - MONGOURI=${MONGOURI}
+      - MONGOURI=${QUESTION_DB_URI}
       - FRONTEND_PORT=${FRONTEND_PORT}
     volumes:
       - ./backend/QuestionService:/app
