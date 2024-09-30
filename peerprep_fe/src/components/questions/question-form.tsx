@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
-import axios from "axios";
 import { useAuth } from "@/contexts/auth-context";
 import { DifficultyLevel, QuestionDto } from "@/app/types/QuestionDto";
 import { addQuestion, editQuestion } from "@/app/actions/questions";
