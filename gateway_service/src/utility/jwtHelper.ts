@@ -33,6 +33,7 @@ export function authenticateToken(
     req.body["role"] = payload?.role;
     next();
   } catch (error: any) {
+    console.error("Error authenticating token:", error.message);
     res.sendStatus(403);
   }
 }
