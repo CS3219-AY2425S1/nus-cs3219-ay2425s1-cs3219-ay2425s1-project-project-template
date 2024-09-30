@@ -2,6 +2,18 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:4000/api/questions';
 
+// Reformat and log error
+const reformatError = (action, error) => {
+    error.message = error.response
+        ? `${action} ${error.response.data.message}`
+        : error.request
+        ? `${action} Unable to connect to the network`
+        : `AxiosError (${error.message})`;
+    
+    console.error(action, error);
+    return error;
+}
+
 // Create question
 const createQuestion = async (formData) => {
     try {
@@ -12,8 +24,7 @@ const createQuestion = async (formData) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error creating question:', error);
-        throw error;
+        throw reformatError('Error creating question:', error);
     }
 }
 
@@ -27,8 +38,7 @@ const updateQuestion = async (id, formData) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error updating question:', error);
-        throw error;
+        throw reformatError('Error updating question:', error);
     }
 }
 
@@ -38,8 +48,7 @@ const deleteQuestion = async (id) => {
         const response = await axios.delete(`${BASE_URL}/${id}`);
         return response.data;
     } catch (error) {
-        console.error('Error deleting question:', error);
-        throw error;
+        throw reformatError('Error deleting question:', error);
     }
 }
 
@@ -49,8 +58,7 @@ const getQuestionById = async (id) => {
         const response = await axios.get(`${BASE_URL}/${id}`);
         return response.data;
     } catch (error) {
-        console.error('Error getting question by id:', error);
-        throw error;
+        throw reformatError('Error getting question:', error);
     }
 };
 
@@ -61,7 +69,7 @@ const filterQuestions = async (category, filter) => {
         return response.data;
     } catch (error) {
         console.error('Error filtering questions:', error);
-        throw error;
+        throw reformatError('Error filteirng questions:', error);
     }
 };
 
@@ -71,8 +79,7 @@ const getAllQuestions = async () => {
         const response = await axios.get(BASE_URL);
         return response.data;
     } catch (error) {
-        console.error('Error getting all questions:', error);
-        throw error;
+        throw reformatError('Error getting all questions:', error);
     }
 };
 

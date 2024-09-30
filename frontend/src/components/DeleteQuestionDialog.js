@@ -26,7 +26,7 @@ export default function DeleteQuestion({ question }) {
       setOpen(false); // Close the dialog after deletion
       window.location.reload(); // Optionally refresh the page after deletion
     } catch (error) {
-      setErrorMessage("Error deleting question: " + error.response.data.message); // Set error message
+      setErrorMessage(error.message); // Set error message
       setErrorOpen(true); // Open error dialog
     }
   };

@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Button } from '@mui/material';
+import ErrorMessage from './ErrorMessageDialog'
 import QuestionDialog from './QuestionDialog';
 import questionService from '../services/question-service';
+
 
 const columns = [
   { id: 'index', label: 'ID', minWidth: 10 },
@@ -28,6 +30,8 @@ export default function QuestionTable() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
   const [open, setOpen] = useState(false);
+  const [errorOpen, setErrorOpen] = React.useState(false); // State to control error dialog visibility
+  const [errorMessage, setErrorMessage] = React.useState(''); // State to store error message
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   // Fetch questions from backend when component mounts
@@ -37,7 +41,8 @@ export default function QuestionTable() {
           const response = await questionService.getAllQuestions();
           setQuestions(response);
         } catch (error) {
-            console.error("Error fetching questions:", error);
+            setErrorMessage(error.message); // Set error message
+            setErrorOpen(true); // Open error dialog
         } finally {
             setLoading(false);
         }
@@ -48,6 +53,10 @@ export default function QuestionTable() {
   const handleQuestionClick = (question) => {
     setSelectedQuestion(question); 
     setOpen(true);
+  };
+
+  const handleErrorClose = () => {
+    setErrorOpen(false); // Close the error dialog
   };
 
   const handleCloseDialog = () => {
@@ -123,6 +132,11 @@ export default function QuestionTable() {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <ErrorMessage
+        open={errorOpen}
+        handleClose={handleErrorClose}
+        errorMessage={errorMessage}
       />
 
       {selectedQuestion && (

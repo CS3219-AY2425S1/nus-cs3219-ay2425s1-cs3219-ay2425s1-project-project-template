@@ -59,7 +59,7 @@ const CreateQuestion = ({ open, handleClose }) => {
             window.location.reload();
             handleClose(); // Close the dialog after submission
         } catch (error) {
-            setErrorMessage('Error creating question: ' + error.response.data.message); // Set error message
+            setErrorMessage(error.message); // Set error message
             setErrorOpen(true); // Open error dialog
         }
     };
@@ -78,10 +78,11 @@ const CreateQuestion = ({ open, handleClose }) => {
                             margin="dense"
                             id="title"
                             name="title"
-                            label="Title"
+                            label="Title (max 100 characters)"
                             type="text"
                             fullWidth
                             multiline
+                            inputProps={{ maxLength: 100 }}
                             className="text-field"
                         />
                         <TextField
@@ -89,12 +90,13 @@ const CreateQuestion = ({ open, handleClose }) => {
                             required
                             id="description"
                             name="description"
-                            label="Description"
+                            label="Description (max 3000 characters)"
                             type="text"
                             fullWidth
                             multiline
                             minRows={4}
                             maxRows={16}
+                            inputProps={{ maxLength: 3000 }}
                             className="text-field"
                         />
                         <TextField
@@ -102,10 +104,11 @@ const CreateQuestion = ({ open, handleClose }) => {
                             required
                             id="topic"
                             name="topic"
-                            label="Topics (comma separated)"
+                            label="Topics (comma separated and max 200 characters)"
                             type="text"
                             fullWidth
                             multiline
+                            inputProps={{ maxLength: 200 }}
                             className="text-field"
                         />
                         <TextField
@@ -130,11 +133,12 @@ const CreateQuestion = ({ open, handleClose }) => {
                             required
                             id="input"
                             name="input"
-                            label="Input"
+                            label="Input (max 500 characters)"
                             type="text"
                             fullWidth
                             multiline
                             maxRows={16}
+                            inputProps={{ maxLength: 500 }}
                             className="text-field"
                         />
                         <TextField
@@ -142,11 +146,12 @@ const CreateQuestion = ({ open, handleClose }) => {
                             required
                             id="expected_output"
                             name="expected_output"
-                            label="Expected Output"
+                            label="Expected Output (max 500 characters)"
                             type="text"
                             fullWidth
                             multiline
                             maxRows={16}
+                            inputProps={{ maxLength: 500 }}
                             className="text-field"
                         />
                         <TextField
