@@ -133,3 +133,6 @@ dist
 redis-data/
 
 frontend/peerprep/next.config.js
+
+# MongoDB data directory
+mongo-data/

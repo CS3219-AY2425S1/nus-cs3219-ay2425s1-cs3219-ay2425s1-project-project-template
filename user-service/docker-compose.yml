@@ -1,0 +1,21 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-user-service
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+    env_file:
+      - .env
+
+  g38-user-service:
+    image: g38-user-service:latest
+    container_name: user-service
+    env_file:
+      - .env  # Loads environment variables from .env file
+    ports:
+      - "${USER_PORT}:${USER_PORT}"  # Bind port using env variable
+    depends_on:
+      - mongodb
