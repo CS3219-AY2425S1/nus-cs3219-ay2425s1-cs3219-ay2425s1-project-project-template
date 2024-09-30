@@ -86,7 +86,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               margin="dense"
               id="title"
               name="title"
-              label="Title"
+              label="Title (max 100 characters)"
               type="text"
               fullWidth
               multiline
@@ -100,7 +100,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               required
               id="description"
               name="description"
-              label="Description"
+              label="Description (max 3000 characters)"
               type="text"
               fullWidth
               multiline
@@ -116,7 +116,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               required
               id="topic"
               name="topic"
-              label="Topics (comma separated)"
+              label="Topics (comma separated and max 200 characters)"
               type="text"
               fullWidth
               multiline
@@ -147,7 +147,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               required
               id="input"
               name="input"
-              label="Input"
+              label="Input (max 500 characters)"
               type="text"
               fullWidth
               multiline
@@ -162,7 +162,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
               required
               id="expected_output"
               name="expected_output"
-              label="Expected Output"
+              label="Expected Output (max 500 characters)"
               type="text"
               fullWidth
               multiline
@@ -180,7 +180,6 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
-              inputProps={{ maxLength: 3000 }}
               value={questionData.images}
               onChange={handleInputChange}
               className="text-field"
@@ -193,7 +192,6 @@ const EditQuestion = ({ open, handleClose, question }) => {
               type="text"
               fullWidth
               multiline
-              inputProps={{ maxLength: 200 }}
               value={questionData.leetcode_link}
               onChange={handleInputChange}
               className="text-field"
