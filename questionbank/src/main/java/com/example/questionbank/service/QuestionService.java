@@ -101,9 +101,9 @@ public class QuestionService implements QuestionServiceInterface {
         if (!QuestionValidator.isValidQuestion(updatedQuestion)) {
             throw new IllegalArgumentException("Invalid new question data");
         }
-        Question existingQuestion = repository
-            .findById(id)
-            .orElseThrow(() -> new QuestionNotFoundException(id));
+        //Question ExistingQuestion = repository
+        //    .findById(id)
+        //    .orElseThrow(() -> new QuestionNotFoundException(id));
 
         // if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle())
         // && repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
