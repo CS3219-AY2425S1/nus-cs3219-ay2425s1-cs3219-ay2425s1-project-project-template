@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import ErrorMessage from './ErrorMessageDialog'
-import questionService from '../services/question-service';
+import questionService from '../../services/question-service';
 
 export default function DeleteQuestion({ question }) {
   const [open, setOpen] = React.useState(false);

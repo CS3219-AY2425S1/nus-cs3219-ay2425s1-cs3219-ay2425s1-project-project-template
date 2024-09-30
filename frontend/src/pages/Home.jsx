@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 import logo from '.././styles/logo.svg';
 import '.././styles/App.css';
-import GeneralNavbar from "../components/GeneralNavbar";
+import GeneralNavbar from "../components/navbar/GeneralNavbar";
 import useAuth from "../hooks/useAuth";
 import 'react-toastify/dist/ReactToastify.css';
 

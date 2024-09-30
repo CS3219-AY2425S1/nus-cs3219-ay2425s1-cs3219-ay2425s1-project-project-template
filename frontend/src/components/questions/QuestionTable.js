@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Button } from '@mui/material';
 import ErrorMessage from './ErrorMessageDialog'
 import QuestionDialog from './QuestionDialog';
-import questionService from '../services/question-service';
+import questionService from '../../services/question-service';
 
 
 const columns = [

@@ -1,6 +1,6 @@
-import GeneralNavbar from "../components/GeneralNavbar";
-import QuestionTable from '../components/QuestionTable'
-import AddQuestionButton from '../components/AddQuestionButtons'
+import GeneralNavbar from "../components/navbar/GeneralNavbar";
+import QuestionTable from '../components/questions/QuestionTable'
+import AddQuestionButton from '../components/questions/AddQuestionButtons'
 import '../styles/questions.css';
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
@@ -15,7 +15,7 @@ const Questions = () => {
     removeCookie("token");
     navigate("/login");
   };
-  
+
     return (
         <div>
             <GeneralNavbar />

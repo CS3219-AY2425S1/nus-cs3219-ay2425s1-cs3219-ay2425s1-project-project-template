@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
 import ErrorMessage from './ErrorMessageDialog'
-import questionService from '../services/question-service';
-import '../styles/create-question-dialog.css';
+import questionService from '../../services/question-service';
+import '../../styles/create-question-dialog.css';
 
 const difficulty_lvl = [
   { value: 'Easy', label: 'Easy' },
