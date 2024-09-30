@@ -1,10 +1,10 @@
-enum DifficultyLevel {
+export enum DifficultyLevel {
   Easy = "Easy",
   Medium = "Medium",
   Hard = "Hard",
 }
 
-interface QuestionDto {
+export interface QuestionDto {
   _id: string;
   title: string;
   description: string;

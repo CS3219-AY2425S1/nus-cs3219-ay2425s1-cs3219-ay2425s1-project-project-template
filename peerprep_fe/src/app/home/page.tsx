@@ -9,59 +9,17 @@ import { QuestionForm } from "@/components/questions/question-form";
 import Button from "@/components/common/button";
 import TableRow from "@/components/questions/table-row";
 import { useAuth } from "@/contexts/auth-context";
-import { editQuestion, addQuestion } from "@/app/actions/questions";
 import { FormType } from "@/components/questions/question-form";
-
-enum ModalActionType {
-  EDIT,
-  ADD,
-  CLOSE,
-}
-
-interface ModalState {
-  isVisible: boolean;
-  isDetailShown: boolean;
-  details?: QuestionDto;
-}
-
-interface ModalAction {
-  type: ModalActionType;
-  details?: QuestionDto;
-}
-
-function modalReducer(state: ModalState, action: ModalAction) {
-  const { type, details } = action;
-
-  switch (type) {
-    case ModalActionType.EDIT:
-      return {
-        isVisible: true,
-        isDetailShown: true,
-        details: details,
-      };
-    case ModalActionType.ADD:
-      return {
-        ...state,
-        isVisible: true,
-        isDetailShown: false,
-      };
-    case ModalActionType.CLOSE:
-      return {
-        ...state,
-        isVisible: false,
-      };
-    default:
-      throw Error("Unknown action " + type);
-  }
-}
+import { QuestionDto } from "../types/QuestionDto";
 
 export default function Home() {
   const router = useRouter();
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
-  const [modalState, dispatchModal] = useReducer(modalReducer, {
-    isVisible: false,
-    isDetailShown: false,
-  });
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [currentEditQuestion, setCurrentEditQuestion] =
+    useState<QuestionDto | null>(null);
+
   const { token, deleteToken } = useAuth();
 
   useEffect(() => {
@@ -74,21 +32,11 @@ export default function Home() {
       });
     }
     console.log("No token found");
-  }, [token, modalState]);
-
-  const onClickAdd = () =>
-    dispatchModal({
-      type: ModalActionType.ADD,
-    });
+  }, [token]);
 
   const handleDelete = (id: string) => {
     setQuestions(questions.filter((question) => question._id != id));
   };
-
-  const closeModal = () =>
-    dispatchModal({
-      type: ModalActionType.CLOSE,
-    });
 
   return (
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10 overscroll-contain">
@@ -101,7 +49,13 @@ export default function Home() {
           }}
         />
       </Header>
-      <Button type="submit" onClick={onClickAdd} text="Add Question" />
+      <Button
+        type="submit"
+        onClick={() => {
+          setIsAddModalOpen(true);
+        }}
+        text="Add Question"
+      />
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto bg-white shadow-md   scroll-smooth">
           <thead className="sticky top-0">
@@ -121,12 +75,7 @@ export default function Home() {
                   difficulty={question.difficultyLevel}
                   topics={question.topic}
                   key={index}
-                  onClickEdit={() =>
-                    dispatchModal({
-                      type: ModalActionType.EDIT,
-                      details: question,
-                    })
-                  }
+                  onClickEdit={() => setCurrentEditQuestion(question)}
                   handleDelete={handleDelete}
                 />
               );
@@ -134,21 +83,54 @@ export default function Home() {
           </tbody>
         </table>
       </div>
-      {modalState.isVisible && (
+      {isAddModalOpen && (
         <div className="modal">
-          <div onClick={closeModal} className="overlay"></div>
+          <div
+            onClick={() => {
+              setIsAddModalOpen(false);
+            }}
+            className="overlay"
+          ></div>
           <div className="modal-content">
             <QuestionForm
-              state={modalState.isDetailShown ? modalState.details : undefined}
-              onSubmit={
-                modalState.isDetailShown
-                  ? editQuestion.bind(null, modalState.details!)
-                  : addQuestion
-              }
-              type={modalState.isDetailShown ? FormType.EDIT : FormType.ADD}
-              afterSubmit={closeModal}
+              type={FormType.ADD}
+              afterSubmit={() => {
+                setIsAddModalOpen(false);
+              }}
             />
-            <Button type="reset" onClick={closeModal} text="CLOSE" />
+            <Button
+              type="reset"
+              onClick={() => {
+                setIsAddModalOpen(false);
+              }}
+              text="CLOSE"
+            />
+          </div>
+        </div>
+      )}
+      {currentEditQuestion && (
+        <div className="modal">
+          <div
+            onClick={() => {
+              setCurrentEditQuestion(null);
+            }}
+            className="overlay"
+          ></div>
+          <div className="modal-content">
+            <QuestionForm
+              type={FormType.EDIT}
+              afterSubmit={() => {
+                setCurrentEditQuestion(null);
+              }}
+              initialQuestion={currentEditQuestion}
+            />
+            <Button
+              type="reset"
+              onClick={() => {
+                setCurrentEditQuestion(null);
+              }}
+              text="CLOSE"
+            />
           </div>
         </div>
       )}
