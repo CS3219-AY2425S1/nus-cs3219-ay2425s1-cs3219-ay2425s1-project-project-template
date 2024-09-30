@@ -2,12 +2,16 @@ import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import questionRoute from "./routes/questionRoute";
 import 'dotenv/config';
+import cors from "cors";
+
 
 
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cors<Request>());
 
 app.use("/api/question", questionRoute);
 
@@ -23,7 +27,7 @@ const port = process.env.PORT;
 mongoose.connect(mongoURI!)
     .then(() => {
         app.listen(port, () => {
-            console.log("Listening.")
+            console.log(`Listening at port ${port}.`)
         })
     })
     .catch((err) => {

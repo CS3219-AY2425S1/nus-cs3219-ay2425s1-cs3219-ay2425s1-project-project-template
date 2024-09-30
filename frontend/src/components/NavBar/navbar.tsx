@@ -46,7 +46,7 @@ function NavBar() {
             component="a"
             sx={{
               mr: 2,
-              display: { xs: "none", md: "flex" },
+              display: { xs: "flex", md: "flex" },
               fontFamily: "monospace",
               fontWeight: 700,
               color: "inherit",
@@ -57,7 +57,7 @@ function NavBar() {
           </Typography>
           {/* Flexible space to push avatar to the right */}
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"

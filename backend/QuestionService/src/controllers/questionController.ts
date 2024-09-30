@@ -35,11 +35,12 @@ export const getOneQuestion = async (req: Request, res: Response, next: NextFunc
 export const addQuestion = async (req: Request, res: Response, next : NextFunction) => {
     const {qid, title, description, categories, complexity} = req.body;
     try {
+        console.log(req.body)
         const question = await Question.create({qid, title, description, categories, complexity});
         res.status(200).json(question);
     } catch (err) {
         console.log(err);
-        if (err instanceof mongoose.mongo.MongoError && err.code == DUPKEYERRORCODE) { // this catches duplicate key error
+        if (err instanceof mongoose.mongo.MongoError && err.code === DUPKEYERRORCODE) { // this catches duplicate key error
             return res.status(404).json({msg: `Question ID ${qid} already exists.`});
         }
         next(err);
