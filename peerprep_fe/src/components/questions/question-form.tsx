@@ -89,7 +89,7 @@ export function QuestionForm({
           });
           setQuestions(updatedQuestions);
         } else {
-          // TODO2: Add the new question to the list of questions
+          setQuestions([...questions, response.message as QuestionDto]);
         }
 
         afterSubmit();
