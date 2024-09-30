@@ -5,37 +5,38 @@ const questionServiceBaseURL = import.meta.env.VITE_QUESTION_SERVICE_BASEURL;
 const questionApi = createAxiosInstance(questionServiceBaseURL);
 
 export const getQuestions = async () => {
-  const response = await questionApi.get("/question");
-  if (response.status !== 200) {
-    throw new Error("Error fetching questions");
-  } else {
+  try {
+    const response = await questionApi.get("/question");
     return response.data;
+  } catch (error) {
+    throw new Error("Error fetching questions");
   }
 };
 
 export const deleteQuestion = async (id) => {
-  const response = await questionApi.delete(`/question/${id}`);
-  if (response.status !== 200) {
-    throw new Error("Error deleting question");
-  } else {
+  try {
+    const response = await questionApi.delete(`/question/${id}`);
     return response.data;
+  } catch (error) {
+    throw new Error("Error deleting question");
   }
 };
 
 export const updateQuestion = async (id, question) => {
-  const response = await questionApi.put(`/question/${id}`, question);
-  if (response.status !== 200) {
-    throw new Error("Error updating question");
-  } else {
+  try {
+    const response = await questionApi.put(`/question/${id}`, question);
     return response.data;
+  } catch (error) {
+    throw new Error("Error updating question");
   }
 };
 
 export const createQuestion = async (question) => {
-  const response = await questionApi.post("/question", question);
-  if (response.status !== 201) {
-    throw new Error("Error creating question");
-  } else {
+  try {
+    const response = await questionApi.post("/question", question);
     return response.data;
+  } catch (error) {
+    console.log("Error creating question", error);
+    throw new Error("Error creating question");
   }
 };

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { deleteQuestion, getQuestions } from "../services/QuestionService";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import QuestionModal from "./QuestionModal";
 
@@ -21,19 +23,22 @@ const Questions = () => {
         setQuestions(questions);
       } catch (error) {
         console.error("Error fetching questions:", error);
+        toast.error("Failed to fetch questions");
       }
     };
 
     fetchQuestions();
   }, []);
 
-  const sendDeleteQuestion = (id) => {
+  const sendDeleteQuestion = async (id) => {
     try {
-      deleteQuestion(id);
+      const response = await deleteQuestion(id);
       const updatedQuestions = questions.filter((q) => q._id !== id);
       setQuestions(updatedQuestions);
+      toast.success("Question deleted successfully");
     } catch (error) {
       console.error("Error deleting question:", error);
+      toast.error("Failed to delete question");
     }
   };
 
@@ -134,9 +139,9 @@ const Questions = () => {
       </div>
       {showModal && (
         <QuestionModal
-          question={currentQuestion}
           closeModal={() => setShowModal(false)}
           setQuestions={setQuestions}
+          question={currentQuestion}
         />
       )}
     </div>
