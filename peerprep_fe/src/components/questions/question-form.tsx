@@ -156,12 +156,7 @@ export function QuestionForm({
           required
         />
         {error && <p className="error">{error}</p>}
-        {loading ? (
-          // TODO1 : add loader animation
-          <div>loading</div>
-        ) : (
-          <Button type="submit" text={`${type} Question`} />
-        )}
+        {<Button type="submit" text={`${type} Question`} loading={loading} />}
       </form>
     </div>
   );
