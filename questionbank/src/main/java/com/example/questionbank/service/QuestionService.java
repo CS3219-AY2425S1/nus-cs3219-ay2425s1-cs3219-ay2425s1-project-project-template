@@ -104,9 +104,10 @@ public class QuestionService implements QuestionServiceInterface {
         }
         Question ExistingQuestion = repository.findById(id).orElseThrow(() -> new QuestionNotFoundException(id));
 
-//        if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle()) && repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
-//            throw new TitleAlreadyExistsException(updatedQuestion.getTitle());
-//        }
+        if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle()) &&
+                repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
+            throw new TitleAlreadyExistsException(updatedQuestion.getTitle());
+        }
 
         return repository.findById(id)
                 .map(existingQuestion -> {

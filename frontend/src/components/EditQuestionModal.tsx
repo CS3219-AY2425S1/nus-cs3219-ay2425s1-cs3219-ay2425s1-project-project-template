@@ -43,15 +43,19 @@ const EditQuestionModal: React.FC<{
       }),
     })
       .then((response) => {
-        response.json();
-        fetchData();
+        if (!response.ok) {
+          console.log(response);
+          throw new Error("title already exists");
+        } else {
+          response.json();
+          fetchData();
+        }
       })
-      .then((data) => console.log(data))
       .catch((error) => {
+        console.error(error);
         alert(
           "Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again."
         );
-        console.error("Error editing question:", error);
       });
 
     closeEditConfirmationModal();
