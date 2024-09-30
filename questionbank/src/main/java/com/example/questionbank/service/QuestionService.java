@@ -67,8 +67,7 @@ public class QuestionService implements QuestionServiceInterface {
     @Override
     public Question getQuestionByTitle(String title) {
         return repository.findQuestionByTitle(title)
-                .orElseThrow(() ->
-                        new QuestionWithTitleNotFoundException(title));
+                .orElseThrow(() -> new QuestionWithTitleNotFoundException(title));
     }
 
     /**
@@ -91,22 +90,25 @@ public class QuestionService implements QuestionServiceInterface {
     /**
      * Updates an existing question by its ID.
      *
-     * @param id the ID of the question to update
+     * @param id              the ID of the question to update
      * @param updatedQuestion the new question data
      * @return the updated {@link Question}
      */
     @Override
     public Question updateQuestion(String id,
-                                   Question updatedQuestion) {
+            Question updatedQuestion) {
         System.out.println(updatedQuestion.toString());
         if (!QuestionValidator.isValidQuestion(updatedQuestion)) {
             throw new IllegalArgumentException("Invalid new question data");
         }
-        Question ExistingQuestion = repository.findById(id).orElseThrow(() -> new QuestionNotFoundException(id));
+        Question existingQuestion = repository
+            .findById(id)
+            .orElseThrow(() -> new QuestionNotFoundException(id));
 
-//        if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle()) && repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
-//            throw new TitleAlreadyExistsException(updatedQuestion.getTitle());
-//        }
+        // if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle())
+        // && repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
+        // throw new TitleAlreadyExistsException(updatedQuestion.getTitle());
+        // }
 
         return repository.findById(id)
                 .map(existingQuestion -> {
@@ -140,4 +142,3 @@ public class QuestionService implements QuestionServiceInterface {
         repository.deleteById(id);
     }
 }
-
