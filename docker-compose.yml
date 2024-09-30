@@ -15,8 +15,8 @@ services:
         - action: sync
           path: ./user-service
           target: /app
-          ignore:
-            - node_modules/
+          # ignore:
+          #   - node_modules/
         - action: rebuild
           path: ./user-service/package.json
 
@@ -36,14 +36,13 @@ services:
         - action: sync
           path: ./question-service
           target: /app
-          ignore:
-            - node_modules/
+          # ignore:
+          #   - node_modules/
         - action: rebuild
           path: ./question-service/package.json
 
   frontend:
     build: ./frontend
-    # command: npm run dev  # Run Vite development server
     ports:
       - 5173:5173  # Expose Vite's port
     # volumes:
@@ -56,8 +55,8 @@ services:
         - action: sync
           path: ./frontend
           target: /app
-          ignore:
-            - node_modules/
+          # ignore:
+          #   - node_modules/
         - action: rebuild
           path: ./frontend/package.json
 
