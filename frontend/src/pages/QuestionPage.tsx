@@ -1,28 +1,28 @@
-import React from "react";
-import {useState} from "react";
-import AdminNavBar from "../components/AdminNavBar.tsx";
-import EditQuestionModal from "../components/EditQuestionModal.tsx";
+import React, { useEffect, useState } from "react";
+import NavBar from "../components/NavBar.tsx";
+import { useParams } from "react-router-dom";
+import useRetrieveQuestion from "../hooks/useRetrieveQuestion.tsx";
+import QuestionDisplay from "../components/QuestionDisplay.tsx";
+import Question from "../types/Question.tsx";
 
 const QuestionPage: React.FC = () => {
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const openEditModal = () => setEditModalOpen(true);
-  const closeEditModal = () => setEditModalOpen(false);
+  const { title } = useParams<{ title: string }>();
+  const [question, setQuestion] = useState<Question>();
+  const fetchQuestion = useRetrieveQuestion(title, setQuestion);
+
+  useEffect(() => {
+    fetchQuestion();
+  }, []);
 
   return (
     <div className="w-screen h-screen flex flex-col">
-      <AdminNavBar />
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          QuestionDisplay
+      <NavBar />
+      <div className="grid grid-cols-2 gap-4 flex-grow">
+        <div className="flex flex-col flex-grow">
+          <QuestionDisplay question={question} />
         </div>
-        <div className="flex flex-col">editor</div>
+        <div className="flex flex-col flex-grow">editor</div>
       </div>
-      {/* For testing purposes */}
-      <button
-        onClick = {openEditModal}
-      >Edit question
-      </button>
-      <EditQuestionModal isOpen={isEditModalOpen} onClose={closeEditModal} />
     </div>
   );
 };

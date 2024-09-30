@@ -1,5 +1,6 @@
 import React from "react";
 import Navbar from "../components/NavBar.tsx";
+import { Link } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
   return (
@@ -19,9 +20,11 @@ const LandingPage: React.FC = () => {
           Ace your tech interview by collaborating with a <br />
           peer matched specifically to you.
         </p>
-        <button className="bg-black rounded-[25px] p-4 mt-4">
-          Find your match!
-        </button>
+        <Link to="/question">
+          <button className="bg-black rounded-[25px] p-4 mt-4">
+            Find your match!
+          </button>
+        </Link>
       </div>
     </div>
   );

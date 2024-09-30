@@ -1,15 +1,16 @@
 import React, { useMemo, useState } from "react";
-import { useTable, Column } from "react-table"; // Import the 'Column' type
+import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
 import EditQuestionModal from "../EditQuestionModal";
+import { useLocation } from "react-router-dom";
 
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
   questions: Array<any>;
-  setQuestions: React.Dispatch<React.SetStateAction<never[]>>;
+  fetchData: () => Promise<void>;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
+const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
@@ -34,7 +35,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
     setQuestionID(questionID);
   };
 
-  const columns: Column[] = useMemo(() => COLUMNS, []);
+  const columns: Column<any>[] = useMemo(() => COLUMNS, []);
   const data = useMemo(() => questions, [questions]);
 
   const tableInstance = useTable({
@@ -45,6 +46,21 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
+  const location = useLocation();
+
+  const onClick = (row: Row<{}>) => {
+    if (location.pathname === "/dashboard") {
+      openEditModal(
+        row.allCells[3].value,
+        row.allCells[2].value,
+        row.allCells[0].value,
+        row.allCells[1].value,
+        row.original.id
+      );
+    } else if (location.pathname === "/dashboardForUsers") {
+      window.location.href = `/question/${row.original.id}`;
+    }
+  };
   return (
     <div className="overflow-x-auto">
       {editModalIsOpen && (
@@ -55,7 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
           oldTitle={oldTitle}
           oldDetails={oldDetails}
           questionID={questionID}
-          setQuestions={setQuestions}
+          fetchData={fetchData}
         />
       )}
       {/* Add your table or other components here */}
@@ -102,16 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, setQuestions }) => {
                       {...cell.getCellProps()}
                       key={cell.column.id}
                       className="py-3 px-6 text-left"
-                      onClick={() => {
-                        console.log(row.original.id);
-                        openEditModal(
-                          row.allCells[3].value,
-                          row.allCells[2].value,
-                          row.allCells[0].value,
-                          row.allCells[1].value,
-                          row.original.id
-                        );
-                      }}
+                      onClick={() => onClick(row)}
                     >
                       {cell.column.Header === "Categories"
                         ? (cell.value.reduce(
