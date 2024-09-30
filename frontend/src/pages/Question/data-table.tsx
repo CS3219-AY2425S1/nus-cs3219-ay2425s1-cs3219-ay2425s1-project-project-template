@@ -20,7 +20,7 @@ import {
   styled,
   Alert,
 } from "@mui/material";
-import { FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import { MenuItem } from "@mui/material";
 import {
   QueryClient,
   QueryClientProvider,
@@ -32,7 +32,6 @@ import { type Question, problemComplexity } from "../../makeData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
-import { Description } from "@mui/icons-material";
 
 const complexityTypeOptions = ["Easy", "Medium", "Hard"];
 // Styled components for the dialog
@@ -238,6 +237,7 @@ const Example = () => {
         setValidationErrors(newValidationErrors);
         return;
       }
+
       setValidationErrors({});
       createQuestion(values)
         .then(() => {
@@ -256,9 +256,9 @@ const Example = () => {
       const newValidationErrors = validateQuestion(values);
       if (Object.values(newValidationErrors).some((error) => error)) {
         setValidationErrors(newValidationErrors);
-
         return;
       }
+
       setValidationErrors({});
       updateQuestion(values)
         .then(() => table.setEditingRow(null))
@@ -593,13 +593,12 @@ function useCreateQuestion() {
   return useMutation({
     mutationFn: async (question: Question) => {
       //send api update request here
-
       const categoryArray = changeCategoryStringToArray(question.categories);
       const reqBody = { ...question, categories: categoryArray };
-      return await axios.post("http://localhost:4000/api/question", reqBody);
+      return await axios.post(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, reqBody);
     },
-    //client side optimistic update
 
+    //client side optimistic update
     onMutate: async (newQuestionInfo: Question) => {
       queryClient.setQueryData(
         ["questions"],
@@ -616,9 +615,9 @@ function useCreateQuestion() {
 function useGetQuestions() {
   return useQuery<Question[]>({
     queryKey: ["questions"],
-    //send api request here,
+    //send api request here
     queryFn: async () => {
-      return (await axios.get("http://localhost:4000/api/question/")).data;
+      return (await axios.get(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
     },
     refetchOnWindowFocus: false,
   });
@@ -634,7 +633,7 @@ function useUpdateQuestion() {
       const categoryArray = changeCategoryStringToArray(updatebody.categories); // index 0 because right now its just array of length 1
       const reqBody = { ...updatebody, categories: categoryArray };
       return await axios.patch(
-        `http://localhost:4000/api/question/${qid}`,
+        `http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`,
         reqBody
       );
     },
@@ -660,8 +659,9 @@ function useDeleteQuestion() {
     mutationFn: async (questionId: string) => {
       //send api update request here
       const qid = +questionId;
-      return await axios.delete(`http://localhost:4000/api/question/${qid}`);
+      return await axios.delete(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`);
     },
+
     //client side optimistic update
     onMutate: (questionId: string) => {
       queryClient.setQueryData(["questions"], (prevQuestions: any) => {
