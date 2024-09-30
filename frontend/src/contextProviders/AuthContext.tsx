@@ -32,6 +32,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await verifyToken(token);
       if (response) {
+        setUser({
+          id: response.data.id,
+          name: response.data.username,
+          email: response.data.email,
+          isAdmin: response.data.isAdmin,
+        });
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
