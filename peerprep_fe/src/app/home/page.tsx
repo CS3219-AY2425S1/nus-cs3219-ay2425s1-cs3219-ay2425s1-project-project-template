@@ -97,6 +97,8 @@ export default function Home() {
               afterSubmit={() => {
                 setIsAddModalOpen(false);
               }}
+              setQuestions={setQuestions}
+              questions={questions}
             />
             <Button
               type="reset"
@@ -123,6 +125,8 @@ export default function Home() {
                 setCurrentEditQuestion(null);
               }}
               initialQuestion={currentEditQuestion}
+              setQuestions={setQuestions}
+              questions={questions}
             />
             <Button
               type="reset"

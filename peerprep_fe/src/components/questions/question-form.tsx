@@ -14,6 +14,8 @@ interface QuestionFormProps {
   initialQuestion?: QuestionDto;
   type: FormType;
   afterSubmit: VoidFunction;
+  setQuestions: React.Dispatch<React.SetStateAction<QuestionDto[]>>;
+  questions: QuestionDto[];
 }
 
 export interface QuestionForm {
@@ -29,6 +31,8 @@ export function QuestionForm({
   initialQuestion,
   type,
   afterSubmit,
+  setQuestions,
+  questions,
 }: QuestionFormProps) {
   const { token } = useAuth();
   const [formData, setFormData] = useState<QuestionForm>({
@@ -60,6 +64,7 @@ export function QuestionForm({
       let response = null;
       if (type === FormType.EDIT) {
         response = await editQuestion(token, formData, initialQuestion);
+        console.log("Editing question:", response);
       } else {
         response = await addQuestion(token, formData);
       }
@@ -71,10 +76,18 @@ export function QuestionForm({
         console.log("Error adding question:", response.errors.errorMessage);
         setError(response.errors.errorMessage);
       } else {
-        console.log("Question added successfully:", response.message);
+        console.log("Success!:", response.message);
 
         if (type === FormType.EDIT) {
-          // TODO3: Update the question in the list of questions
+          const updatedQuestion = response.message as QuestionDto;
+          const updatedQuestions = questions.map((question) => {
+            if (question._id === updatedQuestion._id) {
+              return updatedQuestion;
+            } else {
+              return question;
+            }
+          });
+          setQuestions(updatedQuestions);
         } else {
           // TODO2: Add the new question to the list of questions
         }
