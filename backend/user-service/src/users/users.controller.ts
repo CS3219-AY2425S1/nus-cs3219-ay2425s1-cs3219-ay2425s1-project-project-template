@@ -7,6 +7,7 @@ import {
   HttpException,
   Patch,
   Delete,
+  ConflictException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from '../dto/CreateUser.dto';
@@ -18,8 +19,14 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    const existingUser = await this.usersService.getUserByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    } else {
+      console.log("CREATED USER", createUserDto)
+      return this.usersService.createUser(createUserDto);
+    }
   }
 
   @Get()
@@ -27,32 +34,26 @@ export class UsersController {
     return this.usersService.getUsers();
   }
 
-  @Get(':id')
-  async getUsersById(@Param('id') id: string) {
-    const isValid = mongoose.Types.ObjectId.isValid(id);
-    if (!isValid) throw new HttpException('User not found', 404);
-    const findUser = await this.usersService.getUsersById(id);
+  @Get(':email')
+  async getUsersByEmail(@Param('email') email: string) {
+    const findUser = await this.usersService.getUserByEmail(email);
     if (!findUser) throw new HttpException('User not found', 404);
     return findUser;
   }
 
-  @Patch(':id')
+  @Patch(':email')
   async updateUser(
-    @Param('id') id: string,
+    @Param('email') email: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const isValid = mongoose.Types.ObjectId.isValid(id);
-    if (!isValid) throw new HttpException('Invalid ID', 400);
-    const updateUser = await this.usersService.updateUsers(id, updateUserDto);
+    const updateUser = await this.usersService.updateUsers(email, updateUserDto);
     if (!updateUser) throw new HttpException('User Not Found', 404);
     return updateUser;
   }
 
-  @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
-    const isValid = mongoose.Types.ObjectId.isValid(id);
-    if (!isValid) throw new HttpException('Invalid ID', 400);
-    const deletedUser = await this.usersService.deleteUser(id);
+  @Delete(':email')
+  async deleteUser(@Param('email') email: string) {
+    const deletedUser = await this.usersService.deleteUser(email);
     if (!deletedUser) throw new HttpException('User not Found', 404);
     return;
   }

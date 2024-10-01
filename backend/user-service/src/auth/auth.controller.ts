@@ -9,7 +9,7 @@ export class AuthController {
 	@Post('/google/callback')
 	async handleRedirect(@Req() req: Request, @Res() res: Response) {
 		const {token} = req.body
-		const tokens = await this.authService.verifyJWTToken(token)
+		const tokens = await this.authService.handleUserLogin(token)
 		res.json(tokens);
 	}
 }

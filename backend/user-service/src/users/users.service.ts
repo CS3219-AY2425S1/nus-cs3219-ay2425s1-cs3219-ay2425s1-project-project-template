@@ -18,15 +18,15 @@ export class UsersService {
     return this.userModel.find();
   }
 
-  getUsersById(id: string) {
-    return this.userModel.findById(id);
+  getUserByEmail(email: string) {
+    return this.userModel.findOne({ email }).exec();
   }
 
-  updateUsers(id: string, updateUserDto: UpdateUserDto) {
-    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
+  async updateUsers(email: string, updateUserDto: UpdateUserDto) {
+    return this.userModel.findOneAndUpdate({email}, updateUserDto, { new: true }).exec;
   }
 
-  deleteUser(id: string) {
-    return this.userModel.findByIdAndDelete(id);
+  async deleteUser(email: string) {
+    return this.userModel.findOneAndDelete({email}).exec;
   }
 }

@@ -3,14 +3,20 @@ import mongoose from 'mongoose';
 
 @Schema()
 export class User {
-  @Prop({ unique: true })
+  @Prop({ required: true })
   username: string;
+
+  @Prop({ required: true, unique: true })
+  email: string;
+
+  @Prop({ required: true })
+  avatarUrl?: string;
 
   @Prop({ required: false })
   displayName?: string;
 
   @Prop({ required: false })
-  avatarUrl?: string;
+  questions?: number[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

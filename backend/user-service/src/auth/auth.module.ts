@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt'
 import { jwtSecretKey } from './constants';
+import { UsersModule } from 'src/users/users.module';
 
 // import { GoogleStrategy } from './utils/google.strategy';
 
@@ -16,7 +17,8 @@ import { jwtSecretKey } from './constants';
         global: true
       }),
       inject: [ConfigService]
-    })
+    }),
+    UsersModule
   ],
   controllers: [AuthController],
   providers: [AuthService]
