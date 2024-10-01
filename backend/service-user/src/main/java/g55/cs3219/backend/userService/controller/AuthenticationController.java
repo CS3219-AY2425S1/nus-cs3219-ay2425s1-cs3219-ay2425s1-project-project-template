@@ -36,9 +36,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
-        return ResponseEntity.ok(registeredUser);
+        return ResponseEntity.ok("Account is registered successfully");
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
