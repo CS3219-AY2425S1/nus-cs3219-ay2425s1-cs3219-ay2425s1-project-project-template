@@ -1,8 +1,31 @@
-"use client"
+"use client";
 
-import { Suspense, useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
-import { QuestionDto, CreateQuestionDto } from '@repo/dtos/questions';
+import { useState } from "react";
+import { Plus, ArrowUpDown } from "lucide-react";
+import { QuestionDto, CreateQuestionDto } from "@repo/dtos/questions";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import CreateModal from "./components/CreateModal";
+import { toast } from "@/hooks/use-toast";
+import { createQuestion, fetchQuestions } from "@/lib/api/question";
+import Link from "next/link";
+import DifficultyBadge from "@/components/DifficultyBadge";
+import EmptyPlaceholder from "./components/EmptyPlaceholder";
+import { CATEGORY, COMPLEXITY } from "@/constants/question";
+import { MultiSelect } from "@/components/multi-select";
+import {
+  ColumnDef,
+  useReactTable,
+  SortingState,
+  ColumnFiltersState,
+  VisibilityState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -10,28 +33,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { QUERY_KEYS } from '@/constants/queryKeys';
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import Select from 'react-select';
-import CreateModal from './components/CreateModal';
-import { toast } from '@/hooks/use-toast';
-import { createQuestion, fetchQuestions } from '@/lib/api/question';
-import Link from 'next/link';
-import DifficultyBadge from '@/components/DifficultyBadge';
-import QuestionsSkeleton from './components/QuestionsSkeleton';
-import EmptyPlaceholder from './components/EmptyPlaceholder';
-import { CATEGORY, COMPLEXITY } from '@/constants/question';
+} from "@/components/ui/table";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
-type SortField = 'q_title' | 'q_complexity' | 'q_category';
-
-const QuestionRepositoryContent = () => {
+export default function QuestionRepositoryContent() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -48,14 +53,14 @@ const QuestionRepositoryContent = () => {
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.Question] });
       setCreateModalOpen(false);
       toast({
-        variant: 'success',
-        title: 'Success',
-        description: 'Question created successfully',
+        variant: "success",
+        title: "Success",
+        description: "Question created successfully",
       });
     },
     onSettled: () => setConfirmLoading(false),
     onError: (error) => {
-      console.error('Error creating question:', error);
+      console.error("Error creating question:", error);
       toast({
         variant: "error",
         title: "Error",
@@ -68,84 +73,125 @@ const QuestionRepositoryContent = () => {
     createMutation.mutate(newQuestion);
   };
 
-  const [sortField, setSortField] = useState<SortField>('q_title');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  // Table state
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
-  const [filterDifficulty, setFilterDifficulty] = useState<Array<{ value: COMPLEXITY; label: string }>>([]);
-  const [filterCategories, setFilterCategories] = useState<Array<{ value: CATEGORY; label: string }>>([]);
-
-  const complexityOrder: { [key in COMPLEXITY]: number } = {
-    [COMPLEXITY.Easy]: 1,
-    [COMPLEXITY.Medium]: 2,
-    [COMPLEXITY.Hard]: 3,
-  };
-  
   const categoryOptions = [
-    { value: CATEGORY.DataStructures, label: 'Data Structures' },
-    { value: CATEGORY.Algorithms, label: 'Algorithms' },
-    { value: CATEGORY.BrainTeaser, label: 'Brain Teaser' },
-    { value: CATEGORY.Strings, label: 'Strings' },
-    { value: CATEGORY.Databases, label: 'Databases' },
-    { value: CATEGORY.BitManipulation, label: 'Bit Manipulation' },
-    { value: CATEGORY.Arrays, label: 'Arrays' },
-    { value: CATEGORY.Recursion, label: 'Recursion' },
+    { value: CATEGORY.DataStructures, label: "Data Structures" },
+    { value: CATEGORY.Algorithms, label: "Algorithms" },
+    { value: CATEGORY.BrainTeaser, label: "Brain Teaser" },
+    { value: CATEGORY.Strings, label: "Strings" },
+    { value: CATEGORY.Databases, label: "Databases" },
+    { value: CATEGORY.BitManipulation, label: "Bit Manipulation" },
+    { value: CATEGORY.Arrays, label: "Arrays" },
+    { value: CATEGORY.Recursion, label: "Recursion" },
   ];
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
+  // Define columns with filtering and sorting
+  const complexityFilter = (row: any, columnId: string, filterValue: string[]) => { //TODO: row : any
+    return filterValue.length === 0 || filterValue.includes(row.getValue(columnId));
   };
 
-  const filteredData = useMemo(() => {
-    return data.filter((question) => {
-      const difficultyMatch =
-        filterDifficulty.length === 0 ||
-        filterDifficulty.some((option) => option.value === question.q_complexity);
+  const categoryFilter = (row : any, columnId : string, filterValue : string[]) => {
+    const rowValues = row.getValue(columnId) as string[];
+    return (
+      filterValue.length === 0 ||
+      filterValue.some((value: string) => rowValues.includes(value))
+    );
+  };
 
-      const categoryMatch =
-        filterCategories.length === 0 ||
-        question.q_category.some((cat) =>
-          filterCategories.some((option) => option.value === cat)
+  const columns: ColumnDef<QuestionDto>[] = [
+    {
+      accessorKey: "q_title",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Title
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
         );
+      },
+      cell: ({ row }) => (
+        <Link
+          href={`/question/${row.original.id}`}
+          className="text-blue-500 hover:text-blue-700"
+        >
+          {row.original.q_title}
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "q_complexity",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Difficulty
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <DifficultyBadge complexity={row.original.q_complexity} />
+      ),
+      filterFn: complexityFilter,
+    },
+    {
+      accessorKey: "q_category",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Categories
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="flex flex-wrap gap-2 max-w-md">
+          {row.original.q_category.map((category) => (
+            <Badge key={category} variant="secondary" className="mr-2">
+              {category}
+            </Badge>
+          ))}
+        </div>
+      ),
+      filterFn: categoryFilter,
+    },
+  ];
 
-      return difficultyMatch && categoryMatch;
-    });
-  }, [data, filterDifficulty, filterCategories]);
-
-  const sortedData = useMemo(() => {
-    return [...filteredData].sort((a, b) => {
-      let aValue: string | number;
-      let bValue: string | number;
-  
-      if (sortField === 'q_title') {
-        aValue = a.q_title.toLowerCase();
-        bValue = b.q_title.toLowerCase();
-      } else if (sortField === 'q_complexity') {
-        aValue = complexityOrder[a.q_complexity as COMPLEXITY];
-        bValue = complexityOrder[b.q_complexity as COMPLEXITY];
-      } else if (sortField === 'q_category') {
-        aValue = a.q_category.join(', ').toLowerCase();
-        bValue = b.q_category.join(', ').toLowerCase();
-      } else {
-        return 0;
-      }
-  
-      if (aValue < bValue) {
-        return sortOrder === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortOrder === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [filteredData, sortField, sortOrder]);
+  const table = useReactTable({
+    data: data || [],
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
 
   return (
     <div className="container mx-auto p-4">
+      {/* Header */}
       <div className="flex justify-between items-center my-4">
         <h1 className="text-xl font-semibold">Question Repository</h1>
         <Button
@@ -162,36 +208,28 @@ const QuestionRepositoryContent = () => {
         {/* Difficulty Filter */}
         <div className="w-64">
           <h2 className="font-semibold mb-2">Filter by Difficulty</h2>
-          <Select
-            isMulti
+          <MultiSelect
             options={[
-              { value: COMPLEXITY.Easy, label: 'Easy' },
-              { value: COMPLEXITY.Medium, label: 'Medium' },
-              { value: COMPLEXITY.Hard, label: 'Hard' },
+              { value: COMPLEXITY.Easy, label: "Easy" },
+              { value: COMPLEXITY.Medium, label: "Medium" },
+              { value: COMPLEXITY.Hard, label: "Hard" },
             ]}
-            value={filterDifficulty}
-            onChange={(selectedOptions) => {
-              setFilterDifficulty(selectedOptions as { value: COMPLEXITY; label: string }[] || []);
+            onValueChange={(values) => {
+              table.getColumn("q_complexity")?.setFilterValue(values);
             }}
             placeholder="Select Difficulty"
-            className="react-select-container"
-            classNamePrefix="react-select"
           />
         </div>
 
-        {/* Topic Filter */}
-        <div className="w-200">
-          <h2 className="font-semibold mb-2">Filter by Topics</h2>
-          <Select
-            isMulti
+        {/* Category Filter */}
+        <div className="w-64">
+          <h2 className="font-semibold mb-2">Filter by Categories</h2>
+          <MultiSelect
             options={categoryOptions}
-            value={filterCategories}
-            onChange={(selectedOptions) => {
-              setFilterCategories(selectedOptions as { value: CATEGORY; label: string }[] || []);
+            onValueChange={(values) => {
+              table.getColumn("q_category")?.setFilterValue(values);
             }}
-            placeholder="Select Topic(s)"
-            className="react-select-container"
-            classNamePrefix="react-select"
+            placeholder="Select Category"
           />
         </div>
       </div>
@@ -200,70 +238,72 @@ const QuestionRepositoryContent = () => {
       {data?.length === 0 ? (
         <EmptyPlaceholder />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                onClick={() => handleSort('q_title')}
-                className="cursor-pointer"
-                style={{ width: '40%' }}
-              >
-                Title{' '}
-                {sortField === 'q_title' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                onClick={() => handleSort('q_complexity')}
-                className="cursor-pointer"
-                style={{ width: '10%' }}
-              >
-                Difficulty{' '}
-                {sortField === 'q_complexity' &&
-                  (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                onClick={() => handleSort('q_category')}
-                className="cursor-pointer"
-                style={{ width: '50%' }}
-              >
-                Categories{' '}
-                {sortField === 'q_category' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody
-            className={`${confirmLoading ? 'opacity-50' : 'opacity-100'}`}
-          >
-            {sortedData.map((question) => (
-              <TableRow key={question.id}>
-                <TableCell style={{ width: '40%' }}>
-                  <Link
-                    href={`/question/${question.id}`}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    {question.q_title}
-                  </Link>
-                </TableCell>
-                <TableCell style={{ width: '10%' }}>
-                  <DifficultyBadge complexity={question.q_complexity} />
-                </TableCell>
-                <TableCell style={{ width: '50%' }}>
-                  <div className="flex flex-wrap gap-2 max-w-md">
-                    {question.q_category.map((category) => (
-                      <Badge
-                        key={category}
-                        variant="secondary"
-                        className="mr-2"
-                      >
-                        {category}
-                      </Badge>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody
+              className={`${confirmLoading ? "opacity-50" : "opacity-100"}`}
+            >
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
                     ))}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          Total questions: {data?.length}
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
 
       <CreateModal
         open={isCreateModalOpen}
@@ -272,14 +312,4 @@ const QuestionRepositoryContent = () => {
       />
     </div>
   );
-};
-
-const QuestionRepository = () => {
-  return (
-    <Suspense fallback={<QuestionsSkeleton />}>
-      <QuestionRepositoryContent />
-    </Suspense>
-  );
-};
-
-export default QuestionRepository;
+}
