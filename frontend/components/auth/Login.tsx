@@ -1,18 +1,18 @@
 'use client'
 
+import { tokenState, userState } from '@/atoms/auth'
 import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import { Button } from '../ui/button'
 import { InputField } from '../customs/custom-input'
 import { PasswordReset } from './PasswordReset'
+import React from 'react'
+import { loginRequest } from '@/services/user-service-api'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
-import { useState } from 'react'
-import { loginRequest } from '@/services/user-service-api'
-import { useSetRecoilState } from 'recoil'
-import { tokenState, userState } from '@/atoms/auth'
 import { useRouter } from 'next/router'
-import React from 'react'
+import { useSetRecoilState } from 'recoil'
+import { useState } from 'react'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
@@ -55,6 +55,7 @@ export default function Login() {
                     sessionStorage.setItem('email', res.email)
                     sessionStorage.setItem('TTL', new Date().toString())
                     sessionStorage.setItem('isAuth', 'true')
+                    sessionStorage.setItem('role', res.role)
                     setIsAuth(true)
                     setIsValid(true)
                     router.push('/')

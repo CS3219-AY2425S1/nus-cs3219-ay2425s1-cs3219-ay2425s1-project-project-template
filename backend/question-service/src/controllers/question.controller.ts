@@ -1,5 +1,4 @@
 import { IPaginationRequest, ITypedBodyRequest } from '@repo/request-types'
-import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import {
     createQuestion,
@@ -18,10 +17,12 @@ import {
     isValidSort,
     updateQuestion,
 } from '../models/question.repository'
+
 import { Category } from '../types/Category'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
+import { ValidationError } from 'class-validator'
 
 export async function handleCreateQuestion(
     request: ITypedBodyRequest<CreateQuestionDto>,
@@ -134,7 +135,7 @@ export async function handleUpdateQuestion(request: ITypedBodyRequest<QuestionDt
     }
 
     const duplicate = await findOneQuestionByTitle(updateDto.title)
-    if (duplicate) {
+    if (duplicate && duplicate.id !== id) {
         response.status(409).json('DUPLICATE_TITLE').send()
         return
     }
