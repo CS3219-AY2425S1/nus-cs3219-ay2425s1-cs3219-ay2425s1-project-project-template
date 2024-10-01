@@ -25,6 +25,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   flexRender,
+  SortingFn,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -89,6 +90,19 @@ export default function QuestionRepositoryContent() {
     { value: CATEGORY.Arrays, label: "Arrays" },
     { value: CATEGORY.Recursion, label: "Recursion" },
   ];
+  const complexityOrder: { [key in COMPLEXITY]: number } = {
+    [COMPLEXITY.Easy]: 1,
+    [COMPLEXITY.Medium]: 2,
+    [COMPLEXITY.Hard]: 3,
+  };
+  
+  // To sort the questions by complexity level
+  const complexitySortingFn: SortingFn<QuestionDto> = (rowA, rowB, columnId) => {
+    const valueA = rowA.getValue(columnId) as COMPLEXITY;
+    const valueB = rowB.getValue(columnId) as COMPLEXITY;
+
+    return complexityOrder[valueA] - complexityOrder[valueB];
+  };
 
   // Define columns with filtering and sorting
   const complexityFilter = (row: any, columnId: string, filterValue: string[]) => { //TODO: row : any
@@ -143,6 +157,7 @@ export default function QuestionRepositoryContent() {
         <DifficultyBadge complexity={row.original.q_complexity} />
       ),
       filterFn: complexityFilter,
+      sortingFn: complexitySortingFn,
     },
     {
       accessorKey: "q_category",
@@ -239,7 +254,7 @@ export default function QuestionRepositoryContent() {
         <EmptyPlaceholder />
       ) : (
         <div className="rounded-md border">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
