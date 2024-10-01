@@ -1,7 +1,9 @@
-import { TickIcon, ExclamationIcon } from '@/assets/icons'
-import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import { Difficulty, FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
+import { ExclamationIcon, TickIcon } from '@/assets/icons'
+
+import { Badge } from '@/components/ui/badge'
 import { Category } from '@repo/user-types'
+import { DifficultyLabel } from '@/components/customs/difficulty-label'
 
 const columns: IDatatableColumn[] = [
     {
@@ -15,6 +17,14 @@ const columns: IDatatableColumn[] = [
     },
     {
         key: 'categories',
+        formatter: (values) => {
+            const c = values.map((v: string) => (
+                <Badge key={v} className="m-1 bg-violet-600">
+                    {v}
+                </Badge>
+            ))
+            return <div className="flex flex-wrap items-center justify-center">{c}</div>
+        },
     },
     {
         key: 'description',
