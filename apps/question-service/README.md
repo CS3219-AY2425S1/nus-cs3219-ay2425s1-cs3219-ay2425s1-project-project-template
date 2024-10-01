@@ -60,5 +60,5 @@ The server will be available at http://localhost:8080.
 To reset and repopulate the database, run the following command:
 
 ```bash
-go run populate.go
+go run main.go -populate
 ```

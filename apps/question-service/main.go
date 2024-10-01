@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"question-service/handlers"
+	"question-service/utils"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -50,6 +52,14 @@ func main() {
 	defer client.Close()
 
 	service := &handlers.Service{Client: client}
+
+	// Check flags if should populate instead.
+	shouldPopulate := flag.Bool("populate", false, "Populate database")
+	flag.Parse()
+	if *shouldPopulate {
+		utils.Populate(client)
+		return
+	}
 
 	// Set up chi router
 	r := chi.NewRouter()

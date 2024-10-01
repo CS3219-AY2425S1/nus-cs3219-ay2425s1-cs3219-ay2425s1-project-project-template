@@ -1,15 +1,13 @@
-package main
+package utils
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
-	firebase "firebase.google.com/go/v4"
-	"fmt"
-	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
 	"log"
 	"question-service/models"
 	"time"
+
+	"cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 )
 
 // PopulateSampleQuestionsInTransaction deletes all existing questions and then adds new ones in a single transaction
@@ -295,32 +293,11 @@ Return the result table in any order.`,
 	})
 }
 
-// initFirestore initializes the Firestore client
-func initFirestore(ctx context.Context, credentialsPath string) (*firestore.Client, error) {
-	opt := option.WithCredentialsFile(credentialsPath)
-	app, err := firebase.NewApp(ctx, nil, opt)
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Firebase App: %v", err)
-	}
-
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Firestore client: %v", err)
-	}
-	return client, nil
-}
-
-func main() {
-	// Initialize Firestore client
+func Populate(client *firestore.Client) {
 	ctx := context.Background()
-	client, err := initFirestore(ctx, "cs3219-g24-firebase-adminsdk-9cm7h-b1675603ab.json")
-	if err != nil {
-		log.Fatalf("Failed to initialize Firestore client: %v", err)
-	}
-	defer client.Close()
 
 	// Run the transaction to delete all questions and add new ones
-	err = populateSampleQuestionsInTransaction(ctx, client)
+	err := populateSampleQuestionsInTransaction(ctx, client)
 	if err != nil {
 		log.Fatalf("Failed to populate sample questions in transaction: %v", err)
 	}
