@@ -116,7 +116,21 @@ export default function QuestionTable() {
                       </Button>
                     </TableCell>
 
-                    <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>{row.difficulty}</TableCell>
+                    <TableCell 
+                      style={{
+                        color: 
+                          row.difficulty.toLowerCase() === 'easy' ? '#00C000' :
+                          row.difficulty.toLowerCase() === 'medium' ? '#FFB800' :
+                          row.difficulty.toLowerCase() === 'hard' ? '#EE0000' : 'black',
+                        fontSize: 20, 
+                        fontFamily: 'Poppins', 
+                        fontWeight: '600', 
+                        wordWrap: 'break-word'
+                      }}
+                    >
+                      {row.difficulty}
+                    </TableCell>
+                    
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>{row.topic.join(', ')}</TableCell>
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>New</TableCell>
                   </TableRow>
