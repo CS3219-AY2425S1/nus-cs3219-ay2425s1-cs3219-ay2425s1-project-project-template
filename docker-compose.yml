@@ -11,7 +11,7 @@ services:
 
   user-mongodb:
     image: mongo:latest
-    container_name: mongodb-user-service
+    container_name: user-service-mongodb
     # expose port for testing purposes or to view database in MongoDB Compass
     ports:
       - "27017:27017"
@@ -22,7 +22,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${USER_MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${USER_MONGO_INITDB_ROOT_PASSWORD}
-    entrypoint: /bin/sh -c 'if [ -z "$USER_MONGODB_URI" ]; then echo "Starting MongoDB..."; mongod --bind_ip_all; else echo "USER_MONGODB_URI is set. Shutting down."; exit 1; fi'
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh"]
+    command: /bin/sh -c 'if [ -z "$USER_MONGODB_URI" ]; then echo "Starting MongoDB..."; /usr/local/bin/docker-entrypoint.sh mongod; else echo "USER_MONGODB_URI is set. Shutting down."; exit 1; fi'
     restart: no
 
   g38-user-service:
@@ -39,7 +40,7 @@ services:
 
   question-mongodb:
     image: mongo:latest
-    container_name: mongodb-question-service
+    container_name: question-service-mongodb
     # expose port for testing purposes or to view database in MongoDB Compass
     ports:
       - "27018:27017"
@@ -50,7 +51,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${QUESTION_MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${QUESTION_MONGO_INITDB_ROOT_PASSWORD}
-    entrypoint: /bin/sh -c 'if [ -z "$QUESTION_MONGODB_URI" ]; then echo "Starting MongoDB..."; mongod --bind_ip_all; else echo "QUESTION_MONGODB_URI is set. Shutting down."; exit 1; fi'
+    entrypoint: /bin/sh -c 'if [ -z "$QUESTION_MONGODB_URI" ]; then echo "Starting MongoDB..."; /usr/local/bin/docker-entrypoint.sh mongod; else echo "QUESTION_MONGODB_URI is set. Shutting down."; exit 1; fi'
     restart: no
 
   g38-question-service:
