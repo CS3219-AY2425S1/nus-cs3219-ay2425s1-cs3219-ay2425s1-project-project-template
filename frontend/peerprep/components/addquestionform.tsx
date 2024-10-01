@@ -75,7 +75,7 @@ export default function AddQuestionForm({
     useState<{ input: string; output: string }[]>(initialTestCases);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `${process.env.QUESTION_SERVICE_URL}/api/questions/categories/unique`,
+    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 
@@ -193,7 +193,7 @@ export default function AddQuestionForm({
     try {
       // Send POST request
       const response = await fetch(
-        `${process.env.QUESTION_SERVICE_URL}/api/questions/`,
+        `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/`,
         {
           method: "POST",
           headers: {

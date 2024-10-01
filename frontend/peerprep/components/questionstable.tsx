@@ -53,7 +53,7 @@ export default function QuestionsTable() {
     if (questionToDelete) {
       try {
         await fetch(
-          `${process.env.QUESTION_SERVICE_URL}/api/questions/${questionToDelete.question_id}`,
+          `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${questionToDelete.question_id}`,
           {
             method: "DELETE",
           }
@@ -79,7 +79,7 @@ export default function QuestionsTable() {
   const [page, setPage] = React.useState(1);
 
   const { data: questionData, isLoading: questionLoading } = useSWR(
-    `${process.env.QUESTION_SERVICE_URL}/api/questions?${hasSearchFilter ? `title=${filterValue}&` : ""}${complexityFilter !== null ? `complexity=${complexityFilter}&` : ""}${
+    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions?${hasSearchFilter ? `title=${filterValue}&` : ""}${complexityFilter !== null ? `complexity=${complexityFilter}&` : ""}${
       categoryFilter !== "all"
         ? Array.from(categoryFilter)
             .map((category) => `category=${encodeURIComponent(category)}`)
@@ -90,7 +90,7 @@ export default function QuestionsTable() {
   );
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `${process.env.QUESTION_SERVICE_URL}/api/questions/categories/unique`,
+    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 

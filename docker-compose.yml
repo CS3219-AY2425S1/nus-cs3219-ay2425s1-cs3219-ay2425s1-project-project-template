@@ -2,12 +2,12 @@ version: '3'
 services:
 
   frontend:
-    image: delishad21/g38-frontend:latest
+    image: g38-frontend:latest
     container_name: g38-frontend
     env_file:
       - .env
     ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - "${NEXT_PUBLIC_FRONTEND_PORT}:${NEXT_PUBLIC_FRONTEND_PORT}"
 
   user-mongodb:
     image: mongo:latest
