@@ -3,7 +3,7 @@ import "dotenv/config";
 import { connect } from "mongoose";
 
 export async function connectToDB() {
-  let mongoDBUri = process.env.MONGODB_URI;
+  let mongoDBUri = process.env.USER_MONGODB_URI;
 
   await connect(mongoDBUri);
 }
