@@ -1,28 +1,20 @@
 'use client'
 
-import { tokenState, userState } from '@/atoms/auth'
 import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import { Button } from '../ui/button'
 import { InputField } from '../customs/custom-input'
 import { PasswordReset } from './PasswordReset'
 import React from 'react'
-import { loginRequest } from '@/services/user-service-api'
+import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
-import { useRouter } from 'next/router'
-import { useSetRecoilState } from 'recoil'
 import { useState } from 'react'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
-    const setIsAuth = useSetRecoilState(userState)
-    const setIsValid = useSetRecoilState(tokenState)
-
-    const router = useRouter()
-
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { id, value } = e.target
         setFormValues({ ...formValues, [id]: value })
@@ -43,24 +35,14 @@ export default function Login() {
         setFormErrors(errors)
 
         if (isValid) {
-            const requestBody = {
-                usernameOrEmail: formValues.email,
-                password: formValues.loginPassword,
-            }
             try {
-                const res = await loginRequest(requestBody)
-                if (res) {
-                    sessionStorage.setItem('id', res.id)
-                    sessionStorage.setItem('username', res.username)
-                    sessionStorage.setItem('email', res.email)
-                    sessionStorage.setItem('TTL', new Date().toString())
-                    sessionStorage.setItem('isAuth', 'true')
-                    sessionStorage.setItem('role', res.role)
-                    setIsAuth(true)
-                    setIsValid(true)
-                    router.push('/')
-                    toast.success('Logged in successfully')
-                }
+                await signIn('credentials', {
+                    redirect: true,
+                    username: formValues.email,
+                    password: formValues.loginPassword,
+                    callbackUrl: '/',
+                })
+                toast.success('Logged in successfully')
             } catch (error) {
                 if (error instanceof Error) {
                     toast.error(error.message)

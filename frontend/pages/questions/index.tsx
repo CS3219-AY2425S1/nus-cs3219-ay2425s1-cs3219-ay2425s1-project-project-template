@@ -25,11 +25,15 @@ import ConfirmDialog from '@/components/customs/confirm-dialog'
 import CustomForm from '@/components/customs/custom-form'
 import CustomModal from '@/components/customs/custom-modal'
 import Datatable from '@/components/customs/datatable'
+import { Role } from '@repo/user-types'
 import { capitalizeFirst } from '@/util/string-modification'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 
 export default function Questions() {
-    const [isAdmin, setIsAdmin] = useState(false)
+    const { data: session } = useSession()
+    const isAdmin = session?.user.role === Role.ADMIN
+
     const [data, setData] = useState<IQuestion[]>([])
     const [isLoading, setLoading] = useState<boolean>(false)
     const [pagination, setPagination] = useState<IPagination>({
@@ -103,10 +107,6 @@ export default function Questions() {
         }
         setIsInit(true)
     }, [isInit])
-
-    useEffect(() => {
-        setIsAdmin(sessionStorage.getItem('role') === 'ADMIN')
-    }, [])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
