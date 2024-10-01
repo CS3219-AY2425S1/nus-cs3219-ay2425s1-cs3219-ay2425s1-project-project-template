@@ -1,8 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { useEffect, useState } from 'react'
-import Datatable from '@/components/customs/datatable'
 import {
     Difficulty,
     IGetQuestions,
@@ -14,10 +11,6 @@ import {
     SortDirection,
 } from '@/types'
 import { columns, formFields } from './props'
-import CustomModal from '@/components/customs/custom-modal'
-import CustomForm from '@/components/customs/custom-form'
-import ConfirmDialog from '@/components/customs/confirm-dialog'
-import { capitalizeFirst } from '@/util/string-modification'
 import {
     createQuestionRequest,
     deleteQuestionById,
@@ -25,9 +18,18 @@ import {
     getQuestionsRequest,
     updateQuestionRequest,
 } from '@/services/question-service-api'
+import { useEffect, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import ConfirmDialog from '@/components/customs/confirm-dialog'
+import CustomForm from '@/components/customs/custom-form'
+import CustomModal from '@/components/customs/custom-modal'
+import Datatable from '@/components/customs/datatable'
+import { capitalizeFirst } from '@/util/string-modification'
 import { toast } from 'sonner'
 
 export default function Questions() {
+    const [isAdmin, setIsAdmin] = useState(false)
     const [data, setData] = useState<IQuestion[]>([])
     const [isLoading, setLoading] = useState<boolean>(false)
     const [pagination, setPagination] = useState<IPagination>({
@@ -101,6 +103,10 @@ export default function Questions() {
         }
         setIsInit(true)
     }, [isInit])
+
+    useEffect(() => {
+        setIsAdmin(sessionStorage.getItem('role') === 'ADMIN')
+    }, [])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
@@ -235,19 +241,21 @@ export default function Questions() {
         <div className="m-8">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Questions</h2>
-                <Button
-                    variant={'primary'}
-                    onClick={() => {
-                        setModalData({
-                            ...modalData,
-                            title: 'Create new question',
-                            isOpen: true,
-                        })
-                        setModificationType(Modification.CREATE)
-                    }}
-                >
-                    Create
-                </Button>
+                {isAdmin && (
+                    <Button
+                        variant={'primary'}
+                        onClick={() => {
+                            setModalData({
+                                ...modalData,
+                                title: 'Create new question',
+                                isOpen: true,
+                            })
+                            setModificationType(Modification.CREATE)
+                        }}
+                    >
+                        Create
+                    </Button>
+                )}
             </div>
             <Datatable
                 data={data}
