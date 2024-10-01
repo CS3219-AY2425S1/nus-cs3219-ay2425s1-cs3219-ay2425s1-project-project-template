@@ -101,17 +101,30 @@ public class QuestionService {
     }
 
     public QuestionDto updateQuestion(Integer id, QuestionDto updatedQuestionDto) {
-        if (updatedQuestionDto.getId() == null) {
-            throw new InvalidQuestionException("Question ID is required for update.");
-        }
-
         Question existingQuestion = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException("Question with ID " + id + " not found."));
 
-        existingQuestion.setTitle(updatedQuestionDto.getTitle());
-        existingQuestion.setDescription(updatedQuestionDto.getDescription());
-        existingQuestion.setDifficulty(updatedQuestionDto.getDifficulty());
-        existingQuestion.setCategories(updatedQuestionDto.getCategories());
+        if (updatedQuestionDto.getTitle() != null) {
+            existingQuestion.setTitle(updatedQuestionDto.getTitle());
+        }
+        if (updatedQuestionDto.getDescription() != null) {
+            existingQuestion.setDescription(updatedQuestionDto.getDescription());
+        }
+        if (updatedQuestionDto.getDifficulty() != null) {
+            existingQuestion.setDifficulty(updatedQuestionDto.getDifficulty());
+        }
+        if (updatedQuestionDto.getCategories() != null) {
+            existingQuestion.setCategories(updatedQuestionDto.getCategories());
+        }
+        if (updatedQuestionDto.getExamples() != null) {
+            existingQuestion.setExamples(updatedQuestionDto.getExamples());
+        }
+        if (updatedQuestionDto.getConstraints() != null) {
+            existingQuestion.setConstraints(updatedQuestionDto.getConstraints());
+        }
+        if (updatedQuestionDto.getLink() != null) {
+            existingQuestion.setLink(updatedQuestionDto.getLink());
+        }
 
         Question updatedQuestion = questionRepository.save(existingQuestion);
 
