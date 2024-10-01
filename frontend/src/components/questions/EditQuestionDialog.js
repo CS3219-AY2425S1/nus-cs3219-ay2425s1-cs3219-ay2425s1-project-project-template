@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
+import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Chip, Autocomplete, FormControl } from '@mui/material';
+import { topics } from '../../assets/topics';
 import ErrorMessage from './ErrorMessageDialog'
 import questionService from '../../services/question-service';
 import '../../styles/create-question-dialog.css';
@@ -29,6 +30,10 @@ const EditQuestion = ({ open, handleClose, question }) => {
     const handleInputChange = (event) => {
       const { name, value } = event.target;
       setQuestionData({ ...questionData, [name]: value });
+    };
+
+    const handleTopicChange = (event, newValue) => {
+        setQuestionData({ ...questionData, topic: newValue.join(', ') });
     };
 
     const handleDifficultyChange = (event) => {
@@ -111,20 +116,36 @@ const EditQuestion = ({ open, handleClose, question }) => {
               onChange={handleInputChange}
               className="text-field"
             />
-            <TextField
-              margin="dense"
-              required
-              id="topic"
-              name="topic"
-              label="Topics (comma separated and max 200 characters)"
-              type="text"
-              fullWidth
-              multiline
-              inputProps={{ maxLength: 200 }}
-              value={questionData.topic}
-              onChange={handleInputChange}
-              className="text-field"
-            />
+            
+            <FormControl fullWidth margin="dense">
+              <Autocomplete
+                  multiple
+                  id="searchable-topics"
+                  options={topics}
+                  value={questionData.topic.split(',').map((t) => t.trim())}
+                  onChange={handleTopicChange}
+                  filterSelectedOptions
+                  renderTags={(selected, getTagProps) =>
+                    selected.length > 0
+                      ? selected.map((option, index) => (
+                          <Chip key={index} label={option} {...getTagProps({ index })} />
+                        ))
+                      : null // Don't render anything if no topics are selected
+                  }
+                  renderInput={(params) => (
+                      <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Topics"
+                      placeholder="Search for topics"
+                      />
+                  )}
+                  sx={{ width: '100%' }}
+                  isOptionEqualToValue={(option, value) => option === value} // Ensure equality checks
+                  clearOnEscape
+              />
+          </FormControl>
+
             <TextField
               margin="dense"
               fullWidth
