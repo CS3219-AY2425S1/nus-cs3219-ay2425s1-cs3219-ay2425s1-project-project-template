@@ -1,0 +1,10 @@
+services:
+  question-service:
+    build:
+      context: ./question-service
+      target: $BUILD_ENV
+    ports:
+      - $QUESTION_SVC_PORT
+    environment:
+      - PORT=$QUESTION_SVC_PORT
+      - DB_CLOUD_URI=$QUESTION_SVC_DB_URI
