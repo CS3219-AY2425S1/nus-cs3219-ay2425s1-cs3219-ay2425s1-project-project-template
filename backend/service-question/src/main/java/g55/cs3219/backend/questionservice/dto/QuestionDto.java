@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
@@ -26,7 +27,7 @@ public class QuestionDto implements Serializable {
     private List<String> categories;
 
     @NotNull
-    private List<String> examples;
+    private List<HashMap<String, String>> examples;
 
     @NotNull
     private List<String> constraints;
