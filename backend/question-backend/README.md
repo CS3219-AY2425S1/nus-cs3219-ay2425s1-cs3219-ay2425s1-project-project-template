@@ -1,12 +1,18 @@
 ## Running Question Service
 
-1. Open Command Line/Terminal and navigate into the `question_backend` directory.
+1. Open Command Line/Terminal and navigate into the `question-backend` directory.
 
-2. Run the command: `npm install`. This will install all the necessary dependencies.
+2. Run the command: `docker build -t question-backend .`. This will build the Docker Image.
 
-3. Run the command `npm start` to start the Question Service in production mode, or use `npm run dev` for development mode, which includes features like automatic server restart when you make code changes.
+3. Run the command `docker run --name question-service -p 4000:4000 -d question-backend` to run the Question Service in the Docker Container.
 
-4. Using applications like Postman, you can interact with the User Service on port 4000. If you wish to change this, please update the `.env` file (there is a sample file under `.envsample`).
+4. Alternatively, if you wish to edit your code and see the changes in real-time, you can bind the current working directory to the Docker Container. (Note: Ensure that you have the folder `node_modules` with all the necessary dependencies in your local system. If not `npm install` locally.)
+
+   - For macOS users: run `docker run --name question-service -p 4000:4000 -v $(pwd):/app -d question-backend`
+   - For Windows Command Line users: run `docker run --name question-service -p 4000:4000 -v “%cd%:/app” -d question-backend`
+   - For Windows Powershell users: run `docker run --name question-service -p 4000:4000 -v ${PWD}:/app -d question-backend`
+
+5. Using applications like Postman, you can interact with the User Service on port 4000. If you wish to change this, please update the `.env` file (there is a sample file under `.envsample`).
 
 ## Question Service API Guide
 
