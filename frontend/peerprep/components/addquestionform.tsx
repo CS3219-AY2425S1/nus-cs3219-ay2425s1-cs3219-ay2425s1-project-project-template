@@ -75,7 +75,7 @@ export default function AddQuestionForm({
     useState<{ input: string; output: string }[]>(initialTestCases);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `http://localhost:8003/api/questions/categories/unique`,
+    `${process.env.QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 
@@ -188,13 +188,16 @@ export default function AddQuestionForm({
 
     try {
       // Send POST request
-      const response = await fetch("http://localhost:8003/api/questions/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData), // Convert data to JSON
-      });
+      const response = await fetch(
+        `${process.env.QUESTION_SERVICE_URL}/api/questions/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData), // Convert data to JSON
+        }
+      );
 
       if (response.ok) {
         // Show success modal

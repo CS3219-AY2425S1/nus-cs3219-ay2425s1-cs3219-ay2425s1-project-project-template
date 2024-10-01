@@ -82,12 +82,12 @@ export default function EditQuestionForm({
   const [question, setQuestion] = useState<Question | null>(null);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `http://localhost:8003/api/questions/categories/unique`,
+    `${process.env.QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 
   const { data: questionData, isLoading: questionLoading } = useSWR(
-    `http://localhost:8003/api/questions/${params.id ? params.id : ""}`,
+    `${process.env.QUESTION_SERVICE_URL}/api/questions/${params.id ? params.id : ""}`,
     fetcher
   );
 
@@ -241,7 +241,7 @@ export default function EditQuestionForm({
 
     try {
       const response = await fetch(
-        `http://localhost:8003/api/questions/${params.id}`,
+        `${process.env.QUESTION_SERVICE_URL}/api/questions/${params.id}`,
         {
           method: "PUT",
           headers: {
@@ -271,7 +271,7 @@ export default function EditQuestionForm({
   const deleteQuestion = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8003/api/questions/${params.id}`,
+        `${process.env.QUESTION_SERVICE_URL}/api/questions/${params.id}`,
         {
           method: "DELETE",
         }

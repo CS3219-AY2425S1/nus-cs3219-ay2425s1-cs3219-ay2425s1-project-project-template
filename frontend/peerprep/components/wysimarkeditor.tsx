@@ -14,7 +14,7 @@ export const WysiMarkEditor = ({
   const [markdown, setMarkdown] = useState("");
 
   const editor = useEditor({
-    authToken: process.env.imageUploadKey,
+    authToken: process.env.IMAGE_UPLOAD_KEY,
     minHeight: 500,
   });
 
