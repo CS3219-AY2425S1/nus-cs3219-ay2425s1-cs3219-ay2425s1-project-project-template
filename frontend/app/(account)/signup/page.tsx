@@ -1,21 +1,65 @@
 "use client";
 
 import { useState } from 'react';
-import { Stack, Input, Text, Button, FormControl, FormLabel } from '@chakra-ui/react';
+import { Stack, Input, Text, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { createUser } from '@/services/userService';
 
 export default function SignupPage() {
+  const toast = useToast();
+  const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
 
-  const handleSignup = () => {
-    alert(`Email: ${email}\nUsername: ${username}\nPassword: ${password}\nRePassword: ${rePassword}`);
-    setEmail('');
-    setUsername('');
-    setPassword('');
-    setRePassword('');
+  const handleSignup = async () => {
+    if (!email || !username || !password || !rePassword) {
+      toast({
+        title: 'Error',
+        description: 'All fields are required',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (password !== rePassword) {
+      toast({
+        title: 'Error',
+        description: 'Passwords do not match',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
+    try {
+      await createUser(username, email, password);
+      toast({
+        title: 'Success',
+        description: 'Account created successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      router.push('/login');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An error occurred. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
