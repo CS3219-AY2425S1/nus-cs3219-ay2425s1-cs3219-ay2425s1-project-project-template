@@ -3,6 +3,9 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb-user-service
+    # expose port for testing purposes or to view database in MongoDB Compass
+    # ports:
+    #   - "27017:27017"
     volumes:
       - ./mongo-data:/data/db
     env_file:
@@ -11,7 +14,7 @@ services:
     restart: no
 
   g38-user-service:
-    image: g38-user-service:latest
+    image: delishad21/g38-user-service:latest
     container_name: user-service
     env_file:
       - .env  # Loads environment variables from .env file

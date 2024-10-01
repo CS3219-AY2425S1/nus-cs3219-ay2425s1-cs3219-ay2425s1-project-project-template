@@ -16,53 +16,37 @@
 ## Prerequisites
 
 1. Clone this repository to your local machine.
-2. Ensure you have the following installed:
-   - Docker
+2. Ensure you have Docker installed.
 3. (Optional) Sign up for a MongoDB Atlas account
-   - The docker compose file is configured to use a local MongoDB instance by default. If you would like to use a remote MongoDB instance, you can follow the instructions in the "Remote DB Setup" section below.
+   - The docker compose file is configured to use a local MongoDB instance by default. If you would like to use a remote MongoDB instance, you can follow the instructions in the ["Remote DB Setup"](#remote-db-setup-mongodb-atlas-optional) section below.
 
-## Remote DB Setup (MongoDB Atlas) (Optional)
-
-### For Question Service
-
-1. Create a Cluster: Set up a new cluster and choose the free tier
-
-      ![unnamed](https://github.com/user-attachments/assets/8f539f32-a260-481c-a9a3-2e307ada9e2c)
-
-2. Create a Database: Click on the "Collections" tab and create a new database with the name “peerprep” and a collection called “questions”.
-
-      ![unnamed](https://github.com/user-attachments/assets/ccc3ec08-6b4e-4a1c-84f2-4517b70b86f4)
-      ![unnamed](https://github.com/user-attachments/assets/371b3a83-c85c-4704-835e-5195f11ae77e)
-      ![unnamed](https://github.com/user-attachments/assets/1c161b4a-1b39-4294-a9eb-629b36f571cc)
-
-3. Network Access: Allow access from your IP address by adding it in the "Network Access" tab.
-
-      ![unnamed](https://github.com/user-attachments/assets/ec658c5a-6098-4a13-a4bd-7262dd1d8f29)
-
-4. Database User: Create a new database user with read and write access to your database.
-
-      ![unnamed](https://github.com/user-attachments/assets/800d4194-bb83-4411-abc9-d0f3ca51d107)
-      ![unnamed](https://github.com/user-attachments/assets/d7ab1387-af80-44b7-8571-b74530ee320b)
-
-5. Return to the cluster menu and click “connect”, followed by “compass”. Obtain the connection string to the database. Save this for later use in the backend.
-
-      ![unnamed](https://github.com/user-attachments/assets/51f90e13-614f-4bc9-8e06-1ceae9d63b4d)
-      ![unnamed](https://github.com/user-attachments/assets/1e2cea05-7c6f-4d5f-b30a-5365969c1427)
-      ![unnamed](https://github.com/user-attachments/assets/6530e2aa-87ec-44c4-807a-ef587b9935f1)
 
 ## Spinning Up Docker Containers
 
-1. cd into the question-service directory
-2. Install dependencies – Ensure you have Node.js and npm installed on your machine. You can install the project dependencies by running npm install
-3. Set up environment variables – Create a .env file in the question-service directory of the project and include the following environment variable: `MONGODB_URI=<Your MongoDB connection string (obtained earlier)>`
-4. Run the backend server – After setting up the environment variables and MongoDB, you can start the server using npm run dev. This command will start the backend server in development mode and listen for API requests.
+### Question Service
 
-**Common Issue and Troubleshooting:**
+1. cd into the question-service directory
+2. Duplicate the .env.sample file and rename it to .env
+   - If you wish to, you can modify the values in the .env file
+
+      | **Variable** | **Description** | **Default Value** |
+      |--------------|-----------------|-------------------|
+      | MONGODB_URI  | MongoDB URI     | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here |
+      | QUESTION_PORT         | Port to run the service | 8003 |
+      | MONGO_INITDB_ROOT_USERNAME | MongoDB root username | root |
+      | MONGO_INITDB_ROOT_PASSWORD | MongoDB root password | password |
+
+3. Run `docker-compose up` to start the question service.
+   - If you keyed in a remote MongoDB URI in the .env file, the MongoDB container will not be started. The question service will connect to the remote MongoDB instance instead.
+
+#### Common Issue and Troubleshooting
 Issue: MongoParseError: URI malformed
 - Solution: Ensure that the MONGODB_URI in your .env file is correctly formatted with the right username, password, and database name.
 
-**Testing of the backend server:**
-You can now test the API endpoints using Postman or any API testing tool. The server should be running on http://localhost:8003/api/questions
+#### Testing of the backend server
+
+You can now test the API endpoints using Postman or any API testing tool. By default, the server should be running on <http://localhost:8003/>
+
 | **Operation**            | **Method** | **Endpoint**                               | **Params/Request Body**                                                                                                                                             |
 |--------------------------|------------|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Create a question**     | POST       | `http://localhost:8003/api/questions`      | `{ "title": <string>, "description": <string>, "category": <an array of strings>, "complexity": <string>, "templateCode": <string>, "testCases": <an array of strings> }` |
@@ -71,7 +55,22 @@ You can now test the API endpoints using Postman or any API testing tool. The se
 | **Retrieve questions (with filter)** | GET        | `http://localhost:8003/api/questions?<params>` | `?title=`, `?category=`, `?page=`, `?complexity=`, `?sort=`. Filters can be stacked. Multiple categories: `?category=Algorithms&category=Arr&category=Database`. Sorting: `?sort=title` (ascending), `?sort=-title` (descending) |
 | **Retrieve a question**   | GET        | `http://localhost:8003/api/questions/<id>` | `id`: refers to the question id (1-indexed)                                                                                                                           |
 
+### User Service
+
+1. cd into the user-service directory
+2. Duplicate the .env.sample file and rename it to .env
+   - If you wish to, modify the values in the .env file to change the port that the service is hosted on.
+
+      | **Variable** | **Description** | **Default Value** |
+      |--------------|-----------------|-------------------|
+      | MONGODB_URI  | MongoDB URI     | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here|
+      | MONGO_INITDB_ROOT_USERNAME | MongoDB root username | root |
+      | MONGO_INITDB_ROOT_PASSWORD | MongoDB root password | password |
+      | USER_PORT         | Port to run the service | 8004 |
+      | JWT_SECRET | Secret for creating JWT signature | you-can-replace-this-with-your-own-secret |
+
 ### Frontend Setup
+
 1. Navigate to the frontend directory: cd frontend/peerprep
 2. Install dependencies – Ensure you have Node.js and npm installed on your machine. You can install the project dependencies by running npm install
 3. Run the Development Server. Ensure that the backend is running on localhost:8003. Start the development server by running the following command: npm run dev
@@ -90,5 +89,74 @@ You can now test the API endpoints using Postman or any API testing tool. The se
    ```
    Now restart the application and you should be able to upload files in the markdown editor.
 
+
+## Remote DB Setup (MongoDB Atlas) (Optional)
+
+1. Visit the MongoDB Atlas Site [https://www.mongodb.com/atlas](https://www.mongodb.com/atlas) and click on "Try Free"
+
+2. Sign Up/Sign In with your preferred method.
+
+3. You will be greeted with welcome screens. Feel free to skip them till you reach the Dashboard page.
+
+4. Create a Database Deployment by clicking on the green `+ Create` Button:
+
+![alt text](./GuideAssets/Creation.png)
+
+5. Make selections as followings:
+
+- Select Shared Cluster
+- Select `aws` as Provider
+
+![alt text](./GuideAssets/Selection1.png)
+
+- Select `Singapore` for Region
+
+![alt text](./GuideAssets/Selection2.png)
+
+- Select `M0 Sandbox` Cluster (Free Forever - No Card Required)
+
+> Ensure to select M0 Sandbox, else you may be prompted to enter card details and may be charged!
+
+![alt text](./GuideAssets/Selection3.png)
+
+- Leave `Additional Settings` as it is
+
+- Provide a suitable name to the Cluster
+
+![alt text](./GuideAssets/Selection4.png)
+
+6. You will be prompted to set up Security for the database by providing `Username and Password`. Select that option and enter `Username` and `Password`. Please keep this safe as it will be used in User Service later on.
+
+![alt text](./GuideAssets/Security.png)
+
+7. Next, click on `Add my Current IP Address`. This will whiteliste your IP address and allow you to connect to the MongoDB Database.
+
+![alt text](./GuideAssets/Network.png)
+
+8. Click `Finish and Close` and the MongoDB Instance should be up and running.
+
+9. The connection string can be found by clicking on the `Connect` button on the Cluster Overview Page. followed by `Drivers`.
+
+![alt text](./GuideAssets/connection1.png)
+
+![alt text](./GuideAssets/connection2.png)
+
+![alt text](./GuideAssets/connection3.png)
+
+## Whitelisting All IP's
+
+1. Select `Network Access` from the left side pane on Dashboard.
+
+![alt text](./GuideAssets/SidePane.png)
+
+2. Click on the `Add IP Address` Button
+
+![alt text](./GuideAssets/AddIPAddress.png)
+
+3. Select the `ALLOW ACCESS FROM ANYWHERE` Button and Click `Confirm`
+
+![alt text](./GuideAssets/IPWhitelisting.png)
+
+Now, any IP Address can access this Database.
 
 
