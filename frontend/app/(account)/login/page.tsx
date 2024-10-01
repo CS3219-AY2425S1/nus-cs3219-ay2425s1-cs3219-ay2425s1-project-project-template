@@ -16,6 +16,7 @@ export default function LoginPage() {
   const handleSubmit = async () => {
     try {
       await loginUser(email, password);
+      toast.closeAll();
       toast({
         title: 'Success',
         description: 'Logged in successfully',
@@ -26,9 +27,10 @@ export default function LoginPage() {
       });
       router.push('/questions');
     } catch (error) {
+      toast.closeAll();
       toast({
         title: 'Error',
-        description: 'Invalid email/username or password',
+        description: 'Invalid email or password',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -49,9 +51,9 @@ export default function LoginPage() {
     <Stack spacing={4} className='bg-[#E2E8F0] p-7 rounded-lg' width='450px'>
       <Text fontSize='20px' color='black' as='b' mb='10px'>Login</Text>
       <FormControl>
-        <FormLabel fontSize='15px' color='black'>Email Address or Username</FormLabel>
+        <FormLabel fontSize='15px' color='black'>Email Address</FormLabel>
         <Input
-          placeholder='Enter your email address or username'
+          placeholder='Enter your email address'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           bg='white'

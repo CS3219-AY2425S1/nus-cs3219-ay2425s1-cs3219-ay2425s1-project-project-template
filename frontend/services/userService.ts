@@ -19,3 +19,22 @@ export const loginUser = async (email: string, password: string) => {
     throw error; 
   }
 };
+
+export const verifyToken = async () => {
+  const accessToken = localStorage.getItem('authToken');
+  if (!accessToken) {
+    return false;
+  }
+  try {
+    const response = await axios.get('http://localhost:8003/auth/verify-token', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log('Token verified');
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    throw error;
+  }
+}

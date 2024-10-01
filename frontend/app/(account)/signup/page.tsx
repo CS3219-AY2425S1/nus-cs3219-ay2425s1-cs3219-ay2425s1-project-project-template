@@ -17,6 +17,7 @@ export default function SignupPage() {
 
   const handleSignup = async () => {
     if (!email || !username || !password || !rePassword) {
+      toast.closeAll();
       toast({
         title: 'Error',
         description: 'All fields are required',
@@ -28,6 +29,7 @@ export default function SignupPage() {
     }
 
     if (password !== rePassword) {
+      toast.closeAll();
       toast({
         title: 'Error',
         description: 'Passwords do not match',
@@ -41,6 +43,7 @@ export default function SignupPage() {
 
     try {
       await createUser(username, email, password);
+      toast.closeAll();
       toast({
         title: 'Success',
         description: 'Account created successfully',
@@ -51,6 +54,7 @@ export default function SignupPage() {
       });
       router.push('/login');
     } catch (error) {
+      toast.closeAll();
       toast({
         title: 'Error',
         description: 'An error occurred. Please try again.',
