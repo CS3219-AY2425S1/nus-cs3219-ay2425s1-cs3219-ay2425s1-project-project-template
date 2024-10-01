@@ -1,8 +1,10 @@
-import Datatable from '@/components/customs/datatable'
-import { mockSessionsData } from '@/mock-data'
 import { IPagination, ISession, ISortBy, SortDirection } from '@/types'
 import { useEffect, useState } from 'react'
+
+import Datatable from '@/components/customs/datatable'
 import { columns } from './columns'
+import { mockSessionsData } from '@/mock-data'
+import useProtectedRoute from '@/hooks/UseProtectedRoute'
 
 export default function Sessions() {
     const [data, setData] = useState<ISession[]>([])
@@ -31,6 +33,10 @@ export default function Sessions() {
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
     }
+
+    const { loading } = useProtectedRoute()
+
+    if (loading) return null
 
     return (
         <div className="m-8">

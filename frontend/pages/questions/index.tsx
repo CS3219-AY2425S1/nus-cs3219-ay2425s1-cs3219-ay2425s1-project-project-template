@@ -28,6 +28,7 @@ import Datatable from '@/components/customs/datatable'
 import { Role } from '@repo/user-types'
 import { capitalizeFirst } from '@/util/string-modification'
 import { toast } from 'sonner'
+import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { useSession } from 'next-auth/react'
 
 export default function Questions() {
@@ -100,6 +101,10 @@ export default function Questions() {
     }
 
     const [isInit, setIsInit] = useState(false)
+
+    const { loading } = useProtectedRoute()
+
+    if (loading) return null
 
     useEffect(() => {
         if (!isInit) {

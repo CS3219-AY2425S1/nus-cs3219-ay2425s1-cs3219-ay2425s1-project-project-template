@@ -3,7 +3,7 @@
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
-import { useSession } from 'next-auth/react'
+import useProtectedRoute from '@/hooks/UseProtectedRoute'
 
 export default function Home() {
     const progressData = [
@@ -30,7 +30,9 @@ export default function Home() {
         },
     ]
 
-    const { data: session } = useSession()
+    const { session, loading } = useProtectedRoute()
+
+    if (loading) return null
 
     return (
         <div className="my-4">

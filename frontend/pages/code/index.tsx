@@ -1,10 +1,3 @@
-import { DifficultyLabel } from '@/components/customs/difficulty-label'
-import { Button } from '@/components/ui/button'
-import CustomLabel from '@/components/ui/label'
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
-import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
-import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-javascript'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-java'
@@ -14,13 +7,23 @@ import 'ace-builds/src-noconflict/mode-ruby'
 import 'ace-builds/src-noconflict/mode-typescript'
 import 'ace-builds/src-noconflict/theme-monokai'
 import 'ace-builds/src-noconflict/ext-language_tools'
-import LanguageModeSelect from './language-mode-select'
-import CustomTabs from '@/components/customs/custom-tabs'
-import { mockChatData, mockCollaboratorData, mockQuestionData, mockTestCaseData, mockUserData } from '@/mock-data'
+
+import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
 import { IQuestion, ITestcase } from '@/types'
-import TestcasesTab from './testcase-tab'
-import { useRouter } from 'next/router'
+import { mockChatData, mockCollaboratorData, mockQuestionData, mockTestCaseData, mockUserData } from '@/mock-data'
+import { useEffect, useRef, useState } from 'react'
+
+import AceEditor from 'react-ace'
+import { Button } from '@/components/ui/button'
+import CustomLabel from '@/components/ui/label'
+import CustomTabs from '@/components/customs/custom-tabs'
+import { DifficultyLabel } from '@/components/customs/difficulty-label'
+import Image from 'next/image'
+import LanguageModeSelect from './language-mode-select'
 import React from 'react'
+import TestcasesTab from './testcase-tab'
+import useProtectedRoute from '@/hooks/UseProtectedRoute'
+import { useRouter } from 'next/router'
 
 interface ICollaborator {
     name: string
@@ -93,6 +96,10 @@ export default function Code() {
             e.currentTarget.value = ''
         }
     }
+
+    const { loading } = useProtectedRoute()
+
+    if (loading) return null
 
     // Scroll to the bottom of the chat box when new messages are added
     useEffect(() => {
