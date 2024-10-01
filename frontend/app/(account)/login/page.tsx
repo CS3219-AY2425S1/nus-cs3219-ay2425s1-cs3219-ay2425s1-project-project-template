@@ -2,22 +2,41 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Input, Text, Button, FormControl, FormLabel } from '@chakra-ui/react';
+import { Stack, Input, Text, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
 import Link from 'next/link';
+import { loginUser } from '@/services/userService';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const toast = useToast();
   const router = useRouter();
 
-  const handleSubmit = () => {
-    if ((email === 'test@gmail.com' && password === 'pw') || (email === 'test' && password === 'pw')) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async () => {
+    try {
+      await loginUser(email, password);
+      toast({
+        title: 'Success',
+        description: 'Logged in successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
       router.push('/questions');
-    } else {
-      alert('Invalid credentials');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Invalid email/username or password',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      setEmail('');
+      setPassword('');
     }
-    setEmail('');
-    setPassword('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
