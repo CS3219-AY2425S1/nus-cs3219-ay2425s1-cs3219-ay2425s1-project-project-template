@@ -3,18 +3,20 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb-user-service
-    ports:
-      - "27017:27017"
     volumes:
       - ./mongo-data:/data/db
     env_file:
       - .env
+    entrypoint: /bin/sh -c 'if [ -z "$MONGODB_URI" ]; then echo "Starting MongoDB..."; mongod --bind_ip_all; else echo "MONGODB_URI is set. Shutting down."; exit 1; fi'
+    restart: no
 
   g38-user-service:
     image: g38-user-service:latest
     container_name: user-service
     env_file:
       - .env  # Loads environment variables from .env file
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/user-service?authSource=admin}  # Fallback to local MongoDB if MONGODB_URI is not set
     ports:
       - "${USER_PORT}:${USER_PORT}"  # Bind port using env variable
     depends_on:
