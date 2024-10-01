@@ -8,46 +8,7 @@
 - [Johan](https://github.com/delishad21)
 - [Joshua](https://github.com/dloh2236)
 
-## Milestone 2 Submission - Question Service SPA
-
-For viewing questions, we opted for two types of views. The first is a master view presented as a table, allowing users to quickly browse 10 questions per page with essential details. On the backend, we retrieve only the necessary information to keep the query lean for faster response times. Users can navigate through the questions using pagination, which limits the view to 10 questions per page for a cleaner and more user-friendly interface.
-
-
-### Retrieval of Questions (Master view)
-
-   ![unnamed](https://github.com/user-attachments/assets/20dfa280-94c4-440d-851a-991abef8d38d)
-
-#### Table-view Features:
-
-- **Pagination:** Displays 10 questions per page with navigation options to jump to specific pages or use next/previous buttons for smooth browsing.
-- **Search:** A non-case-sensitive search feature allows users to quickly find specific questions.
-- **Filter by Complexity:** Users can filter questions by specific complexity levels (Easy, Medium, Hard).
-- **Filter by Category:** Select one or more categories to filter questions. Questions containing any of the selected categories will appear in the table.
-- **Total Question Count:** Displays the total number of questions based on the applied filters.
-- **Quick Actions:** Users can easily edit or delete a question directly from the table.
-- **Sort by Title:** Sort questions alphabetically by title for easier navigation.
-- **Sort by Complexity:** Sort questions by difficulty level, either increasing or decreasing.
-- **Detailed View:** Click on a question to see more detailed information.
-- **Asynchronous Loading:** All modifications and loading of questions are done asynchronously, fetching 10 questions at a time for optimal performance.
-- **Question Caching:** Previously retrieved questions are cached to enable faster reloading, ensuring quick access to both the list and individual question details.
-
-### Retrieval of Questions (Detailed View) with Form for Editing and Adding Questions
-
-   ![unnamed (1)](https://github.com/user-attachments/assets/ba7feb97-07bd-4df3-8f13-a0908d1ee575)
-
-#### Detailed-View Features:
-
-- **Input Validation:** Ensures that both input and output fields are filled for each test case, and prevents the submission of duplicate question titles.
-- **Multiple Category Selection:** Allows users to tag questions with multiple categories, providing a list of existing categories while also enabling users to create new ones.
-- **Template Code Input with Syntax Highlighting:** Supports syntax highlighting and auto-completion for template code input, with the option to switch between different programming languages for tailored syntax highlighting.
-
-### Confirmation Messages (Modals)
-
-   ![unnamed](https://github.com/user-attachments/assets/6bdeb466-beb1-4251-9703-b1939205cbb0)
-   
-   ![unnamed](https://github.com/user-attachments/assets/21ff6ebe-b2ca-464f-a3d1-488b6970ebd0)
-
-Confirmation messages are shown as pop-up modals to improve user feedback during actions like creating, updating, or deleting a question. These modals provide clear responses, confirming success or asking for deletion confirmation. This approach reduces mistakes, enhances clarity, and offers a smoother user experience.
+## Milestone 3 Submission - Containerization
 
 
 # Setting Up the Project
@@ -56,11 +17,13 @@ Confirmation messages are shown as pop-up modals to improve user feedback during
 
 1. Clone this repository to your local machine.
 2. Ensure you have the following installed:
-   - Node.js (v16.0 or higher) – Download here
-   - npm (comes with Node.js)
-3. Sign up for a MongoDB Atlas account
+   - Docker
+3. (Optional) Sign up for a MongoDB Atlas account
+   - The docker compose file is configured to use a local MongoDB instance by default. If you would like to use a remote MongoDB instance, you can follow the instructions in the "Remote DB Setup" section below.
 
-## Remote DB Setup (MongoDB Atlas)
+## Remote DB Setup (MongoDB Atlas) (Optional)
+
+### For Question Service
 
 1. Create a Cluster: Set up a new cluster and choose the free tier
 
@@ -72,7 +35,7 @@ Confirmation messages are shown as pop-up modals to improve user feedback during
       ![unnamed](https://github.com/user-attachments/assets/371b3a83-c85c-4704-835e-5195f11ae77e)
       ![unnamed](https://github.com/user-attachments/assets/1c161b4a-1b39-4294-a9eb-629b36f571cc)
 
-3. Network Access: Allow access from your IP address by adding it in the "Network Access" tab. 
+3. Network Access: Allow access from your IP address by adding it in the "Network Access" tab.
 
       ![unnamed](https://github.com/user-attachments/assets/ec658c5a-6098-4a13-a4bd-7262dd1d8f29)
 
@@ -87,7 +50,7 @@ Confirmation messages are shown as pop-up modals to improve user feedback during
       ![unnamed](https://github.com/user-attachments/assets/1e2cea05-7c6f-4d5f-b30a-5365969c1427)
       ![unnamed](https://github.com/user-attachments/assets/6530e2aa-87ec-44c4-807a-ef587b9935f1)
 
-## Backend Setup
+## Spinning Up Docker Containers
 
 1. cd into the question-service directory
 2. Install dependencies – Ensure you have Node.js and npm installed on your machine. You can install the project dependencies by running npm install
