@@ -37,6 +37,8 @@ The Question Service is built with Go, utilizing Firestore as the database and C
 go mod tidy
 ```
 
+4. Create the `.env` file from copying the `.env.example`, and fill in the `FIREBASE_CREDENTIAL_PATH` with the path of the JSON file.
+
 ### Running the Application
 
 To start the server, run the following command:
