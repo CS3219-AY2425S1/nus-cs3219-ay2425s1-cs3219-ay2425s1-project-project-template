@@ -17,7 +17,7 @@ const EditerMarkdown = dynamic(
 );
 
 function MarkdownEditor() {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<string | undefined>("");
   const { theme } = useTheme();
 
   return (

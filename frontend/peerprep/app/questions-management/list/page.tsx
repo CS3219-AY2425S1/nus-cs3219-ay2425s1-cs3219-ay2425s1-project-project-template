@@ -1,7 +1,7 @@
 "use client";
 import QuestionsTable from "@/components/questionstable";
 import Questions from "../mockdata/sample_getAllQuestions.json";
-import { Question, setCategoryOptions } from "./columns";
+import { Question } from "./columns";
 import useSWR from "swr";
 
 // async function getQuestions(): Promise<Question[]> {

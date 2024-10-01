@@ -7,6 +7,7 @@ import {
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import BoxIcon from "./boxicons";
+import React from "react";
 
 interface ErrorModalProps {
   isOpen: boolean;

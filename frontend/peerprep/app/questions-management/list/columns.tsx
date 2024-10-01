@@ -42,7 +42,7 @@ export const complexityColorMap: Record<
 
 export const complexityOptions = ["Easy", "Medium", "Hard"];
 
-export function renderCell(
+export function RenderCell(
   question: Question,
   columnKey: React.Key,
   handleDelete: (question: Question) => void
@@ -50,7 +50,7 @@ export function renderCell(
   const cellValue = question[columnKey as keyof Question];
   const router = useRouter();
 
-  const handleRowAction = (key) => {
+  const handleRowAction = (key: any) => {
     router.push(`/questions-management/edit/${key}`);
   };
 

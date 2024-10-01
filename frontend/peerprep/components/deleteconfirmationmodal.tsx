@@ -7,6 +7,7 @@ import {
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import BoxIcon from "./boxicons";
+import React from "react";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -30,8 +31,9 @@ export const DeleteConfirmationModal: React.FC<
               Delete Question?
             </ModalHeader>
             <ModalBody>
-              You are about to delete the question "{questionToDelete?.title}"
-              permanently. Are you sure you want to proceed?
+              You are about to delete the question &quot;
+              {questionToDelete?.title}&quot; permanently. Are you sure you want
+              to proceed?
             </ModalBody>
             <ModalFooter>
               <Button color="primary" variant="light" onPress={onClose}>

@@ -180,7 +180,10 @@ export default function EditQuestionForm({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
-    updatedTestCases[index][event.target.name] = event.target.value;
+    const { name, value } = event.target;
+    if (name === "input" || name === "output") {
+      updatedTestCases[index][name] = value;
+    }
     setTestCases(updatedTestCases);
   };
 

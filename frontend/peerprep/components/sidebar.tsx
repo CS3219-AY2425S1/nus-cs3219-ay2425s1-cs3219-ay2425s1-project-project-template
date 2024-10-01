@@ -17,7 +17,7 @@ export const Sidebar = () => {
         className="w-fit"
       >
         {siteConfig.navItems
-          .map((item) => (
+          .map((item: any) => (
             <ListboxItem
               key={item.label}
               startContent={

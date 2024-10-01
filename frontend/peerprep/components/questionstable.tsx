@@ -1,7 +1,7 @@
 import {
   columns,
   Question,
-  renderCell,
+  RenderCell,
   complexityOptions,
 } from "@/app/questions-management/list/columns";
 import {
@@ -23,6 +23,7 @@ import {
   Spinner,
   Autocomplete,
   AutocompleteItem,
+  SharedSelection,
 } from "@nextui-org/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BoxIcon from "./boxicons";
@@ -68,7 +69,9 @@ export default function QuestionsTable() {
   const [filterValue, setFilterValue] = useState("");
   const hasSearchFilter = Boolean(filterValue);
   const [complexityFilter, setComplexityFilter] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState<
+    string | SharedSelection
+  >("all");
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "title",
     direction: "ascending",
@@ -144,7 +147,7 @@ export default function QuestionsTable() {
     router.push("/questions-management/add");
   };
 
-  const handleRowAction = (key) => {
+  const handleRowAction = (key: any) => {
     router.push(`/questions-management/edit/${key}`);
   };
 
@@ -317,7 +320,7 @@ export default function QuestionsTable() {
         }}
         selectionMode="single"
         sortDescriptor={sortDescriptor}
-        sortDescritptor={setSortDescriptor}
+        // sortDescritptor={setSortDescriptor}
         onSortChange={setSortDescriptor}
         onRowAction={(key) => handleRowAction(key)}
       >
@@ -344,7 +347,7 @@ export default function QuestionsTable() {
             <TableRow key={question.question_id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(question, columnKey, handleDelete)}
+                  {RenderCell(question, columnKey, handleDelete)}
                 </TableCell>
               )}
             </TableRow>
