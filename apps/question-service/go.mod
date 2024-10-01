@@ -10,6 +10,8 @@ require (
 	google.golang.org/grpc v1.67.0
 )
 
+require github.com/joho/godotenv v1.5.1
+
 require (
 	cloud.google.com/go v0.115.1 // indirect
 	cloud.google.com/go/auth v0.9.4 // indirect

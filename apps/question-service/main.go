@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
 	"google.golang.org/api/option"
 )
 
@@ -33,9 +34,16 @@ func initFirestore(ctx context.Context, credentialsPath string) (*firestore.Clie
 }
 
 func main() {
+	// Load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// Initialize Firestore client
 	ctx := context.Background()
-	client, err := initFirestore(ctx, "cs3219-g24-firebase-adminsdk-9cm7h-b1675603ab.json")
+	firebaseCredentialPath := os.Getenv("FIREBASE_CREDENTIAL_PATH")
+	client, err := initFirestore(ctx, firebaseCredentialPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize Firestore client: %v", err)
 	}
