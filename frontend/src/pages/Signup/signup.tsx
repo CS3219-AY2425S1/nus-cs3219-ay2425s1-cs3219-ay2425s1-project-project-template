@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
@@ -62,17 +63,22 @@ export default function SignupPage() {
         <div className="relative flex flex-col">
           <input className={textBoxStyle} type="password" placeholder="Enter password again"
             {...register("cfmPassword",
-              { required: { value: true, message: "Please enter password again." },
-              validate: (value) => {
-                if (value != password) {
-                  return "Password do not match."
+              {
+                required: { value: true, message: "Please enter password again." },
+                validate: (value) => {
+                  if (value != password) {
+                    return "Password do not match."
+                  }
                 }
-              }})} />
+              })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.cfmPassword?.message}</span>
         </div>
         <div className="flex justify-center items-center">
-          <button disabled={isPending} className="bg-buttonColour px-12 py-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">Sign Up</button>
+          <button disabled={isPending} className="flex bg-buttonColour w-1/2 justify-center items-center gap-x-2 p-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">
+          {isPending &&<RotateRightIcon className="animate-spin" />}
+          {isPending ? "Processing..." : "Sign Up"}
+          </button>
         </div>
       </form>
       <span>Already have an account? <Link className="text-buttonColour hover:underline" to="/login">Login</Link> now!</span>

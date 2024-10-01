@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
@@ -16,7 +17,7 @@ export default function LoginPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Record<string, string>) => {
-      console.log(data)
+      console.log(data);
       return axios.post("Replace with login API", data)
     },
     onSuccess: (data) => {
@@ -55,7 +56,10 @@ export default function LoginPage() {
         </div>
         <div className="flex justify-between items-center">
           <Link className="hover:underline" to="/forgotpassword">Forgot Password?</Link>
-          <button disabled={isPending} className="bg-buttonColour px-8 py-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">Login</button>
+          <button disabled={isPending} className="flex bg-buttonColour w-1/2 justify-center items-center gap-x-2 p-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">
+            {isPending && <RotateRightIcon className="animate-spin" />}
+            {isPending ? "Processing..." : "Login"}
+          </button>
         </div>
       </form>
       <span>Not Registered? <Link className="text-buttonColour hover:underline" to="/signup">Sign up</Link> now!</span>
