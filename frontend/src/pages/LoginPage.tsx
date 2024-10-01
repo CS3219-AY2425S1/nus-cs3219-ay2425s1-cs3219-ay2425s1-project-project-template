@@ -16,11 +16,15 @@ export default function LoginPage() {
 	}
 
 	const onSuccess = async (credentialResponse: CredentialResponse) => {
+		try {
+			
+
 		const token = credentialResponse.credential;
 		// console.log("SENDING")
 		// console.log(token);
 
 		const { data: { jwtToken } } = await axios.post('http://localhost:3001/auth/google/callback', { token })
+		
 		if (jwtToken) {
 			// console.log(jwtToken);
 			setLoggedIn(true);
@@ -28,6 +32,9 @@ export default function LoginPage() {
 			localStorage.setItem("access_token", jwtToken);
 			navigate('/questions-page');
 		}
+	} catch (error) {
+		alert("Error logging in: " + error);		
+	}
 	};
 
 	return (
