@@ -67,7 +67,8 @@ public class QuestionService implements QuestionServiceInterface {
     @Override
     public Question getQuestionByTitle(String title) {
         return repository.findQuestionByTitle(title)
-                .orElseThrow(() -> new QuestionWithTitleNotFoundException(title));
+            .orElseThrow(() ->
+                new QuestionWithTitleNotFoundException(title));
     }
 
     /**
@@ -101,12 +102,14 @@ public class QuestionService implements QuestionServiceInterface {
         if (!QuestionValidator.isValidQuestion(updatedQuestion)) {
             throw new IllegalArgumentException("Invalid new question data");
         }
-        Question ExistingQuestion = repository
+
+        Question oldQuestion = repository
             .findById(id)
             .orElseThrow(() -> new QuestionNotFoundException(id));
 
-        if (!ExistingQuestion.getTitle().equals(updatedQuestion.getTitle()) &&
-                repository.findQuestionByTitle(updatedQuestion.getTitle()).isPresent()) {
+        if (!oldQuestion.getTitle().equals(updatedQuestion.getTitle())
+            && repository.findQuestionByTitle(updatedQuestion.getTitle())
+                .isPresent()) {
             throw new TitleAlreadyExistsException(updatedQuestion.getTitle());
         }
 
