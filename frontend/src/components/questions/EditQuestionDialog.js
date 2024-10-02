@@ -4,6 +4,7 @@ import { topics } from '../../assets/topics';
 import ErrorMessage from './ErrorMessageDialog'
 import questionService from '../../services/question-service';
 import '../../styles/create-question-dialog.css';
+import useAuth from '../../hooks/useAuth';
 
 const difficulty_lvl = [
   { value: 'Easy', label: 'Easy' },
@@ -12,6 +13,8 @@ const difficulty_lvl = [
 ];
 
 const EditQuestion = ({ open, handleClose, question }) => {
+    const { cookies } = useAuth();
+
     const [questionData, setQuestionData] = React.useState({
       title: question?.title || '',
       description: question?.description || '',
@@ -70,7 +73,7 @@ const EditQuestion = ({ open, handleClose, question }) => {
       }
   
       try {
-          await questionService.updateQuestion(question._id, formData); // Assuming updateQuestion handles the API request for updating
+          await questionService.updateQuestion(question._id, cookies, formData); // Assuming updateQuestion handles the API request for updating
           window.location.reload(); // Refresh the page after the update
           handleClose();
       } catch (error) {

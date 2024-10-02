@@ -5,7 +5,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePag
 import ErrorMessage from './ErrorMessageDialog'
 import QuestionDialog from './QuestionDialog';
 import questionService from '../../services/question-service';
-
+import useAuth from '../../hooks/useAuth';
 
 const columns = [
   { id: 'index', label: 'ID', minWidth: 10 },
@@ -16,6 +16,8 @@ const columns = [
 ];
 
 export default function QuestionTable() {
+  const { cookies } = useAuth();
+
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -39,7 +41,7 @@ export default function QuestionTable() {
   useEffect(() => {
       const fetchQuestions = async () => {
         try {
-          const response = await questionService.getAllQuestions();
+          const response = await questionService.getAllQuestions(cookies);
           setQuestions(response);
         } catch (error) {
             setErrorMessage(error.message); // Set error message

@@ -4,6 +4,7 @@ import { topics } from '../../assets/topics';
 import ErrorMessage from './ErrorMessageDialog'
 import questionService from '../../services/question-service';
 import '../../styles/create-question-dialog.css';
+import useAuth from '../../hooks/useAuth';
 
 const difficulty_lvl = [
   { value: 'Easy', label: 'Easy' },
@@ -12,6 +13,8 @@ const difficulty_lvl = [
 ];
 
 const CreateQuestion = ({ open, handleClose }) => {
+    const { cookies } = useAuth();
+
     const [difficulty, setDifficulty] = React.useState('Easy'); // Default difficulty
     const [imageFiles, setImageFiles] = React.useState([]); // State to hold image files
     const [errorOpen, setErrorOpen] = React.useState(false); // State to control error dialog visibility
@@ -60,7 +63,7 @@ const CreateQuestion = ({ open, handleClose }) => {
         }
 
         try {
-            await questionService.createQuestion(formData); // Call the createQuestion function
+            await questionService.createQuestion(cookies, formData); // Call the createQuestion function
             window.location.reload();
             handleClose(); // Close the dialog after submission
         } catch (error) {
