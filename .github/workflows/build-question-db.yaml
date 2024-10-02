@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: question-db
   COMMIT_TAG: ${{ github.ref_name }}
   LATEST_TAG: latest
-  IMAGE_TAG: ${{ env.COMMIT_TAG || env.LATEST_TAG }
+  IMAGE_TAG: ${{ env.COMMIT_TAG || env.LATEST_TAG }}
 
 jobs:
   build-and-push-image:
