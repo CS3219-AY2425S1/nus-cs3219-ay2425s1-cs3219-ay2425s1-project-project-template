@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
+import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Chip, Autocomplete, FormControl } from '@mui/material';
+import { topics } from '../../assets/topics';
 import ErrorMessage from './ErrorMessageDialog'
-import questionService from '../services/question-service';
-import '../styles/create-question-dialog.css';
+import questionService from '../../services/question-service';
+import '../../styles/create-question-dialog.css';
 
 const difficulty_lvl = [
   { value: 'Easy', label: 'Easy' },
@@ -15,6 +16,7 @@ const CreateQuestion = ({ open, handleClose }) => {
     const [imageFiles, setImageFiles] = React.useState([]); // State to hold image files
     const [errorOpen, setErrorOpen] = React.useState(false); // State to control error dialog visibility
     const [errorMessage, setErrorMessage] = React.useState(''); // State to store error message
+    const [selectedTopics, setSelectedTopics] = React.useState([]); // State to store selected topics
 
     const handleDifficultyChange = (event) => {
         setDifficulty(event.target.value);
@@ -22,6 +24,10 @@ const CreateQuestion = ({ open, handleClose }) => {
 
     const handleImageFilesChange = (event) => {
         setImageFiles(event.target.files);
+    };
+
+    const handleTopicChange = (event, newValue) => {
+        setSelectedTopics(newValue);
     };
 
     const handleErrorClose = () => {
@@ -35,8 +41,7 @@ const CreateQuestion = ({ open, handleClose }) => {
         const formElements = event.currentTarget.elements;
 
         // Append each topic individually
-        const topics = formElements.topic.value.split(',').map(topic => topic.trim());
-        topics.forEach(topic => formData.append('topic', topic));
+        selectedTopics.forEach(topic => formData.append('topic', topic));
 
         // Append each image URL individually
         const images = formElements.images.value.split(',').map(image => image.trim());
@@ -99,18 +104,32 @@ const CreateQuestion = ({ open, handleClose }) => {
                             inputProps={{ maxLength: 3000 }}
                             className="text-field"
                         />
-                        <TextField
-                            margin="dense"
-                            required
-                            id="topic"
-                            name="topic"
-                            label="Topics (comma separated and max 200 characters)"
-                            type="text"
-                            fullWidth
-                            multiline
-                            inputProps={{ maxLength: 200 }}
-                            className="text-field"
-                        />
+
+                        <FormControl fullWidth margin="dense">
+                            <Autocomplete
+                                multiple
+                                id="searchable-topics"
+                                options={topics}
+                                value={selectedTopics}
+                                onChange={handleTopicChange}
+                                filterSelectedOptions
+                                renderTags={(selected, getTagProps) =>
+                                    selected.map((option, index) => (
+                                    <Chip key={index} label={option} {...getTagProps({ index })} />
+                                    ))
+                                }
+                                renderInput={(params) => (
+                                    <TextField
+                                    {...params}
+                                    variant="outlined"
+                                    label="Topics"
+                                    placeholder="Search for topics"
+                                    />
+                                )}
+                                sx={{ width: '100%' }}
+                            />
+                        </FormControl>
+
                         <TextField
                             margin="dense"
                             fullWidth
