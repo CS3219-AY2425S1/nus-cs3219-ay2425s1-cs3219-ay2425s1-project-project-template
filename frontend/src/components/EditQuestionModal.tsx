@@ -2,32 +2,38 @@ import React from "react";
 import { useState } from "react";
 import DeleteQuestionModal from "./DeleteQuestionModal";
 import EditConfirmationModal from "./EditConfirmationModal";
+import ComplexityDropDown from "./ComplexityDropDown";
 
-const EditQuestionModal: React.FC<{
-  onClose: () => void;
-  oldDifficulty: string;
-  oldTopic: string[];
+interface EditQuestionModalProps {
+  oldComplexity: string;
+  oldCategory: string[];
   oldTitle: string;
-  oldDetails: string;
+  oldDescription: string;
   questionID: string;
+  onClose: () => void;
   fetchData: () => Promise<void>;
-}> = ({
-  onClose,
-  oldDifficulty,
-  oldTopic,
-  oldTitle,
-  oldDetails,
-  questionID,
-  fetchData,
+}
+
+const EditQuestionModal: React.FC<
+  EditQuestionModalProps> = ({
+    oldComplexity,
+    oldCategory,
+    oldTitle,
+    oldDescription,
+    questionID,
+    onClose,
+    fetchData,
 }) => {
-  const editQuestion = (
+
+  /* PUT request to API to edit question */
+  const editQuestion = async (
     questionID: string,
-    difficultyValue: string,
-    topicValue: string[],
+    complexityValue: string,
+    categoryValue: string[],
     titleValue: string,
-    detailsValue: string
+    descriptionValue: string
   ) => {
-    fetch(`http://localhost:8080/questions/${questionID}`, {
+    await fetch(`http://localhost:8080/questions/${questionID}`, {
       mode: "cors",
       method: "PUT",
       headers: {
@@ -37,17 +43,19 @@ const EditQuestionModal: React.FC<{
       body: JSON.stringify({
         id: questionID,
         title: titleValue,
-        description: detailsValue,
-        categories: topicValue,
-        complexity: difficultyValue,
+        description: descriptionValue,
+        categories: categoryValue,
+        complexity: complexityValue,
       }),
     })
       .then((response) => {
         if (!response.ok) {
           console.log(response);
-          throw new Error("title already exists");
+          throw new Error("Title already exists");
         } else {
           response.json();
+          closeEditConfirmationModal();
+          onClose();
           fetchData();
         }
       })
@@ -56,10 +64,8 @@ const EditQuestionModal: React.FC<{
         alert(
           "Error adding question. Your newly edited question may be a duplicate (having the same title as an existing question). Please try again."
         );
+        closeEditConfirmationModal();
       });
-
-    closeEditConfirmationModal();
-    onClose();
   };
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -71,75 +77,49 @@ const EditQuestionModal: React.FC<{
   const openEditConfirmationModal = () => setEditConfirmationModalOpen(true);
   const closeEditConfirmationModal = () => setEditConfirmationModalOpen(false);
 
-  const [newDifficultyValue, setNewDifficultyValue] = useState(oldDifficulty);
-  const [newTopicValue, setNewTopicValue] = useState(oldTopic);
+  const [newComplexityValue, setNewComplexityValue] = useState(oldComplexity);
+  const [newCategoryList, setNewCategoryList] = useState(oldCategory);
   const [newTitleValue, setNewTitleValue] = useState(oldTitle);
-  const [newDetailsValue, setNewDetailsValue] = useState(oldDetails);
+  const [newDescriptionValue, setNewDescriptionValue] = useState(oldDescription);
 
-  function getNewValues() {
-    const difficultyElement = document.getElementById(
-      "difficulty"
-    ) as HTMLSelectElement | null;
-    const difficultyValue = difficultyElement ? difficultyElement.value : "";
-    setNewDifficultyValue(difficultyValue);
-
-    const topicElement = document.getElementById(
-      "topic"
-    ) as HTMLInputElement | null;
-    const topicValue = topicElement ? topicElement.value : "";
-    const topicList = topicValue
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newCategoryValue = event.target.value;
+    const categoryList = newCategoryValue
       .split(",")
       .map((item) => item.trim())
       .filter((item) => item !== "");
-    setNewTopicValue(topicList);
-
-    const titleElement = document.getElementById(
-      "title"
-    ) as HTMLInputElement | null;
-    const titleValue = titleElement ? titleElement.value : "";
-    setNewTitleValue(titleValue);
-
-    const detailsElement = document.getElementById(
-      "details"
-    ) as HTMLInputElement | null;
-    const detailsValue = detailsElement ? detailsElement.value : "";
-    setNewDetailsValue(detailsValue);
+    setNewCategoryList(categoryList);
   }
 
-  function onDeleteConfirm() {
+  const onDeleteConfirm = () => {
     closeDeleteModal();
     onClose();
   }
 
-  function onEditConfirm() {
-    getNewValues();
-    editQuestion(
+  const onEditConfirm = async () => {
+    await editQuestion(
       questionID,
-      newDifficultyValue,
-      newTopicValue,
+      newComplexityValue,
+      newCategoryList,
       newTitleValue,
-      newDetailsValue
+      newDescriptionValue
     );
   }
 
   const onEditSubmit = () => {
-    getNewValues();
-
     /* Check if all fields are filled */
     if (
-      newDifficultyValue == "" ||
-      newTopicValue.length == 0 ||
+      newComplexityValue == "" ||
+      newCategoryList.length == 0 ||
       newTitleValue == "" ||
-      newDetailsValue == ""
+      newDescriptionValue == ""
     ) {
-      alert(
-        newDifficultyValue + newTopicValue + newTitleValue + newDetailsValue
-      );
+      //alert(newComplexityValue + newCategoryList + newTitleValue + newDescriptionValue);
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add("visible");
     } else {
       /* All fields are filled -> ask user to confirm the changes */
-      //alert(newDifficultyValue + newTopicValue + newTitleValue + newDetailsValue);
+
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add("hidden");
       openEditConfirmationModal();
@@ -171,45 +151,26 @@ const EditQuestionModal: React.FC<{
         </div>
 
         <div className="mt-3"></div>
-        {/* Difficulty */}
-        <div>
-          <label className="font-semibold">Complexity Level</label>
-          <div className="relative mt-1 shadow-md">
-            <select
-              name="difficulty"
-              id="difficulty"
-              defaultValue={oldDifficulty}
-              className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-            >
-              <option value="" disabled hidden>
-                Choose a difficulty level
-              </option>
-              <option value="EASY" className="text-green ">
-                Easy
-              </option>
-              <option value="MEDIUM" className="text-orange-500">
-                Medium
-              </option>
-              <option value="HARD" className="text-red-700">
-                Hard
-              </option>
-            </select>
-          </div>
-        </div>
+        {/* Complexity */}
+        <ComplexityDropDown 
+          currComplexity={oldComplexity} 
+          setComplexityValue={setNewComplexityValue} 
+          isDisabled={false} 
+        />
 
-        {/* Topic */}
+        {/* Category */}
         <div className="mt-2">
           <label className="font-semibold">Categories</label>
           <p className="text-xs text-gray-500">
-            Separate different topic categories using commas. E.g., Arrays,
+            Separate different category categories using commas. E.g., Arrays,
             Databases{" "}
           </p>
           <div className="relative mt-1 shadow-md">
             <input
               type="text"
-              name="topic"
-              id="topic"
-              defaultValue={oldTopic}
+              id="category"
+              defaultValue={oldCategory}
+              onChange={handleCategoryChange}
               className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
             ></input>
           </div>
@@ -221,23 +182,23 @@ const EditQuestionModal: React.FC<{
           <div className="relative mt-1 shadow-md">
             <input
               type="text"
-              name="title"
               id="title"
               defaultValue={oldTitle}
+              onChange={(event) => {setNewTitleValue(event.target.value);}}
               className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
             ></input>
           </div>
         </div>
 
-        {/* Question details */}
+        {/* Question description */}
         <div className="mt-2">
           <label className="font-semibold">Question description</label>
           <div className="relative mt-1 shadow-md">
             <textarea
-              name="details"
-              id="details"
-              defaultValue={oldDetails}
+              id="description"
+              defaultValue={oldDescription}
               rows={3}
+              onChange={(event) => {setNewDescriptionValue(event.target.value);}}
               className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
             ></textarea>
           </div>
@@ -245,12 +206,12 @@ const EditQuestionModal: React.FC<{
 
         {/* Action buttons */}
         <div className="mt-6">
-          <text
+          <p
             id="emptyMessage"
             className="flex justify-center text-red-500 hidden"
           >
             * Please fill in all the empty fields. *
-          </text>
+          </p>
           <div className="flex justify-evenly mt-2">
             <button
               onClick={openDeleteModal}
@@ -262,10 +223,10 @@ const EditQuestionModal: React.FC<{
               <DeleteQuestionModal
                 onClose={closeDeleteModal}
                 onDelete={onDeleteConfirm}
-                oldDifficulty={oldDifficulty}
-                oldTopic={oldTopic}
+                oldComplexity={oldComplexity}
+                oldCategory={oldCategory}
                 oldTitle={oldTitle}
-                oldDetails={oldDetails}
+                oldDescription={oldDescription}
                 questionID={questionID}
                 fetchData={fetchData}
               />
@@ -280,10 +241,10 @@ const EditQuestionModal: React.FC<{
               <EditConfirmationModal
                 onClose={closeEditConfirmationModal}
                 onEditConfirm={onEditConfirm}
-                newDifficultyValue={newDifficultyValue}
-                newTopicValue={newTopicValue}
+                newComplexityValue={newComplexityValue}
+                newCategoryList={newCategoryList}
                 newTitleValue={newTitleValue}
-                newDetailsValue={newDetailsValue}
+                newDescriptionValue={newDescriptionValue}
               />
             )}
             <button

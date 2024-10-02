@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useState} from "react";
+import ComplexityDropDown from "./ComplexityDropDown";
 
 interface AddQuestionModalProps {
   fetchData: () => Promise<void>;
@@ -9,20 +10,29 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   fetchData,
   onClose,
 }) => {
-  //const [difficultyValue, setDifficultyValue] = useState("");
-  //const [topicValue, setTopicValue] = useState([""]);
-  //const [titleValue, setTitleValue] = useState("");
-  //const [detailsValue, setDetailsValue] = useState("");
+  const [complexityValue, setComplexityValue] = useState("");
+  const [categoryList, setCategoryList] = useState([""]);
+  const [titleValue, setTitleValue] = useState("");
+  const [descriptionValue, setDescriptionValue] = useState("");
   //const [canSubmit, setCanSubmit] = useState(false);
 
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newCategoryValue = event.target.value;
+    const categoryList = newCategoryValue
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "");
+    setCategoryList(categoryList);
+  }
+
+  /* POST request to API to add question */
   const addQuestion = async (
-    difficultyValue: string,
-    topicValue: string[],
+    complexityValue: string,
+    categoryList: string[],
     titleValue: string,
-    detailsValue: string
+    descriptionValue: string
   ) => {
     try {
-      console.log("trying");
       const response = await fetch("http://localhost:8080/questions", {
         mode: "cors",
         method: "POST",
@@ -32,15 +42,20 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         },
         body: JSON.stringify({
           title: titleValue,
-          description: detailsValue,
-          categories: topicValue,
-          complexity: difficultyValue,
+          description: descriptionValue,
+          categories: categoryList,
+          complexity: complexityValue,
         }),
       });
 
       const data = await response.json();
-      console.log(data);
-      onClose();
+      if (!response.ok) {
+        console.log(data);
+        throw new Error("Title already exists");
+      } else {
+        onClose();
+        fetchData();
+      }
     } catch (error) {
       alert(
         "Error adding question. The question you are adding may be a duplicate (having the same title as an existing question). Please try again."
@@ -49,53 +64,22 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     }
   };
 
-  async function onSubmit() {
-    console.log("Testing submit button");
-    const difficultyElement = document.getElementById(
-      "difficulty"
-    ) as HTMLSelectElement | null;
-    const difficultyValue = difficultyElement ? difficultyElement.value : "";
-    //setDifficultyValue(difficultyValue);
-
-    const topicElement = document.getElementById(
-      "topic"
-    ) as HTMLInputElement | null;
-    const topicValue = topicElement ? topicElement.value : "";
-    const topicList = topicValue
-      .split(",")
-      .map((item) => item.trim())
-      .filter((item) => item !== "");
-    //setTopicValue(topicList);
-
-    const titleElement = document.getElementById(
-      "title"
-    ) as HTMLInputElement | null;
-    const titleValue = titleElement ? titleElement.value : "";
-    //setTitleValue(titleValue);
-
-    const detailsElement = document.getElementById(
-      "details"
-    ) as HTMLInputElement | null;
-    const detailsValue = detailsElement ? detailsElement.value : "";
-    //setDetailsValue(detailsValue);
-
+  /* Handle Submit button click */
+  const onSubmit = async () => {
     if (
-      difficultyValue == "" ||
-      topicList.length == 0 ||
+      complexityValue == "" ||
+      categoryList.length == 0 ||
       titleValue == "" ||
-      detailsValue == ""
+      descriptionValue == ""
     ) {
-      //alert(difficultyValue + topicList + titleValue + detailsValue);
+      /* Empty fields detected, show warning */
+      //alert(complexityValue + categoryList + titleValue + descriptionValue);
       document.getElementById("emptyMessage")?.classList.remove("hidden");
       document.getElementById("emptyMessage")?.classList.add("visible");
       return;
     }
-
-    console.log("can submit");
-    await addQuestion(difficultyValue, topicList, titleValue, detailsValue);
-
-    // Retrieve new question list after adding
-    fetchData();
+    /* API call to add question */
+    await addQuestion(complexityValue, categoryList, titleValue, descriptionValue);
   }
 
   return (
@@ -123,45 +107,26 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           </div>
 
           <div className="mt-3"></div>
-          {/* Difficulty */}
-          <div>
-            <label className="font-semibold">Complexity Level</label>
-            <div className="relative mt-1 shadow-md">
-              <select
-                name="difficulty"
-                id="difficulty"
-                className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                defaultValue={""}
-              >
-                <option value="" disabled hidden>
-                  Choose a complexity level
-                </option>
-                <option value="EASY" className="text-green ">
-                  Easy
-                </option>
-                <option value="MEDIUM" className="text-orange-500">
-                  Medium
-                </option>
-                <option value="HARD" className="text-red-700">
-                  Hard
-                </option>
-              </select>
-            </div>
-          </div>
+          {/* Complexity */}
+          <ComplexityDropDown 
+            currComplexity="" 
+            setComplexityValue={setComplexityValue} 
+            isDisabled={false} 
+          />
 
-          {/* Topic */}
+          {/* Category */}
           <div className="mt-2">
             <label className="font-semibold">Categories</label>
             <p className="text-xs text-gray-500">
-              Separate different topic categories using commas. E.g., Arrays,
-              Databases{" "}
+              Separate different categories using commas. E.g., "Arrays,
+              Databases"
             </p>
             <div className="relative mt-1 shadow-md">
               <input
                 type="text"
-                name="topic"
-                id="topic"
+                id="category"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+                onChange={handleCategoryChange}
               ></input>
             </div>
           </div>
@@ -172,22 +137,23 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             <div className="relative mt-1 shadow-md">
               <input
                 type="text"
-                name="title"
                 id="title"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+                onChange={(event) => {setTitleValue(event.target.value)}}
               ></input>
             </div>
           </div>
 
-          {/* Question details */}
+          {/* Question Description */}
           <div className="mt-2">
             <label className="font-semibold">Question description</label>
             <div className="relative mt-1 shadow-md">
               <textarea
-                name="details"
-                id="details"
+                name="description"
+                id="description"
                 rows={3}
                 className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+                onChange={(event) => {setDescriptionValue(event.target.value)}}
               ></textarea>
             </div>
           </div>

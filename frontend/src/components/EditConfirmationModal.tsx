@@ -1,14 +1,24 @@
 import React from "react";
+import ComplexityDropDown from "./ComplexityDropDown";
 
-
-const EditConfirmationModal: React.FC<{
-  onClose: () => void; 
-  onEditConfirm: () => void
-  newDifficultyValue: string;
-  newTopicValue: string[];
+interface EditConfirmationModalProps {
+  newComplexityValue: string;
+  newCategoryList: string[];
   newTitleValue: string;
-  newDetailsValue: string;
-}> = ({onClose, onEditConfirm, newDifficultyValue, newTopicValue, newTitleValue, newDetailsValue}) => {
+  newDescriptionValue: string;
+  onClose: () => void; 
+  onEditConfirm: () => void;
+}
+
+const EditConfirmationModal: React.FC<
+  EditConfirmationModalProps> = ({
+    newComplexityValue, 
+    newCategoryList, 
+    newTitleValue, 
+    newDescriptionValue,
+    onClose, 
+    onEditConfirm
+}) => {
   
   return (
     <>
@@ -30,30 +40,21 @@ const EditConfirmationModal: React.FC<{
           </div>
           
           <div className="mt-3"></div>
-          {/* Difficulty */}
-          <div>
-            <label className="font-semibold">Complexity Level</label>
-            <div className="relative mt-1 shadow-md">
-              <select 
-                name="difficulty" id="difficulty" value={newDifficultyValue}
-                className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-750 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-              >
-                <option value="" disabled selected hidden>Choose a complexity level</option>
-                <option value="EASY" disabled className="text-green ">Easy</option>
-                <option value="MEDIUM" disabled className="text-orange-500">Medium</option>
-                <option value="HARD" disabled className="text-red-700">Hard</option>
-              </select>
-            </div>
-          </div>
+          {/* Complexity */}
+          <ComplexityDropDown 
+            currComplexity={newComplexityValue} 
+            setComplexityValue={() => {}} 
+            isDisabled={true} 
+          />
 
-          {/* Topic */}
+          {/* Category */}
           <div className="mt-2">
             <label className="font-semibold">Categories</label>
             <div className="relative mt-1 shadow-md">
-              <text
-                name="topic" id="topic"
+              <p
+                id="category"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6"
-              >{newTopicValue}</text>
+              >{newCategoryList.toString()}</p>
             </div>
           </div>
 
@@ -61,19 +62,19 @@ const EditConfirmationModal: React.FC<{
           <div className="mt-2">
             <label className="font-semibold">Question Title</label>
             <div className="relative mt-1 shadow-md">
-              <text
-                type="text" name="title" id="title"
+              <p
+                id="title"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
-              >{newTitleValue}</text>
+              >{newTitleValue}</p>
             </div>
           </div>
 
-          {/* Question details */}
+          {/* Question description */}
           <div className="mt-2">
             <label className="font-semibold">Question description</label>
             <div className="relative mt-1 shadow-md">
               <textarea
-                id="details" rows={3} value={newDetailsValue} disabled
+                id="description" rows={3} value={newDescriptionValue} disabled
                 className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
               ></textarea>
             </div>

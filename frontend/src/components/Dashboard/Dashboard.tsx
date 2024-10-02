@@ -14,24 +14,24 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
-  const [oldDifficulty, setOldDifficulty] = useState("");
-  const [oldTopic, setOldTopic] = useState([""]);
+  const [oldComplexity, setOldComplexity] = useState("");
+  const [oldCategory, setOldCategory] = useState([""]);
   const [oldTitle, setOldTitle] = useState("");
-  const [oldDetails, setOldDetails] = useState("");
+  const [oldDescription, setOldDescription] = useState("");
   const [questionID, setQuestionID] = useState("");
 
   const openEditModal = (
-    oldDifficulty: string,
-    oldTopic: string[],
+    oldComplexity: string,
+    oldCategory: string[],
     oldTitle: string,
-    oldDetails: string,
+    oldDescription: string,
     questionID: string
   ) => {
     setEditModalIsOpen(true);
-    setOldDifficulty(oldDifficulty);
-    setOldTopic(oldTopic);
+    setOldComplexity(oldComplexity);
+    setOldCategory(oldCategory);
     setOldTitle(oldTitle);
-    setOldDetails(oldDetails);
+    setOldDescription(oldDescription);
     setQuestionID(questionID);
   };
 
@@ -66,10 +66,10 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
       {editModalIsOpen && (
         <EditQuestionModal
           onClose={closeEditModal}
-          oldDifficulty={oldDifficulty}
-          oldTopic={oldTopic}
+          oldComplexity={oldComplexity}
+          oldCategory={oldCategory}
           oldTitle={oldTitle}
-          oldDetails={oldDetails}
+          oldDescription={oldDescription}
           questionID={questionID}
           fetchData={fetchData}
         />
