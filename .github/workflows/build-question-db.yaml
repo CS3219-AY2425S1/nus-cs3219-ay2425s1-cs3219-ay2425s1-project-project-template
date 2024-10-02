@@ -4,14 +4,16 @@ name: Create and publish seeded Question DB
 
 on:
   push:
-    tags:
-      - "Milestone-*"
+    branches:
+      - question-service
 
 env:
   REGISTRY: ghcr.io
   REPO: cs3219-ay2425s1/cs3219-ay2425s1-project-g40
   IMAGE_NAME: question-db
-  IMAGE_TAG: latest
+  COMMIT_TAG: ${{ github.ref_name }}
+  LATEST_TAG: latest
+  IMAGE_TAG: ${COMMIT_TAG:-LATEST_TAG}
 
 jobs:
   build-and-push-image:
@@ -46,4 +48,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:/backend/db/question-db"
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          tags:
+            - ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}

@@ -1,17 +1,21 @@
 # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
 
-name: Create and publish Question Service
+name: Create and publish seeded Question DB
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - "Milestone-*"
+      - "Milestone*"
 
 env:
   REGISTRY: ghcr.io
   REPO: cs3219-ay2425s1/cs3219-ay2425s1-project-g40
   IMAGE_NAME: question-db
-  IMAGE_TAG: latest
+  COMMIT_TAG: ${{ github.ref_name }}
+  LATEST_TAG: latest
+  IMAGE_TAG: ${COMMIT_TAG:-LATEST_TAG}
 
 jobs:
   build-and-push-image:
@@ -44,6 +48,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
-          context: "{{defaultContext}}:/backend/question-service"
+          context: "{{defaultContext}}:/backend/db/question-db"
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
