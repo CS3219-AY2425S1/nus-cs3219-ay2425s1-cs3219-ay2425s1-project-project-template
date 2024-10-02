@@ -14,7 +14,8 @@ func EnvMongoURI() string {
         panic(err)
     }
     
-    err = godotenv.Load(filepath.Join(pwd, "../.env"))
+    // err = godotenv.Load(filepath.Join(pwd, "../.env")) // Use when running on local
+    err = godotenv.Load(filepath.Join(pwd, ".env")) // Use when building Docker
 
     if err != nil {
         log.Fatal("Error loading .env file")
