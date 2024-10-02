@@ -5,7 +5,7 @@ name: Create and publish seeded Question DB
 on:
   push:
     branches:
-      - question-service
+      - docker/question-service
 
 env:
   REGISTRY: ghcr.io
