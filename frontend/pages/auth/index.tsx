@@ -3,10 +3,22 @@
 import Image from 'next/image'
 import Login from '../../components/auth/Login'
 import Signup from '../../components/auth/Signup'
+import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 
 export default function Auth() {
     const [isLoginPage, setIsLoginPage] = useState(false)
+    const router = useRouter()
+    const { data: session, status } = useSession()
+
+    if (status === 'loading') {
+        return null
+    }
+
+    if (session) {
+        router.push('/')
+    }
 
     return (
         <div className="grid grid-cols-2 h-screen">
