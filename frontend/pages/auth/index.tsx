@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 
 export default function Auth() {
-    const [isLoginPage, setIsLoginPage] = useState(false)
+    const [isLoginPage, setIsLoginPage] = useState(true)
     const router = useRouter()
     const { data: session, status } = useSession()
 
