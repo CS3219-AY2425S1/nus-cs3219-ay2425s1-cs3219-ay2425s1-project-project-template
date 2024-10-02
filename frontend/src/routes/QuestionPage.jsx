@@ -14,7 +14,7 @@ function capitalize(s)
 
 const QuestionPage = () => {
 
-  const apiurl = "http://127.0.0.1:8000/question/"
+  const apiurl = process.env.REACT_APP_QUESTION_API_URL;
 
 
   // Fetch all questions on component mount
