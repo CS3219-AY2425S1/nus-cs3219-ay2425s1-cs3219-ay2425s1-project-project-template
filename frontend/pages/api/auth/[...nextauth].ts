@@ -33,7 +33,7 @@ export default NextAuth({
                         throw new Error('Invalid username or password')
                     }
 
-                    return response.data
+                    return { ...response.data, accessTokenExpires: Date.now() + 3600 * 1000 }
                 } catch (error) {
                     throw new Error('Authentication failed')
                 }
@@ -42,15 +42,31 @@ export default NextAuth({
     ],
     callbacks: {
         async jwt({ token, user, trigger, session }) {
-            if (trigger === 'update') {
-                return { ...token, ...session.user }
+            if (user) {
+                return { ...token, ...user }
             }
-            return { ...token, ...user }
+
+            if (trigger === 'update' && session?.user) {
+                return {
+                    ...token,
+                    ...session.user,
+                }
+            }
+
+            if (Date.now() > (token.accessTokenExpires as number)) {
+                return Promise.reject(new Error('Access token has expired'))
+            }
+
+            return token
         },
         async session({ session, token }) {
             session.user = token as any
             return session
         },
+    },
+    session: {
+        strategy: 'jwt',
+        maxAge: 3600,
     },
     secret: process.env.NEXTAUTH_SECRET,
 })

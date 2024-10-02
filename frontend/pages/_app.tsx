@@ -8,7 +8,7 @@ import { SessionProvider } from 'next-auth/react'
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     return (
-        <SessionProvider session={session}>
+        <SessionProvider session={session} refetchInterval={60}>
             <RecoilRoot>
                 <Layout>
                     <Component {...pageProps} />
