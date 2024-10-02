@@ -42,4 +42,28 @@ export class authService {
   isAdmin(): boolean {
     return this.currentUser.data.isAdmin;
   }
+
+  getToken(): string | null {
+    const userJson: any = sessionStorage.getItem('userData')
+    const userToken = JSON.parse(userJson).data.accessToken
+    return userToken;
+  }
+
+  isTokenExpired(token: string): boolean {
+    const decoded = this.decodeToken(token);
+    if (!decoded || !decoded.exp) return true;
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    return decoded.exp < currentTime;
+  }
+
+  decodeToken(token: string): any {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  }
+
+  handleTokenExpiry() {
+    sessionStorage.removeItem('userData');
+    window.location.href = '/login';
+  }
 }

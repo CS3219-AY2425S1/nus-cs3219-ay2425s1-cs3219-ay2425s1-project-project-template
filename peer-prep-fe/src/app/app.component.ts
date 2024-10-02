@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import {HttpClientModule} from "@angular/common/http";
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { FormsModule } from '@angular/forms';
 import { QuestionListComponent } from '../components/question-list/question-list.component';
 import { authService } from './authService/authService';
+import { AdminComponent } from './admin/admin.component';
 
 const MODULES = [
   CommonModule,
@@ -17,12 +17,13 @@ const MODULES = [
   FormsModule,
   QuestionListComponent,
   CommonModule,
-  HttpClientModule
+  AdminComponent
 ];
 
 @Component({
   selector: 'app-root',
   standalone: true,
+  imports: [MODULES],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })

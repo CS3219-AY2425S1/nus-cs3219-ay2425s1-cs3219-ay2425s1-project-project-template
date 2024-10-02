@@ -112,7 +112,7 @@ export async function updateUser(req, res) {
 export async function updateUserPrivilege(req, res) {
   try {
     const { isAdmin } = req.body;
-
+    console.log(isAdmin)
     if (isAdmin !== undefined) {  // isAdmin can have boolean value true or false
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
