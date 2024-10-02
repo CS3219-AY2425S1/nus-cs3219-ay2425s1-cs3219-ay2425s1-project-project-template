@@ -9,6 +9,7 @@ import React from 'react'
 import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
 
 export default function Login() {
@@ -19,6 +20,8 @@ export default function Login() {
         const { id, value } = e.target
         setFormValues({ ...formValues, [id]: value })
     }
+
+    const router = useRouter()
 
     const onLogin = async () => {
         const isTest = {
@@ -35,18 +38,17 @@ export default function Login() {
         setFormErrors(errors)
 
         if (isValid) {
-            try {
-                await signIn('credentials', {
-                    redirect: true,
-                    username: formValues.email,
-                    password: formValues.loginPassword,
-                    callbackUrl: '/',
-                })
+            const result = await signIn('credentials', {
+                redirect: false,
+                username: formValues.email,
+                password: formValues.loginPassword,
+            })
+            if (result?.error) {
+                toast.error('Login failed. Please try again')
+                return
+            } else {
                 toast.success('Logged in successfully')
-            } catch (error) {
-                if (error instanceof Error) {
-                    toast.error(error.message)
-                }
+                router.push('/')
             }
         }
     }
