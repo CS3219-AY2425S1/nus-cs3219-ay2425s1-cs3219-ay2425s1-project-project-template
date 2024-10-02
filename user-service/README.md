@@ -1,39 +1,3 @@
-# User Service Guide
-
-## Setting-up
-
-> :notebook: If you are familiar to MongoDB and wish to use a local instance, please feel free to do so. This guide utilizes MongoDB Cloud Services.
-
-1. Set up a MongoDB Shared Cluster by following the steps in this [Guide](./MongoDBSetup.md).
-
-2. After setting up, go to the Database Deployment Page. You would see a list of the Databases you have set up. Select `Connect` on the cluster you just created earlier on for User Service.
-
-    ![alt text](./GuideAssets/ConnectCluster.png)
-
-3. Select the `Drivers` option, as we have to link to a Node.js App (User Service).
-
-    ![alt text](./GuideAssets/DriverSelection.png)
-
-4. Select `Node.js` in the `Driver` pull-down menu, and copy the connection string.
-
-    Notice, you may see `<password>` in this connection string. We will be replacing this with the admin account password that we created earlier on when setting up the Shared Cluster.
-
-    ![alt text](./GuideAssets/ConnectionString.png)
-
-5. In the `user-service` directory, create a copy of the `.env.sample` file and name it `.env`.
-
-6. Update the `DB_CLOUD_URI` of the `.env` file, and paste the string we copied earlier in step 4. Also remember to replace the `<password>` placeholder with the actual password.
-
-## Running User Service
-
-1. Open Command Line/Terminal and navigate into the `user-service` directory.
-
-2. Run the command: `npm install`. This will install all the necessary dependencies.
-
-3. Run the command `npm start` to start the User Service in production mode, or use `npm run dev` for development mode, which includes features like automatic server restart when you make code changes.
-
-4. Using applications like Postman, you can interact with the User Service on port 3001. If you wish to change this, please update the `.env` file.
-
 ## User Service API Guide
 
 ### Create User
@@ -79,17 +43,17 @@
     - Example: `http://localhost:3001/users/60c72b2f9b1d4c3a2e5f8b4c`
 
 - <a name="auth-header">Headers</a>
-  
+
     - Required: `Authorization: Bearer <JWT_ACCESS_TOKEN>`
-    
+
     - Explanation: This endpoint requires the client to include a JWT (JSON Web Token) in the HTTP request header for authentication and authorization. This token is generated during the authentication process (i.e., login) and contains information about the user's identity. The server verifies this token to ensure that the client is authorized to access the data.
-    
+
     - Auth Rules:
-    
+
         - Admin users: Can retrieve any user's data. The server verifies the user associated with the JWT token is an admin user and allows access to the requested user's data.
-          
+
         - Non-admin users: Can only retrieve their own data. The server checks if the user ID in the request URL matches the ID of the user associated with the JWT token. If it matches, the server returns the user's own data.
-    
+
 - Responses:
 
     | Response Code               | Explanation                                              |
@@ -110,7 +74,7 @@
     - Auth Rules:
 
         - Admin users: Can retrieve all users' data. The server verifies the user associated with the JWT token is an admin user and allows access to all users' data.
-          
+
         - Non-admin users: Not allowed access.
 
 - Responses:
@@ -149,7 +113,7 @@
     - Auth Rules:
 
         - Admin users: Can update any user's data. The server verifies the user associated with the JWT token is an admin user and allows the update of requested user's data.
-          
+
         - Non-admin users: Can only update their own data. The server checks if the user ID in the request URL matches the ID of the user associated with the JWT token. If it matches, the server updates the user's own data.
 
 - Responses:
