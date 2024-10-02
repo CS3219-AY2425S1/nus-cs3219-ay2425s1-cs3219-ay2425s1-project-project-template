@@ -3,24 +3,17 @@ import { useState } from "react";
 import DeleteQuestionModal from "./DeleteQuestionModal";
 import EditConfirmationModal from "./EditConfirmationModal";
 import ComplexityDropDown from "./ComplexityDropDown";
+import { Question } from "../types/Question";
 
 interface EditQuestionModalProps {
-  oldComplexity: string;
-  oldCategory: string[];
-  oldTitle: string;
-  oldDescription: string;
-  questionID: string;
+  oldQuestion: Question;
   onClose: () => void;
   fetchData: () => Promise<void>;
 }
 
 const EditQuestionModal: React.FC<
   EditQuestionModalProps> = ({
-    oldComplexity,
-    oldCategory,
-    oldTitle,
-    oldDescription,
-    questionID,
+    oldQuestion,
     onClose,
     fetchData,
 }) => {
@@ -77,10 +70,11 @@ const EditQuestionModal: React.FC<
   const openEditConfirmationModal = () => setEditConfirmationModalOpen(true);
   const closeEditConfirmationModal = () => setEditConfirmationModalOpen(false);
 
-  const [newComplexityValue, setNewComplexityValue] = useState(oldComplexity);
-  const [newCategoryList, setNewCategoryList] = useState(oldCategory);
-  const [newTitleValue, setNewTitleValue] = useState(oldTitle);
-  const [newDescriptionValue, setNewDescriptionValue] = useState(oldDescription);
+  const [newComplexityValue, setNewComplexityValue] = useState(oldQuestion.complexity);
+  const [newCategoryList, setNewCategoryList] = useState(oldQuestion.categories);
+  const [newTitleValue, setNewTitleValue] = useState(oldQuestion.title);
+  const [newDescriptionValue, setNewDescriptionValue] = useState(oldQuestion.description);
+  const [newQuestion, setNewQuestion] = useState(oldQuestion);
 
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newCategoryValue = event.target.value;
@@ -98,7 +92,7 @@ const EditQuestionModal: React.FC<
 
   const onEditConfirm = async () => {
     await editQuestion(
-      questionID,
+      oldQuestion.id,
       newComplexityValue,
       newCategoryList,
       newTitleValue,
@@ -119,9 +113,17 @@ const EditQuestionModal: React.FC<
       document.getElementById("emptyMessage")?.classList.add("visible");
     } else {
       /* All fields are filled -> ask user to confirm the changes */
-
       document.getElementById("emptyMessage")?.classList.remove("visible");
       document.getElementById("emptyMessage")?.classList.add("hidden");
+
+      const newQuestion: Question = {
+        id: "",
+        complexity: newComplexityValue,
+        categories: newCategoryList,
+        title: newTitleValue,
+        description: newDescriptionValue
+      }
+      setNewQuestion(newQuestion);
       openEditConfirmationModal();
     }
   };
@@ -145,7 +147,7 @@ const EditQuestionModal: React.FC<
             </button>
           </div>
           <div>
-            <p className="text-sm">Editing "{oldTitle}" Question.</p>
+            <p className="text-sm">Editing "{oldQuestion.title}" Question.</p>
             {/* <button className="text-sm text-indigo-800 hover:bg-gray-200 rounded-lg">Click here to view the original question for reference.</button> */}
           </div>
         </div>
@@ -153,7 +155,7 @@ const EditQuestionModal: React.FC<
         <div className="mt-3"></div>
         {/* Complexity */}
         <ComplexityDropDown 
-          currComplexity={oldComplexity} 
+          currComplexity={oldQuestion.complexity} 
           setComplexityValue={setNewComplexityValue} 
           isDisabled={false} 
         />
@@ -169,7 +171,7 @@ const EditQuestionModal: React.FC<
             <input
               type="text"
               id="category"
-              defaultValue={oldCategory}
+              defaultValue={oldQuestion.categories}
               onChange={handleCategoryChange}
               className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
             ></input>
@@ -183,7 +185,7 @@ const EditQuestionModal: React.FC<
             <input
               type="text"
               id="title"
-              defaultValue={oldTitle}
+              defaultValue={oldQuestion.title}
               onChange={(event) => {setNewTitleValue(event.target.value);}}
               className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
             ></input>
@@ -196,7 +198,7 @@ const EditQuestionModal: React.FC<
           <div className="relative mt-1 shadow-md">
             <textarea
               id="description"
-              defaultValue={oldDescription}
+              defaultValue={oldQuestion.description}
               rows={3}
               onChange={(event) => {setNewDescriptionValue(event.target.value);}}
               className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
@@ -221,13 +223,9 @@ const EditQuestionModal: React.FC<
             </button>
             {isDeleteModalOpen && (
               <DeleteQuestionModal
+                oldQuestion={oldQuestion}
                 onClose={closeDeleteModal}
                 onDelete={onDeleteConfirm}
-                oldComplexity={oldComplexity}
-                oldCategory={oldCategory}
-                oldTitle={oldTitle}
-                oldDescription={oldDescription}
-                questionID={questionID}
                 fetchData={fetchData}
               />
             )}
@@ -239,12 +237,9 @@ const EditQuestionModal: React.FC<
             </button>
             {isEditConfirmationModalOpen && (
               <EditConfirmationModal
+                newQuestion={newQuestion}
                 onClose={closeEditConfirmationModal}
                 onEditConfirm={onEditConfirm}
-                newComplexityValue={newComplexityValue}
-                newCategoryList={newCategoryList}
-                newTitleValue={newTitleValue}
-                newDescriptionValue={newDescriptionValue}
               />
             )}
             <button

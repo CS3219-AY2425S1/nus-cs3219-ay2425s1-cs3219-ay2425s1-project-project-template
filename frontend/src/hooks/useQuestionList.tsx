@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import Question from "../types/Question";
+import { Question } from "../types/Question";
 
 // React hook to fetch a list of questions
 // pass in the setQuestions function to update the state of the questions

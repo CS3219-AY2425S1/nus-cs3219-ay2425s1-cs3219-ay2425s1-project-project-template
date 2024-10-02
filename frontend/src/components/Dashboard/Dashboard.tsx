@@ -3,6 +3,7 @@ import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
 import EditQuestionModal from "../EditQuestionModal";
 import { useLocation } from "react-router-dom";
+import { Question, emptyQuestion } from "../../types/Question";
 
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
@@ -14,25 +15,11 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const closeEditModal = () => setEditModalIsOpen(false);
 
-  const [oldComplexity, setOldComplexity] = useState("");
-  const [oldCategory, setOldCategory] = useState([""]);
-  const [oldTitle, setOldTitle] = useState("");
-  const [oldDescription, setOldDescription] = useState("");
-  const [questionID, setQuestionID] = useState("");
+  const [questionClicked, setQuestionClicked] = useState(emptyQuestion);
 
-  const openEditModal = (
-    oldComplexity: string,
-    oldCategory: string[],
-    oldTitle: string,
-    oldDescription: string,
-    questionID: string
-  ) => {
+  const openEditModal = (questionClicked: Question) => {
     setEditModalIsOpen(true);
-    setOldComplexity(oldComplexity);
-    setOldCategory(oldCategory);
-    setOldTitle(oldTitle);
-    setOldDescription(oldDescription);
-    setQuestionID(questionID);
+    setQuestionClicked(questionClicked);
   };
 
   const columns: Column<any>[] = useMemo(() => COLUMNS, []);
@@ -50,12 +37,15 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
 
   const onClick = (row: Row<{}>) => {
     if (location.pathname === "/dashboard") {
+      const questionClicked: Question = {
+        id: row.original.id,
+        title: row.values.title,
+        description: row.values.description,
+        categories: row.values.categories,
+        complexity: row.values.complexity
+      }
       openEditModal(
-        row.allCells[3].value,
-        row.allCells[2].value,
-        row.allCells[0].value,
-        row.allCells[1].value,
-        row.original.id
+        questionClicked
       );
     } else if (location.pathname === "/dashboardForUsers") {
       window.location.href = `/question/${row.original.id}`;
@@ -65,12 +55,8 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
     <div className="overflow-x-auto">
       {editModalIsOpen && (
         <EditQuestionModal
+          oldQuestion={questionClicked}
           onClose={closeEditModal}
-          oldComplexity={oldComplexity}
-          oldCategory={oldCategory}
-          oldTitle={oldTitle}
-          oldDescription={oldDescription}
-          questionID={questionID}
           fetchData={fetchData}
         />
       )}

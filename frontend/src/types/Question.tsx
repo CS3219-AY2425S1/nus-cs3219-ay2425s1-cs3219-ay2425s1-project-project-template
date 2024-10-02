@@ -1,9 +1,15 @@
-interface Question {
+export interface Question {
   id: string;
   title: string;
   description: string;
   complexity: string;
-  categories: [];
+  categories: string[];
 }
 
-export default Question;
+export const emptyQuestion: Question = {
+  id: "",
+  title: "",
+  description: "",
+  complexity: "",
+  categories: []
+}

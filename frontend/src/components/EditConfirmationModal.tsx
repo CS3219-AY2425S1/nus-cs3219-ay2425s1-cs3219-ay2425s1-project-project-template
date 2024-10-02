@@ -1,21 +1,16 @@
 import React from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
+import { Question } from "../types/Question";
 
 interface EditConfirmationModalProps {
-  newComplexityValue: string;
-  newCategoryList: string[];
-  newTitleValue: string;
-  newDescriptionValue: string;
+  newQuestion: Question
   onClose: () => void; 
   onEditConfirm: () => void;
 }
 
 const EditConfirmationModal: React.FC<
   EditConfirmationModalProps> = ({
-    newComplexityValue, 
-    newCategoryList, 
-    newTitleValue, 
-    newDescriptionValue,
+    newQuestion,
     onClose, 
     onEditConfirm
 }) => {
@@ -42,7 +37,7 @@ const EditConfirmationModal: React.FC<
           <div className="mt-3"></div>
           {/* Complexity */}
           <ComplexityDropDown 
-            currComplexity={newComplexityValue} 
+            currComplexity={newQuestion.complexity} 
             setComplexityValue={() => {}} 
             isDisabled={true} 
           />
@@ -54,7 +49,7 @@ const EditConfirmationModal: React.FC<
               <p
                 id="category"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6"
-              >{newCategoryList.toString()}</p>
+              >{newQuestion.categories.toString()}</p>
             </div>
           </div>
 
@@ -65,7 +60,7 @@ const EditConfirmationModal: React.FC<
               <p
                 id="title"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
-              >{newTitleValue}</p>
+              >{newQuestion.title}</p>
             </div>
           </div>
 
@@ -74,9 +69,9 @@ const EditConfirmationModal: React.FC<
             <label className="font-semibold">Question description</label>
             <div className="relative mt-1 shadow-md">
               <textarea
-                id="description" rows={3} value={newDescriptionValue} disabled
+                id="description" rows={3} value={newQuestion.description} disabled
                 className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
-              ></textarea>
+              >{newQuestion.description}</textarea>
             </div>
           </div>
 

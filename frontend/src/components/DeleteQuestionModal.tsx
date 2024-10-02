@@ -1,12 +1,9 @@
 import React from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
+import { Question } from "../types/Question";
 
 interface DeleteQuestionModalProps {
-  oldComplexity: string;
-  oldCategory: string[];
-  oldTitle: string;
-  oldDescription: string;
-  questionID: string;
+  oldQuestion: Question;
   onClose: () => void;
   onDelete: () => void;
   fetchData: () => Promise<void>;
@@ -14,18 +11,14 @@ interface DeleteQuestionModalProps {
 
 const DeleteQuestionModal: React.FC<
   DeleteQuestionModalProps> = ({
-  onClose,
-  onDelete,
-  oldComplexity,
-  oldCategory,
-  oldTitle,
-  oldDescription,
-  questionID,
-  fetchData,
+    oldQuestion,
+    onClose,
+    onDelete,
+    fetchData,
 }) => {
   const deleteQuestion = async (questionID: string) => {
     try {
-      console.log("trying");
+      //console.log("deleting question");
       const response = await fetch(
         `http://localhost:8080/questions/${questionID}`,
         {
@@ -78,7 +71,7 @@ const DeleteQuestionModal: React.FC<
           <div className="mt-3"></div>
           {/* Complexity */}
           <ComplexityDropDown 
-            currComplexity={oldComplexity} 
+            currComplexity={oldQuestion.complexity} 
             setComplexityValue={() => {}} 
             isDisabled={true} 
           />
@@ -91,7 +84,7 @@ const DeleteQuestionModal: React.FC<
                 id="category"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6"
               >
-                {oldCategory.toString()}
+                {oldQuestion.categories.toString()}
               </p>
             </div>
           </div>
@@ -104,7 +97,7 @@ const DeleteQuestionModal: React.FC<
                 id="title"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
               >
-                {oldTitle}
+                {oldQuestion.title}
               </p>
             </div>
           </div>
@@ -116,7 +109,7 @@ const DeleteQuestionModal: React.FC<
               <textarea
                 id="description"
                 rows={3}
-                value={oldDescription}
+                value={oldQuestion.description}
                 disabled
                 className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
               ></textarea>
@@ -128,7 +121,7 @@ const DeleteQuestionModal: React.FC<
             <div className="flex justify-evenly mt-2">
               <button
                 onClick={() => {
-                  deleteQuestion(questionID);
+                  deleteQuestion(oldQuestion.id);
                   onDelete();
                 }}
                 className="bg-black bg-opacity-80 rounded-lg px-4 py-1.5 text-white text-lg hover:bg-gray-600"
