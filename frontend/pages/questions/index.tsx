@@ -10,7 +10,6 @@ import {
     QuestionStatus,
     SortDirection,
 } from '@/types'
-import { columns, formFields } from './props'
 import {
     createQuestionRequest,
     deleteQuestionById,
@@ -18,6 +17,7 @@ import {
     getQuestionsRequest,
     updateQuestionRequest,
 } from '@/services/question-service-api'
+import { formFields, getColumns } from './props'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -100,18 +100,13 @@ export default function Questions() {
         setLoading(false)
     }
 
-    const [isInit, setIsInit] = useState(false)
+    useEffect(() => {
+        loadData()
+    }, [])
 
     const { loading } = useProtectedRoute()
 
     if (loading) return null
-
-    useEffect(() => {
-        if (!isInit) {
-            loadData()
-        }
-        setIsInit(true)
-    }, [isInit])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
@@ -264,7 +259,7 @@ export default function Questions() {
             </div>
             <Datatable
                 data={data}
-                columns={columns}
+                columns={getColumns(isAdmin)}
                 pagination={pagination}
                 sortBy={sortBy}
                 sortHandler={sortHandler}

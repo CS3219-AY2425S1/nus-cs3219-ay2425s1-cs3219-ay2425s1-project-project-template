@@ -5,75 +5,78 @@ import { Badge } from '@/components/ui/badge'
 import { Category } from '@repo/user-types'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 
-const columns: IDatatableColumn[] = [
-    {
-        key: 'id',
-        isHidden: true,
-    },
-    {
-        key: 'title',
-        width: '20%',
-        offAutoCapitalize: true,
-    },
-    {
-        key: 'categories',
-        formatter: (values) => {
-            const c = values.map((v: string) => (
-                <Badge key={v} className="m-1 bg-violet-600">
-                    {v}
-                </Badge>
-            ))
-            return <div className="flex flex-wrap items-center justify-center">{c}</div>
+const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
+    return [
+        {
+            key: 'id',
+            isHidden: true,
         },
-    },
-    {
-        key: 'description',
-        width: '35%',
-        offAutoCapitalize: true,
-        formatter: (value) => {
-            return (
-                <div
-                    style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                    }}
-                >
-                    {value}
-                </div>
-            )
+        {
+            key: 'title',
+            width: '20%',
+            offAutoCapitalize: true,
         },
-    },
-    {
-        key: 'status',
-        formatter: (value) => {
-            return (
-                <div className="flex items-center justify-center">
-                    {value === QuestionStatus.COMPLETED ? (
-                        <TickIcon />
-                    ) : value === QuestionStatus.FAILED ? (
-                        <ExclamationIcon />
-                    ) : null}
-                </div>
-            )
+        {
+            key: 'categories',
+            formatter: (values) => {
+                const c = values.map((v: string) => (
+                    <Badge key={v} className="m-1 bg-violet-600">
+                        {v}
+                    </Badge>
+                ))
+                return <div className="flex flex-wrap items-center justify-center">{c}</div>
+            },
         },
-    },
-    {
-        key: 'complexity',
-        isSortable: true,
-        formatter: (value) => {
-            return <DifficultyLabel complexity={value} />
+        {
+            key: 'description',
+            width: '35%',
+            offAutoCapitalize: true,
+            formatter: (value) => {
+                return (
+                    <div
+                        style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                        }}
+                    >
+                        {value}
+                    </div>
+                )
+            },
         },
-    },
-    {
-        key: 'actions',
-        isEdit: true,
-        isDelete: true,
-        width: '12%',
-    },
-]
+        {
+            key: 'status',
+            formatter: (value) => {
+                return (
+                    <div className="flex items-center justify-center">
+                        {value === QuestionStatus.COMPLETED ? (
+                            <TickIcon />
+                        ) : value === QuestionStatus.FAILED ? (
+                            <ExclamationIcon />
+                        ) : null}
+                    </div>
+                )
+            },
+        },
+        {
+            key: 'complexity',
+            isSortable: true,
+            formatter: (value) => {
+                return <DifficultyLabel complexity={value} />
+            },
+        },
+        {
+            isHidden: !isAdmin,
+            key: 'actions',
+            isEdit: true,
+            isDelete: true,
+            width: '12%',
+        },
+    ]
+}
 
 const formFields: IFormFields[] = [
     {
@@ -113,7 +116,7 @@ const formFields: IFormFields[] = [
     },
 ]
 
-export { columns, formFields }
+export { getColumns, formFields }
 
 export default function None() {
     return null
