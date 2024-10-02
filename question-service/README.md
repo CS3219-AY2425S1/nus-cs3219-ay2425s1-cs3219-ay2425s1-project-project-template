@@ -169,3 +169,5 @@
 | **Delete a question**     | DELETE     | `http://localhost:8003/api/questions/<id>` | `id`: refers to the question id (1-indexed)                                                                                                                           |
 | **Retrieve questions (with filter)** | GET        | `http://localhost:8003/api/questions?<params>` | `?title=`, `?category=`, `?page=`, `?complexity=`, `?sort=`. Filters can be stacked. Multiple categories: `?category=Algorithms&category=Arr&category=Database`. Sorting: `?sort=title` (ascending), `?sort=-title` (descending) |
 | **Retrieve a question**   | GET        | `http://localhost:8003/api/questions/<id>` | `id`: refers to the question id (1-indexed)
+| **Retrieve unique categories** | GET        | `http://localhost:8003/api/questions/categories/unique` | None                                                                                                  |
+| **Retrieve unique complexities** | GET        | `http://localhost:8003/api/questions/complexity/unique` | None                                                                                                  |
