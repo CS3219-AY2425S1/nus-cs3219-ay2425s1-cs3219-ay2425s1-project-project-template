@@ -1,11 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { QuestionsService } from './questions.service';
+import { QuestionsService } from '../../services/questions.service';
 import {
   CreateQuestionDto,
   GetQuestionsQueryDto,
   UpdateQuestionDto,
 } from '@repo/dtos/questions';
+
 @Controller()
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
