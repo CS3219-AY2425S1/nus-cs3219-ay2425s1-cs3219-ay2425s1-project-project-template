@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
-import EditQuestionModal from "../EditQuestionModal";
+import EditQuestionModal from "../QuestionModals/EditQuestionModal";
 import { useLocation } from "react-router-dom";
 import { Question, emptyQuestion } from "../../types/Question";
 

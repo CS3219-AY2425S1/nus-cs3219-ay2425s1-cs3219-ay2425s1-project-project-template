@@ -1,6 +1,6 @@
 import React from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
-import { Question } from "../types/Question";
+import { Question } from "../../types/Question";
 import DescriptionInput from "./DescriptionInput";
 
 interface EditConfirmationModalProps {

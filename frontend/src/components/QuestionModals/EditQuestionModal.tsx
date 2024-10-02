@@ -3,7 +3,7 @@ import { useState } from "react";
 import DeleteQuestionModal from "./DeleteQuestionModal";
 import EditConfirmationModal from "./EditConfirmationModal";
 import ComplexityDropDown from "./ComplexityDropDown";
-import { Question } from "../types/Question";
+import { Question } from "../../types/Question";
 import DescriptionInput from "./DescriptionInput";
 
 interface EditQuestionModalProps {

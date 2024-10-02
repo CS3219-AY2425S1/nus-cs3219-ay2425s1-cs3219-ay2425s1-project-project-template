@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ProfileButton from "./ProfileButton.tsx";
-import AddQuestionModal from "./AddQuestionModal.tsx";
+import AddQuestionModal from "./QuestionModals/AddQuestionModal.tsx";
 
 interface AdminNavBarProps {
   fetchData: () => Promise<void>;
