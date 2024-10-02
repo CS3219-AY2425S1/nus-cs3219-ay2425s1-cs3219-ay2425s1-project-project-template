@@ -41,7 +41,7 @@ const useAuth = () => {
     verifyCookie();
   }, [cookies, navigate, removeCookie]);
 
-  return { username, removeCookie };
+  return { username, cookies, removeCookie };
 };
 
 export default useAuth;
