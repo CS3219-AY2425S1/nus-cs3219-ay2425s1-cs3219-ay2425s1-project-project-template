@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
+import DescriptionInput from "./DescriptionInput";
 
 interface AddQuestionModalProps {
   fetchData: () => Promise<void>;
@@ -145,18 +146,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           </div>
 
           {/* Question Description */}
-          <div className="mt-2">
-            <label className="font-semibold">Question description</label>
-            <div className="relative mt-1 shadow-md">
-              <textarea
-                name="description"
-                id="description"
-                rows={3}
-                className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                onChange={(event) => {setDescriptionValue(event.target.value)}}
-              ></textarea>
-            </div>
-          </div>
+          <DescriptionInput 
+            currDescription={descriptionValue}
+            setDescriptionValue={setDescriptionValue}
+            isDisabled={false}
+          />
 
           {/* Action buttons */}
           <div className="mt-6">

@@ -1,6 +1,7 @@
 import React from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
 import { Question } from "../types/Question";
+import DescriptionInput from "./DescriptionInput";
 
 interface DeleteQuestionModalProps {
   oldQuestion: Question;
@@ -102,19 +103,12 @@ const DeleteQuestionModal: React.FC<
             </div>
           </div>
 
-          {/* Question description */}
-          <div className="mt-2">
-            <label className="font-semibold">Question description</label>
-            <div className="relative mt-1 shadow-md">
-              <textarea
-                id="description"
-                rows={3}
-                value={oldQuestion.description}
-                disabled
-                className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
-              ></textarea>
-            </div>
-          </div>
+          {/* Question Description */}
+          <DescriptionInput
+            currDescription={oldQuestion.description}
+            setDescriptionValue={() => {}}
+            isDisabled={true}
+          />
 
           {/* Action buttons */}
           <div className="mt-6">

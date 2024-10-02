@@ -4,6 +4,7 @@ import DeleteQuestionModal from "./DeleteQuestionModal";
 import EditConfirmationModal from "./EditConfirmationModal";
 import ComplexityDropDown from "./ComplexityDropDown";
 import { Question } from "../types/Question";
+import DescriptionInput from "./DescriptionInput";
 
 interface EditQuestionModalProps {
   oldQuestion: Question;
@@ -114,7 +115,7 @@ const EditQuestionModal: React.FC<
     } else {
       /* All fields are filled -> ask user to confirm the changes */
       setIsMissingWarningVisible(false);
-      
+
       const newQuestion: Question = {
         id: "",
         complexity: newComplexityValue,
@@ -192,18 +193,11 @@ const EditQuestionModal: React.FC<
         </div>
 
         {/* Question description */}
-        <div className="mt-2">
-          <label className="font-semibold">Question description</label>
-          <div className="relative mt-1 shadow-md">
-            <textarea
-              id="description"
-              defaultValue={oldQuestion.description}
-              rows={3}
-              onChange={(event) => {setNewDescriptionValue(event.target.value);}}
-              className="block w-full resize-none rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-            ></textarea>
-          </div>
-        </div>
+        <DescriptionInput
+            currDescription={oldQuestion.description}
+            setDescriptionValue={setNewDescriptionValue}
+            isDisabled={false}
+        />
 
         {/* Action buttons */}
         <div className="mt-6">
