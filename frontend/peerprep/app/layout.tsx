@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@nextui-org/link";
 import clsx from "clsx";
+import { PublicEnvScript } from "next-runtime-env";
 
 import { Providers } from "./providers";
 
@@ -9,7 +9,6 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
-import { PublicEnvScript } from "next-runtime-env";
 
 export const metadata: Metadata = {
   title: {
@@ -41,12 +40,12 @@ export default function RootLayout({
         <link
           href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
           rel="stylesheet"
-        ></link>
+        />
       </head>
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
@@ -58,7 +57,7 @@ export default function RootLayout({
                 {children}
               </main>
             </div>
-            <footer className="w-full flex items-center justify-center py-3"></footer>
+            <footer className="w-full flex items-center justify-center py-3" />
           </div>
         </Providers>
       </body>

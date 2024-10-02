@@ -6,8 +6,9 @@ import {
   ModalFooter,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import BoxIcon from "./boxicons";
 import React from "react";
+
+import BoxIcon from "./boxicons";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ export const DeleteConfirmationModal: React.FC<
   DeleteConfirmationModalProps
 > = ({ isOpen, onOpenChange, questionToDelete, onConfirm }) => {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>

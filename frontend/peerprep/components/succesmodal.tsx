@@ -6,8 +6,9 @@ import {
   ModalFooter,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import BoxIcon from "./boxicons";
 import React from "react";
+
+import BoxIcon from "./boxicons";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   onConfirm,
 }) => {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>

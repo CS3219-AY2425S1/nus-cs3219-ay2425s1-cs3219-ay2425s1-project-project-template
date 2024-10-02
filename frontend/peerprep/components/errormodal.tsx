@@ -6,8 +6,9 @@ import {
   ModalFooter,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import BoxIcon from "./boxicons";
 import React from "react";
+
+import BoxIcon from "./boxicons";
 
 interface ErrorModalProps {
   isOpen: boolean;
@@ -20,10 +21,10 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
   isOpen,
   onOpenChange,
   errorMessage,
-  onRetry,
+  // onRetry,
 }) => {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>

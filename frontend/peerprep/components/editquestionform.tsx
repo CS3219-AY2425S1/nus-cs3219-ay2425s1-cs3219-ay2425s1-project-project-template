@@ -2,41 +2,31 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   Input,
   Button,
-  Radio,
-  Dropdown,
-  Textarea,
-  DropdownMenu,
-  DropdownItem,
-  RadioGroup,
   Tab,
   Tabs,
-  Avatar,
   Chip,
-  Select,
-  SelectItem,
   Autocomplete,
   AutocompleteItem,
   ScrollShadow,
   useDisclosure,
 } from "@nextui-org/react";
+import useSWR from "swr";
+import Editor from "@monaco-editor/react";
+import { useParams, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { env } from "next-runtime-env";
 
+import { DeleteConfirmationModal } from "./deleteconfirmationmodal";
+import { SuccessModal } from "./succesmodal";
+import { ErrorModal } from "./errormodal";
+import { WysiMarkEditor } from "./wysimarkeditor";
+import BoxIcon from "./boxicons";
+
+import { capitalize, languages } from "@/utils/utils";
 import {
   complexityColorMap,
   Question,
 } from "@/app/questions-management/list/columns";
-import BoxIcon from "./boxicons";
-import MarkdownEditor from "./mdeditor";
-import { WysiMarkEditor } from "./wysimarkeditor";
-import useSWR from "swr";
-import { capitalize, languages } from "@/utils/utils";
-import Editor from "@monaco-editor/react";
-import { useParams, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
-import { DeleteConfirmationModal } from "./deleteconfirmationmodal";
-import { SuccessModal } from "./succesmodal";
-import { ErrorModal } from "./errormodal";
-import { unstable_noStore } from "next/cache";
-import { env } from "next-runtime-env";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
@@ -58,7 +48,7 @@ export default function EditQuestionForm({
   initialTestCases = [{ input: "", output: "" }],
 }: EditQuestionFormProps) {
   const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
-    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL",
   );
   const params = useParams();
   const router = useRouter();
@@ -82,18 +72,18 @@ export default function EditQuestionForm({
   const [testCases, setTestCases] =
     useState<{ input: string; output: string }[]>(initialTestCases);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
-    null
+    null,
   );
   const [question, setQuestion] = useState<Question | null>(null);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
-    fetcher
+    fetcher,
   );
 
   const { data: questionData, isLoading: questionLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id ? params.id : ""}`,
-    fetcher
+    fetcher,
   );
 
   useEffect(() => {
@@ -109,9 +99,10 @@ export default function EditQuestionForm({
             const [input, output] = testCase
               .split("->")
               .map((str) => str.trim());
+
             return { input, output };
-          })
-        ) || []
+          }),
+        ) || [],
       );
       setQuestion(questionData?.question);
     }
@@ -123,8 +114,6 @@ export default function EditQuestionForm({
         className="min-h-[250px] w-[250px]"
         defaultLanguage="javascript"
         language={language}
-        value={templateCode}
-        theme={theme === "dark" ? "vs-dark" : "vs-light"}
         options={{
           fontSize: 14,
           minimap: {
@@ -132,6 +121,8 @@ export default function EditQuestionForm({
           },
           contextmenu: false,
         }}
+        theme={theme === "dark" ? "vs-dark" : "vs-light"}
+        value={templateCode}
         onChange={handleEditorChange}
       />
     );
@@ -144,8 +135,9 @@ export default function EditQuestionForm({
   // Handle adding a category
   const addCategory = () => {
     const caps = currentCategory.toUpperCase();
+
     if (caps && !categories.includes(caps)) {
-      console.log(caps, categories);
+      // console.log(caps, categories);
       setCategories((prevCategories) => [...prevCategories, caps]);
     }
     setCurrentCategory(""); // Clear the input after adding
@@ -154,7 +146,7 @@ export default function EditQuestionForm({
   // Handle removing a category
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category)
+      prevCategories.filter((cat) => cat !== category),
     );
   };
 
@@ -176,16 +168,18 @@ export default function EditQuestionForm({
   // Remove a test case by index
   const removeTestCase = (index: number) => {
     const updatedTestCases = testCases.filter((_, i) => i !== index);
+
     setTestCases(updatedTestCases);
   };
 
   // Handle input change for test case
   const handleInputChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const updatedTestCases = [...testCases];
     const { name, value } = event.target;
+
     if (name === "input" || name === "output") {
       updatedTestCases[index][name] = value;
     }
@@ -226,13 +220,14 @@ export default function EditQuestionForm({
       !templateCode.trim() ||
       !testCases.every(
         (testCase) =>
-          testCase.input.trim() !== "" && testCase.output.trim() !== ""
+          testCase.input.trim() !== "" && testCase.output.trim() !== "",
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting."
+        "Please fill in all the required fields before submitting.",
       );
       setErrorModalOpen(true); // Show error modal with the validation message
+
       return;
     }
 
@@ -243,7 +238,7 @@ export default function EditQuestionForm({
       complexity: selectedTab,
       templateCode,
       testCases: testCases.map(
-        (testCase) => `${testCase.input} -> ${testCase.output}`
+        (testCase) => `${testCase.input} -> ${testCase.output}`,
       ),
     };
 
@@ -256,7 +251,7 @@ export default function EditQuestionForm({
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {
@@ -264,8 +259,9 @@ export default function EditQuestionForm({
         setSuccessModalOpen(true); // Open the success modal
       } else {
         const errorData = await response.json();
+
         setErrorMessage(
-          errorData.error || "Failed to update the question. Please try again."
+          errorData.error || "Failed to update the question. Please try again.",
         );
         setErrorModalOpen(true);
       }
@@ -282,7 +278,7 @@ export default function EditQuestionForm({
         `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id}`,
         {
           method: "DELETE",
-        }
+        },
       );
 
       if (response.ok) {
@@ -307,26 +303,26 @@ export default function EditQuestionForm({
     <>
       <div className="flex flex-col gap-4 w-fit">
         <Input
-          type="title"
+          isRequired
+          className="w-1/2 text-base"
           label="Title"
           labelPlacement="outside"
+          maxLength={80}
           placeholder="Enter question title"
-          className="w-1/2 text-base"
           size="md"
+          type="title"
           value={title}
           onValueChange={setTitle}
-          isRequired
-          maxLength={80}
         />
         <div className="flex flex-col gap-2 items-start">
           <span className="text-sm">Complexity</span>
           <Tabs
-            variant="bordered"
             color={complexityColorMap[selectedTab]}
-            onSelectionChange={(key) => setSelectedComplexity(key as string)}
-            selectedKey={selectedTab}
             radius="sm"
+            selectedKey={selectedTab}
             size="md"
+            variant="bordered"
+            onSelectionChange={(key) => setSelectedComplexity(key as string)}
           >
             <Tab key="EASY" title="Easy" />
             <Tab key="MEDIUM" title="Medium" />
@@ -338,17 +334,18 @@ export default function EditQuestionForm({
           <div className="flex flex-row gap-2">
             <Autocomplete
               allowsCustomValue
-              label="Press plus to add the category"
-              placeholder="Add a category"
               isRequired
-              variant="flat"
+              multiple
               className="w-[250px] text-left"
               description="You can add new categories too"
               inputValue={currentCategory}
-              onInputChange={setCurrentCategory}
-              size="md"
-              multiple
               isDisabled={categories.length >= 3}
+              isLoading={categoryLoading}
+              label="Press plus to add the category"
+              placeholder="Add a category"
+              size="md"
+              variant="flat"
+              onInputChange={setCurrentCategory}
             >
               {uniqueCategories && uniqueCategories.length > 0
                 ? uniqueCategories.map((category: string) => (
@@ -360,10 +357,10 @@ export default function EditQuestionForm({
             </Autocomplete>
             {categories.length < 3 && (
               <Button
-                radius="full"
-                variant="light"
                 isIconOnly
                 className="text-gray-600 dark:text-gray-200"
+                radius="full"
+                variant="light"
                 onPress={addCategory} // Trigger addCategory when button is pressed
               >
                 <BoxIcon name="bx-plus" size="18px" />
@@ -372,16 +369,16 @@ export default function EditQuestionForm({
 
             <div className="pt-2 flex flex-col gap-2 items-start">
               <ScrollShadow
-                orientation="horizontal"
                 className="max-w-[700px] max-h-[70px]"
+                orientation="horizontal"
               >
                 <div className="flex flex-row gap-2">
                   {categories && categories.length > 0
                     ? categories.map((category, index) => (
                         <Chip
                           key={index}
-                          onClose={() => removeCategory(category)}
                           size="md"
+                          onClose={() => removeCategory(category)}
                         >
                           {capitalize(category)}
                         </Chip>
@@ -410,10 +407,10 @@ export default function EditQuestionForm({
               Template Code<span className="text-red-500">*</span>
             </span>{" "}
             <Autocomplete
-              inputValue={language}
-              onInputChange={handleLanguageInputChange}
               aria-label="Select Language"
               className="w-48"
+              inputValue={language}
+              onInputChange={handleLanguageInputChange}
             >
               {languages.map((lang) => (
                 <AutocompleteItem key={lang} value={lang}>
@@ -431,58 +428,58 @@ export default function EditQuestionForm({
           {testCases.map((testCase, index) => (
             <div key={index} className="flex gap-2 items-center">
               <Input
+                className="w-48"
                 name="input"
                 placeholder="Input"
                 value={testCase.input}
                 onChange={(e) => handleInputChange(index, e)}
-                className="w-48"
               />
               <Input
+                className="w-48"
                 name="output"
                 placeholder="Expected Output"
                 value={testCase.output}
                 onChange={(e) => handleInputChange(index, e)}
-                className="w-48"
               />
               {testCases.length > 1 && (
                 <Button
-                  variant="light"
-                  size="sm"
+                  isIconOnly
                   className="rounded-full mx-4"
-                  onClick={() => removeTestCase(index)}
+                  size="sm"
                   startContent={
                     <BoxIcon name=" bxs-minus-circle" size="14px" />
                   }
-                  isIconOnly
+                  variant="light"
+                  onClick={() => removeTestCase(index)}
                 />
               )}
             </div>
           ))}
 
           <Button
-            onClick={addTestCase}
-            variant="flat"
-            className="my-4"
-            size="sm"
             isIconOnly
+            className="my-4"
             radius="full"
+            size="sm"
             startContent={<BoxIcon name="bx-plus" size="14px" />}
+            variant="flat"
+            onClick={addTestCase}
           />
         </div>
         <div className="flex flex-row gap-4 justify-end">
           <Button
-            variant="light"
             className="pr-5"
             startContent={<BoxIcon name="bx-x" size="20px" />}
+            variant="light"
             onClick={handleCancel}
           >
             Cancel
           </Button>
           <Button
-            color="danger"
-            variant="light"
             className="pr-5"
+            color="danger"
             startContent={<BoxIcon name="bx-trash" size="20px" />}
+            variant="light"
             onClick={handleDelete}
           >
             Delete
@@ -494,20 +491,20 @@ export default function EditQuestionForm({
       </div>
       <DeleteConfirmationModal
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
         questionToDelete={questionToDelete}
         onConfirm={deleteQuestion}
+        onOpenChange={onOpenChange}
       />
       <SuccessModal
         isOpen={isSuccessModalOpen}
-        onOpenChange={setSuccessModalOpen}
         message={successMessage}
         onConfirm={() => router.push("/")} // Redirect to list after confirmation
+        onOpenChange={setSuccessModalOpen}
       />
       <ErrorModal
+        errorMessage={errorMessage}
         isOpen={isErrorModalOpen}
         onOpenChange={setErrorModalOpen}
-        errorMessage={errorMessage}
       />
     </>
   );
