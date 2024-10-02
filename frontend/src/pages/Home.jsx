@@ -1,18 +1,15 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
-import logo from '.././styles/logo.svg';
 import '.././styles/App.css';
 import GeneralNavbar from "../components/navbar/GeneralNavbar";
 import useAuth from "../hooks/useAuth";
+import StartSession from "../components/home/StartSession";
 import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { username, removeCookie } = useAuth();
+  const { username, cookies, removeCookie } = useAuth();
 
   const Logout = () => {
     removeCookie("token");
@@ -23,20 +20,12 @@ const Home = () => {
     <>
       <div className="home_page">
         <GeneralNavbar />
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <div 
+          className="home_container"
+          style={{maxWidth: '1200px', margin: 'auto'}}>
+          <h1>Welcome back, <span style={{color: '#8576FF'}}>{username}</span>!</h1>
+          <StartSession />
+        </div>
       </div>
       <ToastContainer />
     </>
