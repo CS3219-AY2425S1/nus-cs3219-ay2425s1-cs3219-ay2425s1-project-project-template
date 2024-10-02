@@ -8,10 +8,7 @@
 - [Johan](https://github.com/delishad21)
 - [Joshua](https://github.com/dloh2236)
 
-## Milestone 3 Submission - Containerization
-
-
-# Setting Up the Project
+# Milestone 3 Submission - Containerization
 
 ## Prerequisites
 
@@ -20,10 +17,7 @@
 3. (Optional) Sign up for a MongoDB Atlas account
    - The docker compose file is configured to use a local MongoDB instance by default. If you would like to use a remote MongoDB instance, you can follow the instructions in the ["Remote DB Setup"](#remote-db-setup-mongodb-atlas-optional) section below.
 
-
-## Spinning Up Docker Containers
-
-### Docker Compose for all services (including frontend)
+## Docker Compose for all services (including frontend)
 
 1. Open a terminal and navigate to the root directory of the project.
 2. Duplicate the .env.sample file and rename it to .env
@@ -46,11 +40,11 @@
    - If you keyed in remote MongoDB URIs in the .env file, the MongoDB containers will not be started. The services will connect to the remote MongoDB instances instead.
 4. Once the services are up and running, you can access the frontend at `http://localhost:<FRONTEND_PORT>` (default: <http://localhost:3000>)
 
-### Docker Compose for individual services
+## Docker Compose for individual services
 
 If the services are to be run individually (e.g. for deployment on different platforms), you can follow the instructions below.
 
-#### Question Service
+### Question Service
 
 1. cd into the question-service directory
 2. Duplicate the .env.sample file and rename it to .env
@@ -66,17 +60,13 @@ If the services are to be run individually (e.g. for deployment on different pla
 3. Run `docker-compose up` to start the question service.
    - If you keyed in a remote MongoDB URI in the .env file, the MongoDB container will not be started. The question service will connect to the remote MongoDB instance instead.
 
-##### Common Issue and Troubleshooting
+**Common Issue and Troubleshooting**
+
 Issue: MongoParseError: URI malformed
 - Solution: Ensure that the MONGODB_URI in your .env file is correctly formatted with the right username, password, and database name.
 
-##### Question Service API Endpoints
 
-You can now test the API endpoints using Postman or any API testing tool. By default, the server should be running on <http://localhost:8003/>
-
-The question service API can be found here: [Question Service API](./question-service/README.md)
-
-#### User Service
+### User Service
 
 1. cd into the user-service directory
 2. Duplicate the .env.sample file and rename it to .env
@@ -92,13 +82,7 @@ The question service API can be found here: [Question Service API](./question-se
 3. Run `docker-compose up` to start the user service.
    - If you keyed in a remote MongoDB URI in the .env file, the MongoDB container will not be started. The user service will connect to the remote MongoDB instance instead.
 
-##### User Service API Endpoints
-
-You can now test the API endpoints using Postman or any API testing tool. By default, the server should be running on <http://localhost:8004/>
-
-The user service API can be found here: [User Service API](./user-service/README.md)
-
-#### Frontend Setup
+### Frontend
 
 1. Navigate to the frontend directory: cd frontend/peerprep
 2. Duplicate the .env.sample file and rename it to .env
@@ -110,6 +94,16 @@ The user service API can be found here: [User Service API](./user-service/README
       | NEXT_PUBLIC_IMAGE_UPLOAD_KEY | AuthToken for image upload | None, you can get this from https://www.portive.com |
       | FRONTEND_PORT | Port to run the frontend service | 3000 |
 3. Run `docker-compose up` to start the frontend service.
+
+## API Endpoints for User and Question Service
+
+**User Service API Endpoints**
+
+The user service API can be found here: [User Service API](./user-service/README.md)
+
+**Question Service API Endpoints**
+
+The question service API can be found here: [Question Service API](./question-service/README.md)
 
 ## Remote DB Setup (MongoDB Atlas) (Optional)
 
