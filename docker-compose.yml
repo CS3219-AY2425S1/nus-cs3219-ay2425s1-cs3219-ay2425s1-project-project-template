@@ -7,7 +7,7 @@ services:
         - 3000:3000 
         depends_on:
             - user-service
-            # - question-service
+            - question-service
    
     user-service:
         build: ./backend/user-service
