@@ -15,6 +15,8 @@ services:
     build: ./question-service
     ports:
       - 8080:8080
+    depends_on:
+      - question-db
     volumes:
       - ./question-service:/app
       - /app/node_modules
@@ -23,9 +25,37 @@ services:
     build: ./user-service
     ports:
       - 3001:3001
+    depends_on:
+      - user-db
     volumes:
       - ./user-service:/app
       - /app/node_modules
+
+  user-db:
+    image: mongo:latest
+    container_name: user-db
+    volumes:
+      - ./db-init/init-user-db.js:/docker-entrypoint-initdb.d/init-user-db.js
+      - user-db-data:/data/db
+    ports:
+      - 27017:27017
+
+  question-db:
+    image: mongo:latest
+    container_name: question-db
+    volumes:
+      - ./db-init/init-question-db.js:/docker-entrypoint-initdb.d/init-question-db.js
+      - question-db-data:/data/db
+    ports:
+      - 27018:27017
+
+
+volumes:
+  user-db-data:
+    name: user-db-data
+  question-db-data:
+    name: question-db-data
+
 
 # Notes:
 #
