@@ -23,7 +23,34 @@
 
 ## Spinning Up Docker Containers
 
-### Question Service
+### Docker Compose for all services (including frontend)
+
+1. Open a terminal and navigate to the root directory of the project.
+2. Duplicate the .env.sample file and rename it to .env
+   - If you wish to, you can modify the values in the .env file
+      | **Variable** | **Description** | **Default Value** |
+      |--------------|-----------------|-------------------|
+      | NEXT_PUBLIC_QUESTION_SERVICE_URL | URL of the question service | http://localhost:8003 |
+      | NEXT_PUBLIC_IMAGE_UPLOAD_KEY | AuthToken for image upload | None, you can get this from https://www.portive.com |
+      | FRONTEND_PORT | Port to run the frontend service | 3000 |
+      | USER_MONGODB_URI | MongoDB URI for the user service | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here |
+      | USER_MONGO_INITDB_ROOT_USERNAME | MongoDB root username for the user service | userroot |
+      | USER_MONGO_INITDB_ROOT_PASSWORD | MongoDB root password for the user service | userpassword |
+      | USER_PORT | Port to run the user service | 8004 |
+      | JWT_SECRET | Secret for creating JWT signature | you-can-replace-this-with-your-own-secret |
+      | QUESTION_MONGODB_URI | MongoDB URI for the question service | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here |
+      | QUESTION_MONGO_INITDB_ROOT_USERNAME | MongoDB root username for the question service | questionroot |
+      | QUESTION_MONGO_INITDB_ROOT_PASSWORD | MongoDB root password for the question service | questionpassword |
+      | QUESTION_PORT | Port to run the question service | 8003 |
+3. Run `docker-compose up` to start the services.
+   - If you keyed in remote MongoDB URIs in the .env file, the MongoDB containers will not be started. The services will connect to the remote MongoDB instances instead.
+4. Once the services are up and running, you can access the frontend at `http://localhost:<FRONTEND_PORT>` (default: <http://localhost:3000>)
+
+### Docker Compose for individual services
+
+If the services are to be run individually (e.g. for deployment on different platforms), you can follow the instructions below.
+
+#### Question Service
 
 1. cd into the question-service directory
 2. Duplicate the .env.sample file and rename it to .env
@@ -31,7 +58,7 @@
 
       | **Variable** | **Description** | **Default Value** |
       |--------------|-----------------|-------------------|
-      | MONGODB_URI  | MongoDB URI     | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here |
+      |QUESTION_MONGODB_URI  | MongoDB URI     | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here |
       | QUESTION_PORT         | Port to run the service | 8003 |
       | MONGO_INITDB_ROOT_USERNAME | MongoDB root username | root |
       | MONGO_INITDB_ROOT_PASSWORD | MongoDB root password | password |
@@ -39,23 +66,17 @@
 3. Run `docker-compose up` to start the question service.
    - If you keyed in a remote MongoDB URI in the .env file, the MongoDB container will not be started. The question service will connect to the remote MongoDB instance instead.
 
-#### Common Issue and Troubleshooting
+##### Common Issue and Troubleshooting
 Issue: MongoParseError: URI malformed
 - Solution: Ensure that the MONGODB_URI in your .env file is correctly formatted with the right username, password, and database name.
 
-#### Testing of the backend server
+##### Question Service API Endpoints
 
 You can now test the API endpoints using Postman or any API testing tool. By default, the server should be running on <http://localhost:8003/>
 
-| **Operation**            | **Method** | **Endpoint**                               | **Params/Request Body**                                                                                                                                             |
-|--------------------------|------------|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Create a question**     | POST       | `http://localhost:8003/api/questions`      | `{ "title": <string>, "description": <string>, "category": <an array of strings>, "complexity": <string>, "templateCode": <string>, "testCases": <an array of strings> }` |
-| **Update a question**     | PUT        | `http://localhost:8003/api/questions/<id>` | `{ "title": <string>, "description": <string>, "category": <an array of strings>, "complexity": <string>, "templateCode": <string>, "testCases": <an array of strings> }` |
-| **Delete a question**     | DELETE     | `http://localhost:8003/api/questions/<id>` | `id`: refers to the question id (1-indexed)                                                                                                                           |
-| **Retrieve questions (with filter)** | GET        | `http://localhost:8003/api/questions?<params>` | `?title=`, `?category=`, `?page=`, `?complexity=`, `?sort=`. Filters can be stacked. Multiple categories: `?category=Algorithms&category=Arr&category=Database`. Sorting: `?sort=title` (ascending), `?sort=-title` (descending) |
-| **Retrieve a question**   | GET        | `http://localhost:8003/api/questions/<id>` | `id`: refers to the question id (1-indexed)                                                                                                                           |
+The question service API can be found here: [Question Service API](./question-service/README.md)
 
-### User Service
+#### User Service
 
 1. cd into the user-service directory
 2. Duplicate the .env.sample file and rename it to .env
@@ -63,32 +84,32 @@ You can now test the API endpoints using Postman or any API testing tool. By def
 
       | **Variable** | **Description** | **Default Value** |
       |--------------|-----------------|-------------------|
-      | MONGODB_URI  | MongoDB URI     | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here|
+      | USER_MONGODB_URI  | MongoDB URI     | None, commented out. If you are using a remote MongoDB instance, you can key in your connection string here|
       | MONGO_INITDB_ROOT_USERNAME | MongoDB root username | root |
       | MONGO_INITDB_ROOT_PASSWORD | MongoDB root password | password |
       | USER_PORT         | Port to run the service | 8004 |
       | JWT_SECRET | Secret for creating JWT signature | you-can-replace-this-with-your-own-secret |
+3. Run `docker-compose up` to start the user service.
+   - If you keyed in a remote MongoDB URI in the .env file, the MongoDB container will not be started. The user service will connect to the remote MongoDB instance instead.
 
-### Frontend Setup
+##### User Service API Endpoints
+
+You can now test the API endpoints using Postman or any API testing tool. By default, the server should be running on <http://localhost:8004/>
+
+The user service API can be found here: [User Service API](./user-service/README.md)
+
+#### Frontend Setup
 
 1. Navigate to the frontend directory: cd frontend/peerprep
-2. Install dependencies – Ensure you have Node.js and npm installed on your machine. You can install the project dependencies by running npm install
-3. Run the Development Server. Ensure that the backend is running on localhost:8003. Start the development server by running the following command: npm run dev
-4. Once the server is running, open your browser and visit: http://localhost:3000 This will display the application in development mode.
-5. Navigate to the Questions Management Tab. You should be able to use the application as described above.
-6. Using File Upload Feature: To use the Image upload feature in the markdown editor of question descriptions, you will need to get a free upload API key and generate an authToken at https://www.portive.com
+2. Duplicate the .env.sample file and rename it to .env
+   - If you wish to, you can modify the values in the .env file
 
-      ![unnamed](https://github.com/user-attachments/assets/99b5343e-16c3-421f-97e3-7545f56b931b)
-8. After generating the authToken. Navigate to next.config.js in the root directory and add this in at the end of your file:
-   ```
-   module.exports = {
-       env: {
-           imageUploadKey: ‘<YOUR AUTHTOKEN HERE>’,
-       },
-   }
-   ```
-   Now restart the application and you should be able to upload files in the markdown editor.
-
+      | **Variable** | **Description** | **Default Value** |
+      |--------------|-----------------|-------------------|
+      | NEXT_PUBLIC_QUESTION_SERVICE_URL | URL of the question service | http://localhost:8003 |
+      | NEXT_PUBLIC_IMAGE_UPLOAD_KEY | AuthToken for image upload | None, you can get this from https://www.portive.com |
+      | FRONTEND_PORT | Port to run the frontend service | 3000 |
+3. Run `docker-compose up` to start the frontend service.
 
 ## Remote DB Setup (MongoDB Atlas) (Optional)
 
