@@ -10,7 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
   imports: [
     AuthModule,
     ConfigModule.forRoot(),
-    MongooseModule.forRoot('mongodb://127.0.0.1/PeerPrep'),
+    MongooseModule.forRoot(process.env.DB_CLOUD_URI),
     UsersModule,
   ],
   controllers: [AppController],

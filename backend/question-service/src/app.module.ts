@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionsModule } from './questions/questions.module';
+import { ConfigModule } from '@nestjs/config';
+  
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1/PeerPrep'),
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot(process.env.DB_CLOUD_URI),
     QuestionsModule,
   ],
 })
