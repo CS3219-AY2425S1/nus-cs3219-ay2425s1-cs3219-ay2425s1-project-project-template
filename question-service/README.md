@@ -14,7 +14,6 @@
     - `description`: Question description (string)
     - `category`: An array of categories that the question belongs to
     - `complexity`: Complexity level of the question (Easy, Medium, Hard)
-  - Optional Parameters
     - `templateCode`: Template code for the question
     - `testCases`: An array of test cases for the question in this format:
        `["input1 -> output1", "input2 -> output2"]`
