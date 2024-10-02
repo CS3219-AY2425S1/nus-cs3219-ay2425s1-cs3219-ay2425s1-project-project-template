@@ -1,5 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+
+
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* You can add global styles to this file, and also import other style files */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    background-image: url(../assets/background.png);
+    overflow: hidden;
+ }
 
 /* src/styles.css or src/styles.scss */
 
@@ -92,15 +103,10 @@
     text-align: center;
   }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  
-
 
 
   
+
+
+
+ 
