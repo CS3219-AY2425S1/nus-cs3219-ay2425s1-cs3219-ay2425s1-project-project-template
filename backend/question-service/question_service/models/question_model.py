@@ -2,6 +2,8 @@ from enum import Enum
 
 from beanie import Document
 
+from ..config import settings
+
 
 class Difficulty(Enum):
     Easy = "Easy"
@@ -17,7 +19,7 @@ class Question(Document):
     topic: str
 
     class Settings:
-        name = "questions"
+        name = settings.COLLECTION_NAME
 
     class Config:
         json_schema_extra = {
