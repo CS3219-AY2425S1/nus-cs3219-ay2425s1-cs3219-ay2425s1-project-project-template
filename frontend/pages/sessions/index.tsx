@@ -2,6 +2,7 @@ import { IPagination, ISession, ISortBy, SortDirection } from '@/types'
 import { useEffect, useState } from 'react'
 
 import Datatable from '@/components/customs/datatable'
+import Loading from '@/components/customs/loading'
 import { columns } from './columns'
 import { mockSessionsData } from '@/mock-data'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
@@ -36,7 +37,7 @@ export default function Sessions() {
 
     const { loading } = useProtectedRoute()
 
-    if (loading) return null
+    if (loading) return <Loading />
 
     return (
         <div className="m-8">

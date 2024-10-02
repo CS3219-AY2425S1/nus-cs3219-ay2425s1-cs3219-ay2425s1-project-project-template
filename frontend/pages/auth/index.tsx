@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Loading from '@/components/customs/loading'
 import Login from '../../components/auth/Login'
 import Signup from '../../components/auth/Signup'
 import { useRouter } from 'next/router'
@@ -13,7 +14,7 @@ export default function Auth() {
     const { data: session, status } = useSession()
 
     if (status === 'loading') {
-        return null
+        return <Loading />
     }
 
     if (session) {

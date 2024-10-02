@@ -25,6 +25,7 @@ import ConfirmDialog from '@/components/customs/confirm-dialog'
 import CustomForm from '@/components/customs/custom-form'
 import CustomModal from '@/components/customs/custom-modal'
 import Datatable from '@/components/customs/datatable'
+import Loading from '@/components/customs/loading'
 import { Role } from '@repo/user-types'
 import { capitalizeFirst } from '@/util/string-modification'
 import { toast } from 'sonner'
@@ -36,7 +37,6 @@ export default function Questions() {
     const isAdmin = session?.user.role === Role.ADMIN
 
     const [data, setData] = useState<IQuestion[]>([])
-    const [isLoading, setLoading] = useState<boolean>(false)
     const [pagination, setPagination] = useState<IPagination>({
         totalPages: 1,
         currentPage: 1,
@@ -90,23 +90,18 @@ export default function Questions() {
     }
 
     const loadData = async () => {
-        setLoading(true)
         const body: IGetQuestions = {
             page: pagination.currentPage,
             limit: pagination.limit,
             sortBy: sortBy,
         }
         await load(body)
-        setLoading(false)
     }
 
     useEffect(() => {
+        if (!session) return
         loadData()
     }, [])
-
-    const { loading } = useProtectedRoute()
-
-    if (loading) return null
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
@@ -236,6 +231,11 @@ export default function Questions() {
     const refreshTable = () => {
         loadData()
     }
+
+    const { loading } = useProtectedRoute()
+
+    if (loading) return <Loading />
+    if (data.length === 0) return null
 
     return (
         <div className="m-8">

@@ -1,5 +1,6 @@
 'use client'
 
+import Loading from '@/components/customs/loading'
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
@@ -32,7 +33,7 @@ export default function Home() {
 
     const { session, loading } = useProtectedRoute()
 
-    if (loading) return null
+    if (loading) return <Loading />
 
     return (
         <div className="my-4">
