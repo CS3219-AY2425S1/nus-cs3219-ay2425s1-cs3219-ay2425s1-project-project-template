@@ -235,7 +235,7 @@ export default function Questions() {
     const { loading } = useProtectedRoute()
 
     if (loading) return <Loading />
-    if (data.length === 0) return null
+    if (!data || data?.length === 0) return null
 
     return (
         <div className="m-8">

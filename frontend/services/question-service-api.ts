@@ -1,7 +1,9 @@
 import { IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
 
 import axios from 'axios'
-import axiosInstance from './axios-middleware2'
+import axiosClient from './axios-middleware'
+
+const axiosInstance = axiosClient.questionServiceAPI
 
 // GET /questions
 export const getQuestionsRequest = async (data: IGetQuestions): Promise<IQuestionsApi | undefined> => {
