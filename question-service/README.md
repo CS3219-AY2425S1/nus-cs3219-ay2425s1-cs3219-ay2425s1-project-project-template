@@ -1,5 +1,7 @@
 # Question Service API Guide
 
+This directory contains a [postman collection](./Question-Service%20API.postman_collection.json) for the Question Service API.
+
 ## Create Question
 
 - This endpoint allows you to add a new question to the database.

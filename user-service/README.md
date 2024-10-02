@@ -1,6 +1,8 @@
-## User Service API Guide
+# User Service API Guide
 
-### Create User
+This directory contains a [Postman collection](./User-Service%20API.postman_collection.json) for the User Service API.
+
+## Create User
 
 - This endpoint allows adding a new user to the database (i.e., user registration).
 
@@ -28,7 +30,7 @@
     | 409 (Conflict)              | Duplicate username or email encountered               |
     | 500 (Internal Server Error) | Database or server error                              |
 
-### Get User
+## Get User
 
 - This endpoint allows retrieval of a single user's data from the database using the user's ID.
 
@@ -64,7 +66,7 @@
     | 404 (Not Found)             | User with the specified ID not found                     |
     | 500 (Internal Server Error) | Database or server error                                 |
 
-### Get All Users
+## Get All Users
 
 - This endpoint allows retrieval of all users' data from the database.
 - HTTP Method: `GET`
@@ -86,7 +88,7 @@
     | 403 (Forbidden)             | Access denied for non-admin users                |
     | 500 (Internal Server Error) | Database or server error                         |
 
-### Update User
+## Update User
 
 - This endpoint allows updating a user and their related data in the database using the user's ID.
 
@@ -128,7 +130,7 @@
     | 409 (Conflict)              | Duplicate username or email encountered                 |
     | 500 (Internal Server Error) | Database or server error                                |
 
-### Update User Privilege
+## Update User Privilege
 
 - This endpoint allows updating a user’s privilege, i.e., promoting or demoting them from admin status.
 
@@ -168,7 +170,7 @@
     | 404 (Not Found)             | User with the specified ID not found                            |
     | 500 (Internal Server Error) | Database or server error                                        |
 
-### Delete User
+## Delete User
 
 - This endpoint allows deletion of a user and their related data from the database using the user's ID.
 - HTTP Method: `DELETE`
@@ -195,7 +197,7 @@
     | 404 (Not Found)             | User with the specified ID not found                    |
     | 500 (Internal Server Error) | Database or server error                                |
 
-### Login
+## Login
 
 - This endpoint allows a user to authenticate with an email and password and returns a JWT access token. The token is valid for 1 day and can be used subsequently to access protected resources. For example usage, refer to the [Authorization header section in the Get User endpoint](#auth-header).
 - HTTP Method: `POST`
@@ -219,7 +221,7 @@
     | 401 (Unauthorized)          | Incorrect email or password                        |
     | 500 (Internal Server Error) | Database or server error                           |
 
-### Verify Token
+## Verify Token
 
 - This endpoint allows one to verify a JWT access token to authenticate and retrieve the user's data associated with the token.
 - HTTP Method: `GET`
