@@ -5,13 +5,12 @@ name: Create and publish Question Service
 on:
   push:
     branches:
-      - docker/question-service
+      - main
 
 env:
   REGISTRY: ghcr.io
   REPO: cs3219-ay2425s1/cs3219-ay2425s1-project-g40
   IMAGE_NAME: question-service
-  COMMIT_TAG: ${{ github.ref_name }}
   LATEST_TAG: latest
 
 jobs:
@@ -48,5 +47,4 @@ jobs:
           context: "{{defaultContext}}:/backend/question-service"
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_TAG }}
             ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
