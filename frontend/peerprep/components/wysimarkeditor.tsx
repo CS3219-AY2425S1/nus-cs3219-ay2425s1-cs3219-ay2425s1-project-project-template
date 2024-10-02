@@ -1,11 +1,14 @@
 import { Textarea } from "@nextui-org/react";
 import { Editable, useEditor } from "@wysimark/react";
+import { env } from "next-runtime-env";
 import { useEffect, useState } from "react";
 
 interface WysiMarkEditorProps {
   initialValue: string;
   onChange: (value: string) => void;
 }
+
+const NEXT_PUBLIC_IMAGE_UPLOAD_KEY = env("NEXT_PUBLIC_IMAGE_UPLOAD_KEY");
 
 export const WysiMarkEditor = ({
   initialValue,
@@ -14,7 +17,7 @@ export const WysiMarkEditor = ({
   const [markdown, setMarkdown] = useState("");
 
   const editor = useEditor({
-    authToken: process.env.NEXT_PUBLIC_IMAGE_UPLOAD_KEY,
+    authToken: NEXT_PUBLIC_IMAGE_UPLOAD_KEY,
     minHeight: 500,
   });
 

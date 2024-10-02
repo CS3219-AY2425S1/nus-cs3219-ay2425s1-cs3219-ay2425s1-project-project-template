@@ -30,14 +30,18 @@ import BoxIcon from "./boxicons";
 import { SearchIcon } from "./icons";
 import { DeleteConfirmationModal } from "./deleteconfirmationmodal";
 import { useRouter } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_noStore } from "next/cache";
 
 import useSWR from "swr";
 import { capitalize } from "@/utils/utils";
+import { env } from "next-runtime-env";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function QuestionsTable() {
+  const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
+  );
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
@@ -53,7 +57,7 @@ export default function QuestionsTable() {
     if (questionToDelete) {
       try {
         await fetch(
-          `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${questionToDelete.question_id}`,
+          `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${questionToDelete.question_id}`,
           {
             method: "DELETE",
           }
@@ -79,7 +83,7 @@ export default function QuestionsTable() {
   const [page, setPage] = React.useState(1);
 
   const { data: questionData, isLoading: questionLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions?${hasSearchFilter ? `title=${filterValue}&` : ""}${complexityFilter !== null ? `complexity=${complexityFilter}&` : ""}${
+    `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions?${hasSearchFilter ? `title=${filterValue}&` : ""}${complexityFilter !== null ? `complexity=${complexityFilter}&` : ""}${
       categoryFilter !== "all"
         ? Array.from(categoryFilter)
             .map((category) => `category=${encodeURIComponent(category)}`)
@@ -90,7 +94,7 @@ export default function QuestionsTable() {
   );
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
+    `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 

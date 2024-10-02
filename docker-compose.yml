@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${NEXT_PUBLIC_FRONTEND_PORT}:${NEXT_PUBLIC_FRONTEND_PORT}"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
   user-mongodb:
     image: mongo:latest

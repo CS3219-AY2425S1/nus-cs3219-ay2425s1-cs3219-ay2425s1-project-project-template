@@ -34,6 +34,8 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { SuccessModal } from "./succesmodal";
 import { ErrorModal } from "./errormodal";
+import { unstable_noStore } from "next/cache";
+import { env } from "next-runtime-env";
 
 interface AddQuestionFormProps {
   initialTitle?: string;
@@ -54,6 +56,9 @@ export default function AddQuestionForm({
   initialTemplateCode = "/** PUT YOUR TEMPLATE CODE HERE **/",
   initialTestCases = [{ input: "", output: "" }],
 }: AddQuestionFormProps) {
+  const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
+  );
   const router = useRouter();
   const { theme } = useTheme();
 
@@ -75,7 +80,7 @@ export default function AddQuestionForm({
     useState<{ input: string; output: string }[]>(initialTestCases);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
+    `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 
@@ -193,7 +198,7 @@ export default function AddQuestionForm({
     try {
       // Send POST request
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/`,
+        `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/`,
         {
           method: "POST",
           headers: {

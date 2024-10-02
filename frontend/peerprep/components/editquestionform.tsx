@@ -35,6 +35,8 @@ import { useTheme } from "next-themes";
 import { DeleteConfirmationModal } from "./deleteconfirmationmodal";
 import { SuccessModal } from "./succesmodal";
 import { ErrorModal } from "./errormodal";
+import { unstable_noStore } from "next/cache";
+import { env } from "next-runtime-env";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
@@ -55,6 +57,9 @@ export default function EditQuestionForm({
   initialTemplateCode = "",
   initialTestCases = [{ input: "", output: "" }],
 }: EditQuestionFormProps) {
+  const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
+  );
   const params = useParams();
   const router = useRouter();
   const [language, setLanguage] = useState("javascript");
@@ -82,12 +87,12 @@ export default function EditQuestionForm({
   const [question, setQuestion] = useState<Question | null>(null);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
+    `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
     fetcher
   );
 
   const { data: questionData, isLoading: questionLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id ? params.id : ""}`,
+    `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id ? params.id : ""}`,
     fetcher
   );
 
@@ -244,7 +249,7 @@ export default function EditQuestionForm({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id}`,
+        `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id}`,
         {
           method: "PUT",
           headers: {
@@ -274,7 +279,7 @@ export default function EditQuestionForm({
   const deleteQuestion = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id}`,
+        `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id}`,
         {
           method: "DELETE",
         }

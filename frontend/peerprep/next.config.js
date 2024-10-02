@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
     env: {
-        QUESTION_SERVICE_URL: process.env.QUESTION_SERVICE_URL,
-        IMAGE_UPLOAD_KEY: process.env.IMAGE_UPLOAD_KEY || undefined,
+        NEXT_PUBLIC_QUESTION_SERVICE_URL: process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL,
+        NEXT_PUBLIC_IMAGE_UPLOAD_KEY: process.env.NEXT_PUBLIC_IMAGE_UPLOAD_KEY || undefined,
     },
 }
 
