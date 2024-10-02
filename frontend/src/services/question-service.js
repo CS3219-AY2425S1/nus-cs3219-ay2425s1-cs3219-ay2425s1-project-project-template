@@ -15,12 +15,14 @@ const reformatError = (action, error) => {
 }
 
 // Create question
-const createQuestion = async (formData) => {
+const createQuestion = async (cookies, formData) => {
     try {
         const response = await axios.post(BASE_URL, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${cookies.token}`
+            },
+            withCredentials: true
         });
         return response.data;
     } catch (error) {
@@ -29,12 +31,14 @@ const createQuestion = async (formData) => {
 }
 
 // Update question
-const updateQuestion = async (id, formData) => {
+const updateQuestion = async (id, cookies, formData) => {
     try {
         const response = await axios.put(`${BASE_URL}/${id}`, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${cookies.token}`
+            },
+            withCredentials: true
         });
         return response.data;
     } catch (error) {
@@ -43,9 +47,14 @@ const updateQuestion = async (id, formData) => {
 }
 
 // Delete question
-const deleteQuestion = async (id) => {
+const deleteQuestion = async (id, cookies) => {
     try {
-        const response = await axios.delete(`${BASE_URL}/${id}`);
+        const response = await axios.delete(`${BASE_URL}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${cookies.token}`
+            },
+            withCredentials: true
+        });
         return response.data;
     } catch (error) {
         throw reformatError('Error deleting question:', error);
@@ -53,9 +62,14 @@ const deleteQuestion = async (id) => {
 }
 
 // Get question by id
-const getQuestionById = async (id) => {
+const getQuestionById = async (id, cookies) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${id}`);
+        const response = await axios.get(`${BASE_URL}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${cookies.token}`
+            },
+            withCredentials: true
+        });
         return response.data;
     } catch (error) {
         throw reformatError('Error getting question:', error);
@@ -74,9 +88,14 @@ const filterQuestions = async (category, filter) => {
 };
 
 // Get all questions
-const getAllQuestions = async () => {
+const getAllQuestions = async (cookies) => {
     try {
-        const response = await axios.get(BASE_URL);
+        const response = await axios.get(BASE_URL, {
+            headers: {
+                Authorization: `Bearer ${cookies.token}`
+            },
+            withCredentials: true
+        });
         return response.data;
     } catch (error) {
         throw reformatError('Error getting all questions:', error);
