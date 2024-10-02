@@ -14,6 +14,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [categoryList, setCategoryList] = useState([""]);
   const [titleValue, setTitleValue] = useState("");
   const [descriptionValue, setDescriptionValue] = useState("");
+  const [isMissingWarningVisible, setIsMissingWarningVisible] = useState(false);
   //const [canSubmit, setCanSubmit] = useState(false);
 
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,8 +75,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     ) {
       /* Empty fields detected, show warning */
       //alert(complexityValue + categoryList + titleValue + descriptionValue);
-      document.getElementById("emptyMessage")?.classList.remove("hidden");
-      document.getElementById("emptyMessage")?.classList.add("visible");
+      setIsMissingWarningVisible(true);
       return;
     }
     /* API call to add question */
@@ -160,12 +160,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
           {/* Action buttons */}
           <div className="mt-6">
-            <p
-              id="emptyMessage"
-              className="flex justify-center text-red-500 hidden"
-            >
-              * Please fill in all the empty fields. *
-            </p>
+            {isMissingWarningVisible && (
+              <p id="emptyMessage" className="flex justify-center text-red-500">
+                * Please fill in all the empty fields. *
+              </p>
+            )}
             <div className="flex justify-evenly mt-2">
               <button
                 onClick={onSubmit}

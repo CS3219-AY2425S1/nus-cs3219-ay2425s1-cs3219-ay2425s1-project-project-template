@@ -75,6 +75,7 @@ const EditQuestionModal: React.FC<
   const [newTitleValue, setNewTitleValue] = useState(oldQuestion.title);
   const [newDescriptionValue, setNewDescriptionValue] = useState(oldQuestion.description);
   const [newQuestion, setNewQuestion] = useState(oldQuestion);
+  const [isMissingWarningVisible, setIsMissingWarningVisible] = useState(false);
 
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newCategoryValue = event.target.value;
@@ -109,13 +110,11 @@ const EditQuestionModal: React.FC<
       newDescriptionValue == ""
     ) {
       //alert(newComplexityValue + newCategoryList + newTitleValue + newDescriptionValue);
-      document.getElementById("emptyMessage")?.classList.remove("hidden");
-      document.getElementById("emptyMessage")?.classList.add("visible");
+      setIsMissingWarningVisible(true);
     } else {
       /* All fields are filled -> ask user to confirm the changes */
-      document.getElementById("emptyMessage")?.classList.remove("visible");
-      document.getElementById("emptyMessage")?.classList.add("hidden");
-
+      setIsMissingWarningVisible(false);
+      
       const newQuestion: Question = {
         id: "",
         complexity: newComplexityValue,
@@ -208,12 +207,11 @@ const EditQuestionModal: React.FC<
 
         {/* Action buttons */}
         <div className="mt-6">
-          <p
-            id="emptyMessage"
-            className="flex justify-center text-red-500 hidden"
-          >
-            * Please fill in all the empty fields. *
-          </p>
+          {isMissingWarningVisible && (
+            <p id="emptyMessage" className="flex justify-center text-red-500">
+              * Please fill in all the empty fields. *
+            </p>
+          )}
           <div className="flex justify-evenly mt-2">
             <button
               onClick={openDeleteModal}
