@@ -1,14 +1,17 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function SignupPage() {
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+  const navigate = useNavigate();
+
+  const { register, handleSubmit, watch, formState: { errors, isValid }, reset } = useForm({
     defaultValues: {
       email: "",
       password: "",
@@ -18,20 +21,33 @@ export default function SignupPage() {
 
   const password = watch("password");
 
+
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Record<string, string>) => {
-      console.log(data)
-      return axios.post("Replace with signup API", data)
+    mutationFn: async (data: Record<string, string>) => {
+      return axios.post("Insert signup API", data)
     },
     onSuccess: (data) => {
-      console.log(data);
+      toast.success("Account created!")
+      reset();
+      navigate("/login")
     },
     onError: (error) => {
-      console.log(error);
+      const errorCode = error.message.split('status code ')[1];
+      let message: string;
+      if (errorCode == "409") {
+        message = "Email already exists"
+      } else {
+        message = "Unknown error occur"
+      }
+      toast.error(message)
     }
   });
 
-  const onSubmit = (data: Record<string, string>) => {
+  const onSubmit = (formData: Record<string, string>) => {
+    const data = {
+      email: formData.email,
+      password: formData.password,
+    }
     mutate(data);
   }
 
@@ -75,9 +91,9 @@ export default function SignupPage() {
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.cfmPassword?.message}</span>
         </div>
         <div className="flex justify-center items-center">
-          <button disabled={isPending} className="flex bg-buttonColour w-1/2 justify-center items-center gap-x-2 p-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">
-          {isPending &&<RotateRightIcon className="animate-spin" />}
-          {isPending ? "Processing..." : "Sign Up"}
+          <button disabled={!isValid || isPending} className="flex bg-buttonColour w-1/2 justify-center items-center gap-x-2 p-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">
+            {isPending && <RotateRightIcon className="animate-spin" />}
+            {isPending ? "Processing..." : "Sign Up"}
           </button>
         </div>
       </form>

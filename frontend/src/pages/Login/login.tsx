@@ -1,14 +1,17 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+  const navigate = useNavigate();
+
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
     defaultValues: {
       email: "",
       password: "",
@@ -17,14 +20,23 @@ export default function LoginPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Record<string, string>) => {
-      console.log(data);
-      return axios.post("Replace with login API", data)
+      return axios.post("Insert login API", data)
     },
     onSuccess: (data) => {
-      console.log(data);
+      reset()
+      navigate("/")
     },
     onError: (error) => {
-      console.log(error);
+      const errorCode = error.message.split('status code ')[1];
+      let message: string;
+      if (errorCode == "401") {
+        message = "Wrong email and/or password"
+      } else if (errorCode == "400") {
+        message = "Empty email and/or password"
+      } else {
+        message = "Unknown error occur"
+      }
+      toast.error(message)
     }
   });
 
