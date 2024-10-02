@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { QuestionListComponent } from '../components/question-list/question-list.component';
 import { authService } from './authService/authService';
 import { AdminComponent } from './admin/admin.component';
+import { HttpClientModule } from '@angular/common/http';
 
 const MODULES = [
   CommonModule,
@@ -17,7 +18,8 @@ const MODULES = [
   FormsModule,
   QuestionListComponent,
   CommonModule,
-  AdminComponent
+  AdminComponent,
+  HttpClientModule
 ];
 
 @Component({

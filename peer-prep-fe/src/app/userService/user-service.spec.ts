@@ -10,10 +10,11 @@ describe('UserService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule ]
-    })});
-  
-  httpClient = TestBed.inject(HttpClient);
-  httpTestingController = TestBed.inject(HttpTestingController);
+    })
+
+    httpClient = TestBed.get(HttpClient);
+    httpTestingController = TestBed.get(HttpTestingController);
+  });
   
   it('should create an instance', () => {
     expect(new UserService(httpClient)).toBeTruthy();
