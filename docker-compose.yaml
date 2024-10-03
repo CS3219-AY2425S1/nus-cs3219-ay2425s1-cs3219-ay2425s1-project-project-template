@@ -13,8 +13,6 @@ services:
       - ./backend/user/.env.local
     volumes:
       - "user-db-docker:${USER_PGDATA}"
-    ports:
-      - "${USER_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
     networks:
       - user-db-network
@@ -29,8 +27,6 @@ services:
       - ./backend/collaboration/.env.local
     volumes:
       - "collab-db-docker:/${COLLAB_PGDATA}"
-    ports:
-      - "${COLLAB_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
     networks:
       - collab-db-network
@@ -45,8 +41,6 @@ services:
       - ./backend/question/.env.local
     volumes:
       - "question-db-docker:${QUESTION_PGDATA}"
-    ports:
-      - "${QUESTION_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
     networks:
       - question-db-network
