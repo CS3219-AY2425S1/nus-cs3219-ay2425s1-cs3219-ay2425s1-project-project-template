@@ -20,6 +20,11 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
+export const logout = async () => {
+  localStorage.removeItem('authToken');
+  window.location.reload();
+}
+
 export const verifyToken = async () => {
   const accessToken = localStorage.getItem('authToken');
   if (!accessToken) {
@@ -36,5 +41,26 @@ export const verifyToken = async () => {
   } catch (error) {
     console.error('Error verifying token:', error);
     throw error;
+  }
+}
+
+export const deleteUser = async (userId: string) => {
+  const accessToken = localStorage.getItem('authToken');
+  if (!accessToken) {
+    return false;
+  }
+  try {
+    const response = await axios.delete(`http://localhost:8003/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log(`User ${userId} deleted`);
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    throw error;
+  } finally {
+    await logout();
   }
 }
