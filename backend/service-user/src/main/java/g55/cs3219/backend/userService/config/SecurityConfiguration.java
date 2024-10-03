@@ -48,6 +48,9 @@ public class SecurityConfiguration {
                         // Delete user - admins can delete any, non-admins can only delete their own (handled in service)
                         .requestMatchers(HttpMethod.DELETE, "/users/{userId}").authenticated()
 
+                        // Allow only authenticated users to verify the token
+                        .requestMatchers(HttpMethod.GET, "/auth/verify-token").authenticated()
+
                         // All other requests require authentication
                         .anyRequest().authenticated()
 

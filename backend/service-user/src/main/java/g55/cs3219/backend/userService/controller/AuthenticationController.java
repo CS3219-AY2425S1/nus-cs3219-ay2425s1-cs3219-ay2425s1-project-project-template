@@ -11,8 +11,10 @@ import g55.cs3219.backend.userService.service.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,6 +81,18 @@ public class AuthenticationController {
             return ResponseEntity.ok("Verification code sent.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/verify-token")
+    public ResponseEntity<?> verifyToken(Authentication authentication) {
+        try {
+            User currentUser = (User) authentication.getPrincipal();
+
+            UserResponse response = new UserResponse(currentUser.getName(), currentUser.getEmail());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while verifying the token.");
         }
     }
 }
