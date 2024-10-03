@@ -9,20 +9,20 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-// https://youtu.be/uZGuwX3St_c?si=hQ2vppx_ACMhrS7u
 @RequestMapping("/users")
 @RestController
 public class UserController {
@@ -49,27 +49,42 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable String userId, Authentication authentication) {
-        System.out.println("Controller: Received request for user ID: " + userId);
         try {
-            // Retrieve the current user making the request
             User currentUser = (User) authentication.getPrincipal();
-
-            // Call the service method to get the user by ID
             User fetchedUser = userService.getUserById(Long.parseLong(userId), currentUser);
-
-            // Return user data as a response
-            return ResponseEntity.ok(new UserResponse(fetchedUser.getUsername(), fetchedUser.getEmail()));
+            return ResponseEntity.ok(new UserResponse(fetchedUser.getName(), fetchedUser.getEmail()));
         } catch (RuntimeException e) {
-            // Handle forbidden access
             if (e.getMessage().equals("Forbidden")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied.");
             }
-            // Handle user not found
             if (e.getMessage().equals("User not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with the specified ID not found.");
             }
-            // Handle internal server errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Map<String, Object> updates,
+                                        Authentication authentication) {
+        try {
+            User currentUser = (User) authentication.getPrincipal();
+
+            if (updates.containsKey("isAdmin")) {
+                if (!currentUser.isAdmin()) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Only admin users can update privileges.");
+                }
+            }
+            User updatedUser = authenticationService.updateUser(Long.parseLong(userId), updates, currentUser);
+
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Forbidden")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the user information.");
         }
     }
 
@@ -77,7 +92,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@Valid @RequestBody RegisterUserDto registerUserDto) {
         try {
             User createdUser = authenticationService.signup(registerUserDto);
-            return new ResponseEntity<>(new UserResponse(createdUser.getUsername(), createdUser.getEmail()), HttpStatus.CREATED);
+            return new ResponseEntity<>(new UserResponse(createdUser.getName(), createdUser.getEmail()), HttpStatus.CREATED);
         } catch (RuntimeException e) {
             // Handle duplicate username or email
             if (e.getMessage().contains("exists")) {

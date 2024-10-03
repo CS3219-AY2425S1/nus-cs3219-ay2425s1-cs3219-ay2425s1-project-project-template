@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -22,8 +23,6 @@ public class UserService {
     }
 
     public User getUserById(Long userId, User currentUser) {
-        System.out.println("Fetching user with ID: " + userId);
-        // Retrieve user from the database
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

@@ -39,7 +39,7 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
-        UserResponse response = new UserResponse(registeredUser.getUsername(), registeredUser.getEmail());
+        UserResponse response = new UserResponse(registeredUser.getName(), registeredUser.getEmail());
         return ResponseEntity.ok(response);
     }
 

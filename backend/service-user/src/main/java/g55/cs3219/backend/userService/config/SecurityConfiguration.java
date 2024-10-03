@@ -43,10 +43,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/users/{userId}").authenticated()
 
                         // Update user - admins can update any, non-admins can only update their own (handled in service)
-                        .requestMatchers(HttpMethod.PATCH, "/users/{userId}").authenticated()
-
-                        // Update user privilege - restricted to admin only
-                        .requestMatchers(HttpMethod.PATCH, "/users/{userId}/privilege").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/{userId}").authenticated()
 
                         // Delete user - admins can delete any, non-admins can only delete their own (handled in service)
                         .requestMatchers(HttpMethod.DELETE, "/users/{userId}").authenticated()

@@ -11,10 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-// https://youtu.be/uZGuwX3St_c?si=hQ2vppx_ACMhrS7u
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -120,6 +120,31 @@ public class AuthenticationService {
             e.printStackTrace();
         }
 
+    }
+
+    public User updateUser(Long userId, Map<String, Object> updates, User currentUser) {
+        User userToUpdate = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!currentUser.isAdmin() && !userToUpdate.getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Forbidden: You can only update your own information.");
+        }
+
+        if (updates.containsKey("username")) {
+            userToUpdate.setUsername((String) updates.get("username"));
+        }
+        if (updates.containsKey("email")) {
+            userToUpdate.setEmail((String) updates.get("email"));
+        }
+        if (updates.containsKey("password")) {
+            userToUpdate.setPassword(passwordEncoder.encode((String) updates.get("password")));
+        }
+
+        if (updates.containsKey("isAdmin") && currentUser.isAdmin()) {
+            userToUpdate.setAdmin((Boolean) updates.get("isAdmin"));
+        }
+
+        return userRepository.save(userToUpdate);
     }
 
     private  String generateVerificationCode() {
