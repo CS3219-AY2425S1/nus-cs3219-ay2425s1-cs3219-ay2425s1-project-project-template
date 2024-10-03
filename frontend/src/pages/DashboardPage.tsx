@@ -1,14 +1,15 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import AdminNavBar from "../components/AdminNavBar.tsx";
 import Dashboard from "../components/Dashboard/Dashboard.tsx";
 import useQuestionList from "../hooks/useQuestionList.tsx";
 
 const DashboardPage: React.FC = () => {
-  const {questions, fetchData} = useQuestionList();
+  const [questions, setQuestions] = useState([]);
+  const fetchData = useQuestionList(setQuestions);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   return (
     <div className="w-screen h-screen flex flex-col">

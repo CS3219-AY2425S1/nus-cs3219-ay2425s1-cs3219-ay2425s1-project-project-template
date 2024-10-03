@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Question } from "../types/Question";
 
 // React hook to fetch a list of questions
 // pass in the setQuestions function to update the state of the questions
 
-const useQuestionList = () => {
-  const [questions, setQuestions] = useState<Question[]>([])
+const useQuestionList = (
+  setQuestions: Dispatch<SetStateAction<Question | undefined>>
+) => {
   const fetchData = async () => {
     try {
       const response = await fetch("http://localhost:8080/questions", {
@@ -21,7 +22,7 @@ const useQuestionList = () => {
     }
   };
 
-  return {questions, fetchData};
+  return fetchData;
 };
 
 export default useQuestionList;
