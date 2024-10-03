@@ -1,7 +1,7 @@
 // page.tsx
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Plus } from "lucide-react";
 import { QuestionDto, CreateQuestionDto } from "@repo/dtos/questions";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -11,9 +11,10 @@ import { toast } from "@/hooks/use-toast";
 import { createQuestion, fetchQuestions } from "@/lib/api/question";
 import EmptyPlaceholder from "./components/EmptyPlaceholder";
 import { QUERY_KEYS } from "@/constants/queryKeys";
-import { DataTable } from "./components/data-table";
+import { DataTable } from "./components/question-table/data-table";
+import QuestionsSkeleton from "./components/QuestionsSkeleton";
 
-export default function QuestionRepositoryContent() {
+function QuestionRepositoryContent() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -71,3 +72,13 @@ export default function QuestionRepositoryContent() {
     </div>
   );
 }
+
+const QuestionRepository = () => {
+  return (
+    <Suspense fallback={<QuestionsSkeleton />}>
+      <QuestionRepositoryContent />
+    </Suspense>
+  );
+};
+
+export default QuestionRepository;
