@@ -289,3 +289,16 @@ cd apps/user-service
 # Build dockerfile after replacing the build arguments (Ensure that your docker daemon is running beforehand)
 docker build -t user-service --build-arg JWT_TOKEN='replace_with_jwt_token' --build-arg DB_CLOUD_URI='replace_with_db_uri_here' -f Dockerfile .
 ```
+
+### Running Docker
+
+```bash
+# Run the docker image, the -d tag is to run it detached
+docker run -p 3001:3001 -d user-service
+
+# To check the container information
+docker ps
+
+# To stop the container, use the container ID from the previous command
+docker stop <container_id>
+```
