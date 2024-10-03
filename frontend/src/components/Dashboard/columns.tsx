@@ -1,7 +1,9 @@
-import { Question } from "../../types/Question";
-import { Column } from "react-table";
+interface header {
+    Header: string;
+    accessor: string;
+}
 
-export const COLUMNS: Column<Question>[] = [
+export const COLUMNS: header[] = [
     // {
     //     Header: 'Id',
     //     accessor: 'id'
