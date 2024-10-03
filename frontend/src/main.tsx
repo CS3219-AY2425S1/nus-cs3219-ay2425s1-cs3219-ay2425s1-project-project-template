@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './index.css';
 import ErrorPage from '@/error-page';
 import ProblemsRoute from '@/routes/problems';
+import QuestionRoute from '@/routes/question';
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         path: 'problems',
         element: <ProblemsRoute />,
+      },
+      {
+        path: 'problems/:questionId',
+        element: <QuestionRoute />,
       },
     ],
   },
