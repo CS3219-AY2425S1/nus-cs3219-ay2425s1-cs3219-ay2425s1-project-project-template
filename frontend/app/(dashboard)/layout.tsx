@@ -11,6 +11,7 @@ import practiceImage from '@/public/images/practice.png';
 import profileImage from '@/public/images/profile.png';
 import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
+import { useRouter } from 'next/navigation';
 
 const items: NavbarCardProps[] = [
   {
@@ -38,10 +39,12 @@ export default function Layout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+
   const [isToggled, setIsToggled] = useState(false);
   const [isUserTriggered, setIsUserTriggered] = useState(false);
   const pathname = usePathname();
-  const { username, isLoading } = useAuth();
+  const { username, isLoading, isAuthenticated } = useAuth();
 
   const handleToggle = () => {
     setIsToggled(!isToggled);
@@ -55,11 +58,14 @@ export default function Layout({
 
   if (isLoading) {
     return (
-      <div className='flex flex-col justify-center items-center'>
+      <div className='flex flex-col justify-center items-center h-[100vh]'>
         <Spinner size='xl' thickness='4px' color='blue.500' emptyColor='gray.200' className="m-10" />
-        <span className='text-xl text-center'>Loading Questions...</span>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    router.push('/login');
   }
 
   return (
