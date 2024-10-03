@@ -6,7 +6,7 @@ import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import DifficultyBadge from "@/components/DifficultyBadge";
-import { CATEGORY, COMPLEXITY } from "@/constants/question";
+import { COMPLEXITY } from "@/constants/question";
 import { QuestionDto } from "@repo/dtos/questions";
 
 // Complexity sorting order

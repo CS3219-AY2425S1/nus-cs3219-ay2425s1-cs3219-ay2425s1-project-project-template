@@ -7,18 +7,18 @@ import { QuestionDto, CreateQuestionDto } from "@repo/dtos/questions";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import CreateModal from "./components/CreateModal";
-import { toast } from "@/hooks/use-toast";
 import { createQuestion, fetchQuestions } from "@/lib/api/question";
 import EmptyPlaceholder from "./components/EmptyPlaceholder";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { DataTable } from "./components/question-table/data-table";
 import QuestionsSkeleton from "./components/QuestionsSkeleton";
+import { useToast } from "@/hooks/use-toast";
 
-function QuestionRepositoryContent() {
+const QuestionRepositoryContent = () => {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-
+  const { toast } = useToast();
   const { data } = useSuspenseQuery<QuestionDto[]>({
     queryKey: [QUERY_KEYS.Question],
     queryFn: fetchQuestions,
