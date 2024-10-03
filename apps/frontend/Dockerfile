@@ -1,7 +1,8 @@
 FROM node:18-alpine AS base
 
 # For now we can specify it here, else we can use --build-arg in our docker build command
-ENV NEXT_PUBLIC_API_URL="http://localhost:8080/"
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Install dependencies only when needed
 FROM base AS deps
