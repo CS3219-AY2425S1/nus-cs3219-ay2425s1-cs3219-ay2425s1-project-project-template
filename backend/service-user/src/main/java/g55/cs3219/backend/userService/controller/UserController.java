@@ -34,6 +34,19 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers(Authentication authentication) {
+        // Check if the authenticated user is an admin
+        User currentUser = (User) authentication.getPrincipal();
+        if (!currentUser.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
+        // Fetch all users from the database
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable String userId, Authentication authentication) {
         System.out.println("Controller: Received request for user ID: " + userId);
