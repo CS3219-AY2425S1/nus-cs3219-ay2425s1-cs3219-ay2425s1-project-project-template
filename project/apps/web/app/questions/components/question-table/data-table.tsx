@@ -65,7 +65,7 @@ export function DataTable({ data, confirmLoading }: DataTableProps) {
       {/* Filters */}
       <div className="flex gap-4 my-4">
         {/* Difficulty Filter */}
-        <div className="w-64">
+        <div className="w-100">
           <h2 className="font-semibold mb-2">Filter by Difficulty</h2>
           <MultiSelect
             options={[
@@ -81,7 +81,7 @@ export function DataTable({ data, confirmLoading }: DataTableProps) {
         </div>
 
         {/* Category Filter */}
-        <div className="w-64">
+        <div className="w-100">
           <h2 className="font-semibold mb-2">Filter by Categories</h2>
           <MultiSelect
             options={categoryOptions}
