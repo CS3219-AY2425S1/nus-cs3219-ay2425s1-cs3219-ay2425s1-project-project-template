@@ -17,6 +17,7 @@ import { MultiSelect } from "@/components/multi-select";
 import { QuestionDto } from "@repo/dtos/questions";
 import { columns } from "./columns";
 import { CATEGORY, COMPLEXITY } from "@/constants/question";
+import { Input } from "@/components/ui/input";
 
 interface DataTableProps {
   data: QuestionDto[];
@@ -62,10 +63,12 @@ export function DataTable({ data, confirmLoading }: DataTableProps) {
 
   return (
     <div>
-      {/* Filters */}
-      <div className="flex gap-4 my-4">
+    {/* Filters and Search Bar Container */}
+    <div className="flex justify-between items-end my-4">
+      {/* Filters Container */}
+      <div className="flex gap-4">
         {/* Difficulty Filter */}
-        <div className="w-100">
+        <div className="w-64">
           <h2 className="font-semibold mb-2">Filter by Difficulty</h2>
           <MultiSelect
             options={[
@@ -81,7 +84,7 @@ export function DataTable({ data, confirmLoading }: DataTableProps) {
         </div>
 
         {/* Category Filter */}
-        <div className="w-100">
+        <div className="w-64">
           <h2 className="font-semibold mb-2">Filter by Categories</h2>
           <MultiSelect
             options={categoryOptions}
@@ -92,6 +95,20 @@ export function DataTable({ data, confirmLoading }: DataTableProps) {
           />
         </div>
       </div>
+
+      {/* Search Input Container */}
+      <div className="flex-grow max-w-lg">
+        <Input
+          type="text"
+          className="flex w-full pl-3 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inheri"
+          placeholder="Search questions..."
+          onChange={(e) => {
+            table.getColumn("q_title")?.setFilterValue(e.target.value);
+          }}
+        />
+      </div>
+    </div>
+
 
       {/* Table */}
       <div className="rounded-md border">

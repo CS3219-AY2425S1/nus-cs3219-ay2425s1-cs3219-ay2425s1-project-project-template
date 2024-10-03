@@ -2,7 +2,7 @@
 import React from "react";
 import { ColumnDef, SortingFn } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import DifficultyBadge from "@/components/DifficultyBadge";
@@ -31,10 +31,14 @@ const complexityFilter = (row: any, columnId: string, filterValue: string[]) => 
 const categoryFilter = (row: any, columnId: string, filterValue: string[]) => {
   const rowValues = row.getValue(columnId) as string[];
   return (
-    filterValue.length === 0 ||
-    filterValue.some((value: string) => rowValues.includes(value))
+      filterValue.length === 0 || (rowValues.length === filterValue.length && 
+      rowValues.every((value) => filterValue.includes(value)))
   );
 };
+
+const titleFilter = (row: any, columnId: string, filterValue: string) => {
+  return row.getValue(columnId).toLowerCase().includes(filterValue.toLowerCase());
+}
 
 // Column definitions
 export const columns: ColumnDef<QuestionDto>[] = [
@@ -46,7 +50,13 @@ export const columns: ColumnDef<QuestionDto>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Title
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {column.getIsSorted() === "asc" ? (
+          <ArrowUp className="ml-2 h-4 w-4" />
+        ) : column.getIsSorted() === "desc" ? (
+          <ArrowDown className="ml-2 h-4 w-4" />
+        ) : (
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        )}
       </Button>
     ),
     cell: ({ row }) => (
@@ -54,6 +64,7 @@ export const columns: ColumnDef<QuestionDto>[] = [
         {row.original.q_title}
       </Link>
     ),
+    filterFn: titleFilter,
   },
   {
     accessorKey: "q_complexity",
@@ -63,7 +74,13 @@ export const columns: ColumnDef<QuestionDto>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Difficulty
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {column.getIsSorted() === "asc" ? (
+          <ArrowUp className="ml-2 h-4 w-4" />
+        ) : column.getIsSorted() === "desc" ? (
+          <ArrowDown className="ml-2 h-4 w-4" />
+        ) : (
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        )}
       </Button>
     ),
     cell: ({ row }) => <DifficultyBadge complexity={row.original.q_complexity} />,
@@ -78,7 +95,13 @@ export const columns: ColumnDef<QuestionDto>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Categories
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {column.getIsSorted() === "asc" ? (
+          <ArrowUp className="ml-2 h-4 w-4" />
+        ) : column.getIsSorted() === "desc" ? (
+          <ArrowDown className="ml-2 h-4 w-4" />
+        ) : (
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        )}
       </Button>
     ),
     cell: ({ row }) => (
