@@ -23,6 +23,14 @@ const complexitySortingFn: SortingFn<QuestionDto> = (rowA, rowB, columnId) => {
   return complexityOrder[valueA] - complexityOrder[valueB];
 };
 
+// Sorting function for categories by number of categories
+const categorySortingFn: SortingFn<QuestionDto> = (rowA, rowB, columnId) => {
+  const valueA = rowA.getValue(columnId) as string[];
+  const valueB = rowB.getValue(columnId) as string[];
+  return valueA.length - valueB.length;
+};
+
+
 // Filtering functions
 const complexityFilter = (row: any, columnId: string, filterValue: string[]) => {
   return filterValue.length === 0 || filterValue.includes(row.getValue(columnId));
@@ -114,5 +122,6 @@ export const columns: ColumnDef<QuestionDto>[] = [
       </div>
     ),
     filterFn: categoryFilter,
+    sortingFn: categorySortingFn
   },
 ];
