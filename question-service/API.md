@@ -1,6 +1,6 @@
 # Question Service API Documentation
 
-endpoint: `http://localhost:8000`
+endpoint: `http://localhost:8000/api`
 
 ## CREATE Route
 
