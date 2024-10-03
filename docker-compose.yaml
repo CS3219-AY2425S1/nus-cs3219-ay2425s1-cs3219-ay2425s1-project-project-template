@@ -1,6 +1,8 @@
 # Command: docker-compose --env-file .env.local up -d
 
 services:
+  # Databases
+
   user-db:
     hostname: "user-db"
     image: postgres:16.4
@@ -15,7 +17,7 @@ services:
       - "${USER_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
     networks:
-      - user-network
+      - user-db-network
 
   collab-db:
     hostname: "collab-db"
@@ -27,10 +29,11 @@ services:
       - ./backend/collaboration/.env.local
     volumes:
       - "collab-db-docker:/${COLLAB_PGDATA}"
-      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "${COLLAB_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - collab-db-network
 
   question-db:
     hostname: "question-db"
@@ -42,10 +45,13 @@ services:
       - ./backend/question/.env.local
     volumes:
       - "question-db-docker:${QUESTION_PGDATA}"
-      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "${QUESTION_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - question-db-network
+
+  # Services
 
   user-service:
     image: "user-express"
@@ -71,12 +77,16 @@ services:
     depends_on:
       - user-db
     networks:
-      - user-network
+      - user-db-network
+      - user-api-network
     entrypoint: ./entrypoint.sh
 
 volumes:
   user-service:
-  
+  question-service:
+  collab-service:
+
+  # Persistent Volumes for Databases
   user-db-docker:
     external: true
   collab-db-docker:
@@ -86,5 +96,18 @@ volumes:
 
 
 networks:
-  user-network:
+  # Isolated API Server Networks
+  user-db-network:
+    driver: bridge
+  question-db-network:
+    driver: bridge
+  collab-db-network:
+    driver: bridge
+
+  # View-Controller Networks
+  user-api-network:
+    driver: bridge
+  question-api-network:
+    driver: bridge
+  collab-api-network:
     driver: bridge
