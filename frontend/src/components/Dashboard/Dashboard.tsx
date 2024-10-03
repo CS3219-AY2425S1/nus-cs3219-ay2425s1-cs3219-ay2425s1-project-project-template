@@ -7,7 +7,7 @@ import { Question, emptyQuestion } from "../../types/Question";
 
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
-  questions: Array<any>;
+  questions: Array<Question>;
   fetchData: () => Promise<void>;
 }
 
