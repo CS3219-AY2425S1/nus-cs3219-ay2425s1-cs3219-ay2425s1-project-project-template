@@ -5,7 +5,7 @@ import { Question } from "../types/Question";
 // pass in the setQuestions function to update the state of the questions
 
 const useQuestionList = (
-  setQuestions: Dispatch<SetStateAction<Question | undefined>>
+  setQuestions: Dispatch<SetStateAction<Question[]>>
 ) => {
   const fetchData = async () => {
     try {

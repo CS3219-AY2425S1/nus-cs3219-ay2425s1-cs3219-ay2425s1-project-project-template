@@ -7,7 +7,7 @@ import { Question, emptyQuestion } from "../../types/Question";
 
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
-  questions: Array<any>;
+  questions: Array<Question>;
   fetchData: () => Promise<void>;
 }
 
@@ -22,7 +22,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
     setQuestionClicked(questionClicked);
   };
 
-  const columns: Column<any>[] = useMemo(() => COLUMNS, []);
+  const columns: Column<Question>[] = useMemo(() => COLUMNS, []);
   const data = useMemo(() => questions, [questions]);
 
   const tableInstance = useTable({
@@ -35,7 +35,7 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
 
   const location = useLocation();
 
-  const onClick = (row: Row<{}>) => {
+  const onClick = (row: Row<Question>) => {
     if (location.pathname === "/dashboard") {
       const questionClicked: Question = {
         id: row.original.id,

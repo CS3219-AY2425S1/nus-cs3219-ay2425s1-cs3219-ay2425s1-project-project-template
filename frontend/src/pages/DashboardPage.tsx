@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import AdminNavBar from "../components/AdminNavBar.tsx";
 import Dashboard from "../components/Dashboard/Dashboard.tsx";
 import useQuestionList from "../hooks/useQuestionList.tsx";
+import {Question} from "../types/Question.tsx";
 
 const DashboardPage: React.FC = () => {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const fetchData = useQuestionList(setQuestions);
 
   useEffect(() => {
