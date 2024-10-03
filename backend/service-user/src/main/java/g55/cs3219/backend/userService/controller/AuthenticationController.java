@@ -2,7 +2,7 @@ package g55.cs3219.backend.userService.controller;
 
 import g55.cs3219.backend.userService.dto.LoginUserDto;
 import g55.cs3219.backend.userService.dto.RegisterUserDto;
-import g55.cs3219.backend.userService.dto.UserResponseDto;
+import g55.cs3219.backend.userService.responses.UserResponse;
 import g55.cs3219.backend.userService.dto.VerifyUserDto;
 import g55.cs3219.backend.userService.model.User;
 import g55.cs3219.backend.userService.responses.LoginResponse;
@@ -37,9 +37,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
-        UserResponseDto response = new UserResponseDto(registeredUser.getUsername(), registeredUser.getEmail());
+        UserResponse response = new UserResponse(registeredUser.getUsername(), registeredUser.getEmail());
         return ResponseEntity.ok(response);
     }
 
