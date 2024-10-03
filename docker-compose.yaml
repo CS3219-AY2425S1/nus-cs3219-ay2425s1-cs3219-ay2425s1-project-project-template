@@ -77,8 +77,11 @@ services:
 
 volumes:
   user-service:
+    external: false
   question-service:
+    external: false
   collab-service:
+    external: false
 
   # Persistent Volumes for Databases
   user-db-docker:
