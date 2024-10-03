@@ -7,8 +7,14 @@ migrate-seed:
 
 db-up:
 	./scripts/ensure-volume.sh
-	docker compose --env-file .env.local up -d
+	docker compose --env-file .env.local -f docker-compose.local.yaml up -d
 
 db-down:
-	docker compose --env-file .env.local down
+	docker compose --env-file .env.local -f docker-compose.local.yaml down
 
+up:
+	./scripts/ensure-volume.sh
+	docker compose --env-file .env.local up -d
+
+down:
+	docker compose --env-file .env.local down

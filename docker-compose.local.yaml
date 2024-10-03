@@ -1,4 +1,4 @@
-# Command: docker-compose --env-file .env.local up -d
+# Command: docker-compose --env-file .env.local -f docker-compose.local.yaml up -d
 
 services:
   user-db:
@@ -14,8 +14,6 @@ services:
     ports:
       - "${USER_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
-    networks:
-      - user-network
 
   collab-db:
     hostname: "collab-db"
@@ -47,44 +45,10 @@ services:
       - "${QUESTION_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
 
-  user-service:
-    image: "user-express"
-    container_name: "user-express"
-    build:
-      context: ./backend/user
-      dockerfile: ./express.Dockerfile
-      target: build
-      args: 
-        # For building with the correct env vars
-        - env=${USER_EXPRESS_ENV}
-        - port=${USER_EXPRESS_PORT}
-    ports:
-      - "9001:${USER_EXPRESS_PORT}"
-    env_file:
-      - ./backend/user/.env.compose
-    environment:
-      # Docker Compose Specific
-      - EXPRESS_DB_HOST=user-db
-      - EXPRESS_DB_PORT=5432
-    volumes: 
-      - user-service:/data/question-express
-    depends_on:
-      - user-db
-    networks:
-      - user-network
-    entrypoint: ./entrypoint.sh
-
 volumes:
-  user-service:
-  
   user-db-docker:
     external: true
   collab-db-docker:
     external: true
   question-db-docker:
     external: true
-
-
-networks:
-  user-network:
-    driver: bridge
