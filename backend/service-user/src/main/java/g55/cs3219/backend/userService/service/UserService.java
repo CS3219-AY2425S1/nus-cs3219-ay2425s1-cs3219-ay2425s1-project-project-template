@@ -21,4 +21,18 @@ public class UserService {
         return users;
     }
 
+    public User getUserById(Long userId, User currentUser) {
+        System.out.println("Fetching user with ID: " + userId);
+        // Retrieve user from the database
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if the current user is an admin or accessing their own data
+        if (!currentUser.isAdmin() && !user.getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Forbidden");
+        }
+
+        return user;
+    }
+
 }

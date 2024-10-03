@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,32 @@ public class UserController {
     public UserController(UserService userService, AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUser(@PathVariable String userId, Authentication authentication) {
+        System.out.println("Controller: Received request for user ID: " + userId);
+        try {
+            // Retrieve the current user making the request
+            User currentUser = (User) authentication.getPrincipal();
+
+            // Call the service method to get the user by ID
+            User fetchedUser = userService.getUserById(Long.parseLong(userId), currentUser);
+
+            // Return user data as a response
+            return ResponseEntity.ok(new UserResponse(fetchedUser.getUsername(), fetchedUser.getEmail()));
+        } catch (RuntimeException e) {
+            // Handle forbidden access
+            if (e.getMessage().equals("Forbidden")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied.");
+            }
+            // Handle user not found
+            if (e.getMessage().equals("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with the specified ID not found.");
+            }
+            // Handle internal server errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+        }
     }
 
     @PostMapping
@@ -61,16 +88,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<User> getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(currentUser);
-    }
 
-    @GetMapping("/")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
+
+//    @GetMapping("/me")
+//    public ResponseEntity<User> getAuthenticatedUser() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        User currentUser = (User) authentication.getPrincipal();
+//        return ResponseEntity.ok(currentUser);
+//    }
+//
+//    @GetMapping("/")
+//    public ResponseEntity<List<User>> getAllUsers() {
+//        List<User> users = userService.getAllUsers();
+//        return ResponseEntity.ok(users);
+//    }
 }

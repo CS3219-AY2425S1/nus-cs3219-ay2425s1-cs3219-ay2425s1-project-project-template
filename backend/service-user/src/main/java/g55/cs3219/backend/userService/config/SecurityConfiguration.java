@@ -1,5 +1,6 @@
 package g55.cs3219.backend.userService.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -52,9 +53,20 @@ public class SecurityConfiguration {
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
+
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println("Authentication failed: " + authException.getMessage());
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            System.out.println("Access denied: " + accessDeniedException.getMessage());
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+                        })
+                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
