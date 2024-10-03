@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,7 +53,7 @@ public class UserController {
         try {
             User currentUser = (User) authentication.getPrincipal();
             User fetchedUser = userService.getUserById(Long.parseLong(userId), currentUser);
-            return ResponseEntity.ok(new UserResponse(fetchedUser.getName(), fetchedUser.getEmail()));
+            return ResponseEntity.ok(new UserResponse(fetchedUser.getId(), fetchedUser.getName(), fetchedUser.getEmail()));
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Forbidden")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied.");
@@ -92,7 +93,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@Valid @RequestBody RegisterUserDto registerUserDto) {
         try {
             User createdUser = authenticationService.signup(registerUserDto);
-            return new ResponseEntity<>(new UserResponse(createdUser.getName(), createdUser.getEmail()), HttpStatus.CREATED);
+            return new ResponseEntity<>(new UserResponse(createdUser.getId(), createdUser.getName(), createdUser.getEmail()), HttpStatus.CREATED);
         } catch (RuntimeException e) {
             // Handle duplicate username or email
             if (e.getMessage().contains("exists")) {
@@ -116,18 +117,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-
-
-//    @GetMapping("/me")
-//    public ResponseEntity<User> getAuthenticatedUser() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        User currentUser = (User) authentication.getPrincipal();
-//        return ResponseEntity.ok(currentUser);
-//    }
-//
-//    @GetMapping("/")
-//    public ResponseEntity<List<User>> getAllUsers() {
-//        List<User> users = userService.getAllUsers();
-//        return ResponseEntity.ok(users);
-//    }
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String userId, Authentication authentication) {
+        try {
+            User currentUser = (User) authentication.getPrincipal();
+            userService.deleteUser(Long.parseLong(userId), currentUser);
+            return ResponseEntity.ok("User deleted successfully.");
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Forbidden")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the user.");
+        }
+    }
 }

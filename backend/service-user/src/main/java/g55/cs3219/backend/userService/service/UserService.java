@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class UserService {
     private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository, EmailService emailService) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -32,6 +31,17 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public void deleteUser(Long userId, User currentUser) {
+        User userToDelete = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!currentUser.isAdmin() && !userToDelete.getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Forbidden: You are not allowed to delete this user.");
+        }
+
+        userRepository.delete(userToDelete);
     }
 
 }

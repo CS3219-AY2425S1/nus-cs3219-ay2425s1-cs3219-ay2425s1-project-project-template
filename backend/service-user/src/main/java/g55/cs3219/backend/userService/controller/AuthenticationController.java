@@ -38,13 +38,6 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
-        UserResponse response = new UserResponse(registeredUser.getName(), registeredUser.getEmail());
-        return ResponseEntity.ok(response);
-    }
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -60,7 +53,8 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+        LoginResponse loginResponse = new LoginResponse(authenticatedUser.getId(), jwtToken,
+                jwtService.getExpirationTime());
         return ResponseEntity.ok(loginResponse);
     }
 
@@ -89,7 +83,7 @@ public class AuthenticationController {
         try {
             User currentUser = (User) authentication.getPrincipal();
 
-            UserResponse response = new UserResponse(currentUser.getName(), currentUser.getEmail());
+            UserResponse response = new UserResponse(currentUser.getId(), currentUser.getName(), currentUser.getEmail());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while verifying the token.");
