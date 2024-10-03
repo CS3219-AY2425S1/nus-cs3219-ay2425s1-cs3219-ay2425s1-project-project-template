@@ -73,7 +73,7 @@ services:
     networks:
       - user-db-network
       - user-api-network
-    entrypoint: ./entrypoint.sh
+    entrypoint: ["/bin/sh", "entrypoint.sh"]
 
 volumes:
   user-service:

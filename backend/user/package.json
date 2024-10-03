@@ -36,7 +36,8 @@
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.4.0",
     "pino-http": "^10.3.0",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "tsx": "^4.19.1"
   },
   "devDependencies": {
     "@swc/core": "^1.7.26",
