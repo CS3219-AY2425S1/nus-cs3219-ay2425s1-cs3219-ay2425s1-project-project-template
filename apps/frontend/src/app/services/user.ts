@@ -1,4 +1,4 @@
-const USER_SERVICE_URL = "http://localhost:3001"
+const USER_SERVICE_URL = process.env.NEXT_PUBLIC_USER_SERVICE_URL
 
 type UserResponseData = {
   "id": string,
@@ -25,7 +25,7 @@ export async function createUser(username: string, email: string, password: stri
       username, email, password
     }),
   })
-  const res = await fetch(`${USER_SERVICE_URL}/users`, opts)
+  const res = await fetch(`${USER_SERVICE_URL}users`, opts)
 
   if (!res.ok) {
     throw new Error(`User service responded with ${res.status}: ${await res.text()}`)
@@ -39,7 +39,7 @@ export async function loginUser(email: string, password: string): Promise<string
       email, password
     })
   });
-  const res = await fetch(`${USER_SERVICE_URL}/auth/login`, opts);
+  const res = await fetch(`${USER_SERVICE_URL}auth/login`, opts);
 
   if (!res.ok) {
     throw new Error(`User service responded with ${res.status}: ${await res.text()}`);
