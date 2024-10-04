@@ -1,56 +1,54 @@
-import React, { useState } from "react";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
-import TopicSelector from "../components/TopicSelect";
-import LevelSelector from "../components/LevelSelect";
-import WaitTimeSelector from "../components/WaitTimeSelect";
-
+import React, { useState } from 'react';
+import TopicSelect from '../components/TopicSelect';
+import LevelSelect from '../components/LevelSelect';
+import WaitTimeSelect from '../components/WaitTimeSelect';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 export default function MatchingService() {
   const [selectedTopics, setSelectedTopics] = useState([]);
-  const [selectedLevel, setSelectedLevel] = useState("Hard");
-  const [selectedWaitTime, setSelectedWaitTime] = useState("2 minutes");
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [selectedWaitTime, setSelectedWaitTime] = useState("");
 
   const topics = [
-    "Data Structures", "Array", "Hash Table", "Depth-First Search", 
-    "Breadth-First Search", "Sorting", "Bit Manipulation", "Binary Search",
-    "Database", "Backtracking", "Linked List"
+    "Data Structures", "Array", "Hash Table", "String", "Depth-First Search", 
+    "Breadth-First Search", "Bit Manipulation", "Tree", "Database", "Matrix",
+    "Simulation", "Enumeration", "Backtracking", "Prefix Sum", 
+    "Sliding Window", "Linked List", "Binary Search", "Sorting"
   ];
 
   const levels = ["Easy", "Medium", "Hard"];
-  const waitTimes = ["30s", "1 minute", "2 minutes", "5 minutes", "> 5 minutes"];
-
-  const handleStart = () => {
-    // Functionality to start matching process
-    console.log("Matching with:", selectedTopics, selectedLevel, selectedWaitTime);
-  };
+  const waitTimes = ["30s", "1 minute", "2 minutes", "5 minutes", ">5 minutes"];
 
   return (
-    <div className="matching-service">
-      <h1>Matching Service</h1>
-      <div className="selectors">
-        <TopicSelector 
-          topics={topics} 
-          selectedTopics={selectedTopics} 
-          setSelectedTopics={setSelectedTopics} 
-        />
-        <LevelSelector 
-          levels={levels} 
-          selectedLevel={selectedLevel} 
-          setSelectedLevel={setSelectedLevel} 
-        />
-        <WaitTimeSelector 
-          waitTimes={waitTimes} 
-          selectedWaitTime={selectedWaitTime} 
-          setSelectedWaitTime={setSelectedWaitTime} 
-        />
+    <div className="p-6">
+      <Header />
+      <div className="flex gap-6">
+        <Sidebar />
+        <div className="flex-1 p-6 bg-[#111111] rounded-lg border border-[#333333]">
+          <TopicSelect 
+            topics={topics}
+            selectedTopics={selectedTopics}
+            setSelectedTopics={setSelectedTopics}
+          />
+        </div>
+        <div className="flex-1 p-6 bg-[#111111] rounded-lg border border-[#333333]">
+          <LevelSelect
+            levels={levels}
+            selectedLevel={selectedLevel}
+            setSelectedLevel={setSelectedLevel}
+          />
+          <WaitTimeSelect 
+            waitTimes={waitTimes}
+            selectedWaitTime={selectedWaitTime}
+            setSelectedWaitTime={setSelectedWaitTime}
+          />
+        </div>
       </div>
-      <button 
-          onClick={handleStart}
-          className="mt-4 px-6 py-3 bg-[#bcfe4d] text-black font-bold rounded-full hover:bg-[#a6f243] transition-colors"
-        >
-          Start
-        </button>
+
+      <button className="mt-6 float-right bg-[#bcfe4d] text-black px-6 py-2 rounded-full font-bold hover:bg-[#a6e636] transition-colors">
+        START
+      </button>
     </div>
   );
 }
