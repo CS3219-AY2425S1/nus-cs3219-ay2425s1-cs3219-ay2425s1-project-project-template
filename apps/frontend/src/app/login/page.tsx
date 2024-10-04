@@ -64,7 +64,10 @@ export default function Home() {
             >
               <Form.Item<InputFields>
                 name="email"  
-                rules={[{required: true}]}
+                rules={[{
+                    required: true, 
+                    message: "Please provide your email."
+                  }]}
               >
                 <Input
                   placeholder="Email"
@@ -73,7 +76,10 @@ export default function Home() {
 
               <Form.Item<InputFields>
                 name="password"  
-                rules={[{required: true}]}
+                rules={[{
+                  required: true, 
+                  message: "Please enter your password."
+                }]}
               >
                 <Input.Password
                   placeholder="Password"

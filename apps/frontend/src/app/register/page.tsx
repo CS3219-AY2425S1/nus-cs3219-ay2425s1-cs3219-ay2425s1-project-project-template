@@ -65,7 +65,10 @@ export default function Home() {
               
               <Form.Item<InputFields>
                 name="username"  
-                rules={[{required: true}]}
+                rules={[{
+                  required: true, 
+                  message: "You must provide a username."
+                }]}
               >
                 <Input
                   placeholder="Username"
@@ -74,7 +77,10 @@ export default function Home() {
 
               <Form.Item<InputFields>
                 name="email"  
-                rules={[{required: true}]}
+                rules={[{
+                  required: true, 
+                  message: "You must provide an email."
+                }]}
               >
                 <Input
                   placeholder="Email"
@@ -83,7 +89,10 @@ export default function Home() {
 
               <Form.Item<InputFields>
                 name="password"  
-                rules={[{required: true}]}
+                rules={[{
+                  required: true, 
+                  message: "You must provide a password."
+                }]}
               >
                 <Input.Password
                   placeholder="Password"
@@ -92,7 +101,19 @@ export default function Home() {
 
               <Form.Item<InputFields>
                 name="confirmPassword"
-                rules={[{required: true}]}
+                rules={[
+                  {
+                    required: true, 
+                    message: "Please confirm your password."
+                  },
+                  ({getFieldValue}) => ({
+                    validator: async (r, confirmPassword) => {
+                      if (!!confirmPassword && getFieldValue("password") !== confirmPassword) {
+                        throw new Error("Passwords do not match")
+                      }
+                    }
+                  })
+                ]}
               >
                 <Input.Password
                   placeholder="Confirm Password"
