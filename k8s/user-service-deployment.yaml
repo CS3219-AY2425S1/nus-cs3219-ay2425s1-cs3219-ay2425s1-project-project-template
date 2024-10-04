@@ -20,7 +20,8 @@ spec:
     spec:
       containers:
         - command:
-            - ./entrypoint.sh
+            - /bin/sh
+            - entrypoint.sh
           env:
             - name: EXPRESS_DB_HOST
               value: user-db
@@ -49,7 +50,7 @@ spec:
               hostPort: 9001
               protocol: TCP
           volumeMounts:
-            - mountPath: /data/question-express
+            - mountPath: /data/user-express
               name: user-service
       restartPolicy: Always
       volumes:
