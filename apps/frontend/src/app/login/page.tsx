@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
 import {loginUser} from '@/app/services/user'
+import {setToken} from '@/app/services/login-store'
 
 type InputFields = {
   email?: string
@@ -43,9 +44,10 @@ export default function Home() {
       return;
     }
     loginUser(email, password).then(jwt => {
-      console.log(jwt);
+      console.log("login successful");
+      setToken(jwt);
     }).catch(err => {
-      console.error(err)
+      console.error(err);
     })
   }
 
