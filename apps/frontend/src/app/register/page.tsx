@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
 import { createUser } from '@/app/services/user'
+import { useRouter } from "next/navigation";
 
 type InputFields = {
   username?: string
@@ -38,6 +39,18 @@ type InputFields = {
 }
 
 export default function Home() {
+
+  const [isRegistrationFailed, setIsRegistrationFailed] = useState(false);
+  const router = useRouter();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const successMessage = (message: string) => {
+    messageApi.open({
+      type: "success",
+      content: message,
+    });
+  };
+
   function submitDetails({username, email, password}: InputFields): void {
     if (!username || username === "" ||
       !email || email === "" ||
@@ -45,12 +58,18 @@ export default function Home() {
     ) {
       return;
     }
-    createUser(username, email, password).catch(err => {
-      console.error(err)
+    createUser(username, email, password)
+    .then(() => {
+      successMessage("Account successfully created")
+      router.push("/login");
+    }).catch(err => {
+      console.log(err);
+      setIsRegistrationFailed(true);
     })
   }
   return (
-    <div>
+    <>
+      {contextHolder}
       <Layout>
         <Header/>
         <Content>
@@ -120,6 +139,11 @@ export default function Home() {
                 />
               </Form.Item>
 
+              <div 
+                style={{visibility: isRegistrationFailed ? "visible" : "hidden"}} 
+                className="registration-failed-text">A user with the same email/username already exists
+              </div>
+
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Register
@@ -134,6 +158,6 @@ export default function Home() {
           </div>
         </Content>
       </Layout>
-    </div>
+    </>
   );
 }

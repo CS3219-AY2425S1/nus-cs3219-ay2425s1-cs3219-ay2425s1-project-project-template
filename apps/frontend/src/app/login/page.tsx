@@ -30,6 +30,7 @@ import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
 import {loginUser} from '@/app/services/user'
 import {setToken} from '@/app/services/login-store'
+import { useRouter } from "next/navigation";
 
 type InputFields = {
   email?: string
@@ -37,6 +38,18 @@ type InputFields = {
 }
 
 export default function Home() {
+  
+  const [isLoginFailed, setIsLoginFailed] = useState(false);
+  const router = useRouter();
+  const [messageApi, contextHolder] = message.useMessage();
+  
+  const successMessage = (message: string) => {
+    messageApi.open({
+      type: "success",
+      content: message,
+    });
+  };
+
   function submitDetails({email, password}: InputFields): void {
     if (!email || email === "" ||
       !password || password === ""
@@ -44,15 +57,19 @@ export default function Home() {
       return;
     }
     loginUser(email, password).then(jwt => {
-      console.log("login successful");
+      successMessage("Login successful")
       setToken(jwt);
+      router.push("/");
+
     }).catch(err => {
       console.error(err);
+      setIsLoginFailed(true);
     })
   }
 
   return (
-    <div>
+    <>
+      {contextHolder}
       <Layout>
         <Header/>
         <Content>
@@ -86,6 +103,11 @@ export default function Home() {
                 />
               </Form.Item>
 
+              <div 
+                style={{visibility: isLoginFailed ? "visible" : "hidden"}} 
+                className="registration-failed-text">This email/username is not valid
+              </div>
+
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Login
@@ -100,6 +122,6 @@ export default function Home() {
           </div>
         </Content>
       </Layout>
-    </div>
+    </>
   );
 }
