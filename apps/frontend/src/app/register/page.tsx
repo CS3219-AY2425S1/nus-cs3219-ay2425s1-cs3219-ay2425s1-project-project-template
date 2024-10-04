@@ -28,15 +28,27 @@ import "./styles.scss";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
-import { title } from "process";
+import { createUser } from '@/app/services/user'
 
 type InputFields = {
+  username?: string
   email?: string
   password?: string
   confirmPassword?: string
 }
 
 export default function Home() {
+  function submitDetails({username, email, password}: InputFields): void {
+    if (!username || username === "" ||
+      !email || email === "" ||
+      !password || password === ""
+    ) {
+      return;
+    }
+    createUser(username, email, password).catch(err => {
+      console.error(err)
+    })
+  }
   return (
     <div>
       <Layout>
@@ -48,7 +60,18 @@ export default function Home() {
             <Form
               name="basic"
               style={{ margin: "auto" }}
+              onFinish={submitDetails}
             >
+              
+              <Form.Item<InputFields>
+                name="username"  
+                rules={[{required: true}]}
+              >
+                <Input
+                  placeholder="Username"
+                />
+              </Form.Item>
+
               <Form.Item<InputFields>
                 name="email"  
                 rules={[{required: true}]}
@@ -62,7 +85,7 @@ export default function Home() {
                 name="password"  
                 rules={[{required: true}]}
               >
-                <Input
+                <Input.Password
                   placeholder="Password"
                 />
               </Form.Item>
@@ -71,13 +94,13 @@ export default function Home() {
                 name="confirmPassword"
                 rules={[{required: true}]}
               >
-                <Input
+                <Input.Password
                   placeholder="Confirm Password"
                 />
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary">
+                <Button type="primary" htmlType="submit">
                   Register
                 </Button>
               </Form.Item>

@@ -28,7 +28,7 @@ import "./styles.scss";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
-import { title } from "process";
+import {loginUser} from '@/app/services/user'
 
 type InputFields = {
   email?: string
@@ -36,6 +36,19 @@ type InputFields = {
 }
 
 export default function Home() {
+  function submitDetails({email, password}: InputFields): void {
+    if (!email || email === "" ||
+      !password || password === ""
+    ) {
+      return;
+    }
+    loginUser(email, password).then(jwt => {
+      console.log(jwt);
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
   return (
     <div>
       <Layout>
@@ -45,6 +58,7 @@ export default function Home() {
             <h1>Login</h1>
             <Form
               name="basic"
+              onFinish={submitDetails}
             >
               <Form.Item<InputFields>
                 name="email"  
@@ -59,13 +73,13 @@ export default function Home() {
                 name="password"  
                 rules={[{required: true}]}
               >
-                <Input
+                <Input.Password
                   placeholder="Password"
                 />
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary">
+                <Button type="primary" htmlType="submit">
                   Login
                 </Button>
               </Form.Item>
