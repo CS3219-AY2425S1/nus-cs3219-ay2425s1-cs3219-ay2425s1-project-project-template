@@ -13,7 +13,10 @@ import "./styles.scss";
 import DropdownButton from "antd/es/dropdown/dropdown-button";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 
-const Header = (): JSX.Element => {
+interface HeaderProps {
+  selectedKey: string[] | undefined;
+}
+const Header = (props: HeaderProps): JSX.Element => {
   const { push } = useRouter();
   // Stores the details for the header buttons
   const items = [
@@ -67,7 +70,7 @@ const Header = (): JSX.Element => {
       {/* Left Menu Pages Component */}
       <Menu
         mode="horizontal"
-        defaultSelectedKeys={["0"]}
+        defaultSelectedKeys={props.selectedKey}
         items={items}
         style={{ flex: 1, minWidth: 0 }}
         onClick={(info) => {
