@@ -15,7 +15,7 @@ interface Question {
   images: string[];
 }
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost/api/questions';
 
 const difficulties = ['Easy', 'Medium', 'Hard'];
 const topics = [
