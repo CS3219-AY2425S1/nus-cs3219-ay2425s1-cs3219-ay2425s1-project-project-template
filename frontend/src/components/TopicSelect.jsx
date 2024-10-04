@@ -10,13 +10,13 @@ export default function TopicSelector({ topics, selectedTopics, setSelectedTopic
   };
 
   return (
-    <div className="mb-8">
-      <div className="text-sm font-bold text-[#bcfe4d] mb-2">TOPIC</div>
+    <div>
+      <div className="text-L font-bold text-[#bcfe4d] mb-4">TOPIC</div>
       <div className="flex flex-wrap gap-2">
         {topics.map((topic) => (
           <button
             key={topic}
-            className={`px-4 py-2 rounded-full border-2 border-gray-700 text-white transition-colors ${
+            className={`px-4 py-1 bg-[#DDDDDD] rounded-full text-sm text-black transition-colors ${
               selectedTopics.includes(topic) ? "bg-[#bcfe4d] text-black" : "bg-gray-800 hover:bg-[#bcfe4d] hover:text-black"
             }`}
             onClick={() => toggleTopic(topic)}

@@ -11,44 +11,49 @@ export default function MatchingService() {
   const [selectedWaitTime, setSelectedWaitTime] = useState("");
 
   const topics = [
-    "Data Structures", "Array", "Hash Table", "String", "Depth-First Search", 
+    "Data Structures", "Array", "Hash Table", "String",  "Sorting","Depth-First Search", 
     "Breadth-First Search", "Bit Manipulation", "Tree", "Database", "Matrix",
     "Simulation", "Enumeration", "Backtracking", "Prefix Sum", 
-    "Sliding Window", "Linked List", "Binary Search", "Sorting"
+    "Sliding Window", "Linked List", "Binary Search"
   ];
 
   const levels = ["Easy", "Medium", "Hard"];
-  const waitTimes = ["30s", "1 minute", "2 minutes", "5 minutes", ">5 minutes"];
+  const waitTimes = ["30s", "1min", "2mins", "5mins", "> 5mins"];
 
   return (
-    <div className="p-6">
-      <Header />
-      <div className="flex gap-6">
-        <Sidebar />
-        <div className="flex-1 p-6 bg-[#111111] rounded-lg border border-[#333333]">
-          <TopicSelect 
-            topics={topics}
-            selectedTopics={selectedTopics}
-            setSelectedTopics={setSelectedTopics}
-          />
-        </div>
-        <div className="flex-1 p-6 bg-[#111111] rounded-lg border border-[#333333]">
-          <LevelSelect
-            levels={levels}
-            selectedLevel={selectedLevel}
-            setSelectedLevel={setSelectedLevel}
-          />
-          <WaitTimeSelect 
-            waitTimes={waitTimes}
-            selectedWaitTime={selectedWaitTime}
-            setSelectedWaitTime={setSelectedWaitTime}
-          />
+    <div className="max-h-screen">
+      <div className="overflow-hidden">
+        <Header />
+        <div className="flex">
+          <Sidebar />
+          <main className="flex-1 overflow-auto py-16 px-20">
+            <div className="flex gap-x-4">
+              <div className="w-1/2 p-6 bg-[#111111] rounded-lg border border-[#333333]">
+                <TopicSelect 
+                  topics={topics}
+                  selectedTopics={selectedTopics}
+                  setSelectedTopics={setSelectedTopics}
+                />
+              </div>
+              <div className="w-1/2 flex-1 p-6 bg-[#111111] rounded-lg border border-[#333333]">
+                <LevelSelect
+                  levels={levels}
+                  selectedLevel={selectedLevel}
+                  setSelectedLevel={setSelectedLevel}
+                />
+                <WaitTimeSelect 
+                  waitTimes={waitTimes}
+                  selectedWaitTime={selectedWaitTime}
+                  setSelectedWaitTime={setSelectedWaitTime}
+                />
+              </div>
+            </div>
+            <button className="mt-3 float-right bg-[#bcfe4d] text-black px-6 py-2 rounded-full font-bold hover:bg-[#a6e636] transition-colors">
+                START
+            </button>
+          </main>
         </div>
       </div>
-
-      <button className="mt-6 float-right bg-[#bcfe4d] text-black px-6 py-2 rounded-full font-bold hover:bg-[#a6e636] transition-colors">
-        START
-      </button>
     </div>
   );
 }
