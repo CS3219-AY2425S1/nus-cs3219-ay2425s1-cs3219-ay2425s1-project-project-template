@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import styles from './QuestionTable.module.css'; // Import CSS Module
+import useQuestionTable from "../hooks/useQuestionTable";
 
-const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) => {
+const QuestionTable = () => {
+  const { questions, handleDelete, handleCreate, handleEdit } = useQuestionTable();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     questionId: '',
@@ -13,17 +15,17 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
   });
 
   const predefinedTopics = [
-    "Arrays", 
-    "Strings", 
-    "Trees", 
-    "Graphs", 
-    "Sorting", 
-    "Dynamic Programming", 
-    "Algorithms", 
-    "Data Structures", 
-    "Bit Manipulation", 
-    "Recursion", 
-    "Databases", 
+    "Arrays",
+    "Strings",
+    "Trees",
+    "Graphs",
+    "Sorting",
+    "Dynamic Programming",
+    "Algorithms",
+    "Data Structures",
+    "Bit Manipulation",
+    "Recursion",
+    "Databases",
     "Brainteaser"
   ];
 
@@ -58,8 +60,8 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
     setFormData({
       questionId: question["Question ID"],
       questionName: question["Question Title"],
-      questionDescription: question["Question Description"], 
-      questionTopics: JSON.parse(question["Question Categories"]), 
+      questionDescription: question["Question Description"],
+      questionTopics: JSON.parse(question["Question Categories"]),
       link: question["Link"],
       questionDifficulty: question["Question Complexity"],
     });
@@ -71,17 +73,17 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
     const { questionId, questionName, questionDescription, questionTopics, link, questionDifficulty } = formData;
     if (questionId <= 0) {
       alert("Question ID must be greater than 0.");
-      return; 
+      return;
     }
     // should not reach here 
     if (!questionId || !questionName || !questionDescription || !link || questionTopics.length === 0 || !questionDifficulty) {
       alert("Please fill in all fields. At least one topic must be selected, and a difficulty must be chosen.");
-      return; 
+      return;
     }
 
     if (isEditing) {
       handleEdit(questionId, questionName, questionDescription, JSON.stringify(questionTopics), link, questionDifficulty);
-      setIsEditing(false); 
+      setIsEditing(false);
     } else {
       handleCreate(questionId, questionName, questionDescription, JSON.stringify(questionTopics), link, questionDifficulty);
     }
@@ -90,15 +92,15 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
 
   }
 
- const handleTopicClick = (topic) => {
-  setFormData(prevData => {
-    const selectedTopics = prevData.questionTopics.includes(topic)
-      ? prevData.questionTopics.filter(t => t !== topic) // Deselect topic
-      : [...prevData.questionTopics, topic]; // Select topic
+  const handleTopicClick = (topic) => {
+    setFormData(prevData => {
+      const selectedTopics = prevData.questionTopics.includes(topic)
+        ? prevData.questionTopics.filter(t => t !== topic) // Deselect topic
+        : [...prevData.questionTopics, topic]; // Select topic
 
-    return { ...prevData, questionTopics: selectedTopics };
-  });
-};
+      return { ...prevData, questionTopics: selectedTopics };
+    });
+  };
 
   const handleDifficultyClick = (difficulty) => {
     setFormData(prevData => ({
@@ -106,8 +108,6 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
       questionDifficulty: difficulty,
     }));
   };
-
-
 
   const getComplexityClass = (complexity) => {
     switch (complexity) {
@@ -130,32 +130,29 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
     }
     return ''; // Fallback for unexpected types
   };
-  
-  
 
   return (
-    
     <div className={styles.questionTable}>
-      <section className={showForm ? `${styles.tableHeader} ${styles.blurred}` :styles.tableHeader}>
+      <section className={showForm ? `${styles.tableHeader} ${styles.blurred}` : styles.tableHeader}>
         <h1>Question List</h1>
         <button onClick={toggleForm}>Add Question</button>
       </section>
-      
+
       {showForm && (
         <>
           <div className={styles.overlay}>
             <div className={styles.modal}>
-              <button className={styles.closeButton} onClick={() => {toggleForm(); resetForm();}}>&times;</button>
+              <button className={styles.closeButton} onClick={() => { toggleForm(); resetForm(); }}>&times;</button>
               <form className={styles.form} onSubmit={handleSubmit}>
-                <h3>{isEditing? 'Edit question' : 'Add question'}</h3>
+                <h3>{isEditing ? 'Edit question' : 'Add question'}</h3>
                 <div>
                   <label>ID:</label>
-                  <input 
-                    type="number" 
-                    name="questionId" 
-                    value={formData.questionId} 
-                    onChange={handleChange} 
-                    required 
+                  <input
+                    type="number"
+                    name="questionId"
+                    value={formData.questionId}
+                    onChange={handleChange}
+                    required
                     disabled={isEditing} // Disable when editing
                   />
                 </div>
@@ -168,20 +165,20 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
                   <textarea name="questionDescription" value={formData.questionDescription} onChange={handleChange} required />
                 </div>
                 <div>
-                <label>Topics:</label>
-                <div className={styles.topicsContainer}>
-                  {predefinedTopics.map((topic) => (
-                    <button
-                      type="button"
-                      key={topic}
-                      className={`${styles.topicBubble} ${formData.questionTopics.includes(topic) ? styles.selected : ''}`}
-                      onClick={() => handleTopicClick(topic)}
-                    >
-                      {topic}
-                    </button>
-                  ))}
+                  <label>Topics:</label>
+                  <div className={styles.topicsContainer}>
+                    {predefinedTopics.map((topic) => (
+                      <button
+                        type="button"
+                        key={topic}
+                        className={`${styles.topicBubble} ${formData.questionTopics.includes(topic) ? styles.selected : ''}`}
+                        onClick={() => handleTopicClick(topic)}
+                      >
+                        {topic}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
                 <div>
                   <label>Link:</label>
@@ -189,17 +186,17 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
                 </div>
                 <div className={styles.difficultyContainer}>
                   <label>Difficulty:</label>
-                    {['Easy', 'Medium', 'Hard'].map(difficulty => (
-                      <button
-                        key={difficulty}
-                        type="button"
-                        className={`${styles.bubbleButton} ${formData.questionDifficulty === difficulty ? `${styles.selected} ${styles[difficulty.toLowerCase()]}` : ''}`}
-                        onClick={() => handleDifficultyClick(difficulty)}
-                      >
-                        {difficulty}
-                      </button>
-                    ))}
-                  </div>
+                  {['Easy', 'Medium', 'Hard'].map(difficulty => (
+                    <button
+                      key={difficulty}
+                      type="button"
+                      className={`${styles.bubbleButton} ${formData.questionDifficulty === difficulty ? `${styles.selected} ${styles[difficulty.toLowerCase()]}` : ''}`}
+                      onClick={() => handleDifficultyClick(difficulty)}
+                    >
+                      {difficulty}
+                    </button>
+                  ))}
+                </div>
                 <button type="submit">Submit</button>
               </form>
             </div>
@@ -221,7 +218,7 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
           </thead>
           <tbody>
             {questions.map((question) => (
-              
+
               <tr key={question["Question ID"]}>
                 <td>{question["Question ID"]}</td>
                 <td>{question["Question Title"]}</td>
@@ -241,7 +238,7 @@ const QuestionTable = ({ questions, handleDelete, handleCreate, handleEdit }) =>
                   <button onClick={() => handleDelete(question["Question ID"])}>delete</button>
                 </td>
                 <td>
-                  
+
                 </td>
               </tr>
             ))}
