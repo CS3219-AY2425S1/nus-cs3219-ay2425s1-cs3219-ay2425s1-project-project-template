@@ -1,7 +1,17 @@
-import { Menu } from "antd";
+import {
+  Avatar,
+  Button,
+  Divider,
+  Dropdown,
+  Menu,
+  MenuProps,
+  Space,
+} from "antd";
 import { Header as AntdHeader } from "antd/es/layout/layout";
 import { useRouter } from "next/navigation";
 import "./styles.scss";
+import DropdownButton from "antd/es/dropdown/dropdown-button";
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 
 const Header = (): JSX.Element => {
   const { push } = useRouter();
@@ -18,6 +28,35 @@ const Header = (): JSX.Element => {
     },
   ];
 
+  const profileItems: MenuProps["items"] = [
+    {
+      key: 0,
+      label: (
+        <div className="profile-menu-items">
+          <UserOutlined className="profile-menu-icon" /> Profile
+        </div>
+      ),
+      onClick: () => push("/profile"),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: 2,
+      label: (
+        <div className="profile-menu-items">
+          <LogoutOutlined className="profile-menu-icon" /> Logout
+        </div>
+      ),
+      onClick: () => {
+        // Clear away the previously stored jwt token in localstorage
+        localStorage.clear();
+        // Redirect user to login page
+        push("/login");
+      },
+    },
+  ];
+
   return (
     // Header Component
     <AntdHeader className="header">
@@ -25,6 +64,7 @@ const Header = (): JSX.Element => {
         <div className="logo1">Peer</div>
         <div className="logo2">Prep</div>
       </div>
+      {/* Left Menu Pages Component */}
       <Menu
         mode="horizontal"
         defaultSelectedKeys={["0"]}
@@ -34,6 +74,16 @@ const Header = (): JSX.Element => {
           push("/");
         }}
       />
+      <Dropdown
+        menu={{ items: profileItems }}
+        placement="bottom"
+        overlayClassName="dropdown"
+      >
+        <a onClick={(e) => e.preventDefault()}>
+          {/* Fetch and replace with first letter of user's name */}
+          <Avatar>A</Avatar>
+        </a>
+      </Dropdown>
     </AntdHeader>
   );
 };

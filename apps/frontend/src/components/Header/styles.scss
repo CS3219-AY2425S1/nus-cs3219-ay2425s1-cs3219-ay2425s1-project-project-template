@@ -6,6 +6,7 @@ $secondary-color: #463f3a;
   align-items: center;
   background: white !important;
   border-bottom: 1px solid #f3f3f3;
+  padding-right: 20px !important;
 }
 
 .logo {
@@ -33,4 +34,17 @@ $secondary-color: #463f3a;
   display: flex;
   flex-direction: row;
   padding: 0 16px 0 0;
+}
+
+.profile-menu-items {
+  width: 6rem;
+  padding: 2px 8px;
+}
+
+.profile-menu-icon {
+  margin-right: 8px;
+}
+
+.dropdown {
+  padding-right: 10px !important;
 }
