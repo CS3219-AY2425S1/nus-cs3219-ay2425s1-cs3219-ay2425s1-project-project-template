@@ -67,7 +67,7 @@ services:
       - EXPRESS_DB_HOST=user-db
       - EXPRESS_DB_PORT=5432
     volumes: 
-      - user-service:/data/question-express
+      - user-service:/data/user-express
     depends_on:
       - user-db
     networks:

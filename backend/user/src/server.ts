@@ -1,6 +1,7 @@
 import { exit } from 'process';
 
 import cors from 'cors';
+import 'dotenv/config';
 import { sql } from 'drizzle-orm';
 import express, { json } from 'express';
 import helmet from 'helmet';

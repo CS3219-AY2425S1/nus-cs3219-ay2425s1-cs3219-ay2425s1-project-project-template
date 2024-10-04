@@ -5,8 +5,7 @@
 1. Run this command to build:
     ```sh
     docker build \
-      -t user-express-local
-      --build-arg env=local-docker-standalone \
+      -t user-express-local \
       --build-arg port=9001 \
       -f express.Dockerfile .
     ```
@@ -19,7 +18,7 @@
 
 4. Run this command to expose the container:
     ```sh
-    docker run -p 9001:9001 user-express-local
+    docker run -p 9001:9001 --env-file ./.env.local-docker-standalone user-express-local
     ```
 
 ## Running with Docker-Compose (Main config)
