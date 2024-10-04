@@ -5,6 +5,8 @@ services:
     container_name: db_container
     image: mongo:latest
     restart: always
+    ports:
+      - "27017:27017"
     volumes:
       - mongo_db:/data/db
 
@@ -15,12 +17,6 @@ services:
       - "3001:3001"
     depends_on: # indicates to start this container after the mongo_db container is up
       - mongo_db
-    environment:
-      DB_CLOUD_URI: mongodb+srv://cs3219_admin:FTqyebyoBtPF483R@cluster0.u2xtg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-      DB_LOCAL_URI: mongodb://mongo_db/127.0.0.1:27017/peerprepUserServiceDB
-      PORT: 3001
-      ENV: PROD
-      JWT_SECRET: you-can-replace-this-with-your-own-secret
 
 volumes:
   mongo_db: {}
