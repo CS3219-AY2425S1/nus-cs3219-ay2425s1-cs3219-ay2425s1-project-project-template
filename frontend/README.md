@@ -1,11 +1,32 @@
-# React + TypeScript + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Running with Docker (Standalone)
 
-Currently, two official plugins are available:
+1. Run this command to build:
+   ```sh
+   docker build \
+     -t frontend-local \
+     --build-arg port=3000 \
+     -f frontend.Dockerfile .
+   ```
+2. Run this command, from the root folder:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+   ```sh
+   make db-up
+   ```
+
+3. Run the necessary migrate and seed commands, if you haven't yet.
+
+4. Run this command to expose the container:
+   ```sh
+   docker run -p 3000:3000 --env-file ./.env.docker frontend-local
+   ```
+
+## Running with Docker-Compose (Main config)
+
+Edit the variables in the `.env.compose` file and run `make up` from the root folder.
+
+Any startup instructions will be run from `entrypoint.sh` instead.
 
 ## Expanding the ESLint configuration
 
@@ -22,7 +43,7 @@ export default tseslint.config({
       tsconfigRootDir: import.meta.dirname,
     },
   },
-})
+});
 ```
 
 - Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
@@ -31,7 +52,7 @@ export default tseslint.config({
 
 ```js
 // eslint.config.js
-import react from 'eslint-plugin-react'
+import react from 'eslint-plugin-react';
 
 export default tseslint.config({
   // Set the react version
@@ -46,5 +67,5 @@ export default tseslint.config({
     ...react.configs.recommended.rules,
     ...react.configs['jsx-runtime'].rules,
   },
-})
+});
 ```
