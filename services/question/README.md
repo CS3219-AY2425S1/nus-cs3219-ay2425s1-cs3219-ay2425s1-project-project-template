@@ -1,4 +1,5 @@
 # Question Service
+
 Question service for PeerPrep.
 
 ## Database client
@@ -43,3 +44,34 @@ export type Question = {
 
 ## Example data
 Sample data can be found in `data/questions.json`.
+
+## Tests
+
+**Jest** is used for testing.
+
+Tests are stored in the `src/__tests__/` folder. Its hierarchy mirrors that of `src/`, with `.test` prepended before the file extension.\
+e.g. the tests for `src/controller/questions-controller.ts` are in `src/__tests__/controller/questions-controller.test.ts`.
+
+---
+
+# Development Instructions
+
+## First-time setup
+
+1. Open a command line and navigate to the root folder of `services/question/`.
+1. Run `npm i` to install dependencies.
+1. Ensure you have a copy of the provided Firebase service account credentials JSON file. Place it in a location of your choosing.\
+  Developers may opt to place it outside the cloned monorepo folder to ensure it never gets accidentally checked in.
+1. Make a copy of `.env.development.example` and name it `.env.development`. Edit the contents as necessary, such as specifying the actual path to your Firebase JSON file.
+
+## Running the service (development)
+
+1. Open a command line and navigate to the root folder of `services/question/`.
+1. Run `npm run dev` to run the dev script.
+1. Open your browser at <http://localhost:3000> (assuming your `.env.development` file has `PORT=3000`).\
+  Edit the URL to work with different routes. For example, you can open <http://localhost:3000/questions> to get all questions.
+
+## Running tests
+
+1. Open a command line and navigate to the root folder of `services/question/`.
+1. Run `npm test` to run the test script.
