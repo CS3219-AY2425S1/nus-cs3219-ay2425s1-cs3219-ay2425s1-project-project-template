@@ -8,8 +8,8 @@ export default function WaitTimeSelector({ waitTimes, selectedWaitTime, setSelec
         {waitTimes.map((time) => (
           <button
             key={time}
-            className={`px-4 py-1 rounded-full bg-[#DDDDDD] text-sm text-black transition-colors ${
-              selectedWaitTime === time ? "bg-[#bcfe4d] text-black" : "bg-gray-800 hover:bg-[#bcfe4d] hover:text-black"
+            className={`px-4 py-1 rounded-full text-sm text-black transition-colors ${
+              selectedWaitTime === time ? "bg-[#bcfe4d]" : " bg-[#DDDDDD] hover:bg-[#bcfe4d]"
             }`}
             onClick={() => setSelectedWaitTime(time)}
           >

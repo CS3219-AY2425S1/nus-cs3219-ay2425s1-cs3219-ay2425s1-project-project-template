@@ -16,9 +16,9 @@ export default function TopicSelector({ topics, selectedTopics, setSelectedTopic
         {topics.map((topic) => (
           <button
             key={topic}
-            className={`px-4 py-1 bg-[#DDDDDD] rounded-full text-sm text-black transition-colors ${
-              selectedTopics.includes(topic) ? "bg-[#bcfe4d] text-black" : "bg-gray-800 hover:bg-[#bcfe4d] hover:text-black"
-            }`}
+            className={`px-4 py-1 rounded-full text-sm text-black transition-colors ${
+              selectedTopics.includes(topic) ? 'bg-[#bcfe4d]' : 'bg-[#DDDDDD] hover:bg-[#bcfe4d]'
+            }`}	
             onClick={() => toggleTopic(topic)}
           >
             {topic}

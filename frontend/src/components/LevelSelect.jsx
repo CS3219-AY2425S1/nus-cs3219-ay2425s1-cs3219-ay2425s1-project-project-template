@@ -1,6 +1,14 @@
 import React from "react";
 
 export default function LevelSelector({ levels, selectedLevel, setSelectedLevel }) {
+  const toggleLevel = (level) => {
+    if (selectedLevel === level) {
+      setSelectedLevel(null); 
+    } else {
+      setSelectedLevel(level);
+    }
+  };
+
   return (
     <div className="mb-8">
       <div className="text-L font-bold text-[#bcfe4d] mb-4">LEVEL</div>
@@ -8,10 +16,10 @@ export default function LevelSelector({ levels, selectedLevel, setSelectedLevel 
         {levels.map((level) => (
           <button
             key={level}
-            className={`px-4 py-1 rounded-full bg-[#DDDDDD] text-sm text-black transition-colors ${
-              selectedLevel === level ? "bg-[#bcfe4d] text-black" : "bg-gray-800 hover:bg-[#bcfe4d] hover:text-black"
+            className={`px-4 py-1 rounded-full text-sm text-black transition-colors ${
+              selectedLevel === level ? "bg-[#bcfe4d]" : "bg-[#DDDDDD] hover:bg-[#bcfe4d]"
             }`}
-            onClick={() => setSelectedLevel(level)}
+            onClick={() => toggleLevel(level)}
           >
             {level}
           </button>
