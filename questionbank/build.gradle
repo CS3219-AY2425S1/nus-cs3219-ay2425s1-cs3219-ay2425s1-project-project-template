@@ -27,6 +27,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.28'
 	runtimeOnly 'com.h2database:h2'
 	//testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo' //For making test run on testDB?
+	testImplementation 'org.apache.httpcomponents.client5:httpclient5'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
