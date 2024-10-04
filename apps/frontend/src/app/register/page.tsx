@@ -2,28 +2,12 @@
 import Header from "@/components/Header/header";
 import {
   Button,
-  Col,
   Input,
   Layout,
   message,
-  Pagination,
-  PaginationProps,
-  Row,
-  Select,
-  Table,
-  TableProps,
-  Tabs,
-  Tag,
-  Modal,
   Form,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusCircleOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState } from "react";
 import Link from "next/link";
