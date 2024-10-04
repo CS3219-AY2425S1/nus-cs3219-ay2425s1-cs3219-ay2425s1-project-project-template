@@ -42,3 +42,14 @@ npm run dev
 ```
 
 Congratulations! You have successfully set up PeerPrep. :tada:
+
+When you open up the webpage, you should see the following welcome page: 
+
+![image](https://github.com/user-attachments/assets/927e0b91-e577-4114-93ef-98deae3533f8)
+
+Sign up for an account with your email address and password, and use that to log in. Once you have logged in, you should see the following page: 
+
+![image](https://github.com/user-attachments/assets/0ae11b55-65e7-42d1-8ac7-8c617cb7594e)
+
+From here, just click on any of the questions to see their descriptions. You can filter for any topic or difficulty of your choosing using the selectors.
+
