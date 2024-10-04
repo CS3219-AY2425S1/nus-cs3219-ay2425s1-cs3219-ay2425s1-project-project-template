@@ -4,7 +4,6 @@
 *.log*
 
 # Dist
-node_modules
 dist/
 .vinxi
 .output
@@ -13,6 +12,4 @@ dist/
 .wrangler
 
 # IDE
-.vscode/*
-!.vscode/extensions.json
 .idea
