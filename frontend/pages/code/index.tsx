@@ -1,3 +1,4 @@
+import 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/mode-javascript'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-java'
@@ -97,10 +98,6 @@ export default function Code() {
         }
     }
 
-    const { loading } = useProtectedRoute()
-
-    if (loading) return null
-
     // Scroll to the bottom of the chat box when new messages are added
     useEffect(() => {
         if (chatEndRef.current) {
@@ -129,6 +126,10 @@ export default function Code() {
         console.log('End session')
         router.push('/')
     }
+
+    const { loading } = useProtectedRoute()
+
+    if (loading) return null
 
     return (
         <div className="flex h-fullscreen gap-3">

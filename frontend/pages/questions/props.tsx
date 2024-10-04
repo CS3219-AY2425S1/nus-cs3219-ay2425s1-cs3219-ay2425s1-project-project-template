@@ -1,8 +1,8 @@
 import { Difficulty, FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
 import { ExclamationIcon, TickIcon } from '@/assets/icons'
 
-import { Badge } from '@/components/ui/badge'
 import { Category } from '@repo/user-types'
+import CustomLabel from '@/components/ui/label'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 
 const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
@@ -20,9 +20,7 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
             key: 'categories',
             formatter: (values) => {
                 const c = values.map((v: string) => (
-                    <Badge key={v} className="m-1 bg-violet-600">
-                        {v}
-                    </Badge>
+                    <CustomLabel key={v} title={v} textColor="text-theme" bgColor="bg-theme-100" margin="1" />
                 ))
                 return <div className="flex flex-wrap items-center justify-center">{c}</div>
             },
