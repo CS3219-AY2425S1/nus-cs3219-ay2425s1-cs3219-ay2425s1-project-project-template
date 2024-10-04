@@ -3,13 +3,15 @@ import InputBox from "../../../components/InputBox";
 import LargeButton from "../../../components/SubmitButton";
 import logo from "/peerprep_logo.png";
 import { useButtonWithLoading } from "../../../hooks/ButtonHooks";
+import { Checkbox, Text } from "@chakra-ui/react";
 
 interface RegistrationViewProps {
   onSubmit: (
     username: string,
     email: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
+    isAdmin: boolean // Include isAdmin in the parameters
   ) => Promise<void>;
   onLogin: () => void; // New prop to navigate back to login
 }
@@ -22,12 +24,13 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); // Manage isAdmin state
 
   const [formError, setFormError] = useState<string | null>(null); // General form error
   const [passwordError, setPasswordError] = useState<string | null>(null); // Password-specific error
 
   const [isLoading, submitFormWithLoading] = useButtonWithLoading(() =>
-    onSubmit(username, email, password, confirmPassword)
+    onSubmit(username, email, password, confirmPassword, isAdmin) // Pass isAdmin to onSubmit
   );
 
   const checkIsValidForm = (): boolean => {
@@ -97,6 +100,16 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
               onChange={(e) => setConfirmPassword(e.target.value)}
               isPassword={true} // Enable password toggle for the "Confirm Password" field
             />
+          </div>
+
+          {/* Checkbox for isAdmin */}
+          <div className="flex items-center">
+            <Checkbox
+              checked={isAdmin}
+              onChange={(e) => setIsAdmin(e.target.checked)} // Update isAdmin state
+              className="mr-2"
+            />
+            <Text color={"white"}>Admin</Text>
           </div>
 
           {/* Display form validation errors */}

@@ -15,7 +15,7 @@ import ResetPasswordController from "./pages/user/controllers/ResetPasswordContr
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";
-import { initApi } from "./utils/api";
+import { initApi, authApi } from "./utils/api";
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
@@ -25,12 +25,13 @@ const App: React.FC = () => {
   );
 
   const api = initApi(setAuth);
+  const auth = authApi(setAuth);
 
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route element={<PrivateRoutes isAuth={isAuth} api={api} />}>
+          <Route element={<PrivateRoutes isAuth={isAuth} api={auth}/>}>
             {/* Put axios api instance into a context */}
             <Route path="/questions" element={<QuestionController />} />
             <Route path="/dashboard" element={<DashboardView />} />
@@ -39,14 +40,14 @@ const App: React.FC = () => {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route
             path="/login"
-            element={<LoginController setAuth={setAuth} />}
+            element={<LoginController api={auth} setAuth={setAuth} />}
           />
-          <Route path="/register" element={<RegistrationController />} />
-          <Route
+          <Route path="/register" element={<RegistrationController api={auth} setAuth={setAuth}/>} />
+          {/* <Route
             path="/forget-password"
             element={<ForgetPasswordController />}
           />
-          <Route path="/reset-password" element={<ResetPasswordController />} />
+          <Route path="/reset-password" element={<ResetPasswordController />} /> */}
           ``
         </Routes>
       </Router>

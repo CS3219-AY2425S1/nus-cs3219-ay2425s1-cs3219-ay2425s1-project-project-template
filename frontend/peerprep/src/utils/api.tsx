@@ -27,23 +27,36 @@ export const initApi = (
     }
   );
 
-  // api.interceptors.response.use((response) => {
-  //   return response;
-  // },
-  // (error) => {
-  //   const refreshToken = localStorage.getItem("refreshToken");
-  //   if (error.response.status === 401 && refreshToken != null) {
-  //     // handle refresh api call
-  //   }
 
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("refreshToken");
-  //   setAuth(false);
+  return api;
+};
 
-  //   // Navigate to login page
+export const authApi = (
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>
+): AxiosInstance => {
+  // initialise axios with setAuth in middleware
+  const api = axios.create({
+    baseURL: import.meta.env.VITE_AUTH_API_URL,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-  //   return Promise.reject(error);
-  // });
+  // set api middleware
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.token = token;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
 
   return api;
 };

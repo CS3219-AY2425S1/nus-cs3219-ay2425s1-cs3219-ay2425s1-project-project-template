@@ -46,7 +46,7 @@ const LoginView: React.FC<LoginViewProps> = ({
               isPassword={true} // Enable password toggle functionality
             />
           </div>
-          <div className="forgot-password text-right">
+          {/* <div className="forgot-password text-right">
             <a
               href="#"
               onClick={onForgotPassword}
@@ -54,7 +54,7 @@ const LoginView: React.FC<LoginViewProps> = ({
             >
               Forgot password?
             </a>
-          </div>
+          </div> */}
           <LargeButton
             text="Login"
             onClick={(e) => {
