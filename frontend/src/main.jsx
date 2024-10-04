@@ -5,6 +5,7 @@ import App from "./App.jsx";
 import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import MatchingService from "./pages/MatchingService.jsx";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,11 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/matching-service",
+    element: <MatchingService />,
     errorElement: <ErrorPage />,
   },
 ]);
