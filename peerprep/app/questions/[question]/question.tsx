@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { deleteQuestion } from "@/api/gateway";
 import { Question, Difficulty } from "@/api/structs";
 import Chip from "@/components/shared/Chip";
