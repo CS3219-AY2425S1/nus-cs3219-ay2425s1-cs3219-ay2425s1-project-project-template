@@ -28,8 +28,8 @@ describe('User Service API', () => {
     const adminResponse = await request(app)
      .post('/api/auth/login')
      .send({
-       email: process.env.EMAIL_USER,
-       password: process.env.EMAIL_PASS,
+       email: process.env.USER_EMAIL_USER,
+       password: process.env.USER_EMAIL_PASS,
      });
     adminToken = adminResponse.body.token;
   });
