@@ -18,7 +18,7 @@
 
 4. Run this command to expose the container:
     ```sh
-    docker run -p 9001:9001 --env-file ./.env.local-docker-standalone user-express-local
+    docker run -p 9001:9001 --env-file ./.env.docker user-express-local
     ```
 
 ## Running with Docker-Compose (Main config)
