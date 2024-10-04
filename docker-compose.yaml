@@ -1,6 +1,8 @@
 # Command: docker-compose --env-file .env.local up -d
 
 services:
+  # Databases
+
   user-db:
     hostname: "user-db"
     image: postgres:16.4
@@ -11,10 +13,9 @@ services:
       - ./backend/user/.env.local
     volumes:
       - "user-db-docker:${USER_PGDATA}"
-      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "${USER_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - user-db-network
 
   collab-db:
     hostname: "collab-db"
@@ -26,10 +27,9 @@ services:
       - ./backend/collaboration/.env.local
     volumes:
       - "collab-db-docker:/${COLLAB_PGDATA}"
-      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "${COLLAB_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - collab-db-network
 
   question-db:
     hostname: "question-db"
@@ -41,15 +41,70 @@ services:
       - ./backend/question/.env.local
     volumes:
       - "question-db-docker:${QUESTION_PGDATA}"
-      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "${QUESTION_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - question-db-network
+
+  # Services
+
+  user-service:
+    image: "user-express"
+    container_name: "user-express"
+    build:
+      context: ./backend/user
+      dockerfile: ./express.Dockerfile
+      target: build
+      args: 
+        # For building with the correct env vars
+        - env=${USER_EXPRESS_ENV}
+        - port=${USER_EXPRESS_PORT}
+    ports:
+      - "9001:${USER_EXPRESS_PORT}"
+    env_file:
+      - ./backend/user/.env.compose
+    environment:
+      # Docker Compose Specific
+      - EXPRESS_DB_HOST=user-db
+      - EXPRESS_DB_PORT=5432
+    volumes: 
+      - user-service:/data/user-express
+    depends_on:
+      - user-db
+    networks:
+      - user-db-network
+      - user-api-network
+    entrypoint: ["/bin/sh", "entrypoint.sh"]
 
 volumes:
+  user-service:
+    external: false
+  question-service:
+    external: false
+  collab-service:
+    external: false
+
+  # Persistent Volumes for Databases
   user-db-docker:
     external: true
   collab-db-docker:
     external: true
   question-db-docker:
     external: true
+
+
+networks:
+  # Isolated API Server Networks
+  user-db-network:
+    driver: bridge
+  question-db-network:
+    driver: bridge
+  collab-db-network:
+    driver: bridge
+
+  # View-Controller Networks
+  user-api-network:
+    driver: bridge
+  question-api-network:
+    driver: bridge
+  collab-api-network:
+    driver: bridge

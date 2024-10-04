@@ -14,29 +14,31 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/code-default: "true"
+        io.kompose.network/code-collab-db-network: "true"
         io.kompose.service: collab-db
     spec:
       containers:
         - env:
+            - name: EXPRESS_DB_HOST
+              value: localhost
+            - name: EXPRESS_DB_PORT
+              value: "5434"
+            - name: EXPRESS_ENV
+              value: local
             - name: PGDATA
               value: /data/collab-db
             - name: POSTGRES_DB
-              value: collab
+              value: collaboration
             - name: POSTGRES_PASSWORD
-              value: collab
+              value: /86awM+Izo6949YgEQIls8HU+j5RlFYEInRy8auiNa8=
             - name: POSTGRES_USER
-              value: express
+              value: peerprep-collab-express
           image: postgres:16.4
           name: collab-db
-          ports:
-            - containerPort: 5432
-              hostPort: 5433
-              protocol: TCP
           volumeMounts:
             - mountPath: /data/collab-db
               name: collab-db-docker
-      hostname: collabdb
+      hostname: collab-db
       restartPolicy: Always
       volumes:
         - name: collab-db-docker

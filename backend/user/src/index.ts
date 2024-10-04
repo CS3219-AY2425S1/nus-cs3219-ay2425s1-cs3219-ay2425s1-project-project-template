@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import app, { dbHealthCheck } from '@/server';
 import { logger } from '@/lib/utils';
 
