@@ -6,7 +6,7 @@
     "dev": "env-cmd -f .env.local vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --port 5173"
+    "preview": "vite preview --port 5173 --host 0.0.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

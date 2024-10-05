@@ -5,9 +5,9 @@
 1. Run this command to build:
    ```sh
    docker build \
-     -t frontend-local \
-     --build-arg port=3000 \
-     -f frontend.Dockerfile .
+      --build-arg VITE_USER_SERVICE=http://host.docker.internal:9001 \
+      --build-arg VITE_QUESTION_SERVICE=http://host.docker.internal:9002 \
+      -t frontend-app -f frontend.Dockerfile .
    ```
 2. Run this command, from the root folder:
 

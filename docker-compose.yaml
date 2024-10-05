@@ -91,10 +91,8 @@ services:
       - '3000:${FRONTEND_PORT}'
     env_file:
       - ./frontend/.env.compose
-    environment:
-      - FRONTEND_PORT=PORT
-    depends_on:
-      - user-service
+    # depends_on:
+    #   - user-service
     networks:
       - user-api-network
       - question-api-network
