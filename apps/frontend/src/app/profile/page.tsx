@@ -1,31 +1,68 @@
 "use client";
 import Header from "@/components/Header/header";
-import { Avatar, Button, Col, Divider, Form, Input, Layout, Row } from "antd";
+import {
+  Avatar,
+  Button,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Layout,
+  message,
+  Row,
+} from "antd";
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
 import { EditOutlined, SaveOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import {
+  UpdateUser,
+  ValidateUser,
+  VerifyTokenResponseType,
+} from "../services/user";
 
 interface ProfilePageProps {}
 
 const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const [form] = Form.useForm();
+  const [id, setId] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     // TODO: Retrieve the user details via validate JWT token api
-
-    // TODO: Set initial form value with the retrieved value above
-    form.setFieldsValue({
-      username: "",
-      password: "",
-      email: "",
+    ValidateUser().then((data: VerifyTokenResponseType) => {
+      form.setFieldsValue({
+        username: data.data.username,
+        password: "",
+        email: data.data.email,
+      });
+      setId(data.data.id);
+      setEmail(data.data.email);
+      setUsername(data.data.username);
     });
   }, [refresh]);
 
+  const success = (message: string) => {
+    messageApi.open({
+      type: "success",
+      content: message,
+    });
+  };
+
+  const error = (message: string) => {
+    messageApi.open({
+      type: "error",
+      content: message,
+    });
+  };
+
   return (
     <Layout className="layout">
+      {contextHolder}
       <Header selectedKey={undefined} />
       <Content className="content">
         <div className="content-card1">
@@ -34,16 +71,16 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             <div className="left-header">
               {/* TODO: Replace with the first initial of username */}
               <Avatar size={80} className="avatar">
-                A
+                {username?.charAt(0).toUpperCase()}
               </Avatar>
               <div className="name-container">
                 {/* TODO: Set the value in field correctly within the useEffect above and this should work */}
-                <div className="username">{form.getFieldValue("username")}</div>
-                <div className="email">{form.getFieldValue("email")}</div>
+                <div className="username">{username}</div>
+                <div className="email">{email}</div>
               </div>
             </div>
             <div className="right-header">
-              {isEditable && (
+              {/* {isEditable && (
                 <>
                   <Button
                     icon={<SaveOutlined />}
@@ -62,7 +99,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                     Cancel
                   </Button>
                 </>
-              )}
+              )} */}
               {!isEditable && (
                 <Button
                   icon={<EditOutlined />}
@@ -78,15 +115,21 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             <Form
               form={form}
               onFinish={(values) => {
-                // TODO: Make PATCH api request to update user details here
-
-                // TODO: On success show success notification message else display error notification
-
-                // Set editable to false
-                setIsEditable(false);
-
-                // Refresh data
-                setRefresh(!refresh);
+                // TODO: Check password
+                let data = values;
+                if (!values.password || values.password.trim() === "") {
+                  data = {
+                    username: values.username,
+                    email: values.email,
+                  };
+                }
+                UpdateUser(data, id as string)
+                  .then((value) => {
+                    setIsEditable(false);
+                    setRefresh(!refresh);
+                    success("Profile Updated");
+                  })
+                  .catch((error) => error(error.message));
               }}
               layout="vertical"
               disabled={!isEditable}
@@ -126,17 +169,45 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                   <Form.Item
                     name="password"
                     label="Password"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please enter valid password!",
-                      },
-                    ]}
+                    // rules={[
+                    //   {
+                    //     required: true,
+                    //     message: "Please enter valid password!",
+                    //   },
+                    // ]}
                   >
-                    <Input.Password name="password" type="password" />
+                    <Input.Password
+                      name="password"
+                      type="password"
+                      placeholder="Enter new password"
+                    />
                   </Form.Item>
                 </Col>
               </Row>
+              <Form.Item
+                style={{ display: "flex", justifyContent: "flex-end" }}
+              >
+                {isEditable && (
+                  <>
+                    <Button
+                      className="cancel-button"
+                      onClick={() => {
+                        setIsEditable(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      icon={<SaveOutlined />}
+                      type="primary"
+                      className="save-button"
+                      htmlType="submit"
+                    >
+                      Save
+                    </Button>
+                  </>
+                )}
+              </Form.Item>
             </Form>
           </div>
         </div>
