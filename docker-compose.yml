@@ -1,4 +1,14 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      target: $BUILD_ENV
+    ports:
+      - $FRONTEND_PORT:$FRONTEND_PORT
+    depends_on:
+      - question-service
+      - user-service
+
   question-service:
     build:
       context: ./question-service
