@@ -13,6 +13,16 @@ services:
     networks:
       - common-network
 
+  frontedn-service:
+    build: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - common-network
+
 networks:
   common-network:
     driver: bridge
