@@ -15,9 +15,7 @@ const columns = [
   { id: 'status', label: 'Status', minWidth: 100 }
 ];
 
-export default function QuestionTable() {
-  const { cookies } = useAuth();
-
+export default function QuestionTable({ mountTrigger }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -51,7 +49,7 @@ export default function QuestionTable() {
         }
       };
       fetchQuestions(); // Trigger the fetch
-  }, []);
+  }, [mountTrigger]);
 
   const handleQuestionClick = (question) => {
     setSelectedQuestion(question); 
