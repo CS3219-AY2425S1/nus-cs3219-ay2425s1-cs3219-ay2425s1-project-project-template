@@ -9,12 +9,31 @@ services:
     environment:
       - NODE_ENV=production
     depends_on:
-      - backend
+      - user-service
+      - question-service
+    networks:
+      - app-network
 
-  backend:
+  user-service:
     build:
-      context: ./backend
+      context: ./backend/user-service
     ports:
-      - "5050:5050" 
+      - "3001:3001"
     environment:
       - NODE_ENV=production
+    networks:
+      - app-network
+
+  question-service:
+    build:
+      context: ./backend/question-service
+    ports:
+      - "5050:5050"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

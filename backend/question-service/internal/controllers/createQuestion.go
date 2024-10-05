@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"backend/internal/models"
+	"question-service/internal/models"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"

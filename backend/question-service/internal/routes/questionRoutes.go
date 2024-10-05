@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"backend/internal/controllers"
+	"question-service/internal/controllers"
 
 	"github.com/gorilla/mux"
 )
