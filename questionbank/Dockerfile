@@ -4,7 +4,7 @@ WORKDIR /app
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle/wrapper/ gradle/wrapper/
 COPY src src
-RUN ./gradlew build --no-daemon || return 0
+RUN ./gradlew build --no-daemon 
 
 # Run stage
 FROM eclipse-temurin:17-jre-jammy
