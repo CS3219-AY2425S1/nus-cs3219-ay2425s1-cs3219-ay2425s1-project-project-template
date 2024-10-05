@@ -1,15 +1,15 @@
 import React from "react";
 import "./App.css";
-import QuestionPage from "./pages/Question/question";
+import QuestionPage from "./pages/Question/page";
 import NavBar from "./components/NavBar/navbar";
 
 function App() {
   return (
     <div className="App">
       <NavBar />
-      <header className="App-header">
+      <div className="Content">
         <QuestionPage />
-      </header>
+      </div>
     </div>
   );
 }
