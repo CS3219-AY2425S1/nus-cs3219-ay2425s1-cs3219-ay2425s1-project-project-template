@@ -15,11 +15,17 @@ import (
 // DBinstance func
 func DBinstance() *mongo.Client {
 	err := godotenv.Load(".env") // Load .env file
-
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	uri := os.Getenv("MONGODB_URI")
+	
+	env := os.Getenv("ENV")
+	var uri string; 
+	if env == "PROF" {
+		uri = os.Getenv("MONGODB_CLOUD_URI")
+	} else {
+		uri = os.Getenv("MONGODB_LOCAL_URI") 
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) // timeout if does not connect within 10 seconds
 

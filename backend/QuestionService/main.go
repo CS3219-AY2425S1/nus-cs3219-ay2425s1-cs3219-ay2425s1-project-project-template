@@ -12,6 +12,8 @@ import (
 
 func main() {
 	port := os.Getenv("PORT")
+	frontend := os.Getenv("FRONTEND_URL")
+
 	if port == "" {
 		port = "3002"
 	}
@@ -21,9 +23,9 @@ func main() {
 
 	// Apply CORS middleware with custom configuration
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Ensure it matches your frontend port
+		AllowOrigins:     []string{frontend}, // Ensure it matches your frontend port
 		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Content-Type", "Authorization", "token"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * 60 * 60,
