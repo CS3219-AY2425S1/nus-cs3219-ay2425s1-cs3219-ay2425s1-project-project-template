@@ -4,11 +4,11 @@ import (
 	"backend/database"
 	helper "backend/helpers"
 	"backend/models"
+	"log"
 
 	"context"
 	"fmt"
 
-	// "log"
 	"strconv"
 	"strings"
 
@@ -148,7 +148,7 @@ func AddQuestionToDb() gin.HandlerFunc {
 		}
 
 		if !helper.HasDuplicateTitle(&question, coll, ctx) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Question with the same title already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": "Question with the same title already exists"})
 			return
 		}
 
@@ -177,7 +177,7 @@ func UpdateQuestion(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Updated Question: %+v\n", updatedQuestion)
+	log.Printf("Updated Question: %+v\n", updatedQuestion)
 
 	filter := bson.M{"_id": updatedQuestion.ID}
 	update := bson.M{

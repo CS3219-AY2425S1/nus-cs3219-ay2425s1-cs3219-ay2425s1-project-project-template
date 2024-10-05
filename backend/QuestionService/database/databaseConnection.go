@@ -19,7 +19,6 @@ func DBinstance() *mongo.Client {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
 	uri := os.Getenv("MONGODB_URI")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) // timeout if does not connect within 10 seconds

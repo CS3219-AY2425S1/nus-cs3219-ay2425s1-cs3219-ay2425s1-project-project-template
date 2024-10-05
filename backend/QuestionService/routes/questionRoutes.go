@@ -8,9 +8,9 @@ import (
 
 // UserRoutes function
 func QuestionRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.GET("/v1/questions", controller.GetQuestions())
+	incomingRoutes.GET("/questions", controller.GetQuestions())
 	// incomingRoutes.GET("/v1/questionsById", controller.GetQuestionsById)
-	incomingRoutes.PUT("/v1/questionsById", controller.UpdateQuestion)
-	incomingRoutes.DELETE("/v1/questionsById", controller.DeleteQuestion)
-	incomingRoutes.POST("/v1/createQuestion", controller.AddQuestionToDb())
+	incomingRoutes.PUT("/questions", controller.UpdateQuestion)
+	incomingRoutes.DELETE("/questions", controller.DeleteQuestion)
+	incomingRoutes.POST("/questions", controller.AddQuestionToDb())
 }

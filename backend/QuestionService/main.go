@@ -12,9 +12,8 @@ import (
 
 func main() {
 	port := os.Getenv("PORT")
-
 	if port == "" {
-		port = "8000"
+		port = "3002"
 	}
 
 	router := gin.New()
@@ -30,21 +29,8 @@ func main() {
 		MaxAge:           12 * 60 * 60,
 	}))
 
-	routes.UserRoutes(router) // Creates User api routes
-
+	
 	router.Use(middleware.Authentication())
-
-	routes.QuestionRoutes(router) // Creates Question api routes
-	routes.ProfileRoutes(router)  // Creates Profile api routes
-	router.GET("/api-1", func(c *gin.Context) {
-		c.JSON(200, gin.H{"success": "Access granted for api-1"})
-	})
-
-	// API-2
-	router.GET("/api-2", func(c *gin.Context) {
-		c.JSON(200, gin.H{"success": "Access granted for api-2"})
-	})
-
+	routes.QuestionRoutes(router) // Creates Question api routes	
 	router.Run(":" + port)
-
 }
