@@ -1,6 +1,7 @@
 # PeerPrep G47 Frontend
 
 ## How to set up frontend after cloning the repository
+
 ### Install dependencies
 
 Using `npm`:
