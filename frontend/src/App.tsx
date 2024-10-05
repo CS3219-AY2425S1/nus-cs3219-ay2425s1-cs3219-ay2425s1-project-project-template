@@ -1,16 +1,9 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 
 import './App.css';
-import Landing from './pages/Landing';
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Landing />,
-  },
-]);
+import router from './router';
 
 const theme = createTheme({
   primaryColor: 'indigo',
