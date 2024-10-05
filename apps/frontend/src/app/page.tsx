@@ -25,7 +25,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import {
   DeleteQuestion as DeleteQuestionByDocref,
   GetQuestions,
@@ -42,6 +42,8 @@ import {
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
 import { title } from "process";
+import { isAuthenticated } from "@/utils/Auth";
+import { redirect } from 'next/navigation';
 
 /**
  * defines the State of the page whe a user is deleing an object. Has 3 general states:
@@ -116,6 +118,13 @@ export default function Home() {
 
   // State for refreshing data
   const [refresh, setRefresh] = useState(false);
+
+  useLayoutEffect(() => {
+    const isAuth = isAuthenticated;
+    if(!isAuth){
+      redirect("/login")
+    }
+  }, [])
 
   const handleEditClick = (index: number, question: Question) => {
     // Open the modal for the specific question
