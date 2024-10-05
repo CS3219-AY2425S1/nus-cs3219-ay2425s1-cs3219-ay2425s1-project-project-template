@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
 
 import styles from './RegisterPage.module.css'; 
+import useRegister from '../../hooks/useRegister';
 
 const RegisterPage = () => {
-    //const { handleLogin, isLoading, isInvalidLogin } = useLogin();
+    const { handleRegister, isLoading, isInvalidLogin } = useRegister();
     const [formData, setFormData] = useState({
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -25,8 +27,9 @@ const RegisterPage = () => {
     // Add simple validation
     const handleSubmit = (e) => {
         e.preventDefault();
-        const { email, password, confirmPassword } = formData;
-        if (!email || !password || !confirmPassword) {
+        setErrorMessage('');
+        const { username, email, password, confirmPassword } = formData;
+        if (!username || !email || !password || !confirmPassword) {
             setErrorMessage('Please fill in all fields.');
             return;
         }
@@ -34,15 +37,25 @@ const RegisterPage = () => {
             setErrorMessage('Passwords do not match.');
             return;
         }
-        // Call the handleLogin function here once the registration logic is implemented
-        // handleLogin(email, password);
-        console.log("Registration successful!"); // Placeholder for successful registration
+        handleRegister(username, email, password);
     };
 
     return (
         <div className={styles.registerContainer}> 
             <h2>Register</h2>
             <form onSubmit={handleSubmit} className={styles.registerForm}> 
+            <div className={styles.formGroup}>
+                    <label htmlFor="username">Username:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username" 
+                        value={formData.username} 
+                        onChange={handleChange}
+                        required
+                        placeholder="Enter your username"  
+                    />
+                </div>
                 <div className={styles.formGroup}>
                     <label htmlFor="email">Email:</label>
                     <input
@@ -79,12 +92,11 @@ const RegisterPage = () => {
                         placeholder="Confirm your password"
                     />
                 </div>
-                {/* {isLoading && <p>Loading...</p>}
+                {isLoading && <p>Loading...</p>}
                 {isInvalidLogin && <p className={styles.errorMessage}>Invalid resgistration credentials, please try again.</p>}
-                {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>} */}
+                {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
                 <button type="submit" className={styles.registerButton} >
-                    {/* {isLoading ? 'Registering...' : 'Login'} */}
-                    Register
+                    {isLoading ? 'Registering...' : 'Register'}
                 </button>
             </form>
             <Link to={`/login`}> Login here </Link>

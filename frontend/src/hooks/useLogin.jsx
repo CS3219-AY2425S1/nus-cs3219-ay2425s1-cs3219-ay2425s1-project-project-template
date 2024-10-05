@@ -24,7 +24,7 @@ const useLogin = () => {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to login');
+                throw new Error(errorData.message || 'Failed to login');
             }
             const data = await response.json();
             console.log(data);
