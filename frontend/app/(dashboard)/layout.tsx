@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from 'next/navigation';
-import { Stack, Text, Spacer, Box, Flex, Spinner } from "@chakra-ui/react";
+import { Stack, Text, Spacer, Box, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { HamburgerIcon } from "@/public/icons/HamburgerIcon";
 import { ChevronIcon } from "@/public/icons/ChevronIcon";
 import NavbarCards, { NavbarCardProps } from "@/components/NavbarCard";
@@ -40,6 +40,7 @@ export default function Layout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const toast = useToast();
 
   const [isToggled, setIsToggled] = useState(false);
   const [isUserTriggered, setIsUserTriggered] = useState(false);
@@ -65,6 +66,14 @@ export default function Layout({
   }
 
   if (!isAuthenticated) {
+    toast.closeAll();
+    toast({
+      title: "Please login first!",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+      position: "top",
+    });
     router.push('/login');
   }
 
