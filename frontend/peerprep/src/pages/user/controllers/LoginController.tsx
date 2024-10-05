@@ -4,19 +4,21 @@ import { login, UserCredentials } from "../authService";
 import LoginView from "../views/LoginView";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AxiosInstance } from "axios";
 
 interface LoginControllerProps {
+  api : AxiosInstance
   setAuth: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const LoginController: React.FC<LoginControllerProps> = ({setAuth}) => {
+const LoginController: React.FC<LoginControllerProps> = ({api, setAuth}) => {
   //const [errorMessage, setErrorMessage] = useState<string>("");
   const navigate = useNavigate(); 
 
   const handleLogin = async (email: string, password: string) => {
     const credentials: UserCredentials = { email, password };
     try {
-      const token = await login(credentials);
+      const token = await login(api, credentials);
       toast.success("Logged in successfully!"); 
       console.log("Logged in successfully! Token:", token);
       setAuth(true)
@@ -39,7 +41,7 @@ const LoginController: React.FC<LoginControllerProps> = ({setAuth}) => {
 
   const handleForgotPassword = () => {
     console.log("Forgot Password Clicked");
-    navigate("/forget-password");
+    // navigate("/forget-password");
   };
 
   return (

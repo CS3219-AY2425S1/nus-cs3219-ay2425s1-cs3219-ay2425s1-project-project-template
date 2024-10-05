@@ -4,12 +4,18 @@ import RegistrationView from '../views/RegistrationView';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AxiosInstance } from 'axios';
 
-const RegistrationController: React.FC = () => {
+interface RegisterControllerProps {
+  api : AxiosInstance
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const RegistrationController: React.FC<RegisterControllerProps> = ({api, setAuth}) => {
   //const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
-  const handleRegistration = async (username: string, email: string, password: string, confirmPassword: string) => {
+  const handleRegistration = async (username: string, email: string, password: string, confirmPassword: string, isAdmin: boolean) => {
     if (!password || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
@@ -23,12 +29,13 @@ const RegistrationController: React.FC = () => {
     const userCredentials: UserCredentials = {
       username,
       email,
-      password
+      password,
+      isAdmin,
     };
 
     try {
       
-      const response = await register(userCredentials);
+      const response = await register(api, userCredentials);
       console.log("Registration successful:", response);
       toast.success("Registration successful! Redirecting to login...");
       setTimeout(() => {
