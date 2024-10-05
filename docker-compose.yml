@@ -9,7 +9,6 @@ services:
     volumes:
       - ./frontend:/app
     command: ["npm", "run", "dev"]
-    restart: always  
 
   user_service:
     build:
@@ -24,7 +23,7 @@ services:
     environment:
       - NODE_ENV=development
     networks:
-      - cs3219-ay2425s1-project-g18
+      - peerprep-network
 
 
   question_service:
@@ -40,8 +39,8 @@ services:
     environment:
       - NODE_ENV=development
     networks:
-      - cs3219-ay2425s1-project-g18
+      - peerprep-network
 
 networks:
- cs3219-ay2425s1-project-g18:
+ peerprep-network:
    driver: bridge    
