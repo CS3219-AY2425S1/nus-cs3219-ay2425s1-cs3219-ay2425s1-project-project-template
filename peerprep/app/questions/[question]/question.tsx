@@ -6,6 +6,7 @@ import PeerprepButton from "@/components/shared/PeerprepButton";
 import styles from "@/style/question.module.css";
 import { useRouter } from "next/navigation";
 import { deleteQuestion } from "@/app/api/internal/questions/helper";
+import CollabEditor from "@/components/questionpage/CollabEditor";
 
 interface Props {
   question: Question;
@@ -105,9 +106,11 @@ function QuestionBlock({ question }: Props) {
           </table>
         )}
       </div>
-      <form className={styles.editor_container}>
-        <textarea className={styles.code_editor} />
-      </form>
+      <div className={styles.editor_container}>
+        <CollabEditor
+            question={question}
+        />
+      </div>
     </>
   );
 }
