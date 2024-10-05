@@ -1,28 +1,9 @@
-import {
-  Accordion,
-  AppShell,
-  Button,
-  Card,
-  Container,
-  FileInput,
-  Group,
-  Image as MantineImage,
-  MantineProvider,
-  Modal,
-  MultiSelect,
-  Portal,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-  Title,
-  createTheme,
-} from '@mantine/core';
+import { Accordion, AppShell, Button, Card, Container, Group, Modal, MultiSelect, Select, Stack, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
 import { Notifications, notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
 import { useEffect, useMemo, useState } from 'react';
+
 
 interface Question {
   id: string;
@@ -34,7 +15,7 @@ interface Question {
   images: string[];
 }
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost/api/questions';
 
 const difficulties = ['Easy', 'Medium', 'Hard'];
 const topics = [
@@ -56,12 +37,12 @@ function QuestionEditor() {
   const [newDescription, setNewDescription] = useState('');
   const [newDifficulty, setNewDifficulty] = useState<string | null>(null);
   const [newTopic, setNewTopic] = useState<string[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [filterDifficulty, setFilterDifficulty] = useState<string | null>(null);
   const [filterTopic, setFilterTopic] = useState<string[]>([]);
-  const [newImageFiles, setImageFiles] = useState<File[]>([]);
+  // const [newImageFiles, setImageFiles] = useState<File[]>([]);
   const [newImageNames, setImageNames] = useState<string[]>([]);
-  const [imageSrc, setImageSrc] = useState('');
+  // const [imageSrc, setImageSrc] = useState('');
 
   useEffect(() => {
     fetchQuestions();
@@ -86,37 +67,37 @@ function QuestionEditor() {
     );
   };
 
-  const uploadImages = async () => {
-    const formData = new FormData();
-    newImageFiles.forEach((file) => {
-      formData.append('img', file);
-    });
+  // const uploadImages = async () => {
+  //   const formData = new FormData();
+  //   newImageFiles.forEach((file) => {
+  //     formData.append('img', file);
+  //   });
 
-    const response = await fetch(`${API_BASE_URL}/img`, {
-      method: 'POST',
-      body: formData,
-    });
+  //   const response = await fetch(`${API_BASE_URL}/img`, {
+  //     method: 'POST',
+  //     body: formData,
+  //   });
 
-    const data = await response.json();
+  //   const data = await response.json();
 
-    if (!response.ok) {
-      console.error('Failed to upload image');
-    } else {
-      setImageNames([...newImageNames, data.filename]);
-    }
-  };
+  //   if (!response.ok) {
+  //     console.error('Failed to upload image');
+  //   } else {
+  //     setImageNames([...newImageNames, data.filename]);
+  //   }
+  // };
 
-  const getImage = async (filename: string) => {
-    const response = await fetch(`${API_BASE_URL}/img/${filename}`);
-    if (!response.ok) {
-      console.error('Failed to fetch image');
-    } else {
-      const blob = await response.blob();
-      // Create an object URL from the blob
-      const url = URL.createObjectURL(blob);
-      setImageSrc(url);
-    }
-  };
+  // const getImage = async (filename: string) => {
+  //   const response = await fetch(`${API_BASE_URL}/img/${filename}`);
+  //   if (!response.ok) {
+  //     console.error('Failed to fetch image');
+  //   } else {
+  //     const blob = await response.blob();
+  //     // Create an object URL from the blob
+  //     const url = URL.createObjectURL(blob);
+  //     setImageSrc(url);
+  //   }
+  // };
 
   const addQuestion = async () => {
     if (newTitle.trim() === '') {
@@ -280,13 +261,13 @@ function QuestionEditor() {
   }, [questions, filterDifficulty, filterTopic]);
 
   const resetForm = () => {
-    setEditingId(null);
+    setEditingId(undefined);
     setNewTitle('');
     setNewDescription('');
     setNewDifficulty(null);
     setNewTopic([]);
     setImageNames([]);
-    setImageFiles([]);
+    // setImageFiles([]);
   };
 
   return (

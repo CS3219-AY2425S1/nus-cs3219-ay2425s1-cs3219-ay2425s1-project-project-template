@@ -41,7 +41,7 @@ const getUsers = async () => {
 
 // Delete all users
 const deleteAllUsers = async () => {
-  await User.deleteMany({ email: { $ne:  process.env.EMAIL_USER } });
+  await User.deleteMany({ email: { $ne:  process.env.USER_EMAIL_USER } });
 };
 
 // Insert default admin data
@@ -53,9 +53,9 @@ const insertDefaultData = async () => {
       console.log('No users found, inserting default data...');
 
       // Create a default admin user
-      const hashedPassword = await bcrypt.hash(process.env.EMAIL_PASS, 10);
+      const hashedPassword = await bcrypt.hash(process.env.USER_EMAIL_PASS, 10);
       const adminUser = new User({
-        email: process.env.EMAIL_USER,
+        email: process.env.USER_EMAIL_USER,
         username: 'master_admin',
         password: hashedPassword,
         isAdmin: true,

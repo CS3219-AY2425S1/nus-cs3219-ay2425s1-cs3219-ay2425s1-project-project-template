@@ -6,7 +6,8 @@
   "scripts": {
     "install-all": "npm install && run-p install-all:*",
     "install-all:frontend": "cd frontend && npm install",
-    "install-all:question-service": "cd question-service && npm install"
+    "install-all:question-service": "cd question-service && npm install",
+    "install-all:user-service": "cd user-service && npm install"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
