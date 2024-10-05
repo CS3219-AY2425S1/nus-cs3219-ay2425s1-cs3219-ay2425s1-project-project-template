@@ -1,19 +1,26 @@
-import './App.css'
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import QuestionTable from './components/QuestionTable';
+import LoginPage from './views/login-page/LoginPage';
+import MainPage from './views/main-page/MainPage';
 
 function App() {
   return (
-    <>
-      <div className='App'>
-        <Router>
-          <Routes>
-            <Route path="/" element={<QuestionTable />} />
-          </Routes>
-        </Router>
-      </div>
-    </>
-  )
+    <div className='App'>
+      <Router>
+        <Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<MainPage />}>
+              <Route index element={<QuestionTable />} /> 
+            </Route>
+          </Route>
+
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </Router>
+    </div>
+  );
 }
 
-export default App
+export default App;
+

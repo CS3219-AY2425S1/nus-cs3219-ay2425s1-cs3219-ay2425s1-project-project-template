@@ -1,4 +1,4 @@
-.login-container {
+.loginContainer {
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
@@ -14,24 +14,24 @@ h2 {
     margin-bottom: 20px;
 }
 
-.login-form .form-group {
+.loginForm .formGroup {
     margin-bottom: 15px;
 }
 
-.login-form label {
+.loginForm label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-.login-form input {
+.loginForm input {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-.login-form .login-button {
+.loginForm .loginButton {
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -42,11 +42,11 @@ h2 {
     font-size: 16px;
 }
 
-.login-form .login-button:hover {
+.loginForm .loginButton:hover {
     background-color: #0056b3;
 }
 
-.error-message {
+.errorMessage {
     color: red;
     text-align: center;
     margin-bottom: 10px;
