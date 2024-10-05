@@ -1,14 +1,9 @@
 #!/bin/sh
-if [ ! -f db-init ]
-then
-echo "migrating..."
+
+# Drizzle will handle its own logic to remove conflicts
 npm run db:prod:migrate
-echo "migration complete"
-echo "seeding..."
+
+# Checks admin table and will not seed if data exists
 npm run db:prod:seed
-echo "seeding complete"
-touch .db-init
-echo "db-init created"
-fi
 
 npm run start

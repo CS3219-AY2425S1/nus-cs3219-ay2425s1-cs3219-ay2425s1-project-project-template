@@ -84,8 +84,6 @@ services:
       # Docker Compose Specific for Service Discovery
       - EXPRESS_DB_HOST=user-db
       - EXPRESS_DB_PORT=5432
-    volumes: 
-      - user-service:/data/user-express
     depends_on:
       user-db:
         condition: service_healthy
@@ -96,13 +94,6 @@ services:
     entrypoint: ["/bin/sh", "entrypoint.sh"]
 
 volumes:
-  user-service:
-    external: false
-  question-service:
-    external: false
-  collab-service:
-    external: false
-
   # Persistent Volumes for Databases
   user-db-docker:
     external: true
