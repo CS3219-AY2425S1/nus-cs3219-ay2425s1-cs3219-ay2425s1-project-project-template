@@ -1,13 +1,20 @@
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
-import { db, questions } from '@/lib/db';
+import { admin as adminTable, db, questions as questionTable } from '@/lib/db';
 import { questionData } from './sample-data/questions';
 
 const seedQuestions = async () => {
   try {
     await db.transaction(async (trx) => {
+      const seedRecords = await trx.select().from(adminTable).where(eq(adminTable.action, 'SEED'));
+      if (seedRecords && seedRecords.length > 0) {
+        console.info(
+          `[Users]: Seeded already at: ${(seedRecords[seedRecords.length - 1].createdAt ?? new Date()).toLocaleString()}`
+        );
+        return;
+      }
       // Delete all questions (not table)
-      await trx.delete(questions);
+      await trx.delete(questionTable);
 
       // Reset Serial to start index 1
       await trx.execute(sql`
@@ -21,7 +28,7 @@ const seedQuestions = async () => {
 
       for (const question of questionData) {
         await trx
-          .insert(questions)
+          .insert(questionTable)
           .values({ ...question, id: undefined }) // Let DB set ID
           .onConflictDoNothing();
       }
