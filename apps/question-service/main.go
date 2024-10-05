@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"question-service/handlers"
+	mymiddleware "question-service/middleware"
 	"question-service/utils"
 	"time"
 
@@ -42,6 +43,12 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	// Load config/.env file
+	err = godotenv.Load("../config/.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// Initialize Firestore client
 	ctx := context.Background()
 	firebaseCredentialPath := os.Getenv("FIREBASE_CREDENTIAL_PATH")
@@ -65,6 +72,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(mymiddleware.VerifyJWT)
 
 	r.Use(cors.Handler(cors.Options{
 		// AllowedOrigins: []string{"http://localhost:3000"}, // Use this to allow specific origin hosts
