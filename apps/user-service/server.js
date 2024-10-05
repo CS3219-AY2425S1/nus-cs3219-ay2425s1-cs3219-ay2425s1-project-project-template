@@ -6,12 +6,6 @@ import { connectToDB } from "./model/repository.js";
 
 const port = process.env.PORT || 3001;
 
-// Load  environment variables from config .env file
-const result = dotenv.config({ path: '../config/.env' });
-if (result.error) {
-  throw new Error("Failed to load .env file");
-}
-
 const server = http.createServer(index);
 
 await connectToDB().then(() => {

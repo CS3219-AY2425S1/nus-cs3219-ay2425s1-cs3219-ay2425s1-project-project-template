@@ -43,12 +43,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Load config/.env file
-	err = godotenv.Load("../config/.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	// Initialize Firestore client
 	ctx := context.Background()
 	firebaseCredentialPath := os.Getenv("FIREBASE_CREDENTIAL_PATH")
