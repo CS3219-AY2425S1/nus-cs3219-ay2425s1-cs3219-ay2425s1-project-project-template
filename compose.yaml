@@ -2,6 +2,7 @@ services:
   nginx:
     build:
       context: ./nginx
+    container_name: nginx
     restart: always
     volumes:
       - ./nginx/default.conf:/tmp/default.conf
@@ -31,6 +32,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    container_name: frontend-build
     volumes:
       - react-build:/app/dist
     entrypoint: ["sh", "-c", "npm run build && exit 0"]
@@ -48,6 +50,7 @@ services:
       - /app/node_modules
 
   user-service-mongo:
+    container_name: user-service-mongo-test
     image: mongo:4.2
     volumes:
       - mongo-data:/data/db
