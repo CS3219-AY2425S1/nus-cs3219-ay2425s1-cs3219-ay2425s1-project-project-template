@@ -1,9 +1,9 @@
-import http from "http";
-import index from "./index.js";
 import "dotenv/config";
+import http from "http";
+import index from './index.js';
 import { connectToDB } from "./model/repository.js";
 
-const port = process.env.PORT || 8000;
+const port = process.env.QUESTION_PORT || 8000;
 
 const server = http.createServer(index);
 
