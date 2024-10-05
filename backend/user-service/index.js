@@ -56,4 +56,9 @@ app.use((error, req, res, next) => {
   });
 });
 
+const PORT = process.env.PORT || 8081;
+app.listen(PORT, () => {
+  console.log(`User service running on port ${PORT}`);
+});
+
 export default app;
