@@ -42,7 +42,7 @@ import {
 import Link from "next/link";
 import TextArea from "antd/es/input/TextArea";
 import { title } from "process";
-import { isAuthenticated } from "@/utils/Auth";
+import { isAuthenticated, isAdmin } from "@/utils/Auth";
 import { redirect } from 'next/navigation';
 
 /**
@@ -74,7 +74,7 @@ function DeleteModal({
       onOk={okHandler}
       onCancel={cancelHandler}
       confirmLoading={isDeleting}
-      okButtonProps={{ danger: true }}
+      okButtonProps={{ danger: true }}  
       cancelButtonProps={{ disabled: isDeleting }}
     >
       <p>{text}</p>
@@ -304,7 +304,6 @@ export default function Home() {
       dataIndex: "id",
       render: (_: number, question: Question, index: number) => (
         <div>
-          {/* TODO (Sean): Include Logic to handle retrieving of editable data here and display in a modal component */}
           <Modal
             title="Edit Problem"
             open={isEditModalOpen && isEditModalOpen[index]}
@@ -399,11 +398,14 @@ export default function Home() {
               </Form.Item>
             </Form>
           </Modal>
-          <Button
-            className="edit-button"
-            icon={<EditOutlined />}
-            onClick={() => handleEditClick(index, question)}
-          ></Button>
+          {
+            isAdmin &&
+            <Button
+              className="edit-button"
+              icon={<EditOutlined />}
+              onClick={() => handleEditClick(index, question)}
+            ></Button>
+          }
           {/* TODO (Ryan): Include Pop-up confirmation for delete when clicked and link to delete API --> can also explore success notification or look into react-toast*/}
           <Button
             className="delete-button"
@@ -493,115 +495,117 @@ export default function Home() {
           <div className="content-card">
             <div className="content-row-1">
               <div className="content-title">Problems</div>
-              <div className="create-button">
-                {/* TODO (Sean): Launch a popup modal that links to the backend api to create a new entry in db, --> look into success/error notification/react toast */}
-                <Button
-                  type="primary"
-                  icon={<PlusCircleOutlined />}
-                  onClick={showNewProblemModal}
-                >
-                  Create New Problem
-                </Button>
-                <Modal
-                  title="Create New Problem"
-                  open={isNewProblemModalOpen}
-                  // onOk={() => setIsNewProblemModelOpen(false)} // Replace with handleSubmit
-                  onCancel={() => setIsNewProblemModelOpen(false)}
-                  footer={null}
-                  width={600}
-                >
-                  <Form
-                    name="create-form"
-                    {...layout}
-                    form={form}
-                    onFinish={(values) => {
-                      handleCreateQuestion(values);
-                    }}
+              {
+                isAdmin &&
+                <div className="create-button">
+                  <Button
+                    type="primary"
+                    icon={<PlusCircleOutlined />}
+                    onClick={showNewProblemModal}
                   >
-                    <Form.Item
-                      name="title"
-                      label="Title"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please enter question title!",
-                        },
-                      ]}
+                    Create New Problem
+                  </Button>
+                  <Modal
+                    title="Create New Problem"
+                    open={isNewProblemModalOpen}
+                    // onOk={() => setIsNewProblemModelOpen(false)} // Replace with handleSubmit
+                    onCancel={() => setIsNewProblemModelOpen(false)}
+                    footer={null}
+                    width={600}
+                  >
+                    <Form
+                      name="create-form"
+                      {...layout}
+                      form={form}
+                      onFinish={(values) => {
+                        handleCreateQuestion(values);
+                      }}
                     >
-                      <Input name="title" />
-                    </Form.Item>
-                    <Form.Item
-                      name="description"
-                      label="Description"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please enter question description!",
-                        },
-                      ]}
-                    >
-                      <TextArea name="description" />
-                    </Form.Item>
-                    <Form.Item
-                      name="complexity"
-                      label="Complexity"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select a complexity!",
-                        },
-                      ]}
-                    >
-                      <Select
-                        options={[
+                      <Form.Item
+                        name="title"
+                        label="Title"
+                        rules={[
                           {
-                            label: "Easy",
-                            value: "easy",
-                          },
-                          {
-                            label: "Medium",
-                            value: "medium",
-                          },
-                          {
-                            label: "Hard",
-                            value: "hard",
+                            required: true,
+                            message: "Please enter question title!",
                           },
                         ]}
-                        onChange={(value) =>
-                          form.setFieldValue("complexity", value)
-                        }
-                        allowClear
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      name="categories"
-                      label="Categories"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select the relevant categories!",
-                        },
-                      ]}
-                    >
-                      <Select
-                        mode="multiple"
-                        options={CategoriesOption}
-                        onChange={(value) =>
-                          form.setFieldValue("categories", value)
-                        }
-                        allowClear
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      style={{ display: "flex", justifyContent: "flex-end" }}
-                    >
-                      <Button type="primary" htmlType="submit">
-                        Create
-                      </Button>
-                    </Form.Item>
-                  </Form>
-                </Modal>
-              </div>
+                      >
+                        <Input name="title" />
+                      </Form.Item>
+                      <Form.Item
+                        name="description"
+                        label="Description"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter question description!",
+                          },
+                        ]}
+                      >
+                        <TextArea name="description" />
+                      </Form.Item>
+                      <Form.Item
+                        name="complexity"
+                        label="Complexity"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a complexity!",
+                          },
+                        ]}
+                      >
+                        <Select
+                          options={[
+                            {
+                              label: "Easy",
+                              value: "easy",
+                            },
+                            {
+                              label: "Medium",
+                              value: "medium",
+                            },
+                            {
+                              label: "Hard",
+                              value: "hard",
+                            },
+                          ]}
+                          onChange={(value) =>
+                            form.setFieldValue("complexity", value)
+                          }
+                          allowClear
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name="categories"
+                        label="Categories"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select the relevant categories!",
+                          },
+                        ]}
+                      >
+                        <Select
+                          mode="multiple"
+                          options={CategoriesOption}
+                          onChange={(value) =>
+                            form.setFieldValue("categories", value)
+                          }
+                          allowClear
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        style={{ display: "flex", justifyContent: "flex-end" }}
+                      >
+                        <Button type="primary" htmlType="submit">
+                          Create
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Modal>
+                </div>
+              }
             </div>
             {/* TODO (Ben/Ryan): Include and link search & filter parameters */}
             <div className="content-filter">
