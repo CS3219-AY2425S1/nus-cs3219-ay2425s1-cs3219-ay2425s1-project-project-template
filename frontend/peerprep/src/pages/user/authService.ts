@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { UserContext, UserContextType } from "../../context/UserContext";
 import { AxiosInstance } from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -30,8 +32,8 @@ export interface LoginTokens {
 export const login = async (api: AxiosInstance, credentials: UserCredentials): Promise<LoginTokens> => {
   try {
     const response = await api.post<LoginTokens>("/auth/login", credentials);
+    console.log(response.data)
     // Save tokens in localStorage
-    localStorage.setItem("userId", response.data.data.id)
     localStorage.setItem("token", response.data.data.accessToken);
     // localStorage.setItem("refreshToken", response.data.refreshToken);
 

@@ -31,7 +31,7 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route element={<PrivateRoutes isAuth={isAuth} api={auth}/>}>
+          <Route element={<PrivateRoutes isAuth={isAuth} api={api} authApi={auth}/>}>
             {/* Put axios api instance into a context */}
             <Route path="/questions" element={<QuestionController />} />
             <Route path="/dashboard" element={<DashboardView />} />

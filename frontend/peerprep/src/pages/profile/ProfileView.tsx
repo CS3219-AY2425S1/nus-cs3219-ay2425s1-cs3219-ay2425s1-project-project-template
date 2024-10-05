@@ -1,36 +1,33 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Avatar, Button, Container, Box, Text, FormControl, FormLabel, Input, useToast } from "@chakra-ui/react";
+import { Avatar, Button, Container, Box, Text, FormControl, FormLabel, useToast, Checkbox } from "@chakra-ui/react";
 import { UserContext } from "../../context/UserContext";
 import InputBox from "../../components/InputBox"; // Assuming this is your custom input component
-import { authApi } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
+import { useAuthApiContext } from "../../context/ApiContext";
 
 const ProfileView = () => {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
   const toast = useToast();
+  const navigate = useNavigate();
+
+  // State management for form inputs
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate()
 
-  const [isAuth, setAuth] = React.useState(
-    localStorage.getItem("token") ? true : false
-  );
+  // API instance with auth context
+  const api = useAuthApiContext();
 
-  const api = authApi(setAuth);
-  const id = localStorage.getItem("userId")
-
-  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await api.get(`/users/${id}`); // Adjust the URL as needed
+        const response = await api.get(`/users/${user?.id}`);
         setUsername(response.data.data.username);
         setEmail(response.data.data.email);
       } catch (error: unknown) {
         if (error instanceof Error) {
-            toast({
+          toast({
             title: "Error fetching user data.",
             description: error.message || "An error occurred.",
             status: "error",
@@ -43,13 +40,17 @@ const ProfileView = () => {
       }
     };
 
-    fetchUserData();
-  }, [id, toast]);
+    if (user?.id) {
+      fetchUserData();
+    } else {
+      setLoading(false);
+    }
+  }, [user?.id, api, toast]);
 
-  // Update user data
+  // Handle profile update
   const handleUpdate = async () => {
     try {
-      await api.patch(`/users/${id}`, { username, email });
+      await api.patch(`/users/${user?.id}`, { username, email });
       toast({
         title: "Profile updated.",
         description: "Your profile has been updated successfully.",
@@ -70,11 +71,11 @@ const ProfileView = () => {
     }
   };
 
-  // Delete user
+  // Handle account deletion
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
       try {
-        await api.delete(`/users/${id}`);
+        await api.delete(`/users/${user?.id}`);
         toast({
           title: "Account deleted.",
           description: "Your account has been deleted successfully.",
@@ -83,7 +84,7 @@ const ProfileView = () => {
           isClosable: true,
         });
         // Handle post-deletion logic (e.g., log out the user or redirect)
-        navigate("/login")
+        navigate("/login");
       } catch (error) {
         if (error instanceof Error) {
           toast({
@@ -128,8 +129,7 @@ const ProfileView = () => {
         <Button colorScheme="purple" onClick={handleUpdate} mb={2} mr={2}>Update</Button>
         <Button 
           colorScheme="red" 
-          onClick={handleDelete
-} 
+          onClick={handleDelete} 
           mb={2}
           mr={2}>Delete Account</Button>
       </Box>
