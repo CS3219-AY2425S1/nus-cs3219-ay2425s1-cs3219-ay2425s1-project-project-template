@@ -127,7 +127,7 @@ function CollabPageView() {
 				>
 					{/* id & title */}
 					<h2 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-						{customQuestion.id}. {customQuestion.title}
+						{customQuestion.title}
 					</h2>
 
 					{/* tags (difficulty & topics) */}
