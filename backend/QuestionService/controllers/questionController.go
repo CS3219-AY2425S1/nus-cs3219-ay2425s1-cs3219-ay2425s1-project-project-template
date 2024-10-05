@@ -4,24 +4,22 @@ import (
 	"backend/database"
 	helper "backend/helpers"
 	"backend/models"
+	"log"
 
 	"context"
 	"fmt"
-
-	// "log"
+	"net/http"
 	"strconv"
 	"strings"
-
-	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	// "go.mongodb.org/mongo-driver/mongo"
 )
 
-var coll *mongo.Collection = database.OpenCollection(database.Client, "question_db", "questions")
+// var database.Coll *mongo.Collection = database.OpenCollection(database.Client, "question_db", "questions")
 
 func GetQuestions() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -29,10 +27,10 @@ func GetQuestions() gin.HandlerFunc {
 
 		defer cancel()
 
-		fmt.Println(coll)
+		fmt.Println(database.Coll)
 
 		// Retrieve documents
-		cursor, err := coll.Find(ctx, bson.M{})
+		cursor, err := database.Coll.Find(ctx, bson.M{})
 		if err != nil {
 			fmt.Println("Error in Find: ", err.Error())
 			panic(err)
@@ -82,7 +80,7 @@ func GetQuestionsById(c *gin.Context) {
 
 	filter := bson.M{"_id": bson.M{"$in": ids}}
 
-	curr, err := coll.Find(ctx, filter)
+	curr, err := database.Coll.Find(ctx, filter)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -147,15 +145,15 @@ func AddQuestionToDb() gin.HandlerFunc {
 			return
 		}
 
-		if !helper.HasDuplicateTitle(&question, coll, ctx) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Question with the same title already exists"})
+		if !helper.HasDuplicateTitle(&question, database.Coll, ctx) {
+			c.JSON(http.StatusConflict, gin.H{"error": "Question with the same title already exists"})
 			return
 		}
 
 		helper.ParseQuestionForDb(&question)
 		// helper.CreateUniqueIdQuestion(&question)
 
-		_, err := coll.InsertOne(ctx, question)
+		_, err := database.Coll.InsertOne(ctx, question)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add question to the database"})
 			return
@@ -177,7 +175,7 @@ func UpdateQuestion(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Updated Question: %+v\n", updatedQuestion)
+	log.Printf("Updated Question: %+v\n", updatedQuestion)
 
 	filter := bson.M{"_id": updatedQuestion.ID}
 	update := bson.M{
@@ -190,7 +188,7 @@ func UpdateQuestion(c *gin.Context) {
 		},
 	}
 
-	result, err := coll.UpdateOne(ctx, filter, update)
+	result, err := database.Coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating question", "error": err.Error()})
 		return
@@ -235,7 +233,7 @@ func DeleteQuestion(c *gin.Context) {
 	} 
 
 	filter := bson.M{"_id": objectId}
-	result, err := coll.DeleteOne(ctx, filter)
+	result, err := database.Coll.DeleteOne(ctx, filter)
 
 	if result.DeletedCount == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Question not found"})
