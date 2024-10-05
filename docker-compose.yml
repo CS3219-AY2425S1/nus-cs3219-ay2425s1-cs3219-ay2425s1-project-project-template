@@ -1,0 +1,19 @@
+# docker-compose.yml
+
+services:
+  backend:
+    build: ./backend
+    image: backend:latest
+    ports:
+      - "8080:8080"  # Expose backend server on port 8080
+    volumes:
+      - ./backend:/usr/src/app  # For local development with live reloading
+    environment:
+      - NODE_ENV=development  # Set environment to development
+  frontend:
+    build: ./frontend
+    image: frontend:latest
+    ports:
+      - "3000:4173"  # Expose frontend on port 3000
+    depends_on:
+      - backend  # Ensure the backend starts first
