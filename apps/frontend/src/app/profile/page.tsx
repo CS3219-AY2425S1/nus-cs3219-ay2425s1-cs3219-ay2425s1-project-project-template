@@ -77,26 +77,6 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               </div>
             </div>
             <div className="right-header">
-              {/* {isEditable && (
-                <>
-                  <Button
-                    icon={<SaveOutlined />}
-                    type="primary"
-                    className="save-button"
-                    htmlType="submit"
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    className="cancel-button"
-                    onClick={() => {
-                      setIsEditable(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              )} */}
               {!isEditable && (
                 <Button
                   icon={<EditOutlined />}
@@ -125,7 +105,9 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                     setRefresh(!refresh);
                     success("Profile Updated");
                   })
-                  .catch((error) => error(error.message));
+                  .catch((errors: Error) => {
+                    error(errors.message);
+                  });
               }}
               layout="vertical"
               disabled={!isEditable}
@@ -156,22 +138,13 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                       },
                     ]}
                   >
-                    <Input name="email" type="email" disabled />
+                    <Input name="email" type="email" />
                   </Form.Item>
                 </Col>
               </Row>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
-                    name="password"
-                    label="Password"
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Please enter valid password!",
-                    //   },
-                    // ]}
-                  >
+                  <Form.Item name="password" label="Password">
                     <Input.Password
                       name="password"
                       type="password"
@@ -188,6 +161,9 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
                     <Button
                       className="cancel-button"
                       onClick={() => {
+                        form.setFieldValue("username", username);
+                        form.setFieldValue("email", email);
+                        form.setFieldValue("password", undefined);
                         setIsEditable(false);
                       }}
                     >
