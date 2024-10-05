@@ -57,6 +57,20 @@ export default function Layout({
     setIsUserTriggered(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast.closeAll();
+      toast({
+        title: "Please login first!",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, router, toast]);
+
   if (isLoading) {
     return (
       <div className='flex flex-col justify-center items-center h-[100vh]'>
@@ -66,15 +80,7 @@ export default function Layout({
   }
 
   if (!isAuthenticated) {
-    toast.closeAll();
-    toast({
-      title: "Please login first!",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-      position: "top",
-    });
-    router.push('/login');
+    return null; 
   }
 
   return (
