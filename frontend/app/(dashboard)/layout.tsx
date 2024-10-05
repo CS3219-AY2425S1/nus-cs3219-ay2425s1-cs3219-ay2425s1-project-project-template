@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from 'next/navigation';
-import { Stack, Text, Spacer, Box, Flex, Spinner } from "@chakra-ui/react";
+import { Stack, Text, Spacer, Box, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { HamburgerIcon } from "@/public/icons/HamburgerIcon";
 import { ChevronIcon } from "@/public/icons/ChevronIcon";
 import NavbarCards, { NavbarCardProps } from "@/components/NavbarCard";
@@ -11,6 +11,7 @@ import practiceImage from '@/public/images/practice.png';
 import profileImage from '@/public/images/profile.png';
 import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
+import { useRouter } from 'next/navigation';
 
 const items: NavbarCardProps[] = [
   {
@@ -38,10 +39,13 @@ export default function Layout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const toast = useToast();
+
   const [isToggled, setIsToggled] = useState(false);
   const [isUserTriggered, setIsUserTriggered] = useState(false);
   const pathname = usePathname();
-  const { username, isLoading } = useAuth();
+  const { username, isLoading, isAuthenticated } = useAuth();
 
   const handleToggle = () => {
     setIsToggled(!isToggled);
@@ -53,13 +57,30 @@ export default function Layout({
     setIsUserTriggered(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast.closeAll();
+      toast({
+        title: "Please login first!",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, router, toast]);
+
   if (isLoading) {
     return (
-      <div className='flex flex-col justify-center items-center'>
+      <div className='flex flex-col justify-center items-center h-[100vh]'>
         <Spinner size='xl' thickness='4px' color='blue.500' emptyColor='gray.200' className="m-10" />
-        <span className='text-xl text-center'>Loading Questions...</span>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null; 
   }
 
   return (

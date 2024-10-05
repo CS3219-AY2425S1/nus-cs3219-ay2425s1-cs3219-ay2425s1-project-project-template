@@ -74,9 +74,9 @@ export default function LoginPage() {
       </FormControl>
       <Button colorScheme='blue' onClick={handleSubmit} mt='30px' mb='20px'>Login</Button>
       <Stack align="center">
-        <Link href={"/resetpassword"}>
+        {/* <Link href={"/resetpassword"}>
           <Text variant="link" fontSize='10px' color='black' textDecoration='underline' onClick={() => router.push("/resetpassword")}>Forgot password?</Text>
-        </Link>
+        </Link> */}
         <Stack direction="row" spacing={1}>
           <Text fontSize='10px' color='black'>Don't have an account?</Text>
           <Link href={"/signup"}>
