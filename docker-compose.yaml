@@ -78,19 +78,22 @@ services:
   # Frontend
 
   frontend:
-    image: 'frontend'
     container_name: 'frontend'
     build:
       context: ./frontend
       dockerfile: ./frontend.Dockerfile
       args:
-        - VITE_USER_SERVICE
-        - VITE_QUESTION_SERVICE
+        - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+        - VITE_QUESTION_SERVICE=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
         - port=${FRONTEND_PORT}
     ports:
       - '3000:${FRONTEND_PORT}'
     env_file:
       - ./frontend/.env.compose
+    environment:
+      - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+      - VITE_QUESTION_SERVICE=http://localhost:${QUESTION_EXPRESS_PORT}
+      - port=${FRONTEND_PORT}
     # depends_on:
     #   - user-service
     networks:

@@ -14,8 +14,14 @@ ENV VITE_QUESTION_SERVICE=${VITE_QUESTION_SERVICE}
 RUN npm run build
 
 FROM nginx:stable-alpine
-COPY --from=build /app/build /usr/share/nginx/html
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 3000
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=build /app/build /usr/share/nginx/html
+
+COPY ./nginx.conf.template /etc/nginx/nginx.conf.template
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ARG port
+EXPOSE ${port}
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
