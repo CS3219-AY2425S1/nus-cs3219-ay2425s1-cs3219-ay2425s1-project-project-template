@@ -6,10 +6,13 @@ import {
     IUserPassword,
     IUserProfile,
 } from '@/types/axios-user-types'
+
 import { IEmailVerificationDto } from '@repo/user-types'
 import { IUserDto } from '@repo/user-types'
 import axios from 'axios'
-import axiosInstance from './axios-middleware'
+import axiosClient from './axios-middleware'
+
+const axiosInstance = axiosClient.userServiceAPI
 
 // GET /validate
 export const validateToken = async (): Promise<boolean | undefined> => {

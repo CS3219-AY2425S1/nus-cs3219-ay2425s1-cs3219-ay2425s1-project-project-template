@@ -10,7 +10,6 @@ import {
     QuestionStatus,
     SortDirection,
 } from '@/types'
-import { columns, formFields } from './props'
 import {
     createQuestionRequest,
     deleteQuestionById,
@@ -18,6 +17,7 @@ import {
     getQuestionsRequest,
     updateQuestionRequest,
 } from '@/services/question-service-api'
+import { formFields, getColumns } from './props'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -25,13 +25,18 @@ import ConfirmDialog from '@/components/customs/confirm-dialog'
 import CustomForm from '@/components/customs/custom-form'
 import CustomModal from '@/components/customs/custom-modal'
 import Datatable from '@/components/customs/datatable'
+import Loading from '@/components/customs/loading'
+import { Role } from '@repo/user-types'
 import { capitalizeFirst } from '@/util/string-modification'
 import { toast } from 'sonner'
+import useProtectedRoute from '@/hooks/UseProtectedRoute'
+import { useSession } from 'next-auth/react'
 
 export default function Questions() {
-    const [isAdmin, setIsAdmin] = useState(false)
+    const { data: session } = useSession()
+    const isAdmin = session?.user.role === Role.ADMIN
+
     const [data, setData] = useState<IQuestion[]>([])
-    const [isLoading, setLoading] = useState<boolean>(false)
     const [pagination, setPagination] = useState<IPagination>({
         totalPages: 1,
         currentPage: 1,
@@ -85,27 +90,17 @@ export default function Questions() {
     }
 
     const loadData = async () => {
-        setLoading(true)
         const body: IGetQuestions = {
             page: pagination.currentPage,
             limit: pagination.limit,
             sortBy: sortBy,
         }
         await load(body)
-        setLoading(false)
     }
 
-    const [isInit, setIsInit] = useState(false)
-
     useEffect(() => {
-        if (!isInit) {
-            loadData()
-        }
-        setIsInit(true)
-    }, [isInit])
-
-    useEffect(() => {
-        setIsAdmin(sessionStorage.getItem('role') === 'ADMIN')
+        if (!session) return
+        loadData()
     }, [])
 
     const sortHandler = (sortBy: ISortBy) => {
@@ -237,6 +232,11 @@ export default function Questions() {
         loadData()
     }
 
+    const { loading } = useProtectedRoute()
+
+    if (loading) return <Loading />
+    if (!data || data?.length === 0) return null
+
     return (
         <div className="m-8">
             <div className="flex items-center justify-between mb-4">
@@ -259,7 +259,7 @@ export default function Questions() {
             </div>
             <Datatable
                 data={data}
-                columns={columns}
+                columns={getColumns(isAdmin)}
                 pagination={pagination}
                 sortBy={sortBy}
                 sortHandler={sortHandler}

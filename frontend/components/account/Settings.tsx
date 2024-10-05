@@ -1,32 +1,24 @@
+import { deleteAccount, updatePasswordRequest } from '@/services/user-service-api'
+import { tokenState, userState } from '@/atoms/auth'
+import { useMemo, useState } from 'react'
 import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import CustomDialogWithButton from '../customs/custom-dialog'
 import { InputField } from '../customs/custom-input'
+import React from 'react'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
-import { useMemo, useState } from 'react'
-import { deleteAccount, updatePasswordRequest } from '@/services/user-service-api'
-import React from 'react'
-import { useSetRecoilState } from 'recoil'
-import { tokenState, userState } from '@/atoms/auth'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
+import { useSetRecoilState } from 'recoil'
 
 function Setting() {
     const route = useRouter()
+    const { data: session, update } = useSession()
     const setIsAuth = useSetRecoilState(userState)
     const setIsValid = useSetRecoilState(tokenState)
-    const defaultEmail: string = useMemo(() => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem('email') ?? ''
-        }
-        return ''
-    }, [])
-    const userId: string = useMemo(() => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem('id') ?? ''
-        }
-        return ''
-    }, [])
+    const defaultEmail = session?.user.email ?? ''
+    const userId = session?.user.id ?? ''
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 
@@ -44,9 +36,10 @@ function Setting() {
     // Submit handler
     const handleFormSubmit = async () => {
         try {
-            await updatePasswordRequest({ password: formValues.password }, userId)
+            const response = await updatePasswordRequest({ password: formValues.password }, userId)
             setIsFormSubmit(true)
             toggleUpdateDialogOpen(false)
+            update({ ...session, user: response })
             toast.success('Profile has been updated successfully.')
             setFormValues({ ...initialFormValues, email: defaultEmail })
         } catch (error) {
@@ -84,7 +77,6 @@ function Setting() {
         setIsAuth(false)
         setIsValid(false)
         toggleDeleteDialogOpen(false)
-        sessionStorage.clear()
         route.push('/auth')
         toast.success('Successfully Delete Account')
     }

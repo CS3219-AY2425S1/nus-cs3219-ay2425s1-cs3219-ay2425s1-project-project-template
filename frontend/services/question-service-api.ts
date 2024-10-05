@@ -1,6 +1,9 @@
 import { IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
+
 import axios from 'axios'
-import axiosInstance from './axios-middleware2'
+import axiosClient from './axios-middleware'
+
+const axiosInstance = axiosClient.questionServiceAPI
 
 // GET /questions
 export const getQuestionsRequest = async (data: IGetQuestions): Promise<IQuestionsApi | undefined> => {
@@ -65,7 +68,9 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
 
             switch (statusCode) {
                 case 404:
-                    throw new Error('Error getting questions: No such user!')
+                    throw new Error('Error creating the question: No such user!')
+                case 401:
+                    throw new Error('Error creating the question: Unauthorized')
                 case 400:
                     throw new Error('Error creating question: Bad request' + error.message)
                 default:
@@ -91,8 +96,10 @@ export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion 
             const statusCode = error.response?.status
 
             switch (statusCode) {
+                case 401:
+                    throw new Error('Error updating the question: Unauthorized')
                 case 404:
-                    throw new Error('Error getting questions: No such user!')
+                    throw new Error('Error updating the question: No such user!')
                 default:
                     throw new Error('An unexpected error occurred' + error.message)
             }
@@ -112,8 +119,10 @@ export const deleteQuestionById = async (id: string): Promise<IQuestion | undefi
             const statusCode = error.response?.status
 
             switch (statusCode) {
+                case 401:
+                    throw new Error('Error deleting the question: Unauthorized')
                 case 404:
-                    throw new Error('Error getting questions: No such user!')
+                    throw new Error('Error deleting the question: No such user!')
                 default:
                     throw new Error('An unexpected error occurred' + error.message)
             }

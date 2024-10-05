@@ -13,12 +13,9 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { LogOutIcon } from 'lucide-react'
-import { useSetRecoilState } from 'recoil'
-import { tokenState, userState } from '@/atoms/auth'
+import { signOut } from 'next-auth/react'
 
 export function NavBar() {
-    const setIsAuth = useSetRecoilState(userState)
-    const setIsValid = useSetRecoilState(tokenState)
     return (
         <div className="flex justify-between border-b-[1px]">
             <Link href="/" legacyBehavior passHref>
@@ -50,18 +47,14 @@ export function NavBar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <Link
-                href="/auth"
-                onClick={() => {
-                    setIsAuth(false)
-                    setIsValid(false)
-                    sessionStorage.clear()
+            <div
+                className={navigationMenuTriggerStyle()}
+                onClick={async () => {
+                    await signOut({ callbackUrl: '/auth' })
                 }}
             >
-                <div className={navigationMenuTriggerStyle()}>
-                    <LogOutIcon />
-                </div>
-            </Link>
+                <LogOutIcon />
+            </div>
         </div>
     )
 }
