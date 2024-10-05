@@ -1,0 +1,38 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+  
+  backend:
+    build:
+      context: ./backend/service-question
+    container_name: backend-service-question
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/question_db
+    networks:
+      - app-network
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    environment:
+      MONGO_INITDB_DATABASE: question_db
+
+networks:
+  app-network:
+    driver: bridge
