@@ -7,7 +7,7 @@ import FormPasswordInput from "@/components/shared/form/FormPasswordInput";
 import { signup } from "@/app/actions/server_actions";
 import Link from "next/link";
 
-type Props = {}
+type Props = {};
 
 function RegisterPage({}: Props) {
   const [state, action] = useFormState(signup, undefined);
@@ -17,23 +17,11 @@ function RegisterPage({}: Props) {
     <div className={style.wrapper}>
       <form className={style.form_container} action={action}>
         <h1 className={style.title}>Sign up for an account</h1>
-        <FormTextInput
-            required
-            label="Username:"
-            name="username"
-        />
+        <FormTextInput required label="Username:" name="username" />
         {state?.errors?.username && <p>{state.errors.username}</p>}
-        <FormTextInput
-            required
-            label="Email:"
-            name="email"
-        />
+        <FormTextInput required label="Email:" name="email" />
         {state?.errors?.email && <p>{state.errors.email}</p>}
-        <FormPasswordInput
-            required
-            label="Password:"
-            name="password"
-        />
+        <FormPasswordInput required label="Password:" name="password" />
         {state?.errors?.password && (
           <div>
             <p>Password must:</p>
@@ -45,20 +33,22 @@ function RegisterPage({}: Props) {
           </div>
         )}
         <SubmitButton />
-        <p>Have an account? <Link href="/auth/login">Login.</Link></p>
+        <p>
+          Have an account? <Link href="/auth/login">Login.</Link>
+        </p>
       </form>
     </div>
-  )
+  );
 }
 
 function SubmitButton() {
-  const { pending } = useFormStatus()
- 
+  const { pending } = useFormStatus();
+
   return (
     <button disabled={pending} type="submit">
       Sign up
     </button>
-  )
+  );
 }
 
 export default RegisterPage;

@@ -95,8 +95,6 @@ export const LoginFormSchema = z.object({
     .trim(),
 });
 
-export function isError(
-  obj: any | StatusBody
-): obj is StatusBody {
+export function isError(obj: any | StatusBody): obj is StatusBody {
   return (obj as StatusBody).status !== undefined;
 }

@@ -7,7 +7,7 @@ import FormPasswordInput from "@/components/shared/form/FormPasswordInput";
 import { login } from "@/app/actions/server_actions";
 import Link from "next/link";
 
-type Props = {}
+type Props = {};
 
 function LoginPage({}: Props) {
   const [state, action] = useFormState(login, undefined);
@@ -17,17 +17,9 @@ function LoginPage({}: Props) {
     <div className={style.wrapper}>
       <form className={style.form_container} action={action}>
         <h1 className={style.title}>Login to PeerPrep</h1>
-        <FormTextInput
-            required
-            label="Email:"
-            name="email"
-        />
+        <FormTextInput required label="Email:" name="email" />
         {state?.errors?.email && <p>{state.errors.email}</p>}
-        <FormPasswordInput
-            required
-            label="Password:"
-            name="password"
-        />
+        <FormPasswordInput required label="Password:" name="password" />
         {state?.errors?.password && (
           <div>
             <p>Password must:</p>
@@ -39,20 +31,22 @@ function LoginPage({}: Props) {
           </div>
         )}
         <SubmitButton />
-        <p>No account? <Link href="/auth/register">Register here.</Link></p>
+        <p>
+          No account? <Link href="/auth/register">Register here.</Link>
+        </p>
       </form>
     </div>
-  )
+  );
 }
 
 function SubmitButton() {
-  const { pending } = useFormStatus()
- 
+  const { pending } = useFormStatus();
+
   return (
     <button disabled={pending} type="submit">
       Login
     </button>
-  )
+  );
 }
 
 export default LoginPage;

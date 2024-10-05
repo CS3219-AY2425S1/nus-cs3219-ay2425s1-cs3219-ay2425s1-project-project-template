@@ -31,9 +31,5 @@ export const config = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
-    // We also want to match all internal API routes from the browser
-    // This allows us to inject the JWT token for client components, when
-    // they make a request to the route.
-    '/api/internal/:path*',
   ],
 }
