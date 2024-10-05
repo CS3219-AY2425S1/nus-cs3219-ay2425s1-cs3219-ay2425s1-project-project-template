@@ -1,23 +1,40 @@
-// page.tsx
 "use client";
 
-import { Suspense, useState } from "react";
-import { Plus } from "lucide-react";
-import { QuestionDto, CreateQuestionDto } from "@repo/dtos/questions";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import CreateModal from "./components/CreateModal";
-import { createQuestion, fetchQuestions } from "@/lib/api/question";
-import EmptyPlaceholder from "./components/EmptyPlaceholder";
 import { QUERY_KEYS } from "@/constants/queryKeys";
-import { DataTable } from "./components/question-table/data-table";
-import QuestionsSkeleton from "./components/QuestionsSkeleton";
 import { useToast } from "@/hooks/use-toast";
+import { createQuestion, fetchQuestions } from "@/lib/api/question";
+import { CreateQuestionDto, QuestionDto } from "@repo/dtos/questions";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { Plus } from "lucide-react";
+import { Suspense, useState } from "react";
+import CreateModal from "./components/CreateModal";
+import EmptyPlaceholder from "./components/EmptyPlaceholder";
+import { columns } from "./components/question-table/columns";
+import { DataTable } from "./components/question-table/DataTable";
+import QuestionsSkeleton from "./components/QuestionsSkeleton";
+import {
+  QuestionsStateProvider,
+  useQuestionsState,
+} from "@/contexts/QuestionsStateContext";
+import { ActionModals } from "@/components/question/ActionModals";
 
 const QuestionRepositoryContent = () => {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
+  const {
+    confirmLoading,
+    setConfirmLoading,
+    selectedQuestion,
+    isEditModalOpen,
+    isDeleteModalOpen,
+    setEditModalOpen,
+    setDeleteModalOpen,
+  } = useQuestionsState();
   const { toast } = useToast();
   const { data } = useSuspenseQuery<QuestionDto[]>({
     queryKey: [QUERY_KEYS.Question],
@@ -38,7 +55,6 @@ const QuestionRepositoryContent = () => {
     },
     onSettled: () => setConfirmLoading(false),
     onError: (error: any) => {
-      console.error("Error creating question:", error);
       toast({
         variant: "error",
         title: "Error",
@@ -56,7 +72,11 @@ const QuestionRepositoryContent = () => {
       {/* Header */}
       <div className="flex justify-between items-center my-4">
         <h1 className="text-xl font-semibold">Question Repository</h1>
-        <Button variant="outline" disabled={confirmLoading} onClick={() => setCreateModalOpen(true)}>
+        <Button
+          variant="outline"
+          disabled={confirmLoading}
+          onClick={() => setCreateModalOpen(true)}
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
@@ -65,19 +85,40 @@ const QuestionRepositoryContent = () => {
       {data?.length === 0 ? (
         <EmptyPlaceholder />
       ) : (
-        <DataTable data={data} confirmLoading={confirmLoading} />
+        <DataTable
+          data={data}
+          columns={columns}
+          confirmLoading={confirmLoading}
+        />
       )}
 
-      <CreateModal open={isCreateModalOpen} setOpen={setCreateModalOpen} onCreate={handleCreateQuestion} />
+      <CreateModal
+        open={isCreateModalOpen}
+        setOpen={setCreateModalOpen}
+        onCreate={handleCreateQuestion}
+      />
+      {selectedQuestion && (
+        <ActionModals
+          id={selectedQuestion.id}
+          question={selectedQuestion}
+          setConfirmLoading={setConfirmLoading}
+          isEditModalOpen={isEditModalOpen}
+          setEditModalOpen={setEditModalOpen}
+          isDeleteModalOpen={isDeleteModalOpen}
+          setDeleteModalOpen={setDeleteModalOpen}
+        />
+      )}
     </div>
   );
-}
+};
 
 const QuestionRepository = () => {
   return (
-    <Suspense fallback={<QuestionsSkeleton />}>
-      <QuestionRepositoryContent />
-    </Suspense>
+    <QuestionsStateProvider>
+      <Suspense fallback={<QuestionsSkeleton />}>
+        <QuestionRepositoryContent />
+      </Suspense>
+    </QuestionsStateProvider>
   );
 };
 
