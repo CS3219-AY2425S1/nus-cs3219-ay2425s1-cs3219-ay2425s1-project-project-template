@@ -6,7 +6,7 @@ import PeerprepButton from "@/components/shared/PeerprepButton";
 import styles from "@/style/question.module.css";
 import { useRouter } from "next/navigation";
 import { deleteQuestion } from "@/app/api/internal/questions/helper";
-import CollabEditor from "@/app/questions/[question]/CollabEditor";
+import CollabEditor from "@/components/questionpage/CollabEditor";
 
 interface Props {
   question: Question;
