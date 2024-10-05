@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 check_or_create_docker_volume() {
   local volume_name=$1
