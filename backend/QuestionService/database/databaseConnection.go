@@ -21,7 +21,7 @@ func DBinstance() *mongo.Client {
 	
 	env := os.Getenv("ENV")
 	var uri string; 
-	if env == "PROF" {
+	if env == "PROD" {
 		uri = os.Getenv("MONGODB_CLOUD_URI")
 	} else {
 		uri = os.Getenv("MONGODB_LOCAL_URI") 
@@ -42,12 +42,7 @@ func DBinstance() *mongo.Client {
 }
 
 // Client Database instance
-var Client *mongo.Client = DBinstance()
+var client *mongo.Client = DBinstance()
 
-// OpenCollection is a  function makes a connection with a collection in the database
-func OpenCollection(client *mongo.Client, databaseName string, collectionName string) *mongo.Collection {
+var Coll *mongo.Collection = client.Database("test_db").Collection("questions") 
 
-	var collection *mongo.Collection = client.Database(databaseName).Collection(collectionName)
-
-	return collection
-}
