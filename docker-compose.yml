@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./client:/app
+      - ./frontend:/app
     command: ["npm", "run", "dev"]
     restart: always  
 
@@ -23,6 +23,9 @@ services:
     command: ["npm", "run", "dev"] 
     environment:
       - NODE_ENV=development
+    networks:
+      - cs3219-ay2425s1-project-g18
+
 
   question_service:
     build:
@@ -36,3 +39,9 @@ services:
     command: ["npm", "run", "dev"]  
     environment:
       - NODE_ENV=development
+    networks:
+      - cs3219-ay2425s1-project-g18
+
+networks:
+ cs3219-ay2425s1-project-g18:
+   driver: bridge    

@@ -1,5 +1,5 @@
 import User from '../../models/user';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import logger from '../../utils/logger';
 import { generateToken } from '../auth_utils/jwtUtils';
 
