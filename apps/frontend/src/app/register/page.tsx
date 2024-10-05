@@ -16,10 +16,10 @@ import { createUser } from '@/app/services/user'
 import { useRouter } from "next/navigation";
 
 type InputFields = {
-  username?: string
-  email?: string
-  password?: string
-  confirmPassword?: string
+  username: string
+  email: string
+  password: string
+  confirmPassword: string
 }
 
 export default function Home() {
@@ -36,12 +36,6 @@ export default function Home() {
   };
 
   function submitDetails({username, email, password}: InputFields): void {
-    if (!username || username === "" ||
-      !email || email === "" ||
-      !password || password === ""
-    ) {
-      return;
-    }
     createUser(username, email, password)
     .then(() => {
       successMessage("Account successfully created")
@@ -68,10 +62,16 @@ export default function Home() {
               
               <Form.Item<InputFields>
                 name="username"  
-                rules={[{
-                  required: true, 
-                  message: "You must provide a username."
-                }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "You must provide a username."
+                  },
+                  {
+                    pattern: /^\S+$/,
+                    message: "Please provide a valid username."
+                  },
+                ]}
               >
                 <Input
                   placeholder="Username"
@@ -80,12 +80,19 @@ export default function Home() {
 
               <Form.Item<InputFields>
                 name="email"  
-                rules={[{
-                  required: true, 
-                  message: "You must provide an email."
-                }]}
+                rules={[
+                  {
+                    required: true, 
+                    message: "You must provide an email."
+                  },
+                  {
+                    type: "email",
+                    message: "Please provide a valid email address."
+                  },
+                ]}
               >
                 <Input
+                  type="email"
                   placeholder="Email"
                 />
               </Form.Item>

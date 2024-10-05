@@ -17,8 +17,8 @@ import {setToken} from '@/app/services/login-store'
 import { useRouter } from "next/navigation";
 
 type InputFields = {
-  email?: string
-  password?: string
+  email: string
+  password: string
 }
 
 export default function Home() {
@@ -35,11 +35,6 @@ export default function Home() {
   };
 
   function submitDetails({email, password}: InputFields): void {
-    if (!email || email === "" ||
-      !password || password === ""
-    ) {
-      return;
-    }
     loginUser(email, password).then(jwt => {
       successMessage("Login successful")
       setToken(jwt);
@@ -65,12 +60,15 @@ export default function Home() {
             >
               <Form.Item<InputFields>
                 name="email"  
-                rules={[{
+                rules={[
+                  {
                     required: true, 
                     message: "Please provide your email."
-                  }]}
+                  },
+                ]}
               >
                 <Input
+                  type="email"
                   placeholder="Email"
                 />
               </Form.Item>
