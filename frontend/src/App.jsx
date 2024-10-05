@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import QuestionTable from './components/QuestionTable';
 import LoginPage from './views/login-page/LoginPage';
 import MainPage from './views/main-page/MainPage';
+import RegisterPage from './views/register-page/RegisterPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           </Route>
 
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </Router>
     </div>
