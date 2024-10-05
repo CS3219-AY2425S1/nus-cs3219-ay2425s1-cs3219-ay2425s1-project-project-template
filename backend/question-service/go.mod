@@ -1,4 +1,4 @@
-module backend
+module question-service
 
 go 1.23
 

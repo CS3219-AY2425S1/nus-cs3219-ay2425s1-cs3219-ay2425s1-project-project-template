@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"backend/internal/models"
+	"question-service/internal/models"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"

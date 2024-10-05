@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"backend/internal/controllers"
-	"backend/internal/routes"
+	"question-service/internal/controllers"
+	"question-service/internal/routes"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
