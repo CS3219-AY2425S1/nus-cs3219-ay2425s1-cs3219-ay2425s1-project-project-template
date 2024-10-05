@@ -3,7 +3,6 @@ import { getSessionLogin, postSignupUser } from '@/api/gateway';
 // defines the server-sided login action.
 import { SignupFormSchema, LoginFormSchema, FormState, isError } from '@/api/structs';
 import { createSession } from '@/app/actions/session';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 // credit - taken from Next.JS Auth tutorial
@@ -49,15 +48,8 @@ export async function login(state: FormState, formData: FormData) {
  
   const json = await getSessionLogin(validatedFields.data);
   if (!isError(json)) {
-    if (cookies().has('session')) {
-      console.log(cookies().get('session'));
-      console.log("Note a cookie already exists, overriding!");
-    }
     await createSession(json.data.accessToken);
-    
-    if (cookies().has('session')) {
-      console.log(`New cookie: ${cookies().get('session')?.value}`);
-    }
+    redirect("/questions");
   } else {
     console.log(json.error);
   }
