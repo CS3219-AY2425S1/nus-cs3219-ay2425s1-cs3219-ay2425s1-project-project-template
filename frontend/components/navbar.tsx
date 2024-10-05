@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useAuth } from "@/app/auth/auth-context";
 import { usePathname } from "next/navigation";
