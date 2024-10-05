@@ -2,22 +2,43 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Input, Text, Button, FormControl, FormLabel } from '@chakra-ui/react';
+import { Stack, Input, Text, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
 import Link from 'next/link';
+import { loginUser } from '@/services/userService';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const toast = useToast();
   const router = useRouter();
 
-  const handleSubmit = () => {
-    if ((email === 'test@gmail.com' && password === 'pw') || (email === 'test' && password === 'pw')) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async () => {
+    try {
+      await loginUser(email, password);
+      toast.closeAll();
+      toast({
+        title: 'Success',
+        description: 'Logged in successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
       router.push('/questions');
-    } else {
-      alert('Invalid credentials');
+    } catch (error) {
+      toast.closeAll();
+      toast({
+        title: 'Error',
+        description: 'Invalid email or password',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      setEmail('');
+      setPassword('');
     }
-    setEmail('');
-    setPassword('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -30,9 +51,9 @@ export default function LoginPage() {
     <Stack spacing={4} className='bg-[#E2E8F0] p-7 rounded-lg' width='450px'>
       <Text fontSize='20px' color='black' as='b' mb='10px'>Login</Text>
       <FormControl>
-        <FormLabel fontSize='15px' color='black'>Email Address or Username</FormLabel>
+        <FormLabel fontSize='15px' color='black'>Email Address</FormLabel>
         <Input
-          placeholder='Enter your email address or username'
+          placeholder='Enter your email address'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           bg='white'
@@ -53,9 +74,9 @@ export default function LoginPage() {
       </FormControl>
       <Button colorScheme='blue' onClick={handleSubmit} mt='30px' mb='20px'>Login</Button>
       <Stack align="center">
-        <Link href={"/resetpassword"}>
+        {/* <Link href={"/resetpassword"}>
           <Text variant="link" fontSize='10px' color='black' textDecoration='underline' onClick={() => router.push("/resetpassword")}>Forgot password?</Text>
-        </Link>
+        </Link> */}
         <Stack direction="row" spacing={1}>
           <Text fontSize='10px' color='black'>Don't have an account?</Text>
           <Link href={"/signup"}>
