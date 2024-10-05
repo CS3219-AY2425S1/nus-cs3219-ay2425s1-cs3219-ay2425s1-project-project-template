@@ -8,7 +8,7 @@ ENV JWT_SECRET=${JWT_SECRET}
 # ENV NODE_ENV=${NODE_ENV}
 ENV ENV=PROD
 
-FROM base as deps
+FROM base AS deps
 
 # RUN apk add --no-cache libc6-compat
 WORKDIR /app
