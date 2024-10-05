@@ -7,33 +7,39 @@ import multer from 'multer';
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-function validateQuestionFields(req, res) {
-    let { title, description, topic, difficulty, input, expected_output, leetcode_link } = req.body;
+function normalizeTitle(title) {
+    return title.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function validateQuestionFields(fields) {
+    let { title, description, topic, difficulty, input, expected_output, leetcode_link } = fields;
 
     title = title.trim();
     description = description.trim();
     difficulty = difficulty.trim();
     leetcode_link = leetcode_link ? leetcode_link.trim() : "";
 
-    // Check if topic is an array and trim each element
+    // Check if topic is an array and trim each element (and remove empty strings)
     if (Array.isArray(topic)) {
-        topic = topic.map(t => t.trim());
+        topic = topic.map(t => t.trim()).filter(t => t !== '');
     } else if (typeof topic === 'string') {
-        topic = [topic.trim()];
+        topic = [topic.trim()].filter(t => t !== '');
     } else {
-        return res.status(400).json({ message: "Topic must be an array of strings or a single string" });
+        return { valid: false, message: "Topic must be an array of strings or a single string" };
     }
 
     // Check if all required fields are provided
     if (!title || !description || !topic.length || !difficulty || !input || !expected_output) {
-        return res.status(400).json({ message: "All fields are required" });
+        return { valid: false, message: "All fields are required" };
     }
 
-    return { title, description, topic, difficulty, input, expected_output, leetcode_link };
+    return { valid: true, data: { title, description, topic, difficulty, input, expected_output, leetcode_link } };
 }
 
 async function checkExistingQuestion(title) {
-    return await Question.findOne({ title });
+    const normalizedTitle = normalizeTitle(title);
+    const regex = new RegExp(`^${normalizedTitle.replace(/\s+/g, '\\s*')}$`, 'i');
+    return await Question.findOne({ title: { $regex: regex } });
 }
 
 async function saveNewQuestion(newQuestion, res) {
@@ -96,9 +102,11 @@ async function deleteOldImages(question, allImages) {
 export const createQuestion = [
     upload.array('imageFiles'),
     async (req, res) => {
-        const validation = validateQuestionFields(req, res);
-        if (!validation) return;
-        const { title, description, topic, difficulty, input, expected_output, leetcode_link } = validation;
+        const validation = validateQuestionFields(req.body);
+        if (!validation.valid) {
+            return res.status(400).json({ message: validation.message });
+        }
+        const { title, description, topic, difficulty, input, expected_output, leetcode_link } = validation.data;
         
         const imageFiles = req.files;
         let { images } = req.body;
@@ -160,7 +168,7 @@ export const updateQuestion = [
     upload.array('imageFiles'),
     async (req, res) => {
         const { id } = req.params;
-        let { images, title } = req.body;
+        let { images, title, topic } = req.body;
         const imageFiles = req.files;
 
         try {
@@ -169,9 +177,23 @@ export const updateQuestion = [
                 return res.status(404).json({ message: "Question not found" });
             }
 
+            // Filter out empty strings from topic array
+            if (Array.isArray(topic)) {
+                topic = topic.map(t => t.trim()).filter(t => t !== '');
+            } else if (typeof topic === 'string') {
+                topic = [topic.trim()].filter(t => t !== '');
+            }
+
+            // Validate updated fields
+            const validation = validateQuestionFields({ ...question.toObject(), ...req.body, topic });
+            if (!validation.valid) {
+                return res.status(400).json({ message: validation.message });
+            }
+
+            // Check if title is unique
             if (title) {
                 const existingQuestion = await checkExistingQuestion(title);
-                if (existingQuestion) {
+                if (existingQuestion && existingQuestion.id !== id) {
                     return res.status(409).json({ message: "A question with this title already exists" });
                 }    
             }
@@ -180,7 +202,7 @@ export const updateQuestion = [
             const allImages = await handleImages(images, imageFiles, id);
             await deleteOldImages(question, allImages);
 
-            const updatedQuestion = await Question.findByIdAndUpdate(id, { $set: { ...req.body, images: allImages } }, { new: true });
+            const updatedQuestion = await Question.findByIdAndUpdate(id, { $set: { ...req.body, topic, images: allImages } }, { new: true });
             if (!updatedQuestion) {
                 return res.status(404).json({ message: "Question not found" });
             }

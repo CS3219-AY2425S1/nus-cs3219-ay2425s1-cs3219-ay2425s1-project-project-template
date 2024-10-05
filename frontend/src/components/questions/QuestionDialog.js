@@ -1,11 +1,20 @@
 import React from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Typography } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography, Box } from "@mui/material";
 import EditButton from './EditQuestionButton';
 import CloseIcon from '@mui/icons-material/Close';
 import ReactMarkdown from 'react-markdown';
 import DeleteQuestion from "./DeleteQuestionDialog";
+import useAuth from "../../hooks/useAuth";
 
 const QuestionDialog = ({ open, question, onClose }) => {
+    const { priviledge } = useAuth();
+
+    const dialogActionsComponent = (
+        <DialogActions sx={{ justifyContent: 'flex-end', padding: '16px',  backgroundColor:'#D9D9D9' }}>
+            <EditButton question={question}/>
+            <DeleteQuestion question={question}/>
+        </DialogActions>);
+
     if (!question) return null;  // If no problem is selected, return null
 
     return (
@@ -29,7 +38,7 @@ const QuestionDialog = ({ open, question, onClose }) => {
                 </IconButton>
                 
                 <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1, fontWeight: 'bold', fontFamily: 'Poppins' }}>
-                    <strong>Topic (s):</strong> {question.topic.join(', ')} &nbsp;&nbsp;&nbsp;&nbsp;
+                    <strong>Topic(s):</strong> {question.topic.join(', ')} &nbsp;&nbsp;&nbsp;&nbsp;
                     <strong>Difficulty:</strong> {question.difficulty}
                 </Typography>
             </DialogTitle>
@@ -66,12 +75,28 @@ const QuestionDialog = ({ open, question, onClose }) => {
                         ),
                         }}
                 />
+
+                {question.images && question.images.length > 0 && (
+                    <Box sx={{ marginTop: 2 }}>
+                        {question.images.map((image, index) => (
+                            <Box key={index} sx={{ textAlign: 'center', marginBottom: 3 }}>
+                                <img 
+                                    src={image} 
+                                    alt={`Question Image ${index + 1}`}
+                                    objectfit="contain" 
+                                    style={{ borderRadius: '5px', maxWidth: '100%', maxHeight: '200px' }}
+                                />
+                                <Typography variant="body2" sx={{ fontFamily: 'Poppins', marginBottom: 1 }}>
+                                    Image {index + 1}
+                                </Typography>
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+
             </DialogContent>
 
-            <DialogActions sx={{ justifyContent: 'flex-end', padding: '16px',  backgroundColor:'#D9D9D9' }}>
-                <EditButton question={question}/>
-                <DeleteQuestion question={question}/>
-            </DialogActions>
+            {priviledge ? dialogActionsComponent : null}
         </Dialog>
     );
 };

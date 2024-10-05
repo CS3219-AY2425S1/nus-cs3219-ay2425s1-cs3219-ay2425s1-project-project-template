@@ -1,9 +1,15 @@
 import * as React from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import questionService from '../services/question-service';
+import ErrorMessage from './ErrorMessageDialog'
+import questionService from '../../services/question-service';
+import useAuth from '../../hooks/useAuth';
 
 export default function DeleteQuestion({ question }) {
+  const { cookies } = useAuth();
+
   const [open, setOpen] = React.useState(false);
+  const [errorOpen, setErrorOpen] = React.useState(false); // State to control error dialog visibility
+  const [errorMessage, setErrorMessage] = React.useState(''); // State to store error message
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -13,13 +19,18 @@ export default function DeleteQuestion({ question }) {
     setOpen(false);
   };
 
+  const handleErrorClose = () => {
+    setErrorOpen(false); // Close the error dialog
+  };
+
   const handleDelete = async () => {
     try {
-      await questionService.deleteQuestion(question._id); // Call delete function from the service
+      await questionService.deleteQuestion(question._id, cookies); // Call delete function from the service
       setOpen(false); // Close the dialog after deletion
       window.location.reload(); // Optionally refresh the page after deletion
     } catch (error) {
-      console.error("Error deleting question:", error);
+      setErrorMessage(error.message); // Set error message
+      setErrorOpen(true); // Open error dialog
     }
   };
 
@@ -88,6 +99,11 @@ export default function DeleteQuestion({ question }) {
           </Button>
         </DialogActions>
       </Dialog>
+      <ErrorMessage
+                open={errorOpen}
+                handleClose={handleErrorClose}
+                errorMessage={errorMessage}
+            />
     </React.Fragment>
   );
 }
