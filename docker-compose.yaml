@@ -16,6 +16,12 @@ services:
     restart: unless-stopped
     networks:
       - user-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peerprep-user-express -d user"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   collab-db:
     hostname: "collab-db"
@@ -30,6 +36,12 @@ services:
     restart: unless-stopped
     networks:
       - collab-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peerprep-collab-express -d collab"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   question-db:
     hostname: "question-db"
@@ -44,6 +56,12 @@ services:
     restart: unless-stopped
     networks:
       - question-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peerprep-qn-express -d question"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   # Services
 
@@ -63,13 +81,15 @@ services:
     env_file:
       - ./backend/user/.env.compose
     environment:
-      # Docker Compose Specific
+      # Docker Compose Specific for Service Discovery
       - EXPRESS_DB_HOST=user-db
       - EXPRESS_DB_PORT=5432
     volumes: 
       - user-service:/data/user-express
     depends_on:
-      - user-db
+      user-db:
+        condition: service_healthy
+        restart: true
     networks:
       - user-db-network
       - user-api-network
