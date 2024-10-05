@@ -15,10 +15,5 @@ COPY . .
 RUN yarn build
 
 # Production runtime stage
-FROM node:20-alpine AS prod
-WORKDIR /app
-COPY --from=build /app/package.json /app/yarn.lock ./
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/public ./public
-RUN yarn install --production --frozen-lockfile
+FROM build AS prod
 CMD ["yarn", "start"]
