@@ -130,7 +130,7 @@ importers:
         specifier: ^5.1.3
         version: 5.5.4
 
-  apps/questions-service:
+  apps/question-service:
     dependencies:
       '@nestjs/common':
         specifier: ^10.0.0
