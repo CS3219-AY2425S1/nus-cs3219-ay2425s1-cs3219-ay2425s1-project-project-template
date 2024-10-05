@@ -84,7 +84,7 @@ const Header = (props: HeaderProps): JSX.Element => {
       >
         <a onClick={(e) => e.preventDefault()}>
           {/* Fetch and replace with first letter of user's name */}
-          <Avatar>A</Avatar>
+          <Avatar icon={<UserOutlined />}></Avatar>
         </a>
       </Dropdown>
     </AntdHeader>
