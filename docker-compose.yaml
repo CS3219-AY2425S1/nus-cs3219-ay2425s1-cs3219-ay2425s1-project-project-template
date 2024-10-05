@@ -1,5 +1,5 @@
 services:
-  # MongoDB Service
+  # MongoDB Service for Question Service
   mongo:
     image: mongo:latest
     container_name: mongo
@@ -36,6 +36,15 @@ services:
       - MONGO_URI=mongodb://root:example@mongo:27017/
     depends_on:
       - mongo
+    networks:
+      - app-network
+    
+  # UserService
+  user-service:
+    build: ./UserService
+    container_name: user-service
+    ports:
+      - "3001:3001"
     networks:
       - app-network
 
