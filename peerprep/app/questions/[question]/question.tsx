@@ -1,10 +1,11 @@
 "use client";
-import { deleteQuestion } from "@/api/gateway";
+import React from "react";
 import { Question, Difficulty } from "@/api/structs";
 import Chip from "@/components/shared/Chip";
 import PeerprepButton from "@/components/shared/PeerprepButton";
 import styles from "@/style/question.module.css";
 import { useRouter } from "next/navigation";
+import { deleteQuestion } from "@/app/api/internal/questions/helper";
 import CollabEditor from "@/app/questions/[question]/CollabEditor";
 
 interface Props {
@@ -44,7 +45,7 @@ function QuestionBlock({ question }: Props) {
         `Are you sure you want to delete ${question.title}? (ID: ${question.id}) `
       )
     ) {
-      const status = await deleteQuestion(question);
+      const status = await deleteQuestion(question.id);
       if (status.error) {
         alert(
           `Failed to delete question. Code ${status.status}:  ${status.error}`
