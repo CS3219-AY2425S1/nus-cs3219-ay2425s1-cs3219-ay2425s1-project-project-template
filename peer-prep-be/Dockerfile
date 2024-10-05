@@ -26,7 +26,7 @@ WORKDIR /root/
 COPY --from=builder /app/test_run .
 
 # Expose the application's port
-EXPOSE 1323
+EXPOSE 8080
 
 # Command to run the executable
 CMD ["./test_run"]
