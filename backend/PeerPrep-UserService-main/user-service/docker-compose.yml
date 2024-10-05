@@ -18,5 +18,17 @@ services:
     depends_on: # indicates to start this container after the mongo_db container is up
       - mongo_db
 
+  frontend:
+    container_name: frontend_service
+    build:
+      context: ../../../frontend/peerprep    # Path to the React app (peerprep)
+      dockerfile: Dockerfile          
+    ports:
+      - "5173:5173"                  
+    environment:
+      - PORT=5173
+    depends_on: 
+      - user_service                 # Frontend waits for user_service to be up
+
 volumes:
   mongo_db: {}
