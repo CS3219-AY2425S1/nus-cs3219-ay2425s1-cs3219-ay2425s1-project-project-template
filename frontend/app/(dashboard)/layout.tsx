@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from "react";
 import { usePathname } from 'next/navigation';
 import { Stack, Text, Spacer, Box, Flex, Spinner, useToast } from "@chakra-ui/react";

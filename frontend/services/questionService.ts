@@ -1,13 +1,15 @@
 import axios from 'axios';
+import { AxiosError } from 'axios';
 import { Question } from '../types/Question';
 
 export const fetchQuestions = async () => {
-  return await axios.get<Question[]>('http://localhost:8000/api/question')
-    .then(response => response.data)
-    .catch(error => {
-      console.error('Error fetching questions:', error);
-      return [];
-    });
+  try {
+    const response = await axios.get<Question[]>('http://localhost:8000/api/question');
+    return { data: response.data, error: null };
+  } catch (err: AxiosError | any) {
+    console.error('Error fetching questions:', err);
+    return { data: null, error: err.response?.data }; 
+  }
 };
 
 export const createQuestion = async (question: Question) => {
