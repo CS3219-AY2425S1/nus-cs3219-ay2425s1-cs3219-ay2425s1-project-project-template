@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useCookies } from "react-cookie";
-import jwtDecode from "jwt-decode";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import GeneralNavbar from "../components/GeneralNavbar";
+import GeneralNavbar from "../components/navbar/GeneralNavbar";
 import "../styles/Profile.css";
 import DefaultImage from '../assets/Default.jpg';
 
