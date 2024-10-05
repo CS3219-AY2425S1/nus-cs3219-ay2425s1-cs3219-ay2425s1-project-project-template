@@ -33,7 +33,6 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    // TODO: Retrieve the user details via validate JWT token api
     ValidateUser().then((data: VerifyTokenResponseType) => {
       form.setFieldsValue({
         username: data.data.username,
@@ -69,12 +68,10 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           <div className="gradient-header"></div>
           <div className="profile-header">
             <div className="left-header">
-              {/* TODO: Replace with the first initial of username */}
               <Avatar size={80} className="avatar">
                 {username?.charAt(0).toUpperCase()}
               </Avatar>
               <div className="name-container">
-                {/* TODO: Set the value in field correctly within the useEffect above and this should work */}
                 <div className="username">{username}</div>
                 <div className="email">{email}</div>
               </div>
@@ -115,7 +112,6 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             <Form
               form={form}
               onFinish={(values) => {
-                // TODO: Check password
                 let data = values;
                 if (!values.password || values.password.trim() === "") {
                   data = {
