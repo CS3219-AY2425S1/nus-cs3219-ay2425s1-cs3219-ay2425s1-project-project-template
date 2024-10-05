@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { useEffect, useState, useRef } from 'react';
 import { Table, Text, Thead, Tbody, Tr, Th, Td, TableContainer, Button, Spinner, IconButton, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from '@chakra-ui/react';
 import { Question, QuestionComplexity, QuestionTopic } from '@/types/Question';
@@ -8,20 +9,28 @@ import QuestionModal from './QuestionModal';
 import { TrashIcon } from '@/public/icons/TrashIcon';
 import { EditIcon } from '@/public/icons/EditIcon';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 
 export default function QuestionsPage() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<AxiosError | null>(null);
   const [questionData, setQuestionData] = useState<Question[]>([]);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const fetchData = async () => {
-    const questions = await fetchQuestions();
-    setQuestionData(questions);
-    setIsLoading(false);
+    const { data, error } = await fetchQuestions();
+    if (error != null) {
+      setError(error);
+      setIsLoading(false);
+      return;
+    } else {
+      setQuestionData(data as Question[]);
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -49,6 +58,10 @@ export default function QuestionsPage() {
           <Spinner size='xl' thickness='4px' color='blue.500' emptyColor='gray.200' className="m-10" />
           <span className='text-xl text-center'>Loading Questions...</span>
         </div>
+      ) : error ? (
+        <div className='flex flex-col justify-center items-center'>
+          <span className='text-l text-center font-semibold text-red-500 m-10'>There was an error fetching questions. Please try again.</span>
+        </div>
       ) : (
         <>
           <TableContainer>
@@ -62,33 +75,37 @@ export default function QuestionsPage() {
                 </Tr>
               </Thead>
               <Tbody>
-                {questionData && questionData.map((question, index) => (
+                {questionData && questionData.length > 0 ? (questionData.map((question, index) => (
                   <Tr key={index}>
-                    <Td><QuestionModal {...question} /></Td>
-                    <Td>{difficultyText(question.complexity)}</Td>
-                    <Td>
-                      {question.topics.map((topic, idx) => (
-                        topicText(topic, idx)
-                      ))}
-                    </Td>
-                    <Td sx={{ py: 3 }}>
-                      <IconButton
-                        aria-label="Delete question"
-                        icon={<TrashIcon />}
-                        onClick={() => question._id && openAlert(question._id)}
-                        variant="ghost"
-                        _hover={{ bg: 'lightblue' }}
-                      />
-                      <IconButton
-                        aria-label="Edit question"
-                        icon={<EditIcon />}
-                        variant="ghost"
-                        onClick={() => router.push(`./questions/update/${question._id}`)}
-                        _hover={{ bg: 'lightblue' }}
-                      />
-                    </Td>
+                  <Td><QuestionModal {...question} /></Td>
+                  <Td>{difficultyText(question.complexity)}</Td>
+                  <Td>
+                    {question.topics.map((topic, idx) => (
+                    topicText(topic, idx)
+                    ))}
+                  </Td>
+                  <Td sx={{ py: 3 }}>
+                    <IconButton
+                      aria-label="Delete question"
+                      icon={<TrashIcon />}
+                      onClick={() => question._id && openAlert(question._id)}
+                      variant="ghost"
+                      _hover={{ bg: 'lightblue' }}
+                    />
+                    <IconButton
+                      aria-label="Edit question"
+                      icon={<EditIcon />}
+                      variant="ghost"
+                      onClick={() => router.push(`./questions/update/${question._id}`)}
+                      _hover={{ bg: 'lightblue' }}
+                    />
+                  </Td>
                   </Tr>
-                ))}
+                ))) : (
+                  <Tr>
+                  <Td colSpan={4} className='text-center'>No questions found.</Td>
+                  </Tr>
+                )}
               </Tbody>
             </Table>
           </TableContainer>
