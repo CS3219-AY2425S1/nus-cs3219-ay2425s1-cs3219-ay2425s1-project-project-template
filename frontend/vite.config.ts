@@ -7,6 +7,12 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   return {
     plugins: [react()],
+    build: {
+      outDir: 'build',
+      assetsDir: 'assets',
+      emptyOutDir: true,
+      minify: false,
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
