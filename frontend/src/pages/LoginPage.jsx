@@ -1,27 +1,37 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Importing eye icons from react-icons
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic (API call to authenticate user)
+    setIsLoading(true);
 
-    // We assume login is always successful for now
-    // Check the email and password here
-    navigate('/dashboard'); // Navigate to the dashboard after successful login
+    try {
+        // api call here
+
+      // Assuming the login is always successful for now
+      navigate('/dashboard');
+    } catch (error) {
+      setErrorMessage('An error occurred, please try again');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div style={{ textAlign: 'center', padding: '50px', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <h1 style={{ fontSize: '4rem' }}>PeerPrep</h1> 
-      <p style={{ fontSize: '1.2rem', margin: '10px 0' }}>Welcome Back! Let's get started.</p> 
+      <p style={{ fontSize: '1.2rem', margin: '10px 0' }}>Welcome back! Let’s get back on track.</p> 
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <input
           type="email"
@@ -32,39 +42,39 @@ const Login = () => {
           style={{
             display: 'block',
             margin: '10px 0',
+            marginTop: '50px',
             padding: '10px', 
-            width: '300px', // Input width
-            border: 'none', // No border
-            borderBottom: '2px solid #fff', // Bottom border to create line effect
+            width: '300px',
+            border: 'none',
+            borderBottom: '2px solid #fff',
             outline: 'none',
-            backgroundColor: 'transparent', // No background color
-            color: '#fff', // Text color to white
-            fontSize: '16px', // Font size
+            backgroundColor: 'transparent',
+            color: '#fff',
+            fontSize: '16px',
           }}
         />
         <div style={{ position: 'relative', width: '300px' }}>
           <input
-            type={showPassword ? 'text' : 'password'} // Toggle password visibility
+            type={showPassword ? 'text' : 'password'}
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             style={{
               display: 'block',
-              margin: '10px 0',
-              padding: '10px', // Padding reduced for line effect
-              width: '100%', // Input width
-              border: 'none', // No border
-              borderBottom: '2px solid #fff', // Bottom border to create line effect
+              margin: '0px 0',
+              padding: '10px',
+              width: '100%',
+              border: 'none',
+              borderBottom: '2px solid #fff',
               outline: 'none',
-              backgroundColor: 'transparent', // No background color
-              color: '#fff', // Text color to white
-              fontSize: '16px', // Same font size for consistency
+              backgroundColor: 'transparent',
+              color: '#fff',
+              fontSize: '16px',
             }}
           />
-          {/* Eye icon for showing/hiding password */}
           <div
-            onClick={() => setShowPassword(!showPassword)} // Toggle showPassword state
+            onClick={() => setShowPassword(!showPassword)}
             style={{
               position: 'absolute',
               right: '10px',
@@ -74,7 +84,7 @@ const Login = () => {
               color: '#fff',
             }}
           >
-            {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Show/hide icon */}
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
           </div>
         </div>
         <p style={{ margin: '0', color: 'white', fontSize: '0.9rem', textAlign: 'right', width: '300px' }}>
@@ -85,19 +95,24 @@ const Login = () => {
           style={{
             width: '300px', 
             height: '50px', 
-            backgroundColor: 'white', // Button color 
-            color: 'black', // Text color 
+            backgroundColor: 'white',
+            color: 'black',
             border: 'none',
-            borderRadius: '20px', // Curved button
+            borderRadius: '20px',
             cursor: 'pointer',
             fontSize: '16px',
-            marginTop: '10px',
+            marginTop: '20px',
+            marginBottom: '40px',
+            transition: 'background-color 0.3s', 
           }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e0e0e0'} 
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+          disabled={isLoading}
         >
-          Login
+          {isLoading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-      <p style={{ fontSize: '1rem' }}> {/* Increased font size for Sign Up prompt */}
+      <p style={{ fontSize: '1rem' }}> 
         Don't have an account? <a href="/signup" style={{ color: 'white' }}>Sign Up</a>
       </p>
     </div>
