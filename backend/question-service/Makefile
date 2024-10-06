@@ -12,7 +12,7 @@ dropdb:
 
 .PHONY: server
 server:
-	@poetry run uvicorn question_service.main:app --reload
+	@uvicorn question_service.main:app --reload --host 0.0.0.0 --port 8000
 
 .PHONY: test
 test:
