@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, serial, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export const questions = pgTable('questions', {
   id: serial('id').primaryKey(),
@@ -8,4 +8,12 @@ export const questions = pgTable('questions', {
   description: text('description').notNull(),
   createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true }).defaultNow(),
+});
+
+export const actionEnum = pgEnum('action', ['SEED']);
+
+export const admin = pgTable('admin', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  createdAt: timestamp('created_at').defaultNow(),
+  action: actionEnum('action').notNull(),
 });

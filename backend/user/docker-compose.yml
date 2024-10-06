@@ -25,7 +25,6 @@ services:
       target: build
       args: 
         # For building with the correct env vars
-        - env=${EXPRESS_ENV}
         - port=${EXPRESS_PORT}
     ports:
       - "9001:${EXPRESS_PORT}"
