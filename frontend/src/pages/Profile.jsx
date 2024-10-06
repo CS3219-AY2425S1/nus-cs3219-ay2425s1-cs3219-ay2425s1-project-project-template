@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import GeneralNavbar from "../components/navbar/GeneralNavbar";
 import "../styles/Profile.css";
 import DefaultImage from '../assets/Default.jpg';
+import EditImage from '../assets/Edit.png';
 import useAuth from "../hooks/useAuth";
 
 const Profile = () => {
@@ -13,8 +14,10 @@ const Profile = () => {
     username: "",
     email: "",
   });
-  const [profilePic, setprofilePic] = useState(DefaultImage);
+  const [profilePic, setProfilePic] = useState(DefaultImage);
   const [isEditing, setIsEditing] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Fetch user data when userId is available
   useEffect(() => {
@@ -30,7 +33,7 @@ const Profile = () => {
           username: data.data.username,
           email: data.data.email,
         });
-        setprofilePic(data.data.profileImage || DefaultImage);
+        setProfilePic(data.data.profileImage || DefaultImage);
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         toast.error("Failed to load profile");
@@ -92,6 +95,78 @@ const Profile = () => {
     }
   };
 
+  // Handle file change
+  const handleFileChange = async (e) => {
+    console.log(e.target.files);
+    const file = e.target.files[0];
+    if (file) {
+      // You can also perform validation on the file size/type here
+      const updatedData = {
+        profileImage: file,
+      };
+      try {
+        const response = await axios.patch(
+          `http://localhost:3001/users/${userId}`,
+          updatedData,
+          {
+            headers: {
+              Authorization: `Bearer ${cookies.token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        
+        if (response.status === 200) {
+          toast.success("Profile picture uploaded successfully!");
+          setProfilePic(URL.createObjectURL(file)); // Update the profile pic preview
+          setShowBubble(false);
+        } else {
+          toast.error("Failed to upload profile picture.");
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        toast.error("Failed to upload profile picture.");
+      }
+    }
+  };
+
+  // Handle "Upload a photo" click
+  const handleUploadPhotoClick = () => {
+    fileInputRef.current.click(); // Trigger the file input click
+  };
+
+  // Handle removing the profile picture
+  const handleRemovePhoto = async () => {
+    try {
+      // Send a PATCH request to update the profile image to "DEFAULT"
+      const updatedData = {
+        profileImage: "DEFAULT",
+      };
+      const response = await axios.patch(
+        `http://localhost:3001/users/${userId}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+          withCredentials: true,
+        }
+      );
+  
+      // If successful, reset to default image and update the UI
+      if (response.status === 200) {
+        toast.success("Profile picture removed successfully!");
+        setProfilePic(DefaultImage); // Reset the profile picture to the default image
+        setShowBubble(false); // Hide the options bubble after removing the photo
+      } else {
+        toast.error("Failed to remove profile picture.");
+      }
+    } catch (error) {
+      console.error("Error removing profile picture:", error);
+      toast.error("Failed to remove profile picture.");
+    }
+  };
+
   return (
     <div>
       <GeneralNavbar />
@@ -103,14 +178,32 @@ const Profile = () => {
 
         <div className="profile-content">
           {/* Profile Picture Section */}
-          <div className="profile-pic-section">
+          <div className="profile-pic-section" onClick={() => setShowBubble((prev) => !prev)}>
             <img
               src={profilePic || DefaultImage}
               alt="Profile"
               className="profile-pic"
             />
-          </div>
 
+            <div className="edit-overlay">
+              <img src={EditImage} alt="Edit" className="edit-leaf" />
+              <span className="edit-text">edit</span>
+            </div>
+
+            {showBubble && (
+              <div className="options-bubble">
+                <div className="bubble-option" onClick={handleUploadPhotoClick}>Upload a photo...</div>
+                <div className="bubble-option" onClick={handleRemovePhoto}>Remove photo</div>
+              </div>
+            )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+              accept="image/*" // You can restrict to image files
+            />
+          </div>
           {/* User Info Section */}
           <div className="user-info-section">
             <div className="form-group">
