@@ -40,10 +40,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <AuthPageWrapper>
-              <Navbar />
-              {children}
-            </AuthPageWrapper>
+            <Navbar />
+            <AuthPageWrapper>{children}</AuthPageWrapper>
           </AuthProvider>
           <Toaster />
         </ThemeProvider>
