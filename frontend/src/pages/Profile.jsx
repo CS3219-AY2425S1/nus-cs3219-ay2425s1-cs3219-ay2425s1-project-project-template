@@ -239,7 +239,6 @@ const Profile = () => {
                   Edit Info
                 </button>
               )}
-              <button className="change-password-btn">Change Password</button>
             </div>
           </div>
         </div>
