@@ -17,13 +17,21 @@ import {HttpClientModule} from "@angular/common/http";
 export class QuestionListComponent implements OnInit {
 
   questions: Question[] = [];
-  // filteredQuestions: Question[] = [];
+
+  // Tracks current states 
+  currentFilterBy: string = '';
+  currentFilterValues: string = '';
+  currentSortBy: string = 'question_title'; // Note: fields added for future extension of sorting, current MVP uses default as hardcoded
+  currentOrderBy: string = 'asc';
 
   constructor(private questionService : QuestionService) { }
 
   ngOnInit(): void {
     this.loadQuestions();
   }
+
+
+  // GET DEFAULT QUESTIONS 
 
   loadQuestions() {
     // gets default ordering of questions
@@ -34,21 +42,23 @@ export class QuestionListComponent implements OnInit {
     })
   }
 
-  loadSortedQuestions() {
-    this.questionService.getAllQuestionSorted("question_title", "asc").subscribe((data: any) => {
-      this.questions = data.data.data;
-    }, (error) => {
-      console.error('Error fetching: ', error);
-    })
+  refreshQuestions() {
+    this.loadQuestions();
   }
 
+
+  // FILTER QUESTIONS
+
   loadFilteredQuestions(filterBy?: string, filterValues?: string) {
-    this.questionService.getFilteredQuestions(filterBy, filterValues).subscribe((data: any) => {
+    this.currentFilterBy = filterBy ? filterBy : '';
+    this.currentFilterValues = filterValues ? filterValues : '';
+    this.questionService.getFilteredQuestions(this.currentFilterBy, this.currentFilterValues).subscribe((data: any) => {
       this.questions = data.data.data;
       // this.filteredQuestions = data.data.data;
     }, (error) => {
       console.error('Error fetching: ', error);
     })
+
   }
 
   applyFilter(event: { filterBy: string, filterValues: string} ) {
@@ -56,13 +66,25 @@ export class QuestionListComponent implements OnInit {
     console.log('Filtering by:', event.filterBy, event.filterValues);
   }
 
-  refreshQuestions(hasSort?: boolean) {
-    if (hasSort) {
-      this.loadSortedQuestions();
-    } else {
-      this.loadQuestions();
-    }
+
+  // SORT QUESTIONS
+  
+  // Keeps track of filtered state, if none, sort default list
+  loadFilteredAndSortedQuestions() {
+    // uses default sorting by question_title, asc
+    this.questionService.getSortedQuestions(this.currentFilterBy, this.currentFilterValues, this.currentSortBy, this.currentOrderBy).subscribe((data: any) => {
+      this.questions = data.data.data;
+    }, (error) => {
+      console.error('Error fetching: ', error);
+    })
   }
+
+  applyFilterWithSort() {
+    this.loadFilteredAndSortedQuestions()
+  }
+
+
+  // SEARCH QUESTIONS
 
   loadSearchedQuestions(searchTerm?: string) {
     if (searchTerm) {
@@ -80,7 +102,6 @@ export class QuestionListComponent implements OnInit {
       })
     }
   }
-
 
   refreshQuestionsSearch(searchTerm?: string) {
     this.loadSearchedQuestions(searchTerm);

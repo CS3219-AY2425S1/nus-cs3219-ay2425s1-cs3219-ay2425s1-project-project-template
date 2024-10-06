@@ -46,7 +46,7 @@ export class SearchAndFilterComponent {
     this.showFilterOptions = false;
     this.isDifficultyClicked = false;
     this.isCategoryClicked = false;
-    this.refresh.emit();
+    this.filter.emit({filterBy: '', filterValues: ''});
   }
 
    // Show difficulty options
