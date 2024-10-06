@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 
-	"backend/middleware"
 	routes "backend/routes"
 
 	"github.com/gin-contrib/cors"
@@ -12,7 +11,7 @@ import (
 
 func main() {
 	port := os.Getenv("PORT")
-	frontend := os.Getenv("FRONTEND_URL")
+	//frontend := os.Getenv("FRONTEND_URL")
 
 	if port == "" {
 		port = "3002"
@@ -23,16 +22,15 @@ func main() {
 
 	// Apply CORS middleware with custom configuration
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{frontend}, // Ensure it matches your frontend port
+		AllowOrigins:     []string{"*"}, // Ensure it matches your frontend port
 		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "token"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * 60 * 60,
 	}))
 
-	
-	router.Use(middleware.Authentication())
-	routes.QuestionRoutes(router) // Creates Question api routes	
+	//router.Use(middleware.Authentication())
+	routes.QuestionRoutes(router) // Creates Question api routes
 	router.Run(":" + port)
 }
