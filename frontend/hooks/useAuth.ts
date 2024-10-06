@@ -32,7 +32,7 @@ const useAuth = () => {
 		checkToken();
 	}, [router, pathname]);
 
-	return { userId, username, email, isAdmin, isLoading, isAuthenticated };
+	return { userId, username, email, isAdmin, isLoading, isAuthenticated, setUsername, setEmail };
 };
 
 export default useAuth;
