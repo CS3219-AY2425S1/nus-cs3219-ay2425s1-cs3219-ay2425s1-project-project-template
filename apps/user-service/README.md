@@ -287,7 +287,7 @@
 # Navigate to the user-service app directory
 cd apps/user-service
 # Build dockerfile after replacing the build arguments (Ensure that your docker daemon is running beforehand)
-docker build -t user-service --build-arg JWT_TOKEN='replace_with_jwt_token' --build-arg DB_CLOUD_URI='replace_with_db_uri_here' -f Dockerfile .
+docker build -t user-service --build-arg JWT_SECRET='replace_with_jwt_secret' --build-arg DB_CLOUD_URI='replace_with_db_uri_here' -f Dockerfile .
 ```
 
 ### Running Docker
