@@ -8,9 +8,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - backend
+      - backend-service-question
+      - backend-service-user
 
-  backend:
+  backend-service-question:
     build:
       context: ./backend/service-question
     container_name: backend-service-question
@@ -18,13 +19,22 @@ services:
       - "8080:8080"
     networks:
       - app-network
-#    environment:
-#      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/
-#      - SPRING_DATA_MONGODB_DATABASE=question_db
-#      - SPRING_DATA_MONGODB_URI=mongodb+srv://tester:tester-peerprep@peerprep-cluster.gftor.mongodb.net/?retryWrites=true&w=majority&appName=peerprep-cluster
-#      - SPRING_DATA_MONGODB_DATABASE=question_db
-#    depends_on:
-#      - mongodb
+  #    environment:
+  #      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/
+  #      - SPRING_DATA_MONGODB_DATABASE=question_db
+  #      - SPRING_DATA_MONGODB_URI=mongodb+srv://tester:tester-peerprep@peerprep-cluster.gftor.mongodb.net/?retryWrites=true&w=majority&appName=peerprep-cluster
+  #      - SPRING_DATA_MONGODB_DATABASE=question_db
+  #    depends_on:
+  #      - mongodb
+
+  backend-service-user:
+    build:
+      context: ./backend/service-user
+    container_name: backend-service-user
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
 
 #  mongodb:
 #    image: mongo:latest
@@ -43,6 +53,5 @@ services:
 networks:
   app-network:
     driver: bridge
-
 #volumes:
 #  mongodb_data:
