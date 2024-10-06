@@ -58,15 +58,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           </span>
         </p>
         <p className={styles.bodytext}>
-          Categories:{" "}
+          Topics:{" "}
           <span>
-            {question.categories ? question.categories.join(", ") : "None"}
+            {question.topicTags ? question.topicTags.join(", ") : "None"}
           </span>
         </p>
       </div>
 
       <div className="flex-none w-full sm:w-1/2 max-h-16">
-        <p className={styles.bodytext}>{question.description}</p>
+        <p className={styles.bodytext}>{question.content}</p>
       </div>
 
       <div className={styles.buttonContainer}>

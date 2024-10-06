@@ -6,6 +6,8 @@ import (
 	"peerprep/common"
 	"peerprep/database"
 
+	"github.com/microcosm-cc/bluemonday"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +20,9 @@ func AddQuestionWithLogger(db *database.QuestionDB, logger *common.Logger) gin.H
 			logger.Log.Error("Error converting JSON to question: ", err.Error())
 			return
 		}
+
+		p := bluemonday.UGCPolicy()
+		question.Content = p.Sanitize(question.Content)
 
 		status, err := db.AddQuestion(logger, &question)
 

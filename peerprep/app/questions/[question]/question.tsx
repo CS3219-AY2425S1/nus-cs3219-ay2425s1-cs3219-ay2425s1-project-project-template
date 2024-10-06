@@ -7,6 +7,8 @@ import styles from "@/style/question.module.css";
 import { useRouter } from "next/navigation";
 import { deleteQuestion } from "@/app/api/internal/questions/helper";
 import CollabEditor from "@/components/questionpage/CollabEditor";
+import DOMPurify from 'dompurify';
+
 
 interface Props {
   question: Question;
@@ -28,16 +30,8 @@ function DifficultyChip({ diff }: DifficultyChipProps) {
 
 function QuestionBlock({ question }: Props) {
   const router = useRouter();
-  const keys = question.test_cases ? Object.keys(question.test_cases) : [];
 
-  const createRow = (key: string) => (
-    <tr key={key}>
-      <td className={`${styles.table} ${styles.cell}`}>{key}</td>
-      <td className={`${styles.table} ${styles.cell}`}>
-        {question.test_cases[key]}
-      </td>
-    </tr>
-  );
+
 
   const handleDelete = async () => {
     if (
@@ -77,34 +71,16 @@ function QuestionBlock({ question }: Props) {
           </PeerprepButton>
         </div>
         <div className={styles.label_wrapper}>
-          <p>Categories: </p>
-          {question.categories.length == 0 ? (
-            <p>No categories listed.</p>
+          <p>Topics: </p>
+          {question.topicTags.length == 0 ? (
+            <p>No topics listed.</p>
           ) : (
-            question.categories.map((elem, idx) => <p key={idx}>{elem}</p>)
+            question.topicTags.map((elem, idx) => <p key={idx}>{elem}</p>)
           )}
         </div>
-        <p>{question.description}</p>
+
+        { <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.content)}} /> }
         <br />
-        {question.test_cases && (
-          <table className={styles.table}>
-            <tbody>
-              <tr>
-                <th
-                  className={`${styles.table} ${styles.header} ${styles.input}`}
-                >
-                  Input
-                </th>
-                <th
-                  className={`${styles.table} ${styles.header} ${styles.output}`}
-                >
-                  Expected Output
-                </th>
-              </tr>
-              {keys.map(createRow)}
-            </tbody>
-          </table>
-        )}
       </div>
       <div className={styles.editor_container}>
         <CollabEditor

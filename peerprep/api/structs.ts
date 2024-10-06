@@ -10,8 +10,8 @@ export enum Difficulty {
 export interface QuestionBody {
   difficulty: Difficulty;
   title: string;
-  description: string;
-  categories: string[];
+  content: string;
+  topicTags: string[];
 }
 
 export interface TestCase {
