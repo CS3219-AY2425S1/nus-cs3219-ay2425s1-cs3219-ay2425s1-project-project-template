@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: ./frontend
+    image: peerprep-frontend
+    ports:
+      - 3000:3000
+    networks:
+      - peerprep-network
+
+  question-service:
+    build: ./backend/question-service
+    image: peerprep-question-service
+    ports:
+      - 3001:3001
+    networks:
+      - peerprep-network
+    env_file:
+      - ./question-service.env
+
+  user-service:
+    build: ./backend/user-service
+    image: peerprep-user-service
+    ports:
+      - 3002:3002
+    networks:
+      - peerprep-network
+    env_file:
+      - ./user-service.env
+
+networks:
+  peerprep-network:
+    driver: bridge
