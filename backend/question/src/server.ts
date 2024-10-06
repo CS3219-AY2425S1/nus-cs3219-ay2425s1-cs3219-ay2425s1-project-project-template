@@ -1,14 +1,16 @@
 import { exit } from 'process';
 
 import cors from 'cors';
-import express, { json } from 'express';
-import pino from 'pino-http';
 import { sql } from 'drizzle-orm';
+import express, { json } from 'express';
 import helmet from 'helmet';
+import { StatusCodes } from 'http-status-codes';
+import pino from 'pino-http';
 
-import questionsRouter from '@/routes/question';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
+import questionsRouter from '@/routes/question';
+import { UI_HOST } from '@/config';
 
 const app = express();
 app.use(pino());
@@ -16,17 +18,15 @@ app.use(json());
 app.use(helmet());
 app.use(
   cors({
-    origin: [process.env.PEERPREP_UI_HOST!],
+    origin: [UI_HOST],
     credentials: true,
   })
 );
 
 app.use('/questions', questionsRouter);
-app.get('/', async (_req, res) => {
-  res.json({
-    message: 'OK',
-  });
-});
+
+// Health Check for Docker
+app.get('/health', (_req, res) => res.status(StatusCodes.OK).send('OK'));
 
 export const dbHealthCheck = async () => {
   try {

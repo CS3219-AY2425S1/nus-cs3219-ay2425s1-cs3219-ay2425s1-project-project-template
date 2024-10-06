@@ -16,6 +16,12 @@ services:
     restart: unless-stopped
     networks:
       - user-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peerprep-user-express -d user"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   collab-db:
     hostname: 'collab-db'
@@ -30,6 +36,12 @@ services:
     restart: unless-stopped
     networks:
       - collab-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peerprep-collab-express -d collab"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   question-db:
     hostname: 'question-db'
@@ -44,6 +56,12 @@ services:
     restart: unless-stopped
     networks:
       - question-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peerprep-qn-express -d question"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   # Services
 
@@ -52,9 +70,9 @@ services:
     container_name: 'user-express'
     build:
       context: ./backend/user
-      dockerfile: ./express.Dockerfile
-      target: build
-      args:
+      dockerfile: express.Dockerfile
+      target: production
+      args: 
         # For building with the correct env vars
         - env=${USER_EXPRESS_ENV}
         - port=${USER_EXPRESS_PORT}
@@ -63,13 +81,13 @@ services:
     env_file:
       - ./backend/user/.env.compose
     environment:
-      # Docker Compose Specific
+      # Docker Compose Specific for Service Discovery
       - EXPRESS_DB_HOST=user-db
       - EXPRESS_DB_PORT=5432
-    volumes:
-      - user-service:/data/user-express
     depends_on:
-      - user-db
+      user-db:
+        condition: service_healthy
+        restart: true
     networks:
       - user-db-network
       - user-api-network
@@ -100,15 +118,14 @@ services:
       - user-api-network
       - question-api-network
       - collab-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9001/health || exit 1
+      interval: 30s 
+      timeout: 10s   
+      retries: 5       
+      start_period: 5s
 
 volumes:
-  user-service:
-    external: false
-  question-service:
-    external: false
-  collab-service:
-    external: false
-
   # Persistent Volumes for Databases
   user-db-docker:
     external: true

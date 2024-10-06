@@ -1,5 +1,6 @@
 import { generatePasswordHash } from '@/lib/passwords';
-import { db, users as usersTable } from '.';
+import { admin as adminTable, db, users as usersTable } from '.';
+import { eq } from 'drizzle-orm';
 
 const TEST_USER_CREDENTIALS = {
   username: 'testuser01',
@@ -13,6 +14,13 @@ const main = async () => {
   await db.transaction(async (tx) => {
     // Clear all users
     try {
+      const seedRecords = await tx.select().from(adminTable).where(eq(adminTable.action, 'SEED'));
+      if (seedRecords && seedRecords.length > 0) {
+        console.info(
+          `[Users]: Seeded already at: ${(seedRecords[seedRecords.length - 1].createdAt ?? new Date()).toLocaleString()}`
+        );
+        return;
+      }
       await tx.delete(usersTable);
 
       const password = generatePasswordHash(TEST_USER_CREDENTIALS.password);
@@ -24,6 +32,7 @@ const main = async () => {
           password,
         })
         .onConflictDoNothing();
+      await tx.insert(adminTable).values({ action: 'SEED' });
     } catch (error) {
       console.error('[Users]: An error occurred while seeding: ' + String(error));
       process.exit(1);
