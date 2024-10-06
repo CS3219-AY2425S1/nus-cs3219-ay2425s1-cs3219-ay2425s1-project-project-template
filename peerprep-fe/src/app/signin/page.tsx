@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,7 +14,6 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const { login } = useAuth();
   // const [error, setError] = useState('');
-  const router = useRouter();
   // handle login here
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
