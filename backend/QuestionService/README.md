@@ -1,5 +1,14 @@
 # Question Service Guide
 
+## Question service start up guide
+
+1. Rename the `.env.example` file to `.env` file.
+2. To use the db locally, changed the `ENV` variable to "DEV".
+3. To use the cloud db, create a MongoDB Atlas Cluster and obtain the connection string.
+4. Add the connection string to the `.env` file under the variable `MONGODB_CLOUD_URI`.
+5. Ensure you are in the `QuestionService` directory, then install project dependencies with `go mod download`.
+6. Start the Question Service with `go run main.go`.
+
 ## Question Service API Guide
 
 ### Create Question
