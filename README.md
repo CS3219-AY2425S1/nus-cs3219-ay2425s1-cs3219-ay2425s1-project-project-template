@@ -8,18 +8,20 @@ Containerised the frontend and split the backend into a question service and use
 ### Quickstart:
 The following guide assumes you already have Docker installed.
 
-1. Step 1: Clone the repository.
+1. Clone the repository:
+    ```
+    git clone https://github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g13/
+    ```
 
-2. Step 2: Set up configuration file
-Set up correct .env configuration file for both question and user service. 
+2. Set up the correct `.env` configuration files for both questionService and userService. 
 
-3. Step 3: Run the docker-compose file
-Run the following from the root directory:
-`docker-compose up --build -d`
-This will build and run the containers in detached mode. There should be 3 containers running: frontend, question-service, user-service.
+3. Run the docker-compose file from the root directory:
+    ```
+    docker-compose up --build -d
+    ```
+    This will build and run the containers in detached mode. There should be 3 containers running: frontend, question-service, user-service.
 
-4. Step 3: View app at localhost:3000
-Find the test app up at: http://localhost:3000/home
+4. The app can be viewed at http://localhost:3000/home
 
 
 
