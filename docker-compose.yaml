@@ -17,7 +17,7 @@ services:
     networks:
       - user-db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peerprep-user-express -d user"]
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-user-express -d user']
       interval: 10s
       retries: 5
       start_period: 30s
@@ -37,7 +37,7 @@ services:
     networks:
       - collab-db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peerprep-collab-express -d collab"]
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
       interval: 10s
       retries: 5
       start_period: 30s
@@ -57,7 +57,7 @@ services:
     networks:
       - question-db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peerprep-qn-express -d question"]
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-qn-express -d question']
       interval: 10s
       retries: 5
       start_period: 30s
@@ -72,7 +72,7 @@ services:
       context: ./backend/user
       dockerfile: express.Dockerfile
       target: production
-      args: 
+      args:
         # For building with the correct env vars
         - env=${USER_EXPRESS_ENV}
         - port=${USER_EXPRESS_PORT}
@@ -91,7 +91,12 @@ services:
     networks:
       - user-db-network
       - user-api-network
-    entrypoint: ['/bin/sh', 'entrypoint.sh']
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9001/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
 
   # Frontend
 
@@ -112,18 +117,14 @@ services:
       - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
       - VITE_QUESTION_SERVICE=http://localhost:${QUESTION_EXPRESS_PORT}
       - port=${FRONTEND_PORT}
-    # depends_on:
-    #   - user-service
+    depends_on:
+      user-service:
+        condition: service_healthy
+        restart: true
     networks:
       - user-api-network
       - question-api-network
       - collab-api-network
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:9001/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
-      start_period: 5s
 
 volumes:
   # Persistent Volumes for Databases
