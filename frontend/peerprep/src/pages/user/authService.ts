@@ -28,26 +28,32 @@ export interface LoginTokens {
   };
 }
 
-
-export const login = async (api: AxiosInstance, credentials: UserCredentials): Promise<LoginTokens> => {
+export const login = async (
+  api: AxiosInstance,
+  credentials: UserCredentials
+): Promise<LoginTokens> => {
   try {
     const response = await api.post<LoginTokens>("/auth/login", credentials);
-    console.log(response.data)
+    console.log(response.data);
     // Save tokens in localStorage
     localStorage.setItem("token", response.data.data.accessToken);
+    localStorage.setItem("userId", response.data.data.id);
     // localStorage.setItem("refreshToken", response.data.refreshToken);
 
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return Promise.reject(error.message || "Login error"); 
+      return Promise.reject(error.message || "Login error");
     } else {
       return Promise.reject("Login error");
     }
   }
 };
 
-export const register = async (api: AxiosInstance, credentials: UserCredentials): Promise<string> => {
+export const register = async (
+  api: AxiosInstance,
+  credentials: UserCredentials
+): Promise<string> => {
   try {
     const response = await api.post("/users", credentials); // Calls the /users route
     return response.data.message; // Assuming backend returns a success message
@@ -87,7 +93,7 @@ export const register = async (api: AxiosInstance, credentials: UserCredentials)
 
 //   } catch (error: unknown) {
 //     if (error instanceof Error) {
-//       return Promise.reject(error.message || "Login error"); 
+//       return Promise.reject(error.message || "Login error");
 //     } else {
 //       return Promise.reject("Login error");
 //     }
@@ -111,7 +117,7 @@ export const register = async (api: AxiosInstance, credentials: UserCredentials)
 //     }
 
 //     const data = await response.json();
-//     return data.message; 
+//     return data.message;
 //   } catch (error: unknown) {
 //     if (error instanceof Error) {
 //       return Promise.reject(error.message || "Registration error");
@@ -140,13 +146,16 @@ export const sendResetLink = async (email: string): Promise<void> => {
   }
 };
 
-export const resetPassword = async (newPassword: string, token: string): Promise<void> => {
+export const resetPassword = async (
+  newPassword: string,
+  token: string
+): Promise<void> => {
   try {
     const response = await fetch(`${API_URL}/v1/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "token": token
+        token: token,
       },
       body: JSON.stringify({ new_password: newPassword }),
     });

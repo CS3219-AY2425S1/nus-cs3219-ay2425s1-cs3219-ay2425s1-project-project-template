@@ -1,6 +1,8 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useToast } from "@chakra-ui/react";
-import { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
+import { useNavigate } from "react-router-dom";
+import { useQuery, QueryObserverResult } from "@tanstack/react-query";
 
 export type User = {
   id: string;
@@ -12,10 +14,9 @@ export type User = {
 };
 
 export type UserContextType = {
-  user: User | null;
+  user: User;
   status: "pending" | "error" | "success";
-  loading: boolean; // Expose loading state
-  refetch: () => Promise<void>; // Refetch function
+  refetch: () => Promise<QueryObserverResult<any, Error>>; // Refetch function
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -29,77 +30,70 @@ export const UserProvider = ({
   isAuth: boolean;
   authApi: AxiosInstance;
 }) => {
-  const toast = useToast();
-  const [user, setUser] = useState<User | null>(null);
-  const [status, setStatus] = useState<"pending" | "error" | "success">("pending");
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchUserData = async () => {
-    setLoading(true);
-    setStatus("pending"); // Set status to pending while fetching
+    // setLoading(true);
+    // setStatus("pending"); // Set status to pending while fetching
     try {
-      const response = await authApi.get(`/auth/verify-token`);
-      if (response.status === 200) {
-        const fetchedUser = response.data.data;
-        setUser({
-          id: fetchedUser.id,
-          username: fetchedUser.username,
-          email: fetchedUser.email,
-          isAdmin: fetchedUser.isAdmin,
-          createdAt: fetchedUser.createdAt,
-          // questions_done: fetchedUser.questions_done || null,
-        });
-        setStatus("success");
+      const userId = localStorage.getItem("userId");
+
+      // if userId not found in localStorage, return to login
+      if (userId == null) {
+        navigate("/login");
+        return;
       }
-    } catch (error: unknown) {
-      setStatus("error");
-      if (error instanceof Error) {
-        console.log({
-          title: "Error fetching user data.",
-          description: error.message || "An error occurred.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+
+      const response = await authApi.get(`/users/${userId}`);
+      return response.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          error.response?.data?.message ||
+            "An error occurred while fetching user data"
+        );
       } else {
-        console.log({
-          title: "Error fetching user data.",
-          description: "An unexpected error occurred.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        console.error("Unknown error: ", error);
+        throw new Error("An unexpected error occurred");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (isAuth) {
-      fetchUserData(); // Fetch user data when authenticated
-
-      // Set up an interval to refresh user data every 5s
-      const interval = setInterval(() => {
-        fetchUserData();
-      }, 5000); // Adjust the interval time as needed
-
-      return () => {
-        clearInterval(interval); // Clear the interval on component unmount
-      };
-    }
-  }, [isAuth]);
+  const {
+    data: userData,
+    status: userStatus,
+    refetch: refetchUserData,
+  } = useQuery<User>({
+    queryKey: ["user", isAuth],
+    queryFn: fetchUserData,
+    initialData: {
+      id: "",
+      username: "",
+      email: "",
+      isAdmin: false,
+      createdAt: "",
+    },
+  });
 
   const userContext: UserContextType = {
-    user,
-    status,
-    loading, // Expose loading state
-    refetch: fetchUserData,
+    user: userData,
+    status: userStatus,
+    refetch: refetchUserData,
   };
 
+  console.log("userData", userData);
+
   return (
-    <UserContext.Provider value={userContext}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={userContext}>{children}</UserContext.Provider>
   );
+};
+
+export const useUserContext = () => {
+  const context = useContext(UserContext);
+
+  if (context === null) {
+    throw new Error("useUserContext must be used within a UserProvider");
+  }
+
+  return context;
 };

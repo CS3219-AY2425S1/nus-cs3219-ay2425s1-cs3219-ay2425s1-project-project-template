@@ -12,12 +12,14 @@ import { UserProvider } from "../context/UserContext";
  */
 const PrivateRoutes = ({
   isAuth,
+  setAuth,
   authApi,
   api,
   quesApi,
 }: {
   isAuth: boolean;
-  authApi: AxiosInstance
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  authApi: AxiosInstance;
   api: AxiosInstance;
   quesApi: AxiosInstance;
 }) => {
@@ -27,7 +29,7 @@ const PrivateRoutes = ({
         
         <UserProvider isAuth={isAuth} authApi={authApi}>
           <ToastContainer />
-          <Navbar />
+          <Navbar setAuth={setAuth} />
           <Page>
             <QuesApiContext.Provider value={quesApi}>
               <Outlet />
