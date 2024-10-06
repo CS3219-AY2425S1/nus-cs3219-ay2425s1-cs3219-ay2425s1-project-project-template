@@ -11,7 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import backgroundImage from "./assets/images/lightgradient.jpeg"; // path for background
+import backgroundImage from "./assets/images/darker.jpg"; // path for background
 import "./styles/App.css"; // css file
 
 const HomePage = () => {

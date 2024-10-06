@@ -1,9 +1,7 @@
-// src/pages/DashboardPage.js
-
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import Calendar from "../components/dashboard/Calendar"; // Import the Calendar component
+import CurrentActiveSession from "../components/dashboard/CurrentActiveSession"; // Import the CurrentActiveSession component
 
 const DashboardPage = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -16,20 +14,30 @@ const DashboardPage = () => {
     navigate(-1); // Navigate back to the previous page
   };
 
+  // Boolean to toggle active session
+  const hasActiveSession = false; 
+
   return (
-    <div style={{ paddingTop: "70px", position: "relative" }}>
+    <div style={{ paddingTop: "70px", position: "relative", display: "flex" }}>
       <h1 style={{ visibility: "hidden" }}>Dashboard Page</h1>
-      <button
+
+      {/* Remove the logout button */}
+      {/* <button
         style={{
           position: "absolute",
           top: "40px",
           left: "35px",
         }}
-        className="button-custom" // Add this to use the same custom button style
+        className="button-custom"
         onClick={handleBack}
       >
-        <i className="fas fa-arrow-left"></i> Back
-      </button>
+        <i className="fas fa-arrow-left"></i> Logout
+      </button> */}
+
+      {/* Current Active Session Component */}
+      <CurrentActiveSession hasActiveSession={hasActiveSession} />
+
+      {/* Calendar component */}
       <Calendar
         currentMonth={currentMonth}
         currentYear={currentYear}
