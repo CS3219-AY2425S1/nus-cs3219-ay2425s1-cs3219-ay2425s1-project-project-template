@@ -1,7 +1,7 @@
 // src/components/HomePage.jsx
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { questionAPI } from "../api.js";
 import {
     Container,
     Typography,
@@ -23,8 +23,6 @@ import {
     Alert,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
-
-const API_BASE_URL = "http://localhost:8080/api/questions";
 
 const HomePage = () => {
     const [questions, setQuestions] = useState([]);
@@ -60,7 +58,7 @@ const HomePage = () => {
     // Function to fetch all questions
     const fetchQuestions = async () => {
         try {
-            const response = await axios.get(API_BASE_URL);
+            const response = await questionAPI.get("/questions");
             setQuestions(response.data);
             setLoading(false);
         } catch (err) {
@@ -117,7 +115,7 @@ const HomePage = () => {
         if (dialogMode === "add") {
             // Add new question
             try {
-                const response = await axios.post(API_BASE_URL, currentQuestion);
+                const response = await questionAPI.post("/questions", currentQuestion);
                 setQuestions((prev) => [...prev, response.data]);
                 setSnackbar({
                     open: true,
@@ -137,7 +135,7 @@ const HomePage = () => {
             // Update existing question
             try {
                 const { _id, ...updatedData } = currentQuestion;
-                await axios.put(`${API_BASE_URL}/${_id}`, updatedData);
+                await questionAPI.put(`${"/questions"}/${_id}`, updatedData);
                 setQuestions((prev) => prev.map((q) => (q._id === _id ? { ...q, ...updatedData } : q)));
                 setSnackbar({
                     open: true,
@@ -160,7 +158,7 @@ const HomePage = () => {
     const handleDelete = async (_id) => {
         if (window.confirm("Are you sure you want to delete this question?")) {
             try {
-                await axios.delete(`${API_BASE_URL}/${_id}`);
+                await questionAPI.delete(`${"/questions"}/${_id}`);
                 setQuestions((prev) => prev.filter((q) => q._id !== _id));
                 setSnackbar({
                     open: true,

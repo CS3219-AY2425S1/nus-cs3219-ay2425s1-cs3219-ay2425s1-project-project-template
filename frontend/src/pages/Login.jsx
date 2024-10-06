@@ -3,7 +3,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import axios from "../api.js";
+import { userAPI } from "../api.js";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -11,7 +11,7 @@ const Login = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post("/api/users/login", { username, password });
+            const response = await userAPI.post("/users/login", { username, password });
             console.log(response);
         } catch (err) {
             console.log(err)

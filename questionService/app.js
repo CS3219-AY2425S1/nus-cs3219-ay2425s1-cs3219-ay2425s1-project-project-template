@@ -3,7 +3,6 @@ const cors = require('cors')
 const dotenv = require('dotenv').config();
 const connectDB = require('./config/db')
 const questionsRouter = require('./routes/questionsRoutes')
-const usersRouter = require('./routes/usersRoutes')
 
 connectDB();
 
@@ -12,7 +11,7 @@ const app = express()
 app.options(
     '*',
     cors({
-        origin: 'http://localhost:5173',
+        origin: 'http://localhost:3000', // Define port frontend is on for access
         optionsSuccessStatus: 200
     })
 )
@@ -26,10 +25,6 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
-
-// POST /api/users/login to login
-// POST /api/users/signup
-app.use('/api/users', usersRouter);
 
 // GET /api/questions/:id to get question
 // GET /api/questions/ to get all questions

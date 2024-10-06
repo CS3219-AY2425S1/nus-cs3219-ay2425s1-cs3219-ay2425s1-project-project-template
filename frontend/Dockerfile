@@ -28,7 +28,7 @@ COPY . .
 # COPY --from=build /usr/src/app/build /usr/share/nginx/html
 
 # Expose the frontend port
-EXPOSE 4173
+EXPOSE 3000
 
 # Command to run the frontend server
 CMD ["npm", "run", "preview"]
