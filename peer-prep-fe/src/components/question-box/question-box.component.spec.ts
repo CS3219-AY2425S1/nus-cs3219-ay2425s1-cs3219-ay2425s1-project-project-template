@@ -2,6 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { QuestionBoxComponent } from './question-box.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Question } from '../../app/models/question.model';
+import { authService } from '../../app/authService/authService'; // Adjust import path as needed
+
+// Create a mock version of the authService
+class MockAuthService {
+  isAdmin() {
+    return true; // Or false, depending on the scenario you want to test
+  }
+}
 
 describe('QuestionBoxComponent', () => {
   let component: QuestionBoxComponent;
@@ -21,7 +29,9 @@ describe('QuestionBoxComponent', () => {
             question_categories: [],
           }
         },
-        { provide: MatDialogRef, useValue: {} }
+        { provide: MatDialogRef, useValue: {} },
+        // Provide the mock authService
+        { provide: authService, useClass: MockAuthService }
       ]
     }).compileComponents();
 
