@@ -38,6 +38,20 @@ services:
       - mongo
     networks:
       - app-network
+
+  # MongoDB Service for UserService 
+  mongo_user:
+    image: mongo:latest
+    container_name: mongo_user
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    ports:
+      - "27018:27017" 
+    volumes:
+      - mongo-user-data:/data/db
+    networks:
+      - app-network
     
   # UserService
   user-service:
@@ -45,6 +59,8 @@ services:
     container_name: user-service
     ports:
       - "3001:3001"
+    depends_on:
+      - mongo_user
     networks:
       - app-network
 
@@ -62,6 +78,9 @@ volumes:
     driver: local
   mongo-seed:
     driver: local
+  mongo-user-data:
+    driver: local
+  
 
 networks:
   app-network:
