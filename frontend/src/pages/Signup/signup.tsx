@@ -11,7 +11,7 @@ export default function SignupPage() {
 
   const navigate = useNavigate();
 
-  const { register, handleSubmit, watch, formState: { errors, isValid }, reset } = useForm({
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
     defaultValues: {
       email: "",
       password: "",
@@ -91,7 +91,7 @@ export default function SignupPage() {
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.cfmPassword?.message}</span>
         </div>
         <div className="flex justify-center items-center">
-          <button disabled={!isValid || isPending} className="flex bg-buttonColour w-1/2 justify-center items-center gap-x-2 p-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">
+          <button disabled={isPending} className="flex bg-buttonColour w-1/2 justify-center items-center gap-x-2 p-2 rounded-lg opacity-80 hover:opacity-100 transition-all delay-600 disabled:cursor-not-allowed disabled:opacity-40">
             {isPending && <RotateRightIcon className="animate-spin" />}
             {isPending ? "Processing..." : "Sign Up"}
           </button>
