@@ -25,9 +25,9 @@ services:
       target: build
       args: 
         # For building with the correct env vars
-        - env=${EXPRESS_ENV}
+        - port=${EXPRESS_PORT}
     ports:
-      - "9002:8001"
+      - "9001:${EXPRESS_PORT}"
     command: node dist/index.js
     env_file:
       - ./.env.local

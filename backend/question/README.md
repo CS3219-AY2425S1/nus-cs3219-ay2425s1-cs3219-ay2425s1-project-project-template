@@ -3,6 +3,40 @@
 This directory contains the code for the Template
 Service.
 
+
+# Questions Service
+
+## Running with Docker (Standalone)
+
+1. Run this command to build:
+    ```sh
+    docker build \
+      -t question-express-local \
+      --build-arg port=9002 \
+      -f express.Dockerfile .
+    ```
+2. Run this command, from the root folder:
+    ```sh
+    make db-up
+    ```
+
+3. Run the necessary migrate and seed commands, if you haven't yet.
+
+4. Run this command to expose the container:
+    ```sh
+    docker run -p 9002:9002 --env-file ./.env.docker question-express-local
+    ```
+
+## Running with Docker-Compose (Main config)
+
+Edit the variables in the `.env.compose` file and run `make up` from the root folder.
+
+Any startup instructions will be run from `entrypoint.sh` instead.
+
+
+
+
+
 ## Database
 
 We use:

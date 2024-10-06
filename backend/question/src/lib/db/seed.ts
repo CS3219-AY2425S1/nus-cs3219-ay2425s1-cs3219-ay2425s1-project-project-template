@@ -9,7 +9,7 @@ const seedQuestions = async () => {
       const seedRecords = await trx.select().from(adminTable).where(eq(adminTable.action, 'SEED'));
       if (seedRecords && seedRecords.length > 0) {
         console.info(
-          `[Users]: Seeded already at: ${(seedRecords[seedRecords.length - 1].createdAt ?? new Date()).toLocaleString()}`
+          `[Questions]: Seeded already at: ${(seedRecords[seedRecords.length - 1].createdAt ?? new Date()).toLocaleString()}`
         );
         return;
       }
@@ -32,6 +32,7 @@ const seedQuestions = async () => {
           .values({ ...question, id: undefined }) // Let DB set ID
           .onConflictDoNothing();
       }
+      await trx.insert(adminTable).values({ action: 'SEED' });
     });
   } catch (error) {
     console.log('[Questions]: Error seeding question data', error);
