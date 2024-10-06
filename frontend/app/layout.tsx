@@ -1,9 +1,13 @@
+"use client";
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "@/app/auth/auth-context";
+import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
+import { Navbar } from "@/components/navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,7 +41,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <AuthPageWrapper>
+              <Navbar />
+              {children}
+            </AuthPageWrapper>
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
