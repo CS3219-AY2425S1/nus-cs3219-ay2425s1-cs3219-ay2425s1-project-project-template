@@ -1,13 +1,22 @@
 .tourney-title {
   color: white;
   font-size: 60px;
+  margin-top: 5vh;
   margin-bottom: 40px;
+  font-family: "Tourney", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  text-align: center;
 }
 
 .question-list {
   max-height: 600px;
   overflow-y: auto;
-  margin-top: 20px;
+  margin-top: 5vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .question-list::-webkit-scrollbar {

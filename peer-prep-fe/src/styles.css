@@ -31,7 +31,7 @@ html, body {
     font-family: "Signika Negative", sans-serif;
     color: #A4A4A4;
     overflow: hidden;
-}
+  }
 
 .upper-half {
   display: flex;
@@ -91,17 +91,6 @@ html, body {
 
   }
 }
-
-
-.tourney-title {
-    font-family: "Tourney", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 300;
-    font-style: normal;
-    font-variation-settings:
-      "wdth" 100;
-    text-align: center;
-  }
 
 
 
