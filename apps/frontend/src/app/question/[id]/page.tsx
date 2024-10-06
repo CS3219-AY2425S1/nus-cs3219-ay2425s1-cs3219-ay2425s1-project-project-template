@@ -3,19 +3,14 @@ import Header from "@/components/Header/header";
 import {
   Button,
   Col,
-  Dropdown,
   Layout,
   message,
-  Menu,
   Row,
-  TableProps,
   Tag,
   Select,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
-  DeleteOutlined,
-  EditOutlined,
   PlusCircleOutlined,
   LeftOutlined,
   RightOutlined,
@@ -26,12 +21,11 @@ import {
 } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useState, useLayoutEffect } from "react";
-import { Question, GetSingleQuestion } from "../../services/question";
+import { GetSingleQuestion } from "../../services/question";
 import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
-import { isAuthenticated } from "@/utils/Auth";
 import {
   ValidateUser,
   VerifyTokenResponseType,
