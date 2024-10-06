@@ -23,4 +23,4 @@ COPY entrypoint.sh .
 
 ARG port
 EXPOSE ${port}
-CMD [ "npm", "run", "start" ]
+ENTRYPOINT [ "/bin/sh", "entrypoint.sh" ]
