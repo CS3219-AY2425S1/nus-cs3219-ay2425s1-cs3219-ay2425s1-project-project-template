@@ -8,15 +8,12 @@ import {
   DrawerBody,
   Box,
   Button,
-  Icon,
-  useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
 import { FiLogOut } from "react-icons/fi";
 import logo from "/peerprep_logo.png";
 import { menuItems } from "../../constants/data";
 import { useNavigate } from "react-router-dom";
-import { useApiContext } from "../../context/ApiContext";
 
 type MenuDrawerProps = {
   isOpen: boolean;

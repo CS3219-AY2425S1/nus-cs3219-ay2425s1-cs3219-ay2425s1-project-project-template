@@ -292,13 +292,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       p={4}
     >
       {/* Drawer for menu */}
-      <MenuDrawer
+      {/* <MenuDrawer
         isOpen={isMenuOpen}
         onClose={() => {
           onMenuClose();
           onModalClose(); // Ensure modal closes if menu closes
         }}
-      />
+        setAuth={se}
+      /> */}
 
       <Box className="flex-col justify-center items-center p-2">
         {/* Search Filter Input */}

@@ -1,19 +1,31 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Avatar, Button, Container, Box, Text, FormControl, FormLabel, useToast, Checkbox } from "@chakra-ui/react";
-import { UserContext } from "../../context/UserContext";
+import {
+  Avatar,
+  Button,
+  Container,
+  Box,
+  Text,
+  FormControl,
+  FormLabel,
+  useToast,
+  Checkbox,
+} from "@chakra-ui/react";
+import { useUserContext } from "../../context/UserContext";
 import InputBox from "../../components/InputBox"; // Assuming this is your custom input component
 import { useNavigate } from "react-router-dom";
 import { useAuthApiContext } from "../../context/ApiContext";
 
 const ProfileView = () => {
-  const userContext = useContext(UserContext);
-  const user = userContext?.user;
+  const newUserContext = useUserContext();
+  const user = newUserContext.user;
+  // const userContext = useContext(UserContext);
+  // const user = userContext?.user;
   const toast = useToast();
   const navigate = useNavigate();
 
   // State management for form inputs
-  const [username, setUsername] = useState(user?.username || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [username, setUsername] = useState(user.username);
+  const [email, setEmail] = useState(user.email);
   const [loading, setLoading] = useState(true);
 
   // API instance with auth context
@@ -73,7 +85,11 @@ const ProfileView = () => {
 
   // Handle account deletion
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
       try {
         await api.delete(`/users/${user?.id}`);
         toast({
@@ -106,32 +122,34 @@ const ProfileView = () => {
   return (
     <Container maxW="60%">
       <Box textAlign="center" py={5}>
-        <Text fontSize="2xl" fontWeight="bold">Account Settings</Text>
+        <Text fontSize="2xl" fontWeight="bold">
+          Account Settings
+        </Text>
         <Avatar size="2xl" name={username} />
       </Box>
       <Box p={4} borderWidth={1} borderRadius="lg" boxShadow="md">
         <FormControl id="username" mb={4}>
           <FormLabel>Username</FormLabel>
           <InputBox
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter your username"
           />
         </FormControl>
         <FormControl id="email" mb={4}>
           <FormLabel>Email</FormLabel>
           <InputBox
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
           />
         </FormControl>
-        <Button colorScheme="purple" onClick={handleUpdate} mb={2} mr={2}>Update</Button>
-        <Button 
-          colorScheme="red" 
-          onClick={handleDelete} 
-          mb={2}
-          mr={2}>Delete Account</Button>
+        <Button colorScheme="purple" onClick={handleUpdate} mb={2} mr={2}>
+          Update
+        </Button>
+        <Button colorScheme="red" onClick={handleDelete} mb={2} mr={2}>
+          Delete Account
+        </Button>
       </Box>
     </Container>
   );
