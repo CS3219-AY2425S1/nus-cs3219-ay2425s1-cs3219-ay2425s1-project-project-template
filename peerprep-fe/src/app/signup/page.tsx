@@ -20,26 +20,35 @@ export default function SignUpPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const apiEndpoint = 'http://localhost:4040/register';
-    const type = 'user';
+    const apiEndpoint = 'http://localhost:3001/users';
+    // const type = 'user';
+    if (password !== confirmPassword) {
+      router.push('/signup');
+      setError('Passwords do not match');
+      return;
+    }
     const result = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, name, password, type }),
+      body: JSON.stringify({
+        username: name,
+        email: email,
+        password: password,
+      }),
     });
+    console.log('did i manage to fetch?, result: ', result);
 
     const data = await result.json();
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (false) {
+
+    if (result.ok) {
+      const token = data.token;
+      localStorage.setItem('token', token);
       router.push('/');
     } else {
-      setError(data.error || 'Account creation failed');
-      console.error('Account creation failed');
+      setError('Username or Email already exists');
+      console.error('Sign up failed');
     }
   };
 

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -12,13 +13,15 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login } = useAuth();
   // const [error, setError] = useState('');
   const router = useRouter();
   // handle login here
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const apiEndpoint = 'http://localhost:4040/login';
+    const apiEndpoint = 'http://localhost:3001/auth/login';
+    console.log('trying to fetch');
     const result = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
@@ -26,12 +29,12 @@ export default function LoginForm() {
       },
       body: JSON.stringify({ email, password }),
     });
+    console.log('did i manage to fetch?, result: ', result);
 
     const data = await result.json();
     if (result.ok) {
       const token = data.token;
-      localStorage.setItem('token', token);
-      router.push('/');
+      login(token);
     } else {
       setError(data.error || 'Please provide correct email and password');
       console.error('Login failed');
