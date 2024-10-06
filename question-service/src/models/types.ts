@@ -26,7 +26,7 @@ const imageSchema = z
   });
 
 export const QuestionsSchema = z.object({
-  _id: objectIdSchema,
+  _id: objectIdSchema.optional(), // _id should not be a required field for the api
   difficulty: z.number(),
   description: z.string(),
   examples: z.array(z.string()),

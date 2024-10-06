@@ -6,7 +6,7 @@
     "test": "test"
   },
   "scripts": {
-    "start": "npx tsc && node dist/app.js",
+    "start": "tsc && node dist/app.js",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -22,7 +22,6 @@
     "express": "^4.21.0",
     "mongodb": "^6.9.0",
     "mongoose": "^8.6.3",
-    "prettier": "^3.3.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {

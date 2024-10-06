@@ -42,6 +42,17 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 
   try {
+    // Check for duplicate question
+    const existingQuestion = await questionsCollection.findOne({
+      title: parsedResult.data.title,
+    });
+
+    if (existingQuestion) {
+      return res.status(409).json({
+        error: 'This question title already exist',
+      });
+    }
+
     const result = await questionsCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: parsedResult.data },
@@ -62,7 +73,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // POST a new question
-router.post('/post', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   const parseResult = QuestionsSchema.safeParse(req.body);
 
   if (!parseResult.success) {
@@ -71,8 +82,21 @@ router.post('/post', async (req: Request, res: Response) => {
       .json({ error: 'Invalid question data. Please check your input.' });
   }
   try {
+    // Check for duplicate question
+    const existingQuestion = await questionsCollection.findOne({
+      title: parseResult.data.title,
+    });
+
+    if (existingQuestion) {
+      return res.status(409).json({
+        error: 'This question title already exist',
+      });
+    }
+
     const result = await questionsCollection.insertOne(parseResult.data);
-    res.status(201).json(result);
+    res
+      .status(201)
+      .json({ message: 'Question created successfully', data: [result] });
   } catch (error) {
     res.status(500).json({ error: 'Failed to insert question' });
   }
