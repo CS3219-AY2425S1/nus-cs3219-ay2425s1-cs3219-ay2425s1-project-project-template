@@ -268,9 +268,9 @@ export default function Home() {
   }, [search]);
 
   // Table column specification
-  var columns
+  var columns: TableProps<Question>["columns"]
   if (isAdmin) {
-    var columns: TableProps<Question>["columns"] = [
+    columns = [
       {
         title: "Id",
         dataIndex: "id",
@@ -437,7 +437,7 @@ export default function Home() {
       },
     ];
   } else {
-    var columns: TableProps<Question>["columns"] = [
+    columns = [
       {
         title: "Id",
         dataIndex: "id",
