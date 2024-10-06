@@ -3,6 +3,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Select from 'react-select';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 // This should be dynamic routing and go by question ID
 export const Question = () => {
@@ -10,6 +12,8 @@ export const Question = () => {
   const QUESTIONS_SERVICE_HOST = "http://localhost:3001";
   const navigate = useNavigate();
   const params = useParams();
+
+  const [isAdmin, setIsAdmin] = useState(true);
 
   const [category, setCategory] = useState([]);
   const categoryValues = [{value: "Algorithms", label: "Algorithms"}, {value: "Arrays", label: "Arrays"}, 
@@ -140,6 +144,10 @@ export const Question = () => {
     }
   }
 
+  const handleHomeButton = (e) => {
+    navigate("/");
+  }
+
   useEffect(() => {
     if (params.id === "new") {
       //new question
@@ -163,6 +171,8 @@ export const Question = () => {
             onChange={selected => {setCategory(selected); setHasEdited(true)}}
             isDisabled={!editMode} options={categoryValues} />
         </div>
+        <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#FCFCBD", cursor: "pointer"}} onClick={handleHomeButton}>        
+        </FontAwesomeIcon>
       </div>
       <div className="row2">
         <textarea className="question-title" type="text" value={title} disabled={!editMode} 
@@ -175,11 +185,13 @@ export const Question = () => {
         </textarea>
       </div>
       <div className="row4">
-        {createMode ? <button className="edit-button" onClick={createQuestion}>Create</button> : null}
-        {!createMode ? (editMode ? (hasEdited ? <button className="edit-button" onClick={saveQuestion}>Save</button> : null)  
-          : <button className="edit-button" onClick={changeEditMode}>Edit</button>)
-          : null}
-        {createMode ? null : (editMode ? <button className="edit-button" onClick={cancelChanges}>Cancel</button> : null)}
+        {isAdmin ? <div className="button-display">
+          {createMode ? <button className="edit-button" onClick={createQuestion}>Create</button> : null}
+          {!createMode ? (editMode ? (hasEdited ? <button className="edit-button" onClick={saveQuestion}>Save</button> : null)  
+            : <button className="edit-button" onClick={changeEditMode}>Edit</button>)
+            : null}
+          {createMode ? null : (editMode ? <button className="edit-button" onClick={cancelChanges}>Cancel</button> : null)}
+        </div> : null}
       </div>
     </div>
   );

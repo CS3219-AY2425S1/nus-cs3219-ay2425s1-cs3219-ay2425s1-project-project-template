@@ -28,6 +28,9 @@ mongoose.connection.on("error", (err) => {
 
 app.use('/', questionRoutes);
 
+console.log(__dirname);
+//app.use(express.static("/".join(__dirname, 'public')));
+
 const port = process.env.PORT || 3001;
 
 app.listen(port, () => {

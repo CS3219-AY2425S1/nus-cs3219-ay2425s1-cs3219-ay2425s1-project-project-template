@@ -10,6 +10,7 @@ const QUESTIONS_SERVICE_HOST = "http://localhost:3001";
 export const HomePage = () => {
   const [questions, setQuestions] = useState([]);
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(true);
 
   const getQuestions = async () => {
     try {
@@ -61,7 +62,7 @@ export const HomePage = () => {
               <th>Title</th>
               <th>Category</th>
               <th>Complexity</th>
-              <th>Actions</th>
+              {isAdmin ? <th>Actions</th> : null }
             </tr>
           </thead>
           <tbody>
@@ -85,19 +86,19 @@ export const HomePage = () => {
                 </td>
                 <td>{splitCategory(item.category)}</td>
                 <td>{item.complexity}</td>
-                <td>
+                {isAdmin ? <td>
                   <button
                     className="delete-btn"
                     onClick={() => deleteQuestion(item._id)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
-                </td>
+                </td> : null}
               </tr>
             ))}
           </tbody>
         </table>
-        <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button>
+        {isAdmin ? <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button> : null}
       </header>
     </div>
   );
