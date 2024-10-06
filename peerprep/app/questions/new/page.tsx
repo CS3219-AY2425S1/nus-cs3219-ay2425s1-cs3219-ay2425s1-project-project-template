@@ -1,6 +1,6 @@
 "use client";
-import { useState, ChangeEvent, MouseEvent, FormEvent } from "react";
-import { QuestionBody, Difficulty, QuestionFullBody } from "@/api/structs";
+import { ChangeEvent, FormEvent, MouseEvent, useState } from "react";
+import { Difficulty, QuestionBody, QuestionFullBody } from "@/api/structs";
 import style from "@/style/form.module.css";
 import FormTextInput from "@/components/shared/form/FormTextInput";
 import RadioButtonGroup from "@/components/shared/form/RadioButtonGroup";
@@ -45,10 +45,7 @@ function NewQuestion({}: Props) {
     });
     setTopic("");
   };
-  const handleTopicDel = (
-    e: MouseEvent<HTMLParagraphElement>,
-    idx: number
-  ) => {
+  const handleTopicDel = (e: MouseEvent<HTMLParagraphElement>, idx: number) => {
     if (loading) return;
     const values = [...formData.topicTags];
     values.splice(idx, 1);
@@ -59,7 +56,7 @@ function NewQuestion({}: Props) {
   };
 
   const handleFormTextInput = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) =>
     setFormData({
       ...formData,

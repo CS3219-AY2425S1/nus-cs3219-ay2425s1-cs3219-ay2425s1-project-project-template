@@ -66,7 +66,7 @@ export default function CollabEditor({ question }: Props) {
 
   return (
     <>
-      <div className="flex space-x-4 items-center p-4">
+      <div className="flex space-x-4 items-center p-4 m-4">
         <div className="flex flex-col">
           <label className="font-semibold mb-1">Font Size</label>
           <input

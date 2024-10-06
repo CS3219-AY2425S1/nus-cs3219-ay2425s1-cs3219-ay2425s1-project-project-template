@@ -36,6 +36,7 @@
     gap: 15px;
     width: 100%;
     padding: 0px 5px;
+    margin-bottom: 5px;
 }
 
 .label_shadow {
@@ -84,6 +85,7 @@
     color: beige;
     padding: 10px 6px;
     resize: none;
+    overflow-y: auto;
 }
 
 .editorHTML code {
