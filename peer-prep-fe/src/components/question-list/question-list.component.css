@@ -9,14 +9,18 @@
   font-style: normal;
   text-align: center;
 }
+.qn-list-container {
+  display: flex;
+  justify-content: center; 
+  align-items: flex-start;
+}
 
 .question-list {
   max-height: 600px;
-  overflow-y: auto;
-  margin-top: 5vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  overflow-y: scroll;
+  margin-top: 20px;
+  width: 100%; 
+  max-width: 800px;
 }
 
 .question-list::-webkit-scrollbar {
