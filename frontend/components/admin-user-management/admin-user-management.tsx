@@ -15,7 +15,6 @@ import {
 import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
-import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 
 const fetcher = async (url: string): Promise<User[]> => {
@@ -88,7 +87,7 @@ export default function AdminUserManagement() {
   };
 
   return (
-    <AuthPageWrapper requireAdmin>
+    <>
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">User Management</h1>
         <AdminEditUserModal
@@ -137,6 +136,6 @@ export default function AdminUserManagement() {
           </TableBody>
         </Table>
       </div>
-    </AuthPageWrapper>
+    </>
   );
 }

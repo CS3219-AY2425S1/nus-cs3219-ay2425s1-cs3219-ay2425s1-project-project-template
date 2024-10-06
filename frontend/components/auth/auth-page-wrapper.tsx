@@ -6,10 +6,13 @@ import { useAuth } from "@/app/auth/auth-context";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-type AuthCheck = (user: { isAdmin: boolean } | undefined | null) => boolean;
+type AuthCheck = (
+  user: { id: string; isAdmin: boolean } | undefined | null
+) => boolean;
 
 interface AuthPageWrapperProps extends React.HTMLProps<HTMLDivElement> {
   children: ReactNode;
+  userId?: string;
 
   // User access rules
   authCheck?: AuthCheck; // Custom predicate which is true when user is to be granted access
@@ -19,18 +22,22 @@ interface AuthPageWrapperProps extends React.HTMLProps<HTMLDivElement> {
 
 const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({
   children,
+  userId,
   ...props
 }) => {
   const auth = useAuth();
   const router = useRouter();
 
   const authCheck = (
-    user: { isAdmin: boolean } | undefined | null
+    user: { id: string; isAdmin: boolean } | undefined | null
   ): boolean => {
     if (props?.requireLoggedIn && !user) {
       return false;
     }
     if (props?.requireAdmin && !user?.isAdmin) {
+      return false;
+    }
+    if (userId && user?.id !== userId) {
       return false;
     }
     if (props?.authCheck) {
@@ -53,7 +60,9 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({
             <Button
               size="lg"
               onClick={() => {
-                auth?.user ? router.push("/") : router.push("/auth/login");
+                auth?.user
+                  ? router.push("/app/questions")
+                  : router.push("/auth/login");
               }}
             >
               Return Home
