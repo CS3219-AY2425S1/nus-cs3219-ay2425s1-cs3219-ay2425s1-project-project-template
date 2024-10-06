@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # import from container directory
 mongoimport \
     --db=${MONGO_INITDB_DATABASE} \
