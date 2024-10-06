@@ -95,6 +95,11 @@ Issue: MongoParseError: URI malformed
       | FRONTEND_PORT | Port to run the frontend service | 3000 |
 3. Run `docker-compose up` to start the frontend service.
 
+## Building your own Docker iamges
+
+1. cd into the any of the service directories (question-service, user-service, frontend/peerprep)
+2. Run `docker build -t "<image-name>" .` to build the Docker image.
+
 ## API Endpoints for User and Question Service
 
 **User Service API Endpoints**
