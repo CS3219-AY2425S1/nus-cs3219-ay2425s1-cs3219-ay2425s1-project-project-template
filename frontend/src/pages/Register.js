@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Register.css';
+import axios from "axios";
 
 export const Register = () => {
   const [username, setUsername] = useState('');
@@ -7,10 +8,37 @@ export const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSubmit = (event) => {
+  const USER_SERVICE_HOST = 'http://localhost:3002';
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     // Handle form submission
-    alert('Registration successful');
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    } else if (username === '' || email === '' || password === '') {
+        alert('Please fill out all fields!');
+        return;
+    } else {
+      try {
+        const response = await axios.post(`${USER_SERVICE_HOST}/users/create`, {
+          username: username,
+          email: email,
+          password: password
+        });
+        if (response.status === 201) {
+          alert('Successfully created user!');
+        } else {
+          alert('Unable to create user.');
+        }
+      } catch (error) {
+        if (error.response.data.code === 11000) {
+          alert('Username already exists!');
+        } else {
+          alert('An error occurred!');
+        }
+      }
+    }
   };
 
   return (
