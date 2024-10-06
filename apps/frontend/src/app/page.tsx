@@ -479,7 +479,7 @@ export default function Home() {
     <div>
       {contextHolder}
       <Layout className="layout">
-        <Header />
+        <Header selectedKey={["0"]} />
         <Content className="content">
           <div className="content-card">
             <div className="content-row-1">

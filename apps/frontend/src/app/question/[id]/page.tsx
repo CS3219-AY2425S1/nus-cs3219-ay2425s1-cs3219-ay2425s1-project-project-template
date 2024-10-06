@@ -76,7 +76,7 @@ export default function Home() {
     <div>
       {contextHolder}
       <Layout className="code-editor-layout">
-        <Header />
+        <Header selectedKey={undefined} />
         <Content className="code-editor-content">
           <Row className="entire-page">
             <Col className="col-boxes" span={7}>
