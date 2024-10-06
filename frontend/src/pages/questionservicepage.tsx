@@ -35,7 +35,7 @@ const QuestionServicePage: React.FC = () => {
   }
 
   return (
-    <div className="p-4 text-white">
+    <div className="min-h-screen p-4 bg-gray-900 text-white">
       <h1 className="text-2xl font-bold text-left mb-6">Peer Prep</h1>
       <div className="flex justify-start items-center space-x-2 mb-4 text-sm">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
