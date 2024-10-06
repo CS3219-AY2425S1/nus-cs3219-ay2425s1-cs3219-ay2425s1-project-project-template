@@ -2,7 +2,7 @@ version: '3'
 services:
 
   frontend:
-    image: g38-frontend:latest
+    image: delishad21/g38-frontend:latest
     container_name: g38-frontend
     env_file:
       - .env
