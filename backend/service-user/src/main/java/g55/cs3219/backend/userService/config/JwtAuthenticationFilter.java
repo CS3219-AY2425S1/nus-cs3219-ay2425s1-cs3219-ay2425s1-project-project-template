@@ -52,17 +52,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)){
+                    System.out.println("JWT Filter: JWT token is valid. Setting authentication context.");
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("JWT Filter: JWT token is invalid.");
                 }
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception e) {
+            System.out.println("JWT Filter: Exception occurred during JWT processing: " + e.getMessage());
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or missing JWT token");
             handlerExceptionResolver.resolveException(request, response, null, e);
+
         }
     }
 }

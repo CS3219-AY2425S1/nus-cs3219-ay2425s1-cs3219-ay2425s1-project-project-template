@@ -11,10 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-// https://youtu.be/uZGuwX3St_c?si=hQ2vppx_ACMhrS7u
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -30,6 +30,16 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDto input) {
+        // Check for duplicate username
+        if (userRepository.findByUsername(input.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        // Check for duplicate email
+        if (userRepository.findByEmail(input.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
         User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiredAt(LocalDateTime.now().plusMinutes(15));
@@ -110,6 +120,31 @@ public class AuthenticationService {
             e.printStackTrace();
         }
 
+    }
+
+    public User updateUser(Long userId, Map<String, Object> updates, User currentUser) {
+        User userToUpdate = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!currentUser.isAdmin() && !userToUpdate.getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Forbidden: You can only update your own information.");
+        }
+
+        if (updates.containsKey("username")) {
+            userToUpdate.setUsername((String) updates.get("username"));
+        }
+        if (updates.containsKey("email")) {
+            userToUpdate.setEmail((String) updates.get("email"));
+        }
+        if (updates.containsKey("password")) {
+            userToUpdate.setPassword(passwordEncoder.encode((String) updates.get("password")));
+        }
+
+        if (updates.containsKey("isAdmin") && currentUser.isAdmin()) {
+            userToUpdate.setAdmin((Boolean) updates.get("isAdmin"));
+        }
+
+        return userRepository.save(userToUpdate);
     }
 
     private  String generateVerificationCode() {

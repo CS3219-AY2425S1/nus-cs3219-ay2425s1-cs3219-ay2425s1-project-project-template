@@ -20,5 +20,6 @@ public class RegisterUserDto {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$", message = "Password" +
             " must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
     private String password;
+    @NotBlank(message = "Username is required")
     private String username;
 }

@@ -1,7 +1,9 @@
 package g55.cs3219.backend.userService.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,14 +33,42 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**").permitAll()
+                        // Allow registration and login for all users
+                        .requestMatchers("/auth/**", "/users").permitAll()
+
+                        // Get all users - restricted to admin only
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+
+                        // Get user by ID - admins can access any, non-admins can only access their own (handled in service)
+                        .requestMatchers(HttpMethod.GET, "/users/{userId}").authenticated()
+
+                        // Update user - admins can update any, non-admins can only update their own (handled in service)
+                        .requestMatchers(HttpMethod.PUT, "/users/{userId}").authenticated()
+
+                        // Delete user - admins can delete any, non-admins can only delete their own (handled in service)
+                        .requestMatchers(HttpMethod.DELETE, "/users/{userId}").authenticated()
+
+                        // Allow only authenticated users to verify the token
+                        .requestMatchers(HttpMethod.GET, "/auth/verify-token").authenticated()
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
+
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println("Authentication failed: " + authException.getMessage());
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            System.out.println("Access denied: " + accessDeniedException.getMessage());
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+                        })
+                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }
