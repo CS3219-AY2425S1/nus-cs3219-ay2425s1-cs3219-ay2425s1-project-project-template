@@ -26,14 +26,19 @@ export async function replaceProfileImage(user, newImage) {
     return newImage;
   }
 
-  const newImageExtension = newImage.split(".").pop();
-  const newDestinationPath = `${user.id}.${newImageExtension}`;
+  const { mimetype, path } = newImage;
 
   if (user.profileImage !== DEFAULT_IMAGE) {
     await bucket.file(`${user.id}.${user.profileImage}`).delete();
   }
 
-  await bucket.upload(newImage, {
+  if (newImage === DEFAULT_IMAGE) {
+    return DEFAULT_IMAGE;
+  }
+
+  const newImageExtension = mimetype.split("/").pop();
+  const newDestinationPath = `${user.id}.${newImageExtension}`;
+  await bucket.upload(path, {
     destination: newDestinationPath,
   });
 
