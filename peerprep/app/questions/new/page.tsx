@@ -130,8 +130,8 @@ function NewQuestion({}: Props) {
         <FormTextAreaInput
           required
           disabled={loading}
-          label="Description: "
-          name="description"
+          label="Content: "
+          name="Content"
           value={formData.content}
           onChange={handleFormTextInput}
         />

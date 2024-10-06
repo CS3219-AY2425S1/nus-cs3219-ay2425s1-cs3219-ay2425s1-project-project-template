@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
-import { Question, StatusBody, LoginResponse, SigninResponse } from "./structs";
+import { LoginResponse, Question, SigninResponse, StatusBody } from "./structs";
+import DOMPurify from "isomorphic-dompurify";
 
 export function generateAuthHeaders() {
   return {
@@ -15,7 +16,7 @@ export function generateJSONHeaders() {
 }
 
 export async function fetchQuestion(
-  questionId: string
+  questionId: string,
 ): Promise<Question | StatusBody> {
   try {
     const response = await fetch(
@@ -23,7 +24,7 @@ export async function fetchQuestion(
       {
         method: "GET",
         headers: generateAuthHeaders(),
-      }
+      },
     );
     if (!response.ok) {
       return {
@@ -31,7 +32,12 @@ export async function fetchQuestion(
         status: response.status,
       };
     }
-    return (await response.json()) as Question;
+
+    // NOTE: this may cause the following: "Can't resolve canvas"
+    // https://github.com/kkomelin/isomorphic-dompurify/issues/54
+    const question = (await response.json()) as Question;
+    question.content = DOMPurify.sanitize(question.content);
+    return question;
   } catch (err: any) {
     return { error: err.message, status: 400 };
   }
@@ -50,7 +56,7 @@ export async function getSessionLogin(validatedFields: {
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
-      }
+      },
     );
     const json = await res.json();
 

@@ -78,7 +78,6 @@ function QuestionBlock({ question }: Props) {
             question.topicTags.map((elem, idx) => <p key={idx}>{elem}</p>)
           )}
         </div>
-
         { <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.content)}} /> }
         <br />
       </div>

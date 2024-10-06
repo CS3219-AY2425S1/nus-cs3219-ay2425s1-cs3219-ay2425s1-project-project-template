@@ -9,7 +9,7 @@ const QuestionList: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [difficultyFilter, setDifficultyFilter] = useState<string>(
-    Difficulty[0]
+    Difficulty.All
   );
   const [topicFilter, setTopicFilter] = useState<string>("all");
   const [searchFilter, setSearchFilter] = useState<string>("");
@@ -42,7 +42,7 @@ const QuestionList: React.FC = () => {
 
   const filteredQuestions = questions.filter((question) => {
     const matchesDifficulty =
-      difficultyFilter === Difficulty[0] ||
+      difficultyFilter === Difficulty.All ||
       Difficulty[question.difficulty] === difficultyFilter;
     const matchesTopic =
       topicFilter === topics[0] ||

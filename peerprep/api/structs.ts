@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export enum Difficulty {
-  All = 0,
-  Easy = 1,
-  Medium,
-  Hard,
+  All = "All",
+  Easy = "Easy",
+  Medium = "Medium",
+  Hard = "Hard",
 }
 
 export interface QuestionBody {
