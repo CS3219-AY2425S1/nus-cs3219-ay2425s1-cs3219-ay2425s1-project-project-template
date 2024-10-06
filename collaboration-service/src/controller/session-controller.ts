@@ -4,15 +4,15 @@ import Session from '../model/session-model';
 export const sessionController = {
     createSession: async (req: Request, res: Response) => {
         const {
-            session_id, // assuming session id is passed in the request body
-            participants,
+            //session_id, // assuming session id is passed in the request body
+            participants, // pair of strings
             question,
-            code,
+            code, // retrieval of code from question #TODO change this out
         } = req.body;
 
-        // const sessionId = Math.random().toString(36).substring(2, 8);
+        const sessionId = Math.random().toString(36).substring(2, 8); // #TODO 
         const session = new Session({
-            session_id: session_id, //sessionId,
+            session_id: sessionId, // session_id, 
             date_created: new Date(),
             participants,
             question,

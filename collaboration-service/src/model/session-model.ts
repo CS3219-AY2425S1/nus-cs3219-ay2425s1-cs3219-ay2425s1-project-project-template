@@ -6,6 +6,7 @@ interface Session {
     participants: string[];
     question: string;
     code: string;
+    active?: boolean;
 }
 
 const sessionSchema: Schema = new Schema({
@@ -20,6 +21,7 @@ const sessionSchema: Schema = new Schema({
         },
     question: { type: String, required: true },
     code: { type: String, required: true },
+    active: { type: Boolean, default: true }
 });
 
 export default mongoose.model<Session>("Session", sessionSchema);
