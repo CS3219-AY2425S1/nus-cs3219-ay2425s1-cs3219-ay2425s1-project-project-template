@@ -21,16 +21,21 @@ import { useApiContext } from "../../context/ApiContext";
 type MenuDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 /**
  * Navigation drawer component
  */
-const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
+const MenuDrawer: React.FC<MenuDrawerProps> = ({
+  isOpen,
+  onClose,
+  setAuth,
+}) => {
   const drawerBgColor = "#141A67";
   const buttonTextColor = "white";
   const navigate = useNavigate();
-  const api = useApiContext();
+  // const api = useApiContext();
   const toast = useToast();
 
   const handleLogOut = async () => {
@@ -38,9 +43,9 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ isOpen, onClose }) => {
     if (!confirmLogout) return;
 
     try {
-      await api.post("/logout");
+      // await api.post("/logout");
       localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
+      setAuth(false);
       navigate("/login");
       toast({
         title: "Logged out.",

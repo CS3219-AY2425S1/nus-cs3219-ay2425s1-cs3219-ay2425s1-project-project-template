@@ -12,11 +12,13 @@ import { UserProvider } from "../context/UserContext";
  */
 const PrivateRoutes = ({
   isAuth,
+  setAuth,
   authApi,
   api,
 }: {
   isAuth: boolean;
-  authApi: AxiosInstance
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  authApi: AxiosInstance;
   api: AxiosInstance;
 }) => {
   return isAuth ? (
@@ -24,7 +26,7 @@ const PrivateRoutes = ({
       <AuthApiContext.Provider value={authApi}>
         <UserProvider isAuth={isAuth} authApi={authApi}>
           <ToastContainer />
-          <Navbar />
+          <Navbar setAuth={setAuth} />
           <Page>
             <Outlet />
           </Page>

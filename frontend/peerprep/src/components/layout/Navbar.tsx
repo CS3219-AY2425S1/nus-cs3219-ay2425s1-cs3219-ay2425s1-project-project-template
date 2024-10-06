@@ -5,7 +5,11 @@ import logo from "/peerprep_logo.png";
 
 import MenuDrawer from "./MenuDrawer";
 
-const Navbar: React.FunctionComponent = () => {
+const Navbar = ({
+  setAuth,
+}: {
+  setAuth: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -24,7 +28,7 @@ const Navbar: React.FunctionComponent = () => {
         <img src={logo} alt="Peerprep Logo" className="w-10 h-10" />
         <span className="text-4xl text-white">PeerPrep</span>
       </div>
-      <MenuDrawer isOpen={isOpen} onClose={onClose} />
+      <MenuDrawer isOpen={isOpen} onClose={onClose} setAuth={setAuth} />
     </div>
   );
 };
