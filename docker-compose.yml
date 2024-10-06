@@ -33,6 +33,19 @@ services:
       - peerprep-network
     env_file:
       - ./question-service/.env.dev
+  user-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - peerprep-network
+    env_file:
+      - ./user-service/.env
 networks:
   peerprep-network:
     driver: bridge
