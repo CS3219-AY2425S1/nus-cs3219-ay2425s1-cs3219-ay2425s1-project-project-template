@@ -6,7 +6,8 @@
 /* Fix flex layout only for specific elements */
 .container {
     display: flex;
-    align-items: center; 
+    align-items: center;
+    justify-content: center;
 }
 
 .search-container {
