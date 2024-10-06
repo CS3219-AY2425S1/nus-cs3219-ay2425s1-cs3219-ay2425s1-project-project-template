@@ -20,6 +20,7 @@ services:
       - 3001:3001
     volumes:
       - ./backend/user-backend:/app
+      - ./backend/user-backend/googleKey.json:/app/googleKey.json
       - /app/node_modules
     environment:
       NODE_ENV: production
