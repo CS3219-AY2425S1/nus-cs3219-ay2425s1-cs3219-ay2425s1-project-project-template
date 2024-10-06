@@ -4,10 +4,9 @@
 
 ## Group: G18
 
-Install Docker before running the following commands:
+Ensure Docker has been installed before running the following commands:
 ```
-docker-compose build
-docker-compose up
+docker-compose up --build
 ```
 
 ### Note:
