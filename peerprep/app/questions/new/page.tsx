@@ -128,7 +128,7 @@ function NewQuestion({}: Props) {
           required
           disabled={loading}
           label="Content: "
-          name="Content"
+          name="content"
           value={formData.content}
           onChange={handleFormTextInput}
         />
