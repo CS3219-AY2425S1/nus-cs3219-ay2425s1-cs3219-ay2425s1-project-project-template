@@ -13,7 +13,7 @@ services:
     networks:
       - common-network
 
-  frontedn-service:
+  frontend-service:
     build: ./frontend
     ports:
       - 3000:3000
