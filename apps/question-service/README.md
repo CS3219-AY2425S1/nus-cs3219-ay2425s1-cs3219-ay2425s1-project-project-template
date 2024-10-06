@@ -49,6 +49,20 @@ go run main.go
 
 The server will be available at http://localhost:8080.
 
+## Running the Application via Docker
+
+To run the application via Docker, run the following command:
+
+```bash
+docker build -t question-service .
+```
+
+```bash
+docker run -p 8080:8080 -d question-service
+```
+
+The server will be available at http://localhost:8080.
+
 ## API Endpoints
 
 - `POST /questions`
