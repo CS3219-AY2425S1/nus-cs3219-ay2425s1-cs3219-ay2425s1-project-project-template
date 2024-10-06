@@ -7,6 +7,7 @@
    docker build \
       --build-arg VITE_USER_SERVICE=http://host.docker.internal:9001 \
       --build-arg VITE_QUESTION_SERVICE=http://host.docker.internal:9002 \
+      --build-arg FRONTEND_PORT=3000 \
       -t frontend-app -f frontend.Dockerfile .
    ```
 2. Run this command, from the root folder:
@@ -19,7 +20,7 @@
 
 4. Run this command to expose the container:
    ```sh
-   docker run -p 3000:3000 --env-file ./.env.docker frontend-local
+   docker run -p 3000:3000 --env-file ./.env.docker frontend-app
    ```
 
 ## Running with Docker-Compose (Main config)

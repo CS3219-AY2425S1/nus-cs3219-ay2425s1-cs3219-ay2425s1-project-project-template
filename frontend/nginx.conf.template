@@ -1,5 +1,5 @@
 server {
-    listen ${port};
+    listen ${FRONTEND_PORT};
     location / {
         root /usr/share/nginx/html;
         index index.html;

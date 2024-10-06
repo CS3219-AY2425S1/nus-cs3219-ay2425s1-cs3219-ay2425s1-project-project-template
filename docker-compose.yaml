@@ -105,18 +105,18 @@ services:
     build:
       context: ./frontend
       dockerfile: ./frontend.Dockerfile
+      target: production
       args:
-        - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
-        - VITE_QUESTION_SERVICE=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
-        - port=${FRONTEND_PORT}
+        - FRONTEND_PORT=${FRONTEND_PORT}
     ports:
       - '3000:${FRONTEND_PORT}'
     env_file:
       - ./frontend/.env.compose
     environment:
       - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+      ##to remove localhost once integrating question
       - VITE_QUESTION_SERVICE=http://localhost:${QUESTION_EXPRESS_PORT}
-      - port=${FRONTEND_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
     depends_on:
       user-service:
         condition: service_healthy
