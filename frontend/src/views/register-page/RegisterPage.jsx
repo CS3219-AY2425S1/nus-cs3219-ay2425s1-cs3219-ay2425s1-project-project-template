@@ -37,6 +37,11 @@ const RegisterPage = () => {
             setErrorMessage('Passwords do not match.');
             return;
         }
+        // Check for password length
+        if (password.length < 8) {
+            setErrorMessage('Password must be at least 8 characters long.');
+            return;
+        }
         handleRegister(username, email, password);
     };
 
