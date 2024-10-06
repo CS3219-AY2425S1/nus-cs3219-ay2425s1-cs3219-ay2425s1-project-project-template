@@ -17,7 +17,7 @@ server {
     }
 
     location /question-service/ {
-         rewrite ^/question-service(/.*)$ $1 break;
+        rewrite ^/question-service(/.*)$ $1 break;
         proxy_pass ${VITE_QUESTION_SERVICE};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
