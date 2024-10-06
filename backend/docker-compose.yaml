@@ -18,7 +18,7 @@ services:
     environment:
       - QUESTION_DB_URL=mongodb://question-db:27017 # note that the URL is referencing the container name
       - DB_NAME=questions_db
-      - COLELCTION_NAME=questions
+      - COLLECTION_NAME=questions
     ports:
       - "8000:8000"
 
