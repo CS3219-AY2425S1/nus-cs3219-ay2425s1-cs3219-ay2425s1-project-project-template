@@ -70,6 +70,7 @@ const ProfileView = () => {
         duration: 5000,
         isClosable: true,
       });
+      newUserContext.refetch();
     } catch (error) {
       if (error instanceof Error) {
         toast({
