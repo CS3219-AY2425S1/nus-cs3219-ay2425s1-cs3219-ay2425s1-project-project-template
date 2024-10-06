@@ -25,12 +25,14 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { Question, GetSingleQuestion } from "../../services/question";
 import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
+import { isAuthenticated } from "@/utils/Auth";
+import { redirect } from 'next/navigation';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
@@ -57,6 +59,13 @@ export default function Home() {
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [selectedItem, setSelectedItem] = useState("python"); // State to hold the selected language item
+
+  useLayoutEffect(() => {
+    const isAuth = isAuthenticated;
+    if(!isAuth){
+      redirect("/login")
+    }
+  }, [])
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
