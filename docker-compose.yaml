@@ -70,8 +70,8 @@ services:
     container_name: "user-express"
     build:
       context: ./backend/user
-      dockerfile: ./express.Dockerfile
-      target: build
+      dockerfile: express.Dockerfile
+      target: production
       args: 
         # For building with the correct env vars
         - env=${USER_EXPRESS_ENV}
@@ -92,6 +92,12 @@ services:
       - user-db-network
       - user-api-network
     entrypoint: ["/bin/sh", "entrypoint.sh"]
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9001/health || exit 1
+      interval: 30s 
+      timeout: 10s   
+      retries: 5       
+      start_period: 5s
 
 volumes:
   # Persistent Volumes for Databases
