@@ -72,6 +72,7 @@ export class SupabaseQuestionsRepository implements QuestionsRepository {
     const { data, error } = await this.supabase
       .from(this.QUESTIONS_TABLE)
       .insert(question)
+      .select()
       .single<QuestionDto>();
 
     if (error) {
@@ -86,6 +87,7 @@ export class SupabaseQuestionsRepository implements QuestionsRepository {
       .from(this.QUESTIONS_TABLE)
       .update(question)
       .eq('id', question.id)
+      .select()
       .single<QuestionDto>();
 
     if (error) {
