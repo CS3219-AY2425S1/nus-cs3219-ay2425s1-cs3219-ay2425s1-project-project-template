@@ -4,6 +4,11 @@
 
 ## Group: G18
 
+Ensure Docker has been installed before running the following commands:
+```
+docker-compose up --build
+```
+
 ### Note:
 
 -   You can choose to develop individual microservices within separate folders within this repository **OR** use individual repositories (all public) for each microservice.
