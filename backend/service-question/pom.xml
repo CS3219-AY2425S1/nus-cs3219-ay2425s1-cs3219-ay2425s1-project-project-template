@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>service-question</name>
 	<description>Question Service</description>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
 	<url />
 	<licenses>
