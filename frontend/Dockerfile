@@ -30,5 +30,7 @@ COPY . .
 # Expose the frontend port
 EXPOSE 3000
 
+RUN npm run build
+
 # Command to run the frontend server
 CMD ["npm", "run", "preview"]
