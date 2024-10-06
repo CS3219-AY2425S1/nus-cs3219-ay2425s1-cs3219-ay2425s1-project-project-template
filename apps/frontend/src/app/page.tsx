@@ -44,6 +44,10 @@ import TextArea from "antd/es/input/TextArea";
 import { title } from "process";
 import { isAuthenticated, isAdmin } from "@/utils/Auth";
 import { redirect } from 'next/navigation';
+import {
+  ValidateUser,
+  VerifyTokenResponseType,
+} from "./services/user";
 
 /**
  * defines the State of the page whe a user is deleing an object. Has 3 general states:
@@ -119,12 +123,27 @@ export default function Home() {
   // State for refreshing data
   const [refresh, setRefresh] = useState(false);
 
-  useLayoutEffect(() => {
-    const isAuth = isAuthenticated;
-    if(!isAuth){
-      redirect("/login")
-    }
-  }, [])
+  // used to check if user jwt is verified
+
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
+  const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
+  // useLayoutEffect(() => {
+  //   var isAuth = false;
+
+  //   ValidateUser().then((data: VerifyTokenResponseType) => {
+  //     setUserId(data.data.id);
+  //     setEmail(data.data.email);
+  //     setUsername(data.data.username);
+  //     setIsAdmin(data.data.isAdmin);
+  //     isAuth = true;
+  //   }).finally(() => {
+  //     if(!isAuth){
+  //       redirect("/login")
+  //     }
+  //   });
+  // }, [])
 
   const handleEditClick = (index: number, question: Question) => {
     // Open the modal for the specific question

@@ -33,7 +33,7 @@
 
 ![alt text](./GuideAssets/Selection4.png)
 
-6. You will be prompted to set up Security for the database by providing `Username and Password`. Select that option and enter `Username` and `Password`. Please keep this safe as it will be used in User Service later on.
+6. You will be prompted to set up Security for the database by providing `Username and Password`. Select that option and enter `admin` and `admin_user_service`. Please keep this safe as it will be used in User Service later on.
 
 ![alt text](./GuideAssets/Security.png)
 
