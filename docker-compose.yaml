@@ -23,7 +23,7 @@ services:
     networks:
       - common-network
 
-  user-server:
+  user-service:
     build:
       context: ./backend/user-backend
     ports:
