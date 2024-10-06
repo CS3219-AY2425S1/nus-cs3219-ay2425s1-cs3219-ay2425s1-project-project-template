@@ -3,7 +3,7 @@ import { AxiosInstance, AxiosResponse } from "axios";
 
 // Create Auth API context
 export const AuthApiContext = createContext<AxiosInstance | null>(null);
-
+export const QuesApiContext = createContext<AxiosInstance | null>(null);
 export const ApiContext = createContext<AxiosInstance | null>(null); // Define context type here
 
 export type GetRequest = () => AxiosResponse<any>;
@@ -15,6 +15,16 @@ export const useAuthApiContext = (): AxiosInstance => {
 
   if (context === null) {
     throw new Error("useAuthApiContext must be used within an AuthApiProvider");
+  }
+
+  return context;
+};
+
+export const useQuesApiContext = (): AxiosInstance => {
+  const context = useContext(QuesApiContext);
+
+  if (context === null) {
+    throw new Error("useQuesApiContext must be used within an QuesApiProvider");
   }
 
   return context;
