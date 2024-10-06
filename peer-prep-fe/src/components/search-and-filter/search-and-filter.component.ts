@@ -42,6 +42,13 @@ export class SearchAndFilterComponent {
     );
   }
 
+  resetFilters() {
+    this.showFilterOptions = false;
+    this.isDifficultyClicked = false;
+    this.isCategoryClicked = false;
+    this.refresh.emit();
+  }
+
    // Show difficulty options
   showDifficultyOptions() {
     this.isDifficultyClicked = true;
