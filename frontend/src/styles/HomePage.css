@@ -49,6 +49,7 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  padding-bottom: 30px;
 }
 
 .welcome-text {
@@ -69,4 +70,10 @@
   font-family: cursive;
   cursor: pointer;
   transition: box-shadow 0.25s ease;
+}
+
+.button-div {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
 }

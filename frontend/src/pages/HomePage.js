@@ -28,6 +28,7 @@ export const HomePage = () => {
       setQuestions((prevQuestions) =>
         prevQuestions.filter((item) => item.id !== id)
       );
+      getQuestions()
     } catch (error) {
       console.log(error);
     }
@@ -47,7 +48,23 @@ export const HomePage = () => {
     return output.substring(0, output.length - 2);
   }
 
+  /** 
+  const checkAuthenticated = async (accessToken) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/auth/verify-token`, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      })
+
+    } catch (error) {
+      console.log("error!");
+    }
+  }
+  */
+
   useEffect(() => {
+    //checkAuthenticated(localStorage.getItem("accessToken"));
     getQuestions();
   }, []);
 
@@ -98,7 +115,10 @@ export const HomePage = () => {
             ))}
           </tbody>
         </table>
-        {isAdmin ? <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button> : null}
+        <div className="button-div">
+          {isAdmin ? <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button> : null}
+          <button className="create-btn" onClick={(e) => navigate("/profile")}>Profile</button>
+        </div>
       </header>
     </div>
   );

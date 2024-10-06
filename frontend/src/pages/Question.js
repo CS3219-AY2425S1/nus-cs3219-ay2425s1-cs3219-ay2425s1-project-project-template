@@ -145,7 +145,7 @@ export const Question = () => {
   }
 
   const handleHomeButton = (e) => {
-    navigate("/");
+    navigate("/home");
   }
 
   useEffect(() => {
