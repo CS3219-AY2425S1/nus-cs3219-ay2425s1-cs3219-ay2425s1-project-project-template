@@ -20,10 +20,10 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-const PORT = process.env.PORT;
+const PORT_USER = process.env.PORT_USER;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
+app.listen(PORT_USER, () => {
+    console.log(`Server is running on port ${PORT_USER}`)
 })
 
 // POST /api/users/login to login
