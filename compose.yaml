@@ -17,7 +17,7 @@ services:
   user-service:
     build: user-service
     volumes:
-      - /app/node_modules
+      - ./user-service/:/user-service
     env_file:
       - user-service/.env
     extra_hosts:
