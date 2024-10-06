@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Run stage
-FROM jelastic/maven:3.9.5-openjdk-21
+FROM maven:3-eclipse-temurin-21
 
 WORKDIR /app
 
@@ -22,5 +22,5 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose port 8081 for the backend service
 EXPOSE 8081
 
-# Run the application
+# Run the 
 ENTRYPOINT ["java", "-jar", "app.jar"]
