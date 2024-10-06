@@ -1,12 +1,12 @@
 db = db.getSiblingDB('question_db');
 db.createCollection('questions');
+db.createCollection('database_sequences');
 
 console.log(
   '------------------------------------------------------I am running---------------------------------------------------------------'
 );
 
-// Seed sample questions
-db.questions.insertMany([
+const seedQuestions = [
   {
     title: 'Reverse a String 1',
     description:
@@ -514,4 +514,12 @@ db.questions.insertMany([
     link: 'https://leetcode.com/problems/trips-and-users/',
     _id: 20,
   },
-]);
+];
+
+// Seed sample questions
+db.questions.insertMany(seedQuestions);
+
+db.database_sequences.insertOne({
+  _id: 'question_sequence',
+  seq: seedQuestions.length,
+});
