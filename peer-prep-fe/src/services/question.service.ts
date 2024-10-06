@@ -14,15 +14,13 @@ export class QuestionService {
     return this.http.get<Question[]>(this.baseUrl);
   }
 
-  // separate function from ^ for clarity 
-  getAllQuestionSorted(sortBy?: string, orderBy?:string): Observable<Question[]> {
-    const url = (sortBy && orderBy) ? `${this.baseUrl}?sortBy=${sortBy}&orderBy=${orderBy}` : this.baseUrl;
+  getFilteredQuestions(filterBy?: string, filterValues?: string): Observable<Question[]> {
+    const url = filterBy ? `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}` : this.baseUrl;
     return this.http.get<Question[]>(url);
   }
 
-  getFilteredQuestions(filterBy?: string, filterValues?: string): Observable<Question[]> {
-    const url = filterBy ? `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}` : this.baseUrl;
-    // const url = `${this.baseUrl}?filterBy=question_categories&filterValues=Arrays`;
+  getSortedQuestions(filterBy?: string, filterValues?: string, sortBy?: string, orderBy?: string): Observable<Question[]> {
+    const url = `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}&sortBy=${sortBy}&orderBy=${orderBy}`;
     return this.http.get<Question[]>(url);
   }
   
