@@ -108,16 +108,16 @@ export default function ProfilePage() {
   return (
     <div className="p-8">
       <Stack spacing={20} direction={'row'}>
-        <Card width='350px' height='320px' marginLeft='10px'>
+        <Card>
           <HStack>
             <Avatar size='2xl' name={username} src='https://cdn-icons-png.flaticon.com/128/17446/17446833.png' margin='30px' />
-            <VStack align='left'>
+            <VStack align='left' margin='10px'>
               <Tag size='sm' key='username-tag' variant='subtle' colorScheme='cyan'>
-                <TagLeftIcon boxSize='12px' as={AtSignIcon} />
+                <TagLeftIcon as={AtSignIcon} />
                 <TagLabel>{username}</TagLabel>
               </Tag>
               <Tag size='sm' key='email-tag' variant='subtle' colorScheme='cyan'>
-                <TagLeftIcon boxSize='12px' as={LinkIcon} />
+                <TagLeftIcon as={LinkIcon} />
                 <TagLabel>{email}</TagLabel>
               </Tag>
             </VStack>
