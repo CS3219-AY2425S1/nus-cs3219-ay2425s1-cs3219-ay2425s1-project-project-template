@@ -12,7 +12,7 @@ const SessionBox = ({ headerText, sessionText, buttonText, buttonLink }) => {
         borderRadius: "10px",
         backgroundColor: "#fff",
         padding: "20px",
-        width: "300px",
+        width: "350px",
         height: "200px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         marginRight: "20px", 
