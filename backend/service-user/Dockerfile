@@ -1,5 +1,5 @@
 # Use an OpenJDK 21 image as the base
-FROM jelastic/maven:3.9.5-openjdk-21
+FROM jelastic/maven:3.9.5-openjdk-21 AS build
 
 # Set the working directory in the container
 WORKDIR /app
@@ -9,10 +9,15 @@ COPY pom.xml .
 COPY src ./src
 
 # Install dependencies and build the project
-RUN mvn clean install
+RUN mvn clean package -DskipTests
+
+# Run stage
+FROM jelastic/maven:3.9.5-openjdk-21
+
+WORKDIR /app
 
 # Copy the built JAR file
-COPY target/service-user-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 # Expose port 8081 for the backend service
 EXPOSE 8081
