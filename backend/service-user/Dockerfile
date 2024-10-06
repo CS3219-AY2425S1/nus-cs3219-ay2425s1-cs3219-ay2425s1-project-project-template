@@ -1,5 +1,5 @@
 # Use an OpenJDK 21 image as the base
-FROM jelastic/maven:3.9.5-openjdk-21 AS build
+FROM maven:3-eclipse-temurin-21 AS build
 
 # Set the working directory in the container
 WORKDIR /app
