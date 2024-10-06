@@ -59,6 +59,11 @@ services:
     container_name: user-service
     ports:
       - "3001:3001"
+    environment:
+      - DB_CLOUD_URI=mongodb+srv://admin:admin@cluster0.ie5m1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - DB_LOCAL_URI=mongodb://root:example@mongo_user:27017
+      - ENV=DEV
+      - JWT_SECRET=you-can-replace-this-with-your-own-secret
     depends_on:
       - mongo_user
     networks:
