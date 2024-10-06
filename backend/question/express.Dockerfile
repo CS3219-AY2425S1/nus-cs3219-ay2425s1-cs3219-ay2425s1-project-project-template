@@ -21,7 +21,6 @@ COPY src/config.ts ./src
 COPY tsconfig.json .
 COPY entrypoint.sh .
 
-
 ARG port
 EXPOSE ${port}
 ENTRYPOINT [ "/bin/sh", "entrypoint.sh" ]

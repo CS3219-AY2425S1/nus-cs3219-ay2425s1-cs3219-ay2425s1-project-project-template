@@ -2,7 +2,6 @@
 
 services:
   # Databases
-
   user-db:
     hostname: "user-db"
     image: postgres:16.4
@@ -64,7 +63,6 @@ services:
       timeout: 10s
 
   # Services
-
   user-service:
     image: "user-express"
     container_name: "user-express"
@@ -74,7 +72,6 @@ services:
       target: production
       args: 
         # For building with the correct env vars
-        - env=${USER_EXPRESS_ENV}
         - port=${USER_EXPRESS_PORT}
     ports:
       - "9001:${USER_EXPRESS_PORT}"
@@ -107,7 +104,6 @@ services:
       target: production
       args: 
         # For building with the correct env vars
-        - env=${QUESTION_EXPRESS_ENV}
         - port=${QUESTION_EXPRESS_PORT}
     ports:
       - "9002:${QUESTION_EXPRESS_PORT}"
