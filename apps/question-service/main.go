@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"question-service/handlers"
+	mymiddleware "question-service/middleware"
 	"question-service/utils"
 	"time"
 
@@ -65,6 +66,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(mymiddleware.VerifyJWT)
 
 	r.Use(cors.Handler(cors.Options{
 		// AllowedOrigins: []string{"http://localhost:3000"}, // Use this to allow specific origin hosts
