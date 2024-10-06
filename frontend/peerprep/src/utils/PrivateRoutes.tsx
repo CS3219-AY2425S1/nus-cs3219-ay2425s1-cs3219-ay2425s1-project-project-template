@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { ApiContext, AuthApiContext } from "../context/ApiContext";
+import { ApiContext, AuthApiContext, QuesApiContext } from "../context/ApiContext";
 import { AxiosInstance } from "axios";
 
 import Navbar from "../components/layout/Navbar";
@@ -15,22 +15,27 @@ const PrivateRoutes = ({
   setAuth,
   authApi,
   api,
+  quesApi,
 }: {
   isAuth: boolean;
   setAuth: React.Dispatch<React.SetStateAction<boolean>>;
   authApi: AxiosInstance;
   api: AxiosInstance;
+  quesApi: AxiosInstance;
 }) => {
   return isAuth ? (
     <ApiContext.Provider value={api}>
       <AuthApiContext.Provider value={authApi}>
+        
         <UserProvider isAuth={isAuth} authApi={authApi}>
           <ToastContainer />
           <Navbar setAuth={setAuth} />
           <Page>
-            <Outlet />
+            <QuesApiContext.Provider value={quesApi}>
+              <Outlet />
+            </QuesApiContext.Provider>
           </Page>
-        </UserProvider>
+        </UserProvider> 
       </AuthApiContext.Provider>
     </ApiContext.Provider>
   ) : (

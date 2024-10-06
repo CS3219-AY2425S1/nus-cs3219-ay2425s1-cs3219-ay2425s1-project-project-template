@@ -15,7 +15,7 @@ import ResetPasswordController from "./pages/user/controllers/ResetPasswordContr
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";
-import { initApi, authApi } from "./utils/api";
+import { initApi, authApi, questionApi } from "./utils/api";
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
@@ -26,6 +26,7 @@ const App: React.FC = () => {
 
   const api = initApi(setAuth);
   const auth = authApi(setAuth);
+  const ques = questionApi(setAuth);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -35,9 +36,10 @@ const App: React.FC = () => {
             element={
               <PrivateRoutes
                 isAuth={isAuth}
-                setAuth={setAuth}
                 api={api}
+                setAuth={setAuth}
                 authApi={auth}
+                quesApi={ques}
               />
             }
           >
