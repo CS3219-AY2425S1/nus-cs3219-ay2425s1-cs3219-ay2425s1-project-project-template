@@ -3,9 +3,8 @@ import Header from "@/components/Header/header";
 import { Button, Input, Layout, message, Form } from "antd";
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import TextArea from "antd/es/input/TextArea";
 import { createUser } from "@/app/services/user";
 import { useRouter } from "next/navigation";
 

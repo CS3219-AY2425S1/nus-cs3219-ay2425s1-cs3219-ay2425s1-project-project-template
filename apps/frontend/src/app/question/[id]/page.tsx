@@ -3,19 +3,14 @@ import Header from "@/components/Header/header";
 import {
   Button,
   Col,
-  Dropdown,
   Layout,
   message,
-  Menu,
   Row,
-  TableProps,
   Tag,
   Select,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
-  DeleteOutlined,
-  EditOutlined,
   PlusCircleOutlined,
   LeftOutlined,
   RightOutlined,
@@ -25,12 +20,17 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
-import { useEffect, useState } from "react";
-import { Question, GetSingleQuestion } from "../../services/question";
+import { useEffect, useState, useLayoutEffect } from "react";
+import { GetSingleQuestion } from "../../services/question";
 import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
+import {
+  ValidateUser,
+  VerifyTokenResponseType,
+} from "../../services/user";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
@@ -57,6 +57,32 @@ export default function Home() {
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [selectedItem, setSelectedItem] = useState("python"); // State to hold the selected language item
+
+  // used to check if user JWT is verified
+
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
+  const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
+
+  const router = useRouter();
+  
+  useLayoutEffect(() => {
+    var isAuth = false;
+
+    ValidateUser().then((data: VerifyTokenResponseType) => {
+      setUserId(data.data.id);
+      setEmail(data.data.email);
+      setUsername(data.data.username);
+      setIsAdmin(data.data.isAdmin);
+      isAuth = true;
+    }).finally(() => {
+      if(!isAuth){
+        // cannot verify
+        router.push('/login'); // Client-side redirect using router.push
+      }
+    });
+  }, [router])
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
