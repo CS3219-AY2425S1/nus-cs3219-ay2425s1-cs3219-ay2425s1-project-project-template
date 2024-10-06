@@ -47,8 +47,8 @@ interface Props {
 }
 
 export default function CollabEditor({ question }: Props) {
-  const [theme, setTheme] = useState("twilight");
-  const [fontSize, setFontSize] = useState(16);
+  const [theme, setTheme] = useState("terminal");
+  const [fontSize, setFontSize] = useState(18);
   const [language, setLanguage] = useState("python");
 
   const handleOnChange = (newValue: string) => {
