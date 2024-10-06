@@ -23,7 +23,7 @@ pnpm install
 Then, follow the `.env.example` file and create a `.env` file in the current directory. Replace the necessary values within.
 
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_QUESTION_SERVICE_URL=http://localhost:8080
 ```
 
 First, run the development server:
@@ -42,7 +42,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 # Navigate to the frontend app directory
 cd apps/frontend
 # Build dockerfile (Ensure that your docker daemon is running beforehand)
-docker build -t frontend --build-arg NEXT_PUBLIC_API_URL="http://localhost:8080/" -f Dockerfile .
+docker build -t frontend -e NEXT_PUBLIC_QUESTION_SERVICE_URL="http://localhost:8080/" -f Dockerfile .
 ```
 
 Run the backend server locally and visit http://localhost:3000/ to see the frontend application working

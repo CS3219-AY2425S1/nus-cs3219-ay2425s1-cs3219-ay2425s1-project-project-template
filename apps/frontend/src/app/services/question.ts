@@ -1,3 +1,7 @@
+import { getToken } from "./login-store";
+
+const QUESTION_SERVICE_URL = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
+
 export interface Question {
   id: number;
   docRefId: string;
@@ -37,7 +41,7 @@ export const GetQuestions = async (
   categories?: string[],
   title?: string
 ): Promise<QuestionListResponse> => {
-  let query_url = `${process.env.NEXT_PUBLIC_API_URL}questions`;
+  let query_url = `${QUESTION_SERVICE_URL}questions`;
   let query_params = "";
 
   if (currentPage) {
@@ -73,7 +77,12 @@ export const GetQuestions = async (
   }
 
   query_url += query_params;
-  const response = await fetch(query_url);
+  const response = await fetch(query_url, {
+    method: "GET",
+    headers: {
+      'Authorization': `Bearer ${getToken()}`,
+    }
+  });
   const data = await response.json();
   return data;
 };
@@ -81,7 +90,13 @@ export const GetQuestions = async (
 // Get single question
 export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRef}`
+    `${QUESTION_SERVICE_URL}questions/${docRef}`,
+    {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      }
+    }
   );
   const data = await response.json();
   return data;
@@ -91,10 +106,11 @@ export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
 export const CreateQuestion = async (
   question: NewQuestion
 ): Promise<Question> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}questions`, {
+  const response = await fetch(`${QUESTION_SERVICE_URL}questions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      'Authorization': `Bearer ${getToken()}`,
     },
     body: JSON.stringify(question),
   });
@@ -113,11 +129,12 @@ export const EditQuestion = async (
   docRefId: string
 ): Promise<Question> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRefId}`,
+    `${QUESTION_SERVICE_URL}questions/${docRefId}`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        'Authorization': `Bearer ${getToken()}`,
       },
       body: JSON.stringify(question),
     }
@@ -135,9 +152,12 @@ export const EditQuestion = async (
 // Delete single question (TODO: Ryan)
 export async function DeleteQuestion(docRef: String): Promise<void> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}questions/${docRef}`,
+    `${QUESTION_SERVICE_URL}questions/${docRef}`,
     {
       method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
     }
   );
   // error handling later
