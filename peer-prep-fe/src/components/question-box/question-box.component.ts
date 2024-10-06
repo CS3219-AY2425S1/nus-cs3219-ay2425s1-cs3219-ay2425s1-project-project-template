@@ -6,6 +6,8 @@ import {MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog
 import {EditPageComponent} from "../../edit-page/edit-page.component";
 import {Router} from "@angular/router";
 import {DeletePageComponent} from "../../delete-page/delete-page.component";
+import { authService } from '../../app/authService/authService';
+
 
 @Component({
   selector: 'app-question-box',
@@ -20,7 +22,11 @@ export class QuestionBoxComponent {
   @Input() index!: number;
   @Output() refresh = new EventEmitter<void>();
 
- constructor(private dialog: MatDialog) {}
+ constructor(private dialog: MatDialog, private authService: authService) {}
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   openModal() {
     this.dialog.open(QuestionDescriptionComponent, {

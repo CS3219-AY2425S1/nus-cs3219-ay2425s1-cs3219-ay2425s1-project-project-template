@@ -1,11 +1,12 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 import {EditPageComponent} from "../../edit-page/edit-page.component";
 import { CommonModule } from '@angular/common';
-import { QuestionService } from '../../services/question.service'; 
+import { QuestionService } from '../../services/question.service';
 import {MatDialog} from "@angular/material/dialog";
 import {AddPageComponent} from "../../add-page/add-page.component";
 import { Category } from '../../app/models/category.model';
 import { FormsModule } from '@angular/forms';
+import { authService } from '../../app/authService/authService';
 
 @Component({
   selector: 'app-search-and-filter',
@@ -27,7 +28,11 @@ export class SearchAndFilterComponent {
   isDifficultyClicked = false;
   isCategoryClicked = false;
 
-  constructor(private dialog: MatDialog, private questionService: QuestionService) {}
+  constructor(private dialog: MatDialog, private questionService: QuestionService, private authService: authService) {}
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   ngOnInit(): void {
     this.questionService.getQuestionCategories().subscribe(
@@ -79,7 +84,7 @@ export class SearchAndFilterComponent {
 
   sortQuestions() {
     console.log('Sort button clicked');
-    this.sort.emit(); 
+    this.sort.emit();
   }
 
   openAddModal() {
