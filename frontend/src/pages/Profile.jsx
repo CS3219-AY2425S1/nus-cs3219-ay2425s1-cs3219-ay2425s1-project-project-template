@@ -1,100 +1,103 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useCookies } from "react-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import GeneralNavbar from "../components/navbar/GeneralNavbar";
 import "../styles/Profile.css";
 import DefaultImage from '../assets/Default.jpg';
+import useAuth from "../hooks/useAuth";
 
 const Profile = () => {
-  const [cookies] = useCookies(['token']);
+  const { userId, cookies } = useAuth();
   const [userData, setUserData] = useState({
     username: "",
     email: "",
-    profilePic: "",
   });
-  const [editing, setEditing] = useState(false);
-  const [file, setFile] = useState(null); // For profile picture upload
+  const [profilePic, setprofilePic] = useState(DefaultImage);
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch user data on component mount
+  // Fetch user data when userId is available
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const userId = "your-user-id-here"; // Change this to the correct user ID
-        const { data } = await axios.get(`http://localhost:3001/user/${userId}`, {
+        const { data } = await axios.get(`http://localhost:3001/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
           withCredentials: true,
         });
         setUserData({
           username: data.data.username,
           email: data.data.email,
-          profilePic: data.data.profileImage,
         });
+        setprofilePic(data.data.profileImage || DefaultImage);
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         toast.error("Failed to load profile");
       }
     };
+    if (userId) {
+      fetchUserProfile();
+    }
+  }, [userId, cookies]);
 
-    fetchUserProfile();
-  }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUserData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile); // Store the uploaded file
+  const toggleEdit = () => {
+    setIsEditing((prev) => !prev);
   };
 
   const handleSave = async () => {
+    // Validation
+    if (!userData.username) {
+      toast.error("Username cannot be empty.");
+      return;
+    }
+
+    // Simple email validation regex
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (!emailRegex.test(userData.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
     try {
-      const userId = "your-user-id-here"; // Replace with the correct user ID
-
-      // First update username and email
-      await axios.patch(
-        `http://localhost:3001/user/${userId}`,
+      // Extract username and email from the userData state
+      const updatedData = {
+        username: userData.username,
+        email: userData.email,
+      };
+  
+      // Send PATCH request to the backend
+      const response = await axios.patch(
+        `http://localhost:3001/users/${userId}`,
+        updatedData, // Only include username and email
         {
-          username: userData.username,
-          email: userData.email,
-        },
-        { withCredentials: true }
+          headers: {
+            Authorization: `Bearer ${cookies.token}`, // Use the token for authorization
+          },
+          withCredentials: true,
+        }
       );
-
-      // If there's a new profile picture, upload it
-      if (file) {
-        const formData = new FormData();
-        formData.append("profileImage", file);
-
-        await axios.post(
-          `http://localhost:3001/user/profile-picture`, // Adjust to the actual API route
-          formData,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
+  
+      // If successful, update the UI and show success message
+      if (response.status === 200) {
+        toast.success("Changes saved successfully!");
+      } else {
+        toast.error("Failed to save changes.");
       }
-
-      toast.success("Profile updated successfully");
-      setEditing(false); // Exit edit mode
+  
+      // Disable editing after saving
+      setIsEditing(false);
     } catch (error) {
-      console.error("Failed to update profile:", error);
-      toast.error("Failed to update profile");
+      console.error("Error updating profile:", error);
+      toast.error("Failed to save changes.");
     }
   };
 
   return (
-    <>
-      <GeneralNavbar /> {/* Navbar at the top */}
+    <div>
+      <GeneralNavbar />
       <div className="profile-container">
         <div className="profile-header">
-          <h2 className="profile-title">User Profile</h2>
+          <h1 className="profile-title">User Profile</h1>
           <p className="profile-subtitle">Manage your profile.</p>
         </div>
 
@@ -102,54 +105,47 @@ const Profile = () => {
           {/* Profile Picture Section */}
           <div className="profile-pic-section">
             <img
-              src={userData.profilePic || DefaultImage}
+              src={profilePic || DefaultImage}
               alt="Profile"
               className="profile-pic"
             />
-            {editing && (
-              <label className="edit-pic">
-                <input type="file" onChange={handleFileChange} />
-                Edit
-              </label>
-            )}
           </div>
 
           {/* User Info Section */}
           <div className="user-info-section">
             <div className="form-group">
-              <label htmlFor="username">Username</label>
+              <label>Username</label>
               <input
                 type="text"
-                name="username"
+                className="info-text"
                 value={userData.username}
-                onChange={handleInputChange}
-                disabled={!editing}
+                onChange={(e) => setUserData({ ...userData, username: e.target.value })}
+                disabled={!isEditing}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label>Email</label>
               <input
                 type="email"
-                name="email"
+                className="info-text"
                 value={userData.email}
-                onChange={handleInputChange}
-                disabled={!editing}
+                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                disabled={!isEditing}
               />
             </div>
-
-            <div className="form-group">
-              <button onClick={() => setEditing(!editing)}>
-                {editing ? "Cancel" : "Edit Profile"}
-              </button>
-              {editing && (
-                <button onClick={handleSave} className="save-btn">
-                  Save Changes
+          
+            {/* Buttons Section */}
+            <div className="button-group">
+              {isEditing ? (
+                <button className="save-btn" onClick={handleSave}>
+                  Save
+                </button>
+              ) : (
+                <button className="edit-btn" onClick={toggleEdit}>
+                  Edit Info
                 </button>
               )}
-            </div>
-
-            <div className="form-group">
               <button className="change-password-btn">Change Password</button>
             </div>
           </div>
@@ -157,7 +153,7 @@ const Profile = () => {
 
         <ToastContainer />
       </div>
-    </>
+    </div>
   );
 };
 
