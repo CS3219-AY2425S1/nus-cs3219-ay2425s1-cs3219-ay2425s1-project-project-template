@@ -4,10 +4,11 @@ package transport
 import (
 	"time"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"peerprep/common"
 	"peerprep/database"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func SetAllEndpoints(router *gin.Engine, db *database.QuestionDB, logger *common.Logger) {
@@ -19,14 +20,14 @@ func SetAllEndpoints(router *gin.Engine, db *database.QuestionDB, logger *common
 	router.PUT("/questions/replace/:id", ReplaceQuestionWithLogger(db, logger))
 }
 
-//enable CORS for the frontend
-func SetCors(router *gin.Engine) {
+// enable CORS for the frontend
+func SetCors(router *gin.Engine, origin string) {
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"},
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders: []string{"Origin", "Content-Type", "Content-Length", "Authorization"},
-		ExposeHeaders: []string{"Content-Length"},
+		AllowOrigins:     []string{origin},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge: 2 * time.Minute,
+		MaxAge:           2 * time.Minute,
 	}))
 }

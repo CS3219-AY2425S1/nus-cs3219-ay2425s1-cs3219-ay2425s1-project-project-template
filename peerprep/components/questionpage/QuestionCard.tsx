@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
-import { Question, Difficulty } from "@/api/structs";
+import { Difficulty, Question } from "@/api/structs";
 import PeerprepButton from "../shared/PeerprepButton";
 import { useRouter } from "next/navigation";
 import styles from "@/style/questionCard.module.css";
 import { deleteQuestion } from "@/app/api/internal/questions/helper";
+import DOMPurify from "dompurify";
 
 type QuestionCardProps = {
   question: Question;
@@ -15,7 +16,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   const handleDelete = async () => {
     if (
       confirm(
-        `Are you sure you want to delete ${question.title}? (ID: ${question.id}) `
+        `Are you sure you want to delete ${question.title}? (ID: ${question.id}) `,
       )
     ) {
       const status = await deleteQuestion(question.id);
@@ -43,6 +44,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
     }
   };
 
+  const questionContent = DOMPurify.sanitize(question.content);
+
+  const match = questionContent.match(/(.*?)(?=<\/p>)/);
+  const questionContentSubstring =
+    (match ? match[0] : "No description found") + "...";
+
   return (
     <div className={styles.container}>
       <div className="flex-none w-full sm:w-1/3">
@@ -51,22 +58,27 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           Difficulty:{" "}
           <span
             className={`capitalize font-bold ${getDifficultyColor(
-              question.difficulty
+              question.difficulty,
             )}`}
           >
             {Difficulty[question.difficulty]}
           </span>
         </p>
         <p className={styles.bodytext}>
-          Categories:{" "}
+          Topics:{" "}
           <span>
-            {question.categories ? question.categories.join(", ") : "None"}
+            {question.topicTags ? question.topicTags.join(", ") : "None"}
           </span>
         </p>
       </div>
 
-      <div className="flex-none w-full sm:w-1/2 max-h-16">
-        <p className={styles.bodytext}>{question.description}</p>
+      <div className="flex-none w-full sm:w-1/2 max-h-16 overflow-hidden">
+        {
+          <div
+            className={styles.bodytext}
+            dangerouslySetInnerHTML={{ __html: questionContentSubstring }}
+          />
+        }
       </div>
 
       <div className={styles.buttonContainer}>
