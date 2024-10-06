@@ -1,35 +1,36 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
+import axios from 'axios';
 
 export const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        alert('Registration successful');
-        /*
-        try {
-            const response = await fetch('http://localhost:YOUR_BACKEND_PORT/api/users/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                // Handle success (e.g., redirect to a different page or show a success message)
-                console.log('Login successful:', data);
-            } else {
-                // Handle error
-                console.error(data.message);
+        // Handle form submission
+        if (email === '' || password === '') {
+            alert('Please fill out all fields!');
+            return;
+        } else {
+            try {
+                const response = await axios.post('http://localhost:3002/auth/login', {
+                    email: email,
+                    password: password,
+                });
+                if (response.status === 200) {
+                    alert('Successfully logged in!');
+                } else {
+                    alert('Unable to log in.');
+                }
+            } catch (error) {
+                if (error.response.status === 401) {
+                    alert('Invalid username or password!');
+                } else {
+                    alert('An error occurred!');
+                }
             }
-        } catch (error) {
-            console.error('Error:', error);
         }
-        */
     };
 
     return (
@@ -38,11 +39,11 @@ export const Login = () => {
             <form onSubmit={handleSubmit}>
                 <h2>Login</h2>
                 <h3>Access your account</h3>
-                <label>Username</label>
+                <label>Email</label>
                 <input
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
                 <label>Password</label>
                 <input

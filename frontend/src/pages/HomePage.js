@@ -49,7 +49,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     getQuestions();
-  });
+  }, []);
 
   return (
     <div className="App">
