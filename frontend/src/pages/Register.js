@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import '../styles/Register.css';
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const Register = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,12 +30,14 @@ export const Register = () => {
         });
         if (response.status === 201) {
           alert('Successfully created user!');
+          navigate("/login");
         } else {
           alert('Unable to create user.');
         }
       } catch (error) {
-        if (error.response.data.code === 11000) {
-          alert('Username already exists!');
+        console.log(error.response);
+        if (error.response.data.message === "username or email already exists") {
+          alert('Username or email already exists!');
         } else {
           alert('An error occurred!');
         }

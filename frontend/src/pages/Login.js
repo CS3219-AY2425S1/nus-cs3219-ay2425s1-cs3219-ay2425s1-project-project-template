@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,7 +21,10 @@ export const Login = () => {
                     password: password,
                 });
                 if (response.status === 200) {
+                    localStorage.setItem("userId", response.data.data.id);
+                    localStorage.setItem("accessToken", response.data.data.accessToken);
                     alert('Successfully logged in!');
+                    navigate("/home");
                 } else {
                     alert('Unable to log in.');
                 }
@@ -33,26 +38,36 @@ export const Login = () => {
         }
     };
 
+    const goToSignup = (e) => {
+        navigate("/signup");
+    }
+
     return (
         <div className="login-container">
             <h1>Welcome Back to PeerPrep</h1>
-            <form onSubmit={handleSubmit}>
-                <h2>Login</h2>
-                <h3>Access your account</h3>
-                <label>Email</label>
-                <input
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <label>Password</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="submit">Login</button>
-            </form>
+            <div className="login-white">
+                <form onSubmit={handleSubmit}>
+                    <h2>Login</h2>
+                    <h3>Access your account</h3>
+                    <label>Email</label>
+                    <input
+                        type="text"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button type="submit">Login</button>
+                </form>
+                <div className="register-div">
+                    <div>Don't have an account?</div>
+                    <button className="register-button" onClick={goToSignup}>Register</button>
+                </div>
+            </div>
         </div>
     );
 };

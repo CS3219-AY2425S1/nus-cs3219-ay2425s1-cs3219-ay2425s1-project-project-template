@@ -51,7 +51,7 @@ export async function getUser(req, res) {
       return res.status(200).json({ message: `Found user`, data: formatUserResponse(user) });
     }
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return res.status(500).json({ message: "Unknown error when getting user!" });
   }
 }
