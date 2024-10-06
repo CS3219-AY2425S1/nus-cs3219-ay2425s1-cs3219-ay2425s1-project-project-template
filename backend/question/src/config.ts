@@ -1,7 +1,5 @@
 import 'dotenv/config';
 
-export const JWT_SECRET_KEY = process.env.EXPRESS_JWT_SECRET_KEY!;
-
 export const UI_HOST = process.env.PEERPREP_UI_HOST!;
 
 export const EXPRESS_PORT = process.env.EXPRESS_PORT;

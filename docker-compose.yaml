@@ -22,26 +22,6 @@ services:
       start_period: 30s
       timeout: 10s
 
-  collab-db:
-    hostname: 'collab-db'
-    image: 'postgres:16.4'
-    container_name: 'collab-db'
-    build:
-      context: ./backend/collaboration/src/lib/db
-    env_file:
-      - ./backend/collaboration/.env.local
-    volumes:
-      - 'collab-db-docker:/${COLLAB_PGDATA}'
-    restart: unless-stopped
-    networks:
-      - collab-db-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
-
   question-db:
     hostname: 'question-db'
     image: postgres:16.4
@@ -79,6 +59,7 @@ services:
       # Docker Compose Specific for Service Discovery
       - EXPRESS_DB_HOST=user-db
       - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
     depends_on:
       user-db:
         condition: service_healthy
@@ -94,7 +75,7 @@ services:
       start_period: 5s
 
   question-service:
-    image: "question-express"
+    image: 'question-express'
     container_name: '${QUESTION_SERVICE_NAME}'
     build:
       context: ./backend/question
@@ -109,6 +90,7 @@ services:
       # Docker Compose Specific for Service Discovery
       - EXPRESS_DB_HOST=question-db
       - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
     depends_on:
       question-db:
         condition: service_healthy
@@ -124,8 +106,8 @@ services:
       start_period: 5s
 
   # Frontend
-
   frontend:
+    image: 'frontend'
     container_name: 'frontend'
     build:
       context: ./frontend
@@ -151,16 +133,21 @@ services:
     networks:
       - user-api-network
       - question-api-network
-      - collab-api-network
+      # - match-api-network
+      # - collab-ws-network
 
 volumes:
   # Persistent Volumes for Databases
   user-db-docker:
     external: true
-  collab-db-docker:
-    external: true
   question-db-docker:
-    external: true
+    external: true 
+  # MQ server
+  # match-mq-docker:
+  #   external: true
+  # WS/RTC server
+  # collab-ws-docker:
+  #   external: true
 
 networks:
   # Isolated API Server Networks
@@ -168,13 +155,15 @@ networks:
     driver: bridge
   question-db-network:
     driver: bridge
-  collab-db-network:
-    driver: bridge
+  # match-mq-network:
+  #   driver: bridge
 
   # View-Controller Networks
   user-api-network:
     driver: bridge
   question-api-network:
     driver: bridge
-  collab-api-network:
-    driver: bridge
+  # match-api-network:
+  #   driver: bridge
+  # collab-ws-network:
+  #   driver: bridge
