@@ -34,6 +34,16 @@
 
 4. Using applications like Postman, you can interact with the User Service on port 3001. If you wish to change this, please update the `.env` file.
 
+## Running User Service using Docker
+
+1. Open Command Line/Terminal and navigate into the `user-service` directory.
+
+2. Run the command: `docker build -t user-service .`. This will create the docker image.
+
+3. Run the command `docker run --name user_serving -p 3001:3001 user-service` to start the User Service.
+
+4. If user-service cannot connect to db please ensure specifics in env file are correct.
+
 ## User Service API Guide
 
 ### Create User
