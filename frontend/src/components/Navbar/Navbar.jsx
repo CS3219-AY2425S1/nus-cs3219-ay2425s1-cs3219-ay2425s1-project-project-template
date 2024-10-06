@@ -7,12 +7,6 @@ const Navbar = () => {
         <div className={styles.Navbar}>
             <nav>
                 <ul>
-                    <li>
-                        Home
-                    </li>
-                    <li>
-                        Settings
-                    </li>
                 </ul>
                 <button onClick={() => { handleLogout() }}> Log out </button>
             </nav>
