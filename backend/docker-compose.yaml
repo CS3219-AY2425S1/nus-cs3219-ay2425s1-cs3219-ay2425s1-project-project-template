@@ -1,4 +1,5 @@
 services:
+  ## question service
   question-db:
     build:
       context: ./db/question-db
@@ -20,3 +21,23 @@ services:
       - COLELCTION_NAME=questions
     ports:
       - "8000:8000"
+
+  ## User service
+  user-db:
+    image: mongodb/mongodb-community-server:6.0.8-ubi9
+    ports:
+      # map port 27017 of user-db to 27018 of local machine
+      - "27018:27017"
+  user-service:
+    depends_on:
+      - user-db
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    environment:
+      - DB_LOCAL_URI=mongodb://user-db:27017/peerprepUserServiceDB  # Connect to port 27017 of **user-db**, NOT 27018
+      - PORT=8001
+      - ENV=DEV
+      - JWT_SECRET=cs3219ay2425-s1-g40-jwt-signature
+    ports:
+      - "8001:8001"
