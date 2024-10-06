@@ -8,6 +8,9 @@ import {
 } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
 import DashboardPage from "./pages/DashboardPage";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import backgroundImage from "./assets/images/lightgradient.jpeg"; // path for background
 import "./styles/App.css"; // css file
 
@@ -74,7 +77,10 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          {/* Define other routes here */}
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forget-password" element={<ForgetPasswordPage />} />
+
         </Routes>
       </Router>
     </div>
