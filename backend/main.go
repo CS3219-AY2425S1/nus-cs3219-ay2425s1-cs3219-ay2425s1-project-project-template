@@ -21,7 +21,7 @@ import (
 func main() {
 	//initialise logger file and directory if they do not exist
 
-	err := godotenv.Load("questionDB.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading environment variables: " + err.Error())
 	}

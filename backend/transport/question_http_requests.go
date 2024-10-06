@@ -18,6 +18,7 @@ func SetAllEndpoints(router *gin.Engine, db *database.QuestionDB, logger *common
 	router.GET("/questions/solve/:id", GetQuestionWithLogger(db, logger))
 	router.DELETE("/questions/delete/:id", DeleteQuestionWithLogger(db, logger))
 	router.PUT("/questions/replace/:id", ReplaceQuestionWithLogger(db, logger))
+	router.GET("/health", HealthCheck(logger))
 }
 
 // enable CORS for the frontend
