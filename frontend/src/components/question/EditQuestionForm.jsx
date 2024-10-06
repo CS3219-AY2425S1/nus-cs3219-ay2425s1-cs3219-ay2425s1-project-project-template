@@ -1,5 +1,5 @@
 // src/components/EditQuestionForm.js
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const EditQuestionForm = ({ question, onUpdate }) => {
   const [title, setTitle] = useState(question.title);
@@ -102,7 +102,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
         </label>
         <div className="complexity-group" style={{ marginTop: "24px" }}>
           {validComplexities.map((comp) => (
-            <div key={comp} style={{ marginRight: "10px" }}>
+            <div key={comp} style={{ marginRight: "5px", fontSize: "14px" }}>
               <input
                 type="radio"
                 id={`complexity-${comp}`}
@@ -110,8 +110,13 @@ const EditQuestionForm = ({ question, onUpdate }) => {
                 checked={complexity === comp}
                 onChange={(e) => setComplexity(e.target.value)}
                 required
+                style={{ marginRight: "2px", transform: "scale(0.9)" }} // Slightly smaller radio buttons
               />
-              <label className="radio-label" htmlFor={`complexity-${comp}`}>
+              <label
+                className="radio-label"
+                htmlFor={`complexity-${comp}`}
+                style={{ fontSize: "14px", margin: 0 }} // Smaller label font size
+              >
                 {comp}
               </label>
             </div>
@@ -119,8 +124,6 @@ const EditQuestionForm = ({ question, onUpdate }) => {
         </div>
       </div>
       <div style={{ marginBottom: "20px" }}>
-        {" "}
-        {/* Div for margin */}
         <button
           type="submit"
           onMouseEnter={() => setIsHovered(true)}
@@ -144,6 +147,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           {isLoading ? "Updating..." : "Update Question"}
         </button>
       </div>
+      {error && <div style={{ color: "red" }}>{error}</div>} {/* Display error message */}
     </form>
   );
 };

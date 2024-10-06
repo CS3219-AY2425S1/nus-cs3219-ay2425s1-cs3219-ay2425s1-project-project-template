@@ -21,5 +21,5 @@ app.use('/questions', require('./routes/questions'));
 mongoose.connection.once('open', () => {
     // Only listen to the port after connected to mongodb.
     console.log('connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => console.log(`Question service running on port ${PORT}`));
 });

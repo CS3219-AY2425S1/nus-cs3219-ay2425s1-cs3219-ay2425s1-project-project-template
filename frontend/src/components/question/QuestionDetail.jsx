@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
+
 const QuestionDetail = ({ question, onClose }) => {
   const [isHovered, setIsHovered] = useState(false); // State for hover
 
@@ -6,11 +8,12 @@ const QuestionDetail = ({ question, onClose }) => {
     <div
       style={{
         width: "700px", // Fixed width
-        height: "700px", // Fixed height
+        maxHeight: "700px", // Max height to ensure scrolling
         padding: "20px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
         backgroundColor: "#fff",
-        overflowY: "auto", // Scrollable content if it exceeds the fixed height
+        overflowY: "auto", // Scrollable content if it exceeds the max height
+        position: "relative",
       }}
     >
       <h1 style={{ fontSize: "24px", marginBottom: "10px", color: "#333" }}>
@@ -27,30 +30,41 @@ const QuestionDetail = ({ question, onClose }) => {
       <h2 style={{ fontSize: "20px", marginTop: "20px", color: "#666" }}>
         Description:
       </h2>
-      <p style={{ lineHeight: "1.6", color: "#444", whiteSpace: "pre-wrap" }}>
+      <p style={{ lineHeight: "1.6", color: "#444", whiteSpace: "pre-wrap", marginBottom: "60px" }}>
         {question.description}
       </p>
 
-      <button
-        onClick={onClose}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+      {/* Button container */}
+      <div
         style={{
-          padding: "12px 15px",
-          backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
-          color: "#000",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          fontSize: "16px",
-          lineHeight: "1.5",
-          display: "block",
-          margin: "380px auto 0",
-          width: "100%",
+          position: "sticky", // Sticky positioning
+          bottom: "20px", // 20px from the bottom
+          left: "0", // Align to the left
+          backgroundColor: "#fff", // Match background color
+          padding: "0 20px", // Optional padding to align with the container
+          zIndex: "1", // Ensure it stays above content
         }}
       >
-        Close
-      </button>
+        <button
+          onClick={onClose}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={{
+            padding: "12px 15px",
+            backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
+            color: "#000",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "16px",
+            lineHeight: "1.5",
+            display: "block",
+            width: "100%",
+          }}
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 };
