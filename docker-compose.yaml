@@ -3,6 +3,16 @@ version: "3.9"
 
 # Define the services and applications that make up your application.
 services:
+  frontend-service:
+    build: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - common-network
+
   question-service:
     build: ./backend/question-backend
     ports:
@@ -13,13 +23,19 @@ services:
     networks:
       - common-network
 
-  frontend-service:
-    build: ./frontend
+  user-service:
+    build:
+      context: ./backend/user-backend
     ports:
-      - 3000:3000
+      - 3001:3001
     volumes:
-      - ./frontend:/app
+      - ./backend/user-backend:/app
+      - ./backend/user-backend/googleKey.json:/app/googleKey.json
       - /app/node_modules
+    environment:
+      NODE_ENV: production
+    env_file:
+      ./backend/user-backend/.env
     networks:
       - common-network
 

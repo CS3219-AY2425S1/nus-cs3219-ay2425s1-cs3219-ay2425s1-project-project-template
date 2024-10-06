@@ -16,6 +16,7 @@ const columns = [
 ];
 
 export default function QuestionTable({ mountTrigger }) {
+  const { cookies } = useAuth();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
