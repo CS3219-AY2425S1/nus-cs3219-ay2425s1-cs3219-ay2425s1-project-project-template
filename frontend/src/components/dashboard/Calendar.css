@@ -1,9 +1,5 @@
-/* src/pages/Calendar.css */
-
-/* Existing styles */
 .calendar-container {
     width: 400px;
-    height: 400px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -20,19 +16,16 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    /* Ensure the header spans the full width of the container */
     padding: 0 20px;
-    /* Add padding to prevent buttons from sticking to the edges */
     margin-bottom: 10px;
     color: black;
+    margin-top: 10px;
 }
 
 .calendar-header h2 {
     flex-grow: 1;
-    /* This will make the title take the remaining space and center it */
     text-align: center;
     margin: 0;
-    /* Remove any margin from the heading */
 }
 
 .calendar-button {
@@ -42,7 +35,6 @@
     border-radius: 4px;
     padding: 5px 10px;
     cursor: pointer;
-    /* Ensure fixed button size */
     width: 40px;
     height: 30px;
 }
@@ -66,12 +58,13 @@
     background: white;
     padding: 10px;
     border-radius: 8px;
-    height: 240px;
-    overflow-y: hidden;
-    /* Prevent calendar overflow */
+    min-height: 240px;
+    height: auto;
+    overflow-y: visible;
 }
 
-.calendar-day {
+.calendar-day,
+.empty-day {
     width: 40px;
     height: 40px;
     display: flex;
@@ -79,15 +72,9 @@
     justify-content: center;
     border: 1px solid #1a3042;
     border-radius: 4px;
-    cursor: pointer;
 }
 
 .calendar-day.active {
     background-color: #1a3042;
     color: white;
-}
-
-.empty-day {
-    width: 40px;
-    height: 40px;
 }
