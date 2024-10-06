@@ -3,6 +3,16 @@ version: "3.9"
 
 # Define the services and applications that make up your application.
 services:
+  frontend-service:
+    build: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - common-network
+
   question-service:
     build: ./backend/question-backend
     ports:

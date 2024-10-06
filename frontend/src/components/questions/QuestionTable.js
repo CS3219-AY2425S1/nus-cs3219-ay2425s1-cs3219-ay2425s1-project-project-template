@@ -40,7 +40,7 @@ export default function QuestionTable({ mountTrigger }) {
   useEffect(() => {
       const fetchQuestions = async () => {
         try {
-          const response = await questionService.getAllQuestions(cookies);
+          const response = await questionService.getAllQuestions();
           setQuestions(response);
         } catch (error) {
             setErrorMessage(error.message); // Set error message
