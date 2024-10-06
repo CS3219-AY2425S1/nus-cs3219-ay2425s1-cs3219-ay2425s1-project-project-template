@@ -9,7 +9,6 @@ const QuestionController: React.FC = () => {
   // const [questions, setQuestions] = useState<Question[]>([]);
 
   const api = useQuesApiContext();
-  console.log("api: ", api);
   const fetchQuestions = async (): Promise<Question[]> => {
     try {
       const response = await api.get<Question[]>("/questions"); // Adjust the endpoint as necessary
