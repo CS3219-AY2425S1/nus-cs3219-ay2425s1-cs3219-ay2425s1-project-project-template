@@ -6,7 +6,7 @@ export async function deleteQuestion(id: number): Promise<StatusBody> {
     {
       method: "DELETE",
       body: JSON.stringify({ qid: id }),
-    }
+    },
   );
   if (res.ok) {
     return { status: res.status };
@@ -16,19 +16,18 @@ export async function deleteQuestion(id: number): Promise<StatusBody> {
 }
 
 export async function addQuestion(
-  question: QuestionFullBody
+  question: QuestionFullBody,
 ): Promise<StatusBody> {
+  // TODO: this is not desired
+  question.content = "<p>" + question.content + "</p>";
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_NGINX}/api/internal/questions`,
     {
       method: "POST",
-      body: JSON.stringify(question).replace(
-        /(\"difficulty\":)\"([1-3])\"/,
-        `$1$2`
-      ),
-    }
+      body: JSON.stringify(question),
+    },
   );
-  if (res.ok) {
+  if (!res.ok) {
     return { status: res.status };
   }
   const json = await res.json();

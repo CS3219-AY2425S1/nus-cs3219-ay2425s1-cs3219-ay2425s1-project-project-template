@@ -14,13 +14,8 @@ export interface QuestionBody {
   topicTags: string[];
 }
 
-export interface TestCase {
-  test_cases: {
-    [key: string]: string;
-  };
-}
-
-export interface QuestionFullBody extends QuestionBody, TestCase {}
+// TODO remove this (unused)
+export interface QuestionFullBody extends QuestionBody {}
 
 export interface Question extends QuestionFullBody {
   id: number;

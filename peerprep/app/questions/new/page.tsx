@@ -87,11 +87,6 @@ function NewQuestion({}: Props) {
     setLoading(true);
     const question: QuestionFullBody = {
       ...formData,
-      test_cases: testCases
-        .map((elem: Mapping) => ({
-          [elem.key]: elem.value,
-        }))
-        .reduce((res, item) => ({ ...res, ...item }), {}),
     };
     const status = await addQuestion(question);
     if (status.error) {

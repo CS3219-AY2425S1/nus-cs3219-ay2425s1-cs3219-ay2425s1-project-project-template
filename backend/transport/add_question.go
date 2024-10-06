@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"peerprep/common"
 	"peerprep/database"
+	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
 
@@ -13,16 +14,29 @@ import (
 
 func AddQuestionWithLogger(db *database.QuestionDB, logger *common.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var question common.Question
+		var feQuestion common.FrontendQuestion
 
-		if err := ctx.BindJSON(&question); err != nil {
+		if err := ctx.BindJSON(&feQuestion); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"Error adding question": err.Error()})
 			logger.Log.Error("Error converting JSON to question: ", err.Error())
 			return
 		}
 
 		p := bluemonday.UGCPolicy()
-		question.Content = p.Sanitize(question.Content)
+		feQuestion.Content = p.Sanitize(feQuestion.Content)
+
+		titleSlug := strings.ToLower(feQuestion.Title)
+		titleSlug = strings.ReplaceAll(titleSlug, " ", "-")
+
+		question := common.Question{
+			Title:      feQuestion.Title,
+			TitleSlug:  titleSlug,
+			Difficulty: feQuestion.Difficulty,
+			TopicTags:  feQuestion.TopicTags,
+			Schemas:    make([]string, 0),
+			Content:    feQuestion.Content,
+			Id:         -1,
+		}
 
 		status, err := db.AddQuestion(logger, &question)
 
