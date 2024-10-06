@@ -64,3 +64,19 @@ export const deleteUser = async (userId: string) => {
     await logout();
   }
 }
+
+export const updateUser = async (userId: string, userData: { username?: string; email?: string; password?: string }) => {
+  try {
+    const accessToken = localStorage.getItem('authToken');
+    const response = await axios.patch(`http://localhost:8003/users/${userId}`, userData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log('Error updating user:', error);
+    throw error;
+  }
+}
