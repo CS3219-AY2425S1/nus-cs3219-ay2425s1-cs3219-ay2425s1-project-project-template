@@ -2,7 +2,6 @@
 
 services:
   # Databases
-
   user-db:
     hostname: 'user-db'
     image: postgres:16.4
@@ -56,6 +55,8 @@ services:
     restart: unless-stopped
     networks:
       - question-db-network
+    ports:
+      - 5433:5432
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U peerprep-qn-express -d question']
       interval: 10s
@@ -64,17 +65,15 @@ services:
       timeout: 10s
 
   # Services
-
   user-service:
     image: 'user-express'
-    container_name: 'user-express'
+    container_name: '${USER_SERVICE_NAME}'
     build:
       context: ./backend/user
       dockerfile: express.Dockerfile
       target: production
       args:
         # For building with the correct env vars
-        - env=${USER_EXPRESS_ENV}
         - port=${USER_EXPRESS_PORT}
     ports:
       - '9001:${USER_EXPRESS_PORT}'
@@ -115,7 +114,7 @@ services:
     environment:
       - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
       ##to remove localhost once integrating question
-      - VITE_QUESTION_SERVICE=http://localhost:${QUESTION_EXPRESS_PORT}
+      - VITE_QUESTION_SERVICE=http://host.docker.internal:${QUESTION_EXPRESS_PORT}
       - FRONTEND_PORT=${FRONTEND_PORT}
     depends_on:
       user-service:
