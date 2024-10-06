@@ -1,7 +1,5 @@
-# Specify the version of the Docker Compose.
 version: "3.9"
 
-# Define the services and applications that make up your application.
 services:
   frontend-service:
     build: ./frontend
@@ -10,6 +8,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    environment:
+      - NODE_ENV=production
+      - USER_AUTH_URL=http://user-service:3001/auth/verify-token
     networks:
       - common-network
 
@@ -20,6 +21,9 @@ services:
     volumes:
       - ./backend/question-backend:/app
       - /app/node_modules
+    environment:
+      - NODE_ENV=production
+      - USER_AUTH_URL=http://user-service:3001/auth/verify-token
     networks:
       - common-network
 
@@ -33,9 +37,10 @@ services:
       - ./backend/user-backend/googleKey.json:/app/googleKey.json
       - /app/node_modules
     environment:
-      NODE_ENV: production
+      - NODE_ENV=production
+      - USER_AUTH_URL=http://user-service:3001/auth/verify-token
     env_file:
-      ./backend/user-backend/.env
+      - ./backend/user-backend/.env
     networks:
       - common-network
 

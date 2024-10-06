@@ -4,9 +4,9 @@
 
 2. Run the command: `npm install`. This will install all the necessary dependencies.
 
-3. Run the command `npm start` to start the Question Service in production mode, or use `npm run dev` for development mode, which includes features like automatic server restart when you make code changes.
+3. Run the command `NODE_ENV=development npm start` to start the Question Service in production mode, or use `NODE_ENV=development npm run dev` for development mode, which includes features like automatic server restart when you make code changes.
 
-4. Using applications like Postman, you can interact with the User Service on port 4000. If you wish to change this, please update the `.env` file (there is a sample file under `.envsample`).
+4. Using applications like Postman, you can interact with the User Service on port 4000. If you wish to change this, please update the `.env.local` and `.env` files (there is a sample file under `.envsample`).
 
 ## Running Question Service (Containerized)
 
