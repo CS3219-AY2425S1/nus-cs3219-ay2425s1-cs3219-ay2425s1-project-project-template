@@ -3,60 +3,62 @@
 services:
   # Databases
   user-db:
-    hostname: "user-db"
+    hostname: 'user-db'
     image: postgres:16.4
-    container_name: "user-db"
+    container_name: 'user-db'
     build:
       context: ./backend/user/src/lib/db
     env_file:
       - ./backend/user/.env.local
     volumes:
-      - "user-db-docker:${USER_PGDATA}"
+      - 'user-db-docker:${USER_PGDATA}'
     restart: unless-stopped
     networks:
       - user-db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peerprep-user-express -d user"]
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-user-express -d user']
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 10s
 
   collab-db:
-    hostname: "collab-db"
-    image: "postgres:16.4"
-    container_name: "collab-db"
+    hostname: 'collab-db'
+    image: 'postgres:16.4'
+    container_name: 'collab-db'
     build:
       context: ./backend/collaboration/src/lib/db
     env_file:
       - ./backend/collaboration/.env.local
     volumes:
-      - "collab-db-docker:/${COLLAB_PGDATA}"
+      - 'collab-db-docker:/${COLLAB_PGDATA}'
     restart: unless-stopped
     networks:
       - collab-db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peerprep-collab-express -d collab"]
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 10s
 
   question-db:
-    hostname: "question-db"
+    hostname: 'question-db'
     image: postgres:16.4
-    container_name: "question-db"
+    container_name: 'question-db'
     build:
       context: ./backend/question/src/lib/db
     env_file:
       - ./backend/question/.env.local
     volumes:
-      - "question-db-docker:${QUESTION_PGDATA}"
+      - 'question-db-docker:${QUESTION_PGDATA}'
     restart: unless-stopped
     networks:
       - question-db-network
+    ports:
+      - 5433:5432
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peerprep-qn-express -d question"]
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-qn-express -d question']
       interval: 10s
       retries: 5
       start_period: 30s
@@ -64,17 +66,17 @@ services:
 
   # Services
   user-service:
-    image: "user-express"
-    container_name: "user-express"
+    image: 'user-express'
+    container_name: '${USER_SERVICE_NAME}'
     build:
       context: ./backend/user
       dockerfile: express.Dockerfile
       target: production
-      args: 
+      args:
         # For building with the correct env vars
         - port=${USER_EXPRESS_PORT}
     ports:
-      - "9001:${USER_EXPRESS_PORT}"
+      - '9001:${USER_EXPRESS_PORT}'
     env_file:
       - ./backend/user/.env.compose
     environment:
@@ -90,9 +92,9 @@ services:
       - user-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:9001/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
+      interval: 30s
+      timeout: 10s
+      retries: 5
       start_period: 5s
 
   question-service:
@@ -127,6 +129,34 @@ services:
       retries: 5       
       start_period: 5s
 
+  # Frontend
+
+  frontend:
+    container_name: 'frontend'
+    build:
+      context: ./frontend
+      dockerfile: ./frontend.Dockerfile
+      target: production
+      args:
+        - FRONTEND_PORT=${FRONTEND_PORT}
+    ports:
+      - '3000:${FRONTEND_PORT}'
+    env_file:
+      - ./frontend/.env.compose
+    environment:
+      - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+      ##to remove localhost once integrating question
+      - VITE_QUESTION_SERVICE=http://host.docker.internal:${QUESTION_EXPRESS_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    depends_on:
+      user-service:
+        condition: service_healthy
+        restart: true
+    networks:
+      - user-api-network
+      - question-api-network
+      - collab-api-network
+
 volumes:
   # Persistent Volumes for Databases
   user-db-docker:
@@ -135,7 +165,6 @@ volumes:
     external: true
   question-db-docker:
     external: true
-
 
 networks:
   # Isolated API Server Networks

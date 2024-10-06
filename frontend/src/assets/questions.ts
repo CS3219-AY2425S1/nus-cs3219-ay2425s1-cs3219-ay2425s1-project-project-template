@@ -183,6 +183,6 @@ export const questions: Question[] = questionDetails.map((question) => ({
   id: question.id,
   title: question.title,
   difficulty: question.difficulty as 'Easy' | 'Medium' | 'Hard',
-  topics: question.topics,
+  topic: question.topics,
   attempted: false,
 }));

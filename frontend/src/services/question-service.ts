@@ -36,5 +36,14 @@ export async function fetchQuestions(pageNum: number = 0): Promise<IGetQuestions
   // TODO: Add error handling and notifs
   return questionApiClient
     .get(QUESTION_SERVICE_ROUTES.GET_QUESTIONS + `?${params}`)
-    .then((res) => res.data as IGetQuestionsResponse);
+    .then((res) => {
+      return res.data as IGetQuestionsResponse;
+    })
+    .catch((err) => {
+      console.error(err);
+      return {
+        questions: [],
+        totalQuestions: 0,
+      } as IGetQuestionsResponse;
+    });
 }
