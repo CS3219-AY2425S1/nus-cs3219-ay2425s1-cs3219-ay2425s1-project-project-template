@@ -58,7 +58,7 @@ docker build -t question-service .
 ```
 
 ```bash
-docker run -p 8080:8080 -d question-service
+docker run -p 8080:8080 --env-file .env -d question-service
 ```
 
 The server will be available at http://localhost:8080.

@@ -286,15 +286,16 @@
 ```bash
 # Navigate to the user-service app directory
 cd apps/user-service
-# Build dockerfile after replacing the build arguments (Ensure that your docker daemon is running beforehand)
-docker build -t user-service --build-arg JWT_SECRET='replace_with_jwt_secret' --build-arg DB_CLOUD_URI='replace_with_db_uri_here' -f Dockerfile .
+
+# Build dockerfile (Ensure that your docker daemon is running beforehand)
+docker build -t user-service -f Dockerfile .
 ```
 
 ### Running Docker
 
 ```bash
 # Run the docker image, the -d tag is to run it detached
-docker run -p 3001:3001 -d user-service
+docker run -p 3001:3001 --env-file .env -d user-service
 
 # To check the container information
 docker ps

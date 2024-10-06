@@ -16,9 +16,6 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-      args:
-        DB_CLOUD_URI: ${DB_CLOUD_URI}
-        JWT_SECRET: ${JWT_SECRET}
     ports:
       - 3001:3001
     networks:

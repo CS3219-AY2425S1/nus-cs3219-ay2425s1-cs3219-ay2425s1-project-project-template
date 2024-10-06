@@ -42,6 +42,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 ```sh
 # Navigate to the frontend app directory
 cd apps/frontend
+
 # Build dockerfile (Ensure that your docker daemon is running beforehand)
 docker build -t frontend -f Dockerfile .
 ```
@@ -52,7 +53,7 @@ Run the backend server locally and visit http://localhost:3000/ to see the front
 
 ```sh
 # Run the docker image, the -d tag is to run it detached
-docker run -p 3000:3000 -d frontend -e NEXT_PUBLIC_QUESTION_SERVICE_URL="http://localhost:8080/"
+docker run -p 3000:3000 --env-file .env -d frontend
 
 # To see the running container
 docker ps
