@@ -3,7 +3,7 @@ import { QueryObserverResult } from "@tanstack/react-query";
 
 import { Question, QuestionRequest } from "./questionService";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
-import { useApiContext } from "../../context/ApiContext";
+import { useQuesApiContext } from "../../context/ApiContext";
 import {
   Badge,
   Box,
@@ -58,7 +58,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onClose: onQuestionModalClose,
   } = useDisclosure();
 
-  const api = useApiContext();
+  const api =  useQuesApiContext();
 
   // Handle Add Function
   const handleAdd = async (newQuestion: {
@@ -79,7 +79,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     };
 
     try {
-      const response = await api.post("/createQuestion", newQuestionWithId);
+      const response = await api.post("/questions", newQuestionWithId);
       if (response.status === 200) {
         toast.success("Question added successfully");
       }
@@ -120,7 +120,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       };
       // Logic to save the edited question
       try {
-        const response = await api.put("/questionsById", newQuestionWithId);
+        const response = await api.put("/questions", newQuestionWithId);
         if (response.status === 200) {
           toast.success("Question updated successfully");
         }
@@ -146,7 +146,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await api.delete(`/questionsById?id=${id}`);
+      const response = await api.delete(`/questions?id=${id}`);
       if (response.status === 200) {
         toast.success("Question deleted successfully");
       }
@@ -292,13 +292,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       p={4}
     >
       {/* Drawer for menu */}
-      <MenuDrawer
+      {/* <MenuDrawer
         isOpen={isMenuOpen}
         onClose={() => {
           onMenuClose();
           onModalClose(); // Ensure modal closes if menu closes
         }}
-      />
+        setAuth={se}
+      /> */}
 
       <Box className="flex-col justify-center items-center p-2">
         {/* Search Filter Input */}
