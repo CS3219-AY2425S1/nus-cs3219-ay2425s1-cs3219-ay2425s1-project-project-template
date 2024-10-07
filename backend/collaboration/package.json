@@ -23,6 +23,7 @@
     "http-status-codes": "^2.3.0",
     "pino": "^9.4.0",
     "pino-http": "^10.3.0",
+    "redis": "^4.7.0",
     "postgres": "^3.4.4",
     "ws": "^8.18.0",
     "y-postgresql": "^1.0.0",
