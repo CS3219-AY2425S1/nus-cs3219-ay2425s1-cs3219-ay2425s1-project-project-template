@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 export function FilterBadge({ filterType, value, onRemove }: FilterBadgeProps) {
   const getBadgeColor = () => {
     switch (filterType) {
-      case 'difficulty':
+      case 'Difficulty':
         return value === 'easy'
           ? 'bg-green-600'
           : value === 'medium'
@@ -14,13 +14,13 @@ export function FilterBadge({ filterType, value, onRemove }: FilterBadgeProps) {
             : value === 'hard'
               ? 'bg-red-600'
               : 'bg-gray-600';
-      case 'status':
+      case 'Status':
         return value === 'todo'
           ? 'bg-yellow-600'
           : value === 'solved'
             ? 'bg-green-600'
             : 'bg-gray-600';
-      case 'topics':
+      case 'Topics':
         return 'bg-indigo-600';
     }
   };

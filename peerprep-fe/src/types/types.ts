@@ -18,7 +18,7 @@ interface ProblemDialogData {
 }
 
 interface FilterBadgeProps {
-  filterType: 'difficulty' | 'status' | 'topics';
+  filterType: 'Difficulty' | 'Status' | 'Topics';
   value: string;
   onRemove: (filterType: string, value: string) => void;
 }
