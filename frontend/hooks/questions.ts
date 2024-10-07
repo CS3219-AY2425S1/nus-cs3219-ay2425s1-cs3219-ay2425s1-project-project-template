@@ -6,7 +6,7 @@ import axios from "@/utils/axios";
 import { Question, QuestionList } from "@/types/questions";
 
 const fetchQuestionFromPage = async (page: number) => {
-  const { data } = await axios.get(`/questions/?page=${page}&limit=10`);
+  const { data } = await axios.get(`/questions?page=${page}&limit=10`);
 
   return data;
 };
