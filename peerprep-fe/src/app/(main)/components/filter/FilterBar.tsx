@@ -90,7 +90,7 @@ export default function FilterBar({
       <div className="flex flex-wrap gap-2">
         {filters.difficulty && (
           <FilterBadge
-            filterType="difficulty"
+            filterType="Difficulty"
             value={
               DIFFICULTY_OPTIONS.find((opt) => opt.value === filters.difficulty)
                 ?.label || ''
@@ -100,7 +100,7 @@ export default function FilterBar({
         )}
         {filters.status && (
           <FilterBadge
-            filterType="status"
+            filterType="Status"
             value={
               STATUS_OPTIONS.find((opt) => opt.value === filters.status)
                 ?.label || ''
@@ -112,7 +112,7 @@ export default function FilterBar({
           filters.topics.map((topic) => (
             <FilterBadge
               key={`topics-${topic}`}
-              filterType="topics"
+              filterType="Topics"
               value={topic}
               onRemove={() => removeFilter('topics', topic)}
             />
