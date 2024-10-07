@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports } from 'winston'
 
 dotenv.config({ path: './.env' })
 
@@ -11,23 +11,22 @@ const logger = createLogger({
         }),
         format.errors({ stack: true }),
         format.splat(),
-        format.json()
+        format.json(),
     ),
     defaultMeta: { service: 'question-service' },
     transports: [
         new transports.File({ filename: 'error.log', level: 'error' }),
         new transports.File({ filename: 'combined.log' }),
     ],
-});
+})
 
 // If not in production, also log to the console with the colorized simple format
 if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console({
-        format: format.combine(
-            format.colorize(),
-            format.simple()
-        )
-    }));
+    logger.add(
+        new transports.Console({
+            format: format.combine(format.colorize(), format.simple()),
+        }),
+    )
 }
 
-export default logger;
+export default logger
