@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
@@ -14,18 +13,43 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage('');
 
     try {
-        // api call here
+      const response = await fetch('http://localhost:8081/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-      // Assuming the login is always successful for now
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 401) {
+          throw new Error('Wrong email and/or password');
+        } else {
+          throw new Error(errorData.message || 'An error occurred, please try again.');
+        }
+      }
+
+      const data = await response.json();
+      
+      // Store the JWT token in localStorage or sessionStorage
+      localStorage.setItem('accessToken', data.data.accessToken);
+
+      // Navigate to the dashboard after successful login
       navigate('/dashboard');
     } catch (error) {
-      setErrorMessage('An error occurred, please try again');
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div style={{ textAlign: 'center', padding: '50px', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -119,6 +143,7 @@ const Login = () => {
   );
 };
 
+// Same styles applied for placeholders
 const styles = `
   input::placeholder {
     color: white; 
@@ -126,7 +151,6 @@ const styles = `
   }
 `;
 
-// Append styles to the head
 const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
