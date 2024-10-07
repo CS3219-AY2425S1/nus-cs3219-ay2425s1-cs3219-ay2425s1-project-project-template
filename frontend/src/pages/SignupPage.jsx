@@ -14,17 +14,39 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage('');
 
     try {
-      // Call API to register the user
-      // Assume signup is always successful for now
+      const response = await fetch('http://localhost:8081/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          username,
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        // Check if the response is not OK (status code is not in the range 200-299)
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'An error occurred, please try again');
+      }
+
+      // Handle successful response
+      const data = await response.json(); // Parse the JSON from the response
+      console.log(data);
       navigate('/dashboard'); // Navigate to the dashboard after successful signup
     } catch (error) {
-      setErrorMessage('An error occurred, please try again'); // Handle error
+      // Handle error
+      setErrorMessage(error.message); // Set the error message to display
     } finally {
       setIsLoading(false); 
     }
   };
+
 
   return (
     <div style={{ textAlign: 'center', padding: '50px', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
