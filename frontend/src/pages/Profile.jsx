@@ -100,16 +100,15 @@ const Profile = () => {
     console.log(e.target.files);
     const file = e.target.files[0];
     if (file) {
-      // You can also perform validation on the file size/type here
-      const updatedData = {
-        profileImage: file,
-      };
+      const formData = new FormData();
+      formData.append('profileImage', file);
       try {
         const response = await axios.patch(
-          `http://localhost:3001/users/${userId}`,
-          updatedData,
+          `http://localhost:3001/users/${userId}/profileImage`,
+          formData,
           {
             headers: {
+              'Content-Type': 'multipart/form-data',
               Authorization: `Bearer ${cookies.token}`,
             },
             withCredentials: true,
@@ -126,6 +125,11 @@ const Profile = () => {
       } catch (error) {
         console.error("Error uploading file:", error);
         toast.error("Failed to upload profile picture.");
+      } finally {
+        // Reset file input after handling file change
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       }
     }
   };
@@ -138,12 +142,11 @@ const Profile = () => {
   // Handle removing the profile picture
   const handleRemovePhoto = async () => {
     try {
-      // Send a PATCH request to update the profile image to "DEFAULT"
       const updatedData = {
-        profileImage: "DEFAULT",
+        toDefault: true,
       };
       const response = await axios.patch(
-        `http://localhost:3001/users/${userId}`,
+        `http://localhost:3001/users/${userId}/profileImage`,
         updatedData,
         {
           headers: {
@@ -164,6 +167,11 @@ const Profile = () => {
     } catch (error) {
       console.error("Error removing profile picture:", error);
       toast.error("Failed to remove profile picture.");
+    } finally {
+      // Reset file input after handling file change
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
