@@ -31,8 +31,6 @@ const editQuestion = async (req: Request, res: Response) => {
         const isDuplicate = await checkQuestionExists(
             updatedFields.title || existingQuestion.title,
             updatedFields.description || existingQuestion.description,
-            updatedFields.categories || existingQuestion.categories,
-            updatedFields.difficulty || existingQuestion.difficulty
         )
 
         if (isDuplicate) {

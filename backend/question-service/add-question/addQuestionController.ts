@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { checkQuestionExists, getNextQuestionId } from '../utils/utils'
+import logger from '../utils/logger'
 import Question from '../models/question'
 
 const addQuestion = async (req: Request, res: Response) => {
@@ -11,18 +12,19 @@ const addQuestion = async (req: Request, res: Response) => {
     if (!difficulty) requiredFields.push('Difficulty')
 
     if (requiredFields.length > 0) {
-        return res.status(400).send(`${requiredFields.join(', ')} required`)
+        return res.status(400).json({ message: `${requiredFields.join(', ')} required` })
     }
 
     const questionExists = await checkQuestionExists(
         title,
-        description,
-        categories,
-        difficulty,
+        description
+        // categories,
+        // difficulty,
     )
 
     if (questionExists) {
-        return res.status(400).send('Question already exists')
+        logger.error('Question already exists')
+        return res.status(400).json({ message: 'Question already exists' })
     }
 
     const questionId = await getNextQuestionId()
@@ -37,9 +39,11 @@ const addQuestion = async (req: Request, res: Response) => {
 
     try {
         await newQuestion.save()
-        return res.status(200).send('Question added successfully')
+        logger.info(`Question added successfully: ${questionId}. ${title}`)
+        return res.status(200).json({ message: 'Question added successfully' })
     } catch (e) {
-        return res.status(500).send(e)
+        logger.error(e)
+        return res.status(500).json({ message: 'Internal server error' })
     }
 }
 
