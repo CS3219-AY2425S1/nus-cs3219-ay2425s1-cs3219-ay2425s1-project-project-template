@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 const SignUp = () => {
-  const [username, setUsername] = useState(''); // State for username
+  const [username, setUsername] = useState(''); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const [isLoading, setIsLoading] = useState(false); // State to manage loading
-  const [errorMessage, setErrorMessage] = useState(''); // State for error messages
+  const [showPassword, setShowPassword] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false); 
+  const [errorMessage, setErrorMessage] = useState(''); 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

@@ -20,7 +20,7 @@ const Login = () => {
       
       const timer = setTimeout(() => {
         setNotificationMessage('');
-      }, 10000); // Change to 10 seconds
+      }, 10000); 
 
       return () => clearTimeout(timer);
     }
@@ -32,7 +32,7 @@ const Login = () => {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:8081/login', {
+      const response = await fetch('http://localhost:8081/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
