@@ -22,9 +22,22 @@ router.use(async (_, res, next) => {
 });
 
 // GET all items
-router.get('/', async (_, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const items = await questionsCollection.find().toArray();
+    const { difficulty, status, topics } = req.query;
+
+    let query = {};
+    if (difficulty) {
+      query = { ...query, difficulty: parseInt(difficulty as string) };
+    }
+    if (status) {
+      query = { ...query, status: status as string };
+    }
+    if (topics) {
+      query = { ...query, topics: topics as string[] };
+    }
+
+    const items = await questionsCollection.find(query).toArray();
     res.status(200).json(items);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch items' });

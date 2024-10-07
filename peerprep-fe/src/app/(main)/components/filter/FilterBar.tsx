@@ -2,15 +2,16 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Settings } from 'lucide-react';
-import { useState, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useSearchStore } from '@/state/useSearchStore';
 import { FilterSelect } from './FilterSelect';
 import { FilterBadge } from './FilterBadge';
+import { useQueryState, parseAsArrayOf, parseAsString } from 'nuqs';
 
 const DIFFICULTY_OPTIONS = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
+  { value: '1', label: 'Easy' },
+  { value: '2', label: 'Medium' },
+  { value: '3', label: 'Hard' },
 ];
 
 const STATUS_OPTIONS = [
@@ -25,64 +26,57 @@ const TOPIC_OPTIONS = [
   { value: 'dp', label: 'Dynamic Programming' },
 ];
 
-export default function FilterBar() {
-  const [selectedFilters, setSelectedFilters] = useState<{
-    [key: string]: string | string[];
-  }>({});
+interface FilterBarProps {
+  fetchProblems: (params: URLSearchParams) => Promise<void>;
+}
+
+export default function FilterBar({ fetchProblems }: FilterBarProps) {
+  const [difficulty, setDifficulty] = useQueryState('difficulty');
+  const [status, setStatus] = useQueryState('status');
+  const [topics, setTopics] = useQueryState(
+    'topics',
+    parseAsArrayOf(parseAsString),
+  );
   const { searchTerm, setSearchTerm } = useSearchStore();
 
-  const handleFilterChange = useCallback((key: string, value: string) => {
-    setSelectedFilters((prev) => {
-      if (key === 'topics') {
-        const topics = (prev.topics as string[]) || [];
-        if (topics.includes(value)) {
-          return { ...prev, topics: topics.filter((t) => t !== value) };
-        } else {
-          return { ...prev, topics: [...topics, value] };
-        }
+  const handleFilterChange = useCallback(
+    (key: string, value: string | string[]) => {
+      if (key === 'difficulty') {
+        setDifficulty(value === 'all' ? null : (value as string));
+      } else if (key === 'status') {
+        setStatus(value === 'all' ? null : (value as string));
+      } else if (key === 'topics') {
+        setTopics(value.length ? (value as string[]) : null);
       }
-      return { ...prev, [key]: value };
-    });
+    },
+    [setDifficulty, setStatus, setTopics],
+  );
 
-    // TODO: call backend to update filters and then update the list of questions
-  }, []);
-
-  const removeFilter = useCallback((key: string, value?: string) => {
-    setSelectedFilters((prev) => {
-      if (key === 'topics' && value) {
-        const topics = prev.topics as string[];
-        return { ...prev, topics: topics.filter((t) => t !== value) };
+  const removeFilter = useCallback(
+    (key: string, value?: string) => {
+      if (key === 'difficulty') {
+        setDifficulty(null);
+      } else if (key === 'status') {
+        setStatus(null);
+      } else if (key === 'topics') {
+        setTopics((prev) => prev?.filter((t) => t !== value) ?? null);
       }
-      const newFilters = { ...prev };
-      delete newFilters[key];
-      return newFilters;
-    });
-
-    // TODO: call backend to update filters and then update the list of questions
-  }, []);
+    },
+    [setDifficulty, setStatus, setTopics],
+  );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-
-    // TODO: call backend to update search term and then update the list of questions
-    // Currently, the list of questions is updated immediately using `zustand` global state
   };
 
-  // sort the filter badges by the order of the filter types
-  // order of: difficulty, status, topics
-  const sortedBadges = () => {
-    const order = ['difficulty', 'status', 'topics'];
-    return Object.entries(selectedFilters)
-      .flatMap(([filterType, values]) =>
-        Array.isArray(values)
-          ? values.map((value) => ({ filterType, value }))
-          : [{ filterType, value: values as string }],
-      )
-      .filter(({ value }) => value !== 'all')
-      .sort(
-        (a, b) => order.indexOf(a.filterType) - order.indexOf(b.filterType),
-      );
-  };
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (difficulty) params.append('difficulty', difficulty);
+    if (status) params.append('status', status);
+    if (topics) topics.forEach((topic) => params.append('topics', topic));
+    if (searchTerm) params.append('search', searchTerm);
+    fetchProblems(params);
+  }, [difficulty, status, topics, searchTerm, fetchProblems]);
 
   return (
     <div className="mb-6">
@@ -91,19 +85,19 @@ export default function FilterBar() {
           placeholder="Difficulty"
           options={DIFFICULTY_OPTIONS}
           onChange={(value) => handleFilterChange('difficulty', value)}
-          value={(selectedFilters.difficulty as string) || ''}
+          value={difficulty || ''}
         />
         <FilterSelect
           placeholder="Status"
           options={STATUS_OPTIONS}
           onChange={(value) => handleFilterChange('status', value)}
-          value={(selectedFilters.status as string) || ''}
+          value={status || ''}
         />
         <FilterSelect
           placeholder="Topics"
           options={TOPIC_OPTIONS}
           onChange={(value) => handleFilterChange('topics', value)}
-          value={(selectedFilters.topics as string[]) || []}
+          value={topics || []}
           isMulti
         />
         <div className="flex-grow">
@@ -126,14 +120,36 @@ export default function FilterBar() {
         </Button>
       </div>
       <div className="flex flex-wrap gap-2">
-        {sortedBadges().map(({ filterType, value }) => (
+        {difficulty && (
           <FilterBadge
-            key={`${filterType}-${value}`}
-            filterType={filterType as 'difficulty' | 'status' | 'topics'}
-            value={value}
-            onRemove={removeFilter}
+            filterType="difficulty"
+            value={
+              DIFFICULTY_OPTIONS.find((opt) => opt.value === difficulty)
+                ?.label || ''
+            }
+            onRemove={() => removeFilter('difficulty')}
           />
-        ))}
+        )}
+        {status && (
+          <FilterBadge
+            filterType="status"
+            value={
+              STATUS_OPTIONS.find((opt) => opt.value === status)?.label || ''
+            }
+            onRemove={() => removeFilter('status')}
+          />
+        )}
+        {topics &&
+          topics.map((topic) => (
+            <FilterBadge
+              key={`topics-${topic}`}
+              filterType="topics"
+              value={
+                TOPIC_OPTIONS.find((opt) => opt.value === topic)?.label || topic
+              }
+              onRemove={() => removeFilter('topics', topic)}
+            />
+          ))}
       </div>
     </div>
   );
