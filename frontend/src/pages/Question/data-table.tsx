@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  MenuItem,
   ThemeProvider,
   Tooltip,
   TextField,
@@ -34,7 +35,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
 
-import { type Question, categoryStringToArray, complexities, validateQuestion } from "./question";
+import { type Question, categories, complexities, validateQuestion } from "./question";
 
 // Styled components for the dialog
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -157,20 +158,45 @@ const Table = () => {
         accessorKey: "categories",
         header: "Categories",
         size: 250,
+        filterVariant: "multi-select",
+        filterSelectOptions: categories,
         Cell: ({ cell }) => {
-          const value = cell.getValue<string | string[]>();
-          return Array.isArray(value) ? value.join(", ") : value;
+          return cell.getValue<string[]>().join(", ");
         },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors?.categories,
-          helperText: validationErrors?.categories,
-          onFocus: () => {
-            setValidationErrors({
-              ...validationErrors,
-              categories: undefined,
-            });
-          },
+        Edit: ({ cell, row, column, table }) => {
+          const [value, setValue] = useState(cell.getValue<string[]>() || []);
+          return (
+            <TextField
+              select
+              required
+              label="Categories"
+              value={value}
+              error={!!validationErrors?.categories}
+              helperText={validationErrors?.categories}
+              variant="standard"
+              margin="normal"
+              fullWidth
+              onBlur={() => {
+                row._valuesCache[column.id] = value;
+              }}
+              onFocus={() => {
+                setValidationErrors({
+                  ...validationErrors,
+                  categories: undefined,
+                });
+              }}
+              SelectProps={{
+                multiple: true,
+                onChange: (e) => setValue(e.target.value as string[]),
+              }}
+            >
+              {categories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </TextField>
+          );
         },
       },
       {
@@ -472,9 +498,7 @@ function useCreateQuestion() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (question: Question) => {
-      const categoryArray = categoryStringToArray(question.categories);
-      const reqBody = { ...question, categories: categoryArray };
-      return await axios.post(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, reqBody);
+      return await axios.post(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, question);
     },
 
     //client side optimistic update
@@ -506,12 +530,10 @@ function useUpdateQuestion() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (question: Question) => {
-      const { qid, ...updatebody } = question;
-      const categoryArray = categoryStringToArray(updatebody.categories);
-      const reqBody = { ...updatebody, categories: categoryArray };
+      const { qid, ...noIdQuestion } = question;
       return await axios.patch(
         `http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`,
-        reqBody
+        noIdQuestion
       );
     },
     

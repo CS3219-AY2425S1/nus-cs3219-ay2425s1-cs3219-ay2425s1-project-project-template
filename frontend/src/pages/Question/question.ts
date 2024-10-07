@@ -8,22 +8,13 @@ export interface Question {
 
 export const complexities = ["Easy", "Medium", "Hard"];
 
-export function categoryStringToArray(categories: string | string[]): string[] {
-  if (Array.isArray(categories)) {
-    categories = categories.join(",");
-  }
-  const splitCategories = categories.split(",");
-  const spacesRemoved = splitCategories.map(c => c.trim());
-  const duplicatesRemoved = spacesRemoved.filter((item, pos) => spacesRemoved.indexOf(item) === pos);
-  const emptyRemoved = duplicatesRemoved.filter(c => c);
-  return emptyRemoved;
-}
+export const categories = ["Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings", "None"];
 
 const validateQid = (qid: string | Number) => Number.isInteger(+qid) && +qid > 0;
 const validateTitle = (title: string) => !!title.trim();
 const validateDescription = (description: string) => !!description.trim();
 const validateComplexity = (complexity: string) => complexities.includes(complexity);
-const validateCategories = (categories: string | string[]) => categoryStringToArray(categories).length > 0;
+const validateCategories = (categories: string | string[]) => Array.isArray(categories) && categories.sort().length > 0;
 
 export function validateQuestion(question: Question) {
   return {
