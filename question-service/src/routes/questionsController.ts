@@ -1,4 +1,3 @@
-// src/routes/items.ts
 import express, { Request, Response } from 'express';
 import { Collection, ObjectId } from 'mongodb';
 import { connectToDB } from '../db/mongoClient';
@@ -21,20 +20,27 @@ router.use(async (_, res, next) => {
   }
 });
 
-// GET all items
+// GET all items with filters
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { difficulty, status, topics } = req.query;
+    const { difficulty, status, topics, search } = req.query;
 
-    let query = {};
+    let query: any = {};
     if (difficulty) {
-      query = { ...query, difficulty: parseInt(difficulty as string) };
+      query.difficulty = parseInt(difficulty as string);
     }
     if (status) {
-      query = { ...query, status: status as string };
+      query.status = status as string;
     }
-    if (topics) {
-      query = { ...query, topics: topics as string[] };
+    if (topics && typeof topics === 'string') {
+      const topicsArray = topics.split(',');
+      query.tags = { $in: topicsArray };
+    }
+    if (search && typeof search === 'string') {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } }, // only search in title
+        // { description: { $regex: search, $options: 'i' } },
+      ];
     }
 
     const items = await questionsCollection.find(query).toArray();
@@ -139,6 +145,25 @@ router.delete('/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error deleting question:', error);
     res.status(500).json({ error: 'Failed to delete question' });
+  }
+});
+
+// GET all unique tags
+router.get('/tags', async (_: Request, res: Response) => {
+  try {
+    const uniqueTags = await questionsCollection
+      .aggregate([
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags' } },
+        { $project: { _id: 0, tag: '$_id' } },
+      ])
+      .toArray();
+
+    const tags = uniqueTags.map((item) => item.tag);
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    res.status(500).json({ error: 'Failed to fetch tags' });
   }
 });
 
