@@ -1,49 +1,126 @@
+x-common-environment:
+  environment:
+    - ENV=${ENV:-dev}
+
 services:
-  peerprep:
-    build: peerprep
+  peerprep-dev:
+    #    profiles:
+    #      - [ dev ]
+    depends_on:
+      - user-service-dev
+      - backend-dev
+    build:
+      context: peerprep
+      target: dev
     env_file:
       - peerprep/.env
+    environment:
+      - ENV=${ENV:-dev}
+    volumes:
+      - ./peerprep:/frontend
     ports:
-      - "3000:3000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
+      - "${PEERPREP_PORT:-3000}:3000"
+    #    extra_hosts:
+    #      - "host.docker.internal:host-gateway"
+    networks:
+      - backend
+      - user-service
+      ####### Dockerfile Node is distroless, no curl
+      #    healthcheck:
+      #      test: [ "CMD", "curl", "-f", "http://localhost:3000/" ]
+    restart: on-failure
     develop:
       watch:
         - action: sync
           path: peerprep
           target: /frontend
 
-  user-service:
-    build: user-service
-    volumes:
-      - /user-service/node_modules
+
+  user-service-dev:
+    #    profiles:
+    #      - [ dev ]
+    build:
+      context: user-service
+      target: dev
     env_file:
       - user-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    environment:
+      - ENV=${ENV:-PROD}
+    volumes:
+      - ./user-service:/user-service
     ports:
-      - "3001:3001"
+      - "${USER_SERVICE_PORT:-3001}:3001"
+    networks:
+      - user-service
+    #    extra_hosts:
+    #      - "host.docker.internal:host-gateway"
+    #    healthcheck:
+    #      test: [ "CMD", "curl", "-f", "http://localhost:3001/" ]
+    restart: on-failure
     develop:
       watch:
-        - action: rebuild
+        - action: sync
           path: user-service
           target: /user-service
 
+  #  user-service-prod:
+  #    extends:
+  #      service: user-service-dev
+  #    profiles:
+  #      - [ prod ]
+  #    environment:
+  #      - ENV=prod
+  #    build:
+  #      target: final
 
-  backend:
-    build: backend
+  backend-dev:
+    #    profiles:
+    #      - [ dev ]
+    build:
+      context: backend
+      target: dev
     env_file:
       - backend/.env
+    environment:
+      - ENV=${ENV:-dev}
+
+    volumes:
+      - logs:/log
+      - ./backend:/src
     ports:
-      - "9090:9090"
+      - "${BACKEND_PORT:-9090}:9090"
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/health" ]
+    restart: on-failure
     develop:
       watch:
         - action: rebuild
           path: backend
           target: backend/app
 
+
+#    backend-prod:
+#      extends:
+#        service: backend-prod
+#      profiles:
+#        - [ prod ]
+#      environment:
+#        - ENV=prod
+#      build:
+#        target: final
+
 #  mongo:
 #    image: "mongo:latest"
 #    ports:
 #      - "27017:27017"
+
+networks:
+  backend:
+    driver: bridge
+  user-service:
+    driver: bridge
+
+volumes:
+  logs:
