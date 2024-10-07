@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable react/no-unescaped-entities */
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
@@ -8,7 +9,22 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    const notification = localStorage.getItem('signupNotification');
+    if (notification) {
+      setNotificationMessage(notification);
+      localStorage.removeItem('signupNotification'); 
+      
+      const timer = setTimeout(() => {
+        setNotificationMessage('');
+      }, 10000); // Change to 10 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, []); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,12 +66,14 @@ const Login = () => {
     }
   };
 
-
   return (
     <div style={{ textAlign: 'center', padding: '50px', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <h1 style={{ fontSize: '4rem' }}>PeerPrep</h1> 
       <p style={{ fontSize: '1.2rem', margin: '10px 0' }}>Welcome back! Let’s get back on track.</p> 
+      
+      {notificationMessage && <p style={{ color: '#8BC34A' }}>{notificationMessage}</p>} {/* notification message color */}
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <input
           type="email"

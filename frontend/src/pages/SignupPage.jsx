@@ -16,6 +16,14 @@ const SignUp = () => {
     setIsLoading(true);
     setErrorMessage('');
 
+    // Simple email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      setErrorMessage('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:8081/users', {
         method: 'POST',
@@ -30,28 +38,31 @@ const SignUp = () => {
       });
 
       if (!response.ok) {
-        // Check if the response is not OK (status code is not in the range 200-299)
         const errorData = await response.json();
         throw new Error(errorData.message || 'An error occurred, please try again');
       }
 
       // Handle successful response
-      const data = await response.json(); // Parse the JSON from the response
+      const data = await response.json(); 
       console.log(data);
-      navigate('/dashboard'); // Navigate to the dashboard after successful signup
+      
+      // Store the notification message in localStorage
+      localStorage.setItem('signupNotification', `You have successfully created an account @${username}`);
+
+      navigate('/login');
+      
     } catch (error) {
-      // Handle error
       setErrorMessage(error.message); // Set the error message to display
     } finally {
       setIsLoading(false); 
     }
   };
 
-
   return (
     <div style={{ textAlign: 'center', padding: '50px', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <h1 style={{ fontSize: '4rem' }}>PeerPrep</h1> 
       <p style={{ fontSize: '1.2rem', margin: '10px 0' }}>Create an account to get started.</p> 
+      
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} {/* Error message */}
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <input
@@ -156,6 +167,7 @@ const SignUp = () => {
   );
 };
 
+// CSS for spinner animation
 const styles = `
   input::placeholder {
     color: white; 
