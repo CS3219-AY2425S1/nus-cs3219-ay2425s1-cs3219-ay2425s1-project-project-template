@@ -6,7 +6,9 @@ import axios from "@/utils/axios";
 import { Question, QuestionList } from "@/types/questions";
 
 const fetchQuestionFromPage = async (page: number) => {
-  const { data } = await axios.get(`/questions?page=${page}&limit=10`);
+  const { data } = await axios.get(
+    `/question-service/questions?page=${page}&limit=10`,
+  );
 
   return data;
 };
@@ -24,7 +26,7 @@ export const useGetQuestion = (id: string) => {
   return useQuery<Question, Error>({
     queryKey: ["question", id],
     queryFn: async () => {
-      const response = await axios.get(`/questions/${id}`);
+      const response = await axios.get(`/question-service/questions/${id}`);
 
       return response.data;
     },
@@ -52,7 +54,10 @@ export const useUpdateQuestions = () => {
 
   return useMutation<Question, AxiosError, Question>({
     mutationFn: async (question: Question) => {
-      return axios.put(`/questions/${question.questionId}`, question);
+      return axios.put(
+        `/question-service/questions/${question.questionId}`,
+        question,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
@@ -66,7 +71,7 @@ export const useDeleteQuestions = () => {
 
   return useMutation<void, Error, string>({
     mutationFn: async (questionId: string) => {
-      return axios.delete(`/questions/${questionId}`);
+      return axios.delete(`/question-service/questions/${questionId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
