@@ -39,4 +39,4 @@ const axiosQuestionClient = axios.create({
 //   },
 // );
 
-export default axiosQuestionClient;
+export { axiosQuestionClient };

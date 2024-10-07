@@ -2,11 +2,12 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Settings } from 'lucide-react';
-import { useCallback, useEffect } from 'react';
-import { useSearchStore } from '@/state/useSearchStore';
 import { FilterSelect } from './FilterSelect';
 import { FilterBadge } from './FilterBadge';
-import { useQueryState, parseAsArrayOf, parseAsString } from 'nuqs';
+import { TopicsPopover } from './TopicsPopover';
+import { FilterState } from '@/hooks/useFilteredProblems';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const DIFFICULTY_OPTIONS = [
   { value: '1', label: 'Easy' },
@@ -19,64 +20,34 @@ const STATUS_OPTIONS = [
   { value: 'solved', label: 'Solved' },
 ];
 
-// TODO: replace with backend fetched list
-const TOPIC_OPTIONS = [
-  { value: 'array', label: 'Array' },
-  { value: 'string', label: 'String' },
-  { value: 'dp', label: 'Dynamic Programming' },
-];
-
 interface FilterBarProps {
-  fetchProblems: (params: URLSearchParams) => Promise<void>;
+  filters: FilterState;
+  updateFilter: (
+    key: keyof FilterState,
+    value: string | string[] | null,
+  ) => void;
+  removeFilter: (key: keyof FilterState, value?: string) => void;
 }
 
-export default function FilterBar({ fetchProblems }: FilterBarProps) {
-  const [difficulty, setDifficulty] = useQueryState('difficulty');
-  const [status, setStatus] = useQueryState('status');
-  const [topics, setTopics] = useQueryState(
-    'topics',
-    parseAsArrayOf(parseAsString),
-  );
-  const { searchTerm, setSearchTerm } = useSearchStore();
+export default function FilterBar({
+  filters,
+  updateFilter,
+  removeFilter,
+}: FilterBarProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // 300ms delay
 
-  const handleFilterChange = useCallback(
-    (key: string, value: string | string[]) => {
-      if (key === 'difficulty') {
-        setDifficulty(value === 'all' ? null : (value as string));
-      } else if (key === 'status') {
-        setStatus(value === 'all' ? null : (value as string));
-      } else if (key === 'topics') {
-        setTopics(value.length ? (value as string[]) : null);
-      }
-    },
-    [setDifficulty, setStatus, setTopics],
-  );
-
-  const removeFilter = useCallback(
-    (key: string, value?: string) => {
-      if (key === 'difficulty') {
-        setDifficulty(null);
-      } else if (key === 'status') {
-        setStatus(null);
-      } else if (key === 'topics') {
-        setTopics((prev) => prev?.filter((t) => t !== value) ?? null);
-      }
-    },
-    [setDifficulty, setStatus, setTopics],
-  );
+  /**
+   * Debounce so that search filters does not call backend for
+   * every single character input, but only after 300ms of no input
+   */
+  useEffect(() => {
+    updateFilter('search', debouncedSearchTerm);
+  }, [debouncedSearchTerm, updateFilter]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (difficulty) params.append('difficulty', difficulty);
-    if (status) params.append('status', status);
-    if (topics) topics.forEach((topic) => params.append('topics', topic));
-    if (searchTerm) params.append('search', searchTerm);
-    fetchProblems(params);
-  }, [difficulty, status, topics, searchTerm, fetchProblems]);
 
   return (
     <div className="mb-6">
@@ -84,21 +55,18 @@ export default function FilterBar({ fetchProblems }: FilterBarProps) {
         <FilterSelect
           placeholder="Difficulty"
           options={DIFFICULTY_OPTIONS}
-          onChange={(value) => handleFilterChange('difficulty', value)}
-          value={difficulty || ''}
+          onChange={(value) => updateFilter('difficulty', value)}
+          value={filters.difficulty || ''}
         />
         <FilterSelect
           placeholder="Status"
           options={STATUS_OPTIONS}
-          onChange={(value) => handleFilterChange('status', value)}
-          value={status || ''}
+          onChange={(value) => updateFilter('status', value)}
+          value={filters.status || ''}
         />
-        <FilterSelect
-          placeholder="Topics"
-          options={TOPIC_OPTIONS}
-          onChange={(value) => handleFilterChange('topics', value)}
-          value={topics || []}
-          isMulti
+        <TopicsPopover
+          selectedTopics={filters.topics || []}
+          onChange={(value) => updateFilter('topics', value)}
         />
         <div className="flex-grow">
           <Input
@@ -120,33 +88,32 @@ export default function FilterBar({ fetchProblems }: FilterBarProps) {
         </Button>
       </div>
       <div className="flex flex-wrap gap-2">
-        {difficulty && (
+        {filters.difficulty && (
           <FilterBadge
             filterType="difficulty"
             value={
-              DIFFICULTY_OPTIONS.find((opt) => opt.value === difficulty)
+              DIFFICULTY_OPTIONS.find((opt) => opt.value === filters.difficulty)
                 ?.label || ''
             }
             onRemove={() => removeFilter('difficulty')}
           />
         )}
-        {status && (
+        {filters.status && (
           <FilterBadge
             filterType="status"
             value={
-              STATUS_OPTIONS.find((opt) => opt.value === status)?.label || ''
+              STATUS_OPTIONS.find((opt) => opt.value === filters.status)
+                ?.label || ''
             }
             onRemove={() => removeFilter('status')}
           />
         )}
-        {topics &&
-          topics.map((topic) => (
+        {filters.topics &&
+          filters.topics.map((topic) => (
             <FilterBadge
               key={`topics-${topic}`}
               filterType="topics"
-              value={
-                TOPIC_OPTIONS.find((opt) => opt.value === topic)?.label || topic
-              }
+              value={topic}
               onRemove={() => removeFilter('topics', topic)}
             />
           ))}
