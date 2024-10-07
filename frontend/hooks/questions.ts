@@ -40,7 +40,7 @@ export const useAddQuestions = () => {
 
   return useMutation<Question, AxiosError, Question>({
     mutationFn: async (question: Question) => {
-      return axios.post("/questions/", question);
+      return axios.post("/question-service/questions", question);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
