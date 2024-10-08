@@ -1,4 +1,4 @@
-import { QueueService } from "..";
+import { QueueService } from "../bootstrap";
 import MatchRequest from "../models/MatchRequest";
 
 /**
