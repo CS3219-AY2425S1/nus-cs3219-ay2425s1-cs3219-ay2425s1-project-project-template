@@ -1,7 +1,9 @@
+import React from "react";
+import { useRouter } from "next/router";
+
 import LoginForm from "@/components/forms/LoginForm";
 import { useLogin } from "@/hooks/auth";
-import { useRouter } from "next/router";
-import React from "react";
+
 
 const LoginPage = () => {
   const router = useRouter();

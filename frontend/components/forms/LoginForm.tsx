@@ -56,25 +56,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Email</label>
+        <label htmlFor="email">Email</label> {/* Add htmlFor */}
         <Input
+          id="email" // Associate with input using id
           value={formData.email}
-          onChange={handleEmailOnChange}
           required
           type="email"
+          onChange={handleEmailOnChange}
         />
         {errors.email && <span>Please provide a valid email</span>}
       </div>
+
       <div>
-        <label>Password</label>
+        <label htmlFor="password">Password</label> {/* Add htmlFor */}
         <Input
+          id="password" // Associate with input using id
           value={formData.password}
-          onChange={handlePasswordOnChange}
           required
           type="password"
+          onChange={handlePasswordOnChange}
         />
         {errors.password && <span>Password is required</span>}
       </div>
+
       <Button type="submit">Login</Button>
     </form>
   );
