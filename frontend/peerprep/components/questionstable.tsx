@@ -32,18 +32,18 @@ import {
   Question,
   RenderCell,
   complexityOptions,
-} from "@/app/questions-management/list/columns";
+} from "@/app/questions-management/columns";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function QuestionsTable() {
   const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
-    "NEXT_PUBLIC_QUESTION_SERVICE_URL",
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
   );
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
-    null,
+    null
   );
 
   const handleDelete = (question: Question) => {
@@ -58,7 +58,7 @@ export default function QuestionsTable() {
           `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${questionToDelete.question_id}`,
           {
             method: "DELETE",
-          },
+          }
         );
         onOpenChange();
         location.reload();
@@ -88,12 +88,12 @@ export default function QuestionsTable() {
             .join("&") + "&"
         : ""
     }${`sort=${sortDescriptor.direction === "descending" ? "-" : ""}${sortDescriptor.column}&`}page=${page}`,
-    fetcher,
+    fetcher
   );
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
-    fetcher,
+    fetcher
   );
 
   const uniqueCategories = React.useMemo(() => {

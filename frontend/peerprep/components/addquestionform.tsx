@@ -21,7 +21,7 @@ import { WysiMarkEditor } from "./wysimarkeditor";
 import BoxIcon from "./boxicons";
 
 import { capitalize, languages } from "@/utils/utils";
-import { complexityColorMap } from "@/app/questions-management/list/columns";
+import { complexityColorMap } from "@/app/questions-management/columns";
 
 interface AddQuestionFormProps {
   initialTitle?: string;
@@ -43,7 +43,7 @@ export default function AddQuestionForm({
   initialTestCases = [{ input: "", output: "" }],
 }: AddQuestionFormProps) {
   const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
-    "NEXT_PUBLIC_QUESTION_SERVICE_URL",
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
   );
   const router = useRouter();
   const { theme } = useTheme();
@@ -67,7 +67,7 @@ export default function AddQuestionForm({
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
-    fetcher,
+    fetcher
   );
 
   const uniqueCategories = React.useMemo(() => {
@@ -88,7 +88,7 @@ export default function AddQuestionForm({
   // Handle removing a category
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category),
+      prevCategories.filter((cat) => cat !== category)
     );
   };
 
@@ -117,7 +117,7 @@ export default function AddQuestionForm({
   // Handle input change for test case
   const handleInputChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
 
@@ -160,11 +160,11 @@ export default function AddQuestionForm({
       !templateCode.trim() ||
       !testCases.every(
         (testCase) =>
-          testCase.input.trim() !== "" && testCase.output.trim() !== "",
+          testCase.input.trim() !== "" && testCase.output.trim() !== ""
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting.",
+        "Please fill in all the required fields before submitting."
       );
       setErrorModalOpen(true); // Show error modal with the validation message
 
@@ -179,7 +179,7 @@ export default function AddQuestionForm({
       complexity: selectedTab,
       templateCode,
       testCases: testCases.map(
-        (testCase) => `${testCase.input} -> ${testCase.output}`,
+        (testCase) => `${testCase.input} -> ${testCase.output}`
       ),
     };
 
@@ -195,7 +195,7 @@ export default function AddQuestionForm({
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData), // Convert data to JSON
-        },
+        }
       );
 
       if (response.ok) {
@@ -207,21 +207,21 @@ export default function AddQuestionForm({
         const errorData = await response.json();
 
         setErrorMessage(
-          errorData.error || "Failed to submit the question. Please try again.",
+          errorData.error || "Failed to submit the question. Please try again."
         );
         setErrorModalOpen(true);
       }
     } catch (error) {
       // Show error modal with generic error message
       setErrorMessage(
-        "An error occurred while submitting the question. Please try again later",
+        "An error occurred while submitting the question. Please try again later"
       );
       setErrorModalOpen(true);
     }
   };
 
   const handleCancel = () => {
-    router.push("/");
+    router.push("/questions-management");
   };
 
   return (
@@ -427,11 +427,11 @@ export default function AddQuestionForm({
         message={successMessage}
         onConfirm={() => {
           setSuccessModalOpen(false);
-          router.push("/");
+          router.push("/questions-management");
         }}
         onOpenChange={() => {
           setSuccessModalOpen;
-          router.push("/");
+          router.push("/questions-management");
         }}
       />
       <ErrorModal
