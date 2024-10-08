@@ -1,5 +1,5 @@
-import app from '../src/index'
 import configMock from '../__mocks__/config.mock'
+import app from '../src/index'
 import request from 'supertest'
 
 jest.mock('../src/common/config.util', () => configMock)
