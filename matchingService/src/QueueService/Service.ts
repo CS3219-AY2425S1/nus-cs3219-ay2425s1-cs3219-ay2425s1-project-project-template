@@ -1,5 +1,6 @@
 import { Channel } from "amqplib";
 import MatchRequest from "../models/MatchRequest";
+import CancelRequest from "../models/CancelRequest";
 import { ConnectionManager, IConnectionManager } from "../config/ConnectionManager";
 import ChannelNotFoundError from "../errors/ChannelNotFoundError";
 import Consumer from "./Consumer";
@@ -8,27 +9,18 @@ import Producer from "./Producer";
 const TOPIC_LIST: string[] = ["algorithm", "graph", "dp"];
 const DIFFICULTY_LEVELS: string[] = ["easy", "medium", "hard"];
 
-const testMessages: MatchRequest[] = [
-    new MatchRequest("john", "algorithm", "hard"),
-    new MatchRequest("amy", "algorithm", "medium"),
-    new MatchRequest("johhny", "graph", "easy"),
-    new MatchRequest("bob", "graph", "easy"),
-    new MatchRequest("the builder", "dp", "medium"),
-    new MatchRequest("johnny2.0", "algorithm", "hard"),
-];
-
 /**
  * Class representing a Service that initiates groups of Consumers.
  */
 class Service {
     private categoryExchange: string;
-    private responseExchange: string;
+    private directExchange: string;
     private connectionManager: IConnectionManager;
 
-    private constructor(categoryExchange: string, responseExchange: string, connectionManager: IConnectionManager) {
+    private constructor(categoryExchange: string, directExchange: string, connectionManager: IConnectionManager) {
         this.categoryExchange = categoryExchange;
         this.connectionManager = connectionManager;
-        this.responseExchange = responseExchange;
+        this.directExchange = directExchange;
     }
 
     private async init(): Promise<void> {
@@ -42,7 +34,7 @@ class Service {
 
     private async createExchanges(channel: Channel): Promise<void> {
         channel.assertExchange(this.categoryExchange, "headers", { durable: false });
-        channel.assertExchange(this.responseExchange, "direct", { durable: false });
+        channel.assertExchange(this.directExchange, "direct", { durable: false });
     }
 
     private async setupQueues(): Promise<void> {
@@ -63,6 +55,9 @@ class Service {
                 });
             }
         }
+        const cancellationQueue: string = "cancellation";
+        await channel.assertQueue(cancellationQueue, { durable: false });
+        await channel.bindQueue(cancellationQueue, this.directExchange, "cancellation");
     }
 
     public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<Service> {
@@ -83,21 +78,33 @@ class Service {
         var consumer: Consumer = new Consumer();
         for (const topic of TOPIC_LIST) {
             for (const difficulty of DIFFICULTY_LEVELS) {
-                await consumer.receiveMessages(topic, difficulty, this.responseExchange, channel);
+                await consumer.receiveMessages(topic, difficulty, this.directExchange, channel);
             }
         }
+        await consumer.receiveCancelRequests(channel, this.directExchange);
     }
 
-    public async startProducers(): Promise<void> {
+    public async sendMessage(matchRequest: MatchRequest): Promise<boolean> {
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             console.error(channel.message);
-            return;
+            return false;
         }
         var producer: Producer = new Producer();
-        for (const testMessage of testMessages) {
-            await producer.sendJsonMessage(testMessage, channel, this.categoryExchange, this.responseExchange);
+        const result = await producer.sendJsonMessage(matchRequest, channel, this.categoryExchange, this.directExchange);
+        return result;
+    }
+
+    public async cancelMatchRequest(matchId: string): Promise<boolean> {
+        var channel: Channel = this.connectionManager.getChannel();
+        if (channel instanceof ChannelNotFoundError) {
+            console.error(channel.message);
+            return false;
         }
+        var producer: Producer = new Producer();
+        var req: CancelRequest = new CancelRequest(matchId);
+        const result = await producer.sendCancelMessage(req, channel, this.directExchange);
+        return result;
     }
 }
 

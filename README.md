@@ -17,6 +17,37 @@ This repository uses GitHub Actions to automate the following tasks:
   | JSX, TSX               | [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y), [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) |
 
 The workflow files can be found in the `.github/workflows/` directory.
+<br><br>
+
+## Running the Linter Locally
+
+To ensure code quality and consistency, we use Super-Linter. You can run the linter locally using the provided scripts:
+
+### On Unix-like systems (macOS, Linux):
+
+bash
+
+```
+./run-linter.sh
+```
+
+### On Windows:
+
+batch
+
+```
+run-linter.bat
+```
+
+Make sure you have Docker installed and running on your system before executing these commands.
+The linter is configured to check for:
+
+- JavaScript (ES)
+- TypeScript (ES)
+- JSX
+- TSX
+- Java
+  <br><br>
 
 ### Note:
 
