@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Calendar from "../components/dashboard/Calendar"; 
 import SessionBox from "../components/dashboard/SessionBox"; 
-import ConfirmationModal from "../components/dashboard/ConfirmationModal"; // Import the modal
+import ConfirmationModal from "../components/dashboard/ConfirmationModal"; 
 import withAuth from "../hoc/withAuth"; 
-import { useAuth } from "../AuthContext"; // Import the useAuth hook
-
+import { useAuth } from "../AuthContext"; 
 const DashboardPage = () => {
   const navigate = useNavigate(); 
   const { logout } = useAuth(); // Get the logout function from AuthContext

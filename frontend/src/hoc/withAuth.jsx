@@ -5,12 +5,13 @@ import { useAuth } from '../AuthContext';
 const withAuth = (WrappedComponent) => {
   const AuthHOC = (props) => {
     const navigate = useNavigate();
-    const { accessToken } = useAuth(); 
+    const { accessToken, logout } = useAuth(); 
 
     useEffect(() => {
       const checkAuth = async () => {
         if (!accessToken) {
           console.error("No access token found. Redirecting to login.");
+          logout(); 
           navigate('/login');
           return;
         }
@@ -20,7 +21,7 @@ const withAuth = (WrappedComponent) => {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`, // Use the token from context
+              'Authorization': `Bearer ${accessToken}`,
             },
           });
 
@@ -29,12 +30,13 @@ const withAuth = (WrappedComponent) => {
           }
         } catch (error) {
           console.error("Error verifying token:", error);
+          logout();
           navigate('/login');
         }
       };
 
       checkAuth();
-    }, [accessToken, navigate]); // Dependency array includes accessToken
+    }, [accessToken, navigate, logout]);
 
     return <WrappedComponent {...props} />;
   };
