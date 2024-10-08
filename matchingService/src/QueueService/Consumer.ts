@@ -108,14 +108,11 @@ class Consumer {
     }
 
     private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string, channel: Channel, directExchange: string) {
-        console.log("Processing cancellation");
         const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
         if (!cancellationResponseQueue) {
             console.log("Missing response queue");
             return;
         }
-        console.log(cancellationResponseQueue.getQueue());
-        console.log("Consumer: Replying to queue", cancellationResponseQueue.getQueue());
         this.pendingReq = null; // Remove existing pending match
         this.deleteCancellationMatchRequest(matchId);
         // respond to match request
@@ -130,7 +127,6 @@ class Consumer {
     }
 
     private handleCancellationRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
-        console.log("Received cancellation request");
         if (!msg) {
             return;
         }
@@ -149,7 +145,6 @@ class Consumer {
 
     private parseCancelRequest(content: string): CancelRequest {
         const jsonObject = JSON.parse(content);
-        console.log("JSON: ", jsonObject);
         return new CancelRequest(jsonObject.matchId);
     }
 }
