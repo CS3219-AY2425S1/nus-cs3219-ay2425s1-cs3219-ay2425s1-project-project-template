@@ -1,6 +1,9 @@
 import { QueueService } from "..";
 import MatchRequest from "../models/MatchRequest";
 
+/**
+ * MatchService handles the business logic related to user matching.
+ */
 export default class MatchService {
     private amqpService: QueueService;
 

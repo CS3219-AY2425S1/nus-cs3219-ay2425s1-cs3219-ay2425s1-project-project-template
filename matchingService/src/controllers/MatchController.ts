@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import MatchService from "../services/MatchService";
 
+/**
+ * MatchController handles the incoming requests related to user matching.
+ * This class is responsible for parsing and validating incoming requests and packaging responses.
+ */
 export default class MatchController {
     private matchService: MatchService;
 
