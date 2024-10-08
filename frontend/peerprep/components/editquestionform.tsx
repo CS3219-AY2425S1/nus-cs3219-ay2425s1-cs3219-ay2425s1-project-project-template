@@ -26,7 +26,7 @@ import { capitalize, languages } from "@/utils/utils";
 import {
   complexityColorMap,
   Question,
-} from "@/app/questions-management/list/columns";
+} from "@/app/(default)/questions-management/columns";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
@@ -48,7 +48,7 @@ export default function EditQuestionForm({
   initialTestCases = [{ input: "", output: "" }],
 }: EditQuestionFormProps) {
   const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
-    "NEXT_PUBLIC_QUESTION_SERVICE_URL",
+    "NEXT_PUBLIC_QUESTION_SERVICE_URL"
   );
   const params = useParams();
   const router = useRouter();
@@ -72,18 +72,18 @@ export default function EditQuestionForm({
   const [testCases, setTestCases] =
     useState<{ input: string; output: string }[]>(initialTestCases);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
-    null,
+    null
   );
   const [question, setQuestion] = useState<Question | null>(null);
 
   const { data: categoryData, isLoading: categoryLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
-    fetcher,
+    fetcher
   );
 
   const { data: questionData, isLoading: questionLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id ? params.id : ""}`,
-    fetcher,
+    fetcher
   );
 
   useEffect(() => {
@@ -101,8 +101,8 @@ export default function EditQuestionForm({
               .map((str) => str.trim());
 
             return { input, output };
-          }),
-        ) || [],
+          })
+        ) || []
       );
       setQuestion(questionData?.question);
     }
@@ -146,7 +146,7 @@ export default function EditQuestionForm({
   // Handle removing a category
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category),
+      prevCategories.filter((cat) => cat !== category)
     );
   };
 
@@ -175,7 +175,7 @@ export default function EditQuestionForm({
   // Handle input change for test case
   const handleInputChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
     const { name, value } = event.target;
@@ -220,11 +220,11 @@ export default function EditQuestionForm({
       !templateCode.trim() ||
       !testCases.every(
         (testCase) =>
-          testCase.input.trim() !== "" && testCase.output.trim() !== "",
+          testCase.input.trim() !== "" && testCase.output.trim() !== ""
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting.",
+        "Please fill in all the required fields before submitting."
       );
       setErrorModalOpen(true); // Show error modal with the validation message
 
@@ -238,7 +238,7 @@ export default function EditQuestionForm({
       complexity: selectedTab,
       templateCode,
       testCases: testCases.map(
-        (testCase) => `${testCase.input} -> ${testCase.output}`,
+        (testCase) => `${testCase.input} -> ${testCase.output}`
       ),
     };
 
@@ -251,7 +251,7 @@ export default function EditQuestionForm({
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        },
+        }
       );
 
       if (response.ok) {
@@ -261,7 +261,7 @@ export default function EditQuestionForm({
         const errorData = await response.json();
 
         setErrorMessage(
-          errorData.error || "Failed to update the question. Please try again.",
+          errorData.error || "Failed to update the question. Please try again."
         );
         setErrorModalOpen(true);
       }
@@ -278,7 +278,7 @@ export default function EditQuestionForm({
         `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${params.id}`,
         {
           method: "DELETE",
-        },
+        }
       );
 
       if (response.ok) {
@@ -296,7 +296,7 @@ export default function EditQuestionForm({
   };
 
   const handleCancel = () => {
-    router.push("/");
+    router.push("/questions-management");
   };
 
   return (
@@ -498,7 +498,7 @@ export default function EditQuestionForm({
       <SuccessModal
         isOpen={isSuccessModalOpen}
         message={successMessage}
-        onConfirm={() => router.push("/")} // Redirect to list after confirmation
+        onConfirm={() => router.push("/questions-management")} // Redirect to list after confirmation
         onOpenChange={setSuccessModalOpen}
       />
       <ErrorModal
