@@ -54,32 +54,51 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="email">Email</label> {/* Add htmlFor */}
+    <form onSubmit={handleSubmit} className="mt-8">
+      <div className="mb-4">
+        <h2 className="text-2xl font-semibold text-center text-white">
+          Login
+        </h2>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="email" className="block text-gray-400">
+          Email
+        </label>
         <Input
-          id="email" // Associate with input using id
-          value={formData.email}
           required
+          id="email"
           type="email"
+          value={formData.email}
           onChange={handleEmailOnChange}
         />
-        {errors.email && <span>Please provide a valid email</span>}
+        {errors.email && (
+          <span className="text-red-500">Please provide a valid email</span>
+        )}
       </div>
 
-      <div>
-        <label htmlFor="password">Password</label> {/* Add htmlFor */}
+      <div className="mb-6">
+        <label htmlFor="password" className="block text-gray-400">
+          Password
+        </label>
         <Input
-          id="password" // Associate with input using id
-          value={formData.password}
           required
+          id="password"
           type="password"
+          value={formData.password}
           onChange={handlePasswordOnChange}
         />
-        {errors.password && <span>Password is required</span>}
+        {errors.password && (
+          <span className="text-red-500">Password is required</span>
+        )}
       </div>
 
-      <Button type="submit">Login</Button>
+      <Button
+        className="w-full py-2 bg-blue-600 text-white rounded-lg"
+        type="submit"
+      >
+        Login
+      </Button>
     </form>
   );
 };

@@ -1,16 +1,16 @@
 import React from "react";
 import { useRouter } from "next/router";
+import { Button } from "@nextui-org/button"; // This should be imported before custom components
 
 import LoginForm from "@/components/forms/LoginForm";
 import { useLogin } from "@/hooks/auth";
-
+import DefaultLayout from "@/layouts/default";
 
 const LoginPage = () => {
   const router = useRouter();
   const { mutate: login, isPending, isError, error } = useLogin();
 
   const handleLogin = (email: string, password: string) => {
-    // Call the login mutation function with email and password
     login(
       { email, password },
       {
@@ -24,13 +24,35 @@ const LoginPage = () => {
     );
   };
 
+  const handleRegister = () => {
+    router.push("/register");
+  };
+
   return (
-    <div>
-      <h2>Login Page</h2>
-      <LoginForm onSubmit={handleLogin} />
-      {isError && <p>{error?.message}</p>}
-      {isPending && <p>Logging in...</p>}
-    </div>
+    <DefaultLayout>
+      <div className="flex items-center justify-center min-h-screen">
+        <div
+          className="w-full max-w-lg p-8 rounded-lg shadow-lg"
+          style={{ backgroundColor: "#19191b" }}
+        >
+          <h2 className="text-3xl font-semibold text-center text-white">
+            Welcome to Peerprep!
+          </h2>
+
+          <LoginForm onSubmit={handleLogin} />
+
+          {isError && <p className="text-red-500 mt-4">{error?.message}</p>}
+          {isPending && <p className="text-gray-400 mt-4">Logging in...</p>}
+
+          <div className="mt-6 text-center">
+            <h3 className="text-white">Don&apos;t have an account?</h3>
+            <Button className="mt-2" onClick={handleRegister}>
+              Register
+            </Button>
+          </div>
+        </div>
+      </div>
+    </DefaultLayout>
   );
 };
 
