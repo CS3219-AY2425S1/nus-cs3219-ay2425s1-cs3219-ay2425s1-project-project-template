@@ -5,6 +5,7 @@ import { formatUserResponse } from './user-controller.js';
 
 export async function handleLogin(req, res) {
   const { email, password } = req.body;
+
   if (email && password) {
     try {
       const user = await _findUserByEmail(email);
@@ -23,7 +24,7 @@ export async function handleLogin(req, res) {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: '1d',
+          expiresIn: '5d',
         },
       );
       return res.status(200).json({
