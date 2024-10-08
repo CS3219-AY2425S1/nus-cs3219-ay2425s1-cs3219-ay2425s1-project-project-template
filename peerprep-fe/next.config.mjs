@@ -4,13 +4,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   output: 'standalone',
-//   experimental: {
-//     middleware: true,
-//   },
-// };
-
-// export default nextConfig;
