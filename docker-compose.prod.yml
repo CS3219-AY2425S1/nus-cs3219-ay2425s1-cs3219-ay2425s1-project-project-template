@@ -23,6 +23,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     ports:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+
   user-service:
     build:
       context: ./users_service
@@ -31,6 +32,7 @@ services:
       - USER_SERVICE_PORT=${USER_SERVICE_PORT}
     ports:
       - "5001:5001"
+
   question-service:
     build:
       context: ./question_service
@@ -39,3 +41,13 @@ services:
       - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
     ports:
       - "5002:5002"
+
+  matching_service:
+    build:
+      context: ./matching_service
+    environment:
+      - MATCHING_SERVICE_PORT=${MATCHING_SERVICE_PORT}
+      - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+      - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
+    ports:
+      - "5004:5004"
