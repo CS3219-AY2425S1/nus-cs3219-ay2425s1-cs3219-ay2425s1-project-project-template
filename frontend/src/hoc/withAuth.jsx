@@ -1,16 +1,15 @@
-
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../AuthContext'; 
 
 const withAuth = (WrappedComponent) => {
   const AuthHOC = (props) => {
     const navigate = useNavigate();
+    const { accessToken } = useAuth(); 
 
     useEffect(() => {
       const checkAuth = async () => {
-        const token = localStorage.getItem('accessToken');
-
-        if (!token) {
+        if (!accessToken) {
           console.error("No access token found. Redirecting to login.");
           navigate('/login');
           return;
@@ -21,7 +20,7 @@ const withAuth = (WrappedComponent) => {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${accessToken}`, // Use the token from context
             },
           });
 
@@ -30,16 +29,15 @@ const withAuth = (WrappedComponent) => {
           }
         } catch (error) {
           console.error("Error verifying token:", error);
-          navigate('/login'); 
+          navigate('/login');
         }
       };
 
       checkAuth();
-    }, [navigate]);
+    }, [accessToken, navigate]); // Dependency array includes accessToken
 
     return <WrappedComponent {...props} />;
   };
-
 
   AuthHOC.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
 

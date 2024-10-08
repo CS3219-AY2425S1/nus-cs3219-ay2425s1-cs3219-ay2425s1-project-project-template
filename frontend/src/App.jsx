@@ -1,67 +1,13 @@
 // src/App.js
-import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
 import DashboardPage from "./pages/DashboardPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import backgroundImage from "./assets/images/darker.jpg"; // path for background
-// import backgroundImage from "./assets/images/lightgradient.jpeg"; // path for background
 import "./styles/App.css"; // css file
-
-const HomePage = () => {
-  const navigate = useNavigate();
-  const immediatelyDirectToQuestionPage = false; 
-
-  // Effect to handle navigation
-  useEffect(() => {
-    if (immediatelyDirectToQuestionPage) {
-      navigate("/questions");
-    }
-  }, [immediatelyDirectToQuestionPage, navigate]);
-
-  return (
-    <div
-      style={{
-        textAlign: "center",
-        paddingTop: "20%",
-        color: "#fff",
-        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-      }}
-    >
-      <h1 style={{ fontSize: "4rem", marginBottom: "40px" }}>PeerPrep</h1>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "20px",
-        }}
-      >
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="button-custom"
-        >
-          Dashboard (Under Construction 🚧)
-        </button>
-
-        <button
-          onClick={() => navigate("/questions")}
-          className="button-custom"
-        >
-          Available Questions
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const App = () => {
   return (
@@ -73,17 +19,14 @@ const App = () => {
         minHeight: "100vh",
       }}
     >
-      <Router>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/questions" element={<QuestionPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forget-password" element={<ForgetPasswordPage />} />
-
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/questions" element={<QuestionPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forget-password" element={<ForgetPasswordPage />} />
+      </Routes>
     </div>
   );
 };

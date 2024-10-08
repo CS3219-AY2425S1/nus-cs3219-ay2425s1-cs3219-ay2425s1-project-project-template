@@ -1,62 +1,46 @@
-// DashboardPage.js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Calendar from "../components/dashboard/Calendar"; 
 import SessionBox from "../components/dashboard/SessionBox"; 
+import ConfirmationModal from "../components/dashboard/ConfirmationModal"; // Import the modal
 import withAuth from "../hoc/withAuth"; 
+import { useAuth } from "../AuthContext"; // Import the useAuth hook
 
 const DashboardPage = () => {
-  const [username, setUsername] = useState(null);
+  const navigate = useNavigate(); 
+  const { logout } = useAuth(); // Get the logout function from AuthContext
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
-  // Boolean to toggle active session
   const hasActiveSession = false; 
 
-  // Fetch the username on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('accessToken');
-      console.log("Access Token:", token); // Log the token for debugging
+  const handleLogout = () => {
+    logout(); // Use the logout function from AuthContext
+    navigate('/login'); // Redirect to login after logout
+  };
 
-      if (!token) {
-        console.error("No access token found. Redirecting to login.");
-        return; // Early return if there's no token
-      }
+  const confirmLogout = () => {
+    setShowLogoutConfirm(true);
+  };
 
-      try {
-        const response = await fetch('http://localhost:8081/auth/verify-token', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        console.log("Response Status:", response.status); 
-
-        if (!response.ok) {
-          throw new Error("Failed to verify token");
-        }
-
-        const data = await response.json();
-        console.log("User Data:", data); 
-        setUsername(data.username); 
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  const handleConfirmLogout = (confirm) => {
+    if (confirm) {
+      handleLogout();
+    }
+    setShowLogoutConfirm(false); 
+  };
 
   return (
-    <div style={{ paddingTop: "70px", display: "flex", justifyContent: "center" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginRight: "10px" }}>
+    <div style={{ paddingTop: "70px", display: "flex", justifyContent: "center", position: 'relative' }}>
+      <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          gap: "20px", 
+          maxWidth: "600px", 
+          marginRight: "20px" 
+        }}>
         
-        {/* Welcome back message */}
-        {username && <h2>Welcome back, {username}!</h2>}
-
         {/* Current Active Session Component */}
         <SessionBox
           headerText="Current Active Session"
@@ -75,7 +59,7 @@ const DashboardPage = () => {
       </div>
 
       {/* right: calendar */}
-      <div style={{ marginLeft: "0px" }}> 
+      <div style={{ marginLeft: "20px" }}>  
         <Calendar
           currentMonth={currentMonth}
           currentYear={currentYear}
@@ -83,6 +67,32 @@ const DashboardPage = () => {
           setCurrentYear={setCurrentYear}
         />
       </div>
+
+      {/* Logout Button  */}
+      <div style={{ position: 'absolute', top: '30px', right: '30px' }}>
+        <button
+          onClick={confirmLogout}
+          style={{
+            padding: "15px 30px", 
+            backgroundColor: "#1a3042", // dark cyan background
+            color: "#fff",
+            border: "none",
+            borderRadius: "15px",
+            cursor: "pointer",
+            fontSize: '16px',
+            fontFamily: 'Figtree',
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal 
+        show={showLogoutConfirm} 
+        onConfirm={() => handleConfirmLogout(true)} 
+        onCancel={() => handleConfirmLogout(false)} 
+      />
     </div>
   );
 };
