@@ -10,9 +10,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Avatar, { genConfig } from 'react-nice-avatar';
 
 export default function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
+
+  // Generate avatar config based on user's username
+  const avatarConfig = user ? genConfig(user.username) : undefined;
 
   return (
     <nav className="fixed top-0 z-10 w-full bg-gray-800 p-4">
@@ -33,13 +37,25 @@ export default function Navbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative h-8 w-8 overflow-hidden rounded-full p-0"
                 >
-                  <UserCircle className="h-6 w-6 text-gray-300" />
+                  {avatarConfig ? (
+                    <div className="h-full w-full scale-x-[-1] transform">
+                      <Avatar
+                        style={{ width: '100%', height: '100%' }}
+                        {...avatarConfig}
+                      />
+                    </div>
+                  ) : (
+                    <UserCircle className="h-6 w-6 text-gray-300" />
+                  )}
                   <span className="sr-only">Open user menu</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled>
+                  <span className="font-semibold">Hi {user?.username}</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="w-full">
                     Profile

@@ -13,29 +13,15 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
-  // const [error, setError] = useState('');
-  // handle login here
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const apiEndpoint = 'http://localhost:3001/auth/login';
-    console.log('trying to fetch');
-    const result = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    console.log('did i manage to fetch?, result: ', result);
-
-    const data = await result.json();
-    if (result.ok) {
-      const token = data.token;
-      login(token);
-    } else {
-      setError(data.error || 'Please provide correct email and password');
-      console.error('Login failed');
+    try {
+      await login(email, password);
+    } catch (error) {
+      setError('Invalid email or password. Please try again.');
+      console.error('Login failed:', error);
     }
   };
 

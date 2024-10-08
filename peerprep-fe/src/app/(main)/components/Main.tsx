@@ -3,7 +3,7 @@ import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import FilterBar from './filter/FilterBar';
 import ProblemTable from './problems/ProblemTable';
 
-export default function LoggedIn() {
+export default function MainComponent() {
   const { problems, filters, updateFilter, removeFilter, isLoading } =
     useFilteredProblems();
 
