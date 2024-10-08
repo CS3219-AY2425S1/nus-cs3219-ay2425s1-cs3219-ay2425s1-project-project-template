@@ -68,7 +68,6 @@ export function handleLogout(req, res) {
     // If verification is successful, proceed to clear the refresh token cookie
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
     });
 
