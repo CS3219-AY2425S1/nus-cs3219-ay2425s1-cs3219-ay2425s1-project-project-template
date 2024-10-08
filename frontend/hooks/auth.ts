@@ -21,7 +21,7 @@ interface Credentials {
 
 // Login: Send credentials to the server and return the response
 const login = async (credentials: Credentials): Promise<LoginResponse> => {
-  const response = await axios.post("/login", credentials);
+  const response = await axios.post("/user-service/login", credentials);
   return response.data.data;
 };  
 
@@ -33,6 +33,7 @@ export const useLogin = () => {
       // Store the accessToken in localStorage
       localStorage.setItem("accessToken", data.accessToken);
       console.log("Login successful!", data);
+      // Redirect if needed here
     },
     onError: (error) => {
       console.error("Login failed", error);
