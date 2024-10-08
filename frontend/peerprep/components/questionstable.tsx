@@ -32,7 +32,7 @@ import {
   Question,
   RenderCell,
   complexityOptions,
-} from "@/app/questions-management/columns";
+} from "@/app/(default)/questions-management/columns";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 

@@ -21,7 +21,7 @@ import { WysiMarkEditor } from "./wysimarkeditor";
 import BoxIcon from "./boxicons";
 
 import { capitalize, languages } from "@/utils/utils";
-import { complexityColorMap } from "@/app/questions-management/columns";
+import { complexityColorMap } from "@/app/(default)/questions-management/columns";
 
 interface AddQuestionFormProps {
   initialTitle?: string;

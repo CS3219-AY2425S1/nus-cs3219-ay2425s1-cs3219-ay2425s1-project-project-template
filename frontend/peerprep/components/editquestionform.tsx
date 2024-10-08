@@ -26,7 +26,7 @@ import { capitalize, languages } from "@/utils/utils";
 import {
   complexityColorMap,
   Question,
-} from "@/app/questions-management/columns";
+} from "@/app/(default)/questions-management/columns";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
