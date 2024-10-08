@@ -1,3 +1,5 @@
 super-linter.log
 
 .vscode/
+
+.DS_Store
