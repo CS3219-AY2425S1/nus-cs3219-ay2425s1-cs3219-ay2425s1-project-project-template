@@ -8,11 +8,9 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 # Copy package.json and pnpm-lock.yaml
-COPY pnpm-lock.yaml package.json ./
+COPY package.json ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
+RUN pnpm install
 
 # Development stage
 FROM base AS development
@@ -27,14 +25,11 @@ CMD ["pnpm", "dev"]
 
 # Production stage
 FROM base AS production
-
 ENV NODE_ENV=production
 ENV PORT=4001
 
 COPY src ./src
 COPY tsconfig.json ./
-
-RUN pnpm build
 
 EXPOSE ${PORT}
 

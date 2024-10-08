@@ -4,10 +4,10 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml
-COPY package*.json pnpm-lock.yaml ./
+# Copy package.json
+COPY package*.json ./
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Install zustand explicitly
 RUN pnpm add zustand
@@ -33,6 +33,7 @@ ENV PORT=3000
 COPY . .
 RUN pnpm build
 
+# Expose the port the app runs on in production mode
 EXPOSE ${PORT}
 
 # Start the app in production mode
