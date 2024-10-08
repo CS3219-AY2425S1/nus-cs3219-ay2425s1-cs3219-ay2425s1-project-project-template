@@ -30,7 +30,7 @@ const LoginPage = () => {
 
   return (
     <DefaultLayout>
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-start justify-center pt-[25vh]">
         <div
           className="w-full max-w-lg p-8 rounded-lg shadow-lg"
           style={{ backgroundColor: "#19191b" }}
