@@ -12,6 +12,7 @@ import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import backgroundImage from "./assets/images/darker.jpg"; // path for background
+// import backgroundImage from "./assets/images/lightgradient.jpeg"; // path for background
 import "./styles/App.css"; // css file
 
 const HomePage = () => {
@@ -74,7 +75,7 @@ const App = () => {
     >
       <Router>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/signup" element={<SignupPage />} />
