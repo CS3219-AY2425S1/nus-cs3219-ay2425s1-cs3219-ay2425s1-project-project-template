@@ -32,7 +32,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div style={{ paddingTop: "70px", display: "flex", justifyContent: "center", position: 'relative' }}>
+    <div style={{ paddingTop: "100px", display: "flex", justifyContent: "center", position: 'relative' }}>
       <div style={{ 
           display: "flex", 
           flexDirection: "column", 
@@ -74,8 +74,8 @@ const DashboardPage = () => {
           onClick={confirmLogout}
           style={{
             padding: "15px 30px", 
-            backgroundColor: "#1a3042", // dark cyan background
-            color: "#fff",
+            backgroundColor: "#fff", 
+            color: "#000",
             border: "none",
             borderRadius: "15px",
             cursor: "pointer",
