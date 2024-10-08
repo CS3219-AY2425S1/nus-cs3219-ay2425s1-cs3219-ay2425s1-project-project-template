@@ -7,6 +7,7 @@ import Dialog from "../components/question/Dialog";
 import EditQuestionForm from "../components/question/EditQuestionForm";
 import QuestionDetail from "../components/question/QuestionDetail";
 import QuestionTable from "../components/question/QuestionTable";
+import withAuth from "../hoc/withAuth"; 
 
 const QuestionPage = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -204,4 +205,5 @@ const QuestionPage = () => {
 
 };
 
-export default QuestionPage;
+const WrappedQuestionPage = withAuth(QuestionPage);
+export default WrappedQuestionPage;

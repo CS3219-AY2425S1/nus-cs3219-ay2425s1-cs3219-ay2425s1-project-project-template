@@ -1,35 +1,23 @@
 /* eslint-disable react/no-unescaped-entities */
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext'; // Import the AuthContext
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons for showing/hiding password
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Access the login function from AuthContext
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const notification = localStorage.getItem('signupNotification');
-    if (notification) {
-      setNotificationMessage(notification);
-      localStorage.removeItem('signupNotification'); 
-      
-      const timer = setTimeout(() => {
-        setNotificationMessage('');
-      }, 10000); 
-
-      return () => clearTimeout(timer);
-    }
-  }, []); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrorMessage('');
+    setIsLoading(true);
 
     try {
       const response = await fetch('http://localhost:8081/auth/login', {
@@ -54,8 +42,8 @@ const Login = () => {
 
       const data = await response.json();
       
-      // Store the JWT token in localStorage or sessionStorage
-      localStorage.setItem('accessToken', data.data.accessToken);
+      // Use the login function from AuthContext to store the token in context
+      login(data.data.accessToken);
 
       // Navigate to the dashboard after successful login
       navigate('/dashboard');

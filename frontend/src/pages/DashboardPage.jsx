@@ -2,21 +2,44 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Calendar from "../components/dashboard/Calendar"; 
 import SessionBox from "../components/dashboard/SessionBox"; 
-
+import ConfirmationModal from "../components/dashboard/ConfirmationModal"; 
+import withAuth from "../hoc/withAuth"; 
+import { useAuth } from "../AuthContext"; 
 const DashboardPage = () => {
+  const navigate = useNavigate(); 
+  const { logout } = useAuth(); // Get the logout function from AuthContext
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-
-  const navigate = useNavigate(); 
-
-  // Boolean to toggle active session
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  
   const hasActiveSession = false; 
 
-  return (
-    <div style={{ paddingTop: "70px", display: "flex", justifyContent: "center" }}>
-      {/* left: session boxes stacked */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginRight: "10px" }}> {/* reduced the gap and margin */}
+  const handleLogout = () => {
+    logout(); // Use the logout function from AuthContext
+    navigate('/login'); // Redirect to login after logout
+  };
 
+  const confirmLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmLogout = (confirm) => {
+    if (confirm) {
+      handleLogout();
+    }
+    setShowLogoutConfirm(false); 
+  };
+
+  return (
+    <div style={{ paddingTop: "100px", display: "flex", justifyContent: "center", position: 'relative' }}>
+      <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          gap: "20px", 
+          maxWidth: "600px", 
+          marginRight: "20px" 
+        }}>
+        
         {/* Current Active Session Component */}
         <SessionBox
           headerText="Current Active Session"
@@ -35,7 +58,7 @@ const DashboardPage = () => {
       </div>
 
       {/* right: calendar */}
-      <div style={{ marginLeft: "0px" }}> 
+      <div style={{ marginLeft: "20px" }}>  
         <Calendar
           currentMonth={currentMonth}
           currentYear={currentYear}
@@ -43,8 +66,35 @@ const DashboardPage = () => {
           setCurrentYear={setCurrentYear}
         />
       </div>
+
+      {/* Logout Button  */}
+      <div style={{ position: 'absolute', top: '30px', right: '30px' }}>
+        <button
+          onClick={confirmLogout}
+          style={{
+            padding: "15px 30px", 
+            backgroundColor: "#fff", 
+            color: "#000",
+            border: "none",
+            borderRadius: "15px",
+            cursor: "pointer",
+            fontSize: '16px',
+            fontFamily: 'Figtree',
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal 
+        show={showLogoutConfirm} 
+        onConfirm={() => handleConfirmLogout(true)} 
+        onCancel={() => handleConfirmLogout(false)} 
+      />
     </div>
   );
 };
 
-export default DashboardPage;
+const WrappedDashboardPage = withAuth(DashboardPage);
+export default WrappedDashboardPage;
