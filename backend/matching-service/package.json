@@ -4,7 +4,7 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "test": "jest --setupFiles dotenv/config",
+        "test": "jest",
         "lint": "eslint . --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown .",
         "start": "npm run build && node dist/server.js",
         "dev": "nodemon src/server.ts",
