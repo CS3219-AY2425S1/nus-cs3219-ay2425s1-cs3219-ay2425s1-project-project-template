@@ -1,7 +1,6 @@
-"use client";
+// frontend/components/forms/LoginForm.tsx
 
 import { useState } from "react";
-import { useRouter } from "next/router";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 
@@ -9,13 +8,12 @@ interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ 
-    onSubmit }) => {
-  const router = useRouter();
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
   const handleEmailOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,51 +46,37 @@ const LoginForm: React.FC<LoginFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (!isValid()) {
-      return;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isValid()) {
+      onSubmit(formData.email, formData.password);
     }
-
-    onSubmit(formData.email, formData.password);
   };
 
   return (
-    <>
-      <h2 className="text-4xl font-bold mb-4">Login</h2>
-      <div className="flex mb-4">
-        <p className="basis-1/4 self-end">Email</p>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Email</label>
         <Input
-          errorMessage="Please input your email."
-          isInvalid={!!errors.email}
-          isRequired={true}
-          label="Input Email"
           value={formData.email}
-          variant="underlined"
           onChange={handleEmailOnChange}
+          required
+          type="email"
         />
+        {errors.email && <span>Please provide a valid email</span>}
       </div>
-      <div className="flex mb-4">
-        <p className="basis-1/4 self-end">Password</p>
+      <div>
+        <label>Password</label>
         <Input
-          errorMessage="Please input your password."
-          isInvalid={!!errors.password}
-          isRequired={true}
-          type="password"
-          label="Input Password"
           value={formData.password}
-          variant="underlined"
           onChange={handlePasswordOnChange}
+          required
+          type="password"
         />
+        {errors.password && <span>Password is required</span>}
       </div>
-      <div className="flex justify-end space-x-4">
-        <Button color="danger" onClick={() => router.push("/")}>
-          Cancel
-        </Button>
-        <Button color="primary" onClick={handleSubmit}>
-          Login
-        </Button>
-      </div>
-    </>
+      <Button type="submit">Login</Button>
+    </form>
   );
 };
 
