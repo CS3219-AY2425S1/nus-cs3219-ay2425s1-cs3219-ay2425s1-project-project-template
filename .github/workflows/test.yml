@@ -1,0 +1,71 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Create Environment Files
+        env:
+          QUESTION_SERVICE_URL: ${{ vars.QUESTION_SERVICE_URL }}
+          USER_SERVICE_URL: ${{ vars.USER_SERVICE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+          DB_CLOUD_URI: ${{ secrets.USER_SERVICE_DB_CLOUD_URI }}
+          USER_SERVICE_PORT: ${{ vars.USER_SERVICE_PORT }}
+        run: |
+          cd ./apps/frontend
+          echo "NEXT_PUBLIC_QUESTION_SERVICE_URL=$QUESTION_SERVICE_URL" >> .env
+          echo "NEXT_PUBLIC_USER_SERVICE_URL=$USER_SERVICE_URL" >> .env
+
+          cd ../question-service
+          echo "FIREBASE_CREDENTIAL_PATH=$FIREBASE_CREDENTIAL_PATH" >> .env
+          echo "JWT_SECRET=$JWT_SECRET" >> .env
+
+          cd ../user-service
+          echo "DB_CLOUD_URI=$DB_CLOUD_URI" >> .env
+          echo "PORT=$USER_SERVICE_PORT" >> .env
+          echo "JWT_SECRET=$JWT_SECRET" >> .env
+
+      - name: Create Database Credential Files
+        env:
+          FIREBASE_JSON: ${{ secrets.QUESTION_SERVICE_FIREBASE_CREDENTIAL }}
+          FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+        run: |
+          cd ./apps/question-service
+          echo "$FIREBASE_JSON" > "./$FIREBASE_CREDENTIAL_PATH"
+
+      - name: Build and Run Services
+        run: |
+          cd ./apps
+          docker-compose up --build -d
+
+      - name: Run Tests
+        env:
+          FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+          USER_SERVICE_URL: ${{ vars.USER_SERVICE_URL }}
+          QUESTION_SERVICE_URL: ${{ vars.QUESTION_SERVICE_URL }}
+        run: |
+          curl -sSL $QUESTION_SERVICE_URL
+          # curl -fsSL $FRONTEND_URL
+          # curl -fsSL l $USER_SERVICE_URL
+
+          # We can add more tests here
