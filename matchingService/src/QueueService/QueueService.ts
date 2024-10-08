@@ -55,7 +55,7 @@ class QueueService {
         var consumer: Consumer = new Consumer();
         for (const topic of queueOptions.TOPIC_LIST) {
             for (const difficulty of queueOptions.DIFFICULTY_LEVELS) {
-                await consumer.receiveMessages(topic, difficulty, this.directExchange, channel);
+                await consumer.receiveMatchRequest(topic, difficulty, this.directExchange, channel);
             }
         }
         await consumer.receiveCancelRequests(channel, this.directExchange);
@@ -68,7 +68,7 @@ class QueueService {
             return false;
         }
         var producer: Producer = new Producer();
-        return producer.sendJsonMessage(matchRequest, channel, this.categoryExchange, this.directExchange);
+        return producer.sendRequest(matchRequest, channel, this.categoryExchange, this.directExchange);
     }
 
     public async cancelMatchRequest(matchId: string): Promise<boolean> {

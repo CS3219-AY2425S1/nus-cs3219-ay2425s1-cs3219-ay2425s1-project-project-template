@@ -6,8 +6,8 @@ import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 
 /** 
- * Class repesenting a Consumer that consumes incoming messages from queues that will contain messages 
- * regarding Matchmaking requests partitioned based on (topic, difficulty) 
+ * Consumer that consumes incoming messages from queues that will contain Matchmaking requests
+ * MatchMaking requests are partitioned based on (topic, difficulty) 
  * */
 class Consumer {
     private pendingMatch: MatchRequestWithQueueInfo | null;
@@ -44,14 +44,14 @@ class Consumer {
         }, { noAck: true }); // Enable auto ack of message
     }
 
-    public async receiveMessages(topic: string, difficulty: string, directExchange: string, channel: Channel): Promise<void> {
+    public async receiveMatchRequest(topic: string, difficulty: string, directExchange: string, channel: Channel): Promise<void> {
         const queueName = `${topic}_${difficulty}`;
         await channel.consume(queueName, (message) => {
-            this.handleMatchRequest(message, queueName, channel, directExchange);
+            this.handleMatchRequest(message, channel, directExchange);
         }, { noAck: true });
     }
 
-    private handleMatchRequest(msg: QueueMessage | null, queueName: string, channel: Channel, directExchange: string) {
+    private handleMatchRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
         let content = msg?.content.toString();
         if (!content) {
             return;
@@ -61,18 +61,19 @@ class Consumer {
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
             console.log("Consumer received match request: ", matchRequest);
-            if (this.pendingMatch) {
-                if (this.isCancelledMatchRequest(this.pendingMatch.getMatchId())) {
-                    this.processCancelRequest(this.pendingMatch.getMatchId(), this.pendingMatch.getCorrelationId()
-                        , this.pendingMatch.getQueue(), channel, directExchange)
-                    return;
-                }
+
+            if (this.pendingMatch && this.isCancelledMatchRequest(this.pendingMatch.getMatchId())) {
+                this.processCancelRequest(this.pendingMatch.getMatchId(), this.pendingMatch.getCorrelationId()
+                    , this.pendingMatch.getQueue(), channel, directExchange)
+                return;
             }
+
             if (this.isCancelledMatchRequest(matchRequest.getMatchId())) {
                 this.processCancelRequest(matchRequest.getMatchId(), correlationId, 
                     replyQueue, channel, directExchange)
                 return;
             }
+
             this.processMatchRequest(matchRequest, replyQueue, correlationId, channel, directExchange);
         } catch (e) {
             if (e instanceof Error) {
