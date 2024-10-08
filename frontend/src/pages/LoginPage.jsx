@@ -12,6 +12,7 @@ const Login = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const navigate = useNavigate();
   
+  // Handle notifications for signup completion
   useEffect(() => {
     const notification = localStorage.getItem('signupNotification');
     if (notification) {
@@ -54,7 +55,7 @@ const Login = () => {
 
       const data = await response.json();
       
-      // Store the JWT token in localStorage or sessionStorage
+      // Store the JWT token in localStorage
       localStorage.setItem('accessToken', data.data.accessToken);
 
       // Navigate to the dashboard after successful login

@@ -1,21 +1,61 @@
-import React, { useState } from "react";
+// DashboardPage.js
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Calendar from "../components/dashboard/Calendar"; 
 import SessionBox from "../components/dashboard/SessionBox"; 
+import withAuth from "../hoc/withAuth"; 
 
 const DashboardPage = () => {
+  const [username, setUsername] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-
-  const navigate = useNavigate(); 
-
+  
   // Boolean to toggle active session
   const hasActiveSession = false; 
 
+  // Fetch the username on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('accessToken');
+      console.log("Access Token:", token); // Log the token for debugging
+
+      if (!token) {
+        console.error("No access token found. Redirecting to login.");
+        return; // Early return if there's no token
+      }
+
+      try {
+        const response = await fetch('http://localhost:8081/auth/verify-token', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        console.log("Response Status:", response.status); 
+
+        if (!response.ok) {
+          throw new Error("Failed to verify token");
+        }
+
+        const data = await response.json();
+        console.log("User Data:", data); 
+        setUsername(data.username); 
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
     <div style={{ paddingTop: "70px", display: "flex", justifyContent: "center" }}>
-      {/* left: session boxes stacked */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginRight: "10px" }}> {/* reduced the gap and margin */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginRight: "10px" }}>
+        
+        {/* Welcome back message */}
+        {username && <h2>Welcome back, {username}!</h2>}
 
         {/* Current Active Session Component */}
         <SessionBox
@@ -47,4 +87,5 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+const WrappedDashboardPage = withAuth(DashboardPage);
+export default WrappedDashboardPage;
