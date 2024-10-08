@@ -10,11 +10,11 @@ import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
  * MatchMaking requests are partitioned based on (topic, difficulty) 
  * */
 class Consumer {
-    private pendingMatch: MatchRequestWithQueueInfo | null;
+    private pendingReq: MatchRequestWithQueueInfo | null;
     private cancelledMatches: Map<string, CancelRequestWithQueueInfo> = new Map();
 
     constructor() {
-        this.pendingMatch = null;
+        this.pendingReq = null;
     }
 
     private isCancelledMatchRequest(matchId: string): boolean {
@@ -57,24 +57,24 @@ class Consumer {
             return;
         }
         try {
-            var matchRequest: MatchRequest = this.parseMatchRequest(content)
+            var req: MatchRequest = this.parseMatchRequest(content)
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
-            console.log("Consumer received match request: ", matchRequest);
+            console.log("Consumer received match request: ", req);
 
-            if (this.pendingMatch && this.isCancelledMatchRequest(this.pendingMatch.getMatchId())) {
-                this.processCancelRequest(this.pendingMatch.getMatchId(), this.pendingMatch.getCorrelationId()
-                    , this.pendingMatch.getQueue(), channel, directExchange)
+            if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
+                this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId()
+                    , this.pendingReq.getQueue(), channel, directExchange)
                 return;
             }
 
-            if (this.isCancelledMatchRequest(matchRequest.getMatchId())) {
-                this.processCancelRequest(matchRequest.getMatchId(), correlationId, 
+            if (this.isCancelledMatchRequest(req.getMatchId())) {
+                this.processCancelRequest(req.getMatchId(), correlationId, 
                     replyQueue, channel, directExchange)
                 return;
             }
 
-            this.processMatchRequest(matchRequest, replyQueue, correlationId, channel, directExchange);
+            this.processMatchRequest(req, replyQueue, correlationId, channel, directExchange);
         } catch (e) {
             if (e instanceof Error) {
                 let name = e.message;
@@ -88,13 +88,13 @@ class Consumer {
         return new MatchRequest(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
     }
 
-    private processMatchRequest(matchRequest: MatchRequest, replyQueue: string, correlationId: string, channel: Channel, responseExchange: string) {
-        if (!this.pendingMatch) {
-            this.pendingMatch = MatchRequestWithQueueInfo.createFromMatchRequest(matchRequest, replyQueue, correlationId);
+    private processMatchRequest(incomingReq: MatchRequest, replyQueue: string, correlationId: string, channel: Channel, responseExchange: string) {
+        if (!this.pendingReq) {
+            this.pendingReq = MatchRequestWithQueueInfo.createFromMatchRequest(incomingReq, replyQueue, correlationId);
             return;
         }
-        var matchRequest2: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequest(matchRequest, replyQueue, correlationId);
-        this.matchAndRespond(this.pendingMatch, matchRequest2, channel, responseExchange)
+        var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequest(incomingReq, replyQueue, correlationId);
+        this.matchAndRespond(this.pendingReq, incomingReqWithQueueInfo, channel, responseExchange)
     }
 
     private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo, channel: Channel, responseExchange: string): void {
@@ -104,7 +104,7 @@ class Consumer {
         channel.publish(responseExchange, req2.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: req2.getCorrelationId(),
         });
-        this.pendingMatch = null;
+        this.pendingReq = null;
     }
 
     private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string, channel: Channel, directExchange: string) {
@@ -116,7 +116,7 @@ class Consumer {
         }
         console.log(cancellationResponseQueue.getQueue());
         console.log("Consumer: Replying to queue", cancellationResponseQueue.getQueue());
-        this.pendingMatch = null; // Remove existing pending match
+        this.pendingReq = null; // Remove existing pending match
         this.deleteCancellationMatchRequest(matchId);
         // respond to match request
         channel.publish(directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
@@ -140,9 +140,9 @@ class Consumer {
         var req: CancelRequest = this.parseCancelRequest(content);
         var reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
         this.cancelledMatches.set(req.getMatchId(), reqWithInfo)
-        if (this.pendingMatch?.getMatchId() == reqWithInfo.getMatchId()) { // Check if the current match in memory is the one to be canceled
-            this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingMatch.getCorrelationId(), 
-                this.pendingMatch.getQueue(), channel, directExchange);
+        if (this.pendingReq?.getMatchId() == reqWithInfo.getMatchId()) { // Check if the current match in memory is the one to be canceled
+            this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(), 
+                this.pendingReq.getQueue(), channel, directExchange);
             return;
         }
     }
