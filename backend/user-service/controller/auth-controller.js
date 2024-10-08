@@ -17,12 +17,35 @@ export async function handleLogin(req, res) {
         return res.status(401).json({ message: "Wrong email and/or password" });
       }
 
-      const accessToken = jwt.sign({
-        id: user.id,
-      }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
+      // Generate access token
+      const accessToken = jwt.sign(
+        { id: user.id },
+        process.env.JWT_SECRET,
+        { expiresIn: "15m" } 
+      );
+
+      // Generate refresh token
+      const refreshToken = jwt.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET, // Different secret for refresh tokens
+        { expiresIn: "7d" } 
+      );
+
+      // Set refresh token as an HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,  
+        sameSite: "Strict",   
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      return res.status(200).json({ message: "User logged in", data: { accessToken, ...formatUserResponse(user) } });
+
+      // Send access token in response body and user data
+      return res.status(200).json({
+        message: "User logged in",
+        data: {
+          accessToken,
+          ...formatUserResponse(user),
+        },
+      });
     } catch (err) {
       return res.status(500).json({ message: err.message });
     }
