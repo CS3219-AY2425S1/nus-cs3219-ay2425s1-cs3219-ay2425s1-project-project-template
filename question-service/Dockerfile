@@ -1,24 +1,41 @@
-FROM node:18-alpine
+# Base stage for both dev and prod
+FROM node:18-alpine AS base
 
+# Install pnpm globally
 RUN npm install -g pnpm
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Set the working directory in the container
+WORKDIR /app
 
-# Install any dependencies
-RUN pnpm install
+# Copy package.json and pnpm-lock.yaml
+COPY pnpm-lock.yaml package.json ./
 
-# Bundle app source inside the Docker image
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+
+# Development stage
+FROM base AS development
+
 COPY src ./src
+COPY tsconfig.json ./
 
-COPY tsconfig.json ./tsconfig.json
+# Note: Don't expose ports here, Compose will handle that for us
 
-RUN pnpm run build
+CMD ["pnpm", "dev"]
 
-# Make port 4001 available to the world outside this container
+
+# Production stage
+FROM base AS production
+
+ENV NODE_ENV=production
 ENV PORT=4001
+
+COPY src ./src
+COPY tsconfig.json ./
+
+RUN pnpm build
 
 EXPOSE ${PORT}
 
-# Define the command to run your app
 CMD ["pnpm", "start"]
