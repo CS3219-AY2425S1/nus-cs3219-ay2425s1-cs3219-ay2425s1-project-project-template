@@ -1,29 +1,40 @@
-# Use an official Node runtime as the base image
-FROM node:18-alpine
+FROM node:18-alpine AS base
 
-# Install pnpm globally
 RUN npm install -g pnpm
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml
-COPY package*.json pnpm-lock.yaml ./
+# Copy package.json
+COPY package*.json ./
 
-# Install dependencies using pnpm
 RUN pnpm install
 
-# Install zustand explicitly (in case it's still not included)
+# Install zustand explicitly
 RUN pnpm add zustand
+
+# Development stage
+FROM base AS development
+ENV NODE_ENV=development
 
 # Copy the rest of the application code
 COPY . .
 
-# Build the Next.js application
-RUN pnpm run build
+# Note: Don't expose ports here, Compose will handle that for us
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Start the app in dev mode with hot-reloading
+CMD ["pnpm", "dev"]
 
-# Start the application
+
+# Production stage
+FROM base AS production
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY . .
+RUN pnpm build
+
+# Expose the port the app runs on in production mode
+EXPOSE ${PORT}
+
+# Start the app in production mode
 CMD ["pnpm", "start"]

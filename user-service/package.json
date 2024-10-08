@@ -7,13 +7,16 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \"./routes/**/*.js\" \"./model/**/*.js\" \"./controller/**/*.js\" \"./middleware/**/*.js\"",
+    "pre-commit": "pnpm format && git add -u"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

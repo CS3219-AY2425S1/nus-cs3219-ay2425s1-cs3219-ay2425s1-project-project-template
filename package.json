@@ -1,14 +1,15 @@
 {
 	"scripts": {
 		"pre-commit": "npm run --workspaces pre-commit",
-		"prepare": "husky prepare"
+		"prepare": "husky"
 	},
 	"devDependencies": {
 		"husky": "^9.1.6"
 	},
 	"workspaces": [
 		"question-service",
-		"peerprep-fe"
+		"peerprep-fe",
+		"user-service"
 	],
 	"dependencies": {
 		"nuqs": "^1.19.3"
