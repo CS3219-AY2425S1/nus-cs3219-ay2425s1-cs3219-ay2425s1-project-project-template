@@ -65,7 +65,6 @@ jobs:
           QUESTION_SERVICE_URL: ${{ vars.QUESTION_SERVICE_URL }}
         run: |
           curl -sSL $QUESTION_SERVICE_URL
-          # curl -fsSL $FRONTEND_URL
-          # curl -fsSL l $USER_SERVICE_URL
+          curl -fsSL $USER_SERVICE_URL
 
           # We can add more tests here
