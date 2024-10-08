@@ -28,6 +28,7 @@
 **/npm-debug.log
 **/obj
 **/secrets.dev.yaml
+**/uploads
 **/values.dev.yaml
 **/build
 **/dist
