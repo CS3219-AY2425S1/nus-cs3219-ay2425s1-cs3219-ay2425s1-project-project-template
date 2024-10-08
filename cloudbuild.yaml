@@ -1,0 +1,44 @@
+steps:
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/$PROJECT_ID/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA",
+        ".",
+      ]
+
+  # Push the container image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/$PROJECT_ID/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA",
+      ]
+
+  # Deploy container image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=kubernetes-manifests
+      - --image=asia-southeast1-docker.pkg.dev/$PROJECT_ID/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA
+      - --location=asia-southeast1
+      - --cluster=cs3219-g11-peerprep-kubes
+
+  # Update the deployment to use the new image
+  - name: "gcr.io/cloud-builders/kubectl"
+    args:
+      - "set"
+      - "image"
+      - "deployment/peerprep-fe"
+      - "peerprep-fe=asia-southeast1-docker.pkg.dev/$PROJECT_ID/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
+
+options:
+  dynamic_substitutions: true
+
+images:
+  - "asia-southeast1-docker.pkg.dev/$PROJECT_ID/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA"
