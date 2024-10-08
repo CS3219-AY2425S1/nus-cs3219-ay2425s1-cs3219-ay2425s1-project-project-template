@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
-import MatchRequest from "../models/MatchRequest";
-import { QueueService } from "../index";
+import MatchService from "../services/MatchService";
 
 export default class MatchController {
-    private amqpService: QueueService;
+    private matchService: MatchService;
 
-    constructor(amqpService: QueueService) {
-        this.amqpService = amqpService;
+    constructor(matchService: MatchService) {
+        this.matchService = matchService;
     }
 
     public async findMatch(req: Request, res: Response) {
@@ -16,8 +15,7 @@ export default class MatchController {
                 return res.status(400).json({ error: "Invalid request data" });
             }
 
-            const matchRequest = new MatchRequest(name, matchId, topic, difficulty);
-            const result: boolean = await this.amqpService.sendMessage(matchRequest);
+            const result: boolean = await this.matchService.findMatch(name, matchId, topic, difficulty);
 
             if (result) {
                 res.json({ success: result });
@@ -38,7 +36,7 @@ export default class MatchController {
         }
 
         try {
-            const isCancelled: boolean = await this.amqpService.cancelMatchRequest(matchId);
+            const isCancelled: boolean = await this.matchService.cancelMatch(matchId);
             if (isCancelled) {
                 res.json({ success: true });
             } else {
