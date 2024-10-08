@@ -1,5 +1,5 @@
 import "./App.css";
-import QuestionPage from "./pages/Question/question";
+import QuestionPage from "./pages/Question/page";
 import NavBar from "./components/NavBar/navbar";
 import LoginPage from "./pages/Login/login";
 import SignupPage from "./pages/Signup/signup";
@@ -15,7 +15,7 @@ function App() {
       <Toaster />
       <div className="App">
         <NavBar />
-        <header className="App-header">
+        <div className="Content">
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<QuestionPage />} />
@@ -23,7 +23,7 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
             </Routes>
           </BrowserRouter>
-        </header>
+        </div>
       </div>
     </QueryClientProvider>
   );

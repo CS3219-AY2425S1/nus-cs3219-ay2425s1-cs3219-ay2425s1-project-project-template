@@ -6,7 +6,7 @@ const DUPKEYERRORCODE = 11000;
 
 export const getAllQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const questions = await Question.find({});
+        const questions = await Question.find({}, {_id: 0, __v: 0}).sort({qid: "asc"});
         res.status(200).json(questions);
     } catch (err) {
         console.log(err);
@@ -20,9 +20,9 @@ export const getOneQuestion = async (req: Request, res: Response, next: NextFunc
         return res.status(404).send({msg: "Please enter a valid question ID."})
     }
     try {
-        const question = await Question.findOne({qid: qid});
+        const question = await Question.findOne({qid: qid}, {_id: 0, __v: 0});
         if (!question) {
-            return res.status(404).send({msg : `No question with id=${qid}.`});
+            return res.status(404).send({msg : `No question with ID ${qid}.`});
         }
         res.status(200).json(question);
     } catch (err) {
@@ -30,7 +30,6 @@ export const getOneQuestion = async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 }
-
 
 export const addQuestion = async (req: Request, res: Response, next : NextFunction) => {
     const {qid, title, description, categories, complexity} = req.body;
@@ -41,7 +40,7 @@ export const addQuestion = async (req: Request, res: Response, next : NextFuncti
     } catch (err) {
         console.log(err);
         if (err instanceof mongoose.mongo.MongoError && err.code === DUPKEYERRORCODE) { // this catches duplicate key error
-            return res.status(404).json({msg: `Question ID ${qid} already exists.`});
+            return res.status(404).json({msg: "A question with this ID or title already exists."});
         }
         next(err);
     }
@@ -53,9 +52,9 @@ export const deleteQuestion = async (req: Request, res: Response, next : NextFun
         return res.status(404).send({msg: "Please enter a valid question ID."})
     }
     try {
-        const question = await Question.findOneAndDelete({qid: qid});
+        const question = await Question.findOneAndDelete({qid: qid}, {_id: 0, __v: 0});
         if (!question) {
-            return res.status(404).send({msg: `No question with id=${qid}`});
+            return res.status(404).send({msg: `No question with ID ${qid}`});
         }
         res.status(200).json(question);
     } catch (err) {
@@ -70,9 +69,9 @@ export const updateQuestion = async (req: Request, res: Response, next : NextFun
         return res.status(404).send({msg: "Please enter a valid question ID."})
     }
     try {
-        const question = await Question.findOneAndUpdate({qid: qid}, {...req.body, qid})
+        const question = await Question.findOneAndUpdate({qid: qid}, {...req.body, qid}, {_id: 0, __v: 0})
         if (!question) {
-            return res.status(404).send({msg: `No question with id=${qid}`});
+            return res.status(404).send({msg: `No question with ID ${qid}`});
         }
         res.status(200).json(question);
     } catch (err) {
