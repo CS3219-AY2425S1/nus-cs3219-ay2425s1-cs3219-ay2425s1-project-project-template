@@ -1,19 +1,29 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const authToken = request.cookies.get('auth_token')?.value;
-  const isAuthPage =
-    request.nextUrl.pathname === '/signin' ||
-    request.nextUrl.pathname === '/signup';
+  const token = request.cookies.get('access-token');
 
-  if (authToken && isAuthPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // Check if token exists
+  if (token && token.value) {
+    return NextResponse.next();
   }
-
-  return NextResponse.next();
+  return NextResponse.redirect(new URL('/signin', request.url));
 }
 
 export const config = {
-  matcher: ['/signin', '/signup'],
+  matcher: [
+    /*
+     * Match all request paths except for:
+     * - The root path "/"
+     * - /signin and /signout paths
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+
+    '/((?!signin|_next/static|_next/image|$|signup|.*\\.png$).*)',
+  ],
 };
