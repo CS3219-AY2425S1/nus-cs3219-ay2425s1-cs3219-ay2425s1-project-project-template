@@ -24,7 +24,8 @@ const createQuestion = async (req, res) => {
             category: req.body.category,
             complexity: req.body.complexity
         });
-
+        
+        console.log(`Question: ${req.body.title} created in the database.`)
         return res.status(201).json(result);
     } catch (err) {
         console.error(err);
@@ -43,7 +44,6 @@ const updateQuestion = async (req, res) => {
     }
 
     const question = await QuestionSchema.findOne({ _id: questionId }).exec();
-    console.log('question:', question);
 
     if (!question) {
         return res.status(401).json({ "message": `No question matches ID ${ questionId}.` });
@@ -69,6 +69,8 @@ const updateQuestion = async (req, res) => {
     if (req.body?.complexity) question.complexity = req.body.complexity;
 
     const updatedQuestion = await question.save();
+    console.log(`Question: ${question.title} has been successfully updated in the database.`)
+
     return res.status(200).json(updatedQuestion);
   } catch (error) {
       console.error('Error updating question:', error);
@@ -93,7 +95,7 @@ const deleteQuestion = async (req, res) => {
     // return the new question list that no longer contain the deleted question
     const updatedQuestionList = await QuestionSchema.find();
     res.json(updatedQuestionList);
-    console.log('updatedQuestionList:', updatedQuestionList);
+    console.log(`Question: ${question.title} has been successfully deleted in the database.`)
 }
 
 const getQuestion = async (req, res) => {
