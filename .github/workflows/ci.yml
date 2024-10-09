@@ -43,12 +43,12 @@ jobs:
     - name: Install dependencies
       run: |
         cd frontend
-        npm install
+        pnpm install
         
     - name: Build frontend
       run: |
         cd frontend
-        npm run build
+        pnpm run build
         
     # - name: Run frontend tests
     #   run: |
