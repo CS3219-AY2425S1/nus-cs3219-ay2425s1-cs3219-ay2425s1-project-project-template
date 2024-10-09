@@ -13,9 +13,16 @@ import logger from "../utils/logger";
 class Consumer {
     private pendingReq: MatchRequestWithQueueInfo | null;
     private cancelledMatches: Map<string, CancelRequestWithQueueInfo> = new Map();
+    private cleanupInterval: NodeJS.Timeout;
 
     constructor() {
         this.pendingReq = null;
+
+        // Incoming cancellation requests may reference non-existing matches. 
+        // If these requests are not deleted from the hashmap, they will accumulate over time.
+        // To prevent this, we regularly clean up expired cancellation requests from the hashmap.
+        const intervalDuration = 1 * 60 * 1000;
+        this.cleanupInterval = setInterval(() => this.cleanupExpiredCancellationRequests(), intervalDuration);
     }
 
     public async consumeMatchRequest(topic: string, difficulty: string, directExchange: string, channel: Channel): Promise<void> {
@@ -209,6 +216,18 @@ class Consumer {
             logger.debug(`Deleting cancelled match request: ${matchId}`);
             this.cancelledMatches.delete(matchId);
         }
+    }
+
+    private cleanupExpiredCancellationRequests(): void {
+        logger.info("Cleaning expired match cancellation request");
+        const expirationTime = 1 * 60 * 1000;
+
+        this.cancelledMatches.forEach((cancelRequest, matchId) => {
+            if (cancelRequest.hasExpired(expirationTime)) {
+                logger.debug(`Expired cancellation request detected and removed for match ID: ${matchId}`);
+                this.cancelledMatches.delete(matchId);
+            }
+        });
     }
 }
 
