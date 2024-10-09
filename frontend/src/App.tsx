@@ -4,6 +4,8 @@ import QuestionPage from "./pages/QuestionPage";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import DashboardPageForUsers from "./pages/DashBoardForUsersPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 const App: React.FC = () => {
   return (
@@ -13,6 +15,8 @@ const App: React.FC = () => {
         <Route path="/question/:title" element={<QuestionPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/dashboardForUsers" element={<DashboardPageForUsers />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </BrowserRouter>
   );

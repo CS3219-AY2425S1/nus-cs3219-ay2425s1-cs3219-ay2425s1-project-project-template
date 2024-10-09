@@ -31,7 +31,7 @@ const NavBar: React.FC = () => {
                 Enter as Admin
               </button>
             </Link>
-            <Link to="/dashboardForUsers">
+            <Link to="/login">
               <button className="bg-yellow text-black rounded-[25px] p-4 whitespace-nowrap">
                 Enter as User
               </button>
