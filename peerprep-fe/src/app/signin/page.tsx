@@ -9,12 +9,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { axiosUserClient } from '@/network/axiosClient';
 import { login } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/state/useAuthStore';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   // handle login here
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,6 +33,7 @@ export default function LoginForm() {
       const token = data.accessToken;
       const res = await login(token);
       if (res) {
+        setAuth(true, token);
         router.push('/');
         return;
       }

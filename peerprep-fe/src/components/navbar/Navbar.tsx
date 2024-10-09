@@ -10,15 +10,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/state/useAuthStore';
 
 export default function Navbar() {
-  const router = useRouter();
+  const { isAuth, clearAuth } = useAuthStore();
 
   const handleLogout = async () => {
     const res = await logout();
     if (res) {
-      router.push('/signin');
+      clearAuth();
       return;
     }
   };
@@ -36,7 +36,7 @@ export default function Navbar() {
           <Link href="/match" className="text-gray-300 hover:text-white">
             Match
           </Link>
-          {true ? (
+          {isAuth ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
