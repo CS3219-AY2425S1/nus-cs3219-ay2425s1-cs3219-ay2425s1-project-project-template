@@ -6,7 +6,9 @@ steps:
         "build",
         "-t",
         "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
-        ".",
+        "-f",
+        "peerprep-fe/Dockerfile",
+        "peerprep-fe",
       ]
 
   # Push the container image to Artifact Registry
