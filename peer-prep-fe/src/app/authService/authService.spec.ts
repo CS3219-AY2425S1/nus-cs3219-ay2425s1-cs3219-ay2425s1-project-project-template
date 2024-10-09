@@ -6,8 +6,8 @@ describe('authService', () => {
   let router: Router;
 
   beforeEach(() => {
-    router = TestBed.inject(Router)
-  })
+    router = TestBed.inject(Router);
+  });
 
   it('should create an instance', () => {
     expect(new authService(router)).toBeTruthy();

@@ -1,18 +1,15 @@
-import {Component, EventEmitter, Inject, Output} from '@angular/core';
-import {QuestionService} from "../services/question.service";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {FormsModule} from "@angular/forms";
-import {HttpClientModule} from "@angular/common/http";
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { QuestionService } from '../services/question.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-delete-page',
   standalone: true,
-  imports: [
-    FormsModule,
-    HttpClientModule
-  ],
+  imports: [FormsModule, HttpClientModule],
   templateUrl: './delete-page.component.html',
-  styleUrl: './delete-page.component.css'
+  styleUrl: './delete-page.component.css',
 })
 export class DeletePageComponent {
   @Output() deleteComplete = new EventEmitter<void>();
@@ -21,11 +18,11 @@ export class DeletePageComponent {
   constructor(
     private questionService: QuestionService,
     private dialogRef: MatDialogRef<DeletePageComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {}
 
   ngOnInit() {
-    if(this.data?.questionId) {
+    if (this.data?.questionId) {
       this.questionId = this.data.questionId;
       this.loadQuestionData();
     }
@@ -39,11 +36,13 @@ export class DeletePageComponent {
   }
 
   deleteQuestion() {
-    this.questionService.deleteQuestion(this.questionId).subscribe((response) => {
-      alert('Question deleted successfully!');
-      this.dialogRef.close();
-      this.onDeleteComplete();
-    })
+    this.questionService
+      .deleteQuestion(this.questionId)
+      .subscribe((response) => {
+        alert('Question deleted successfully!');
+        this.dialogRef.close();
+        this.onDeleteComplete();
+      });
   }
   navigateBack() {
     this.dialogRef.close();
@@ -52,5 +51,4 @@ export class DeletePageComponent {
   onDeleteComplete() {
     this.deleteComplete.emit();
   }
-
 }

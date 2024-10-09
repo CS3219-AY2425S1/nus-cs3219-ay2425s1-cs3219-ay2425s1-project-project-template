@@ -19,10 +19,9 @@ describe('QuestionListComponent', () => {
       imports: [QuestionListComponent, QuestionBoxComponent],
       providers: [
         // Provide the mock authService
-        { provide: authService, useClass: MockAuthService }
-      ]
-    })
-      .compileComponents();
+        { provide: authService, useClass: MockAuthService },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QuestionListComponent);
     component = fixture.componentInstance;

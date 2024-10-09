@@ -4,10 +4,10 @@ import { Observable } from 'rxjs';
 import { Category } from '../app/models/category.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoryService {
-  private baseUrl = 'http://localhost:8080/categories'
+  private baseUrl = 'http://localhost:8080/categories';
 
   constructor(private http: HttpClient) {}
 

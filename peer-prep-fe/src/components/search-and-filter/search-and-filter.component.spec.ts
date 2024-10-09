@@ -17,13 +17,16 @@ describe('SearchAndFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, ReactiveFormsModule, SearchAndFilterComponent],
+      imports: [
+        HttpClientTestingModule,
+        ReactiveFormsModule,
+        SearchAndFilterComponent,
+      ],
       providers: [
         // Provide the mock authService
-        { provide: authService, useClass: MockAuthService }
-      ]
-    })
-      .compileComponents();
+        { provide: authService, useClass: MockAuthService },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SearchAndFilterComponent);
     component = fixture.componentInstance;

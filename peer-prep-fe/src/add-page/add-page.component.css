@@ -33,7 +33,9 @@
   align-items: center;
   justify-content: center;
   padding: 5px;
-  transition: transform 0.2s, color 0.2s;
+  transition:
+    transform 0.2s,
+    color 0.2s;
 }
 
 .back-button:hover {
@@ -105,7 +107,7 @@
   border: 1px solid #ccc;
   max-height: 100px;
   overflow-y: auto;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
   z-index: 1;
   border-radius: 3px;
   background-color: #333333;
@@ -224,5 +226,3 @@ input[type="checkbox"] {
   margin-left: 570px;
   color: red;
 }
-
-

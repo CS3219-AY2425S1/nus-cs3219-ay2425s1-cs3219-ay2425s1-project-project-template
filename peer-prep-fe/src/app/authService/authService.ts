@@ -3,17 +3,17 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class authService {
-
-  private currentUserSubject: BehaviorSubject<any>; 
+  private currentUserSubject: BehaviorSubject<any>;
   public currentUser: any;
 
   constructor(private router: Router) {
     const userData = sessionStorage.getItem('userData');
-    this.currentUserSubject = new BehaviorSubject<any>(userData ? JSON.parse(userData) : null);
+    this.currentUserSubject = new BehaviorSubject<any>(
+      userData ? JSON.parse(userData) : null,
+    );
   }
 
   get currentUserValue() {
@@ -21,7 +21,7 @@ export class authService {
   }
 
   login(userData: any): void {
-    sessionStorage.setItem('userData', JSON.stringify(userData));  
+    sessionStorage.setItem('userData', JSON.stringify(userData));
     this.currentUserSubject.next(userData);
     this.currentUser = userData;
     console.log(this.currentUser);
@@ -47,8 +47,8 @@ export class authService {
   }
 
   getToken(): string | null {
-    const userJson: any = sessionStorage.getItem('userData')
-    const userToken = JSON.parse(userJson).data.accessToken
+    const userJson: any = sessionStorage.getItem('userData');
+    const userToken = JSON.parse(userJson).data.accessToken;
     return userToken;
   }
 

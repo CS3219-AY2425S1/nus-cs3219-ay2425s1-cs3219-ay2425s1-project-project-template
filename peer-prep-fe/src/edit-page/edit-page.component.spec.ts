@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EditPageComponent } from './edit-page.component';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 class MatDialogRefMock {
   close() {}
 }
 
 const mockDialogData = {
-  someProperty: 'someValue'
+  someProperty: 'someValue',
 };
 
 describe('EditPageComponent', () => {
@@ -20,10 +20,9 @@ describe('EditPageComponent', () => {
       imports: [EditPageComponent],
       providers: [
         { provide: MatDialogRef, useClass: MatDialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: mockDialogData }
-      ]
-    })
-    .compileComponents();
+        { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EditPageComponent);
     component = fixture.componentInstance;

@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Output} from '@angular/core';
-import {EditPageComponent} from "../../edit-page/edit-page.component";
+import { Component, EventEmitter, Output } from '@angular/core';
+import { EditPageComponent } from '../../edit-page/edit-page.component';
 import { CommonModule } from '@angular/common';
 import { QuestionService } from '../../services/question.service';
-import {MatDialog} from "@angular/material/dialog";
-import {AddPageComponent} from "../../add-page/add-page.component";
+import { MatDialog } from '@angular/material/dialog';
+import { AddPageComponent } from '../../add-page/add-page.component';
 import { Category } from '../../app/models/category.model';
 import { FormsModule } from '@angular/forms';
 import { authService } from '../../app/authService/authService';
@@ -13,22 +13,29 @@ import { authService } from '../../app/authService/authService';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './search-and-filter.component.html',
-  styleUrl: './search-and-filter.component.css'
+  styleUrl: './search-and-filter.component.css',
 })
 export class SearchAndFilterComponent {
   @Output() refresh = new EventEmitter<void>();
   @Output() sort = new EventEmitter<void>(); // event for when "SORT" button is clicked
-  @Output() filter = new EventEmitter<{ filterBy: string, filterValues: string }>();
+  @Output() filter = new EventEmitter<{
+    filterBy: string;
+    filterValues: string;
+  }>();
   @Output() search = new EventEmitter<string>();
 
-  searchTerm: string = '';  // Declare the searchTerm property
+  searchTerm: string = ''; // Declare the searchTerm property
 
   categories: string[] = [];
-  showFilterOptions = false;  // Controls showing filter options
+  showFilterOptions = false; // Controls showing filter options
   isDifficultyClicked = false;
   isCategoryClicked = false;
 
-  constructor(private dialog: MatDialog, private questionService: QuestionService, private authService: authService) {}
+  constructor(
+    private dialog: MatDialog,
+    private questionService: QuestionService,
+    private authService: authService,
+  ) {}
 
   isAdmin(): boolean {
     return this.authService.isAdmin();
@@ -43,7 +50,7 @@ export class SearchAndFilterComponent {
       },
       (error) => {
         console.error('Error fetching categories:', error);
-      }
+      },
     );
   }
 
@@ -51,10 +58,10 @@ export class SearchAndFilterComponent {
     this.showFilterOptions = false;
     this.isDifficultyClicked = false;
     this.isCategoryClicked = false;
-    this.filter.emit({filterBy: '', filterValues: ''});
+    this.filter.emit({ filterBy: '', filterValues: '' });
   }
 
-   // Show difficulty options
+  // Show difficulty options
   showDifficultyOptions() {
     this.isDifficultyClicked = true;
     this.isCategoryClicked = false;
@@ -69,7 +76,10 @@ export class SearchAndFilterComponent {
   // Emit an event to filter by difficulty
   filterByDifficulty(difficulty: string) {
     console.log('Filtering by difficulty:', difficulty);
-    this.filter.emit({ filterBy: 'question_complexity', filterValues: difficulty });
+    this.filter.emit({
+      filterBy: 'question_complexity',
+      filterValues: difficulty,
+    });
     this.isDifficultyClicked = false;
     this.showFilterOptions = false;
   }
@@ -77,7 +87,10 @@ export class SearchAndFilterComponent {
   // Emit an event to filter by category
   filterByCategory(category: string) {
     console.log('Filtering by category:', category);
-    this.filter.emit({ filterBy: 'question_categories', filterValues: category });
+    this.filter.emit({
+      filterBy: 'question_categories',
+      filterValues: category,
+    });
     this.isCategoryClicked = false;
     this.showFilterOptions = false;
   }
@@ -96,7 +109,7 @@ export class SearchAndFilterComponent {
       position: {
         top: '200px',
       },
-      disableClose: true
+      disableClose: true,
     });
 
     dialogRef.componentInstance.addComplete.subscribe(() => {
@@ -105,7 +118,7 @@ export class SearchAndFilterComponent {
   }
 
   searchQuestions() {
-    console.log("Search button clicked")
+    console.log('Search button clicked');
     this.search.emit(this.searchTerm);
   }
 }

@@ -7,7 +7,7 @@ class MatDialogRefMock {
 }
 
 const mockDialogData = {
-  someProperty: 'someValue'
+  someProperty: 'someValue',
 };
 
 describe('AddPageComponent', () => {
@@ -19,10 +19,9 @@ describe('AddPageComponent', () => {
       imports: [AddPageComponent],
       providers: [
         { provide: MatDialogRef, useClass: MatDialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: mockDialogData }
-      ]
-    })
-      .compileComponents();
+        { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddPageComponent);
     component = fixture.componentInstance;

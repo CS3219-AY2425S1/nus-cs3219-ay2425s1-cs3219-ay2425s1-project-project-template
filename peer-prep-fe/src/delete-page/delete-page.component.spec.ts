@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DeletePageComponent } from './delete-page.component';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 class MatDialogRefMock {
   close() {}
 }
 
 const mockDialogData = {
-  someProperty: 'someValue'
+  someProperty: 'someValue',
 };
 
 describe('DeletePageComponent', () => {
@@ -19,11 +19,10 @@ describe('DeletePageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DeletePageComponent],
       providers: [
-        {provide: MatDialogRef, useClass: MatDialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: mockDialogData }
-      ]
-    })
-    .compileComponents();
+        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DeletePageComponent);
     component = fixture.componentInstance;

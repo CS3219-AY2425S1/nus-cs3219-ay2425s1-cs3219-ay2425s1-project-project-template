@@ -27,12 +27,12 @@ describe('QuestionBoxComponent', () => {
             question_complexity: 'Easy',
             question_description: 'Test Description',
             question_categories: [],
-          }
+          },
         },
         { provide: MatDialogRef, useValue: {} },
         // Provide the mock authService
-        { provide: authService, useClass: MockAuthService }
-      ]
+        { provide: authService, useClass: MockAuthService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(QuestionBoxComponent);

@@ -27,7 +27,7 @@
           {{ user.email }}
         </td>
         <td *ngIf="user.isEditing">
-          <input type="checkbox" [(ngModel)]="user.isAdmin"/>
+          <input type="checkbox" [(ngModel)]="user.isAdmin" />
         </td>
         <td *ngIf="!user.isEditing">
           {{ user.isAdmin }}
@@ -35,15 +35,16 @@
         <td>{{ user.createdAt }}</td>
         <!-- Edit button to trigger editing mode -->
         <td class="button-cell">
-        <button *ngIf="!user.isEditing" (click)="editUser(user)">Edit</button>
-        <button *ngIf="user.isEditing" (click)="saveUser(user)">Save</button>
+          <button *ngIf="!user.isEditing" (click)="editUser(user)">Edit</button>
+          <button *ngIf="user.isEditing" (click)="saveUser(user)">Save</button>
         </td>
         <td class="button-cell">
-        <!-- Save button to save changes -->
-        <button *ngIf="user.isEditing" (click)="cancelEdit(user)">Cancel</button>
+          <!-- Save button to save changes -->
+          <button *ngIf="user.isEditing" (click)="cancelEdit(user)">
+            Cancel
+          </button>
         </td>
       </tr>
     </tbody>
   </table>
 </div>
-

@@ -6,8 +6,8 @@ import { Component, Input } from '@angular/core';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './question-explanation-box.component.html',
-  styleUrl: './question-explanation-box.component.css'
+  styleUrl: './question-explanation-box.component.css',
 })
 export class QuestionExplanationBoxComponent {
-  @Input() questionDescription!: string
+  @Input() questionDescription!: string;
 }

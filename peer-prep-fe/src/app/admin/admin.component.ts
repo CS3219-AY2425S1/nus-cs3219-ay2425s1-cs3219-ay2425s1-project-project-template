@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { User } from '../models/user.model';
 import { UserService } from '../userService/user-service';
 import { CommonModule } from '@angular/common';
@@ -9,11 +9,9 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.css'
+  styleUrl: './admin.component.css',
 })
-
 export class AdminComponent {
-
   users: User[] = [];
 
   constructor(private userService: UserService) {}
@@ -25,14 +23,14 @@ export class AdminComponent {
   loadUsers() {
     this.userService.getAllUsers().subscribe({
       next: (data: any) => {
-      this.users = data.data
-      console.log(this.users)
+        this.users = data.data;
+        console.log(this.users);
       },
       error: (e) => {
-        console.error('Error fetching: ', e)
+        console.error('Error fetching: ', e);
       },
-      complete: () => console.info('fetched all users')
-    })
+      complete: () => console.info('fetched all users'),
+    });
   }
 
   editUser(user: any): void {
@@ -49,29 +47,28 @@ export class AdminComponent {
       next: (data: any) => {},
       error: (e) => {
         if (e.status === 400) {
-          alert('Username/Email is required.')
+          alert('Username/Email is required.');
         } else if (e.status === 409) {
-          alert('Username/Email already exists.')
+          alert('Username/Email already exists.');
         } else {
-          alert('Error:' + e.status)
+          alert('Error:' + e.status);
         }
       },
-      complete: () => this.cancelEdit(user)
-    })
+      complete: () => this.cancelEdit(user),
+    });
 
-    this.updateAdmin(user)
+    this.updateAdmin(user);
   }
 
   updateAdmin(user: any) {
-        this.userService.updatePrivilege(user).subscribe({
+    this.userService.updatePrivilege(user).subscribe({
       next: (data: any) => {
-        console.log(data)
+        console.log(data);
       },
       error: (e) => {
-        alert('Error updating admin: ' + e.status)
+        alert('Error updating admin: ' + e.status);
       },
-      complete: () => {}
-    })
+      complete: () => {},
+    });
   }
 }
-

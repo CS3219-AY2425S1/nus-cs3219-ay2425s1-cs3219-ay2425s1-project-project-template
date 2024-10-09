@@ -1,29 +1,38 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
-import { Question } from "../app/models/question.model";
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Question } from '../app/models/question.model';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class QuestionService {
-  private baseUrl = 'http://localhost:8080/questions'
-  constructor(private http: HttpClient) { }
+  private baseUrl = 'http://localhost:8080/questions';
+  constructor(private http: HttpClient) {}
 
   getAllQuestion(): Observable<Question[]> {
     return this.http.get<Question[]>(this.baseUrl);
   }
 
-  getFilteredQuestions(filterBy?: string, filterValues?: string): Observable<Question[]> {
-    const url = filterBy ? `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}` : this.baseUrl;
+  getFilteredQuestions(
+    filterBy?: string,
+    filterValues?: string,
+  ): Observable<Question[]> {
+    const url = filterBy
+      ? `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}`
+      : this.baseUrl;
     return this.http.get<Question[]>(url);
   }
 
-  getSortedQuestions(filterBy?: string, filterValues?: string, sortBy?: string, orderBy?: string): Observable<Question[]> {
+  getSortedQuestions(
+    filterBy?: string,
+    filterValues?: string,
+    sortBy?: string,
+    orderBy?: string,
+  ): Observable<Question[]> {
     const url = `${this.baseUrl}?filterBy=${filterBy}&filterValues=${filterValues}&sortBy=${sortBy}&orderBy=${orderBy}`;
     return this.http.get<Question[]>(url);
   }
-  
+
   getQuestionCategories(): Observable<string> {
     return this.http.get<string>(`${this.baseUrl}/categories`);
   }
@@ -46,5 +55,4 @@ export class QuestionService {
   deleteQuestion(id: string): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }
-
 }

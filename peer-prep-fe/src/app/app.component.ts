@@ -19,7 +19,7 @@ const MODULES = [
   QuestionListComponent,
   CommonModule,
   AdminComponent,
-  HttpClientModule
+  HttpClientModule,
 ];
 
 @Component({
@@ -29,20 +29,19 @@ const MODULES = [
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-
 export class AppComponent {
-  title = 'peer-prep-fe'
+  title = 'peer-prep-fe';
   userName: string | null = null;
 
   constructor(private authService: authService) {}
 
   //Check if username is logged in, set this.userName
   ngOnInit(): void {
-    this.authService.currentUserValue.subscribe(user => {
+    this.authService.currentUserValue.subscribe((user) => {
       if (user) {
         this.userName = user.data.username;
       } else {
-        this.userName = null; 
+        this.userName = null;
       }
     });
   }

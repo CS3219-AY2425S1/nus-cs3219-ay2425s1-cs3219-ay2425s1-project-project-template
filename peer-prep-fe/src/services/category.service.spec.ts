@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CategoryService } from './category.service';
-import {HttpClientModule} from "@angular/common/http";
+import { HttpClientModule } from '@angular/common/http';
 
 describe('CategoryService', () => {
   let service: CategoryService;
@@ -9,7 +9,7 @@ describe('CategoryService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientModule],
-      providers: [CategoryService]
+      providers: [CategoryService],
     });
     service = TestBed.inject(CategoryService);
   });
