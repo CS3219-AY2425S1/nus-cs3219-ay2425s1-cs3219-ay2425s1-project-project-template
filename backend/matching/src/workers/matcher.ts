@@ -1,6 +1,6 @@
 import { client } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
-import { decodePoolTicket, getPoolKey } from '@/lib/utils';
+import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { io } from '@/server';
 
 const logger = {
@@ -64,9 +64,10 @@ async function match() {
         const matched = matches.documents[0];
         const {
           userId: matchedUserId,
-          timestamp: matchedStreamId, // We use timestamp as the Stream ID
+          timestamp, // We use timestamp as the Stream ID
           socketPort: matchedSocketPort,
         } = decodePoolTicket(matched);
+        const matchedStreamId = getStreamId(timestamp);
 
         logger.info(`Found match: ${JSON.stringify(matched)}`);
 
