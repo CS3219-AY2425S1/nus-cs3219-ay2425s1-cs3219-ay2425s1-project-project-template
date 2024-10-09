@@ -2,13 +2,27 @@ from fastapi import APIRouter, HTTPException, Response, status
 from pymongo.errors import DuplicateKeyError
 from structlog import get_logger
 
-from ..models import Question
+from ..models import Question, QuestionTopic
 from ..schemas import CreateQuestionModel, UpdateQuestionModel
 from ..service.question_service import create_question as create_question_db
 from ..service.question_service import delete_question, get_question, get_questions, update_question
+from ..service.question_service import get_difficulties as get_difficulties_db
+from ..service.question_service import get_topics as get_topics_db
 
 router = APIRouter()
 logger = get_logger()
+
+
+@router.get("/topic", response_model=set[str])
+async def get_topics():
+    topics = await get_topics_db()
+    return topics
+
+
+@router.get("/difficulty", response_model=set[str])
+async def get_difficulties():
+    difficulties = await get_difficulties_db()
+    return difficulties
 
 
 @router.get("/question/{titleSlug}", response_model=Question)
