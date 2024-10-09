@@ -31,3 +31,6 @@ jobs:
 
       - name: "Trigger Cloud Build"
         run: "gcloud builds submit --config cloudbuild.yaml"
+
+    options:
+      logging: CLOUD_LOGGING_ONLY
