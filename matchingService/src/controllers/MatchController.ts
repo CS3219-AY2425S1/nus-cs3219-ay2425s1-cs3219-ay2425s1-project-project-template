@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import MatchService from "../services/MatchService";
-import logger from "../utils/logger";
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
+import { InvalidDifficultyError, InvalidTopicError, MissingFieldError } from "../errors/ValidationError";
+import RequestValidator from "../validators/RequestValidator";
 
 /**
  * MatchController handles the incoming requests related to user matching.
@@ -14,13 +15,10 @@ export default class MatchController {
         this.matchService = matchService;
     }
 
-    public async findMatch(req: Request, res: Response): Promise<Response> {
+    public async findMatch(req: Request, res: Response, next: NextFunction) {
         try {
             const { name, matchId, topic, difficulty } = req.body;
-            const validationError: string | null = this.validateFindMatchRequest({ name, matchId, topic, difficulty });
-            if (validationError) {
-                return res.status(400).json({ error: validationError })
-            }
+            RequestValidator.validateFindMatchRequest({ name, matchId, topic, difficulty });
 
             const result: boolean = await this.matchService.findMatch(name, matchId, topic, difficulty);
             
@@ -30,19 +28,15 @@ export default class MatchController {
                 return res.status(500).json({ error: "Failed to process match request" });
             }
         } catch (error) {
-            console.error("Error handling match request:", error);
-            return res.status(500).json({ error: "Internal server error" });
+            next(error);
         }
     }
 
-    public async cancelMatch(req: Request, res: Response): Promise<Response> {
+    public async cancelMatch(req: Request, res: Response, next: NextFunction) {
         const matchId: string = req.query.matchId as string;
 
-        if (!matchId) {
-            return res.status(400).json({ error: "matchId is required" });
-        }
-
         try {
+            RequestValidator.validateCancelMatchRequest(matchId);
             const isCancelled: boolean = await this.matchService.cancelMatch(matchId);
             if (isCancelled) {
                 return res.json({ success: true });
@@ -50,24 +44,7 @@ export default class MatchController {
                 return res.status(404).json({ error: "Match not found or already processed" });
             }
         } catch (error) {
-            console.error("Error cancelling match:", error);
-            return res.status(500).json({ error: "Internal server error" });
+            next(error);
         }
-    }
-
-    private validateFindMatchRequest(data: { name: string; matchId: string; topic: string; difficulty: string }): string | null {
-        const { name, matchId, topic, difficulty } = data;
-        if (!name || !matchId || !topic || !difficulty) {
-            return "Invalid request data. All fields are required.";
-        }
-
-        if (!Object.values(Difficulty).includes(difficulty as Difficulty)) {
-            return "Invalid difficulty level provided!";
-        }
-
-        if (!Object.values(Topic).includes(topic as Topic)) {
-            return "Invalid topic provided!";
-        }
-        return null;
     }
 }
