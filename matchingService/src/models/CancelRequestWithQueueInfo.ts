@@ -5,7 +5,7 @@ import CancelRequest from "./CancelRequest";
  * This enables the consumer to remember which repsonse queue to reply to.
  */
 class CancelRequestWithQueueInfo extends CancelRequest {
-    private static readonly EXPIRATION_DURATION = 5 * 60 * 1000;
+    private static readonly EXPIRATION_DURATION = 0.1 * 60 * 1000;
     private replyQueue: string;
     private correlationId: string;
     private timestamp: Date;

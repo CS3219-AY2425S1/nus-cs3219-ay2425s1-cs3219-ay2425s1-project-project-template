@@ -25,7 +25,7 @@ class Consumer {
         // Incoming cancellation requests may reference non-existing matches. 
         // If these requests are not deleted from the hashmap, they will accumulate over time.
         // To prevent this, we regularly clean up expired cancellation requests from the hashmap.
-        const intervalDuration = 30 * 60 * 1000;
+        const intervalDuration = 0.1 * 60 * 1000;
         this.cleanupInterval = setInterval(() => this.cleanupExpiredCancellationRequests(), intervalDuration);
     }
 
@@ -222,16 +222,40 @@ class Consumer {
         }
     }
 
-    private cleanupExpiredCancellationRequests(): void {
-        logger.info("Cleaning expired match cancellation request");
+    // private cleanupExpiredCancellationRequests(): void {
+    //     logger.info("Cleaning expired match cancellation request");
 
+    //     this.cancelledMatches.forEach((cancelRequest, matchId) => {
+    //         if (cancelRequest.hasExpired()) {
+    //             logger.debug(`Expired cancellation request detected and removed for match ID: ${matchId}`);
+    //             this.cancelledMatches.delete(matchId);
+    //         }
+    //     });
+    // }
+
+    private cleanupExpiredCancellationRequests(): void {
+        logger.info("Cleaning expired match cancellation requests");
+    
         this.cancelledMatches.forEach((cancelRequest, matchId) => {
             if (cancelRequest.hasExpired()) {
-                logger.debug(`Expired cancellation request detected and removed for match ID: ${matchId}`);
+                logger.debug(`Expired cancellation request detected for match ID: ${matchId}`);
+    
+                // Notify producer that the cancellation request has expired
+                this.channel.publish(
+                    this.directExchange,
+                    cancelRequest.getQueue(),
+                    Buffer.from(JSON.stringify({ success: false, error: "Request expired" })),
+                    { correlationId: cancelRequest.getCorrelationId() }
+                );
+    
+                logger.debug(`Notified producer of expired cancellation request for match ID: ${matchId}`);
+    
+                // Remove expired request from the map
                 this.cancelledMatches.delete(matchId);
             }
         });
     }
+    
 }
 
 export default Consumer;

@@ -43,10 +43,11 @@ class Producer {
                 logger.debug(`Waiting for response on queue: ${replyQueue} with correlation ID: ${correlationId}`);
 
                 const consumer = await channel.consume(replyQueue, async (message) => { // consume returns immediately after initializing listener. Hence, need custom handling of Promise
-                    if (message?.properties.correlationId === correlationId) {
-                        logger.info("Producer received filtered response: ", message.content.toString());
+                    if (message && message.properties.correlationId === correlationId) {
+                        const content = message.content.toString();
+                        logger.info(`Producer received response: ${content}`);
 
-                        const response = JSON.parse(message.content.toString());
+                        const response = JSON.parse(content);
                         await channel.cancel(consumer.consumerTag); // Stop consuming messages after receiving the first relevant response
                         resolve(response === true);
                     }
