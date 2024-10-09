@@ -1,4 +1,6 @@
 steps:
+  # Step 1: build and push all images to Artifact Registry
+
   # Build and push peerprep-fe
   - name: "gcr.io/cloud-builders/docker"
     args:
@@ -11,7 +13,7 @@ steps:
         "peerprep-fe",
       ]
 
-  # Push the container image to Artifact Registry
+  # Push the peerprep-fe image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -31,6 +33,7 @@ steps:
         "question-service",
       ]
 
+  # Push the question-service image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -50,12 +53,19 @@ steps:
         "user-service",
       ]
 
+  # Push the user-service image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
         "push",
         "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest",
       ]
+
+  # Step 2: Clean up and deploy to GKE
+
+  # Clean up before deploying peerprep-fe
+  - name: "ubuntu"
+    args: ["rm", "-rf", "output"]
 
   # Deploy peerprep-fe to Google Kubernetes Engine (GKE)
   - name: "gcr.io/cloud-builders/gke-deploy"
@@ -66,6 +76,10 @@ steps:
       - --location=asia-southeast1
       - --cluster=cs3219-g11-peerprep-kubes
 
+  # Clean up before deploying question-service
+  - name: "ubuntu"
+    args: ["rm", "-rf", "output"]
+
   # Deploy question-service to Google Kubernetes Engine (GKE)
   - name: "gcr.io/cloud-builders/gke-deploy"
     args:
@@ -75,6 +89,10 @@ steps:
       - --location=asia-southeast1
       - --cluster=cs3219-g11-peerprep-kubes
 
+  # Clean up before deploying user-service
+  - name: "ubuntu"
+    args: ["rm", "-rf", "output"]
+
   # Deploy user-service to Google Kubernetes Engine (GKE)
   - name: "gcr.io/cloud-builders/gke-deploy"
     args:
@@ -83,6 +101,8 @@ steps:
       - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest
       - --location=asia-southeast1
       - --cluster=cs3219-g11-peerprep-kubes
+
+  # Step 3: update the deployments with the new images
 
   # Update the peerprep-fe deployment
   - name: "gcr.io/cloud-builders/kubectl"
