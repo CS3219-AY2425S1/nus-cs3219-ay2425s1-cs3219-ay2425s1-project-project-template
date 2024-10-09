@@ -24,7 +24,7 @@ spec:
           ports:
             - containerPort: 4001
           envFrom:
-            - configMapRef:
+            - secretRef:
                 name: question-service-config
       dnsPolicy: ClusterFirst
 ---
