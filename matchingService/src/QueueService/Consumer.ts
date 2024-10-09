@@ -6,7 +6,7 @@ import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 
 /** 
- * Consumer that consumes incoming messages from queues that will contain Matchmaking requests
+ * Consumer consumes incoming messages from queues that will contain Matchmaking requests
  * MatchMaking requests are partitioned based on (topic, difficulty) 
  * */
 class Consumer {
@@ -93,15 +93,28 @@ class Consumer {
         if (!msg) {
             return;
         }
-        var req: CancelRequest = this.parseCancelRequest(msg);
-        const correlationId: string = msg?.properties.correlationId;
-        const replyQueue: string = msg?.properties.replyTo;
-        var reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
-        this.cancelledMatches.set(req.getMatchId(), reqWithInfo)
-        if (this.pendingReq?.getMatchId() == reqWithInfo.getMatchId()) { // Check if the current match in memory is the one to be canceled
-            this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(), 
-                this.pendingReq.getQueue(), channel, directExchange);
-            return;
+        try {
+            var req: CancelRequest = this.parseCancelRequest(msg);
+            const correlationId: string = msg.properties.correlationId;
+            const replyQueue: string = msg.properties.replyTo;
+
+            const reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
+            this.cancelledMatches.set(req.getMatchId(), reqWithInfo);
+
+            if (!this.pendingReq) {
+                return;
+            }
+
+            if (this.pendingReq.getMatchId() == reqWithInfo.getMatchId()) {
+                this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(), 
+                    this.pendingReq.getQueue(), channel, directExchange);
+                return;
+            }
+        } catch (e) {
+            if (e instanceof Error) {
+                let name = e.message;
+                console.log(`Error occured ${name}`);
+            }
         }
     }
 
