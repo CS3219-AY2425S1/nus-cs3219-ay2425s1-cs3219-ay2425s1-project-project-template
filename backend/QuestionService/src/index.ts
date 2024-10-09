@@ -5,8 +5,6 @@ import 'dotenv/config';
 import cors from "cors";
 
 
-
-
 const app = express();
 
 app.use(express.json());
@@ -30,9 +28,6 @@ mongoose.connect(mongoURI!)
             console.log(`Listening at port ${port}.`)
         })
     })
-    .catch((err) => {
+    .catch((err: Error) => {
         console.log(err);
     });
-
-
-
