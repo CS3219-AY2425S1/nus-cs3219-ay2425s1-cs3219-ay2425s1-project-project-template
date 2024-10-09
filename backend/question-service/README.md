@@ -12,6 +12,7 @@
     MONGODB_USERNAME=admin
     MONGODB_PASSWORD=g26password
     MONGODB_ENDPOINT=peerprep.xvavl.mongodb.net
+    MONGODB_DB=peerprepQuestionServiceDB    
     ```
 
 4. Fire up the backend service
