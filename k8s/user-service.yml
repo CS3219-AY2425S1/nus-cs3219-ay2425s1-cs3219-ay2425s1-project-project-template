@@ -23,7 +23,7 @@ spec:
           ports:
             - containerPort: 3001
           envFrom:
-            - configMapRef:
+            - secretRef:
                 name: user-service-config
       dnsPolicy: ClusterFirst
 ---
