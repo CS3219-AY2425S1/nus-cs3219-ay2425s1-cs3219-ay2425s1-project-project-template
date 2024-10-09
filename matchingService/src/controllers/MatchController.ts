@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import MatchService from "../services/MatchService";
+import logger from "../utils/logger";
 
 /**
  * MatchController handles the incoming requests related to user matching.
