@@ -61,16 +61,17 @@ class QueueService {
             logger.error(channel.message);
             return;
         }
+
         const cancellationConsumer: CancellationConsumer = new CancellationConsumer(channel, this.directExchange);
         cancellationConsumer.consumeCancelRequest();
         for (const topic of Object.values(Topic)) {
             for (const difficulty of Object.values(Difficulty)) {
                 const consumer: Consumer = new Consumer(channel, this.directExchange);
-                cancellationConsumer.registerConsumer(`${topic}_${difficulty}`, consumer); // Register the consumer to know where to route to
+                cancellationConsumer.registerConsumer(`${topic}_${difficulty}`, consumer);
                 await consumer.consumeMatchRequest(topic, difficulty);
             }
         }
-
+        logger.info("Consumer successully initialised and consuming");
     }
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {

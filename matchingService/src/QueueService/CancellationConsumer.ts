@@ -26,10 +26,6 @@ export default class CancellationConsumer {
         }, { noAck: true });
     }
 
-    public registerConsumer(key: string, consumer: Consumer) {
-        this.consumerMap.set(key, consumer);
-    }
-
     private handleCancellationRequest(msg: QueueMessage | null): void {
         if (!msg) {
             logger.warn("Received null message in handleCancellationRequest");
@@ -71,5 +67,9 @@ export default class CancellationConsumer {
         logger.debug(`Parsed cancellation JSON object: ${JSON.stringify(jsonObject)}`);
 
         return new CancelRequest(jsonObject.matchId, jsonObject.difficulty, jsonObject.topic);
+    }
+
+    public registerConsumer(key: string, consumer: Consumer) {
+        this.consumerMap.set(key, consumer);
     }
 }
