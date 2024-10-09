@@ -14,7 +14,7 @@ steps:
     args:
       [
         "push",
-        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
       ]
 
   # Deploy container image to GKE
@@ -22,7 +22,7 @@ steps:
     args:
       - run
       - --filename=kubernetes-manifests
-      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
       - --location=asia-southeast1
       - --cluster=cs3219-g11-peerprep-kubes
 
@@ -32,7 +32,7 @@ steps:
       - "set"
       - "image"
       - "deployment/peerprep-fe"
-      - "peerprep-fe=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA"
+      - "peerprep-fe=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
     env:
       - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
       - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
@@ -41,4 +41,4 @@ options:
   dynamic_substitutions: true
 
 images:
-  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:$COMMIT_SHA"
+  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
