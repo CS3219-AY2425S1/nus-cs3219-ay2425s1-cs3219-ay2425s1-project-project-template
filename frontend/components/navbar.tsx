@@ -16,6 +16,8 @@ import { GithubIcon, Logo } from "@/components/icons";
 export const Navbar = () => {
   const router = useRouter();
 
+  const isLoginPage = router.pathname === "/login";
+
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -25,19 +27,23 @@ export const Navbar = () => {
             <p className="font-bold text-inherit">PeerPrep</p>
           </NextLink>
         </NavbarBrand>
-        <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => {
-            const isActive = router.pathname === item.href;
 
-            return (
-              <NavbarItem key={item.href} isActive={isActive}>
-                <NavLink href={item.href} isActive={isActive}>
-                  {item.label}
-                </NavLink>
-              </NavbarItem>
-            );
-          })}
-        </div>
+        {/* Display Pages only when logged in */}
+        {!isLoginPage && (
+          <div className="hidden lg:flex gap-4 justify-start ml-2">
+            {siteConfig.navItems.map((item) => {
+              const isActive = router.pathname === item.href;
+
+              return (
+                <NavbarItem key={item.href} isActive={isActive}>
+                  <NavLink href={item.href} isActive={isActive}>
+                    {item.label}
+                  </NavLink>
+                </NavbarItem>
+              );
+            })}
+          </div>
+        )}
       </NavbarContent>
 
       <NavbarContent
