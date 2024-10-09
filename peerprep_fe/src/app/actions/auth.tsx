@@ -64,7 +64,9 @@ export async function login(state: FormState, formData: FormData) {
   try {
     const responseData = await response.json();
     if (responseData.token) {
-      return { message: responseData.token };
+      return {
+        message: { token: responseData.token, username: responseData.username },
+      };
     } else {
       return {
         errors: { errorMessage: responseData },

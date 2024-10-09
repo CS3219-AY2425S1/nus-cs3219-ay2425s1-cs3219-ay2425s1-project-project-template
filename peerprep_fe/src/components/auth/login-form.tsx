@@ -12,11 +12,13 @@ import { useAuth } from "@/contexts/auth-context";
 export function LoginForm() {
   const [state, action] = useFormState(login, undefined);
   const router = useRouter();
-  const { updateToken } = useAuth();
+  const { updateToken, setUsername } = useAuth();
 
   useEffect(() => {
     if (state?.message) {
-      updateToken(state.message);
+      updateToken(state.message.token);
+      setUsername(state.message.username);
+      console.log(state.message);
       router.push("/home");
     } else if (state?.errors?.errorMessage) {
       alert(state.errors.errorMessage);

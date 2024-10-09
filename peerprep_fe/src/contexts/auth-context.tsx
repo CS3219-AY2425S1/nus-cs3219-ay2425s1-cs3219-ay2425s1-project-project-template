@@ -13,12 +13,16 @@ interface TAuthContext {
   token: string | null;
   updateToken: (token: string) => void;
   deleteToken: () => void;
+  username: string | null;
+  setUsername: (username: string) => void;
 }
 
 export const AuthContext = createContext<TAuthContext>({
   token: null,
   updateToken: () => {},
   deleteToken: () => {},
+  username: null,
+  setUsername: () => {},
 });
 
 interface Props {
@@ -27,6 +31,7 @@ interface Props {
 
 export const AuthProvider = ({ children }: Props) => {
   const [token, setToken] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const cookies = useCookies();
@@ -63,7 +68,9 @@ export const AuthProvider = ({ children }: Props) => {
   }, [pathname]);
 
   return (
-    <AuthContext.Provider value={{ token, updateToken, deleteToken }}>
+    <AuthContext.Provider
+      value={{ token, updateToken, deleteToken, username, setUsername }}
+    >
       {children}
     </AuthContext.Provider>
   );

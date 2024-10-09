@@ -30,6 +30,10 @@ io.on("connection", (socket) => {
     socket.emit("test server", `Server received: ${message}`);
   });
 
+  // todo add matching from client
+
+  // todo
+
   socket.on("disconnect", (reason) => {
     console.log(
       `User disconnected. Socket ID: ${socket.id}. Reason: ${reason}`
@@ -37,6 +41,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`Server running at http://0.0.0.0:${port}`);
+server.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });

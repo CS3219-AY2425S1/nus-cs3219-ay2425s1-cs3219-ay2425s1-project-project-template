@@ -17,7 +17,7 @@ router.post("/signin", async (req, res) => {
   try {
     const body = req.body;
     const token = await signIn(body.username, body.password);
-    res.status(200).json({ token: token });
+    res.status(200).json({ token: token, username: body.username });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
