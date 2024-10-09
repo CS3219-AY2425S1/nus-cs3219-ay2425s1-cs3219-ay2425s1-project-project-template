@@ -1,12 +1,12 @@
-// import MatchRequestWithQueueInfo from "./IdentifiedMatchRequest";
+import { Topic, Difficulty } from '../QueueService/matchingEnums';
 
 class MatchRequest {
     private userId: string;
     private matchId: string;
-    private topic: string;
-    private difficulty: string;
+    private topic: Topic;
+    private difficulty: Difficulty;
 
-    constructor(userId: string, matchId: string, topic: string, difficulty: string) {
+    constructor(userId: string, matchId: string, topic: Topic, difficulty: Difficulty) {
         this.userId = userId;
         this.matchId = matchId;
         this.topic = topic;
@@ -17,11 +17,11 @@ class MatchRequest {
         return this.userId;
     }
 
-    public getTopic(): string {
+    public getTopic(): Topic {
         return this.topic;
     }
 
-    public getDifficulty(): string {
+    public getDifficulty(): Difficulty {
         return this.difficulty;
     }
 

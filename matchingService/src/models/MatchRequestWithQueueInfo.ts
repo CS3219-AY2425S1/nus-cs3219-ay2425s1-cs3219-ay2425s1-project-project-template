@@ -1,9 +1,10 @@
+import { Difficulty, Topic } from "../QueueService/matchingEnums";
 import MatchRequest from "./MatchRequest";
 
 class MatchRequestWithQueueInfo extends MatchRequest {
     private replyQueue: string;
     private correlationId: string;
-    constructor(userId: string, matchId: string, topic: string, difficulty: string, replyQueue: string, correlationId: string) {
+    constructor(userId: string, matchId: string, topic: Topic, difficulty: Difficulty, replyQueue: string, correlationId: string) {
         super(userId, matchId, topic, difficulty);
         this.replyQueue = replyQueue;
         this.correlationId = correlationId;

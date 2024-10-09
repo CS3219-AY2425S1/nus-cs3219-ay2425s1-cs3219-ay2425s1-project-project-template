@@ -1,5 +1,6 @@
 import { IQueueService } from "../bootstrap";
 import MatchRequest from "../models/MatchRequest";
+import { Difficulty, Topic } from "../QueueService/matchingEnums";
 
 /**
  * MatchService handles the business logic related to user matching.
@@ -11,7 +12,7 @@ export default class MatchService {
         this.queueService = queueService;
     }
 
-    public async findMatch(name: string, matchId: string, topic: string, difficulty: string ): Promise<boolean> {
+    public async findMatch(name: string, matchId: string, topic: Topic, difficulty: Difficulty ): Promise<boolean> {
         const req = new MatchRequest(name, matchId, topic, difficulty);
         return this.queueService.sendMatchRequest(req);
     }

@@ -1,5 +1,5 @@
 import { Channel } from "amqplib";
-import queueOptions from "./queueOptions";
+import { Difficulty, Topic } from "./matchingEnums";
 import logger from "../utils/logger";
 
 /**
@@ -23,8 +23,8 @@ class QueueManager {
     }
 
     public async setupQueues(): Promise<void> {
-        for (const topic of queueOptions.TOPIC_LIST) {
-            for (const difficulty of queueOptions.DIFFICULTY_LEVELS) {
+        for (const topic of Object.values(Topic)) {
+            for (const difficulty of Object.values(Difficulty)) {
                 const queueName = `${topic}_${difficulty}`;
                 await this.channel.assertQueue(queueName, { durable: false });
 

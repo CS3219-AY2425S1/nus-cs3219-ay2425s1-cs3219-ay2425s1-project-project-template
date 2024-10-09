@@ -6,7 +6,7 @@ import ChannelNotFoundError from "../errors/ChannelNotFoundError";
 import Consumer from "./Consumer";
 import Producer from "./Producer";
 import QueueManager from "./QueueManager";
-import queueOptions from "./queueOptions";
+import { Difficulty, Topic } from "./matchingEnums";
 import logger from "../utils/logger"; // Import your logger
 
 /**
@@ -61,8 +61,8 @@ class QueueService {
             return;
         }
         var consumer: Consumer = new Consumer();
-        for (const topic of queueOptions.TOPIC_LIST) {
-            for (const difficulty of queueOptions.DIFFICULTY_LEVELS) {
+        for (const topic of Object.values(Topic)) {
+            for (const difficulty of Object.values(Difficulty)) {
                 await consumer.consumeMatchRequest(topic, difficulty, this.directExchange, channel);
             }
         }
