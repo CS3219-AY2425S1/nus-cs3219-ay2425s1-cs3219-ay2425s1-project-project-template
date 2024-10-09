@@ -1,10 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import logger from "../utils/logger";
 
-const loggerMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+export const loggerRequestMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const { method, url } = req;
     logger.info(`Incoming request: ${method} ${url}`);
     next();
 };
 
-export default loggerMiddleware;
+export const loggerResponseMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+    const start = Date.now();
+    
+    res.on("finish", () => {  // Listen for the response finish event
+        const duration = Date.now() - start;
+        logger.info(`Response: ${res.statusCode} ${req.method} ${req.url} - ${duration}ms`);
+    });
+
+    next();
+}
