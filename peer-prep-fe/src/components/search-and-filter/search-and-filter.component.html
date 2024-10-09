@@ -4,8 +4,7 @@
       class="search-bar"
       type="search"
       placeholder="Search..."
-      [(ngModel)]="searchTerm"
-    />
+      [(ngModel)]="searchTerm" />
     <button type="submit" class="search-button" (click)="searchQuestions()">
       <i class="fa-solid fa-magnifying-glass search-icon"> </i>
     </button>
@@ -22,8 +21,7 @@
       <div
         class="dropdown-content"
         *ngIf="showFilterOptions"
-        (mouseleave)="showFilterOptions = false"
-      >
+        (mouseleave)="showFilterOptions = false">
         <!-- Show Difficulty and Category buttons if no filter option is selected -->
         <div *ngIf="!isDifficultyClicked && !isCategoryClicked">
           <button class="dropdown-btn" (click)="showDifficultyOptions()">
@@ -48,8 +46,7 @@
         <div *ngIf="isCategoryClicked">
           <button
             *ngFor="let category of categories"
-            (click)="filterByCategory(category)"
-          >
+            (click)="filterByCategory(category)">
             {{ category }}
           </button>
         </div>

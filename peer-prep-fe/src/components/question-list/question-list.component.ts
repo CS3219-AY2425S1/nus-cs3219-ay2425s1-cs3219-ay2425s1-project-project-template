@@ -1,36 +1,37 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { SearchAndFilterComponent } from '../search-and-filter/search-and-filter.component';
-import { Question } from '../../app/models/question.model';
-import { QuestionBoxComponent } from '../question-box/question-box.component';
-import { QuestionService } from '../../services/question.service';
-import { HttpClientModule } from '@angular/common/http';
+import { CommonModule } from "@angular/common"
+import { HttpClientModule } from "@angular/common/http"
+import { Component, OnInit } from "@angular/core"
+
+import { Question } from "../../app/models/question.model"
+import { QuestionService } from "../../services/question.service"
+import { QuestionBoxComponent } from "../question-box/question-box.component"
+import { SearchAndFilterComponent } from "../search-and-filter/search-and-filter.component"
 
 @Component({
-  selector: 'app-question-list',
+  selector: "app-question-list",
   standalone: true,
   imports: [
     CommonModule,
     SearchAndFilterComponent,
     QuestionBoxComponent,
-    HttpClientModule,
+    HttpClientModule
   ],
-  templateUrl: './question-list.component.html',
-  styleUrl: './question-list.component.css',
+  templateUrl: "./question-list.component.html",
+  styleUrl: "./question-list.component.css"
 })
 export class QuestionListComponent implements OnInit {
-  questions: Question[] = [];
+  questions: Question[] = []
 
   // Tracks current states
-  currentFilterBy: string = '';
-  currentFilterValues: string = '';
-  currentSortBy: string = 'question_title'; // Note: fields added for future extension of sorting, current MVP uses default as hardcoded
-  currentOrderBy: string = 'asc';
+  currentFilterBy: string = ""
+  currentFilterValues: string = ""
+  currentSortBy: string = "question_title" // Note: fields added for future extension of sorting, current MVP uses default as hardcoded
+  currentOrderBy: string = "asc"
 
   constructor(private questionService: QuestionService) {}
 
   ngOnInit(): void {
-    this.loadQuestions();
+    this.loadQuestions()
   }
 
   // GET DEFAULT QUESTIONS
@@ -39,39 +40,39 @@ export class QuestionListComponent implements OnInit {
     // gets default ordering of questions
     this.questionService.getAllQuestion().subscribe(
       (data: any) => {
-        this.questions = data.data.data;
+        this.questions = data.data.data
       },
       (error) => {
-        console.error('Error fetching: ', error);
-      },
-    );
+        console.error("Error fetching: ", error)
+      }
+    )
   }
 
   refreshQuestions() {
-    this.loadQuestions();
+    this.loadQuestions()
   }
 
   // FILTER QUESTIONS
 
   loadFilteredQuestions(filterBy?: string, filterValues?: string) {
-    this.currentFilterBy = filterBy ? filterBy : '';
-    this.currentFilterValues = filterValues ? filterValues : '';
+    this.currentFilterBy = filterBy ? filterBy : ""
+    this.currentFilterValues = filterValues ? filterValues : ""
     this.questionService
       .getFilteredQuestions(this.currentFilterBy, this.currentFilterValues)
       .subscribe(
         (data: any) => {
-          this.questions = data.data.data;
+          this.questions = data.data.data
           // this.filteredQuestions = data.data.data;
         },
         (error) => {
-          console.error('Error fetching: ', error);
-        },
-      );
+          console.error("Error fetching: ", error)
+        }
+      )
   }
 
   applyFilter(event: { filterBy: string; filterValues: string }) {
-    this.loadFilteredQuestions(event.filterBy, event.filterValues);
-    console.log('Filtering by:', event.filterBy, event.filterValues);
+    this.loadFilteredQuestions(event.filterBy, event.filterValues)
+    console.log("Filtering by:", event.filterBy, event.filterValues)
   }
 
   // SORT QUESTIONS
@@ -84,20 +85,20 @@ export class QuestionListComponent implements OnInit {
         this.currentFilterBy,
         this.currentFilterValues,
         this.currentSortBy,
-        this.currentOrderBy,
+        this.currentOrderBy
       )
       .subscribe(
         (data: any) => {
-          this.questions = data.data.data;
+          this.questions = data.data.data
         },
         (error) => {
-          console.error('Error fetching: ', error);
-        },
-      );
+          console.error("Error fetching: ", error)
+        }
+      )
   }
 
   applyFilterWithSort() {
-    this.loadFilteredAndSortedQuestions();
+    this.loadFilteredAndSortedQuestions()
   }
 
   // SEARCH QUESTIONS
@@ -106,26 +107,26 @@ export class QuestionListComponent implements OnInit {
     if (searchTerm) {
       this.questionService.searchQuestion(searchTerm).subscribe(
         (data: any) => {
-          this.questions = data.data.data;
+          this.questions = data.data.data
         },
         (error) => {
-          console.error('Error fetching: ', error);
-        },
-      );
+          console.error("Error fetching: ", error)
+        }
+      )
     } else {
       // gets default ordering of questions
       this.questionService.getAllQuestion().subscribe(
         (data: any) => {
-          this.questions = data.data.data;
+          this.questions = data.data.data
         },
         (error) => {
-          console.error('Error fetching: ', error);
-        },
-      );
+          console.error("Error fetching: ", error)
+        }
+      )
     }
   }
 
   refreshQuestionsSearch(searchTerm?: string) {
-    this.loadSearchedQuestions(searchTerm);
+    this.loadSearchedQuestions(searchTerm)
   }
 }

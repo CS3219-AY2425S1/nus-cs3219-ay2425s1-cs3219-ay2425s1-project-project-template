@@ -9,8 +9,7 @@
           createAccountForm.get('username')?.invalid &&
           createAccountForm.get('username')?.touched
         "
-        class="error-message"
-      >
+        class="error-message">
         <small *ngIf="createAccountForm.get('username')?.hasError('required')"
           >Username is required</small
         >
@@ -24,8 +23,7 @@
           createAccountForm.get('email')?.invalid &&
           createAccountForm.get('email')?.touched
         "
-        class="error-message"
-      >
+        class="error-message">
         <small *ngIf="createAccountForm.get('email')?.hasError('required')"
           >Email is required</small
         >
@@ -43,8 +41,7 @@
           createAccountForm.get('password')?.invalid &&
           createAccountForm.get('password')?.touched
         "
-        class="error-message"
-      >
+        class="error-message">
         <small *ngIf="createAccountForm.get('password')?.hasError('required')"
           >Password is required</small
         >
@@ -61,8 +58,7 @@
           createAccountForm?.hasError &&
           createAccountForm.get('confirmPassword')?.touched
         "
-        class="error-message"
-      >
+        class="error-message">
         <small
           *ngIf="createAccountForm.get('confirmPassword')?.hasError('required')"
           >Please confirm your password.
@@ -77,8 +73,7 @@
         class="submit"
         type="submit"
         (click)="createAccount()"
-        [disabled]="createAccountForm.invalid"
-      >
+        [disabled]="createAccountForm.invalid">
         Submit
       </button>
     </form>

@@ -13,16 +13,16 @@
   <div>
     <p>QUESTION DESCRIPTION</p>
     <app-question-explanation-box
-      [questionDescription]="data.questionDescription"
-    ></app-question-explanation-box>
+      [questionDescription]="
+        data.questionDescription
+      "></app-question-explanation-box>
   </div>
   <div>
     <p>CATEGORIES</p>
     <div class="categories-row">
       <app-question-categories
         *ngFor="let category of data.questionCategories"
-        [questionCategory]="category"
-      ></app-question-categories>
+        [questionCategory]="category"></app-question-categories>
     </div>
   </div>
 </div>

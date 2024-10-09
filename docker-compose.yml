@@ -1,11 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
   question:
     image: golang:1.23-alpine
     container_name: peer-prep-question
-    working_dir: /app 
-    env_file: 
+    working_dir: /app
+    env_file:
       - ./peer-prep-be/.env
     volumes:
       - ./peer-prep-be:/app

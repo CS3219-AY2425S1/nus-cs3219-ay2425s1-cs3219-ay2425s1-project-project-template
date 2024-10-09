@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core"
 
 @Component({
-  selector: 'app-question-categories',
+  selector: "app-question-categories",
   standalone: true,
   imports: [],
-  templateUrl: './question-categories.component.html',
-  styleUrl: './question-categories.component.css',
+  templateUrl: "./question-categories.component.html",
+  styleUrl: "./question-categories.component.css"
 })
 export class QuestionCategoriesComponent {
-  @Input() questionCategory!: string;
+  @Input() questionCategory!: string
 }

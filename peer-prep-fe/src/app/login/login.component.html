@@ -16,8 +16,7 @@
         *ngIf="
           loginForm.get('email')?.invalid && loginForm.get('email')?.touched
         "
-        class="error-message"
-      >
+        class="error-message">
         <small *ngIf="loginForm.get('email')?.hasError('required')"
           >Email is required</small
         >
@@ -35,8 +34,7 @@
           loginForm.get('password')?.invalid &&
           loginForm.get('password')?.touched
         "
-        class="error-message"
-      >
+        class="error-message">
         <small *ngIf="loginForm.get('password')?.hasError('required')"
           >Password is required</small
         >
@@ -50,16 +48,14 @@
         class="submit"
         type="submit"
         (click)="loginAccount()"
-        [disabled]="loginForm.invalid"
-      >
+        [disabled]="loginForm.invalid">
         Submit
       </button>
     </form>
     <button
       class="create-account"
       routerLink="/create-account"
-      routerLinkActive="activebutton"
-    >
+      routerLinkActive="activebutton">
       Create Account
     </button>
   </div>
