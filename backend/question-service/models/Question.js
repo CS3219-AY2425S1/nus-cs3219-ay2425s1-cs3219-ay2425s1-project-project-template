@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const { v4: uuid } = require('uuid');
-
 
 const questionSchema = new mongoose.Schema({
     title: {
