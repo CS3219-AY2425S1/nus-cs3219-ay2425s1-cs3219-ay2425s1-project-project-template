@@ -55,16 +55,17 @@ export class CreateAccountComponent {
     })
     .then(response => {
       if (!response.ok) {
+        console.log(">> Account Creation: ", response);
         if (response.status === 409) {
           alert("Email/Username already exists.")
         }
-      }
-      if (response.ok) {
+        alert("Error encountered when creating account. Please try again soon.")
+        throw new Error('Account creation failed');
+      } else {
         alert("Successfully created account")
         this.router.navigate(['/login']) // Redirect to homepage when succesfully created account.
         return response.json(); // Parse the JSON from the response
       }
-      throw new Error('Login failed');
     })
     .then(data => {
       this.authService.login(data);
