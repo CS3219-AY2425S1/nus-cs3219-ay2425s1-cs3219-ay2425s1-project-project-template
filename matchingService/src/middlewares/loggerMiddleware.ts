@@ -10,7 +10,7 @@ export const loggerRequestMiddleware = (req: Request, res: Response, next: NextF
 export const loggerResponseMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const start = Date.now();
     
-    res.on("finish", () => {  // Listen for the response finish event
+    res.on("finish", () => {
         const duration = Date.now() - start;
         logger.info(`Response: ${res.statusCode} ${req.method} ${req.url} - ${duration}ms`);
     });

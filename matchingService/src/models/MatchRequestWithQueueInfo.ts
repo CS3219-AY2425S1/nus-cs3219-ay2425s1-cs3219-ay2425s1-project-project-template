@@ -1,6 +1,10 @@
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
 import MatchRequest from "./MatchRequest";
 
+/**
+ * MatchRequestWithQueueInfo stores additional information - response queue and correlationid. 
+ * This enables the consumer to remember which repsonse queue to reply to.
+ */
 class MatchRequestWithQueueInfo extends MatchRequest {
     private replyQueue: string;
     private correlationId: string;
