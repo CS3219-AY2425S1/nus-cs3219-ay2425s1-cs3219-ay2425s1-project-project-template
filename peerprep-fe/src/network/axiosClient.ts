@@ -15,6 +15,13 @@ const axiosQuestionClient = axios.create({
   },
 });
 
+const axiosAuthClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3001',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // // Interceptor for authorisation token
 // axiosClient.interceptors.request.use(
 //   (config) => {
@@ -39,4 +46,4 @@ const axiosQuestionClient = axios.create({
 //   },
 // );
 
-export { axiosQuestionClient };
+export { axiosQuestionClient, axiosAuthClient };

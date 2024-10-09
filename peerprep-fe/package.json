@@ -30,6 +30,7 @@
     "nuqs": "^1.19.3",
     "react": "^18",
     "react-dom": "^18",
+    "react-nice-avatar": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zustand": "5.0.0-rc.2"

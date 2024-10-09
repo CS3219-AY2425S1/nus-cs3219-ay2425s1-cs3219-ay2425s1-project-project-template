@@ -31,4 +31,18 @@ interface FilterSelectProps {
   isMulti?: boolean;
 }
 
-export type { Problem, ProblemDialogData, FilterBadgeProps, FilterSelectProps };
+// Add a type for user info
+interface User {
+  id: string;
+  email: string;
+  isAdmin: boolean;
+  username: string;
+}
+
+export type {
+  Problem,
+  ProblemDialogData,
+  FilterBadgeProps,
+  FilterSelectProps,
+  User,
+};
