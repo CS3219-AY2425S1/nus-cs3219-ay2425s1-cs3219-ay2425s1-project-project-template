@@ -35,12 +35,8 @@ export default class MatchController {
 
         try {
             RequestValidator.validateCancelMatchRequest(matchId);
-            const isCancelled: boolean = await this.matchService.cancelMatch(matchId);
-            if (isCancelled) {
-                return res.json({ success: true });
-            } else {
-                return res.status(404).json({ error: "Match not found or already processed" });
-            }
+            this.matchService.cancelMatch(matchId);
+            return res.json({ success: true });
         } catch (error) {
             next(error);
         }

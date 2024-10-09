@@ -6,7 +6,7 @@ import logger from "../utils/logger";
 
 export interface IQueueService {
     sendMatchRequest(matchRequest: MatchRequest): Promise<boolean>;
-    cancelMatchRequest(matchId: string): Promise<boolean>;
+    cancelMatchRequest(matchId: string): Promise<void>;
 }
 
 /**

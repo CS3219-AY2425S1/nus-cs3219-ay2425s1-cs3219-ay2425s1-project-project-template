@@ -17,7 +17,7 @@ export default class MatchService {
         return this.queueService.sendMatchRequest(req);
     }
 
-    public async cancelMatch(matchId: string): Promise<boolean> {
+    public async cancelMatch(matchId: string): Promise<void> {
        return this.queueService.cancelMatchRequest(matchId);
     }
 }

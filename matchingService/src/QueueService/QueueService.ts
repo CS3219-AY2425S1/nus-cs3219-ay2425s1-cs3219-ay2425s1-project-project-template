@@ -82,18 +82,18 @@ class QueueService {
         return result;
     }
 
-    public async cancelMatchRequest(matchId: string): Promise<boolean> {
+    public async cancelMatchRequest(matchId: string): Promise<void> {
         logger.info(`Canceling match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             logger.error(channel.message);
-            return false;
+            return;
         }
         var producer: Producer = new Producer();
         var req: CancelRequest = new CancelRequest(matchId);
         const result = await producer.sendCancelMessage(req, channel, this.directExchange);
         logger.info(`Cancellation request sent for match ID: ${matchId}, result: ${result}`);
-        return result;
+        return;
     }
 }
 
