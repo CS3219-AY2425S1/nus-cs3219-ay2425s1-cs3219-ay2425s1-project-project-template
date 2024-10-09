@@ -1,5 +1,5 @@
 steps:
-  # Build the container image
+  # Build and push peerprep-fe
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -19,7 +19,45 @@ steps:
         "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
       ]
 
-  # Deploy container image to GKE
+  # Build and push question-service
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest",
+        "-f",
+        "question-service/Dockerfile",
+        "question-service",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest",
+      ]
+
+  # Build and push user-service
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest",
+        "-f",
+        "user-service/Dockerfile",
+        "user-service",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest",
+      ]
+
+  # Deploy peerprep-fe to Google Kubernetes Engine (GKE)
   - name: "gcr.io/cloud-builders/gke-deploy"
     args:
       - run
@@ -28,7 +66,25 @@ steps:
       - --location=asia-southeast1
       - --cluster=cs3219-g11-peerprep-kubes
 
-  # Update the deployment to use the new image
+  # Deploy question-service to Google Kubernetes Engine (GKE)
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=k8s/question-service.yml
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest
+      - --location=asia-southeast1
+      - --cluster=cs3219-g11-peerprep-kubes
+
+  # Deploy user-service to Google Kubernetes Engine (GKE)
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=k8s/user-service.yml
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest
+      - --location=asia-southeast1
+      - --cluster=cs3219-g11-peerprep-kubes
+
+  # Update the peerprep-fe deployment
   - name: "gcr.io/cloud-builders/kubectl"
     args:
       - "set"
@@ -39,8 +95,32 @@ steps:
       - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
       - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
 
+  # Update the question-service deployment
+  - name: "gcr.io/cloud-builders/kubectl"
+    args:
+      - "set"
+      - "image"
+      - "deployment/question-svc"
+      - "question-svc=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
+
+  # Update the user-service deployment
+  - name: "gcr.io/cloud-builders/kubectl"
+    args:
+      - "set"
+      - "image"
+      - "deployment/user-svc"
+      - "user-svc=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
+
 options:
   dynamic_substitutions: true
 
 images:
   - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
+  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest"
+  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest"
