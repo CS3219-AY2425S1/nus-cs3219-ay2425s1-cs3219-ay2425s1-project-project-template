@@ -11,6 +11,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const login_url = process.env.REACT_APP_USER_LOGIN_URL;
+
   useEffect(() => {
     // Check for state passed from the RegisterPage
     if (location.state?.registered) {
@@ -21,7 +23,7 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8001/auth/login', {
+      const response = await axios.post(login_url, {
         email: email.trim(), // Trim whitespace
         password: password.trim() // Trim whitespace
       });

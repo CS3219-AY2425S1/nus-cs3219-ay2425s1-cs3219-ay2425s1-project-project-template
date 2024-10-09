@@ -10,10 +10,12 @@ function RegisterPage() {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+    const register_url = process.env.REACT_APP_USER_REGISTER_URL;
+
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8001/users', {
+            const response = await axios.post(register_url, {
                 email: email,
                 username: username,
                 password: password
