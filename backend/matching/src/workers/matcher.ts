@@ -1,11 +1,6 @@
 import { client } from '@/lib/db';
-import {
-  MATCH_PREFIX,
-  POOL_INDEX,
-  STREAM_GROUP,
-  STREAM_NAME,
-  STREAM_WORKER,
-} from '@/lib/db/constants';
+import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
+import { decodePoolTicket, getPoolKey } from '@/lib/utils';
 import { io } from '@/server';
 
 const logger = {
@@ -45,13 +40,19 @@ async function match() {
     for (const matchRequest of group.messages) {
       logger.info(`Received request: ${JSON.stringify(matchRequest)}`);
       // Query the pool
-      const matchRequestor = matchRequest.message;
-      const clause = [`-@userId:(${matchRequestor.userId})`];
-      if (matchRequestor.difficulty) {
-        clause.push(`@difficulty:{${matchRequestor.difficulty}}`);
+      const {
+        id: requestorStreamId,
+        userId: requestorUserId,
+        socketPort: requestorSocketPort,
+        difficulty,
+        topic,
+      } = decodePoolTicket(matchRequest);
+      const clause = [`-@userId:(${requestorUserId})`];
+      if (difficulty) {
+        clause.push(`@difficulty:{${difficulty}}`);
       }
-      if (matchRequestor.topic) {
-        clause.push(`@topic:{${matchRequestor.topic}}`);
+      if (topic) {
+        clause.push(`@topic:{${topic}}`);
       }
       const matches = await redisClient.ft.search(POOL_INDEX, clause.join(' '), {
         LIMIT: { from: 0, size: 1 },
@@ -61,25 +62,23 @@ async function match() {
       // IF Found:
       if (matches.total > 0) {
         const matched = matches.documents[0];
-        const matchedStreamKey = matched.id;
-        const matchedUser = matched.value;
+        const {
+          userId: matchedUserId,
+          timestamp: matchedStreamId, // We use timestamp as the Stream ID
+          socketPort: matchedSocketPort,
+        } = decodePoolTicket(matched);
 
         logger.info(`Found match: ${JSON.stringify(matched)}`);
 
         await Promise.all([
           // Remove other from pool
-          redisClient.del([
-            `${MATCH_PREFIX}${matchRequestor.userId}`,
-            `${MATCH_PREFIX}${matchedUser.userId}`,
-          ]),
+          redisClient.del([getPoolKey(requestorUserId), getPoolKey(matchedUserId)]),
           // Remove other from queue
-          redisClient.xDel(STREAM_NAME, [matchRequest.id, matchedStreamKey]),
+          redisClient.xDel(STREAM_NAME, [requestorStreamId, matchedStreamId]),
         ]);
 
         // Notify both sockets
-        io.sockets
-          .in([matchRequestor.socketPort, matchedUser.socketPort as string])
-          .emit(' ROOMNUMBER | QUESTION??? ');
+        io.sockets.in([requestorSocketPort, matchedSocketPort]).emit(' ROOMNUMBER | QUESTION??? ');
       } else {
         logger.info(`Found no matches`);
       }

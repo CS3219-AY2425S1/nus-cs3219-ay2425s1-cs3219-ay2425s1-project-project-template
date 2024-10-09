@@ -1,5 +1,6 @@
 import { client } from '@/lib/db';
-import { MATCH_PREFIX, STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
+import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
+import { decodePoolTicket, getPoolKey } from '@/lib/utils';
 import { io } from '@/server';
 
 const logger = {
@@ -35,10 +36,9 @@ async function clean() {
     if (!message) {
       continue;
     }
-    const payload = message.message;
-    logger.info(`Expiring ${JSON.stringify(payload)}`);
-
-    const POOL_KEY = `${MATCH_PREFIX}${payload.userId}`;
+    logger.info(`Expiring ${JSON.stringify(message)}`);
+    const { userId, socketPort: socketRoom } = decodePoolTicket(message);
+    const POOL_KEY = getPoolKey(userId);
     await Promise.all([
       // Delete from pool
       redisClient.del(POOL_KEY),
@@ -46,9 +46,8 @@ async function clean() {
       redisClient.xDel(STREAM_NAME, message.id),
     ]);
 
-    if (payload.socketPort) {
+    if (socketRoom) {
       // Notify client
-      const socketRoom = payload.socketPort;
       io.sockets.in(socketRoom).emit('FAILED');
       io.sockets.in(socketRoom).disconnectSockets();
     }
