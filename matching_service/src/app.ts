@@ -45,6 +45,19 @@ io.on("connection", (socket) => {
   console.log("A user connected. Socket ID:", socket.id);
   console.log(socket.handshake.auth.token);
 
+  socket.on("match", ({ selectedDifficulty, selectedTopic }) => {
+    console.log(selectedDifficulty);
+    console.log(selectedTopic);
+    // todo queue processing logic
+  });
+
+  socket.on("quitSession", ({ roomId }) => {
+    console.log("A user clicked on quit session");
+
+    // inform other user in the room that the guy has left
+    // socket.to(roomId).emit("quitSession");
+  });
+
   socket.on("test client", (message) => {
     console.log("Received from client:", message);
     socket.emit("test server", `Server received: ${message}`);
@@ -55,9 +68,7 @@ io.on("connection", (socket) => {
   // todo
 
   socket.on("disconnect", (reason) => {
-    console.log(
-      `User disconnected. Socket ID: ${socket.id}. Reason: ${reason}`
-    );
+    //remove user from the room
   });
 });
 

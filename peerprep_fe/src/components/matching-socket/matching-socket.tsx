@@ -1,3 +1,4 @@
+import { DifficultyLevel } from "@/app/types/QuestionDto";
 import { AuthContext, useAuth } from "@/contexts/auth-context";
 import { useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -8,6 +9,13 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
   "test client": (message: string) => void;
+  match: ({
+    selectedDifficulty,
+    selectedTopic,
+  }: {
+    selectedDifficulty: DifficultyLevel;
+    selectedTopic: string;
+  }) => void;
 }
 const MatchingSocket = ({ token }: { token: string }) => {
   const [serverMessage, setServerMessage] = useState<string>("");
@@ -20,7 +28,6 @@ const MatchingSocket = ({ token }: { token: string }) => {
 
   useEffect(() => {
     // Initialize socket connection
-    console.log(token);
     const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
       "http://localhost:5004",
       {
@@ -46,7 +53,9 @@ const MatchingSocket = ({ token }: { token: string }) => {
   const handleTestClient = () => {
     if (socket) {
       const message = `Client test at ${new Date().toLocaleTimeString()}`;
-      socket.emit("test client", message);
+      const selectedTopic = "Array";
+      const selectedDifficulty = DifficultyLevel.Medium;
+      socket.emit("match", { selectedDifficulty, selectedTopic });
       setClientMessage(message);
     }
   };
