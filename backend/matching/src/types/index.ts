@@ -21,3 +21,12 @@ export type IPoolTicket = IQueueRequest & {
 };
 
 export type IRedisClient = Awaited<ReturnType<(typeof client)['connect']>>;
+
+export type IStreamMessage = {
+  id: string;
+  message?: {
+    // Stream
+    [x: string]: string;
+  };
+  value?: Awaited<ReturnType<(typeof client)['ft']['search']>>['documents'][number]['value'];
+};
