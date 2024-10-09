@@ -21,28 +21,34 @@ export async function handleLogin(req, res) {
       const accessToken = jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
-        { expiresIn: "15m" } 
+        { expiresIn: "15m" }
       );
 
       // Generate refresh token
       const refreshToken = jwt.sign(
         { id: user.id },
-        process.env.JWT_REFRESH_SECRET, // Different secret for refresh tokens
-        { expiresIn: "7d" } 
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
       );
+
+      // Set access token as an HTTP-only cookie
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,  // Ensure it's not accessible via JavaScript (XSS protection)
+        sameSite: "Strict",  // Only send it on same-site requests
+        maxAge: 15 * 60 * 1000,  // 15 minutes
+      });
 
       // Set refresh token as an HTTP-only cookie
       res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,  
-        sameSite: "Strict",   
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        httpOnly: true,
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
       });
 
-      // Send access token in response body and user data
+      // Send access token and user data in the response body
       return res.status(200).json({
         message: "User logged in",
         data: {
-          accessToken,
           ...formatUserResponse(user),
         },
       });
@@ -55,17 +61,21 @@ export async function handleLogin(req, res) {
 }
 
 export function handleLogout(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1]; // Extract the token from the Authorization header
+  const accessToken = req.headers.authorization?.split(" ")[1];
 
   if (!accessToken) {
     return res.status(401).json({ message: "No access token provided" });
   }
 
   try {
-    // Verify the access token to ensure the request is coming from an authenticated user
+    // Verify the access token
     jwt.verify(accessToken, process.env.JWT_SECRET);
 
-    // If verification is successful, proceed to clear the refresh token cookie
+    // Clear both accessToken and refreshToken cookies
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "Strict",
+    });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       sameSite: "Strict",
@@ -78,8 +88,9 @@ export function handleLogout(req, res) {
 }
 
 
+
 export async function handleRefreshToken(req, res) {
-  const refreshToken = req.cookies.refreshToken; 
+  const refreshToken = req.cookies.refreshToken; // Get refresh token from cookies
 
   if (!refreshToken) {
     return res.status(401).json({ message: "No refresh token provided" });
@@ -93,17 +104,24 @@ export async function handleRefreshToken(req, res) {
     const newAccessToken = jwt.sign(
       { id: decoded.id },
       process.env.JWT_SECRET,
-      { expiresIn: "15m" } // New access token with a short lifespan
+      { expiresIn: "15m" } // Short lifespan for access token
     );
 
-    // Optionally, generate a new refresh token (rotation)
+    // Optionally, rotate the refresh token (to increase security)
     const newRefreshToken = jwt.sign(
       { id: decoded.id },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" } // 7-day lifespan for refresh token
     );
 
-    // Set the new refresh token in the cookie (if rotating)
+    // Set the new access token as an HTTP-only cookie
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      sameSite: "Strict",
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    // Set the new refresh token as an HTTP-only cookie (if rotating)
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -111,12 +129,9 @@ export async function handleRefreshToken(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    // Return the new access token
+    // Return success response with the new access token (optional, since it's already in the cookie)
     return res.status(200).json({
-      message: "Token refreshed",
-      data: {
-        accessToken: newAccessToken,
-      },
+      message: "Token refreshed"
     });
   } catch (err) {
     return res.status(403).json({ message: "Invalid refresh token" });
