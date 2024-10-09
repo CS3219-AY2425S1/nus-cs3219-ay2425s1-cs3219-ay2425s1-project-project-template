@@ -33,7 +33,6 @@ export const useLogin = () => {
       // Store the accessToken in localStorage
       localStorage.setItem("accessToken", data.accessToken);
       console.log("Login successful!", data);
-      // Redirect if needed here
     },
     onError: (error) => {
       console.error("Login failed", error);

@@ -2,17 +2,25 @@ import { useState } from "react";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
+interface RegisterFormProps {
+  onSubmit: (username: string, email: string, password: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
+
+  const handleUsernameOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      username: e.target.value,
+    });
+  };
 
   const handleEmailOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -31,6 +39,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const isValid = () => {
     const newErrors: { [key: string]: boolean } = {};
 
+    if (!formData.username) {
+      newErrors.username = true;
+    }
+
     if (!formData.email) {
       newErrors.email = true;
     }
@@ -47,22 +59,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid()) {
-      onSubmit(formData.email, formData.password);
+      onSubmit(formData.username, formData.email, formData.password);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="mt-8">
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center text-white">
-          Login
-        </h2>
+        <h2 className="text-2xl font-semibold text-center text-white">Register</h2>
+      </div>
+      <div className="mb-4">
+        <label htmlFor="username">Username</label>
+        <Input
+          required
+          id="username"
+          type="text"
+          value={formData.username}
+          onChange={handleUsernameOnChange}
+        />
+        {errors.username && (
+          <span className="text-red-500">Please provide a username</span>
+        )}
       </div>
 
       <div className="mb-4">
-        <label htmlFor="email" className="block text-gray-400">
-          Email
-        </label>
+        <label htmlFor="email">Email</label>
         <Input
           required
           id="email"
@@ -71,14 +92,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onChange={handleEmailOnChange}
         />
         {errors.email && (
-          <span className="text-red-500">Please provide a valid email</span>
+          <span className="text-red-500">Please provide an email</span>
         )}
       </div>
 
       <div className="mb-6">
-        <label htmlFor="password" className="block text-gray-400">
-          Password
-        </label>
+        <label htmlFor="password">Password</label>
         <Input
           required
           id="password"
@@ -87,7 +106,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onChange={handlePasswordOnChange}
         />
         {errors.password && (
-          <span className="text-red-500">Password is required</span>
+          <span className="text-red-500">Please provide a password</span>
         )}
       </div>
 
@@ -95,10 +114,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         className="w-full py-2 bg-blue-600 text-white rounded-lg"
         type="submit"
       >
-        Login
+        Register
       </Button>
     </form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
