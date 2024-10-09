@@ -15,6 +15,45 @@ process.on('SIGTERM', () => {
     .then(process.exit(0));
 });
 
+type RequestorParams = {
+  requestorUserId: string;
+  requestorStreamId: string;
+  requestorSocketPort: string;
+};
+
+async function processMatch(
+  redisClient: typeof client,
+  { requestorUserId, requestorStreamId, requestorSocketPort }: RequestorParams,
+  matches: Awaited<ReturnType<(typeof client)['ft']['search']>>,
+  searchIdentifier?: string
+) {
+  if (matches.total > 0) {
+    const matched = matches.documents[0];
+    const {
+      userId: matchedUserId,
+      timestamp, // We use timestamp as the Stream ID
+      socketPort: matchedSocketPort,
+    } = decodePoolTicket(matched);
+    const matchedStreamId = getStreamId(timestamp);
+
+    logger.info(`Found match: ${JSON.stringify(matched)}`);
+
+    await Promise.all([
+      // Remove other from pool
+      redisClient.del([getPoolKey(requestorUserId), getPoolKey(matchedUserId)]),
+      // Remove other from queue
+      redisClient.xDel(STREAM_NAME, [requestorStreamId, matchedStreamId]),
+    ]);
+
+    // Notify both sockets
+    io.sockets.in([requestorSocketPort, matchedSocketPort]).emit(' ROOMNUMBER | QUESTION??? ');
+    return true;
+  }
+
+  logger.info(`Found no matches` + (searchIdentifier ? ` for ${searchIdentifier}` : ''));
+  return false;
+}
+
 async function match() {
   const redisClient = client.isReady || client.isOpen ? client : await client.connect();
   const stream = await redisClient.xReadGroup(
@@ -54,35 +93,48 @@ async function match() {
       if (topic) {
         clause.push(`@topic:{${topic}}`);
       }
-      const matches = await redisClient.ft.search(POOL_INDEX, clause.join(' '), {
+
+      const searchParams = {
         LIMIT: { from: 0, size: 1 },
         SORTBY: { BY: 'timestamp', DIRECTION: 'ASC' },
-      });
+      } as const;
+      const requestorParams = { requestorUserId, requestorStreamId, requestorSocketPort };
 
-      // IF Found:
-      if (matches.total > 0) {
-        const matched = matches.documents[0];
-        const {
-          userId: matchedUserId,
-          timestamp, // We use timestamp as the Stream ID
-          socketPort: matchedSocketPort,
-        } = decodePoolTicket(matched);
-        const matchedStreamId = getStreamId(timestamp);
-
-        logger.info(`Found match: ${JSON.stringify(matched)}`);
-
-        await Promise.all([
-          // Remove other from pool
-          redisClient.del([getPoolKey(requestorUserId), getPoolKey(matchedUserId)]),
-          // Remove other from queue
-          redisClient.xDel(STREAM_NAME, [requestorStreamId, matchedStreamId]),
-        ]);
-
-        // Notify both sockets
-        io.sockets.in([requestorSocketPort, matchedSocketPort]).emit(' ROOMNUMBER | QUESTION??? ');
-      } else {
-        logger.info(`Found no matches`);
+      const exactMatches = await redisClient.ft.search(POOL_INDEX, clause.join(' '), searchParams);
+      const exactMatchFound = await processMatch(
+        redisClient,
+        requestorParams,
+        exactMatches,
+        'exact match'
+      );
+      if (exactMatchFound || !topic || !difficulty) {
+        // Match found, or Partial search completed
+        return;
       }
+
+      // Match on Topic
+      const topicMatches = await redisClient.ft.search(
+        POOL_INDEX,
+        `@topic:{${topic}} -@userId:(${requestorUserId})`,
+        searchParams
+      );
+      const topicMatchFound = await processMatch(
+        redisClient,
+        requestorParams,
+        topicMatches,
+        'topic'
+      );
+      if (topicMatchFound) {
+        return;
+      }
+
+      // Match on Difficulty
+      const difficultyMatches = await redisClient.ft.search(
+        POOL_INDEX,
+        `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
+        searchParams
+      );
+      await processMatch(redisClient, requestorParams, difficultyMatches, 'difficulty');
     }
   }
 }
