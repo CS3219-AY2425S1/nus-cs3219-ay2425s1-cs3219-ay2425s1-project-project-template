@@ -59,8 +59,8 @@ async function clean() {
     .then(async () => await clean())
     .catch((err) => {
       if (err !== null) {
-        const { message, name, cause } = err as Error;
-        logger.error(JSON.stringify({ message, name, cause }));
+        const { message, name, cause, stack } = err as Error;
+        logger.error(JSON.stringify({ message, name, cause, stack }));
       }
     })
     .then(() => process.nextTick(loop));
