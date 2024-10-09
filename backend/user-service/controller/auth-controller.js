@@ -34,14 +34,12 @@ export async function handleLogin(req, res) {
       // Set access token as an HTTP-only cookie
       res.cookie("accessToken", accessToken, {
         httpOnly: true,  // Ensure it's not accessible via JavaScript (XSS protection)
-        sameSite: "Strict",  // Only send it on same-site requests
         maxAge: 15 * 60 * 1000,  // 15 minutes
       });
 
       // Set refresh token as an HTTP-only cookie
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
       });
 
@@ -75,11 +73,9 @@ export function handleLogout(req, res) {
     // Clear both accessToken and refreshToken cookies
     res.clearCookie("accessToken", {
       httpOnly: true,
-      sameSite: "Strict",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      sameSite: "Strict",
     });
 
     return res.status(200).json({ message: "User logged out successfully" });
@@ -118,15 +114,12 @@ export async function handleRefreshToken(req, res) {
     // Set the new access token as an HTTP-only cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      sameSite: "Strict",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     // Set the new refresh token as an HTTP-only cookie (if rotating)
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
