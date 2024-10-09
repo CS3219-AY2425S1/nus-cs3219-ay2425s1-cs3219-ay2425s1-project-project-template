@@ -21,7 +21,7 @@ interface Credentials {
 
 // Login: Send credentials to the server and return the response
 const login = async (credentials: Credentials): Promise<LoginResponse> => {
-  const response = await axios.post("/user-service/login", credentials);
+  const response = await axios.post("/user-service/auth/login", credentials);
   return response.data.data;
 };  
 
