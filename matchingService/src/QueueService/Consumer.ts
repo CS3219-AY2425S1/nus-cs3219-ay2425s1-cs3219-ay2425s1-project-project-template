@@ -17,47 +17,25 @@ class Consumer {
         this.pendingReq = null;
     }
 
-    private isCancelledMatchRequest(matchId: string): boolean {
-        return this.cancelledMatches.has(matchId);
-    }
-
-    private getCancellationResponseQueue(matchId: string): CancelRequestWithQueueInfo | null {
-        if (this.isCancelledMatchRequest(matchId)) {
-            const cancelReq: CancelRequestWithQueueInfo | undefined = this.cancelledMatches.get(matchId);
-            if (!cancelReq) {
-                return null;
-            }
-            return cancelReq;
-        }
-        return null;
-    }
-
-    private deleteCancellationMatchRequest(matchId: string): void {
-        if (this.isCancelledMatchRequest(matchId)) {
-            this.cancelledMatches.delete(matchId);
-        }
-    }
-
-    public async receiveCancelRequests(channel: Channel, directExchange: string) {
-        channel.consume("cancellation", (msg) => {
-            this.handleCancellationRequest(msg, channel, directExchange);
-        }, { noAck: true }); // Enable auto ack of message
-    }
-
-    public async receiveMatchRequest(topic: string, difficulty: string, directExchange: string, channel: Channel): Promise<void> {
+    public async consumeMatchRequest(topic: string, difficulty: string, directExchange: string, channel: Channel): Promise<void> {
         const queueName = `${topic}_${difficulty}`;
         await channel.consume(queueName, (message) => {
             this.handleMatchRequest(message, channel, directExchange);
         }, { noAck: true });
     }
 
+    public async consumeCancelRequest(channel: Channel, directExchange: string) {
+        channel.consume("cancellation", (msg) => {
+            this.handleCancellationRequest(msg, channel, directExchange);
+        }, { noAck: true }); // Enable auto ack of message
+    }
+
     private handleMatchRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
-        let content = msg?.content.toString();
-        if (!content) {
+        if (!msg) {
             return;
         }
         try {
-            var req: MatchRequest = this.parseMatchRequest(content)
+            const req: MatchRequest = this.parseMatchRequest(msg);
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
             console.log("Consumer received match request: ", req);
@@ -83,7 +61,11 @@ class Consumer {
         }
     }
 
-    private parseMatchRequest(content: string): MatchRequest {
+    private parseMatchRequest(msg: QueueMessage): MatchRequest {
+        const content: string = msg.content.toString();
+        if (!content) {
+           throw new Error("Message content is empty!");
+        }
         const jsonObject = JSON.parse(content);
         return new MatchRequest(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
     }
@@ -107,6 +89,22 @@ class Consumer {
         this.pendingReq = null;
     }
 
+    private handleCancellationRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
+        if (!msg) {
+            return;
+        }
+        var req: CancelRequest = this.parseCancelRequest(msg);
+        const correlationId: string = msg?.properties.correlationId;
+        const replyQueue: string = msg?.properties.replyTo;
+        var reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
+        this.cancelledMatches.set(req.getMatchId(), reqWithInfo)
+        if (this.pendingReq?.getMatchId() == reqWithInfo.getMatchId()) { // Check if the current match in memory is the one to be canceled
+            this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(), 
+                this.pendingReq.getQueue(), channel, directExchange);
+            return;
+        }
+    }
+
     private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string, channel: Channel, directExchange: string) {
         const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
         if (!cancellationResponseQueue) {
@@ -126,26 +124,34 @@ class Consumer {
         return;
     }
 
-    private handleCancellationRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
-        if (!msg) {
-            return;
+    private parseCancelRequest(msg: QueueMessage): CancelRequest {
+        const content: string = msg.content.toString();
+        if (!content) {
+            throw new Error("Message content should not be empty!");
         }
-        let content = msg.content.toString();
-        const correlationId: string = msg?.properties.correlationId;
-        const replyQueue: string = msg?.properties.replyTo;
-        var req: CancelRequest = this.parseCancelRequest(content);
-        var reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
-        this.cancelledMatches.set(req.getMatchId(), reqWithInfo)
-        if (this.pendingReq?.getMatchId() == reqWithInfo.getMatchId()) { // Check if the current match in memory is the one to be canceled
-            this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(), 
-                this.pendingReq.getQueue(), channel, directExchange);
-            return;
-        }
-    }
-
-    private parseCancelRequest(content: string): CancelRequest {
         const jsonObject = JSON.parse(content);
         return new CancelRequest(jsonObject.matchId);
+    }
+
+    private isCancelledMatchRequest(matchId: string): boolean {
+        return this.cancelledMatches.has(matchId);
+    }
+
+    private getCancellationResponseQueue(matchId: string): CancelRequestWithQueueInfo | null {
+        if (this.isCancelledMatchRequest(matchId)) {
+            const cancelReq: CancelRequestWithQueueInfo | undefined = this.cancelledMatches.get(matchId);
+            if (!cancelReq) {
+                return null;
+            }
+            return cancelReq;
+        }
+        return null;
+    }
+
+    private deleteCancellationMatchRequest(matchId: string): void {
+        if (this.isCancelledMatchRequest(matchId)) {
+            this.cancelledMatches.delete(matchId);
+        }
     }
 }
 

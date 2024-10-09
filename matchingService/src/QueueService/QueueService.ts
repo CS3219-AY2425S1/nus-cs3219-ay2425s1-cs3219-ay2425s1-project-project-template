@@ -55,10 +55,10 @@ class QueueService {
         var consumer: Consumer = new Consumer();
         for (const topic of queueOptions.TOPIC_LIST) {
             for (const difficulty of queueOptions.DIFFICULTY_LEVELS) {
-                await consumer.receiveMatchRequest(topic, difficulty, this.directExchange, channel);
+                await consumer.consumeMatchRequest(topic, difficulty, this.directExchange, channel);
             }
         }
-        await consumer.receiveCancelRequests(channel, this.directExchange);
+        await consumer.consumeCancelRequest(channel, this.directExchange);
     }
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {

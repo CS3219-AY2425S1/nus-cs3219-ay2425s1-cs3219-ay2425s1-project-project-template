@@ -12,8 +12,8 @@ export interface IQueueService {
  * Initializes and returns the match controller.
  */
 export async function initialiseServices(): Promise<MatchController> {
-    const amqpService: QueueService = await QueueService.of(process.env.RABBITMQ_URL || "amqp://localhost:5672", "gateway", "responseGateway");
-    const matchService = new MatchService(amqpService);
+    const queueService: QueueService = await QueueService.of(process.env.RABBITMQ_URL || "amqp://localhost:5672", "gateway", "responseGateway");
+    const matchService = new MatchService(queueService);
     const matchController = new MatchController(matchService);
 
     return matchController;
