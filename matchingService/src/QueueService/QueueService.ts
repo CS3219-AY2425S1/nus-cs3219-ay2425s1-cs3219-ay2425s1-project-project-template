@@ -60,13 +60,13 @@ class QueueService {
             logger.error(channel.message);
             return;
         }
-        var consumer: Consumer = new Consumer();
+        var consumer: Consumer = new Consumer(channel);
         for (const topic of Object.values(Topic)) {
             for (const difficulty of Object.values(Difficulty)) {
-                await consumer.consumeMatchRequest(topic, difficulty, this.directExchange, channel);
+                await consumer.consumeMatchRequest(topic, difficulty, this.directExchange);
             }
         }
-        await consumer.consumeCancelRequest(channel, this.directExchange);
+        await consumer.consumeCancelRequest(this.directExchange);
     }
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {
