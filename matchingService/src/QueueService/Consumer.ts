@@ -222,17 +222,6 @@ class Consumer {
         }
     }
 
-    // private cleanupExpiredCancellationRequests(): void {
-    //     logger.info("Cleaning expired match cancellation request");
-
-    //     this.cancelledMatches.forEach((cancelRequest, matchId) => {
-    //         if (cancelRequest.hasExpired()) {
-    //             logger.debug(`Expired cancellation request detected and removed for match ID: ${matchId}`);
-    //             this.cancelledMatches.delete(matchId);
-    //         }
-    //     });
-    // }
-
     private cleanupExpiredCancellationRequests(): void {
         logger.info("Cleaning expired match cancellation requests");
     
@@ -249,8 +238,6 @@ class Consumer {
                 );
     
                 logger.debug(`Notified producer of expired cancellation request for match ID: ${matchId}`);
-    
-                // Remove expired request from the map
                 this.cancelledMatches.delete(matchId);
             }
         });
