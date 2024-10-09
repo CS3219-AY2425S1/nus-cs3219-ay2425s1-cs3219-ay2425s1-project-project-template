@@ -29,7 +29,7 @@ const Problem: React.FC<any> = ({ params }) => {
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10">
       <Header />
       <main className="relative mx-5 flex space-x-20 items-center flex-1">
-        <MatchingSocket />
+        <MatchingSocket token={token} />
         <div className="w-full pl-10">
           <ProblemDetail question={question} />
         </div>

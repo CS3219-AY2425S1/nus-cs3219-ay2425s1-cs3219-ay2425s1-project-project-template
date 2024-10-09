@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { AuthContext, useAuth } from "@/contexts/auth-context";
+import { useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 interface ServerToClientEvents {
@@ -8,9 +9,10 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {
   "test client": (message: string) => void;
 }
-const MatchingSocket = () => {
+const MatchingSocket = ({ token }: { token: string }) => {
   const [serverMessage, setServerMessage] = useState<string>("");
   const [clientMessage, setClientMessage] = useState<string>("");
+  console.log(token);
   const [socket, setSocket] = useState<Socket<
     ServerToClientEvents,
     ClientToServerEvents
@@ -18,8 +20,14 @@ const MatchingSocket = () => {
 
   useEffect(() => {
     // Initialize socket connection
+    console.log(token);
     const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      "http://localhost:5004"
+      "http://localhost:5004",
+      {
+        auth: {
+          token: token,
+        },
+      }
     );
     setSocket(newSocket);
 
@@ -33,7 +41,7 @@ const MatchingSocket = () => {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [token]);
 
   const handleTestClient = () => {
     if (socket) {
