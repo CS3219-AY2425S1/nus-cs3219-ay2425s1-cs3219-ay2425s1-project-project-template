@@ -1,8 +1,9 @@
 import winston, { Logger } from "winston";
 
-const desiredLogLevel: string = "info";
+const desiredLogLevel: string = "debug";
 
 const logger: Logger = winston.createLogger({
+    level: desiredLogLevel,
     format: winston.format.combine(
         winston.format.json(),
         winston.format.colorize({ all: true }),

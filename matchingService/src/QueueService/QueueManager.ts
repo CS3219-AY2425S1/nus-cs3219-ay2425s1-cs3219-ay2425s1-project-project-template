@@ -1,5 +1,6 @@
 import { Channel } from "amqplib";
 import queueOptions from "./queueOptions";
+import logger from "../utils/logger";
 
 /**
  * QueueManager manages the exchanges and queues of rabbitmq.
@@ -18,6 +19,7 @@ class QueueManager {
     public async createExchanges(): Promise<void> {
         await this.channel.assertExchange(this.categoryExchange, "headers", { durable: false });
         await this.channel.assertExchange(this.directExchange, "direct", { durable: false });
+        logger.info("Successully set up exchanges");
     }
 
     public async setupQueues(): Promise<void> {
@@ -36,6 +38,7 @@ class QueueManager {
         const cancellationQueue: string = "cancellation";
         await this.channel.assertQueue(cancellationQueue, { durable: false });
         await this.channel.bindQueue(cancellationQueue, this.directExchange, "cancellation");
+        logger.info("Successully created and binded queues to exchanges");
     }
 }
 

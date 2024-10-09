@@ -2,6 +2,7 @@ import QueueService from "./QueueService/QueueService";
 import MatchService from "./services/MatchService";
 import MatchController from "./controllers/MatchController";
 import MatchRequest from "./models/MatchRequest";
+import logger from "./utils/logger";
 
 export interface IQueueService {
     sendMatchRequest(matchRequest: MatchRequest): Promise<boolean>;
@@ -16,5 +17,6 @@ export async function initialiseServices(): Promise<MatchController> {
     const matchService = new MatchService(queueService);
     const matchController = new MatchController(matchService);
 
+    logger.info("Service initilisation completed");
     return matchController;
 }

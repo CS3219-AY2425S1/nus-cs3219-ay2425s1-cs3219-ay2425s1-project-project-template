@@ -7,6 +7,7 @@ import Consumer from "./Consumer";
 import Producer from "./Producer";
 import QueueManager from "./QueueManager";
 import queueOptions from "./queueOptions";
+import logger from "../utils/logger"; // Import your logger
 
 /**
  * QueueService manages message queues for RabbitMq.
@@ -26,30 +27,37 @@ class QueueService {
     }
 
     public static async of(connectionUrl: string, categoryExchange: string, responseExchange: string): Promise<QueueService> {
+        logger.info(`Creating QueueService with connection URL: ${connectionUrl}`);
         var connectionManager: IConnectionManager = new ConnectionManager();
         await connectionManager.setup(connectionUrl);
         var channel: Channel = connectionManager.getChannel();
-        const queueManager: QueueManager = new QueueManager(channel, categoryExchange, responseExchange);
 
+        const queueManager: QueueManager = new QueueManager(channel, categoryExchange, responseExchange);
         const service: QueueService = new QueueService(categoryExchange, responseExchange, connectionManager, queueManager);
+        
         await service.init();
         await service.startConsumers();
+        
+        logger.info("QueueService initialized and consumers started");
         return service;
     }
 
     private async init(): Promise<void> {
+        logger.info("Initializing QueueService");
         var channel: Channel | null = this.connectionManager.getChannel();
         if (!channel) {
+            logger.error("Channel not found during initialization");
             return;
         }
         await this.queueManager.createExchanges();
         await this.queueManager.setupQueues();
+        logger.info("QueueService initialized successfully");
     }
 
     public async startConsumers(): Promise<void> {
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
-            console.error(channel.message);
+            logger.error(channel.message);
             return;
         }
         var consumer: Consumer = new Consumer();
@@ -62,24 +70,30 @@ class QueueService {
     }
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {
+        logger.info(`Sending match request for match ID: ${matchRequest.getMatchId()}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
-            console.error(channel.message);
+            logger.error(channel.message);
             return false;
         }
         var producer: Producer = new Producer();
-        return producer.sendRequest(matchRequest, channel, this.categoryExchange, this.directExchange);
+        const result = await producer.sendRequest(matchRequest, channel, this.categoryExchange, this.directExchange);
+        logger.info(`Match request sent for match ID: ${matchRequest.getMatchId()}, result: ${result}`);
+        return result;
     }
 
     public async cancelMatchRequest(matchId: string): Promise<boolean> {
+        logger.info(`Canceling match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
-            console.error(channel.message);
+            logger.error(channel.message);
             return false;
         }
         var producer: Producer = new Producer();
         var req: CancelRequest = new CancelRequest(matchId);
-        return await producer.sendCancelMessage(req, channel, this.directExchange);
+        const result = await producer.sendCancelMessage(req, channel, this.directExchange);
+        logger.info(`Cancellation request sent for match ID: ${matchId}, result: ${result}`);
+        return result;
     }
 }
 
