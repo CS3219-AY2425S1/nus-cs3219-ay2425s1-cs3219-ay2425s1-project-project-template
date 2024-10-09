@@ -21,7 +21,8 @@ export function authenticateToken(
   try {
     const auth = req.get("Authorization");
     const token = auth && auth.split(" ")[1];
-    if (token == null) {
+    if (token == null || token == undefined) {
+      console.error("error: no token");
       return res.sendStatus(401);
     }
     const key = process.env.JWT_SECRET || "";
