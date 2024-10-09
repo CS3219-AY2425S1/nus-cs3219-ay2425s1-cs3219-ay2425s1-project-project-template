@@ -3,10 +3,11 @@ import MatchService from "../services/MatchService";
 import MatchController from "../controllers/MatchController";
 import MatchRequest from "../models/MatchRequest";
 import logger from "../utils/logger";
+import { Difficulty, Topic } from "../QueueService/matchingEnums";
 
 export interface IQueueService {
     sendMatchRequest(matchRequest: MatchRequest): Promise<boolean>;
-    cancelMatchRequest(matchId: string): Promise<void>;
+    cancelMatchRequest(matchId: string, difficulty: Difficulty, topic: Topic): Promise<void>;
 }
 
 /**

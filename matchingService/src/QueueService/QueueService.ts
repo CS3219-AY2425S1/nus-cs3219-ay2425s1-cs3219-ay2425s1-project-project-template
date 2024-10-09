@@ -8,6 +8,7 @@ import Producer from "./Producer";
 import QueueManager from "./QueueManager";
 import { Difficulty, Topic } from "./matchingEnums";
 import logger from "../utils/logger"; // Import your logger
+import CancellationConsumer from "./CancellationConsumer";
 
 /**
  * QueueService manages message queues for RabbitMq.
@@ -60,13 +61,16 @@ class QueueService {
             logger.error(channel.message);
             return;
         }
-        var consumer: Consumer = new Consumer(channel, this.directExchange);
+        const cancellationConsumer: CancellationConsumer = new CancellationConsumer(channel, this.directExchange);
+        cancellationConsumer.consumeCancelRequest();
         for (const topic of Object.values(Topic)) {
             for (const difficulty of Object.values(Difficulty)) {
+                const consumer: Consumer = new Consumer(channel, this.directExchange);
+                cancellationConsumer.registerConsumer(`${topic}_${difficulty}`, consumer); // Register the consumer to know where to route to
                 await consumer.consumeMatchRequest(topic, difficulty);
             }
         }
-        await consumer.consumeCancelRequest();
+
     }
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {
@@ -82,7 +86,7 @@ class QueueService {
         return result;
     }
 
-    public async cancelMatchRequest(matchId: string): Promise<void> {
+    public async cancelMatchRequest(matchId: string, difficulty: Difficulty, topic: Topic): Promise<void> {
         logger.info(`Canceling match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
@@ -90,7 +94,7 @@ class QueueService {
             return;
         }
         var producer: Producer = new Producer();
-        var req: CancelRequest = new CancelRequest(matchId);
+        var req: CancelRequest = new CancelRequest(matchId, difficulty, topic);
         const result = await producer.sendCancelMessage(req, channel, this.directExchange);
         logger.info(`Cancellation request sent for match ID: ${matchId}, result: ${result}`);
         return;

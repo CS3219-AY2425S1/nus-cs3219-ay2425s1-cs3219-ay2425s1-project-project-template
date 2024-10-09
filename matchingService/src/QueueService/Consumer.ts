@@ -25,7 +25,7 @@ class Consumer {
         // Incoming cancellation requests may reference non-existing matches. 
         // If these requests are not deleted from the hashmap, they will accumulate over time.
         // To prevent this, we regularly clean up expired cancellation requests from the hashmap.
-        const intervalDuration = 0.1 * 60 * 1000;
+        const intervalDuration = 1 * 60 * 1000;
         this.cleanupInterval = setInterval(() => this.cleanupExpiredCancellationRequests(), intervalDuration);
     }
 
@@ -38,12 +38,20 @@ class Consumer {
         }, { noAck: true });
     }
 
-    public async consumeCancelRequest() {
-        logger.info("Consuming cancellation requests from queue: cancellation");
+    public addCancelRequest(req: CancelRequestWithQueueInfo) {
+        this.cancelledMatches.set(req.getMatchId(), req);
+        logger.debug("Added cancellation request to consumer: ", JSON.stringify(req));
+    }
 
-        this.channel.consume("cancellation", (msg) => {
-            this.handleCancellationRequest(msg);
-        }, { noAck: true });
+    public cancelIfPendingRequestCancelled() {
+        if (!this.pendingReq) {
+            logger.debug("No existing pending request encountered");
+            return;
+        }
+        if (this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
+            this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId(), 
+                this.pendingReq.getQueue())
+        }
     }
 
     private handleMatchRequest(msg: QueueMessage | null): void {
@@ -122,40 +130,6 @@ class Consumer {
         this.pendingReq = null;
     }
 
-    private handleCancellationRequest(msg: QueueMessage | null): void {
-        if (!msg) {
-            logger.warn("Received null message in handleCancellationRequest");
-            return;
-        }
-        
-        try {
-            var req: CancelRequest = this.parseCancelRequest(msg);
-            const correlationId: string = msg.properties.correlationId;
-            const replyQueue: string = msg.properties.replyTo;
-
-            const reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
-            this.cancelledMatches.set(req.getMatchId(), reqWithInfo);
-            logger.debug(`Cancelled match request added: ${req.getMatchId()}`);
-
-            if (!this.pendingReq) {
-                logger.debug("No pending requests to cancel");
-                return;
-            }
-
-            if (this.pendingReq.getMatchId() == reqWithInfo.getMatchId()) {
-                this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(),
-                    this.pendingReq.getQueue());
-                return;
-            }
-        } catch (e) {
-            if (e instanceof Error) {
-                logger.error(`Error occurred while handling cancellation request: ${e.message}`);
-            } else {
-                logger.error(`Unexpected error occurred: ${JSON.stringify(e)}`);
-            }
-        }
-    }
-
     private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string): void {
         logger.debug(`Processing cancellation for match ID: ${matchId}`);
         
@@ -180,20 +154,6 @@ class Consumer {
             correlationId: cancellationResponseQueue.getCorrelationId(),
         });
         return;
-    }
-
-    private parseCancelRequest(msg: QueueMessage): CancelRequest {
-        const content: string = msg.content.toString();
-        if (!content) {
-            logger.error("Message content should not be empty!");
-            throw new Error("Message content should not be empty!");
-        }
-        
-        logger.debug(`Parsing cancellation request content: ${content}`);
-        const jsonObject = JSON.parse(content);
-        logger.debug(`Parsed cancellation JSON object: ${JSON.stringify(jsonObject)}`);
-
-        return new CancelRequest(jsonObject.matchId);
     }
 
     private isCancelledMatchRequest(matchId: string): boolean {

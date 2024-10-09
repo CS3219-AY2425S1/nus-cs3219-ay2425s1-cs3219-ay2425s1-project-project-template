@@ -27,9 +27,11 @@ class RequestValidator {
         }
     }
 
-    public static validateCancelMatchRequest(matchId: string): void {
+    public static validateCancelMatchRequest(matchId: string, difficulty: Difficulty, topic: Topic): void {
         const missingFields: string[] = [];
         if (!matchId) missingFields.push("matchId");
+        if (!topic) missingFields.push("topic");
+        if (!difficulty) missingFields.push("difficulty");
         if (missingFields.length > 0) {
             throw new MissingFieldError(missingFields);
         }

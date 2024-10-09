@@ -1,3 +1,4 @@
+import { Difficulty, Topic } from "../QueueService/matchingEnums";
 import CancelRequest from "./CancelRequest";
 
 /**
@@ -5,13 +6,13 @@ import CancelRequest from "./CancelRequest";
  * This enables the consumer to remember which repsonse queue to reply to.
  */
 class CancelRequestWithQueueInfo extends CancelRequest {
-    private static readonly EXPIRATION_DURATION = 0.1 * 60 * 1000;
+    private static readonly EXPIRATION_DURATION = 1 * 60 * 1000;
     private replyQueue: string;
     private correlationId: string;
     private timestamp: Date;
 
-    constructor(matchId: string, replyQueue: string, correlationId: string) {
-        super(matchId);
+    constructor(matchId: string, difficulty: Difficulty, topic: Topic, replyQueue: string, correlationId: string) {
+        super(matchId, difficulty, topic);
         this.replyQueue = replyQueue;
         this.correlationId = correlationId;
         this.timestamp = new Date();
@@ -26,7 +27,8 @@ class CancelRequestWithQueueInfo extends CancelRequest {
     }
 
     public static createFromCancelRequest(cancelRequest: CancelRequest, replyQueue: string, correlationId: string): CancelRequestWithQueueInfo {
-        return new CancelRequestWithQueueInfo(cancelRequest.getMatchId(), replyQueue, correlationId);
+        return new CancelRequestWithQueueInfo(cancelRequest.getMatchId(), 
+            cancelRequest.getDifficulty(), cancelRequest.getTopic(), replyQueue, correlationId);
     }
 
     public hasExpired(): boolean {
