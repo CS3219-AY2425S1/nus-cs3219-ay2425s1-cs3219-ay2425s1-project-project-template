@@ -5,16 +5,22 @@ import App from "./App.jsx";
 import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Features from "./pages/Features.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <App />,
     errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
     element: <Dashboard />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/features",
+    element: <Features />,
     errorElement: <ErrorPage />,
   },
 ]);

@@ -20,9 +20,11 @@ const Navbar = () => {
         <button className="rounded-full border border-gray-300/30 px-6 py-2 text-white hover:border-white hover:bg-white hover:text-black">
           ABOUT
         </button>
-        <button className="rounded-full border border-gray-300/30 px-7 py-2 text-white hover:border-white hover:bg-white hover:text-black">
-          FEATURES
-        </button>
+        <Link to="/features">
+          <button className="rounded-full border border-gray-300/30 px-7 py-2 text-white hover:border-white hover:bg-white hover:text-black">
+            FEATURES
+          </button>
+        </Link>
       </div>
 
       {/* Login and Register Buttons */}
