@@ -11,18 +11,21 @@ router.post(
   requestHelper.sendPostRequest("/questions", QUESTION_SERVICE)
 );
 
+router.get("/questions/random", async (req, res) => {
+  console.log(req.query);
+  return requestHelper.sendGetRequest("/questions/random", QUESTION_SERVICE)(
+    req,
+    res
+  );
+});
+
 router.get(
   "/questions",
   requestHelper.sendGetRequest("/questions", QUESTION_SERVICE)
 );
 
 router.get("/questions/:id", async (req, res) => {
-  const id = req.params["id"];
-  return requestHelper.sendGetRequest(
-    "/questions",
-    QUESTION_SERVICE,
-    id
-  )(req, res);
+  return requestHelper.sendGetRequest("/questions", QUESTION_SERVICE)(req, res);
 });
 
 router.put("/questions/:id", async (req, res) => {

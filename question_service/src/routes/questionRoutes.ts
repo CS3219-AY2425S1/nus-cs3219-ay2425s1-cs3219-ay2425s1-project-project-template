@@ -1,5 +1,5 @@
-import express from "express";
-import { Question } from "../models/Question";
+import express, { Request, Response } from "express";
+import { DifficultyLevel, IQuestion, Question } from "../models/Question";
 
 const router = express.Router();
 
@@ -29,6 +29,64 @@ router.get("/questions", async (req, res) => {
     res.status(500).json({ message: "Error fetching questions", error });
   }
 });
+
+interface QueryParams {
+  topic?: string | string[];
+  difficultyLevel?: string;
+}
+
+router.get(
+  "/questions/random",
+  async (req: Request<{}, {}, {}, QueryParams>, res: Response) => {
+    try {
+      const { topic, difficultyLevel } = req.query;
+      console.log(req.query);
+
+      // Build the query object
+      const query: {
+        topic?: { $in: string[] };
+        difficultyLevel?: DifficultyLevel;
+      } = {};
+
+      if (topic) {
+        const topicArray = Array.isArray(topic) ? topic : [topic];
+        query.topic = { $in: topicArray };
+      }
+
+      if (difficultyLevel) {
+        if (
+          Object.values(DifficultyLevel).includes(
+            difficultyLevel as DifficultyLevel
+          )
+        ) {
+          query.difficultyLevel = difficultyLevel as DifficultyLevel;
+        } else {
+          return res.status(400).json({ message: "Invalid difficulty level" });
+        }
+      }
+
+      // Count the number of matching documents
+      const count = await Question.countDocuments(query);
+
+      if (count === 0) {
+        return res.status(404).json({ message: "No matching questions found" });
+      }
+
+      // Generate a random index
+      const random = Math.floor(Math.random() * count);
+
+      // Fetch the random document
+      const randomQuestion = await Question.findOne(query).skip(random);
+
+      res.json(randomQuestion);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching random question",
+        error: String(error),
+      });
+    }
+  }
+);
 
 // Add more routes as needed (e.g., get by ID, update, delete)
 
