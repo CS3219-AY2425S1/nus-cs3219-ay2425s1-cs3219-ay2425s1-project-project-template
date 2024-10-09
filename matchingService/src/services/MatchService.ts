@@ -1,4 +1,4 @@
-import { IQueueService } from "../bootstrap";
+import { IQueueService } from "../config/bootstrap";
 import MatchRequest from "../models/MatchRequest";
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
 

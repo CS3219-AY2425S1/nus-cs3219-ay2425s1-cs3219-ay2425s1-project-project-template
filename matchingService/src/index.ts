@@ -1,7 +1,7 @@
 import express, { Application } from "express";
-import createRouter from "./routes";
+import createMatchingRouter from "./routes/matching";
 import MatchController from "./controllers/MatchController";
-import { initialiseServices } from "./bootstrap";
+import { initialiseServices } from "./config/bootstrap";
 import { loggerRequestMiddleware, loggerResponseMiddleware } from "./middlewares/loggerMiddleware";
 import logger from "./utils/logger";
 import errorHandler from "./middlewares/errorHandler";
@@ -13,7 +13,7 @@ async function main() {
     app.use(express.json());
     app.use(loggerRequestMiddleware);
     app.use(loggerResponseMiddleware);
-    app.use('/match', createRouter(matchController));
+    app.use('/match', createMatchingRouter(matchController));
     app.use(errorHandler);
 
     app.listen(3000, () => {
