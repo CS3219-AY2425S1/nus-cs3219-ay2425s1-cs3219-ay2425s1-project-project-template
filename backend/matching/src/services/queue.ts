@@ -6,7 +6,7 @@ let queueId = 1;
 
 export const queueingService = async (client: IRedisClient, payload: IQueueRequest) => {
   const formattedPayload = getRedisPayload(payload);
-  const queueRes = await client.xAdd(STREAM_NAME, `${queueId}`, formattedPayload);
+  await client.xAdd(STREAM_NAME, formattedPayload.timestamp, formattedPayload);
   await client.hSet(`${MATCH_PREFIX}${payload.userId}`, formattedPayload);
   queueId += 1;
 };
