@@ -12,7 +12,12 @@ body {
   overflow: hidden;
 }
 
-/* src/styles.css or src/styles.scss */
+/* Fix flex layout only for specific elements */
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .custom-modalbox {
   border-radius: 15px;
@@ -77,5 +82,18 @@ body {
 }
 
 .cursor-pointer {
+  cursor: pointer;
+}
+
+/* Button styling */
+#button {
+  background-color: #003d84;
+  color: white;
+  font-family: "Signika Negative", sans-serif;
+  font-size: 20px;
+  border-radius: 10px;
+  padding: 6px 15px;
+  margin-right: 8px;
+  border: none;
   cursor: pointer;
 }
