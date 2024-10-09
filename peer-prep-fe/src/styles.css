@@ -19,76 +19,67 @@ body {
   width: 600px;
   height: 400px;
   background-color: #000000;
+}
+.mat-dialog-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  padding: 16px;
+  background-color: black;
+  font-family: "Signika Negative", sans-serif;
+  color: #a4a4a4;
+  overflow: hidden;
+}
 
-  .mat-dialog-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: flex-start;
-    padding: 16px;
-    background-color: black;
-    font-family: "Signika Negative", sans-serif;
-    color: #a4a4a4;
-    overflow: hidden;
-  }
+.mat-dialog-actions {
+  background-color: black;
+}
 
-  .upper-half {
-    display: flex;
-    flex-direction: row;
-    /* justify-content: flex-start; */
-    align-items: center;
-    width: 100%;
-  }
+.question-title {
+  color: white;
+  font-size: 1.2rem;
+  font-family: "Signika Negative", sans-serif;
+  margin-bottom: 2px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
 
-  .mat-dialog-actions {
-    background-color: black;
-  }
+.difficulty {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: auto;
+  background-color: #f0f0f0;
+}
 
-  .question-title {
-    color: white;
-    font-size: 1.2rem;
-    font-family: "Signika Negative", sans-serif;
-    margin-bottom: 2px;
-    margin-top: 10px;
-    margin-right: 10px;
-  }
+.difficulty.Easy {
+  background-color: #159200;
+  color: white;
+}
 
-  .difficulty {
-    padding: 8px 8px;
-    border-radius: 15px;
-    font-size: 14px;
-    font-family: Arial, Helvetica, sans-serif;
-    margin-left: auto;
-    background-color: #f0f0f0;
-  }
+.difficulty.Medium {
+  background-color: #cec600;
+  color: white;
+}
 
-  .difficulty.Easy {
-    background-color: #159200;
-    color: white;
-  }
+.difficulty.Hard {
+  background-color: #a80000;
+  color: white;
+}
 
-  .difficulty.Medium {
-    background-color: #cec600;
-    color: white;
-  }
-
-  .difficulty.Hard {
-    background-color: #a80000;
-    color: white;
-  }
-
-  .close-button {
-    background-color: transparent;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-right: 10px;
-    position: absolute;
-    right: 5px;
-    top: 18px;
-    transform: translateY(-50%);
-  }
+.close-button {
+  background-color: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  position: absolute;
+  right: 5px;
+  top: 18px;
+  transform: translateY(-50%);
 }
 
 .cursor-pointer {

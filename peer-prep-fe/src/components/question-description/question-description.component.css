@@ -25,3 +25,11 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+
+.upper-half {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+}

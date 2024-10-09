@@ -43,25 +43,3 @@
   border: transparent;
   cursor: pointer;
 }
-
-.difficulty {
-  padding: 8px 12px;
-  border-radius: 15px;
-  font-size: 14px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.difficulty.Easy {
-  background-color: #159200;
-  color: white;
-}
-
-.difficulty.Medium {
-  background-color: #cec600;
-  color: white;
-}
-
-.difficulty.Hard {
-  background-color: #a80000;
-  color: white;
-}
