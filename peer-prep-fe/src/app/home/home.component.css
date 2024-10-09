@@ -9,18 +9,12 @@
   align-items: center;
 }
 
-.content {
-  position: relative;
-  z-index: 1;
-  margin-top: -15vh;
-  width: 50vw;
-}
-
 h1 {
   color: white;
-  font-family: "Tourney", sans-serif;
+  font-family: "Tourney", sans-serif !important;
   text-align: center;
-  font-size: 4em;
+  font-size: 4rem;
+  /* font: 400 3.562rem / 4rem, sans-serif; */
 }
 
 h2 {

@@ -40,6 +40,9 @@ export class authService {
   }
 
   isAdmin(): boolean {
+    if (!this.currentUser) {
+      return false;
+    }
     return this.currentUser.data.isAdmin;
   }
 
