@@ -12,12 +12,14 @@ import logger from "../utils/logger";
  * */
 class Consumer {
     private channel: Channel;
+    private directExchange: string;
     private pendingReq: MatchRequestWithQueueInfo | null;
     private cancelledMatches: Map<string, CancelRequestWithQueueInfo> = new Map();
     private cleanupInterval: NodeJS.Timeout;
 
-    constructor(channel: Channel) {
+    constructor(channel: Channel, directExchange: string) {
         this.channel = channel;
+        this.directExchange = directExchange;
         this.pendingReq = null;
 
         // Incoming cancellation requests may reference non-existing matches. 
@@ -27,24 +29,24 @@ class Consumer {
         this.cleanupInterval = setInterval(() => this.cleanupExpiredCancellationRequests(), intervalDuration);
     }
 
-    public async consumeMatchRequest(topic: string, difficulty: string, directExchange: string): Promise<void> {
+    public async consumeMatchRequest(topic: string, difficulty: string): Promise<void> {
         const queueName = `${topic}_${difficulty}`;
         logger.info(`Consuming match requests from queue: ${queueName}`);
         
         await this.channel.consume(queueName, (message) => {
-            this.handleMatchRequest(message, directExchange);
+            this.handleMatchRequest(message);
         }, { noAck: true });
     }
 
-    public async consumeCancelRequest(directExchange: string) {
+    public async consumeCancelRequest() {
         logger.info("Consuming cancellation requests from queue: cancellation");
 
         this.channel.consume("cancellation", (msg) => {
-            this.handleCancellationRequest(msg, directExchange);
+            this.handleCancellationRequest(msg);
         }, { noAck: true });
     }
 
-    private handleMatchRequest(msg: QueueMessage | null, directExchange: string): void {
+    private handleMatchRequest(msg: QueueMessage | null): void {
         if (!msg) {
             logger.warn("Received null message in handleMatchRequest");
             return;
@@ -58,17 +60,17 @@ class Consumer {
 
             if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
                 this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId(),
-                    this.pendingReq.getQueue(), directExchange);
+                    this.pendingReq.getQueue());
                 return;
             }
 
             if (this.isCancelledMatchRequest(req.getMatchId())) {
                 this.processCancelRequest(req.getMatchId(), correlationId,
-                    replyQueue, directExchange);
+                    replyQueue);
                 return;
             }
 
-            this.processMatchRequest(req, replyQueue, correlationId, directExchange);
+            this.processMatchRequest(req, replyQueue, correlationId);
         } catch (e) {
             if (e instanceof Error) {
                 logger.error(`Error occurred while handling match request: ${e.message}`);
@@ -92,7 +94,7 @@ class Consumer {
         return new MatchRequest(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
     }
 
-    private processMatchRequest(incomingReq: MatchRequest, replyQueue: string, correlationId: string, responseExchange: string): void {
+    private processMatchRequest(incomingReq: MatchRequest, replyQueue: string, correlationId: string): void {
         logger.debug(`Processing match request: ${incomingReq.getMatchId()}`);
 
         if (!this.pendingReq) {
@@ -103,16 +105,16 @@ class Consumer {
 
         var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequest(incomingReq, replyQueue, correlationId);
         logger.debug(`Matching and responding to requests: ${this.pendingReq.getMatchId()} and ${incomingReq.getMatchId()}`);
-        this.matchAndRespond(this.pendingReq, incomingReqWithQueueInfo, responseExchange);
+        this.matchAndRespond(this.pendingReq, incomingReqWithQueueInfo);
     }
 
-    private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo, responseExchange: string): void {
+    private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo): void {
         logger.debug(`Responding to matched requests: ${req1.getMatchId()} and ${req2.getMatchId()}`);
         
-        this.channel.publish(responseExchange, req1.getQueue(), Buffer.from(JSON.stringify(true)), {
+        this.channel.publish(this.directExchange, req1.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: req1.getCorrelationId(),
         });
-        this.channel.publish(responseExchange, req2.getQueue(), Buffer.from(JSON.stringify(true)), {
+        this.channel.publish(this.directExchange, req2.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: req2.getCorrelationId(),
         });
 
@@ -120,7 +122,7 @@ class Consumer {
         this.pendingReq = null;
     }
 
-    private handleCancellationRequest(msg: QueueMessage | null, directExchange: string): void {
+    private handleCancellationRequest(msg: QueueMessage | null): void {
         if (!msg) {
             logger.warn("Received null message in handleCancellationRequest");
             return;
@@ -142,7 +144,7 @@ class Consumer {
 
             if (this.pendingReq.getMatchId() == reqWithInfo.getMatchId()) {
                 this.processCancelRequest(reqWithInfo.getMatchId(), this.pendingReq.getCorrelationId(),
-                    this.pendingReq.getQueue(), directExchange);
+                    this.pendingReq.getQueue());
                 return;
             }
         } catch (e) {
@@ -154,7 +156,7 @@ class Consumer {
         }
     }
 
-    private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string, directExchange: string): void {
+    private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string): void {
         logger.debug(`Processing cancellation for match ID: ${matchId}`);
         
         const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
@@ -168,13 +170,13 @@ class Consumer {
 
         // respond to match request
         logger.debug(`Responding to match request: ${matchReplyQueue}`);
-        this.channel.publish(directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
+        this.channel.publish(this.directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
             correlationId: matchCorrelationId,
         });
 
         // respond to cancel request
         logger.debug(`Responding to cancel request: ${cancellationResponseQueue.getQueue()}`);
-        this.channel.publish(directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
+        this.channel.publish(this.directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: cancellationResponseQueue.getCorrelationId(),
         });
         return;
