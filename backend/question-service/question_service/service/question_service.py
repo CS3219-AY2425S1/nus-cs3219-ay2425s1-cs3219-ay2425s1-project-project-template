@@ -16,8 +16,14 @@ async def create_question(new_question: Question) -> Question:
     return question
 
 
-async def get_questions() -> List[Question]:
-    questions = await question_collection.all().to_list()
+async def get_questions(topic: str | None, difficulty: Difficulty | None) -> List[Question]:
+    filter_query = {}
+    if topic:
+        filter_query["topic"] = topic
+    if difficulty:
+        filter_query["difficulty"] = difficulty
+
+    questions = await question_collection.find_many(filter_query).to_list()
     return questions
 
 
