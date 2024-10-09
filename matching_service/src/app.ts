@@ -1,8 +1,9 @@
 import express from "express";
 import http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import { joinRoomWhenReady } from "./services/socket";
 
 const app = express();
 const server = http.createServer(app);
@@ -48,7 +49,9 @@ io.on("connection", (socket) => {
   socket.on("match", ({ selectedDifficulty, selectedTopic }) => {
     console.log(selectedDifficulty);
     console.log(selectedTopic);
-    // todo queue processing logic
+    // todo queue processing logic which will create a room upon successful match
+    // const socket2 = null;
+    // joinRoomWhenReady(socket, null, selectedDifficulty, selectedTopic);
   });
 
   socket.on("quitSession", ({ roomId }) => {
@@ -56,11 +59,6 @@ io.on("connection", (socket) => {
 
     // inform other user in the room that the guy has left
     // socket.to(roomId).emit("quitSession");
-  });
-
-  socket.on("test client", (message) => {
-    console.log("Received from client:", message);
-    socket.emit("test server", `Server received: ${message}`);
   });
 
   // todo add matching from client
