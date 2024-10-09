@@ -2,24 +2,24 @@ steps:
   # Step 1: build and push all images to Artifact Registry
 
   # Build and push peerprep-fe
-  # - name: "gcr.io/cloud-builders/docker"
-  #   args:
-  #     [
-  #       "build",
-  #       "-t",
-  #       "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
-  #       "-f",
-  #       "peerprep-fe/Dockerfile",
-  #       "peerprep-fe",
-  #     ]
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
+        "-f",
+        "peerprep-fe/Dockerfile",
+        "peerprep-fe",
+      ]
 
-  # # Push the peerprep-fe image to Artifact Registry
-  # - name: "gcr.io/cloud-builders/docker"
-  #   args:
-  #     [
-  #       "push",
-  #       "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
-  #     ]
+  # Push the peerprep-fe image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
+      ]
 
   # Build and push question-service
   - name: "gcr.io/cloud-builders/docker"
@@ -64,17 +64,17 @@ steps:
   # Step 2: Clean up and deploy to GKE
 
   # Clean up before deploying peerprep-fe
-  # - name: "ubuntu"
-  #   args: ["rm", "-rf", "output"]
+  - name: "ubuntu"
+    args: ["rm", "-rf", "output"]
 
-  # # Deploy peerprep-fe to Google Kubernetes Engine (GKE)
-  # - name: "gcr.io/cloud-builders/gke-deploy"
-  #   args:
-  #     - run
-  #     - --filename=k8s/peerprep-fe.yml
-  #     - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
-  #     - --location=asia-southeast1
-  #     - --cluster=cs3219-g11-peerprep-kubes
+  # Deploy peerprep-fe to Google Kubernetes Engine (GKE)
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=k8s/peerprep-fe.yml
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
+      - --location=asia-southeast1
+      - --cluster=cs3219-g11-peerprep-kubes
 
   # Clean up before deploying question-service
   - name: "ubuntu"
@@ -105,15 +105,15 @@ steps:
   # Step 3: update the deployments with the new images
 
   # Update the peerprep-fe deployment
-  # - name: "gcr.io/cloud-builders/kubectl"
-  #   args:
-  #     - "set"
-  #     - "image"
-  #     - "deployment/peerprep-fe"
-  #     - "peerprep-fe=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
-  #   env:
-  #     - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
-  #     - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
+  - name: "gcr.io/cloud-builders/kubectl"
+    args:
+      - "set"
+      - "image"
+      - "deployment/peerprep-fe"
+      - "peerprep-fe=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
 
   # Update the question-service deployment
   - name: "gcr.io/cloud-builders/kubectl"
@@ -141,6 +141,6 @@ options:
   dynamic_substitutions: true
 
 images:
-  # - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
+  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest"
   - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest"
   - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest"
