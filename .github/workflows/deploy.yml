@@ -3,7 +3,7 @@ name: Deploy to GCP
 on:
   push:
     branches:
-      - feat/35-continuous-deployment
+      - feat/fix-auth
 
 jobs:
   deploy:
