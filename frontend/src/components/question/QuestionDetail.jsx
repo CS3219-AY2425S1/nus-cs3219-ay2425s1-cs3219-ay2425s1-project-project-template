@@ -21,7 +21,7 @@ const QuestionDetail = ({ question, onClose }) => {
       </h1>
       <p style={{ marginBottom: "5px", fontWeight: "bold", color: "#555" }}>
         Category:{" "}
-        <span style={{ fontWeight: "normal" }}>{question.category}</span>
+        <span style={{ fontWeight: "normal" }}>{question.category.join(', ')}</span>
       </p>
       <p style={{ marginBottom: "5px", fontWeight: "bold", color: "#555" }}>
         Complexity:{" "}

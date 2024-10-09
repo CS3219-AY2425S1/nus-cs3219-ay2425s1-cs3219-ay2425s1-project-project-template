@@ -11,6 +11,14 @@ const createQuestion = async (req, res) => {
     if (!(req?.body?.title && req?.body?.description && req?.body?.category && req?.body?.complexity)) {
         return res.status(400).json({ 'message': 'Title, description, category and complexity are required!' });
     }
+
+    // Convert category to an array if it's a comma-separated string
+    let categoryArray = req?.body?.category;
+    if (typeof req?.body?.category === 'string') {
+        categoryArray = req?.body?.category.split(',').map(item => item.trim()); // Convert string to array and trim spaces
+    }
+
+    // Check for duplicate questions by title and description
     if (await QuestionSchema.countDocuments({ title: req.body.title }) > 0) {
         return res.status(409).json({ 'message': 'A question with this title already exists!' })
     }
@@ -21,7 +29,7 @@ const createQuestion = async (req, res) => {
         const result = await QuestionSchema.create({
             title: req.body.title,
             description: req.body.description,
-            category: req.body.category,
+            category: categoryArray,
             complexity: req.body.complexity
         });
 
@@ -63,9 +71,15 @@ const updateQuestion = async (req, res) => {
         return res.status(409).json({ 'message': 'A question with this description already exists!' })
     }
 
+    // Convert category to an array if it's a comma-separated string
+    let categoryArray = req?.body?.category;
+    if (typeof req?.body?.category === 'string') {
+        categoryArray = req?.body?.category.split(',').map(item => item.trim()); // Convert string to array and trim spaces
+    }
+
     if (req.body?.title) question.title = req.body.title;
     if (req.body?.description) question.description = req.body.description;
-    if (req.body?.category) question.category = req.body.category;
+    if (req.body?.category) question.category = categoryArray;
     if (req.body?.complexity) question.complexity = req.body.complexity;
 
     const updatedQuestion = await question.save();

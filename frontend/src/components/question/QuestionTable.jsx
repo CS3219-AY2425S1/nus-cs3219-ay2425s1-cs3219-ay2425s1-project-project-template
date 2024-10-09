@@ -53,7 +53,7 @@ const QuestionTable = ({ questions, onEdit, onView, onDelete }) => {
           {displayedQuestions.map((question) => (
             <tr key={question._id}>
               <td>{question.title}</td>
-              <td>{question.category}</td>
+              <td>{question.category.join(', ')}</td>
               <td>{question.complexity}</td>
               <td>
                 <button onClick={() => onEdit(question)}>Edit</button>
