@@ -49,6 +49,7 @@ export async function handleLogin(req, res) {
       return res.status(200).json({
         message: "User logged in",
         data: {
+          accessToken,
           ...formatUserResponse(user),
         },
       });
@@ -131,7 +132,10 @@ export async function handleRefreshToken(req, res) {
 
     // Return success response with the new access token (optional, since it's already in the cookie)
     return res.status(200).json({
-      message: "Token refreshed"
+      message: "Token refreshed",
+      data: {
+        accessToken: newAccessToken, 
+      },
     });
   } catch (err) {
     return res.status(403).json({ message: "Invalid refresh token" });
