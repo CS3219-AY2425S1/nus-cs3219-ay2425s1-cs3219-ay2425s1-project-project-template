@@ -24,13 +24,13 @@
         (mouseleave)="showFilterOptions = false">
         <!-- Show Difficulty and Category buttons if no filter option is selected -->
         <div *ngIf="!isDifficultyClicked && !isCategoryClicked">
-          <button class="dropdown-btn" (click)="showDifficultyOptions()">
+          <button class="dropdown-btn cursor-pointer" (click)="showDifficultyOptions()">
             Difficulty
           </button>
-          <button class="dropdown-btn" (click)="showCategoryOptions()">
+          <button class="dropdown-btn cursor-pointer" (click)="showCategoryOptions()">
             Category
           </button>
-          <button class="dropdown-btn" (click)="resetFilters()">
+          <button class="dropdown-btn cursor-pointer" (click)="resetFilters()">
             Reset Filters
           </button>
         </div>
