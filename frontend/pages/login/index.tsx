@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Button } from "@nextui-org/button"; // This should be imported before custom components
+import { Button } from "@nextui-org/button";
 
 import LoginForm from "@/components/forms/LoginForm";
 import { useLogin } from "@/hooks/auth";
