@@ -24,12 +24,6 @@ h2 {
   text-align: center;
 }
 
-.button-container {
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: 5vh;
-}
-
 .home-button {
   cursor: pointer;
   color: white;
@@ -40,4 +34,8 @@ h2 {
   background-color: rgb(170, 3, 3);
   border-radius: 15px;
   border: none;
+}
+
+.home .content h2 {
+  margin-top: 32px;
 }
