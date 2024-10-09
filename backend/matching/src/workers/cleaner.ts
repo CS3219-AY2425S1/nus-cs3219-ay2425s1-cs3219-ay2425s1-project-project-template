@@ -1,15 +1,25 @@
-import { parentPort } from 'worker_threads';
-
 import async from 'async';
-
 import { client } from '@/lib/db';
-import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
-import { logger } from '@/lib/utils';
+import { MATCH_PREFIX, STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { io } from '@/server';
 
-async.forever(
-  (next) => {
-    void client.connect().then(async (redisClient) => {
+const logger = {
+  info: (message: unknown) => process.send && process.send(message),
+  error: (message: unknown) => process.send && process.send(message),
+};
+
+process.on('SIGTERM', () => {
+  client
+    .disconnect()
+    .then(() => client.quit())
+    .then(process.exit(0));
+});
+
+async function match() {
+  try {
+    const redisClient = client.isReady || client.isOpen ? client : await client.connect();
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       logger.info('Iterating Cleaner');
       const response = await redisClient.xAutoClaim(
         STREAM_NAME,
@@ -18,30 +28,37 @@ async.forever(
         30000,
         '0-0'
       );
-
       if (response && response.messages.length > 0) {
         // ACK, Delete
         for (const message of response.messages) {
+          if (!message) {
+            continue;
+          }
           await Promise.all([
             // Delete from pool
-            redisClient.del('ID'),
+            redisClient.del(`${MATCH_PREFIX}${message.id}`),
             // ACK
-            redisClient.xAck(STREAM_NAME, STREAM_GROUP, 'ID'),
+            redisClient.xAck(STREAM_NAME, STREAM_GROUP, message.id),
           ]);
           // Notify client
           io.sockets.in('').emit('FAILED');
         }
       }
-    });
+    }
+  } catch (error) {
+    const { message, cause } = error as unknown as Error;
+    logger.error('::match: ' + JSON.stringify({ message, cause }));
+    process.exit(1);
+  }
+}
+
+async.forever(
+  (next) => {
+    void match();
     next();
   },
   (err) => {
-    logger.error(err);
+    logger.error(JSON.stringify(err));
     process.exit(1);
   }
 );
-
-parentPort?.on('close', () => {
-  logger.info('Cleaner Shutting Down');
-  process.exit(0);
-});

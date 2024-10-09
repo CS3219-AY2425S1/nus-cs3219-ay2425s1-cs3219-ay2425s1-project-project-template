@@ -1,24 +1,25 @@
-import { parentPort } from 'worker_threads';
-
 import async from 'async';
-
 import { client } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
-// import { logger } from '@/lib/utils';
 import { io } from '@/server';
 
 const logger = {
-  info: (message: string) => {
-    console.log(message);
-  },
-  error: (message: any) => {
-    console.error(message);
-  },
+  info: (message: unknown) => process.send && process.send(message),
+  error: (message: unknown) => process.send && process.send(message),
 };
 
-async.forever(
-  (next) => {
-    void client.connect().then(async (redisClient) => {
+process.on('SIGTERM', () => {
+  client
+    .disconnect()
+    .then(() => client.quit())
+    .then(process.exit(0));
+});
+
+async function match() {
+  try {
+    const redisClient = client.isReady || client.isOpen ? client : await client.connect();
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       logger.info('Iterating Worker');
       const stream = await redisClient.xReadGroup(
         STREAM_GROUP,
@@ -29,7 +30,7 @@ async.forever(
         },
         {
           COUNT: 1,
-          BLOCK: 500,
+          BLOCK: 2000,
         }
       );
       if (stream && stream.length > 0) {
@@ -56,8 +57,24 @@ async.forever(
             }
           }
         }
+      } else {
+        await new Promise((resolve, reject) =>
+          setTimeout(() => {
+            resolve({});
+          }, 1000)
+        );
       }
-    });
+    }
+  } catch (error) {
+    const { message, cause, name } = error as unknown as Error;
+    logger.error('::match: ' + JSON.stringify({ message, cause, name }));
+    process.exit(1);
+  }
+}
+
+async.forever(
+  (next) => {
+    void match();
     next();
   },
   (err) => {
@@ -65,8 +82,3 @@ async.forever(
     process.exit(1);
   }
 );
-
-parentPort?.on('close', () => {
-  logger.info('Matcher Shutting Down');
-  process.exit(0);
-});
