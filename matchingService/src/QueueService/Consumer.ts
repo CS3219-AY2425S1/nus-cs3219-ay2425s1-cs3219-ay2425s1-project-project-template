@@ -30,7 +30,7 @@ class Consumer {
         }, { noAck: true }); // Enable auto ack of message
     }
 
-    private handleMatchRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
+    private handleMatchRequest(msg: QueueMessage | null, channel: Channel, directExchange: string): void {
         if (!msg) {
             return;
         }
@@ -70,7 +70,7 @@ class Consumer {
         return new MatchRequest(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
     }
 
-    private processMatchRequest(incomingReq: MatchRequest, replyQueue: string, correlationId: string, channel: Channel, responseExchange: string) {
+    private processMatchRequest(incomingReq: MatchRequest, replyQueue: string, correlationId: string, channel: Channel, responseExchange: string): void {
         if (!this.pendingReq) {
             this.pendingReq = MatchRequestWithQueueInfo.createFromMatchRequest(incomingReq, replyQueue, correlationId);
             return;
@@ -89,7 +89,7 @@ class Consumer {
         this.pendingReq = null;
     }
 
-    private handleCancellationRequest(msg: QueueMessage | null, channel: Channel, directExchange: string) {
+    private handleCancellationRequest(msg: QueueMessage | null, channel: Channel, directExchange: string): void {
         if (!msg) {
             return;
         }
@@ -105,7 +105,7 @@ class Consumer {
         }
     }
 
-    private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string, channel: Channel, directExchange: string) {
+    private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string, channel: Channel, directExchange: string): void {
         const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
         if (!cancellationResponseQueue) {
             console.log("Missing response queue");
@@ -113,10 +113,12 @@ class Consumer {
         }
         this.pendingReq = null; // Remove existing pending match
         this.deleteCancellationMatchRequest(matchId);
+
         // respond to match request
         channel.publish(directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
             correlationId: matchCorrelationId,
         });
+
         // respond to cancel request
         channel.publish(directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
             correlationId: cancellationResponseQueue.getCorrelationId(),
