@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import MatchService from "../services/MatchService";
-import { Difficulty, Topic } from "../QueueService/matchingEnums";
-import { InvalidDifficultyError, InvalidTopicError, MissingFieldError } from "../errors/ValidationError";
 import RequestValidator from "../validators/RequestValidator";
 
 /**
