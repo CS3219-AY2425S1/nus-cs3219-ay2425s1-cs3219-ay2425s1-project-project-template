@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { InvalidDifficultyError, InvalidTopicError, MissingFieldError } from "../errors/ValidationError";
+import logger from "../utils/logger";
 
 const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof MissingFieldError 
@@ -8,7 +9,7 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
         return res.status(400).json({ error: err.message });
     }
 
-    console.error("Unhandled error:", err);
+    logger.debug("Unhandled error");
     return res.status(500).json({ error: "Internal server error" });
 };
 

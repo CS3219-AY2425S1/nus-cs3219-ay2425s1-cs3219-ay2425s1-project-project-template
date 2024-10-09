@@ -1,6 +1,9 @@
 import { InvalidDifficultyError, InvalidTopicError, MissingFieldError } from "../errors/ValidationError";
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
 
+/**
+ * RequestValidator checks if incoming requests contains all the required fields and that the difficulty and topic are of valid values.
+ */
 class RequestValidator {
     public static validateFindMatchRequest(data: { name: string; matchId: string; topic: string; difficulty: string }): void {
         const { name, matchId, topic, difficulty } = data;
