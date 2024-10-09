@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/router";
-import { Button } from "@nextui-org/button";
 
 import RegistrationForm from "@/components/forms/RegistrationForm";
 import { useRegister } from "@/hooks/auth";
