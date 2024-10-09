@@ -5,7 +5,7 @@ import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 let redisClient: IRedisClient;
-const requestMatchController = async (req: Request, res: Response) => {
+export const requestMatchController = async (req: Request, res: Response) => {
   const payload: Partial<IRequestMatchPayload> = req.body;
   const { userId, difficulty, topic } = payload;
   if (!userId || (!difficulty && !topic)) {
@@ -16,5 +16,10 @@ const requestMatchController = async (req: Request, res: Response) => {
     redisClient = await client.connect();
   }
   // Assign
-  await queueingService(redisClient, { userId, difficulty, topic, socketPort: '' });
+  const socketRoom = '';
+
+  await queueingService(redisClient, { userId, difficulty, topic, socketPort: socketRoom });
+  return res.status(StatusCodes.OK).json({
+    socketPort: socketRoom,
+  });
 };
