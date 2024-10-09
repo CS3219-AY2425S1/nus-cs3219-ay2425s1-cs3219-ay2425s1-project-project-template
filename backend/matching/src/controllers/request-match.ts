@@ -16,7 +16,7 @@ export const requestMatchController = async (req: Request, res: Response) => {
     redisClient = await client.connect();
   }
   // Assign
-  const socketRoom = '';
+  const socketRoom = userId;
 
   await queueingService(redisClient, { userId, difficulty, topic, socketPort: socketRoom });
   return res.status(StatusCodes.OK).json({

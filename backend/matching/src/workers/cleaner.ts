@@ -1,4 +1,3 @@
-import async from 'async';
 import { client } from '@/lib/db';
 import { MATCH_PREFIX, STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { io } from '@/server';
@@ -15,50 +14,55 @@ process.on('SIGTERM', () => {
     .then(process.exit(0));
 });
 
-async function match() {
-  try {
-    const redisClient = client.isReady || client.isOpen ? client : await client.connect();
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      logger.info('Iterating Cleaner');
-      const response = await redisClient.xAutoClaim(
-        STREAM_NAME,
-        STREAM_GROUP,
-        STREAM_CLEANER,
-        30000,
-        '0-0'
-      );
-      if (response && response.messages.length > 0) {
-        // ACK, Delete
-        for (const message of response.messages) {
-          if (!message) {
-            continue;
-          }
-          await Promise.all([
-            // Delete from pool
-            redisClient.del(`${MATCH_PREFIX}${message.id}`),
-            // ACK
-            redisClient.xAck(STREAM_NAME, STREAM_GROUP, message.id),
-          ]);
-          // Notify client
-          io.sockets.in('').emit('FAILED');
-        }
-      }
+async function clean() {
+  const redisClient = client.isReady || client.isOpen ? client : await client.connect();
+  const response = await redisClient.xAutoClaim(
+    STREAM_NAME,
+    STREAM_GROUP,
+    STREAM_CLEANER,
+    30000,
+    '0-0'
+  );
+
+  if (!response || response.messages.length === 0) {
+    await new Promise((resolve, _reject) => {
+      setTimeout(() => resolve('Next Loop'), 5000);
+    });
+    return;
+  }
+  // ACK, Delete
+  for (const message of response.messages) {
+    if (!message) {
+      continue;
     }
-  } catch (error) {
-    const { message, cause } = error as unknown as Error;
-    logger.error('::match: ' + JSON.stringify({ message, cause }));
-    process.exit(1);
+    const payload = message.message;
+    logger.info(`Expiring ${JSON.stringify(payload)}`);
+
+    const POOL_KEY = `${MATCH_PREFIX}${payload.userId}`;
+    await Promise.all([
+      // Delete from pool
+      redisClient.del(POOL_KEY),
+      // ACK
+      redisClient.xDel(STREAM_NAME, message.id),
+    ]);
+
+    if (payload.socketPort) {
+      // Notify client
+      const socketRoom = payload.socketPort;
+      io.sockets.in(socketRoom).emit('FAILED');
+      io.sockets.in(socketRoom).disconnectSockets();
+    }
   }
 }
 
-async.forever(
-  (next) => {
-    void match();
-    next();
-  },
-  (err) => {
-    logger.error(JSON.stringify(err));
-    process.exit(1);
-  }
-);
+(function loop() {
+  Promise.resolve()
+    .then(async () => await clean())
+    .catch((err) => {
+      if (err !== null) {
+        const { message, name, cause } = err as Error;
+        logger.error(JSON.stringify({ message, name, cause }));
+      }
+    })
+    .then(() => process.nextTick(loop));
+})();
