@@ -21,7 +21,7 @@ class Consumer {
         // Incoming cancellation requests may reference non-existing matches. 
         // If these requests are not deleted from the hashmap, they will accumulate over time.
         // To prevent this, we regularly clean up expired cancellation requests from the hashmap.
-        const intervalDuration = 1 * 60 * 1000;
+        const intervalDuration = 30 * 60 * 1000;
         this.cleanupInterval = setInterval(() => this.cleanupExpiredCancellationRequests(), intervalDuration);
     }
 
@@ -220,10 +220,9 @@ class Consumer {
 
     private cleanupExpiredCancellationRequests(): void {
         logger.info("Cleaning expired match cancellation request");
-        const expirationTime = 1 * 60 * 1000;
 
         this.cancelledMatches.forEach((cancelRequest, matchId) => {
-            if (cancelRequest.hasExpired(expirationTime)) {
+            if (cancelRequest.hasExpired()) {
                 logger.debug(`Expired cancellation request detected and removed for match ID: ${matchId}`);
                 this.cancelledMatches.delete(matchId);
             }
