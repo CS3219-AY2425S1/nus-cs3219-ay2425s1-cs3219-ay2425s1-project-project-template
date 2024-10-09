@@ -22,7 +22,6 @@ process.on('SIGTERM', () => {
 
 async function match() {
   const redisClient = client.isReady || client.isOpen ? client : await client.connect();
-  logger.info('Iterating');
   const stream = await redisClient.xReadGroup(
     STREAM_GROUP,
     STREAM_WORKER,
@@ -44,6 +43,7 @@ async function match() {
   for (const group of stream) {
     // Perform matching
     for (const matchRequest of group.messages) {
+      logger.info(`Received request: ${JSON.stringify(matchRequest)}`);
       // Query the pool
       const matchRequestor = matchRequest.message;
       const clause = [`-@userId:(${matchRequestor.userId})`];
@@ -64,6 +64,8 @@ async function match() {
         const matchedStreamKey = matched.id;
         const matchedUser = matched.value;
 
+        logger.info(`Found match: ${JSON.stringify(matched)}`);
+
         await Promise.all([
           // Remove other from pool
           redisClient.del([
@@ -78,6 +80,8 @@ async function match() {
         io.sockets
           .in([matchRequestor.socketPort, matchedUser.socketPort as string])
           .emit(' ROOMNUMBER | QUESTION??? ');
+      } else {
+        logger.info(`Found no matches`);
       }
     }
   }
