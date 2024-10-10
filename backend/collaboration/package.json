@@ -21,7 +21,6 @@
     "env-cmd": "^10.1.0",
     "express": "^4.21.1",
     "http-status-codes": "^2.3.0",
-    "pg": "^8.13.0",
     "pino": "^9.4.0",
     "pino-http": "^10.3.0",
     "redis": "^4.7.0",
