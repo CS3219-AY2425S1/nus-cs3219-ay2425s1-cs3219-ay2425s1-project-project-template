@@ -18,16 +18,17 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
+        cache: maven
         
     - name: Build and test service-question
       run: |
         cd backend/service-question
-        ./mvn clean verify
+        mvn clean verify
         
     - name: Build and test service-user
       run: |
         cd backend/service-user
-        ./mvn clean verify
+        mvn clean verify
 
   build-and-test-frontend:
     runs-on: ubuntu-latest
