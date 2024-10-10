@@ -1,5 +1,5 @@
 import { IQueueService } from "../config/bootstrap";
-import MatchRequest from "../models/MatchRequest";
+import { MatchRequest } from "../models/MatchRequest";
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
 
 /**
@@ -13,7 +13,11 @@ export default class MatchService {
     }
 
     public async findMatch(name: string, topic: Topic, difficulty: Difficulty ): Promise<string> {
-        const req = new MatchRequest(name, topic, difficulty);
+        const req: MatchRequest = {
+            userId: name,
+            topic: topic,
+            difficulty: difficulty
+        }
         return this.queueService.sendMatchRequest(req);
     }
 

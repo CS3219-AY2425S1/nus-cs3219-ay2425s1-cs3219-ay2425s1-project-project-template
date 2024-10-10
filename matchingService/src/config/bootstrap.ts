@@ -1,7 +1,7 @@
 import QueueService from "../QueueService/QueueService";
 import MatchService from "../services/MatchService";
 import MatchController from "../controllers/MatchController";
-import MatchRequest from "../models/MatchRequest";
+import { MatchRequest } from "../models/MatchRequest";
 import logger from "../utils/logger";
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
 import { Application } from "express";

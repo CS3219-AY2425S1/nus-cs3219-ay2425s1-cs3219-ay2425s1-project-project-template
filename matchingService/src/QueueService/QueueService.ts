@@ -1,5 +1,5 @@
 import { Channel } from "amqplib";
-import MatchRequest from "../models/MatchRequest";
+import { MatchRequest } from "../models/MatchRequest";
 import CancelRequest from "../models/CancelRequest";
 import { ConnectionManager, IConnectionManager } from "../config/ConnectionManager";
 import ChannelNotFoundError from "../errors/ChannelNotFoundError";
@@ -81,10 +81,10 @@ class QueueService {
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<string> {
         const matchId: string = uuidv4();
         const matchReqWithId: MatchRequestDTO = {
-            userId: matchRequest.getUserId(),
+            userId: matchRequest.userId,
             matchId: matchId,
-            topic: matchRequest.getTopic(),
-            difficulty: matchRequest.getDifficulty()
+            topic: matchRequest.topic,
+            difficulty: matchRequest.difficulty
         }
         
         // new MatchRequestDTO(matchRequest.getUserId(), matchId, matchRequest.getTopic(), matchRequest.getDifficulty());
