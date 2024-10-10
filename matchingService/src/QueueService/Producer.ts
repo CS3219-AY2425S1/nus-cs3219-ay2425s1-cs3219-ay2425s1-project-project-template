@@ -26,7 +26,6 @@ class Producer {
             difficulty: msg.getDifficulty()
         };
 
-        // const res: Promise<boolean> = this.waitForResponse(channel, responseExchange, replyQueueName, correlationId); // Listen before publishing message to ensure we do not miss the response
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
             replyTo: replyQueueName,
@@ -36,38 +35,15 @@ class Producer {
         logger.info(`Match request sent with correlation ID: ${correlationId}`);
         return true;
     }
-    
-    private waitForResponse(channel: Channel, responseExchange: string, replyQueue: string, correlationId: string): Promise<boolean> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await channel.bindQueue(replyQueue, responseExchange, replyQueue);
-                logger.debug(`Waiting for response on queue: ${replyQueue} with correlation ID: ${correlationId}`);
 
-                const consumer = await channel.consume(replyQueue, async (message) => { // consume returns immediately after initializing listener. Hence, need custom handling of Promise
-                    if (message && message.properties.correlationId === correlationId) {
-                        const content = message.content.toString();
-                        logger.info(`Producer received response: ${content}`);
-
-                        const response = JSON.parse(content);
-                        await channel.cancel(consumer.consumerTag); // Stop consuming messages after receiving the first relevant response
-                        resolve(response === true);
-                    }
-                }, { noAck: true });
-            } catch (error) {
-                logger.error("Error waiting for response:", error);
-                reject(false);
-            }
-        });
-    }
-
-    public async sendCancelMessage(msg: CancelRequest, channel: Channel, directExchange: string): Promise<boolean> {
+    public async sendCancelMessage(msg: CancelRequest, channel: Channel, directExchange: string): Promise<void> {
         logger.info(`Sending cancel request for match ID: ${msg.getMatchId()}`);
 
         const replyQueue = await channel.assertQueue("", { exclusive: true });
         const replyQueueName = replyQueue?.queue;
         if (!replyQueue) {
             logger.error("Failed to create response queue");
-            return false;
+            return;
         }
 
         const correlationId = uuidv4();
@@ -75,7 +51,6 @@ class Producer {
             matchId: msg.getMatchId(),
         };
         
-        const res: Promise<boolean> = this.waitForResponse(channel, directExchange, replyQueueName, correlationId); // Listen before publishing message to ensure we do not miss the response
         channel.publish(directExchange, "cancellation", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
             replyTo: replyQueueName,
@@ -83,7 +58,7 @@ class Producer {
         });
 
         logger.info(`Cancellation request sent with correlation ID: ${correlationId}`);
-        return res;
+        return;
     }
 }
 

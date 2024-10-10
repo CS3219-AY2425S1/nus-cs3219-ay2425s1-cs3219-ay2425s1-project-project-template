@@ -50,9 +50,10 @@ class Consumer {
             logger.debug("No existing pending request encountered");
             return;
         }
-        if (this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
+        if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
             this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId(), 
-                this.pendingReq.getQueue())
+                this.pendingReq.getQueue());
+            this.pendingReq = null;
         }
     }
 
@@ -69,12 +70,15 @@ class Consumer {
             const replyQueue: string = msg?.properties.replyTo;
 
             if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
+                logger.debug("Deleting pending match");
                 this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId(),
                     this.pendingReq.getQueue());
+                this.pendingReq = null;
                 return;
             }
 
-            if (this.isCancelledMatchRequest(req.getMatchId())) {
+            if (this.isCancelledMatchRequest(req.getMatchId())) { // Handle case whereby cancellation requests comes before match request due to latency issue
+                logger.debug("Deleting new match request");
                 this.processCancelRequest(req.getMatchId(), correlationId,
                     replyQueue);
                 return;
@@ -141,20 +145,20 @@ class Consumer {
             return;
         }
         
-        this.pendingReq = null; // Remove existing pending match
         this.deleteCancellationMatchRequest(matchId);
+        // this.pendingReq = null; // Remove existing pending match
 
-        // respond to match request
-        logger.debug(`Responding to match request: ${matchReplyQueue}`);
-        this.channel.publish(this.directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
-            correlationId: matchCorrelationId,
-        });
+        // // respond to match request
+        // logger.debug(`Responding to match request: ${matchReplyQueue}`);
+        // this.channel.publish(this.directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
+        //     correlationId: matchCorrelationId,
+        // });
 
-        // respond to cancel request
-        logger.debug(`Responding to cancel request: ${cancellationResponseQueue.getQueue()}`);
-        this.channel.publish(this.directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
-            correlationId: cancellationResponseQueue.getCorrelationId(),
-        });
+        // // respond to cancel request
+        // logger.debug(`Responding to cancel request: ${cancellationResponseQueue.getQueue()}`);
+        // this.channel.publish(this.directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
+        //     correlationId: cancellationResponseQueue.getCorrelationId(),
+        // });
         return;
     }
 

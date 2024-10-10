@@ -43,6 +43,7 @@ const MatchingModal: React.FC = () => {
     }
 
     async function handleCancelMatchRequest() {
+        console.log(`Cancelling request of matchId: ${matchId}`);
         await fetch(`http://localhost:3000/match/cancelMatch?matchId=${matchId}&topic=${topic}&difficulty=${difficulty}`, {
             mode: "cors",
             method: "DELETE",

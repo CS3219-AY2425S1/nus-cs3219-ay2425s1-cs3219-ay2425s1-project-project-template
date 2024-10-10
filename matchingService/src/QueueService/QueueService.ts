@@ -102,8 +102,8 @@ class QueueService {
         }
         var producer: Producer = new Producer();
         var req: CancelRequest = new CancelRequest(matchId, difficulty, topic);
-        const result = await producer.sendCancelMessage(req, channel, this.directExchange);
-        logger.info(`Cancellation request sent for match ID: ${matchId}, result: ${result}`);
+        producer.sendCancelMessage(req, channel, this.directExchange);
+        logger.info(`Cancellation request sent for match ID: ${matchId}`);
         return;
     }
 
