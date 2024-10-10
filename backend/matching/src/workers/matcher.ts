@@ -35,6 +35,10 @@ async function processMatch(
       timestamp, // We use timestamp as the Stream ID
       socketPort: matchedSocketPort,
     } = decodePoolTicket(matched);
+
+    // To block cancellation
+    io.sockets.in([matchedSocketPort]).emit('Matching');
+
     const matchedStreamId = getStreamId(timestamp);
 
     logger.info(`Found match: ${JSON.stringify(matched)}`);
@@ -88,6 +92,10 @@ async function match() {
         difficulty,
         topic,
       } = decodePoolTicket(matchRequest);
+
+      // To Block Cancellation
+      io.sockets.in([requestorSocketPort]).emit('Matching');
+
       const clause = [`-@userId:(${requestorUserId})`];
       if (difficulty) {
         clause.push(`@difficulty:{${difficulty}}`);
@@ -111,7 +119,7 @@ async function match() {
       );
       if (exactMatchFound || !topic || !difficulty) {
         // Match found, or Partial search completed
-        return;
+        continue;
       }
 
       // Match on Topic
@@ -127,7 +135,7 @@ async function match() {
         'topic'
       );
       if (topicMatchFound) {
-        return;
+        continue;
       }
 
       // Match on Difficulty
@@ -136,7 +144,17 @@ async function match() {
         `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
         searchParams
       );
-      await processMatch(redisClient, requestorParams, difficultyMatches, 'difficulty');
+      const hasDifficultyMatch = await processMatch(
+        redisClient,
+        requestorParams,
+        difficultyMatches,
+        'difficulty'
+      );
+
+      if (!hasDifficultyMatch) {
+        // To allow cancellation
+        io.sockets.in(requestorSocketPort).emit('Waiting');
+      }
     }
   }
 }
