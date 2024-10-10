@@ -5,6 +5,7 @@ import { initialiseServices } from "./config/bootstrap";
 import { loggerRequestMiddleware, loggerResponseMiddleware } from "./middlewares/loggerMiddleware";
 import logger from "./utils/logger";
 import errorHandler from "./middlewares/errorHandler";
+import initialiseWebsocket from "./websocket/websocket";
 
 async function main() {
     const app: Application = express();
@@ -14,6 +15,7 @@ async function main() {
     app.use(loggerRequestMiddleware);
     app.use(loggerResponseMiddleware);
     app.use('/match', createMatchingRouter(matchController));
+    initialiseWebsocket(app);
     app.use(errorHandler);
 
     app.listen(3000, () => {
