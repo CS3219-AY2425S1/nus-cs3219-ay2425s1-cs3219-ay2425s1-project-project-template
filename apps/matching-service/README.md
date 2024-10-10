@@ -22,7 +22,13 @@ cd ./apps/matching-service
 go mod tidy
 ```
 
-3. Start the WebSocket server:
+3. Create a copy of the `.env.example` file as an `.env` file with the following environment variables:
+
+- `PORT`: Specifies the port for the WebSocket server. Default is `8081`.
+- `JWT_SECRET`: The secret key used to verify JWT tokens.
+- `MATCH_TIMEOUT`: The time in seconds to wait for a match before timing out.
+
+4. Start the WebSocket server:
 
 ```bash
 go run main.go
@@ -87,12 +93,6 @@ If no match is found after a set period of time, the server will send a timeout 
 ```
 
 If the server encounters an issue during the WebSocket connection or processing, the connection will be closed without any error message. The client should treat the unexpected closing as an error.
-
-### Environment Variables
-
-- `PORT`: Specifies the port for the WebSocket server. Default is `8081`.
-- `JWT_SECRET`: The secret key used to verify JWT tokens.
-- `MATCH_TIMEOUT`: The time in seconds to wait for a match before timing out.
 
 ## Testing
 
