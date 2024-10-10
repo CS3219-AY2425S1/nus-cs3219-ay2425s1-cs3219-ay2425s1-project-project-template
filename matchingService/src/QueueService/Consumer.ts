@@ -5,6 +5,7 @@ import MatchRequest from "../models/MatchRequest";
 import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import logger from "../utils/logger";
+import MatchRequestWithId from "../models/MatchRequestWIthId";
 
 /** 
  * Consumer consumes incoming messages from queues that will contain Matchmaking requests
@@ -62,7 +63,7 @@ class Consumer {
         
         logger.debug("Consumer received match request");
         try {
-            const req: MatchRequest = this.parseMatchRequest(msg);
+            const req: MatchRequestWithId = this.parseMatchRequest(msg);
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
 
@@ -88,7 +89,7 @@ class Consumer {
         }
     }
 
-    private parseMatchRequest(msg: QueueMessage): MatchRequest {
+    private parseMatchRequest(msg: QueueMessage): MatchRequestWithId {
         const content: string = msg.content.toString();
         if (!content) {
             logger.error("Message content is empty!");
@@ -99,19 +100,19 @@ class Consumer {
         const jsonObject = JSON.parse(content);
         logger.debug(`Parsed JSON object: ${JSON.stringify(jsonObject)}`);
 
-        return new MatchRequest(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
+        return new MatchRequestWithId(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
     }
 
-    private processMatchRequest(incomingReq: MatchRequest, replyQueue: string, correlationId: string): void {
+    private processMatchRequest(incomingReq: MatchRequestWithId, replyQueue: string, correlationId: string): void {
         logger.debug(`Processing match request: ${incomingReq.getMatchId()}`);
 
         if (!this.pendingReq) {
-            this.pendingReq = MatchRequestWithQueueInfo.createFromMatchRequest(incomingReq, replyQueue, correlationId);
+            this.pendingReq = MatchRequestWithQueueInfo.createFromMatchRequestWithId(incomingReq, replyQueue, correlationId);
             logger.debug(`Stored pending request: ${incomingReq.getMatchId()}`);
             return;
         }
 
-        var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequest(incomingReq, replyQueue, correlationId);
+        var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequestWithId(incomingReq, replyQueue, correlationId);
         logger.debug(`Matching and responding to requests: ${this.pendingReq.getMatchId()} and ${incomingReq.getMatchId()}`);
         this.matchAndRespond(this.pendingReq, incomingReqWithQueueInfo);
     }

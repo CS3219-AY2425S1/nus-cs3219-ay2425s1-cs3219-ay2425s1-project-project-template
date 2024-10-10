@@ -12,8 +12,8 @@ export default class MatchService {
         this.queueService = queueService;
     }
 
-    public async findMatch(name: string, matchId: string, topic: Topic, difficulty: Difficulty ): Promise<boolean> {
-        const req = new MatchRequest(name, matchId, topic, difficulty);
+    public async findMatch(name: string, topic: Topic, difficulty: Difficulty ): Promise<boolean> {
+        const req = new MatchRequest(name, topic, difficulty);
         return this.queueService.sendMatchRequest(req);
     }
 

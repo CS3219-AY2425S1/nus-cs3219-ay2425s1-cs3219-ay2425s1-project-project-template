@@ -9,6 +9,8 @@ import QueueManager from "./QueueManager";
 import { Difficulty, Topic } from "./matchingEnums";
 import logger from "../utils/logger"; // Import your logger
 import CancellationConsumer from "./CancellationConsumer";
+import { v4 as uuidv4} from "uuid";
+import MatchRequestWithId from "../models/MatchRequestWIthId";
 
 /**
  * QueueService manages message queues for RabbitMq.
@@ -75,15 +77,17 @@ class QueueService {
     }
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {
-        logger.info(`Sending match request for match ID: ${matchRequest.getMatchId()}`);
+        const matchId: string = uuidv4();
+        const matchReqWithId: MatchRequestWithId = new MatchRequestWithId(matchRequest.getUserId(), matchRequest.getTopic(), matchRequest.getDifficulty(), matchId);
+        logger.info(`Sending match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             logger.error(channel.message);
             return false;
         }
         var producer: Producer = new Producer();
-        const result = await producer.sendRequest(matchRequest, channel, this.categoryExchange, this.directExchange);
-        logger.info(`Match request sent for match ID: ${matchRequest.getMatchId()}, result: ${result}`);
+        const result = await producer.sendRequest(matchReqWithId, channel, this.categoryExchange, this.directExchange);
+        logger.info(`Match request sent for match ID: ${matchId}, result: ${result}`);
         return result;
     }
 

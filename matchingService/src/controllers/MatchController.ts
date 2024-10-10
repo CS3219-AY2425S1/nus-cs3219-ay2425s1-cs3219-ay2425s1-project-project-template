@@ -16,10 +16,10 @@ export default class MatchController {
 
     public async findMatch(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, matchId, topic, difficulty } = req.body;
-            RequestValidator.validateFindMatchRequest({ name, matchId, topic, difficulty });
+            const { name, topic, difficulty } = req.body;
+            RequestValidator.validateFindMatchRequest({ name, topic, difficulty });
 
-            const result: boolean = await this.matchService.findMatch(name, matchId, topic, difficulty);
+            const result: boolean = await this.matchService.findMatch(name, topic, difficulty);
             
             if (result) {
                 return res.json({ success: result });

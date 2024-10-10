@@ -3,13 +3,14 @@ import MatchRequest from "../models/MatchRequest";
 import CancelRequest from "../models/CancelRequest";
 import { MessageHeader, CancelMessageHeader } from "../models/MessageHeaders";
 import { v4 as uuidv4 } from 'uuid';
-import logger from "../utils/logger"; // Import your logger
+import logger from "../utils/logger";
+import MatchRequestWithId from "../models/MatchRequestWIthId";
 
 /** 
  * Class representing a Producer that will push matchmaking requests into a header exchange.
  */
 class Producer {
-    public async sendRequest(msg: MatchRequest, channel: Channel, exchange: string, responseExchange: string): Promise<boolean> {
+    public async sendRequest(msg: MatchRequestWithId, channel: Channel, exchange: string, responseExchange: string): Promise<boolean> {
         logger.info(`Sending match request for topic: ${msg.getTopic()}, difficulty: ${msg.getDifficulty()}`);
         
         const replyQueue = await channel.assertQueue("", { exclusive: true });
