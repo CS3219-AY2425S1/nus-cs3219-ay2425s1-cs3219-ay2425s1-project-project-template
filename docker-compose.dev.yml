@@ -76,7 +76,7 @@ services:
     ports:
       - ${MATCHING_SERVICE_PORT}:${MATCHING_SERVICE_PORT}
 
-  events_service:
+  kafka_service:
     image: apache/kafka:latest
     environment:
       KAFKA_NODE_ID: 1
