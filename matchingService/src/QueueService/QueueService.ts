@@ -11,6 +11,8 @@ import logger from "../utils/logger"; // Import your logger
 import CancellationConsumer from "./CancellationConsumer";
 import { v4 as uuidv4} from "uuid";
 import MatchRequestWithId from "../models/MatchRequestWIthId";
+import ResponseConsumer from "./ResponseConsumer";
+import { Server } from "socket.io";
 
 /**
  * QueueService manages message queues for RabbitMq.
@@ -76,19 +78,19 @@ class QueueService {
         logger.info("Consumer successully initialised and consuming");
     }
 
-    public async sendMatchRequest(matchRequest: MatchRequest): Promise<boolean> {
+    public async sendMatchRequest(matchRequest: MatchRequest): Promise<string> {
         const matchId: string = uuidv4();
-        const matchReqWithId: MatchRequestWithId = new MatchRequestWithId(matchRequest.getUserId(), matchRequest.getTopic(), matchRequest.getDifficulty(), matchId);
+        const matchReqWithId: MatchRequestWithId = new MatchRequestWithId(matchRequest.getUserId(), matchId, matchRequest.getTopic(), matchRequest.getDifficulty());
         logger.info(`Sending match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {
             logger.error(channel.message);
-            return false;
+            return "";
         }
         var producer: Producer = new Producer();
         const result = await producer.sendRequest(matchReqWithId, channel, this.categoryExchange, this.directExchange);
         logger.info(`Match request sent for match ID: ${matchId}, result: ${result}`);
-        return result;
+        return matchId;
     }
 
     public async cancelMatchRequest(matchId: string, difficulty: Difficulty, topic: Topic): Promise<void> {
@@ -103,6 +105,17 @@ class QueueService {
         const result = await producer.sendCancelMessage(req, channel, this.directExchange);
         logger.info(`Cancellation request sent for match ID: ${matchId}, result: ${result}`);
         return;
+    }
+
+    public async consumeResponses(io: Server) {
+        logger.info("Consuming responses");
+        var channel: Channel = this.connectionManager.getChannel();
+        if (channel instanceof ChannelNotFoundError) {
+            logger.error(channel.message);
+            return;
+        }
+        var consumer: ResponseConsumer = new ResponseConsumer(channel, io);
+        consumer.consumeResponses();
     }
 }
 

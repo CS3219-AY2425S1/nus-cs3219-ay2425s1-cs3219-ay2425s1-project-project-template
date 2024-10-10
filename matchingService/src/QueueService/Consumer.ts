@@ -120,10 +120,10 @@ class Consumer {
     private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo): void {
         logger.debug(`Responding to matched requests: ${req1.getMatchId()} and ${req2.getMatchId()}`);
         
-        this.channel.publish(this.directExchange, req1.getQueue(), Buffer.from(JSON.stringify(true)), {
+        this.channel.publish(this.directExchange, "response", Buffer.from(JSON.stringify(req1)), {
             correlationId: req1.getCorrelationId(),
         });
-        this.channel.publish(this.directExchange, req2.getQueue(), Buffer.from(JSON.stringify(true)), {
+        this.channel.publish(this.directExchange, "response", Buffer.from(JSON.stringify(req2)), {
             correlationId: req2.getCorrelationId(),
         });
 

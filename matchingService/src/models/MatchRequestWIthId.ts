@@ -4,7 +4,7 @@ import MatchRequest from "./MatchRequest";
 export default class MatchRequestWithId extends MatchRequest {
     private matchId: string;
 
-    constructor(userId: string, topic: Topic, difficulty: Difficulty, matchId: string) {
+    constructor(userId: string, matchId: string, topic: Topic, difficulty: Difficulty) {
         super(userId, topic, difficulty);
         this.matchId = matchId;
     }

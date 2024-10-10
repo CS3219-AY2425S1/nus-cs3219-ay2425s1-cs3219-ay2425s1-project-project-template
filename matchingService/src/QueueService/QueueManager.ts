@@ -38,6 +38,11 @@ class QueueManager {
         const cancellationQueue: string = "cancellation";
         await this.channel.assertQueue(cancellationQueue, { durable: false });
         await this.channel.bindQueue(cancellationQueue, this.directExchange, "cancellation");
+
+        // Static queue to store responses
+        const responseQueue: string = "response";
+        await this.channel.assertQueue(responseQueue, { durable: false });
+        await this.channel.bindQueue(responseQueue, this.directExchange, "response");
         logger.info("Successully created and binded queues to exchanges");
     }
 }

@@ -19,10 +19,10 @@ export default class MatchController {
             const { name, topic, difficulty } = req.body;
             RequestValidator.validateFindMatchRequest({ name, topic, difficulty });
 
-            const result: boolean = await this.matchService.findMatch(name, topic, difficulty);
+            const matchId: string = await this.matchService.findMatch(name, topic, difficulty);
             
-            if (result) {
-                return res.json({ success: result });
+            if (matchId) {
+                return res.json({ matchId: matchId });
             } else {
                 return res.status(500).json({ error: "Failed to process match request" });
             }

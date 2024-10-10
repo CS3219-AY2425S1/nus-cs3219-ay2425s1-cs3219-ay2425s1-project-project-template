@@ -12,7 +12,7 @@ export default class MatchService {
         this.queueService = queueService;
     }
 
-    public async findMatch(name: string, topic: Topic, difficulty: Difficulty ): Promise<boolean> {
+    public async findMatch(name: string, topic: Topic, difficulty: Difficulty ): Promise<string> {
         const req = new MatchRequest(name, topic, difficulty);
         return this.queueService.sendMatchRequest(req);
     }

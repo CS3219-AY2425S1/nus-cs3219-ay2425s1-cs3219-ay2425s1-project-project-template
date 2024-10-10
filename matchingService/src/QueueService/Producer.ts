@@ -26,7 +26,7 @@ class Producer {
             difficulty: msg.getDifficulty()
         };
 
-        const res: Promise<boolean> = this.waitForResponse(channel, responseExchange, replyQueueName, correlationId); // Listen before publishing message to ensure we do not miss the response
+        // const res: Promise<boolean> = this.waitForResponse(channel, responseExchange, replyQueueName, correlationId); // Listen before publishing message to ensure we do not miss the response
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
             replyTo: replyQueueName,
@@ -34,7 +34,7 @@ class Producer {
         });
 
         logger.info(`Match request sent with correlation ID: ${correlationId}`);
-        return res;
+        return true;
     }
     
     private waitForResponse(channel: Channel, responseExchange: string, replyQueue: string, correlationId: string): Promise<boolean> {
