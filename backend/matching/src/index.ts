@@ -15,8 +15,10 @@ server.listen(port, () => {
   ['Cleaner', 'Matcher'].map(initWorker).forEach((process) => workers.push(process));
 });
 
-const shutdown = async () => {
-  await Promise.all(workers.map((worker) => worker.kill()));
+const shutdown = () => {
+  workers.forEach((worker) => {
+    worker.kill();
+  });
   server.close(() => {
     logger.info('App shut down');
   });
@@ -24,3 +26,4 @@ const shutdown = async () => {
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+process.on('exit', shutdown);
