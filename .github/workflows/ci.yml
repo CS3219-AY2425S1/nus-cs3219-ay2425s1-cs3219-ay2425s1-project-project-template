@@ -22,12 +22,12 @@ jobs:
     - name: Build and test service-question
       run: |
         cd backend/service-question
-        ./mvnw clean verify
+        ./mvn clean verify
         
     - name: Build and test service-user
       run: |
         cd backend/service-user
-        ./mvnw clean verify
+        ./mvn clean verify
 
   build-and-test-frontend:
     runs-on: ubuntu-latest
