@@ -21,6 +21,7 @@ services:
     environment:
       QUESTION_SERVICE_HOST: ${QUESTION_SERVICE_HOST}
       USER_SERVICE_HOST: ${USER_SERVICE_HOST}
+      MATCHING_SERVICE_HOST: ${MATCHING_SERVICE_HOST}
       NODE_ENV: production
   question-service:
     build:
@@ -48,6 +49,30 @@ services:
       SUPABASE_URL: ${USER_SERVICE_SUPABASE_URL}
       SUPABASE_KEY: ${USER_SERVICE_SUPABASE_KEY}
       NODE_ENV: production
+  matching-service:
+    build:
+      context: .
+      dockerfile: ./apps/matching-service/Dockerfile
+    ports:
+      - 3004:3004
+    networks:
+      - backend
+    environment:
+      MATCHING_SERVICE_HOST: ${MATCHING_SERVICE_HOST}
+      NODE_ENV: production
+  rabbitmq:
+    build:
+      context: ./infra/rabbitmq
+      dockerfile: Dockerfile
+    container_name: rabbitmq
+    networks:
+      - backend
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672" # RabbitMQ message broker port
+      - "15672:15672" # RabbitMQ management plugin port
 
 networks:
   backend:
