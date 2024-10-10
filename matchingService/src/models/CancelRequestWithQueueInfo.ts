@@ -2,7 +2,7 @@ import { Difficulty, Topic } from "../QueueService/matchingEnums";
 import { CancelRequest } from "./CancelRequest";
 
 /**
- * CancelRequestWithQueueInfo stores additional information - response queue and correlationid. 
+ * CancelRequestWithQueueInfo stores additional information - timestamp and correlationid. 
  * This enables the consumer to remember which repsonse queue to reply to.
  */
 class CancelRequestWithQueueInfo {
