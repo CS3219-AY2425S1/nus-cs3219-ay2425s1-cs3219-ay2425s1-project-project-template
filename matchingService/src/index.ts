@@ -13,7 +13,7 @@ async function main() {
 
     app.use(cors({
         origin: "http://localhost:5173",
-        methods: ["GET", "POST"]
+        methods: ["POST", "DELETE"]
     }))
     app.use(express.json());
     app.use(loggerRequestMiddleware);
