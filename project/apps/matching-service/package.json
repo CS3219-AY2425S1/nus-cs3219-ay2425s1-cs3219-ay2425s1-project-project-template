@@ -29,9 +29,10 @@
     "@nestjs/platform-express": "^10.0.0",
     "@repo/dtos": "workspace:*",
     "@repo/eslint-config": "workspace:*",
+    "@types/cache-manager-redis-store": "^2.0.4",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.4",
-    "cache-manager": "^6.1.0",
+    "cache-manager": "^5.7.6",
     "cache-manager-redis-store": "^3.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
