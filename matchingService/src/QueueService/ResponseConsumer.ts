@@ -26,8 +26,8 @@ export default class ResponseConsumer {
             return;
         }
 
-        const maxRetries = 5;
-        const initialDelay = 1000;
+        const maxRetries = 10;
+        const initialDelay = 100;
 
         const response = JSON.parse(msg.content.toString());
         const room = response.matchId;
