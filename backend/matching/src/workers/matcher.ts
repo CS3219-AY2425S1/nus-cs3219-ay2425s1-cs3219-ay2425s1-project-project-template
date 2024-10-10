@@ -9,12 +9,24 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-process.on('SIGTERM', () => {
+const sleepTime = 5000;
+let stopSignal = false;
+let timeout: ReturnType<typeof setTimeout>;
+const cancel = () => {
+  stopSignal = true;
+  clearTimeout(timeout);
+};
+const shutdown = () => {
+  cancel();
   client
     .disconnect()
     .then(() => client.quit())
     .then(process.exit(0));
-});
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGHUP', shutdown);
+process.on('SIGTERM', shutdown);
 
 type RequestorParams = {
   requestorUserId: string;
@@ -76,7 +88,7 @@ async function match() {
   );
   if (!stream || stream.length === 0) {
     await new Promise((resolve, _reject) => {
-      setTimeout(() => resolve('Next Loop'), 5000);
+      timeout = setTimeout(() => resolve('Next Loop'), sleepTime);
     });
     return;
   }
@@ -160,6 +172,10 @@ async function match() {
 }
 
 (function loop() {
+  if (stopSignal) {
+    return;
+  }
+
   Promise.resolve()
     .then(async () => await match())
     .catch((error) => {

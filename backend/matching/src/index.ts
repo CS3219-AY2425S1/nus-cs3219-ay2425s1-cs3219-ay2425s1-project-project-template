@@ -16,7 +16,7 @@ server.listen(port, () => {
 });
 
 const shutdown = async () => {
-  await Promise.all(workers.map((worker) => worker.kill('SIGTERM')));
+  await Promise.all(workers.map((worker) => worker.kill()));
   server.close(() => {
     logger.info('App shut down');
   });
