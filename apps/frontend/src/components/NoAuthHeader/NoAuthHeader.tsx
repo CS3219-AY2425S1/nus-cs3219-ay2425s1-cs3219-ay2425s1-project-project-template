@@ -21,7 +21,7 @@ const NoAuthHeader = (): JSX.Element => {
 
   return (
     // Header Component
-    <AntdHeader className="header">
+    <AntdHeader className="noauth-header">
       <div className="logo-container">
         <div className="logo1">Peer</div>
         <div className="logo2">Prep</div>
