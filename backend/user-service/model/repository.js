@@ -3,12 +3,14 @@ import "dotenv/config";
 import { connect } from "mongoose";
 
 export async function connectToDB() {
-  let mongoDBUri =
-    process.env.ENV === "PROD"
-      ? process.env.DB_CLOUD_URI
-      : process.env.DB_LOCAL_URI;
+    const user = process.env.MONGODB_USERNAME;
+    const password = process.env.MONGODB_PASSWORD;
+    const url = process.env.MONGODB_ENDPOINT;      
+    const dbName = process.env.MONGODB_DB;        
+      
+    const DATABASE_URI=`mongodb+srv://${user}:${password}@${url}/${dbName}?retryWrites=true&w=majority&appName=PeerPrep`
 
-  await connect(mongoDBUri);
+  await connect(DATABASE_URI);
 }
 
 export async function createUser(username, email, password) {
