@@ -1,6 +1,6 @@
 import { Channel } from "amqplib";
 import logger from "../utils/logger";
-import CancelRequest from "../models/CancelRequest";
+import { CancelRequest } from "../models/CancelRequest";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import QueueMessage from "../models/QueueMessage";
 import Consumer from "./Consumer";
@@ -38,7 +38,7 @@ export default class CancellationConsumer {
             var req: CancelRequest = this.parseCancelRequest(msg);
             const correlationId: string = msg.properties.correlationId;
             const replyQueue: string = msg.properties.replyTo;
-            const reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, replyQueue, correlationId);
+            const reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, correlationId);
 
             const consumer: Consumer | undefined = this.consumerMap.get(`${reqWithInfo.getTopic()}_${reqWithInfo.getDifficulty()}`);
             if (!consumer) {
@@ -66,8 +66,12 @@ export default class CancellationConsumer {
         logger.debug(`Parsing cancellation request content: ${content}`);
         const jsonObject = JSON.parse(content);
         logger.debug(`Parsed cancellation JSON object: ${JSON.stringify(jsonObject)}`);
-
-        return new CancelRequest(jsonObject.matchId, jsonObject.difficulty, jsonObject.topic);
+        const req: CancelRequest = {
+            matchId: jsonObject.matchId,
+            difficulty: jsonObject.difficulty,
+            topic: jsonObject.topic
+        }
+        return req;
     }
 
     public registerConsumer(key: string, consumer: Consumer) {

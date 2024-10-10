@@ -177,16 +177,6 @@ class Consumer {
         this.cancelledMatches.forEach((cancelRequest, matchId) => {
             if (cancelRequest.hasExpired()) {
                 logger.debug(`Expired cancellation request detected for match ID: ${matchId}`);
-    
-                // Notify producer that the cancellation request has expired
-                this.channel.publish(
-                    this.directExchange,
-                    cancelRequest.getQueue(),
-                    Buffer.from(JSON.stringify({ success: false, error: "Request expired" })),
-                    { correlationId: cancelRequest.getCorrelationId() }
-                );
-    
-                logger.debug(`Notified producer of expired cancellation request for match ID: ${matchId}`);
                 this.cancelledMatches.delete(matchId);
             }
         });

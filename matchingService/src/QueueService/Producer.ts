@@ -1,5 +1,5 @@
 import { Channel } from "amqplib";
-import CancelRequest from "../models/CancelRequest";
+import { CancelRequest } from "../models/CancelRequest";
 import { MessageHeader, CancelMessageHeader } from "../models/MessageHeaders";
 import { v4 as uuidv4 } from 'uuid';
 import logger from "../utils/logger";
@@ -36,7 +36,7 @@ class Producer {
     }
 
     public async sendCancelMessage(msg: CancelRequest, channel: Channel, directExchange: string): Promise<void> {
-        logger.info(`Sending cancel request for match ID: ${msg.getMatchId()}`);
+        logger.info(`Sending cancel request for match ID: ${msg.matchId}`);
 
         const replyQueue = await channel.assertQueue("", { exclusive: true });
         const replyQueueName = replyQueue?.queue;
@@ -47,7 +47,7 @@ class Producer {
 
         const correlationId = uuidv4();
         const messageHeaders: CancelMessageHeader = {
-            matchId: msg.getMatchId(),
+            matchId: msg.matchId,
         };
         
         channel.publish(directExchange, "cancellation", Buffer.from(JSON.stringify(msg)), {

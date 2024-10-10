@@ -1,34 +1,46 @@
 import { Difficulty, Topic } from "../QueueService/matchingEnums";
-import CancelRequest from "./CancelRequest";
+import { CancelRequest } from "./CancelRequest";
 
 /**
  * CancelRequestWithQueueInfo stores additional information - response queue and correlationid. 
  * This enables the consumer to remember which repsonse queue to reply to.
  */
-class CancelRequestWithQueueInfo extends CancelRequest {
+class CancelRequestWithQueueInfo {
+    private readonly matchId: string;
+    private readonly difficulty: Difficulty;
+    private readonly topic: Topic;
+
     private static readonly EXPIRATION_DURATION = 1 * 60 * 1000;
-    private replyQueue: string;
     private correlationId: string;
     private timestamp: Date;
 
-    constructor(matchId: string, difficulty: Difficulty, topic: Topic, replyQueue: string, correlationId: string) {
-        super(matchId, difficulty, topic);
-        this.replyQueue = replyQueue;
+    constructor(matchId: string, difficulty: Difficulty, topic: Topic, correlationId: string) {
+        this.matchId = matchId;
+        this.difficulty = difficulty;
+        this.topic = topic;
         this.correlationId = correlationId;
         this.timestamp = new Date();
     }
 
-    public getQueue(): string {
-        return this.replyQueue;
+    public getMatchId(): string {
+        return this.matchId;
+    }
+
+    public getDifficulty(): Difficulty {
+        return this.difficulty;
+    }
+
+    public getTopic(): Topic {
+        return this.topic;
     }
 
     public getCorrelationId(): string {
         return this.correlationId;
     }
 
-    public static createFromCancelRequest(cancelRequest: CancelRequest, replyQueue: string, correlationId: string): CancelRequestWithQueueInfo {
-        return new CancelRequestWithQueueInfo(cancelRequest.getMatchId(), 
-            cancelRequest.getDifficulty(), cancelRequest.getTopic(), replyQueue, correlationId);
+    public static createFromCancelRequest(cancelRequest: CancelRequest, correlationId: string): CancelRequestWithQueueInfo {
+        return new CancelRequestWithQueueInfo(cancelRequest.matchId, 
+            cancelRequest.difficulty, cancelRequest.topic, correlationId);
     }
 
     public hasExpired(): boolean {

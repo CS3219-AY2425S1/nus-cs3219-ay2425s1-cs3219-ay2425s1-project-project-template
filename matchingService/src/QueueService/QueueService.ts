@@ -1,6 +1,6 @@
 import { Channel } from "amqplib";
 import { MatchRequest } from "../models/MatchRequest";
-import CancelRequest from "../models/CancelRequest";
+import { CancelRequest } from "../models/CancelRequest";
 import { ConnectionManager, IConnectionManager } from "../config/ConnectionManager";
 import ChannelNotFoundError from "../errors/ChannelNotFoundError";
 import Consumer from "./Consumer";
@@ -108,7 +108,11 @@ class QueueService {
             return;
         }
         var producer: Producer = new Producer();
-        var req: CancelRequest = new CancelRequest(matchId, difficulty, topic);
+        var req: CancelRequest = {
+            matchId: matchId, 
+            difficulty: difficulty, 
+            topic: topic
+        };
         producer.sendCancelMessage(req, channel, this.directExchange);
         logger.info(`Cancellation request sent for match ID: ${matchId}`);
         return;
