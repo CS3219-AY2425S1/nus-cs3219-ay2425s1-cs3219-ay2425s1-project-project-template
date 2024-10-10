@@ -1,24 +1,24 @@
 import { NestFactory } from '@nestjs/core';
-import { UsersModule } from './users.module';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { AuthModule } from './auth.module';
 
 async function bootstrap() {
   const host =
     process.env.NODE_ENV === 'development'
       ? 'localhost'
-      : process.env.USER_SERVICE_HOST || 'localhost';
+      : process.env.AUTH_SERVICE_HOST || 'localhost';
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    UsersModule,
+    AuthModule,
     {
       transport: Transport.TCP,
       options: {
         host: host,
-        port: 3002,
+        port: 3003,
       },
     },
   );
   await app.listen();
-  console.log(`User Service is listening on ${host}:3002`);
+  console.log(`Auth Service is listening on ${host}:3003`);
 }
 bootstrap();

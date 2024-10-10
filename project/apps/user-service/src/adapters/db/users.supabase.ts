@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ConfigService } from '@nestjs/config';
-import { Database } from '@repo/dtos/generated/types/auth.types';
+
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { UsersRepository } from 'src/domain/ports/users.repository';
 
 @Injectable()
-export class SupabaseService {
+export class SupabaseUsersRepository implements UsersRepository {
   private supabase: SupabaseClient;
+
+  private readonly PROFILES_TABLE = 'profiles';
 
   constructor(private configService: ConfigService) {
     const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
@@ -15,10 +18,8 @@ export class SupabaseService {
       throw new Error('Supabase URL and key must be provided');
     }
 
-    this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
+    this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
-  getClient(): SupabaseClient {
-    return this.supabase;
-  }
+  // Refer to questions.supabase.ts for examples
 }

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { QuestionsController } from './questions/questions.controller';
-import { ConfigModule } from '@nestjs/config';
-import { AuthController } from './auth/auth.controller';
 import { LoggerModule } from 'nestjs-pino';
+import { ConfigModule } from '@nestjs/config';
+import { QuestionsController } from './questions/questions.controller';
+import { UsersController } from './users/users.controller';
+import { AuthController } from './auth/auth.controller';
 import { MatchingController } from './matching/matching.controller';
 
 @Module({
@@ -18,7 +19,6 @@ import { MatchingController } from './matching/matching.controller';
         },
       },
     }),
-    // Client for Questions Service
     ClientsModule.register([
       {
         name: 'QUESTION_SERVICE',
@@ -43,6 +43,17 @@ import { MatchingController } from './matching/matching.controller';
         },
       },
       {
+        name: 'AUTH_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host:
+            process.env.NODE_ENV === 'development'
+              ? 'localhost'
+              : process.env.AUTH_SERVICE_HOST || 'localhost',
+          port: 3003,
+        },
+      },
+      {
         name: 'MATCHING_SERVICE',
         transport: Transport.TCP,
         options: {
@@ -55,6 +66,11 @@ import { MatchingController } from './matching/matching.controller';
       },
     ]),
   ],
-  controllers: [QuestionsController, AuthController, MatchingController],
+  controllers: [
+    QuestionsController,
+    UsersController,
+    AuthController,
+    MatchingController,
+  ],
 })
 export class ApiGatewayModule {}

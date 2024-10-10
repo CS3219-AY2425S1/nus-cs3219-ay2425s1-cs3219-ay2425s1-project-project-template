@@ -11,8 +11,8 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    @Inject('USER_SERVICE')
-    private readonly userServiceClient: ClientProxy,
+    @Inject('AUTH_SERVICE')
+    private readonly authServiceClient: ClientProxy,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
     }
 
     const data = await firstValueFrom(
-      this.userServiceClient.send({ cmd: 'verify' }, token),
+      this.authServiceClient.send({ cmd: 'verify' }, token),
     );
 
     request.user = data;
