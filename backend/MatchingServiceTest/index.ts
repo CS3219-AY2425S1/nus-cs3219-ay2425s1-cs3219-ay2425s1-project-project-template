@@ -9,7 +9,7 @@ socket.on("connect", () => {
   console.log("Requesting match...");
   socket.emit("request-match", {
     difficultyLevel: "MEDIUM",
-    category: "ARRAYS",
+    // category: "ARRAYS",
   });
 });
 
