@@ -10,12 +10,15 @@ import { MatchEngineConsumer } from './matchEngine/matchEngine.consumeRequest';
 import { MatchEngineService } from './matchEngine/matchEngine.service';
 import { MatchExpiryService } from './matchExpiry/matchExpiry.service';
 import { MatchRequestService } from './matchRequest/matchRequest.service';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisOptions } from './constants/redis';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CacheModule.registerAsync(RedisOptions),
   ],
   controllers: [MatchingController],
   providers: [
