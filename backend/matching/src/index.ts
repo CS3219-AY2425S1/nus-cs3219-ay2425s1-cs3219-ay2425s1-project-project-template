@@ -2,7 +2,7 @@ import type { ChildProcess } from 'child_process';
 
 import { EXPRESS_PORT } from '@/config';
 import { logger } from '@/lib/utils';
-import server from '@/server';
+import server, { io } from '@/server';
 import { initWorker } from '@/workers';
 
 const workers: ChildProcess[] = [];
@@ -19,6 +19,9 @@ const shutdown = () => {
   workers.forEach((worker) => {
     worker.kill();
   });
+  io.close(() => {
+    logger.info('WS Server shut down');
+  });
   server.close(() => {
     logger.info('App shut down');
   });
@@ -26,4 +29,3 @@ const shutdown = () => {
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
-process.on('exit', shutdown);
