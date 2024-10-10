@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matching service: websocket test</title>
+</head>
+<body>
+    <p id="status">Status: no matching yet</p>
+    <button onclick="openWebSocket()">Find match</button>
+    <button onclick="closeConnection()">Cancel matching</button>
+    <p id="response"></p>
+    <script>
+        let socket = null;
+        
+        function openWebSocket() {
+            // Connect to WebSocket server
+            // User should be authenticated first
+            // JWT token should be sent with the initial request, in the authorization header.
+            // request would be checked as middleware.
+            if (socket != null) return
+            socket = new WebSocket("ws://localhost:8081/match");
+            document.getElementById("response").innerText = ""; 
+
+            // Log connection opening
+            socket.onopen = function() {
+                console.log("WebSocket is open now.");
+                
+                // send the match request when connection is open
+                socket.send(JSON.stringify({
+                    type: "match_request",
+                    topics: ["Algorithms", "Arrays"],
+                    difficulties: ["Easy", "Medium"],
+                }))
+
+                document.getElementById("status").innerText = "Status: matching in progress..."
+            };
+            
+            // Log response message and display it
+            socket.onmessage = function(event) {
+                console.log("Message received: " + event.data);
+                document.getElementById("response").innerText = "Received: " + event.data;
+            document.getElementById("status").innerText = "Status: matching found/timeout"
+
+            };
+            
+            // Log errors
+            socket.onerror = function(error) {
+                console.log("WebSocket error: " + error);
+            };
+            
+            // Log connection closure
+            socket.onclose = function() {
+                console.log("WebSocket is closed now.");
+                socket = null
+            };
+        }
+        
+        function closeConnection() {
+            document.getElementById("status").innerText = "Status: matching cancelled"
+            document.getElementById("response").innerText = ""; 
+            socket.close();
+        }
+    </script>
+</body>
+</html>

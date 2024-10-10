@@ -4,13 +4,19 @@ The Matching Service provides a WebSocket server to manage real-time matching re
 
 ## Setup
 
+### Prerequisites
+
+Ensure you have Go installed on your machine.
+
+### Installation
+
 1. Navigate to the matching service directory:
 
 ```bash
 cd ./apps/matching-service
 ```
 
-2. Ensure that you have Go installed. Install the necessary dependencies:
+2. Install the necessary dependencies:
 
 ```bash
 go mod tidy
@@ -27,7 +33,7 @@ go run main.go
 To establish a WebSocket connection with the matching service, use the following JavaScript code:
 
 ```javascript
-const ws = new WebSocket("ws://localhost:8081/ws");
+const ws = new WebSocket("ws://localhost:8081/match");
 ```
 
 ### Authentication
@@ -65,8 +71,8 @@ Server response on successful match:
 ```json
 {
   "type": "match_found",
-  "matchID": "67890",
-  "partnerID": "54321",
+  "matchID": 67890,
+  "partnerID": 54321,
   "partnerName": "John Doe"
 }
 ```
@@ -80,21 +86,20 @@ If no match is found after a set period of time, the server will send a timeout 
 }
 ```
 
-If the server encounters an issue during the WebSocket connection or processing, an error message will be sent back to the client before closing the connection. The client should handle these errors appropriately.
-
-Sample error structure:
-
-```json
-{
-  "type": "error",
-  "message": "Invalid token"
-}
-```
+If the server encounters an issue during the WebSocket connection or processing, the connection will be closed without any error message. The client should treat the unexpected closing as an error.
 
 ### Environment Variables
 
 - `PORT`: Specifies the port for the WebSocket server. Default is `8081`.
 - `JWT_SECRET`: The secret key used to verify JWT tokens.
-- `MATCH_TIMEOUT`: The time in seconds to wait for a match before timing out. Default is `60` seconds.
+- `MATCH_TIMEOUT`: The time in seconds to wait for a match before timing out.
 
-TODO: Add section for docker
+## Testing
+
+Utilize `./tests/websocket-test.html` for a basic debugging interface of the matching service. This HTML file provides an interactive way to test the WebSocket connection, send matching requests, and observe responses from the server.
+
+Make sure to open the HTML file in a web browser while the WebSocket server is running to perform your tests.
+
+## Docker Support
+
+TODO: Add section for Docker setup and usage instructions.
