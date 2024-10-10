@@ -1,5 +1,4 @@
 "use client";
-import Header from "@/components/Header/header";
 import { Button, Input, Layout, message, Form } from "antd";
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
@@ -7,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { createUser } from "@/app/services/user";
 import { useRouter } from "next/navigation";
+import NoAuthHeader from "@/components/NoAuthHeader/NoAuthHeader";
 
 type InputFields = {
   username: string;
@@ -42,7 +42,7 @@ export default function Home() {
     <>
       {contextHolder}
       <Layout>
-        <Header selectedKey={undefined} />
+        <NoAuthHeader />
         <Content>
           <div className="login-card">
             <h1>Register</h1>

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { loginUser } from "@/app/services/user";
 import { setToken } from "@/app/services/login-store";
 import { useRouter } from "next/navigation";
+import NoAuthHeader from "@/components/NoAuthHeader/NoAuthHeader";
 
 type InputFields = {
   email: string;
@@ -43,7 +44,7 @@ export default function Home() {
     <>
       {contextHolder}
       <Layout>
-        <Header selectedKey={undefined} />
+        <NoAuthHeader />
         <Content>
           <div className="login-card">
             <h1>Login</h1>
