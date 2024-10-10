@@ -10,7 +10,7 @@ const axiosQuestionClient = axios.create({
   },
 });
 
-const axiosUserClient = axios.create({
+const axiosAuthClient = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3001/api/v1',
   headers: {
@@ -22,6 +22,18 @@ const axiosUserClient = axios.create({
 axiosQuestionClient.interceptors.request.use(
   (config) => {
     const token = getCookie('access-token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+axiosAuthClient.interceptors.request.use(
+  (config) => {
+    const token = getCookie('access-token');
+    console.log('token', token);
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -42,4 +54,4 @@ axiosQuestionClient.interceptors.request.use(
 //   },
 // );
 
-export { axiosQuestionClient, axiosUserClient };
+export { axiosQuestionClient, axiosAuthClient };

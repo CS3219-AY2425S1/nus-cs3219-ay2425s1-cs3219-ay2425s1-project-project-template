@@ -1,6 +1,6 @@
 'use client';
-import LoggedIn from './components/LoggedIn';
+import MainComponent from './components/Main';
 
 export default function Home() {
-  return <LoggedIn />;
+  return <MainComponent />;
 }
