@@ -50,7 +50,7 @@ router.post(
 );
 
 // Retrieve all questions
-router.get("/all", async (req: Request, res: Response) => {
+router.post("/all", async (req: Request, res: Response) => {
   const pagination = parseInt(req.body.pagination as string, 10) || 1; // Default page is 1
   const page_size = parseInt(req.body.page_size as string, 10) || 10; // Default limit is 10
   const skip = (pagination - 1) * page_size; // Calculate how many documents to skip

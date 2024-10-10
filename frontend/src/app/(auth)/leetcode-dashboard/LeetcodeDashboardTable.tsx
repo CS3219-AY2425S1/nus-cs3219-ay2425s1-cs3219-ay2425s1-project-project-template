@@ -93,6 +93,8 @@ export function LeetcodeDashboardTable() {
     pageSize: 10,
   });
 
+  const [totalPages, setTotalPage] = React.useState<number>(1);
+
   const columns: ColumnDef<QuestionMinified>[] = [
     {
       accessorKey: "questionid",
@@ -168,8 +170,14 @@ export function LeetcodeDashboardTable() {
   ];
 
   useEffect(() => {
-    getLeetcodeDashboardData().then((data) => setData(data.reverse()));
-  }, [refreshKey]);
+    getLeetcodeDashboardData(
+      pagination.pageIndex + 1,
+      pagination.pageSize
+    ).then((data) => {
+      setData(data.questions);
+      setTotalPage(data.totalPages);
+    });
+  }, [refreshKey, pagination.pageIndex]);
 
   const table = useReactTable({
     data,
@@ -180,6 +188,8 @@ export function LeetcodeDashboardTable() {
       pagination,
     },
     onPaginationChange: setPagination,
+    manualPagination: true,
+    pageCount: totalPages,
   });
 
   return (
@@ -246,8 +256,14 @@ export function LeetcodeDashboardTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => {
+              if (table.getState().pagination.pageIndex === 0) {
+                table.setPageIndex(totalPages - 1);
+              } else {
+                table.previousPage();
+              }
+            }}
+            disabled={totalPages === 0}
           >
             Prev
           </Button>
@@ -258,8 +274,17 @@ export function LeetcodeDashboardTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => {
+              if (
+                table.getState().pagination.pageIndex + 1 ===
+                table.getPageCount()
+              ) {
+                table.setPageIndex(0);
+              } else {
+                table.nextPage();
+              }
+            }}
+            disabled={totalPages === 0}
           >
             Next
           </Button>

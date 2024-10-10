@@ -80,6 +80,13 @@ export enum QuestionTopics {
   HASH_SUM = "Hash Sum",
 }
 
+export interface QuestionAll {
+  questions: QuestionMinified[];
+  currentPage: number;
+  totalPages: number;
+  totalQuestions: number;
+}
+
 export interface QuestionMinified {
   questionid: string;
   title: string;
