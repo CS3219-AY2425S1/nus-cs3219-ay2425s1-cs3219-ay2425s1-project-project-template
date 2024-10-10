@@ -33,7 +33,6 @@ export const useLogin = () => {
       // Store the accessToken in localStorage
       localStorage.setItem("accessToken", data.accessToken);
       console.log("Login successful!", data);
-      // Redirect if needed here
     },
     onError: (error) => {
       console.error("Login failed", error);
@@ -41,3 +40,43 @@ export const useLogin = () => {
     },
   });
 };
+
+// Define the shape of the registration response
+interface RegisterResponse {
+  accessToken: string;
+  id: string;
+  username: string;
+  email: string;
+  isAdmin: boolean;
+  createdAt: string;
+}
+
+// Define the structure for the registration credentials object
+interface RegisterCredentials {
+  username: string;
+  email: string;
+  password: string;
+}
+
+// Registration: Send user details to the backend and return the response
+const register = async (credentials: RegisterCredentials): Promise<RegisterResponse> => {
+  const response = await axios.post("/user-service/users", credentials);
+  return response.data.data;
+};
+
+// Registration hook
+export const useRegister = () => {
+  return useMutation<RegisterResponse, AxiosError, RegisterCredentials>({
+    mutationFn: register,
+    onSuccess: (data) => {
+      // Store the accessToken in localStorage
+      localStorage.setItem("accessToken", data.accessToken);
+      console.log("Registration successful!", data);
+    },
+    onError: (error) => {
+      console.error("Registration failed", error);
+      throw error.message || "Registration failed!";
+    },
+  });
+};
+
