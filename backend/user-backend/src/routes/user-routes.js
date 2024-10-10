@@ -20,7 +20,9 @@ const imageFileFilter = (req, file, cb) => {
     cb(new Error('Only image files are allowed.'), false);
   }
 };
-const imageUpload = multer({ dest: 'uploads/', fileFilter: imageFileFilter });
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: imageFileFilter });
 
 const router = express.Router();
 
