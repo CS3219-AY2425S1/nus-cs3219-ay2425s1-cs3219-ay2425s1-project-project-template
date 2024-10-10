@@ -7,7 +7,7 @@ import Consumer from "./Consumer";
 import Producer from "./Producer";
 import QueueManager from "./QueueManager";
 import { Difficulty, Topic } from "./matchingEnums";
-import logger from "../utils/logger"; // Import your logger
+import logger from "../utils/logger";
 import CancellationConsumer from "./CancellationConsumer";
 import { v4 as uuidv4} from "uuid";
 import { MatchRequestDTO } from "../models/MatchRequestDTO";
@@ -87,7 +87,6 @@ class QueueService {
             difficulty: matchRequest.difficulty
         }
         
-        // new MatchRequestDTO(matchRequest.getUserId(), matchId, matchRequest.getTopic(), matchRequest.getDifficulty());
         logger.info(`Sending match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {

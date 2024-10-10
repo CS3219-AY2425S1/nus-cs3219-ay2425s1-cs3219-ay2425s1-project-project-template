@@ -13,7 +13,7 @@ export interface IQueueService {
 }
 
 /**
- * Initializes and returns the match controller.
+ * Initialises the different services, controllers and websocket.
  */
 export async function initialiseServices(app: Application): Promise<MatchController> {
     const queueService: QueueService = await QueueService.of(process.env.RABBITMQ_URL || "amqp://localhost:5672", "gateway", "responseGateway");

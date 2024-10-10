@@ -32,7 +32,7 @@ export default class ResponseConsumer {
         const response = JSON.parse(msg.content.toString());
         const room = response.matchId;
 
-        const sendWithRetry = async (attempt: number = 1): Promise<void> => {
+        const sendWithRetry = async (attempt: number = 1): Promise<void> => { // Possible that user disconnected or experiencing delay in listening
             if (attempt > maxRetries) {
                 logger.error(`Failed to deliver message after ${maxRetries} attempts for room: ${room}`);
                 return;

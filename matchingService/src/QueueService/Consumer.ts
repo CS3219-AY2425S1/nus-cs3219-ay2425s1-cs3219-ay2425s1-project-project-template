@@ -1,6 +1,5 @@
 import { Channel } from "amqplib";
 import QueueMessage from "../models/QueueMessage";
-// import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import logger from "../utils/logger";
 import { MatchRequestDTO } from "../models/MatchRequestDTO";
@@ -117,7 +116,6 @@ class Consumer {
             return;
         }
 
-        // var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequestWithId(incomingReq, replyQueue, correlationId);
         logger.debug(`Matching and responding to requests: ${this.pendingReq.matchId} and ${incomingReq.matchId}`);
         this.matchAndRespond(this.pendingReq, incomingReq);
     }
@@ -125,12 +123,8 @@ class Consumer {
     private matchAndRespond(req1: MatchRequestDTO, req2: MatchRequestDTO): void {
         logger.debug(`Responding to matched requests: ${req1.matchId} and ${req2.matchId}`);
         
-        this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req1)), {
-            // correlationId: req1.getCorrelationId(),
-        });
-        this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req2)), {
-            // correlationId: req2.getCorrelationId(),
-        });
+        this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req1)), {});
+        this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req2)), {});
 
         logger.debug("Responses sent to matched requests");
         this.pendingReq = null;
