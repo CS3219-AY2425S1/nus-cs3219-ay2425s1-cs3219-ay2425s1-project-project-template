@@ -7,6 +7,7 @@ import Link from "next/link";
 import { createUser } from "@/app/services/user";
 import { useRouter } from "next/navigation";
 import NoAuthHeader from "@/components/NoAuthHeader/NoAuthHeader";
+import { UserOutlined } from "@ant-design/icons";
 
 type InputFields = {
   username: string;
@@ -15,7 +16,7 @@ type InputFields = {
   confirmPassword: string;
 };
 
-export default function Home() {
+export default function RegisterPage() {
   const [isRegistrationFailed, setIsRegistrationFailed] = useState(false);
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
@@ -41,10 +42,10 @@ export default function Home() {
   return (
     <>
       {contextHolder}
-      <Layout>
+      <Layout className="layout">
         <NoAuthHeader />
-        <Content>
-          <div className="login-card">
+        <Content className="content">
+          <div className="register-card">
             <h1>Register</h1>
 
             <Form
@@ -128,14 +129,23 @@ export default function Home() {
               </div>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="register-button"
+                >
                   Register
                 </Button>
               </Form.Item>
             </Form>
-            <p>
-              Let me <Link href="/login">login</Link>
-            </p>
+            <div>
+              <p className="login-text">
+                Existing user?{" "}
+                <Link href="/login" className="login-account-link">
+                  Login Here
+                </Link>
+              </p>
+            </div>
           </div>
         </Content>
       </Layout>

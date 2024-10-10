@@ -15,7 +15,7 @@ type InputFields = {
   password: string;
 };
 
-export default function Home() {
+export default function LoginPage() {
   const [isLoginFailed, setIsLoginFailed] = useState(false);
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
