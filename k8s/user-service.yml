@@ -1,55 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: peerprep-fe
+  name: user-svc
   labels:
-    type: frontend
-    app: peerprep-fe
+    type: backend
+    app: user-svc
 spec:
   selector:
     matchLabels:
-      type: frontend
-      app: peerprep-fe
+      type: backend
+      app: user-svc
   template:
     metadata:
-      name: peerprep-fe
+      name: user-svc
       labels:
-        type: frontend
-        app: peerprep-fe
+        type: backend
+        app: user-svc
     spec:
       containers:
-        - name: peerprep-fe
-          image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
-          # imagePullPolicy: Never # only used for local builds
+        - name: user-svc
+          image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
           envFrom:
             - secretRef:
-                name: peerprep-config
+                name: user-service-config
       dnsPolicy: ClusterFirst
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: peerprep-fe
+  name: user-svc
 spec:
   type: LoadBalancer
   ports:
-    - port: 80
-      targetPort: 3000
+    - port: 3001
+      targetPort: 3001
   selector:
-    type: frontend
-    app: peerprep-fe
+    type: backend
+    app: user-svc
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: peerprep-fe
+  name: user-svc
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: peerprep-fe
+    name: user-svc
   minReplicas: 1
   maxReplicas: 5
   metrics:
