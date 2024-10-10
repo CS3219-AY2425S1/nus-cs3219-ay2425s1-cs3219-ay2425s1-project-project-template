@@ -2,8 +2,6 @@ import cors from 'cors';
 import express, { json } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
-
-// import { logger } from '@/lib/utils';
 import { UI_HOST } from './config';
 
 const app = express();
