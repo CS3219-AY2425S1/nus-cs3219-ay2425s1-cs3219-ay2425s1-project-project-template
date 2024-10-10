@@ -10,3 +10,11 @@ export type IGetQuestionsResponse = {
   questions: Array<Question>;
   totalQuestions: number;
 };
+
+export type IGetTopicsResponse = {
+  topics: Array<string>;
+};
+
+export type IGetDifficultiesResponse = {
+  difficulties: Array<string>;
+};

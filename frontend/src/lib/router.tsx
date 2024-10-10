@@ -13,6 +13,8 @@ import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';
 import { ROUTES } from './routes';
+import { Match } from '@/routes/match/main';
+import { loader as topicsLoader } from '@/routes/match/logic';
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +40,11 @@ export const router = createBrowserRouter([
                 path: ROUTES.QUESTION_DETAILS,
                 loader: questionDetailsLoader(queryClient),
                 element: <QuestionDetails />,
+              },
+              {
+                path: ROUTES.MATCH,
+                loader: topicsLoader(queryClient),
+                element: <Match />,
               },
             ],
           },
