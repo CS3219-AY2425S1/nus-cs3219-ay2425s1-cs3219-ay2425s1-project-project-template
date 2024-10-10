@@ -2,6 +2,7 @@ import { client } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { io } from '@/server';
+import { getMatchItems } from '@/services';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -46,7 +47,8 @@ async function processMatch(
     ]);
 
     // Notify both sockets
-    io.sockets.in([requestorSocketPort, matchedSocketPort]).emit(' ROOMNUMBER | QUESTION??? ');
+    const { ...matchItems } = getMatchItems();
+    io.sockets.in([requestorSocketPort, matchedSocketPort]).emit(JSON.stringify(matchItems));
     return true;
   }
 
