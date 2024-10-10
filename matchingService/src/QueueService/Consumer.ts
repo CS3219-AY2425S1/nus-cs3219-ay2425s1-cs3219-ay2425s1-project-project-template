@@ -6,6 +6,7 @@ import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import logger from "../utils/logger";
 import MatchRequestWithId from "../models/MatchRequestWIthId";
+import QueueManager from "./QueueManager";
 
 /** 
  * Consumer consumes incoming messages from queues that will contain Matchmaking requests
@@ -120,10 +121,10 @@ class Consumer {
     private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo): void {
         logger.debug(`Responding to matched requests: ${req1.getMatchId()} and ${req2.getMatchId()}`);
         
-        this.channel.publish(this.directExchange, "response", Buffer.from(JSON.stringify(req1)), {
+        this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req1)), {
             correlationId: req1.getCorrelationId(),
         });
-        this.channel.publish(this.directExchange, "response", Buffer.from(JSON.stringify(req2)), {
+        this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req2)), {
             correlationId: req2.getCorrelationId(),
         });
 

@@ -6,6 +6,8 @@ import logger from "../utils/logger";
  * QueueManager manages the exchanges and queues of rabbitmq.
  */
 class QueueManager {
+    public static RESPONSE_QUEUE: string = "response";
+    public static CANCELLATION_QUEUE: string = "cancellation";
     private categoryExchange: string;
     private directExchange: string;
     private channel: Channel;
@@ -35,14 +37,11 @@ class QueueManager {
                 });
             }
         }
-        const cancellationQueue: string = "cancellation";
-        await this.channel.assertQueue(cancellationQueue, { durable: false });
-        await this.channel.bindQueue(cancellationQueue, this.directExchange, "cancellation");
+        await this.channel.assertQueue(QueueManager.CANCELLATION_QUEUE, { durable: false });
+        await this.channel.bindQueue(QueueManager.CANCELLATION_QUEUE, this.directExchange, QueueManager.CANCELLATION_QUEUE);
 
-        // Static queue to store responses
-        const responseQueue: string = "response";
-        await this.channel.assertQueue(responseQueue, { durable: false });
-        await this.channel.bindQueue(responseQueue, this.directExchange, "response");
+        await this.channel.assertQueue(QueueManager.RESPONSE_QUEUE, { durable: false });
+        await this.channel.bindQueue(QueueManager.RESPONSE_QUEUE, this.directExchange, QueueManager.RESPONSE_QUEUE);
         logger.info("Successully created and binded queues to exchanges");
     }
 }

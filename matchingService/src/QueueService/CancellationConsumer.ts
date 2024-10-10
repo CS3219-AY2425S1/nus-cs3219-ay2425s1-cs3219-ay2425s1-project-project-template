@@ -4,6 +4,7 @@ import CancelRequest from "../models/CancelRequest";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import QueueMessage from "../models/QueueMessage";
 import Consumer from "./Consumer";
+import QueueManager from "./QueueManager";
 
 /**
  * CancellationConsumer listens to the cancellation queue and distributes the cancellation requests to the other consumers.
@@ -21,7 +22,7 @@ export default class CancellationConsumer {
     public async consumeCancelRequest() {
         logger.info("Consuming cancellation requests from queue: cancellation");
 
-        this.channel.consume("cancellation", (msg) => {
+        this.channel.consume(QueueManager.CANCELLATION_QUEUE, (msg) => {
             this.handleCancellationRequest(msg);
         }, { noAck: true });
     }

@@ -2,6 +2,7 @@ import { Channel } from "amqplib"
 import logger from "../utils/logger";
 import QueueMessage from "../models/QueueMessage";
 import { Server } from "socket.io";
+import QueueManager from "./QueueManager";
 
 export default class ResponseConsumer {
     private channel: Channel;
@@ -14,8 +15,7 @@ export default class ResponseConsumer {
 
     public async consumeResponses() {
         logger.info("Consuming responses from queue: responses");
-        
-        this.channel.consume("response", (msg) => {
+        this.channel.consume(QueueManager.RESPONSE_QUEUE, (msg) => {
             this.handleResponse(msg);
         }, { noAck: true });
     }
@@ -27,7 +27,7 @@ export default class ResponseConsumer {
         }
 
         const maxRetries = 5;
-        const initialDelay = 1000; // in milliseconds
+        const initialDelay = 1000;
 
         const response = JSON.parse(msg.content.toString());
         const room = response.matchId;
@@ -53,12 +53,5 @@ export default class ResponseConsumer {
         };
     
         sendWithRetry();
-
-        // // Some logic to handle responses
-        // const response = JSON.parse(msg.content.toString());
-        // logger.debug(`Response received: ${response.matchId}`);
-        // this.io.to(response.matchId).emit("receiveMatchResponse", response);
-        // // this.io.emit("receiveMatchResponse", response);
-        // logger.debug(`Websocket sent response to clients in room: ${response.matchId}`);
     }
 }
