@@ -16,17 +16,38 @@ export function sendPutRequest(path: string, service: string, id: string) {
   };
 }
 
-export function sendGetRequest(path: string, service: string, id: string = "") {
-  console.log(service);
+export function sendGetRequest(path: string, service: string) {
   return async (req: Request, res: Response) => {
     try {
-      let resp = await axios.get(`${service}/${path}/${id}`);
+      // Construct the full URL
+      let url = `${service}/${path}`;
+
+      // Replace path parameters
+      Object.keys(req.params).forEach((param) => {
+        url = url.replace(`:${param}`, req.params[param]);
+      });
+
+      // Append query string if it exists
+      if (Object.keys(req.query).length > 0) {
+        url += `?${new URLSearchParams(req.query as Record<string, string>).toString()}`;
+      }
+
+      console.log(`Forwarding request to: ${url}`);
+
+      // Send the request
+      let resp = await axios.get(url, {
+        headers: {
+          ...req.headers,
+          host: new URL(service).host, // Update the host header
+        },
+      });
+
       res.status(200).json(resp.data);
     } catch (error: any) {
       if (error.response) {
         res.status(error.response.status).json(error.response?.data?.error);
       } else {
-        res.status(400).send(error.message);
+        res.status(500).json({ error: error.message });
       }
     }
   };
