@@ -1,31 +1,31 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 
 const UserModelSchema = new Schema({
   username: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Setting default to the current date/time
+    default: Date.now // Setting default to the current date/time
   },
   isAdmin: {
     type: Boolean,
     required: true,
-    default: false,
-  },
-});
+    default: false
+  }
+})
 
-export default mongoose.model("UserModel", UserModelSchema);
+export default mongoose.model("UserModel", UserModelSchema)

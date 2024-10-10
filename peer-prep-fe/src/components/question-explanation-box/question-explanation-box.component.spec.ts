@@ -1,23 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing"
 
-import { QuestionExplanationBoxComponent } from './question-explanation-box.component';
+import { QuestionExplanationBoxComponent } from "./question-explanation-box.component"
 
-describe('QuestionExplanationBoxComponent', () => {
-  let component: QuestionExplanationBoxComponent;
-  let fixture: ComponentFixture<QuestionExplanationBoxComponent>;
+describe("QuestionExplanationBoxComponent", () => {
+  let component: QuestionExplanationBoxComponent
+  let fixture: ComponentFixture<QuestionExplanationBoxComponent>
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [QuestionExplanationBoxComponent]
-    })
-    .compileComponents();
+    }).compileComponents()
 
-    fixture = TestBed.createComponent(QuestionExplanationBoxComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    fixture = TestBed.createComponent(QuestionExplanationBoxComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  it("should create", () => {
+    expect(component).toBeTruthy()
+  })
+})

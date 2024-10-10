@@ -1,79 +1,108 @@
-import { Component } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { authService } from '../authService/authService';
+import { CommonModule } from "@angular/common"
+import { Component } from "@angular/core"
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from "@angular/forms"
+import { Router } from "@angular/router"
 
-const MODULES: any[] = [FormsModule, ReactiveFormsModule, CommonModule];
+import { authService } from "../authService/authService"
+
+const MODULES: any[] = [FormsModule, ReactiveFormsModule, CommonModule]
 
 @Component({
-  selector: 'app-create-account',
+  selector: "app-create-account",
   standalone: true,
   imports: [MODULES],
-  templateUrl: './create-account.component.html',
-  styleUrl: './create-account.component.css'
+  templateUrl: "./create-account.component.html",
+  styleUrl: "./create-account.component.css"
 })
-
 export class CreateAccountComponent {
+  constructor(
+    private router: Router,
+    private authService: authService
+  ) {}
 
-  constructor(private router: Router, private authService: authService) {}
+  passwordMatchValidator(
+    control: AbstractControl
+  ): { [key: string]: boolean } | null {
+    const password = control.get("password")
+    const confirmPassword = control.get("confirmPassword")
 
-  passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
-
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      return { 'passwordMismatch': true };
+    if (
+      password &&
+      confirmPassword &&
+      password.value !== confirmPassword.value
+    ) {
+      return { passwordMismatch: true }
     }
-    return null;
+    return null
   }
 
-  createAccountForm : FormGroup = new FormGroup({
-      username: new FormControl('', [Validators.required]), 
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
-      confirmPassword: new FormControl('', [Validators.required, this.passwordMatchValidator]),
-  },{validators: this.passwordMatchValidator});
+  createAccountForm: FormGroup = new FormGroup(
+    {
+      username: new FormControl("", [Validators.required]),
+      email: new FormControl("", [Validators.required, Validators.email]),
+      password: new FormControl("", [
+        Validators.required,
+        Validators.minLength(6)
+      ]),
+      confirmPassword: new FormControl("", [
+        Validators.required,
+        this.passwordMatchValidator
+      ])
+    },
+    { validators: this.passwordMatchValidator }
+  )
 
   // signInWithGoogle() {
   //   this.authService.login();
   // }
 
   createAccount() {
-      let apiUrl: string = "http://localhost:3001/users";
+    let apiUrl: string = "http://localhost:3001/users"
 
-      if (this.createAccountForm.invalid) {
-        return;
-      }
+    if (this.createAccountForm.invalid) {
+      return
+    }
 
-      fetch(apiUrl,{
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(this.createAccountForm.value)
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(this.createAccountForm.value)
     })
-    .then(response => {
-      if (!response.ok) {
-        if (response.status === 409) {
-          alert("Email/Username already exists.")
+      .then((response) => {
+        if (!response.ok) {
+          console.log(">> Account Creation: ", response)
+          if (response.status === 409) {
+            alert("Email/Username already exists.")
+          }
+          alert(
+            "Error encountered when creating account. Please try again soon."
+          )
+          throw new Error("Account creation failed")
+        } else {
+          alert("Successfully created account")
+          this.router.navigate(["/login"]) // Redirect to homepage when succesfully created account.
+          return response.json() // Parse the JSON from the response
         }
-      }
-      if (response.ok) {
-        alert("Successfully created account")
-        this.router.navigate(['/login']) // Redirect to homepage when succesfully created account.
-        return response.json(); // Parse the JSON from the response
-      }
-      throw new Error('Login failed');
-    })
-    .then(data => {
-      this.authService.login(data);
-      this.router.navigate(['/']) // Redirect to homepage when succesfully created account.
-      console.log(data); // Handle the response data
-    })
-    .catch(error => {
-      console.error('There has been a problem with your fetch operation:', error);
-    })
+      })
+      .then((data) => {
+        this.authService.login(data)
+        this.router.navigate(["/"]) // Redirect to homepage when succesfully created account.
+        console.log(data) // Handle the response data
+      })
+      .catch((error) => {
+        console.error(
+          "There has been a problem with your fetch operation:",
+          error
+        )
+      })
   }
 }
-
