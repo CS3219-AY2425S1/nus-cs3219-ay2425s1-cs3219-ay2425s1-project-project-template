@@ -8,6 +8,10 @@ steps:
         "build",
         "-t",
         "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
+        "--build-arg",
+        "NEXT_PUBLIC_QUESTION_SERVICE_URL=${_NEXT_PUBLIC_QUESTION_SERVICE_URL}",
+        "--build-arg",
+        "NEXT_PUBLIC_AUTH_SERVICE_URL=${_NEXT_PUBLIC_AUTH_SERVICE_URL}",
         "-f",
         "peerprep-fe/Dockerfile",
         "peerprep-fe",
@@ -136,6 +140,10 @@ steps:
     env:
       - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
       - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
+
+substitutions:
+  _NEXT_PUBLIC_QUESTION_SERVICE_URL: ""
+  _NEXT_PUBLIC_AUTH_SERVICE_URL: ""
 
 options:
   dynamic_substitutions: true
