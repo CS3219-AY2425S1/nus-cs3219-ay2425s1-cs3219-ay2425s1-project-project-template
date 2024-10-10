@@ -10,7 +10,7 @@ import { Difficulty, Topic } from "./matchingEnums";
 import logger from "../utils/logger"; // Import your logger
 import CancellationConsumer from "./CancellationConsumer";
 import { v4 as uuidv4} from "uuid";
-import MatchRequestWithId from "../models/MatchRequestWIthId";
+import { MatchRequestDTO } from "../models/MatchRequestDTO";
 import ResponseConsumer from "./ResponseConsumer";
 import { Server } from "socket.io";
 
@@ -80,7 +80,14 @@ class QueueService {
 
     public async sendMatchRequest(matchRequest: MatchRequest): Promise<string> {
         const matchId: string = uuidv4();
-        const matchReqWithId: MatchRequestWithId = new MatchRequestWithId(matchRequest.getUserId(), matchId, matchRequest.getTopic(), matchRequest.getDifficulty());
+        const matchReqWithId: MatchRequestDTO = {
+            userId: matchRequest.getUserId(),
+            matchId: matchId,
+            topic: matchRequest.getTopic(),
+            difficulty: matchRequest.getDifficulty()
+        }
+        
+        // new MatchRequestDTO(matchRequest.getUserId(), matchId, matchRequest.getTopic(), matchRequest.getDifficulty());
         logger.info(`Sending match request for match ID: ${matchId}`);
         var channel: Channel = this.connectionManager.getChannel();
         if (channel instanceof ChannelNotFoundError) {

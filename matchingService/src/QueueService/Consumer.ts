@@ -1,11 +1,9 @@
 import { Channel } from "amqplib";
 import QueueMessage from "../models/QueueMessage";
-import CancelRequest from "../models/CancelRequest";
-import MatchRequest from "../models/MatchRequest";
-import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
+// import MatchRequestWithQueueInfo from "../models/MatchRequestWithQueueInfo";
 import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import logger from "../utils/logger";
-import MatchRequestWithId from "../models/MatchRequestWIthId";
+import { MatchRequestDTO } from "../models/MatchRequestDTO";
 import QueueManager from "./QueueManager";
 
 /** 
@@ -15,7 +13,7 @@ import QueueManager from "./QueueManager";
 class Consumer {
     private channel: Channel;
     private directExchange: string;
-    private pendingReq: MatchRequestWithQueueInfo | null;
+    private pendingReq: MatchRequestDTO | null;
     private cancelledMatches: Map<string, CancelRequestWithQueueInfo> = new Map();
     private cleanupInterval: NodeJS.Timeout;
 
@@ -50,9 +48,8 @@ class Consumer {
             logger.debug("No existing pending request encountered");
             return;
         }
-        if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
-            this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId(), 
-                this.pendingReq.getQueue());
+        if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.matchId)) {
+            this.deleteMatchRequestById(this.pendingReq.matchId);
             this.pendingReq = null;
         }
     }
@@ -65,22 +62,20 @@ class Consumer {
         
         logger.debug("Consumer received match request");
         try {
-            const req: MatchRequestWithId = this.parseMatchRequest(msg);
+            const req: MatchRequestDTO = this.parseMatchRequest(msg);
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
 
-            if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.getMatchId())) {
+            if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.matchId)) {
                 logger.debug("Deleting pending match");
-                this.processCancelRequest(this.pendingReq.getMatchId(), this.pendingReq.getCorrelationId(),
-                    this.pendingReq.getQueue());
+                this.deleteMatchRequestById(this.pendingReq.matchId);
                 this.pendingReq = null;
                 return;
             }
 
-            if (this.isCancelledMatchRequest(req.getMatchId())) { // Handle case whereby cancellation requests comes before match request due to latency issue
+            if (this.isCancelledMatchRequest(req.matchId)) { // Handle case whereby cancellation requests comes before match request due to latency issue
                 logger.debug("Deleting new match request");
-                this.processCancelRequest(req.getMatchId(), correlationId,
-                    replyQueue);
+                this.deleteMatchRequestById(req.matchId);
                 return;
             }
 
@@ -94,7 +89,7 @@ class Consumer {
         }
     }
 
-    private parseMatchRequest(msg: QueueMessage): MatchRequestWithId {
+    private parseMatchRequest(msg: QueueMessage): MatchRequestDTO {
         const content: string = msg.content.toString();
         if (!content) {
             logger.error("Message content is empty!");
@@ -104,39 +99,44 @@ class Consumer {
         logger.debug(`Parsing match request content: ${content}`);
         const jsonObject = JSON.parse(content);
         logger.debug(`Parsed JSON object: ${JSON.stringify(jsonObject)}`);
-
-        return new MatchRequestWithId(jsonObject.userId, jsonObject.matchId, jsonObject.topic, jsonObject.difficulty);
+        const req: MatchRequestDTO = {
+            userId: jsonObject.userId,
+            matchId: jsonObject.matchId,
+            topic: jsonObject.topic,
+            difficulty: jsonObject.difficulty
+        }
+        return req;
     }
 
-    private processMatchRequest(incomingReq: MatchRequestWithId, replyQueue: string, correlationId: string): void {
-        logger.debug(`Processing match request: ${incomingReq.getMatchId()}`);
+    private processMatchRequest(incomingReq: MatchRequestDTO, replyQueue: string, correlationId: string): void {
+        logger.debug(`Processing match request: ${incomingReq.matchId}`);
 
         if (!this.pendingReq) {
-            this.pendingReq = MatchRequestWithQueueInfo.createFromMatchRequestWithId(incomingReq, replyQueue, correlationId);
-            logger.debug(`Stored pending request: ${incomingReq.getMatchId()}`);
+            this.pendingReq = incomingReq;
+            logger.debug(`Stored pending request: ${incomingReq.matchId}`);
             return;
         }
 
-        var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequestWithId(incomingReq, replyQueue, correlationId);
-        logger.debug(`Matching and responding to requests: ${this.pendingReq.getMatchId()} and ${incomingReq.getMatchId()}`);
-        this.matchAndRespond(this.pendingReq, incomingReqWithQueueInfo);
+        // var incomingReqWithQueueInfo: MatchRequestWithQueueInfo = MatchRequestWithQueueInfo.createFromMatchRequestWithId(incomingReq, replyQueue, correlationId);
+        logger.debug(`Matching and responding to requests: ${this.pendingReq.matchId} and ${incomingReq.matchId}`);
+        this.matchAndRespond(this.pendingReq, incomingReq);
     }
 
-    private matchAndRespond(req1: MatchRequestWithQueueInfo, req2: MatchRequestWithQueueInfo): void {
-        logger.debug(`Responding to matched requests: ${req1.getMatchId()} and ${req2.getMatchId()}`);
+    private matchAndRespond(req1: MatchRequestDTO, req2: MatchRequestDTO): void {
+        logger.debug(`Responding to matched requests: ${req1.matchId} and ${req2.matchId}`);
         
         this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req1)), {
-            correlationId: req1.getCorrelationId(),
+            // correlationId: req1.getCorrelationId(),
         });
         this.channel.publish(this.directExchange, QueueManager.RESPONSE_QUEUE, Buffer.from(JSON.stringify(req2)), {
-            correlationId: req2.getCorrelationId(),
+            // correlationId: req2.getCorrelationId(),
         });
 
         logger.debug("Responses sent to matched requests");
         this.pendingReq = null;
     }
 
-    private processCancelRequest(matchId: string, matchCorrelationId: string, matchReplyQueue: string): void {
+    private deleteMatchRequestById(matchId: string): void {
         logger.debug(`Processing cancellation for match ID: ${matchId}`);
         
         const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
@@ -145,20 +145,10 @@ class Consumer {
             return;
         }
         
-        this.deleteCancellationMatchRequest(matchId);
-        // this.pendingReq = null; // Remove existing pending match
-
-        // // respond to match request
-        // logger.debug(`Responding to match request: ${matchReplyQueue}`);
-        // this.channel.publish(this.directExchange, matchReplyQueue, Buffer.from(JSON.stringify(false)), {
-        //     correlationId: matchCorrelationId,
-        // });
-
-        // // respond to cancel request
-        // logger.debug(`Responding to cancel request: ${cancellationResponseQueue.getQueue()}`);
-        // this.channel.publish(this.directExchange, cancellationResponseQueue.getQueue(), Buffer.from(JSON.stringify(true)), {
-        //     correlationId: cancellationResponseQueue.getCorrelationId(),
-        // });
+        if (this.isCancelledMatchRequest(matchId)) {
+            logger.debug(`Deleting cancelled match request: ${matchId}`);
+            this.cancelledMatches.delete(matchId);
+        }
         return;
     }
 
@@ -179,13 +169,6 @@ class Consumer {
             return cancelReq;
         }
         return null;
-    }
-
-    private deleteCancellationMatchRequest(matchId: string): void {
-        if (this.isCancelledMatchRequest(matchId)) {
-            logger.debug(`Deleting cancelled match request: ${matchId}`);
-            this.cancelledMatches.delete(matchId);
-        }
     }
 
     private cleanupExpiredCancellationRequests(): void {
