@@ -18,7 +18,6 @@ export class MatchController extends EventEmitter {
   }
 
   addToMatchingPool(userId: string, request: MatchRequest): void {
-    // A queue for storing user(s) of same difficulty-cateogory
     const { difficultyLevel } = request;
 
     // Add user to the appropriate difficulty queue
@@ -42,7 +41,6 @@ export class MatchController extends EventEmitter {
   removeFromMatchingPool(userId: string, request: MatchRequest): void {
     const { difficultyLevel } = request;
 
-    // Remove the user from the appropriate queue
     const queue = this.waitingUsers.get(difficultyLevel);
     if (queue) {
       const updatedQueue = queue.filter((user) => user.userId !== userId);
