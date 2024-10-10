@@ -2,8 +2,8 @@ import 'dotenv/config';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import * as Y from 'yjs';
-import { setPersistence, setupWSConnection } from '@/y-postgresql/utils';
-import { IWSSharedDoc } from '@/y-postgresql/interfaces';
+import { setPersistence, setupWSConnection } from '@/y-postgresql-util/utils';
+import { IWSSharedDoc } from '@/y-postgresql-util/interfaces';
 import { PostgresqlPersistence } from 'y-postgresql';
 import app from './server';
 
