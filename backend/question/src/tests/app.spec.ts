@@ -249,10 +249,13 @@ describe("Test Get All", () => {
   // Get all with questions
   test("GET /api/all - should retrieve all questions", async () => {
     const res = await request.get("/api/all").send();
-    const sampleQuestion = res.body[0];
+    const sampleQuestion = res.body.questions[0];
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBe(1);
+    expect(Array.isArray(res.body.questions)).toBe(true);
+    expect(res.body.questions.length).toBe(1);
+    expect(res.body.currentPage).toBe(1);
+    expect(res.body.totalPages).toBe(1);
+    expect(res.body.totalQuestions).toBe(1);
     expect(sampleQuestion).toHaveProperty("title", "Sample Question");
     expect(sampleQuestion).toHaveProperty(
       "description",

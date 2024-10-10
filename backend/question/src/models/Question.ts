@@ -9,7 +9,7 @@ import mongooseAutoIncrement from "mongoose-sequence";
 export type TQuestion = {
   title: string;
   description: string;
-  category: string;
+  category: [string];
   complexity: string;
 };
 
