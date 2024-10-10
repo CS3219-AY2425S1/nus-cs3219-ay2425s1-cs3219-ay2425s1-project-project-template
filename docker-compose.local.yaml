@@ -34,8 +34,8 @@ services:
     hostname: "match-db"
     image: redis/redis-stack
     container_name: "match-db"
-    # env_file:
-    #   - ./backend/matching/.env.local
+    env_file:
+      - ./backend/matching/.env.local
     volumes:
       - "match-db-docker:/data"
     ports:
