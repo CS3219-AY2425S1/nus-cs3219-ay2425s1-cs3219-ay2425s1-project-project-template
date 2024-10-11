@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 	"log"
-	"matcghing-service/models"
-	"matcghing-service/processes"
-	"matcghing-service/utils"
+	"matching-service/models"
+	"matching-service/processes"
+	"matching-service/utils"
 	"net/http"
 
 	"github.com/gorilla/websocket"

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"matcghing-service/handlers"
+	"matching-service/handlers"
 	"net/http"
 	"os"
 

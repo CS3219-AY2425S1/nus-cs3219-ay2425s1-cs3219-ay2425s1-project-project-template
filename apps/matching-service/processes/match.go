@@ -2,7 +2,7 @@ package processes
 
 import (
 	"context"
-	"matcghing-service/models"
+	"matching-service/models"
 	"time"
 )
 
