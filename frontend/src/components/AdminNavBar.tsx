@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import ProfileButton from "./ProfileButton.tsx";
 import AddQuestionModal from "./QuestionModals/AddQuestionModal.tsx";
 
@@ -42,7 +42,9 @@ const AdminNavBar: React.FC<AdminNavBarProps> = ({ fetchData }) => {
         ))}
       {/* Profile button */}
       <div>
-        <ProfileButton />
+        <Link to="/profile">
+          <ProfileButton />
+        </Link>
       </div>
     </nav>
   );

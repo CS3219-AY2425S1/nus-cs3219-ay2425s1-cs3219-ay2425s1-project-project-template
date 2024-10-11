@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 // import { Link } from "react-router-dom";
 import { User } from '../../types/User.tsx';
 import useUpdateUser from '../../hooks/useUpdateUser.tsx';
-import ErrorModal from '../ErrorModals/ErrorModal.tsx';
+import ErrorModal from '../Dashboard/ErrorModals/ErrorModal.tsx';
 
 interface EditEmailModalProps {
     onClose: () => void;
