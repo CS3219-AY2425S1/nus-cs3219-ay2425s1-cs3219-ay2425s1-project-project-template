@@ -33,7 +33,7 @@ const ForgetPasswordPage = () => {
 
 
   return (
-    <DefaultLayout>
+    <DefaultLayout isLoggedIn={false}>
       <div className="flex items-start justify-center pt-[25vh]">
         <div
           className="w-full max-w-lg p-8 rounded-lg shadow-lg"
