@@ -38,7 +38,9 @@ const NavBar: React.FC = () => {
             </Link>
           </div>
         ) : (
-          <ProfileButton />
+          <Link to="/profile">
+            <ProfileButton />
+          </Link>
         )}
       </div>
     </nav>
