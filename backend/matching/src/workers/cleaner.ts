@@ -1,7 +1,8 @@
 import { client } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey } from '@/lib/utils';
-import { io } from '@/server';
+import { MATCH_SVC_EVENT } from '@/ws';
+import { sendNotif } from './common';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -60,8 +61,8 @@ async function clean() {
 
     if (socketRoom) {
       // Notify client
-      io.sockets.in(socketRoom).emit('FAILED');
-      io.sockets.in(socketRoom).disconnectSockets();
+      sendNotif([socketRoom], MATCH_SVC_EVENT.FAILED);
+      sendNotif([socketRoom], MATCH_SVC_EVENT.DISCONNECT);
     }
   }
 }

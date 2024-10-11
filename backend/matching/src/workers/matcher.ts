@@ -1,8 +1,9 @@
 import { client } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
-import { io } from '@/server';
 import { getMatchItems } from '@/services';
+import { MATCH_SVC_EVENT } from '@/ws';
+import { sendNotif } from './common';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -48,7 +49,7 @@ async function processMatch(
     } = decodePoolTicket(matched);
 
     // To block cancellation
-    io.sockets.in([matchedSocketPort]).emit('Matching');
+    sendNotif([matchedSocketPort], MATCH_SVC_EVENT.MATCHING);
 
     const matchedStreamId = getStreamId(timestamp);
 
@@ -63,7 +64,8 @@ async function processMatch(
 
     // Notify both sockets
     const { ...matchItems } = getMatchItems();
-    io.sockets.in([requestorSocketPort, matchedSocketPort]).emit(JSON.stringify(matchItems));
+    sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
+    sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
     return true;
   }
 
@@ -105,7 +107,7 @@ async function match() {
       } = decodePoolTicket(matchRequest);
 
       // To Block Cancellation
-      io.sockets.in([requestorSocketPort]).emit('Matching');
+      sendNotif([requestorSocketPort], MATCH_SVC_EVENT.MATCHING);
 
       const clause = [`-@userId:(${requestorUserId})`];
       if (difficulty) {
@@ -164,7 +166,7 @@ async function match() {
 
       if (!hasDifficultyMatch) {
         // To allow cancellation
-        io.sockets.in(requestorSocketPort).emit('Waiting');
+        sendNotif([requestorSocketPort], MATCH_SVC_EVENT.PENDING);
       }
     }
   }

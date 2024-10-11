@@ -12,7 +12,9 @@ const port = Number.parseInt(EXPRESS_PORT || '8001');
 const listenMessage = `App listening on port: ${port}`;
 server.listen(port, () => {
   logger.info(listenMessage);
-  ['Cleaner', 'Matcher'].map(initWorker).forEach((process) => workers.push(process));
+  ['Cleaner', 'Matcher']
+    .map((name) => initWorker(name, io))
+    .forEach((process) => workers.push(process));
 });
 
 const shutdown = () => {
