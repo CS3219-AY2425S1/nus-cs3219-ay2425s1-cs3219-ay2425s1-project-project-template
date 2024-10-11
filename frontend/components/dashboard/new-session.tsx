@@ -15,9 +15,9 @@ export const NewSession = () => {
         label: category.charAt(0).toUpperCase() + category.toLocaleLowerCase().slice(1),
     }))
 
-    const DifficultyOptions = Object.values(Complexity).map((difficulty) => ({
-        value: difficulty,
-        label: difficulty.charAt(0).toUpperCase() + difficulty.toLocaleLowerCase().slice(1),
+    const DifficultyOptions = Object.values(Complexity).map((complexity) => ({
+        value: complexity,
+        label: complexity.charAt(0).toUpperCase() + complexity.toLocaleLowerCase().slice(1),
     }))
 
     const { data: session } = useSession()
@@ -27,7 +27,7 @@ export const NewSession = () => {
 
     const handleMatchmaking = async () => {
         if (!selectedTopic || !selectedComplexity) {
-            toast.error('Please select a topic and difficulty level to start matchmaking.')
+            toast.error('Please select a topic and complexity level to start matchmaking.')
             return
         }
 

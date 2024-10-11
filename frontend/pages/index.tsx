@@ -9,21 +9,21 @@ import useProtectedRoute from '@/hooks/UseProtectedRoute'
 export default function Home() {
     const progressData = [
         {
-            difficulty: 'Easy',
+            complexity: 'Easy',
             score: '10/20',
             progress: 50,
             indicatorColor: 'bg-green-700',
             backgroundColor: 'bg-green-500',
         },
         {
-            difficulty: 'Medium',
+            complexity: 'Medium',
             score: '15/27',
             progress: 60,
             indicatorColor: 'bg-amber-500',
             backgroundColor: 'bg-amber-300',
         },
         {
-            difficulty: 'Hard',
+            complexity: 'Hard',
             score: '5/19',
             progress: 20,
             indicatorColor: 'bg-red-500',
@@ -39,10 +39,10 @@ export default function Home() {
         <div className="my-4">
             <h2 className="text-xl font-bold my-6">Welcome Back, {session?.user.username}</h2>
             <div className="flex flex-row justify-evenly -mx-2">
-                {progressData.map(({ difficulty, score, progress, indicatorColor, backgroundColor }, index) => (
+                {progressData.map(({ complexity, score, progress, indicatorColor, backgroundColor }, index) => (
                     <ProgressCard
                         key={index}
-                        difficulty={difficulty}
+                        complexity={complexity}
                         score={score}
                         progress={progress}
                         indicatorColor={indicatorColor}
