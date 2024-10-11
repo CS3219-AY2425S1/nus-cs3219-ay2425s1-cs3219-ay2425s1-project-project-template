@@ -68,7 +68,8 @@ func main() {
 	// Enable CORS
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
-	origins := handlers.AllowedOrigins([]string{"*"}) // Allow all origins or specify your frontend's origin
+	origins := handlers.AllowedOrigins([]string{"http://localhost:3000"}) // Allow all origins or specify your frontend's origin
+	credentials := handlers.AllowCredentials() // Enable credentials
 
 	// Register the routes for the API
 	routes.RegisterQuestionRoutes(r)
@@ -79,5 +80,5 @@ func main() {
 		port = "5050"
 	}
 	log.Println("Starting the server on port", port)
-	log.Fatal(http.ListenAndServe(":5050", handlers.CORS(headers, methods, origins)(r)))
+	log.Fatal(http.ListenAndServe(":5050", handlers.CORS(headers, methods, origins, credentials)(r)))
 }

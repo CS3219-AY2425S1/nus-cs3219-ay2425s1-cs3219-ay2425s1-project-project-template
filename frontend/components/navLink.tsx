@@ -18,8 +18,6 @@ const NavLink: React.FC<NavLinkProps> = ({
 
   if (isActive) {
     className = "py-1 px-2 bg-white rounded-md text-black";
-  } else {
-    className = "text-white";
   }
 
   if (hover) {

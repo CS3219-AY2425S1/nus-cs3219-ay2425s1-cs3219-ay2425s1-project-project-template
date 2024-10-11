@@ -8,15 +8,18 @@ import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 
-import NavLink from "@/components/navLink";
+import NavLink from "@/components/navlink";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";
 
-export const Navbar = () => {
-  const router = useRouter();
+// Define the props interface
+interface NavbarProps {
+  isLoggedIn: boolean;
+}
 
-  const isLoginPage = router.pathname === "/login";
+export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
+  const router = useRouter();
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
@@ -29,7 +32,7 @@ export const Navbar = () => {
         </NavbarBrand>
 
         {/* Display Pages only when logged in */}
-        {!isLoginPage && (
+        {isLoggedIn && (
           <div className="hidden lg:flex gap-4 justify-start ml-2">
             {siteConfig.navItems.map((item) => {
               const isActive = router.pathname === item.href;

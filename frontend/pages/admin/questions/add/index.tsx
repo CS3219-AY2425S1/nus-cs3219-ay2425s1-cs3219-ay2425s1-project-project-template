@@ -25,7 +25,7 @@ const AddQuestionsPage = () => {
       {
         onSuccess: () => {
           alert("Question successfully added!");
-          router.push("/questions"); // Redirect to questions list on success
+          router.push("/admin/questions"); // Redirect to admin questions list on success
         },
         onError: (error) => {
           if (error.response) {
@@ -39,7 +39,7 @@ const AddQuestionsPage = () => {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout isLoggedIn={true}>
       <div className="flex items-center justify-center">
         <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
           <QuestionForm

@@ -15,7 +15,7 @@ const LoginPage = () => {
       { email, password },
       {
         onSuccess: () => {
-          router.push("/");
+          router.push("/match");
         },
         onError: (err) => {
           console.error("Login failed:", err);
@@ -29,14 +29,14 @@ const LoginPage = () => {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout isLoggedIn={false}>
       <div className="flex items-start justify-center pt-[25vh]">
         <div
           className="w-full max-w-lg p-8 rounded-lg shadow-lg"
           style={{ backgroundColor: "#19191b" }}
         >
           <h2 className="text-3xl font-semibold text-center text-white">
-            Welcome to Peerprep!
+            Welcome to PeerPrep!
           </h2>
 
           <LoginForm onSubmit={handleLogin} />
