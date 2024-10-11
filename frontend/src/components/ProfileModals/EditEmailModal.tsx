@@ -1,7 +1,8 @@
 import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 // import { Link } from "react-router-dom";
 import { User } from '../../types/User.tsx';
-import useUpdateEmail from '../../hooks/useUpdateEmail.tsx';
+import useUpdateUser from '../../hooks/useUpdateUser.tsx';
+import ErrorModal from '../ErrorModals/ErrorModal.tsx';
 
 interface EditEmailModalProps {
     onClose: () => void;
@@ -15,23 +16,41 @@ const EditEmailModal: React.FC<EditEmailModalProps> = ({
 
     const [email, setEmail] = useState<string | undefined>(undefined);
     const [newEmail, setNewEmail] = useState<string | undefined>(undefined);
+    const [err, setErr] = useState<string | undefined>(undefined);
+    const [success, setSuccess] = useState<boolean| undefined>(false);
 
+    const [isErrorModalOpen, setErrorModalOpen] = useState(false);
+    const openErrorModal = () => setErrorModalOpen(true);
+    const closeErrorModal = () => {setErrorModalOpen(false)
+        onClose();
+    };
 
     useEffect(() => {
         setEmail(user?.email);
       }, [user]);
 
+    useEffect(() => {
+        if (err) {
+            openErrorModal();
+        }
+    }, [err]);
+
+    useEffect(() => {
+        if (success) {
+            onClose();
+        }
+    }, [success]);
+
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setNewEmail(event.target.value); // Update the local state with the input value
     };
-    const { updateEmail, loading } = useUpdateEmail(user?.id || "");
+    const { updateUser, loading } = useUpdateUser(user?.id || "", "email");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Prevent default form submission
         if (newEmail) {
             console.log("updating email to:",newEmail);
-            await updateEmail(newEmail, setUser); // Call the custom hook function
-            onClose();
+            await updateUser(newEmail, setUser, setErr, setSuccess); // Call the custom hook function
         }
     };
     return (
@@ -60,7 +79,7 @@ const EditEmailModal: React.FC<EditEmailModalProps> = ({
                         <input
                                 type="text"
                                 className="p-8 block w-full px-4 py-2 bg-white rounded-md text-center"
-                                placeholder="Username" // Placeholder shows current user's username if empty
+                                placeholder="New email" // Placeholder shows current user's username if empty
                                 value={newEmail} // If user undefined, it should fallback to the above placeholder value
                                 onChange={handleInputChange} // Capture the input for editing
                             />
@@ -81,6 +100,9 @@ const EditEmailModal: React.FC<EditEmailModalProps> = ({
                             Cancel
                         </button>
                     </div>
+                    {isErrorModalOpen && (
+                            <ErrorModal onClose={closeErrorModal} error={err}/>
+                    )}
                     </form>
                 </div>
         </div>

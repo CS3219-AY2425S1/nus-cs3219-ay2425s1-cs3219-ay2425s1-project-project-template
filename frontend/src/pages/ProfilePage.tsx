@@ -4,6 +4,7 @@ import { User } from '../types/User.tsx';
 import useRetrieveUser from '../hooks/useRetrieveUser.tsx';
 import EditUsernameModal from '../components/ProfileModals/EditUsernameModal.tsx';
 import EditEmailModal from '../components/ProfileModals/EditEmailModal.tsx';
+import EditPasswordModal from '../components/ProfileModals/EditPasswordModal.tsx';
 
 const ProfilePage: React.FC = () => {
     const [user, setUser] = useState<User | undefined>(undefined);
@@ -16,6 +17,10 @@ const ProfilePage: React.FC = () => {
     const [isEmailModalOpen, setEmailModalOpen] = useState(false);
     const openEmailModal = () => setEmailModalOpen(true);
     const closeEmailModal = () => setEmailModalOpen(false);
+
+    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
+    const openPwModal = () => setPasswordModalOpen(true);
+    const closePwModal = () => setPasswordModalOpen(false);
 
     useRetrieveUser(setUser);
 
@@ -78,6 +83,9 @@ const ProfilePage: React.FC = () => {
                     {isEmailModalOpen && (
                             <EditEmailModal onClose={closeEmailModal} user={user} setUser={setUser}/>
                     )}
+                    {isPasswordModalOpen && (
+                            <EditPasswordModal onClose={closePwModal} user={user} setUser={setUser}/>
+                    )}
                 </div>
 
 
@@ -86,8 +94,8 @@ const ProfilePage: React.FC = () => {
             <div className="grid grid-flow-row-dense grid-cols-11 justify-center mt-40 gap-4">
 
                 <div className="col-span-4"></div>
-                <button className="bg-yellow text-black font-bold py-2 px-4 rounded-md">
-                    Change Password?
+                <button onClick={() => openPwModal()} className="bg-yellow text-black font-bold py-2 px-4 rounded-md">
+                    Change Password
                 </button>
                 <div className="col-span-1"></div>
                 <button className="bg-black text-white font-bold py-2 px-4 rounded-md">
