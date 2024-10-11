@@ -1,14 +1,9 @@
-import { Category, Complexity, Proficiency } from '@repo/user-types'
 import mqConnection from '../services/rabbitmq.service'
+import logger from './logger.util'
 
 export default async () => {
     await mqConnection.connect()
-    await mqConnection.sendToEntryQueue({
-        websocketId: 'test',
-        proficiency: Proficiency.EXPERT,
-        complexity: Complexity.EASY,
-        topic: Category.ALGORITHMS,
-        userId: '123',
+    await mqConnection.entryConsumer().then(() => {
+        logger.info(`[Entry-Queue] Listening to Entry Queue...`)
     })
-    await mqConnection.entryConsumer()
 }

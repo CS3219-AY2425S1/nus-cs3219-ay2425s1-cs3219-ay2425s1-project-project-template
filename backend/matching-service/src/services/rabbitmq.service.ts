@@ -2,6 +2,7 @@ import client, { Connection, Channel } from 'amqplib'
 
 import config from '../common/config.util'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
+import logger from '../common/logger.util'
 
 class RabbitMQConnection {
     connection!: Connection
@@ -13,7 +14,7 @@ class RabbitMQConnection {
         else this.connected = true
 
         try {
-            console.log(`⌛️ Connecting to Rabbit-MQ Server`)
+            logger.info(`[Init] Connecting to Rabbit-MQ Server`)
             this.connection = await client.connect({
                 protocol: 'amqp',
                 hostname: config.RMQ_HOST,
@@ -22,14 +23,14 @@ class RabbitMQConnection {
                 password: config.RMQ_PASSWORD,
             })
 
-            console.log(`✅ Rabbit MQ Connection is ready`)
+            logger.info(`[Init] Rabbit MQ Connection is ready`)
 
             this.channel = await this.connection.createChannel()
 
-            console.log(`🛸 Created RabbitMQ Channel successfully`)
+            logger.info(`[Init] Created RabbitMQ Channel successfully`)
         } catch (error) {
-            console.error(error)
-            console.error(`Not connected to MQ Server`)
+            logger.error(error)
+            logger.error(`[Error] Not connected to MQ Server`)
         }
     }
 
