@@ -3,3 +3,7 @@ export type IRequestMatchPayload = {
   topic: string[];
   difficulty: string;
 };
+
+export type IRequestMatchResponse = {
+  socket: string;
+};

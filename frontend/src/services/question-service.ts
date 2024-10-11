@@ -1,5 +1,6 @@
 import type {
   IGetDifficultiesResponse,
+  IGetQuestionDetailsResponse,
   IGetQuestionsResponse,
   IGetTopicsResponse,
 } from '@/types/question-types';
@@ -11,16 +12,6 @@ const QUESTION_SERVICE_ROUTES = {
   GET_QUESTION_DETAILS: '/questions/<questionId>',
   GET_TOPICS: '/questions/topics',
   GET_DIFFICULTIES: '/questions/difficulties',
-};
-
-type IGetQuestionDetailsResponse = {
-  question: {
-    title: string;
-    description: string;
-    topic: Array<string>;
-    difficulty: string;
-    id?: string;
-  };
 };
 
 export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDetailsResponse> => {

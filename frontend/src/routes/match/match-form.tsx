@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { MatchFormData } from './logic';
+import { ROUTES } from '@/lib/routes';
 
 interface MatchFormProps {
   topics: string[];
@@ -37,21 +38,21 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
 
   const { handleSubmit, control } = form;
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onSubmit = async (data: MatchFormData) => {
     console.log('Form Submitted:', data);
-    try {
-      setLoading(true);
-      const response = await requestMatch(data);
+    setLoading(true);
+    setErrorMessage(null);
+    const response = await requestMatch(data);
 
-      if (response.status === 200) {
-        const { websocketUrl } = response.data;
-        navigate('/match/waiting-room', { state: { websocketUrl } });
-      }
-    } catch (error) {
-      console.error('Error requesting match:', error);
-    } finally {
+    const socketURL = response.socket;
+
+    if (!socketURL || socketURL.length === 0) {
       setLoading(false);
+      setErrorMessage('Error. Please try again later.');
+    } else {
+      navigate(ROUTES.WAITING_ROOM, { state: { socketURL } });
     }
   };
 
@@ -116,7 +117,7 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                 </FormItem>
               )}
             />
-
+            {errorMessage && <p className='mt-2 text-center text-red-500'>{errorMessage}</p>}
             <Button className='mt-5 w-full' type='submit'>
               {loading ? 'Finding Partner...' : 'Find Partner'}
             </Button>

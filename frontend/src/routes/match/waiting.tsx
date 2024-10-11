@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/routes';
 import { CircleX, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 const SOCKET_EVENTS = {
@@ -22,8 +22,9 @@ const FAILED_STATUS = {
 
 export const WaitingRoom = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const { websocketUrl } = location.state || {};
+  const socketUrl = location.state?.socketURL;
   const [countdown, setCountdown] = useState(30);
 
   const [status, setStatus] = useState({
@@ -32,7 +33,7 @@ export const WaitingRoom = () => {
     description: <p className='mt-4 text-lg'>Time left: 30 seconds</p>,
   });
 
-  console.log(websocketUrl);
+  console.log(socketUrl);
 
   // move logic to connect event
   useEffect(() => {
@@ -55,40 +56,43 @@ export const WaitingRoom = () => {
   }, [countdown]);
 
   useEffect(() => {
-    if (websocketUrl) {
-      const socket = io(websocketUrl);
+    // uncomment once integrated with BE
+    // if (!socketUrl) {
+    //   navigate(ROUTES.MATCH);
+    // }
+    const socket = io(socketUrl);
 
-      socket.on(SOCKET_EVENTS.CONNECT, () => {
-        console.log('Connected to server');
-      });
+    socket.on(SOCKET_EVENTS.CONNECT, () => {
+      console.log('Connected to server');
+    });
 
-      socket.on(SOCKET_EVENTS.MESSAGE, (data) => {
-        console.log('Message from server:', data);
-      });
+    socket.on(SOCKET_EVENTS.MESSAGE, (data) => {
+      console.log('Message from server:', data);
+    });
 
-      socket.on(SOCKET_EVENTS.MATCHING, () => {
-        console.log('Matching in progress');
-      });
+    socket.on(SOCKET_EVENTS.MATCHING, () => {
+      console.log('Matching in progress');
+    });
 
-      socket.on(SOCKET_EVENTS.PENDING, () => {
-        console.log('Waiting in pool');
-      });
+    socket.on(SOCKET_EVENTS.PENDING, () => {
+      console.log('Waiting in pool');
+    });
 
-      socket.on(SOCKET_EVENTS.SUCCESS, (data) => {
-        console.log(`Received match: ${JSON.stringify(data)}`);
-      });
+    socket.on(SOCKET_EVENTS.SUCCESS, (data) => {
+      console.log(`Received match: ${JSON.stringify(data)}`);
+      navigate(ROUTES.MATCH);
+    });
 
-      socket.on(SOCKET_EVENTS.FAILED, () => {
-        console.log('Matching failed');
-        setCountdown(0);
-        setStatus(FAILED_STATUS);
-      });
+    socket.on(SOCKET_EVENTS.FAILED, () => {
+      console.log('Matching failed');
+      setCountdown(0);
+      setStatus(FAILED_STATUS);
+    });
 
-      return () => {
-        socket.close();
-      };
-    }
-  }, [websocketUrl]);
+    return () => {
+      socket.close();
+    };
+  }, [socketUrl, navigate]);
 
   return (
     <div className='flex h-screen flex-col items-center justify-center'>
