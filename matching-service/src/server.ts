@@ -1,32 +1,45 @@
-// src/server.ts
-import express, { Request, Response } from 'express';
+import express from 'express';
+import matchRoutes from './routes/match-routes';
+import { consumeMatchRequests } from './service/match-service';
+import { connectRabbitMQ } from './queue/rabbitmq';
+import cors from "cors";
 
-// Create an Express application
-const app = express();
-
-// Set the port
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse incoming JSON requests
+const app = express();
 app.use(express.json());
 
-// Define a simple route
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, World! This is your Express server with TypeScript.');
+app.use(cors()); // config cors so that front-end can use
+app.options("*", cors());
+
+// To handle CORS Errors
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // "*" -> Allow all links to access
+
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  );
+
+  // Browsers usually send this before PUT or POST Requests
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH");
+    return res.status(200).json({});
+  }
+
+  // Continue Route Processing
+  next();
 });
 
-// Example API route (GET /api/data)
-app.get('/api/data', (req: Request, res: Response) => {
-  res.json({ message: 'Hello from the API', data: [1, 2, 3, 4, 5] });
-});
+app.use('/api', matchRoutes);
 
-// Example POST route (POST /api/submit)
-app.post('/api/submit', (req: Request, res: Response) => {
-  const { name, message } = req.body;
-  res.json({ message: `Hello ${name}, your message is: ${message}` });
-});
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, async () => {
+  try {
+    await connectRabbitMQ();
+    consumeMatchRequests();
+    console.log(`Matching service is running on port ${PORT}`);
+  } catch (error) {
+    console.error('Failed to connect to RabbitMQ:', error);
+    process.exit(1);
+  }
 });
