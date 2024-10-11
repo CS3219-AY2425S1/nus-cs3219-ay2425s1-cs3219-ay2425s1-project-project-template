@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
 export default function SignupPage() {
@@ -31,13 +31,12 @@ export default function SignupPage() {
       reset();
       navigate("/login")
     },
-    onError: (error) => {
-      const errorCode = error.message.split('status code ')[1];
+    onError: (error: AxiosError) => {
       let message: string;
-      if (errorCode == "409") {
+      if (error.status === 409) {
         message = "Email already exists"
       } else {
-        message = "Unknown error occur"
+        message = "Unknown error occurred"
       }
       toast.error(message)
     }
@@ -53,10 +52,10 @@ export default function SignupPage() {
 
   const textBoxStyle = "border-2 border-black rounded-lg w-full h-12 pl-10"
 
-  return <div className="flex flex-row min-w-full min-h-[calc(100vh-64px)]">
+  return <div className="flex flex-row min-w-full min-h-screen">
     <div className="flex-1 bg-black"></div>
-    <div className="flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
-      <img className="w-1/4" src="/logo-with-text.svg" />
+    <div className="py-12 flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
+      <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />
       <form className="flex w-3/5 flex-col gap-y-8" onSubmit={handleSubmit(onSubmit)}>
         <div className="relative flex flex-col">
           <input className={textBoxStyle} type="text" placeholder="Enter email"
@@ -64,7 +63,7 @@ export default function SignupPage() {
               required: { value: true, message: "Email is required" },
               pattern: { value: /[a-z0-9]+@[a-z0-9]+\.[a-z]{2,3}/, message: "Email is invalid" },
             })} />
-          <PersonIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
+          <EmailIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.email?.message}</span>
         </div>
         <div className="relative flex flex-col">
@@ -82,7 +81,7 @@ export default function SignupPage() {
               {
                 required: { value: true, message: "Please enter password again." },
                 validate: (value) => {
-                  if (value != password) {
+                  if (value !== password) {
                     return "Password do not match."
                   }
                 }
@@ -97,7 +96,7 @@ export default function SignupPage() {
           </button>
         </div>
       </form>
-      <span>Already have an account? <Link className="text-buttonColour hover:underline" to="/login">Login</Link> now!</span>
+      <span>Already have an account? <Link className="text-buttonColour hover:underline" to="/login" replace>Login</Link> now!</span>
     </div>
   </div>;
 }
