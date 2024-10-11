@@ -67,5 +67,18 @@ export function useFilteredProblems() {
     }));
   }, []);
 
-  return { problems, filters, updateFilter, removeFilter, isLoading };
+  const refetchFilter = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+    }));
+  }, []);
+
+  return {
+    problems,
+    filters,
+    updateFilter,
+    removeFilter,
+    isLoading,
+    refetchFilter,
+  };
 }

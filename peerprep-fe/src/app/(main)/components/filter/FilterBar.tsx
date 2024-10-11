@@ -8,17 +8,7 @@ import { TopicsPopover } from './TopicsPopover';
 import { FilterState } from '@/hooks/useFilteredProblems';
 import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-
-const DIFFICULTY_OPTIONS = [
-  { value: '1', label: 'Easy' },
-  { value: '2', label: 'Medium' },
-  { value: '3', label: 'Hard' },
-];
-
-const STATUS_OPTIONS = [
-  { value: 'todo', label: 'Todo' },
-  { value: 'solved', label: 'Solved' },
-];
+import { DIFFICULTY_OPTIONS, STATUS_OPTIONS } from '@/lib/constants';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -27,12 +17,16 @@ interface FilterBarProps {
     value: string | string[] | null,
   ) => void;
   removeFilter: (key: keyof FilterState, value?: string) => void;
+  isAdmin?: boolean;
+  buttonCallback?: () => void;
 }
 
 export default function FilterBar({
   filters,
   updateFilter,
   removeFilter,
+  isAdmin = false,
+  buttonCallback,
 }: FilterBarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300); // 300ms delay
@@ -83,9 +77,18 @@ export default function FilterBar({
         >
           <Settings className="h-4 w-4" />
         </Button>
-        <Button className="bg-green-600 text-white hover:bg-green-700">
-          Match
-        </Button>
+        {!isAdmin ? (
+          <Button className="bg-green-600 text-white hover:bg-green-700">
+            Match
+          </Button>
+        ) : (
+          <Button
+            className="bg-blue-600 text-white hover:bg-blue-700"
+            onClick={buttonCallback}
+          >
+            Add
+          </Button>
+        )}
       </div>
       <div className="flex flex-wrap gap-2">
         {filters.difficulty && (

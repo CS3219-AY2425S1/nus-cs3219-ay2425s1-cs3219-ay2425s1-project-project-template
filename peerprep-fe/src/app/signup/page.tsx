@@ -38,7 +38,6 @@ export default function SignUpPage() {
         password: password,
       }),
     });
-    console.log('did i manage to fetch?, result: ', result);
 
     const data = await result.json();
 
