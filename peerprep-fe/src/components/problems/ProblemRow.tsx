@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { CheckCircle2, Pencil, Trash2 } from 'lucide-react';
-import { Problem, ProblemDialogData } from '@/types/types';
+import { Problem } from '@/types/types';
 import { Button } from '../ui/button';
 import { getDifficultyString } from '@/lib/utils';
 import ProblemInputDialog from './ProblemInputDialog';
@@ -24,29 +24,39 @@ interface Props {
   handleDelete:
     | ((id: number) => Promise<AxiosResponse<unknown, unknown>>)
     | undefined;
+  handleEdit:
+    | ((problem: Problem) => Promise<AxiosResponse<unknown, unknown>>)
+    | undefined;
 }
 
 export default function ProblemRow({
   problem,
   showActions,
   handleDelete,
+  handleEdit,
 }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [informationDialog, setInformationDialog] = useState('');
 
-  const problemDetails: ProblemDialogData = {
-    _id: problem._id,
-    title: problem.title,
-    difficulty: problem.difficulty,
-    description: problem.description,
-  };
-
   const handleDeleteClick = async () => {
     if (!handleDelete) return;
     handleDelete(problem._id).catch(() => {
       setInformationDialog('Failed to delete problem');
+    });
+  };
+
+  const handleEditClick = async (problemData: Problem) => {
+    if (!handleEdit) return;
+    if (problemData === problem) {
+      setInformationDialog('No changes made');
+      return;
+    }
+
+    handleEdit(problemData).catch((e: Error) => {
+      console.log(e);
+      setInformationDialog(e.message);
     });
   };
 
@@ -135,10 +145,8 @@ export default function ProblemRow({
       <ProblemInputDialog
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-        problem={problemDetails}
-        requestCallback={() => {
-          console.log('Hello');
-        }}
+        problem={problem}
+        requestCallback={handleEditClick}
         requestTitle="Update"
       />
 

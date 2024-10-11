@@ -11,6 +11,9 @@ interface ProblemTableProps {
   handleDelete?:
     | ((id: number) => Promise<AxiosResponse<unknown, unknown>>)
     | undefined;
+  handleEdit?:
+    | ((problem: Problem) => Promise<AxiosResponse<unknown, unknown>>)
+    | undefined;
 }
 
 export default function ProblemTable({
@@ -18,6 +21,7 @@ export default function ProblemTable({
   isLoading,
   showActions = false,
   handleDelete,
+  handleEdit,
 }: ProblemTableProps) {
   return (
     <div className="overflow-x-auto">
@@ -59,6 +63,7 @@ export default function ProblemTable({
                   problem={problem}
                   showActions={showActions}
                   handleDelete={handleDelete}
+                  handleEdit={handleEdit}
                 />
               ))}
         </tbody>

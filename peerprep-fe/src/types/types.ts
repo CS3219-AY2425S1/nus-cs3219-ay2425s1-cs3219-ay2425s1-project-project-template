@@ -17,6 +17,15 @@ interface ProblemDialogData {
   description: string;
 }
 
+interface ProblemRequestData {
+  title: string;
+  difficulty: number;
+  description: string;
+  examples: string[];
+  constraints: string;
+  tags: string[];
+}
+
 interface FilterBadgeProps {
   filterType: 'Difficulty' | 'Status' | 'Topics';
   value: string;
@@ -42,6 +51,7 @@ interface User {
 export type {
   Problem,
   ProblemDialogData,
+  ProblemRequestData,
   FilterBadgeProps,
   FilterSelectProps,
   User,

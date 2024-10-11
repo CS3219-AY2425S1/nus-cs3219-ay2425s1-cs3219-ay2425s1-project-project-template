@@ -4,6 +4,8 @@ import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import FilterBar from '../(main)/components/filter/FilterBar';
 import ProblemTable from '../../components/problems/ProblemTable';
 import { axiosQuestionClient } from '@/network/axiosClient';
+import { Problem } from '@/types/types';
+import { isAxiosError } from 'axios';
 
 function AdminPage() {
   const {
@@ -18,11 +20,45 @@ function AdminPage() {
   const handleDelete = async (id: number) => {
     const res = await axiosQuestionClient.delete(`/questions/${id}`);
     if (res.status !== 200) {
-      // Add error handling for a failed delete
       throw new Error('Failed to delete problem');
     }
     refetchFilter();
     return res;
+  };
+
+  const handleEdit = async (problem: Problem) => {
+    try {
+      const res = await axiosQuestionClient.put(`/questions/${problem._id}`, {
+        difficulty: problem.difficulty,
+        description: problem.description,
+        examples: problem.examples,
+        constraints: problem.constraints,
+        tags: problem.tags,
+        title_slug: problem.title_slug,
+        title: problem.title,
+      });
+
+      refetchFilter();
+      return res;
+    } catch (e: unknown) {
+      if (isAxiosError(e)) {
+        switch (e.status) {
+          case 400:
+            throw new Error('Invalid question data. Please check your input.');
+          case 409:
+            throw new Error('Question already exists');
+          case 404:
+            throw new Error('Question not found');
+          default:
+            throw new Error('Failed to update question');
+        }
+      }
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        throw new Error('An unknown error occurred');
+      }
+    }
   };
 
   return (
@@ -38,6 +74,7 @@ function AdminPage() {
           isLoading={isLoading}
           showActions={true}
           handleDelete={handleDelete}
+          handleEdit={handleEdit}
         />
       </div>
     </div>

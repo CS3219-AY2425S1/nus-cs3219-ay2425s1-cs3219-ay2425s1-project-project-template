@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,14 +7,17 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { getDifficultyString } from '@/lib/utils';
-import { ProblemDialogData } from '@/types/types';
+import { Problem } from '@/types/types';
+import { Textarea } from '../ui/textarea';
+import { Input } from '../ui/input';
+import { FilterSelect } from '@/app/(main)/components/filter/FilterSelect';
+import { TopicsPopover } from '@/app/(main)/components/filter/TopicsPopover';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  problem: ProblemDialogData | null;
-  requestCallback: () => void;
+  problem: Problem;
+  requestCallback: (problem: Problem) => void;
   requestTitle: string;
 };
 
@@ -25,25 +28,76 @@ function ProblemInputDialog({
   requestCallback,
   requestTitle,
 }: Props) {
+  const [problemData, setProblemData] = useState<Problem>(problem);
+
+  const handleSubmit = async () => {
+    requestCallback(problemData);
+  };
+
   if (!problem) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-black">
         <DialogHeader>
-          <DialogTitle>{problem.title}</DialogTitle>
-          <DialogDescription>
-            Difficulty: {getDifficultyString(problem.difficulty)}
-          </DialogDescription>
+          <DialogTitle>Edit Question</DialogTitle>
+          <DialogDescription />
         </DialogHeader>
-        <div className="mt-4">
-          <h3 className="mb-2 text-lg font-semibold">Description:</h3>
-          <p>{problem.description}</p>
-        </div>
-        <div className="mt-6 flex justify-end">
-          <Button variant="secondary" onClick={requestCallback}>
-            {requestTitle}
-          </Button>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p>Description</p>
+            <Input
+              name="title"
+              placeholder="Question Title"
+              defaultValue={problemData.title}
+              onChange={(e) => {
+                setProblemData({ ...problemData, title: e.target.value });
+              }}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <p>Difficulty</p>
+            <FilterSelect
+              placeholder="difficulty"
+              options={[
+                { value: '1', label: 'Easy' },
+                { value: '2', label: 'Medium' },
+                { value: '3', label: 'Hard' },
+              ]}
+              onChange={(value) => {
+                setProblemData({ ...problemData, difficulty: Number(value) });
+              }}
+              value={String(problemData.difficulty)}
+            />
+          </div>
+          <div className="space-y-2">
+            <p>Description</p>
+            <Textarea
+              name="description"
+              placeholder="Question Description"
+              defaultValue={problemData.description}
+              onChange={(e) => {
+                setProblemData({ ...problemData, description: e.target.value });
+              }}
+              className="min-h-[100px]"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <p>Topics</p>
+            <TopicsPopover
+              selectedTopics={problemData.tags}
+              onChange={(value) => {
+                setProblemData({ ...problemData, tags: value });
+              }}
+            />
+          </div>
+          <div className="mt-2 flex justify-end">
+            <Button variant="secondary" onClick={handleSubmit}>
+              {requestTitle}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -66,7 +66,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       title: parsedResult.data.title,
     });
 
-    if (existingQuestion) {
+    // Check if the question already exists with separate id
+    if (existingQuestion && existingQuestion._id.toString() !== id) {
       return res.status(409).json({
         error: 'This question title already exist',
       });
