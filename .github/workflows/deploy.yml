@@ -34,9 +34,4 @@ jobs:
           AUTH_SERVICE_URL: ${{ secrets.AUTH_SERVICE_URL }}
           QUESTION_SERVICE_URL: ${{ secrets.QUESTION_SERVICE_URL }}
         run: |
-          gcloud builds submit --config cloudbuild.yaml \
-            --substitutions \
-            _NEXT_PUBLIC_QUESTION_SERVICE_URL="$NEXT_PUBLIC_QUESTION_SERVICE_URL",\
-            _NEXT_PUBLIC_AUTH_SERVICE_URL="$NEXT_PUBLIC_AUTH_SERVICE_URL",\
-            _AUTH_SERVICE_URL="$AUTH_SERVICE_URL",\
-            _QUESTION_SERVICE_URL="$QUESTION_SERVICE_URL"
+          gcloud builds submit --config cloudbuild.yaml --substitutions _NEXT_PUBLIC_QUESTION_SERVICE_URL="$NEXT_PUBLIC_QUESTION_SERVICE_URL",_NEXT_PUBLIC_AUTH_SERVICE_URL="$NEXT_PUBLIC_AUTH_SERVICE_URL",_AUTH_SERVICE_URL="$AUTH_SERVICE_URL",_QUESTION_SERVICE_URL="$QUESTION_SERVICE_URL"
