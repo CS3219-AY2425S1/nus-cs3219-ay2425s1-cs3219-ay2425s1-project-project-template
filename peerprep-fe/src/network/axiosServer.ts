@@ -10,7 +10,7 @@ const axiosQuestionServer = axios.create({
 });
 
 const axiosAuthServer = axios.create({
-  baseURL: process.env.USER_SERVICE_URL || 'http://172.17.0.1:3001/api/v1',
+  baseURL: process.env.AUTH_SERVICE_URL || 'http://172.17.0.1:3001/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
