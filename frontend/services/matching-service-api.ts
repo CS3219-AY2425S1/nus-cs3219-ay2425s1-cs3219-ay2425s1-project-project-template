@@ -7,12 +7,7 @@ const axiosInstance = axiosClient.matchingServiceAPI
 // POST /matching
 export const addUserToMatchmaking = async (data: IPostMatching): Promise<boolean | undefined> => {
     try {
-        const response = await axiosInstance.post(`/matching`, {
-            userId: data.userId,
-            proficiency: data.proficiency,
-            difficulty: data.difficulty,
-            topic: data.topic,
-        })
+        const response = await axiosInstance.post(`/matching`, data)
         return response.status === 200
     } catch (error) {
         if (axios.isAxiosError(error)) {
