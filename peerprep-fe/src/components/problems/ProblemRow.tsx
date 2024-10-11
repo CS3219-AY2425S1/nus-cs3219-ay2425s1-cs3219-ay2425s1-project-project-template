@@ -55,7 +55,6 @@ export default function ProblemRow({
     }
 
     handleEdit(problemData).catch((e: Error) => {
-      console.log(e);
       setInformationDialog(e.message);
     });
   };
@@ -154,7 +153,7 @@ export default function ProblemRow({
       <InformationDialog
         isOpen={informationDialog !== ''}
         onClose={() => setInformationDialog('')}
-        title="Delete Status"
+        title="Status"
         description={informationDialog}
       />
     </>

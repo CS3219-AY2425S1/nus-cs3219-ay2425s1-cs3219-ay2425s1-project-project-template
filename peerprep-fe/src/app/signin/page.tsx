@@ -33,13 +33,12 @@ export default function LoginForm() {
       const token = data.accessToken;
       const res = await login(token);
       if (res) {
-        setAuth(true, token);
+        setAuth(true, token, data);
         router.push('/');
         return;
       }
     }
     setError(data.error || 'Please provide correct email and password');
-    console.error('Login failed');
   };
 
   return (

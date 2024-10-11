@@ -12,11 +12,12 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { FilterSelect } from '@/app/(main)/components/filter/FilterSelect';
 import { TopicsPopover } from '@/app/(main)/components/filter/TopicsPopover';
+import { DIFFICULTY_OPTIONS, INITIAL_PROBLEM_DATA } from '@/lib/constants';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  problem: Problem;
+  problem?: Problem;
   requestCallback: (problem: Problem) => void;
   requestTitle: string;
 };
@@ -28,28 +29,30 @@ function ProblemInputDialog({
   requestCallback,
   requestTitle,
 }: Props) {
-  const [problemData, setProblemData] = useState<Problem>(problem);
+  const [problemData, setProblemData] = useState<Problem>(
+    problem || INITIAL_PROBLEM_DATA,
+  );
 
   const handleSubmit = async () => {
     requestCallback(problemData);
   };
 
-  if (!problem) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-black">
         <DialogHeader>
-          <DialogTitle>Edit Question</DialogTitle>
+          <DialogTitle>
+            {problem ? 'Edit Question' : 'Add Question'}
+          </DialogTitle>
           <DialogDescription />
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <p>Description</p>
+            <p>Title</p>
             <Input
               name="title"
               placeholder="Question Title"
-              defaultValue={problemData.title}
+              value={problemData.title}
               onChange={(e) => {
                 setProblemData({ ...problemData, title: e.target.value });
               }}
@@ -60,11 +63,7 @@ function ProblemInputDialog({
             <p>Difficulty</p>
             <FilterSelect
               placeholder="difficulty"
-              options={[
-                { value: '1', label: 'Easy' },
-                { value: '2', label: 'Medium' },
-                { value: '3', label: 'Hard' },
-              ]}
+              options={DIFFICULTY_OPTIONS}
               onChange={(value) => {
                 setProblemData({ ...problemData, difficulty: Number(value) });
               }}
@@ -76,7 +75,7 @@ function ProblemInputDialog({
             <Textarea
               name="description"
               placeholder="Question Description"
-              defaultValue={problemData.description}
+              value={problemData.description}
               onChange={(e) => {
                 setProblemData({ ...problemData, description: e.target.value });
               }}

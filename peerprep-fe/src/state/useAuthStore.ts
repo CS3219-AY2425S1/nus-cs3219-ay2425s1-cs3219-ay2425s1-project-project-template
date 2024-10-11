@@ -1,11 +1,12 @@
+import { User } from '@/types/types';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-// Define the store interface
 interface AuthState {
   isAuth: boolean;
   token: string | null;
-  setAuth: (isAuth: boolean, token: string | null) => void;
+  user: User | null; // Add user object to the state
+  setAuth: (isAuth: boolean, token: string | null, user: User | null) => void;
   clearAuth: () => void;
 }
 
@@ -15,9 +16,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isAuth: false,
       token: null,
-      setAuth: (isAuth: boolean, token: string | null) =>
-        set({ isAuth, token }),
-      clearAuth: () => set({ isAuth: false, token: null }),
+      user: null, // Initialize user state
+      setAuth: (isAuth: boolean, token: string | null, user: User | null) =>
+        set({ isAuth, token, user }), // Update setAuth to include user
+      clearAuth: () => set({ isAuth: false, token: null, user: null }), // Clear user on logout
     }),
     {
       name: 'auth-storage',

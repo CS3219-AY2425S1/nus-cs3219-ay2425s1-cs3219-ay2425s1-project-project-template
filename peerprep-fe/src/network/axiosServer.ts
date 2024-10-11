@@ -31,7 +31,6 @@ axiosQuestionServer.interceptors.request.use(
 axiosAuthServer.interceptors.request.use(
   (config) => {
     const token = cookies().get('access-token')?.value;
-    console.log('token', token);
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

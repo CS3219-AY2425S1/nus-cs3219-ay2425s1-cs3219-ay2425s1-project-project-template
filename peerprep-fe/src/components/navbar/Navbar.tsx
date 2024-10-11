@@ -13,7 +13,7 @@ import {
 import { useAuthStore } from '@/state/useAuthStore';
 
 export default function Navbar() {
-  const { isAuth, clearAuth } = useAuthStore();
+  const { isAuth, clearAuth, user } = useAuthStore();
 
   const handleLogout = async () => {
     const res = await logout();
@@ -30,6 +30,11 @@ export default function Navbar() {
           PeerPrep
         </Link>
         <div className="flex items-center space-x-4">
+          {user?.isAdmin && (
+            <Link href="/admin" className="text-gray-300 hover:text-white">
+              Admin
+            </Link>
+          )}
           <Link href="/" className="text-gray-300 hover:text-white">
             Questions
           </Link>
