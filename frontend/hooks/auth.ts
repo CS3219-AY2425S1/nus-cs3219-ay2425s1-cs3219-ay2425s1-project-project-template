@@ -80,3 +80,33 @@ export const useRegister = () => {
   });
 };
 
+interface ForgetPasswordResponse {
+  message: string; // Assuming the backend sends a success message when an email is sent
+}
+
+// Define the structure for the forget password credentials object
+interface ForgetPasswordCredentials {
+  email: string;
+}
+
+// ForgetPassword: Send user email to the backend and return the response
+const forgetPassword = async (credentials: ForgetPasswordCredentials): Promise<ForgetPasswordResponse> => {
+  const response = await axios.post("/user-service/auth/forgot-password", credentials);
+  return response.data.data;  
+};
+
+// ForgetPassword hook
+export const useForgetPassword = () => {
+  return useMutation<ForgetPasswordResponse, AxiosError, ForgetPasswordCredentials>({
+    mutationFn: forgetPassword,
+    onSuccess: (data) => {
+      // Handle success response (for example, show a notification)
+      console.log("Reset email sent successfully!", data);
+    },
+    onError: (error) => {
+      // Handle error response
+      console.error("Reset email failed", error);
+      throw error.message || "Failed to send reset email!";
+    },
+  });
+};
