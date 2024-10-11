@@ -154,6 +154,37 @@ services:
       retries: 5       
       start_period: 5s
 
+  matching-service:
+    image: 'match-express'
+    container_name: '${MATCHING_SERVICE_NAME}'
+    build:
+      context: ./backend/matching
+      dockerfile: express.Dockerfile
+      target: production
+      args: 
+        # For building with the correct env vars
+        - port=${MATCHING_EXPRESS_PORT}
+    env_file:
+      - ./backend/matching/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - MATCHING_DB_HOSTNAME=match-db
+      - MATCHING_DB_PORT=6379
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      - match-db
+    networks:
+      - match-db-network
+      - match-api-network
+      - question-api-network
+      # - collab-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${MATCHING_EXPRESS_PORT}/health || exit 1
+      interval: 30s 
+      timeout: 10s   
+      retries: 5       
+      start_period: 5s
+
   # Frontend
   frontend:
     image: 'frontend'
@@ -194,10 +225,10 @@ volumes:
     external: true
   question-db-docker:
     external: true 
-  # MQ server
-  # match-mq-docker:
-  #   external: true
   collab-db-docker:
+    external: true
+  # Redis Match server
+  match-db-docker:
     external: true
 
 networks:
@@ -206,8 +237,8 @@ networks:
     driver: bridge
   question-db-network:
     driver: bridge
-  # match-mq-network:
-  #   driver: bridge
+  match-db-network:
+    driver: bridge
   collab-db-network:
     driver: bridge
 
@@ -216,7 +247,7 @@ networks:
     driver: bridge
   question-api-network:
     driver: bridge
-  # match-api-network:
-  #   driver: bridge
+  match-api-network:
+    driver: bridge
   collab-ws-network:
     driver: bridge

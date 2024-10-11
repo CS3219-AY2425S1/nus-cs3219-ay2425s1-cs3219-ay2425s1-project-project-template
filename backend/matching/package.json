@@ -9,6 +9,7 @@
     "build:local": "env-cmd -f .env.local tsc && tsc-alias",
     "start:local": "env-cmd -f .env.local node dist/index.js",
     "db:seed": "env-cmd -f .env.local tsx src/lib/db/seed.ts",
+    "db:seed:prod": "tsx src/lib/db/seed.ts",
     "fmt": "prettier --config .prettierrc src --write",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,7 +27,8 @@
     "pino": "^9.4.0",
     "pino-http": "^10.3.0",
     "redis": "^4.7.0",
-    "socket.io": "^4.8.0"
+    "socket.io": "^4.8.0",
+    "tsx": "^4.19.1"
   },
   "devDependencies": {
     "@types/async": "^3.2.24",
@@ -36,7 +38,6 @@
     "nodemon": "^3.1.4",
     "pino-pretty": "^11.2.2",
     "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.10",
-    "tsx": "^4.19.1"
+    "tsc-alias": "^1.8.10"
   }
 }

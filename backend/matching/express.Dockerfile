@@ -12,6 +12,9 @@ COPY --from=build --chown=node:node /data/match-express/dist ./dist
 
 RUN npm ci --omit=dev
 
+COPY src/lib/db ./src/lib/db
+COPY src/config.ts ./src
+COPY tsconfig.json .
 COPY entrypoint.sh .
 
 ARG port

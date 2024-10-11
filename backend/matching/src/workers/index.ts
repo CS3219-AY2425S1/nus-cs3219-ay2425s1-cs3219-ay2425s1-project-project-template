@@ -7,8 +7,9 @@ import { logger } from '@/lib/utils';
 import { MATCH_SVC_EVENT, type IChildProcessMessage } from '@/ws';
 
 export const initWorker = (name: string, io: Server) => {
+  const controller = new AbortController();
   const lCaseName = name.toLowerCase();
-  const worker = fork(path.join(__dirname, `${lCaseName}.js`));
+  const worker = fork(path.join(__dirname, `${lCaseName}.js`), { signal: controller.signal });
   const upperCaseName = name.replace(/^[A-Za-z]/, (c) => c.toUpperCase());
   worker.on('message', (message) => {
     logger.info(`Received message from '${upperCaseName}': ${JSON.stringify(message)}`);
@@ -23,5 +24,5 @@ export const initWorker = (name: string, io: Server) => {
   worker.on('exit', (code) => {
     logger.error(`${upperCaseName} exited with code ${code}.`);
   });
-  return worker;
+  return { worker, controller };
 };
