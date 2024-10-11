@@ -12,7 +12,7 @@ const axiosQuestionClient = axios.create({
 
 const axiosAuthClient = axios.create({
   baseURL:
-    process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3001/api/v1',
+    process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3001/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
