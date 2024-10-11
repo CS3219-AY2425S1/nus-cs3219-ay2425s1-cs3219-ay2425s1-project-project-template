@@ -15,6 +15,7 @@ import { queryClient } from './query-client';
 import { ROUTES } from './routes';
 import { Match } from '@/routes/match/main';
 import { loader as topicsLoader } from '@/routes/match/logic';
+import { WaitingRoom } from '@/routes/match/waiting';
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
                 path: ROUTES.MATCH,
                 loader: topicsLoader(queryClient),
                 element: <Match />,
+              },
+              {
+                path: ROUTES.WAITING_ROOM,
+                element: <WaitingRoom />,
               },
             ],
           },

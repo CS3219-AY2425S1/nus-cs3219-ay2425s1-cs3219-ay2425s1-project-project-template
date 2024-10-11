@@ -214,7 +214,7 @@ const MultiSelectorTrigger = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
       <div
         ref={ref}
         className={cn(
-          'flex flex-wrap gap-1 p-1 py-2 ring-1 ring-muted rounded-lg bg-background',
+          'flex flex-wrap gap-1 p-1 py-2 ring-1 ring-muted whitespace-nowrap rounded-md text-sm shadow-sm rounded-lg bg-background border border-input placeholder:text',
           {
             'ring-1 focus-within:ring-ring': activeIndex === -1,
           },
@@ -255,16 +255,19 @@ MultiSelectorTrigger.displayName = 'MultiSelectorTrigger';
 const MultiSelectorInput = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => {
+>(({ className, placeholder, ...props }, ref) => {
   const {
     setOpen,
     inputValue,
     setInputValue,
     activeIndex,
+    value,
     setActiveIndex,
     handleSelect,
     ref: inputRef,
   } = useMultiSelect();
+
+  const shouldShowPlaceholder = value.length === 0 && inputValue.length === 0;
 
   return (
     <CommandPrimitive.Input
@@ -277,8 +280,9 @@ const MultiSelectorInput = forwardRef<
       onBlur={() => setOpen(false)}
       onFocus={() => setOpen(true)}
       onClick={() => setActiveIndex(-1)}
+      placeholder={shouldShowPlaceholder ? placeholder : ''}
       className={cn(
-        'ml-2 bg-transparent outline-none placeholder:text-muted-foreground flex-1',
+        'ml-2 bg-transparent outline-none placeholder:text-black flex-1',
         className,
         activeIndex !== -1 && 'caret-transparent'
       )}

@@ -28,4 +28,11 @@ export const questionApiClient = axios.create({
   },
 });
 
+export const matchApiClient = axios.create({
+  baseURL: '/match-service',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // define more api clients for other microservices

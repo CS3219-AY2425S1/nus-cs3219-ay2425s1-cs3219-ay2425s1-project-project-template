@@ -7,6 +7,7 @@ export const ROUTES = {
   QUESTIONS: '/questions',
   QUESTION_DETAILS: '/questions/:questionId',
   MATCH: '/match',
+  WAITING_ROOM: '/match/waiting',
 };
 
 const TOP_LEVEL_AUTHED_ROUTES = {
