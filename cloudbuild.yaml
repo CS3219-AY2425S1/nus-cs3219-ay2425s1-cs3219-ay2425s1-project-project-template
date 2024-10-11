@@ -148,6 +148,8 @@ steps:
 substitutions:
   _NEXT_PUBLIC_QUESTION_SERVICE_URL: ""
   _NEXT_PUBLIC_AUTH_SERVICE_URL: ""
+  _AUTH_SERVICE_URL: ""
+  _QUESTION_SERVICE_URL: ""
 
 options:
   dynamic_substitutions: true
