@@ -81,7 +81,7 @@ services:
       context: ./backend/question
       dockerfile: express.Dockerfile
       target: production
-      args: 
+      args:
         # For building with the correct env vars
         - port=${QUESTION_EXPRESS_PORT}
     env_file:
@@ -100,9 +100,9 @@ services:
       - question-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${QUESTION_EXPRESS_PORT}/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
+      interval: 30s
+      timeout: 10s
+      retries: 5
       start_period: 5s
 
   # Frontend
@@ -122,6 +122,7 @@ services:
     environment:
       - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
       - VITE_QUESTION_SERVICE=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - VITE_MATCH_SERVICE=http://${MATCH_SERVICE_NAME}:${MATCH_EXPRESS_PORT}
       - FRONTEND_PORT=${FRONTEND_PORT}
     depends_on:
       user-service:
@@ -141,7 +142,7 @@ volumes:
   user-db-docker:
     external: true
   question-db-docker:
-    external: true 
+    external: true
   # MQ server
   # match-mq-docker:
   #   external: true
