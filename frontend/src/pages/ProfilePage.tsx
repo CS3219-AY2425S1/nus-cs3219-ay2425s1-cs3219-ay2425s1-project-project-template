@@ -35,7 +35,7 @@ const ProfilePage: React.FC = () => {
 
             <div className='justify-center p-8 grid'>
 
-                <div className='py-16'>
+                <div className='py-16 justify-center grid'>
                 <h1 className="text-5xl font-bold">User information</h1>
                 </div>
                 <div className='py-8'>
