@@ -4,6 +4,7 @@ import config from './common/config.util'
 import logger from './common/logger.util'
 import connectToDatabase from './common/mongodb.util'
 import index from './index'
+import connectToRabbitMQ from './common/rabbitmq.util'
 
 const server: Server = http.createServer(index)
 server.listen(config.PORT, async () => {
@@ -11,3 +12,4 @@ server.listen(config.PORT, async () => {
 })
 
 connectToDatabase(config.DB_URL)
+connectToRabbitMQ()
