@@ -57,13 +57,13 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
   };
 
   return (
-    <Card className='bg-primary-foreground border-border flex max-w-sm flex-col justify-center border md:ml-auto md:max-h-[600px]'>
+    <Card className='text-card-foreground bg-primary-foreground border-border flex w-full max-w-[400px] flex-col items-center justify-center rounded-xl border shadow md:size-full md:max-h-[600px]'>
       <CardHeader className='flex items-center pb-10'>
         <CardTitle className='text-3xl'>Find A Partner</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className='w-full items-center'>
         <FormProvider {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
+          <form onSubmit={handleSubmit(onSubmit)} className='flex w-full flex-col gap-2 '>
             <FormField
               control={control}
               name='selectedTopics'
@@ -71,10 +71,17 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Topics</FormLabel>
-                  <MultiSelector values={field.value} onValuesChange={field.onChange}>
+                  <MultiSelector
+                    values={field.value}
+                    onValuesChange={field.onChange}
+                    className='whitespace-nowrap md:w-[350px] '
+                  >
                     <FormControl>
                       <MultiSelectorTrigger>
-                        <MultiSelectorInput placeholder='Select topic(s)' />
+                        <MultiSelectorInput
+                          placeholder='Select topic(s)'
+                          className='overflow-x:auto'
+                        />
                       </MultiSelectorTrigger>
                     </FormControl>
                     <MultiSelectorContent>

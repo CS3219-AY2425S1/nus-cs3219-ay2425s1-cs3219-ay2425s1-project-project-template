@@ -7,10 +7,14 @@ export const Match = observer(() => {
   const { topics } = useLoaderData() as { topics: Promise<string[]> };
 
   return (
-    <div className='m-auto flex md:max-w-sm'>
+    <div className='m-auto flex grow items-center justify-center'>
       <Suspense fallback={<div>Loading topics...</div>}>
         <Await resolve={topics}>
-          {(resolvedTopics) => <MatchForm topics={resolvedTopics.topics} />}
+          {(resolvedTopics) => (
+            <div className='flex size-full items-center justify-center'>
+              <MatchForm topics={resolvedTopics.topics} />
+            </div>
+          )}
         </Await>
       </Suspense>
     </div>
