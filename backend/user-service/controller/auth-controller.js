@@ -84,8 +84,6 @@ export function handleLogout(req, res) {
   }
 }
 
-
-
 export async function handleRefreshToken(req, res) {
   const refreshToken = req.cookies.refreshToken; // Get refresh token from cookies
 
@@ -115,12 +113,14 @@ export async function handleRefreshToken(req, res) {
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       maxAge: 15 * 60 * 1000, // 15 minutes
+      sameSite: "none",
     });
 
     // Set the new refresh token as an HTTP-only cookie (if rotating)
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "none",
     });
 
     // Return success response with the new access token (optional, since it's already in the cookie)

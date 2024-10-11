@@ -5,9 +5,13 @@ export const siteConfig = {
   description: "Your Interview Prep Platform.",
   navItems: [
     {
-      label: "Home",
-      href: "/questions",
+      label: "Match",
+      href: "/match",
     },
+    {
+      label: "Questions",
+      href: "/questions",
+    }
   ],
   navMenuItems: [
     {
@@ -46,5 +50,6 @@ export const siteConfig = {
   links: {
     github: "https://github.com/CS3219-AY2425S1/cs3219-ay2425s1-project-g47",
     docs: "https://nextui-docs-v2.vercel.app",
+    login: "/login",
   },
 };
