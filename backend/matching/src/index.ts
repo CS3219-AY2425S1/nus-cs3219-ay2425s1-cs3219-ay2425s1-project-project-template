@@ -19,7 +19,7 @@ server.listen(port, () => {
 
 const shutdown = () => {
   workers.forEach(({ controller, worker }) => {
-    controller.abort();
+    controller.abort('Main process shutdown'); // Force an abort error to kill child processes
     worker.kill();
   });
   io.close(() => {
