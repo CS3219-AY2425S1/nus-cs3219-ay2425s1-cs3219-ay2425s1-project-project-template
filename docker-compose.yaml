@@ -105,6 +105,37 @@ services:
       retries: 5       
       start_period: 5s
 
+  matching-service:
+    image: 'match-express'
+    container_name: '${MATCHING_SERVICE_NAME}'
+    build:
+      context: ./backend/matching
+      dockerfile: express.Dockerfile
+      target: production
+      args: 
+        # For building with the correct env vars
+        - port=${MATCHING_EXPRESS_PORT}
+    env_file:
+      - ./backend/matching/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - MATCHING_DB_HOSTNAME=match-db
+      - MATCHING_DB_PORT=6379
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      - match-db
+    networks:
+      - match-db-network
+      - match-api-network
+      - question-api-network
+      # - collab-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${MATCHING_EXPRESS_PORT}/health || exit 1
+      interval: 30s 
+      timeout: 10s   
+      retries: 5       
+      start_period: 5s
+
   # Frontend
   frontend:
     image: 'frontend'
@@ -134,7 +165,7 @@ services:
       - user-api-network
       - question-api-network
       # - match-api-network
-      # - collab-ws-network
+      # - collab-api-network
 
 volumes:
   # Persistent Volumes for Databases
@@ -142,11 +173,11 @@ volumes:
     external: true
   question-db-docker:
     external: true 
-  # MQ server
-  # match-mq-docker:
-  #   external: true
+  # Redis Match server
+  match-db-docker:
+    external: true
   # WS/RTC server
-  # collab-ws-docker:
+  # collab-db-docker:
   #   external: true
 
 networks:
@@ -155,15 +186,15 @@ networks:
     driver: bridge
   question-db-network:
     driver: bridge
-  # match-mq-network:
-  #   driver: bridge
+  match-db-network:
+    driver: bridge
 
   # View-Controller Networks
   user-api-network:
     driver: bridge
   question-api-network:
     driver: bridge
-  # match-api-network:
-  #   driver: bridge
-  # collab-ws-network:
+  match-api-network:
+    driver: bridge
+  # collab-api-network:
   #   driver: bridge

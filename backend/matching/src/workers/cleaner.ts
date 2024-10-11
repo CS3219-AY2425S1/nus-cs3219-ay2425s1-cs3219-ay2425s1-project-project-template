@@ -2,7 +2,7 @@ import { client } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey } from '@/lib/utils';
 import { MATCH_SVC_EVENT } from '@/ws';
-import { sendNotif } from './common';
+import { connectClient, sendNotif } from './common';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -25,11 +25,12 @@ const shutdown = () => {
     .then(process.exit(0));
 };
 
+process.on('exit', shutdown);
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
 async function clean() {
-  const redisClient = client.isReady || client.isOpen ? client : await client.connect();
+  const redisClient = await connectClient(client);
   const response = await redisClient.xAutoClaim(
     STREAM_NAME,
     STREAM_GROUP,

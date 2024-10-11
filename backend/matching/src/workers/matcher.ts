@@ -3,7 +3,7 @@ import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/c
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
 import { MATCH_SVC_EVENT } from '@/ws';
-import { sendNotif } from './common';
+import { connectClient, sendNotif } from './common';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -25,6 +25,7 @@ const shutdown = () => {
     .then(process.exit(0));
 };
 
+process.on('exit', shutdown);
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
@@ -74,7 +75,7 @@ async function processMatch(
 }
 
 async function match() {
-  const redisClient = client.isReady || client.isOpen ? client : await client.connect();
+  const redisClient = await connectClient(client);
   const stream = await redisClient.xReadGroup(
     STREAM_GROUP,
     STREAM_WORKER,
