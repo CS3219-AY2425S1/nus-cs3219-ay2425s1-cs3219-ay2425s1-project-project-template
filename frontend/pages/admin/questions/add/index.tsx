@@ -25,7 +25,7 @@ const AddQuestionsPage = () => {
       {
         onSuccess: () => {
           alert("Question successfully added!");
-          router.push("/questions"); // Redirect to questions list on success
+          router.push("/admin/questions"); // Redirect to admin questions list on success
         },
         onError: (error) => {
           if (error.response) {

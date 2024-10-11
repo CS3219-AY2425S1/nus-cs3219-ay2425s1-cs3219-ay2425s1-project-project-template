@@ -183,7 +183,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         />
       </div>
       <div className="flex justify-end space-x-4">
-        <Button color="danger" onClick={() => router.push("/questions")}>
+        <Button color="danger" onClick={() => router.push("/admin/questions")}>
           Cancel
         </Button>
         <Button color="primary" onClick={handleSubmit}>

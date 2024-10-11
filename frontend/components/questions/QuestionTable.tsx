@@ -92,7 +92,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
       <div className="flex w-full justify-between">
         <h2>Questions List</h2>
         {isAdmin && (
-          <Button as={Link} href="/questions/add">
+          <Button as={Link} href="/admin/questions/add">
             Add
           </Button>
         )}
