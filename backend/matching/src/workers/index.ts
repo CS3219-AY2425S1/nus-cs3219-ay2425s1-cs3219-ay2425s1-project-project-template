@@ -12,9 +12,13 @@ export const initWorker = (name: string, io: Server) => {
   const worker = fork(path.join(__dirname, `${lCaseName}.js`), { signal: controller.signal });
   const upperCaseName = name.replace(/^[A-Za-z]/, (c) => c.toUpperCase());
   worker.on('message', (message) => {
-    logger.info(`Received message from '${upperCaseName}': ${JSON.stringify(message)}`);
-
-    const { rooms, event, message: payload } = message as IChildProcessMessage;
+    if (typeof message.valueOf() === 'string') {
+      logger.info(`[${upperCaseName}]: ${message}`);
+      return;
+    }
+    const messagePayload = message.valueOf();
+    logger.info(`[${upperCaseName}] WS Payload: ${JSON.stringify(messagePayload)}`);
+    const { rooms, event, message: payload } = messagePayload as IChildProcessMessage;
     if (event === MATCH_SVC_EVENT.DISCONNECT) {
       io.sockets.in(rooms).disconnectSockets();
       return;
