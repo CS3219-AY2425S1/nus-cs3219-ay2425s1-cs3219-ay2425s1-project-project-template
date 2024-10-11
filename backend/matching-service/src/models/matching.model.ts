@@ -1,5 +1,4 @@
 import { Schema } from 'mongoose'
-import { Category, Complexity } from '@repo/user-types'
 
 const matchSchema = new Schema({
     user1Id: {
@@ -14,14 +13,8 @@ const matchSchema = new Schema({
         type: String,
         required: true,
     },
-    category: {
-        type: String,
-        enum: Object.values(Category),
-        required: true,
-    },
-    complexity: {
-        type: String,
-        enum: Object.values(Complexity),
+    isCompleted: {
+        type: Boolean,
         required: true,
     },
     matchToken: {
