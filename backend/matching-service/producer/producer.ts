@@ -7,7 +7,7 @@ const sendMatchingRequest = async (data: any) => {
         const channel = await connection.createChannel()
         
         const queue = 'matching_requests'
-        await channel.assertQueue(queue, { durable: true })
+        await channel.assertQueue(queue, { durable: false })
 
         channel.sendToQueue(queue, Buffer.from(data))
         logger.info(`Sent matching request to queue: ${data}`)

@@ -24,4 +24,5 @@ const port = process.env.PORT
 
 app.listen(port, () => {
     logger.info(`Server is running on port ${port}`)
+    completeMatchRequest()
 })

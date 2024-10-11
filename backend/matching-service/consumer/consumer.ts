@@ -7,13 +7,21 @@ const completeMatchRequest = async () => {
         const channel = await connection.createChannel()
 
         const queue = 'matching_requests'
-        await channel.assertQueue(queue, { durable: true })
+        await channel.assertQueue(queue, { durable: false })
 
         logger.info('Waiting for matching requests...')
-    } catch (error) {
-        
-    }
 
+        channel.consume(queue, (msg) => {
+            if (msg) {
+                const data = JSON.parse(msg.content.toString())
+                logger.info(`Received matching request: ${data}`)
+                performMatching(data)
+            }
+        }, { noAck: true })
+    } catch (error: any) {
+        logger.error(`Error occurred while consuming matching requests: ${error.message}`)
+        throw error
+    }
 }
 
 const performMatching = (data: any) => {
