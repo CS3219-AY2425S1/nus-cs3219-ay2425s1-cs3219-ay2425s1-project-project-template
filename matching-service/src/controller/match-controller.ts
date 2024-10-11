@@ -1,5 +1,3 @@
-// src/controllers/matchController.ts
-
 import { Request, Response } from 'express';
 import { MatchRequest } from '../types/match-types';
 import { addMatchRequest } from '../service/match-service';

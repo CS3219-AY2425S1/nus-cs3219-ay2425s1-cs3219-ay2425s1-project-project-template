@@ -1,5 +1,3 @@
-// src/queue/rabbitmq.ts
-
 import amqp, { Connection, Channel } from 'amqplib';
 
 let connection: Connection | null = null;

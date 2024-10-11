@@ -1,9 +1,10 @@
-// src/services/matchService.ts
-
 import { MatchRequest } from '../types/match-types';
 import { connectRabbitMQ, getChannel } from '../queue/rabbitmq';
+import Redis from 'ioredis';
 
 let matchQueue: MatchRequest[] = [];
+
+const redis = new Redis();
 
 // Function to add a match request to the queue
 export async function addMatchRequest(matchRequest: MatchRequest): Promise<void> {
@@ -27,57 +28,57 @@ export async function consumeMatchRequests(): Promise<void> {
 }
 
 // Function to process a match request
-function processMatchRequest(request: MatchRequest): void {
-  // Add request to in-memory queue
-  matchQueue.push(request);
+async function processMatchRequest(request: MatchRequest) {
 
-  console.log('Current Match Queue:', matchQueue);
+  const requestKey = `match_request:${request.userId}`;
+  const requestData = JSON.stringify(request);
+  redis.set(requestKey, requestData, 'EX', 31);
 
   // Attempt to find a match
-  const match = findMatch(request);
+  const match = await findMatch(request);
 
   if (match) {
-    // Remove matched requests from the queue
-    matchQueue = matchQueue.filter(
-      (req) => req.userId !== request.userId && req.userId !== match.userId
-    );
 
-    // Notify users (in a real application, you might send a message back or update a database)
+    redis.del(requestKey);
+    redis.del(`match_request:${match.userId}`);
+
     console.log(`Match found between ${request.userId} and ${match.userId}`);
+    // in the future will use socket.io to notify the users of the match
   } else {
     console.log(`No immediate match for ${request.userId}, waiting for 30 seconds.`);
 
-    // Handle timeout (30 seconds)
-    setTimeout(() => {
-      // Check if the request is still in the queue
-      const isStillWaiting = matchQueue.some((req) => req.userId === request.userId);
+    setTimeout(async () => {
+      const isStillWaiting = await redis.exists(requestKey);
       if (isStillWaiting) {
-        // Remove the request after timeout
-        matchQueue = matchQueue.filter((req) => req.userId !== request.userId);
+        await redis.del(requestKey);
         console.log(`No match found for ${request.userId} within the time limit.`);
-        // Optionally, notify the user that no match was found
+        // in the future will use socket.io to notify the users that no match is found
       }
     }, 30000);
   }
 }
 
-// Function to find a match
-function findMatch(request: MatchRequest): MatchRequest | null {
-  // Prioritize matching on topic, then difficulty
-  const exactMatch = matchQueue.find(
-    (req) =>
-      req.userId !== request.userId &&
-      req.topic === request.topic &&
-      req.difficulty === request.difficulty
-  );
+async function findMatch(request: MatchRequest): Promise<MatchRequest | null> {
+  const { userId, topic, difficulty } = request;
+  const exactMatchKey = `match_queue:topic:${topic}:difficulty:${difficulty}`;
+  await redis.srem(exactMatchKey, userId);
 
-  if (exactMatch) {
-    return exactMatch;
+  let matchUserId = await redis.spop(exactMatchKey);
+
+  while (matchUserId) {
+    if (matchUserId !== userId) {
+      const matchData = await redis.get(`match_request:${matchUserId}`);
+      if (matchData) {
+        const matchRequest: MatchRequest = JSON.parse(matchData);
+        return matchRequest;
+      }
+    }
+    matchUserId = await redis.spop(exactMatchKey);
   }
 
-  const topicMatch = matchQueue.find(
-    (req) => req.userId !== request.userId && req.difficulty === request.difficulty
-  );
+  await redis.sadd(exactMatchKey, userId);
+  await redis.expire(exactMatchKey, 31);
 
-  return topicMatch || null;
+  return null;
 }
+
