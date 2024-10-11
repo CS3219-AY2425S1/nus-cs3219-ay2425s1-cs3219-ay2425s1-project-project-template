@@ -15,7 +15,7 @@ export const NewSession = () => {
         label: category.charAt(0).toUpperCase() + category.toLocaleLowerCase().slice(1),
     }))
 
-    const DifficultyOptions = Object.values(Complexity).map((complexity) => ({
+    const ComplexityOptions = Object.values(Complexity).map((complexity) => ({
         value: complexity,
         label: complexity.charAt(0).toUpperCase() + complexity.toLocaleLowerCase().slice(1),
     }))
@@ -51,7 +51,7 @@ export const NewSession = () => {
                 <h5 className=" text-xl text-medium font-bold">Start a New Session</h5>
                 <br />
                 <p className="text-medium font-medium mb-1">
-                    Choose a <strong>Topic</strong> and <strong>Difficulty</strong> level to start your collaborative
+                    Choose a <strong>Topic</strong> and <strong>Complexity</strong> level to start your collaborative
                     coding session!
                 </p>
 
@@ -69,13 +69,13 @@ export const NewSession = () => {
                     </SelectContent>
                 </Select>
 
-                <p className="text-medium font-bold mt-6 mb-2">Difficulty</p>
+                <p className="text-medium font-bold mt-6 mb-2">Complexity</p>
                 <Select onValueChange={(val: string) => setSelectedComplexity(val as Complexity)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select one..." />
                     </SelectTrigger>
                     <SelectContent>
-                        {DifficultyOptions.map(({ value, label }) => (
+                        {ComplexityOptions.map(({ value, label }) => (
                             <SelectItem key={value} value={value}>
                                 {label}
                             </SelectItem>
