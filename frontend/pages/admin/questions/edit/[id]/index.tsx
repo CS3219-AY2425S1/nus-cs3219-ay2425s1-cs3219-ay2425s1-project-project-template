@@ -48,7 +48,7 @@ const EditQuestionsPage = () => {
       {
         onSuccess: () => {
           alert("Question successfully updated!");
-          router.push("/questions"); // Redirect to questions list on success
+          router.push("/admin/questions"); // Redirect to questions list on success
         },
         onError: (error) => {
           if (error.response) {
@@ -62,7 +62,7 @@ const EditQuestionsPage = () => {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout isLoggedIn={true}>
       <div className="flex items-center justify-center">
         <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
           {isLoading ? (

@@ -28,7 +28,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
   const handleEditOnClick = () => {
     // Redirect to the edit page with only questionId
     router.push({
-      pathname: `/questions/edit/${question.questionId}`,
+      pathname: `/admin/questions/edit/${question.questionId}`,
     });
   };
 

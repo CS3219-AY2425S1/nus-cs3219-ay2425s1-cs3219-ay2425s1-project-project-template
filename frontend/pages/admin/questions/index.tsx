@@ -6,7 +6,7 @@ import { useQuestions } from "@/hooks/questions";
 import QuestionTable from "@/components/questions/QuestionTable";
 import DefaultLayout from "@/layouts/default";
 
-const UserQuestionsPage = () => {
+const AdminQuestionsPage = () => {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const { data: questionList, isLoading, isError } = useQuestions(pageNumber);
   const handleOnPageClick = (page: number) => {
@@ -24,7 +24,7 @@ const UserQuestionsPage = () => {
           <div className="flex justify-center">
             <QuestionTable
               handlePageOnClick={handleOnPageClick}
-              isAdmin={false}
+              isAdmin={true}
               pageNumber={pageNumber}
               questions={questionList?.questions || []}
               totalPages={parseInt(questionList?.totalPages || "1")}
@@ -36,4 +36,4 @@ const UserQuestionsPage = () => {
   );
 };
 
-export default UserQuestionsPage;
+export default AdminQuestionsPage;
