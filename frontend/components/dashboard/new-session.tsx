@@ -23,18 +23,19 @@ export const NewSession = () => {
     const { data: session } = useSession()
 
     const [selectedTopic, setSelectedTopic] = React.useState('')
-    const [selectedDifficulty, setSelectedDifficulty] = React.useState('')
+    const [selectedComplexity, setSelectedComplexity] = React.useState('')
 
     const handleMatchmaking = async () => {
-        if (!selectedTopic || !selectedDifficulty) {
+        if (!selectedTopic || !selectedComplexity) {
             toast.error('Please select a topic and difficulty level to start matchmaking.')
+            return
         }
 
         try {
             await addUserToMatchmaking({
                 userId: session?.user.id ?? '',
                 proficiency: session?.user.proficiency as Proficiency,
-                difficulty: selectedDifficulty as Complexity,
+                complexity: selectedComplexity as Complexity,
                 topic: selectedTopic as Category,
             })
             // TODO: Add Modal logic here
@@ -69,7 +70,7 @@ export const NewSession = () => {
                 </Select>
 
                 <p className="text-medium font-bold mt-6 mb-2">Difficulty</p>
-                <Select onValueChange={(val: string) => setSelectedDifficulty(val as Complexity)}>
+                <Select onValueChange={(val: string) => setSelectedComplexity(val as Complexity)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select one..." />
                     </SelectTrigger>

@@ -9,7 +9,7 @@ export class UserQueueRequestDto {
 
     @IsEnum(Complexity)
     @IsNotEmpty()
-    difficulty: Complexity
+    complexity: Complexity
 
     @IsEnum(Category)
     @IsNotEmpty()
@@ -19,17 +19,17 @@ export class UserQueueRequestDto {
     @IsNotEmpty()
     userId: string
 
-    constructor(proficiency: Proficiency, difficulty: Complexity, topic: Category, userId: string) {
+    constructor(proficiency: Proficiency, complexity: Complexity, topic: Category, userId: string) {
         this.proficiency = proficiency
-        this.difficulty = difficulty
+        this.complexity = complexity
         this.topic = topic
         this.userId = userId
     }
 
     static fromRequest({
-        body: { proficiency, difficulty, topic, userId },
+        body: { proficiency, complexity, topic, userId },
     }: ITypedBodyRequest<UserQueueRequestDto>): UserQueueRequestDto {
-        return new UserQueueRequestDto(proficiency, difficulty, topic, userId)
+        return new UserQueueRequestDto(proficiency, complexity, topic, userId)
     }
 
     async validate(): Promise<ValidationError[]> {
