@@ -20,7 +20,7 @@ spec:
       containers:
         - name: question-svc
           image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest
-          # imagePullPolicy: Never # only used for local builds
+          imagePullPolicy: Always
           ports:
             - containerPort: 4001
           envFrom:

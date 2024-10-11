@@ -10,10 +10,10 @@ RUN npm install -g pnpm
 # Copy package.json and pnpm-lock.yaml
 COPY package.json ./
 
+RUN pnpm install
+
 # Development stage
 FROM base AS development
-
-RUN pnpm install
 
 COPY . .
 
@@ -26,9 +26,6 @@ CMD ["pnpm", "dev"]
 FROM base AS production
 ENV NODE_ENV=production
 ENV PORT=3001
-
-# install without dev dependencies
-RUN pnpm install --prod
 
 COPY . .
 

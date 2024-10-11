@@ -20,6 +20,7 @@ spec:
       containers:
         - name: user-svc
           image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3001
           envFrom:
