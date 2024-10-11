@@ -9,7 +9,7 @@ services:
     build:
       context: ./backend/user/src/lib/db
     env_file:
-      - ./backend/user/.env.local
+      - ./backend/user/.env.compose
     volumes:
       - 'user-db-docker:${USER_PGDATA}'
     restart: unless-stopped
@@ -29,7 +29,7 @@ services:
     build:
       context: ./backend/question/src/lib/db
     env_file:
-      - ./backend/question/.env.local
+      - ./backend/question/.env.compose
     volumes:
       - 'question-db-docker:${QUESTION_PGDATA}'
     restart: unless-stopped
@@ -41,6 +41,22 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+
+  match-db:
+    hostname: 'match-db'
+    # To enable Admin UI for cluster ↙️
+    # image: redis/redis-stack
+    # ports:
+    # - 8001:8001
+    image: redis/redis-stack-server
+    container_name: 'match-db'
+    env_file:
+      - ./backend/matching/.env.compose
+    volumes:
+      - 'match-db-docker:/data'
+    restart: unless-stopped
+    networks:
+      - match-db-network
 
   # Services
   user-service:
@@ -153,6 +169,7 @@ services:
     environment:
       - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
       - VITE_QUESTION_SERVICE=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - VITE_MATCHING_SERVICE=http://${MATCHING_SERVICE_NAME}:${MATCHING_EXPRESS_PORT}
       - FRONTEND_PORT=${FRONTEND_PORT}
     depends_on:
       user-service:
@@ -164,7 +181,7 @@ services:
     networks:
       - user-api-network
       - question-api-network
-      # - match-api-network
+      - match-api-network
       # - collab-api-network
 
 volumes:
