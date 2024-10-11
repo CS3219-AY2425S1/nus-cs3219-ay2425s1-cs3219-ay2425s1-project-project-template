@@ -11,3 +11,16 @@ export function getCookie(name: string) {
   if (match) return match[2];
   return null;
 }
+
+export function getDifficultyString(difficulty: number) {
+  switch (difficulty) {
+    case 1:
+      return 'Easy';
+    case 2:
+      return 'Medium';
+    case 3:
+      return 'Hard';
+    default:
+      return 'Unknown';
+  }
+}

@@ -1,7 +1,7 @@
 'use client';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import FilterBar from './filter/FilterBar';
-import ProblemTable from './problems/ProblemTable';
+import ProblemTable from '../../../components/problems/ProblemTable';
 
 export default function MainComponent() {
   const { problems, filters, updateFilter, removeFilter, isLoading } =

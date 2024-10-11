@@ -2,15 +2,22 @@
 import { Problem } from '@/types/types';
 import ProblemRow from './ProblemRow';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AxiosResponse } from 'axios';
 
 interface ProblemTableProps {
   problems: Problem[];
   isLoading: boolean;
+  showActions?: boolean;
+  handleDelete?:
+    | ((id: number) => Promise<AxiosResponse<unknown, unknown>>)
+    | undefined;
 }
 
 export default function ProblemTable({
   problems,
   isLoading,
+  showActions = false,
+  handleDelete,
 }: ProblemTableProps) {
   return (
     <div className="overflow-x-auto">
@@ -21,6 +28,7 @@ export default function ProblemTable({
             <th className="w-1/3 px-4 py-2">Title</th>
             <th className="px-4 py-2">Topics</th>
             <th className="px-4 py-2">Difficulty</th>
+            {showActions && <th className="px-4 py-2">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -46,7 +54,12 @@ export default function ProblemTable({
                 </tr>
               ))
             : problems.map((problem) => (
-                <ProblemRow key={problem._id} problem={problem} />
+                <ProblemRow
+                  key={problem._id}
+                  problem={problem}
+                  showActions={showActions}
+                  handleDelete={handleDelete}
+                />
               ))}
         </tbody>
       </table>

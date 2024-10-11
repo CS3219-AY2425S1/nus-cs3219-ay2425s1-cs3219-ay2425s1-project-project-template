@@ -1,47 +1,53 @@
+import React from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { getDifficultyString } from '@/lib/utils';
 import { ProblemDialogData } from '@/types/types';
 
-export default function ProblemDialog({
-  isOpen,
-  onClose,
-  problem,
-}: {
+type Props = {
   isOpen: boolean;
   onClose: () => void;
   problem: ProblemDialogData | null;
-}) {
-  if (!problem) return null;
+  requestCallback: () => void;
+  requestTitle: string;
+};
 
-  const difficultyText =
-    problem.difficulty === 1
-      ? 'Easy'
-      : problem.difficulty === 2
-        ? 'Medium'
-        : 'Hard';
+function ProblemInputDialog({
+  isOpen,
+  onClose,
+  problem,
+  requestCallback,
+  requestTitle,
+}: Props) {
+  if (!problem) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-black">
         <DialogHeader>
           <DialogTitle>{problem.title}</DialogTitle>
-          <DialogDescription>Difficulty: {difficultyText}</DialogDescription>
+          <DialogDescription>
+            Difficulty: {getDifficultyString(problem.difficulty)}
+          </DialogDescription>
         </DialogHeader>
         <div className="mt-4">
           <h3 className="mb-2 text-lg font-semibold">Description:</h3>
           <p>{problem.description}</p>
         </div>
         <div className="mt-6 flex justify-end">
-          {/* TODO: link to match route/page */}
-          <Button variant="secondary">Match</Button>
+          <Button variant="secondary" onClick={requestCallback}>
+            {requestTitle}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
+export default ProblemInputDialog;

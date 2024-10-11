@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import axios from 'axios';
+
+const baseURL = process.env.USER_SERVICE_URL || 'http://172.17.0.1:3001/api/v1';
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
@@ -8,24 +9,25 @@ export async function middleware(request: NextRequest) {
 
   // Check if token exists
   if (!token) {
-    return NextResponse.redirect(new URL('/signin', request.url)); // Ensure redirection response is returned
+    return NextResponse.redirect(new URL('/signin', request.url));
   }
 
   // Check if accessing /admin route
   if (request.nextUrl.pathname.startsWith('/admin')) {
     try {
-      const res = await axios.get(
-        'http://localhost:3001/api/v1/auth/verify-token',
-        {
-          headers: {
-            Authorization: `Bearer ${token.value}`,
-          },
+      // Cannot use Axios in edge runtime
+      const res = await fetch(`${baseURL}/auth/verify-token`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
         },
-      );
-      console.log(res.status);
+      });
 
-      // Check if the response is valid
-      if (res.status !== 200) {
+      const data = await res.json();
+
+      // Check if the user is an admin
+      if (res.status !== 200 || !data.data.isAdmin) {
         return NextResponse.redirect(new URL('/', request.url)); // Redirect in case of error
       }
     } catch (error) {
