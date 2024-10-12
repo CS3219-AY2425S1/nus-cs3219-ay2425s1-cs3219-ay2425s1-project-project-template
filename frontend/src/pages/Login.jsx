@@ -2,6 +2,7 @@ import { ArrowBigRightDash, ArrowUpRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -9,10 +10,9 @@ const carouselItems = [
   "Practice makes perfect. Start your journey with us!",
 ];
 
-const Login = (props) => {
+const Login = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { reset } = useForm();
-  const { user } = props;
 
   const {
     register,
@@ -22,6 +22,7 @@ const Login = (props) => {
 
   const onSubmit = (data) => {
     console.log(data);
+    toast.success("Successfully Logged In")
     reset();
   };
 
@@ -36,7 +37,7 @@ const Login = (props) => {
   return (
     <div className="relative w-full p-6">
       <div className="flex flex-row space-x-6">
-        {/* Image Carousel */}
+        {/* Text Carousel */}
         <div className="relative h-[calc(100vh-3rem)] w-[75rem] overflow-hidden rounded-3xl bg-blue-50">
           <div className="absolute flex w-full justify-between text-white">
             <Link to="/">
@@ -45,9 +46,9 @@ const Login = (props) => {
               </div>
             </Link>
             <Link to="/">
-              <div className="relative right-8 top-6 rounded-full flex bg-white/40 px-4 py-2 text-sm font-medium items-center space-x-1 text-black hover:bg-white">
+              <div className="relative right-8 top-6 flex items-center space-x-1 rounded-full bg-white/40 px-4 py-2 text-sm font-medium text-black hover:bg-white">
                 <h1>Go to Homepage</h1>
-                <ArrowUpRight size={20}/>
+                <ArrowUpRight size={20} />
               </div>
             </Link>
           </div>
@@ -85,7 +86,7 @@ const Login = (props) => {
         {/* Form */}
         <div className="flex h-[calc(100vh-3rem)] w-2/3 rounded-3xl border border-gray-300/30 bg-transparent">
           <div className="flex w-full flex-col items-center justify-center">
-            <span className="flex space-x-3 text-5xl font-medium">
+            <span className="flex space-x-3 text-2xl font-medium md:text-4xl lg:text-5xl">
               <h1 className="text-[#C6FF46]">Welcome</h1>
               <h1>back!</h1>
             </span>
@@ -94,14 +95,15 @@ const Login = (props) => {
             </p>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="mt-6 w-full space-y-2 px-10 lg:px-[7rem]"
+              className="mt-6 w-full space-y-2 px-2 md:px-4 lg:px-[7rem]"
             >
+              {/* Email */}
               <div className="w-full">
                 <input
                   type="email"
                   name="email"
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
-                  placeholder="Enter your username or email"
+                  placeholder="Enter your email"
                   {...register("email", {
                     required: "Email is required.",
                     pattern: {
@@ -116,6 +118,8 @@ const Login = (props) => {
                   </p>
                 )}
               </div>
+
+              {/* Password */}
               <div>
                 <input
                   type="password"
@@ -123,33 +127,21 @@ const Login = (props) => {
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
                   placeholder="Enter your password"
                   {...register("password", {
-                    required: true,
-                    validate: {
-                      checkLength: (value) => value.length >= 8,
-                      matchPattern: (value) =>
-                        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s)(?=.*[!@#$*])/.test(
-                          value,
-                        ),
+                    required: "Password is required.",
+                    minLength: {
+                      value: 8,
+                      message: "Password should be at least 8 characters.",
                     },
                   })}
                 />
-                {errors.password?.type === "required" && (
+                {errors.password && (
                   <p className="mx-2 mt-1 text-red-500">
-                    Password is required.
-                  </p>
-                )}
-                {errors.password?.type === "checkLength" && (
-                  <p className="mx-2 mt-1 text-red-500">
-                    Password should be at-least 8 characters.
-                  </p>
-                )}
-                {errors.password?.type === "matchPattern" && (
-                  <p className="mx-2 mt-1 text-red-500">
-                    Password should contain at least one uppercase letter,
-                    lowercase letter, digit, and special symbol.
+                    {errors.password.message}
                   </p>
                 )}
               </div>
+
+              {/* Submit Button */}
               <div className="pt-8">
                 <button
                   type="submit"
@@ -159,6 +151,8 @@ const Login = (props) => {
                 </button>
               </div>
             </form>
+
+            {/* Link to Signup */}
             <div className="mt-4 flex space-x-1 text-sm font-extralight text-gray-300">
               <h1>Don&apos;t have an account yet? </h1>
               <Link to="/register">

@@ -1,7 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -9,19 +10,20 @@ const carouselItems = [
   "Practice makes perfect. Start your journey with us!",
 ];
 
-const SignUp = (props) => {
+const SignUp = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { reset } = useForm();
-  const { user } = props;
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
   const onSubmit = (data) => {
     console.log(data);
+    toast.success("Account Created");
     reset();
   };
 
@@ -33,13 +35,15 @@ const SignUp = (props) => {
     return () => clearInterval(interval);
   }, []);
 
+  const password = watch("password", "");
+
   return (
     <div className="relative w-full p-6">
       <div className="flex flex-row space-x-6">
         {/* Form */}
         <div className="flex h-[calc(100vh-3rem)] w-2/3 rounded-3xl border border-gray-300/30 bg-transparent">
           <div className="flex w-full flex-col items-center justify-center">
-            <span className="flex space-x-3 text-5xl font-medium">
+            <span className="flex space-x-3 text-2xl md:text-4xl lg:text-5xl font-medium">
               <h1>Create an</h1>
               <h1 className="text-[#C6FF46]">Account</h1>
             </span>
@@ -48,8 +52,9 @@ const SignUp = (props) => {
             </p>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="mt-6 w-full space-y-2 px-10 lg:px-[7rem]"
+              className="mt-6 w-full space-y-2 px-2 md:px-4 lg:px-[7rem]"
             >
+              {/* First and Last Name */}
               <div className="flex space-x-4">
                 <div>
                   <input
@@ -84,6 +89,8 @@ const SignUp = (props) => {
                   )}
                 </div>
               </div>
+
+              {/* Email */}
               <div>
                 <input
                   type="email"
@@ -104,6 +111,8 @@ const SignUp = (props) => {
                   </p>
                 )}
               </div>
+
+              {/* Password */}
               <div>
                 <input
                   type="password"
@@ -111,67 +120,47 @@ const SignUp = (props) => {
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
                   placeholder="Enter a strong password"
                   {...register("password", {
-                    required: true,
-                    validate: {
-                      checkLength: (value) => value.length >= 8,
-                      matchPattern: (value) =>
-                        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s)(?=.*[!@#$*])/.test(
-                          value,
-                        ),
+                    required: "Password is required.",
+                    minLength: {
+                      value: 8,
+                      message: "Password should be at least 8 characters.",
+                    },
+                    pattern: {
+                      value:
+                        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s)(?=.*[!@#$*])/,
+                      message:
+                        "Password must include uppercase, lowercase, number, and special character.",
                     },
                   })}
                 />
-                {errors.password?.type === "required" && (
+                {errors.password && (
                   <p className="mx-2 mt-1 text-red-500">
-                    Password is required.
-                  </p>
-                )}
-                {errors.password?.type === "checkLength" && (
-                  <p className="mx-2 mt-1 text-red-500">
-                    Password should be at-least 8 characters.
-                  </p>
-                )}
-                {errors.password?.type === "matchPattern" && (
-                  <p className="mx-2 mt-1 text-red-500">
-                    Password should contain at least one uppercase letter,
-                    lowercase letter, digit, and special symbol.
+                    {errors.password.message}
                   </p>
                 )}
               </div>
+
+              {/* Confirm Password */}
               <div>
                 <input
                   type="password"
-                  name="password"
+                  name="confirmPassword"
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
                   placeholder="Confirm your password"
-                  {...register("password", {
-                    required: true,
-                    validate: {
-                      checkLength: (value) => value.length >= 8,
-                      matchPattern: (value) =>
-                        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s)(?=.*[!@#$*])/.test(
-                          value,
-                        ),
-                    },
+                  {...register("confirmPassword", {
+                    required: "Please confirm your password.",
+                    validate: (value) =>
+                      value === password || "Passwords do not match.",
                   })}
                 />
-                {errors.password?.type === "required" && (
+                {errors.confirmPassword && (
                   <p className="mx-2 mt-1 text-red-500">
-                    Password is required.
-                  </p>
-                )}
-                {errors.password?.type === "checkLength" && (
-                  <p className="mx-2 mt-1 text-red-500">
-                    Password should be at-least 8 characters.
-                  </p>
-                )}
-                {errors.password?.type === "matchPattern" && (
-                  <p className="mx-2 mt-1 text-red-500">
-                    Password should contain at least one uppercase letter,
-                    lowercase letter, digit, and special symbol.
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
+
+              {/* Submit Button */}
               <div className="pt-8">
                 <button
                   type="submit"
@@ -181,6 +170,8 @@ const SignUp = (props) => {
                 </button>
               </div>
             </form>
+
+            {/* Link to Login */}
             <div className="mt-4 flex space-x-1 text-sm font-extralight text-gray-300">
               <h1>Already have an account? </h1>
               <Link to="/login">
@@ -192,7 +183,7 @@ const SignUp = (props) => {
           </div>
         </div>
 
-        {/* Image Carousel */}
+        {/* Text Carousel */}
         <div className="relative h-[calc(100vh-3rem)] w-[75rem] overflow-hidden rounded-3xl bg-blue-50">
           <div className="absolute flex w-full justify-between text-white">
             <Link to="/">
