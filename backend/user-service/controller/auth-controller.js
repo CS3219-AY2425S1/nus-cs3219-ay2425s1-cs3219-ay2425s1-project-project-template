@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { findUserByEmail as _findUserByEmail } from "../model/repository.js";
 import { formatUserResponse } from "./user-controller.js";
+import {transporter} from "../utils/nodemailer.js"; 
 
 export async function handleLogin(req, res) {
   const { email, password } = req.body;
@@ -135,11 +136,68 @@ export async function handleRefreshToken(req, res) {
   }
 }
 
-export async function handleVerifyToken(req, res) {
+export async function handleForgotPassword(req, res) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
   try {
-    const verifiedUser = req.user;
-    return res.status(200).json({ message: "Token verified", data: verifiedUser });
+    // Check if the user exists
+    const user = await _findUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate a reset token (JWT token valid for 1 hour)
+    const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Create reset URL
+    const resetURL = `test/reset-password/${resetToken}`;
+
+    // Email options
+    const mailOptions = {
+      from: process.env.GMAIL_USER,
+      to: email,
+      subject: "Password Reset Request",
+      html: `
+        <h2>Password Reset</h2>
+        <p>Please click the link below to reset your password:</p>
+        <a href="${resetURL}" target="_blank">Reset Password</a>
+        <p>This link will expire in 1 hour.</p>
+      `,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: "Password reset email sent" });
   } catch (err) {
     return res.status(500).json({ message: err.message });
+  }
+}
+
+export async function handleVerifyToken(req, res) {
+  const accessToken = req.headers.authorization?.split(" ")[1];
+
+  if (!accessToken) {
+    return res.status(401).json({ message: "No access token provided" });
+  }
+
+  try {
+    // Verify the access token
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+
+    // Optionally, add user verification logic here (e.g., find the user in the database)
+
+    return res.status(200).json({
+      message: "Token verified successfully",
+      data: decoded, // Return decoded token data
+    });
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid access token" });
   }
 }
