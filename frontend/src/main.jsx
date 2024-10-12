@@ -6,6 +6,7 @@ import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Features from "./pages/Features.jsx";
+import About from "./pages/About.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,11 @@ const router = createBrowserRouter([
   {
     path: "/features",
     element: <Features />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/about",
+    element: <About />,
     errorElement: <ErrorPage />,
   },
 ]);

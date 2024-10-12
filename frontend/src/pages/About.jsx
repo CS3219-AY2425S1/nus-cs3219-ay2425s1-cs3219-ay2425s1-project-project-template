@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 
-const Features = () => {
+const About = () => {
   return (
     <>
       <Navbar />
@@ -12,4 +12,4 @@ const Features = () => {
   );
 };
 
-export default Features;
+export default About;
