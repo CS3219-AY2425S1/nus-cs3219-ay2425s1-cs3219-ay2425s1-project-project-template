@@ -18,6 +18,12 @@ const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => 
       ...formData,
       email: e.target.value,
     });
+
+    // Reset the email error if user starts typing after form submission
+    setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: false,
+    }));
   };
 
   const isValid = () => {
@@ -49,16 +55,14 @@ const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => 
         <label htmlFor="email" className="block text-gray-400">
           Email
         </label>
-        <Input
-          required
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={handleEmailOnChange}
+        <Input 
+          errorMessage="Please provide a valid email." 
+          isInvalid={!!errors.email} 
+          isRequired={true} 
+          type="email" 
+          value={formData.email} 
+          onChange={handleEmailOnChange} 
         />
-        {errors.email && (
-          <span className="text-red-500">Please provide a valid email</span>
-        )}
       </div>
 
       <Button

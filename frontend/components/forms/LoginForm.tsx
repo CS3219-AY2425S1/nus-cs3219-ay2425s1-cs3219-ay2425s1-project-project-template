@@ -14,18 +14,32 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
+  // Reset email error when user starts typing
   const handleEmailOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       email: e.target.value,
     });
+
+    // Reset the email error if user starts typing after form submission
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      email: false,
+    }));
   };
 
+  // Reset password error when user starts typing
   const handlePasswordOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       password: e.target.value,
     });
+
+    // Reset the password error if user starts typing after form submission
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      password: false,
+    }));
   };
 
   const isValid = () => {
@@ -63,32 +77,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         <label htmlFor="email" className="block text-gray-400">
           Email
         </label>
-        <Input
-          required
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={handleEmailOnChange}
+        <Input 
+          errorMessage="Please provide a valid email." 
+          isInvalid={!!errors.email} 
+          isRequired={true} 
+          type="email" 
+          value={formData.email} 
+          onChange={handleEmailOnChange} 
         />
-        {errors.email && (
-          <span className="text-red-500">Please provide a valid email</span>
-        )}
       </div>
 
       <div className="mb-6">
         <label htmlFor="password" className="block text-gray-400">
           Password
         </label>
-        <Input
-          required
-          id="password"
-          type="password"
-          value={formData.password}
-          onChange={handlePasswordOnChange}
+        <Input 
+          errorMessage="Password is required." 
+          isInvalid={!!errors.password}
+          isRequired={true} 
+          type="password" 
+          value={formData.password} 
+          onChange={handlePasswordOnChange} 
         />
-        {errors.password && (
-          <span className="text-red-500">Password is required</span>
-        )}
       </div>
 
       <Button
