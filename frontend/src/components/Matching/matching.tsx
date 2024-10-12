@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import Button from "@mui/material/Button";
 import FormControl from '@mui/material/FormControl';
@@ -14,32 +14,65 @@ import Typography from "@mui/material/Typography";
 import toast from "react-hot-toast";
 
 const complexities = ["Easy", "Medium", "Hard"];
-const categories = ["Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
+const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
+const timeout = 30000;
 
 export default function MatchingDialog({ open, handleMatchScreenClose } : { open: boolean, handleMatchScreenClose: () => void }) {
-  const [matching, setMatching] = React.useState(false);
-  const [complexity, SetComplexity] = React.useState("");
-  const [category, SetCategory] = React.useState("");
+  const [complexity, setComplexity] = useState("");
+  const [category, setCategory] = useState("");
+  const [isMatching, setIsMatching] = useState(false);
+
+  const intervalReference = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const startTime = useRef(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    if (isMatching) {
+      intervalReference.current = setInterval(() => {
+        if (Date.now() - startTime.current > timeout) {
+          toast.error("Matching timed out");
+          setIsMatching(false);
+        }
+        setElapsedTime(Date.now() - startTime.current);
+      }, 250);
+    }
+
+    return () => {
+      clearInterval(intervalReference.current);
+      setElapsedTime(0);
+    }
+  }, [isMatching]);
 
   const handleClose = () => {
-    if (matching) {
+    if (isMatching) {
       toast.error("Cannot close screen while matching!");
       return;
     }
     handleMatchScreenClose();
   }
 
-  const handleMatch = () => {
-    console.log(`Looking for match with ${category} on ${complexity} difficulty`)
-    setMatching(!matching);
-  }
-
   const handleChangeComplexity = (event: SelectChangeEvent) => {
-    SetComplexity(event.target.value);
+    setComplexity(event.target.value);
   }
 
   const handleChangeCategory = (event: SelectChangeEvent) => {
-    SetCategory(event.target.value);
+    setCategory(event.target.value);
+  }
+
+  const startMatching = () => {
+    console.log(`Looking for match with ${category} on ${complexity} difficulty`);
+    startTime.current = Date.now();
+    setIsMatching(true);
+  }
+
+  const stopMatching = () => {
+    setIsMatching(false);
+  }
+
+  const formatTime = () => {
+    const minutes = Math.floor(elapsedTime / 1000 / 60);
+    const seconds = Math.floor(elapsedTime / 1000) % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
   
   return (
@@ -48,12 +81,12 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
       aria-labelledby="matching-dialog-title"
       open={open}
     >
-      <DialogTitle sx={{ m: 0, p: 2, fontSize: "2rem" }} id="matching-dialog-title">
+      <DialogTitle variant="h4" sx={{ m: 0, p: 2 }} id="matching-dialog-title">
         Find Peer
       </DialogTitle>
       <IconButton
         aria-label="close"
-        disabled={matching}
+        disabled={isMatching}
         onClick={handleClose}
         sx={(theme) => ({
           position: "absolute",
@@ -76,7 +109,7 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
               id="complexity-select"
               value={complexity}
               label="Complexity"
-              disabled={matching}
+              disabled={isMatching}
               onChange={handleChangeComplexity}
             >
               {complexities.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
@@ -89,20 +122,27 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
               id="category-select"
               value={category}
               label="Category"
-              disabled={matching}
+              disabled={isMatching}
               onChange={handleChangeCategory}
             >
-              {categories.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+              {categories.map(c => <MenuItem key={c} value={c}>{c ? c : <em>None</em>}</MenuItem>)}
             </Select>
           </FormControl>
         </div>
-        <Typography variant="h6" align="center">
-          {matching ? "Finding peer..." : <br />}
+        <Typography variant="h6" align="center" sx={{ minHeight: 32 }}>
+          {isMatching ? `Finding peer... ${formatTime()}` : ""}
         </Typography>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "center" }}>
-        <Button autoFocus variant="contained" color={matching ? "error" : "primary"} onClick={handleMatch} sx={{ minWidth: 90 }}>
-          {matching ? "Cancel" : "Match"}
+        <Button
+          autoFocus
+          variant="contained"
+          color={isMatching ? "error" : "primary"}
+          disabled={!isMatching && complexity === ""}
+          onClick={isMatching ? stopMatching : startMatching}
+          sx={{ minWidth: 90 }}
+        >
+          {isMatching ? "Cancel" : "Match"}
         </Button>
       </DialogActions>
     </Dialog>
