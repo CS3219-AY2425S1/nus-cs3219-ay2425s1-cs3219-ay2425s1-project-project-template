@@ -17,7 +17,7 @@ import config from './config';
 })
 export class AppModule {
   constructor() {
-    const requiredVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'QUEUE_URL'];
+    const requiredVars = ['KAFKA_BROKER_ID'];
     requiredVars.forEach(varName => {
       if (!process.env[varName]) {
         throw new Error(`Missing required environment variable: ${varName}`);

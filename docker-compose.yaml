@@ -41,9 +41,7 @@ services:
       context: ./backend/matching-service
       dockerfile: Dockerfile.dev
     environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      QUEUE_URL: ${QUEUE_URL}
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
     ports:
       - 8002:8002
     # volumes:
