@@ -28,3 +28,9 @@ services:
       - JWT_SECRET=$JWT_SECRET
       - EMAIL_ADDRESS=$EMAIL_ADDRESS
       - EMAIL_PASSWORD=$EMAIL_PASSWORD
+
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - 6379:6379
