@@ -1,6 +1,7 @@
 // src/services/authService.ts
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { jwtDecode } from "jwt-decode";
 
 import axios from "@/utils/axios";
 import {
@@ -84,6 +85,65 @@ export const useForgetPassword = () => {
       // Handle error response
       console.error("Reset email failed", error);
       throw error.message || "Failed to send reset email!";
+    },
+  });
+};
+
+interface ResetPasswordCredentials {
+  tokenString: string; // The reset token provided in the URL
+  newPassword: string; // The new password entered by the user
+}
+
+interface ResetPasswordResponse {
+  message: string;
+}
+
+// Decode the JWT token to extract the user ID
+interface DecodedToken {
+  id: string;
+}
+
+// Function to handle the reset password logic (fetch user and then patch password)
+const resetPassword = async (credentials: ResetPasswordCredentials): Promise<ResetPasswordResponse> => {
+  // Step 1: Decode the token to get the user ID
+  const decodedToken: DecodedToken = jwtDecode(credentials.tokenString); 
+  const userId = decodedToken.id;
+
+  // Prepare the Authorization header with the JWT access token
+  const config = {
+    headers: {
+      Authorization: `Bearer ${credentials.tokenString}`, // Include the JWT token in the header
+    },
+  };
+  console.log(config);
+
+  // Step 2: Fetch the user using the userId (GET request with Authorization)
+  const userResponse = await axios.get(`/user-service/users/${userId}`, config);
+  const user = userResponse.data;
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Step 3: Patch the password using the user ID (PATCH request with Authorization)
+  const patchResponse = await axios.patch(`/user-service/users/${userId}`, {
+    password: credentials.newPassword,
+  }, config); 
+  return patchResponse.data;
+};
+
+// ResetPassword hook using react-query's useMutation
+export const useResetPassword = () => {
+  return useMutation<ResetPasswordResponse, AxiosError, ResetPasswordCredentials>({
+    mutationFn: resetPassword,
+    onSuccess: (data) => {
+      // Handle success response (e.g., show a notification)
+      console.log("Password reset successfully!", data);
+    },
+    onError: (error) => {
+      // Handle error response (e.g., show an error message)
+      console.error("Password reset failed", error);
+      throw error.message || "Failed to reset password!";
     },
   });
 };
