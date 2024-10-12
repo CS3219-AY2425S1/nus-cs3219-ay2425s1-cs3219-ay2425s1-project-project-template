@@ -45,7 +45,7 @@ const DashboardPage = () => {
           headerText="Current Active Session"
           sessionText={hasActiveSession ? "Current active session with ____" : "No active session. Ready for more?"}
           buttonText={hasActiveSession ? "Rejoin Session" : "New Question"}
-          buttonLink={hasActiveSession ? "/rejoin" : "/new-question"}
+          buttonLink={hasActiveSession ? "/rejoin" : "/new-session"}
         />
 
         {/* Go to Question Page Box */}

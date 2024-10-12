@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import NewSessionPage from "./pages/NewSessionPage";
 import backgroundImage from "./assets/images/darker.jpg"; // path for background
 import "./styles/App.css"; // css file
 
@@ -26,6 +27,7 @@ const App = () => {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forget-password" element={<ForgetPasswordPage />} />
+        <Route path="/new-session" element={<NewSessionPage />} />
       </Routes>
     </div>
   );
