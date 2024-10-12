@@ -29,6 +29,7 @@ class RabbitMQConnection {
 
             logger.info(`[Init] Created RabbitMQ Channel successfully`)
         } catch (error) {
+            this.connected = false
             logger.error(error)
             logger.error(`[Error] Not connected to MQ Server`)
         }
@@ -64,8 +65,9 @@ class RabbitMQConnection {
                 q.queue,
                 (msg) => {
                     if (msg.content) {
-                        console.log('User information queued ', msg.content.toString())
-                        this.channel.ack(msg)
+                        // Insert logic to check for possible match before re-queuing
+                        logger.info('[Entry-Queue] User information queued ', msg.content.toString())
+                        this.channel.ack(msg) // ACK removes message from queue
                     }
                 },
                 { noAck: false }
