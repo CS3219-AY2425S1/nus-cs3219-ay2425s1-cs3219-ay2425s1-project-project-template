@@ -43,15 +43,12 @@ settings = Settings()
 
 class RedisSettings:
     class Channels(Enum):
-        EASY: str = "easy_chan"
-        MED: str = "med_chan"
-        HARD: str = "hard_chan"
+        EASY: str = "Easy"
+        MED: str = "Medium"
+        HARD: str = "Hard"
         MATCHES: str = "matches"
 
-    db_map = {Difficulty.Easy: 0, Difficulty.Medium: 1, Difficulty.Hard: 2, Channels.MATCHES: 3}
+    db_map = {e.value: i for i, e in enumerate(Channels)}
 
-    @staticmethod
-    def redis_url(db: Difficulty | Channels) -> str:
-        if db not in RedisSettings.db_map:
-            raise ValueError("No such Redis DB")
-        return f"{settings.REDIS_URL}/{RedisSettings.db_map[db]}"
+    def redis_url(chan: Channels) -> str:
+        return RedisSettings.db_map[chan]
