@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 
 import { PencilIcon, TrashIcon } from "@/components/icons";
-import { useDeleteQuestions } from "@/hooks/questions";
+import { useDeleteQuestions } from "@/hooks/api/questions";
 import { Question } from "@/types/questions";
 
 interface ActionButtonsProps {

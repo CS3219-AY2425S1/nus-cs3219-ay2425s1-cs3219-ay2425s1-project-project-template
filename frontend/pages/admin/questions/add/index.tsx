@@ -4,7 +4,7 @@ import { useState } from "react";
 import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
 import { Question } from "@/types/questions";
-import { useAddQuestions } from "@/hooks/questions";
+import { useAddQuestions } from "@/hooks/api/questions";
 
 const AddQuestionsPage = () => {
   const router = useRouter();
@@ -17,7 +17,7 @@ const AddQuestionsPage = () => {
     constraints: "",
   });
 
-  const { mutate: addQuestion } = useAddQuestions();
+  const { mutate: addQuestion, isError, error } = useAddQuestions();
 
   const handleOnSubmit = (updatedData: Question) => {
     addQuestion(
@@ -26,13 +26,6 @@ const AddQuestionsPage = () => {
         onSuccess: () => {
           alert("Question successfully added!");
           router.push("/admin/questions"); // Redirect to admin questions list on success
-        },
-        onError: (error) => {
-          if (error.response) {
-            alert(`Error adding the question: ${error.response.data}`);
-          } else {
-            alert(`Error adding the question: ${error.message}`);
-          }
         },
       },
     );
@@ -48,6 +41,10 @@ const AddQuestionsPage = () => {
             setFormData={setFormData}
             onSubmit={handleOnSubmit}
           />
+
+          {isError && (
+            <p className="text-red-500 mt-4 text-center">{`${error?.message}. Please try again later.`}</p>
+          )}
         </div>
       </div>
     </DefaultLayout>

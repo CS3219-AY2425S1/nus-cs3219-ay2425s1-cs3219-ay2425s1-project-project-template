@@ -3,24 +3,35 @@ import { useRouter } from "next/router";
 import { Button } from "@nextui-org/button";
 
 import LoginForm from "@/components/forms/LoginForm";
-import { useLogin } from "@/hooks/auth";
+import { useLogin } from "@/hooks/api/auth";
 import DefaultLayout from "@/layouts/default";
+import { useUser } from "@/hooks/users";
+import { User } from "@/types/user";
 
 const LoginPage = () => {
   const router = useRouter();
+  const { setUser } = useUser();
   const { mutate: login, isPending, isError, error } = useLogin();
 
   const handleLogin = (email: string, password: string) => {
     login(
       { email, password },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          const user: User = {
+            id: data.id,
+            username: data.username,
+            email: data.email,
+            isAdmin: data.isAdmin,
+          };
+
+          setUser(user);
           router.push("/match");
         },
-        onError: (err) => {
-          console.error("Login failed:", err);
+        onError: (error) => {
+          alert(`Login failed: ${error?.message}`);
         },
-      }
+      },
     );
   };
 

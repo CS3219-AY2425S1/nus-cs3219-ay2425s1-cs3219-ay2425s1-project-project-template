@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 
 import RegistrationForm from "@/components/forms/RegistrationForm";
-import { useRegister } from "@/hooks/auth";
+import { useRegister } from "@/hooks/api/auth";
 import DefaultLayout from "@/layouts/default";
 
 const RegisterPage = () => {
@@ -12,7 +12,7 @@ const RegisterPage = () => {
   const handleRegister = (
     username: string,
     email: string,
-    password: string
+    password: string,
   ) => {
     register(
       { username, email, password },
@@ -23,7 +23,7 @@ const RegisterPage = () => {
         onError: (err) => {
           console.error("Registration failed:", err);
         },
-      }
+      },
     );
   };
 

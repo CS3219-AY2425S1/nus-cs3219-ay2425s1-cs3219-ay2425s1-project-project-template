@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
-import { useGetQuestion } from "@/hooks/questions";
-import { useUpdateQuestions } from "@/hooks/questions";
+import { useGetQuestion } from "@/hooks/api/questions";
+import { useUpdateQuestions } from "@/hooks/api/questions";
 import { Question } from "@/types/questions";
 
 const EditQuestionsPage = () => {
@@ -39,7 +39,11 @@ const EditQuestionsPage = () => {
   }, [question]);
 
   // Mutation hook to update the question
-  const { mutate: updateQuestion } = useUpdateQuestions();
+  const {
+    mutate: updateQuestion,
+    isError: isUpdateError,
+    error: updateError,
+  } = useUpdateQuestions();
 
   // Handle the form submission for updating the question
   const handleOnSubmit = (updatedData: Question) => {
@@ -49,13 +53,6 @@ const EditQuestionsPage = () => {
         onSuccess: () => {
           alert("Question successfully updated!");
           router.push("/admin/questions"); // Redirect to questions list on success
-        },
-        onError: (error) => {
-          if (error.response) {
-            alert(`Error adding the question: ${error.response.data}`);
-          } else {
-            alert(`Error adding the question: ${error.message}`);
-          }
         },
       },
     );
@@ -72,12 +69,17 @@ const EditQuestionsPage = () => {
           ) : !question ? (
             <p>Question does not exist!</p>
           ) : (
-            <QuestionForm
-              formData={formData}
-              formType="Edit"
-              setFormData={setFormData}
-              onSubmit={handleOnSubmit}
-            />
+            <>
+              <QuestionForm
+                formData={formData}
+                formType="Edit"
+                setFormData={setFormData}
+                onSubmit={handleOnSubmit}
+              />
+              {isUpdateError && (
+                <p className="text-red-500 mt-4 text-center">{`${updateError?.message}. Please try again later.`}</p>
+              )}
+            </>
           )}
         </div>
       </div>

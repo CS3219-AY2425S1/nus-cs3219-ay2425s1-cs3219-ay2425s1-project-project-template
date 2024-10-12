@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 
-import { useGetQuestion } from "@/hooks/questions";
+import { useGetQuestion } from "@/hooks/api/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 
 export default function QuestionDescriptionPage() {
