@@ -1,6 +1,5 @@
 import { ITypedBodyRequest } from '@repo/request-types'
 import { Response } from 'express'
-
 import { ValidationError } from 'class-validator'
 import { UserQueueRequestDto } from '../types/UserQueueRequestDto'
 import mqConnection from '../services/rabbitmq.service'
