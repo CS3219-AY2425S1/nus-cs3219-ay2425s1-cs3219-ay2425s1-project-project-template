@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster />
+      <Toaster position="bottom-center"/>
       <div className="App">
         <BrowserRouter>
           <Routes>
