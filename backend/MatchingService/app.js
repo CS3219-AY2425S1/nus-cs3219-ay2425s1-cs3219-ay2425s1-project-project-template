@@ -1,17 +1,16 @@
 import { createClient } from "redis";
 import express from "express";
-import Queue from "bull";
 import { createBullBoard } from "@bull-board/api";
 import { ExpressAdapter } from "@bull-board/express";
 import { BullAdapter } from "@bull-board/api/bullAdapter.js";
 
+import { matchingQueue } from "./queue/matching-queue.js";
+import { addUserToQueue } from "./controller/queue-controller.js";
+
 const app = express();
 const port = 3000;
 
-const matchingQueue = new Queue("matching", "redis://127.0.0.1:6379");
-
-const job = await matchingQueue.add({ foo: "bar" });
-
+// Set up bull dashboard for monitoring queue
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 
@@ -31,6 +30,8 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
 // client.on("error", (err) => console.log("Redis Client Error", err));
 
 // await client.connect();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/admin/queues", serverAdapter.getRouter());
 
@@ -38,6 +39,12 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+app.post("/queue", addUserToQueue);
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+// create api route to user to the queue
+
+// create api route to check when user is done
