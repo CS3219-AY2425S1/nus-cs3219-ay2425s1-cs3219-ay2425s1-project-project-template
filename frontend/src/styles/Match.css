@@ -1,0 +1,162 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: cursive;
+}
+
+.match {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Menu Bar */
+.menu-bar {
+  background-color: white;
+  color: #2f3654;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 40px;
+}
+
+.profile-icon {
+  font-size: 30px;
+}
+
+.profile-link {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.profile-link:hover {
+  text-decoration: underline;
+}
+
+/* Main Container */
+.main-container {
+  display: flex;
+  flex: 1;
+  color: white;
+}
+
+/* Topics Container (left side) */
+.topics-container {
+  width: 50%;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  background-color: #2f3654;
+}
+
+.topics-container h2 {
+  margin-top: 0;
+}
+
+.topics-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.topics-container li {
+  padding: 10px;
+  cursor: pointer;
+  border: 3px solid #ddd;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.topics-container li:hover,
+.topics-container li.selected {
+  background-color: #dccb7a;
+  color: white;
+}
+
+/* Difficulty Container (right top) */
+.difficulty-container {
+  flex: 1;
+  padding: 20px;
+  background-color: #62262e;
+}
+
+.difficulty-container h2 {
+  margin-top: 0;
+}
+
+.difficulty-container ul {
+  list-style-type: none;
+  padding: 0;
+  text-align: center;
+}
+
+.difficulty-container li {
+  padding: 10px;
+  cursor: pointer;
+  border: 3px solid #ddd;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  width: 180px;
+  text-align: center;
+}
+
+.difficulty-container li:hover,
+.difficulty-container li.selected {
+  background-color: #dccb7a;
+  color: white;
+}
+
+.star {
+  margin-left:5px;
+}
+
+/* Match Button (right bottom) */
+.match-button-container {
+  display: flex;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.match-button {
+  background-color: #f7b32b;
+  color: white;
+  padding: 10px 20px;
+  border: 3px solid white;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 20px;
+  height: 50px;
+  width: 170px;
+}
+
+.match-button:hover {
+  background-color: #dccb7a;
+}
+
+.match-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.timer {
+  display: flex;
+  text-align: center;
+  color: black;
+}
+
+.spin {
+  margin-top: 20px;
+  margin-left: 10px;
+}
+
+/* Profile Page */
+.profile-page {
+  padding: 20px;
+  font-size: 24px;
+}
