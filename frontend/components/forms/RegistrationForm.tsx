@@ -94,9 +94,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
           value={formData.username} 
           onChange={handleUsernameOnChange} 
         />
-        {errors.username && (
-          <span className="text-red-500">Please provide a username</span>
-        )}
       </div>
 
       <div className="mb-4">
