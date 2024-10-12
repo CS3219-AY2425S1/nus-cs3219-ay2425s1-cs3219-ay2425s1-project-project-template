@@ -3,23 +3,27 @@ import logger from '../utils/logger'
 
 const sendMatchingRequest = async (data: any) => {
     try {
-        const connection: Connection = await connect('amqp://guest:guest@localhost')
+        const connection: Connection = await connect(
+            'amqp://guest:guest@localhost',
+        )
         const channel = await connection.createChannel()
-        
+
         const queue = 'matching_requests'
         await channel.assertQueue(queue, { durable: false })
 
-        channel.sendToQueue(queue, Buffer.from(data))
-        logger.info(`Sent matching request to queue: ${data}`)
+        const msg = JSON.stringify(data)
+        channel.sendToQueue(queue, Buffer.from(msg))
+        logger.info(`Sent matching request to queue: ${msg}`)
 
         setTimeout(() => {
             connection.close()
         }, 500)
     } catch (error: any) {
-        logger.error(`Error occurred while sending matching request to queue: ${error.message}`)
+        logger.error(
+            `Error occurred while sending matching request to queue: ${error.message}`,
+        )
         throw error
     }
-    
 }
 
 export { sendMatchingRequest }
