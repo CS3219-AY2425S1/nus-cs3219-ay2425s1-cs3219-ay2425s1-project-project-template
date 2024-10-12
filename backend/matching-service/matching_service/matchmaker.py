@@ -15,6 +15,7 @@ class Matchmaker:
     def __init__(self, chan: RedisSettings.Channels):
         self.channel: str = chan.value
         self.client: Redis = Redis.from_url(RedisSettings.redis_url(chan))
+        logger.info(f"{self.channel} connected to {self.client.get_connection_kwargs()}")
         self.pubsub = self.client.pubsub()
         self.stop_event = Event()
 
@@ -26,7 +27,6 @@ class Matchmaker:
                 user_data = json.loads(message["data"])
                 user_id = user_data["user"]
                 logger.info(f"💬 Received matchmaking request from User {user_id} for {self.channel}")
-
                 unmatched_key = f"{user_data["topic"]}"
                 unmatched_users = self.client.lrange(unmatched_key, 0, -1)
                 if unmatched_users:
