@@ -36,6 +36,17 @@ services:
     # volumes:
     #   - ./backend/question-service:/app
 
+  matching-app:
+    build: 
+      context: ./backend/matching-service
+      dockerfile: Dockerfile.dev
+    environment:
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
+    ports:
+      - 8002:8002
+    # volumes:
+    #   - ./backend/matching-service:/app
+
   user-app:
     build: 
       context: ./backend/user-service
