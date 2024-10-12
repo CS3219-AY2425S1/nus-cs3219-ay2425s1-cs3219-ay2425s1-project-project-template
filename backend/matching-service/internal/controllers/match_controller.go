@@ -1,179 +1,148 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
-	"sync"
+	"matching-service/internal/models"
+	"matching-service/internal/services"
+	"matching-service/internal/socket"
+	"matching-service/internal/utils"
 	"time"
 
-	"github.com/streadway/amqp"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-// MatchRequest represents the structure of the incoming message
-type MatchRequest struct {
-	UserID          string `json:"userID"`
-	Topic           string `json:"topic"`
-	ExperienceLevel string `json:"experienceLevel"`
-}
-
-// PendingMatches stores users waiting for a match, keyed by topic and experience level
-var PendingMatches = make(map[string][]string)
-var mu sync.Mutex // To ensure thread-safe access to PendingMatches
-
-// New function to attempt matching within the same level or adjacent levels
-func attemptMatchAfterTimeout(userID, topic, experienceLevel string, delivery amqp.Delivery) {
-	log.Printf("Starting 30-second timer for user %s", userID)
-	time.Sleep(30 * time.Second) // Wait for 30 seconds before attempting to match
-
-	mu.Lock()
-	defer mu.Unlock() // Ensure unlock even in case of early return
-
-	// Attempt to match users within the same level or adjacent levels
-	matchAttempted := matchFromQueue(topic, experienceLevel, userID)
-	if !matchAttempted {
-		// Check adjacent levels if no match is found at the same level
-		prevLevel, nextLevel := getAdjacentLevels(experienceLevel)
-		if prevLevel != "" && matchFromQueue(topic, prevLevel, userID) {
-			log.Printf("Matched user %s from adjacent level %s", userID, prevLevel)
-			delivery.Ack(false) // Acknowledge after successful match
-			return
-		}
-		if nextLevel != "" && matchFromQueue(topic, nextLevel, userID) {
-			log.Printf("Matched user %s from adjacent level %s", userID, nextLevel)
-			delivery.Ack(false) // Acknowledge after successful match
-			return
-		}
+// AddUserHandler handles the request to add a user and start matching
+func AddUserHandler(c *gin.Context) {
+	var matchingInfo models.MatchingInfo
+	if err := c.ShouldBindJSON(&matchingInfo); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
 	}
 
-	// No match found, log this and dequeue user
-	log.Printf("No match found for user %s after 30 seconds, dequeuing", userID)
-	dequeueUserAfterTimeout(userID, topic, experienceLevel)
-	delivery.Ack(false) // Acknowledge after processing
-}
+	matchingInfo.Status = models.Pending
+	matchingInfo.RoomID = uuid.New().String()
 
-// Updated ProcessMatchRequest to call the new function
-func ProcessMatchRequest(delivery amqp.Delivery) error {
-	log.Printf("Processing message: %s", delivery.Body)
-
-	// Unmarshal the JSON message into a MatchRequest struct
-	var matchRequest MatchRequest
-	err := json.Unmarshal(delivery.Body, &matchRequest)
+	// Insert matching info into MongoDB
+	_, err := services.InsertMatching(matchingInfo)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal message: %w", err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
 	}
 
-	userID := matchRequest.UserID
-	topic := matchRequest.Topic
-	experienceLevel := matchRequest.ExperienceLevel
-	queueKey := fmt.Sprintf("%s:%s", topic, experienceLevel)
+	go startMatchingProcess(matchingInfo)
 
-	mu.Lock()
-	// Add the user to the pending queue
-	PendingMatches[queueKey] = append(PendingMatches[queueKey], userID)
-	log.Printf("Added user %s to pending matches for topic %s at level %s", userID, topic, experienceLevel)
-	mu.Unlock()
-
-	// Call the new function as a goroutine to attempt matching after 30 seconds
-	go attemptMatchAfterTimeout(userID, topic, experienceLevel, delivery)
-
-	return nil
+	c.JSON(200, gin.H{"message": "User added", "user_id": matchingInfo.UserID})
 }
 
-// Function to match users from the queue, considering the specific userID passed
-func matchFromQueue(topic, level, userID string) bool {
-	queueKey := fmt.Sprintf("%s:%s", topic, level)
-	if users, exists := PendingMatches[queueKey]; exists {
-		// Check if the userID exists in the queue
-		for i, u := range users {
-			if u == userID {
-				// Attempt to match this user with another user in the queue
-				if len(users) > 1 {
-					// Ensure there are other users in the queue to match with
-					matchedUser := ""
-					for j, otherUser := range users {
-						if j != i { // Find another user to match
-							matchedUser = otherUser
-							break
-						}
-					}
+// matchProgrammingLanguages checks if users share at least one common programming language or if they want to generalize the language matching
+func matchProgrammingLanguages(user1Languages, user2Languages []models.ProgrammingLanguageEnum, generalize bool) bool {
+	if generalize {
+		return true // Skip language check if generalization is allowed
+	}
 
-					if matchedUser != "" {
-						// Match found, remove both users from the queue
-						PendingMatches[queueKey] = removeFromQueue(users, i)
-						PendingMatches[queueKey] = removeFromQueue(PendingMatches[queueKey], findIndex(PendingMatches[queueKey], matchedUser))
-
-						log.Printf("Matched users: %s and %s for topic %s at level %s", userID, matchedUser, topic, level)
-						notifyUsers(userID, matchedUser)
-						return true
-					}
-				}
-				// No match found for this user
-				break
+	for _, lang1 := range user1Languages {
+		for _, lang2 := range user2Languages {
+			if lang1 == lang2 {
+				return true // Match found with a common language
 			}
 		}
 	}
-	return false
+	return false // No common language
 }
 
-// Function to dequeue the user after timeout if not matched
-func dequeueUserAfterTimeout(userID, topic, experienceLevel string) {
-	queueKey := fmt.Sprintf("%s:%s", topic, experienceLevel)
+// startMatchingProcess starts the matching logic with a timeout
+func startMatchingProcess(matchingInfo models.MatchingInfo) {
+	matchChan := make(chan *models.MatchingInfo)
 
-	// Remove the user if they are still in the queue after 30 seconds
-	if users, exists := PendingMatches[queueKey]; exists {
-		for i, u := range users {
-			if u == userID {
-				// Remove the user from the queue
-				PendingMatches[queueKey] = append(users[:i], users[i+1:]...)
-				log.Printf("User %s was dequeued after 30 seconds timeout for topic %s at level %s", userID, topic, experienceLevel)
+	// Start a goroutine to attempt matching the user
+	go func() {
+		result, err := services.FindMatch(matchingInfo)
+		if err != nil || result == nil {
+			matchChan <- nil
+			return
+		}
+
+		// Only check programming languages if generalize_languages is false
+		if !matchingInfo.GeneralizeLanguages {
+			// Check if programming languages match
+			if !matchProgrammingLanguages(matchingInfo.ProgrammingLanguages, result.ProgrammingLanguages, matchingInfo.GeneralizeLanguages) {
+				// If programming languages do not match and generalization is not allowed, discard the match
+				log.Printf("No match for user_id: %d due to language mismatch", matchingInfo.UserID)
+				matchChan <- nil
 				return
 			}
 		}
-	}
-}
 
-// Dummy function to simulate notifying the matched users
-func notifyUsers(user1, user2 string) {
-	log.Printf("Notified users %s and %s that they are matched.", user1, user2)
-}
+		// If generalization is allowed or languages match, proceed with the match
+		matchChan <- result
+	}()
 
-// Function to get the adjacent experience levels
-func getAdjacentLevels(currentLevel string) (string, string) {
-	levels := []string{"beginner", "intermediate", "expert"}
-	index := -1
+	// Set up a 30-second timeout
+	select {
+	case matchedUser := <-matchChan:
+		if matchedUser != nil {
+			// A match was found, proceed with the match
+			log.Printf("Found a match for user_id: %d", matchingInfo.UserID)
 
-	// Find the index of the current experience level
-	for i, level := range levels {
-		if level == currentLevel {
-			index = i
-			break
+			// Cancel the timeout for both users
+			if timer, ok := utils.Store[matchingInfo.UserID]; ok {
+				timer.Stop() // Stop the timer for user 1
+				delete(utils.Store, matchingInfo.UserID)
+			}
+
+			if timer, ok := utils.Store[matchedUser.UserID]; ok {
+				timer.Stop() // Stop the timer for user 2
+				delete(utils.Store, matchedUser.UserID)
+			}
+
+			// Use the room_id of the first user (initiator) and set it for both users
+			roomID := matchingInfo.RoomID
+
+			// Update the status and room_id of both users in MongoDB
+			err := services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, "Matched", roomID)
+			if err != nil {
+				log.Printf("Error updating status for user_id: %d", matchingInfo.UserID)
+			}
+
+			err = services.UpdateMatchStatusAndRoomID(matchedUser.UserID, "Matched", roomID)
+			if err != nil {
+				log.Printf("Error updating status for user_id: %d", matchedUser.UserID)
+			}
+
+			// Prepare the match result
+			matchResult := models.MatchResult{
+				UserOneSocketID: matchingInfo.SocketID,
+				UserTwoSocketID: matchedUser.SocketID,
+				RoomID:          roomID, // Use the roomID generated for this match
+			}
+
+			// Publish the match result to RabbitMQ
+			err = services.PublishMatch(matchResult)
+			if err != nil {
+				log.Printf("Error publishing match result to RabbitMQ: %v", err)
+			}
+
+			// Send match result to WebSocket clients
+			socket.BroadcastMatch(socket.MatchMessage{
+				User1: matchingInfo.SocketID,
+				User2: matchedUser.SocketID,
+				State: "Matched",
+			})
+
+			log.Printf("User %d and User %d have been matched and published to RabbitMQ", matchingInfo.UserID, matchedUser.UserID)
+
+		} else {
+			// No match was found within the matchChan logic
+			log.Printf("No match found for user_id: %d within matchChan logic", matchingInfo.UserID)
+			time.Sleep(30 * time.Second) // Give the match process time to continue
+			services.MarkAsTimeout(matchingInfo)
+			log.Printf("User %d has been marked as Timeout", matchingInfo.UserID)
 		}
+	case <-time.After(30 * time.Second):
+		// Timeout after 30 seconds, no match was found
+		log.Printf("Timeout occurred for user_id: %d, no match found", matchingInfo.UserID)
+		services.MarkAsTimeout(matchingInfo)
+		log.Printf("User %d has been marked as Timeout (Timeout elapsed)", matchingInfo.UserID)
 	}
-
-	// Return empty strings if the index is out of bounds
-	prevLevel, nextLevel := "", ""
-	if index > 0 {
-		prevLevel = levels[index-1] // One level down
-	}
-	if index < len(levels)-1 {
-		nextLevel = levels[index+1] // One level up
-	}
-
-	return prevLevel, nextLevel
-}
-
-// Helper function to remove a user from the queue by index
-func removeFromQueue(users []string, index int) []string {
-	return append(users[:index], users[index+1:]...)
-}
-
-// Helper function to find the index of a user in the queue
-func findIndex(users []string, userID string) int {
-	for i, u := range users {
-		if u == userID {
-			return i
-		}
-	}
-	return -1
 }

@@ -37,7 +37,7 @@ services:
     build:
       context: ./backend/matching-service
     ports:
-      - "3002:3002" 
+      - "8000:8000" 
     environment:
       - NODE_ENV=production
       - RABBITMQ_HOST=rabbitmq
@@ -63,6 +63,7 @@ services:
     depends_on:
       - user-service
       - question-service
+      - matching-service
     networks:
       - app-network
 
