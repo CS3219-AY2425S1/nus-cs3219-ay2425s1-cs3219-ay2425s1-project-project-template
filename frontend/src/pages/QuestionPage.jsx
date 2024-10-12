@@ -15,10 +15,22 @@ const QuestionPage = () => {
   const [dialogForm, setDialogForm] = useState(null);
   const dialogRef = useRef(null);
 
+  const getHeaders = () => {
+    const token = localStorage.getItem("accessToken");
+  
+    return {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    };
+  };
+
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch("http://localhost:8080/questions");
+        const response = await fetch("http://localhost:8080/questions", {
+          method: "GET",
+          headers: getHeaders()
+        });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -48,9 +60,7 @@ const QuestionPage = () => {
     try {
       const response = await fetch("http://localhost:8080/questions", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getHeaders(),
         body: JSON.stringify(newQuestion),
       });
 
@@ -98,9 +108,7 @@ const QuestionPage = () => {
         `http://localhost:8080/questions/${updatedQuestion._id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getHeaders(),
           body: JSON.stringify(updatedQuestion),
         }
       );
@@ -142,9 +150,7 @@ const QuestionPage = () => {
         `http://localhost:8080/questions/${deletedQuestion._id}`,
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getHeaders(),
           body: JSON.stringify(deletedQuestion),
         }
       );
