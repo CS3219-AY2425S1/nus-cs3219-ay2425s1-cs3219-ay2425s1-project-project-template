@@ -30,8 +30,7 @@ class RabbitMQConnection {
             logger.info(`[Init] Created RabbitMQ Channel successfully`)
         } catch (error) {
             this.connected = false
-            logger.error(error)
-            logger.error(`[Error] Not connected to MQ Server`)
+            logger.error(`[Error] Not connected to MQ Server: ${error}`)
         }
     }
 
@@ -51,7 +50,7 @@ class RabbitMQConnection {
             await this.channel.bindQueue('entry_queue', 'Entry-Queue', 'entry')
             this.channel.publish('Entry-Queue', 'entry', Buffer.from(JSON.stringify(message)))
         } catch (error) {
-            console.error(error)
+            logger.error(`[Error] Failed to send message to Entry-Queue: ${error}`)
             throw error
         }
     }
@@ -73,7 +72,7 @@ class RabbitMQConnection {
                 { noAck: false }
             )
         } catch (error) {
-            console.error(error)
+            logger.error(`[Error] Failed to consume Entry-Queue: ${error}`)
             throw error
         }
     }
