@@ -2,18 +2,21 @@ import * as React from "react";
 
 import { IconSvgProps } from "@/types";
 import { fontLogo } from "@/config/fonts";
+import PeerprepLogo from "./peerpreplogo";
 
 export const Logo: React.FC = () => (
-  <div
-    className={`${fontLogo.variable} text-purple-700 dark:text-indigo-300`}
-    style={{
-      fontFamily: "var(--font-logo)",
-      fontSize: "48px",
-      letterSpacing: "-7px",
-      margin: 10,
-    }}
-  >
-    PeerPrep
+  <div className="flex flex-row gap-2">
+    <PeerprepLogo />
+    <div
+      className={`${fontLogo.variable} text-[#6A0CE2] dark:text-white py-3`}
+      style={{
+        fontFamily: "var(--font-logo)",
+        fontSize: "48px",
+        letterSpacing: "-7px",
+      }}
+    >
+      PeerPrep
+    </div>
   </div>
 );
 
