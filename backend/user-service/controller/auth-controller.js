@@ -156,7 +156,7 @@ export async function handleForgotPassword(req, res) {
     });
 
     // Create reset URL
-    const resetURL = `test/reset-password/${resetToken}`;
+    const resetURL = `http://localhost:3000/reset-password?token=${resetToken}`;
 
     // Email options
     const mailOptions = {
