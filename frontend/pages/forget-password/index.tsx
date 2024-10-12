@@ -9,6 +9,8 @@ import DefaultLayout from "@/layouts/default";
 const ForgetPasswordPage = () => {
   const router = useRouter();
   const { mutate: forgetPassword, isPending, isError, error } = useForgetPassword();
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
 
   const handleForgetPassword = (email: string) => {
     forgetPassword(
@@ -21,6 +23,11 @@ const ForgetPasswordPage = () => {
         },
         onError: (err) => {
           console.error("Forgot password failed:", err);
+          if (err?.response?.status === 401) {
+            setErrorMessage("Please enter a valid registered email.");
+          } else {
+            setErrorMessage("An unexpected error occurred. Please try again.");
+          }
         },
       }
     );
@@ -46,7 +53,7 @@ const ForgetPasswordPage = () => {
           {/* ForgetPasswordForm component, with the correct onSubmit handler */}
           <ForgetPasswordForm onSubmit={handleForgetPassword} />
 
-          {isError && <p className="text-red-500 mt-4">{error?.message}</p>}
+          {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
           {isPending && <p className="text-gray-400 mt-4">Sending reset email...</p>}
           <div className="mt-6 text-center">
 
