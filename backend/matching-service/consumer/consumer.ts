@@ -3,7 +3,7 @@ import logger from '../utils/logger'
 
 const completeMatchRequest = async () => {
     try {
-        const connection: Connection = await connect('amqp:localhost')
+        const connection: Connection = await connect('amqp://guest:guest@localhost')
         const channel = await connection.createChannel()
 
         const queue = 'matching_requests'
@@ -14,7 +14,7 @@ const completeMatchRequest = async () => {
         channel.consume(queue, (msg) => {
             if (msg) {
                 const data = JSON.parse(msg.content.toString())
-                logger.info(`Received matching request: ${data}`)
+                logger.info(`Received matching request: ${JSON.stringify(data, null, 2)}`)
                 performMatching(data)
             }
         }, { noAck: true })

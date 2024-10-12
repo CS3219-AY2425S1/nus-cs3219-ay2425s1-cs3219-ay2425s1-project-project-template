@@ -16,7 +16,9 @@ app.post('/match', async (req: Request, res: Response) => {
     logger.info(`User ${name} has requested for a match with difficulty ${difficulty} and categories ${categories}`)
     
     const data = { name, difficulty, categories }
-    await sendMatchingRequest(data)
+    const msgBuffer = Buffer.from(JSON.stringify(data))
+
+    await sendMatchingRequest(msgBuffer)
     res.status(200).json({ message: 'Match request sent successfully' })
 })
 

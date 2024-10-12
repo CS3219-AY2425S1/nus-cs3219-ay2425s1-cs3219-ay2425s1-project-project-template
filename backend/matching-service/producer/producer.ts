@@ -3,7 +3,7 @@ import logger from '../utils/logger'
 
 const sendMatchingRequest = async (data: any) => {
     try {
-        const connection: Connection = await connect('amqp:localhost')
+        const connection: Connection = await connect('amqp://guest:guest@localhost')
         const channel = await connection.createChannel()
         
         const queue = 'matching_requests'
