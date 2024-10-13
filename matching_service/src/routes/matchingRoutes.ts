@@ -14,11 +14,11 @@ router.post("/match", async (req, res) => {
 });
 
 router.post("/cancelMatch", async (req, res) => {
-  const { userId, matchingId } = req.body;
+  const { matchingId } = req.body;
   // TODO: Remove request from queue
-  // Possiblt remove socket connection
+  // Possibly remove socket connection
   // Possibly return a success message
-  queue.cancel({ userId, matchingId });
+  queue.cancel({ matchingId });
 });
 
 export default router;
