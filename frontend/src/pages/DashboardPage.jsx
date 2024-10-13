@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+// src/pages/DashboardPage.js
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Calendar from "../components/dashboard/Calendar"; 
 import SessionBox from "../components/dashboard/SessionBox"; 
 import ConfirmationModal from "../components/dashboard/ConfirmationModal"; 
 import withAuth from "../hoc/withAuth"; 
 import { useAuth } from "../AuthContext"; 
+import DropdownMenu from "../components/dashboard/DropdownMenu"; 
 
 const DashboardPage = () => {
   const navigate = useNavigate(); 
@@ -13,7 +15,6 @@ const DashboardPage = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const dropdownRef = useRef(null);
   const [username, setUsername] = useState(''); 
   const hasActiveSession = false; 
 
@@ -36,12 +37,6 @@ const DashboardPage = () => {
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
-  };
-
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdownVisible(false);
-    }
   };
 
   useEffect(() => {
@@ -71,13 +66,6 @@ const DashboardPage = () => {
     }
   }, [userId, accessToken]); 
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <div style={{ paddingTop: "30px", display: "flex", justifyContent: "center", position: 'relative' }}>
       <div style={{ 
@@ -87,7 +75,7 @@ const DashboardPage = () => {
           maxWidth: "600px", 
           marginRight: "20px" 
         }}>
-        {/* Welcome Message Div */}
+        {/* Welcome Message */}
         <div style={{ 
             color: '#fff', 
             marginBottom: '20px',
@@ -118,78 +106,12 @@ const DashboardPage = () => {
         />
       </div>
 
-      <div style={{ position: 'absolute', top: '30px', right: '30px' }}>
-        <div 
-          onClick={toggleDropdown}
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            backgroundColor: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-        </div>
-        
-        {dropdownVisible && (
-          <div ref={dropdownRef} style={{
-            position: 'absolute',
-            top: '50px',
-            right: '0',
-            backgroundColor: 'white',
-            borderRadius: '5px',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-            zIndex: 1000,
-            minWidth: '150px', 
-            width: '150px',
-          }}>
-            <div 
-              onClick={() => navigate('/manage-profile')}
-              style={{
-                padding: '10px 15px',
-                cursor: 'pointer',
-                borderBottom: '1px solid #ccc',
-                textAlign: 'center',
-                transition: 'color 0.3s',
-                color: 'black',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#007bff'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'black'}
-            >
-              Manage Profile
-            </div>
-            <div 
-              onClick={confirmLogout}
-              style={{
-                padding: '10px 15px',
-                cursor: 'pointer',
-                backgroundColor: 'white',
-                color: '#f44336',
-                borderBottomLeftRadius: '5px',
-                borderBottomRightRadius: '5px',
-                borderTopLeftRadius: '0',
-                borderTopRightRadius: '0',
-                textAlign: 'center',
-                transition: 'color 0.3s, background-color 0.3s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#d32f2f';
-                e.currentTarget.style.backgroundColor = '#fce4e4';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#f44336';
-                e.currentTarget.style.backgroundColor = 'white';
-              }}
-            >
-              Logout
-            </div>
-          </div>
-        )}
-      </div>
+      <DropdownMenu 
+        dropdownVisible={dropdownVisible}
+        toggleDropdown={toggleDropdown}
+        navigate={navigate}
+        confirmLogout={confirmLogout}
+      />
 
       <ConfirmationModal 
         show={showLogoutConfirm} 
