@@ -1,9 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
+
+import loading from "../assets/loading.svg";
 import "./styles/NewSessionPage.css";
 
 const NewSessionPage = () => {
   const navigate = useNavigate();
+  const [topicsArray, setTopicsArray] = useState([]);
+
+  const getHeaders = () => {
+    const token = localStorage.getItem("accessToken");
+  
+    return {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    };
+  };
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/questions", {
+          method: "GET",
+          headers: getHeaders(),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        getTopics(data);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
+  
+    fetchQuestions();
+  }, []);
+
+  const getTopics = (questions) => {
+    const topicCount = [];
+
+    questions.forEach(qn => {
+      const topicArr = qn.category;
+
+      topicArr.forEach(tp => {
+        if (topicCount[tp]) {
+            topicCount[tp]++;
+        } else {
+            topicCount[tp] = 1;
+        }
+      });
+    });
+  
+    const topics = Object.keys(topicCount).map(topic => ({
+        name: topic,
+        count: topicCount[topic]
+    }));
+
+    topics.sort((a, b) => a.name.localeCompare(b.name));
+    setTopicsArray(topics);
+  };
 
   return (
     <div className="session-container">
@@ -25,10 +81,25 @@ const NewSessionPage = () => {
                 <div className="topic-selection">
                     <p>Select a Topic:</p>
                     <div className="options">
-                      <input type="radio" id="array" name="topic" value="Array" />
-                      <label className="radio-label" htmlFor="array">Array</label>
-                      <input type="radio" id="string" name="topic" value="String" />
-                      <label className="radio-label" htmlFor="string">String</label>
+                      {
+                        topicsArray.length === 0 ? (
+                          <img src={loading} alt="Loading..." />
+                        ) : (
+                          topicsArray.map((topic) => (
+                            <React.Fragment key={topic.name}>
+                              <input
+                                type="radio"
+                                id={topic.name}
+                                name="topic"
+                                value={topic.name}
+                              />
+                              <label className="radio-label" htmlFor={topic.name}>
+                                {`${topic.name} (${topic.count})`}
+                              </label>
+                            </React.Fragment>
+                          ))
+                        )
+                      }
                     </div>
                 </div>
                 <button className="start-btn">Start Matching</button>

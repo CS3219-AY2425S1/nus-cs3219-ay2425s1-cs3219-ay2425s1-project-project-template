@@ -80,3 +80,8 @@
     font-weight: bold;
     font-size: 1.25rem;
 }
+
+.options img {
+    height: 4rem;
+    margin: auto;
+}
