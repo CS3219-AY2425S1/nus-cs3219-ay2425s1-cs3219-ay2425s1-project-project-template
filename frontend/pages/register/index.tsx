@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Button } from "@nextui-org/button";
 
 import RegistrationForm from "@/components/forms/RegistrationForm";
-import { useRegister } from "@/hooks/auth";
+import { useRegister } from "@/hooks/api/auth";
 import DefaultLayout from "@/layouts/default";
 
 const RegisterPage = () => {
@@ -15,7 +15,7 @@ const RegisterPage = () => {
   const handleRegister = (
     username: string,
     email: string,
-    password: string
+    password: string,
   ) => {
     register(
       { username, email, password },
@@ -27,7 +27,7 @@ const RegisterPage = () => {
           console.error("Registration failed:", err);
           setErrorMessage("An unexpected error occurred. Please try again.");
         },
-      }
+      },
     );
   };
   const handleLogin = () => {

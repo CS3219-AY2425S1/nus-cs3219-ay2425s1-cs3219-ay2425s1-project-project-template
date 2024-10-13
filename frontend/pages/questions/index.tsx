@@ -1,8 +1,6 @@
-"use client";
-
 import { useState } from "react";
 
-import { useQuestions } from "@/hooks/questions";
+import { useQuestions } from "@/hooks/api/questions";
 import QuestionTable from "@/components/questions/QuestionTable";
 import DefaultLayout from "@/layouts/default";
 

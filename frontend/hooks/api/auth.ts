@@ -1,5 +1,4 @@
-// src/services/authService.ts
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { jwtDecode } from "jwt-decode";
 
@@ -22,13 +21,11 @@ const login = async (credentials: Credentials): Promise<LoginResponse> => {
 export const useLogin = () => {
   return useMutation<LoginResponse, AxiosError, Credentials>({
     mutationFn: login,
-    onSuccess: (data) => {
-      // Store the accessToken in localStorage
-      console.log("Login successful!", data);
+    onSuccess: () => {
+      console.log("Login successful!");
     },
-    onError: (error) => {
-      console.error("Login failed", error);
-      throw error.message || "Login failed!";
+    onError: () => {
+      console.error("Login failed!");
     },
   });
 };
@@ -46,14 +43,11 @@ const register = async (
 export const useRegister = () => {
   return useMutation<RegisterResponse, AxiosError, RegisterCredentials>({
     mutationFn: register,
-    onSuccess: (data) => {
-      // Store the accessToken in localStorage
-      localStorage.setItem("accessToken", data.accessToken);
-      console.log("Registration successful!", data);
+    onSuccess: () => {
+      console.log("Registration successful!");
     },
-    onError: (error) => {
-      console.error("Registration failed", error);
-      throw error.message || "Registration failed!";
+    onError: () => {
+      console.error("Registration failed!");
     },
   });
 };
@@ -146,4 +140,18 @@ export const useResetPassword = () => {
       throw error.message || "Failed to reset password!";
     },
   });
+};
+
+const verifyToken = async () => {
+  const response = await axios.get(`/user-service/auth/verify-token`);
+
+  return response.data.data;
+};
+
+export const useVerifyToken = () => {
+  return useQuery<void, AxiosError>({
+    queryKey: ["verifyToken"],
+    queryFn: () => verifyToken(),
+  })
+  
 };

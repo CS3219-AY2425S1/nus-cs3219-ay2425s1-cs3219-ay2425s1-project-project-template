@@ -80,9 +80,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8">
+    <form className="mt-8" onSubmit={handleSubmit}>
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center text-white">Register</h2>
+        <h2 className="text-2xl font-semibold text-center text-white">
+          Register
+        </h2>
       </div>
       <div className="mb-4">
         <label htmlFor="username">Username</label>
