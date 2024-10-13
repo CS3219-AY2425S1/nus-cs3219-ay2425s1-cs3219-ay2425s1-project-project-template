@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-# from routers import questions
 from routers import match
 
 app = FastAPI(title="Matching Service API")

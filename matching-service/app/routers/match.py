@@ -1,6 +1,4 @@
-from fastapi import APIRouter, HTTPException
-# from models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
-from typing import List
+from fastapi import APIRouter
 
 router = APIRouter()
 
