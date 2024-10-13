@@ -18,6 +18,7 @@ export default function ConfirmDialog({ dialogData, className, closeHandler, con
                 title={dialogData.title || 'Warning!'}
                 className={`h-2/5 z-[2000] ${className || ''}`}
                 closeHandler={closeHandler}
+                showCloseButton={true}
                 showActionPanel={true}
                 confirmHandler={confirmHandler}
             >

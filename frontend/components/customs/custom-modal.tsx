@@ -6,6 +6,7 @@ interface CustomModalProps {
     closeHandler?: () => void
     className?: string
     children?: React.ReactNode
+    showCloseButton?: boolean
     showActionPanel?: boolean
     confirmHandler?: () => void
 }
@@ -15,6 +16,7 @@ export default function CustomModal({
     closeHandler,
     className,
     children,
+    showCloseButton,
     showActionPanel,
     confirmHandler,
 }: CustomModalProps) {
@@ -22,12 +24,16 @@ export default function CustomModal({
         <div className="fixed top-0 left-0 w-full h-screen max-h-screen bg-gray-400/50 flex items-center justify-center z-[999]">
             <div className={`h-2/3 w-2/3 bg-white p-10 overflow-y-auto flex flex-col justify-between ${className}`}>
                 <div>
-                    <div className="flex justify-between items-center border-b-[1px] border-gray-200 pb-4 mb-6">
-                        {title && <h2 className="text-xl font-bold">{title}</h2>}
-                        <Button variant="iconNoBorder" size="icon" onClick={closeHandler}>
-                            <CloseIcon />
-                        </Button>
-                    </div>
+                    {(title || showCloseButton) && (
+                        <div className="flex justify-between items-center border-b-[1px] border-gray-200 pb-4 mb-6">
+                            {title && <h2 className="text-xl font-bold">{title}</h2>}
+                            {showCloseButton && (
+                                <Button variant="iconNoBorder" size="icon" onClick={closeHandler}>
+                                    <CloseIcon />
+                                </Button>
+                            )}
+                        </div>
+                    )}
                     {children}
                 </div>
                 {showActionPanel && (
