@@ -22,10 +22,17 @@ const matchSchema = new Schema({
         required: true,
         unique: true,
     },
+    complexity: {
+        type: Number,
+        required: true, // Assuming complexity is a numerical value
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
 })
+
+// Create a compound index for 'complexity' and 'createdAt'
+matchSchema.index({ complexity: 1, createdAt: -1 }) // 1 for ascending, -1 for descending order
 
 export default matchSchema
