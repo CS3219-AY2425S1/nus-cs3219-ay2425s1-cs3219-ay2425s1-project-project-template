@@ -2,6 +2,7 @@ import json
 import time
 from threading import Event, Thread
 
+from pydantic import ValidationError
 from redis import Redis
 from structlog import get_logger
 
@@ -13,7 +14,7 @@ logger = get_logger()
 
 class Matchmaker:
     def __init__(self):
-        self.channel = RedisSettings.Channels.MATCHES
+        self.channel = RedisSettings.Channels.REQUESTS
         self.client: Redis = Redis.from_url(RedisSettings.redis_url(self.channel))
 
         self.pubsub = self.client.pubsub()
@@ -28,7 +29,13 @@ class Matchmaker:
             if message and message["type"] == "message":
                 logger.info("MATCHMAKER: Received match request")
                 user_data = json.loads(message["data"])
-                req = MatchRequest(**user_data)
+
+                try:
+                    req = MatchRequest(**user_data)
+                except ValidationError as e:
+                    logger.warn(f"\tUnrecognised request format discarded: {e}")
+                    continue
+
                 logger.info(f"\t💬 Received matchmaking request from User {req.user} for {req.get_key()}")
 
                 unmatched_key = req.get_key()
@@ -50,7 +57,7 @@ class Matchmaker:
 
 
 def request_match(publisher: Redis, user: MatchRequest):
-    channel = RedisSettings.Channels.MATCHES.value
+    channel = RedisSettings.Channels.REQUESTS.value
     message = json.dumps({"user": user.user, "difficulty": user.difficulty.value, "topic": user.topic})
     publisher.publish(channel, message)
     logger.info(f"CLIENT: User {user.user} requested match for {user.topic}, {user.difficulty}")
