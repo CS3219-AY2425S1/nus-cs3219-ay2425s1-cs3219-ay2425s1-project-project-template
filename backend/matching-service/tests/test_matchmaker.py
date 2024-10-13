@@ -38,21 +38,21 @@ def matchmaker_thread(redis_container: Redis):
 
 def test_single_user_leaves_user_in_queue(redis_container: Redis, matchmaker_thread: Thread):
     """Test that a single user request remains in the queue."""
+    redis_container.flushall()
     match_req = MatchRequest(user="user1", difficulty="Easy", topic="test")
-    initial = len(redis_container.lrange(match_req.get_key(), 0, -1))  # test fails without this idk why
     request_match(redis_container, match_req)
 
     time.sleep(1)
 
     result = redis_container.lrange(match_req.get_key(), 0, -1)
-    assert len(result) == initial + 1
+    assert len(result) == 1
 
 
 def test_match_removes_users(redis_container: Redis, matchmaker_thread: Thread):
     """Test that a single user request remains in the queue."""
+    redis_container.flushall()
     match_req1 = MatchRequest(user="user1", difficulty="Easy", topic="test")
     match_req2 = MatchRequest(user="user2", difficulty="Easy", topic="test")
-    redis_container.delete(match_req1.get_key())  # clear db
 
     request_match(redis_container, match_req1)
     request_match(redis_container, match_req2)
@@ -64,10 +64,9 @@ def test_match_removes_users(redis_container: Redis, matchmaker_thread: Thread):
 
 
 def test_users_with_different_topic_does_not_match(redis_container: Redis, matchmaker_thread: Thread):
+    redis_container.flushall()
     match_req1 = MatchRequest(user="user1", difficulty="Easy", topic="dp")
     match_req2 = MatchRequest(user="user2", difficulty="Easy", topic="linked-list")
-    redis_container.delete(match_req1.get_key())  # clear db
-    redis_container.delete(match_req2.get_key())  # clear db
 
     request_match(redis_container, match_req1)
     request_match(redis_container, match_req2)

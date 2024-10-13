@@ -1,6 +1,6 @@
 import json
 import time
-from threading import Event, Thread
+from threading import Event
 
 from pydantic import ValidationError
 from redis import Redis
@@ -58,13 +58,11 @@ class Matchmaker:
 
 def request_match(publisher: Redis, user: MatchRequest):
     channel = RedisSettings.Channels.REQUESTS.value
-    message = json.dumps({"user": user.user, "difficulty": user.difficulty.value, "topic": user.topic})
-    publisher.publish(channel, message)
+    publisher.publish(channel, user.model_dump_json())
     logger.info(f"CLIENT: User {user.user} requested match for {user.topic}, {user.difficulty}")
 
 
 if __name__ == "__main__":
     logger.info("🤖 Matchmaker started!")
     matchmaker = Matchmaker()
-    thread = Thread(target=matchmaker.run)
-    thread.start()
+    matchmaker.run()
