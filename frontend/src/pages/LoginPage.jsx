@@ -43,8 +43,8 @@ const Login = () => {
     
     if (data && data.data && data.data.accessToken && data.data.id) {
       const userId = data.data.id;
-      const username = data.data.username; // Extract username
-      const userEmail = data.data.email; // Extract email
+      const username = data.data.username; 
+      const userEmail = data.data.email; 
 
       login(data.data.accessToken, userId, username, userEmail); 
       navigate('/dashboard'); 
