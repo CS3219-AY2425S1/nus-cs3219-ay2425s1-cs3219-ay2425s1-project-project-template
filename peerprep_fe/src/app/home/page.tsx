@@ -42,6 +42,12 @@ export default function Home() {
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10 overscroll-contain">
       <Header>
         <Button
+          text="Match"
+          onClick={() => {
+            router.push("/match");
+          }}
+        />
+        <Button
           text="Logout"
           onClick={() => {
             deleteToken();

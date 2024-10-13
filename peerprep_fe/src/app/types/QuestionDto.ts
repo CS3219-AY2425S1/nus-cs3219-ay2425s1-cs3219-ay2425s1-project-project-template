@@ -17,3 +17,10 @@ export interface QuestionDto {
   }[];
   constraints: string[];
 }
+
+export interface MatchFormQuestionDto {
+  _id: string;
+  difficultyLevel: DifficultyLevel;
+  topic: string[];
+}
+

@@ -36,17 +36,23 @@ export default function Button({
     text
   );
 
+  // Define button classes conditionally based on the button type
+  const buttonClasses =
+    type === "reset"
+      ? "bg-red-500 hover:bg-red-700 text-white font-bold px-3 py-3 my-3 w-full rounded-lg flex justify-center items-center focus:outline-none"
+      : "bg-indigo-500 hover:bg-indigo-700 text-white font-bold px-3 py-3 my-3 w-full rounded-lg flex justify-center items-center focus:outline-none";
+
   const button = (
     <button
       type={type}
-      className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold px-3 py-3 my-3 w-full rounded-lg flex justify-center items-center focus:outline-none"
+      className={buttonClasses}
       onClick={onClick}
     >
       {buttonContent}
     </button>
   );
 
-  if (link != "") {
+  if (link !== "") {
     return <Link href={link}>{button}</Link>;
   }
   return button;
