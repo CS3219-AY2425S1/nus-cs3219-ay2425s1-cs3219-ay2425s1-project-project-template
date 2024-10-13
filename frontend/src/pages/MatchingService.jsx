@@ -49,7 +49,7 @@ export default function MatchingService() {
               </div>
             </div>
             <button className="mt-3 float-right bg-[#bcfe4d] text-black px-6 py-2 rounded-full font-bold hover:bg-[#a6e636] transition-colors">
-                START
+                START MATCHING
             </button>
           </main>
         </div>
