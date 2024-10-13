@@ -3,9 +3,9 @@ import { useAuth } from "../AuthContext";
 import axios from "axios";
 
 const ManageProfilePage = () => {
-  const { user } = useAuth(); 
-  const [username, setUsername] = useState(user.username || "");
-  const [email, setEmail] = useState(user.email || "");
+  const { userId, accessToken } = useAuth(); 
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +13,11 @@ const ManageProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`/api/users/${user._id}`); 
+        const response = await axios.get(`/api/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}` 
+          }
+        });
         setUsername(response.data.username);
         setEmail(response.data.email);
       } catch (err) {
@@ -23,8 +27,10 @@ const ManageProfilePage = () => {
       }
     };
 
-    fetchUserData();
-  }, [user]);
+    if (userId) { 
+      fetchUserData();
+    }
+  }, [userId, accessToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +41,11 @@ const ManageProfilePage = () => {
     };
 
     try {
-      await axios.put(`/api/users/${user._id}`, updatedUser); 
+      await axios.put(`/api/users/${userId}`, updatedUser, {
+        headers: {
+          Authorization: `Bearer ${accessToken}` 
+        }
+      });
       alert("Profile updated successfully!");
     } catch (err) {
       setError("Failed to update profile.");
