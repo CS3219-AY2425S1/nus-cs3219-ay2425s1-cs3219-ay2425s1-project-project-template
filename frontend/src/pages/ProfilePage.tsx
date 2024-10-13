@@ -7,7 +7,7 @@ import EditEmailModal from '../components/ProfileModals/EditEmailModal.tsx';
 import EditPasswordModal from '../components/ProfileModals/EditPasswordModal.tsx';
 import EditProfilePictureModal from '../components/ProfileModals/EditProfilePictureModal.tsx';
 import useFetchProfilePicture from '../hooks/useFetchProfilePicture.tsx';
-import { EditIcon } from '../components/ProfileModals/EditIcon.tsx';
+import { EditIcon } from '../components/EditIcon.tsx';
 
 const ProfilePage: React.FC = () => {
     const [user, setUser] = useState<User | undefined>(undefined);

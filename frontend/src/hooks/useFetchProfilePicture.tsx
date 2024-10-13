@@ -18,7 +18,6 @@ const useFetchProfilePicture = async (userId: string, setImageData: Dispatch<Set
         throw new Error('Failed to fetch image');
         }
 
-        console.log(response);
         const result = await response.json();
         const url : string = result.imageUrl;
         setImageData(url);

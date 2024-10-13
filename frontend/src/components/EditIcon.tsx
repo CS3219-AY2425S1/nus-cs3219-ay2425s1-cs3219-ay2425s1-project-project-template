@@ -1,4 +1,4 @@
-import editicon from "../../images/editicon.png";
+import editicon from "../images/editicon.png";
 interface EditIconProps {
     openModal: () => void;
 }

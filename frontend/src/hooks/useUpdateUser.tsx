@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { User } from '../types/User';
 import { UserResponse } from '../types/UserResponse';
 import apiConfig from '../config/config';
@@ -14,7 +14,7 @@ const useUpdateUser = (userId: string, key: string) => {
         headers: {
           'Content-Type': 'application/json',
           // Authorization: `Bearer ${localStorage.getItem("token")}`,
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDEwNDZhNWUwZGFhODQzNmEyMjRlNSIsImlhdCI6MTcyODc5MDAxMSwiZXhwIjoxNzI4ODc2NDExfQ.NZWc0oAtk540XI4nIjytHto4oDceitRYiuE_GZnAcZg`
+          Authorization: `Bearer ${apiConfig.token}`
         },
         body: JSON.stringify({ [key]: value }),
       });

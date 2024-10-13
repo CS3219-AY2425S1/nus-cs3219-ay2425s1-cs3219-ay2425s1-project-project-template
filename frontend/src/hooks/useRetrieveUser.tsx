@@ -13,7 +13,7 @@ const useRetrieveUser = (
                 headers: {
                     "Access-Control-Allow-Origin": `${apiConfig.userServiceBaseUrl}`,
                     // Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDEwNDZhNWUwZGFhODQzNmEyMjRlNSIsImlhdCI6MTcyODc5MDAxMSwiZXhwIjoxNzI4ODc2NDExfQ.NZWc0oAtk540XI4nIjytHto4oDceitRYiuE_GZnAcZg`
+                    Authorization: `Bearer ${apiConfig.token}`
                 },
             });
             const result: UserResponse = await response.json();
