@@ -1,24 +1,24 @@
-import express from "express";
 import { Queue, IQueue } from "../services/queue";
 
-const router = express.Router();
 const queue: IQueue = new Queue();
 
-router.post("/match", async (req, res) => {
-  const { userId, topic, difficulty } = req.body;
-  // TODO: Add request into queue
-  // Possibly return a matching id
-  // Possibly set up socket connection so that we can update the user when a match is found
-  queue.add({ userId, topic, difficulty });
-  res.json({ success: true });
-});
+enum MatchingEvent {
+  REQUEST_MATCH = "requestMatch",
+  CANCEL_MATCH_REQUEST = "cancelMatchRequest",
+}
 
-router.post("/cancelMatch", async (req, res) => {
-  const { matchingId } = req.body;
-  // TODO: Remove request from queue
-  // Possibly remove socket connection
-  // Possibly return a success message
-  queue.cancel({ matchingId });
-});
-
-export default router;
+export function evaluate(event: MatchingEvent, message: any): any {
+  switch (event) {
+    case MatchingEvent.REQUEST_MATCH:
+      return queue.add({
+        id: message.connectionId,
+        userId: message.username,
+        topic: message.topic,
+        difficulty: message.difficulty,
+      });
+    case MatchingEvent.CANCEL_MATCH_REQUEST:
+      return queue.cancel(message.connectionId);
+    default:
+      return { error: "Invalid event" };
+  }
+}

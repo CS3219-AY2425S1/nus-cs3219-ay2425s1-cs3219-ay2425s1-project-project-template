@@ -1,8 +1,7 @@
-import jwt, { JwtPayload, Secret, SignOptions } from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { ExtendedError, Socket } from "socket.io";
-import { error } from "console";
 
 dotenv.config();
 

@@ -5,27 +5,22 @@ import processMessage, {
   ConsumerFactory,
   KafkaRequest,
 } from "./kafka";
-import { uuidv4 } from "uuid";
 
 dotenv.config();
 
-export interface IMatchRequest {
+export interface IMatchRequest extends KafkaRequest {
+  id: string;
   userId: string;
   topic: string;
   difficulty: string;
 }
 
 export interface IMatchCancelRequest {
-  matchingId: string;
-}
-
-export interface IMatchKafkaRequest extends IMatchRequest, KafkaRequest {
-  matchingId: string;
+  id: string;
 }
 
 export interface IMatchResponse {
   success: boolean;
-  matchingId: string;
 }
 
 export interface IMatchCancelResponse {
@@ -75,17 +70,10 @@ export class Queue implements IQueue {
 
   public async add(request: IMatchRequest): Promise<IMatchResponse> {
     // add to queue, then return success message
-    const kafkaRequest: IMatchKafkaRequest = {
-      ...request,
-      timestamp: Date.now(),
-      matchingId: uuidv4(),
-    };
-
-    this.producer.sendBatch([kafkaRequest]);
+    this.producer.sendBatch([request]);
 
     return {
       success: true,
-      matchingId: kafkaRequest.matchingId,
     };
   }
 
@@ -93,13 +81,13 @@ export class Queue implements IQueue {
     request: IMatchCancelRequest
   ): Promise<IMatchCancelResponse> {
     // remove from queue, then return success message
-    const offset = this.offsetMap.get(request.matchingId);
+    const offset = this.offsetMap.get(request.id);
     var success = false;
 
     if (offset != undefined) {
       success = true;
       this.consumer.commit(offset);
-      this.offsetMap.delete(request.matchingId);
+      this.offsetMap.delete(request.id);
     }
 
     return {
@@ -107,7 +95,7 @@ export class Queue implements IQueue {
     };
   }
 
-  public async getRequests(): Promise<IMatchKafkaRequest[]> {
+  public async getRequests(): Promise<IMatchRequest[]> {
     // return all requests in the queue
     return [];
   }
