@@ -176,6 +176,7 @@ async function match() {
   }
 }
 
+logger.info('Process Healthy');
 (function loop() {
   if (stopSignal) {
     return;
