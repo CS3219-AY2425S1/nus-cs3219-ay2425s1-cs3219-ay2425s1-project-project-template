@@ -12,6 +12,14 @@ from matching_service.config import RedisSettings
 logger = get_logger()
 
 
+"""
+TODO
+- Use Redis `SortedSet` instead of `List`
+- Write to `MATCHES` channel instead of just logging results
+- Run process in background that removes stale matches
+"""
+
+
 class Matchmaker:
     def __init__(self):
         self.channel = RedisSettings.Channels.REQUESTS
