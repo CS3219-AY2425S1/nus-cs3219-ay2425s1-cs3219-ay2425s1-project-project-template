@@ -1,71 +1,174 @@
-import { EventEmitter } from 'events';
-import { MatchRequest, UserMatch } from '../utils/types';
-import { config } from '../utils/config';
-import logger from '../utils/logger';
+import { EventEmitter } from "events";
+import { MatchRequest, UserMatch, QueuedUser } from "../utils/types";
+import { config } from "../utils/config";
+import logger from "../utils/logger";
+import Deque from "denque";
+import { Mutex } from "../utils/mutex";
 
 export class MatchController extends EventEmitter {
-    private waitingUsers: Map<string, MatchRequest>;
-    private matchTimeouts: Map<string, NodeJS.Timeout>;
+  private waitingUsers: Map<string, Deque<QueuedUser>>;
+  private matchTimeouts: Map<string, NodeJS.Timeout>;
+  private queueMutexes: Map<string, Mutex>;
 
-    constructor() {
-        super();
-        this.waitingUsers = new Map();
-        this.matchTimeouts = new Map();
-    }
+  constructor() {
+    super();
+    this.waitingUsers = new Map([
+      ["EASY", new Deque<QueuedUser>()],
+      ["MEDIUM", new Deque<QueuedUser>()],
+      ["HARD", new Deque<QueuedUser>()],
+    ]);
+    this.matchTimeouts = new Map();
+    this.queueMutexes = new Map([
+      ["EASY", new Mutex()],
+      ["MEDIUM", new Mutex()],
+      ["HARD", new Mutex()],
+    ]);
+  }
 
-    addToMatchingPool(userId: string, request: MatchRequest): void {
-        this.waitingUsers.set(userId, request);
-        
+  async addToMatchingPool(
+    userId: string,
+    request: MatchRequest
+  ): Promise<void> {
+    const { difficultyLevel } = request;
+    const mutex = this.queueMutexes.get(difficultyLevel);
+
+    if (mutex) {
+      const release = await mutex.acquire();
+
+      try {
+        // Add user to the appropriate difficulty queue
+        const queue = this.waitingUsers.get(difficultyLevel);
+        const queuedUser: QueuedUser = { ...request, userId }; // Include userId in the request
+
+        queue?.push(queuedUser);
+        logger.info(
+          `User ${userId} added to ${difficultyLevel} queue. Queue size: ${queue?.size()}`
+        );
+
         const timeout = setTimeout(() => {
-            this.removeFromMatchingPool(userId);
-            this.emit('match-timeout', userId);
-            logger.info(`Match timeout for user ${userId}`);
+          this.removeFromMatchingPool(userId, request);
+          this.emit("match-timeout", userId);
+          logger.info(`Match timeout for user ${userId}`);
         }, config.matchTimeout);
-        
-        this.matchTimeouts.set(userId, timeout);
-        
-        this.tryMatch(userId);
-    }
 
-    removeFromMatchingPool(userId: string): void {
-        this.waitingUsers.delete(userId);
+        this.matchTimeouts.set(userId, timeout);
+
+        this.tryMatch(userId, request);
+      } catch (error) {
+        logger.error(`Error in addToMatchingPool: ${error}`);
+      } finally {
+        release(); // Release the lock
+      }
+    }
+  }
+
+  async removeFromMatchingPool(
+    userId: string,
+    request: MatchRequest
+  ): Promise<void> {
+    const { difficultyLevel } = request;
+    const mutex = this.queueMutexes.get(difficultyLevel);
+
+    if (mutex) {
+      const release = await mutex.acquire();
+
+      try {
+        const queue = this.waitingUsers.get(difficultyLevel);
+        if (queue) {
+          const updatedQueue = new Deque(
+            queue.toArray().filter((user) => user.userId !== userId)
+          );
+          this.waitingUsers.set(difficultyLevel, updatedQueue);
+          logger.info(
+            `User ${userId} removed from ${difficultyLevel} queue. Queue size: ${updatedQueue.size()}`
+          );
+        }
+
         const timeout = this.matchTimeouts.get(userId);
         if (timeout) {
-            clearTimeout(timeout);
-            this.matchTimeouts.delete(userId);
+          clearTimeout(timeout);
+          this.matchTimeouts.delete(userId);
         }
+      } catch (error) {
+        logger.error(`Error in removeFromMatchingPool: ${error}`);
+      } finally {
+        release();
+      }
     }
+  }
 
-    private tryMatch(userId: string): void {
-        const userRequest = this.waitingUsers.get(userId);
-        if (!userRequest) return;
+  private async tryMatch(userId: string, request: MatchRequest): Promise<void> {
+    const { difficultyLevel, category } = request;
+    const mutex = this.queueMutexes.get(difficultyLevel);
 
-        for (const [potentialMatchId, potentialMatchRequest] of this.waitingUsers.entries()) {
-            if (potentialMatchId !== userId && 
-                this.isCompatibleMatch(userRequest, potentialMatchRequest)) {
-                
-                const match: UserMatch = {
-                    difficultyLevel: userRequest.difficultyLevel,
-                    category: userRequest.category
-                };
+    if (mutex) {
+      const release = await mutex.acquire();
 
-                this.removeFromMatchingPool(userId);
-                this.removeFromMatchingPool(potentialMatchId);
+      try {
+        const queue = this.waitingUsers.get(difficultyLevel);
 
-                this.emit('match-success', {
-                    user1Id: userId,
-                    user2Id: potentialMatchId,
-                    match
-                });
-                
-                logger.info(`Match found between ${userId} and ${potentialMatchId}`, { match });
-                return;
-            }
+        if (!queue || queue.isEmpty()) {
+          logger.info(
+            `Queue is empty or no match for ${userId} in ${difficultyLevel} queue`
+          );
+          return;
         }
-    }
 
-    private isCompatibleMatch(request1: MatchRequest, request2: MatchRequest): boolean {
-        return request1.difficultyLevel === request2.difficultyLevel &&
-               request1.category === request2.category;
+        logger.info(
+          `Attempting match for user ${userId} in ${difficultyLevel} queue with queue size: ${queue.size()}`
+        );
+
+        for (let i = 0; i < queue.size(); i++) {
+          const potentialMatch = queue.peekAt(i); // Peek at user
+
+          if (!potentialMatch) continue;
+
+          const { userId: potentialMatchId } = potentialMatch;
+
+          if (potentialMatchId === userId) continue;
+
+          if (this.isCompatibleMatch(request, potentialMatch)) {
+            const match: UserMatch = {
+              difficultyLevel,
+              category: category || potentialMatch.category || null,
+            };
+
+            this.removeFromMatchingPool(userId, request);
+            this.removeFromMatchingPool(potentialMatchId, potentialMatch);
+
+            this.emit("match-success", {
+              user1Id: userId,
+              user2Id: potentialMatch.userId,
+              match,
+            });
+
+            logger.info(
+              `Match success: User ${userId} matched with ${potentialMatchId} in ${difficultyLevel} queue`
+            );
+
+            return;
+          }
+          logger.info(
+            `No match found for user ${userId} in ${difficultyLevel} queue`
+          );
+        }
+      } catch (error) {
+        logger.error(`Error in tryMatch: ${error}`);
+      } finally {
+        release();
+      }
     }
+  }
+
+  private isCompatibleMatch(
+    request1: MatchRequest,
+    request2: MatchRequest
+  ): boolean {
+    // Match if categories are the same or if either user has no category
+    return (
+      request1.category === request2.category ||
+      !request1.category ||
+      !request2.category
+    );
+  }
 }
