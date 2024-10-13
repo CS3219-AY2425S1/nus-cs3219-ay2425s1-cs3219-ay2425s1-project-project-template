@@ -16,7 +16,7 @@ async function initRabbitMQ() {
   channel = await connection.createChannel();
 
   // Declare queues
-  await channel.assertQueue('search_queue');
+  await channel.assertQueue('search_queue')
   await channel.assertQueue('match_found_queue'); 
   await channel.assertQueue('disconnect_queue'); 
 
@@ -79,36 +79,6 @@ function handleDisconnection(userId) {
     console.log(`User ID: ${userId} has been removed from active searches.`);
   }
 }
-
-app.post('/search', (req, res) => {
-  const { userId, difficulty, topics } = req.body;
-
-  if (!userId || !difficulty || !Array.isArray(topics)) {
-    return res.status(400).json({ error: 'Invalid request body. Please provide userId, difficulty, and topics.' });
-  }
-
-  const searchRequest = { userId, difficulty, topics };
-  
-  channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
-
-  res.status(202).json({ message: 'Search request has been accepted.', userId });
-});
-
-app.delete('/search/:userId', (req, res) => {
-  const { userId } = req.params;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'Invalid request. Please provide a userId.' });
-  }
-
-  if (activeSearches[userId]) {
-    delete activeSearches[userId];
-    console.log(`User ID: ${userId} has been removed from active searches.`);
-    return res.status(200).json({ message: `User ID: ${userId} has been removed from active searches.` });
-  } else {
-    return res.status(404).json({ error: `User ID: ${userId} not found in active searches.` });
-  }
-});
 
 initRabbitMQ();
 
