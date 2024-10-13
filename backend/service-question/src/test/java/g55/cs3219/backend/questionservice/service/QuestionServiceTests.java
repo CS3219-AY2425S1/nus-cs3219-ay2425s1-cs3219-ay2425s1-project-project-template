@@ -196,9 +196,12 @@ class QuestionServiceTests {
 
     @Test
     void updateQuestion_QuestionDoesNotExist_ThrowsQuestionNotFoundException() {
-        when(questionRepository.findById(3)).thenReturn(Optional.empty());
+        when(questionRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThrows(QuestionNotFoundException.class, () -> questionService.updateQuestion(3, new QuestionDto()));
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setTitle("Updated Title");
+
+        assertThrows(QuestionNotFoundException.class, () -> questionService.updateQuestion(99, updateDto));
     }
 
     @Test
