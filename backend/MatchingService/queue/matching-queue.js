@@ -4,7 +4,7 @@ import Queue from "bull";
 const matchingQueue = new Queue("matching", "redis://127.0.0.1:6379");
 
 // Process the queue
-matchingQueue.process(async (job) => {
+matchingQueue.process(2, async (job) => {
   console.log("Processing job:", job.data);
 
   // Simulate a processing delay (for testing purposes)
