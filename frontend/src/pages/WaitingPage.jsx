@@ -81,7 +81,16 @@ const WaitingPage = () => {
           <p style={messageStyle}>Searching for a match... <span className="spinner"></span></p>
           {/* Conditionally show the timer below the message */}
           {!timeoutReached && (
-            <p style={timerStyle}>Time Elapsed: {seconds} seconds</p>
+            <>
+              <p style={timerStyle}>Time Elapsed: {seconds} seconds</p>
+              {/* Cancel Button */}
+              <button
+                onClick={handleGoHome}
+                style={buttonStyle}
+              >
+                Cancel
+              </button>
+            </>
           )}
         </>
       ) : (
