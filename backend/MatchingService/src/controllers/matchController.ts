@@ -9,6 +9,7 @@ export class MatchController extends EventEmitter {
   private waitingUsers: Map<string, Deque<QueuedUser>>;
   private matchTimeouts: Map<string, NodeJS.Timeout>;
   private queueMutexes: Map<string, Mutex>;
+  private connectedUsers: Map<string, string>; // userId: socketId
 
   constructor() {
     super();
@@ -23,6 +24,26 @@ export class MatchController extends EventEmitter {
       ["MEDIUM", new Mutex()],
       ["HARD", new Mutex()],
     ]);
+    this.connectedUsers = new Map();
+  }
+  
+  isUserConnected(userId: string): boolean {
+    return this.connectedUsers.has(userId);
+  }
+
+  addConnection(userId: string, socketId: string): boolean {
+    if (this.connectedUsers.has(userId)) {
+      logger.warn(`User ${userId} already has an active connection`);
+      return false;
+    }
+    this.connectedUsers.set(userId, socketId);
+    logger.info(`User ${userId} connected. Total connections: ${this.connectedUsers.size}`);
+    return true;
+  }
+
+  removeConnection(userId: string): void {
+    this.connectedUsers.delete(userId);
+    logger.info(`User ${userId} disconnected. Total connections: ${this.connectedUsers.size}`);
   }
 
   async addToMatchingPool(
@@ -47,7 +68,8 @@ export class MatchController extends EventEmitter {
 
         const timeout = setTimeout(() => {
           this.removeFromMatchingPool(userId, request);
-          this.emit("match-timeout", userId);
+          this.emit("match-timeout", this.connectedUsers.get(userId));
+          this.removeConnection(userId);
           logger.info(`Match timeout for user ${userId}`);
         }, config.matchTimeout);
 
@@ -137,14 +159,16 @@ export class MatchController extends EventEmitter {
             this.removeFromMatchingPool(potentialMatchId, potentialMatch);
 
             this.emit("match-success", {
-              user1Id: userId,
-              user2Id: potentialMatch.userId,
+              socket1Id: this.connectedUsers.get(userId),
+              socket2Id: this.connectedUsers.get(potentialMatch.userId),
               match,
             });
 
             logger.info(
               `Match success: User ${userId} matched with ${potentialMatchId} in ${difficultyLevel} queue`
             );
+            this.removeConnection(userId);
+            this.removeConnection(potentialMatch.userId);
 
             return;
           }
