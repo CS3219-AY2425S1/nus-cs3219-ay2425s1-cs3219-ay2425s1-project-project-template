@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import { Button } from "@nextui-org/button";
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";  
-import { useResetPassword } from "@/hooks/auth";  // Adjust based on your project
+import { useResetPassword } from "@/hooks/api/auth";  // Adjust based on your project
 import DefaultLayout from "@/layouts/default";
 
 const ResetPasswordPage = () => {

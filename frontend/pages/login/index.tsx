@@ -20,7 +20,7 @@ const LoginPage = () => {
       {
         onSuccess: (data) => {
           const user: User = {
-            userId: data.id,
+            id: data.id,
             username: data.username,
             email: data.email,
             isAdmin: data.isAdmin,

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Button } from "@nextui-org/button";
 
 import ForgetPasswordForm from "@/components/forms/ForgetPasswordForm";  
-import { useForgetPassword } from "@/hooks/auth";
+import { useForgetPassword } from "@/hooks/api/auth";
 import DefaultLayout from "@/layouts/default";
 
 const ForgetPasswordPage = () => {
