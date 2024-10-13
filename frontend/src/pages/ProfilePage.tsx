@@ -5,6 +5,9 @@ import useRetrieveUser from '../hooks/useRetrieveUser.tsx';
 import EditUsernameModal from '../components/ProfileModals/EditUsernameModal.tsx';
 import EditEmailModal from '../components/ProfileModals/EditEmailModal.tsx';
 import EditPasswordModal from '../components/ProfileModals/EditPasswordModal.tsx';
+import EditProfilePictureModal from '../components/ProfileModals/EditProfilePictureModal.tsx';
+import useFetchProfilePicture from '../hooks/useFetchProfilePicture.tsx';
+import { EditIcon } from '../components/ProfileModals/EditIcon.tsx';
 
 const ProfilePage: React.FC = () => {
     const [user, setUser] = useState<User | undefined>(undefined);
@@ -22,22 +25,63 @@ const ProfilePage: React.FC = () => {
     const openPwModal = () => setPasswordModalOpen(true);
     const closePwModal = () => setPasswordModalOpen(false);
 
+    const [isProfilePictureModalOpen, setProfilePictureModalOpen] = useState(false);
+    const openProfilePicModal = () => setProfilePictureModalOpen(true);
+    const closeProfilePicModal = () => setProfilePictureModalOpen(false);
+    const [imageData, setImageData] = useState<string>("");
+    const [uid, setUid] = useState("");
+
     useRetrieveUser(setUser);
 
     useEffect(() => {
-        console.log("triggered")
         setUsername(user?.username);
       }, [user]);
+
+
+    useEffect(() => {
+        if (uid == "" && user) {
+            setUid(user.id);
+        }
+    }, [user])
+
+    useEffect(() => {
+        fetchImage();
+    }, [uid]);
+
+    useEffect(() => {
+        closeProfilePicModal();
+    }, [imageData]);
+
+    const fetchImage = () => {
+        useFetchProfilePicture(uid, setImageData);
+    }
 
     return (
         <div className="bg-white w-screen h-screen">
             <Navbar />
 
-            <div className='justify-center p-8 grid'>
+            <div className='justify-center p-4 grid'>
 
                 <div className='py-16 justify-center grid'>
-                <h1 className="text-5xl font-bold">User information</h1>
+                <h1 className="text-5xl font-bold">
+                    User information
+                    </h1>
                 </div>
+                    
+                    {imageData ? (
+                        <>
+                            
+                            <div className='flex justify-center  items-baseline'>
+                            <img className="rounded-full" style={{ width: '250px', height: '250px', objectFit: 'cover' }} src={imageData} alt="Fetched" />
+                            <EditIcon openModal={openProfilePicModal}/>
+                            </div>
+                    </>
+                    ) : (
+                        <p>Loading image...</p>
+                    )}
+
+
+
                 <div className='py-8'>
                     Username
                     <div className="relative mb-4 grid grid-cols-8 gap-5">
@@ -49,14 +93,9 @@ const ProfilePage: React.FC = () => {
                                 value={username} // If user undefined, it should fallback to the above placeholder value\
                                 disabled={true}
                             />
-                        <button
-                            onClick={() => openUnModal()}
-                            className="bg-gray-500 rounded-lg p-4 text-2xl hover:bg-gray-300 col-span-1"
-                            >
-                            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-4.036a2.5 2.5 0 113.536 3.536L7.5 21H3v-4.5L16.732 3.732z" />
-                            </svg>
-                        </button>
+                    
+                            <EditIcon openModal={openUnModal}/>
+                        
                     </div>
 
                         Email 
@@ -68,14 +107,9 @@ const ProfilePage: React.FC = () => {
                             value={user?.email || ""} // You can bind this to a state variable in React
                             disabled={true}
                         />
-                        <button
-                            onClick={() => openEmailModal()}
-                            className="bg-gray-500 rounded-lg p-4 text-2xl hover:bg-gray-300 col-span-1"
-                            >
-                            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-4.036a2.5 2.5 0 113.536 3.536L7.5 21H3v-4.5L16.732 3.732z" />
-                            </svg>
-                        </button>
+               
+                            <EditIcon openModal={openEmailModal}/>
+                      
                     </div>
                     {isUsernameModalOpen && (
                             <EditUsernameModal onClose={closeUnModal} user={user} setUser={setUser}/>
@@ -86,12 +120,15 @@ const ProfilePage: React.FC = () => {
                     {isPasswordModalOpen && (
                             <EditPasswordModal onClose={closePwModal} user={user} setUser={setUser}/>
                     )}
+                    {isProfilePictureModalOpen && (
+                            <EditProfilePictureModal onClose={closeProfilePicModal} uid={uid} setImageData={setImageData}/>
+                    )}
                 </div>
 
 
             </div>
 
-            <div className="grid grid-flow-row-dense grid-cols-11 justify-center mt-40 gap-4">
+            <div className="grid grid-cols-11 justify-center gap-4">
 
                 <div className="col-span-4"></div>
                 <button onClick={() => openPwModal()} className="bg-yellow text-black font-bold py-2 px-4 rounded-md">

@@ -1,10 +1,11 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { User } from '../types/User';
+import { UserResponse } from '../types/UserResponse';
 import apiConfig from '../config/config';
 
 const useUpdateUser = (userId: string, key: string) => {
   const [loading, setLoading] = useState(false);
-  const updateUser = async (value: string, setUser: Dispatch<SetStateAction<User | undefined>>, setErr: Dispatch<SetStateAction<string | undefined>>, setSuccess: Dispatch<SetStateAction<boolean | undefined>>) => {
+  const updateUser = async (value: string, setUser: Dispatch<SetStateAction<User | undefined>>, setErr: Dispatch<SetStateAction<string | undefined>>, setSuccess: Dispatch<SetStateAction<boolean>>) => {
     setLoading(true);
 
     try {
@@ -13,7 +14,7 @@ const useUpdateUser = (userId: string, key: string) => {
         headers: {
           'Content-Type': 'application/json',
           // Authorization: `Bearer ${localStorage.getItem("token")}`,
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDEwNDZhNWUwZGFhODQzNmEyMjRlNSIsImlhdCI6MTcyODYxMjIyNiwiZXhwIjoxNzI4Njk4NjI2fQ.05NJAatEoT0JcwOUtP4UShFxfISuIpnzKIfRFwGqghk`
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDEwNDZhNWUwZGFhODQzNmEyMjRlNSIsImlhdCI6MTcyODc5MDAxMSwiZXhwIjoxNzI4ODc2NDExfQ.NZWc0oAtk540XI4nIjytHto4oDceitRYiuE_GZnAcZg`
         },
         body: JSON.stringify({ [key]: value }),
       });
@@ -26,7 +27,7 @@ const useUpdateUser = (userId: string, key: string) => {
         throw new Error('Failed to update ' + key);
       }
 
-      const updatedUser = await response.json();
+      const updatedUser: UserResponse = await response.json();
       console.log('Updated ', key, ':', updatedUser);
       if (key == "username" || key == "email") {
         setUser(updatedUser.data);

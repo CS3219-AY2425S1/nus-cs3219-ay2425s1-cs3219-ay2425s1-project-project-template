@@ -14,10 +14,10 @@ const EditEmailModal: React.FC<EditEmailModalProps> = ({
     onClose, setUser, user
 }) => {
 
-    const [email, setEmail] = useState<string | undefined>(undefined);
-    const [newEmail, setNewEmail] = useState<string | undefined>(undefined);
+    const [email, setEmail] = useState<string>("");
+    const [newEmail, setNewEmail] = useState<string>("");
     const [err, setErr] = useState<string | undefined>(undefined);
-    const [success, setSuccess] = useState<boolean| undefined>(false);
+    const [success, setSuccess] = useState<boolean>(false);
 
     const [isErrorModalOpen, setErrorModalOpen] = useState(false);
     const openErrorModal = () => setErrorModalOpen(true);
@@ -26,7 +26,9 @@ const EditEmailModal: React.FC<EditEmailModalProps> = ({
     };
 
     useEffect(() => {
-        setEmail(user?.email);
+        if (user != undefined) {
+            setEmail(user?.email);
+        }
       }, [user]);
 
     useEffect(() => {

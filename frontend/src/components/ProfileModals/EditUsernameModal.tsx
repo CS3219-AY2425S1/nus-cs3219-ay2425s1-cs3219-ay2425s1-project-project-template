@@ -14,10 +14,10 @@ const EditUsernameModal: React.FC<EditUsernameModalProps> = ({
     onClose, setUser, user
 }) => {
 
-    const [username, setUsername] = useState<string | undefined>(undefined);
-    const [newUsername, setNewUsername] = useState<string | undefined>(undefined);
+    const [username, setUsername] = useState<string>("");
+    const [newUsername, setNewUsername] = useState<string>("");
     const [err, setErr] = useState<string | undefined>(undefined);
-    const [success, setSuccess] = useState<boolean| undefined>(false);
+    const [success, setSuccess] = useState<boolean>(false);
 
     const [isErrorModalOpen, setErrorModalOpen] = useState(false);
     const openErrorModal = () => setErrorModalOpen(true);
@@ -26,7 +26,9 @@ const EditUsernameModal: React.FC<EditUsernameModalProps> = ({
     };
 
     useEffect(() => {
-        setUsername(user?.username);
+        if (user != undefined) {
+            setUsername(user.username);
+        }
       }, [user]);
       useEffect(() => {
         if (err) {

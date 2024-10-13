@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import { User } from '../types/User';
-import apiConfig from '../config/config';
+import { User } from '../../types/User';
+import apiConfig from '../../config/config';
 
 const useUpdateUsername = (userId: string) => {
   const [loading, setLoading] = useState(false);

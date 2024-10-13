@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import IsConnected from "./IsConnected";
-import ProfileButton from "./ProfileButton";
+import ProfileButton from "./ProfileModals/ProfileButton";
 
 const NavBar: React.FC = () => {
   const location = useLocation();

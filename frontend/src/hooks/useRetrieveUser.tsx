@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { User } from "../types/User";
+import { UserResponse } from "../types/UserResponse";
 import apiConfig from "../config/config";
 
 const useRetrieveUser = (
@@ -12,12 +13,11 @@ const useRetrieveUser = (
                 headers: {
                     "Access-Control-Allow-Origin": `${apiConfig.userServiceBaseUrl}`,
                     // Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDEwNDZhNWUwZGFhODQzNmEyMjRlNSIsImlhdCI6MTcyODYxMjIyNiwiZXhwIjoxNzI4Njk4NjI2fQ.05NJAatEoT0JcwOUtP4UShFxfISuIpnzKIfRFwGqghk`
+                    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDEwNDZhNWUwZGFhODQzNmEyMjRlNSIsImlhdCI6MTcyODc5MDAxMSwiZXhwIjoxNzI4ODc2NDExfQ.NZWc0oAtk540XI4nIjytHto4oDceitRYiuE_GZnAcZg`
                 },
             });
-            const result = await response.json();
+            const result: UserResponse = await response.json();
             const userData = result.data;
-            console.log("Retrieved user data:", userData);
             if (userData == undefined) {
                 console.log("User data undefined, API response:", result);
             }
@@ -27,9 +27,7 @@ const useRetrieveUser = (
         }
     };
 
-    // do i need auto fetch the user on mount?
     useEffect(() => {
-        console.log("fetching user data");
         fetchUserData();
     }, []);
 

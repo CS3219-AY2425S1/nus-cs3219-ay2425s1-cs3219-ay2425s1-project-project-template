@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import ProfileButton from "./ProfileButton.tsx";
+import ProfileButton from "./ProfileModals/ProfileButton.tsx";
 import AddQuestionModal from "./QuestionModals/AddQuestionModal.tsx";
 
 interface AdminNavBarProps {

@@ -14,10 +14,10 @@ const EditPasswordModal: React.FC<EditPasswordModalProps> = ({
     onClose, setUser, user
 }) => {
 
-    const [newPassword, setNewPassword] = useState<string | undefined>(undefined);
-    const [cfmPassword, setCfmPassword] = useState<string | undefined>(undefined);
+    const [newPassword, setNewPassword] = useState<string>("");
+    const [cfmPassword, setCfmPassword] = useState<string>("");
     const [err, setErr] = useState<string | undefined>(undefined);
-    const [success, setSuccess] = useState<boolean| undefined>(false);
+    const [success, setSuccess] = useState<boolean>(false);
 
     const [isErrorModalOpen, setErrorModalOpen] = useState(false);
     const openErrorModal = () => setErrorModalOpen(true);
@@ -37,12 +37,10 @@ const EditPasswordModal: React.FC<EditPasswordModalProps> = ({
         }
     }, [success]);
 
-    const handleInputChangeFirst = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setNewPassword(event.target.value); // Update the local state with the input value
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, setPassword: Dispatch<SetStateAction<string>>) => {
+      setPassword(event.target.value); // Update the local state with the input value
     };
-    const handleInputChangeSecond = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setCfmPassword(event.target.value); // Update the local state with the input value
-      };
+
     const { updateUser, loading } = useUpdateUser(user?.id || "", "password");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -69,7 +67,7 @@ const EditPasswordModal: React.FC<EditPasswordModalProps> = ({
                                 className="p-8 block w-full px-4 py-2 bg-white rounded-md text-center"
                                 placeholder="Type your new password" // Placeholder shows current user's username if empty
                                 value={newPassword} // If user undefined, it should fallback to the above placeholder value
-                                onChange={handleInputChangeFirst}
+                                onChange={e => handleInputChange(e, setNewPassword)}
                             />
                     </form>
 
@@ -80,7 +78,7 @@ const EditPasswordModal: React.FC<EditPasswordModalProps> = ({
                                 className="p-8 block w-full px-4 py-2 bg-white rounded-md text-center"
                                 placeholder="Retype your new password" // Placeholder shows current user's username if empty
                                 value={cfmPassword} // If user undefined, it should fallback to the above placeholder value
-                                onChange={handleInputChangeSecond} // Capture the input for editing
+                                onChange={e => handleInputChange(e, setCfmPassword)} // Capture the input for editing
                             />
 
                     <div className='flex gap-10 justify-center mt-20'>
