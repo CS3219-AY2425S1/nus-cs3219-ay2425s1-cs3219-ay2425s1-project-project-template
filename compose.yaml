@@ -18,6 +18,8 @@ services:
       - frontend
       - user-service
       - question-service
+      - matching-service
+      - match-notification-service
     healthcheck:
       test:
         [
