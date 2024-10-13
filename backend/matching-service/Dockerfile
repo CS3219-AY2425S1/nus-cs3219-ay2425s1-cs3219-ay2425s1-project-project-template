@@ -2,7 +2,7 @@
 FROM node:18
 
 #set working directory
-WORKDIR /usr/src/user-service
+WORKDIR /usr/src/matching-service
 
 # Copy package.json and package-lock.json before installing dependencies
 COPY package*.json ./
@@ -14,7 +14,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 #expose port
-EXPOSE 3002
+EXPOSE 3003
 
 #start server
 CMD [ "node", "server.js" ]
