@@ -1,33 +1,35 @@
-import { TimedMatchRequest, MatchResponse } from "../models/types"
+import { TimedMatchRequest, MatchPartner } from "../models/types"
 import logger from '../utils/logger'
 
-const timeout = 5000
+const performMatching = (req: TimedMatchRequest, activeRequests: TimedMatchRequest[]): MatchPartner | null => {
+    let bestMatch: TimedMatchRequest | null = null
+    let maxCommonCategories = 0
 
-const performMatching = (requestQueue: TimedMatchRequest[]) => {
-    const currTime = Date.now()
+    for (const curr of activeRequests) {
+        if (curr.name === req.name) continue 
 
-    requestQueue = requestQueue.filter(req => currTime - req.timestamp < timeout)
+        if (curr.difficulty === req.difficulty) {
+            const commonCategories = req.category.filter(category => 
+                curr.category.includes(category)
+            )
 
-    for (let i = 0; i < requestQueue.length; i++) {
-        for (let j = i + 1; j < requestQueue.length; j++) {
-            const first = requestQueue[i]
-            const second = requestQueue[j]
-            
-            if (first.difficulty === second.difficulty) {
-                const commonCategories = first.category.filter(category => second.category.includes(category))
-
-                if (commonCategories.length > 0) {
-                    const { timestamp: _, ...firstMatch } = first
-                    const { timestamp: __, ...secondMatch } = second
-                    const match: MatchResponse = { first: firstMatch, second: secondMatch }
-                    logger.info(`Matched ${first.name} with ${second.name}`)
-                    requestQueue.splice(j, 1)
-                    requestQueue.splice(i, 1)
-                    break
-                }
+            if (commonCategories.length > maxCommonCategories) {
+                maxCommonCategories = commonCategories.length
+                bestMatch = curr
             }
         }
     }
+
+    if (bestMatch) {
+        const matchPartner: MatchPartner = {
+            name: bestMatch.name,
+            difficulty: bestMatch.difficulty,
+            category: bestMatch.category
+        }
+        logger.info(`Matched ${req.name} with ${bestMatch.name}`)
+        return matchPartner
+    }
+    return null
 }
 
 export { performMatching }

@@ -1,14 +1,17 @@
-export interface MatchRequest {
+export interface TimedMatchRequest {
+    name: string
+    difficulty: string
+    category: string[]
+    timestamp: number
+}
+
+export interface MatchPartner {
     name: string
     difficulty: string
     category: string[]
 }
 
-export interface TimedMatchRequest extends MatchRequest {
-    timestamp: number
-}
-
 export interface MatchResponse {
-    first: MatchRequest
-    second: MatchRequest
+    first: MatchPartner
+    second: MatchPartner
 }
