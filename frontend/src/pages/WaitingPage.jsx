@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import withAuth from "../hoc/withAuth"; 
 
 const WaitingPage = () => {
+  const location = useLocation();
+  const { userPref } = location.state || { userPref: {} };
   const [loading, setLoading] = useState(true);
   const [matchFound, setMatchFound] = useState(false);
   const [seconds, setSeconds] = useState(0);
