@@ -3,7 +3,7 @@ import { findUserById as _findUserById } from "../model/repository.js";
 
 export function verifyAccessToken(req, res, next) {
   const token = req.cookies["accessToken"];
-  console.log(token)
+
   if (!token) {
     return res.status(401).json({ message: "Authentication failed" });
   }

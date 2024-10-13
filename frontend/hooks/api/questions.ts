@@ -1,4 +1,3 @@
-// Requests to API endpoints for questions
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
@@ -15,7 +14,7 @@ const fetchQuestionFromPage = async (page: number) => {
 
 // Fetch questions list
 export const useQuestions = (page: number) => {
-  return useQuery<QuestionList, Error>({
+  return useQuery<QuestionList, AxiosError>({
     queryKey: ["questions", page],
     queryFn: () => fetchQuestionFromPage(page),
   });
@@ -23,7 +22,7 @@ export const useQuestions = (page: number) => {
 
 // Fetch a single question
 export const useGetQuestion = (id: string) => {
-  return useQuery<Question, Error>({
+  return useQuery<Question, AxiosError>({
     queryKey: ["question", id],
     queryFn: async () => {
       const response = await axios.get(`/question-service/questions/${id}`);
@@ -69,7 +68,7 @@ export const useUpdateQuestions = () => {
 export const useDeleteQuestions = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, AxiosError, string>({
     mutationFn: async (questionId: string) => {
       return axios.delete(`/question-service/questions/${questionId}`);
     },

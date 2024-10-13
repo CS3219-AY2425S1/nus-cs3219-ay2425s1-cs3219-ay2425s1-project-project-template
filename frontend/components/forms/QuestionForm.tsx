@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { Input, Textarea } from "@nextui-org/input";
