@@ -62,6 +62,40 @@ services:
     env_file:
       - .env/.question_env
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  # Adjust based on how long it takes for RabbitMQ to be ready
+    env_file:
+      - .env/.rabbitmq_env
+
+  matching-service:
+    build:
+      context: ./matching-service
+    container_name: matching-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy  # Ensure matching service waits for RabbitMQ to be healthy
+    env_file:
+      - .env/.matching_env
+
+  match-notification-service:
+    build:
+      context: ./match-notification-service
+    container_name: match-notification-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy  # Ensure notification service waits for RabbitMQ to be healthy
+    env_file:
+      - .env/.notification_env
+      
 volumes:
   mongo-data:
   react-build:
+  rabbitmq_data:
