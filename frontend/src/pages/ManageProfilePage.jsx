@@ -51,25 +51,24 @@ const ManageProfilePage = () => {
     if (password) updatedUser.password = password;
 
     try {
-        const response = await fetch(`http://localhost:8081/users/${userId}`, {
+      const response = await fetch(`http://localhost:8081/users/${userId}`, {
         method: 'PATCH', 
         headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(updatedUser)
-        });
+      });
 
-        if (!response.ok) {
+      if (!response.ok) {
         throw new Error("Failed to update profile.");
-        }
+      }
 
-        alert("Profile updated successfully!");
+      alert("Profile updated successfully!");
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     }
   };
-
 
   const handleBack = () => {
     navigate("/dashboard"); 
@@ -110,10 +109,18 @@ const ManageProfilePage = () => {
       </button>
 
       <form onSubmit={handleSubmit} style={{ maxWidth: "350px", width: "100%", margin: "0 auto" }}>
-        <h2 style={{ marginBottom: "20px" }}>Manage Profile</h2>
-        
         <div style={{ marginBottom: "20px" }}>
-          <label htmlFor="username">Username</label>
+          <div style={{ 
+            fontSize: "24px", 
+            fontWeight: "600", 
+            marginBottom: "20px" 
+          }}>
+            Manage Profile
+          </div>
+        </div>
+
+        <div style={{ marginBottom: "20px", textAlign: "left" }}>
+          <label htmlFor="username" style={{ fontSize: "16px", fontWeight: "500", color: "#e0e0e0" }}>Username</label>
           <div>
             <input
               type="text"
@@ -121,22 +128,27 @@ const ManageProfilePage = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="off"
+              placeholder="Leave blank to keep current username"
               style={{
                 border: "none",
-                borderBottom: "2px solid white",
+                borderBottom: "2px solid #e0e0e0",
                 outline: "none",
                 backgroundColor: "transparent",
                 color: "white",
-                fontSize: "20px",
+                fontSize: "18px",
                 marginTop: "5px",
                 width: "100%",
-                textAlign: "center"
+                padding: "5px 0",
+                transition: "border-color 0.3s",
               }}
+              onFocus={(e) => e.target.style.borderColor = "#f0f0f0"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
           </div>
         </div>
-        <div style={{ marginBottom: "20px" }}>
-          <label htmlFor="email">Email</label>
+
+        <div style={{ marginBottom: "20px", textAlign: "left" }}>
+          <label htmlFor="email" style={{ fontSize: "16px", fontWeight: "500", color: "#e0e0e0" }}>Email</label>
           <div>
             <input
               type="email"
@@ -144,22 +156,27 @@ const ManageProfilePage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="off" 
+              placeholder="Leave blank to keep current email"
               style={{
                 border: "none",
-                borderBottom: "2px solid white",
+                borderBottom: "2px solid #e0e0e0",
                 outline: "none",
                 backgroundColor: "transparent",
                 color: "white",
-                fontSize: "20px",
+                fontSize: "18px",
                 marginTop: "5px",
                 width: "100%",
-                textAlign: "center"
+                padding: "5px 0",
+                transition: "border-color 0.3s",
               }}
+              onFocus={(e) => e.target.style.borderColor = "#f0f0f0"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
           </div>
         </div>
-        <div style={{ marginBottom: "20px" }}>
-          <label htmlFor="password">Password</label>
+
+        <div style={{ marginBottom: "20px", textAlign: "left" }}>
+          <label htmlFor="password" style={{ fontSize: "16px", fontWeight: "500", color: "#e0e0e0" }}>Password</label>
           <div>
             <input
               type="password"
@@ -170,29 +187,33 @@ const ManageProfilePage = () => {
               autoComplete="off" 
               style={{
                 border: "none",
-                borderBottom: "2px solid white",
+                borderBottom: "2px solid #e0e0e0",
                 outline: "none",
                 backgroundColor: "transparent",
                 color: "white",
-                fontSize: "20px",
+                fontSize: "18px",
                 marginTop: "5px",
                 width: "100%",
-                textAlign: "center"
+                padding: "5px 0",
+                transition: "border-color 0.3s",
               }}
+              onFocus={(e) => e.target.style.borderColor = "#f0f0f0"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
           </div>
         </div>
+
         <button
           type="submit"
           onMouseEnter={() => setIsHovered(true)} 
           onMouseLeave={() => setIsHovered(false)} 
           style={{
             marginTop: "30px",
-            padding: "15px 30px",
+            padding: "15px 20px",
             backgroundColor: isHovered ? '#f0f0f0' : 'white',
             color: 'black',
             border: "none",
-            borderRadius: "15px",
+            borderRadius: "10px",
             cursor: "pointer",
             fontSize: '16px',
             fontFamily: 'Figtree',
