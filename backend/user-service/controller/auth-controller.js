@@ -180,24 +180,11 @@ export async function handleForgotPassword(req, res) {
   }
 }
 
-export async function handleVerifyToken(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1];
-
-  if (!accessToken) {
-    return res.status(401).json({ message: "No access token provided" });
-  }
-
-  try {
-    // Verify the access token
-    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
-
-    // Optionally, add user verification logic here (e.g., find the user in the database)
-
-    return res.status(200).json({
-      message: "Token verified successfully",
-      data: decoded, // Return decoded token data
-    });
-  } catch (err) {
-    return res.status(403).json({ message: "Invalid access token" });
-  }
+export async function handleVerifyToken(req, res) { 
+  try { 
+    const verifiedUser = req.user; 
+    return res.status(200).json({ message: "Token verified", data: verifiedUser }); 
+  } catch (err) { 
+    return res.status(500).json({ message: err.message }); 
+  } 
 }
