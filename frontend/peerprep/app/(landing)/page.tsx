@@ -1,4 +1,5 @@
 "use client";
+
 import { fontFun } from "@/config/fonts";
 import landingPageImage from "../../images/LandingPageImage.png";
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
@@ -35,12 +36,10 @@ export default function Landing() {
       <SignedOut>
         <Navbar position="sticky" maxWidth="full" shouldHideOnScroll>
           <NavbarBrand>
-            <div className="hidden sm:flex">
-              <Logo />
-            </div>
+            <Logo />
           </NavbarBrand>
           <NavbarContent justify="end">
-            <NavbarItem className="flex items-center justify-center">
+            <NavbarItem className="flex items-center justify-center hidden sm:flex">
               <ThemeSwitch className="items-center" />
             </NavbarItem>
             <NavbarItem>

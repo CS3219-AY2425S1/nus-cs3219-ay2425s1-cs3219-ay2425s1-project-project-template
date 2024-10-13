@@ -5,7 +5,7 @@ import { fontLogo } from "@/config/fonts";
 import PeerprepLogo from "./peerpreplogo";
 
 export const Logo: React.FC = () => (
-  <div className="flex flex-row gap-2">
+  <div className="flex flex-row gap-1">
     <PeerprepLogo />
     <div
       className={`${fontLogo.variable} text-[#6A0CE2] dark:text-white py-3`}
