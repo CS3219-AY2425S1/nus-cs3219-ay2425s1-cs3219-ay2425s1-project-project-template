@@ -14,51 +14,49 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setErrorMessage('');
-  setIsLoading(true);
+    e.preventDefault();
+    setErrorMessage('');
+    setIsLoading(true);
 
-  try {
-    const response = await fetch('http://localhost:8081/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+    try {
+      const response = await fetch('http://localhost:8081/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      if (response.status === 401) {
-        throw new Error('Wrong email and/or password');
-      } else {
-        throw new Error(errorData.message || 'An error occurred, please try again.');
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 401) {
+          throw new Error('Wrong email and/or password');
+        } else {
+          throw new Error(errorData.message || 'An error occurred, please try again.');
+        }
       }
+
+      const data = await response.json();
+      
+      if (data && data.data && data.data.accessToken && data.data.id) {
+        const userId = data.data.id; 
+        const accessToken = data.data.accessToken; 
+
+        login(accessToken, userId);
+        navigate('/dashboard'); 
+      } else {
+        throw new Error('Invalid response data');
+      }
+
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.json();
-    
-    if (data && data.data && data.data.accessToken && data.data.id) {
-      const userId = data.data.id;
-      const username = data.data.username; 
-      const userEmail = data.data.email; 
-
-      login(data.data.accessToken, userId, username, userEmail); 
-      navigate('/dashboard'); 
-    } else {
-      throw new Error('Invalid response data');
-    }
-
-  } catch (error) {
-    setErrorMessage(error.message);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <div style={{ textAlign: 'center', padding: '50px', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
