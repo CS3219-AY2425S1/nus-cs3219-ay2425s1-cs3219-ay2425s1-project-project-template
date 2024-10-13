@@ -28,10 +28,8 @@ const ManageProfilePage = () => {
         }
 
         const data = await response.json();
-        
-        // Set the username and email from the response
-        setUsername(data.data.username); // Access the username
-        setEmail(data.data.email); // Access the email
+        setUsername(data.data.username);
+        setEmail(data.data.email);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -53,24 +51,25 @@ const ManageProfilePage = () => {
     if (password) updatedUser.password = password;
 
     try {
-      const response = await fetch(`http://localhost:8081/users/${userId}`, {
-        method: 'PUT',
+        const response = await fetch(`http://localhost:8081/users/${userId}`, {
+        method: 'PATCH', 
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(updatedUser)
-      });
+        });
 
-      if (!response.ok) {
+        if (!response.ok) {
         throw new Error("Failed to update profile.");
-      }
+        }
 
-      alert("Profile updated successfully!");
+        alert("Profile updated successfully!");
     } catch (err) {
-      setError(err.message);
+        setError(err.message);
     }
   };
+
 
   const handleBack = () => {
     navigate("/dashboard"); 
