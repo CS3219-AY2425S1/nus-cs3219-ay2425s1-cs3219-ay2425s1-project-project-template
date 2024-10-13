@@ -9,10 +9,10 @@ app.use(express.json());
 
 let connection;
 let channel;
-const activeSearches = {}; // Track active searches
+const activeSearches = {};
 
 async function initRabbitMQ() {
-  connection = await amqp.connect('amqp://user:password@rabbitmq:5672/');
+  connection = await amqp.connect(process.env.RABBITMQ_URL);
   channel = await connection.createChannel();
 
   // Declare queues
@@ -25,7 +25,7 @@ async function initRabbitMQ() {
     if (msg) {
       const searchRequest = JSON.parse(msg.content.toString());
       console.log(`Received search request:`, searchRequest);
-      activeSearches[searchRequest.userId] = searchRequest; // Store active search
+      activeSearches[searchRequest.userId] = searchRequest;
       matchUsers(searchRequest);
       channel.ack(msg);
     }
@@ -41,11 +41,9 @@ async function initRabbitMQ() {
   });
 }
 
-// Function to match users based on topics first, then difficulty
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  // Attempt to match by topics first
   const matchedUser = findMatchByTopics(topics) || findMatchByDifficulty(difficulty);
 
   if (matchedUser) {
@@ -56,37 +54,64 @@ async function matchUsers(searchRequest) {
 
     channel.sendToQueue('match_found_queue', Buffer.from(JSON.stringify(matchMessage)));
     console.log(`Match found: User ID ${userId} matched with ${matchedUser.userId}`);
+    delete activeSearches[userId];
+    delete activeSearches[matchedUser.userId];
   }
 }
 
-// Function to find a match based on topics
 function findMatchByTopics(topics) {
-  // Implement logic to find a match based on topics
-  // For demonstration, returning a mock matched user
-  if (topics.includes("exampleTopic")) {
-    return { userId: 'mockUser123' }; // Replace with actual user lookup
+  if (topics.includes("simulate cannot find match")) {
+    return null;
   }
-  return null;
+  return { userId: 'mockUser123' };
 }
 
-// Function to find a match based on difficulty if no topic matches
 function findMatchByDifficulty(difficulty) {
-  // Implement logic to find a match based on difficulty
-  return { userId: 'mockUser456' }; // Replace with actual user lookup
+  if (difficulty == "simulate cannot find match") {
+    return null;
+  }
+  return { userId: 'mockUser456' };
 }
 
-// Handle user disconnection
 function handleDisconnection(userId) {
   if (activeSearches[userId]) {
-    delete activeSearches[userId]; // Remove user from active searches
+    delete activeSearches[userId];
     console.log(`User ID: ${userId} has been removed from active searches.`);
   }
 }
 
-// Start the RabbitMQ connection
+app.post('/search', (req, res) => {
+  const { userId, difficulty, topics } = req.body;
+
+  if (!userId || !difficulty || !Array.isArray(topics)) {
+    return res.status(400).json({ error: 'Invalid request body. Please provide userId, difficulty, and topics.' });
+  }
+
+  const searchRequest = { userId, difficulty, topics };
+  
+  channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
+
+  res.status(202).json({ message: 'Search request has been accepted.', userId });
+});
+
+app.delete('/search/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'Invalid request. Please provide a userId.' });
+  }
+
+  if (activeSearches[userId]) {
+    delete activeSearches[userId];
+    console.log(`User ID: ${userId} has been removed from active searches.`);
+    return res.status(200).json({ message: `User ID: ${userId} has been removed from active searches.` });
+  } else {
+    return res.status(404).json({ error: `User ID: ${userId} not found in active searches.` });
+  }
+});
+
 initRabbitMQ();
 
-// Start the HTTP server
 app.listen(PORT, () => {
   console.log(`Matching service is running and listening on port ${PORT}`);
 });
