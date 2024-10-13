@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { Textarea } from "@/components/ui/textarea"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -40,14 +40,15 @@ const formSchema = z.object({
   
   const isAllFieldsEmpty = 
     (title === undefined || title.trim() === "") && 
-    difficulty === undefined && 
+    (difficulty === undefined) && 
     (categories === undefined || categories.length === 0) && 
     (description === undefined || description.trim() === "");
 
   return !isAllFieldsEmpty;
-}, {
+}, () => ({
+  path:["allFieldsEmptyError"],
   message: "At least one field must be filled", // Error message if validation fails
-});
+}));
 
 interface EditQuestionFormProps {
   questionId: number,
@@ -56,6 +57,7 @@ interface EditQuestionFormProps {
 }
 
 const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose, refetch }) => {
+      const [isFormEdited, setIsFormEdited] = useState<boolean>(true);
 
       const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -67,7 +69,33 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         },
       })
 
-      const { errors } = form.formState;
+      const fetchData = async () => {
+        try {
+          const response = await fetch(`http://localhost:5001/get-questions?questionId=${questionId}`, {
+            method: 'GET',
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            form.reset({
+              title: data[0].title,
+              difficulty: data[0].difficulty,
+              categories: data[0].categories,
+              description: data[0].description,
+            })
+          }
+
+        } catch (e) {
+          console.error('Error fetching data:', e);
+        }
+      };
+
+      useEffect(() => {
+        fetchData();
+      }, []);
+
+      const { errors, isDirty } = form.formState;
 
       // to update if we want to include more categories
       const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser"]
@@ -88,8 +116,12 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
       async function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        console.log(values)
+        console.log("val", values)
         try {
+            if (!isDirty) {
+              setIsFormEdited(false);
+            }
+
             if (values.categories) {
               values.categories.sort();
             }
@@ -211,7 +243,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
                 <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button" onClick={onClose}>Cancel</Button>
                 <Button className="primary-color hover:bg-violet-900" type="submit">Submit</Button>
             </div>
-            {errors.root && <p>{errors.root.message}</p>}
+            {!isFormEdited && <p>At least one field should be edited.</p>}
           </form>
         </Form>
         </div>
