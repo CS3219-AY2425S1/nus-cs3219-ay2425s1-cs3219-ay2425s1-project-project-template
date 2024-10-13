@@ -1,9 +1,9 @@
 // eslint-disable no-invalid-page-export
 
 export enum QuestionDifficulty {
-  EASY = "easy",
-  MEDIUM = "medium",
-  HARD = "hard",
+  EASY = "Easy",
+  MEDIUM = "Medium",
+  HARD = "Hard",
 }
 
 export enum QuestionLanguages {

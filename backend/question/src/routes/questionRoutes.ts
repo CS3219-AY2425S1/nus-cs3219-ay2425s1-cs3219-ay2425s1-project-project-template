@@ -51,7 +51,7 @@ router.post(
 
 // Retrieve all questions
 router.post("/all", async (req: Request, res: Response) => {
-  const pagination = parseInt(req.body.pagination as string, 10) || 1; // Default page is 1
+  let pagination = parseInt(req.body.pagination as string, 10) || 1; // Default page is 1
   const page_size = parseInt(req.body.page_size as string, 10) || 10; // Default limit is 10
   const skip = (pagination - 1) * page_size; // Calculate how many documents to skip
   try {
@@ -72,11 +72,13 @@ router.post("/all", async (req: Request, res: Response) => {
       .exec();
 
     const total = await Question.countDocuments().exec();
+    const totalPages = Math.ceil(total / page_size);
+    if (totalPages < pagination) pagination = 1;
 
     return res.json({
       questions,
       currentPage: pagination,
-      totalPages: Math.ceil(total / page_size),
+      totalPages: totalPages,
       totalQuestions: total,
     });
   } catch (error) {

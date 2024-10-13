@@ -44,12 +44,19 @@ const Cell = ({
   return <div className={cn("text-center", className)}>{children}</div>;
 };
 
-export function LeetcodeDashboardTable() {
+interface LeetcodeDashboardTableProps {
+  refreshKey: number;
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export function LeetcodeDashboardTable({
+  refreshKey,
+  setRefreshKey,
+}: LeetcodeDashboardTableProps) {
   const [data, setData] = useState<QuestionMinified[]>([]);
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
   >(null);
-  const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-fetch
 
   function handleDelete(questionId: string) {
     Swal.fire({
@@ -64,6 +71,10 @@ export function LeetcodeDashboardTable() {
           await deleteSingleLeetcodeQuestion(questionId);
           Swal.fire("Question deleted successfully!", "", "success");
 
+          setPagination({
+            pageIndex: 0,
+            pageSize: 10,
+          });
           // Trigger data refresh
           setRefreshKey((prev) => prev + 1);
         } catch (error) {
@@ -157,6 +168,7 @@ export function LeetcodeDashboardTable() {
                 <EditQuestionDialog
                   questionId={questionId}
                   handleClose={closeModal}
+                  setRefreshKey={setRefreshKey}
                 />
               </motion.div>
             </Modal>

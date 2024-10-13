@@ -29,6 +29,7 @@ import { topicsList } from "@/utils/constants";
 interface EditQuestionDialogProp {
   handleClose: () => void;
   questionId: string;
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface EditQuestionValues {
@@ -48,6 +49,7 @@ const initialValues: EditQuestionValues = {
 const EditQuestionDialog = ({
   questionId,
   handleClose,
+  setRefreshKey,
 }: EditQuestionDialogProp) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leetcodeData, setLeetcodeData] =
@@ -111,6 +113,7 @@ const EditQuestionDialog = ({
         });
       })
       .finally(() => {
+        setRefreshKey((prev) => prev + 1);
         handleClose();
         setIsSubmitting(false);
       });
