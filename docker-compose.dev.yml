@@ -18,3 +18,9 @@ services:
       target: dev
     volumes:
       - ./user-service/app:/app/app
+
+  matching-service:
+    environment:
+      - BUILD_ENV=dev
+    volumes:
+      - ./matching-service/app:/app/app

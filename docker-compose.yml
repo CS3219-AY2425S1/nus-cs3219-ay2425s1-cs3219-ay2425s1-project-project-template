@@ -29,6 +29,14 @@ services:
       - EMAIL_ADDRESS=$EMAIL_ADDRESS
       - EMAIL_PASSWORD=$EMAIL_PASSWORD
 
+  matching-service:
+    build:
+      context: ./matching-service
+    ports:
+      - $MATCHING_SVC_PORT:$MATCHING_SVC_PORT
+    environment:
+      - PORT=$MATCHING_SVC_PORT
+
   redis:
     image: redis:7.4-alpine
     restart: always

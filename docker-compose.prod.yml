@@ -11,3 +11,7 @@ services:
   user-service:
     build:
       target: prod
+
+  matching-service:
+    environment:
+      - BUILD_ENV=prod
