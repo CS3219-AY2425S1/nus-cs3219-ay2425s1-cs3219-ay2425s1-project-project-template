@@ -13,6 +13,7 @@ import { MatchRequestService } from './matchRequest/matchRequest.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisOptions } from './constants/redis';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MatchingGateway } from './matching.gateway';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     MatchExpiryConsumer,
     MatchExpiryService,
     MatchRequestService,
+    MatchingGateway,
   ],
 })
 export class MatchingModule {}
