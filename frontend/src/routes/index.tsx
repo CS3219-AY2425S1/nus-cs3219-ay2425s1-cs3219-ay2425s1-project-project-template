@@ -10,6 +10,7 @@ import QuestionDetails from "../pages/QuestionDetails";
 import ManageQuestions from "../pages/ManageQuestions";
 import AdminRoute from "./AdminRoutes";
 import EditQuestion from "../pages/EditQuestion";
+import MatchSelection from "../pages/MatchSelection";
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,16 @@ const router = createBrowserRouter([
             element: <EditQuestion />,
           },
         ],
+      },
+    ],
+  },
+  {
+    path: "/matching",
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "",
+        element: <MatchSelection />,
       },
     ],
   },
