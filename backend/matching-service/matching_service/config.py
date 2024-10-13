@@ -42,9 +42,7 @@ settings = Settings()
 
 class RedisSettings:
     class Channels(Enum):
-        EASY: str = "Easy"
-        MED: str = "Medium"
-        HARD: str = "Hard"
+        REQUESTS: str = "requests"
         MATCHES: str = "matches"
 
     db_map = {e.value: i for i, e in enumerate(Channels)}

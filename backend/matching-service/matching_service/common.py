@@ -39,3 +39,6 @@ class MatchRequest(BaseModel):
     @property
     def expire_at(self) -> float:
         return self.created_at + settings.MATCH_TIMEOUT
+
+    def get_key(self) -> str:
+        return f"{self.difficulty.value}:{self.topic}"
