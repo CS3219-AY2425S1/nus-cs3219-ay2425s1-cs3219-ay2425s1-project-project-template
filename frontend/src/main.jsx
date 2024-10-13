@@ -5,16 +5,28 @@ import App from "./App.jsx";
 import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Login from "./pages/Login.jsx";
+import SignUp from "./pages/SignUp.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <App />,
     errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
     element: <Dashboard />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/register",
+    element: <SignUp/>,
     errorElement: <ErrorPage />,
   },
 ]);
