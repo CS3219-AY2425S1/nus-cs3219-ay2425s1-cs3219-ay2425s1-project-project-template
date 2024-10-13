@@ -64,26 +64,29 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-      RABBITMQ_PLUGINS: rabbitmq_web_stomp
+    container_name: rabbitmq
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  # Adjust based on how long it takes for RabbitMQ to be ready
+    env_file:
+      - .env/.rabbitmq_env
 
   matching-service:
     build:
       context: ./matching-service
+    container_name: matching-service
     ports:
       - '4000:4000'
     depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_URL: 'rabbitmq://user:password@rabbitmq:5672'
-
+      rabbitmq:
+        condition: service_healthy  # Ensure matching service waits for RabbitMQ to be healthy
+    env_file:
+      - .env/.matching_env
+      
 volumes:
   mongo-data:
   react-build:
