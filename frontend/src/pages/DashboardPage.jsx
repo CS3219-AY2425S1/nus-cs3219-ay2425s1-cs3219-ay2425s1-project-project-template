@@ -8,15 +8,16 @@ import { useAuth } from "../AuthContext";
 
 const DashboardPage = () => {
   const navigate = useNavigate(); 
-  const { logout } = useAuth(); 
+  const { logout, userId, accessToken } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
-
+  const [username, setUsername] = useState(''); 
   const hasActiveSession = false; 
 
+  // Logout handler
   const handleLogout = () => {
     logout(); 
     navigate('/login'); 
@@ -44,6 +45,33 @@ const DashboardPage = () => {
   };
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8081/users/${userId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data.");
+        }
+
+        const data = await response.json();
+        setUsername(data.data.username); 
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (userId && accessToken) {
+      fetchUserData();
+    }
+  }, [userId, accessToken]); 
+
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -51,7 +79,7 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <div style={{ paddingTop: "100px", display: "flex", justifyContent: "center", position: 'relative' }}>
+    <div style={{ paddingTop: "30px", display: "flex", justifyContent: "center", position: 'relative' }}>
       <div style={{ 
           display: "flex", 
           flexDirection: "column", 
@@ -59,6 +87,14 @@ const DashboardPage = () => {
           maxWidth: "600px", 
           marginRight: "20px" 
         }}>
+        {/* Welcome Message Div */}
+        <div style={{ 
+            color: '#fff', 
+            marginBottom: '20px',
+            fontSize: '24px' 
+        }}>
+            Welcome back, @{username}!
+        </div>
         <SessionBox
           headerText="Current Active Session"
           sessionText={hasActiveSession ? "Current active session with ____" : "No active session. Ready for more?"}
@@ -73,7 +109,7 @@ const DashboardPage = () => {
         />
       </div>
 
-      <div style={{ marginLeft: "20px" }}>  
+      <div style={{ marginLeft: "20px", marginTop: "70px"}}>  
         <Calendar
           currentMonth={currentMonth}
           currentYear={currentYear}
