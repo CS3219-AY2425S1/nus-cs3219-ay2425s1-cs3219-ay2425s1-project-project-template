@@ -19,7 +19,7 @@ class Matchmaker:
 
         self.pubsub = self.client.pubsub()
 
-        self.stop_event = Event()
+        self._stop_event = Event()
         logger.info(f"MATCHMAKER: connected to {self.client.get_connection_kwargs()}")
 
     def run(self):
@@ -39,18 +39,27 @@ class Matchmaker:
                 logger.info(f"\t💬 Received matchmaking request from User {req.user} for {req.get_key()}")
 
                 unmatched_key = req.get_key()
+                # self.client.zrangebyscore
                 unmatched_users = self.client.lrange(unmatched_key, 0, -1)
 
                 if unmatched_users:
+                    # self.client.zpopmin
                     other_user = self.client.lpop(unmatched_key).decode("utf-8")
                     logger.info(f"\t✅ Matched Users: {req.user} and {other_user} for {unmatched_key}!")
                 else:
+                    # self.client.zadd, name="Easy:dp", score=req.timestamp, value=req.user
                     self.client.rpush(unmatched_key, req.user)
                     logger.info(f"\t⏳ User {req.user} added to the unmatched pool for {unmatched_key}")
             time.sleep(0.1)
 
     def stop(self):
-        self.stop_event.set()
+        """
+        `stop` is used if Matchmaker is run in the background as a thread
+        e.g
+        - tests
+        - matchmaking-service needs to run both api server and matchmaker in a single container (not recommended)
+        """
+        self._stop_event.set()
         self.pubsub.unsubscribe()
         self.pubsub.close()
         self.client.close()
