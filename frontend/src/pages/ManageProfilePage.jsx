@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext"; 
 import { useNavigate } from "react-router-dom"; 
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
 
 const ManageProfilePage = () => {
   const { userId, accessToken } = useAuth(); 
@@ -10,6 +11,7 @@ const ManageProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State for showing password
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -177,9 +179,9 @@ const ManageProfilePage = () => {
 
         <div style={{ marginBottom: "20px", textAlign: "left" }}>
           <label htmlFor="password" style={{ fontSize: "16px", fontWeight: "500", color: "#e0e0e0" }}>Password</label>
-          <div>
+          <div style={{ position: "relative" }}>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'} 
               id="password"
               value={password} 
               onChange={(e) => setPassword(e.target.value)}
@@ -200,6 +202,19 @@ const ManageProfilePage = () => {
               onFocus={(e) => e.target.style.borderColor = "#f0f0f0"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
+            <div 
+              onClick={() => setShowPassword(!showPassword)} 
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                color: "#e0e0e0",
+              }}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Eye icon */}
+            </div>
           </div>
         </div>
 
