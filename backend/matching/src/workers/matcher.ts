@@ -19,15 +19,14 @@ const cancel = () => {
 };
 const shutdown = () => {
   cancel();
-  client
-    .disconnect()
-    .then(() => client.quit())
-    .then(process.exit(0));
+  client.disconnect().then(() => {
+    process.exit(0);
+  });
 };
 
-process.on('exit', shutdown);
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+process.on('exit', shutdown);
 
 type RequestorParams = {
   requestorUserId: string;
@@ -42,32 +41,36 @@ async function processMatch(
   searchIdentifier?: string
 ) {
   if (matches.total > 0) {
-    const matched = matches.documents[0];
-    const {
-      userId: matchedUserId,
-      timestamp, // We use timestamp as the Stream ID
-      socketPort: matchedSocketPort,
-    } = decodePoolTicket(matched);
+    for (const matched of matches.documents) {
+      const {
+        userId: matchedUserId,
+        timestamp, // We use timestamp as the Stream ID
+        socketPort: matchedSocketPort,
+      } = decodePoolTicket(matched);
+      if (matchedUserId === requestorUserId) {
+        continue;
+      }
 
-    // To block cancellation
-    sendNotif([matchedSocketPort], MATCH_SVC_EVENT.MATCHING);
+      // To block cancellation
+      sendNotif([matchedSocketPort], MATCH_SVC_EVENT.MATCHING);
 
-    const matchedStreamId = getStreamId(timestamp);
+      const matchedStreamId = getStreamId(timestamp);
 
-    logger.info(`Found match: ${JSON.stringify(matched)}`);
+      logger.info(`Found match: ${JSON.stringify(matched)}`);
 
-    await Promise.all([
-      // Remove other from pool
-      redisClient.del([getPoolKey(requestorUserId), getPoolKey(matchedUserId)]),
-      // Remove other from queue
-      redisClient.xDel(STREAM_NAME, [requestorStreamId, matchedStreamId]),
-    ]);
+      await Promise.all([
+        // Remove other from pool
+        redisClient.del([getPoolKey(requestorUserId), getPoolKey(matchedUserId)]),
+        // Remove other from queue
+        redisClient.xDel(STREAM_NAME, [requestorStreamId, matchedStreamId]),
+      ]);
 
-    // Notify both sockets
-    const { ...matchItems } = getMatchItems();
-    sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
-    sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
-    return true;
+      // Notify both sockets
+      const { ...matchItems } = getMatchItems();
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
+      return true;
+    }
   }
 
   logger.info(`Found no matches` + (searchIdentifier ? ` for ${searchIdentifier}` : ''));

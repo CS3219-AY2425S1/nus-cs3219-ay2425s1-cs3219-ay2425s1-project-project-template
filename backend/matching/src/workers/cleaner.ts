@@ -19,15 +19,14 @@ const cancel = () => {
 };
 const shutdown = () => {
   cancel();
-  client
-    .disconnect()
-    .then(() => client.quit())
-    .then(process.exit(0));
+  client.disconnect().then(() => {
+    process.exit(0);
+  });
 };
 
-process.on('exit', shutdown);
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+process.on('exit', shutdown);
 
 async function clean() {
   const redisClient = await connectClient(client);
