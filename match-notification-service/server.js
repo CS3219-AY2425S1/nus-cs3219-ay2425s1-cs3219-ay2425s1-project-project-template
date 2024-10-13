@@ -1,11 +1,10 @@
-// notificationService.js
 const amqp = require('amqplib');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 
 const app = express();
-const PORT = 4002;
+const PORT = 4001;
 
 const server = http.createServer(app);
 const io = new Server(server);
@@ -20,7 +19,9 @@ async function initRabbitMQ() {
   connection = await amqp.connect(process.env.RABBITMQ_URL);
   channel = await connection.createChannel();
 
-  // Declare the queue
+  // Declare queues
+  await channel.assertQueue('search_queue');
+  await channel.assertQueue('disconnect_queue');
   await channel.assertQueue('match_found_queue');
 
   // Listen for matches found
@@ -29,7 +30,6 @@ async function initRabbitMQ() {
       const matchFound = JSON.parse(msg.content.toString());
       console.log(`Match found:`, matchFound);
 
-      // Emit match data to the user if they are connected
       const { userId, matchUserId } = matchFound;
 
       if (connectedClients[userId]) {
@@ -56,16 +56,26 @@ initRabbitMQ();
 io.on('connection', (socket) => {
   console.log(`New client connected: ${socket.id}`);
 
-  // Register the userId with the socket
-  socket.on('register', (userId) => {
+  // Register the userId with the socket and send search request to RabbitMQ
+  socket.on('register', (userId, difficulty, topics) => {
     connectedClients[userId] = socket.id;
     console.log(`User ${userId} registered with socket ${socket.id}`);
+
+    // Send search request to RabbitMQ
+    const searchRequest = { userId, difficulty, topics };
+    channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
+    console.log(`Search request sent for user ${userId}`);
   });
 
   // Handle user disconnect
   socket.on('disconnect', () => {
     for (const userId in connectedClients) {
       if (connectedClients[userId] === socket.id) {
+        // Send disconnect request to RabbitMQ
+        channel.sendToQueue('disconnect_queue', Buffer.from(JSON.stringify({ userId })));
+        console.log(`Disconnect request sent for user ${userId}`);
+
+        // Remove user from connected clients
         delete connectedClients[userId];
         console.log(`User ${userId} disconnected and removed from active clients.`);
         break;

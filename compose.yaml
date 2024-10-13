@@ -85,25 +85,15 @@ services:
     env_file:
       - .env/.matching_env
 
-  notification-service:
+  match-notification-service:
     build:
-      context: ./notification-service
-    container_name: notification-service
+      context: ./match-notification-service
+    container_name: match-notification-service
     depends_on:
       rabbitmq:
         condition: service_healthy  # Ensure notification service waits for RabbitMQ to be healthy
     env_file:
       - .env/.notification_env
-
-  search-service:
-    build:
-      context: ./search-service
-    container_name: search-service
-    depends_on:
-      rabbitmq:
-        condition: service_healthy  # Ensure search service waits for RabbitMQ to be healthy
-    env_file:
-      - .env/.search_env
       
 volumes:
   mongo-data:
