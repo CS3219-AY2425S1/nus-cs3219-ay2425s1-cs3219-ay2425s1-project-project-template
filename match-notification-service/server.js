@@ -32,16 +32,14 @@ async function initRabbitMQ() {
 
       const { userId, matchUserId } = matchFound;
 
-      if (connectedClients[userId]) {
-        const socketId = connectedClients[userId];
-        io.to(socketId).emit('match_found', matchFound);
-        console.log(`Notified user ${userId} of match with ${matchUserId}`);
-      }
+      const userSocketId = connectedClients[userId];
+      const matchUserSocketId = connectedClients[matchUserId];
 
-      if (connectedClients[matchUserId]) {
-        const socketId = connectedClients[matchUserId];
-        io.to(socketId).emit('match_found', matchFound);
-        console.log(`Notified user ${matchUserId} of match with ${userId}`);
+      if (userSocketId && matchUserSocketId) {
+        // Emit to both users
+        io.to(userSocketId).emit('match_found', matchFound);
+        io.to(matchUserSocketId).emit('match_found', matchFound);
+        console.log(`Notified user ${userId} and ${matchUserId} of match`);
       }
 
       channel.ack(msg);  // Acknowledge the message
