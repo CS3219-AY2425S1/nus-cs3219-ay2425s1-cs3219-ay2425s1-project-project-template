@@ -2,19 +2,17 @@ import { useState } from "react";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
+interface ForgetPasswordFormProps {
+  onSubmit: (email: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
+const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
-  // Reset email error when user starts typing
   const handleEmailOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -23,22 +21,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
     // Reset the email error if user starts typing after form submission
     setErrors((prevErrors) => ({
-      ...prevErrors,
-      email: false,
-    }));
-  };
-
-  // Reset password error when user starts typing
-  const handlePasswordOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      password: e.target.value,
-    });
-
-    // Reset the password error if user starts typing after form submission
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      password: false,
+        ...prevErrors,
+        email: false,
     }));
   };
 
@@ -49,10 +33,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
       newErrors.email = true;
     }
 
-    if (!formData.password) {
-      newErrors.password = true;
-    }
-
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -61,18 +41,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid()) {
-      onSubmit(formData.email, formData.password);
+      onSubmit(formData.email);
     }
   };
 
   return (
-    <form className="mt-8" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="mt-8">
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center text-white">Login</h2>
+        <h2 className="text-2xl font-semibold text-center text-white">Enter your registered email</h2>
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-400" htmlFor="email">
+        <label htmlFor="email" className="block text-gray-400">
           Email
         </label>
         <Input 
@@ -85,28 +65,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         />
       </div>
 
-      <div className="mb-6">
-        <label className="block text-gray-400" htmlFor="password">
-          Password
-        </label>
-        <Input 
-          errorMessage="Password is required." 
-          isInvalid={!!errors.password}
-          isRequired={true} 
-          type="password" 
-          value={formData.password} 
-          onChange={handlePasswordOnChange} 
-        />
-      </div>
-
       <Button
         className="w-full py-2 bg-blue-600 text-white rounded-lg"
         type="submit"
       >
-        Login
+        Send Reset Email
       </Button>
+
     </form>
   );
 };
 
-export default LoginForm;
+export default ForgetPasswordForm;

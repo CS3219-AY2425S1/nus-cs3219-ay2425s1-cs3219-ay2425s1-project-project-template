@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
 
-import NavLink from "../navlink";
+import NavLink from "../navLink";
 
 import CategoryTags from "./CategoryTags";
 import DifficultyTags from "./DifficultyTags";

@@ -12,6 +12,7 @@ const LoginPage = () => {
   const router = useRouter();
   const { setUser } = useUser();
   const { mutate: login, isPending, isError, error } = useLogin();
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const handleLogin = (email: string, password: string) => {
     login(
@@ -28,8 +29,14 @@ const LoginPage = () => {
           setUser(user);
           router.push("/match");
         },
-        onError: (error) => {
-          alert(`Login failed: ${error?.message}`);
+        onError: (err) => {
+          console.error("Login failed:", err);
+
+          if (err?.response?.status === 401) {
+            setErrorMessage("Incorrect email or password.");
+          } else {
+            setErrorMessage("An unexpected error occurred. Please try again.");
+          }
         },
       },
     );
@@ -37,6 +44,10 @@ const LoginPage = () => {
 
   const handleRegister = () => {
     router.push("/register");
+  };
+
+  const handleForgetPassword = () => {
+    router.push("/forget-password");
   };
 
   return (
@@ -52,7 +63,7 @@ const LoginPage = () => {
 
           <LoginForm onSubmit={handleLogin} />
 
-          {isError && <p className="text-red-500 mt-4">{error?.message}</p>}
+          {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
           {isPending && <p className="text-gray-400 mt-4">Logging in...</p>}
 
           <div className="mt-6 text-center">
@@ -61,6 +72,14 @@ const LoginPage = () => {
               Register
             </Button>
           </div>
+
+          <div className="mt-6 text-center">
+            <h3 className="text-white"> Forgot your password?</h3>
+            <Button className="mt-2" onClick={handleForgetPassword}>
+              Click Here
+            </Button>
+          </div>
+
         </div>
       </div>
     </DefaultLayout>

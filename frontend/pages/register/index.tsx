@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
+import { Button } from "@nextui-org/button";
 
 import RegistrationForm from "@/components/forms/RegistrationForm";
 import { useRegister } from "@/hooks/api/auth";
@@ -8,6 +9,8 @@ import DefaultLayout from "@/layouts/default";
 const RegisterPage = () => {
   const router = useRouter();
   const { mutate: register, isPending, isError, error } = useRegister();
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
 
   const handleRegister = (
     username: string,
@@ -22,9 +25,13 @@ const RegisterPage = () => {
         },
         onError: (err) => {
           console.error("Registration failed:", err);
+          setErrorMessage("An unexpected error occurred. Please try again.");
         },
       },
     );
+  };
+  const handleLogin = () => {
+    router.push("/login");
   };
 
   return (
@@ -40,8 +47,15 @@ const RegisterPage = () => {
 
           <RegistrationForm onSubmit={handleRegister} />
 
-          {isError && <p className="text-red-500 mt-4">{error?.message}</p>}
+          {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
           {isPending && <p className="text-gray-400 mt-4">Registering...</p>}
+
+          <div className="mt-6 text-center">
+            <h3 className="text-white"> Have an account?</h3>
+            <Button className="mt-2" onClick={handleLogin}>
+              Back to Login
+            </Button>
+          </div>
         </div>
       </div>
     </DefaultLayout>
