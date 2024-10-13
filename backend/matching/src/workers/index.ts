@@ -1,3 +1,4 @@
+// MAIN PROCESS
 import { fork } from 'child_process';
 import path from 'path';
 
@@ -6,10 +7,11 @@ import type { Server } from 'socket.io';
 import { logger } from '@/lib/utils';
 import { MATCH_SVC_EVENT, type IChildProcessMessage } from '@/ws';
 
+let nWorkers = 0; // For tracking graceful exit of main process
 export const initWorker = (name: string, io: Server) => {
-  const controller = new AbortController();
   const lCaseName = name.toLowerCase();
-  const worker = fork(path.join(__dirname, `${lCaseName}.js`), { signal: controller.signal });
+  const worker = fork(path.join(__dirname, `${lCaseName}.js`));
+  nWorkers += 1;
   const upperCaseName = name.replace(/^[A-Za-z]/, (c) => c.toUpperCase());
   worker.on('message', (message) => {
     if (typeof message.valueOf() === 'string') {
@@ -27,6 +29,11 @@ export const initWorker = (name: string, io: Server) => {
   });
   worker.on('exit', (code) => {
     logger.error(`${upperCaseName} exited with code ${code}.`);
+    nWorkers -= 1;
+    if (nWorkers === 0) {
+      logger.info('Main Process exiting.');
+      process.exit(0);
+    }
   });
-  return { worker, controller };
+  return worker;
 };
