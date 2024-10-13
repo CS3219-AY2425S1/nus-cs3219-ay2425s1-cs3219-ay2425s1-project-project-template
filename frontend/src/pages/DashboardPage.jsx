@@ -131,17 +131,23 @@ const DashboardPage = () => {
               style={{
                 padding: '10px 15px',
                 cursor: 'pointer',
-                backgroundColor: '#f44336',
-                color: 'white',
+                backgroundColor: 'white',
+                color: '#f44336',
                 borderBottomLeftRadius: '5px',
                 borderBottomRightRadius: '5px',
                 borderTopLeftRadius: '0',
                 borderTopRightRadius: '0',
                 textAlign: 'center',
-                transition: 'background-color 0.3s',
+                transition: 'color 0.3s, background-color 0.3s',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f44336'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#d32f2f';
+                e.currentTarget.style.backgroundColor = '#fce4e4';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#f44336';
+                e.currentTarget.style.backgroundColor = 'white';
+              }}
             >
               Logout
             </div>
