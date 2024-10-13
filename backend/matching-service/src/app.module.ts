@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { MatchingService } from '../src/services/matching.services';
 import { ConfigModule } from '@nestjs/config';
 import config from './config';
 
@@ -13,7 +13,7 @@ import config from './config';
     })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [MatchingService],
 })
 export class AppModule {
   constructor() {

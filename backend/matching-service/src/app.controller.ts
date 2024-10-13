@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Consumer, Kafka, Producer } from 'kafkajs';
 import { ApiResponse } from '@nestjs/swagger';
+import { MatchingService } from './services/matching.services';
+import { MatchRequestDto } from './dto/request.dto';
 
 @Controller()
 export class AppController {
@@ -62,8 +64,8 @@ export class AppController {
 
   // TODO: Implement Kafka producer [userId, topic, difficulty, time]
   @Post('match')
-  async match(@Body('message') body: string): Promise<void> {
-   
+  async match(@Body('message') body: MatchRequestDto): Promise<void> {
+    return this.appService.addMatchRequest(body);
   }
 
   // TODO: Implement Kafka consumer
