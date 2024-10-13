@@ -5,7 +5,7 @@ import { logger } from '@/lib/utils';
 import server, { io } from '@/server';
 import { initWorker } from '@/workers';
 
-const workers: { controller: AbortController; worker: ChildProcess }[] = [];
+const workers: ChildProcess[] = [];
 
 const port = Number.parseInt(EXPRESS_PORT || '8001');
 
@@ -18,15 +18,17 @@ server.listen(port, () => {
 });
 
 const shutdown = () => {
-  workers.forEach(({ controller, worker }) => {
-    controller.abort('Main process shutdown'); // Force an abort error to kill child processes
-    worker.kill();
-  });
-  io.close(() => {
-    logger.info('WS Server shut down');
-  });
   server.close(() => {
-    logger.info('App shut down');
+    workers.forEach((worker) => {
+      worker.kill();
+    });
+    void io
+      .close(() => {
+        logger.info('WS Server shut down');
+      })
+      .then(() => {
+        logger.info('App shut down');
+      });
   });
 };
 
