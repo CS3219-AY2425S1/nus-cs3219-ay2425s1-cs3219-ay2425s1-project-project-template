@@ -1,26 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import "../components/question/DialogForm.css";
+import { useAuth } from "../AuthContext";
+import withAuth from "../hoc/withAuth"; 
 import AddQuestionButton from "../components/question/AddQuestionButton";
 import AddQuestionForm from "../components/question/AddQuestionForm";
 import Dialog from "../components/question/Dialog";
 import EditQuestionForm from "../components/question/EditQuestionForm";
 import QuestionDetail from "../components/question/QuestionDetail";
 import QuestionTable from "../components/question/QuestionTable";
-import withAuth from "../hoc/withAuth"; 
+import "../components/question/DialogForm.css";
 
 const QuestionPage = () => {
+  const { accessToken } = useAuth();
   const navigate = useNavigate(); // Initialize useNavigate
   const [questions, setQuestions] = useState([]);
   const [dialogForm, setDialogForm] = useState(null);
   const dialogRef = useRef(null);
 
   const getHeaders = () => {
-    const token = localStorage.getItem("accessToken");
-  
     return {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
+      "Authorization": `Bearer ${accessToken}`
     };
   };
 

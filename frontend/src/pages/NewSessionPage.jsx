@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
+import { useAuth } from "../AuthContext";
 import withAuth from "../hoc/withAuth"; 
 import loading from "../assets/loading.svg";
 import "./styles/NewSessionPage.css";
 
 const NewSessionPage = () => {
+  const { accessToken } = useAuth();
   const navigate = useNavigate();
   const [topicsArray, setTopicsArray] = useState([]);
 
   const getHeaders = () => {
-    const token = localStorage.getItem("accessToken");
-  
     return {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
+      "Authorization": `Bearer ${accessToken}`
     };
   };
 
