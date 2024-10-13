@@ -26,8 +26,29 @@ body {
   color: red;
 }
 
+.split {
+  display: flex;
+}
+
+.split > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.workspacecomponent {
+  background-color: #d4d4d4; /* bg-gray-50 */
+  border-bottom: 1px solid #e5e7eb; /* border-b border-gray-200 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); /* shadow-md */
+  padding: 0.75rem 1.25rem; /* py-3 px-5 */
+  border-top-left-radius: 0.5rem; /* rounded-t-lg */
+  border-top-right-radius: 0.5rem; /* rounded-t-lg */
+}
+
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+

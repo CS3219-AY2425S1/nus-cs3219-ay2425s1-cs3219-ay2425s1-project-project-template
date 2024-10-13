@@ -9,7 +9,7 @@ body.active-modal {
     font-size: 18px;
 }
 
-.modal, .overlay {
+.modal, .timermodal {
     width: 100vw;
     height: 100vh;
     top: 0;
@@ -17,12 +17,16 @@ body.active-modal {
     right: 0;
     bottom: 0;
     position: fixed;
+    z-index: 1000; /* Higher z-index for the modal */
 }
 
+/* Change the background color of the overlay to light blue */
 .overlay {
-    background: rgba(49,49,49,0.8);
+    background: rgba(173, 216, 230, 0.8); /* Light blue background with some transparency */
+    z-index: 999; /* Lower z-index for the overlay */
 }
-.modal-content {
+
+.modal-content, .timermodal-content {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -31,8 +35,9 @@ body.active-modal {
     background: hsl(0, 0%, 95%);
     padding: 14px 28px;
     border-radius: 3px;
-    max-width: 100%;
-    min-width: 1000px;
+    max-width: 90%; /* Adjusted for responsiveness */
+    min-width: 300px; /* Set a reasonable min-width */
+    z-index: 1001; /* Ensure modal content is above overlay */
 }
 
 .close-modal {
@@ -41,3 +46,34 @@ body.active-modal {
     right: 10px;
     padding: 5px 7px;
 }
+
+.loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+svg {
+    transform: rotate(-90deg); /* Rotate the SVG to start from the top */
+}
+
+/* Optional styles for your modal background */
+.bg-dark-fill-3 {
+    background-color: #e5f0fa; /* Dark background color */
+}
+
+/* Optional: Additional styles for the modal */
+.shadow-lg {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+}
+
+.timer {
+    font-size: 1.875rem; /* Corresponds to text-3xl */
+    font-weight: 700; /* Corresponds to font-bold */
+    color: black; 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+}
+

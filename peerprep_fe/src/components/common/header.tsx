@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Header({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="mx-5 flex place-content-between ">
+    <header className="top-0 left-0 w-full py-3 z-50 flex justify-between items-center px-5">
       <Link href="/home">
         <Image
           className="dark:invert"
