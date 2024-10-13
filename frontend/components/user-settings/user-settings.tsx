@@ -55,7 +55,7 @@ export default function UserSettings({ userId }: { userId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
-    `${userServiceUri}/users/${userId}`,
+    `${userServiceUri(window.location.hostname)}/users/${userId}`,
     fetcher
   );
   const [user, setUser] = useState<User | null>(null);
@@ -140,14 +140,17 @@ export default function UserSettings({ userId }: { userId: string }) {
       }
 
       try {
-        const response = await fetch(`${userServiceUri}/users/${userId}`, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(user),
-        });
+        const response = await fetch(
+          `${userServiceUri(window.location.hostname)}/users/${userId}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to save changes");
         } else {
@@ -178,13 +181,16 @@ export default function UserSettings({ userId }: { userId: string }) {
     }
 
     try {
-      const response = await fetch(`${userServiceUri}/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${userServiceUri(window.location.hostname)}/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) throw new Error("Failed to delete account");
 
       console.log("Account deleted successfully!");
@@ -238,7 +244,7 @@ export default function UserSettings({ userId }: { userId: string }) {
 
     try {
       const response = await fetch(
-        `${userServiceUri}/users/${userId}/change-password`,
+        `${userServiceUri(window.location.hostname)}/users/${userId}/change-password`,
         {
           method: "PATCH",
           headers: {

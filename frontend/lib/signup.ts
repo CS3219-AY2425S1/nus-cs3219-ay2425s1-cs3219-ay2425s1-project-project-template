@@ -5,16 +5,19 @@ export const signUp = async (
   email: string,
   password: string
 ) => {
-  const response = await fetch(`${userServiceUri}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username,
-      email,
-      password,
-    }),
-  });
+  const response = await fetch(
+    `${userServiceUri(window.location.hostname)}/users`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    }
+  );
   return response;
 };

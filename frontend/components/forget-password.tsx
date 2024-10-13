@@ -35,13 +35,16 @@ const ForgetPassword: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${userServiceUri}/users/forget-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${userServiceUri(window.location.hostname)}/users/forget-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

@@ -44,7 +44,7 @@ export default function AdminUserManagement() {
   const auth = useAuth();
 
   const { data, isLoading, mutate } = useSWR(
-    `${userServiceUri}/users`,
+    `${userServiceUri(window.location.hostname)}/users`,
     fetcher
   );
 
@@ -68,12 +68,15 @@ export default function AdminUserManagement() {
       throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`${userServiceUri}/users/${userId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${userServiceUri(window.location.hostname)}/users/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to delete user");

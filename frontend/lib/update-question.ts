@@ -3,7 +3,7 @@ import { Question } from "@/lib/schemas/question-schema";
 
 export const updateQuestion = async (question: Question) => {
   const response = await fetch(
-    `${questionServiceUri}/questions/${question.id}`,
+    `${questionServiceUri(window.location.hostname)}/questions/${question.id}`,
     {
       method: "PUT",
       headers: {

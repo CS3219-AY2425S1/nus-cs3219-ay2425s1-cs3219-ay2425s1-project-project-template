@@ -56,7 +56,7 @@ export default function QuestionListing() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const { data, isLoading, mutate } = useSWR(
-    `${questionServiceUri}/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
+    `${questionServiceUri(window.location.hostname)}/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
     fetcher,
     {
       keepPreviousData: true,
@@ -145,7 +145,7 @@ export default function QuestionListing() {
     try {
       const token = localStorage.getItem("jwtToken");
       const response = await fetch(
-        `${questionServiceUri}/questions/batch-upload`,
+        `${questionServiceUri(window.location.hostname)}/questions/batch-upload`,
         {
           method: "POST",
           headers: {
@@ -190,7 +190,7 @@ export default function QuestionListing() {
 
     try {
       const response = await fetch(
-        `${questionServiceUri}/questions/${selectedQuestion.id}`,
+        `${questionServiceUri(window.location.hostname)}/questions/${selectedQuestion.id}`,
         {
           method: "DELETE",
         }
@@ -263,18 +263,21 @@ export default function QuestionListing() {
 
   const handleCreate = async (newQuestion: Question) => {
     try {
-      const response = await fetch(`${questionServiceUri}/questions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: newQuestion.title,
-          description: newQuestion.description,
-          category: newQuestion.category,
-          complexity: newQuestion.complexity,
-        }),
-      });
+      const response = await fetch(
+        `${questionServiceUri(window.location.hostname)}/questions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: newQuestion.title,
+            description: newQuestion.description,
+            category: newQuestion.category,
+            complexity: newQuestion.complexity,
+          }),
+        }
+      );
 
       if (!response.ok) {
         if (response.status == 409) {
