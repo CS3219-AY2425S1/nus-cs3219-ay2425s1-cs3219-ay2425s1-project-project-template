@@ -1,5 +1,7 @@
+import { userServiceUri } from "@/lib/api-uri";
+
 export const resetPassword = async (token: string, password: string) => {
-  const response = await fetch("http://localhost:3001/users/reset-password", {
+  const response = await fetch(`${userServiceUri}/users/reset-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,3 +1,5 @@
+import { userServiceUri } from "@/lib/api-uri";
+
 export const updateUserPrivilege = async (
   jwtToken: string,
   id: string,
@@ -5,7 +7,7 @@ export const updateUserPrivilege = async (
 ) => {
   const body = { isAdmin };
 
-  const response = await fetch(`http://localhost:3001/users/${id}/privilege`, {
+  const response = await fetch(`${userServiceUri}/users/${id}/privilege`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${jwtToken}`,

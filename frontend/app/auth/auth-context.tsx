@@ -1,5 +1,6 @@
 "use client";
 
+import { userServiceUri } from "@/lib/api-uri";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { useRouter } from "next/navigation";
 import {
@@ -32,7 +33,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Login using locally stored JWT token
   useEffect(() => {
     if (token) {
-      fetch("http://localhost:3001/auth/verify-token", {
+      fetch(`${userServiceUri}/auth/verify-token`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -51,7 +52,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   // Login using email and password
   const login = async (email: string, password: string): Promise<User> => {
-    const response = await fetch("http://localhost:3001/auth/login", {
+    const response = await fetch(`${userServiceUri}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

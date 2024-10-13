@@ -24,6 +24,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
+import { userServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<User> => {
   // Retrieve the JWT token from localStorage
@@ -54,7 +55,7 @@ export default function UserSettings({ userId }: { userId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
-    `http://localhost:3001/users/${userId}`,
+    `${userServiceUri}/users/${userId}`,
     fetcher
   );
   const [user, setUser] = useState<User | null>(null);
@@ -139,7 +140,7 @@ export default function UserSettings({ userId }: { userId: string }) {
       }
 
       try {
-        const response = await fetch(`http://localhost:3001/users/${userId}`, {
+        const response = await fetch(`${userServiceUri}/users/${userId}`, {
           method: "PATCH",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -177,7 +178,7 @@ export default function UserSettings({ userId }: { userId: string }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/users/${userId}`, {
+      const response = await fetch(`${userServiceUri}/users/${userId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -237,7 +238,7 @@ export default function UserSettings({ userId }: { userId: string }) {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/users/${userId}/change-password`,
+        `${userServiceUri}/users/${userId}/change-password`,
         {
           method: "PATCH",
           headers: {

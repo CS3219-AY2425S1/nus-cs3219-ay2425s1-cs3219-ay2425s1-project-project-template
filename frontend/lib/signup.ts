@@ -1,9 +1,11 @@
+import { userServiceUri } from "@/lib/api-uri";
+
 export const signUp = async (
   username: string,
   email: string,
   password: string
 ) => {
-  const response = await fetch("http://localhost:3001/users", {
+  const response = await fetch(`${userServiceUri}/users`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -16,6 +16,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
+import { userServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -43,7 +44,7 @@ export default function AdminUserManagement() {
   const auth = useAuth();
 
   const { data, isLoading, mutate } = useSWR(
-    "http://localhost:3001/users",
+    `${userServiceUri}/users`,
     fetcher
   );
 
@@ -67,7 +68,7 @@ export default function AdminUserManagement() {
       throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`http://localhost:3001/users/${userId}`, {
+    const response = await fetch(`${userServiceUri}/users/${userId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

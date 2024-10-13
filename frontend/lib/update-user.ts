@@ -1,3 +1,5 @@
+import { userServiceUri } from "@/lib/api-uri";
+
 export const updateUser = async (
   jwtToken: string,
   id: string,
@@ -12,7 +14,7 @@ export const updateUser = async (
 
   const body = { username, email, password, skillLevel };
 
-  const response = await fetch(`http://localhost:3001/users/${id}`, {
+  const response = await fetch(`${userServiceUri}/users/${id}`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${jwtToken}`,

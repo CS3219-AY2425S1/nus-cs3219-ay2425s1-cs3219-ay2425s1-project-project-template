@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { userServiceUri } from "@/lib/api-uri";
 
 const ForgetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -34,16 +35,13 @@ const ForgetPassword: React.FC = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/users/forget-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${userServiceUri}/users/forget-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();

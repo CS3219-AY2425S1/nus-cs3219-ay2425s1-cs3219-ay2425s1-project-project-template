@@ -1,8 +1,9 @@
-import { Question } from "./schemas/question-schema";
+import { questionServiceUri } from "@/lib/api-uri";
+import { Question } from "@/lib/schemas/question-schema";
 
 export const updateQuestion = async (question: Question) => {
   const response = await fetch(
-    `http://localhost:8000/questions/${question.id}`,
+    `${questionServiceUri}/questions/${question.id}`,
     {
       method: "PUT",
       headers: {
