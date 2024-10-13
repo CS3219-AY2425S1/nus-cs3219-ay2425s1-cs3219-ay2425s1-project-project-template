@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
-
+import withAuth from "../hoc/withAuth"; 
 import loading from "../assets/loading.svg";
 import "./styles/NewSessionPage.css";
 
@@ -61,16 +61,30 @@ const NewSessionPage = () => {
     setTopicsArray(topics);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+    const formObj = Object.fromEntries(formData.entries());
+
+    if (formObj.hasOwnProperty('difficulty') && formObj.hasOwnProperty('topic')) {
+      navigate('/waiting', { state: { userPref: formObj } });
+    } else {
+      alert("Select a difficulty/topic");
+    }
+  };
+
   return (
     <div className="session-container">
         <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
         <div className="session-selection">
             <p>Start a New Session</p>
-            <form className="session-form" action="">
+            <form className="session-form" onSubmit={handleSubmit}>
                 <div className="difficulty-selection">
                     <p>Select a Difficulty Level:</p>
                     <div className="options">
-                      <input type="radio" id="easy" name="difficulty" value="easy" />
+                      <input type="radio" id="easy" name="difficulty" value="easy"/>
                       <label className="radio-label" htmlFor="easy">Easy</label>
                       <input type="radio" id="medium" name="difficulty" value="medium" />
                       <label className="radio-label" htmlFor="medium">Medium</label>
@@ -109,4 +123,5 @@ const NewSessionPage = () => {
   );
 };
 
-export default NewSessionPage;
+const WrappedNewSessionPage = withAuth(NewSessionPage);
+export default WrappedNewSessionPage;
