@@ -1,6 +1,9 @@
 import { connect, Connection } from "amqplib"
 import { performMatching } from "./matching"
+import { TimedMatchRequest } from "../models/types"
 import logger from '../utils/logger'
+
+const requestQueue: TimedMatchRequest[] = []
 
 const startConsumer = async () => {
     try {
@@ -14,8 +17,12 @@ const startConsumer = async () => {
 
         channel.consume(queue, (msg) => {
             if (msg) {
-                logger.info(`Received matching request: ${msg.content}`)
-                performMatching(msg.content)
+                const { name, difficulty, category } = JSON.parse(msg.content.toString())
+                const request: TimedMatchRequest = { name, difficulty, category, timestamp: Date.now() }
+                logger.info(`Received matching request: ${JSON.stringify(request)}`)
+                requestQueue.push(request)
+                console.log(requestQueue)
+                performMatching(requestQueue)
             }
         }, { noAck: true })
     } catch (error: any) {
