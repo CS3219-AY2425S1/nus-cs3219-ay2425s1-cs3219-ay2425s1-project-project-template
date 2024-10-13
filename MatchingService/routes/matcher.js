@@ -7,12 +7,12 @@ const waitingTime = 60000;
 // hash table of waiting users
 const criteriaToUsers = new Map();
 
-router.get('/matcher', (req, res) => {
+router.get('/', (req, res) => {
     // Returns queue view with the current queue data
     res.json(criteriaToUsers);
 });
 
-router.post('/matcher', (req, res) => {
+router.post('/', (req, res) => {
     mainUserId = req.query.userId
     key = {
         questionId: req.query.questionId,
@@ -69,7 +69,7 @@ router.post('/matcher', (req, res) => {
     }
 });
 
-router.delete('/matcher', (req, res) => {
+router.delete('/', (req, res) => {
     key = {
         questionId: req.query.questionId,
         topic: req.query.topic,
