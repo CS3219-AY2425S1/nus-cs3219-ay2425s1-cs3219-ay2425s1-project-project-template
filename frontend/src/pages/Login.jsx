@@ -2,7 +2,7 @@ import { ArrowBigRightDash, ArrowUpRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -36,6 +36,7 @@ const Login = () => {
 
   return (
     <div className="relative w-full p-6">
+      <ToastContainer />
       <div className="flex flex-row space-x-6">
         {/* Text Carousel */}
         <div className="relative h-[calc(100vh-3rem)] w-[75rem] overflow-hidden rounded-3xl bg-blue-50">

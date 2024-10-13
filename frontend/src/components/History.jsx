@@ -1,6 +1,6 @@
 const History = ({ sessions }) => {
   return (
-    <div className="w-full max-w-xl rounded-3xl border border-gray-300/30 bg-[#191919] p-6 text-white">
+    <div className="w-full max-w-xl rounded-3xl border border-gray-300/30 bg-transparent p-6 text-white">
       <h2 className="mb-4 text-lg font-semibold">Practice History</h2>
       <div className="h-[16rem] space-y-2 overflow-y-auto">
         {sessions.length > 0 ? (

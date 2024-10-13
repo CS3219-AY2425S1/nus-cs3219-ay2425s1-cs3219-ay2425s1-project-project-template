@@ -1,8 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { createUser } from "../services/UserService";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -13,6 +14,7 @@ const carouselItems = [
 const SignUp = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { reset } = useForm();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -21,16 +23,31 @@ const SignUp = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    toast.success("Account Created");
+  const sendPostUser = async (userData) => {
+    try {
+      const response = await createUser(userData);
+      toast.success("Account Created");
+      navigate('/dashboard')
+    } catch (error) {
+      if (error.response && error.response.data) {
+        toast.error("User already exists");
+      } else {
+        toast.error("An error occured. Please try again!");
+      }
+    }
+  };
+
+  const onSubmit = (userData) => {
     reset();
+    console.log(userData);
+    sendPostUser(userData);
+    
   };
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
-    }, 3000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
@@ -39,11 +56,12 @@ const SignUp = () => {
 
   return (
     <div className="relative w-full p-6">
+      <ToastContainer />
       <div className="flex flex-row space-x-6">
         {/* Form */}
         <div className="flex h-[calc(100vh-3rem)] w-2/3 rounded-3xl border border-gray-300/30 bg-transparent">
           <div className="flex w-full flex-col items-center justify-center">
-            <span className="flex space-x-3 text-2xl md:text-4xl lg:text-5xl font-medium">
+            <span className="flex space-x-3 text-2xl font-medium md:text-4xl lg:text-5xl">
               <h1>Create an</h1>
               <h1 className="text-[#C6FF46]">Account</h1>
             </span>
@@ -88,6 +106,24 @@ const SignUp = () => {
                     </p>
                   )}
                 </div>
+              </div>
+
+              {/* Username */}
+              <div>
+                <input
+                  type="text"
+                  name="username"
+                  className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
+                  placeholder="Create a unique username"
+                  {...register("username", {
+                    required: "Username is required.",
+                  })}
+                />
+                {errors.email && (
+                  <p className="mx-2 mt-1 text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               {/* Email */}

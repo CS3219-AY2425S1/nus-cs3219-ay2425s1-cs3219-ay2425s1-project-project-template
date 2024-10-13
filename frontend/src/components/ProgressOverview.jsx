@@ -72,7 +72,7 @@ const ProgressOverview = ({ dataPoints }) => {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-gray-300/30 bg-[#191919] p-6 text-white">
+    <div className="w-full max-w-md rounded-3xl border border-gray-300/30 bg-transparent p-6 text-white">
       <h2 className="mb-4 text-lg font-semibold">Progress Overview</h2>
       <div className="h-64">
         <Line data={data} options={options} />
