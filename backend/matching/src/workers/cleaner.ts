@@ -67,6 +67,7 @@ async function clean() {
   }
 }
 
+logger.info('Process Healthy');
 (function loop() {
   if (stopSignal) {
     return;

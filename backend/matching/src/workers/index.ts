@@ -15,11 +15,14 @@ export const initWorker = (name: string, io: Server) => {
   const upperCaseName = name.replace(/^[A-Za-z]/, (c) => c.toUpperCase());
   worker.on('message', (message) => {
     if (typeof message.valueOf() === 'string') {
-      logger.info(`[${upperCaseName}]: ${message}`);
+      logger.info({ pid: worker.pid }, `[${upperCaseName}]: ${message}`);
       return;
     }
     const messagePayload = message.valueOf();
-    logger.info(`[${upperCaseName}] WS Payload: ${JSON.stringify(messagePayload)}`);
+    logger.info(
+      { pid: worker.pid },
+      `[${upperCaseName}]: WS Payload: ${JSON.stringify(messagePayload)}`
+    );
     const { rooms, event, message: payload } = messagePayload as IChildProcessMessage;
     if (event === MATCH_SVC_EVENT.DISCONNECT) {
       io.sockets.in(rooms).disconnectSockets();
@@ -28,7 +31,7 @@ export const initWorker = (name: string, io: Server) => {
     io.sockets.in(rooms).emit(event, payload);
   });
   worker.on('exit', (code) => {
-    logger.error(`${upperCaseName} exited with code ${code}.`);
+    logger.error({ pid: worker.pid }, `${upperCaseName} exited with code ${code}.`);
     nWorkers -= 1;
     if (nWorkers === 0) {
       logger.info('Main Process exiting.');
