@@ -32,7 +32,7 @@ class Matchmaker:
 
     def run(self):
         self.pubsub.subscribe(self.channel.value)
-        while not self.stop_event.is_set():
+        while not self._stop_event.is_set():
             message = self.pubsub.get_message()
             if message and message["type"] == "message":
                 logger.info("MATCHMAKER: Received match request")
