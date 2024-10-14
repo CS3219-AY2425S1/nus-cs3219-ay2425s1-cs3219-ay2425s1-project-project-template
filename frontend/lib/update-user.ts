@@ -1,3 +1,5 @@
+import { userServiceUri } from "@/lib/api-uri";
+
 export const updateUser = async (
   jwtToken: string,
   id: string,
@@ -12,13 +14,16 @@ export const updateUser = async (
 
   const body = { username, email, password, skillLevel };
 
-  const response = await fetch(`http://localhost:3001/users/${id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${jwtToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(
+    `${userServiceUri(window.location.hostname)}/users/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
   return response;
 };
