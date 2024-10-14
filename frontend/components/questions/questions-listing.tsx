@@ -18,6 +18,7 @@ import {
 } from "@/lib/schemas/question-schema";
 import QuestionFormModal from "./question-form-modal";
 import { updateQuestion } from "@/lib/update-question";
+import { questionServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -55,7 +56,7 @@ export default function QuestionListing() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const { data, isLoading, mutate } = useSWR(
-    `http://localhost:8000/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
+    `${questionServiceUri(window.location.hostname)}/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
     fetcher,
     {
       keepPreviousData: true,
@@ -144,7 +145,7 @@ export default function QuestionListing() {
     try {
       const token = localStorage.getItem("jwtToken");
       const response = await fetch(
-        "http://localhost:8000/questions/batch-upload",
+        `${questionServiceUri(window.location.hostname)}/questions/batch-upload`,
         {
           method: "POST",
           headers: {
@@ -189,7 +190,7 @@ export default function QuestionListing() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/questions/${selectedQuestion.id}`,
+        `${questionServiceUri(window.location.hostname)}/questions/${selectedQuestion.id}`,
         {
           method: "DELETE",
         }
@@ -262,18 +263,21 @@ export default function QuestionListing() {
 
   const handleCreate = async (newQuestion: Question) => {
     try {
-      const response = await fetch("http://localhost:8000/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: newQuestion.title,
-          description: newQuestion.description,
-          category: newQuestion.category,
-          complexity: newQuestion.complexity,
-        }),
-      });
+      const response = await fetch(
+        `${questionServiceUri(window.location.hostname)}/questions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: newQuestion.title,
+            description: newQuestion.description,
+            category: newQuestion.category,
+            complexity: newQuestion.complexity,
+          }),
+        }
+      );
 
       if (!response.ok) {
         if (response.status == 409) {
