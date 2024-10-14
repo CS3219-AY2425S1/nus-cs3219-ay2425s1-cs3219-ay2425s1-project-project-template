@@ -32,22 +32,25 @@ const LandingPage = () => {
 
     return (
         <div className="flex items-center justify-center min-h-[90vh]">
-            <div className="flex items-center justify-between max-w-7xl w-full">
-                <div className="flex-col basis-3/4 pr-8">
-                    <h1 className="text-6xl font-extrabold text-white pb-5">
+            {/* <div className="flex items-center justify-between max-w-7xl w-full"></div> */}
+            <div className="flex justify-between max-w-[90vw]">
+                <div className="flex-1 pr-10 h-full">
+                    <h1 className="text-6xl font-extrabold text-white pb-8">
                         Collaborative Coding, Competitive Results.
                     </h1>
-                    <p className="font-normal text-white pb-5">
+                    <p className="font-normal text-white pb-8">
                         Join PeerPrep to sharpen your skills through real-time problem-solving, and prepare to outshine in every interview.
                         Created for CS3219 Software Engineering Principles AY24/25 by Group 15.
                     </p>
-                    <Button className="mt-6 font-semibold w-full" onClick={() => handleLogin()}>
-                        <GoogleIcon/>
-                        <span className="pl-2">Get Started with Google</span>
-                    </Button>
+                    <div className="pt-8">
+                        <Button className="font-semibold w-full" onClick={() => handleLogin()}>
+                                <GoogleIcon/>
+                                <span className="pl-2">Get Started with Google</span>
+                            </Button>
+                    </div>
                 </div>
-                <div className="flex-col basis-1/4 h-full">
-                    <Card className="bg-primary-1000 border-none pt-6 pb-6 w-full h-full drop-shadow">
+                <div className="flex-1 h-full">
+                    <Card className="bg-primary-1000 border-none pt-2 pb-2 max-w-[90vh] h-full drop-shadow">
                         <CardContent className="h-full">
                             <CodeSnippet />
                         </CardContent>
