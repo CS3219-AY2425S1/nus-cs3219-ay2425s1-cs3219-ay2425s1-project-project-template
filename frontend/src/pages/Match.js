@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import logo from '../PeerPrep_logo.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faUserCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { io } from "socket.io-client";
 
+const NOTIFICATION_SERVICE = "http://localhost:5000";
+const userId = localStorage.getItem("userId");
 const topics = ["Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Databases", "Data Structures", "Recursion", "Strings"]
 const difficulties = ["Easy", "Medium", "Hard"]
 
@@ -13,6 +16,7 @@ export const Match = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const navigate = useNavigate();
   const [isMatching, setIsMatching] = useState(false);
+  const [socket, setSocket] = useState(null);
   const [timer, setTimer] = useState(0);
 
   // Timer
@@ -48,6 +52,47 @@ export const Match = () => {
     }
     setIsMatching(true);
     setTimer(0); // Reset the timer to 0
+
+    try {
+      // TO BE COMPLETED: MATCHING SERVICE API CALL
+      // const response = await axios.post(MATCHING_SERVICE, {
+      //   topic: selectedTopic,
+      //   difficulty: selectedDifficulty,
+      // });
+
+      // Establish WebSocket connection to notification service
+      const newSocket = io(NOTIFICATION_SERVICE, {
+        query: { role: "user", user_id: userId },
+        transports: ["websocket"]
+      });
+
+      setSocket(newSocket);
+
+      socket.on("connect", () => {
+        console.log("connected to notification service!");
+        socket.emit("user_connected", { userId: userId, message: "User has connected!" });
+      });
+
+      socket.on("notification", (data) => {
+        alert(`You have been matched with ${data.data}!`);
+        stopMatching();
+        socket.disconnect();
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("WebSocket connection error:", err);
+        setIsMatching(false);
+      });
+
+    } catch (error) {
+      console.error("Error calling matching service:", error);
+      alert("Failed to start matching. Please try again.");
+      setIsMatching(false);
+    }
+
+    setTimeout(() => {
+      stopMatching();
+    }, 30000);
   };
 
   const stopMatching = () => {
