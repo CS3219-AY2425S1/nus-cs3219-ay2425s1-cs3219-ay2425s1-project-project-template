@@ -29,14 +29,14 @@ const NavBar: React.FC = () => {
       <div className="flex-none">
         {location.pathname === "/" ? (
           <div className="flex space-x-8 text-2xl">
-            <Link to="/dashboard">
+            <Link to="/register">
               <button className="bg-black text-off-white rounded-[25px] p-4 whitespace-nowrap">
-                Enter as Admin
+                Register
               </button>
             </Link>
             <Link to="/login">
               <button className="bg-yellow text-black rounded-[25px] p-4 whitespace-nowrap">
-                Enter as User
+                Login
               </button>
             </Link>
           </div>
