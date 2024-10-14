@@ -1,15 +1,28 @@
 import "../styles/Match.css";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import logo from '../PeerPrep_logo.jpg';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faUserCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import logo from "../PeerPrep_logo.jpg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faStar,
+  faUserCircle,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
 
 const NOTIFICATION_SERVICE = "http://localhost:5000";
 const userId = localStorage.getItem("userId");
-const topics = ["Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Databases", "Data Structures", "Recursion", "Strings"]
-const difficulties = ["Easy", "Medium", "Hard"]
+const topics = [
+  "Algorithms",
+  "Arrays",
+  "Bit Manipulation",
+  "Brainteaser",
+  "Databases",
+  "Data Structures",
+  "Recursion",
+  "Strings",
+];
+const difficulties = ["Easy", "Medium", "Hard"];
 
 export const Match = () => {
   const [selectedTopic, setSelectedTopic] = useState("");
@@ -22,15 +35,24 @@ export const Match = () => {
   // Timer
   useEffect(() => {
     let interval;
-    if (isMatching && timer < 30) {
+    let startTime;
+
+    if (isMatching) {
+      startTime = Date.now();
+
       interval = setInterval(() => {
-        setTimer((prev) => prev + 1);
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setTimer(elapsed);
+
+        if (elapsed >= 30) {
+          stopMatching();
+        }
       }, 1000);
-    } else if (timer === 30) {
-      stopMatching(); // Stop matching after 30 seconds
+    } else {
+      setTimer(0); // Reset timer when not matching
     }
-    return () => clearInterval(interval); // Cleanup on unmount or timer stop
-  }, [isMatching, timer]);
+    return () => clearInterval(interval); // Cleanup interval
+  }, [isMatching]);
 
   const handleTopicClick = (topic) => {
     setSelectedTopic(topic);
@@ -42,16 +64,16 @@ export const Match = () => {
 
   const handleProfileButton = (e) => {
     navigate("/profile");
-  }
+  };
 
-  const startMatching = async(e) => {
+  const startMatching = async (e) => {
     e.preventDefault();
     if (!selectedTopic || !selectedDifficulty) {
-      alert('Please choose a topic and difficulty level.')
+      alert("Please choose a topic and difficulty level.");
       return;
     }
     setIsMatching(true);
-    setTimer(0); // Reset the timer to 0
+    setTimer(0);
 
     try {
       // TO BE COMPLETED: MATCHING SERVICE API CALL
@@ -61,43 +83,39 @@ export const Match = () => {
       // });
 
       // Establish WebSocket connection to notification service
-      const newSocket = io(NOTIFICATION_SERVICE, {
+      const socket = io(NOTIFICATION_SERVICE, {
         query: { role: "user", user_id: userId },
-        transports: ["websocket"]
+        transports: ["websocket"],
       });
 
-      setSocket(newSocket);
-
+      setSocket(socket);
       socket.on("connect", () => {
         console.log("connected to notification service!");
-        socket.emit("user_connected", { userId: userId, message: "User has connected!" });
+        socket.emit("user_connected", {
+          userId: userId,
+          message: "User has connected!",
+        });
       });
 
       socket.on("notification", (data) => {
         alert(`You have been matched with ${data.data}!`);
         stopMatching();
-        socket.disconnect();
       });
 
       socket.on("connect_error", (err) => {
         console.error("WebSocket connection error:", err);
         setIsMatching(false);
       });
-
     } catch (error) {
-      console.error("Error calling matching service:", error);
-      alert("Failed to start matching. Please try again.");
-      setIsMatching(false);
-    }
-
-    setTimeout(() => {
+      console.error("Error:", error);
       stopMatching();
-    }, 30000);
+    }
   };
 
   const stopMatching = () => {
+    if (socket?.connected) socket.disconnect();
     setIsMatching(false);
-    setTimer(0); // Reset the timer when matching stops
+    setTimer(0);
   };
 
   return (
@@ -105,13 +123,18 @@ export const Match = () => {
       {/* Menu Bar */}
       <nav className="menu-bar">
         <img src={logo} alt="PeerPrep" className="logo" />
-        <FontAwesomeIcon icon={faUserCircle} className="profile-icon" style={{cursor: "pointer"}} onClick={handleProfileButton} />
+        <FontAwesomeIcon
+          icon={faUserCircle}
+          className="profile-icon"
+          style={{ cursor: "pointer" }}
+          onClick={handleProfileButton}
+        />
       </nav>
-   
+
       {/* Main Content */}
       <div className="main-container">
         {/* Topics */}
-        <div className="topics-container"> 
+        <div className="topics-container">
           <h2>Choose ONE topic</h2>
           <ul>
             {topics.map((topic, index) => (
@@ -121,11 +144,11 @@ export const Match = () => {
                 onClick={() => handleTopicClick(topic)}
               >
                 {topic}
-              </li>       
+              </li>
             ))}
           </ul>
         </div>
-     
+
         {/* Difficulty */}
         <div className="difficulty-container">
           <h2>Choose ONE Difficulty level</h2>
@@ -155,24 +178,27 @@ export const Match = () => {
                     <FontAwesomeIcon icon={faStar} className="star" />
                   </>
                 )}
-              </li>           
+              </li>
             ))}
           </ul>
         </div>
- 
+
         {/* Match Button and Timer */}
         <div className="match-button-container">
           {isMatching && (
             <div className="timer">
               <p>Matching in progress... {timer}s</p>
-              <FontAwesomeIcon icon={faSpinner} className="spin"/>
+              <FontAwesomeIcon icon={faSpinner} className="spin" />
             </div>
           )}
-          <button className="match-button" onClick={startMatching} disabled={isMatching}>
-            Start Matching
+          <button
+            className="match-button"
+            onClick={isMatching ? stopMatching : startMatching}
+          >
+            {isMatching ? "Cancel" : "Start Matching"}
           </button>
         </div>
       </div>
-    </div>  
+    </div>
   );
 };
