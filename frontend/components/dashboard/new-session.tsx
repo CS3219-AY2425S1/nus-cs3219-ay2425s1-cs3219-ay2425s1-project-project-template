@@ -32,39 +32,23 @@ export const NewSession = () => {
         isMatchmaking: false,
         isMatchFound: false,
     })
-    const [timeElapsed, setTimeElapsed] = React.useState({
-        minutes: 0,
-        seconds: 0,
-    })
+    const [timeElapsed, setTimeElapsed] = React.useState(0)
     React.useEffect(() => {
         if (modalData.isMatchmaking) {
             const timer = setTimeout(() => {
-                if (timeElapsed.seconds === 59) {
-                    setTimeElapsed({
-                        minutes: timeElapsed.minutes + 1,
-                        seconds: 0,
-                    })
-                } else {
-                    setTimeElapsed({
-                        minutes: timeElapsed.minutes,
-                        seconds: timeElapsed.seconds + 1,
-                    })
-                }
+                setTimeElapsed(timeElapsed + 1)
             }, 1000)
 
             return () => clearTimeout(timer)
         }
-    }, [modalData.isMatchmaking, timeElapsed.minutes, timeElapsed.seconds])
+    }, [modalData.isMatchmaking, timeElapsed])
 
     const handleMatchmaking = async () => {
         if (!selectedTopic || !selectedComplexity) {
             toast.error('Please select a topic and complexity level to start matchmaking.')
             return
         }
-        setTimeElapsed({
-            minutes: 0,
-            seconds: 0,
-        })
+        setTimeElapsed(0)
         setModalData({
             isOpen: true,
             isMatchFound: false,
@@ -173,7 +157,7 @@ export const NewSession = () => {
                         {modalData.isMatchmaking && <Loading />}
                         {modalData.isMatchmaking && (
                             <h2 className="text-medium font-medium mt-2">
-                                {timeElapsed.minutes.toString() + ':' + timeElapsed.seconds.toString().padStart(2, '0')}
+                                {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
                             </h2>
                         )}
                         <Button
