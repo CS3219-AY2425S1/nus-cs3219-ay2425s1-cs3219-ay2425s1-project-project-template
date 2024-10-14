@@ -12,18 +12,14 @@ const LandingPage = () => {
     const router = useRouter();
 
     const googleLogin = useGoogleLogin({
-        onSuccess: (response) => login(response),
+        onSuccess: (response) => {
+            login(response);
+            router.push("/"); // Redirect to dashboard after successful login
+        },
         onError: (error) => {
             console.error("Login Failed:", error);
         },
     });
-
-    // Redirect to dashboard if user authenticates (token is present)
-    useEffect(() => {
-        if (token) {
-            router.push("/");
-        }
-    }, [token, router]);
 
     // Trigger OAuth pop up only if user is not authenticated (token is not present)
     const handleLogin = () => {
