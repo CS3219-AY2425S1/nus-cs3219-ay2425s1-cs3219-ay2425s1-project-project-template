@@ -24,6 +24,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
+import { userServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<User> => {
   // Retrieve the JWT token from localStorage
@@ -54,7 +55,7 @@ export default function UserSettings({ userId }: { userId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
-    `http://localhost:3001/users/${userId}`,
+    `${userServiceUri(window.location.hostname)}/users/${userId}`,
     fetcher
   );
   const [user, setUser] = useState<User | null>(null);
@@ -139,14 +140,17 @@ export default function UserSettings({ userId }: { userId: string }) {
       }
 
       try {
-        const response = await fetch(`http://localhost:3001/users/${userId}`, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(user),
-        });
+        const response = await fetch(
+          `${userServiceUri(window.location.hostname)}/users/${userId}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to save changes");
         } else {
@@ -177,13 +181,16 @@ export default function UserSettings({ userId }: { userId: string }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${userServiceUri(window.location.hostname)}/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) throw new Error("Failed to delete account");
 
       console.log("Account deleted successfully!");
@@ -237,7 +244,7 @@ export default function UserSettings({ userId }: { userId: string }) {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/users/${userId}/change-password`,
+        `${userServiceUri(window.location.hostname)}/users/${userId}/change-password`,
         {
           method: "PATCH",
           headers: {

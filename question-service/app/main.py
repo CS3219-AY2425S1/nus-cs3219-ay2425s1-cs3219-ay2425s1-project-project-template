@@ -7,7 +7,7 @@ from routers import questions
 app = FastAPI(title="Question Service API")
 
 origins = [
-    "http://localhost:3000",
+    "*",
 ]
 
 app.add_middleware(

@@ -1,5 +1,6 @@
 "use client";
 
+import { userServiceUri } from "@/lib/api-uri";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { useRouter } from "next/navigation";
 import {
@@ -38,7 +39,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
     if (token) {
       setIsLoading(true);
-      fetch("http://localhost:3001/auth/verify-token", {
+      fetch(`${userServiceUri(window.location.hostname)}/auth/verify-token`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -59,16 +60,19 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   // Login using email and password
   const login = async (email: string, password: string): Promise<User> => {
-    const response = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+    const response = await fetch(
+      `${userServiceUri(window.location.hostname)}/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Not OK");
