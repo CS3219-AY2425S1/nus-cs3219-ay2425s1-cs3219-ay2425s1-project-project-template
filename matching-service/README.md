@@ -12,6 +12,7 @@
 ## Matching service API guide
 
 ### Find match
+
 - Description: This endpoint allows finding a match
 
 - HTTP method: `POST`
@@ -20,10 +21,11 @@
 
 - Body:
 
-  - Required: userId (string), topic (string), difficulty (string)
+  - Required: userName (string), topic (string), difficulty (string)
+
   ```
   {
-    "userId": "(Replace with userId)",
+    "userId": "(Replace with userName)",
     "topic": "array",
     "difficulty": "easy"
   }
@@ -32,17 +34,20 @@
 - Example for two users:
 
   User 1:
+
   ```
   {
-    "userId": "66eaf41a42e9e32670f99739",
+    "userName": "John",
     "topic": "array",
     "difficulty": "easy"
   }
   ```
+
   User 2:
+
   ```
   {
-    "userId": "66eaf3a642e9e32670f99736",
+    "userName": "Doe",
     "topic": "array",
     "difficulty": "easy"
   }
@@ -52,5 +57,5 @@
   Expected output:
 
   ```
-  Match found between 66eaf3a642e9e32670f99736 and 66eaf41a42e9e32670f99739 
+  Match found between John and Doe
   ```

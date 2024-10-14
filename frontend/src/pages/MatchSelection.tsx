@@ -1,20 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from '@mui/material';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import Header from "../components/Header";
 import { useAuth } from "../hooks/useAuth";
-import { fetchAllTopics } from '../api/questionApi';
-import { findMatch, cancelMatch } from '../api/matchingApi';
-import { io, Socket } from 'socket.io-client';
+import { fetchAllTopics } from "../api/questionApi";
+import { findMatch, cancelMatch } from "../api/matchingApi";
+import { io, Socket } from "socket.io-client";
+import { SelectChangeEvent } from "@mui/material/Select";
+import { MatchDataResponse } from "../@types/match";
+import humanImage from "../assets/human.png";
+import LabelValue from "../components/LabelValue";
 
-const MatchSelection: React.FC = () => {
-  const [difficulty, setDifficulty] = useState<string>('Easy');
-  const [topic, setTopic] = useState<string>('');
+const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_API_URL;
+
+const MatchSelection = () => {
+  const [difficulty, setDifficulty] = useState<string>("Easy");
+  const [topic, setTopic] = useState<string>("");
   const [topics, setTopics] = useState<string[]>([]);
   const [isMatching, setIsMatching] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(30);
+  const [matchUserName, setMatchUserName] = useState<string | null>(null);
   const [noMatchFound, setNoMatchFound] = useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(30);
   const { user, token } = useAuth();
-  const [socket, setSocket] = useState<Socket | null>(null);
+
+  const socketRef = useRef<any>(null);
 
   useEffect(() => {
     const getTopics = async () => {
@@ -32,60 +49,85 @@ const MatchSelection: React.FC = () => {
     getTopics();
   }, []);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isMatching && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1000);
-    } else if (timer === 0) {
-      clearInterval(interval!);
-      setIsMatching(false);
-      setNoMatchFound(true);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isMatching, timer]);
-
-  const handleDifficultyChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    setDifficulty(e.target.value as string);
-  };
-
-  const handleTopicChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    setTopic(e.target.value as string);
-  };
-
   const handleFindMatch = async (e: React.FormEvent) => {
+    setMatchUserName(null);
+    setNoMatchFound(false);
     e.preventDefault();
 
     if (!user || !token) {
       throw new Error("User is not logged in.");
     }
 
+    socketRef.current = io(SOCKET_SERVER_URL);
+    socketRef.current.emit("join_room", { userName: user.name });
+
+    socketRef.current.on(
+      "match_found",
+      async (matchData: MatchDataResponse) => {
+        setMatchUserName(matchData.matchUserName);
+        setIsMatching(false);
+        setNoMatchFound(false);
+        socketRef.current.disconnect();
+      }
+    );
+
     try {
-      await findMatch(user.id, topic, difficulty);
+      await findMatch(user?.name, topic, difficulty);
       setIsMatching(true);
       setTimer(30);
-      setNoMatchFound(false); // Reset "No match found" message
-
-      // Connect to the Socket.io server
-      const socketInstance = io(import.meta.env.VITE_SOCKET_API_URL);
-      setSocket(socketInstance);
-
-      socketInstance.emit("join_room", { userId: user.id });
-
-      socketInstance.on("match_found", (matchDetails) => {
-        console.log("Match found:", matchDetails);
-        // Handle match found (e.g., navigate to the match screen or show a notification)
-        setIsMatching(false);
-      });
-
+      setNoMatchFound(false);
     } catch (error) {
       console.error("Error submitting match request:", error);
       setIsMatching(false);
+      socketRef.current.disconnect();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimer((prevTimer) => {
+        if (prevTimer <= 1) {
+          clearInterval(interval);
+          setIsMatching(false);
+          setNoMatchFound(true);
+          socketRef.current.disconnect();
+          return 0;
+        }
+        return prevTimer - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  };
+
+  const handleDifficultyChange = (e: SelectChangeEvent<string>) => {
+    setDifficulty(e.target.value as string);
+  };
+
+  const handleTopicChange = (e: SelectChangeEvent<string>) => {
+    setTopic(e.target.value as string);
+  };
+
+  //Placeholder join room
+  const handleJoinRoom = () => {
+    console.log("Room Joined");
+  };
+
+  const handleCancelMatch = async () => {
+    if (!user) return;
+
+    try {
+      await cancelMatch(user.id);
+      setIsMatching(false);
+      setTimer(30);
+      setNoMatchFound(false);
+
+      // Disconnect from the socket if canceling
+      if (socket) {
+        socket.emit("leave_room", { userId: user.id });
+        socket.disconnect();
+      }
+    } catch (error) {
+      console.error("Error canceling match:", error);
     }
   };
 
@@ -111,7 +153,7 @@ const MatchSelection: React.FC = () => {
   return (
     <>
       <Header />
-      <Box sx={{ padding: '20px' }}>
+      <Box sx={{ padding: "20px" }}>
         <Typography variant="h4" gutterBottom>
           Select Match Settings
         </Typography>
@@ -150,41 +192,202 @@ const MatchSelection: React.FC = () => {
           </Select>
         </FormControl>
 
-        {!isMatching ? (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleFindMatch}
-            sx={{ mt: 2 }}
+        <Box
+          sx={{
+            justifyContent: "start",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Box
+            sx={{
+              justifyContent: "start",
+              display: "flex",
+              flexDirection: "row",
+            }}
           >
-            Match
-          </Button>
-        ) : (
-          <>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleCancelMatch}
-              sx={{ mt: 2 }}
-            >
-              Cancel Matching
-            </Button>
             <Button
               variant="contained"
               color="primary"
-              disabled
-              sx={{ mt: 2, ml: 2 }}
+              onClick={handleFindMatch}
+              disabled={isMatching}
+              sx={{ mt: 2, maxWidth: "15%", minWidth: "15%" }}
             >
-              <CircularProgress size={20} sx={{ mr: 1 }} /> Matching ({timer}s)
+              {isMatching ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Matching ({timer}s)
+                </>
+              ) : matchUserName ? (
+                "Re-match"
+              ) : (
+                "Match"
+              )}
             </Button>
-          </>
-        )}
+            {matchUserName ? (
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2, ml: 2, minWidth: "15%" }}
+                onClick={handleJoinRoom}
+              >
+                Continue
+              </Button>
+            ) : (
+              <></>
+            )}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              height: "280px",
+              marginTop: "20px",
+              flexDirection: "row",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "60%",
+                height: "280px",
+                padding: "0 20px",
+                marginTop: "20px",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "40%",
+                  height: "200px",
+                  backgroundColor: "#D3D3D3",
+                  padding: "5px",
+                }}
+              >
+                <img
+                  src={humanImage}
+                  alt="User Profile"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
+                  }}
+                />
+                <Typography variant="h5" textAlign="center">
+                  {user?.name}
+                </Typography>
+              </Box>
 
-        {noMatchFound && (
-          <Typography sx={{ color: 'red', mt: 2 }}>
-            No match found.
-          </Typography>
-        )}
+              {matchUserName ? (
+                <>
+                  <Typography
+                    variant="h5"
+                    textAlign="center"
+                    sx={{ color: "green" }}
+                  >
+                    Match found!
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "40%",
+                      height: "200px",
+                      backgroundColor: "#D3D3D3",
+                      padding: "5px",
+                    }}
+                  >
+                    <img
+                      src={humanImage}
+                      alt="User Profile"
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                    <Typography variant="h5" textAlign="center">
+                      {matchUserName}
+                    </Typography>
+                  </Box>
+                </>
+              ) : (
+                <>
+                  {noMatchFound && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "start",
+                        alignItems: "center",
+                        width: "60%",
+                        height: "200px",
+                        marginLeft: 6,
+                      }}
+                    >
+                      <Typography variant="h5" color="red">
+                        No match found.
+                      </Typography>
+                    </Box>
+                  )}
+                  {isMatching && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "start",
+                        alignItems: "center",
+                        width: "60%",
+                        height: "200px",
+                        marginLeft: 6,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography variant="h5" color="#03b6fc">
+                          Finding you a match...
+                        </Typography>
+                        <CircularProgress size={100} sx={{ marginTop: 2 }} />
+                      </Box>
+                    </Box>
+                  )}
+                </>
+              )}
+            </Box>
+            {matchUserName ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "280px",
+                  marginTop: "20px",
+                  flexDirection: "column",
+                }}
+              >
+                <LabelValue label="User" value={matchUserName} />
+                <LabelValue label="Proficiency Level" value="Expert" />
+                <LabelValue label="Question" value="TwoSum" />
+                <LabelValue label="Topic" value="Array" />
+                <LabelValue label="Difficulty" value="Easy" />
+              </Box>
+            ) : (
+              <></>
+            )}
+          </Box>
+        </Box>
       </Box>
     </>
   );

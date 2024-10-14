@@ -3,12 +3,12 @@ import axios from "axios";
 const API_URL = import.meta.env.VITE_MATCHING_API_URL;
 
 export const findMatch = async (
-  userId: number,
+  userName: string,
   topic: string,
   difficulty: string
 ) => {
   const payload = {
-    userId: userId,
+    userName: userName,
     topic: topic,
     difficulty: difficulty,
   };
@@ -18,6 +18,7 @@ export const findMatch = async (
         "Content-Type": "application/json",
       },
     });
+    console.log(response);
     return response.data;
   } catch (error) {
     console.error("Error finding match:", error);
