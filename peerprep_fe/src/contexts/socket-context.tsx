@@ -13,8 +13,9 @@ import {
   ClientToServerEvents,
   MatchRequest,
   ServerSocketEvents,
+  MatchCancelRequest,
   ServerToClientEvents,
-} from "@/app/types/SocketTypes";
+} from "peerprep-shared-types";
 import { useAuth } from "./auth-context";
 
 interface SocketContextType {
@@ -24,6 +25,7 @@ interface SocketContextType {
     selectedDifficulty: DifficultyLevel,
     selectedTopic: string
   ) => void;
+  cancelMatchRequest: () => void;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -46,7 +48,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     ClientToServerEvents
   > | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const { token } = useAuth();
+  const { token, username } = useAuth();
 
   useEffect(() => {
     const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -89,18 +91,31 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     selectedDifficulty: DifficultyLevel,
     selectedTopic: string
   ) => {
-    if (socket) {
+    if (socket && username) {
       const matchRequest: MatchRequest = {
         event: ClientSocketEvents.REQUEST_MATCH,
         selectedDifficulty,
         selectedTopic,
+        username: username,
       };
       socket.emit(ClientSocketEvents.REQUEST_MATCH, matchRequest);
     }
   };
 
+  const cancelMatchRequest = () => {
+    if (socket && username) {
+      const matchRequest: MatchCancelRequest = {
+        event: ClientSocketEvents.CANCEL_MATCH,
+        username: username,
+      };
+      socket.emit(ClientSocketEvents.CANCEL_MATCH, matchRequest);
+    }
+  };
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected, sendMatchRequest }}>
+    <SocketContext.Provider
+      value={{ socket, isConnected, sendMatchRequest, cancelMatchRequest }}
+    >
       {children}
     </SocketContext.Provider>
   );

@@ -47,6 +47,23 @@ export const AuthProvider = ({ children }: Props) => {
     setToken(token);
   };
 
+  useEffect(() => {
+    if (token) {
+      // Decode the token to get the username
+      try {
+        const decodedToken = JSON.parse(atob(token.split(".")[1]));
+        const decodedUsername = decodedToken.username;
+        setUsername(decodedUsername);
+        cookies.set("username", decodedUsername);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    } else {
+      setUsername(null);
+      cookies.remove("username");
+    }
+  }, [token]);
+
   const deleteToken = () => {
     cookies.remove("token");
     setToken(null);

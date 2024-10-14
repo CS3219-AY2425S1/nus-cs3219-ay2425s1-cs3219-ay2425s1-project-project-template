@@ -4,6 +4,7 @@ import {
   ClientSocketEvents,
   ServerSocketEvents,
   ServicesSocket,
+  MatchRequest,
 } from "peerprep-shared-types";
 import { authenticateSocket } from "../../utility/jwtHelper";
 
@@ -62,7 +63,7 @@ const socketTransfer = (
   switch (service) {
     case ServicesSocket.MATCHING_SERVICE:
       message.event = event;
-      matchingServiceSocket.emit("clientToServer", message);
+      matchingServiceSocket.emit(event, message);
       break;
     default:
       break;
@@ -86,6 +87,7 @@ const handleClientMessage = (
     return;
   }
   message.connectionId = socket.id;
+  message.username = socket.data.username;
   console.log(`Received message from client: ${JSON.stringify(message)}`);
   console.log(`Forwarding message to service: ${targetService}`);
 
@@ -99,9 +101,12 @@ const setupServerSocket = (io: Server, matchingServiceSocket: ClientSocket) => {
     console.log(`User connected: ${socket.data.username}`);
     connections.set(socket.id, socket);
 
-    socket.on("clientToServer", (message) =>
-      handleClientMessage(socket, message, matchingServiceSocket)
-    );
+    // Handle all possible client events
+    Object.values(ClientSocketEvents).forEach((event) => {
+      socket.on(event, (message: any) =>
+        handleClientMessage(socket, message, matchingServiceSocket)
+      );
+    });
 
     socket.on("disconnect", () => {
       console.log(`User disconnected: ${socket.data.username}`);

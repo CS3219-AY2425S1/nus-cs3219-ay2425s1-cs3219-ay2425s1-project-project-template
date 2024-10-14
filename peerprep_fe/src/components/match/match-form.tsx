@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
 import { useAuth } from "@/contexts/auth-context";
-import { findMatch } from "@/app/actions/match";
 import { DifficultyLevel } from "peerprep-shared-types";
 import Timer from "@/components/match/timer";
 import "../../styles/modal.css";
+import { useSocket } from "@/contexts/socket-context";
 
 type MatchFormProps = {};
 
@@ -16,6 +16,7 @@ export interface MatchFormQuestions {
 
 export function MatchForm() {
   const { token } = useAuth();
+  const { sendMatchRequest, cancelMatchRequest } = useSocket();
   const [formData, setFormData] = useState<MatchFormQuestions>({
     difficultyLevel: DifficultyLevel.Easy,
     topic: "",
@@ -25,31 +26,31 @@ export function MatchForm() {
   // Usage in form submission
 
   const [loading, setLoading] = useState<boolean>(false);
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
 
-    setLoading(true);
-    setError("");
+  //   setLoading(true);
+  //   setError("");
 
-    try {
-      let response = null;
-      response = await findMatch(token, formData);
-      if (!response) {
-        return;
-      }
+  //   try {
+  //     let response = null;
+  //     response = await findMatch(token, formData);
+  //     if (!response) {
+  //       return;
+  //     }
 
-      if (response.errors) {
-        console.log("Error Finding Match:", response.errors.errorMessage);
-        setError(response.errors.errorMessage);
-      } else {
-        console.log("Success!:", response.message);
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response.errors) {
+  //       console.log("Error Finding Match:", response.errors.errorMessage);
+  //       setError(response.errors.errorMessage);
+  //     } else {
+  //       console.log("Success!:", response.message);
+  //     }
+  //   } catch (err) {
+  //     setError("An unexpected error occurred.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -62,12 +63,21 @@ export function MatchForm() {
 
   const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
 
+  const sendMatch = () => {
+    sendMatchRequest(formData.difficultyLevel, formData.topic);
+  };
+
+  const cancelMatch = () => {
+    cancelMatchRequest();
+    setIsTimerModalOpen(false);
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-hairline font-albert">
         What are you working on today?
       </h1>
-      <form onSubmit={handleSubmit}>
+      <form>
         <select
           name="difficultyLevel"
           className="bg-slate-200 dark:bg-slate-700 rounded-lg w-full h-16 p-4 my-3 focus:outline-none"
@@ -91,10 +101,11 @@ export function MatchForm() {
         {error && <p className="error">{error}</p>}
         {
           <Button
-            type="submit"
             text={`Find`}
             loading={loading}
             onClick={() => {
+              sendMatch();
+
               setIsTimerModalOpen(true);
             }}
           />
@@ -113,7 +124,7 @@ export function MatchForm() {
             <Button
               type="reset"
               onClick={() => {
-                setIsTimerModalOpen(false);
+                cancelMatch();
               }}
               text="CLOSE"
             />
