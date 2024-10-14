@@ -1,12 +1,16 @@
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./app ./app
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY run.py .
 
 EXPOSE 8000
 
@@ -14,7 +18,8 @@ EXPOSE 8000
 # Set environment variables for Flask
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=development  
+ENV PYTHONUNBUFFERED=1
 
-# Command to run Flask's development server
-CMD ["flask", "run", "--host=0.0.0.0", "--port=8000"]
+# CMD ["flask", "run", "--host=0.0.0.0", "--port=8000"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 

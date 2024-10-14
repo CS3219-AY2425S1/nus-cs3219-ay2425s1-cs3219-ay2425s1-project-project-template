@@ -54,17 +54,6 @@ services:
     networks:
       - backend_network  
 
-
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - backend_network
-
   redis:
     image: redis:alpine
     ports:
@@ -78,11 +67,12 @@ services:
     build:
       context: ./backend/matching_request
     # command: gunicorn --reload -w 4 -b 0.0.0.0:8000 run:app
-    command: python run.py
+    # command: python run.py
     environment:
       - RABBITMQ_HOST=rabbitmq
       - FLASK_ENV=development 
       - FLASK_APP=run.py 
+      - matching_state_url=http://websocket_service:8010
     ports:
       - "8000:8000"
     depends_on:
@@ -92,20 +82,6 @@ services:
     networks:
       - backend_network
 
-  matching_service:
-    build:
-      context: ./backend/matching_service
-    # command: celery -A celery worker --loglevel=info
-    command: celery -A proj.celery worker --loglevel=info -Q matching_queue
-    volumes:
-      - ./backend/matching_service:/app
-    depends_on:
-      - init-kafka
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    networks:
-      - backend_network
 
   websocket_service:
     build:
@@ -121,21 +97,6 @@ services:
       - "8010:8010"
     networks:
       - backend_network
-
-  # matching_state:
-  #   build:
-  #     context: ./backend/matching_state
-  #   environment:
-  #     - FLASK_ENV= development
-  #     - KAFKA_BROKER= kafka:9092
-  #   volumes:
-  #     - ./backend/matching_state:/app
-  #   depends_on:
-  #     - init-kafka
-  #   ports:
-  #     - "5050:5050"
-  #   networks:
-  #     - backend_network
 
   question_service:
     container_name: question_service
@@ -160,7 +121,7 @@ services:
       - backend_network
     ports:
       - "5001:5001"
-
+  
   ui:
     container_name: ui
     
