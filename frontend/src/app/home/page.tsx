@@ -1,11 +1,15 @@
 "use client";
 
-import Homepage from "@/app/home/unauthenticated-homepage/homepage";
+import Navbar from "@/app/home/components/navbar/Navbar";
+import LandingPage from "@/app/home/components/landing-page/LandingPage";
 
 const Home = () => {
-  return (
-    <Homepage />
-  );
+    return (
+        <>
+        <Navbar />
+        <LandingPage />
+        </>
+    );
 };
 
 export default Home;

@@ -4,9 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import GoogleIcon from "@/app/home/components/icon/GoogleIcon";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const LandingPage = () => {
-    const { login } = useAuth();
+    const { login, token } = useAuth();
+    const router = useRouter();
 
     const googleLogin = useGoogleLogin({
         onSuccess: (response) => login(response),
@@ -14,6 +17,20 @@ const LandingPage = () => {
             console.error("Login Failed:", error);
         },
     });
+
+    useEffect(() => {
+        if (token) {
+            router.push("/");
+        }
+    }, [token, router]);
+
+    const handleLogin = () => {
+        if (token) {
+            router.push("/");
+        } else {
+            googleLogin();
+        }
+    }
 
     return (
         <div className="flex items-center justify-center min-h-[90vh]">
@@ -26,7 +43,7 @@ const LandingPage = () => {
                         Join PeerPrep to sharpen your skills through real-time problem-solving, and prepare to outshine in every interview.
                         Created for CS3219 Software Engineering Principles AY24/25 by Group 15.
                     </p>
-                    <Button className="mt-6 font-semibold w-full" onClick={() => googleLogin()}>
+                    <Button className="mt-6 font-semibold w-full" onClick={() => handleLogin()}>
                         <GoogleIcon/>
                         <span className="pl-2">Get Started with Google</span>
                     </Button>
