@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import userRoutes from "./api/routes/userRoutes";
 import questionRoutes from "./api/routes/questionRoutes";
 import { authenticateToken, authenticateSocket } from "./utility/jwtHelper";
-import { Server, Socket as ServerSocket, Socket } from "socket.io";
+import { Server, Socket as ServerSocket } from "socket.io";
 import { io as Client, Socket as ClientSocket } from "socket.io-client";
 import {
   ServicesSocket,
@@ -11,6 +11,7 @@ import {
   getTargetService,
 } from "./api/routes/socketRoutes";
 import http from "http";
+import cors from "cors";
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +24,7 @@ if (!port) {
   process.exit(1);
 }
 
+app.use(cors());
 app.use(express.json());
 
 const logRequestTimestamp = (
@@ -48,24 +50,44 @@ app.get("/", (req, res) => {
   res.send("LeetCode API Gateway is running!");
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+const matchingServiceSocket = Client(`http://matching-service:5004`);
+matchingServiceSocket.on("connect", () => {
+  console.log("Connected to matching service");
 });
+matchingServiceSocket.on("serverToClient", (message: any) => {
+  console.log(`Received message from matching service: ${message}`);
+  if (validateClientTransfer(message)) {
+    const socket = connections.get(message.connectionId);
+    if (socket == null) {
+      console.error("No socket found for connectionId");
+      return;
+    }
+
+    socket.emit(message.event, message);
+  }
+});
+matchingServiceSocket.on("connect_error", (err) => {
+  console.error(`connect_error due to ${err}`);
+});
+matchingServiceSocket.on("disconnect", () => {
+  matchingServiceSocket.disconnect();
+  console.log("Disconnected from matching service");
+});
+
+console.log("match", matchingServiceSocket.connected);
 
 // Client Sockets connection
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: `http://${process.env.FRONTEND_ROUTE}:${process.env.FRONTEND_PORT}`,
+    origin: `*`,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
-io.use(authenticateSocket);
 
-var connections: Map<string, ServerSocket> = new Map();
-io.on("connection", (socket: ServerSocket) => {
+let connections: Map<string, ServerSocket> = new Map();
+io.use(authenticateSocket).on("connection", (socket: ServerSocket) => {
   console.log(`User connected: ${socket.data.username}`);
   connections.set(socket.id, socket);
 
@@ -82,6 +104,9 @@ io.on("connection", (socket: ServerSocket) => {
       return;
     }
     message.connectionId = socket.id;
+    console.log(`Received message from client: ${JSON.stringify(message)}`);
+    console.log(`Forwarding message to service: ${targetService}`);
+
     socketTransfer(targetService, event, message);
   });
 
@@ -92,23 +117,8 @@ io.on("connection", (socket: ServerSocket) => {
   });
 });
 
-// Socket connection to other Services
-const matchingServiceSocket: ClientSocket = Client(
-  `http://${process.env.MATCHING_SERVICE_ROUTE}:${process.env.MATCHING_SERVICE_PORT}`
-);
-
-matchingServiceSocket.on("serverToClient", async (message: any) => {
-  console.log(`Received message from matching service: ${message}`);
-
-  if (validateClientTransfer(message)) {
-    const socket = connections.get(message.connectionId);
-    if (socket == null) {
-      console.error("No socket found for connectionId");
-      return;
-    }
-
-    socket.emit(message.event, message);
-  }
+matchingServiceSocket.on("connect_error", (err) => {
+  console.error(`connect_error due to ${err}`);
 });
 
 // Transfer message from client to server
@@ -139,3 +149,8 @@ function validateClientTransfer(message: any): boolean {
 
   return true;
 }
+
+// Start the server
+server.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});

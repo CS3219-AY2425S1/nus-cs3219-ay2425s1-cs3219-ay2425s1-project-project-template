@@ -15,7 +15,7 @@ const port = process.env.MATCHING_SERVICE_PORT;
 app.use(cors());
 app.use(express.json());
 
-const queue = new Queue();
+// const queue = new Queue();
 
 app.get("/", (req, res) => {
   res.send("Matching Service is running!");
@@ -48,14 +48,14 @@ io.on("connection", (socket) => {
             topic: message.topic,
             difficulty: message.difficulty,
           };
-          result = await queue.add(matchRequest);
+          // result = await queue.add(matchRequest);
           break;
         case "cancel_request":
           const cancelRequest: IMatchCancelRequest = { id: message.id };
-          result = await queue.cancel(cancelRequest);
+          // result = await queue.cancel(cancelRequest);
           break;
         case "get_requests":
-          result = { requests: await queue.getRequests() };
+          // result = { requests: await queue.getRequests() };
           break;
         default:
           result = { error: "Unknown event type" };
