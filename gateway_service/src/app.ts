@@ -5,13 +5,14 @@ import questionRoutes from "./api/routes/questionRoutes";
 import { authenticateToken, authenticateSocket } from "./utility/jwtHelper";
 import { Server, Socket as ServerSocket } from "socket.io";
 import { io as Client, Socket as ClientSocket } from "socket.io-client";
-import {
-  ServicesSocket,
-  ClientSocketEvents,
-  getTargetService,
-} from "./api/routes/socketRoutes";
+import { getTargetService } from "./api/routes/socketRoutes";
 import http from "http";
 import cors from "cors";
+import {
+  ClientSocketEvents,
+  ServerSocketEvents,
+  ServicesSocket,
+} from "peerprep-shared-types";
 
 // Load environment variables
 dotenv.config();
