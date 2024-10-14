@@ -1,30 +1,19 @@
 {
-  "name": "demo-service",
+  "name": "user-service",
   "version": "1.0.0",
-  "description": "This Service allows users to access jokes",
-  "main": "index.js",
+  "description": "This Service sets up the user service backend server for PeerPrep",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [
-    "api",
-    "express",
-    "jokes",
-    "docker"
-  ],
-  "author": "Jai Lulla",
-  "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "express-session": "^1.18.0",
     "firebase-admin": "^12.5.0",
     "moment-timezone": "^0.5.45",
     "morgan": "^1.10.0",
-    "nodemon": "^3.0.1",
-    "punycode": "^2.3.1"
+    "nodemon": "^3.0.1"
   }
 }

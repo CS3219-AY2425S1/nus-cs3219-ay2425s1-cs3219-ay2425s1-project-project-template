@@ -32,7 +32,7 @@ function QuestionTable() {
   );
 }
 
-// Your async function for fetching data remains the same
+// The async function for fetching data remains the same
 async function getData(): Promise<Question[]> {
   const res = await getAllQuestions();
 

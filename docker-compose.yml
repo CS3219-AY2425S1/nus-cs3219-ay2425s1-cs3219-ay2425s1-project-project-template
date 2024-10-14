@@ -1,14 +1,44 @@
 # Define the services and applications that make up your application.
 services:
-  backend-question_service:
-    build: ./backend/question_service # Path to the directory containing the Dockerfile for building the question service image.
+  user_service:
+    build: ./backend/user_service # Path to the directory containing the Dockerfile for building the user service image.
     ports:
       - 5001:5001 # Maps port 5001 on the host to port 5001 in the container, making the app accessible on the host.
     networks:
-      - app-network 
+      - app-network
+
+  question_service:
+    build:
+      context: ./backend/question_service # Path to the directory containing the Dockerfile for building the question service image.
+      args:
+        USER_SERVICE_BACKEND_URL: ${USER_SERVICE_BACKEND_URL}
+    ports:
+      - 5002:5002 # Maps port 5002 on the host to port 5002 in the container, making the app accessible on the host.
+    networks:
+      - app-network
+    depends_on:
+      - user_service
+
+  matching_service:
+    build:
+      context: ./backend/matching_service # Path to the directory containing the Dockerfile for building the matching service image.
+      args:
+        USER_SERVICE_BACKEND_URL: ${USER_SERVICE_BACKEND_URL}
+        QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL: ${QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL}
+    ports:
+      - 5003:5003 # Maps port 5003 on the host to port 5003 in the container, making the app accessible on the host.
+    networks:
+      - app-network
+    depends_on:
+      - user_service
+      - question_service
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_QUESTION_SERVICE_BACKEND_URL: ${VITE_QUESTION_SERVICE_BACKEND_URL}
+        VITE_MATCHING_SERVICE_BACKEND_URL: ${VITE_MATCHING_SERVICE_BACKEND_URL}
     ports:
       - 3000:80
     networks:

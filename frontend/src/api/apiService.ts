@@ -1,5 +1,5 @@
 export const fetchProtectedData = async <T>(endpoint: string): Promise<T> => {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
   
     try {
       const response = await fetch(`http://localhost:5001/api/${endpoint}`, {

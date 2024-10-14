@@ -1,7 +1,7 @@
 {
-  "name": "backend",
+  "name": "question-service",
   "version": "1.0.0",
-  "description": "This Service sets up the backend server for peerprep",
+  "description": "This Service sets up the question service backend server for PeerPrep",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -1,26 +1,21 @@
-import { Button } from "@/components/ui/button";
-import { MultiSelect } from "@/components/ui/multi-select";
+import MatchingButton from "@/components/custom/MatchingOptions/MatchingButton";
 import { SingleSelect } from "@/components/ui/single-select";
 import { difficultyArray, topicArray } from "@/models/Question";
 import { useState } from "react";
 
 function MatchingOptions() {
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedTopic, setSelectedTopic] = useState<string[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
-
-  function handleClick() {
-    console.log(selectedTopics, selectedDifficulty);
-  }
 
   return (
     <div className="grid">
       <h1 className="grid-rows-1 my-2">Matching Options</h1>
-      <MultiSelect
+      <SingleSelect
         className="grid-rows-1 my-2"
         options={topicArray}
-        defaultValue={selectedTopics}
-        onValueChange={setSelectedTopics}
-        placeholder="Select Topics"
+        defaultValue={selectedTopic}
+        onValueChange={setSelectedTopic}
+        placeholder="Select Topic"
       />
       <div className="flex grid-rows-1 my-2">
         <SingleSelect
@@ -30,8 +25,10 @@ function MatchingOptions() {
           placeholder="Select Difficulty"
         />
       </div>
-
-      <Button onClick={handleClick}>Fight!</Button>
+      <MatchingButton
+        selectedDifficulty={selectedDifficulty}
+        selectedTopic={selectedTopic}
+      />
     </div>
   );
 }

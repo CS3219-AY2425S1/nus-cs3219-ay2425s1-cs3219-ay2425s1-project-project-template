@@ -3,6 +3,7 @@ import { IDictionary, isSubset } from "../../../lib/utils";
 import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
 import { Question, Difficulty } from "@/models/Question";
 import QuestionDialog from "../Question/QuestionDialog";
+import DeleteQuestionButton from "../Question/DeleteQuestionButton";
 
 const difficultyLevels: IDictionary<number> = {
   Easy: 1,
@@ -34,6 +35,15 @@ const getDifficultyClass = (difficulty: string) => {
 };
 
 export const columns: ColumnDef<Question>[] = [
+  {
+    id: "actions",
+    size: 10,
+    maxSize: 10,
+    cell: ({ row }) => {
+      const question = row.original;
+      return <DeleteQuestionButton question={question} />;
+    },
+  },
   {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Topics" />

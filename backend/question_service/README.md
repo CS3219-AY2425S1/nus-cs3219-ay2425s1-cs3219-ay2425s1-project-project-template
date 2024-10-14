@@ -1,12 +1,12 @@
-# PeerPrep Backend
+# PeerPrep Question Service Backend
 
 ## Project Overview
-The PeerPrep backend provides a service for managing and querying questions used for technical interview practice. It supports creating, retrieving, and deleting questions.
+The PeerPrep question service backend provides a service for managing and querying questions used for technical interview practice. It supports creating, retrieving, and deleting questions.
 
 ## Prerequisites
 - Docker: Ensure Docker is installed on your machine. [Download Docker](https://www.docker.com/products/docker-desktop)
 
-## Getting the backend server up and running
+## Getting the question service backend server up and running
 
 1. **Copy & paste the firebaseCredentials.json file into the `/config` folder**
 
@@ -15,27 +15,31 @@ The PeerPrep backend provides a service for managing and querying questions used
    Navigate to the backend directory and build the Docker image:
 
    ```sh
-   cd path/to/backend/
-   docker build -t peerprep-backend .
+   cd backend/question_service/
+   docker build -t peerprep-question-service-backend .
    ```
 
 3. **Create and Run the Docker Container**
    
    ```sh
-   docker run -d -p 5001:5001 --name peerprep-backend-app peerprep-backend
+   docker run -d -p 5002:5002 --name peerprep-question-service-backend-app peerprep-question-service-backend
    ```
 
-4. **You can find the server started at localhost:5001**
+4. **You can find the server started at localhost:5002**
 
 ## Trying out the question service
 
-1. **View the questions**
+1. **Ensure you are authenticated**
+   You can do so by providing a valid token.
+   For example, on postman, go to Auth, select Bearer Token as the Auth Type, and provide a valid token to pair it with your request.
+    
+2. **View the questions**
    
-   Visit localhost:5001
+   Visit localhost:5002
 
-2. **Create a question**
+3. **Create a question**
    
-   You can test out the question service by using a tool such as postman to send HTTP requests alongside custom json data to the server. To create a question, go to localhost:5001/create-question on postman, select post type, and add the following json to the http post request body, feel free to edit freely:
+   You can test out the question service by using a tool such as postman to send HTTP requests alongside custom json data to the server. To create a question, go to localhost:5002/create-question on postman, select post type, and add the following json to the http post request body, feel free to edit freely:
 
    ```sh
    {
@@ -49,10 +53,10 @@ The PeerPrep backend provides a service for managing and querying questions used
    ```
 
 
-3. **Delete a question**
+4. **Delete a question**
    
 
-   To delete a question, go to localhost:5001 on postman, select delete type, and add the following json to the http request body:
+   To delete a question, go to localhost:5002 on postman, select delete type, and add the following json to the http request body:
 
    ```sh
    {

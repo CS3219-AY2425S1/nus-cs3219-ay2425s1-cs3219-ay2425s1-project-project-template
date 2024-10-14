@@ -37,7 +37,11 @@ const QuestionPageView: React.FC = () => {
               <Button
                 variant="ghost"
                 className="w-full text-left"
-                onClick={() => handleNavigation("/")}
+                onClick={() => {
+                  sessionStorage.removeItem("authToken"); // Clear the token
+                  sessionStorage.removeItem("uid") // Clear the uid
+                  handleNavigation("/"); // Navigate to the home page
+                }}
               >
                 Logout
               </Button>
@@ -51,8 +55,9 @@ const QuestionPageView: React.FC = () => {
             </div>
           )}
         </div>
-        <Separator className="my-2" />
       </div>
+
+      <Separator className="my-2" />
 
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-3 p-4 rounded-lg shadow-lg">

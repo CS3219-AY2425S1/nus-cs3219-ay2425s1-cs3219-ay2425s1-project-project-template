@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Login attempted");
+    console.log("Login attempted"); 
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -33,8 +33,13 @@ const LoginPage: React.FC = () => {
         email,
         password
       );
+
       const idToken = await userCredential.user.getIdToken();
-      localStorage.setItem("authToken", idToken);
+      const uid = userCredential.user.uid;
+
+      sessionStorage.setItem("authToken", idToken);
+      sessionStorage.setItem("uid", uid);
+ 
       navigate("/questions");
     } catch {
       setError("Login failed. Please check your credentials.");

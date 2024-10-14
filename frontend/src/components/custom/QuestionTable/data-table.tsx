@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { topicArray } from "@/models/Question";
+import AddQuestionButton from "../Question/AddQuestionButton";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -82,6 +83,8 @@ export function DataTable<TData, TValue>({
           placeholder="Filter Topics"
           className="max-w-sm"
         />
+
+        <AddQuestionButton />
       </div>
       <div className="rounded-md border">
         <Table>

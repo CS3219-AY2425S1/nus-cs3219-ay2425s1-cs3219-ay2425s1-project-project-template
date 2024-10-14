@@ -1,28 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const loginRoutes = require('./app');
+const app = require("./app");
 
-
-const app = express();
-const port = process.env.PORT || 5001;
-
-// Middleware
-app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-  }));
-  
-app.use(bodyParser.json());
-
-// Routes
-app.use('/api', loginRoutes);
-
-app.get('/', (req, res) => {
-    res.json({ message: 'Server is running!' });
-});
+const port = 5001;
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });

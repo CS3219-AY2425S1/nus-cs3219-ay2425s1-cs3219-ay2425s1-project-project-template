@@ -44,6 +44,8 @@ const DeleteAccountPage: React.FC = () => {
       // If sign-in succeeds, delete the user
       if (userCredential.user) {
         await deleteUser(userCredential.user); // Delete the authenticated user
+        sessionStorage.removeItem("authToken"); // Clear the token
+        sessionStorage.removeItem("uid") // Clear the uid
         navigate("/"); // Redirect to home page after deletion
       }
     } catch (error) {
