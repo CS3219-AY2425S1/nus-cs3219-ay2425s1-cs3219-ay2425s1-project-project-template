@@ -85,7 +85,7 @@ const MonthlyProgress = ({ monthlyPracticeData, startMonth }) => {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
+    <div className="w-full max-w-md rounded-3xl border border-gray-300/30 bg-transparent p-6">
       <h2 className="mb-4 text-lg font-semibold text-white">
         Monthly Practice Breakdown
       </h2>
