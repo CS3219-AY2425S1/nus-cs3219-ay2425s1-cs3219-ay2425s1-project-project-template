@@ -5,7 +5,7 @@ import Header from "@/components/common/header";
 import ProblemDetail from "@/components/questions/problem-detail";
 import { useAuth } from "@/contexts/auth-context";
 import { getQuestion } from "@/app/actions/questions";
-import { QuestionDto } from "@/app/types/QuestionDto";
+import { QuestionDto } from "peerprep-shared-types";
 
 const Problem: React.FC<any> = ({ params }) => {
   const { token } = useAuth();

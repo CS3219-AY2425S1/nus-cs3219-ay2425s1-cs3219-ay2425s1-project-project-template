@@ -10,7 +10,7 @@ import Button from "@/components/common/button";
 import TableRow from "@/components/questions/table-row";
 import { useAuth } from "@/contexts/auth-context";
 import { FormType } from "@/components/questions/question-form";
-import { QuestionDto } from "../types/QuestionDto";
+import { QuestionDto } from "peerprep-shared-types";
 
 export default function Home() {
   const router = useRouter();

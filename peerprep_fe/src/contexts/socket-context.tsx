@@ -7,7 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import { io, Socket } from "socket.io-client";
-import { DifficultyLevel } from "@/app/types/QuestionDto";
+import { DifficultyLevel } from "peerprep-shared-types";
 import {
   ClientSocketEvents,
   ClientToServerEvents,
