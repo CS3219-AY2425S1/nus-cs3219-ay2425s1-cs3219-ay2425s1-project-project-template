@@ -29,7 +29,7 @@ const MatchingSocket = ({ token }: { token: string }) => {
   useEffect(() => {
     // Initialize socket connection
     const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      "http://localhost:5004",
+      "http://localhost:5003",
       {
         auth: {
           token: token,

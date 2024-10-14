@@ -55,7 +55,7 @@ export function authenticateSocket(
 
   verifyJWT(token, {
     success: (payload: JwtPayload) => {
-      socket.data.user = payload;
+      socket.data.username = payload.username;
       next();
     },
     error: (err: Error) => {
