@@ -4,6 +4,11 @@ import useProtectedRoute from '@/hooks/UseProtectedRoute'
 
 export default function Account() {
     const { loading } = useProtectedRoute()
-    if (loading) return <Loading />
+    if (loading)
+        return (
+            <div className="flex flex-col h-screen w-screen items-center justify-center">
+                <Loading />
+            </div>
+        )
     return <AccountSettings />
 }
