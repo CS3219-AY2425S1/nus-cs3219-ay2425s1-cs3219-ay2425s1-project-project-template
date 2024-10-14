@@ -174,7 +174,7 @@ components:
           type: array
           items:
             type: string
-          example: ["Array, Hash Table"]
+          example: ["Array", "Hash Table"]
         complexity:
           type: string
           example: "Easy"
@@ -197,7 +197,7 @@ components:
           type: array
           items:
             type: string
-          example: ["Array, Hash Table"]
+          example: ["Array", "Hash Table"]
         complexity:
           type: string
           example: "Easy"
@@ -294,7 +294,7 @@ components:
           type: array
           items:
             type: string
-          example: ["Dynamic Programming, Bit Manipulation"]
+          example: ["Dynamic Programming", "Bit Manipulation"]
         complexity:
           type: string
           example: "Hard"
