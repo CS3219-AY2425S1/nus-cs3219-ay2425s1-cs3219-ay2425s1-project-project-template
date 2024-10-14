@@ -95,7 +95,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         fetchData();
       }, []);
 
-      const { errors, isDirty } = form.formState;
+      const { isDirty } = form.formState;
 
       // to update if we want to include more categories
       const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser"]
@@ -120,6 +120,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         try {
             if (!isDirty) {
               setIsFormEdited(false);
+              return;
             }
 
             if (values.categories) {
@@ -141,8 +142,10 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
             // handle error we can decide later
             console.log("error", err);
         } finally {
-          refetch();
-          onClose();
+          if (isDirty) {
+            refetch();
+            onClose();
+          }
         }
       }
 
@@ -151,6 +154,11 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         <div className="flex justify-center">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-1/2">
+            {!isFormEdited && (
+              <div className="p-4 text-sm text-red-700 bg-red-100 border border-red-400 rounded">
+                At least one field should be edited.
+              </div>
+            )}
             <FormField
               control={form.control}
               name="title"
@@ -243,7 +251,6 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
                 <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button" onClick={onClose}>Cancel</Button>
                 <Button className="primary-color hover:bg-violet-900" type="submit">Submit</Button>
             </div>
-            {!isFormEdited && <p>At least one field should be edited.</p>}
           </form>
         </Form>
         </div>
