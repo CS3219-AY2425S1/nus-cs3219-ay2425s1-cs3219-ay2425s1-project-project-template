@@ -10,7 +10,7 @@ const LandingPage = () => {
         Router.push("/");
     }
     return (
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center min-h-[90vh]">
             <div className="flex items-center justify-between max-w-7xl w-full">
                 <div className="flex-col basis-3/4 pr-8">
                     <h1 className="text-6xl font-extrabold text-white pb-5">
