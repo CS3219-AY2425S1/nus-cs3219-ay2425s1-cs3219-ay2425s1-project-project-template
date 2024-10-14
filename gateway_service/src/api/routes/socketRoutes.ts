@@ -7,11 +7,16 @@ import {
   MatchRequest,
 } from "peerprep-shared-types";
 import { authenticateSocket } from "../../utility/jwtHelper";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 type Connections = Map<string, ServerSocket>;
 
 const createMatchingServiceSocket = (): ClientSocket => {
-  const socket = Client(`http://matching-service:5004`);
+  const socket = Client(
+    `http://${process.env.MATCHING_SERVICE_ROUTE}:${process.env.MATCHING_SERVICE_PORT}`
+  );
 
   socket.on("connect", () => console.log("Connected to matching service"));
 
