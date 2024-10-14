@@ -162,7 +162,7 @@ services:
         restart: true
     networks:
       - collab-db-network
-      - collab-ws-network
+      - collab-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${COLLAB_EXPRESS_PORT}/health || exit 1
       interval: 30s 
@@ -193,7 +193,7 @@ services:
       - match-db-network
       - match-api-network
       - question-api-network
-      # - collab-api-network
+      - collab-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${MATCHING_EXPRESS_PORT}/health || exit 1
       interval: 30s 
@@ -233,7 +233,7 @@ services:
     networks:
       - user-api-network
       - question-api-network
-      - collab-ws-network
+      - collab-api-network
       - match-api-network
 
 volumes:
@@ -242,6 +242,7 @@ volumes:
     external: true
   question-db-docker:
     external: true 
+  # Collab WS Server
   collab-db-docker:
     external: true
   # Redis Match server
@@ -266,5 +267,5 @@ networks:
     driver: bridge
   match-api-network:
     driver: bridge
-  collab-ws-network:
+  collab-api-network:
     driver: bridge
