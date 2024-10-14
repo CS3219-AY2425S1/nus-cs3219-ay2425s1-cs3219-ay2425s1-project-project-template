@@ -1,10 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import useFetchProfilePicture from "../hooks/useFetchProfilePicture";
 
-const ProfileButton: React.FC = () => {
+interface ProfileButtonProps {
+  userId: string;
+}
+const ProfileButton: React.FC<ProfileButtonProps> = ({userId}) => {
+
+  const [imageData, setImageData] = useState<string>("");
+
+  useEffect(() => {
+    if (userId != "")
+      fetchImage();
+  }, [userId])
+
+
+
+
+  const fetchImage = () => {
+      useFetchProfilePicture(userId, setImageData);
+  }
+
+  
   return (
     <>
-      <div className="container px-2">
-        <button className="bg-black rounded-full p-6"></button>
+      <div className="container">
+                    {imageData ? (
+                        <>
+                            <div className=''>
+                              <img className="rounded-full" style={{ width: '50px', height: '50px'}} src={imageData} alt="Fetched" />
+                            </div>
+                    </>
+                    ) : (
+                        <p>Loading image...</p>
+                    )}
       </div>
     </>
   );
