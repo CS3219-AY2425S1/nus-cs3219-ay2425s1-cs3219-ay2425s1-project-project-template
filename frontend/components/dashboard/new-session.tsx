@@ -79,7 +79,13 @@ export const NewSession = () => {
         toast.success('Successfully added to the matchmaking queue.')
         //TODO: Add WS logic here to listen for match found events
         await new Promise((resolve, _) => setTimeout(resolve, 10000))
-        await handleMatchFound()
+        const isMatchFound = Math.random() > 0.5
+        if (isMatchFound) {
+            await handleMatchFound()
+        } else {
+            toast.error('Failed to find a match. Please try again later.')
+            await handleCancelMatchmaking()
+        }
     }
 
     const handleCancelMatchmaking = async () => {
@@ -152,8 +158,10 @@ export const NewSession = () => {
                             height={234}
                             alt="pros sitting around a monitor"
                         />
-                        <h2 className="text-xl font-bold">
-                            {modalData.isMatchmaking ? 'Finding collaborator' : 'Match found!'}
+                        <h2 className="text-xl font-bold text-center">
+                            {modalData.isMatchmaking
+                                ? 'Finding collaborator'
+                                : 'Match found! Please wait while we redirect you to the coding session...'}
                         </h2>
                         {modalData.isMatchmaking && <Loading />}
                         {modalData.isMatchmaking && (
@@ -161,16 +169,7 @@ export const NewSession = () => {
                                 {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
                             </h2>
                         )}
-                        {modalData.isMatchFound ? (
-                            <Button
-                                className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
-                                variant={'primary'}
-                                size={'lg'}
-                                onClick={handleCancelMatchmaking}
-                            >
-                                Proceed to start coding
-                            </Button>
-                        ) : (
+                        {!modalData.isMatchFound && (
                             <Button
                                 className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
                                 variant={'primary'}
