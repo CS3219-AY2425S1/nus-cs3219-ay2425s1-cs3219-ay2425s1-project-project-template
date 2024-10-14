@@ -1,7 +1,8 @@
-import { getCollabRoomService } from '@/service/get/collab-get-service';
-import { IGetCollabRoomPayload } from '@/service/get/types';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+
+import { getCollabRoomService } from '@/service/get/collab-get-service';
+import type { IGetCollabRoomPayload } from '@/service/get/types';
 
 export async function getCollabRoom(req: Request, res: Response) {
   const { userid1, userid2, questionid } = req.query;

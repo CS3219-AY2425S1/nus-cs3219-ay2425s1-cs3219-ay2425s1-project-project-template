@@ -218,6 +218,7 @@ services:
     environment:
       - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
       - VITE_QUESTION_SERVICE=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - VITE_COLLAB_SERVICE=http://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
       - VITE_MATCHING_SERVICE=http://${MATCHING_SERVICE_NAME}:${MATCHING_EXPRESS_PORT}
       - FRONTEND_PORT=${FRONTEND_PORT}
     depends_on:
@@ -228,6 +229,9 @@ services:
         condition: service_healthy
         restart: true
       collab-service:
+        condition: service_healthy
+        restart: true
+      matching-service:
         condition: service_healthy
         restart: true
     networks:
