@@ -41,9 +41,11 @@ const RegisterPage: React.FC = () => {
     if (emailValue.length > 0 && !isEmailValid()) {
       setErrorMessage('Email address should end with "@gmail.com"');
       setShowErrorMessage(true);
+      return;
     } else if (passwordValue.length > 0 && !isPasswordValid()) {
       setErrorMessage('Password should contain at least 8 characters with a mix of alphanumeric characters and at least 1 special character.');
       setShowErrorMessage(true);
+      return;
     }
 
     setShowErrorMessage(false);
