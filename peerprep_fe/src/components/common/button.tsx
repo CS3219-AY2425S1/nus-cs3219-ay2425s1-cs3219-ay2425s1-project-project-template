@@ -6,12 +6,14 @@ export default function Button({
   link = "",
   onClick,
   loading = false,
+  disabled = false,
 }: {
   type?: "button" | "submit" | "reset" | undefined;
   text?: string;
   link?: string;
   onClick?: () => void;
   loading?: boolean;
+  disabled?: boolean;
 }) {
   const buttonContent = loading ? (
     <>
@@ -37,23 +39,27 @@ export default function Button({
   );
 
   // Define button classes conditionally based on the button type
-  const buttonClasses =
-    type === "reset"
-      ? "bg-red-500 hover:bg-red-700 text-white font-bold px-3 py-3 my-3 w-full rounded-lg flex justify-center items-center focus:outline-none"
-      : "bg-indigo-500 hover:bg-indigo-700 text-white font-bold px-3 py-3 my-3 w-full rounded-lg flex justify-center items-center focus:outline-none";
+  const buttonClasses = `
+    ${type === "reset" ? "bg-red-500 hover:bg-red-700" : "bg-indigo-500 hover:bg-indigo-700"}
+    ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+    text-white font-bold px-3 py-3 my-3 w-full rounded-lg flex justify-center items-center focus:outline-none
+    ${!disabled && "transition duration-150 ease-in-out"}
+  `.trim();
 
   const button = (
     <button
       type={type}
       className={buttonClasses}
       onClick={onClick}
+      disabled={disabled || loading}
     >
       {buttonContent}
     </button>
   );
 
-  if (link !== "") {
+  if (link !== "" && !disabled) {
     return <Link href={link}>{button}</Link>;
   }
+
   return button;
 }
