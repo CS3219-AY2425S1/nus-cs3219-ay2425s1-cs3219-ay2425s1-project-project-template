@@ -13,6 +13,7 @@ export async function addMatchRequest(matchRequest: MatchRequest): Promise<void>
   const channel = getChannel();
   channel.sendToQueue('match_requests', Buffer.from(JSON.stringify(matchRequest)));
 }
+
 // Function to consume match requests from the queue
 export async function consumeMatchRequests(io: Server): Promise<void> {
   await connectRabbitMQ();
@@ -32,6 +33,7 @@ async function processMatchRequest(request: MatchRequest, io: Server) {
   const requestKey = `match_request:${request.userId}`;
   const requestData = JSON.stringify(request);
   redis.set(requestKey, requestData, 'EX', 31);
+
   // Attempt to find a match
   const match = await findMatch(request);
 
@@ -79,3 +81,17 @@ async function findMatch(request: MatchRequest): Promise<MatchRequest | null> {
   return null;
 }
 
+// Function to cancel a match request (used when a user leaves the room)
+export async function cancelMatchRequest(userId: string, io: Server): Promise<void> {
+  const requestKey = `match_request:${userId}`;
+  const isDeleted = await redis.del(requestKey);
+
+  if (isDeleted) {
+    console.log(`Match request for user ${userId} cancelled successfully.`);
+    io.to(userId).emit('match_cancelled', { success: true, message: 'Match request cancelled.' });
+    console.log("done")
+  } else {
+    console.log(`No match request found for user ${userId}.`);
+    io.to(userId).emit('match_cancelled', { success: false, message: 'No match request found to cancel.' });
+  }
+}

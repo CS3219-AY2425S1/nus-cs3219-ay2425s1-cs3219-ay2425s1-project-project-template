@@ -20,6 +20,12 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(cors());
 
+// Middleware to attach the Socket.io instance to the req object
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 app.use('/api', matchRoutes);
 
 server.listen(PORT, async () => {

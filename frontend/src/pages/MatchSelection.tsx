@@ -3,7 +3,8 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, Cir
 import Header from "../components/Header";
 import { useAuth } from "../hooks/useAuth";
 import { fetchAllTopics } from '../api/questionApi';
-import { findMatch } from '../api/matchingApi';
+import { findMatch, cancelMatch } from '../api/matchingApi';
+import { io, Socket } from 'socket.io-client';
 
 const MatchSelection: React.FC = () => {
   const [difficulty, setDifficulty] = useState<string>('Easy');
@@ -13,6 +14,7 @@ const MatchSelection: React.FC = () => {
   const [timer, setTimer] = useState<number>(30);
   const [noMatchFound, setNoMatchFound] = useState<boolean>(false);
   const { user, token } = useAuth();
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     const getTopics = async () => {
@@ -65,13 +67,44 @@ const MatchSelection: React.FC = () => {
 
     try {
       await findMatch(user.id, topic, difficulty);
-      // Start the timer if the match request is submitted successfully
       setIsMatching(true);
       setTimer(30);
-      setNoMatchFound(false); // Reset the "No match found" message
+      setNoMatchFound(false); // Reset "No match found" message
+
+      // Connect to the Socket.io server
+      const socketInstance = io(import.meta.env.VITE_SOCKET_API_URL);
+      setSocket(socketInstance);
+
+      socketInstance.emit("join_room", { userId: user.id });
+
+      socketInstance.on("match_found", (matchDetails) => {
+        console.log("Match found:", matchDetails);
+        // Handle match found (e.g., navigate to the match screen or show a notification)
+        setIsMatching(false);
+      });
+
     } catch (error) {
       console.error("Error submitting match request:", error);
       setIsMatching(false);
+    }
+  };
+
+  const handleCancelMatch = async () => {
+    if (!user) return;
+
+    try {
+      await cancelMatch(user.id);
+      setIsMatching(false);
+      setTimer(30);
+      setNoMatchFound(false);
+
+      // Disconnect from the socket if canceling
+      if (socket) {
+        socket.emit("leave_room", { userId: user.id });
+        socket.disconnect();
+      }
+    } catch (error) {
+      console.error("Error canceling match:", error);
     }
   };
 
@@ -117,21 +150,35 @@ const MatchSelection: React.FC = () => {
           </Select>
         </FormControl>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleFindMatch}
-          disabled={isMatching}
-          sx={{ mt: 2 }}
-        >
-          {isMatching ? (
-            <>
+        {!isMatching ? (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleFindMatch}
+            sx={{ mt: 2 }}
+          >
+            Match
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleCancelMatch}
+              sx={{ mt: 2 }}
+            >
+              Cancel Matching
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled
+              sx={{ mt: 2, ml: 2 }}
+            >
               <CircularProgress size={20} sx={{ mr: 1 }} /> Matching ({timer}s)
-            </>
-          ) : (
-            'Match'
-          )}
-        </Button>
+            </Button>
+          </>
+        )}
 
         {noMatchFound && (
           <Typography sx={{ color: 'red', mt: 2 }}>
