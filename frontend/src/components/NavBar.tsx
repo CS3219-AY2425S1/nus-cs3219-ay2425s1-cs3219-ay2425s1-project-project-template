@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import IsConnected from "./IsConnected";
 import ProfileButton from "./ProfileButton";
 import { User } from "../types/User";
-import useRetrieveUser from "../hooks/useRetrieveUser";
 
-const NavBar: React.FC = () => {
+interface NavBarProps {
+  currUser: User | undefined;
+}
+const NavBar: React.FC<NavBarProps> = ( {currUser} ) => {
   const location = useLocation();
-  const [user, setUser] = useState<User | undefined>(undefined);
-  useRetrieveUser(setUser);
+
   return (
     <nav className="bg-off-white w-full p-4 flex items-center justify-between relative">
       {/* Logo or Brand (Left-aligned) */}
@@ -42,7 +43,7 @@ const NavBar: React.FC = () => {
           </div>
         ) : (
           <Link to="/profile">
-            <ProfileButton userId={user ? user.id : ""}/>
+            <ProfileButton currUser={currUser}/>
           </Link>
         )}
       </div>

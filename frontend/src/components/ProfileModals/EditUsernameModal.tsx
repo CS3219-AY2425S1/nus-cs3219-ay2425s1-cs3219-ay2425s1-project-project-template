@@ -30,7 +30,8 @@ const EditUsernameModal: React.FC<EditUsernameModalProps> = ({
             setUsername(user.username);
         }
       }, [user]);
-      useEffect(() => {
+      
+    useEffect(() => {
         if (err) {
             openErrorModal();
         }

@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction } from 'react';
 import apiConfig from '../config/config';
 import useFetchProfilePicture from './useFetchProfilePicture';
+import { User } from '../types/User';
 
-const useUploadProfilePicture = async (userId: string, file: File, setImageData: Dispatch<SetStateAction<string>>, setErr: Dispatch<SetStateAction<string | undefined>> ) => {
+const useUploadProfilePicture = async (userId: string, file: File, setUser: Dispatch<SetStateAction<User | undefined>>, setErr: Dispatch<SetStateAction<string | undefined>> ) => {
     if (!file) {
         alert('Please select a file to upload.');
         return;
@@ -27,7 +28,7 @@ const useUploadProfilePicture = async (userId: string, file: File, setImageData:
             setErr(err.message);
             throw new Error('Failed to fetch image');
         }
-        useFetchProfilePicture(userId, setImageData);
+        useFetchProfilePicture(userId, setUser);
     } catch (error) {
         console.error('Error fetching image:', error);
     }

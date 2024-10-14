@@ -28,7 +28,7 @@ const ProfilePage: React.FC = () => {
     const [isProfilePictureModalOpen, setProfilePictureModalOpen] = useState(false);
     const openProfilePicModal = () => setProfilePictureModalOpen(true);
     const closeProfilePicModal = () => setProfilePictureModalOpen(false);
-    const [imageData, setImageData] = useState<string>("");
+    // const [imageData, setImageData] = useState<string>("");
     const [uid, setUid] = useState("");
 
     useRetrieveUser(setUser);
@@ -49,16 +49,17 @@ const ProfilePage: React.FC = () => {
     }, [uid]);
 
     useEffect(() => {
+        // updateNavBarProfilePicture
         closeProfilePicModal();
-    }, [imageData]);
+    }, [user]);
 
     const fetchImage = () => {
-        useFetchProfilePicture(uid, setImageData);
+        useFetchProfilePicture(uid, setUser);
     }
 
     return (
         <div className="bg-white w-screen h-screen">
-            <Navbar />
+            <Navbar currUser={user}/>
 
             <div className='justify-center p-4 grid'>
 
@@ -68,11 +69,11 @@ const ProfilePage: React.FC = () => {
                     </h1>
                 </div>
                     
-                    {imageData ? (
+                    {user?.profilePictureUrl ? (
                         <>
                             
                             <div className='flex justify-center  items-baseline'>
-                            <img className="rounded-full" style={{ width: '250px', height: '250px', objectFit: 'cover' }} src={imageData} alt="Fetched" />
+                            <img className="rounded-full" style={{ width: '250px', height: '250px', objectFit: 'cover' }} src={user?.profilePictureUrl} alt="Fetched" />
                             <EditIcon openModal={openProfilePicModal}/>
                             </div>
                     </>
@@ -121,7 +122,7 @@ const ProfilePage: React.FC = () => {
                             <EditPasswordModal onClose={closePwModal} user={user} setUser={setUser}/>
                     )}
                     {isProfilePictureModalOpen && (
-                            <EditProfilePictureModal onClose={closeProfilePicModal} uid={uid} setImageData={setImageData}/>
+                            <EditProfilePictureModal onClose={closeProfilePicModal} uid={uid} setUser={setUser}/>
                     )}
                 </div>
 

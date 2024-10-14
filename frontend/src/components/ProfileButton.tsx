@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from "react";
 import useFetchProfilePicture from "../hooks/useFetchProfilePicture";
+import { User } from "../types/User";
 
 interface ProfileButtonProps {
-  userId: string;
+  currUser: User | undefined;
 }
-const ProfileButton: React.FC<ProfileButtonProps> = ({userId}) => {
+const ProfileButton: React.FC<ProfileButtonProps> = ({currUser}) => {
 
-  const [imageData, setImageData] = useState<string>("");
+  const [user, setUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
-    if (userId != "")
-      fetchImage();
-  }, [userId])
+    if (!user && currUser)
+      setUser(currUser);
+  }, [currUser])
 
-
-
-
-  const fetchImage = () => {
-      useFetchProfilePicture(userId, setImageData);
-  }
+  useEffect(() => {
+    if (currUser)
+      useFetchProfilePicture(currUser.id, setUser);
+  }, [currUser])
 
   
   return (
     <>
       <div className="container">
-                    {imageData ? (
+                    {user?.profilePictureUrl ? (
                         <>
                             <div className=''>
-                              <img className="rounded-full" style={{ width: '50px', height: '50px'}} src={imageData} alt="Fetched" />
+                              <img className="rounded-full" style={{ width: '50px', height: '50px'}} src={user?.profilePictureUrl} alt="Fetched" />
                             </div>
                     </>
                     ) : (
