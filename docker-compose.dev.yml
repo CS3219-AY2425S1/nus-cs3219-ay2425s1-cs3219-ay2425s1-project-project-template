@@ -61,7 +61,7 @@ services:
     ports:
       - ${QUESTION_SERVICE_PORT}:${QUESTION_SERVICE_PORT}
 
-  matching_service:
+  matching-service:
     build:
       context: ./matching_service
       dockerfile: Dockerfile.dev
