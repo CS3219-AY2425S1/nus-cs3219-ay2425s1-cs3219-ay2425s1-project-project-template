@@ -3,6 +3,7 @@ import { findUserById as _findUserById } from "../model/repository.js";
 
 export function verifyAccessToken(req, res, next) {
   const authHeader = req.headers["authorization"];
+  console.log(authHeader);
   if (!authHeader) {
     return res.status(401).json({ message: "Authentication failed" });
   }

@@ -37,6 +37,24 @@ services:
     environment:
       - PORT=$MATCHING_SVC_PORT
 
+  api-gateway:
+    image: nginx:1.26
+    volumes:
+      - ./api-gateway/templates:/etc/nginx/templates
+    ports:
+      - $API_GATEWAY_PORT:$API_GATEWAY_PORT
+    environment:
+      - PORT=$API_GATEWAY_PORT
+      - FRONTEND_PORT=$FRONTEND_PORT
+      - USER_SVC_PORT=$USER_SVC_PORT
+      - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
+      - MATCHING_SVC_PORT=$MATCHING_SVC_PORT
+    depends_on:
+      - frontend
+      - user-service
+      - question-service
+      - matching-service
+
   redis:
     image: redis:7.4-alpine
     restart: always
