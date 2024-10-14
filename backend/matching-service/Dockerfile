@@ -1,6 +1,7 @@
 # Build the Go application
 FROM golang:1.20-alpine AS builder
 
+
 # Set the working directory inside the container
 WORKDIR /app
 
