@@ -31,7 +31,6 @@ export default function Home() {
         setQuestions(data?.message);
       });
     }
-    console.log("No token found");
   }, [token]);
 
   const handleDelete = (id: string) => {
