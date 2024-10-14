@@ -50,7 +50,8 @@ export function authenticateSocket(
 ) {
   const token = socket.handshake.auth.token;
   if (!token) {
-    throw new Error("No token provided");
+    console.error("No token provided");
+    return next(new Error("No token provided"));
   }
 
   verifyJWT(token, {
