@@ -2,6 +2,7 @@ import axios from 'axios';
 
 export const USER_SERVICE = '/user-service';
 export const QUESTION_SERVICE = '/question-service';
+export const COLLAB_SERVICE = '/collaboration-service';
 
 const getApiClientBaseConfig = (service: string) => ({
   baseURL: service,
