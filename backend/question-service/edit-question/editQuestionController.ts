@@ -41,7 +41,7 @@ const editQuestion = async (req: Request, res: Response) => {
             updatedFields.description
         )
 
-        if (isDuplicate) {
+        if (isDuplicate && existingQuestion.difficulty === difficulty && existingQuestion.categories === categories) {
             logger.error('Question already exists')
             return res.status(400).json({ message: 'Question already exists' })
         }
