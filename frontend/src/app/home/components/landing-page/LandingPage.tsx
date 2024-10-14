@@ -18,12 +18,14 @@ const LandingPage = () => {
         },
     });
 
+    // Redirect to dashboard if user authenticates (token is present)
     useEffect(() => {
         if (token) {
             router.push("/");
         }
     }, [token, router]);
 
+    // Trigger OAuth pop up only if user is not authenticated (token is not present)
     const handleLogin = () => {
         if (token) {
             router.push("/");
