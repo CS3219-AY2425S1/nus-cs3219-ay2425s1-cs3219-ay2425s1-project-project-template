@@ -24,3 +24,16 @@ export function getTargetService(
       return null;
   }
 }
+
+export function validateClientTransfer(message: any): boolean {
+  if (message.event == null || message.event == undefined) {
+    console.error("No event specified in message");
+    return false;
+  }
+  if (message.connectionId == null || message.connectionId == undefined) {
+    console.error("No connectionId specified in message");
+    return false;
+  }
+
+  return true;
+}
