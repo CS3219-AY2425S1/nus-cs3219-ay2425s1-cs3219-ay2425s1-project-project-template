@@ -5,7 +5,8 @@ import {
   fetchQuestionById as fetchQuestionByIdService,
   modifyQuestionById as modifyQuestionByIdService,
   removeQuestionById as removeQuestionByIdService,
-  fetchQuestionByTitle as fetchQuestionByTitleService
+  fetchQuestionByTitle as fetchQuestionByTitleService,
+  fetchAllTopics as fetchAllTopicsService
 } from '../service/question-service';
 
 // Helper function to handle and format errors properly
@@ -90,6 +91,15 @@ export async function removeQuestionById(req: Request, res: Response) {
         } else {
             res.status(404).json({ message: 'Question not found' });
         }
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
+export async function fetchAllTopics(req: Request, res: Response) {
+    try {
+        const topics = await fetchAllTopicsService();
+        res.status(200).json(topics);
     } catch (error) {
         handleError(error, res);
     }
