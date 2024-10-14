@@ -2,13 +2,19 @@ import CodeSnippet from "@/app/home/components/code-snippet/CodeSnippetHighlight
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import GoogleIcon from "@/app/home/components/icon/GoogleIcon";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth/AuthContext";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const LandingPage = () => {
-    const Router = useRouter();
-    const navigateToLogin = () => {
-        Router.push("/");
-    }
+    const { login } = useAuth();
+
+    const googleLogin = useGoogleLogin({
+        onSuccess: (response) => login(response),
+        onError: (error) => {
+            console.error("Login Failed:", error);
+        },
+    });
+
     return (
         <div className="flex items-center justify-center min-h-[90vh]">
             <div className="flex items-center justify-between max-w-7xl w-full">
@@ -18,9 +24,9 @@ const LandingPage = () => {
                     </h1>
                     <p className="font-normal text-white pb-5">
                         Join PeerPrep to sharpen your skills through real-time problem-solving, and prepare to outshine in every interview.
-                        Created for CS3219 Software Engineering Principles AY23/24 by Group 15.
+                        Created for CS3219 Software Engineering Principles AY24/25 by Group 15.
                     </p>
-                    <Button className="mt-6 font-semibold w-full" onClick={navigateToLogin}>
+                    <Button className="mt-6 font-semibold w-full" onClick={() => googleLogin()}>
                         <GoogleIcon/>
                         <span className="pl-2">Get Started with Google</span>
                     </Button>
