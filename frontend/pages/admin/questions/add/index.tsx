@@ -4,7 +4,7 @@ import { useState } from "react";
 import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
 import { Question } from "@/types/questions";
-import { useAddQuestions } from "@/hooks/questions";
+import { useAddQuestions } from "@/hooks/api/questions";
 
 const AddQuestionsPage = () => {
   const router = useRouter();
@@ -17,7 +17,7 @@ const AddQuestionsPage = () => {
     constraints: "",
   });
 
-  const { mutate: addQuestion } = useAddQuestions();
+  const { mutate: addQuestion, isError, error } = useAddQuestions();
 
   const handleOnSubmit = (updatedData: Question) => {
     addQuestion(
@@ -25,21 +25,14 @@ const AddQuestionsPage = () => {
       {
         onSuccess: () => {
           alert("Question successfully added!");
-          router.push("/questions"); // Redirect to questions list on success
-        },
-        onError: (error) => {
-          if (error.response) {
-            alert(`Error adding the question: ${error.response.data}`);
-          } else {
-            alert(`Error adding the question: ${error.message}`);
-          }
+          router.push("/admin/questions"); // Redirect to admin questions list on success
         },
       },
     );
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout isLoggedIn={true}>
       <div className="flex items-center justify-center">
         <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
           <QuestionForm
@@ -48,6 +41,10 @@ const AddQuestionsPage = () => {
             setFormData={setFormData}
             onSubmit={handleOnSubmit}
           />
+
+          {isError && (
+            <p className="text-red-500 mt-4 text-center">{`${error?.message}. Please try again later.`}</p>
+          )}
         </div>
       </div>
     </DefaultLayout>

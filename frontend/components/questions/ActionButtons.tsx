@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 
 import { PencilIcon, TrashIcon } from "@/components/icons";
-import { useDeleteQuestions } from "@/hooks/questions";
+import { useDeleteQuestions } from "@/hooks/api/questions";
 import { Question } from "@/types/questions";
 
 interface ActionButtonsProps {
@@ -28,7 +28,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
   const handleEditOnClick = () => {
     // Redirect to the edit page with only questionId
     router.push({
-      pathname: `/questions/edit/${question.questionId}`,
+      pathname: `/admin/questions/edit/${question.questionId}`,
     });
   };
 
