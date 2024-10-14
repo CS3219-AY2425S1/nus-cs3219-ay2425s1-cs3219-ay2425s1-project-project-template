@@ -1,15 +1,36 @@
-from fastapi import FastAPI, WebSocket
-from .kafka_consumer import kafka_consumer
+from fastapi import FastAPI, WebSocket, Request, HTTPException, status
+from .kafka_consumer import kafka_consumer, redis_client
 import asyncio
 import logging
 import json
 import time
+from pydantic import BaseModel
 
 # Set up the logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
+
+
+class CancelRequest(BaseModel):
+    user_id: str
+
+
+class CanQueueRequest(BaseModel):
+    user_id: str
+    request_time: float
+
+
+class CanProceedRequest(BaseModel):
+    user_id1: str
+    user_id2: str
+
 
 connected_clients = {}
 
@@ -74,3 +95,85 @@ async def startup_event():
     logger.info("Starting match result dispatcher")
     asyncio.create_task(match_result_dispatcher())
     logger.info("Match result dispatcher started successfully")
+
+
+@app.post("/cancel")
+async def cancel_request(cancel_request: CancelRequest):
+    """
+    Cancel a match request and update the state.
+    """
+    user_id = cancel_request.user_id
+
+    try:
+        redis_client.hset(f"user:{user_id}", "state", "cancelled")
+        logger.info(f"Cancellation requested for user_id: {user_id}")
+        return {"status": "cancellation_requested"}, status.HTTP_200_OK
+    except Exception as e:
+        logger.info(f"Error handling cancellation: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/can-queue")
+async def can_queue(can_queue_request: CanQueueRequest):
+    """
+    Check if the request can be added to RabbitMQ based on request time
+    and if the state is still 'matching'. Return true if allowed, otherwise false.
+    """
+    user_id = can_queue_request.user_id
+    request_time = can_queue_request.request_time
+
+    previous_request_time = redis_client.hget(f"user:{user_id}", "request_time")
+    state = redis_client.hget(f"user:{user_id}", "state")
+
+    if not state:
+        return {"can_add_to_queue": True}
+
+    state = state.decode("utf-8")
+    logger.info(f"State for user {user_id}: {state}")
+
+    if not previous_request_time:
+        return {"can_add_to_queue": True}
+
+    try:
+        diff = float(request_time) - float(previous_request_time.decode("utf-8"))
+    except (ValueError, AttributeError) as e:
+        logger.error(f"Error decoding previous request time for user {user_id}: {e}")
+        return {"can_add_to_queue": True}
+
+    if diff >= 30 or state in ["qn_assigned", "canceled"]:
+        return {"can_add_to_queue": True}
+
+    if state == "matching":
+        return {"can_add_to_queue": False}
+
+    logger.warning(f"Unexpected state {state} for user {user_id}. Allowing queue.")
+    return {"can_add_to_queue": True}
+
+
+@app.post("/can-proceed")
+async def can_proceed(can_proceed_request: CanProceedRequest):
+    """
+    Check if two users can proceed with a match based on their states.
+    """
+    user_id1 = can_proceed_request.user_id1
+    user_id2 = can_proceed_request.user_id2
+
+    user1_state = redis_client.hget(f"user:{user_id1}", "state")
+    user2_state = redis_client.hget(f"user:{user_id2}", "state")
+
+    if user1_state != b"cancelled" and user2_state != b"cancelled":
+        return {"can_proceed": True}
+
+    cancelled_users = []
+    if user1_state == b"cancelled":
+        cancelled_users.append(user_id1)
+    if user2_state == b"cancelled":
+        cancelled_users.append(user_id2)
+
+    return {"can_proceed": False, "cancelled_users": cancelled_users}
+
+
+def handle_cancellation(user_id, req_id):
+    """
+    Handle the cancellation logic.
+    """

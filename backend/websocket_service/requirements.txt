@@ -12,3 +12,5 @@ httptools
 exceptiongroup
 anyio
 watchfiles
+redis
+pydantic

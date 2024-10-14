@@ -2,10 +2,13 @@ from confluent_kafka import Consumer, KafkaError, KafkaException
 import json
 import asyncio
 import logging
+import redis
 
 # Set up the logger
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+redis_client = redis.Redis(host="redis", port=6379, db=0)
 
 
 async def kafka_consumer():
@@ -16,20 +19,21 @@ async def kafka_consumer():
         "auto.offset.reset": "earliest",
     }
 
-    max_retries = 5
+    max_retries = 10
     initial_delay = 1
     backoff_factor = 2
 
     for attempt in range(max_retries):
         try:
-            # Try to create the Kafka consumer and connect to Kafka broker
             logger.info("Attempting to connect to Kafka")
             consumer = Consumer(consumer_config)
             logger.info("Connected to Kafka successfully")
-            consumer.subscribe(["question_results"])  # Subscribe to the Kafka category
-            logger.info("Subscribe to match_results")
-            break  # Exit loop if successful connection
-        except KafkaException as e:
+            consumer.subscribe(["match_requests", "match_results", "question_results"])
+            logger.info(
+                "Subscribe to match_requests, match_results and question_results topics"
+            )
+            break
+        except Exception as e:
             # Calculate the exponential backoff delay
             delay = initial_delay * (backoff_factor**attempt)
             logger.error(
@@ -43,19 +47,62 @@ async def kafka_consumer():
         )
 
     while True:
-        msg = consumer.poll(1.0)
-        if msg is None:
-            await asyncio.sleep(0.1)
-            continue
-
-        if msg.error():
-            if msg.error().code() == KafkaError._PARTITION_EOF:
-                # End of partition, continue polling
+        try:
+            msg = consumer.poll(1.0)
+            if msg is None:
+                await asyncio.sleep(0.1)
                 continue
-            else:
+
+            if msg.error():
                 logger.error(f"Kafka error: {msg.error()}")
-        else:
+                continue
             message_value = msg.value().decode("utf-8")
-            logger.info(f"Received message: {message_value}")
-            # Convert the message to a JSON object and yield it
-            yield json.loads(message_value)
+            topic = msg.topic()
+            message = json.loads(message_value)
+            if topic == "match_requests":
+                logger.info(f"Received message from match_requests: {message_value}")
+                user_id = message.get("user_id")
+                if user_id:
+                    redis_client.hset(f"user:{user_id}", "state", "matching")
+                    redis_client.hset(
+                        f"user:{user_id}", "request_time", message.get("request_time")
+                    )
+                    logger.info(f"Set user {user_id} to state: matching")
+                else:
+                    logger.error(
+                        f"Invalid message received for match_requests topic: {message_value}"
+                    )
+            elif topic == "match_results":
+                logger.info(f"Received message from match_results: {message_value}")
+                user1_id = message.get("user1_id")
+                user2_id = message.get("user2_id")
+                if user1_id and user2_id:
+                    redis_client.hset(f"user:{user1_id}", "state", "matched")
+                    redis_client.hset(f"user:{user2_id}", "state", "matched")
+                    logger.info(
+                        f"Set user {user1_id} and user {user2_id} to state: matched"
+                    )
+                else:
+                    logger.error(
+                        f"Invalid message received for match_result topic: {message_value}"
+                    )
+
+            elif topic == "question_results":
+                logger.info(f"Received message from question_results: {message_value}")
+                user1_id = message.get("user1_id")
+                user2_id = message.get("user2_id")
+                if user1_id and user2_id:
+                    redis_client.hset(f"user:{user1_id}", "state", "qn_assgined")
+                    redis_client.hset(f"user:{user2_id}", "state", "qn_assgined")
+                    logger.info(
+                        f"Set user {user1_id} and user {user2_id} to state: qn_assigined"
+                    )
+                    yield json.loads(message_value)
+
+                else:
+                    logger.error(
+                        f"Invalid message received for question_result topic: {message_value}"
+                    )
+            consumer.commit(msg)
+        except Exception as e:
+            logger.error(f"Error processing message: {str(e)}")
