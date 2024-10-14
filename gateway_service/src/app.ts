@@ -3,14 +3,7 @@ import dotenv from "dotenv";
 import userRoutes from "./api/routes/userRoutes";
 import questionRoutes from "./api/routes/questionRoutes";
 import { authenticateToken, authenticateSocket } from "./utility/jwtHelper";
-import { Server, Socket as ServerSocket } from "socket.io";
-import { io as Client } from "socket.io-client";
-import {
-  ServicesSocket,
-  ClientSocketEvents,
-  getTargetService,
-  validateClientTransfer,
-} from "./utility/socketHelper";
+import initializeSocketHandler from "./api/routes/socketRoutes";
 import http from "http";
 import cors from "cors";
 
@@ -51,91 +44,21 @@ app.get("/", (req, res) => {
   res.send("LeetCode API Gateway is running!");
 });
 
-// Matching Service Socket connection
-const matchingServiceSocket = Client(
-  `http://${process.env.MATCHING_SERVICE_ROUTE}:${process.env.MATCHING_SERVICE_PORT}`
-);
-matchingServiceSocket.on("connect", () => {
-  console.log("Connected to matching service");
-});
-matchingServiceSocket.on("serverToClient", (message: any) => {
-  console.log(`Received message from matching service: ${message}`);
-  if (validateClientTransfer(message)) {
-    const socket = connections.get(message.connectionId);
-    if (socket == null) {
-      console.error("No socket found for connectionId");
-      return;
-    }
-
-    socket.emit(message.event, message);
-  }
-});
-matchingServiceSocket.on("connect_error", (err) => {
-  console.error(`connect_error due to ${err}`);
-});
-matchingServiceSocket.on("disconnect", () => {
-  matchingServiceSocket.disconnect();
-  console.log("Disconnected from matching service");
-});
-
-// Client Sockets connection
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: `*`,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
 
-let connections: Map<string, ServerSocket> = new Map();
-io.use(authenticateSocket).on("connection", (socket: ServerSocket) => {
-  console.log(`User connected: ${socket.data.username}`);
-  connections.set(socket.id, socket);
-
-  socket.on("clientToServer", async (message) => {
-    const event = message.event;
-    if (event == null || event == undefined) {
-      console.error("No event specified in message");
-      return;
-    }
-
-    const targetService = getTargetService(event);
-    if (targetService == null) {
-      console.error("No target service for event");
-      return;
-    }
-    message.connectionId = socket.id;
-    console.log(`Received message from client: ${JSON.stringify(message)}`);
-    console.log(`Forwarding message to service: ${targetService}`);
-
-    socketTransfer(targetService, event, message);
-  });
-
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.data.username}`);
-    connections.delete(socket.id);
-    socket.disconnect(true);
-  });
-});
-
-// Transfer message from client to server
-function socketTransfer(
-  service: ServicesSocket,
-  event: ClientSocketEvents,
-  message: any
-) {
-  switch (service) {
-    case ServicesSocket.MATCHING_SERVICE:
-      message.event = event;
-      matchingServiceSocket.emit("clientToServer", message);
-      break;
-    default:
-      break;
-  }
-}
+const { io, connections, matchingServiceSocket } =
+  initializeSocketHandler(server);
 
 // Start the server
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM signal received: closing HTTP server");
+  server.close(() => {
+    console.log("HTTP server closed");
+    io.close();
+    matchingServiceSocket.disconnect();
+  });
 });

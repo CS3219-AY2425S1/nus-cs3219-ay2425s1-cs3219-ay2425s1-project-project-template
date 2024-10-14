@@ -1,6 +1,7 @@
 import { ThemeProvider } from "./theme-context";
 import { AuthProvider } from "./auth-context";
 import { CookiesProvider } from "next-client-cookies/server";
+import { SocketProvider } from "./socket-context";
 
 export function Providers({ children }: React.PropsWithChildren) {
   return (
@@ -12,7 +13,7 @@ export function Providers({ children }: React.PropsWithChildren) {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SocketProvider>{children}</SocketProvider>
         </ThemeProvider>
       </AuthProvider>
     </CookiesProvider>

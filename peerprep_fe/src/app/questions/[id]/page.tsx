@@ -5,8 +5,7 @@ import Header from "@/components/common/header";
 import ProblemDetail from "@/components/questions/problem-detail";
 import { useAuth } from "@/contexts/auth-context";
 import { getQuestion } from "@/app/actions/questions";
-import MatchingSocket from "@/components/matching-socket/matching-socket";
-import { QuestionDto } from "@/app/types/QuestionDto";
+import { QuestionDto } from "peerprep-shared-types";
 
 const Problem: React.FC<any> = ({ params }) => {
   const { token } = useAuth();
@@ -24,12 +23,10 @@ const Problem: React.FC<any> = ({ params }) => {
     }
   }, [token]);
 
-  console.log(question);
   return (
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10">
       <Header />
       <main className="relative mx-5 flex space-x-20 items-center flex-1">
-        <MatchingSocket token={token} />
         <div className="w-full pl-10">
           <ProblemDetail question={question} />
         </div>
