@@ -1,12 +1,14 @@
 {
   "name": "peerprep-shared-types",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Shared TypeScript types for PeerPrep frontend and backend",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "increment-version": "node -e \"const fs=require('fs');const package=JSON.parse(fs.readFileSync('package.json'));const [major,minor,patch]=package.version.split('.');package.version=\\`\\${major}.\\${minor}.\\${parseInt(patch)+1}\\`;fs.writeFileSync('package.json',JSON.stringify(package,null,2));console.log('Version incremented to ' + package.version);\"",
+    "publish-package": "npm publish",
+    "update-package": "npm run build && npm run increment-version && npm run publish-package"
   },
   "keywords": [
     "typescript",
