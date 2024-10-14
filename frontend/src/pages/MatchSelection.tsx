@@ -20,7 +20,7 @@ import humanImage from "../assets/human.png";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_API_URL;
 
-const MatchSelection: React.FC = () => {
+const MatchSelection = () => {
   const [difficulty, setDifficulty] = useState<string>("Easy");
   const [topic, setTopic] = useState<string>("");
   const [topics, setTopics] = useState<string[]>([]);
@@ -58,12 +58,12 @@ const MatchSelection: React.FC = () => {
     }
 
     socketRef.current = io(SOCKET_SERVER_URL);
-    socketRef.current.emit("join_room", { userId: user.name });
+    socketRef.current.emit("join_room", { userName: user.name });
 
     socketRef.current.on(
       "match_found",
       async (matchData: MatchDataResponse) => {
-        setMatchUserName(matchData.matchUserId);
+        setMatchUserName(matchData.matchUserName);
         setIsMatching(false);
         setNoMatchFound(false);
         socketRef.current.disconnect();

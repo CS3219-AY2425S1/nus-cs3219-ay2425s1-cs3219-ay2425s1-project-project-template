@@ -8,7 +8,7 @@ export const findMatch = async (
   difficulty: string
 ) => {
   const payload = {
-    userId: userName,
+    userName: userName,
     topic: topic,
     difficulty: difficulty,
   };

@@ -1,5 +1,5 @@
 export interface MatchRequest {
-    userId: string;
-    topic: string;
-    difficulty: string;
+  userName: string;
+  topic: string;
+  difficulty: string;
 }
