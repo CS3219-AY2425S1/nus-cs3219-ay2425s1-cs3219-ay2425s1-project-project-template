@@ -33,7 +33,12 @@ export default function Home() {
 
     const { session, loading } = useProtectedRoute()
 
-    if (loading) return <Loading />
+    if (loading)
+        return (
+            <div className="flex flex-col h-screen w-screen items-center justify-center">
+                <Loading />
+            </div>
+        )
 
     return (
         <div className="my-4">

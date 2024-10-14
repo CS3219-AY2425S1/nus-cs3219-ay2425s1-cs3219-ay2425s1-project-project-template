@@ -233,7 +233,12 @@ export default function Questions() {
         loadData()
     }, [])
 
-    if (loading) return <Loading />
+    if (loading)
+        return (
+            <div className="flex flex-col h-screen w-screen items-center justify-center">
+                <Loading />
+            </div>
+        )
 
     return (
         <div className="m-8">

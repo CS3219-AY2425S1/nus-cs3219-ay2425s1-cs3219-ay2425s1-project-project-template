@@ -1,12 +1,12 @@
 'use client'
 
-import Image from 'next/image'
 import Loading from '@/components/customs/loading'
+import { useSession } from 'next-auth/react'
+import Image from 'next/image'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
 import Login from '../../components/auth/Login'
 import Signup from '../../components/auth/Signup'
-import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
-import { useState } from 'react'
 
 export default function Auth() {
     const [isLoginPage, setIsLoginPage] = useState(true)
@@ -14,7 +14,11 @@ export default function Auth() {
     const { data: session, status } = useSession()
 
     if (status === 'loading') {
-        return <Loading />
+        return (
+            <div className="flex flex-col h-screen w-screen items-center justify-center">
+                <Loading />
+            </div>
+        )
     }
 
     if (session) {

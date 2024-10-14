@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 
 import Datatable from '@/components/customs/datatable'
 import Loading from '@/components/customs/loading'
-import { columns } from './columns'
-import { mockSessionsData } from '@/mock-data'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
+import { mockSessionsData } from '@/mock-data'
+import { columns } from './columns'
 
 export default function Sessions() {
     const [data, setData] = useState<ISession[]>([])
@@ -37,7 +37,12 @@ export default function Sessions() {
 
     const { loading } = useProtectedRoute()
 
-    if (loading) return <Loading />
+    if (loading)
+        return (
+            <div className="flex flex-col h-screen w-screen items-center justify-center">
+                <Loading />
+            </div>
+        )
 
     return (
         <div className="m-8">
