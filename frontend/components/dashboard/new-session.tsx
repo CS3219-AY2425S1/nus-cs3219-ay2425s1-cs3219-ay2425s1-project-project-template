@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Category, Complexity, Proficiency } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import React from 'react'
 import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
@@ -12,6 +13,8 @@ import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 
 export const NewSession = () => {
+    const router = useRouter()
+
     const TopicOptions = Object.values(Category).map((category) => ({
         value: category,
         label: category.charAt(0).toUpperCase() + category.toLocaleLowerCase().slice(1),
@@ -31,6 +34,7 @@ export const NewSession = () => {
         isOpen: false,
         isMatchmaking: false,
         isMatchFound: false,
+        isMatchmakingFailed: false,
     })
     const [timeElapsed, setTimeElapsed] = React.useState(0)
     React.useEffect(() => {
@@ -54,6 +58,7 @@ export const NewSession = () => {
             isOpen: true,
             isMatchmaking: true,
             isMatchFound: false,
+            isMatchmakingFailed: false,
         }))
 
         //TODO: Modify this response to match the response from the API
@@ -67,25 +72,25 @@ export const NewSession = () => {
                 topic: selectedTopic as Category,
             })
         } catch {
-            toast.error('Failed to add to matchmaking queue. Please try again later.')
-            setModalData((modalData) => ({
-                ...modalData,
-                isOpen: false,
-                isMatchmaking: false,
-            }))
-            return
+            await handleFailedMatchmaking()
         }
 
-        toast.success('Successfully added to the matchmaking queue.')
         //TODO: Add WS logic here to listen for match found events
         await new Promise((resolve, _) => setTimeout(resolve, 10000))
         const isMatchFound = Math.random() > 0.5
         if (isMatchFound) {
             await handleMatchFound()
         } else {
-            toast.error('Failed to find a match. Please try again later.')
-            await handleCancelMatchmaking()
+            await handleFailedMatchmaking()
         }
+    }
+
+    const handleFailedMatchmaking = async () => {
+        setModalData((modalData) => ({
+            ...modalData,
+            isMatchmaking: false,
+            isMatchmakingFailed: true,
+        }))
     }
 
     const handleCancelMatchmaking = async () => {
@@ -103,7 +108,7 @@ export const NewSession = () => {
             isMatchFound: true,
             isMatchmaking: false,
         }))
-        //TODO: Add routing to collaborative coding page here
+        //router.push('/code')
     }
 
     return (
@@ -158,26 +163,50 @@ export const NewSession = () => {
                             height={234}
                             alt="pros sitting around a monitor"
                         />
-                        <h2 className="text-xl font-bold text-center">
-                            {modalData.isMatchmaking
-                                ? 'Finding collaborator'
-                                : 'Match found! Please wait while we redirect you to the coding session...'}
-                        </h2>
-                        {modalData.isMatchmaking && <Loading />}
                         {modalData.isMatchmaking && (
-                            <h2 className="text-medium font-medium">
-                                {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
-                            </h2>
+                            <>
+                                <h2 className="text-xl font-bold text-center">Finding collaborator</h2>
+                                <Loading />
+                                <h2 className="text-medium font-medium">
+                                    {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
+                                </h2>
+                                <Button
+                                    className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
+                                    variant={'primary'}
+                                    size={'lg'}
+                                    onClick={handleCancelMatchmaking}
+                                >
+                                    Cancel matchmaking
+                                </Button>
+                            </>
                         )}
-                        {!modalData.isMatchFound && (
-                            <Button
-                                className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
-                                variant={'primary'}
-                                size={'lg'}
-                                onClick={handleCancelMatchmaking}
-                            >
-                                Cancel matchmaking
-                            </Button>
+                        {modalData.isMatchmakingFailed && (
+                            <>
+                                <h2 className="text-xl font-bold text-center">
+                                    Failed to find a collaborator. Would you like to try again?
+                                </h2>
+                                <div className="flex flex-row space-x-4">
+                                    <Button
+                                        className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
+                                        size={'lg'}
+                                        onClick={handleMatchmaking}
+                                    >
+                                        Retry
+                                    </Button>
+                                    <Button
+                                        className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
+                                        size={'lg'}
+                                        onClick={handleCancelMatchmaking}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                        {modalData.isMatchFound && (
+                            <h2 className="text-xl font-bold text-center">
+                                Match found! Please wait while we redirect you to the coding session...
+                            </h2>
                         )}
                     </div>
                 </CustomModal>
