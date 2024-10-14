@@ -142,8 +142,8 @@ export const NewSession = () => {
             </Button>
 
             {modalData.isOpen && (
-                <CustomModal className={`h-3/5 w-2/5 rounded-lg`}>
-                    <div className="flex flex-col items-center justify-center">
+                <CustomModal className={`h-auto w-2/5 rounded-lg items-center`}>
+                    <div className="flex flex-col items-center justify-center space-y-4">
                         <Image
                             priority={true}
                             src="/matchmaking.png"
@@ -151,16 +151,25 @@ export const NewSession = () => {
                             height={234}
                             alt="pros sitting around a monitor"
                         />
-                        <h2 className="text-xl font-bold mt-6 mb-4">
+                        <h2 className="text-xl font-bold">
                             {modalData.isMatchmaking ? 'Finding collaborator' : 'Match found!'}
                         </h2>
                         {modalData.isMatchmaking && <Loading />}
                         {modalData.isMatchmaking && (
-                            <h2 className="text-medium font-medium mt-2">
+                            <h2 className="text-medium font-medium">
                                 {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
                             </h2>
                         )}
-                        {modalData.isMatchFound || (
+                        {modalData.isMatchFound ? (
+                            <Button
+                                className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
+                                variant={'primary'}
+                                size={'lg'}
+                                onClick={handleCancelMatchmaking}
+                            >
+                                Proceed to start coding
+                            </Button>
+                        ) : (
                             <Button
                                 className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
                                 variant={'primary'}
