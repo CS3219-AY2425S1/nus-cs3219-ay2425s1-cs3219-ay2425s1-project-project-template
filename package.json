@@ -1,10 +1,5 @@
 {
   "devDependencies": {
     "prettier": "^3.3.3"
-  },
-  "dependencies": {
-    "@types/react-split-pane": "^0.1.10",
-    "react-split": "^2.0.14",
-    "react-split-pane": "^0.1.92"
   }
 }
