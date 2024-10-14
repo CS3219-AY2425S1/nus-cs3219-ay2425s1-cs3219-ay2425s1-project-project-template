@@ -10,8 +10,3 @@ export interface MatchPartner {
     difficulty: string
     category: string[]
 }
-
-export interface MatchResponse {
-    first: MatchPartner
-    second: MatchPartner
-}

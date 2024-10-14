@@ -4,11 +4,10 @@ import { performMatching } from './matching'
 import { TimedMatchRequest } from '../models/types'
 import logger from '../utils/logger'
 import { sendMatchResult } from './sendMatchResults'
-import { request } from 'express'
 
 const requestQueue: TimedMatchRequest[] = []
 const MATCH_TIMEOUT = 5000
-let isMatching: boolean = false;
+let isMatching: boolean = false
 
 const startConsumer = async (
     io: Server,
@@ -59,7 +58,11 @@ const startConsumer = async (
     }
 }
 
-const processMatching = async (req: TimedMatchRequest, io: Server, connectedClients: Map<string, string>) => {
+const processMatching = async (
+    req: TimedMatchRequest,
+    io: Server,
+    connectedClients: Map<string, string>,
+) => {
     if (isMatching) {
         setTimeout(() => processMatching(req, io, connectedClients), 100)
     }
@@ -69,22 +72,28 @@ const processMatching = async (req: TimedMatchRequest, io: Server, connectedClie
 
     try {
         const currTime = Date.now()
-        const activeRequests = requestQueue.filter((req) => currTime - req.timestamp <= MATCH_TIMEOUT )
+        const activeRequests = requestQueue.filter(
+            (req) => currTime - req.timestamp <= MATCH_TIMEOUT,
+        )
 
         const matchPartner = performMatching(req, activeRequests)
-        let reqIndex = requestQueue.findIndex(x => x.name == req.name)
+        let reqIndex = requestQueue.findIndex((x) => x.name == req.name)
         requestQueue.splice(reqIndex, 1)
 
         if (matchPartner) {
             sendMatchResult(req, matchPartner, io, connectedClients)
-            let partnerIndex = requestQueue.findIndex(x => x.name == matchPartner.name)
+            let partnerIndex = requestQueue.findIndex(
+                (x) => x.name == matchPartner.name,
+            )
             requestQueue.splice(partnerIndex, 1)
             return
         } else {
             const requestSockId = connectedClients.get(req.name)
 
             if (requestSockId) {
-                io.to(requestSockId).emit('noMatchFound', { message: "No suitable match found at this time "})
+                io.to(requestSockId).emit('noMatchFound', {
+                    message: 'No suitable match found at this time ',
+                })
             }
         }
     } finally {

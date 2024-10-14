@@ -1,32 +1,31 @@
-import cors from 'cors'
 import dotenv from 'dotenv'
-import express, { Request, Response } from 'express'
-import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { sendMatchingRequest } from '../producer/producer'
 import { startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
-// import { connect } from 'amqplib'
 
 dotenv.config({ path: './.env' })
 
-const app = express()
-const server = createServer(app)
-const io = new Server(server, {
+const connectedClients = new Map<string, string>()
+
+const io = new Server({
     cors: {
-        origin: "*"
-    }
+        origin: '*',
+    },
 })
 
-app.use(express.json())
-app.use(cors())
-
-const connectedClients = new Map()
-
 io.on('connection', (socket) => {
-    socket.on('register', (name) => {
+    socket.on('login', (name) => {
         connectedClients.set(name, socket.id)
-        logger.info(`User ${name} registered with socket ${socket.id}`)
+        logger.info(`User ${name} logged in with socket ${socket.id}`)
+    })
+
+    socket.on('requestMatch', async (data) => {
+        const { name, difficulty, categories } = data
+        logger.info(
+            `User ${name} has requested for a match with difficulty ${difficulty} and categories ${categories}`,
+        )
+        sendMatchingRequest(data)
     })
 
     socket.on('disconnect', () => {
@@ -40,23 +39,8 @@ io.on('connection', (socket) => {
     })
 })
 
-app.post('/match', async (req: Request, res: Response) => {
-    const { name, difficulty, categories } = req.body
-    logger.info(
-        `User ${name} has requested for a match with difficulty ${difficulty} and categories ${categories}`,
-    )
+const port = parseInt(process.env.PORT || '3000', 10)
 
-    const data = { name, difficulty, categories }
-
-    await sendMatchingRequest(data)
-    res.status(200).json({ message: 'Match request sent successfully' })
-})
-
-const port = process.env.PORT
-
-server.listen(port, () => {
-    logger.info(`Server is running on port ${port}`)
-    startConsumer(io, connectedClients)
-})
-
-export { io, connectedClients }
+io.listen(port)
+logger.info(`Server started on port ${port}`)
+startConsumer(io, connectedClients)
