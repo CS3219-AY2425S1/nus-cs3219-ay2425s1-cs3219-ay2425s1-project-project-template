@@ -13,12 +13,10 @@ export type IRequestMatchPayload = {
 export type IQueueRequest = Partial<Pick<IRequestMatchPayload, 'topic' | 'difficulty'>> &
   Pick<IRequestMatchPayload, 'userId'> & {
     socketPort: string;
+    timestamp: string;
   };
 
-export type IPoolTicket = IQueueRequest & {
-  socketPort: string;
-  timestamp: string;
-};
+export type IPoolTicket = IQueueRequest;
 
 export type IRedisClient = Awaited<ReturnType<(typeof client)['connect']>>;
 
