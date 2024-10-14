@@ -8,7 +8,9 @@ import {
   EachMessagePayload,
 } from "kafkajs";
 
-export interface KafkaRequest {}
+export interface KafkaRequest {
+  timestamp: number;
+}
 
 export class ProducerFactory {
   private producer: Producer;

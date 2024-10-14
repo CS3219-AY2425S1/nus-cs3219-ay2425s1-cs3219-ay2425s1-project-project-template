@@ -9,14 +9,13 @@ import processMessage, {
 dotenv.config();
 
 export interface IMatchRequest extends KafkaRequest {
-  id: string;
-  userId: string;
+  username: string;
   topic: string;
   difficulty: string;
 }
 
 export interface IMatchCancelRequest {
-  id: string;
+  username: string;
 }
 
 export interface IMatchResponse {
@@ -29,7 +28,7 @@ export interface IMatchCancelResponse {
 
 export interface IMatch {
   roomId: string;
-  userIds: string[];
+  usernames: string[];
   topic: string;
   difficulty: string;
 }
@@ -81,13 +80,13 @@ export class Queue implements IQueue {
     request: IMatchCancelRequest
   ): Promise<IMatchCancelResponse> {
     // remove from queue, then return success message
-    const offset = this.offsetMap.get(request.id);
+    const offset = this.offsetMap.get(request.username);
     var success = false;
 
     if (offset != undefined) {
       success = true;
       this.consumer.commit(offset);
-      this.offsetMap.delete(request.id);
+      this.offsetMap.delete(request.username);
     }
 
     return {

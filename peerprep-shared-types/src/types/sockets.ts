@@ -17,11 +17,13 @@ export interface MatchRequest {
   selectedTopic: string;
   event: ClientSocketEvents.REQUEST_MATCH;
   username: string;
+  timestamp?: string;
 }
 
 export interface MatchCancelRequest {
   event: ClientSocketEvents.CANCEL_MATCH;
   username: string;
+  timestamp?: string;
 }
 
 export interface MatchFoundResponse {
