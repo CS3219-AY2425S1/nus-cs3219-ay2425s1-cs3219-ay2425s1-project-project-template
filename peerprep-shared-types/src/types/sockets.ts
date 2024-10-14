@@ -21,6 +21,7 @@ export interface MatchRequest {
 
 export interface MatchCancelRequest {
   event: ClientSocketEvents.CANCEL_MATCH;
+  username: string;
 }
 
 export interface MatchFoundResponse {
