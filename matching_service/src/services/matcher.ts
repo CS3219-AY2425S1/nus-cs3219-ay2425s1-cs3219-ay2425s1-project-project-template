@@ -1,27 +1,28 @@
-import { Looper } from "./looper";
 import { IMatch, IMatchRequest, IQueue } from "./queue";
-import { createRoom, DifficultyLevel, IRoom } from "./room";
 
 export interface INotifier {
   notify(success: boolean, usermame: string, roomId: string): void;
 }
 
 export class Matcher {
-  private looper: Looper;
+  private readonly interval: number = 500; // In milliseconds
   private queue: IQueue;
   private notifer: INotifier;
+  private timeoutId: NodeJS.Timeout | null = null;
 
   constructor(queue: IQueue, notifier: INotifier) {
-    this.looper = new Looper(200, this.match);
     this.queue = queue;
     this.notifer = notifier;
   }
 
-  public async match() {
+  public match(queue: IQueue, notifier: INotifier) {
+    console.log("Matching users...");
     this.queue.getRequests().then((requests) => {
+      console.log("Removing expired requests...");
       // Remove expired requests
       const { expired, valid } = this.checkExpiredRequests(requests);
 
+      console.log("Notifying expired requests...");
       // Remove expired requests from queue
       expired.forEach((request) => {
         this.queue.cancel(request);
@@ -33,12 +34,15 @@ export class Matcher {
         return;
       }
 
+      console.log("Splitting requests by topic and difficulty...");
       // If requests not split by topic and difficulty, split them
       const requestMap = this.splitRequests(valid);
 
+      console.log("Matching users by topic and difficulty...");
       // Match users by topic and difficulty
       const rooms = this.matchUsers(requestMap);
 
+      console.log("Notifying users of match...");
       // Notify users of match
       rooms.forEach((room) => {
         room.usernames.forEach((username) =>
@@ -48,6 +52,11 @@ export class Matcher {
 
       //TODO: Create rooms in database
     });
+
+    this.timeoutId = setTimeout(
+      () => this.match(queue, notifier),
+      this.interval
+    );
   }
 
   private checkExpiredRequests(requests: IMatchRequest[]): {
@@ -56,9 +65,12 @@ export class Matcher {
   } {
     const expired: IMatchRequest[] = [];
     const valid: IMatchRequest[] = [];
+    const now = Date.now();
+    console.log("now:", now);
 
     requests.forEach((request) => {
-      if (request.timestamp < Date.now() - 30 * 1000) {
+      console.log(request.timestamp);
+      if (request.timestamp < now - 30 * 1000) {
         expired.push(request);
       } else {
         valid.push(request);
@@ -124,10 +136,13 @@ export class Matcher {
   }
 
   public start() {
-    this.looper.start();
+    if (this.timeoutId === null) {
+      this.match(this.queue, this.notifer);
+    }
   }
 
   public stop() {
-    this.looper.stop();
+    clearTimeout(this.timeoutId as NodeJS.Timeout);
+    this.timeoutId = null;
   }
 }

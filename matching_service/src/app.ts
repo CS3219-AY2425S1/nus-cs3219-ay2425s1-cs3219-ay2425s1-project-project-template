@@ -44,6 +44,7 @@ const io = new Server(server, {
 const queue = new Queue();
 const matcher = new Matcher(queue, {
   notify: (success: boolean, username: string, roomId: string) => {
+    console.log("Notifying client:", success, username, roomId);
     io.emit("serverToClient", {
       event: success
         ? ServerSocketEvents.MATCH_FOUND
@@ -60,7 +61,7 @@ const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
     username: message.username,
     topic: message.selectedTopic,
     difficulty: message.selectedDifficulty,
-    timestamp: message.timestamp || new Date().toISOString(),
+    timestamp: message.timestamp ? parseInt(message.timestamp) : Date.now(),
   };
   console.log(matchRequest);
 
@@ -78,6 +79,11 @@ const handleCancelMatch = async (
   };
 
   queue.cancel(cancelRequest);
+
+  io.emit("serverToClient", {
+    event: ServerSocketEvents.MATCH_CANCELED,
+    username: message.username,
+  });
 };
 
 io.on("connection", (socket) => {

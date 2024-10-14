@@ -77,6 +77,10 @@ function verifyJWT(token: string, next: IVerifyJWTNext) {
       return next.error(new Error("Invalid token"));
     }
 
+    if (payload.username == null || payload.role == null) {
+      return next.error(new Error("Invalid token"));
+    }
+
     next.success(payload);
   });
 }
