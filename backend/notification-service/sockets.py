@@ -2,7 +2,7 @@ from app import app
 from flask_socketio import emit, SocketIO
 from flask import request
 
-socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="http://localhost:3000")
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 connected_users = {}  # {user_id: socket_id}
 matching_service_sid = None
 

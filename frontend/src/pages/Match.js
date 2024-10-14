@@ -90,11 +90,7 @@ export const Match = () => {
 
       setSocket(socket);
       socket.on("connect", () => {
-        console.log("connected to notification service!");
-        socket.emit("user_connected", {
-          userId: userId,
-          message: "User has connected!",
-        });
+        console.log("Connected to notification service!");
       });
 
       socket.on("notification", (data) => {
