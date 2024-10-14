@@ -16,6 +16,7 @@ export interface MatchRequest {
   selectedDifficulty: DifficultyLevel;
   selectedTopic: string;
   event: ClientSocketEvents.REQUEST_MATCH;
+  username: string;
 }
 
 export interface MatchCancelRequest {
