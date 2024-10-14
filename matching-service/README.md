@@ -23,8 +23,34 @@
   - Required: userId (string), topic (string), difficulty (string)
   ```
   {
-    "userId": "66f115c7ad4cf9047a0cb0fd",
+    "userId": "(Replace with userId)",
     "topic": "array",
     "difficulty": "easy"
   }
+  ```
+
+- Example for two users:
+
+  User 1:
+  ```
+  {
+    "userId": "66eaf41a42e9e32670f99739",
+    "topic": "array",
+    "difficulty": "easy"
+  }
+  ```
+  User 2:
+  ```
+  {
+    "userId": "66eaf3a642e9e32670f99736",
+    "topic": "array",
+    "difficulty": "easy"
+  }
+
+  ```
+
+  Expected output:
+
+  ```
+  Match found between 66eaf3a642e9e32670f99736 and 66eaf41a42e9e32670f99739 
   ```

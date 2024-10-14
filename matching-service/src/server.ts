@@ -1,4 +1,6 @@
 import express from 'express';
+import { Server } from 'socket.io';
+import http from 'http';
 import matchRoutes from './routes/match-routes';
 import { consumeMatchRequests } from './service/match-service';
 import { connectRabbitMQ } from './queue/rabbitmq';
@@ -7,39 +9,39 @@ import cors from "cors";
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(express.json());
-
-app.use(cors()); // config cors so that front-end can use
-app.options("*", cors());
-
-// To handle CORS Errors
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // "*" -> Allow all links to access
-
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  );
-
-  // Browsers usually send this before PUT or POST Requests
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH");
-    return res.status(200).json({});
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
   }
-
-  // Continue Route Processing
-  next();
 });
+
+app.use(express.json());
+app.use(cors());
 
 app.use('/api', matchRoutes);
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   try {
     await connectRabbitMQ();
-    consumeMatchRequests();
+    consumeMatchRequests(io);
     console.log(`Matching service is running on port ${PORT}`);
   } catch (error) {
     console.error('Failed to connect to RabbitMQ:', error);
     process.exit(1);
   }
+});
+
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  socket.on('join_room', ({ userId }) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined their room for match updates.`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
 });
