@@ -1,7 +1,7 @@
 $primary-color: #e0afa0;
 $secondary-color: #463f3a;
 
-.header {
+.noauth-header {
   display: flex;
   align-items: center;
   background: white !important;
@@ -30,11 +30,10 @@ $secondary-color: #463f3a;
   color: $secondary-color;
 }
 
-.logo-container-special {
+.logo-container {
   display: flex;
   flex-direction: row;
   padding: 0 16px 0 0;
-  cursor: pointer !important;
 }
 
 .profile-menu-items {
