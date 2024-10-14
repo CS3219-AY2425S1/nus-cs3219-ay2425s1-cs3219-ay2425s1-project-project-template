@@ -1,4 +1,13 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
 const Welcome = ({ userName, suggestedQuestion }) => {
+  const navigate = useNavigate();
+
+  const goToMatchingService = () => {
+    navigate("/matching-service");
+  };
+
   return (
     <div className="w-full max-w-md rounded-3xl bg-lime-300 p-6 text-gray-900">
       <h2 className="mb-2 text-2xl font-bold">
@@ -34,7 +43,7 @@ const Welcome = ({ userName, suggestedQuestion }) => {
 
       {/* Start Practice Button */}
       <div className="mt-4">
-        <button className="rounded-full bg-[#191919] px-4 py-2 text-white transition duration-300 hover:bg-gray-800">
+        <button onClick={goToMatchingService} className="rounded-full bg-[#191919] px-4 py-2 text-white transition duration-300 hover:bg-gray-800">
           Start a Peer Session
         </button>
       </div>

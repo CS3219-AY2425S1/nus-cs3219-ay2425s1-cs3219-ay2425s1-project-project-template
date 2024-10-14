@@ -19,7 +19,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="flex w-20 flex-col items-center space-y-8 border border-y-0 border-l-0 border-gray-300/20 py-8">
+    <aside className="flex w-20 flex-col items-center space-y-8 border border-y-0 border-l-0 border-gray-300/20">
       <div className="mb-8"></div>
       {menuItems.map((item, index) => (
         <button
