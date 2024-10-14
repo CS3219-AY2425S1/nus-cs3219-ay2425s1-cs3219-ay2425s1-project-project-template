@@ -1,8 +1,4 @@
-import {
-  QuestionMinified,
-  QuestionFull,
-  NewQuestionData,
-} from "@/types/find-match";
+import { QuestionAll, QuestionFull, NewQuestionData } from "@/types/find-match";
 
 const QUESTION_SERVICE =
   process.env.NEXT_PUBLIC_QUESTION_SERVICE ||
@@ -30,11 +26,21 @@ export const createSingleLeetcodeQuestion = async (
   return result;
 };
 
-export const getLeetcodeDashboardData = async (): Promise<
-  QuestionMinified[]
-> => {
+export const getLeetcodeDashboardData = async (
+  pagination: number,
+  pageSize: number
+): Promise<QuestionAll> => {
   const url = `${QUESTION_SERVICE}/all`;
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      pagination: pagination,
+      pageSize: pageSize,
+    }),
+  });
   const data = await response.json();
   return data;
 };

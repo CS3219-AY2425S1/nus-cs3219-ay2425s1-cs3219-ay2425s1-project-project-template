@@ -247,8 +247,8 @@ describe("Test Question API", () => {
 // Test /api/all
 describe("Test Get All", () => {
   // Get all with questions
-  test("GET /api/all - should retrieve all questions", async () => {
-    const res = await request.get("/api/all").send();
+  test("POST /api/all - should retrieve all questions", async () => {
+    const res = await request.post("/api/all").send();
     const sampleQuestion = res.body.questions[0];
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.questions)).toBe(true);

@@ -44,12 +44,19 @@ const Cell = ({
   return <div className={cn("text-center", className)}>{children}</div>;
 };
 
-export function LeetcodeDashboardTable() {
+interface LeetcodeDashboardTableProps {
+  refreshKey: number;
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export function LeetcodeDashboardTable({
+  refreshKey,
+  setRefreshKey,
+}: LeetcodeDashboardTableProps) {
   const [data, setData] = useState<QuestionMinified[]>([]);
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
   >(null);
-  const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-fetch
 
   function handleDelete(questionId: string) {
     Swal.fire({
@@ -64,6 +71,10 @@ export function LeetcodeDashboardTable() {
           await deleteSingleLeetcodeQuestion(questionId);
           Swal.fire("Question deleted successfully!", "", "success");
 
+          setPagination({
+            pageIndex: 0,
+            pageSize: 10,
+          });
           // Trigger data refresh
           setRefreshKey((prev) => prev + 1);
         } catch (error) {
@@ -92,6 +103,8 @@ export function LeetcodeDashboardTable() {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const [totalPages, setTotalPage] = React.useState<number>(1);
 
   const columns: ColumnDef<QuestionMinified>[] = [
     {
@@ -155,6 +168,7 @@ export function LeetcodeDashboardTable() {
                 <EditQuestionDialog
                   questionId={questionId}
                   handleClose={closeModal}
+                  setRefreshKey={setRefreshKey}
                 />
               </motion.div>
             </Modal>
@@ -168,8 +182,14 @@ export function LeetcodeDashboardTable() {
   ];
 
   useEffect(() => {
-    getLeetcodeDashboardData().then((data) => setData(data.reverse()));
-  }, [refreshKey]);
+    getLeetcodeDashboardData(
+      pagination.pageIndex + 1,
+      pagination.pageSize
+    ).then((data) => {
+      setData(data.questions);
+      setTotalPage(data.totalPages);
+    });
+  }, [refreshKey, pagination.pageIndex]);
 
   const table = useReactTable({
     data,
@@ -180,6 +200,8 @@ export function LeetcodeDashboardTable() {
       pagination,
     },
     onPaginationChange: setPagination,
+    manualPagination: true,
+    pageCount: totalPages,
   });
 
   return (
@@ -246,8 +268,14 @@ export function LeetcodeDashboardTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => {
+              if (table.getState().pagination.pageIndex === 0) {
+                table.setPageIndex(totalPages - 1);
+              } else {
+                table.previousPage();
+              }
+            }}
+            disabled={totalPages === 0}
           >
             Prev
           </Button>
@@ -258,8 +286,17 @@ export function LeetcodeDashboardTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => {
+              if (
+                table.getState().pagination.pageIndex + 1 ===
+                table.getPageCount()
+              ) {
+                table.setPageIndex(0);
+              } else {
+                table.nextPage();
+              }
+            }}
+            disabled={totalPages === 0}
           >
             Next
           </Button>

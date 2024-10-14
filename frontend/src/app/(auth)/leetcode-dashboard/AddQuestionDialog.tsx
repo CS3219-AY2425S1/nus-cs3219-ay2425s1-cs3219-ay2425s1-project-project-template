@@ -24,9 +24,13 @@ import { topicsList } from "@/utils/constants";
 
 interface AddQuestionDialogProps {
   handleClose: () => void;
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const AddQuestionDialog = ({ handleClose }: AddQuestionDialogProps) => {
+const AddQuestionDialog = ({
+  handleClose,
+  setRefreshKey,
+}: AddQuestionDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formSchema = z.object({
@@ -78,6 +82,7 @@ const AddQuestionDialog = ({ handleClose }: AddQuestionDialogProps) => {
         });
       })
       .finally(() => {
+        setRefreshKey((prev) => prev + 1);
         setIsSubmitting(false);
         handleClose();
       });
