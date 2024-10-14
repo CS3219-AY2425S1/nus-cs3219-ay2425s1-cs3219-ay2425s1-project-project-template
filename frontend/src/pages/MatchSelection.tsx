@@ -17,6 +17,7 @@ import { io } from "socket.io-client";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { MatchDataResponse } from "../@types/match";
 import humanImage from "../assets/human.png";
+import LabelValue from "../components/LabelValue";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_API_URL;
 
@@ -106,6 +107,11 @@ const MatchSelection = () => {
     setTopic(e.target.value as string);
   };
 
+  //Placeholder join room
+  const handleJoinRoom = () => {
+    console.log("Room Joined");
+  };
+
   return (
     <>
       <Header />
@@ -155,139 +161,192 @@ const MatchSelection = () => {
             flexDirection: "column",
           }}
         >
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleFindMatch}
-            disabled={isMatching}
-            sx={{ mt: 2, maxWidth: "15%" }}
+          <Box
+            sx={{
+              justifyContent: "start",
+              display: "flex",
+              flexDirection: "row",
+            }}
           >
-            {isMatching ? (
-              <>
-                <CircularProgress size={20} sx={{ mr: 1 }} />
-                Matching ({timer}s)
-              </>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleFindMatch}
+              disabled={isMatching}
+              sx={{ mt: 2, maxWidth: "15%", minWidth: "15%" }}
+            >
+              {isMatching ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Matching ({timer}s)
+                </>
+              ) : matchUserName ? (
+                "Re-match"
+              ) : (
+                "Match"
+              )}
+            </Button>
+            {matchUserName ? (
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2, ml: 2, minWidth: "15%" }}
+                onClick={handleJoinRoom}
+              >
+                Continue
+              </Button>
             ) : (
-              "Match"
+              <></>
             )}
-          </Button>
-
+          </Box>
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent: "center",
               alignItems: "center",
-              width: "60%",
-              height: "300px",
-              padding: "0 20px",
+              width: "100%",
+              height: "280px",
               marginTop: "20px",
+              flexDirection: "row",
             }}
           >
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "space-between",
                 alignItems: "center",
-                width: "40%",
-                height: "200px",
-                backgroundColor: "#D3D3D3",
-                padding: "5px",
+                width: "60%",
+                height: "280px",
+                padding: "0 20px",
+                marginTop: "20px",
               }}
             >
-              <img
-                src={humanImage}
-                alt="User Profile"
-                style={{
-                  width: "150px",
-                  height: "150px",
-                  borderRadius: "50%",
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "40%",
+                  height: "200px",
+                  backgroundColor: "#D3D3D3",
+                  padding: "5px",
                 }}
-              />
-              <Typography variant="h5" textAlign="center">
-                {user?.name}
-              </Typography>
-            </Box>
-
-            {matchUserName ? (
-              <>
-                <Typography
-                  variant="h5"
-                  textAlign="center"
-                  sx={{ color: "green" }}
-                >
-                  Match found!
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "40%",
-                    height: "200px",
-                    backgroundColor: "#D3D3D3",
-                    padding: "5px",
+              >
+                <img
+                  src={humanImage}
+                  alt="User Profile"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
                   }}
-                >
-                  <img
-                    src={humanImage}
-                    alt="User Profile"
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      borderRadius: "50%",
-                    }}
-                  />
-                  <Typography variant="h5" textAlign="center">
-                    {matchUserName}
+                />
+                <Typography variant="h5" textAlign="center">
+                  {user?.name}
+                </Typography>
+              </Box>
+
+              {matchUserName ? (
+                <>
+                  <Typography
+                    variant="h5"
+                    textAlign="center"
+                    sx={{ color: "green" }}
+                  >
+                    Match found!
                   </Typography>
-                </Box>
-              </>
-            ) : (
-              <>
-                {noMatchFound && (
                   <Box
                     sx={{
                       display: "flex",
-                      justifyContent: "start",
+                      flexDirection: "column",
+                      justifyContent: "center",
                       alignItems: "center",
-                      width: "60%",
+                      width: "40%",
                       height: "200px",
-                      marginLeft: 6,
+                      backgroundColor: "#D3D3D3",
+                      padding: "5px",
                     }}
                   >
-                    <Typography variant="h5" color="red">
-                      No match found.
+                    <img
+                      src={humanImage}
+                      alt="User Profile"
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                    <Typography variant="h5" textAlign="center">
+                      {matchUserName}
                     </Typography>
                   </Box>
-                )}
-                {isMatching && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "start",
-                      alignItems: "center",
-                      width: "60%",
-                      height: "200px",
-                      marginLeft: 6,
-                    }}
-                  >
+                </>
+              ) : (
+                <>
+                  {noMatchFound && (
                     <Box
                       sx={{
                         display: "flex",
-                        flexDirection: "column",
+                        justifyContent: "start",
                         alignItems: "center",
+                        width: "60%",
+                        height: "200px",
+                        marginLeft: 6,
                       }}
                     >
-                      <Typography variant="h5" color="#03b6fc">
-                        Finding you a match...
+                      <Typography variant="h5" color="red">
+                        No match found.
                       </Typography>
-                      <CircularProgress size={100} sx={{ marginTop: 2 }} />
                     </Box>
-                  </Box>
-                )}
-              </>
+                  )}
+                  {isMatching && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "start",
+                        alignItems: "center",
+                        width: "60%",
+                        height: "200px",
+                        marginLeft: 6,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography variant="h5" color="#03b6fc">
+                          Finding you a match...
+                        </Typography>
+                        <CircularProgress size={100} sx={{ marginTop: 2 }} />
+                      </Box>
+                    </Box>
+                  )}
+                </>
+              )}
+            </Box>
+            {matchUserName ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "280px",
+                  marginTop: "20px",
+                  flexDirection: "column",
+                }}
+              >
+                <LabelValue label="User" value={matchUserName} />
+                <LabelValue label="Proficiency Level" value="Expert" />
+                <LabelValue label="Question" value="TwoSum" />
+                <LabelValue label="Topic" value="Array" />
+                <LabelValue label="Difficulty" value="Easy" />
+              </Box>
+            ) : (
+              <></>
             )}
           </Box>
         </Box>
