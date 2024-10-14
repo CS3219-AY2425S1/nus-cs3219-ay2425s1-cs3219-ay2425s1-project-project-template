@@ -28,8 +28,8 @@ class CanQueueRequest(BaseModel):
 
 
 class CanProceedRequest(BaseModel):
-    user_id1: str
-    user_id2: str
+    user1_id: str
+    user2_id: str
 
 
 connected_clients = {}
@@ -155,20 +155,20 @@ async def can_proceed(can_proceed_request: CanProceedRequest):
     """
     Check if two users can proceed with a match based on their states.
     """
-    user_id1 = can_proceed_request.user_id1
-    user_id2 = can_proceed_request.user_id2
+    user1_id = can_proceed_request.user1_id
+    user2_id = can_proceed_request.user2_id
 
-    user1_state = redis_client.hget(f"user:{user_id1}", "state")
-    user2_state = redis_client.hget(f"user:{user_id2}", "state")
+    user1_state = redis_client.hget(f"user:{user1_id}", "state")
+    user2_state = redis_client.hget(f"user:{user2_id}", "state")
 
     if user1_state != b"cancelled" and user2_state != b"cancelled":
         return {"can_proceed": True}
 
     cancelled_users = []
     if user1_state == b"cancelled":
-        cancelled_users.append(user_id1)
+        cancelled_users.append(user1_id)
     if user2_state == b"cancelled":
-        cancelled_users.append(user_id2)
+        cancelled_users.append(user2_id)
 
     return {"can_proceed": False, "cancelled_users": cancelled_users}
 
