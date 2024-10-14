@@ -24,9 +24,10 @@ router.get(
   requestHelper.sendGetRequest("/questions", QUESTION_SERVICE)
 );
 
-router.get("/questions/:id", async (req, res) => {
-  return requestHelper.sendGetRequest("/questions", QUESTION_SERVICE)(req, res);
-});
+router.get(
+  "/questions/:id",
+  requestHelper.sendGetRequest("/questions/:id", QUESTION_SERVICE)
+);
 
 router.put("/questions/:id", async (req, res) => {
   const id = req.params["id"];
