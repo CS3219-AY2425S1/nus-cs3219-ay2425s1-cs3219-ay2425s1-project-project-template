@@ -50,7 +50,7 @@ app.get("/", (req, res) => {
   res.send("LeetCode API Gateway is running!");
 });
 
-const matchingServiceSocket = Client(`http://localhost:5003`);
+const matchingServiceSocket = Client(`http://localhost:5004`);
 matchingServiceSocket.on("connect", () => {
   console.log("Connected to matching service");
 });
@@ -74,7 +74,6 @@ matchingServiceSocket.on("disconnect", () => {
   console.log("Disconnected from matching service");
 });
 
-matchingServiceSocket.emit("clientToServer", { event: "test" });
 console.log("match", matchingServiceSocket.connected);
 
 // Client Sockets connection
