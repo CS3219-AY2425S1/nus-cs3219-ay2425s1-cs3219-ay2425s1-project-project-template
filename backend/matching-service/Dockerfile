@@ -1,4 +1,4 @@
-# Use Go 1.20 or later
+# Build the Go application
 FROM golang:1.20-alpine AS builder
 
 # Set the working directory inside the container
@@ -8,26 +8,26 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the entire project to the working directory
+# Copy the entire project
 COPY . .
 
 # Build the Go service
 RUN go build -o /matching-service ./cmd
 
-# Create the final image from alpine
+# Create the final image
 FROM alpine:latest
 
-# Set the working directory in the final image
+# Set the working directory
 WORKDIR /root/
 
 # Copy the built Go binary from the builder stage
 COPY --from=builder /matching-service .
 
-# Copy the .env file from the builder stage (assuming it's located in the project root)
+# Copy the .env file from the backend folder
 COPY --from=builder /app/.env .
 
-# Expose the port your application runs on (change if your app uses a different port)
-EXPOSE 5050
+# Expose the port your application runs on
+EXPOSE 3002
 
 # Command to run the Go service
 CMD ["./matching-service"]

@@ -33,6 +33,6 @@ func main() {
 	router.POST("/addUser", controllers.AddUserHandler)
 
 	// Start the server
-	log.Println("Server started on :8000")
-	router.Run(":8000")
+	log.Println("Server started on :3002")
+	router.Run(":3002")
 }

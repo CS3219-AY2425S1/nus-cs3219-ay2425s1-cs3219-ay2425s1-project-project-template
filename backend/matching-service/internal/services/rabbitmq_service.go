@@ -18,7 +18,7 @@ var RabbitMQChannel *amqp.Channel
 // ConnectToRabbitMQ initializes RabbitMQ connection and channel
 func ConnectToRabbitMQ() error {
 	// Load environment variables
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		return fmt.Errorf("error loading .env file: %v", err)
 	}
