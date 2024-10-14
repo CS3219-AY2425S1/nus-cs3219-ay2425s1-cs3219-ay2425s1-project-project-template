@@ -107,4 +107,4 @@ services:
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
     volumes:
-      - ./kui/config.yaml:/etc/kafkaui/dynamic_config.yaml
+      - ./backend/kui/config.yaml:/etc/kafkaui/dynamic_config.yaml
