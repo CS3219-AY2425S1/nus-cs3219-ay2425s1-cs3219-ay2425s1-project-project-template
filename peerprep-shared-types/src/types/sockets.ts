@@ -40,3 +40,7 @@ export interface ClientToServerEvents {
   [ClientSocketEvents.CANCEL_MATCH]: (request: MatchCancelRequest) => void;
   // Add other client-to-server events as needed
 }
+
+export enum ServicesSocket {
+  MATCHING_SERVICE = "matching_service",
+}
