@@ -53,6 +53,7 @@ export const NewSession = () => {
             ...modalData,
             isOpen: true,
             isMatchmaking: true,
+            isMatchFound: false,
         }))
 
         //TODO: Modify this response to match the response from the API
