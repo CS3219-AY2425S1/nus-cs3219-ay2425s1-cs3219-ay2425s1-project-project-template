@@ -16,7 +16,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
-import { userServiceUri } from "@/lib/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -44,7 +44,7 @@ export default function AdminUserManagement() {
   const auth = useAuth();
 
   const { data, isLoading, mutate } = useSWR(
-    `${userServiceUri(window.location.hostname)}/users`,
+    `${userServiceUri(window.location.hostname, AuthType.Public)}/users`,
     fetcher
   );
 
@@ -69,7 +69,7 @@ export default function AdminUserManagement() {
     }
 
     const response = await fetch(
-      `${userServiceUri(window.location.hostname)}/users/${userId}`,
+      `${userServiceUri(window.location.hostname, AuthType.Public)}/users/${userId}`,
       {
         method: "DELETE",
         headers: {
