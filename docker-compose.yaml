@@ -41,7 +41,10 @@ services:
       context: ./backend/matching-service
       dockerfile: Dockerfile.dev
     environment:
-      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
+      KAFKA_BROKER_URI: ${KAFKA_BROKER_URI}
+      MATCHING_SERVICE_CONSUMER_GROUP_ID: ${MATCHING_SERVICE_CONSUMER_GROUP_ID}
+    depends_on:
+      - kafka
     ports:
       - 8002:8002
     # volumes:
