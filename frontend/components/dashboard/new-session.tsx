@@ -49,11 +49,11 @@ export const NewSession = () => {
             return
         }
         setTimeElapsed(0)
-        setModalData({
+        setModalData((modalData) => ({
+            ...modalData,
             isOpen: true,
-            isMatchFound: false,
             isMatchmaking: true,
-        })
+        }))
 
         //TODO: Modify this response to match the response from the API
         let response: { wsId: string } | undefined
@@ -67,11 +67,11 @@ export const NewSession = () => {
             })
         } catch {
             toast.error('Failed to add to matchmaking queue. Please try again later.')
-            setModalData({
+            setModalData((modalData) => ({
+                ...modalData,
                 isOpen: false,
                 isMatchmaking: false,
-                isMatchFound: false,
-            })
+            }))
             return
         }
 
@@ -82,20 +82,20 @@ export const NewSession = () => {
     }
 
     const handleCancelMatchmaking = async () => {
-        setModalData({
+        setModalData((modalData) => ({
+            ...modalData,
             isOpen: false,
             isMatchmaking: false,
-            isMatchFound: false,
-        })
+        }))
         //TODO: Add logic to call API to blacklist user/ remove user from matchmaking queue here
     }
 
     const handleMatchFound = async () => {
-        setModalData({
-            isOpen: true,
+        setModalData((modalData) => ({
+            ...modalData,
             isMatchFound: true,
             isMatchmaking: false,
-        })
+        }))
         //TODO: Add routing to collaborative coding page here
     }
 
@@ -160,14 +160,16 @@ export const NewSession = () => {
                                 {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
                             </h2>
                         )}
-                        <Button
-                            className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
-                            variant={'primary'}
-                            size={'lg'}
-                            onClick={handleCancelMatchmaking}
-                        >
-                            Cancel matchmaking
-                        </Button>
+                        {modalData.isMatchFound || (
+                            <Button
+                                className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
+                                variant={'primary'}
+                                size={'lg'}
+                                onClick={handleCancelMatchmaking}
+                            >
+                                Cancel matchmaking
+                            </Button>
+                        )}
                     </div>
                 </CustomModal>
             )}
