@@ -19,17 +19,24 @@ export const matchRequestController = async (req: Request, res: Response) => {
 
   // TODO: Assign a proper socket to the user
   const socketRoom = createNotifSocket(userId);
+  const timestamp = `${Date.now()}`;
 
-  // TODO: Test if room logic works and notif socket can connect
   // Send socket to user first for them to subscribe
   res
     .status(StatusCodes.OK)
     .json({
       socketPort: socketRoom,
+      requestId: timestamp, // Queue ID
     })
     .end();
 
   // TODO: Wait for user to connect to notif socket, or add a time buffer
 
-  await queueingService(redisClient, { userId, difficulty, topic, socketPort: socketRoom });
+  await queueingService(redisClient, {
+    userId,
+    difficulty,
+    topic,
+    socketPort: socketRoom,
+    timestamp,
+  });
 };
