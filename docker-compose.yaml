@@ -76,24 +76,6 @@ services:
     networks:
       - match-db-network
 
-  collab-db:
-    hostname: 'collab-db'
-    image: postgres:16.4
-    container_name: 'collab-db'
-    env_file:
-      - ./backend/collaboration/.env.local
-    volumes:
-      - 'collab-db-docker:${COLLAB_PGDATA}'
-    restart: unless-stopped
-    networks:
-      - collab-db-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
-
   # Services
   user-service:
     image: 'user-express'
@@ -219,37 +201,6 @@ services:
       retries: 5       
       start_period: 5s
 
-  collab-service:
-    image: 'collab-express'
-    container_name: '${COLLAB_SERVICE_NAME}'
-    build:
-      context: ./backend/collaboration
-      dockerfile: express.Dockerfile
-      target: production
-      args: 
-        # For building with the correct env vars
-        - port=${COLLAB_EXPRESS_PORT}
-    env_file:
-      - ./backend/collaboration/.env.compose
-    environment:
-      # Docker Compose Specific for Service Discovery
-      - EXPRESS_DB_HOST=collab-db
-      - EXPRESS_DB_PORT=5432
-      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
-    depends_on:
-      collab-db:
-        condition: service_healthy
-        restart: true
-    networks:
-      - collab-db-network
-      - collab-ws-network
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:${COLLAB_EXPRESS_PORT}/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
-      start_period: 5s
-
   # Frontend
   frontend:
     image: 'frontend'
@@ -295,8 +246,6 @@ volumes:
     external: true
   # Redis Match server
   match-db-docker:
-    external: true
-  collab-db-docker:
     external: true
 
 networks:
