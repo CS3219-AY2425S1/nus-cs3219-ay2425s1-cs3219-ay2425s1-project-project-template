@@ -1,13 +1,54 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import AuthNavBar from "../components/AuthNavBar.tsx";
-import WelcomeMessage from "../components/User/WelcomeMessage.tsx";
-import InputBoxLabel from "../components/User/InputBoxLabel.tsx";
-import InputTextBox from "../components/User/InputTextBox.tsx";
+import WelcomeMessage from "../components/UserAuth/WelcomeMessage.tsx";
+import InputBoxLabel from "../components/UserAuth/InputBoxLabel.tsx";
+import InputTextBox from "../components/UserAuth/InputTextBox.tsx";
+import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.tsx";
+import { User, useUser } from "../types/User.tsx";
+import useLoginUser from "../hooks/useLoginUser.tsx";
 
 const LoginPage: React.FC = () => {
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
+
+  const [success, setSuccess] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>("Failed to create new user. Please try again.");
+  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
+
+  const { loginUser } = useLoginUser();
+
+  /* Component's instance of registered user */
+  const [loggedInUser, setLoggedInUser] = useState<User | undefined>(undefined);
+  /* User context */
+  const { setUser } = useUser();
+
+  const handleSubmit = async () => {
+    console.log("submitted");
+    console.log("Logging in:", emailValue);
+    const newUser = await loginUser(
+      emailValue,
+      passwordValue,
+      setLoggedInUser,
+      setSuccess,
+      setErrorMessage,
+      setShowErrorMessage
+    ); // Call the custom hook function
+
+    console.log(newUser);
+  };
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (success) {
+      setUser(loggedInUser);
+      if (loggedInUser?.isAdmin) {
+        navigate('/dashboard');
+      } else {
+        navigate('/dashboardForUsers');
+      }
+    }
+  }, [success]);
 
   return (
     <div className="w-screen h-screen flex flex-col">
@@ -16,17 +57,23 @@ const LoginPage: React.FC = () => {
         <WelcomeMessage />
         
         <div className="mt-10 w-2/5 justify-start">
-            {/* Email or username */}
+            {/* Email */}
             <div className="flex flex-col">
             <InputBoxLabel labelString="Email" />
             <InputTextBox currInput={""} setInputValue={setEmailValue} />
             </div>
 
-            {/* Email or username */}
+            {/* Password */}
             <div className="flex flex-col mt-5">
             <InputBoxLabel labelString="Password" />
-            <InputTextBox currInput={""} setInputValue={setPasswordValue} />
+            <PasswordInputTextBox currInput={""} setInputValue={setPasswordValue} />
             </div>
+
+            {showErrorMessage && (
+              <p id="errorMessage" className="flex justify-center text-red-500 mt-2">
+                * {errorMessage} *
+              </p>
+            )}
         </div>
         
         <Link to="/dashboardForUsers">
@@ -35,11 +82,12 @@ const LoginPage: React.FC = () => {
           </button>
         </Link>
 
-        <Link to="/dashboardForUsers">
-          <button className="bg-yellow rounded-[25px] py-1.5 px-10 mt-4 text-off-white hover:opacity-60">
-            Login
-          </button>
-        </Link>
+        <button 
+          className="bg-yellow rounded-[25px] py-1.5 px-10 mt-4 text-off-white hover:opacity-60"
+          onClick={handleSubmit}
+        >
+          Login
+        </button>
 
         <div className="flex flex-row w-2/5 mt-3">
             <p className="text-gray-600">Don't have an account?</p>
