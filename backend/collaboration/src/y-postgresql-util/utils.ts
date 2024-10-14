@@ -1,3 +1,7 @@
+/*
+Implementation from yjs-websocket/bin/utils.js
+Copied here for safe referencing
+*/
 import * as Y from 'yjs';
 import * as syncProtocol from 'y-protocols/sync';
 import * as awarenessProtocol from 'y-protocols/awareness';
@@ -6,7 +10,7 @@ import * as encoding from 'lib0/encoding';
 import * as decoding from 'lib0/decoding';
 import * as map from 'lib0/map';
 
-import { IPersistence, IWSSharedDoc } from '@/y-postgresql-util/interfaces';
+import { IPersistence, IWSSharedDoc } from '@/types/interfaces';
 
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;
