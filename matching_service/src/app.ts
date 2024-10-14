@@ -5,6 +5,7 @@ import { Server, Socket } from "socket.io";
 import cors from "cors";
 import { validateSocketConnection } from "./utility/socketHelper";
 import { Queue, IMatchRequest, IMatchCancelRequest } from "./services/queue";
+import { Matcher } from "./services/matcher";
 import {
   ClientSocketEvents,
   ServerSocketEvents,
@@ -36,30 +37,36 @@ const io = new Server(server, {
   cors: {
     origin: "*", // In production, replace with your frontend's URL
     methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+const queue = new Queue();
+const matcher = new Matcher(queue, {
+  notify: (success: boolean, username: string, roomId: string) => {
+    console.log("Notifying client:", success, username, roomId);
+    io.emit("serverToClient", {
+      event: success
+        ? ServerSocketEvents.MATCH_FOUND
+        : ServerSocketEvents.MATCH_CANCELED,
+      username,
+      roomId,
+    });
   },
 });
 
 const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
   console.log("Received match request:", message);
   const matchRequest: IMatchRequest = {
-    id: Date.now().toString(),
-    userId: message.username,
+    username: message.username,
     topic: message.selectedTopic,
     difficulty: message.selectedDifficulty,
+    timestamp: message.timestamp ? parseInt(message.timestamp) : Date.now(),
   };
   console.log(matchRequest);
-  try {
-    // const result = await queue.add(matchRequest);
-    // socket.emit("serverToClient", {
-    //   event: ServerSocketEvents.MATCH_FOUND,
-    //   ...result,
-    // });
-  } catch (error) {
-    // socket.emit("serverToClient", {
-    //   event: ServerSocketEvents.MATCH_ERROR,
-    //   error: error.message,
-    // });
-  }
+
+  queue.add(matchRequest);
+  matcher.start();
 };
 
 const handleCancelMatch = async (
@@ -67,45 +74,20 @@ const handleCancelMatch = async (
   message: MatchCancelRequest
 ) => {
   console.log("Received cancel request:", message);
-
   const cancelRequest: IMatchCancelRequest = {
-    id: message.username,
+    username: message.username,
   };
-  try {
-    // const result = await queue.cancel(message);
-    // socket.emit("serverToClient", {
-    //   event: ServerSocketEvents.MATCH_CANCELED,
-    //   ...result,
-    // });
-  } catch (error) {
-    // socket.emit("serverToClient", {
-    //   event: ServerSocketEvents.MATCH_ERROR,
-    //   error: error.message,
-    // });
-  }
-};
 
-const handleGetRequests = async (socket: Socket) => {
-  console.log("Received get requests");
-  try {
-    // const requests = await queue.getRequests();
-    // socket.emit("serverToClient", { event: "requests_list", requests });
-  } catch (error) {
-    // socket.emit("serverToClient", {
-    //   event: ServerSocketEvents.MATCH_ERROR,
-    //   error: error.message,
-    // });
-  }
+  queue.cancel(cancelRequest);
+
+  io.emit("serverToClient", {
+    event: ServerSocketEvents.MATCH_CANCELED,
+    username: message.username,
+  });
 };
 
 io.on("connection", (socket) => {
   console.log("Connected to API Gateway");
-
-  // if (!validateSocketConnection(socket)) {
-  //   console.log("Invalid socket connection");
-  //   socket.disconnect(true);
-  //   return;
-  // }
 
   socket.on(ClientSocketEvents.REQUEST_MATCH, (message: MatchRequest) =>
     handleRequestMatch(socket, message)
@@ -113,7 +95,6 @@ io.on("connection", (socket) => {
   socket.on(ClientSocketEvents.CANCEL_MATCH, (message: MatchCancelRequest) =>
     handleCancelMatch(socket, message)
   );
-  socket.on("get_requests", () => handleGetRequests(socket));
 
   socket.on("disconnect", () => {
     console.log("Disconnected from API Gateway");

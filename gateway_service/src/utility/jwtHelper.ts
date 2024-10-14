@@ -50,7 +50,8 @@ export function authenticateSocket(
 ) {
   const token = socket.handshake.auth.token;
   if (!token) {
-    throw new Error("No token provided");
+    console.error("No token provided");
+    return next(new Error("No token provided"));
   }
 
   verifyJWT(token, {
@@ -73,6 +74,10 @@ function verifyJWT(token: string, next: IVerifyJWTNext) {
     }
 
     if (typeof payload === "string" || !payload) {
+      return next.error(new Error("Invalid token"));
+    }
+
+    if (payload.username == null || payload.role == null) {
       return next.error(new Error("Invalid token"));
     }
 

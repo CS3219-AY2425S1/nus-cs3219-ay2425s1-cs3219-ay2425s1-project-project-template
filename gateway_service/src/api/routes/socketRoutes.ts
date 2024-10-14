@@ -7,11 +7,16 @@ import {
   MatchRequest,
 } from "peerprep-shared-types";
 import { authenticateSocket } from "../../utility/jwtHelper";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 type Connections = Map<string, ServerSocket>;
 
 const createMatchingServiceSocket = (): ClientSocket => {
-  const socket = Client(`http://matching-service:5004`);
+  const socket = Client(
+    `http://${process.env.MATCHING_SERVICE_ROUTE}:${process.env.MATCHING_SERVICE_PORT}`
+  );
 
   socket.on("connect", () => console.log("Connected to matching service"));
 
@@ -31,11 +36,13 @@ const handleMatchingServiceMessage = (
   message: any,
   connections: Connections
 ) => {
-  console.log(`Received message from matching service: ${message}`);
+  console.log(
+    `Received message from matching service: ${JSON.stringify(message)}`
+  );
   if (validateClientTransfer(message)) {
-    const socket = connections.get(message.connectionId);
+    const socket = connections.get(message.username);
     if (socket == null) {
-      console.error("No socket found for connectionId");
+      console.error("No socket found for username");
       return;
     }
     socket.emit(message.event, message);
@@ -47,8 +54,8 @@ const validateClientTransfer = (message: any): boolean => {
     console.error("No event specified in message");
     return false;
   }
-  if (message.connectionId == null || message.connectionId == undefined) {
-    console.error("No connectionId specified in message");
+  if (message.username == null || message.username == undefined) {
+    console.error("No username specified in message");
     return false;
   }
   return true;
@@ -86,7 +93,6 @@ const handleClientMessage = (
     console.error("No target service for event");
     return;
   }
-  message.connectionId = socket.id;
   message.username = socket.data.username;
   console.log(`Received message from client: ${JSON.stringify(message)}`);
   console.log(`Forwarding message to service: ${targetService}`);
@@ -99,7 +105,7 @@ const setupServerSocket = (io: Server, matchingServiceSocket: ClientSocket) => {
 
   io.use(authenticateSocket).on("connection", (socket: ServerSocket) => {
     console.log(`User connected: ${socket.data.username}`);
-    connections.set(socket.id, socket);
+    connections.set(socket.data.username, socket);
 
     // Handle all possible client events
     Object.values(ClientSocketEvents).forEach((event) => {
