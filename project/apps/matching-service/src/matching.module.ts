@@ -33,6 +33,17 @@ import { MatchingGateway } from './matching.gateway';
           port: 3001,
         },
       },
+      {
+        name: 'AUTH_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host:
+            process.env.NODE_ENV === 'development'
+              ? 'localhost'
+              : process.env.AUTH_SERVICE_HOST || 'localhost',
+          port: 3003,
+        },
+      },
     ]),
   ],
   controllers: [MatchingController],

@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type PropsWithChildren, useMemo } from "react";
+import { type PropsWithChildren, useEffect, useMemo } from "react";
 
 import { SIGN_IN } from "@/lib/routes";
 
 import { useLoginState } from "@/contexts/LoginStateContext";
+import useSocketStore from "@/stores/useSocketStore";
 
 interface EnforceLoginStatePageWrapperProps {
   /**
@@ -39,6 +40,16 @@ export const EnforceLoginStatePageWrapper = ({
   children,
 }: PropsWithChildren<EnforceLoginStatePageWrapperProps>): React.ReactElement => {
   const { hasLoginStateFlag } = useLoginState();
+  const { connect, disconnect } = useSocketStore();
+
+  useEffect(() => {
+    if (hasLoginStateFlag) {
+      connect();
+    }
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect, hasLoginStateFlag]);
 
   if (hasLoginStateFlag) {
     return <>{children}</>;

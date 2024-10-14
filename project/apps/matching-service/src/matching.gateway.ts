@@ -1,35 +1,94 @@
+import { Inject, Logger, UnauthorizedException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
-  WebSocketGateway,
-  SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  MessageBody,
-  ConnectedSocket,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { parse } from 'cookie';
+import { firstValueFrom } from 'rxjs';
+import { Server, Socket } from 'socket.io';
+import { MatchRedis } from './db/match.redis';
 
 @WebSocketGateway(8080, {
   cors: {
-    origin: '*', // Adjust for security in production
+    origin: 'http://localhost:3000',
+    credentials: true,
   },
 })
 export class MatchingGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+  @WebSocketServer()
+  server: Server;
+  private readonly logger = new Logger(MatchingGateway.name);
+
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
+    private readonly matchRedis: MatchRedis,
+  ) {}
+
+  async handleConnection(client: Socket) {
+    this.logger.log(`Client connected: ${client.id}`);
+
+    const cookie = client.handshake.headers.cookie;
+
+    // Disconnect Client if no cookie provided
+    if (!cookie) {
+      client.disconnect();
+      return;
+    }
+
+    const cookies = parse(cookie);
+    const token = cookies['token'];
+    // Disconnect client if no token provided
+    if (!token) {
+      client.disconnect();
+      return;
+    }
+    try {
+      const data = await firstValueFrom(
+        this.authServiceClient.send({ cmd: 'verify' }, token),
+      );
+
+      if (!data) {
+        this.logger.log('User Data not found');
+        client.disconnect();
+        return;
+      }
+
+      // TODO: Implement refresh token logic
+
+      // Map socket id to user id in redis
+      await this.matchRedis.setUserToSocket({
+        userId: data.id,
+        socketId: client.id,
+      });
+    } catch (error) {
+      this.logger.log(error);
+      client.disconnect();
+    }
+    // Check if token is valid
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    this.logger.log(`Client disconnected: ${client.id}`);
+    this.matchRedis.removeUserBySocketId(client.id);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(
-    @MessageBody() data: string,
-    @ConnectedSocket() client: Socket,
-  ): void {
-    console.log(`Received message from client ${client.id}: ${data}`);
-    client.emit('message', `Server received: ${data}`);
+  async sendMessageToClient({
+    userId,
+    message,
+  }: {
+    userId: string;
+    message: string;
+  }) {
+    const socketId = await this.matchRedis.getSocketByUserId(userId);
+    this.logger.log(socketId);
+    // TODO: Implement a retry mechanism here if there is either no socket id or the sending failed
+    if (socketId) {
+      this.server.to(socketId).emit('match_request_update', message);
+    }
   }
 }

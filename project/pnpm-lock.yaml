@@ -277,6 +277,9 @@ importers:
       cache-manager-redis-store:
         specifier: ^3.0.1
         version: 3.0.1
+      cookie:
+        specifier: ^1.0.1
+        version: 1.0.1
       reflect-metadata:
         specifier: ^0.2.0
         version: 0.2.2
@@ -314,9 +317,6 @@ importers:
       '@types/supertest':
         specifier: ^6.0.0
         version: 6.0.2
-      '@types/ws':
-        specifier: ^8.5.12
-        version: 8.5.12
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.0.0
         version: 8.7.0(@typescript-eslint/parser@8.7.0(eslint@8.57.1)(typescript@5.5.4))(eslint@8.57.1)(typescript@5.5.4)
@@ -652,6 +652,9 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
+      zustand:
+        specifier: 5.0.0-rc.2
+        version: 5.0.0-rc.2(@types/react@18.3.10)(react@18.3.1)
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -2958,6 +2961,10 @@ packages:
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
+
+  cookie@1.0.1:
+    resolution: {integrity: sha512-Xd8lFX4LM9QEEwxQpF9J9NTUh8pmdJO0cyRJhFiDoLTk2eH8FXlRv2IFGYVadZpqI3j8fhNrSdKCeYPxiAhLXw==}
+    engines: {node: '>=18'}
 
   cookiejar@2.1.4:
     resolution: {integrity: sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==}
@@ -5901,6 +5908,24 @@ packages:
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
+  zustand@5.0.0-rc.2:
+    resolution: {integrity: sha512-o2Nwuvnk8vQBX7CcHL8WfFkZNJdxB/VKeWw0tNglw8p4cypsZ3tRT7rTRTDNeUPFS0qaMBRSKe+fVwL5xpcE3A==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
 snapshots:
 
   '@acuminous/bitsyntax@0.1.2':
@@ -8511,6 +8536,8 @@ snapshots:
   cookie@0.6.0: {}
 
   cookie@0.7.2: {}
+
+  cookie@1.0.1: {}
 
   cookiejar@2.1.4: {}
 
@@ -12303,3 +12330,8 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.23.8: {}
+
+  zustand@5.0.0-rc.2(@types/react@18.3.10)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 18.3.10
+      react: 18.3.1
