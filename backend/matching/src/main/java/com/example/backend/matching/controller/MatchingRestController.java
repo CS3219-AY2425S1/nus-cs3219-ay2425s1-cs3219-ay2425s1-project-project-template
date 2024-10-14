@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api")
-public class MatchingController {
+public class MatchingRestController {
 
     @GetMapping("")
     public String greeting() {
-        return "Hello from matching service!!";
+        return "Hello from matching service!";
     }
 
 }

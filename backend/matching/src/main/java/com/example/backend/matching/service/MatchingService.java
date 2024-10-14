@@ -1,4 +1,4 @@
-package main.java.com.example.backend.matching.service;
+package com.example.backend.matching.service;
 
 
 public class MatchingService {
