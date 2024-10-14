@@ -1,6 +1,6 @@
 import type { IPoolTicket } from '@/types';
 
-export const getRedisPayload = (payload: Omit<IPoolTicket, 'timestamp'>) => {
+export const getRedisPayload = (payload: IPoolTicket) => {
   const { topic, difficulty, ...rest } = payload;
   // eslint-disable-next-line  @typescript-eslint/no-empty-object-type
   const difficultyField: { difficulty: string } | {} = difficulty ? { difficulty } : {};
@@ -10,6 +10,5 @@ export const getRedisPayload = (payload: Omit<IPoolTicket, 'timestamp'>) => {
       ? { topic: topic.join(',') }
       : { topic }
     : {};
-  const timestamp = `${Date.now()}`;
-  return { ...rest, ...topicField, ...difficultyField, timestamp };
+  return { ...rest, ...topicField, ...difficultyField };
 };
