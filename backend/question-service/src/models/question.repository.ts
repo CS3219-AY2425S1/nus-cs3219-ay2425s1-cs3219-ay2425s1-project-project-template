@@ -2,6 +2,7 @@ import { FilterQuery, Model, model, SortOrder } from 'mongoose'
 
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
+import { SortedComplexity } from '../types/SortedComplexity'
 import questionSchema from './question.model'
 import { Category, Complexity } from '@repo/user-types'
 
@@ -23,26 +24,12 @@ export async function findRandomQuestionByTopicAndComplexity(
     category: Category,
     complexity: Complexity
 ): Promise<IQuestion | null> {
-    let complexityFilter
-    switch (complexity) {
-        case Complexity.EASY:
-            complexityFilter = `1${complexity}`
-            break
-        case Complexity.MEDIUM:
-            complexityFilter = `2${complexity}`
-            break
-        case Complexity.HARD:
-            complexityFilter = `3${complexity}`
-            break
-        default:
-            throw new Error('Invalid complexity')
-    }
-
+    const sortedComplexity = new SortedComplexity(complexity)
     const query = [
         {
             $match: {
                 categories: { $in: [category] },
-                complexity: complexityFilter,
+                complexity: sortedComplexity.sortedEnum,
             },
         },
         {
