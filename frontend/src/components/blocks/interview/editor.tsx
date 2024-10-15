@@ -24,9 +24,8 @@ type EditorProps = {
 export const Editor = ({ room }: EditorProps) => {
   const { height } = useWindowSize();
   const [code, setCode] = useState('');
-  const [language, setLanguage] = useState<LanguageName>('python');
   const [theme, setTheme] = useState<IEditorTheme>('darcula');
-  const { editorRef, extensions } = useCollab(room);
+  const { editorRef, extensions, language, setLanguage } = useCollab(room);
   return (
     <div className='flex flex-col gap-4 p-4'>
       <div className='flex gap-4'>
@@ -61,7 +60,7 @@ export const Editor = ({ room }: EditorProps) => {
           </Select>
         </div>
       </div>
-      <div className='border-border w-full text-clip rounded-lg border shadow-sm'>
+      <div className='border-border w-full !overflow-clip rounded-lg border shadow-sm'>
         <CodeMirror
           ref={editorRef}
           style={{

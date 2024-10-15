@@ -21,7 +21,10 @@ export const languages = [
 
 languages.forEach(loadLanguage);
 
-const langExtensions = languages.map((v) => langs[v]());
+const langExtensions = Object.fromEntries(languages.map((v) => [v, langs[v]()]));
+export const getLanguage = (language: (typeof languages)[number]) => {
+  return langExtensions[language];
+};
 
 export const themeOptions = [
   'abcdef',
@@ -68,4 +71,4 @@ export const getTheme = (theme: IEditorTheme) => {
   return themes[theme as keyof typeof themes] as Extension;
 };
 
-export const extensions = [keymap.of(vscodeKeymap), ...langExtensions];
+export const extensions = [keymap.of(vscodeKeymap)];

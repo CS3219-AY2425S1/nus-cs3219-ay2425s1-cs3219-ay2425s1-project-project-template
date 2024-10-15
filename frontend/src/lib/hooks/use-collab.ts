@@ -1,11 +1,12 @@
 import { EditorState, Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { yCollab } from 'y-codemirror.next';
 import * as Y from 'yjs';
 import { SocketIOProvider } from 'y-socket.io';
 
 import { COLLAB_SERVICE } from '@/services/api-clients';
-import { extensions as baseExtensions } from '@/lib/editor/extensions';
+import { extensions as baseExtensions, getLanguage } from '@/lib/editor/extensions';
+import { LanguageName } from '@uiw/codemirror-extensions-langs';
 
 // credit: https://github.com/yjs/y-websocket
 const usercolors = [
@@ -27,6 +28,11 @@ const getRandomColor = () => {
 export const useCollab = (roomId: string) => {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [extensions, setExtensions] = useState<Array<Extension>>([baseExtensions]);
+  const [language, setLanguage] = useState<LanguageName>('python');
+  const langExtension = useMemo(() => {
+    return getLanguage(language);
+  }, [language]);
+
   useEffect(() => {
     if (editorRef.current) {
       const doc = new Y.Doc();
@@ -66,6 +72,8 @@ export const useCollab = (roomId: string) => {
   }, [editorRef]);
   return {
     editorRef,
-    extensions,
+    extensions: [...extensions, langExtension],
+    language,
+    setLanguage,
   };
 };
