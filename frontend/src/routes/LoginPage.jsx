@@ -77,7 +77,7 @@ function LoginPage() {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button className="submit-button" type="submit">Login</button>
         <div className="link-container">
           <p>Don't have an account? <a href="/register">Add a new account</a></p>
         </div>
