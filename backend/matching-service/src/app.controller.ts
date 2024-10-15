@@ -1,17 +1,64 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Consumer, Kafka, Producer } from 'kafkajs';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
-  private readonly kafkaBrokerId: string;
+  private readonly kafkaBrokerUri: string;
+  private readonly consumerGroupId: string;
+  private readonly kafka: Kafka;
+  private readonly producer: Producer;
+  private readonly consumer: Consumer;
 
   constructor(private readonly appService: AppService) {
-    this.kafkaBrokerId = this.appService.getKafkaBrokerId();
+    this.kafkaBrokerUri = this.appService.getKafkaBrokerUri();
+    this.consumerGroupId = this.appService.getConsumerGroupId();
 
-    // TODO: Connect to Kafka
-    
+    this.kafka = new Kafka({
+      clientId: 'matching-service',
+      brokers: [this.kafkaBrokerUri],
+    });
+
+    this.producer = this.kafka.producer();
+    this.consumer = this.kafka.consumer({ groupId: this.consumerGroupId });
+
+    this.producer.connect();
+    this.consumer.connect();
+
+    this.testReceiveLoop();
   }
 
+  async testReceiveLoop() {
+    await this.consumer.subscribe({ topics: ['test-topic'], fromBeginning: false });
+
+    await this.consumer.run({
+      autoCommit: false,
+      eachMessage: async ({ topic, partition, message }) => {
+        console.log("Message received:");
+        console.log({
+          topic: topic,
+          partition: partition,
+          value: message.value.toString(),
+        });
+        const offset = parseInt(message.offset)
+        console.log(`Committing offset ${offset + 1}`);
+        await this.consumer.commitOffsets([
+          { topic: topic, partition: partition, offset: (offset + 1).toString() }
+        ]);
+      }
+    });
+  }
+
+  @ApiResponse({ status: 200 })
+  @Get('test-send')
+  async testSend() {
+    await this.producer.send({
+      topic: 'test-topic',
+      messages: [{ value: 'Hello KafkaJS user!' }],
+    });
+    return 'Message sent!';
+  }
 
   // TODO: Implement Kafka producer [userId, topic, difficulty, time]
   @Post('match')

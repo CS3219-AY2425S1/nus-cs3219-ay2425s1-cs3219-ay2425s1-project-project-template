@@ -17,7 +17,10 @@ import config from './config';
 })
 export class AppModule {
   constructor() {
-    const requiredVars = ['KAFKA_BROKER_ID'];
+    const requiredVars = [
+      'KAFKA_BROKER_URI',
+      'MATCHING_SERVICE_CONSUMER_GROUP_ID'
+    ];
     requiredVars.forEach(varName => {
       if (!process.env[varName]) {
         throw new Error(`Missing required environment variable: ${varName}`);
