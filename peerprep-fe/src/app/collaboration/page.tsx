@@ -1,9 +1,9 @@
 import React from 'react';
 
-type Props = {};
-
-const page = (props: Props) => {
-  return <div>This is the collaboration page</div>;
+const CollaborationPage = () => {
+  return (
+    <div className="min-h-screen bg-gray-900 p-6 pt-24 text-gray-100"></div>
+  );
 };
 
-export default page;
+export default CollaborationPage;
