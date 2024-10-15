@@ -67,7 +67,7 @@ export default function CreateQuestionPage() {
       <Box p={8} width={500}>
         <FormControl id="topic" mb={4} isRequired>
           <FormLabel>Topic</FormLabel>
-          <Select name="topic" value={topic || ""} onChange={handleTopicChange}>
+          <Select name="topic" value={topic || ""} onChange={handleTopicChange} isDisabled={isLoading}>
             <option value="" disabled>Select a topic</option>
             {Object.values(QuestionTopic).map((topic) => (
               <option key={topic} value={topic}>
@@ -79,7 +79,7 @@ export default function CreateQuestionPage() {
 
         <FormControl id="complexity" mb={4} isRequired>
           <FormLabel>Complexity</FormLabel>
-          <Select name="complexity" value={complexity || ""} onChange={handleComplexityChange}>
+          <Select name="complexity" value={complexity || ""} onChange={handleComplexityChange} isDisabled={isLoading}>
             <option value="" disabled>Select complexity</option>
             <option value={QuestionComplexity.EASY}>Easy</option>
             <option value={QuestionComplexity.MEDIUM}>Medium</option>
