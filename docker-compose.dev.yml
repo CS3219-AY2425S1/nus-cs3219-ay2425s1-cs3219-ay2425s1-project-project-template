@@ -87,9 +87,9 @@ services:
       - ${MATCHING_SERVICE_PORT}:${MATCHING_SERVICE_PORT}
     depends_on:
       kafka-service:
-        condition: service_started
-      kafka-init:
-        condition: service_completed_successfully
+        condition: service_healthy
+      # kafka-init:
+      #   condition: service_completed_successfully
 
   kafka-service:
     image: apache/kafka:latest
@@ -108,21 +108,8 @@ services:
       KAFKA_NUM_PARTITIONS: ${KAFKA_NUM_PARTITIONS}
     ports:
       - "${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}"
-
-  # This is just for initialising the kafka topics
-  kafka-init:
-    image: apache/kafka:latest
-    depends_on:
-      - kafka-service
-    entrypoint: ["/bin/sh", "-c"]
-    command: |
-      "
-      # blocks until kafka is reachable
-      ./opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-service:9092 --list
-
-      echo -e 'Creating kafka topics'
-      ./opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-service:9092 --create --if-not-exists --topic match-queue --replication-factor 1 --partitions 1
-
-      echo -e 'Successfully created the following topics:'
-      ./opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-service:9092 --list
-      "
+    healthcheck:
+      # Checks that the Kafka broker is up and running
+      test: ["CMD", "nc", "-z", "${KAFKA_BROKER_ROUTE}", "${KAFKA_BROKER_PORT}"]
+      interval: 5s
+      timeout: 2s

@@ -80,13 +80,6 @@ export class Queue implements IQueue {
     return {
       success: success,
     };
-
-    // // Temporary for testing matcher
-    // this.queue = this.queue.filter((req) => req.username !== request.username);
-
-    // return {
-    //   success: true,
-    // };
   }
 
   public async getRequests(): Promise<IMatchRequest[]> {
