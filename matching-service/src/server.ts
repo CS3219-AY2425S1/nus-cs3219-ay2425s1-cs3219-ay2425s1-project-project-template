@@ -28,6 +28,9 @@ app.use((req, res, next) => {
 
 app.use('/api', matchRoutes);
 
+// In-memory store for matches
+const activeMatches = new Map();
+
 server.listen(PORT, async () => {
   try {
     await connectRabbitMQ();
@@ -45,9 +48,23 @@ io.on("connection", (socket) => {
   socket.on("join_room", ({ userName }) => {
     socket.join(userName);
     console.log(`User ${userName} joined their room for match updates.`);
+
+    // Check if this user already has a match and emit match_found if true
+    if (activeMatches.has(userName)) {
+      const matchUserName = activeMatches.get(userName);
+      socket.emit("match_found", {
+        success: true,
+        matchUserName: matchUserName,
+      });
+
+      // Remove the match from the in-memory store after notifying
+      activeMatches.delete(userName);
+    }
   });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
   });
 });
+
+export { activeMatches };
