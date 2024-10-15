@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/useAuthStore";
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const Dashboard = () => {
   const user = useAuthStore.use.user();

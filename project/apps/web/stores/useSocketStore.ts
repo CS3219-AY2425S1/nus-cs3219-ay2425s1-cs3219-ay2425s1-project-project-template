@@ -1,8 +1,8 @@
-import { io, Socket } from "socket.io-client";
-import { create } from "zustand";
+import { io, Socket } from 'socket.io-client';
+import { create } from 'zustand';
 
 const SOCKET_SERVER_URL =
-  process.env.NEXT_PUBLIC_MATCH_SOCKET_URL || "http://localhost:8080";
+  process.env.NEXT_PUBLIC_MATCH_SOCKET_URL || 'http://localhost:8080';
 
 interface SocketState {
   socket: Socket | null;
@@ -24,27 +24,27 @@ const useSocketStore = create<SocketState>((set, get) => ({
       withCredentials: true,
     });
 
-    socket.on("connect", () => {
+    socket.on('connect', () => {
       set({ isConnected: true, connectionError: null });
-      console.log("Connected to Socket.IO server");
+      console.log('Connected to Socket.IO server');
     });
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
       set({ isConnected: false });
-      console.log("Disconnected from Socket.IO server");
+      console.log('Disconnected from Socket.IO server');
     });
 
-    socket.on("connect_error", (error: Error) => {
+    socket.on('connect_error', (error: Error) => {
       set({ connectionError: error.message });
       console.log(`Connection error: ${error.message}`);
     });
 
-    socket.on("match_found", (message) => {
+    socket.on('match_found', (message) => {
       // TODO: Implement logic to show match found
       console.log(message);
     });
 
-    socket.on("match_request_expired", (message) => {
+    socket.on('match_request_expired', (message) => {
       // TODO: Implement logic to show no match found
       console.log(message);
     });

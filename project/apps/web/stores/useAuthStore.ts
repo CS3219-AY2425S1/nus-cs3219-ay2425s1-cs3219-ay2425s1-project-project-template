@@ -1,8 +1,9 @@
-import { create } from "zustand";
-import { createSelectors } from "@/lib/zustand";
-import { SignInDto, SignUpDto } from "@repo/dtos/auth";
-import { UserDataDto } from "@repo/dtos/users";
-import { signUp, signIn, signOut, me } from "@/lib/api/auth";
+import { SignInDto, SignUpDto } from '@repo/dtos/auth';
+import { UserDataDto } from '@repo/dtos/users';
+import { create } from 'zustand';
+
+import { signUp, signIn, signOut, me } from '@/lib/api/auth';
+import { createSelectors } from '@/lib/zustand';
 
 interface AuthState {
   user: UserDataDto | null;
