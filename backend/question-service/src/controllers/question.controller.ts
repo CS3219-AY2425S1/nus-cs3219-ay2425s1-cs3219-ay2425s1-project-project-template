@@ -11,6 +11,7 @@ import {
     findPaginatedQuestionsWithSortAndFilter,
     findQuestionCount,
     findQuestionCountWithFilter,
+    findRandomQuestionByTopicAndComplexity,
     getFilterKeys,
     getSortKeysAndOrders,
     isValidFilter,
@@ -23,6 +24,7 @@ import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
 import { ValidationError } from 'class-validator'
+import { Complexity } from '@repo/user-types'
 
 export async function handleCreateQuestion(
     request: ITypedBodyRequest<CreateQuestionDto>,
@@ -170,4 +172,29 @@ export async function handleGetCategories(request: Request, response: Response):
         categories: Object.values(Category),
     }
     response.status(200).json(categories).send()
+}
+
+export async function handleGetRandomQuestion(request: Request, response: Response): Promise<void> {
+    const topic = request.query.topic
+    const complexity = request.query.complexity
+    if (!topic || !complexity) {
+        response.status(400).json('complexity or topic missing').send()
+        return
+    }
+    if (!Object.values(Category).includes(topic as Category)) {
+        console.log(topic, complexity, Object.values(Category).includes(topic as Category))
+        response.status(400).json('invalid topic').send()
+        return
+    }
+    if (!Object.values(Complexity).includes(complexity as Complexity)) {
+        response.status(400).json('invalid complexity').send()
+        return
+    }
+
+    const question = await findRandomQuestionByTopicAndComplexity(topic as Category, complexity as Complexity)
+    if (!question) {
+        response.status(404).json('NOT_FOUND').send()
+        return
+    }
+    response.status(200).json(question).send()
 }

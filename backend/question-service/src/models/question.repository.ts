@@ -3,6 +3,7 @@ import { FilterQuery, Model, model, SortOrder } from 'mongoose'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import questionSchema from './question.model'
+import { Category, Complexity } from '@repo/user-types'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
 
@@ -16,6 +17,43 @@ export async function findOneQuestionById(id: string): Promise<IQuestion | null>
 
 export async function findOneQuestionByTitle(title: string): Promise<IQuestion | null> {
     return questionModel.findOne({ title })
+}
+
+export async function findRandomQuestionByTopicAndComplexity(
+    category: Category,
+    complexity: Complexity
+): Promise<IQuestion | null> {
+    let complexityFilter
+    switch (complexity) {
+        case Complexity.EASY:
+            complexityFilter = `1${complexity}`
+            break
+        case Complexity.MEDIUM:
+            complexityFilter = `2${complexity}`
+            break
+        case Complexity.HARD:
+            complexityFilter = `3${complexity}`
+            break
+        default:
+            throw new Error('Invalid complexity')
+    }
+
+    const query = [
+        {
+            $match: {
+                categories: { $in: [category] },
+                complexity: complexityFilter,
+            },
+        },
+        {
+            $sample: { size: 1 },
+        },
+    ]
+    const result = await questionModel.aggregate(query)
+    if (result.length === 0) {
+        return null
+    }
+    return result[0]
 }
 
 export async function findPaginatedQuestionsWithSortAndFilter(
