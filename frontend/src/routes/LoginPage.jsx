@@ -29,8 +29,10 @@ function LoginPage() {
       });
   
       if (response.status === 200) {
-        const { token } = response.data;
-        localStorage.setItem('jwt', token); // Store token for future authenticated requests
+        const userData = response.data.data; // Extract all the user data
+
+        localStorage.setItem('user', JSON.stringify(userData)); // Store all user data as a string in localStorage
+        
         navigate('/question'); // Redirect to the question page
       }
     } catch (error) {

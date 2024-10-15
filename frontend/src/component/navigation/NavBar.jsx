@@ -1,14 +1,17 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './NavBar.css'; 
 
 const Navbar = () => {
   const navigate = useNavigate();
 
+   // Retrieve user data from localStorage
+  const user = JSON.parse(localStorage.getItem('user'));
+
   const handleLogout = () => {
-    // Clear the JWT token and redirect to the login page
-    localStorage.removeItem('jwt');
+    // Clear the user data and redirect to the login page
+    localStorage.removeItem('user');
     toast.success('Successfully logged out!');
     navigate('/login');
   };
@@ -16,6 +19,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
+      {user && <span className="username">Welcome, {user.username}!</span>}
         <button onClick={handleLogout} className="logout-button">
           Logout
         </button>
