@@ -45,21 +45,16 @@ server.listen(PORT, async () => {
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
-  socket.on("join_room", ({ userName }) => {
+  socket.on("join_room", (data, callback) => {
+    const { userName } = data;
+    
+    // Let the user join their room
     socket.join(userName);
+    
     console.log(`User ${userName} joined their room for match updates.`);
-
-    // Check if this user already has a match and emit match_found if true
-    if (activeMatches.has(userName)) {
-      const matchUserName = activeMatches.get(userName);
-      socket.emit("match_found", {
-        success: true,
-        matchUserName: matchUserName,
-      });
-
-      // Remove the match from the in-memory store after notifying
-      activeMatches.delete(userName);
-    }
+    
+    // Send acknowledgment back to the client
+    callback({ success: true });
   });
 
   socket.on("disconnect", () => {

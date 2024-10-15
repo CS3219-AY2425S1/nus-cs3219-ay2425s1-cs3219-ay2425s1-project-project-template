@@ -43,6 +43,11 @@ const MatchSelection = () => {
     };
   }, []);
 
+  interface RoomJoinResult {
+    success: boolean;
+    message?: string;
+  }
+
   useEffect(() => {
     if (isMatching && timer > 0) {
       const interval = setInterval(() => {
@@ -66,10 +71,11 @@ const MatchSelection = () => {
     }
 
     socketRef.current = io(SOCKET_SERVER_URL);
-
-    socketRef.current.on("immediate_match_not_found", ({success}) => {
-      setIsMatching(true);
-      setNoMatchFound(true);
+      // Wait for the room join acknowledgment before proceeding
+    const roomJoinResult: RoomJoinResult = await new Promise((resolve) => {
+      socketRef.current.emit("join_room", { userName: user.name }, (response: RoomJoinResult) => {
+        resolve(response);
+      });
     });
 
     socketRef.current.on("match_found", (matchData: MatchDataResponse) => {
@@ -79,15 +85,20 @@ const MatchSelection = () => {
       socketRef.current.disconnect();
     });
 
-    try {
-      await findMatch(user?.name, topic, difficulty);
-      socketRef.current.emit("join_room", { userName: user.name });
-      setIsMatching(true);
-      setTimer(30);
-      setNoMatchFound(false);
-    } catch (error) {
-      console.error("Error submitting match request:", error);
-      setIsMatching(false);
+    if (roomJoinResult.success) {
+      try {
+        await findMatch(user?.name, topic, difficulty);
+        setIsMatching(true);
+        setTimer(30);
+        setNoMatchFound(false);
+      } catch (error) {
+        console.error("Error submitting match request:", error);
+        setIsMatching(false);
+        socketRef.current.disconnect();
+        return;
+      }
+    } else {
+      console.error("Error joining room for match updates.");
       socketRef.current.disconnect();
     }
   }, [user, topic, difficulty, token]);
