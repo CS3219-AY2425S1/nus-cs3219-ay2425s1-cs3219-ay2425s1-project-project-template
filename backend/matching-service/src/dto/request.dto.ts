@@ -35,6 +35,11 @@ enum QuestionComplexity {
     HARD = 'hard',
 }
 
+export class MatchResponse {
+    message: string;
+    error?: string;
+}
+
 export class MatchRequestDto {
     @ApiProperty()
     @IsString()
