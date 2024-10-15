@@ -49,6 +49,11 @@ const MatchSelection = () => {
     getTopics();
   }, []);
 
+  interface RoomJoinResult {
+    success: boolean;
+    message?: string;
+  }
+
   const handleFindMatch = async (e: React.FormEvent) => {
     setMatchUserName(null);
     setNoMatchFound(false);
@@ -59,7 +64,12 @@ const MatchSelection = () => {
     }
 
     socketRef.current = io(SOCKET_SERVER_URL);
-    socketRef.current.emit("join_room", { userName: user.name });
+      // Wait for the room join acknowledgment before proceeding
+    const roomJoinResult: RoomJoinResult = await new Promise((resolve) => {
+      socketRef.current.emit("join_room", { userName: user.name }, (response: RoomJoinResult) => {
+        resolve(response);
+      });
+    });
 
     socketRef.current.on(
       "match_found",
@@ -71,14 +81,20 @@ const MatchSelection = () => {
       }
     );
 
-    try {
-      await findMatch(user?.name, topic, difficulty);
-      setIsMatching(true);
-      setTimer(30);
-      setNoMatchFound(false);
-    } catch (error) {
-      console.error("Error submitting match request:", error);
-      setIsMatching(false);
+    if (roomJoinResult.success) {
+      try {
+        await findMatch(user?.name, topic, difficulty);
+        setIsMatching(true);
+        setTimer(30);
+        setNoMatchFound(false);
+      } catch (error) {
+        console.error("Error submitting match request:", error);
+        setIsMatching(false);
+        socketRef.current.disconnect();
+        return;
+      }
+    } else {
+      console.error("Error joining room for match updates.");
       socketRef.current.disconnect();
       return;
     }
