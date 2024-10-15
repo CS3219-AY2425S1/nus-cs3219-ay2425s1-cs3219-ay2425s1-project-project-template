@@ -13,7 +13,7 @@ const LandingPage = () => {
     const googleLogin = useGoogleLogin({
         onSuccess: (response) => {
             login(response);
-            //router.push("/leetcode-dashboard"); // Redirect to dashboard after successful login
+            router.push("/leetcode-dashboard"); // Redirect to dashboard after successful login
         },
         onError: (error) => {
             console.error("Login Failed:", error);
