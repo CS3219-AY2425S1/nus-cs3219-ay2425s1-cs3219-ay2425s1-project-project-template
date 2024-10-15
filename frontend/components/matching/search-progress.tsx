@@ -24,7 +24,7 @@ export function SearchProgress({ waitTime }: SearchProgressProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <Progress value={(waitTime % 60) * (100 / 60)} className="w-full" />
+          <Progress className="w-full" indeterminate />
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4" />
