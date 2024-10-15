@@ -69,27 +69,32 @@ export class ConsumerFactory {
   public constructor(groupId: string, kafka: Kafka, topic: string) {
     this.consumer = kafka.consumer({ groupId: groupId });
     this.topic = topic;
+    this.consumer.connect().then(() => console.log("Consumer connected"));
+    this.consumer
+      .subscribe({
+        topic: this.topic,
+        fromBeginning: true,
+      })
+      .then(() => console.log(`Subscribed to topic ${this.topic}`));
   }
 
-  public async getMessages(): Promise<Array<KafkaMessage>> {
-    await this.consumer.connect();
-    await this.consumer.subscribe({
-      topic: this.topic,
-      fromBeginning: true,
-    });
-
+  public async getMessages(): Promise<KafkaMessage[]> {
     try {
-      const res: Array<KafkaMessage> = [];
+      let messageBuffer: Array<KafkaMessage> = [];
 
       await this.consumer.run({
         autoCommit: false,
         eachMessage: async (messagePayload) => {
-          res.push(messagePayload.message);
-          console.log(messagePayload);
+          messageBuffer.push(messagePayload.message);
+          console.log(messagePayload.message);
         },
       });
 
-      return res;
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(messageBuffer);
+        }, 1000);
+      });
     } catch (error) {
       console.log(error);
       return [];
@@ -105,30 +110,4 @@ export class ConsumerFactory {
   public async shutdown(): Promise<void> {
     await this.consumer.disconnect();
   }
-}
-
-export default async function processMessage(
-  messagePayload: EachMessagePayload
-): Promise<void> {
-  const { topic, partition, message } = messagePayload;
-
-  // Extract the message value (stored as a Buffer) and convert it to a string
-  const messageValue = message.value ? message.value.toString() : null;
-
-  // Process the message here (e.g., log it, perform business logic, etc.)
-  console.log(`Received message from topic ${topic}, partition ${partition}`);
-  console.log(`Message: ${messageValue}`);
-
-  // Additional logic (parsing JSON, handling errors, etc.) can be added here
-  try {
-    if (messageValue) {
-      const parsedData = JSON.parse(messageValue); // Example: parsing JSON
-      // Process parsedData (your business logic goes here)
-    }
-  } catch (error) {
-    console.error(`Error processing message: ${error}`);
-  }
-
-  // Optionally: Perform a heartbeat to let Kafka know this consumer is alive
-  await messagePayload.heartbeat();
 }

@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Kafka } from "kafkajs";
+import { Kafka, KafkaMessage } from "kafkajs";
 import { KafkaRequest, ProducerFactory, ConsumerFactory } from "./kafka";
 
 dotenv.config();
@@ -86,8 +86,8 @@ export class Queue implements IQueue {
     // return all requests in the queue
     const messages = await this.consumer.getMessages();
 
-    return messages.map((message) =>
-      JSON.parse(message.value?.toString() ?? "")
-    );
+    return messages.map((message) => {
+      return JSON.parse(message.value?.toString() ?? "");
+    });
   }
 }
