@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { MatchingService } from './services/matching.services';
 import { MatchRequestDto } from './dto/request.dto';
@@ -6,7 +6,6 @@ import { MatchRequestDto } from './dto/request.dto';
 @Controller()
 export class AppController {
   
-
   constructor(private readonly matchService: MatchingService) {
     // For testing
     matchService.testReceiveLoop();
@@ -15,17 +14,19 @@ export class AppController {
   @ApiResponse({ status: 200 })
   @Get('test-send')
   async testSend() {
-    await this.matchService.sendTestMessage({
-      topic: 'test-topic',
-      messages: [{ value: 'Hello KafkaJS user!' }],
-    });
+    await this.matchService.sendTestMessage('Hello KafkaJS user!');
     return 'Message sent!';
   }
 
   // TODO: Implement Kafka producer [userId, topic, difficulty, time]
+  @ApiResponse({ status: 200 })
   @Post('match')
-  async match(@Body('message') body: MatchRequestDto): Promise<void> {
-    return this.matchService.addMatchRequest(body);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async match(@Body() body: MatchRequestDto): Promise<{}> {
+    await this.matchService.addMatchRequest(body);
+    return {
+      message: `Match request received for ${body.userId} on time: ${body.timestamp}`
+    }
   }
 
   // TODO: Implement Kafka consumer

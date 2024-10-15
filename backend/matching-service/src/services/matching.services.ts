@@ -22,6 +22,7 @@ export class MatchingService {
       brokers: [this.kafkaBrokerUri],
     });
 
+    // allowAutoTopicCreation: true // it is true by default
     this.producer = this.kafka.producer();
     this.consumer = this.kafka.consumer({ groupId: this.consumerGroupId });
 
@@ -59,14 +60,22 @@ export class MatchingService {
   }
   
   // purely for testing
-  async sendTestMessage(msg) {
-    this.producer.send(msg);
+  async sendTestMessage(msg: string) {
+    await this.producer.send({
+      topic: 'test-topic',
+      messages: [{ value: msg }],
+    });
   }
 
   async addMatchRequest(req: MatchRequestDto) {
     var kafkaTopic = `${req.difficulty}-${req.topic}`;
+    var msg = `${req.userId}-${req.timestamp}`;
     console.log("Topic is: ", kafkaTopic);
     // Add message
+    await this.producer.send({
+      topic: kafkaTopic,
+      messages: [{value: msg}]
+    });
   }
 
 }
