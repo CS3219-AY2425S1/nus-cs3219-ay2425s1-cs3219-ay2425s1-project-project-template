@@ -9,7 +9,7 @@ export default function MatchingService() {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedWaitTime, setSelectedWaitTime] = useState("");
-  const [error, setError] = useState(""); // State for error messages
+  const [error, setError] = useState(""); 
 
   const navigate = useNavigate();
 
