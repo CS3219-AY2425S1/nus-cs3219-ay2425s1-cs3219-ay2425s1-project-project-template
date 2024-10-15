@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { Progress, Button, Card } from "@nextui-org/react";
+import { Progress } from "@nextui-org/progress";
+import { Button } from "@nextui-org/button";
+import { Card } from "@nextui-org/card";
 
 interface MatchingTimerProps {
   seconds: number;

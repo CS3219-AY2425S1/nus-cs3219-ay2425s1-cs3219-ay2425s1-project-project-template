@@ -1,10 +1,6 @@
 import { useState } from "react";
-import {
-  Select,
-  SelectItem,
-  SelectedItems,
-  Selection,
-} from "@nextui-org/react";
+import { Select, SelectItem, SelectedItems } from "@nextui-org/select";
+import { Selection } from "@nextui-org/table";
 
 import {
   PythonIcon,

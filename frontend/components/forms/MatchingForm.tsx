@@ -1,5 +1,6 @@
 import { useRef } from "react";
-import { Card, Button } from "@nextui-org/react";
+import { Card } from "@nextui-org/card";
+import { Button } from "@nextui-org/button";
 
 import ProgrammingLanguageSelectDropdown from "../matching/ProgrammingLanguageSelectDropdown";
 import QuestionDifficultyDropDown from "../matching/DifficultyDropdown";

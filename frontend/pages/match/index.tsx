@@ -1,12 +1,13 @@
 "use client";
 
+import MatchingForm from "@/components/forms/MatchingForm";
 import DefaultLayout from "@/layouts/default";
 
 const MatchPage = () => {
   return (
     <>
       <DefaultLayout isLoggedIn={true}>
-        <div className="flex justify-center">Placeholder for Match Page</div>
+        <MatchingForm />
       </DefaultLayout>
     </>
   );

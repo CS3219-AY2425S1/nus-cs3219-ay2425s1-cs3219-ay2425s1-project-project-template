@@ -1,12 +1,12 @@
 import { useState, useMemo, Key } from "react";
 import {
   Dropdown,
+  DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  DropdownTrigger,
-  Input,
-  Selection,
-} from "@nextui-org/react";
+} from "@nextui-org/dropdown";
+import { Input } from "@nextui-org/input";
+import { Selection } from "@nextui-org/table";
 
 import { DownArrowIcon } from "../icons";
 interface ItemProps {
