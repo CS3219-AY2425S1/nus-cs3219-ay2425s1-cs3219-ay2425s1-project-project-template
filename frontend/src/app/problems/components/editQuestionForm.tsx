@@ -102,14 +102,17 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
 
       const handleCategoryToggle = (category: string) => {
         const currentCategories = form.getValues('categories');
+        let newCategories: string[];
 
         if (currentCategories!.includes(category)) {
-          form.setValue('categories', currentCategories!.filter(cat => cat !== category));
+          newCategories = currentCategories!.filter(cat => cat !== category);
           console.log('x')
         } else {
-          form.setValue('categories', [...currentCategories!, category]);
+          newCategories = [...currentCategories!, category];
           console.log('y')
         }
+
+        form.setValue('categories', newCategories, { shouldDirty: true });
       };
 
       // 2. Define a submit handler.
