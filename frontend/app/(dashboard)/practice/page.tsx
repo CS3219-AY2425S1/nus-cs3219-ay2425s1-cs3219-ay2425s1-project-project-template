@@ -7,15 +7,15 @@ import { QuestionComplexity, QuestionTopic } from "@/types/Question";
 export default function CreateQuestionPage() {
   const toast = useToast();
 
+  const MATCH_DURATION = 30;
+
   const [topic, setTopic] = useState<QuestionTopic | undefined>();
   const [complexity, setComplexity] = useState<QuestionComplexity | undefined>();
   const [isLoading, setIsLoading] = useState(false);
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(MATCH_DURATION);
 
   const handleTopicChange = (e: React.ChangeEvent<HTMLSelectElement>) => setTopic(e.target.value as QuestionTopic);
   const handleComplexityChange = (e: React.ChangeEvent<HTMLSelectElement>) => setComplexity(e.target.value as QuestionComplexity);
-
-  const MATCH_DURATION = 30;
 
   const onSubmitMatch = () => {
     if (!topic || !complexity) {
@@ -39,6 +39,15 @@ export default function CreateQuestionPage() {
         if (prev <= 1) {
           clearInterval(interval);
           setIsLoading(false);
+          toast.closeAll();
+          toast({
+            title: "Match Not Found",
+            description: "Please try again.",
+            status: "info",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+          });
           return 0; 
         }
         return prev - 1;
