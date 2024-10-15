@@ -407,7 +407,7 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(404);
-    expect(res.body).toBe("Document not found");
+    expect(res.body.message).toBe("Question not found");
   });
 
   // Non-existent id
@@ -423,7 +423,7 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(404);
-    expect(res.body).toBe("Document not found");
+    expect(res.body.message).toBe("Question not found");
   });
 
   // Duplicate question
