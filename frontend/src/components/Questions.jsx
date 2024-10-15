@@ -62,7 +62,7 @@ const Questions = () => {
   };
 
   return (
-    <div className="w-full rounded-3xl border border-gray-300/30 bg-[#191919] p-6">
+    <div className="w-full max-w-lg rounded-3xl border border-gray-300/30  p-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">
           Interview Questions
