@@ -10,7 +10,7 @@ const useRegisterUser = () => {
     passwordValue: string,
     setNewUser: Dispatch<SetStateAction<User | undefined>>,
     setSuccess: Dispatch<SetStateAction<boolean>>,
-    setErrorMessage: Dispatch<SetStateAction<string | undefined>>,
+    setErrorMessage: Dispatch<SetStateAction<string>>,
     setShowErrorMessage: Dispatch<SetStateAction<boolean>>
   ) => {
 

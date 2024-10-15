@@ -14,9 +14,9 @@ const RegisterPage: React.FC = () => {
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
 
-  const [success, setSuccess] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>("Failed to create new user. Please try again.");
-  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("Failed to create new user. Please try again.");
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   const { registerUser } = useRegisterUser();
 
