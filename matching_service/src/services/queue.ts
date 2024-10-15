@@ -1,10 +1,6 @@
 import dotenv from "dotenv";
 import { Kafka } from "kafkajs";
-import processMessage, {
-  ProducerFactory,
-  ConsumerFactory,
-  KafkaRequest,
-} from "./kafka";
+import { KafkaRequest, ProducerFactory, ConsumerFactory } from "./kafka";
 
 dotenv.config();
 
@@ -44,9 +40,6 @@ export class Queue implements IQueue {
   private consumer: ConsumerFactory;
   private offsetMap: Map<string, string>;
 
-  // // Temporary for testing matcher
-  // private queue: IMatchRequest[] = [];
-
   constructor() {
     // Setup connection to Kafka if using Kafka
     const kafka = new Kafka({
@@ -57,23 +50,14 @@ export class Queue implements IQueue {
     });
     // Setup producer and consumer
     this.producer = new ProducerFactory(kafka, "match-queue");
-    this.consumer = new ConsumerFactory(
-      processMessage,
-      "match-group",
-      kafka,
-      "match-queue"
-    );
+    this.consumer = new ConsumerFactory("match-group", kafka, "match-queue");
     this.offsetMap = new Map();
     this.producer.start();
-    this.consumer.start();
   }
 
   public async add(request: IMatchRequest): Promise<IMatchResponse> {
     // add to queue, then return success message
-    this.producer.sendBatch([request]);
-
-    // // Temporary for testing matcher
-    // this.queue.push(request);
+    this.producer.sendMessage(request);
 
     return {
       success: true,
@@ -107,9 +91,10 @@ export class Queue implements IQueue {
 
   public async getRequests(): Promise<IMatchRequest[]> {
     // return all requests in the queue
-    return [];
+    const messages = await this.consumer.getMessages();
 
-    // // Temporary for testing matcher
-    // return [...this.queue];
+    return messages.map((message) =>
+      JSON.parse(message.value?.toString() ?? "")
+    );
   }
 }

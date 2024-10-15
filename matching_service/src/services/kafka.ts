@@ -6,6 +6,7 @@ import {
   ProducerBatch,
   TopicMessages,
   EachMessagePayload,
+  KafkaMessage,
 } from "kafkajs";
 
 export interface KafkaRequest {
@@ -33,23 +34,11 @@ export class ProducerFactory {
     await this.producer.disconnect();
   }
 
-  public async sendBatch(messages: Array<KafkaRequest>): Promise<void> {
-    const kafkaMessages: Array<Message> = messages.map((message) => {
-      return {
-        value: JSON.stringify(message),
-      };
-    });
-
-    const topicMessages: TopicMessages = {
+  public async sendMessage(message: KafkaRequest): Promise<void> {
+    await this.producer.send({
       topic: this.topic,
-      messages: kafkaMessages,
-    };
-
-    const batch: ProducerBatch = {
-      topicMessages: [topicMessages],
-    };
-
-    await this.producer.sendBatch(batch);
+      messages: [{ value: JSON.stringify(message), partition: 0 }],
+    });
   }
 }
 
@@ -59,32 +48,36 @@ export type KafkaMessageProcessor = (
 
 export class ConsumerFactory {
   private consumer: Consumer;
-  private messageProcessor: KafkaMessageProcessor;
   private topic: string;
 
-  public constructor(
-    messageProcessor: KafkaMessageProcessor,
-    groupId: string,
-    kafka: Kafka,
-    topic: string
-  ) {
-    this.messageProcessor = messageProcessor;
+  public constructor(groupId: string, kafka: Kafka, topic: string) {
     this.consumer = kafka.consumer({ groupId: groupId });
     this.topic = topic;
   }
 
-  public async start(): Promise<void> {
+  public async getMessages(): Promise<Array<KafkaMessage>> {
     await this.consumer.connect();
     await this.consumer.subscribe({
       topic: this.topic,
       fromBeginning: true,
     });
-    await this.consumer.run({
-      autoCommit: false,
-      eachMessage: async (messagePayload) =>
-        this.messageProcessor(messagePayload),
-    });
-    this.consumer;
+
+    try {
+      const res: Array<KafkaMessage> = [];
+
+      await this.consumer.run({
+        autoCommit: false,
+        eachMessage: async (messagePayload) => {
+          res.push(messagePayload.message);
+          console.log(messagePayload);
+        },
+      });
+
+      return res;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
 
   public async commit(offset: string): Promise<void> {
