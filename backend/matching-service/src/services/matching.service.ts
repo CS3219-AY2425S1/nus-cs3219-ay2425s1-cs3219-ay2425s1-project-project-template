@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Consumer, Kafka, Producer } from 'kafkajs';
 import { MatchRequestDto } from 'src/dto/request.dto';
 
 
 @Injectable()
-export class MatchingService {
+export class MatchingService implements OnModuleInit {
   private readonly kafkaBrokerUri: string;
   private readonly consumerGroupId: string;
   private readonly kafka: Kafka;
   private readonly producer: Producer;
   private readonly consumer: Consumer;
-
+  private matches: { [userId: string]: string } = {}; // In-memory store for matches
 
   constructor(private configService: ConfigService) {
     this.kafkaBrokerUri = this.getKafkaBrokerUri();
@@ -25,9 +25,11 @@ export class MatchingService {
     // allowAutoTopicCreation: true // it is true by default
     this.producer = this.kafka.producer();
     this.consumer = this.kafka.consumer({ groupId: this.consumerGroupId });
+  }
 
-    this.producer.connect();
-    this.consumer.connect();
+  async onModuleInit() {
+    await this.producer.connect();
+    await this.consumer.connect();
   }
 
   getKafkaBrokerUri(): string {
