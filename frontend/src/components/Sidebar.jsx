@@ -28,7 +28,7 @@ export default function Sidebar() {
             onClick={() => handleItemClick(item.href)}
             className={`rounded-lg p-3 transition-colors duration-200 ${
               activeItem === item.href
-                ? "bg-[#C6FF46] text-black"
+                ? "bg-[#c6fe4c] text-black"
                 : "text-slate-300/70 hover:bg-gray-100 hover:text-black"
             }`}
             aria-label={item.label}

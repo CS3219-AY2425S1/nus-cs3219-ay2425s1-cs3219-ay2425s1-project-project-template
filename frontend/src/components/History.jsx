@@ -1,6 +1,6 @@
 const History = ({ sessions }) => {
   return (
-    <div className="w-full max-w-xl rounded-3xl bg-lime-300 p-6 text-black">
+    <div className="w-full max-w-xl rounded-3xl bg-gradient-to-b from-lime-300 to-lime-500 p-6 text-black">
       <h2 className="mb-1 text-xl font-bold text-black">Peer Sessions</h2>
       <p className="text-md mb-4 font-medium text-gray-800">
         Your recent peer learning sessions

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Area,
+  AreaChart,
 } from "recharts";
 
 const staticData = {
@@ -103,39 +103,44 @@ const ProgressOverview = () => {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={350}>
-        <LineChart
+        <AreaChart
           data={staticData[timeRange]}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <CartesianGrid stroke="#444444" strokeDasharray="3 3" />
+          <XAxis dataKey="date" stroke="#AAAAAA" />
           <YAxis yAxisId="left" />
           <YAxis yAxisId="right" orientation="right" />
           <Tooltip content={<CustomTooltip />} />
           <Legend />
-          <Line
+
+          <Area
             yAxisId="left"
             type="monotone"
             dataKey="practiceSessions"
-            stroke="#af3dff"
-            activeDot={{ r: 8 }}
+            stroke="#1E90FF"
+            fill="rgba(30, 144, 255, 0.5)"
             name="Practice Sessions"
           />
-          <Line
+
+          <Area
             yAxisId="right"
             type="monotone"
             dataKey="hoursDevoted"
-            stroke="#ff3b94"
+            stroke="#00CFFF"
+            fill="rgba(0, 207, 255, 0.5)"
             name="Hours Devoted"
           />
-          <Line
+
+          <Area
             yAxisId="left"
             type="monotone"
             dataKey="peerSessions"
-            stroke="#a6fd29"
+            stroke="#32CD32"
+            fill="rgba(50, 205, 50, 0.5)"
             name="Peer Sessions"
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

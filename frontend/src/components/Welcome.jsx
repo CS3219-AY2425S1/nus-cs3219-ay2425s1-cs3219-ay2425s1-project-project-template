@@ -9,7 +9,7 @@ const Welcome = ({ username }) => {
   };
 
   return (
-    <div className="relative w-full max-w-lg rounded-3xl bg-gradient-to-r from-lime-100 to-lime-500 p-8 text-black shadow-lg">
+    <div className="relative w-full max-w-lg rounded-3xl bg-gradient-to-br from-lime-100 to-lime-500 p-8 text-black shadow-lg">
       <h2 className="mb-4 text-5xl font-extrabold">
         Welcome {username ? username : "Back"}!
       </h2>
