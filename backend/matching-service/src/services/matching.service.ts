@@ -1,8 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Consumer, Kafka, Producer } from 'kafkajs';
-import { MatchRequestDto } from 'src/dto/request.dto';
+import { QuestionComplexity, QuestionTopic, MatchRequestDto } from 'src/dto/request.dto';
 
+type UserEntry = {
+  matched: boolean;
+  topic: string;
+  matchedWithUserId: string;
+}
 
 @Injectable()
 export class MatchingService implements OnModuleInit {
@@ -11,7 +16,7 @@ export class MatchingService implements OnModuleInit {
   private readonly kafka: Kafka;
   private readonly producer: Producer;
   private readonly consumer: Consumer;
-  private matches: { [userId: string]: string } = {}; // In-memory store for matches
+  private userPool: { [userId: string]: UserEntry } = {}; // In-memory store for user pool
 
   constructor(private configService: ConfigService) {
     this.kafkaBrokerUri = this.getKafkaBrokerUri();
@@ -30,6 +35,9 @@ export class MatchingService implements OnModuleInit {
   async onModuleInit() {
     await this.producer.connect();
     await this.consumer.connect();
+    await this.subscribeToTopics();
+    // Consume message loop
+    await this.consumeMessages();
   }
 
   getKafkaBrokerUri(): string {
@@ -69,6 +77,16 @@ export class MatchingService implements OnModuleInit {
     });
   }
 
+  async subscribeToTopics() {
+    const allTopics = []
+    for (const complexity of Object.values(QuestionComplexity)) {
+      for (const topic of Object.values(QuestionTopic)) {
+      allTopics.push(`${complexity}-${topic}`);
+      }
+    }
+    await this.consumer.subscribe({ topics: allTopics, fromBeginning: false });
+  }
+
   async addMatchRequest(req: MatchRequestDto) {
     var kafkaTopic = `${req.difficulty}-${req.topic}`;
     var msg = `${req.userId}-${req.timestamp}`;
@@ -78,6 +96,54 @@ export class MatchingService implements OnModuleInit {
       topic: kafkaTopic,
       messages: [{value: msg}]
     });
+  }
+
+  private async consumeMessages() {
+    await this.consumer.run({
+      eachMessage: async ({ topic, message }) => {
+        const matchRequest = message.value.toString();
+        const matchRequestUserId = matchRequest.split('-')[0];
+
+        // Check if this is a duplicate request
+        if (this.userPool[matchRequestUserId]) {
+          console.log(`Duplicate request received for ${matchRequestUserId}`);
+          return;
+        }
+
+        console.log(`Received message: ${matchRequest} from topic: ${topic}`);
+
+        // Check if a matching user exists
+        const existingMatch = Object.keys(this.userPool).find(
+          (userId) => this.userPool[userId].topic === topic && !this.userPool[userId].matched && userId !== matchRequestUserId
+        );
+
+        if (existingMatch) {
+          // Pair the users if match is found
+          this.userPool[existingMatch].matchedWithUserId = matchRequestUserId;
+          this.userPool[existingMatch].matched = true;
+          this.userPool[matchRequestUserId] = {
+            matched: true,
+            topic: topic,
+            matchedWithUserId: existingMatch,
+          };
+          console.log(`Match found for ${matchRequestUserId} and ${existingMatch} in topic: ${topic}`);
+        } else {
+          this.userPool[matchRequestUserId] = {
+            matched: false,
+            topic: topic,
+            matchedWithUserId: '',
+          }
+        }
+      }
+    })
+  }
+
+  removeFromUserPool(userId: string) {
+    delete this.userPool[userId];
+  }
+
+  pollForMatch(userId: string): UserEntry | null {
+    return this.userPool[userId] || null;
   }
 
 }
