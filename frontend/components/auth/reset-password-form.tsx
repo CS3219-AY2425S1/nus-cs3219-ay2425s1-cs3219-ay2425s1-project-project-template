@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { resetPassword } from "@/lib/reset-password";
+import { isPasswordComplex } from "@/lib/password";
 import { useToast } from "@/components/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,6 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    // TODO: Add validation for password
     if (password !== passwordConfirmation) {
       toast({
         title: "Password Mismatch",
@@ -32,6 +32,15 @@ export function ResetPasswordForm({ token }: { token: string }) {
       });
       return;
     }
+    if (!isPasswordComplex(passwordConfirmation)) {
+      toast({
+        title: "Weak Password",
+        description:
+          "Password must be at least 8 characters long, include 1 uppercase letter and 1 special character.",
+      });
+      return;
+    }
+
     const res = await resetPassword(token, password);
     if (!res.ok) {
       toast({
