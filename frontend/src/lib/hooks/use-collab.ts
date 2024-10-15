@@ -1,4 +1,4 @@
-import { EditorState, Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { yCollab } from 'y-codemirror.next';
 import * as Y from 'yjs';
@@ -26,8 +26,9 @@ const getRandomColor = () => {
 
 // TODO: Test if collab logic works
 export const useCollab = (roomId: string) => {
+  const [code, setCode] = useState('');
   const editorRef = useRef<ReactCodeMirrorRef>(null);
-  const [extensions, setExtensions] = useState<Array<Extension>>([baseExtensions]);
+  const [extensions, setExtensions] = useState<Array<Extension>>(baseExtensions);
   const [language, setLanguage] = useState<LanguageName>('python');
   const langExtension = useMemo(() => {
     return getLanguage(language);
@@ -46,10 +47,6 @@ export const useCollab = (roomId: string) => {
         );
         return;
       }
-      if (!provider.socket.connected) {
-        console.log('Failed to connect');
-        return;
-      }
       const ytext = doc.getText('codemirror');
       const undoManager = new Y.UndoManager(ytext);
       const awareness = provider.awareness;
@@ -60,9 +57,7 @@ export const useCollab = (roomId: string) => {
         colorLight: light,
       });
       const collabExt = yCollab(ytext, awareness, { undoManager });
-      editorRef.current.state = EditorState.create({
-        doc: ytext.toJSON(),
-      });
+      setCode(ytext.toString());
       setExtensions([...extensions, collabExt]);
       return () => {
         doc.destroy();
@@ -75,5 +70,7 @@ export const useCollab = (roomId: string) => {
     extensions: [...extensions, langExtension],
     language,
     setLanguage,
+    code,
+    setCode,
   };
 };

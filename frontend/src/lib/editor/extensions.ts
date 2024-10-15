@@ -42,6 +42,7 @@ export const themeOptions = [
   'duotone',
   'eclipse',
   'github',
+  'githubDark',
   'gruvbox',
   'gruvboxDark',
   'kimbie',

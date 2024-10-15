@@ -1,8 +1,7 @@
-import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
 import { useWindowSize } from '@uidotdev/usehooks';
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Label } from '@/components/ui/label';
 import {
@@ -12,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
 import { useCollab } from '@/lib/hooks/use-collab';
 
 const EXTENSION_HEIGHT = 250;
@@ -23,9 +23,12 @@ type EditorProps = {
 
 export const Editor = ({ room }: EditorProps) => {
   const { height } = useWindowSize();
-  const [code, setCode] = useState('');
   const [theme, setTheme] = useState<IEditorTheme>('darcula');
-  const { editorRef, extensions, language, setLanguage } = useCollab(room);
+  const { editorRef, extensions, language, setLanguage, code, setCode } = useCollab(room);
+  const themePreset = useMemo(() => {
+    return getTheme(theme);
+  }, [theme]);
+
   return (
     <div className='flex flex-col gap-4 p-4'>
       <div className='flex gap-4'>
@@ -71,7 +74,7 @@ export const Editor = ({ room }: EditorProps) => {
           onChange={(value, _viewUpdate) => {
             setCode(value);
           }}
-          theme={getTheme(theme)}
+          theme={themePreset}
           lang={language}
           basicSetup={{
             tabSize: language === 'python' ? 4 : 2,
