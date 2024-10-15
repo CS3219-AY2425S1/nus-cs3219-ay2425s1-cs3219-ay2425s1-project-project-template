@@ -36,16 +36,19 @@ export const NewSession = () => {
         isMatchFound: false,
         isMatchmakingFailed: false,
     })
+
     const [timeElapsed, setTimeElapsed] = React.useState(0)
     React.useEffect(() => {
         if (modalData.isMatchmaking) {
             const timer = setTimeout(() => {
-                setTimeElapsed(timeElapsed + 1)
+                setTimeElapsed((timeElapsed) => timeElapsed + 1)
             }, 1000)
 
             return () => clearTimeout(timer)
         }
     }, [modalData.isMatchmaking, timeElapsed])
+
+    // const socketRef = useRef(undefined)
 
     const handleMatchmaking = async () => {
         if (!selectedTopic || !selectedComplexity) {
@@ -75,9 +78,26 @@ export const NewSession = () => {
             await handleFailedMatchmaking()
         }
 
-        //TODO: Add WS logic here to listen for match found events
+        //TODO: Add WS logic here open on connection and register handlers for match found and failed match
+        // const socket = new WebSocket(`wss://${response?.wsUrl}`)
+        // socketRef.current = socket
+        // socketRef.current.addEventListener("fail", (event) => {
+        //     socketRef.current.close()
+        //     socketRef.current = undefined
+        //     await handleFailedMatchmaking()
+        // })
+        // socketRef.current.addEventListener('success', (event) => {
+        //     const matchId = event.data.matchId
+        //     socketRef.current.close()
+        //     socketRef.current = undefined
+        //     await handleMatchFound(matchId)
+        // })
+        // socketRef.current.send("ready")
+
+        //This is a mock implementation to show the modal for 10 seconds and then either show the match found modal or failed matchmaking modal
         await new Promise((resolve, _) => setTimeout(resolve, 10000))
         const isMatchFound = Math.random() > 0.5
+
         if (isMatchFound) {
             await handleMatchFound()
         } else {
@@ -94,12 +114,18 @@ export const NewSession = () => {
     }
 
     const handleCancelMatchmaking = async () => {
-        setModalData((modalData) => ({
-            ...modalData,
-            isOpen: false,
-            isMatchmaking: false,
-        }))
         //TODO: Add logic to call API to blacklist user/ remove user from matchmaking queue here
+        // socketRef.current.send("cancel")
+        // socketRef.current.close()
+        // socketRef.current = undefined
+
+        setModalData((modalData) => {
+            return {
+                ...modalData,
+                isOpen: false,
+                isMatchmaking: false,
+            }
+        })
     }
 
     const handleMatchFound = async () => {
@@ -170,12 +196,7 @@ export const NewSession = () => {
                                 <h2 className="text-medium font-medium">
                                     {`${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`}
                                 </h2>
-                                <Button
-                                    className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
-                                    variant={'primary'}
-                                    size={'lg'}
-                                    onClick={handleCancelMatchmaking}
-                                >
+                                <Button variant={'primary'} size={'lg'} onClick={handleCancelMatchmaking}>
                                     Cancel matchmaking
                                 </Button>
                             </>
@@ -186,18 +207,10 @@ export const NewSession = () => {
                                     Failed to find a collaborator. Would you like to try again?
                                 </h2>
                                 <div className="flex flex-row space-x-4">
-                                    <Button
-                                        className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
-                                        size={'lg'}
-                                        onClick={handleMatchmaking}
-                                    >
+                                    <Button variant={'primary'} size={'lg'} onClick={handleMatchmaking}>
                                         Retry
                                     </Button>
-                                    <Button
-                                        className="mt-4 bg-purple-600 hover:bg-[#A78BFA]"
-                                        size={'lg'}
-                                        onClick={handleCancelMatchmaking}
-                                    >
+                                    <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleCancelMatchmaking}>
                                         Cancel
                                     </Button>
                                 </div>
