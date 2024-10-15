@@ -32,7 +32,6 @@ const LandingPage = () => {
 
     return (
         <div className="flex items-center justify-center min-h-[90vh]">
-            {/* <div className="flex items-center justify-between max-w-7xl w-full"></div> */}
             <div className="flex justify-between max-w-[90vw]">
                 <div className="flex-1 pr-10 h-full">
                     <h1 className="text-6xl font-extrabold text-white pb-8">
@@ -50,7 +49,7 @@ const LandingPage = () => {
                     </div>
                 </div>
                 <div className="flex-1 h-full">
-                    <Card className="bg-primary-1000 border-none pt-2 pb-2 max-w-[90vh] h-full drop-shadow">
+                    <Card className="bg-primary-1000 border-none pt-2 pb-2 max-w-[90vw] h-full drop-shadow">
                         <CardContent className="h-full">
                             <CodeSnippet />
                         </CardContent>
