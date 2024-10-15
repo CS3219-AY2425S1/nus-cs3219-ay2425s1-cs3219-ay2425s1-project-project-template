@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom'; // No BrowserRouter here
+import { Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import QuestionServicePage from './pages/questionservicepage';

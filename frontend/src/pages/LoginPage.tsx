@@ -10,15 +10,12 @@ export default function LoginPage() {
 	const { loggedIn, setToken, setLoggedIn, ready } = context!; 
 	const navigate = useNavigate();
 
-
 	if (loggedIn) {
 		return <Navigate to={'/loading'} />;
 	}
 
 	const onSuccess = async (credentialResponse: CredentialResponse) => {
 		try {
-			
-
 		const token = credentialResponse.credential;
 		// console.log("SENDING")
 		// console.log(token);
