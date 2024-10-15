@@ -18,7 +18,7 @@ export default function MatchingService() {
   ];
 
   const levels = ["Easy", "Medium", "Hard"];
-  const waitTimes = ["30s", "1min", "2mins", "5mins", "> 5mins"];
+  const waitTimes = ["30s", "1min", "2mins", "5mins"];
 
   return (
     <div className="max-h-screen">
