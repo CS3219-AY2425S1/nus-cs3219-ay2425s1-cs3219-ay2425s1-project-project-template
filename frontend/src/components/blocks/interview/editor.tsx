@@ -1,14 +1,10 @@
+import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
+import { useWindowSize } from '@uidotdev/usehooks';
+import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
 import { useState } from 'react';
-import { useWindowSize } from '@uidotdev/usehooks';
-import {
-  extensions,
-  getTheme,
-  IEditorTheme,
-  languages,
-  themeOptions,
-} from '@/lib/editor/extensions';
-import { LanguageName } from '@uiw/codemirror-extensions-langs';
+
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -16,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { useCollab } from '@/lib/hooks/use-collab';
 
 const EXTENSION_HEIGHT = 250;
 const MIN_EDITOR_HEIGHT = 350;
@@ -30,6 +26,7 @@ export const Editor = ({ room }: EditorProps) => {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<LanguageName>('python');
   const [theme, setTheme] = useState<IEditorTheme>('darcula');
+  const { editorRef, extensions } = useCollab(room);
   return (
     <div className='flex flex-col gap-4 p-4'>
       <div className='flex gap-4'>
@@ -66,6 +63,7 @@ export const Editor = ({ room }: EditorProps) => {
       </div>
       <div className='border-border w-full text-clip rounded-lg border shadow-sm'>
         <CodeMirror
+          ref={editorRef}
           style={{
             fontSize: '14px',
           }}
@@ -75,12 +73,12 @@ export const Editor = ({ room }: EditorProps) => {
             setCode(value);
           }}
           theme={getTheme(theme)}
-          extensions={extensions}
           lang={language}
           basicSetup={{
             tabSize: language === 'python' ? 4 : 2,
             indentOnInput: true,
           }}
+          extensions={extensions}
         />
       </div>
     </div>
