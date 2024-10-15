@@ -45,7 +45,8 @@ export class Queue implements IQueue {
     const kafka = new Kafka({
       clientId: "match-queue",
       brokers: [
-        `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
+        // `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
+        "broker:19092",
       ],
     });
     // Setup producer and consumer
