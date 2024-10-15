@@ -5,6 +5,7 @@ import { NextUIProvider } from "@nextui-org/system";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useRouter } from "next/router";
 
+import { UserProvider } from "@/context/UserContext";
 import { fontSans, fontMono } from "@/config/fonts";
 import "@/styles/globals.css";
 
@@ -17,7 +18,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <NextUIProvider navigate={router.push}>
         <NextThemesProvider>
-          <Component {...pageProps} />
+          <UserProvider>
+            <Component {...pageProps} />
+          </UserProvider>
         </NextThemesProvider>
       </NextUIProvider>
     </QueryClientProvider>

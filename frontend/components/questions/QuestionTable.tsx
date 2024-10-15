@@ -23,22 +23,24 @@ interface QuestionTableProps {
   totalPages: number;
   pageNumber: number;
   handlePageOnClick: (page: number) => void;
+  isAdmin: boolean;
 }
-
-const columns = [
-  { name: "No.", uid: "index" },
-  { name: "Title", uid: "title" },
-  { name: "Category", uid: "category" },
-  { name: "Difficulty", uid: "complexity" },
-  { name: "Action", uid: "action" },
-];
 
 const QuestionTable: React.FC<QuestionTableProps> = ({
   questions,
   totalPages,
   pageNumber,
   handlePageOnClick,
+  isAdmin,
 }) => {
+  const columns = [
+    { name: "No.", uid: "index" },
+    { name: "Title", uid: "title" },
+    { name: "Category", uid: "category" },
+    { name: "Difficulty", uid: "complexity" },
+    ...(isAdmin ? [{ name: "Action", uid: "action" }] : []),
+  ];
+
   questions = questions.map((question, idx) => ({
     ...question,
     index: idx + 1,
@@ -78,6 +80,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
       case "action": {
         return <ActionButtons question={question} />;
       }
+
       default: {
         return <h2>{questionValue}</h2>;
       }
@@ -87,10 +90,12 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
   return (
     <div className="flex flex-col items-center w-10/12">
       <div className="flex w-full justify-between">
-        <h2>Questions</h2>
-        <Button as={Link} href="/questions/add">
-          Add
-        </Button>
+        <h2>Questions List</h2>
+        {isAdmin && (
+          <Button as={Link} href="/admin/questions/add">
+            Add
+          </Button>
+        )}
       </div>
       <div className="mt-5 h-52 w-full">
         <Table
@@ -109,6 +114,9 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
               />
             </div>
           }
+          classNames={{
+            table: "min-h-[600px]",
+          }}
         >
           <TableHeader columns={columns}>
             {(column) => (

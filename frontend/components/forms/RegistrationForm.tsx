@@ -20,6 +20,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
       ...formData,
       username: e.target.value,
     });
+
+    // Reset the email error if user starts typing after form submission
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      username: false,
+    }));
   };
 
   const handleEmailOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +33,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
       ...formData,
       email: e.target.value,
     });
+    // Reset the email error if user starts typing after form submission
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      email: false,
+    }));
   };
 
   const handlePasswordOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +45,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
       ...formData,
       password: e.target.value,
     });
+    // Reset the password error if user starts typing after form submission
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      password: false,
+    }));
   };
 
   const isValid = () => {
@@ -64,50 +80,46 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8">
+    <form className="mt-8" onSubmit={handleSubmit}>
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center text-white">Register</h2>
+        <h2 className="text-2xl font-semibold text-center text-white">
+          Register
+        </h2>
       </div>
       <div className="mb-4">
         <label htmlFor="username">Username</label>
-        <Input
-          required
-          id="username"
-          type="text"
-          value={formData.username}
-          onChange={handleUsernameOnChange}
+        <Input 
+          errorMessage="Please provide a username." 
+          isInvalid={!!errors.username}
+          isRequired={true} 
+          type="text" 
+          value={formData.username} 
+          onChange={handleUsernameOnChange} 
         />
-        {errors.username && (
-          <span className="text-red-500">Please provide a username</span>
-        )}
       </div>
 
       <div className="mb-4">
         <label htmlFor="email">Email</label>
-        <Input
-          required
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={handleEmailOnChange}
+        <Input 
+          errorMessage="Please provide a valid email." 
+          isInvalid={!!errors.email} 
+          isRequired={true} 
+          type="email" 
+          value={formData.email} 
+          onChange={handleEmailOnChange} 
         />
-        {errors.email && (
-          <span className="text-red-500">Please provide an email</span>
-        )}
       </div>
 
       <div className="mb-6">
         <label htmlFor="password">Password</label>
-        <Input
-          required
-          id="password"
-          type="password"
-          value={formData.password}
-          onChange={handlePasswordOnChange}
+        <Input 
+          errorMessage="Password is required." 
+          isInvalid={!!errors.password}
+          isRequired={true} 
+          type="password" 
+          value={formData.password} 
+          onChange={handlePasswordOnChange} 
         />
-        {errors.password && (
-          <span className="text-red-500">Please provide a password</span>
-        )}
       </div>
 
       <Button
