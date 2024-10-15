@@ -11,9 +11,6 @@ import { WebSocketContext } from "@/contexts/websocketcontext";
 
 export default function ProfilePage(): JSX.Element {
   const matcher = useContext(WebSocketContext)! // ! is a null-check
-  if (matcher.state == "matching") {
-    
-  }
   let button;
   switch (matcher.state) {
     case "closed":
@@ -29,9 +26,9 @@ export default function ProfilePage(): JSX.Element {
       button = <Button loading>{matcher.state}</Button>
       break;
       
-    case "ready":
-      button = <Button disabled>Ok</Button>
-      break;
+    // case "ready":
+    //   button = <Button disabled>Ok</Button>
+    //   break;
   }
   
 
@@ -40,6 +37,7 @@ export default function ProfilePage(): JSX.Element {
       <Header selectedKey={["0"]} />
         <Content className="content">
           {button}
+          {"found" in matcher && <Button onClick={matcher.ok}>Found: {matcher.found}</Button>}
           <p>{matcher.state.toUpperCase()}</p>
         </Content>
     </Layout>

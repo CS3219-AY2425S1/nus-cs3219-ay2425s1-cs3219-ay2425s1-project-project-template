@@ -8,11 +8,14 @@ export type SocketState = {
 } | {
     state: "matching";
     cancel(): void;
-} | {
-    state: "ready";
-    id: string;
+};
+
+export type FoundState = {} | {
+    found: string;
     ok(): void;
 };
 
-export const WebSocketContext = createContext<SocketState | null>(null);
+type MatchState = SocketState & FoundState;
+
+export const WebSocketContext = createContext<MatchState | null>(null);
 

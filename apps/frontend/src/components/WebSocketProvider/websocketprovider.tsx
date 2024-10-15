@@ -1,7 +1,7 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
-import { type SocketState, WebSocketContext } from "@/contexts/websocketcontext";
+import { type FoundState, type SocketState, WebSocketContext } from "@/contexts/websocketcontext";
 import useWebSocket, { ReadyState } from "react-use-websocket"
 const MATCHING_SERVICE_URL = process.env.NEXT_PUBLIC_MATCHING_SERVICE_URL;
 
@@ -11,33 +11,46 @@ if (MATCHING_SERVICE_URL == undefined) {
 
 export default function WebSocketProvider({children}: {children: ReactNode}) {
     const [open, setOpen] = useState(false)
+    const [found, setFound] = useState<FoundState>({})
     const { readyState: socketState, lastMessage, sendMessage } = useWebSocket(MATCHING_SERVICE_URL as string, {}, open);
+    
     function cancel() {
         setOpen(false)
     }
-
     function start() {
         setOpen(true)
+        sendMessage("do match");
+    }
+    function ok() {
+        setFound({});
     }
     
-    let ret: SocketState;
+    // Acts as a message event hook 
+    useEffect(() => {
+        if (lastMessage == null) {
+            return;
+        }
+        setFound({found: lastMessage.data, ok })
+    }, [lastMessage])
+    
+    let matchState: SocketState;
     switch (socketState) {
         case ReadyState.CLOSED:
         case ReadyState.UNINSTANTIATED:
-            ret = {state: "closed", start}
+            matchState = {state: "closed", start}
             break;
         case ReadyState.OPEN:
-            ret = {state: "matching", cancel}
+            matchState = {state: "matching", cancel}
             break;
         case ReadyState.CONNECTING:
-            ret = {state: "starting"}
+            matchState = {state: "starting"}
             break;
         case ReadyState.CLOSING:
-            ret = {state: "cancelling"}
+            matchState = {state: "cancelling"}
             break;
     }
 
-    return <WebSocketContext.Provider value={ret}>
+    return <WebSocketContext.Provider value={{...found, ...matchState}}>
         {children}
     </WebSocketContext.Provider>
 }
