@@ -40,40 +40,40 @@ export interface IQueue {
 }
 
 export class Queue implements IQueue {
-  // private producer: ProducerFactory;
-  // private consumer: ConsumerFactory;
-  // private offsetMap: Map<string, string>;
+  private producer: ProducerFactory;
+  private consumer: ConsumerFactory;
+  private offsetMap: Map<string, string>;
 
-  // Temporary for testing matcher
-  private queue: IMatchRequest[] = [];
+  // // Temporary for testing matcher
+  // private queue: IMatchRequest[] = [];
 
   constructor() {
     // Setup connection to Kafka if using Kafka
-    // const kafka = new Kafka({
-    //   clientId: "match-queue",
-    //   brokers: [
-    //     `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
-    //   ],
-    // });
-    // // Setup producer and consumer
-    // this.producer = new ProducerFactory(kafka, "match-queue");
-    // this.consumer = new ConsumerFactory(
-    //   processMessage,
-    //   "match-group",
-    //   kafka,
-    //   "match-queue"
-    // );
-    // this.offsetMap = new Map();
-    // this.producer.start();
-    // this.consumer.start();
+    const kafka = new Kafka({
+      clientId: "match-queue",
+      brokers: [
+        `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
+      ],
+    });
+    // Setup producer and consumer
+    this.producer = new ProducerFactory(kafka, "match-queue");
+    this.consumer = new ConsumerFactory(
+      processMessage,
+      "match-group",
+      kafka,
+      "match-queue"
+    );
+    this.offsetMap = new Map();
+    this.producer.start();
+    this.consumer.start();
   }
 
   public async add(request: IMatchRequest): Promise<IMatchResponse> {
     // add to queue, then return success message
-    // this.producer.sendBatch([request]);
+    this.producer.sendBatch([request]);
 
-    // Temporary for testing matcher
-    this.queue.push(request);
+    // // Temporary for testing matcher
+    // this.queue.push(request);
 
     return {
       success: true,
@@ -84,32 +84,32 @@ export class Queue implements IQueue {
     request: IMatchCancelRequest
   ): Promise<IMatchCancelResponse> {
     // remove from queue, then return success message
-    // const offset = this.offsetMap.get(request.username);
-    // var success = false;
+    const offset = this.offsetMap.get(request.username);
+    var success = false;
 
-    // if (offset != undefined) {
-    //   success = true;
-    //   this.consumer.commit(offset);
-    //   this.offsetMap.delete(request.username);
-    // }
-
-    // return {
-    //   success: success,
-    // };
-
-    // Temporary for testing matcher
-    this.queue = this.queue.filter((req) => req.username !== request.username);
+    if (offset != undefined) {
+      success = true;
+      this.consumer.commit(offset);
+      this.offsetMap.delete(request.username);
+    }
 
     return {
-      success: true,
+      success: success,
     };
+
+    // // Temporary for testing matcher
+    // this.queue = this.queue.filter((req) => req.username !== request.username);
+
+    // return {
+    //   success: true,
+    // };
   }
 
   public async getRequests(): Promise<IMatchRequest[]> {
-    // // return all requests in the queue
-    // return [];
+    // return all requests in the queue
+    return [];
 
-    // Temporary for testing matcher
-    return [...this.queue];
+    // // Temporary for testing matcher
+    // return [...this.queue];
   }
 }

@@ -47,6 +47,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     ports:
       - ${USER_SERVICE_PORT}:${USER_SERVICE_PORT}
+    depends_on:
+      - matching-service
 
   question-service:
     build:
@@ -70,24 +72,35 @@ services:
       - /app/node_modules # This prevents the host's node_modules from overwriting the container's
     environment:
       - MATCHING_SERVICE_PORT=${MATCHING_SERVICE_PORT}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
       - USER_SERVICE_PORT=${USER_SERVICE_PORT}
       - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
+      - KAFKA_BROKER_PORT=${KAFKA_BROKER_PORT}
+      - KAFKA_CONTROLLER_PORT=${KAFKA_CONTROLLER_PORT}
       - JWT_SECRET=${JWT_SECRET}
       - GATEWAY_SERVICE_ROUTE=gateway-service
-      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      - USER_SERVICE_ROUTE=user-service
+      - QUESTION_SERVICE_ROUTE=question-service
+      - KAFKA_BROKER_ROUTE=kafka-service
+      - KAFKA_CONTROLLER_ROUTE=kafka-service
     ports:
       - ${MATCHING_SERVICE_PORT}:${MATCHING_SERVICE_PORT}
+    depends_on:
+      kafka-service:
+        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
 
-  kafka_service:
+  kafka-service:
     image: apache/kafka:latest
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker, controller
-      KAFKA_LISTENERS: PLAINTEXT://${KAFKA_BROKER_ROUTE}:${KAFKA_BROKER_PORT},CONTROLLER://${KAFKA_BROKER_ROUTE}:${KAFKA_CONTROLLER_PORT}
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_BROKER_ROUTE}:${KAFKA_BROKER_PORT}
+      KAFKA_LISTENERS: PLAINTEXT://:${KAFKA_BROKER_PORT},CONTROLLER://:${KAFKA_CONTROLLER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-service:${KAFKA_BROKER_PORT}
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@${KAFKA_BROKER_ROUTE}:${KAFKA_CONTROLLER_PORT}
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-service:${KAFKA_CONTROLLER_PORT}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -95,3 +108,21 @@ services:
       KAFKA_NUM_PARTITIONS: ${KAFKA_NUM_PARTITIONS}
     ports:
       - "${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}"
+
+  # This is just for initialising the kafka topics
+  kafka-init:
+    image: apache/kafka:latest
+    depends_on:
+      - kafka-service
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      # blocks until kafka is reachable
+      ./opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-service:9092 --list
+
+      echo -e 'Creating kafka topics'
+      ./opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-service:9092 --create --if-not-exists --topic match-queue --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      ./opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-service:9092 --list
+      "
