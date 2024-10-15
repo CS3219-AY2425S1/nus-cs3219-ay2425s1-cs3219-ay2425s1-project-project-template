@@ -1,7 +1,7 @@
-import CodeSnippet from "@/app/home/components/code-snippet/CodeSnippetHighlight";
+import CodeSnippet from "@/app/(home)/components/code-snippet/CodeSnippetHighlight";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import GoogleIcon from "@/app/home/components/icon/GoogleIcon";
+import GoogleIcon from "@/app/(home)/components/icon/GoogleIcon";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ const LandingPage = () => {
     const googleLogin = useGoogleLogin({
         onSuccess: (response) => {
             login(response);
-            router.push("/"); // Redirect to dashboard after successful login
+            router.push("/leetcode-dashboard"); // Redirect to dashboard after successful login
         },
         onError: (error) => {
             console.error("Login Failed:", error);
@@ -24,7 +24,7 @@ const LandingPage = () => {
     // Trigger OAuth pop up only if user is not authenticated (token is not present)
     const handleLogin = () => {
         if (token) {
-            router.push("/");
+            router.push("/leetcode-dashboard");
         } else {
             googleLogin();
         }
