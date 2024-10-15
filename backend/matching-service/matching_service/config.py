@@ -16,8 +16,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
-from .common import Difficulty
-
 load_dotenv()
 this_file = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(this_file, os.pardir))
@@ -26,7 +24,8 @@ ENV_PATH = Path(PROJECT_ROOT) / ".env"
 
 class Settings(BaseSettings):
     # Env vars
-    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
     ORIGINS: list[str] = ["http://localhost", "http://localhost:3000"]
 
     # Match expiry
@@ -43,15 +42,10 @@ settings = Settings()
 
 class RedisSettings:
     class Channels(Enum):
-        EASY: str = "easy_chan"
-        MED: str = "med_chan"
-        HARD: str = "hard_chan"
+        REQUESTS: str = "requests"
         MATCHES: str = "matches"
 
-    db_map = {Difficulty.Easy: 0, Difficulty.Medium: 1, Difficulty.Hard: 2, Channels.MATCHES: 3}
+    db_map = {e.value: i for i, e in enumerate(Channels)}
 
-    @staticmethod
-    def redis_url(db: Difficulty | Channels) -> str:
-        if db not in RedisSettings.db_map:
-            raise ValueError("No such Redis DB")
-        return f"{settings.REDIS_URL}/{RedisSettings.db_map[db]}"
+    def redis_url(chan: Channels) -> str:
+        return f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{RedisSettings.db_map[chan.value]}"

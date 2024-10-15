@@ -1,64 +1,85 @@
 import json
 import time
+from threading import Event
 
-import redis
+from pydantic import ValidationError
+from redis import Redis
+from structlog import get_logger
 
-redis_client = redis.Redis(host="localhost", port=6379, db=0)
+from matching_service.common import MatchRequest
+from matching_service.config import RedisSettings
 
-
-class User:
-    def __init__(self, user_id: int, difficulty: str):
-        self.user_id = user_id
-        self.difficulty = difficulty
-
-
-def request_match(user: User):
-    channel = f"matchmaking_{user.difficulty}"  # e.g., matchmaking_easy
-    message = json.dumps({"user_id": user.user_id, "difficulty": user.difficulty})
-    redis_client.publish(channel, message)
-    print(f"User {user.user_id} requested match on {channel}")
+logger = get_logger()
 
 
-def matchmaking_service(difficulty: str):
-    pubsub = redis_client.pubsub()
-    channel = f"matchmaking_{difficulty}"
-    pubsub.subscribe(channel)
-    print(f"Subscribed to {channel} for matchmaking...")
+"""
+TODO
+- Use Redis `SortedSet` instead of `List`
+- Write to `MATCHES` channel instead of just logging results
+- Run process in background that removes stale matches
+"""
 
-    while True:
-        message = pubsub.get_message()
-        if message and message["type"] == "message":
-            user_data = json.loads(message["data"])
-            user_id = user_data["user_id"]
-            print(f"💬 Received matchmaking request from User {user_id} for {difficulty}")
 
-            unmatched_key = f"unmatched_{difficulty}"
-            unmatched_users = redis_client.lrange(unmatched_key, 0, -1)
+class Matchmaker:
+    def __init__(self):
+        self.channel = RedisSettings.Channels.REQUESTS
+        self.client: Redis = Redis.from_url(RedisSettings.redis_url(self.channel))
 
-            if unmatched_users:
-                other_user = redis_client.lpop(unmatched_key).decode("utf-8")
-                print(f"✅ Matched Users: {user_id} and {other_user} for {difficulty}!")
-            else:
-                redis_client.rpush(unmatched_key, user_id)
-                print(f"⏳ User {user_id} added to the unmatched pool for {difficulty}")
-        time.sleep(0.1)
+        self.pubsub = self.client.pubsub()
+
+        self._stop_event = Event()
+        logger.info(f"MATCHMAKER: connected to {self.client.get_connection_kwargs()}")
+
+    def run(self):
+        self.pubsub.subscribe(self.channel.value)
+        while not self._stop_event.is_set():
+            message = self.pubsub.get_message()
+            if message and message["type"] == "message":
+                logger.info("MATCHMAKER: Received match request")
+                user_data = json.loads(message["data"])
+
+                try:
+                    req = MatchRequest(**user_data)
+                except ValidationError as e:
+                    logger.warn(f"\tUnrecognised request format discarded: {e}")
+                    continue
+
+                logger.info(f"\t💬 Received matchmaking request from User {req.user} for {req.get_key()}")
+
+                unmatched_key = req.get_key()
+                # self.client.zrangebyscore
+                unmatched_users = self.client.lrange(unmatched_key, 0, -1)
+
+                if unmatched_users:
+                    # self.client.zpopmin
+                    other_user = self.client.lpop(unmatched_key).decode("utf-8")
+                    logger.info(f"\t✅ Matched Users: {req.user} and {other_user} for {unmatched_key}!")
+                else:
+                    # self.client.zadd, name="Easy:dp", score=req.timestamp, value=req.user
+                    self.client.rpush(unmatched_key, req.user)
+                    logger.info(f"\t⏳ User {req.user} added to the unmatched pool for {unmatched_key}")
+            time.sleep(0.1)
+
+    def stop(self):
+        """
+        `stop` is used if Matchmaker is run in the background as a thread
+        e.g
+        - tests
+        - matchmaking-service needs to run both api server and matchmaker in a single container (not recommended)
+        """
+        self._stop_event.set()
+        self.pubsub.unsubscribe()
+        self.pubsub.close()
+        self.client.close()
+
+
+def request_match(publisher: Redis, user: MatchRequest):
+    channel = RedisSettings.Channels.REQUESTS.value
+    publisher.publish(channel, user.model_dump_json())
+    logger.info(f"CLIENT: User {user.user} requested match for {user.topic}, {user.difficulty}")
 
 
 if __name__ == "__main__":
-    user1 = User(user_id="user1", difficulty="easy")
-    user2 = User(user_id="user2", difficulty="easy")
-    user3 = User(user_id="user3", difficulty="medium")
-
-    from threading import Thread
-
-    easy_thread = Thread(target=matchmaking_service, args=("easy",))
-    medium_thread = Thread(target=matchmaking_service, args=("medium",))
-    easy_thread.start()
-    medium_thread.start()
-
-    time.sleep(1)  # Give time for the service to start
-    request_match(user1)
-    time.sleep(2)
-    request_match(user2)
-    time.sleep(2)
-    request_match(user3)
+    logger.info("🤖 Matchmaker started!")
+    matchmaker = Matchmaker()
+    matchmaker.run()
