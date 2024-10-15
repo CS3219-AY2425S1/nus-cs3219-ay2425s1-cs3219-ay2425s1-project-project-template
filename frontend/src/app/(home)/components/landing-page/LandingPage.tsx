@@ -5,7 +5,6 @@ import GoogleIcon from "@/app/(home)/components/icon/GoogleIcon";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 const LandingPage = () => {
     const { login, token } = useAuth();
@@ -14,7 +13,7 @@ const LandingPage = () => {
     const googleLogin = useGoogleLogin({
         onSuccess: (response) => {
             login(response);
-            router.push("/leetcode-dashboard"); // Redirect to dashboard after successful login
+            //router.push("/leetcode-dashboard"); // Redirect to dashboard after successful login
         },
         onError: (error) => {
             console.error("Login Failed:", error);

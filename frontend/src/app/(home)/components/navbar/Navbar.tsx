@@ -11,7 +11,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex space-x-6">
-            <Link href="/home" className={`text-primary-300 hover:underline ${isActive("/home") ? "opacity-100" : "opacity-50 hover:opacity-100"}`}>
+            <Link href="/home" className={`text-primary-300 hover:underline ${isActive("/") ? "opacity-100" : "opacity-50 hover:opacity-100"}`}>
             Home
             </Link>
             <Link href="" className={`text-primary-300 hover:underline ${isActive("/about") ? "opacity-100" : "opacity-50 hover:opacity-100"}`}>
