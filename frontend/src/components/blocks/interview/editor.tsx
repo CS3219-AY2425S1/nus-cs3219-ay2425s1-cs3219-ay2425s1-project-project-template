@@ -29,7 +29,7 @@ export const Editor = ({ room }: EditorProps) => {
   const { height } = useWindowSize();
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<LanguageName>('python');
-  const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
+  const [theme, setTheme] = useState<IEditorTheme>('darcula');
   return (
     <div className='flex flex-col gap-4 p-4'>
       <div className='flex gap-4'>
@@ -77,6 +77,10 @@ export const Editor = ({ room }: EditorProps) => {
           theme={getTheme(theme)}
           extensions={extensions}
           lang={language}
+          basicSetup={{
+            tabSize: language === 'python' ? 4 : 2,
+            indentOnInput: true,
+          }}
         />
       </div>
     </div>
