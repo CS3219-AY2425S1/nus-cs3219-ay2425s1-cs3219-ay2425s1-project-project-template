@@ -1,10 +1,6 @@
 import dotenv from "dotenv";
 import { Kafka } from "kafkajs";
-import processMessage, {
-  ProducerFactory,
-  ConsumerFactory,
-  KafkaRequest,
-} from "./kafka";
+import { KafkaRequest, ProducerFactory, ConsumerFactory } from "./kafka";
 
 dotenv.config();
 
@@ -40,40 +36,29 @@ export interface IQueue {
 }
 
 export class Queue implements IQueue {
-  // private producer: ProducerFactory;
-  // private consumer: ConsumerFactory;
-  // private offsetMap: Map<string, string>;
-
-  // Temporary for testing matcher
-  private queue: IMatchRequest[] = [];
+  private producer: ProducerFactory;
+  private consumer: ConsumerFactory;
+  private offsetMap: Map<string, string>;
 
   constructor() {
     // Setup connection to Kafka if using Kafka
-    // const kafka = new Kafka({
-    //   clientId: "match-queue",
-    //   brokers: [
-    //     `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
-    //   ],
-    // });
-    // // Setup producer and consumer
-    // this.producer = new ProducerFactory(kafka, "match-queue");
-    // this.consumer = new ConsumerFactory(
-    //   processMessage,
-    //   "match-group",
-    //   kafka,
-    //   "match-queue"
-    // );
-    // this.offsetMap = new Map();
-    // this.producer.start();
-    // this.consumer.start();
+    const kafka = new Kafka({
+      clientId: "match-queue",
+      brokers: [
+        // `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
+        "broker:19092",
+      ],
+    });
+    // Setup producer and consumer
+    this.producer = new ProducerFactory(kafka, "match-queue");
+    this.consumer = new ConsumerFactory("match-group", kafka, "match-queue");
+    this.offsetMap = new Map();
+    this.producer.start();
   }
 
   public async add(request: IMatchRequest): Promise<IMatchResponse> {
     // add to queue, then return success message
-    // this.producer.sendBatch([request]);
-
-    // Temporary for testing matcher
-    this.queue.push(request);
+    this.producer.sendMessage(request);
 
     return {
       success: true,
@@ -84,32 +69,26 @@ export class Queue implements IQueue {
     request: IMatchCancelRequest
   ): Promise<IMatchCancelResponse> {
     // remove from queue, then return success message
-    // const offset = this.offsetMap.get(request.username);
-    // var success = false;
+    const offset = this.offsetMap.get(request.username);
+    var success = false;
 
-    // if (offset != undefined) {
-    //   success = true;
-    //   this.consumer.commit(offset);
-    //   this.offsetMap.delete(request.username);
-    // }
-
-    // return {
-    //   success: success,
-    // };
-
-    // Temporary for testing matcher
-    this.queue = this.queue.filter((req) => req.username !== request.username);
+    if (offset != undefined) {
+      success = true;
+      this.consumer.commit(offset);
+      this.offsetMap.delete(request.username);
+    }
 
     return {
-      success: true,
+      success: success,
     };
   }
 
   public async getRequests(): Promise<IMatchRequest[]> {
-    // // return all requests in the queue
-    // return [];
+    // return all requests in the queue
+    const messages = await this.consumer.getMessages();
 
-    // Temporary for testing matcher
-    return [...this.queue];
+    return messages.map((message) =>
+      JSON.parse(message.value?.toString() ?? "")
+    );
   }
 }
