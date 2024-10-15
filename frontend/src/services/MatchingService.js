@@ -1,10 +1,13 @@
 import { createAxiosInstance } from "./Api";
 import { io } from 'socket.io-client';
 
+const matchingServiceBaseURL = import.meta.env.VITE_MATCHING_SERVICE_BASEURL;
+const matchingApi = createAxiosInstance(matchingServiceBaseURL);
+
 class MatchingService {
   constructor() {
     this.socket = null;
-    this.url = import.meta.env.VITE_MATCHING_SERVICE_URL || 3003; // Ensure you set this in your environment variables
+    this.url = 'http://localhost:3003'; // Ensure you set this in your environment variables
   }
 
   // Initialize the Socket.IO connection
