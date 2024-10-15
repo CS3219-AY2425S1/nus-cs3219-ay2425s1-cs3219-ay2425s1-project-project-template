@@ -13,7 +13,7 @@ const port = process.env.PORT || 3003;
 const httpServer = createServer();
 export const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:3000', // Allow requests from this origin
+    origin: ['http://localhost:3000', 'http://localhost:6000', 'http://localhost:6001', 'http://localhost:6002', 'http://localhost:6003'], // Allow requests from this origin
     methods: ['GET', 'POST'], // Allowed methods
     allowedHeaders: ['my-custom-header'], // Allowed headers if needed
     credentials: true, // Allow credentials
