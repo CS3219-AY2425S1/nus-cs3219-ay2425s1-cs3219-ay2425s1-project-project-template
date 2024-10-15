@@ -10,13 +10,37 @@ import { useContext } from "react";
 import { WebSocketContext } from "@/contexts/websocketcontext";
 
 export default function ProfilePage(): JSX.Element {
-  const {open, toggle} = useContext(WebSocketContext)! // ! is a null-check
+  const matcher = useContext(WebSocketContext)! // ! is a null-check
+  if (matcher.state == "matching") {
+    
+  }
+  let button;
+  switch (matcher.state) {
+    case "closed":
+      button = <Button onClick={matcher.start}>Start Match</Button>
+      break;
+
+    case "matching":
+      button = <Button onClick={matcher.cancel}>Stop Match</Button>
+      break;
+
+    case "cancelling":
+    case "starting":
+      button = <Button loading>{matcher.state}</Button>
+      break;
+      
+    case "ready":
+      button = <Button disabled>Ok</Button>
+      break;
+  }
+  
+
   return (
     <Layout className="layout">
       <Header selectedKey={["0"]} />
         <Content className="content">
-          <Button onClick={toggle}>Toggle me</Button>
-          <p>{open ? "OPEN" : "CLOSE"}</p>
+          {button}
+          <p>{matcher.state.toUpperCase()}</p>
         </Content>
     </Layout>
   )
