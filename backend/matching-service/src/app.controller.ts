@@ -1,5 +1,4 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { AppService } from './app.service';
 import { Consumer, Kafka, Producer } from 'kafkajs';
 import { ApiResponse } from '@nestjs/swagger';
 import { MatchingService } from './services/matching.services';
@@ -13,7 +12,7 @@ export class AppController {
   private readonly producer: Producer;
   private readonly consumer: Consumer;
 
-  constructor(private readonly appService: AppService) {
+  constructor(private readonly appService: MatchingService) {
     this.kafkaBrokerUri = this.appService.getKafkaBrokerUri();
     this.consumerGroupId = this.appService.getConsumerGroupId();
 

@@ -7,8 +7,12 @@ import { MatchRequestDto } from 'src/dto/request.dto';
 export class MatchingService {
     constructor(private configService: ConfigService) {}
 
-    getKafkaBrokerId(): string {
-      return this.configService.get<string>('config.kafkaBrokerId');
+    getKafkaBrokerUri(): string {
+      return this.configService.get<string>('config.kafkaBrokerUri');
+    }
+  
+    getConsumerGroupId(): string {
+      return this.configService.get<string>('config.consumerGroupId');
     }
 
     addMatchRequest(req: MatchRequestDto) {
