@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
-import { MatchingService } from './services/matching.services';
+import { MatchingService } from './services/matching.service';
 import { MatchRequestDto, MatchResponse } from './dto/request.dto';
 
 @Controller()
