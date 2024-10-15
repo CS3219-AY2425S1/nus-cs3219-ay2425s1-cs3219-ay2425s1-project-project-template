@@ -6,11 +6,13 @@ import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import MatchingService from "./pages/MatchingService.jsx";
+import Settings from "./pages/Settings.jsx";
+import Help from "./pages/Help.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <App />,
     errorElement: <ErrorPage />,
   },
   {
@@ -21,6 +23,16 @@ const router = createBrowserRouter([
   {
     path: "/matching-service",
     element: <MatchingService />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/settings",
+    element: <Settings />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/help",
+    element: <Help/>,
     errorElement: <ErrorPage />,
   },
 ]);
