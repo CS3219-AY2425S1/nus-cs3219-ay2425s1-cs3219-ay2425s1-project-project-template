@@ -1,13 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import { Box } from "@chakra-ui/react";
 import "./App.css";
-import QuestionPage from "./pages/Question";
+import QuestionPage from "./pages/QuestionPage";
 import QuestionDetails from "../components/question/QuestionDetails";
 import HomeNavBar from "../components/HomeNavBar";
 import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
 import MockMatch from "./pages/MockMatch/mockMatch";
+import MatchingPage from "./pages/MatchingPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/mock-match" element={<MockMatch />} />
+          <Route path="/match-me" element={<MatchingPage />} />
         </Routes>
       </Box>
     </Box>
