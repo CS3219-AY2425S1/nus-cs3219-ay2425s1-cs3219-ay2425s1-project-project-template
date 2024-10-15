@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MatchMe from "../../components/matchmaking/MatchMe";
 import Countdown from "../../components/matchmaking/Countdown";
@@ -10,6 +10,7 @@ const MatchingPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleMatchMe = () => {
+    // TODO: Make a long-poll API request to `matching-service`
     setStage("countdown");
   };
 
@@ -32,6 +33,28 @@ const MatchingPage: React.FC = () => {
   const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
+
+  const handleMatchStatusReceived = (matchStatus:string) => {
+    if (matchStatus == "isNotMatching") {
+      handleCancel();
+    } else if (matchStatus == "isMatching") {
+      handleMatchMe();
+    } else if (matchStatus == "isMatched") {
+      handleMatchFound();
+    } else {
+      handleCancel();
+    }
+  };
+
+  useEffect(() => {
+    const fetchMatchStatus = async () => {
+      const response = await fetch("http://localhost:3002/match-status");
+      const result = await response.json();
+      const matchStatus = result["matchStatus"];
+      handleMatchStatusReceived(matchStatus);
+    };
+    fetchMatchStatus();
+  }, []);
 
   return (
     <div>

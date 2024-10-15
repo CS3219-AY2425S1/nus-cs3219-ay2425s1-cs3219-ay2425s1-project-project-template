@@ -2,26 +2,19 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.get("/test-a", (req, res) => {
-    res.send("Hello World!");
-});
+router.post('/match-me', async (req, res) => {
+    // TODO: Set matchStatus of this specific user
 
-router.get("/test-b", (req, res) => {
-    res.send("Goodbye World!");
-});
+    // TODO: Wait for the user to be matched
 
-/**
- * The frontend should include 3 pieces of information:
- * 1. The user's ID (or some form of identification)
- * 2. The selected question topic
- * 3. The selected question difficulty
- * 
- * The method is asynchronous (non-blocking).
- * It will return a response to the frontend to say that
- * the matching request is being processed.
- */
-router.post('/match-user', async (req, res) => {
-    console.log("Request received", req.body);
+    // TODO: Return match found information
+
+})
+
+router.get('/match-status', async (req, res) => {
+    res.json({
+        matchStatus: "isNotMatching" // [isNotMatching, isMatching, isMatched]
+    })
 })
 
 export default router;

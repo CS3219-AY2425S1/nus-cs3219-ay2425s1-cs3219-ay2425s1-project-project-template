@@ -49,17 +49,17 @@ services:
     ports:
       - 27018:27017
 
-#   matching-service:
-#     build: ./matching-service
-#     ports:
-#       - 3002:3002
-#     depends_on:
-#       - user-service
-#       # - question-service # maybe to retrieve information on the questions difficulties/topics
-#     volumes:
-#       - ./matching-service:/app
-#       - /app/node_modules
-# 
+  matching-service:
+    build: ./matching-service
+    ports:
+      - 3002:3002
+    depends_on:
+      - user-service
+      # - question-service # maybe to retrieve information on the questions difficulties/topics
+    volumes:
+      - ./matching-service:/app
+      - /app/node_modules
+
 
 volumes:
   user-db-data:
