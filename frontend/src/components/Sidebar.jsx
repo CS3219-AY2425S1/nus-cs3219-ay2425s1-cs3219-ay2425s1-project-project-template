@@ -8,7 +8,7 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState(location.pathname);
 
   const menuItems = [
-    { icon: Home, label: "Home", href: "/" },
+    { icon: Home, label: "Home", href: "/dashboard" },
     { icon: Users, label: "Matching Service", href: "/matching-service" },
     { icon: Settings, label: "Settings", href: "/settings" },
     { icon: HelpCircle, label: "Help", href: "/help" },

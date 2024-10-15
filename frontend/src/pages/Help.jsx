@@ -1,12 +1,12 @@
 import React from 'react'
 import PeerPrep from './PeerPrep'
 
-const Settings = () => {
+const Help = () => {
   return (
     <PeerPrep>
-        Settings
+        Help
     </PeerPrep>
   )
 }
 
-export default Settings
+export default Help

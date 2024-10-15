@@ -5,8 +5,9 @@ import Header from "../components/Header";
 import Questions from "../components/Questions";
 import ProgressOverview from "../components/ProgressOverview";
 import Welcome from "../components/Welcome";
-import History from "../components/History"
+import History from "../components/History";
 import { ToastContainer } from "react-toastify";
+import PeerPrep from "./PeerPrep";
 
 const peerSessions = [
   {
@@ -37,39 +38,25 @@ const suggestedQuestion = {
   category: "Data Structures",
 };
 
-const firstname = "Jared"
-const lastname = "Wong"
-const fullname = firstname + " " + lastname
-const username = "wongjared"
+const firstname = "Jared";
+const lastname = "Wong";
+const fullname = firstname + " " + lastname;
+const username = "wongjared";
 
 export default function Dashboard() {
   return (
-    <div className="max-h-screen">
-      <ToastContainer />
-      <div className="flex h-screen flex-col overflow-hidden">
-        <header className="sticky top-0 z-10 w-full">
-          <Header name={fullname} username={username}/>
-        </header>
-        <div className="flex flex-1 overflow-hidden">
-          <aside className="sticky top-0 h-full">
-            <Sidebar />
-          </aside>
-
-          {/* Main content - Scrollable */}
-          <main className="flex-1 overflow-auto rounded-3xl px-6 py-4">
-            <div className="flex space-x-5">
-              <Welcome username={firstname} suggestedQuestion={suggestedQuestion} />
-              <ProgressOverview />
-            </div>
-            <div className="mt-5 flex space-x-5">
-              <Questions />
-              <History sessions={peerSessions} />
-              <Calendar />
-            </div>
-          </main>
+    <PeerPrep>
+      <main className="flex-1 overflow-auto rounded-3xl">
+        <div className="flex space-x-5">
+          <Welcome username={firstname} suggestedQuestion={suggestedQuestion} />
+          <ProgressOverview />
         </div>
-      </div>
-    </div>
+        <div className="mt-5 flex space-x-5">
+          <Questions />
+          <History sessions={peerSessions} />
+          <Calendar />
+        </div>
+      </main>
+    </PeerPrep>
   );
 }
-
