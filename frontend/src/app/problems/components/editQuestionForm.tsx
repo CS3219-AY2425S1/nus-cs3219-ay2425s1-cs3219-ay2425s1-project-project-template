@@ -95,7 +95,8 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         fetchData();
       }, []);
 
-      const { isDirty } = form.formState;
+      const { isDirty, dirtyFields } = form.formState;
+      const getValues = () => form.getValues();
 
       // to update if we want to include more categories
       const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser"]
@@ -123,15 +124,33 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
               return;
             }
 
-            if (values.categories) {
-              values.categories.sort();
+            const updatedFields: any = {}
+
+            if (dirtyFields.title) {
+              updatedFields.title = values.title;
             }
+
+            if (dirtyFields.description) {
+              updatedFields.description = values.description;
+            }
+
+            if (dirtyFields.categories) {
+              values.categories.sort();
+              updatedFields.categories = values.categories;
+            }
+
+            if (dirtyFields.difficulty) {
+              updatedFields.difficulty = values.difficulty;
+            }
+
+            console.log('updatedFields', updatedFields);
+            
             const response = await fetch(`http://localhost:5001/edit-question/${questionId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(values)
+                body: JSON.stringify(updatedFields)
             });
 
             if (response.ok) {
