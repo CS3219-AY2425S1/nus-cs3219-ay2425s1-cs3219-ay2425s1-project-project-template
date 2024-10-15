@@ -20,6 +20,8 @@ export class Matcher {
     this.queue.getRequests().then((requests) => {
       console.log("Removing expired requests...");
       // Remove expired requests
+
+      console.log(requests);
       const { expired, valid } = this.checkExpiredRequests(requests);
 
       console.log("Notifying expired requests...");
