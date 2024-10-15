@@ -1,12 +1,12 @@
-import { Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import type { LanguageName } from '@uiw/codemirror-extensions-langs';
+import type { Extension, ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { yCollab } from 'y-codemirror.next';
-import * as Y from 'yjs';
 import { SocketIOProvider } from 'y-socket.io';
+import * as Y from 'yjs';
 
-import { COLLAB_SERVICE } from '@/services/api-clients';
 import { extensions as baseExtensions, getLanguage } from '@/lib/editor/extensions';
-import { LanguageName } from '@uiw/codemirror-extensions-langs';
+import { COLLAB_SERVICE } from '@/services/api-clients';
 
 // credit: https://github.com/yjs/y-websocket
 const usercolors = [
@@ -42,7 +42,7 @@ export const useCollab = (roomId: string) => {
         provider = new SocketIOProvider(COLLAB_SERVICE, roomId, doc, {});
       } catch (err) {
         const { name, message } = err as Error;
-        console.log(
+        console.error(
           `An error occurred connecting to the Collab Server: ${JSON.stringify({ name, message })}`
         );
         return;
@@ -51,11 +51,14 @@ export const useCollab = (roomId: string) => {
       const undoManager = new Y.UndoManager(ytext);
       const awareness = provider.awareness;
       const { color, light } = getRandomColor();
+
+      // TODO: Get user name
       awareness.setLocalStateField('user', {
         name: `Anon`,
         color: color,
         colorLight: light,
       });
+
       const collabExt = yCollab(ytext, awareness, { undoManager });
       setCode(ytext.toString());
       setExtensions([...extensions, collabExt]);

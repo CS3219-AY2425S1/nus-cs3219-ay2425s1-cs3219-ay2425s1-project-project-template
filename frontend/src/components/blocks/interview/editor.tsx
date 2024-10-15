@@ -23,7 +23,7 @@ type EditorProps = {
 
 export const Editor = ({ room }: EditorProps) => {
   const { height } = useWindowSize();
-  const [theme, setTheme] = useState<IEditorTheme>('darcula');
+  const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
   const { editorRef, extensions, language, setLanguage, code, setCode } = useCollab(room);
   const themePreset = useMemo(() => {
     return getTheme(theme);

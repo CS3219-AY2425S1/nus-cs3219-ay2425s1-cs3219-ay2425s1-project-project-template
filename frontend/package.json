@@ -9,6 +9,7 @@
     "preview": "vite preview --port 5173 --host 0.0.0.0"
   },
   "dependencies": {
+    "@codemirror/view": "^6.34.1",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",

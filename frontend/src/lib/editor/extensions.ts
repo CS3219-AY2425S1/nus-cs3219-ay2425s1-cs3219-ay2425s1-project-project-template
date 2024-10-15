@@ -1,7 +1,7 @@
 import { langs, LanguageName, loadLanguage } from '@uiw/codemirror-extensions-langs';
 import * as themes from '@uiw/codemirror-themes-all';
 import { Extension } from '@uiw/react-codemirror';
-import { keymap } from '@codemirror/view';
+import { EditorView, keymap } from '@codemirror/view';
 import { vscodeKeymap } from '@replit/codemirror-vscode-keymap';
 
 export const languages = [
@@ -72,4 +72,4 @@ export const getTheme = (theme: IEditorTheme) => {
   return themes[theme as keyof typeof themes] as Extension;
 };
 
-export const extensions = [keymap.of(vscodeKeymap)];
+export const extensions = [keymap.of(vscodeKeymap), EditorView.lineWrapping];

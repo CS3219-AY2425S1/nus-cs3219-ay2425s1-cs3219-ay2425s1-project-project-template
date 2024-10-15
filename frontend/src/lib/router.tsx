@@ -8,7 +8,7 @@ import { ForgotPassword } from '@/routes/forgot-password';
 import { HomePage } from '@/routes/home';
 import { InterviewRoom, loader as interviewRoomLoader } from '@/routes/interview/[room]';
 import { Login } from '@/routes/login';
-import { QuestionDetails, loader as questionDetailsLoader } from '@/routes/questions/details';
+import { QuestionDetailsPage, loader as questionDetailsLoader } from '@/routes/questions/details';
 import { Questions, loader as questionsLoader } from '@/routes/questions/main';
 import { SignUp } from '@/routes/signup';
 
@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
               {
                 path: ROUTES.QUESTION_DETAILS,
                 loader: questionDetailsLoader(queryClient),
-                element: <QuestionDetails />,
+                element: <QuestionDetailsPage />,
               },
               {
                 path: ROUTES.INTERVIEW,
