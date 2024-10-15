@@ -36,7 +36,13 @@ router.post(
         });
       }
 
-      const question = { title, description, category, complexity };
+      const question = {
+        title,
+        description,
+        category,
+        complexity,
+        deleted: false,
+      };
       const newQuestion = new Question(question);
       await newQuestion.save();
       return res.status(200).json({
@@ -56,7 +62,7 @@ router.post("/all", async (req: Request, res: Response) => {
   const skip = (pagination - 1) * page_size; // Calculate how many documents to skip
   try {
     const questions = await Question.find(
-      {},
+      { deleted: false },
       {
         questionid: 1,
         title: 1,
@@ -71,7 +77,7 @@ router.post("/all", async (req: Request, res: Response) => {
       .limit(page_size)
       .exec();
 
-    const total = await Question.countDocuments().exec();
+    const total = await Question.countDocuments({ deleted: false }).exec();
     const totalPages = Math.ceil(total / page_size);
     if (totalPages < pagination) pagination = 1;
 
@@ -96,12 +102,22 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   try {
     const question = await Question.findOne(
       { questionid: questionId },
-      { questionid: 1, title: 1, description: 1, complexity: 1, category: 1 }
+      {
+        questionid: 1,
+        title: 1,
+        description: 1,
+        complexity: 1,
+        category: 1,
+        deleted: 1,
+      }
     ).exec();
-    if (!question) {
+    if (!question || question.deleted) {
       return res.status(404).json({ message: "Question not found" });
     }
-    return res.json(question);
+
+    const { deleted, ...responseQuestion } = question.toObject();
+
+    return res.json(responseQuestion);
   } catch (error) {
     return res.status(500).send("Internal server error");
   }
@@ -142,6 +158,21 @@ router.post(
     }
 
     try {
+      const question = await Question.findOne(
+        { questionid: questionId },
+        {
+          questionid: 1,
+          title: 1,
+          description: 1,
+          complexity: 1,
+          category: 1,
+          deleted: 1,
+        }
+      ).exec();
+      if (!question || question.deleted) {
+        return res.status(404).json({ message: "Question not found" });
+      }
+
       const updatedQuestion = await Question.findOneAndUpdate(
         { questionid: questionId },
         { $set: updateData },
@@ -170,9 +201,11 @@ router.post(
 
     const questionId = parseInt(req.params.id);
     try {
-      const deletedQuestion = await Question.findOneAndDelete({
-        questionid: questionId,
-      }).exec();
+      const deletedQuestion = await Question.findOneAndUpdate(
+        { questionid: questionId },
+        { $set: { deleted: true } },
+        { new: true }
+      ).exec();
       return res.json(deletedQuestion);
     } catch (error) {
       //to catch pre-middleware defined error
