@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import MatchingService from "./pages/MatchingService.jsx";
 import Settings from "./pages/Settings.jsx";
 import Help from "./pages/Help.jsx";
+import FindingPeer from "./pages/FindingPeer.jsx";
 
 const router = createBrowserRouter([
   {
@@ -32,7 +33,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/help",
-    element: <Help/>,
+    element: <Help />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/finding-a-peer",
+    element: <FindingPeer />,
     errorElement: <ErrorPage />,
   },
 ]);
