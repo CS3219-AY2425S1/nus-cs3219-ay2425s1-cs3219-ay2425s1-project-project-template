@@ -9,6 +9,11 @@ type UserEntry = {
   matchedWithUserId: string;
 }
 
+type Message = {
+  userId: string;
+  timestamp: number;
+}
+
 @Injectable()
 export class MatchingService implements OnModuleInit {
   private readonly kafkaBrokerUri: string;
@@ -89,20 +94,23 @@ export class MatchingService implements OnModuleInit {
 
   async addMatchRequest(req: MatchRequestDto) {
     var kafkaTopic = `${req.difficulty}-${req.topic}`;
-    var msg = `${req.userId}-${req.timestamp}`;
     console.log("Topic is: ", kafkaTopic);
     // Add message
     await this.producer.send({
       topic: kafkaTopic,
-      messages: [{value: msg}]
+      messages: [{value: JSON.stringify({
+        userId: req.userId,
+        timestamp: req.timestamp
+      })}]
     });
   }
 
   private async consumeMessages() {
     await this.consumer.run({
       eachMessage: async ({ topic, message }) => {
-        const matchRequest = message.value.toString();
-        const matchRequestUserId = matchRequest.split('-')[0];
+        const matchRequestString = message.value.toString();
+        const matchRequest: Message = JSON.parse(matchRequestString);
+        const matchRequestUserId = matchRequest.userId;
 
         // Check if this is a duplicate request
         if (this.userPool[matchRequestUserId]) {
