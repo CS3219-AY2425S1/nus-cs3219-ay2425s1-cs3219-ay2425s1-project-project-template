@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiResponse } from '@nestjs/swagger';
 import { MatchingService } from './services/matching.service';
 import { MatchRequestDto, MatchResponse } from './dto/request.dto';
@@ -6,10 +7,7 @@ import { MatchRequestDto, MatchResponse } from './dto/request.dto';
 @Controller()
 export class AppController {
   
-  constructor(private readonly matchService: MatchingService) {
-    // For testing
-    matchService.testReceiveLoop();
-  }
+  constructor(private readonly matchService: MatchingService) {}
 
   @ApiResponse({ status: 200 })
   @Get('test-send')
@@ -37,9 +35,19 @@ export class AppController {
     }
   }
 
-  // TODO: Implement Kafka consumer
+  @ApiResponse({ status: 200 })
   @Get('check-match')
-  async checkMatch(): Promise<void> {
-
+  async checkMatch(@Query('userId') userId: string, @Res() res: Response) {
+    const match = this.matchService.pollForMatch(userId);
+    if (match && match.matched) {
+      // Once a successful match request is found, remove the user from the pool
+      this.matchService.removeFromUserPool(userId);
+      return res.status(200).json(match);
+    } else if (match) {
+      return res.status(202).json({ message: 'No match found yet', topic: match.topic });
+    } else {
+      return res.status(404).json({ message: 'No match requests found for this user.' });
+    }
   }
+
 }
