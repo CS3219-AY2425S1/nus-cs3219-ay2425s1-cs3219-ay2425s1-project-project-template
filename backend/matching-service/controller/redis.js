@@ -4,7 +4,10 @@ import { io } from '../server.js';
 let socketChannel;
 
 export const startRedis = async () => {
-  socketChannel = new Redis();
+  socketChannel = new Redis({
+    port: 3003,
+    host: 'localhost',
+  });
 };
 
 export const enqueueSocket = async (socketId, topic, complexity, waitTime) => {
