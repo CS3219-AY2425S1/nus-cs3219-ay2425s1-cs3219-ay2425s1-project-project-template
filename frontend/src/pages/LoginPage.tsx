@@ -44,9 +44,9 @@ const LoginPage: React.FC = () => {
     if (success) {
       updateUser(loggedInUser);
       if (loggedInUser?.isAdmin) {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true}); // Replace: true to clear back history
       } else {
-        navigate('/dashboardForUsers');
+        navigate('/dashboardForUsers', { replace: true }); // Replace: true to clear back history
       }
     }
   }, [success]);
@@ -92,7 +92,7 @@ const LoginPage: React.FC = () => {
 
         <div className="flex flex-row w-2/5 mt-3">
             <p className="text-gray-600">Don't have an account?</p>
-            <Link to="/register">
+            <Link to="/register" replace={true}>
             <button className="mx-1 text-blue-600 hover:opacity-60">
                 Register Instead
             </button>

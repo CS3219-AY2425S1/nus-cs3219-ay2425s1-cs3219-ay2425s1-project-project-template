@@ -69,7 +69,7 @@ const RegisterPage: React.FC = () => {
     if (success) {
       updateUser(registeredUser);
       /* All new users are 'User' by default */
-      navigate('/dashboardForUsers');
+      navigate('/dashboardForUsers', { replace: true}); // Replace: true to clear back history
     }
   }, [success]);
 
@@ -114,7 +114,7 @@ const RegisterPage: React.FC = () => {
 
         <div className="flex flex-row w-2/5 mt-3">
             <p className="text-gray-600">Have an existing account?</p>
-            <Link to="/login">
+            <Link to="/login" replace={true}>
             <button className="mx-1 text-blue-600 hover:opacity-60">
                 Login Now
             </button>
