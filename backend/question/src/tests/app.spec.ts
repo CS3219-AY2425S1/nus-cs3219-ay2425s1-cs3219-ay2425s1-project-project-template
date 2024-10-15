@@ -250,7 +250,6 @@ describe("Test Get All", () => {
   test("POST /api/all - should retrieve all questions", async () => {
     const res = await request.post("/api/all").send();
     const sampleQuestion = res.body.questions[0];
-    console.log(res.body);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.questions)).toBe(true);
     expect(res.body.questions.length).toBe(1);
