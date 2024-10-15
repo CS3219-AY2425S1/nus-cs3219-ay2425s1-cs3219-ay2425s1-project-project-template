@@ -1,7 +1,8 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
-import { User, userToString, useUser } from "../types/User";
+import { User, userToString } from "../types/User";
 import { UserResponse } from "../types/UserResponse";
 import apiConfig from "../config/config";
+import { useUser } from "../context/UserContext";
 
 const useRetrieveUser = (
     setUser: Dispatch<SetStateAction<User | undefined>>

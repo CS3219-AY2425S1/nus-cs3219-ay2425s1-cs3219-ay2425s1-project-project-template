@@ -7,7 +7,7 @@ import DashboardPageForUsers from "./pages/DashBoardForUsersPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
-import { UserProvider } from "./types/User";
+import { UserProvider } from "./context/UserContext";
 
 const App: React.FC = () => {
   return (

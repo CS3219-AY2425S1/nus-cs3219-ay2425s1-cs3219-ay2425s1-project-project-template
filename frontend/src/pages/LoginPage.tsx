@@ -5,8 +5,9 @@ import WelcomeMessage from "../components/UserAuth/WelcomeMessage.tsx";
 import InputBoxLabel from "../components/UserAuth/InputBoxLabel.tsx";
 import InputTextBox from "../components/UserAuth/InputTextBox.tsx";
 import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.tsx";
-import { User, useUser } from "../types/User.tsx";
+import { User } from "../types/User.tsx";
 import useLoginUser from "../hooks/useLoginUser.tsx";
+import { useUser } from "../context/UserContext.tsx";
 
 const LoginPage: React.FC = () => {
   const [emailValue, setEmailValue] = useState("");
@@ -21,7 +22,7 @@ const LoginPage: React.FC = () => {
   /* Component's instance of registered user */
   const [loggedInUser, setLoggedInUser] = useState<User | undefined>(undefined);
   /* User context */
-  const { setUser } = useUser();
+  const { updateUser } = useUser();
 
   const handleSubmit = async () => {
     console.log("submitted");
@@ -41,7 +42,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (success) {
-      setUser(loggedInUser);
+      updateUser(loggedInUser);
       if (loggedInUser?.isAdmin) {
         navigate('/dashboard');
       } else {

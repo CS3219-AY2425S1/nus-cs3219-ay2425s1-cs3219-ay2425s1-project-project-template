@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faCommentsDollar } from "@fortawesome/free-solid-svg-icons/faCommentsDollar";
 
 interface PasswordInputTextBoxProps {
     currInput: string
@@ -27,7 +28,7 @@ const PasswordInputTextBox: React.FC<PasswordInputTextBoxProps> = ({
           type={showPassword ? "text" : "password"}
           id="password"
           defaultValue={currInput}
-          className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
+          className='block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6'
           onChange={handleChange}
         ></input>
         <button
@@ -37,6 +38,7 @@ const PasswordInputTextBox: React.FC<PasswordInputTextBoxProps> = ({
         >
           <FontAwesomeIcon 
             icon={showPassword ? faEye : faEyeSlash}
+            className="bg-white px-1"
             style={{color: 'gray'}}
           />
         </button>

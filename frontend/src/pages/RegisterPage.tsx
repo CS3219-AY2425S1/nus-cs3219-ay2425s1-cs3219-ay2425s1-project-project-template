@@ -5,8 +5,9 @@ import WelcomeMessage from "../components/UserAuth/WelcomeMessage.tsx";
 import InputBoxLabel from "../components/UserAuth/InputBoxLabel.tsx";
 import InputTextBox from "../components/UserAuth/InputTextBox.tsx";
 import useRegisterUser from "../hooks/useRegisterUser.tsx";
-import { User, useUser } from "../types/User.tsx";
+import { User } from "../types/User.tsx";
 import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.tsx";
+import { useUser } from "../context/UserContext.tsx";
 
 const RegisterPage: React.FC = () => {
   const [usernameValue, setUsernameValue] = useState("");
@@ -22,7 +23,7 @@ const RegisterPage: React.FC = () => {
   /* Component's instance of registered user */
   const [registeredUser, setRegisteredUser] = useState<User | undefined>(undefined);
   /* User context */
-  const { setUser } = useUser();
+  const { updateUser } = useUser();
 
   const isEmailValid = () => {
     if (!emailValue.endsWith('@gmail.com')) {
@@ -66,7 +67,7 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (success) {
-      setUser(registeredUser);
+      updateUser(registeredUser);
       /* All new users are 'User' by default */
       navigate('/dashboardForUsers');
     }
