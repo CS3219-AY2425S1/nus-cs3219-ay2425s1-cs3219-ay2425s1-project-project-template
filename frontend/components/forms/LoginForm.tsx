@@ -68,7 +68,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   return (
     <form className="mt-8" onSubmit={handleSubmit}>
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center text-white">Login</h2>
+        <h2 className="text-2xl font-semibold text-center">Login</h2>
       </div>
 
       <div className="mb-4">
