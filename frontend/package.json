@@ -19,9 +19,15 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
+<<<<<<< HEAD
     "react-router-dom": "^6.27.0",
     "react-toastify": "^10.0.5",
     "socket.io-client": "^4.8.0"
+=======
+    "react-router-dom": "^6.26.2",
+    "react-toastify": "^10.0.5",
+    "recharts": "^2.13.0"
+>>>>>>> milestone-4
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
