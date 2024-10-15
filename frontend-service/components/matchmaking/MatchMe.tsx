@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { Button, Select, Box, Heading, Flex, useToast } from "@chakra-ui/react";
+import useQuestionDifficulties from "../../components/hooks/useQuestionDifficulties";
+import useQuestionTopics from "../../components/hooks/useQuestionTopics";
 
 interface MatchMeProps {
   onMatchMe: () => void;
 }
 
 const MatchMe: React.FC<MatchMeProps> = ({ onMatchMe }) => {
-  const [topic, setTopic] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const { difficulties } = useQuestionDifficulties();
+  const { topics } = useQuestionTopics();
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const toast = useToast();
 
   const handleMatchMeClick = () => {
-    if (topic && difficulty) {
+    if (selectedTopic && selectedDifficulty) {
       onMatchMe();
     } else {
       toast({
@@ -35,28 +39,30 @@ const MatchMe: React.FC<MatchMeProps> = ({ onMatchMe }) => {
         <Box mb={6}>
           <Select
             placeholder="Select a topic"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+            value={selectedTopic}
+            onChange={(e) => setSelectedTopic(e.target.value)}
             mb={4}
             w="300px"
           >
-            {/* TODO: get topics from db */}
-            <option value="data-structures">Data Structures</option>
-            <option value="algorithms">Algorithms</option>
-            <option value="databases">Databases</option>
+            {topics.map((topic) => (
+              <option key={topic} value={topic}>
+                {topic}
+              </option>
+            ))}
           </Select>
 
           <Select
             minW=""
             placeholder="Select difficulty"
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
+            value={selectedDifficulty}
+            onChange={(e) => setSelectedDifficulty(e.target.value)}
             w="300px"
           >
-            {/* TODO: get difficulties from db */}
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
+            {difficulties.map((difficulty) => (
+              <option key={difficulty} value={difficulty}>
+                {difficulty}
+              </option>
+            ))}
           </Select>
         </Box>
 
