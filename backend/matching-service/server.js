@@ -1,10 +1,25 @@
 import 'dotenv/config';
+import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { startRedis, enqueueSocket } from './controller/redis.js';
+import cors from 'cors'; // Import cors
+import exp from 'constants';
+
 
 const port = process.env.PORT || 3003;
 
-export const io = new Server(port);
+
+// Create an HTTP server
+const httpServer = createServer();
+export const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000', // Allow requests from this origin
+    methods: ['GET', 'POST'], // Allowed methods
+    allowedHeaders: ['my-custom-header'], // Allowed headers if needed
+    credentials: true, // Allow credentials
+  },
+});
+
 try {
   startRedis();   //create the redis queue to add incoming sockets
   console.log('Redis started');
@@ -12,6 +27,10 @@ try {
   console.error('Error starting Redis:', error);
   process.exit(1);
 }
+
+httpServer.listen(port, () => {
+  console.log('Matching Service listening on port ' + port);
+});
 
 console.log('Matching Service listening on port ' + port);
 
