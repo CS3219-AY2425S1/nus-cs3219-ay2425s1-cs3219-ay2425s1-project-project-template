@@ -1,8 +1,5 @@
 {
   "devDependencies": {
     "prettier": "^3.3.3"
-  },
-  "dependencies": {
-    "peerprep-shared-types": "^1.0.8"
   }
 }

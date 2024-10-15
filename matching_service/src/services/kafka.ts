@@ -1,10 +1,7 @@
 import {
   Kafka,
-  Message,
   Producer,
   Consumer,
-  ProducerBatch,
-  TopicMessages,
   EachMessagePayload,
   KafkaMessage,
 } from "kafkajs";
@@ -18,6 +15,9 @@ export class ProducerFactory {
   private topic: string;
 
   constructor(kafka: Kafka, topic: string) {
+    this.topic = topic;
+    this.createTopicIfNotPresent(kafka, () => {});
+
     this.producer = kafka.producer();
     this.topic = topic;
   }
@@ -39,6 +39,22 @@ export class ProducerFactory {
       topic: this.topic,
       messages: [{ value: JSON.stringify(message), partition: 0 }],
     });
+  }
+
+  private createTopicIfNotPresent(kafka: Kafka, next: () => void): void {
+    const admin = kafka.admin();
+    admin
+      .connect()
+      .then(() => {
+        admin.listTopics().then((topics) => {
+          if (!topics.includes(this.topic)) {
+            kafka.admin().createTopics({
+              topics: [{ topic: this.topic }],
+            });
+          }
+        });
+      })
+      .finally(next);
   }
 }
 
