@@ -7,65 +7,41 @@ export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
-  // if (url.pathname.startsWith("/admin")) {
-  //   // Admin authorization (can be expanded with your own checks)
-  //   return NextResponse.next();
-  // }
+  // If both access token and refresh token are present, user does not need to login again
+  if (
+    accessToken &&
+    refreshToken &&
+    (url.pathname.startsWith("/login") || url.pathname === "/")
+  ) {
+    return NextResponse.redirect(new URL("/match", req.nextUrl));
+  }
 
-  // if (!accessToken && !refreshToken && !url.pathname.startsWith("/login")) {
-  //   // Redirect to login if both tokens are missing and the user is not on the login page
-  //   console.log("No access or refresh token, redirecting to login.");
+  // Define public routes that don't require authentication
+  const publicRoutes = [
+    "/",
+    "/login",
+    "/register",
+    "/forget-password",
+    "/reset-password",
+  ];
 
-  //   return NextResponse.redirect(new URL("/login", req.nextUrl));
-  // }
+  // Allow access to public routes without checking tokens
+  if (publicRoutes.some((route) => url.pathname === route)) {
+    return NextResponse.next();
+  }
 
-  // if (accessToken) {
-  //   // Try verifying the access token using the backend service
-  //   // const response = verifyToken(accessToken);
+  // If both access token and refresh token are present, allow the user to proceed
+  if (accessToken && refreshToken) {
+    return NextResponse.next();
+  }
 
-  //   if (verifyResponse.ok) {
-  //     // Token is valid, allow access
-  //     return NextResponse.next();
-  //   } else {
-  //     console.log("Access token invalid or expired.");
-  //   }
-  // }
-
-  // // If access token is invalid and refresh token exists, try to refresh
-  // if (!accessToken && refreshToken) {
-  //   const refreshResponse = await fetch(
-  //     `${process.env.USER_SERVICE_URL}/refresh-token`,
-  //     {
-  //       headers: {
-  //         Cookie: `refreshToken=${refreshToken}`,
-  //       },
-  //     },
-  //   );
-
-  //   if (refreshResponse.ok) {
-  //     const data = await refreshResponse.json();
-
-  //     // Set the new access token in the response
-  //     const response = NextResponse.next();
-
-  //     response.cookies.set("accessToken", data.newAccessToken, {
-  //       httpOnly: true,
-  //       maxAge: 15 * 60 * 1000, // 15 minutes
-  //     });
-
-  //     return response;
-  //   } else {
-  //     console.log("Refresh token invalid, redirecting to login.");
-
-  //     return NextResponse.redirect(new URL("/login", req.nextUrl));
-  //   }
-  // }
-
-  // // // Fallback: if both tokens are missing or invalid, redirect to login
-  // // return NextResponse.redirect(new URL("/login", req.nextUrl));
+  // If no access token and the user is not on a public route, redirect to login
+  if (!accessToken && !refreshToken) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
 }
 
 // Apply middleware to specific paths
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$|/).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
 };

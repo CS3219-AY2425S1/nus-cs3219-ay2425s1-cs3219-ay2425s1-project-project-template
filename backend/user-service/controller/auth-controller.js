@@ -29,7 +29,7 @@ export async function handleLogin(req, res) {
       const refreshToken = jwt.sign(
         { id: user.id },
         process.env.JWT_REFRESH_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: "1d" }
       );
 
       // Set access token as an HTTP-only cookie
@@ -41,7 +41,7 @@ export async function handleLogin(req, res) {
       // Set refresh token as an HTTP-only cookie
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
+        maxAge: 24 * 60 * 60 * 1000,  // 1 day
       });
 
       // Send access token and user data in the response body
@@ -61,7 +61,7 @@ export async function handleLogin(req, res) {
 }
 
 export function handleLogout(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1];
+  const accessToken = req.cookies["accessToken"];
 
   if (!accessToken) {
     return res.status(401).json({ message: "No access token provided" });
@@ -86,7 +86,7 @@ export function handleLogout(req, res) {
 }
 
 export async function handleRefreshToken(req, res) {
-  const refreshToken = req.cookies.refreshToken; // Get refresh token from cookies
+  const refreshToken = req.cookies["refreshToken"] // Get refresh token from cookies
 
   if (!refreshToken) {
     return res.status(401).json({ message: "No refresh token provided" });
@@ -107,21 +107,19 @@ export async function handleRefreshToken(req, res) {
     const newRefreshToken = jwt.sign(
       { id: decoded.id },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" } // 7-day lifespan for refresh token
+      { expiresIn: "1d" } // 7-day lifespan for refresh token
     );
 
     // Set the new access token as an HTTP-only cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       maxAge: 15 * 60 * 1000, // 15 minutes
-      sameSite: "none",
     });
 
     // Set the new refresh token as an HTTP-only cookie (if rotating)
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     // Return success response with the new access token (optional, since it's already in the cookie)
