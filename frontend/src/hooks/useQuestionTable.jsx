@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useCookies } from 'react-cookie';
 
 function useQuestionTable() {
     const [questions, setQuestions] = useState([]);
+    const [cookies, setCookie] = useCookies([ "accessToken", "userId" ]);
 
     const fetchQuestions = async () => {
         try {
@@ -12,6 +14,8 @@ function useQuestionTable() {
                 throw new Error(errorData.error || 'Failed to fetch questions');
             }
             const data = await response.json();
+            setCookie( "accessToken", cookies.accessToken, { path: '/' } );
+            setCookie( "userId", cookies.id, { path: '/' } );
             data.sort((a, b) => a["Question ID"] - b["Question ID"]);
             setQuestions(data);
             console.log(data);
