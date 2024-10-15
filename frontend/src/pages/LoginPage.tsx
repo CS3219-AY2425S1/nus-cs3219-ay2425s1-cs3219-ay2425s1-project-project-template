@@ -12,7 +12,7 @@ export default function LoginPage() {
 
 
 	if (loggedIn) {
-		return <Navigate to={'/questions-page'} />;
+		return <Navigate to={'/loading'} />;
 	}
 
 	const onSuccess = async (credentialResponse: CredentialResponse) => {
@@ -30,7 +30,7 @@ export default function LoginPage() {
 			setLoggedIn(true);
 			setToken(jwtToken);
 			localStorage.setItem("access_token", jwtToken);
-			navigate('/questions-page');
+			navigate('/loading');
 		}
 	} catch (error) {
 		alert("Error logging in: " + error);		
