@@ -27,9 +27,9 @@ export const findMatch = async (
 };
 
 // Function to cancel a match request
-export const cancelMatch = async (userId: number) => {
+export const cancelMatch = async (userName: string) => {
   const payload = {
-    userId: userId,
+    userName: userName,
   };
   try {
     const response = await axios.post(`${API_URL}/api/cancel`, payload, {

@@ -4,7 +4,6 @@ import { connectRabbitMQ, getChannel } from "../queue/rabbitmq";
 import Redis from "ioredis";
 import { activeMatches } from "../server";
 
-let matchQueue: MatchRequest[] = [];
 const redis = new Redis();
 
 // Function to add a match request to the queue
@@ -41,9 +40,6 @@ async function processMatchRequest(request: MatchRequest, io: Server) {
     redis.del(requestKey);
     redis.del(`match_request:${match.userName}`);
     console.log(`Match found between ${request.userName} and ${match.userName}`);
-
-    activeMatches.set(request.userName, match.userName);
-    activeMatches.set(match.userName, request.userName);
 
     io.to(request.userName).emit("match_found", {
       success: true,

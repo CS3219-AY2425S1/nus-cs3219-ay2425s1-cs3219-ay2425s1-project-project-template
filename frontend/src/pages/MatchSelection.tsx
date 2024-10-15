@@ -112,7 +112,7 @@ const MatchSelection = () => {
     }
 
     try {
-      await cancelMatch(user.id);
+      await cancelMatch(user.name);
       setMatchUserName(null);
       setNoMatchFound(false);
       setTimer(30);
