@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Loader } from 'semantic-ui-react'; // Import Semantic UI Loader
+import { Loader } from 'semantic-ui-react';
 import { useNavigate } from 'react-router-dom';
-import 'semantic-ui-css/semantic.min.css'; // Ensure Semantic UI CSS is imported
+import 'semantic-ui-css/semantic.min.css';
 
 const LoadingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(30); // Initialize countdown at 30 seconds
+  const [countdown, setCountdown] = useState(30);
 
   useEffect(() => {
 
@@ -25,7 +25,7 @@ const LoadingPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
-      <Loader active inverted indeterminate size="huge" content={`Matching in ${countdown} seconds`} />
+      <Loader active inverted indeterminate size="massive" content={`Matching in ${countdown} seconds`} />
     </div>
   );
 };
