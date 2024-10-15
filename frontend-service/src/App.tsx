@@ -7,6 +7,7 @@ import HomeNavBar from "../components/HomeNavBar";
 import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
+import MockMatch from "./pages/MockMatch/mockMatch";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
+          <Route path="/mock-match" element={<MockMatch />} />
         </Routes>
       </Box>
     </Box>
