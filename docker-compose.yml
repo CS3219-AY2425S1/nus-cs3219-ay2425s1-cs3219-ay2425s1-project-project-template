@@ -48,6 +48,23 @@ services:
     networks:
       - peerprep-network
 
+  matching_service:
+    build:
+      context: ./backend/matching-service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./backend/matching-service/.env
+    volumes:
+      - ./backend/matching-service:/app
+      - matching-service-node-modules:/app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      - NODE_ENV=development
+    networks:
+      - peerprep-network
+
 networks:
   peerprep-network:
     driver: bridge
@@ -58,4 +75,6 @@ volumes:
   user-service-node-modules:
     driver: local
   question-service-node-modules:
+    driver: local
+  matching-service-node-modules:
     driver: local
