@@ -1,18 +1,51 @@
 import amqp, { Channel } from "amqplib";
+import { User } from "../types";
+import { processNewUser } from "./matchingService";
+import { SECONDS } from "../lib/constants";
 
 let channel: Channel;
-const rabbit_url = process.env.RABBITMQ_URL || "amqp://localhost";
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost";
+const QUEUE = process.env.MATCHING_SERVICE_QUEUE || "matching-service";
 
 /**
  * Establish a connection to RabbitMQ
  */
 export const initRabbitMQ = async (): Promise<void> => {
   try {
-    const connection = await amqp.connect(rabbit_url);
+    const connection = await amqp.connect(RABBITMQ_URL);
     channel = await connection.createChannel();
     console.log("Connected to RabbitMQ");
+
+    // Subscribe to the queue upon successful connection
+    await subscribeToQueue<User>(QUEUE, processNewUser);
+
+    // when connection close, initiate reconnection
+    connection.on("close", async () => {
+      await reconnectRabbitMQ();
+    });
   } catch (err) {
-    console.error("RabbitMQ connection error:", err);
+    console.error(
+      "Error initialising connection with RabbitMQ connection error:",
+      err,
+    );
+  }
+};
+
+/**
+ * This will only trigger after an initial connection is made
+ */
+export const reconnectRabbitMQ = async (): Promise<void> => {
+  const reconnectDelay = 30 * SECONDS;
+  while (true) {
+    try {
+      await initRabbitMQ();
+      break; // Break out of the loop if successfully connected
+    } catch (err) {
+      console.log(
+        `Retrying to connect to RabbitMQ in ${reconnectDelay} seconds...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, reconnectDelay));
+    }
   }
 };
 

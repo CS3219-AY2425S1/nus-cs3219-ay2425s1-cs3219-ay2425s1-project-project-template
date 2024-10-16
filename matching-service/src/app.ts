@@ -33,9 +33,6 @@ app.use(`${apiVersion}/`, messageRoutes);
 app.listen(PORT, async () => {
   await initRabbitMQ();
 
-  // Subscribe to the matching service queue
-  await subscribeToQueue<User>(QUEUE, processNewUser);
-
   try {
     await redisClient.connect();
   } catch (err) {
