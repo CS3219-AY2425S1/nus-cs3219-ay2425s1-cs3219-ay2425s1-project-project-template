@@ -2,11 +2,11 @@ import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import type { Extension, ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { yCollab } from 'y-codemirror.next';
-import { SocketIOProvider } from 'y-socket.io';
+import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 
 import { extensions as baseExtensions, getLanguage } from '@/lib/editor/extensions';
-import { COLLAB_SERVICE } from '@/services/api-clients';
+import { COLLAB_WS } from '@/services/api-clients';
 
 // credit: https://github.com/yjs/y-websocket
 const usercolors = [
@@ -39,7 +39,7 @@ export const useCollab = (roomId: string) => {
       const doc = new Y.Doc();
       let provider = null;
       try {
-        provider = new SocketIOProvider(COLLAB_SERVICE, roomId, doc, {});
+        provider = new WebsocketProvider(COLLAB_WS, roomId, doc);
       } catch (err) {
         const { name, message } = err as Error;
         console.error(
@@ -50,9 +50,20 @@ export const useCollab = (roomId: string) => {
       const ytext = doc.getText('codemirror');
       const undoManager = new Y.UndoManager(ytext);
       const awareness = provider.awareness;
-      const { color, light } = getRandomColor();
 
+      provider.on('status', (event: unknown) => {
+        const ev = event as { status?: string } | undefined;
+        console.log(`Connection Status: ${ev?.status}`);
+      });
+
+      // TODO: Update state store, then display avatars
+      awareness.on('update', () => {
+        console.log(awareness.getStates().values()); // Array of name, color, light
+      });
+
+      const { color, light } = getRandomColor();
       // TODO: Get user name
+      // TODO: Set user ID
       awareness.setLocalStateField('user', {
         name: `Anon`,
         color: color,
