@@ -69,6 +69,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                 variant="destructive"
                 onClick={() => {
                   setShowDeleteModal(false);
+                  setConfirmUsername("");
                   handleDeleteAccount();
                 }}
                 disabled={!isDeleteButtonEnabled}
