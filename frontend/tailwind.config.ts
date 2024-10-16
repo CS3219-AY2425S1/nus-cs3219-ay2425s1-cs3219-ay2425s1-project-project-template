@@ -31,6 +31,7 @@ const config: Config = {
   				'700': '#2F3B54',
   				'800': '#1D2433',
   				'900': '#171C28',
+				'1000': '#2B2B2A',
   				DEFAULT: 'hsl(var(--primary))',
   				foreground: 'hsl(var(--primary-foreground))'
   			},
