@@ -20,7 +20,6 @@ const editQuestion = async (req: Request, res: Response) => {
     }
 
     try {
-        console.log(title, existingQuestion.title, description, existingQuestion.description)
         if (title != existingQuestion.title || description != existingQuestion.description) {
             const possibleDuplicates = await getPossibleDuplicates(
                 parseInt(questionId),
