@@ -29,6 +29,7 @@ export const NewSession = () => {
 
     const [selectedTopic, setSelectedTopic] = React.useState('')
     const [selectedComplexity, setSelectedComplexity] = React.useState('')
+    const [timestamp, setTimestamp] = React.useState('')
 
     const [modalData, setModalData] = React.useState({
         isOpen: false,
@@ -68,11 +69,13 @@ export const NewSession = () => {
         let response: { wsId: string } | undefined
 
         try {
+            setTimestamp(new Date().toISOString())
             response = await addUserToMatchmaking({
                 userId: session?.user.id ?? '',
                 proficiency: session?.user.proficiency as Proficiency,
                 complexity: selectedComplexity as Complexity,
                 topic: selectedTopic as Category,
+                timestamp: timestamp,
             })
         } catch {
             await handleFailedMatchmaking()

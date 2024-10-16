@@ -19,17 +19,22 @@ export class UserQueueRequestDto {
     @IsNotEmpty()
     userId: string
 
-    constructor(proficiency: Proficiency, complexity: Complexity, topic: Category, userId: string) {
+    @IsString()
+    @IsNotEmpty()
+    timestamp: string
+
+    constructor(proficiency: Proficiency, complexity: Complexity, topic: Category, userId: string, timestamp: string) {
         this.proficiency = proficiency
         this.complexity = complexity
         this.topic = topic
         this.userId = userId
+        this.timestamp = timestamp
     }
 
     static fromRequest({
-        body: { proficiency, complexity, topic, userId },
+        body: { proficiency, complexity, topic, userId, timestamp },
     }: ITypedBodyRequest<UserQueueRequestDto>): UserQueueRequestDto {
-        return new UserQueueRequestDto(proficiency, complexity, topic, userId)
+        return new UserQueueRequestDto(proficiency, complexity, topic, userId, timestamp)
     }
 
     async validate(): Promise<ValidationError[]> {
