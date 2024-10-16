@@ -15,7 +15,7 @@ How to deploy website to public:
 1. Deploy a Redis instance on Google memorystore (it's too expensive to host this 24/7), and then obtain its ip address to plug into the build arguments in the script below. In this example, the ip addr is 10.189.63.187 (see image below)
 ![image](resources/images/redis-instance.png)
 
-2. Deploy a RabbitMQ instance via CloudAMQP (free tier). Currently, Wei Rui has done this already so just contact him to get the full confidential RabbitMQ URL (hosted on CloudAMQP) to plug into the build arguments in the script below
+2. Deploy a RabbitMQ instance via CloudAMQP (free tier). Currently, one of our members, Wei Rui, has done this already so just contact him to get the full confidential RabbitMQ URL (hosted on CloudAMQP) to plug into the build arguments in the script below
 
 3. Ensure you have plugged in the necessary details from step 1 and step 2 into the script below. Build each service (with environment variable provided wherever needed) and push to gcr. *If this is your first time docker pushing to gcr, you would need to link your Google account with docker first, and then select the PeerPrep project. Do that before proceeding.* 
 
@@ -44,18 +44,19 @@ How to deploy website to public:
   ![image](resources/images/cloud-console.png)
 
   You should be able to see your just pushed images in gcr:
-  ![image](resources/images/container-registry.png)
+  ![image](resources/images/container-registry.png) 
 
-4. Go to Cloud Run and for each services, deploy container via service (note that step 6 is needed for matching service)
+4. In order to allow our Cloud Run hosted applications/websites to be able to access the (internal) ip addr of Redis, you would also need to set up a Serverless VPC access in Google Cloud Console (another paid service). This Serverless VPC access is bascially a Google Cloud feature that allows serverless services (like Cloud Run, Cloud Functions, and App Engine) to communicate securely and privately with resources inside a Virtual Private Cloud (VPC) network. It bridges the gap between serverless environments (which don't have their own dedicated network) and VPC-based resources, such as databases, Redis instances, or any other internal services running within the VPC. ![image](resources/images/serverless-vpc-access.png)
+
+5. Go to Cloud Run and for each services, deploy container via service
 ![image](resources/images/deploy-container.png)
 
-5. Fill in the details accordingly. For our frontend service example, container image URL should be `gcr.io/peerprep-g02/frontend`. Service name could be anything, like `frontend`. Region choose the region closest to you. Scroll down and remember to configure the container port number to suit the exposed container port as defined by the `Dockerfile` as well.
+6. Fill in the details accordingly. For our frontend service example, container image URL should be `gcr.io/peerprep-g02/frontend`. Service name could be anything, like `frontend`. Region choose the region closest to you. Scroll down and remember to configure the container port number to suit the exposed container port as defined by the `Dockerfile` as well.
 ![image](resources/images/deploy-service-1.png)
 ![image](resources/images/deploy-service-2.png)
-Repeat this until all services are hosted
+Repeat this until all services are hosted (note that **matching** service requires step 7)
 
-6. In order to allow our Cloud Run hosted applications/websites to be able to access the (internal) ip addr of Redis, you would also need to set up a Serverless VPC access in Google Cloud Console (another paid service). This Serverless VPC access is bascially a Google Cloud feature that allows serverless services (like Cloud Run, Cloud Functions, and App Engine) to communicate securely and privately with resources inside a Virtual Private Cloud (VPC) network. It bridges the gap between serverless environments (which don't have their own dedicated network) and VPC-based resources, such as databases, Redis instances, or any other internal services running within the VPC. ![image](resources/images/Serverless-VPC-access.png)
-Once the Serverless VPC access is set up, when deploying/re-deploying **matching** service on Google Cloud Run, configure the networking settings by ticking "Connect to a VPC for outbound traffic" and select "Use Serverless VPC Access connectors" and choose the Serverless VPC access connector which you had just set up (see image below)
+7. When deploying/re-deploying **matching** service on Google Cloud Run, configure the networking settings by ticking "Connect to a VPC for outbound traffic" and select "Use Serverless VPC Access connectors" and choose the Serverless VPC access connector which you had just set up (see image below)
 ![image](resources/images/configure-networking-settings.png)
 
 ### Docker compose up locally:
