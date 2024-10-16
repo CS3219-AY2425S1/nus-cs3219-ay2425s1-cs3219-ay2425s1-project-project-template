@@ -124,7 +124,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                       </SelectTrigger>
                       <SelectContent>
                         {ComplexityEnumArray.map((complexity) => (
-                          <SelectItem value={complexity}>
+                          <SelectItem key={complexity} value={complexity}>
                             {complexity}
                           </SelectItem>
                         ))}

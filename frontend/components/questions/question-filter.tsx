@@ -66,7 +66,9 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 {CategoryEnumArray.map((category) => (
-                  <SelectItem value={category}>{category}</SelectItem>
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -83,7 +85,9 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 {ComplexityEnumArray.map((complexity) => (
-                  <SelectItem value={complexity}>{complexity}</SelectItem>
+                  <SelectItem key={complexity} value={complexity}>
+                    {complexity}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
