@@ -35,20 +35,7 @@ const formSchema = z.object({
   difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
   categories: z.array(z.string()).optional(),
   description: z.string().optional(),
-}).refine((data) => {
-  const { title, difficulty, categories, description } = data;
-  
-  const isAllFieldsEmpty = 
-    (title === undefined || title.trim() === "") && 
-    (difficulty === undefined) && 
-    (categories === undefined || categories.length === 0) && 
-    (description === undefined || description.trim() === "");
-
-  return !isAllFieldsEmpty;
-}, () => ({
-  path:["allFieldsEmptyError"],
-  message: "At least one field must be filled", // Error message if validation fails
-}));
+});
 
 interface EditQuestionFormProps {
   questionId: number,
@@ -58,6 +45,7 @@ interface EditQuestionFormProps {
 
 const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose, refetch }) => {
       const [isFormEdited, setIsFormEdited] = useState<boolean>(true);
+      const [error, setError] = useState('');
 
       const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -96,7 +84,6 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
       }, []);
 
       const { isDirty, dirtyFields } = form.formState;
-      const getValues = () => form.getValues();
 
       // to update if we want to include more categories
       const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser"]
@@ -121,11 +108,16 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         console.log("val", values)
+
+        var hasError = false;
+
         try {
             if (!isDirty) {
-              setIsFormEdited(false);
+              hasError = true;
+              setError('At least one field should be edited.');
               return;
             }
+            setError('');
 
             const updatedFields: any = {}
 
@@ -157,14 +149,24 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
             });
 
             if (response.ok) {
-                // handle successful edit
-                console.log("ok");
+              hasError = false;
+              setError('');
+              console.log("ok");
+            } else {
+              hasError = true;
+              const errorData = await response.json()
+              setError(errorData.message);
+              console.log("errorData", errorData);
             }
         } catch(err) {
             // handle error we can decide later
+            hasError = true;
             console.log("error", err);
         } finally {
-          if (isDirty) {
+          console.log('iD', isDirty);
+          console.log('err', hasError);
+          console.log('errmsg', error);
+          if (!hasError && isDirty) {
             refetch();
             onClose();
           }
@@ -176,9 +178,9 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         <div className="flex justify-center">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-1/2">
-            {!isFormEdited && (
+            {error && (
               <div className="p-4 text-sm text-red-700 bg-red-100 border border-red-400 rounded">
-                At least one field should be edited.
+                {error}
               </div>
             )}
             <FormField
