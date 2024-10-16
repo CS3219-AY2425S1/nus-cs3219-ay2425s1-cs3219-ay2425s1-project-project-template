@@ -18,6 +18,15 @@ const axiosAuthClient = axios.create({
   },
 });
 
+const axoisMatchingClient = axios.create({
+  baseURL:
+    process.env.NEXT_PUBLIC_MATCHING_SERVICE_URL ||
+    'http://localhost:5001/api/v1',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // Interceptor for authorisation token
 axiosQuestionClient.interceptors.request.use(
   (config) => {
@@ -41,6 +50,17 @@ axiosAuthClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+axoisMatchingClient.interceptors.request.use(
+  (config) => {
+    const token = getCookie('access-token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
 // // TODO: Add response interceptors as needed
 // axiosClient.interceptors.response.use(
 //   (response) => response,
@@ -53,4 +73,4 @@ axiosAuthClient.interceptors.request.use(
 //   },
 // );
 
-export { axiosQuestionClient, axiosAuthClient };
+export { axiosQuestionClient, axiosAuthClient, axoisMatchingClient };

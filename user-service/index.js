@@ -35,7 +35,8 @@ app.use((req, res, next) => {
 app.use(`${apiVersion}/users`, userRoutes);
 app.use(`${apiVersion}/auth`, authRoutes);
 
-app.get("/", (req, res, next) => {
+// Getting status of the service
+app.get(`${apiVersion}/ping`, (req, res, next) => {
   console.log("Sending Greetings!");
   res.json({
     message: "Hello World from user-service",

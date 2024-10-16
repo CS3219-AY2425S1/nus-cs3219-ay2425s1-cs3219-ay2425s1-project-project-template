@@ -1,4 +1,11 @@
 services:
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6379:6379"  # Expose Redis port
+    networks:
+      - peerprep-network
   frontend:
     image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
     build:
