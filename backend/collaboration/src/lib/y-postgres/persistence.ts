@@ -1,8 +1,10 @@
 import * as Y from 'yjs';
-import { setPersistence } from '@/y-postgresql-util/utils';
-import { IWSSharedDoc } from '@/types/interfaces';
 import { PostgresqlPersistence } from 'y-postgresql';
+
+import type { IWSSharedDoc } from '@/types/interfaces';
 import { dbConfig } from '@/config';
+
+import { setPersistence } from './utils';
 
 export const setUpPersistence = async () => {
   const pgdb = await PostgresqlPersistence.build(dbConfig);

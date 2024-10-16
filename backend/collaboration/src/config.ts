@@ -11,3 +11,6 @@ export const dbConfig = {
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
 };
+
+// disable gc when using snapshots!
+export const GC_ENABLED = process.env.GC !== 'false' && process.env.GC !== '0';
