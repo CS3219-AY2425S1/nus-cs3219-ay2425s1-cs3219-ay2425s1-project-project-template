@@ -1,14 +1,17 @@
-import axios from 'axios'
-import axiosClient from './axios-middleware'
 import { IPostMatching } from '@/types/matching-api'
+import axios from 'axios'
 
-const axiosInstance = axiosClient.matchingServiceAPI
+// const axiosInstance = axiosClient.matchingServiceAPI
 
 // POST /matching
-export const addUserToMatchmaking = async (data: IPostMatching): Promise<boolean | undefined> => {
+export const addUserToMatchmaking = async (data: IPostMatching): Promise<{ wsId: string } | undefined> => {
     try {
-        const response = await axiosInstance.post(`/matching`, data)
-        return response.status === 200
+        //TODO: Change the endpoint and response body to match the API
+        // const response = await axiosInstance.post(`/matching`, data)
+        return {
+            ...data,
+            wsId: 'testing',
+        }
     } catch (error) {
         if (axios.isAxiosError(error)) {
             throw new Error('An unexpected error occurred' + error.message)

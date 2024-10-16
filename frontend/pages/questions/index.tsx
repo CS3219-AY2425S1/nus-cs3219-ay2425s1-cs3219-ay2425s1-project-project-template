@@ -1,5 +1,19 @@
 'use client'
 
+import ConfirmDialog from '@/components/customs/confirm-dialog'
+import CustomForm from '@/components/customs/custom-form'
+import CustomModal from '@/components/customs/custom-modal'
+import Datatable from '@/components/customs/datatable'
+import Loading from '@/components/customs/loading'
+import { Button } from '@/components/ui/button'
+import useProtectedRoute from '@/hooks/UseProtectedRoute'
+import {
+    createQuestionRequest,
+    deleteQuestionById,
+    getQuestionbyIDRequest,
+    getQuestionsRequest,
+    updateQuestionRequest,
+} from '@/services/question-service-api'
 import {
     Difficulty,
     IGetQuestions,
@@ -10,27 +24,12 @@ import {
     QuestionStatus,
     SortDirection,
 } from '@/types'
-import {
-    createQuestionRequest,
-    deleteQuestionById,
-    getQuestionbyIDRequest,
-    getQuestionsRequest,
-    updateQuestionRequest,
-} from '@/services/question-service-api'
-import { formFields, getColumns } from './props'
-import { useEffect, useState } from 'react'
-
-import { Button } from '@/components/ui/button'
-import ConfirmDialog from '@/components/customs/confirm-dialog'
-import CustomForm from '@/components/customs/custom-form'
-import CustomModal from '@/components/customs/custom-modal'
-import Datatable from '@/components/customs/datatable'
-import Loading from '@/components/customs/loading'
-import { Role } from '@repo/user-types'
 import { capitalizeFirst } from '@/util/string-modification'
-import { toast } from 'sonner'
-import useProtectedRoute from '@/hooks/UseProtectedRoute'
+import { Role } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { formFields, getColumns } from './props'
 
 export default function Questions() {
     const { data: session } = useSession()
@@ -234,7 +233,12 @@ export default function Questions() {
         loadData()
     }, [])
 
-    if (loading) return <Loading />
+    if (loading)
+        return (
+            <div className="flex flex-col h-screen w-screen items-center justify-center">
+                <Loading />
+            </div>
+        )
 
     return (
         <div className="m-8">
@@ -266,7 +270,12 @@ export default function Questions() {
                 actionsHandler={actionsHandler}
             />
             {modalData.isOpen && (
-                <CustomModal title={modalData.title} className="h-3/4 w-3/4" closeHandler={handleCloseModal}>
+                <CustomModal
+                    title={modalData.title}
+                    className="h-3/4 w-3/4"
+                    showCloseButton={true}
+                    closeHandler={handleCloseModal}
+                >
                     <CustomForm fields={formFields} data={questionData} submitHandler={handleSubmitButton} />
                 </CustomModal>
             )}

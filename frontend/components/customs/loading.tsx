@@ -4,7 +4,6 @@ export default function Loading() {
     return (
         <div className="flex items-center justify-center">
             <svg
-                style={{ marginTop: '30vh' }}
                 xmlns="http://www.w3.org/2000/svg"
                 width="64"
                 height="64"
