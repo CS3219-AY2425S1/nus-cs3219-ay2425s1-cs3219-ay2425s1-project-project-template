@@ -12,10 +12,6 @@ const io = socketIo(server, {
     }
   });
 
-const collabRoutes = require('./routes/collabRoutes');
-app.use(express.json());
-app.use('/', collabRoutes);
-
 // Handle new socket connections
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
