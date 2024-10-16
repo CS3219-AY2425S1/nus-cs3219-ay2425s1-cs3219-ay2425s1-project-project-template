@@ -5,7 +5,8 @@ export interface INotifier {
 }
 
 export class Matcher {
-  private readonly interval: number = 500; // In milliseconds
+  private readonly shortInterval: number = 500; // In milliseconds
+  private readonly longInterval: number = 2000; // In milliseconds
   private queue: IQueue;
   private notifer: INotifier;
   private timeoutId: NodeJS.Timeout | null = null;
@@ -16,12 +17,12 @@ export class Matcher {
   }
 
   public match(queue: IQueue, notifier: INotifier) {
-    console.log("Matching users...");
     this.queue.getRequests().then((requests) => {
+      console.log("Matching users...");
       console.log("Removing expired requests...");
       // Remove expired requests
 
-      console.log(requests);
+      console.log("Num requests:", requests.length);
       const { expired, valid } = this.checkExpiredRequests(requests);
 
       console.log("Notifying expired requests...");
@@ -32,7 +33,13 @@ export class Matcher {
       });
 
       if (valid.length < 2) {
-        this.stop();
+        console.log(
+          "Not enough requests to match. Switching to long interval..."
+        );
+        this.timeoutId = setTimeout(
+          () => this.match(queue, notifier),
+          this.longInterval
+        );
         return;
       }
 
@@ -53,12 +60,13 @@ export class Matcher {
       });
 
       //TODO: Create rooms in database
-    });
 
-    this.timeoutId = setTimeout(
-      () => this.match(queue, notifier),
-      this.interval
-    );
+      console.log("Setting timeout for next match...");
+      this.timeoutId = setTimeout(
+        () => this.match(queue, notifier),
+        this.shortInterval
+      );
+    });
   }
 
   private checkExpiredRequests(requests: IMatchRequest[]): {
@@ -130,7 +138,7 @@ export class Matcher {
   private createRoom(user1: IMatchRequest, user2: IMatchRequest): IMatch {
     // Match user1 and user2
     return {
-      roomId: "user1.username-user2.username",
+      roomId: `${user1.username}-${user2.username}`,
       usernames: [user1.username, user2.username],
       topic: user1.topic,
       difficulty: user1.difficulty,

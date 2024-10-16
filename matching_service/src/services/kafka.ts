@@ -4,27 +4,67 @@ import {
   Consumer,
   EachMessagePayload,
   KafkaMessage,
+  RecordMetadata,
 } from "kafkajs";
 
 export interface KafkaRequest {
   timestamp: number;
 }
 
+export type KafkaOnSuccess = () => void;
+export type KafkaOnRecordSuccess = (records: RecordMetadata) => void;
+export type KafkaOnError = (error: Error | undefined) => void;
+
+export class KafkaFactory {
+  kafka: Kafka;
+  topics: string[];
+
+  constructor(clientId: string, brokers: string[], topics: string[]) {
+    this.kafka = new Kafka({
+      clientId: clientId,
+      brokers: brokers,
+    });
+    this.topics = topics;
+  }
+
+  async createTopicIfNotPresent(next: KafkaOnSuccess): Promise<void> {
+    console.log("Creating topics if not present");
+    const admin = this.kafka.admin();
+    await admin.connect().then(() => {
+      admin.listTopics().then((presentTopics) => {
+        admin
+          .createTopics({
+            topics: this.topics.flatMap((topic) => {
+              if (presentTopics.includes(topic)) return [];
+              return { topic: topic, numPartitions: 1 };
+            }),
+          })
+          .finally(() => {
+            console.log("Topics created");
+            next();
+          });
+      });
+    });
+  }
+}
+
 export class ProducerFactory {
   private producer: Producer;
   private topic: string;
 
-  constructor(kafka: Kafka, topic: string) {
-    this.topic = topic;
-    this.createTopicIfNotPresent(kafka, () => {});
+  constructor(kafkaFactory: KafkaFactory, topic: string) {
+    if (!kafkaFactory.topics.includes(topic)) {
+      throw new Error(`Topic ${topic} not found in KafkaFactory`);
+    }
 
-    this.producer = kafka.producer();
     this.topic = topic;
+    this.producer = kafkaFactory.kafka.producer();
   }
 
   public async start(): Promise<void> {
     try {
       await this.producer.connect();
+      console.log("Producer connected");
     } catch (error) {
       console.log("Error connecting the producer: ", error);
     }
@@ -34,27 +74,26 @@ export class ProducerFactory {
     await this.producer.disconnect();
   }
 
-  public async sendMessage(message: KafkaRequest): Promise<void> {
-    await this.producer.send({
-      topic: this.topic,
-      messages: [{ value: JSON.stringify(message), partition: 0 }],
-    });
-  }
-
-  private createTopicIfNotPresent(kafka: Kafka, next: () => void): void {
-    const admin = kafka.admin();
-    admin
-      .connect()
-      .then(() => {
-        admin.listTopics().then((topics) => {
-          if (!topics.includes(this.topic)) {
-            kafka.admin().createTopics({
-              topics: [{ topic: this.topic }],
-            });
-          }
-        });
+  public async sendMessage(
+    message: KafkaRequest,
+    onSuccess: KafkaOnRecordSuccess,
+    onError: KafkaOnError
+  ): Promise<void> {
+    await this.producer
+      .send({
+        topic: this.topic,
+        messages: [{ value: JSON.stringify(message) }],
       })
-      .finally(next);
+      .then((records: RecordMetadata[]) => {
+        console.log("Message sent, number of records: ", records.length);
+        if (records.length === 0) {
+          return onError(
+            new Error("Error sending message: no records returned")
+          );
+        }
+        return onSuccess(records[0]);
+      })
+      .catch(onError);
   }
 }
 
@@ -66,11 +105,22 @@ export class ConsumerFactory {
   private consumer: Consumer;
   private topic: string;
 
-  public constructor(groupId: string, kafka: Kafka, topic: string) {
-    this.consumer = kafka.consumer({ groupId: groupId });
+  public constructor(
+    kafkaFactory: KafkaFactory,
+    groupId: string,
+    topic: string
+  ) {
+    if (!kafkaFactory.topics.includes(topic)) {
+      throw new Error(`Topic ${topic} not found in KafkaFactory`);
+    }
+
+    this.consumer = kafkaFactory.kafka.consumer({ groupId: groupId });
     this.topic = topic;
-    this.consumer.connect().then(() => console.log("Consumer connected"));
-    this.consumer
+  }
+
+  public async start() {
+    await this.consumer.connect().then(() => console.log("Consumer connected"));
+    await this.consumer
       .subscribe({
         topic: this.topic,
         fromBeginning: true,
@@ -85,8 +135,11 @@ export class ConsumerFactory {
       await this.consumer.run({
         autoCommit: false,
         eachMessage: async (messagePayload) => {
+          console.log(
+            "Received message:",
+            messagePayload.message.value?.toString()
+          );
           messageBuffer.push(messagePayload.message);
-          console.log(messagePayload.message);
         },
       });
 
@@ -101,10 +154,18 @@ export class ConsumerFactory {
     }
   }
 
-  public async commit(offset: string): Promise<void> {
-    await this.consumer.commitOffsets([
-      { topic: this.topic, partition: 0, offset: offset },
-    ]);
+  public async commit(
+    offset: string,
+    partition: number,
+    onSuccess: KafkaOnSuccess,
+    onFailure: KafkaOnError
+  ): Promise<void> {
+    await this.consumer
+      .commitOffsets([
+        { topic: this.topic, partition: partition, offset: offset },
+      ])
+      .then(onSuccess)
+      .catch(onFailure);
   }
 
   public async shutdown(): Promise<void> {

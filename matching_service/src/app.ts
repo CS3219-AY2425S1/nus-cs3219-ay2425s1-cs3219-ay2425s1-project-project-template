@@ -65,7 +65,9 @@ const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
   };
   console.log(matchRequest);
 
-  queue.add(matchRequest);
+  const result = await queue.add(matchRequest);
+  console.log(result);
+
   matcher.start();
 };
 
@@ -78,7 +80,8 @@ const handleCancelMatch = async (
     username: message.username,
   };
 
-  queue.cancel(cancelRequest);
+  const result = await queue.cancel(cancelRequest);
+  console.log(result);
 
   io.emit("serverToClient", {
     event: ServerSocketEvents.MATCH_CANCELED,
