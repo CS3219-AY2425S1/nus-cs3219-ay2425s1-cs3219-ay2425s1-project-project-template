@@ -9,8 +9,10 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
+import axios from 'axios';
 
 const NOTIFICATION_SERVICE = "http://localhost:5000";
+const MATCH_SERVICE = "http://localhost:5001";
 const userId = localStorage.getItem("userId");
 const topics = [
   "Algorithms",
@@ -76,11 +78,20 @@ export const Match = () => {
     setTimer(0);
 
     try {
-      // TO BE COMPLETED: MATCHING SERVICE API CALL
-      // const response = await axios.post(MATCHING_SERVICE, {
-      //   topic: selectedTopic,
-      //   difficulty: selectedDifficulty,
-      // });
+      const response = await axios.post(`${MATCH_SERVICE}/match`, {
+        topic: selectedTopic,
+        difficulty: selectedDifficulty,
+        username: localStorage.getItem("username")
+      }, {
+        headers: { "Content-Type": "application/json" }
+      });
+
+      console.log(response);
+      // if (response.status === 200) {
+      //   alert("Finding match! Please wait for up to 2 minutes");
+      // } else {
+      //   alert("Error occured!");
+      // }
 
       // Establish WebSocket connection to notification service
       const socket = io(NOTIFICATION_SERVICE, {
