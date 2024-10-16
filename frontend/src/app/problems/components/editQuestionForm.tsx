@@ -156,16 +156,12 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
               hasError = true;
               const errorData = await response.json()
               setError(errorData.message);
-              console.log("errorData", errorData);
             }
         } catch(err) {
             // handle error we can decide later
             hasError = true;
             console.log("error", err);
         } finally {
-          console.log('iD', isDirty);
-          console.log('err', hasError);
-          console.log('errmsg', error);
           if (!hasError && isDirty) {
             refetch();
             onClose();
