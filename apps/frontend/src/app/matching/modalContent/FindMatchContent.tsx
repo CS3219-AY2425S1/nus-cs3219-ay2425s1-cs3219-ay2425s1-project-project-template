@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { 
-    Modal,
+import {
     Tag,
     Select,
     Space,

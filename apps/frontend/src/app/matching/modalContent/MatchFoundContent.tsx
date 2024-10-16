@@ -1,20 +1,6 @@
-import React, { useState } from 'react';
-import { 
-    Modal,
-    Tag,
-    Select,
-    Space,
-    Avatar,
- } from 'antd';
-import {
-    LoadingOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
-import {
-    DifficultyOption,
-    CategoriesOption,
-} from '@/utils/SelectOptions';
-import type { SelectProps } from 'antd';
+import React from 'react';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import 'typeface-montserrat';
 import './styles.scss';
 import { handleCancelMatch, handleJoinMatch } from '../handlers';
