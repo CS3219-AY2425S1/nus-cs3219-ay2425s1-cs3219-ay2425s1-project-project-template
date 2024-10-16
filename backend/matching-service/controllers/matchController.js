@@ -10,7 +10,6 @@ const createMatch = async (req, res) => {
     }
 
     try {
-
         const result = await Match.create({
             user1Id: req.body.user1Id,
             user2Id: req.body.user2Id,
@@ -27,7 +26,6 @@ const createMatch = async (req, res) => {
 // Retrieve a single match by its ID
 const getMatchById = async (req, res) => {
     const { id } = req.params;
-
     try {
         const match = await Match.findById(id);
 

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const { initRabbitMQ } = require('./queues/rabbitmq');
 const { databaseConn } = require('./config/db');
 const mongoose = require('mongoose');
 
@@ -22,8 +23,6 @@ mongoose.connection.once('open', () => {
     console.log('connected to MongoDB');
     app.listen(PORT, () => console.log(`Matching service running on port ${PORT}`));
 });
-
-const { initRabbitMQ } = require('./queues/rabbitmq');
 
 // Initialize RabbitMQ
 initRabbitMQ();

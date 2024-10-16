@@ -1,7 +1,7 @@
 const { getChannel } = require('../queues/rabbitmq');
 const Match = require('../models/Match');
 
-let requestQueue = {};  // In-memory storage for match requests by category
+let requestQueue = [];  // In-memory storage for match requests by category
 
 // Listen for match requests and process them
 const listenForMatchRequests = () => {
