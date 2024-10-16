@@ -2,23 +2,23 @@ version: '3.8'
 
 services:
   question-service:
-    build: ./questionService
+    build: ./question-service
     image: question-service:latest
     ports:
       - "8080:8080"  # Expose question service on port 8080
     volumes:
-      - ./questionService:/usr/src/app  # For local development with live reloading
+      - ./question-service:/usr/src/app  # For local development with live reloading
       - question_service_node_modules:/usr/src/app/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
 
   user-service:
-    build: ./userService
+    build: ./user-service
     image: user-service:latest
     ports:
-      - "8081:8081"  # Expose user service on port 8081
+      - "3001:3001"  # Expose user service on port 8081
     volumes:
-      - ./userService:/usr/src/app  # For local development with live reloading
+      - ./user-service:/usr/src/app  # For local development with live reloading
       - user_service_node_modules:/usr/src/app/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
