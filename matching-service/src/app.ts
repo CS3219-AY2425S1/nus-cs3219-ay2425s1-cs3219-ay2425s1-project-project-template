@@ -3,19 +3,17 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 
 import messageRoutes from "./routes/messageRoute";
-import { initRabbitMQ, subscribeToQueue } from "./services/rabbitMqService";
+import { initRabbitMQ } from "./services/rabbitMqService";
 import redisClient from "./config/redisConfig";
-import {
-  processNewUser,
-  startBackgroundTransfer,
-} from "./services/matchingService";
-import { User } from "./types";
+import { startBackgroundTransfer } from "./services/matchingService";
 
-dotenv.config({ path: ".env.dev" });
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env.dev";
+console.log(`Using env file: ${envFile}`);
+dotenv.config({ path: envFile });
 
 const app = express();
 const PORT = process.env.PORT || 5001; // 5001 to prevent conflicts
-const QUEUE = process.env.MATCHING_SERVICE_QUEUE || "matching-service";
 
 app.use(express.json());
 app.use(cors()); // config cors so that front-end can use
