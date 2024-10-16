@@ -11,7 +11,6 @@ public class MatchRequestProducer {
     private KafkaTemplate<String, String> kafkaTemplate;
 
     public void sendMessage(String topic, String key, String value) {
-        kafkaTemplate.send(topic, value);
+        kafkaTemplate.send(topic, key, value);
     }
-
 }
