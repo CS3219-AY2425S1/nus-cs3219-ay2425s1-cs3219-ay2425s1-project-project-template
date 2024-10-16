@@ -38,9 +38,9 @@ function connect() {
 function sendMatchRequest() {
   // Create a hardcoded test match request object
   const matchRequest = JSON.stringify({
-    useremail: "testuser@example.com",
+    userEmail: "testuser@example.com",
     topic: "test_topic",
-    language: "Java",
+    programmingLanguage: "Java",
     difficulty: "medium",
   });
 

@@ -21,11 +21,7 @@ public class MatchingWebSocketController {
     @MessageMapping("/matchRequest")
     public void processMatchRequest(MatchRequest matchRequest, Principal principal) {
         String userId = principal.getName(); // This should return the user's ID
-        System.out.println("Received match request from user: " + userId);
-        matchRequestProducer.sendMessage("MATCH_REQUESTS", userId, matchRequest.toString());
+        System.out.println("Received match request from user: " + matchRequest.getUserEmail());
+        matchRequestProducer.sendMessage("MATCH_REQUESTS", matchRequest.getMatchCriteriaKey(), userId + "_" + matchRequest.getUserEmail());
     }
 }
-
-
-// use this to send message to specific user once match is found
-// messagingTemplate.convertAndSendToUser(user, "/queue/matches", matchRequest);
