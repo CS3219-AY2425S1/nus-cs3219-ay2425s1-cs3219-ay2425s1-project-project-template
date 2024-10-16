@@ -7,7 +7,6 @@ import HomeNavBar from "../components/HomeNavBar";
 import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
-import MockMatch from "./pages/MockMatch/mockMatch";
 import MatchingPage from "./pages/MatchingPage";
 import { useEffect, useState } from "react";
 
@@ -63,7 +62,6 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
-          <Route path="/mock-match" element={<MockMatch />} />
           <Route path="/match-me" element={<MatchingPage />} />
         </Routes>
       </Box>

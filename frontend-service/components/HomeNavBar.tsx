@@ -43,11 +43,6 @@ export default function HomeNavBar({ isAuthenticated }) {
                   Match Me
                 </Button>
               </Link>
-              <Link to="/mock-match">
-                <Button variant="ghost" fontWeight="bold" mr={86}>
-                  Match Me (Mock)
-                </Button>
-              </Link>
               <Link to="/about-us">
                 <Button variant="ghost" fontWeight="bold" mr={86}>
                   About Us
