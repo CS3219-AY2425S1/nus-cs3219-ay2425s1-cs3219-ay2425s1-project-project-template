@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResponse } from '@nestjs/swagger';
-import { MatchingService } from './services/matching.service';
+import { MatchingService, MatchStatus } from './services/matching.service';
 import { MatchRequestDto, MatchResponse } from './dto/request.dto';
 
 @Controller()
@@ -36,13 +36,36 @@ export class AppController {
   }
 
   @ApiResponse({ status: 200 })
+  @Post('cancel-match')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async cancelMatch(@Body() body: MatchRequestDto): Promise<MatchResponse> {
+    try {
+      await this.matchService.addCancelRequest(body);
+
+      return {
+        message: `Match request cancelled for ${body.userId} on time: ${body.timestamp}`,
+      };
+    } catch (error) {
+      console.error('Error processing cancel match request:', error);
+      return {
+        message: `Match request cancelled for ${body.userId} on time: ${body.timestamp}`,
+        error: error,
+      };
+    }
+  }
+
+  @ApiResponse({ status: 200 })
   @Get('check-match')
   async checkMatch(@Query('userId') userId: string, @Res() res: Response) {
     const match = this.matchService.pollForMatch(userId);
-    if (match && match.matched) {
+    if (match && match.status === MatchStatus.MATCHED) {
       // Once a successful match request is found, remove the user from the pool
       this.matchService.removeFromUserPool(userId);
       return res.status(200).json(match);
+    } else if (match && match.status === MatchStatus.CANCELLED) {
+      // Once a match request is cancelled, remove the user from the pool
+      this.matchService.removeFromUserPool(userId);
+      return res.status(202).json({ message: 'Match request cancelled', topic: match.topic });
     } else if (match) {
       return res.status(202).json({ message: 'No match found yet', topic: match.topic });
     } else {
