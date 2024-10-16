@@ -26,9 +26,9 @@ function App() {
         .then((response) => response.json())
         .then((data) => {
           if (data.message == "Token verified") {
-            localStorage.removeItem("token");
             setIsAuthenticated(true);
           } else {
+            localStorage.removeItem("token");
             setIsAuthenticated(false);
           }
         })
