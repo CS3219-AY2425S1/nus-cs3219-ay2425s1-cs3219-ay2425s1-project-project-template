@@ -19,13 +19,24 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Retrieve user from local storage on mount
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        console.log("trying");
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.log("Failed to parse user from local storage:", error);
+        setUser(undefined);
+      }
     }
   }, []);
 
   const updateUser = (userData: User | undefined) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Store user in local storage
+    try {
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData)); // Store user in local storage
+    } catch (error) {
+      setUser(undefined);
+      console.log("Failed to update user", error);
+    }
   };
 
   const logoutUser = () => {
