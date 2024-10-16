@@ -67,7 +67,10 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               </Button>
               <Button
                 variant="destructive"
-                onClick={handleDeleteAccount}
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  handleDeleteAccount();
+                }}
                 disabled={!isDeleteButtonEnabled}
               >
                 Delete Account
