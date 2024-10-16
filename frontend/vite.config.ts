@@ -44,6 +44,12 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
+        '/match-socket/': {
+          target: 'http://localhost:9004',
+          ws: true,
+          secure: false,
+          changeOrigin: true,
+        },
       },
     },
   };

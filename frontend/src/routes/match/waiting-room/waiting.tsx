@@ -1,31 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/routes';
-import { CircleX, LoaderCircle } from 'lucide-react';
+import { cancelMatch } from '@/services/match-service';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
-
-const SOCKET_EVENTS = {
-  CONNECT: 'connect',
-  MESSAGE: 'message',
-  JOIN_ROOM: 'joinRoom',
-  MATCHING: 'MATCHING',
-  PENDING: 'PENDING',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-};
-
-const FAILED_STATUS = {
-  header: 'No match found',
-  icon: <CircleX color='red' />,
-  description: 'Match failed.',
-};
-
-const WAITING_STATUS = {
-  header: 'Waiting for a Partner...',
-  icon: <LoaderCircle className='animate-spin' />,
-  description: 'Connecting...',
-};
+import { WAITING_STATUS, FAILED_STATUS, SOCKET_EVENTS, CANCELLING_STATUS } from './constants';
 
 export const WaitingRoom = () => {
   const location = useLocation();
@@ -33,6 +12,7 @@ export const WaitingRoom = () => {
 
   const socketPort = location.state?.socketPort;
   const [connected, setConnected] = useState(false);
+  const [cancel, setCancel] = useState(false);
   const countdownRef = useRef(31);
   const [status, setStatus] = useState(WAITING_STATUS);
   const timerRef = useRef<number | null>(null);
@@ -45,7 +25,10 @@ export const WaitingRoom = () => {
   };
 
   useEffect(() => {
-    if (connected) {
+    if (cancel) {
+      clearInterval(timerRef.current!);
+      setStatus(CANCELLING_STATUS);
+    } else if (connected) {
       timerRef.current = window.setInterval(() => {
         if (countdownRef.current > 0) {
           countdownRef.current -= 1;
@@ -58,14 +41,15 @@ export const WaitingRoom = () => {
     }
 
     return () => clearInterval(timerRef.current!);
-  }, [connected]);
+  }, [connected, cancel]);
 
   useEffect(() => {
     if (!socketPort) {
       navigate(ROUTES.MATCH);
       return;
     }
-    const socket = io(`http://localhost:9004`, {
+    const socket = io({
+      path: '/match-socket/',
       reconnection: true,
       withCredentials: true,
     });
@@ -110,6 +94,17 @@ export const WaitingRoom = () => {
     };
   }, [socketPort, navigate]);
 
+  const handleCancel = async () => {
+    try {
+      setCancel(true);
+      countdownRef.current = 0;
+      await cancelMatch();
+      navigate(ROUTES.MATCH);
+    } catch (error) {
+      console.error('Failed to cancel match:', error);
+    }
+  };
+
   return (
     <div className='flex h-screen flex-col items-center justify-center'>
       <h1 className='mb-4 text-3xl'>{status.header}</h1>
@@ -117,8 +112,8 @@ export const WaitingRoom = () => {
         {status.icon}
         <p className='mt-4 text-lg'>{status.description}</p>
       </div>
-      {countdownRef.current > 0 ? (
-        <Button className='mt-5' variant='destructive'>
+      {countdownRef.current > 0 || cancel ? (
+        <Button className='mt-5' variant='destructive' onClick={handleCancel} disabled={cancel}>
           Cancel
         </Button>
       ) : (

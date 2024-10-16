@@ -33,5 +33,6 @@ export const requestMatch = (data: MatchFormData): Promise<IRequestMatchResponse
 };
 
 export const cancelMatch = () => {
-  return matchApiClient.post(MATCHING_SERVICE_ROUTES.CANCEL_MATCH);
+  return true;
+  //return matchApiClient.post(MATCHING_SERVICE_ROUTES.CANCEL_MATCH);
 };
