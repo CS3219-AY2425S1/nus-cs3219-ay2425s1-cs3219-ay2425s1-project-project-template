@@ -1,5 +1,5 @@
 import { Difficulty, Question, Topic } from "@/models/Question";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,7 @@ const customQuestion: Question = {
 function CollabPageView() {
 	const [code, setCode] = useState("");
 	const [socket, setSocket] = useState<Socket | null>(null);
+	const editorRef = useRef();
 
 	useEffect(() => {
 		// Initialize the WebSocket connection when the component mounts
@@ -68,9 +69,9 @@ function CollabPageView() {
 
 	const handleCodeChange = (newCode: string | undefined) => {
 		if (newCode === undefined) return; // if not code, do nothing
-		
+
 		setCode(newCode); // Update the local state
-	
+
 		// Emit the code update to the WebSocket server
 		if (socket) {
 			console.log("Emitting code update:", newCode);
@@ -79,6 +80,12 @@ function CollabPageView() {
 				code: newCode,
 			});
 		}
+	};
+
+	// Callback function to mount editor to auto-focus when page loads
+	const onMount = (editor) => {
+		editorRef.current = editor;
+		editor.focus();
 	};
 
 	return (
@@ -226,6 +233,7 @@ function CollabPageView() {
 						defaultValue="// some comment"
 						value={code}
 						onChange={(value) => handleCodeChange(value)}
+						onMount={onMount} // Focus the editor when it mounts
 					/>
 				</div>
 			</div>
