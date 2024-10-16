@@ -23,11 +23,12 @@ const Header = (props: HeaderProps): JSX.Element => {
     {
       key: 0,
       label: "Problems",
+      onClick: () => push("/question"),
     },
     {
       key: 1,
       label: "Matching",
-      disabled: true,
+      onClick: () => push("/matching"),
     },
   ];
 
@@ -63,7 +64,7 @@ const Header = (props: HeaderProps): JSX.Element => {
   return (
     // Header Component
     <AntdHeader className="header">
-      <div className="logo-container">
+      <div className="logo-container-special" onClick={() => push("/")}>
         <div className="logo1">Peer</div>
         <div className="logo2">Prep</div>
       </div>
@@ -73,9 +74,6 @@ const Header = (props: HeaderProps): JSX.Element => {
         defaultSelectedKeys={props.selectedKey}
         items={items}
         style={{ flex: 1, minWidth: 0 }}
-        onClick={(info) => {
-          push("/");
-        }}
       />
       <Dropdown
         menu={{ items: profileItems }}
