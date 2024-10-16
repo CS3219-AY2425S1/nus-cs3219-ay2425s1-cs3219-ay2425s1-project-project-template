@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go service
-RUN go build -o /my-go-service ./cmd
+RUN go build -o /question-service ./cmd
 
 # Create the final image
 FROM alpine:latest
@@ -21,7 +21,7 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the built Go binary from the builder stage
-COPY --from=builder /my-go-service .
+COPY --from=builder /question-service .
 
 # Copy the .env file from the backend folder
 COPY --from=builder /app/.env .
@@ -30,4 +30,4 @@ COPY --from=builder /app/.env .
 EXPOSE 5050
 
 # Command to run the Go service
-CMD ["./my-go-service"]
+CMD ["./question-service"]
