@@ -13,6 +13,8 @@ COPY --from=build --chown=node:node /data/collab-express/dist ./dist
 
 RUN npm ci --omit=dev
 
+RUN sed -i 's|./ws|ws|g' ./dist/ws.js
+
 COPY entrypoint.sh .
 
 ARG port
