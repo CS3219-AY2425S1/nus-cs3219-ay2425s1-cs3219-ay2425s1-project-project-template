@@ -1,14 +1,12 @@
-import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import IsConnected from "./IsConnected";
 import ProfileButton from "./ProfileButton";
-import { User } from "../types/User";
+import { useUser } from "../context/UserContext";
 
-interface NavBarProps {
-  currUser: User | undefined;
-}
-const NavBar: React.FC<NavBarProps> = ( {currUser} ) => {
+
+const NavBar = () => {
   const location = useLocation();
+  const { user } = useUser();
 
   return (
     <nav className="bg-off-white w-full p-4 flex items-center justify-between relative">
@@ -43,7 +41,7 @@ const NavBar: React.FC<NavBarProps> = ( {currUser} ) => {
           </div>
         ) : (
           <Link to="/profile">
-            <ProfileButton currUser={currUser}/>
+            <ProfileButton currUser={user}/>
           </Link>
         )}
       </div>

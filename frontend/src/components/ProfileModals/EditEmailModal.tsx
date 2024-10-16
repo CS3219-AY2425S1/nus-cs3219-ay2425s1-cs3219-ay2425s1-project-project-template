@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 // import { Link } from "react-router-dom";
 import { User } from '../../types/User.tsx';
 import useUpdateUser from '../../hooks/useUpdateUser.tsx';
@@ -6,7 +6,7 @@ import ErrorModal from '../Dashboard/ErrorModals/ErrorModal.tsx';
 
 interface EditEmailModalProps {
     onClose: () => void;
-    setUser: Dispatch<SetStateAction<User | undefined>>
+    setUser:  (userData: User | undefined) => void
     user: User | undefined;
 }
 
@@ -46,7 +46,7 @@ const EditEmailModal: React.FC<EditEmailModalProps> = ({
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setNewEmail(event.target.value); // Update the local state with the input value
     };
-    const { updateUser, loading } = useUpdateUser(user?.id || "", "email");
+    const { updateUser, loading } = useUpdateUser(user, "email");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Prevent default form submission

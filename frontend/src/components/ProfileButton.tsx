@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useFetchProfilePicture from "../hooks/useFetchProfilePicture";
 import { User } from "../types/User";
+import defaultprofilepicture from "../images/defaultprofilepicture.jpg"
 
 interface ProfileButtonProps {
   currUser: User | undefined;
@@ -16,7 +17,7 @@ const ProfileButton: React.FC<ProfileButtonProps> = ({currUser}) => {
 
   useEffect(() => {
     if (currUser)
-      useFetchProfilePicture(currUser.id, setUser);
+      useFetchProfilePicture(currUser, setUser);
   }, [currUser])
 
   
@@ -30,7 +31,9 @@ const ProfileButton: React.FC<ProfileButtonProps> = ({currUser}) => {
                             </div>
                     </>
                     ) : (
-                        <p>Loading image...</p>
+                      <div className=''>
+                      <img className="rounded-full" style={{ width: '50px', height: '50px'}} src={defaultprofilepicture} alt="Fetched" />
+                      </div>
                     )}
       </div>
     </>

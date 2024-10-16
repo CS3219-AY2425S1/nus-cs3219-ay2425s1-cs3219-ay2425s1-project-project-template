@@ -6,7 +6,7 @@ import ErrorModal from '../Dashboard/ErrorModals/ErrorModal.tsx';
 
 interface EditPasswordModalProps {
     onClose: () => void;
-    setUser: Dispatch<SetStateAction<User | undefined>>
+    setUser:  (userData: User | undefined) => void
     user: User | undefined;
 }
 
@@ -41,12 +41,11 @@ const EditPasswordModal: React.FC<EditPasswordModalProps> = ({
       setPassword(event.target.value); // Update the local state with the input value
     };
 
-    const { updateUser, loading } = useUpdateUser(user?.id || "", "password");
+    const { updateUser, loading } = useUpdateUser(user, "password");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Prevent default form submission
         if (newPassword && newPassword == cfmPassword) {
-            console.log("updating username to:",newPassword);
             await updateUser(newPassword, setUser, setErr, setSuccess); // Call the custom hook function
         }
     };

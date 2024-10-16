@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import ProfileButton from "./ProfileButton.tsx";
 import AddQuestionModal from "./QuestionModals/AddQuestionModal.tsx";
-import { User } from "../types/User";
-import useRetrieveUser from "../hooks/useRetrieveUser";
+import { useUser } from "../context/UserContext.tsx";
 
 interface AdminNavBarProps {
   fetchData: () => Promise<void>;
@@ -12,12 +11,10 @@ interface AdminNavBarProps {
 
 const AdminNavBar: React.FC<AdminNavBarProps> = ({ fetchData }) => {
   const location = useLocation();
-
+  const { user } = useUser();
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
-  const [user, setUser] = useState<User | undefined>(undefined);
-  useRetrieveUser(setUser);
   return (
     <nav className="bg-off-white w-full p-4 flex items-center justify-between">
       {/* Logo or Brand */}
@@ -46,7 +43,7 @@ const AdminNavBar: React.FC<AdminNavBarProps> = ({ fetchData }) => {
       {/* Profile button */}
       <div className="flex-none">
         <Link to="/profile">
-          <ProfileButton userId={user ? user.id : ""}/>
+          <ProfileButton currUser={user}/>
         </Link>
       </div>
     </nav>
