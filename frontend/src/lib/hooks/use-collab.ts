@@ -1,6 +1,6 @@
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import type { Extension, ReactCodeMirrorRef } from '@uiw/react-codemirror';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { yCollab } from 'y-codemirror.next';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
@@ -24,12 +24,18 @@ const getRandomColor = () => {
   return usercolors[Math.floor(Math.random() * usercolors.length)];
 };
 
+type IYjsUserState = { user: { name: string; userId: string; color: string; colorLight: string } };
+
 // TODO: Test if collab logic works
 export const useCollab = (roomId: string) => {
   const [code, setCode] = useState('');
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [extensions, setExtensions] = useState<Array<Extension>>(baseExtensions);
   const [language, setLanguage] = useState<LanguageName>('python');
+
+  const [members, _setMembers] = useState<Array<IYjsUserState['user']>>([]);
+  const setMembers = useCallback(_setMembers, [members]);
+
   const langExtension = useMemo(() => {
     return getLanguage(language);
   }, [language]);
@@ -56,19 +62,20 @@ export const useCollab = (roomId: string) => {
         console.log(`Connection Status: ${ev?.status}`);
       });
 
-      // TODO: Update state store, then display avatars
       awareness.on('update', () => {
-        console.log(awareness.getStates().values()); // Array of name, color, light
+        const members = awareness.getStates().values() as MapIterator<IYjsUserState>;
+        setMembers(Array.from(members).map((v) => v.user));
       });
 
       const { color, light } = getRandomColor();
-      // TODO: Get user name
-      // TODO: Set user ID
-      awareness.setLocalStateField('user', {
+      // TODO: Get user name, ID
+      const userState: IYjsUserState['user'] = {
         name: `Anon`,
-        color: color,
+        userId: '',
+        color,
         colorLight: light,
-      });
+      };
+      awareness.setLocalStateField('user', userState);
 
       const collabExt = yCollab(ytext, awareness, { undoManager });
       setCode(ytext.toString());
@@ -86,5 +93,6 @@ export const useCollab = (roomId: string) => {
     setLanguage,
     code,
     setCode,
+    members,
   };
 };
