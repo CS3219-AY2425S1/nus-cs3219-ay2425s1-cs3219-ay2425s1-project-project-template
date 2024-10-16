@@ -9,6 +9,7 @@ class RabbitMQConnection {
     connection!: Connection
     channel!: Channel
     private connected!: boolean
+    private cancelledUsers: Set<string>
 
     async connect() {
         if (this.connected && this.channel) return
@@ -28,6 +29,8 @@ class RabbitMQConnection {
 
             this.channel = await this.connection.createChannel()
 
+            this.cancelledUsers = new Set<string>()
+
             logger.info(`[Init] Created RabbitMQ Channel successfully`)
         } catch (error) {
             this.connected = false
@@ -40,6 +43,11 @@ class RabbitMQConnection {
         try {
             if (!this.channel) {
                 await this.connect()
+            }
+
+            if (this.cancelledUsers.has(this.createId(message.userId, message.timestamp))) {
+                logger.info(`[Entry-Queue] Blacklisted user ${message.userId} tried to enter queue`)
+                return
             }
 
             // Set durable true to ensure queue stays even with mq restart (does not include message persistance)
@@ -127,9 +135,18 @@ class RabbitMQConnection {
                 logger.info(`[Check-Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
                 await this.removeIfEmptyQueue(queueName)
             } else {
-                logger.info(
-                    `[Check-Waiting-Queue] A user is waiting in ${queueName}: ${waitingUser.content.toString()}`
-                )
+                if (waitingUser.content) {
+                    const content: IUserQueueMessage = JSON.parse(waitingUser.content.toString())
+                    if (this.cancelledUsers.has(this.createId(content.userId, content.timestamp))) {
+                        this.channel.ack(waitingUser)
+                        this.cancelledUsers.delete(this.createId(content.userId, content.timestamp))
+                        return false
+                    } else {
+                        logger.info(
+                            `[Check-Waiting-Queue] A user is waiting in ${queueName}: ${waitingUser.content.toString()}`
+                        )
+                    }
+                }
             }
             return waitingUser
         } catch (error) {
@@ -143,16 +160,25 @@ class RabbitMQConnection {
             // Insert logic to check for possible match before re-queuing
             const content: IUserQueueMessage = JSON.parse(msg.content.toString())
             logger.info(`[Entry-Queue] User information queued: ${JSON.stringify(content)}`)
+
             const destinationQueue = `${content.proficiency}.${content.complexity}.${content.topic}`
 
             // Check for exact match if possible, else
             const directMatch = await this.checkWaitingQueue(destinationQueue)
 
             if (directMatch) {
-                // Add logic here that combines both users into one and returns
-                logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
-                this.channel.ack(directMatch)
-                await this.removeIfEmptyQueue(destinationQueue)
+                const directMatchContent = JSON.parse(directMatch.content.toString())
+                if (this.cancelledUsers.has(this.createId(directMatchContent.userId, directMatchContent.timestamp))) {
+                    logger.info(`[Waiting-Queue] User ${directMatchContent.userId} has withdrawn from queue`)
+                    this.channel.ack(directMatch)
+                    this.cancelledUsers.delete(this.createId(directMatchContent.userId, directMatchContent.timestamp))
+                    return
+                } else {
+                    // Add logic to combine users
+                    logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
+                    this.channel.ack(directMatch)
+                    await this.removeIfEmptyQueue(destinationQueue)
+                }
             } else {
                 let match1: false | GetMessage = false
                 let match2: false | GetMessage = false
@@ -226,6 +252,15 @@ class RabbitMQConnection {
         } catch (error) {
             logger.error(`[Waiting-Queue] Failed to delete queue ${queueName}: ${error}`)
         }
+    }
+
+    async addUserToCancelledSet(userId: string, timestamp: string) {
+        this.cancelledUsers.add(this.createId(userId, timestamp))
+        logger.info(`[Cancel-User] User ${userId} has been blacklisted from matchmaking`)
+    }
+
+    createId(userId: string, timestamp: string): string {
+        return userId + timestamp
     }
 }
 
