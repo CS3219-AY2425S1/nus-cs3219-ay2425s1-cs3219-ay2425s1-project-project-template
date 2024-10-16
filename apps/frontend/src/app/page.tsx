@@ -5,13 +5,22 @@ import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useState } from "react";
+import MatchingModal from "./matching/MatchingModal";
 
 const HomePage = () => {
   const { push } = useRouter();
+  const [matchingModalOpen, setMatchingModalOpen] = useState(false);
+
+  const closeMatchingModal = () => {
+    setMatchingModalOpen(false);
+  }
+
   return (
     <Layout className="layout">
       <Header selectedKey={undefined} />
       <Content className="content">
+        <MatchingModal isOpen={matchingModalOpen} onClose={closeMatchingModal}/>
         <div className="home-content-card">
           <div className="left-panel">
             <div className="logo-container">
@@ -27,7 +36,7 @@ const HomePage = () => {
             <div className="button-container">
               <Button
                 className="match-button"
-                onClick={() => push("/matching")}
+                onClick={() => setMatchingModalOpen(true)}
               >
                 Start Matching
               </Button>

@@ -35,6 +35,9 @@ importers:
       sass:
         specifier: ^1.79.2
         version: 1.79.2
+      typeface-montserrat:
+        specifier: ^1.1.13
+        version: 1.1.13
     devDependencies:
       '@types/node':
         specifier: ^20
@@ -1707,6 +1710,9 @@ packages:
   typed-array-length@1.0.6:
     resolution: {integrity: sha512-/OxDN6OtAk5KBpGb28T+HZc2M+ADtvRxXrKKbUwtsLgdoxgX13hyy7ek6bFRl5+aBs2yZzB0c4CnQfAtVypW/g==}
     engines: {node: '>= 0.4'}
+
+  typeface-montserrat@1.1.13:
+    resolution: {integrity: sha512-Pklkyj0e+K+6I/t0M6JBDBphpfJkF1k+3qd8qDnp9aVtCC7oGBQWTAcL6+5eArfGe7h73uPwyal73hEkf9YCUA==}
 
   typescript@5.0.2:
     resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
@@ -3808,6 +3814,8 @@ snapshots:
       has-proto: 1.0.3
       is-typed-array: 1.1.13
       possible-typed-array-names: 1.0.0
+
+  typeface-montserrat@1.1.13: {}
 
   typescript@5.0.2: {}
 
