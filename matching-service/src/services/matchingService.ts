@@ -34,7 +34,7 @@ export const checkMatch = async (key: string): Promise<User | null> => {
 
 /**
  * Transfers users from the topic queue to the difficulty queue if they are older than 15 seconds.
- * If they are older than 30 seconds in the difficulty queue, they will be removed.
+ * If they are older than 45 seconds in the difficulty queue, they will be removed.
  */
 export const processOldUsers = async (): Promise<void> => {
   const allTopics = await redisClient.keys("topic:*");
@@ -115,7 +115,7 @@ export const processNewUser = async (user: User): Promise<void> => {
   }
 };
 
-// Start background transfer process
+// Start background transfer process, polling every 5 sec
 export const startBackgroundTransfer = (): void => {
   setInterval(async () => {
     await processOldUsers();
