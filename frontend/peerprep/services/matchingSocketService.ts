@@ -52,6 +52,7 @@ export const registerUser = (
   userParams: any,
   onMatchFound: (matchData: any) => void,
   onRegistrationSuccess: () => void,
+  onMatchingTimeout: () => void,
   onError: (error: any) => void,
 ) => {
   if (!socket) {
@@ -67,6 +68,10 @@ export const registerUser = (
 
   socket.on("registrationSuccess", () => {
     onRegistrationSuccess();
+  });
+
+  socket.on("matchingTimeout", () => {
+    onMatchingTimeout();
   });
 
   socket.on("error", (error) => {

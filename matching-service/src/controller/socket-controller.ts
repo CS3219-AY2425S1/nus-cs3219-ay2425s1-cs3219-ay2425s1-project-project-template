@@ -2,7 +2,20 @@ import { Server, Socket } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import { addUserToSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
 import { getRedisClient } from '../utils/redis-client';
-import { writeLogToFile } from "../utils/logger";
+import { formatSearchPoolStatus, writeLogToFile } from "../utils/logger";
+
+// IMPT NOTE: LOGGING OF QUEUE STATUS IS FOR DEMONSTRATION PURPOSES ONLY. IT LAGS THE SERVER AND SHOULD BE REMOVED IN PRODUCTION
+// Search for writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus())); to remove
+
+// if matching timeout is not valid use 30 seconds
+// need to convert env variable to int. if conversion fails, use 30000
+const MATCHING_TIMEOUT = (() => {
+    const timeout = parseInt(process.env.MATCHING_TIMEOUT || '30000');
+    // If the result is NaN, we use the default 30000 (30 seconds)
+    return isNaN(timeout) ? 30000 : timeout;
+})();
+
+const userTimeouts: { [key: string]: NodeJS.Timeout } = {};
 
 // Initialize Redis adapter for socket.io
 export function initializeSocketIO(io: Server) {
@@ -20,6 +33,15 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
     socket.on('registerForMatching', async (criteria) => {
         if (criteria.difficulty && criteria.topic) {
 
+            const timeout = setTimeout(async () => {
+                writeLogToFile(`User ${userId} timed out for matching`);
+                await removeUserFromSearchPool(userId);
+                writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
+                socket.emit('matchingTimeout');
+            }, MATCHING_TIMEOUT);
+
+            userTimeouts[userId] = timeout;
+
             const status = await matchOrAddUserToSearchPool(userId, socket.id, criteria);
             if (status) {
                 const socketId1 = status[0].socketId;
@@ -31,13 +53,21 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
 
                 if (socket1 && socket2) {
 
-                    writeLogToFile(`User ${userId} matched with ${status[1].userId}`);
-                    // Match users and notify them
-                    writeLogToFile(`Emitted matchFound to ${status[0].userId} at socket ${socketId1}`);
+                    // Clear timeouts
+                    if (userTimeouts[userId]) {
+                        clearTimeout(userTimeouts[userId]);
+                        delete userTimeouts[userId];
+                    }
+
+                    if (userTimeouts[status[1].userId]) {
+                        clearTimeout(userTimeouts[status[1].userId]);
+                        delete userTimeouts[status[1].userId];
+                    }
 
                     io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId }); //INSERT SESSION ID HERE
-                    writeLogToFile(`Emitted matchFound to ${status[1].userId} at socket ${socketId2}`);
                     io.to(socketId2).emit('matchFound', { matchedWith: status[0].userId }); //INSERT SESSION ID HERE
+
+                    writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
 
                     //Disconnect both users
                     socket1.disconnect(true);
@@ -52,8 +82,9 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                     }
                 }
             } else {
-                writeLogToFile(`User ${userId} registered for matching`);
+                writeLogToFile(`User ${userId} registered for matching with criteria (${criteria.topic}, ${criteria.difficulty})`);
                 socket.emit('registrationSuccess', { message: `User ${userId} registered for matching successfully.` });
+                writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
             }
 
         } else {
@@ -66,6 +97,13 @@ export function handleDeregisterForMatching(socket: Socket) {
     socket.on('deregisterForMatching', async () => {
         writeLogToFile(`User ${socket.data.userId} deregistered for matching`);
         await removeUserFromSearchPool(socket.data.userId);
+        writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
+        // Clear timeout
+        if (userTimeouts[socket.data.userId]) {
+            clearTimeout(userTimeouts[socket.data.userId]);
+            delete userTimeouts[socket.data.userId];
+        }
+
     });
 }
 
@@ -75,5 +113,36 @@ export function handleDisconnect(socket: Socket) {
     socket.on('disconnect', async () => {
         writeLogToFile(`User ${userId} disconnected`);
         await removeUserFromSearchPool(userId);
+        writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
+        // Clear timeout
+        if (userTimeouts[userId]) {
+            clearTimeout(userTimeouts[userId]);
+            delete userTimeouts[userId];
+        }
     });
+}
+
+export async function getSearchPoolStatus() {
+    const redisClient = getRedisClient();
+    const userIds: string[] = await redisClient.sMembers('searchPool');
+
+    const users = [];
+
+    for (const userId of userIds) {
+        const userData = await redisClient.hGetAll(`user:${userId}`);
+        if (userData) {
+            const criteria = JSON.parse(userData.criteria); // Parse criteria JSON
+            const socketId = userData.socketId; // Accessing by key
+            const startTime = userData.startTime; // Accessing by key
+
+            users.push({
+                userId,
+                socketId,
+                criteria,
+                startTime
+            });
+        }
+    }
+
+    return { users };
 }

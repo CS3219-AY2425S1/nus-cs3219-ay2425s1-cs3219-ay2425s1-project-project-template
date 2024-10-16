@@ -54,7 +54,6 @@ export async function validateSocketJWT(socket: Socket, next: (err?: Error) => v
                 Authorization: `Bearer ${token}`
             }
         });
-        console.log(response);
         console.log(`User ${response.data.data.id} validated`);
         socket.data.userId = response.data.data.id; // Assuming userId is returned in the response
         next();

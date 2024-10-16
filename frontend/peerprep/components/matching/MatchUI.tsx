@@ -10,6 +10,7 @@ import {
 
 import MatchFoundModal from "./MatchFoundModal";
 import MatchmakingModal from "./MatchmakingModal";
+import MatchTimeoutModal from "./MatchTimeoutModal";
 
 interface MatchUIProps {
   onClose: () => void;
@@ -18,6 +19,7 @@ interface MatchUIProps {
 enum UIState {
   StartSession = "StartSession",
   MatchFound = "MatchFound",
+  MatchingTimeout = "MatchingTimeout",
 }
 
 const MatchUI = ({ onClose }: MatchUIProps) => {
@@ -44,7 +46,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleRegisterForMatching = async (
     difficulty: Set<string>,
-    topic: Set<string>,
+    topic: Set<string>
   ) => {
     const userParams = {
       difficulty: Array.from(difficulty).join(","),
@@ -55,15 +57,21 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
       userParams,
       handleMatchFound,
       () => console.log("Registration successful!"), // Handle success
+      handleMatchingTimeout,
       (error) => {
         console.error("Error during matchmaking:", error); // Handle error
-      },
+      }
     );
   };
 
   const handleDeregisterForMatching = () => {
     console.log("Deregistering for matching");
     deregisterUser();
+  };
+
+  const handleMatchingTimeout = () => {
+    console.log("Matching timeout");
+    setUiState(UIState.MatchingTimeout);
   };
 
   const handleMatchFound = (matchData: any) => {
@@ -93,6 +101,10 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
           <MatchFoundModal
             onClose={closeModal}
             isOpen={uiState === UIState.MatchFound}
+          />
+          <MatchTimeoutModal
+            onClose={closeModal}
+            isOpen={uiState === UIState.MatchingTimeout}
           />
         </>
       )}
