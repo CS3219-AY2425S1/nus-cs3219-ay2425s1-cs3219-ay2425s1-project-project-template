@@ -1,11 +1,15 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
-import { User } from "../types/User";
+import { User, userToString } from "../types/User";
 import { UserResponse } from "../types/UserResponse";
 import apiConfig from "../config/config";
+import { useUser } from "../context/UserContext";
 
 const useRetrieveUser = (
     setUser: Dispatch<SetStateAction<User | undefined>>
 ) => {
+    const { user } = useUser();
+    console.log('USER' + userToString(user));
+
     const fetchUserData = async () => {
         try {
             const response = await fetch(`${apiConfig.userServiceAuthUrl}/verify-token`, {
