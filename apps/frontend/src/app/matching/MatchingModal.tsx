@@ -60,7 +60,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, onClose }) => {
             onCancel={onClose}
             footer={null}
             closable={false}
-            maskClosable={isClosableMatchingState()}
+            maskClosable={false}
             className="modal"
         >
             {renderModalContent()}
