@@ -1,6 +1,10 @@
+import { useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
   MultiSelector,
   MultiSelectorContent,
@@ -16,12 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { requestMatch } from '@/services/match-service';
-import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { MatchFormData } from './logic';
 import { ROUTES } from '@/lib/routes';
+import { requestMatch } from '@/services/match-service';
+
+import { MatchFormData } from './logic';
 
 interface MatchFormProps {
   topics: string[];

@@ -66,7 +66,7 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = getMatchItems();
+      const { ...matchItems } = getMatchItems({ userId1: requestorUserId, userId2: matchedUserId });
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
       return true;
