@@ -71,13 +71,13 @@ export const Editor = ({ room }: EditorProps) => {
             {/* TODO: Get user avatar and display */}
             {members.map((member, index) => (
               <div
-                className='grid size-8 place-items-center text-clip rounded-full border p-1 text-xs'
+                className='grid size-8 place-items-center !overflow-clip rounded-full border p-1 text-xs'
                 style={{
                   borderColor: member.color,
                 }}
                 key={index}
               >
-                <span>{member.name}</span>
+                <span className='translate-x-[calc(-50%+12px)]'>{member.name}</span>
               </div>
             ))}
           </div>
