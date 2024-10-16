@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
 import { Kafka, KafkaMessage } from "kafkajs";
-import { KafkaRequest, ProducerFactory, ConsumerFactory } from "./kafka";
+import {
+  KafkaRequest,
+  ProducerFactory,
+  ConsumerFactory,
+  KafkaFactory,
+} from "./kafka";
 
 dotenv.config();
 
@@ -42,17 +47,20 @@ export class Queue implements IQueue {
 
   constructor() {
     // Setup connection to Kafka if using Kafka
-    const kafka = new Kafka({
-      clientId: "match-queue",
-      brokers: [
-        `${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`,
-      ],
-    });
+    const kafka = new KafkaFactory(
+      "match-queue",
+      [`${process.env.KAFKA_BROKER_ROUTE}:${process.env.KAFKA_BROKER_PORT}`],
+      ["match-queue"]
+    );
+
     // Setup producer and consumer
     this.producer = new ProducerFactory(kafka, "match-queue");
-    this.consumer = new ConsumerFactory("match-group", kafka, "match-queue");
+    this.consumer = new ConsumerFactory(kafka, "match-group", "match-queue");
     this.offsetMap = new Map();
-    this.producer.start();
+    kafka.createTopicIfNotPresent(() => {
+      this.producer.start();
+      this.consumer.start();
+    });
   }
 
   public async add(request: IMatchRequest): Promise<IMatchResponse> {
