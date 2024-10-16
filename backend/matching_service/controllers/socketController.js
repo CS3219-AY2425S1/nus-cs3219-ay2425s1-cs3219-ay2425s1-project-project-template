@@ -1,10 +1,12 @@
 const { QueueService } = require("../services/QueueService");
-const TIMEOUT_TIME = 30000;
+const TIMEOUT_TIME = require("../utils/CONSTANTS");
 
 class SocketController {
-  constructor() {
-    this.socketMap = new Map();
-    this.queueService = new QueueService(this.socketMap);
+  constructor(io, pubClient, subClient, connection) {
+    this.io = io;
+    this.pubClient = pubClient;
+    this.subClient = subClient;
+    this.queueService = new QueueService(pubClient, subClient, connection);
   }
 
   handleConnection(socket) {
@@ -12,29 +14,29 @@ class SocketController {
       this.handleStartMatching(socket, data)
     );
 
+    socket.on("joinRoom", (uid, room) => this.handleJoinRoom(socket, uid, room));
+
     socket.on("cancelMatching", (uid) => this.handleCancelMatching(uid));
 
     socket.on("disconnect", () => this.handleDisconnect(socket));
   }
 
   async handleStartMatching(socket, { uid, difficulty, topic }) {
-    this.emitIfDoubleMatchingRequest(uid); // Handles edge case whereby user starts matching from two different sessions simultaneously
-    this.removeExistingConnection(uid); // Remove any existing connections for this user
-
-    // Alert user if database does not contain the requested question type
-    console.log(topic[0]);
-    console.log(difficulty[0]);
+    await this.emitIfDoubleMatchingRequest(uid); // Emit event if double matching requests from same user
+    await this.removeExistingConnection(uid); // Remove any existing connections for this user
 
     // Set a timeout for matching
     setTimeout(() => this.handleTimeout(socket, uid), TIMEOUT_TIME);
 
     try {
+      // Get all questions for a certain topic and difficulty
       const questions = await this.getAllQuestionsOfTopicAndDifficulty(
         socket.handshake.auth.token,
         topic[0],
         difficulty[0]
       );
-
+      
+      // Alert user and stop matching if requested question type does not exist in database
       if (!Array.isArray(questions) || questions.length === 0) {
         socket.emit(
           "noQuestionsFound",
@@ -53,27 +55,22 @@ class SocketController {
       return;
     }
 
-    // Add the socket to the map
     const queueName = this.queueService.getQueueName(difficulty, topic);
-    this.socketMap.set(uid, { socket, queueName });
+    // Add user to redis
+    await this.pubClient.set(uid, socket.id);
 
-    const sessionData = this.queueService.matchUser(queueName, uid);
-    if (sessionData) this.handleMatching(sessionData); // Proceed to handleMatching if found 2 users
+    const sessionData = await this.queueService.matchUser(queueName, uid, socket.id);
+    // If found other user in queue
+    if (sessionData) {
+      this.handleMatching(socket, sessionData, difficulty[0], topic[0]); // Proceed to handleMatching if found 2 users
+    }
   }
 
-  handleCancelMatching(uid) {
-    this.removeExistingConnection(uid);
-  }
-
-  async handleMatching(sessionData) {
-    const { questionData, prevUserSessionData, currUserSessionData } =
-      sessionData;
-
-    const prevUserSocket = this.socketMap.get(prevUserSessionData.uid).socket;
-    const currUserSocket = this.socketMap.get(currUserSessionData.uid).socket;
-
+  async handleMatching(currUserSocket, sessionData, difficulty, topic) {
+    const { prevUserSessionData, currUserSessionData } = sessionData;
     const token = currUserSocket.handshake.auth.token;
-    const { difficulty, topic } = questionData;
+
+    const prevUserSocketId = prevUserSessionData.socketId;
 
     try {
       const questions = await this.getAllQuestionsOfTopicAndDifficulty(
@@ -84,7 +81,7 @@ class SocketController {
 
       // Alert user if database does not contain the requested question type
       if (!Array.isArray(questions) || questions.length === 0) {
-        prevUserSocket.emit(
+        this.io.to(prevUserSocketId).emit(
           "noQuestionsFound",
           "No questions available for the selected topic and difficulty. Please choose another."
         );
@@ -101,31 +98,47 @@ class SocketController {
       const randomIndex = Math.floor(Math.random() * questions.length);
       const randomQuestion = questions[randomIndex];
 
+      const roomId = currUserSessionData.uid;
+
       // Emit matched to both users
-      prevUserSocket.emit("matched", {
+      this.io.to(prevUserSocketId).emit("matched", {
         sessionData: prevUserSessionData,
         questionData: randomQuestion,
+        roomId: roomId,
       });
       currUserSocket.emit("matched", {
         sessionData: currUserSessionData,
         questionData: randomQuestion,
+        roomId: roomId,
       });
+
+      // Logic for collab service: collabService(this.io, roomId) etc
+      // this.io.to(roomId).emit(...)
     } catch (error) {
       console.error(error);
-
-      prevUserSocket.emit(
+      this.io.to(prevUserSocketId).emit(
         "error",
-        "An error occurred while fetching questions. Please try again later."
+        "An error occurred while handling matching. Please try again later."
       );
       currUserSocket.emit(
         "error",
-        "An error occurred while fetching questions. Please try again later."
+        "An error occurred while handling matching. Please try again later."
       );
     } finally {
       // Remove existing connections
-      this.removeExistingConnection(prevUserSessionData.uid);
-      this.removeExistingConnection(currUserSessionData.uid);
+      // this.removeExistingConnection(prevUserSessionData.uid);
+      // this.removeExistingConnection(currUserSessionData.uid);
     }
+  }
+
+  handleJoinRoom(socket, uid, room) {
+    socket.join(room);
+    console.log(`User ${uid} joined room: ${room}`);
+    this.removeExistingConnection(uid); // To be removed when collab service is in place
+  }
+
+  handleCancelMatching(uid) {
+    this.removeExistingConnection(uid);
   }
 
   handleTimeout(socket, uid) {
@@ -134,43 +147,36 @@ class SocketController {
         "matchmakingTimedOut",
         `Matchmaking timed out after ${TIMEOUT_TIME / 1000}s`
       );
-      console.log(`timed out after ${TIMEOUT_TIME / 1000}s`);
+      console.log(`${uid}} timed out after ${TIMEOUT_TIME / 1000}s`);
 
       this.removeExistingConnection(uid);
     }
   }
 
-  handleDisconnect(socket) {
-    const uid = this.findUidBySocket(socket);
-
-    if (uid) {
-      this.removeExistingConnection(uid);
-    }
+  async handleDisconnect(socket) {
+    await this.removeExistingConnection(socket.handshake.auth.uid); // uid is passed in socket auth from frontend
   }
 
-  emitIfDoubleMatchingRequest(uid) {
-    const socketData = this.socketMap.get(uid);
-    if (!socketData) return;
+  async emitIfDoubleMatchingRequest(uid) {
+    const socketId = await this.pubClient.get(uid); // Retrieve data from Redis
+    if (!socketId) return;
 
-    const { socket, queueName } = socketData;
-    socket.emit(
+    this.io.to(socketId).emit(
       "doubleMatchingRequest",
       "Double matching request detected, stopping current tab's matching request"
     );
   }
 
-  removeExistingConnection(uid) {
-    console.log("Removing Existing Connection for User:", uid);
+  async removeExistingConnection(uid) {
+    console.log(`Removing (any) existing connection for user: ${uid}`);
 
-    const socketData = this.socketMap.get(uid);
-    if (!socketData) return;
+    const socketId = await this.pubClient.get(uid);
+    if (!socketId) return;
 
-    const { socket, queueName } = socketData;
+    // Remove the entry from Redis
+    await this.pubClient.del(uid); // Delete the redis entry for this uid
 
-    this.queueService.removeUserFromQueue(queueName, uid);
-    this.socketMap.delete(uid);
-
-    socket.disconnect();
+    this.io.to(socketId).emit("DisconnectSocket");
   }
 
   async getAllQuestionsOfTopicAndDifficulty(token, topic, difficulty) {
@@ -199,15 +205,6 @@ class SocketController {
 
     const questions = await response.json();
     return questions;
-  }
-
-  findUidBySocket(socket) {
-    for (const [uid, socketData] of this.socketMap.entries()) {
-      if (socketData.socket === socket) {
-        return uid;
-      }
-    }
-    return null;
   }
 }
 

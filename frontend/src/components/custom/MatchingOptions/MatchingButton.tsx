@@ -24,11 +24,13 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         import.meta.env.VITE_MATCHING_SERVICE_BACKEND_URL ||
         "ws://localhost:5003/matching";
       const token = sessionStorage.getItem("authToken");
+      const uid = sessionStorage.getItem("uid");
 
       // Initialize WebSocket connection
       socketRef.current = io(matchingServiceBackendUrl, {
         auth: {
-          token,
+          token: token,
+          uid: uid,
         },
         withCredentials: true,
       });
@@ -38,6 +40,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         reset(); // Reset stopwatch
         setMatchFound(true);
         console.log("Match found: ", data);
+        socketRef.current.emit("joinRoom", data.sessionData.uid, data.roomId);
       });
 
       socketRef.current.on("matchmakingTimedOut", (timedOutMessage: any) => {
@@ -64,6 +67,10 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         }
       );
 
+      socketRef.current.on("DisconnectSocket", () => {
+        socketRef.current.disconnect();
+      });
+
       socketRef.current.on("error", (errorMessage: any) => {
         reset(); // Reset stopwatch
         setIsMatching(false);
@@ -72,7 +79,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
 
       // Start matchmaking
       socketRef.current.emit("startMatching", {
-        uid: sessionStorage.getItem("uid"),
+        uid: uid,
         difficulty: selectedDifficulty,
         topic: selectedTopic,
       });
@@ -102,9 +109,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
   const handleCancelMatchmaking = () => {
     reset();
     setIsMatching(false);
-    socketRef.current.emit("cancelMatching", {
-      uid: sessionStorage.getItem("uid"),
-    });
+    socketRef.current.emit("cancelMatching", sessionStorage.getItem("uid"));
   };
 
   return (

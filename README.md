@@ -8,11 +8,17 @@
 
 
 ### Public hosted website:
-You can access the PeerPrep application at https://frontend-1079323726684.asia-southeast1.run.app
+You can access the PeerPrep application at https://frontend-1079323726684.asia-southeast1.run.app (note that matching service might be down as it is too **expensive** for us to host matching service 24/7)
 
 How to deploy website to public:
 
-1. Build each service (with environment variable provided if needed) and push to gcr. *If this is your first time docker pushing to gcr, you would need to link your Google account with docker first, and then select the PeerPrep project. Do that before proceeding* 
+1. Deploy a Redis instance on Google memorystore (it's too expensive to host this 24/7), and then obtain its ip address to plug into the build arguments in the script below. In this example, the ip addr is 10.189.63.187 (see image below)
+![image](resources/images/redis-instance.png)
+
+2. Deploy a RabbitMQ instance via CloudAMQP (free tier). Currently, Wei Rui has done this already so just contact him to get the full confidential RabbitMQ URL (hosted on CloudAMQP) to plug into the build arguments in the script below
+
+3. Ensure you have plugged in the necessary details from step 1 and step 2 into the script below. Build each service (with environment variable provided wherever needed) and push to gcr. *If this is your first time docker pushing to gcr, you would need to link your Google account with docker first, and then select the PeerPrep project. Do that before proceeding.* 
+
   ```sh
   cd backend/user_service
   docker build -t user_service .
@@ -25,7 +31,7 @@ How to deploy website to public:
   docker push gcr.io/peerprep-g02/question_service
 
   cd ../matching_service
-  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app/verify-token --build-arg QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app/get-questions-of-topic-and-difficulty -t matching_service .
+  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app/verify-token --build-arg QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app/get-questions-of-topic-and-difficulty --build-arg REDIS_URL=redis://{DEPLOY_REDIS_INSTANCE_ON_GOOGLE_MEMORYSTORE_AND_OBTAIN_IP_ADDR_AND_THEN_PLUG_IT_HERE}:6379 --build-arg RABBITMQ_URL=amqps://taorzqvx:{CONTACT_WEI_RUI_TO_GET_PASSWORD_AND_THEN_PLUG_IT_HERE}@armadillo.rmq.cloudamqp.com/taorzqvx -t matching_service .
   docker tag matching_service gcr.io/peerprep-g02/matching_service
   docker push gcr.io/peerprep-g02/matching_service
 
@@ -38,15 +44,19 @@ How to deploy website to public:
   ![image](resources/images/cloud-console.png)
 
   You should be able to see your just pushed images in gcr:
-![image](resources/images/container-registry.png)
+  ![image](resources/images/container-registry.png)
 
-2. Go to Cloud Run and for each services, deploy container via service
+4. Go to Cloud Run and for each services, deploy container via service (note that step 6 is needed for matching service)
 ![image](resources/images/deploy-container.png)
 
-3. Fill in the details accordingly. For our frontend service example, container image URL should be `gcr.io/peerprep-g02/frontend`. Service name could be anything, like `frontend`. Region choose the region closest to you. Scroll down and remember to configure the container port number to suit the exposed container port as defined by the `Dockerfile` as well.
+5. Fill in the details accordingly. For our frontend service example, container image URL should be `gcr.io/peerprep-g02/frontend`. Service name could be anything, like `frontend`. Region choose the region closest to you. Scroll down and remember to configure the container port number to suit the exposed container port as defined by the `Dockerfile` as well.
 ![image](resources/images/deploy-service-1.png)
 ![image](resources/images/deploy-service-2.png)
 Repeat this until all services are hosted
+
+6. In order to allow our Cloud Run hosted applications/websites to be able to access the (internal) ip addr of Redis, you would also need to set up a Serverless VPC access in Google Cloud Console (another paid service). This Serverless VPC access is bascially a Google Cloud feature that allows serverless services (like Cloud Run, Cloud Functions, and App Engine) to communicate securely and privately with resources inside a Virtual Private Cloud (VPC) network. It bridges the gap between serverless environments (which don't have their own dedicated network) and VPC-based resources, such as databases, Redis instances, or any other internal services running within the VPC. ![image](resources/images/Serverless-VPC-access.png)
+Once the Serverless VPC access is set up, when deploying/re-deploying **matching** service on Google Cloud Run, configure the networking settings by ticking "Connect to a VPC for outbound traffic" and select "Use Serverless VPC Access connectors" and choose the Serverless VPC access connector which you had just set up (see image below)
+![image](resources/images/configure-networking-settings.png)
 
 ### Docker compose up locally:
 ```
@@ -55,8 +65,7 @@ docker compose build
 docker compose up -d
 ```
 
-
-Access the frontend at `localhost:3000`, the user service (backend) at `localhost:5001` and the question service (backend) at `localhost:5002`.
+Access the frontend at `localhost:3000`. Note that this method (`docker compose up -d`) might take awhile as the matching service is only started after rabbitMQ is set up (which takes awhile)
 
 ### Individual services wind up:
 For each backend service, cd into them and run `node server.js` or `nodemon server.js` \
