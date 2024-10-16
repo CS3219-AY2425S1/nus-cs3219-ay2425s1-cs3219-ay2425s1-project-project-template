@@ -6,14 +6,30 @@ import { Category, Complexity, Proficiency } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useRef } from 'react'
 import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 
+type WebSocketSuccessMessage = {
+    type: 'success'
+    matchId: string
+}
+
+type WebSocketFailureMessage = {
+    type: 'fail'
+}
+
+type WebSocketMessage = WebSocketSuccessMessage | WebSocketFailureMessage
+
+interface CustomEventDetail {
+    matchId?: string
+}
+
 export const NewSession = () => {
     const router = useRouter()
+    const socketRef = useRef<WebSocket | undefined>(undefined)
 
     const TopicOptions = Object.values(Category).map((category) => ({
         value: category,
@@ -35,6 +51,7 @@ export const NewSession = () => {
         isMatchmaking: false,
         isMatchFound: false,
         isMatchmakingFailed: false,
+        matchID: '',
     })
 
     const [timeElapsed, setTimeElapsed] = React.useState(0)
@@ -65,7 +82,7 @@ export const NewSession = () => {
         }))
 
         //TODO: Modify this response to match the response from the API
-        let response: { wsId: string } | undefined
+        let response: { wsId: string; wsUrl: string } | undefined
 
         try {
             response = await addUserToMatchmaking({
@@ -78,30 +95,30 @@ export const NewSession = () => {
             await handleFailedMatchmaking()
         }
 
-        //TODO: Add WS logic here open on connection and register handlers for match found and failed match
-        // const socket = new WebSocket(`wss://${response?.wsUrl}`)
-        // socketRef.current = socket
-        // socketRef.current.addEventListener("fail", (event) => {
-        //     socketRef.current.close()
-        //     socketRef.current = undefined
-        //     await handleFailedMatchmaking()
-        // })
-        // socketRef.current.addEventListener('success', (event) => {
-        //     const matchId = event.data.matchId
-        //     socketRef.current.close()
-        //     socketRef.current = undefined
-        //     await handleMatchFound(matchId)
-        // })
-        // socketRef.current.send("ready")
+        const socket = new WebSocket(`wss://${response?.wsUrl}`)
+        socketRef.current = socket
+        socketRef.current.onmessage = (event: MessageEvent) => {
+            if (typeof event.data === 'string') {
+                const newMessage: WebSocketMessage = JSON.parse(event.data) as WebSocketMessage // Parse JSON message
+                switch (newMessage.type) {
+                    case 'success':
+                        handleMatchFound(newMessage.matchId)
+                        break
+                    case 'fail':
+                        socketRef.current?.close()
+                        socketRef.current = undefined
+                        handleFailedMatchmaking()
+                        break
+                    default:
+                        console.error('Unexpected message type received')
+                }
+            } else {
+                console.error('Unexpected data type received:', typeof event.data)
+            }
+        }
 
-        //This is a mock implementation to show the modal for 10 seconds and then either show the match found modal or failed matchmaking modal
-        await new Promise((resolve, _) => setTimeout(resolve, 10000))
-        const isMatchFound = Math.random() > 0.5
-
-        if (isMatchFound) {
-            await handleMatchFound()
-        } else {
-            await handleFailedMatchmaking()
+        socketRef.current.onerror = (error: Event) => {
+            console.error('WebSocket Error:', error)
         }
     }
 
@@ -128,11 +145,12 @@ export const NewSession = () => {
         })
     }
 
-    const handleMatchFound = async () => {
+    const handleMatchFound = async (matchID: string) => {
         setModalData((modalData) => ({
             ...modalData,
             isMatchFound: true,
             isMatchmaking: false,
+            matchID,
         }))
         router.push('/code')
     }
@@ -219,6 +237,7 @@ export const NewSession = () => {
                         {modalData.isMatchFound && (
                             <h2 className="text-xl font-bold text-center">
                                 Match found! Please wait while we redirect you to the coding session...
+                                {modalData.matchID}
                             </h2>
                         )}
                     </div>
