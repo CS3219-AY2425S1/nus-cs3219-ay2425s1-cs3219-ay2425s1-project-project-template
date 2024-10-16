@@ -9,12 +9,19 @@ import "./styles.scss";
 import { useContext } from "react";
 import { WebSocketContext } from "@/contexts/websocketcontext";
 
-export default function ProfilePage(): JSX.Element {
+export default function MatchPage(): JSX.Element {
   const matcher = useContext(WebSocketContext)! // ! is a null-check
+
   let button;
   switch (matcher.state) {
     case "closed":
-      button = <Button onClick={matcher.start}>Start Match</Button>
+      button = <Button onClick={() => {
+        matcher.start({
+          "type": "match_request",
+          "topics": ["Algorithms", "Arrays"],
+          "difficulties": ["Easy", "Medium"]
+        })
+      }}>Start Match</Button>
       break;
 
     case "matching":
@@ -26,9 +33,13 @@ export default function ProfilePage(): JSX.Element {
       button = <Button loading>{matcher.state}</Button>
       break;
       
-    // case "ready":
-    //   button = <Button disabled>Ok</Button>
-    //   break;
+    case "found":
+      button = <Button onClick={matcher.ok}>Your Partner is {matcher.info.partnerName}</Button>
+      break;
+      
+    case "timeout":
+      button = <Button onClick={matcher.ok}>Timered Out</Button>
+      break;
   }
   
 
@@ -37,8 +48,7 @@ export default function ProfilePage(): JSX.Element {
       <Header selectedKey={["0"]} />
         <Content className="content">
           {button}
-          {"found" in matcher && <Button onClick={matcher.ok}>Found: {matcher.found}</Button>}
-          <p>{matcher.state.toUpperCase()}</p>
+          <p>{matcher.state}</p>
         </Content>
     </Layout>
   )
