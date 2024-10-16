@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import matchingService from "../services/MatchingService";
 
 const FindingPeer = () => {
   const location = useLocation();
@@ -9,7 +10,7 @@ const FindingPeer = () => {
   const { selectedTopics, selectedLevel, waitTimeInSeconds } =
     location.state || {};
 
-  const [time, setTime] = useState(waitTimeInSeconds || 120); 
+  const [time, setTime] = useState(waitTimeInSeconds || 120);
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
@@ -21,7 +22,8 @@ const FindingPeer = () => {
       }, 1000);
     } else if (time === 0) {
       clearInterval(interval);
-      navigate("/matching-service"); 
+      toast.info("No match found, redirecting...");
+      navigate("/matching-service");
     }
 
     return () => clearInterval(interval);
@@ -29,8 +31,42 @@ const FindingPeer = () => {
 
   const handleEndSession = () => {
     setIsActive(false);
+    matchingService.disconnect();
     navigate("/matching-service");
   };
+
+  useEffect(() => {
+    const token = null; // <---- this needs to updated when we have the real token
+    const complexity = selectedLevel;
+    const waitTime = time;
+
+    matchingService
+      .connect(token, selectedTopics.join(","), complexity, waitTime)
+      .then(() => {
+        toast.success("Connected to matching service");
+
+        matchingService.onMatchFound((roomId) => {
+          clearInterval();
+          toast.success("Match found! Redirecting...");
+          navigate(`/room/${roomId}`);
+        });
+
+        matchingService.onError((err) => {
+          toast.error(`Error: ${err.message}`);
+        });
+
+        matchingService.onDisconnect((reason) => {
+          if (time > 0) {
+            toast.warn(`Disconnected: ${reason}`);
+          }
+        });
+      })
+      .catch((err) => {
+        toast.error(`Connection failed: ${err.message}`);
+      });
+      
+    return () => matchingService.disconnect();
+  }, [selectedTopics, selectedLevel, time, navigate]);
 
   return (
     <div className="flex min-h-screen bg-black">
