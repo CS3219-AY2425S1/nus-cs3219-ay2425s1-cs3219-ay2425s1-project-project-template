@@ -24,12 +24,12 @@ export class AppController {
       await this.matchService.addMatchRequest(body);
 
       return {
-        message: `Match request received for ${body.userId} on time: ${body.timestamp}`,
+        message: `Sent match request for ${body.userId} on time: ${body.timestamp}`,
       };
     } catch (error) {
       console.error('Error processing match request:', error);
       return {
-        message: `Match request received for ${body.userId} on time: ${body.timestamp}`,
+        message: `Sent match request for ${body.userId} on time: ${body.timestamp}`,
         error: error,
       };
     }
@@ -43,12 +43,12 @@ export class AppController {
       await this.matchService.addCancelRequest(body);
 
       return {
-        message: `Match request cancelled for ${body.userId} on time: ${body.timestamp}`,
+        message: `Sent match cancellation request for ${body.userId} on time: ${body.timestamp}`,
       };
     } catch (error) {
       console.error('Error processing cancel match request:', error);
       return {
-        message: `Match request cancelled for ${body.userId} on time: ${body.timestamp}`,
+        message: `Sent match cancellation request for ${body.userId} on time: ${body.timestamp}`,
         error: error,
       };
     }

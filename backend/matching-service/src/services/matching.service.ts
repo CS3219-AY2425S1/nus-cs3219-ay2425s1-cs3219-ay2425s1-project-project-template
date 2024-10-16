@@ -180,12 +180,8 @@ export class MatchingService implements OnModuleInit {
     console.log(`Received cancel request: ${cancelRequest} on topic: ${topic}`);
 
     if (this.userPool[requesterUserId].status === MatchStatus.MATCHED) {
-      const matchedWithUserId = this.userPool[requesterUserId].matchedWithUserId;
-      this.userPool[requesterUserId].status = MatchStatus.CANCELLED;
-      this.userPool[requesterUserId].matchedWithUserId = '';
-      this.userPool[matchedWithUserId].status = MatchStatus.PENDING;
-      this.userPool[matchedWithUserId].matchedWithUserId = '';
-      console.log(`Match cancelled between ${requesterUserId} and ${matchedWithUserId} in topic: ${topic}. Continuing search for ${matchedWithUserId}`);
+      console.log(`Cannot cancel. Match already found for ${requesterUserId}`);
+      return;
     } else {
       this.userPool[requesterUserId].status = MatchStatus.CANCELLED;
       this.userPool[requesterUserId].matchedWithUserId = '';
