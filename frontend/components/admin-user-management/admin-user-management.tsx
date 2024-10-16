@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
-import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
+import DeleteAccountModal from "@/components/common/delete-account-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 import { userServiceUri } from "@/lib/api-uri";
@@ -117,6 +117,7 @@ export default function AdminUserManagement() {
           handleDeleteAccount={handleDelete}
           isDeleteButtonEnabled={isDeleteButtonEnabled}
           setShowDeleteModal={setShowDeleteModal}
+          isAdmin={true}
         />
         <Table>
           <TableHeader>
