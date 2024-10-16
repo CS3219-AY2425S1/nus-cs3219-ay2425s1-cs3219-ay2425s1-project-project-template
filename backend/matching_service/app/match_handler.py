@@ -4,8 +4,15 @@ import redis
 import time
 import uuid
 import logging
-import requests
 import os
+from redis_client import (
+    can_proceed,
+    get_redis_client,
+    get_available_matching_requests,
+    PARTIAL_MATCHING_PATTERN,
+    COMPLETE_MATCHING_PATTERN,
+)
+from kafka_producer import get_kafka_producer, produce_message
 
 CONSUMER_CONFIG = {
     "bootstrap.servers": "kafka:9092",
@@ -17,43 +24,29 @@ PRODUCER_CONFIG = {
     "bootstrap.servers": "kafka:9092",
     "client.id": "match-handler",
 }
-REDIS_HOST = "redis"
-REDIS_PORT = 6379
-REDIS_DB = 0
 RETRY_ATTEMPTS = 4
-EXPIRATION_TIME = 28
-KAFKA_FLUSH_TIMEOUT = 10
+EXPIRATION_TIME = 30  # 29
 
-producer = None
-redis_client = None
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s-%(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("match_handler")
 
-
-def get_kafka_producer():
-    global producer
-    if producer is None:
-        logger.info("Initializing Kafka producer...")
-        producer = Producer(PRODUCER_CONFIG)
-    return producer
+redis_client = None
 
 
-def get_redis_client():
+def get_local_redis_client():
     global redis_client
     if redis_client is None:
-        redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+        redis_client = get_redis_client(logger)
     return redis_client
 
 
 def main():
     consumer = Consumer(CONSUMER_CONFIG)
-    producer = get_kafka_producer()
-    r = get_redis_client()
+    producer = get_kafka_producer(logger)
+    get_local_redis_client()
     logger.info("Starting match handler...")
     try:
         consumer.subscribe(["match_requests"])
@@ -69,7 +62,7 @@ def main():
 
             try:
                 message = json.loads(msg.value().decode("utf-8"))
-                process_message(message, r, producer)
+                process_message(message, producer)
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to decode JSON: {e}")
             except Exception as e:
@@ -81,15 +74,15 @@ def main():
         consumer.close()
 
 
-def process_message(message, redis_client, producer):
+def process_message(message, producer):
     user_id = message.get("user_id")
     category = message.get("category")
     difficulty = message.get("difficulty")
     request_time = message.get("request_time")
     expiration_time = request_time + EXPIRATION_TIME
 
-    key = f"matching:{category}:{difficulty}"
-    category_key = f"matching:{category}"
+    key = f"c_matching:{category}:{difficulty}"
+    category_key = f"p_matching:{category}"
     logger.info(
         f"Received matching request: user_id={user_id}, category={category}, difficulty={difficulty}"
     )
@@ -99,9 +92,8 @@ def process_message(message, redis_client, producer):
     while retry_attempts > 0:
         try:
             current_time = time.time()
-            min_timestamp = current_time - EXPIRATION_TIME
 
-            remove_expired_entries(redis_client, key, category_key, min_timestamp)
+            remove_expired_entries(redis_client, current_time)
 
             redis_client.watch(key, category_key)
             pipe = redis_client.pipeline()
@@ -114,7 +106,7 @@ def process_message(message, redis_client, producer):
                     user_id,
                     key,
                     category_key,
-                    min_timestamp,
+                    current_time,
                     match_type,
                     producer,
                     category,
@@ -148,28 +140,38 @@ def find_and_handle_match(
     user_id,
     key,
     category_key,
-    min_timestamp,
+    current_time,
     match_type,
     producer,
     category,
     difficulty,
 ):
     matches = redis_client.zrangebyscore(
-        key if match_type == "complete" else category_key, min_timestamp, "+inf"
+        key if match_type == "complete" else category_key, current_time, "+inf"
     )
-    logger.info(f"Found matches: {matches} for {match_type} matching.")
+    get_available_matching_requests(
+        is_complete=True, redis_client=redis_client, logger=logger
+    )
+    # logger.info(f"Found matches: {matches} for {match_type} matching.")
 
     for match in matches:
         match = match.decode("utf-8")
         logger.info(f"Attempting {match_type} match with {match}")
-        can_proceed, cancelled_users = call_can_proceed(user_id, match)
+        can_continue, cancelled_users = can_proceed(
+            redis_client, user_id, match, logger
+        )
 
-        if can_proceed:
+        if can_continue:
             logger.info(
                 f"{match_type} match found: user_id={user_id} and match={match}"
             )
             remove_and_execute(pipe, key, category_key, match)
+
+            get_available_matching_requests(
+                is_complete=True, redis_client=redis_client, logger=logger
+            )
             push_to_kafka(match_type, user_id, match, category, difficulty, producer)
+
             return True
 
         if user_id in cancelled_users:
@@ -183,9 +185,31 @@ def find_and_handle_match(
     return None
 
 
-def remove_expired_entries(redis_client, key, category_key, min_timestamp):
-    redis_client.zremrangebyscore(key, "-inf", min_timestamp)
-    redis_client.zremrangebyscore(category_key, "-inf", min_timestamp)
+def remove_expired_entries(redis_client, min_timestamp):
+    logger.info(f"Removing expired entries from Redis with timestamp: {min_timestamp}")
+
+    for pattern in [COMPLETE_MATCHING_PATTERN, PARTIAL_MATCHING_PATTERN]:
+        logger.info(f"Checking expired entries for pattern {pattern}...")
+        cursor = 0
+        while True:
+            cursor, keys = redis_client.scan(cursor=cursor, match=pattern)
+            if not keys:
+                break
+
+            logger.info(f"Found keys: {keys} matching {pattern}")
+            pipeline = redis_client.pipeline()
+
+            for key in keys:
+                logger.info(f"Removing entries from {key} older than {min_timestamp}")
+                pipeline.zremrangebyscore(key, "-inf", min_timestamp)
+
+            try:
+                pipeline.execute()
+            except redis.exceptions.RedisError as e:
+                logger.error(f"Error executing Redis pipeline: {e}")
+
+            if cursor == 0:
+                break
 
 
 def remove_and_execute(pipe, key, category_key, match):
@@ -209,56 +233,18 @@ def log_redis_state(redis_client, key, category_key, user_id):
     )
 
 
-def call_can_proceed(user1_id, user2_id):
-    url = os.getenv("matching_state_url") + "/can-proceed"
-    print("matching_state_url", url)
-    print(f"Checking if users {user1_id} and {user2_id} can proceed with the match")
-    res = requests.post(
-        url,
-        json={
-            "user1_id": user1_id,
-            "user2_id": user2_id,
-        },
-    )
-    res_json = res.json()
-    if res_json.get("can_proceed") is False:
-        return False, res_json.get("cancelled_users")
-    return True, []
-
-
-def delivery_report(err, msg):
-    """Callback called when message is delivered or if it fails."""
-    if err is not None:
-        logger.error(
-            f"Message delivery failed: {err.str()} to {msg.topic()} [{msg.partition()}]"
-        )
-    else:
-        logger.info(
-            f"Message delivered to {msg.topic()} [{msg.partition()}] at offset {msg.offset()}"
-        )
-
-
 def push_to_kafka(match_type, user_id, match, category, difficulty, producer):
-    try:
-        match_result = {
-            "user1_id": user_id,
-            "user2_id": match,
-            "category": category,
-            "difficulty": difficulty,
-            "uid": str(uuid.uuid4()),
-        }
+    match_result = {
+        "user1_id": match,
+        "user2_id": user_id,
+        "category": category,
+        "difficulty": difficulty,
+        "uid": str(uuid.uuid4()),
+        "status": match_type + " match",
+    }
 
-        logger.info(f"Producing {match_type} match result to Kafka: {match_result}")
-        producer.produce(
-            "match_results",
-            key=str(user_id),
-            value=json.dumps(match_result).encode("utf-8"),
-            callback=delivery_report,
-        )
-        producer.flush(timeout=KAFKA_FLUSH_TIMEOUT)
-
-    except Exception as e:
-        logger.error(f"Error during match result processing: {e}")
+    logger.info(f"Producing {match_type} match result to Kafka: {match_result}")
+    produce_message(producer, "match_results", user_id, match_result, logger)
 
 
 if __name__ == "__main__":

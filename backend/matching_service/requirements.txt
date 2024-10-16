@@ -16,3 +16,5 @@ confluent-kafka
 requests
 supervisor
 redis
+websockets
+waitress

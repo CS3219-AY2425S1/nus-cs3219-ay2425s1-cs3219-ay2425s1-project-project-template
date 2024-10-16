@@ -21,7 +21,6 @@ services:
       - backend_network  
 
   init-kafka:
-    #image: confluentinc/cp-kafka:6.1.1
     image: bitnami/kafka:3
 
     depends_on:
@@ -62,41 +61,49 @@ services:
       - redis_data:/data
     networks:
       - backend_network
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "5540:5540"
+    networks:
+      - backend_network
 
-  matching_request:
+  ui:
+    container_name: ui
+    
     build:
-      context: ./backend/matching_request
-    # command: gunicorn --reload -w 4 -b 0.0.0.0:8000 run:app
-    # command: python run.py
+      context: ./frontend/Peerprep
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/Peerprep:/src
+    ports:
+      - "3000:3000"
     environment:
-      - RABBITMQ_HOST=rabbitmq
+      - NODE_ENV=development
+    networks:
+      - backend_network
+    depends_on:
+      - question_service
+      - user_service
+
+  matching_service:
+    container_name: matching_service
+    build:
+      context: ./backend/matching_service
+    environment:
       - FLASK_ENV=development 
       - FLASK_APP=run.py 
-      - matching_state_url=http://websocket_service:8010
+      - TZ=Asia/Shanghai
     ports:
       - "8000:8000"
+      - "8001:8001"
     depends_on:
       - init-kafka
     volumes:
-      - ./backend/matching_request:/app
+      - ./backend/matching_service:/app
     networks:
       - backend_network
-
-
-  websocket_service:
-    build:
-      context: ./backend/websocket_service
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8010 --reload --log-level debug
-    volumes:
-      - ./backend/websocket_service/app/:/app/app
-    environment:
-      - KAFKA_BROKER=kafka:9092
-    depends_on:
-      - init-kafka
-    ports:
-      - "8010:8010"
-    networks:
-      - backend_network
+ 
 
   question_service:
     container_name: question_service
@@ -122,26 +129,9 @@ services:
     ports:
       - "5001:5001"
   
-  ui:
-    container_name: ui
-    
-    build:
-      context: ./frontend/Peerprep
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./frontend/Peerprep:/src
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-    networks:
-      - backend_network
-    depends_on:
-      - question_service
-      - user_service
+
 
 volumes:
-  rabbitmq_data:
   redis_data:
   kafka_data:
 

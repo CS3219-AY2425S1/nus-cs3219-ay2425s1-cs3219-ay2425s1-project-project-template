@@ -36,7 +36,7 @@ watch(user, (newUser) => {  // TODO: Check if can remove this
                     <DropdownMenuTrigger as-child>
                         <Avatar size="xs"
                             class="hover:shadow-xl hover:bg-gray-300  transition-all duration-300 cursor-pointer">
-                            <AvatarImage :src="user.photoURL" alt="User Avatar" />
+                            <AvatarImage :src="user.photoURL || ''" alt="User Avatar" />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
 
