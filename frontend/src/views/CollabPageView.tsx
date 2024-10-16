@@ -6,6 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import Editor from "@monaco-editor/react";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { LANGUAGE_VERSIONS } from "../services/CodeEditorService";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -87,6 +96,9 @@ function CollabPageView() {
 		editorRef.current = editor;
 		editor.focus();
 	};
+
+	const languages = Object.entries(LANGUAGE_VERSIONS);
+	const [selectedLang, setSelectedLang] = useState(languages[0][0]);
 
 	return (
 		<main
@@ -203,7 +215,7 @@ function CollabPageView() {
 					</div>
 				</div>
 
-				{/* right side textarea */}
+				{/* right side code editor */}
 				<div
 					style={{
 						flex: 1, // Takes up equal space as the question section
@@ -217,16 +229,46 @@ function CollabPageView() {
 						margin: "15px 15px 15px 7.5px", // top right bottom left (clockwise)
 					}}
 				>
-					<h2
+					{/* div to horizontally align <h2 Code/> and <Select coding language /> */}
+					<div
 						style={{
-							fontSize: "1.25rem",
-							fontWeight: "bold",
-							alignSelf: "flex-start",
-							marginBottom: "10px",
+							display: "flex",
+							flexDirection: "row", // align items horizontally
+							justifyContent: "flex-start",
+							alignItems: "center", // vertically center them
+							width: "100%",
+							marginBottom: "20px",
 						}}
 					>
-						Code
-					</h2>
+						<h2
+							style={{
+								fontSize: "1.25rem",
+								fontWeight: "bold",
+								alignSelf: "flex-start",
+								margin: "0 25px 0 5px",
+							}}
+						>
+							Code
+						</h2>
+
+						{/* coding language selector */}
+						<Select value={selectedLang} onValueChange={setSelectedLang}>
+							<SelectTrigger className="w-[160px]">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectGroup>
+									{languages.map(([language]) => (
+										<SelectItem key={language} value={language}>
+											{language}
+										</SelectItem>
+									))}
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+					</div>
+
+					{/* monaco code editor */}
 					<Editor
 						height="100%"
 						defaultLanguage="javascript"
