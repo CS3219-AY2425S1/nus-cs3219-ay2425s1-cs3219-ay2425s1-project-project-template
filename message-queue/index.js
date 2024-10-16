@@ -13,10 +13,12 @@ var connection, channel
 
 const connectRabbitMQ = async() => {
   try {
-    const amqpServer = 'amqp://guest:guest@localhost:5672'
+    const amqpServer = 'amqps://lguugvwb:UtQY1D0zOoX8s0ZvR4GunuRDk0xv8UuI@octopus.rmq3.cloudamqp.com/lguugvwb'
+    console.log(amqpServer)
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
     await channel.assertExchange(EXCHANGE, 'topic', {durable: false})
+    console.log('Connected to RabbitMQ')
   } catch(err) {
     console.error(err)
   }
