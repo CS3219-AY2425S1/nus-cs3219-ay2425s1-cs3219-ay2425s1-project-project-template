@@ -5,9 +5,9 @@ from typing import List, Optional
 from models.object_id import PyObjectId
 
 class ComplexityEnum(str, Enum):
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
+    easy = "Easy"
+    medium = "Medium"
+    hard = "Hard"
 
 class CategoryEnum(str, Enum):
     algorithms      = "Algorithms"

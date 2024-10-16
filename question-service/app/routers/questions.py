@@ -6,6 +6,8 @@ from crud.questions import (
     delete_question,
     get_all_questions,
     get_question_by_id,
+    get_question_categories,
+    get_question_complexities,
     update_question_by_id,
 )
 from exceptions.questions_exceptions import (
@@ -17,6 +19,7 @@ from exceptions.questions_exceptions import (
 from fastapi import APIRouter, HTTPException, Query
 from models.questions import (
     CategoryEnum,
+    ComplexityEnum,
     CreateQuestionModel,
     QuestionModel,
     QuestionCollection,
@@ -50,7 +53,7 @@ async def create(question: CreateQuestionModel):
 @router.get("/", response_description="Get all questions", response_model=QuestionCollection)
 async def get_all(
     category:   Annotated[List[CategoryEnum] | None, Query()] = None,
-    complexity: Annotated[str | None, Query()] = None,
+    complexity: Annotated[ComplexityEnum | None, Query()] = None,
     search:     Annotated[str | None, Query()] = None
 ):
     return await get_all_questions(category, complexity, search)
@@ -105,3 +108,11 @@ async def batch_upload(questions: List[CreateQuestionModel]):
         return result
     except BatchUploadFailedError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/enum/category", response_description="Get all valid question categories", response_model=List[CategoryEnum])
+async def get_categories():
+    return get_question_categories()
+
+@router.get("/enum/complexity", response_description="Get all valid question complexities", response_model=List[ComplexityEnum])
+async def get_complexities():
+    return get_question_complexities()

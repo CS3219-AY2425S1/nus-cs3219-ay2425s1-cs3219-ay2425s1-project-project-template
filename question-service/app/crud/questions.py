@@ -12,6 +12,8 @@ from exceptions.questions_exceptions import (
     InvalidQuestionIdError,
 )
 from models.questions import (
+    CategoryEnum,
+    ComplexityEnum,
     CreateQuestionModel,
     UpdateQuestionModel,
     QuestionCollection,
@@ -37,8 +39,8 @@ async def create_question(question: CreateQuestionModel) -> QuestionModel:
     return await question_collection.find_one({"_id": new_question.inserted_id})
 
 async def get_all_questions(
-    categories: List[str],
-    complexity: str,
+    categories: List[CategoryEnum],
+    complexity: ComplexityEnum,
     search: str
 ) -> QuestionCollection:
     query = {}
@@ -97,6 +99,12 @@ async def batch_create_questions(
     return MessageModel.parse_obj({
         "message": f"{len(result.inserted_ids)} questions added successfully."
     })
+
+def get_question_categories() -> List[CategoryEnum]:
+    return [category for category in CategoryEnum]
+
+def get_question_complexities() -> List[ComplexityEnum]:
+    return [complexity for complexity in ComplexityEnum]
 
 '''
 This section comprises of helper functions.
