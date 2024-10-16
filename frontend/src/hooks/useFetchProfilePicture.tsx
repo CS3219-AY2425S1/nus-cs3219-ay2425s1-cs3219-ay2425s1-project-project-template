@@ -1,13 +1,13 @@
-import { Dispatch, SetStateAction } from 'react';
 import apiConfig from '../config/config';
+import { User } from '../types/User';
 
-const useFetchProfilePicture = async (userId: string, setImageData: Dispatch<SetStateAction<string>>) => {
-    if (userId == "") {
+const useFetchProfilePicture = async (user: User, updateUser: (userData: User | undefined) => void) => {
+    if (user.id == "") {
         console.error("UserId is empty, likely not logged in");
         return;
     }
     try {
-        const response = await fetch(`${apiConfig.profilePictureServiceUserUrl}/${userId}/profile-picture`, {
+        const response = await fetch(`${apiConfig.profilePictureServiceUserUrl}/${user.id}/profile-picture`, {
             mode: "cors",
             headers: {
                 "Access-Control-Allow-Origin": `${apiConfig.profilePictureServiceUserUrl}`,
@@ -20,7 +20,8 @@ const useFetchProfilePicture = async (userId: string, setImageData: Dispatch<Set
 
         const result = await response.json();
         const url : string = result.imageUrl;
-        setImageData(url);
+        updateUser( {...user, profilePictureUrl: url});
+
     } catch (error) {
         console.error('Error fetching image:', error);
     }

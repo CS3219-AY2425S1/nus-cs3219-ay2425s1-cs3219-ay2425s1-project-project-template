@@ -8,6 +8,7 @@ import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.ts
 import { User } from "../types/User.tsx";
 import useLoginUser from "../hooks/useLoginUser.tsx";
 import { useUser } from "../context/UserContext.tsx";
+import useAuthenticateUser from "../hooks/useAuthenticateUser.tsx";
 
 const LoginPage: React.FC = () => {
   const [emailValue, setEmailValue] = useState("");
@@ -18,7 +19,7 @@ const LoginPage: React.FC = () => {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   const { loginUser } = useLoginUser();
-
+  const { authenticateUser } = useAuthenticateUser();
   /* Component's instance of registered user */
   const [loggedInUser, setLoggedInUser] = useState<User | undefined>(undefined);
   /* User context */
@@ -35,7 +36,7 @@ const LoginPage: React.FC = () => {
       setErrorMessage,
       setShowErrorMessage
     ); // Call the custom hook function
-
+    authenticateUser(setSuccess);
     console.log(newUser);
   };
 

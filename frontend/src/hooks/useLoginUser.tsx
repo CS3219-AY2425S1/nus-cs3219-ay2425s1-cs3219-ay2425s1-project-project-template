@@ -42,7 +42,7 @@ const useLoginUser = () => {
       console.log('Logged in', emailValue, ':', loggedInUser);
       setLoggedInUser(loggedInUser.data);
       setShowErrorMessage(false);
-      setSuccess(true);
+      // setSuccess(true);
       return loggedInUser; // Return new user if successful
     } catch (e: any) {
       console.error('Error updating ', ':', e);

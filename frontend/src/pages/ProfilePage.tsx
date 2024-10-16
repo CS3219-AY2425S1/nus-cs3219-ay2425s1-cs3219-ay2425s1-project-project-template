@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/NavBar.tsx";
 import { User } from '../types/User.tsx';
 import useRetrieveUser from '../hooks/useRetrieveUser.tsx';
@@ -8,9 +9,13 @@ import EditPasswordModal from '../components/ProfileModals/EditPasswordModal.tsx
 import EditProfilePictureModal from '../components/ProfileModals/EditProfilePictureModal.tsx';
 import useFetchProfilePicture from '../hooks/useFetchProfilePicture.tsx';
 import { EditIcon } from '../components/EditIcon.tsx';
+import { useUser } from '../context/UserContext.tsx';
+import defaultprofilepicture from "../images/defaultprofilepicture.jpg";
 
 const ProfilePage: React.FC = () => {
-    const [user, setUser] = useState<User | undefined>(undefined);
+    // const [user, setUser] = useState<User | undefined>(undefined);
+    const { user, updateUser, logoutUser } = useUser();
+
     const [username, setUsername] = useState<string | undefined>(undefined);
 
     const [isUsernameModalOpen, setUsernameModalOpen] = useState(false);
@@ -28,10 +33,10 @@ const ProfilePage: React.FC = () => {
     const [isProfilePictureModalOpen, setProfilePictureModalOpen] = useState(false);
     const openProfilePicModal = () => setProfilePictureModalOpen(true);
     const closeProfilePicModal = () => setProfilePictureModalOpen(false);
-    const [imageData, setImageData] = useState<string>("");
+    // const [imageData, setImageData] = useState<string>("");
     const [uid, setUid] = useState("");
-
-    useRetrieveUser(setUser);
+    const navigate = useNavigate();
+    // useRetrieveUser(setUser);
 
     useEffect(() => {
         setUsername(user?.username);
@@ -49,11 +54,18 @@ const ProfilePage: React.FC = () => {
     }, [uid]);
 
     useEffect(() => {
+        // updateNavBarProfilePicture
         closeProfilePicModal();
-    }, [imageData]);
+    }, [user]);
 
     const fetchImage = () => {
-        useFetchProfilePicture(uid, setImageData);
+        if (user)
+            useFetchProfilePicture(user, updateUser);
+    }
+
+    const handleLogout = () => {
+        navigate('/');
+        logoutUser();
     }
 
     return (
@@ -68,16 +80,19 @@ const ProfilePage: React.FC = () => {
                     </h1>
                 </div>
                     
-                    {imageData ? (
+                    {user?.profilePictureUrl ? (
                         <>
                             
                             <div className='flex justify-center  items-baseline'>
-                            <img className="rounded-full" style={{ width: '250px', height: '250px', objectFit: 'cover' }} src={imageData} alt="Fetched" />
+                            <img className="rounded-full" style={{ width: '250px', height: '250px', objectFit: 'cover' }} src={user?.profilePictureUrl} alt="Fetched" />
                             <EditIcon openModal={openProfilePicModal}/>
                             </div>
                     </>
                     ) : (
-                        <p>Loading image...</p>
+                        <div className='flex justify-center  items-baseline'>
+                        <img className="rounded-full" style={{ width: '250px', height: '250px', objectFit: 'cover' }} src={defaultprofilepicture} alt="Fetched" />
+                        <EditIcon openModal={openProfilePicModal}/>
+                        </div>
                     )}
 
 
@@ -112,16 +127,16 @@ const ProfilePage: React.FC = () => {
                       
                     </div>
                     {isUsernameModalOpen && (
-                            <EditUsernameModal onClose={closeUnModal} user={user} setUser={setUser}/>
+                            <EditUsernameModal onClose={closeUnModal} user={user} setUser={updateUser}/>
                     )}
                     {isEmailModalOpen && (
-                            <EditEmailModal onClose={closeEmailModal} user={user} setUser={setUser}/>
+                            <EditEmailModal onClose={closeEmailModal} user={user} setUser={updateUser}/>
                     )}
                     {isPasswordModalOpen && (
-                            <EditPasswordModal onClose={closePwModal} user={user} setUser={setUser}/>
+                            <EditPasswordModal onClose={closePwModal} user={user} setUser={updateUser}/>
                     )}
                     {isProfilePictureModalOpen && (
-                            <EditProfilePictureModal onClose={closeProfilePicModal} uid={uid} setImageData={setImageData}/>
+                            <EditProfilePictureModal onClose={closeProfilePicModal} user={user} setUser={updateUser}/>
                     )}
                 </div>
 
@@ -135,7 +150,7 @@ const ProfilePage: React.FC = () => {
                     Change Password
                 </button>
                 <div className="col-span-1"></div>
-                <button className="bg-black text-white font-bold py-2 px-4 rounded-md">
+                <button onClick={() => handleLogout()} className="bg-black text-white font-bold py-2 px-4 rounded-md">
                     Logout
                 </button>
                 <div className="col-span-4"></div>

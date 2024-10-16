@@ -1,15 +1,16 @@
 import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import useUploadProfilePicture from '../../hooks/useUploadProfilePicture.tsx';
 import ErrorModal from '../Dashboard/ErrorModals/ErrorModal.tsx';
+import { User } from '../../types/User.tsx';
 
 interface EditProfilePictureModalProps {
     onClose: () => void;
-    uid : string;
-    setImageData : Dispatch<SetStateAction<string>>;
+    user : User | undefined;
+    setUser:  (userData: User | undefined) => void
 }
 
 const EditProfilePictureModal: React.FC<EditProfilePictureModalProps> = ({
-    onClose, uid, setImageData
+    onClose, user, setUser
 }) => {
 
     const [file, setFile] = useState<File | null>(null); // State to store the uploaded file
@@ -33,9 +34,10 @@ const EditProfilePictureModal: React.FC<EditProfilePictureModalProps> = ({
         }
     };
 
-    const uploadImage = async (userId: string, newImage: File | null, setImageData: Dispatch<SetStateAction<string>>) => {
-        if (newImage != null)
-            useUploadProfilePicture(userId, newImage, setImageData, setErr);
+    const uploadImage = async (user: User | undefined, newImage: File | null, updateUser:  (userData: User | undefined) => void) => {
+        console.log("upload image triggered")
+        if (newImage != null && user)
+            useUploadProfilePicture(user, newImage, updateUser, setErr);
     };
 
 
@@ -56,7 +58,7 @@ const EditProfilePictureModal: React.FC<EditProfilePictureModalProps> = ({
                 className = {`rounded-full ${file ? 'bg-green' : 'bg-gray-400' } p-2`}
                 
                 disabled={!file}
-                onClick={() => uploadImage(uid, file, setImageData)}>
+                onClick={() => uploadImage(user, file, setUser)}>
                     Upload Image
                 </button>
                 </div>

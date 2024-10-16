@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction } from 'react';
 import apiConfig from '../config/config';
 import useFetchProfilePicture from './useFetchProfilePicture';
+import { User } from '../types/User';
 
-const useUploadProfilePicture = async (userId: string, file: File, setImageData: Dispatch<SetStateAction<string>>, setErr: Dispatch<SetStateAction<string | undefined>> ) => {
+const useUploadProfilePicture = async (user: User, file: File, updateUser: (userData: User | undefined) => void, setErr: Dispatch<SetStateAction<string | undefined>> ) => {
     if (!file) {
         alert('Please select a file to upload.');
         return;
@@ -12,7 +13,7 @@ const useUploadProfilePicture = async (userId: string, file: File, setImageData:
     formData.append('file', file); // Append the file to the form data
 
     try {
-        const response = await fetch(`${apiConfig.profilePictureServiceUserUrl}/${userId}/profile-picture`, {
+        const response = await fetch(`${apiConfig.profilePictureServiceUserUrl}/${user.id}/profile-picture`, {
             method: 'POST',
             mode: "cors",
             headers: {
@@ -27,7 +28,7 @@ const useUploadProfilePicture = async (userId: string, file: File, setImageData:
             setErr(err.message);
             throw new Error('Failed to fetch image');
         }
-        useFetchProfilePicture(userId, setImageData);
+        useFetchProfilePicture(user, updateUser);
     } catch (error) {
         console.error('Error fetching image:', error);
     }

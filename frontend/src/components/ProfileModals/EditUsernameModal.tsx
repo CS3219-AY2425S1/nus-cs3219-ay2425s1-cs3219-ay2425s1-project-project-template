@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 // import { Link } from "react-router-dom";
 import { User } from '../../types/User.tsx';
 import useUpdateUser from '../../hooks/useUpdateUser.tsx';
@@ -6,7 +6,7 @@ import ErrorModal from '../Dashboard/ErrorModals/ErrorModal.tsx';
 
 interface EditUsernameModalProps {
     onClose: () => void;
-    setUser: Dispatch<SetStateAction<User | undefined>>
+    setUser:  (userData: User | undefined) => void
     user: User | undefined;
 }
 
@@ -30,7 +30,8 @@ const EditUsernameModal: React.FC<EditUsernameModalProps> = ({
             setUsername(user.username);
         }
       }, [user]);
-      useEffect(() => {
+      
+    useEffect(() => {
         if (err) {
             openErrorModal();
         }
@@ -45,7 +46,7 @@ const EditUsernameModal: React.FC<EditUsernameModalProps> = ({
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setNewUsername(event.target.value); // Update the local state with the input value
     };
-    const { updateUser, loading } = useUpdateUser(user?.id || "", "username");
+    const { updateUser, loading } = useUpdateUser(user, "username");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Prevent default form submission
