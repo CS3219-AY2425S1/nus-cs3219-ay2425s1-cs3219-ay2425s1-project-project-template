@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 // src/components/multi-select.tsx
 
 import * as React from "react";
@@ -135,6 +133,7 @@ export const MultiSelect = React.forwardRef<
       animation = 0,
       maxCount = 3,
       modalPopover = false,
+      // eslint-disable-next-line
       asChild = false,
       className,
       ...props
