@@ -23,9 +23,6 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 5001
-          env:
-            - name: NODE_ENV
-              value: production
           envFrom:
             - secretRef:
                 name: matching-service-config

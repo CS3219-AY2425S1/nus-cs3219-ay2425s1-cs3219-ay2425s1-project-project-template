@@ -59,7 +59,7 @@ services:
     networks:
       - peerprep-network
     env_file:
-      - ./matching-service/.env.dev
+      - ./matching-service/.env.production
 networks:
   peerprep-network:
     driver: bridge

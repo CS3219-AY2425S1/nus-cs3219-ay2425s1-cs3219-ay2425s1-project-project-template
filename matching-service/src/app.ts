@@ -1,16 +1,10 @@
 import express from "express";
 import cors from "cors";
-import * as dotenv from "dotenv";
 
 import messageRoutes from "./routes/messageRoute";
 import { initRabbitMQ } from "./services/rabbitMqService";
 import redisClient from "./config/redisConfig";
 import { startBackgroundTransfer } from "./services/matchingService";
-
-const envFile =
-  process.env.NODE_ENV === "production" ? ".env.production" : ".env.dev";
-console.log(`Using env file: ${envFile}`);
-dotenv.config({ path: envFile });
 
 const app = express();
 const PORT = process.env.PORT || 5001; // 5001 to prevent conflicts
