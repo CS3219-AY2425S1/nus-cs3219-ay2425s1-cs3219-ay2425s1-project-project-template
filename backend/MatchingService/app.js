@@ -5,7 +5,10 @@ import { ExpressAdapter } from "@bull-board/express";
 import { BullAdapter } from "@bull-board/api/bullAdapter.js";
 
 import { matchingQueue } from "./queue/matching-queue.js";
-import { addUserToQueue } from "./controller/queue-controller.js";
+import {
+  addUserToQueue,
+  obliberateQueue,
+} from "./controller/queue-controller.js";
 
 const app = express();
 const port = 3000;
@@ -40,6 +43,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/queue", addUserToQueue);
+
+app.get("/remove", obliberateQueue);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

@@ -9,7 +9,16 @@ export async function addUserToQueue(req, res) {
         topic,
         difficulty,
         questionId,
+        matched: false,
+        matchedUser: "",
       },
+      {
+        attempts: 6,
+        backoff: {
+          type: "fixed",
+          delay: 10000,
+        },
+      }
     );
 
     return res.status(200).json({ message: "added to queue" });
@@ -19,3 +28,12 @@ export async function addUserToQueue(req, res) {
   }
 }
 
+export async function obliberateQueue() {
+  try {
+    await matchingQueue.obliterate({ force: true });
+    return "Queue removed";
+  } catch (err) {
+    console.error("Error removing queue:", err);
+    return "Failed to remove queue";
+  }
+}
