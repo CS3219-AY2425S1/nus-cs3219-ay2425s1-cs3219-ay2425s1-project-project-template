@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import Editor from "@monaco-editor/react";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -65,10 +66,11 @@ function CollabPageView() {
 		};
 	}, []);
 
-	const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		const newCode = e.target.value;
+	const handleCodeChange = (newCode: string | undefined) => {
+		if (newCode === undefined) return; // if not code, do nothing
+		
 		setCode(newCode); // Update the local state
-
+	
 		// Emit the code update to the WebSocket server
 		if (socket) {
 			console.log("Emitting code update:", newCode);
@@ -218,16 +220,12 @@ function CollabPageView() {
 					>
 						Code
 					</h2>
-					<Textarea
-						style={{ height: "100%" }}
-						placeholder="class Solution {
-    public int[] main(int param1, int param2) {
-        
-    }
-}"
-						id="message"
+					<Editor
+						height="100%"
+						defaultLanguage="javascript"
+						defaultValue="// some comment"
 						value={code}
-						onChange={handleCodeChange}
+						onChange={(value) => handleCodeChange(value)}
 					/>
 				</div>
 			</div>
