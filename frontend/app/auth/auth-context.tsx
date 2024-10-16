@@ -93,10 +93,11 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const logout = async () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("jwtToken");
     router.push("/");
+    localStorage.removeItem("jwtToken");
+    setUser(undefined);
+    setToken(undefined);
+    setIsLoading(true);
   };
 
   return (
