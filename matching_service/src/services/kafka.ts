@@ -12,7 +12,7 @@ export interface KafkaRequest {
 }
 
 export type KafkaOnSuccess = () => void;
-export type KafkaOnRecordSuccess = (records: RecordMetadata[]) => void;
+export type KafkaOnRecordSuccess = (records: RecordMetadata) => void;
 export type KafkaOnError = (error: Error | undefined) => void;
 
 export class KafkaFactory {
@@ -74,11 +74,26 @@ export class ProducerFactory {
     await this.producer.disconnect();
   }
 
-  public async sendMessage(message: KafkaRequest): Promise<void> {
-    await this.producer.send({
-      topic: this.topic,
-      messages: [{ value: JSON.stringify(message), partition: 0 }],
-    });
+  public async sendMessage(
+    message: KafkaRequest,
+    onSuccess: KafkaOnRecordSuccess,
+    onError: KafkaOnError
+  ): Promise<void> {
+    await this.producer
+      .send({
+        topic: this.topic,
+        messages: [{ value: JSON.stringify(message) }],
+      })
+      .then((records: RecordMetadata[]) => {
+        console.log("Message sent, number of records: ", records.length);
+        if (records.length === 0) {
+          return onError(
+            new Error("Error sending message: no records returned")
+          );
+        }
+        return onSuccess(records[0]);
+      })
+      .catch(onError);
   }
 }
 
@@ -120,8 +135,11 @@ export class ConsumerFactory {
       await this.consumer.run({
         autoCommit: false,
         eachMessage: async (messagePayload) => {
+          console.log(
+            "Received message:",
+            messagePayload.message.value?.toString()
+          );
           messageBuffer.push(messagePayload.message);
-          console.log(messagePayload.message);
         },
       });
 
@@ -136,10 +154,18 @@ export class ConsumerFactory {
     }
   }
 
-  public async commit(offset: string): Promise<void> {
-    await this.consumer.commitOffsets([
-      { topic: this.topic, partition: 0, offset: offset },
-    ]);
+  public async commit(
+    offset: string,
+    partition: number,
+    onSuccess: KafkaOnSuccess,
+    onFailure: KafkaOnError
+  ): Promise<void> {
+    await this.consumer
+      .commitOffsets([
+        { topic: this.topic, partition: partition, offset: offset },
+      ])
+      .then(onSuccess)
+      .catch(onFailure);
   }
 
   public async shutdown(): Promise<void> {

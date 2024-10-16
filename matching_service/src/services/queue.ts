@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Kafka, KafkaMessage } from "kafkajs";
+import { Kafka, KafkaMessage, RecordMetadata } from "kafkajs";
 import {
   KafkaRequest,
   ProducerFactory,
@@ -40,10 +40,15 @@ export interface IQueue {
   getRequests(): Promise<IMatchRequest[]>;
 }
 
+interface KafkaMessageLocation {
+  offset: string;
+  partition: number;
+}
+
 export class Queue implements IQueue {
   private producer: ProducerFactory;
   private consumer: ConsumerFactory;
-  private offsetMap: Map<string, string>;
+  private offsetMap: Map<string, KafkaMessageLocation>;
 
   constructor() {
     // Setup connection to Kafka if using Kafka
@@ -64,11 +69,28 @@ export class Queue implements IQueue {
   }
 
   public async add(request: IMatchRequest): Promise<IMatchResponse> {
+    // check if user already exists in queue
+    if (this.checkIfUserExists(request.username)) {
+      return {
+        success: false,
+      };
+    }
+
     // add to queue, then return success message
-    this.producer.sendMessage(request);
+    let success = false;
+    this.producer.sendMessage(
+      request,
+      (record) => {
+        success = true;
+        this.onAddRequestSuccess(request, record);
+      },
+      (error) => {
+        console.error("Error sending message: ", error);
+      }
+    );
 
     return {
-      success: true,
+      success: success,
     };
   }
 
@@ -76,13 +98,25 @@ export class Queue implements IQueue {
     request: IMatchCancelRequest
   ): Promise<IMatchCancelResponse> {
     // remove from queue, then return success message
-    const offset = this.offsetMap.get(request.username);
+    console.log("Cancelling request for user: ", request.username);
+    const msgLocation = this.offsetMap.get(request.username);
     var success = false;
 
-    if (offset != undefined) {
+    if (msgLocation != undefined) {
+      const { offset, partition } = msgLocation;
+      console.log("Committing offset: ", offset, "at partition: ", partition);
       success = true;
-      this.consumer.commit(offset);
-      this.offsetMap.delete(request.username);
+      this.consumer.commit(
+        offset,
+        partition,
+        () => {
+          this.onCommitSuccess(request.username);
+          success = true;
+        },
+        (error) => {
+          console.error("Error committing offset: ", error);
+        }
+      );
     }
 
     return {
@@ -92,10 +126,30 @@ export class Queue implements IQueue {
 
   public async getRequests(): Promise<IMatchRequest[]> {
     // return all requests in the queue
-    const messages = await this.consumer.getMessages();
-
-    return messages.map((message) => {
+    const messages: KafkaMessage[] = await this.consumer.getMessages();
+    return messages.flatMap((message) => {
       return JSON.parse(message.value?.toString() ?? "");
     });
+  }
+
+  private checkIfUserExists(username: string): boolean {
+    return this.offsetMap.has(username);
+  }
+
+  private onAddRequestSuccess(request: IMatchRequest, record: RecordMetadata) {
+    // Validate the record metadata
+    if (record.baseOffset !== undefined) {
+      this.offsetMap.set(request.username, {
+        offset: record.baseOffset,
+        partition: record.partition,
+      });
+      console.log("Successfully added request to queue");
+      console.log("Offset map: ", this.offsetMap);
+    }
+  }
+
+  private onCommitSuccess(username: string) {
+    this.offsetMap.delete(username);
+    console.log("Successfully removed request from queue");
   }
 }
