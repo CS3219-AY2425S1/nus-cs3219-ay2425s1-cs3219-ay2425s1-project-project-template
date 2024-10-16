@@ -52,7 +52,7 @@ async def create(question: CreateQuestionModel):
 
 @router.get("/", response_description="Get all questions", response_model=QuestionCollection)
 async def get_all(
-    category:   Annotated[List[CategoryEnum] | None, Query()] = None,
+    category:   Annotated[List[CategoryEnum | None] | None, Query()] = None,
     complexity: Annotated[ComplexityEnum | None, Query()] = None,
     search:     Annotated[str | None, Query()] = None
 ):

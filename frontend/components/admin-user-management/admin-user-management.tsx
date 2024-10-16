@@ -16,7 +16,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
-import { userServiceUri } from "@/lib/api-uri";
+import { userServiceUri } from "@/lib/api/api-uri";
 
 const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
