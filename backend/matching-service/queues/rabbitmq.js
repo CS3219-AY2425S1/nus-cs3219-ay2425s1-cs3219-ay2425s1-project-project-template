@@ -15,9 +15,6 @@ const initRabbitMQ = () => {
           return;
         }
         matchUsers();
-
-        //Testing
-        //handleMatchRequest({ id: '1', complexity: ['A, B'], difficulty: 'Easy' });
       }
     );
   };

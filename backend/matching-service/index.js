@@ -4,6 +4,8 @@ const app = express();
 const { initRabbitMQ } = require('./queues/rabbitmq');
 const { databaseConn } = require('./config/db');
 const mongoose = require('mongoose');
+const { handleMatchRequest } = require("./service/matchingQueue");
+
 
 const PORT = process.env.PORT || 8082;
 
@@ -26,3 +28,7 @@ mongoose.connection.once('open', () => {
 
 // Initialize RabbitMQ
 initRabbitMQ();
+
+//Test
+//setTimeout(() => { handleMatchRequest({ id: '1', complexity: ['A, B'], difficulty: 'Easy' });}, 2000)
+//setTimeout(() => { handleMatchRequest({ id: '2', complexity: ['A, B'], difficulty: 'Easy' });}, 2500)
