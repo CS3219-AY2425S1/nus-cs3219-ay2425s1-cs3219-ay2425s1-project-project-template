@@ -44,8 +44,8 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
-        '/match-socket/': {
-          target: 'http://localhost:9004',
+        '/matching-socket/': {
+          target: env.VITE_MATCHING_SERVICE,
           ws: true,
           secure: false,
           changeOrigin: true,

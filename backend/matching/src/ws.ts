@@ -10,7 +10,7 @@ export const createWs = (server: ReturnType<(typeof http)['createServer']>) => {
       origin: [UI_HOST, 'http://localhost:5174'],
       credentials: true,
     },
-    path: '/match-socket',
+    path: '/matching-socket',
   });
   io.on('connection', (socket) => {
     logger.info(`${socket.id} connected`);

@@ -49,7 +49,7 @@ export const WaitingRoom = () => {
       return;
     }
     const socket = io({
-      path: '/match-socket/',
+      path: '/matching-socket/',
       reconnection: true,
       withCredentials: true,
     });
