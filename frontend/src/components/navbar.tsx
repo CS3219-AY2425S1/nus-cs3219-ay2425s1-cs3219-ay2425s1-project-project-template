@@ -29,8 +29,6 @@ export function NavbarLink({
 }
 
 export default function Navbar() {
-  const user = useAuth();
-
   return (
     <nav className='col-span-12 bg-background shadow-sm h-16'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
@@ -42,9 +40,18 @@ export default function Navbar() {
               </Link>
             </div>
             <div className='hidden sm:ml-6 sm:flex sm:space-x-8'>
-              <NavbarLink to='/'>Home</NavbarLink>
-              <NavbarLink to='/problems'>Problems</NavbarLink>
-              <NavbarLink to='/discuss'>Discuss</NavbarLink>
+              <Link
+                to='/problems'
+                className='border-primary text-foreground font-bold inline-flex items-center px-1 pt-1 border-b-2 text-sm'
+              >
+                Problems
+              </Link>
+              <Link
+                to='/discuss'
+                className='border-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition'
+              >
+                Discuss
+              </Link>
             </div>
           </div>
           <div className='hidden sm:ml-6 sm:flex sm:items-center'>
@@ -56,4 +63,3 @@ export default function Navbar() {
   );
 }
 
-Navbar.displayName = 'Navbar';
