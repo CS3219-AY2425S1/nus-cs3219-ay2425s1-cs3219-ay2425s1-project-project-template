@@ -3,13 +3,25 @@ import { ConfigService } from '@nestjs/config';
 import { Consumer, Kafka, Producer } from 'kafkajs';
 import { QuestionComplexity, QuestionTopic, MatchRequestDto } from 'src/dto/request.dto';
 
+export enum MatchStatus {
+  PENDING = 'PENDING',
+  MATCHED = 'MATCHED',
+  CANCELLED = 'CANCELLED',
+}
+
 type UserEntry = {
-  matched: boolean;
+  status: MatchStatus;
   topic: string;
   matchedWithUserId: string;
 }
 
+enum MessageAction {
+  REQUEST_MATCH = 'REQUEST_MATCH',
+  CANCEL_MATCH = 'CANCEL_MATCH'
+}
+
 type Message = {
+  action: MessageAction;
   userId: string;
   timestamp: number;
 }
@@ -99,51 +111,101 @@ export class MatchingService implements OnModuleInit {
     await this.producer.send({
       topic: kafkaTopic,
       messages: [{value: JSON.stringify({
+        action: MessageAction.REQUEST_MATCH,
         userId: req.userId,
         timestamp: req.timestamp
       })}]
     });
   }
 
+  async addCancelRequest(req: MatchRequestDto) {
+    var kafkaTopic = `${req.difficulty}-${req.topic}`;
+    console.log("Topic is: ", kafkaTopic);
+    // Add message
+    await this.producer.send({
+      topic: kafkaTopic,
+      messages: [{value: JSON.stringify({
+        action: MessageAction.CANCEL_MATCH,
+        userId: req.userId,
+        timestamp: req.timestamp
+      })}]
+    });
+  }
+
+  private async handleMatchRequest(topic: string, matchRequest: Message) {
+      const requesterUserId = matchRequest.userId;
+
+      // Check if this is a duplicate request
+      if (this.userPool[requesterUserId]) {
+        console.log(`Duplicate match request received for ${requesterUserId}`);
+        return;
+      }
+
+      console.log(`Received match request: ${matchRequest} on topic: ${topic}`);
+
+      // Check if a matching user exists
+      const existingMatch = Object.keys(this.userPool).find(
+        (userId) => this.userPool[userId].topic === topic // Find a user with the same topic
+          && this.userPool[userId].status == MatchStatus.PENDING // Ensure the user is waiting for a match
+          && userId !== requesterUserId // Ensure the user is not the requester
+      );
+
+      if (existingMatch) {
+        // Pair the users if match is found
+        this.userPool[existingMatch].matchedWithUserId = requesterUserId;
+        this.userPool[existingMatch].status = MatchStatus.MATCHED;
+        this.userPool[requesterUserId] = {
+          status: MatchStatus.MATCHED,
+          topic: topic,
+          matchedWithUserId: existingMatch,
+        };
+        console.log(`Match found for ${requesterUserId} and ${existingMatch} in topic: ${topic}`);
+      } else {
+        this.userPool[requesterUserId] = {
+          status: MatchStatus.PENDING,
+          topic: topic,
+          matchedWithUserId: '',
+        }
+      }
+  }
+
+  private async handleCancelRequest(topic: string, cancelRequest: Message) {
+    const requesterUserId = cancelRequest.userId;
+
+    if (!this.userPool[requesterUserId]) {
+      console.log(`Cannot cancel. No match request found for ${requesterUserId}`);
+      return;
+    }
+
+    console.log(`Received cancel request: ${cancelRequest} on topic: ${topic}`);
+
+    if (this.userPool[requesterUserId].status === MatchStatus.MATCHED) {
+      const matchedWithUserId = this.userPool[requesterUserId].matchedWithUserId;
+      this.userPool[requesterUserId].status = MatchStatus.CANCELLED;
+      this.userPool[requesterUserId].matchedWithUserId = '';
+      this.userPool[matchedWithUserId].status = MatchStatus.PENDING;
+      this.userPool[matchedWithUserId].matchedWithUserId = '';
+      console.log(`Match cancelled between ${requesterUserId} and ${matchedWithUserId} in topic: ${topic}. Continuing search for ${matchedWithUserId}`);
+    } else {
+      this.userPool[requesterUserId].status = MatchStatus.CANCELLED;
+      this.userPool[requesterUserId].matchedWithUserId = '';
+      console.log(`Match request cancelled for ${requesterUserId} in topic: ${topic}`);
+    }
+  }
+
   private async consumeMessages() {
     await this.consumer.run({
       eachMessage: async ({ topic, message }) => {
-        const matchRequestString = message.value.toString();
-        const matchRequest: Message = JSON.parse(matchRequestString);
-        const matchRequestUserId = matchRequest.userId;
+        const messageString = message.value.toString();
+        const messageBody: Message = JSON.parse(messageString);
 
-        // Check if this is a duplicate request
-        if (this.userPool[matchRequestUserId]) {
-          console.log(`Duplicate request received for ${matchRequestUserId}`);
-          return;
+        if (messageBody.action === MessageAction.REQUEST_MATCH) {
+          this.handleMatchRequest(topic, messageBody);
+        } else if (messageBody.action === MessageAction.CANCEL_MATCH) {
+          this.handleCancelRequest(topic, messageBody);
         }
-
-        console.log(`Received message: ${matchRequest} from topic: ${topic}`);
-
-        // Check if a matching user exists
-        const existingMatch = Object.keys(this.userPool).find(
-          (userId) => this.userPool[userId].topic === topic && !this.userPool[userId].matched && userId !== matchRequestUserId
-        );
-
-        if (existingMatch) {
-          // Pair the users if match is found
-          this.userPool[existingMatch].matchedWithUserId = matchRequestUserId;
-          this.userPool[existingMatch].matched = true;
-          this.userPool[matchRequestUserId] = {
-            matched: true,
-            topic: topic,
-            matchedWithUserId: existingMatch,
-          };
-          console.log(`Match found for ${matchRequestUserId} and ${existingMatch} in topic: ${topic}`);
-        } else {
-          this.userPool[matchRequestUserId] = {
-            matched: false,
-            topic: topic,
-            matchedWithUserId: '',
-          }
-        }
-      }
-    })
+      },
+    });
   }
 
   removeFromUserPool(userId: string) {
