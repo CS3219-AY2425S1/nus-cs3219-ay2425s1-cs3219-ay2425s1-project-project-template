@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
+const { v4: uuid } = require('uuid');
 
 const matchSchema = new mongoose.Schema({
+    sessionId: {
+        type: String,
+        defualt: uuid(),
+    },
     user1Id: {
         type: String,
         required: true

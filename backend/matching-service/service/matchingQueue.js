@@ -79,6 +79,7 @@ const handleMatchRequest = async (user) => {
 
     setTimeout(() => {
         //If by 60 seconds no response, return not matched.
+        console.log(`60 seconds time out for matching for user ${user.id}`)
         return { matched: false, user1: "", user2: "" };
     }, 60000)
 }
