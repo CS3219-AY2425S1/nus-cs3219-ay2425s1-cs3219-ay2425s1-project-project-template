@@ -3,6 +3,7 @@ import router from "./routes/matching-route";
 
 const app = express();
 
+app.use(express.json())
 app.use(router);
 
 app.listen(3002, () => {

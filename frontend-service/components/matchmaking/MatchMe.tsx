@@ -5,13 +5,21 @@ import useQuestionTopics from "../../components/hooks/useQuestionTopics";
 
 interface MatchMeProps {
   onMatchMe: () => void;
+  selectedTopic: string;
+  updateSelectedTopic: React.Dispatch<React.SetStateAction<string>>;
+  selectedDifficulty: string;
+  updateSelectedDifficulty: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const MatchMe: React.FC<MatchMeProps> = ({ onMatchMe }) => {
+const MatchMe: React.FC<MatchMeProps> = ({
+  onMatchMe,
+  selectedTopic,
+  updateSelectedTopic,
+  selectedDifficulty,
+  updateSelectedDifficulty
+}) => {
   const { difficulties } = useQuestionDifficulties();
   const { topics } = useQuestionTopics();
-  const [selectedTopic, setSelectedTopic] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const toast = useToast();
 
   const handleMatchMeClick = () => {
@@ -40,7 +48,7 @@ const MatchMe: React.FC<MatchMeProps> = ({ onMatchMe }) => {
           <Select
             placeholder="Select a topic"
             value={selectedTopic}
-            onChange={(e) => setSelectedTopic(e.target.value)}
+            onChange={(e) => updateSelectedTopic(e.target.value)}
             mb={4}
             w="300px"
           >
@@ -55,7 +63,7 @@ const MatchMe: React.FC<MatchMeProps> = ({ onMatchMe }) => {
             minW=""
             placeholder="Select difficulty"
             value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
+            onChange={(e) => updateSelectedDifficulty(e.target.value)}
             w="300px"
           >
             {difficulties.map((difficulty) => (

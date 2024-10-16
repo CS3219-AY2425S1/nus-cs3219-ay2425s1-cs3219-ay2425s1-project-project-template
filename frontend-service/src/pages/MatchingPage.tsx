@@ -7,10 +7,31 @@ import MatchSuccess from "../../components/matchmaking/MatchSuccess";
 
 const MatchingPage: React.FC = () => {
   const [stage, setStage] = useState("matchme");
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const navigate = useNavigate();
 
   const handleMatchMe = () => {
     // TODO: Make a long-poll API request to `matching-service`
+    const getMatchLongPoll = () => {
+      fetch("http://localhost:3002/match-me", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(
+          {
+            topic: selectedTopic,
+            difficulty: selectedDifficulty
+          }
+        )
+      })
+      .then(response => response.json())
+      .then(data => {console.log("matching-service response: ", data)})
+      .catch(err => {console.error(err)});
+    };
+    getMatchLongPoll();
     setStage("countdown");
   };
 
@@ -46,6 +67,8 @@ const MatchingPage: React.FC = () => {
     }
   };
 
+  // Ensure that when the page is loaded/reloaded, the stage state is always
+  // correct with respect to the actual user's match state in backend.
   useEffect(() => {
     const fetchMatchStatus = async () => {
       const response = await fetch("http://localhost:3002/match-status");
@@ -58,7 +81,15 @@ const MatchingPage: React.FC = () => {
 
   return (
     <div>
-      {stage === "matchme" && <MatchMe onMatchMe={handleMatchMe} />}
+      {stage === "matchme" &&
+        <MatchMe
+          onMatchMe={handleMatchMe}
+          selectedTopic={selectedTopic}
+          updateSelectedTopic={setSelectedTopic}
+          selectedDifficulty={selectedDifficulty}
+          updateSelectedDifficulty={setSelectedDifficulty}
+        />
+      }
       {stage === "countdown" && (
         <Countdown
           onSuccess={handleMatchFound}
