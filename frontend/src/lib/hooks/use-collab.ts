@@ -46,6 +46,7 @@ export const useCollab = (roomId: string) => {
       let provider = null;
       try {
         provider = new WebsocketProvider(COLLAB_WS, roomId, doc);
+        provider.connect();
       } catch (err) {
         const { name, message } = err as Error;
         console.error(
@@ -85,7 +86,7 @@ export const useCollab = (roomId: string) => {
         provider.disconnect();
       };
     }
-  }, [editorRef]);
+  }, [editorRef, roomId]);
   return {
     editorRef,
     extensions: [...extensions, langExtension],

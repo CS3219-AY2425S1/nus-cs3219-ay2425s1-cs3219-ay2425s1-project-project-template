@@ -1,4 +1,4 @@
-import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { QueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
@@ -7,14 +7,8 @@ import { Card } from '@/components/ui/card';
 
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
-import { getQuestionDetails } from '@/services/question-service';
 import { QuestionDetails } from '@/components/blocks/questions/details';
-
-const questionDetailsQuery = (id: number) =>
-  queryOptions({
-    queryKey: ['qn', 'details', id],
-    queryFn: async ({ signal: _ }) => getQuestionDetails(id),
-  });
+import { questionDetailsQuery } from '@/lib/queries/question-details';
 
 export const loader =
   (queryClient: QueryClient) =>
