@@ -14,7 +14,7 @@ import { sendToQueue } from "./rabbitMqService";
  * If there is no match, we will return null.
  *
  * @param topic
- * @returns
+ * @returns User if there is a match, null if there is no match
  */
 export const checkMatch = async (key: string): Promise<User | null> => {
   const match = await redisClient.zRange(key, 0, 0); // Get the first user in the topic queue
@@ -26,7 +26,6 @@ export const checkMatch = async (key: string): Promise<User | null> => {
     if (res === null) {
       console.error(`Error removing user from queue for key: ${key}`);
     }
-
     return user;
   }
   return null;
@@ -111,12 +110,13 @@ export const processNewUser = async (user: User): Promise<void> => {
       user2: user,
     });
   } else {
+    // Add to the topic queue if no match
     await transferToTopicQueue(user);
   }
 };
 
 // Start background transfer process, polling every 5 sec
-export const startBackgroundTransfer = (): void => {
+export const startBackgroundTransfer = () => {
   setInterval(async () => {
     await processOldUsers();
   }, 5 * SECONDS);

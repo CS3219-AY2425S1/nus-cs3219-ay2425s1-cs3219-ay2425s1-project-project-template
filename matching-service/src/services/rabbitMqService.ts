@@ -1,39 +1,25 @@
 import amqp, { Channel } from "amqplib";
-import { storeUser } from "../model/userModel";
-import { User } from "../types";
-import { processNewUser } from "./matchingService";
 
 let channel: Channel;
 const rabbit_url = process.env.RABBITMQ_URL || "amqp://localhost";
 
-export const initRabbitMQ = async (queue: string): Promise<void> => {
+/**
+ * Establish a connection to RabbitMQ
+ */
+export const initRabbitMQ = async (): Promise<void> => {
   try {
     const connection = await amqp.connect(rabbit_url);
     channel = await connection.createChannel();
-    await channel.assertQueue(queue, { durable: true });
-    console.log(`RabbitMQ initialised and subscribed to ${queue}`);
-
-    // Start consuming messages from matching-service
-    channel.consume(queue, async (msg) => {
-      if (msg !== null) {
-        const user: User = JSON.parse(msg.content.toString());
-        console.log("Received message from queue:", user);
-
-        // Store the user into Redis
-        try {
-          await processNewUser(user);
-        } catch (err) {
-          console.error("Error storing user in Redis:", err);
-        }
-
-        channel.ack(msg);
-      }
-    });
+    console.log("Connected to RabbitMQ");
   } catch (err) {
     console.error("RabbitMQ connection error:", err);
   }
 };
 
+/**
+ * Get the RabbitMQ channel
+ * @returns RabbitMQ channel
+ */
 export const getChannel = (): amqp.Channel => {
   if (!channel) {
     throw new Error("RabbitMQ channel is not initialized");
@@ -41,7 +27,42 @@ export const getChannel = (): amqp.Channel => {
   return channel;
 };
 
-// Send a payload to a specified RabbitMQ queue
+/**
+ * Subscribes to a RabbitMQ queue and calls the callback function when a message is received.
+ * @param queue queue to subscribe to
+ * @param callback callback when message is received
+ */
+export const subscribeToQueue = async <T>(
+  queue: string,
+  callback: (message: T) => void,
+): Promise<void> => {
+  try {
+    if (!channel) throw new Error("RabbitMQ channel is not initialized");
+
+    await channel.assertQueue(queue);
+    console.log(`Subscribed to RabbitMQ queue "${queue}"`);
+
+    channel.consume(queue, (msg) => {
+      if (msg !== null) {
+        const message: T = JSON.parse(msg.content.toString());
+        console.log(
+          `Received message from RabbitMQ queue "${queue}":`,
+          message,
+        );
+        callback(message);
+        channel.ack(msg);
+      }
+    });
+  } catch (err) {
+    console.error(`Error subscribing to RabbitMQ queue "${queue}":`, err);
+  }
+};
+
+/**
+ * Sends a payload to a RabbitMQ queue
+ * @param queue queue to send payload to
+ * @param payload payload object to send
+ */
 export const sendToQueue = async (
   queue: string,
   payload: Object,
