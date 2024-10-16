@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import { addUserToSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
 import { getRedisClient } from '../utils/redis-client';
+import { writeLogToFile } from "../utils/logger";
 
 // Initialize Redis adapter for socket.io
 export function initializeSocketIO(io: Server) {
@@ -30,11 +31,12 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
 
                 if (socket1 && socket2) {
 
-                    console.log(`User ${userId} matched with ${status[1].userId}`);
+                    writeLogToFile(`User ${userId} matched with ${status[1].userId}`);
                     // Match users and notify them
-                    console.log(`Emitted matchFound to ${status[0].userId} at socket ${socketId1}`);
+                    writeLogToFile(`Emitted matchFound to ${status[0].userId} at socket ${socketId1}`);
+
                     io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId }); //INSERT SESSION ID HERE
-                    console.log(`Emitted matchFound to ${status[1].userId} at socket ${socketId2}`);
+                    writeLogToFile(`Emitted matchFound to ${status[1].userId} at socket ${socketId2}`);
                     io.to(socketId2).emit('matchFound', { matchedWith: status[0].userId }); //INSERT SESSION ID HERE
 
                     //Disconnect both users
@@ -50,7 +52,7 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                     }
                 }
             } else {
-                console.log(`User ${userId} registered for matching`);
+                writeLogToFile(`User ${userId} registered for matching`);
                 socket.emit('registrationSuccess', { message: `User ${userId} registered for matching successfully.` });
             }
 
@@ -62,7 +64,7 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
 
 export function handleDeregisterForMatching(socket: Socket) {
     socket.on('deregisterForMatching', async () => {
-        console.log(`User ${socket.data.userId} deregistered for matching`);
+        writeLogToFile(`User ${socket.data.userId} deregistered for matching`);
         await removeUserFromSearchPool(socket.data.userId);
     });
 }
@@ -71,7 +73,7 @@ export function handleDisconnect(socket: Socket) {
     // Handle disconnection
     const { userId } = socket.data;
     socket.on('disconnect', async () => {
-        console.log(`User ${userId} disconnected`);
+        writeLogToFile(`User ${userId} disconnected`);
         await removeUserFromSearchPool(userId);
     });
 }

@@ -81,6 +81,8 @@ services:
     container_name: matching-service
     env_file:
       - .env  # Loads environment variables from .env file
+    volumes:
+      - ${MATCHING_SERVICE_LOGS_DIR}:/usr/src/app/logs
     ports:
       - "${MATCHING_SERVICE_PORT}:${MATCHING_SERVICE_PORT}"  # Bind port using env variable
     depends_on:

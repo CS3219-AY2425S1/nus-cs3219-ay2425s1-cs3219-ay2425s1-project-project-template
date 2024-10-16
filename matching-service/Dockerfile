@@ -10,6 +10,8 @@ COPY ./src ./src
 
 COPY ./tsconfig.json ./
 
+RUN mkdir -p /usr/src/app/logs
+
 RUN npm run build
 
 CMD ["npm", "start"]
