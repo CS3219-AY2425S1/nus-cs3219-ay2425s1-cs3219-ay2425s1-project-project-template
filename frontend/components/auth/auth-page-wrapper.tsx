@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 import { useAuth } from "@/app/auth/auth-context";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import LoadingScreen from "../common/loading-screen";
 
 type AuthCheck = (
   user: { id: string; isAdmin: boolean } | undefined | null
@@ -49,7 +50,9 @@ const AuthPageWrapper: React.FC<AuthPageWrapperProps> = ({
 
   return (
     <div>
-      {authCheck(auth?.user) ? (
+      {auth?.isLoading ? (
+        <LoadingScreen />
+      ) : authCheck(auth?.user) ? (
         children
       ) : (
         <div className="flex items-start justify-center h-2/6">
