@@ -5,10 +5,11 @@ import App from "./App.jsx";
 import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import MatchingService from "./pages/MatchingService.jsx";
 import Settings from "./pages/Settings.jsx";
 import Help from "./pages/Help.jsx";
 import FindingPeer from "./pages/FindingPeer.jsx";
+import MatchingService from "./pages/matchingService.jsx";
+import Room from "./pages/Room.jsx";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,11 @@ const router = createBrowserRouter([
   {
     path: "/finding-a-peer",
     element: <FindingPeer />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/room/{id}",
+    element: <Room />,
     errorElement: <ErrorPage />,
   },
 ]);
