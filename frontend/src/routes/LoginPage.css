@@ -5,7 +5,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #e0f7fa; /* Soft background color */
+    background-color: #e0f7fa; 
 }
 
 .header {
@@ -16,21 +16,21 @@
 .main-header {
     font-size: 40px;
     font-weight: bold;
-    color: #00796b; /* A more vibrant green */
+    color: #00796b; 
     margin: 0;
 }
 
 .sub-header {
     font-size: 18px;
-    color: #004d40; /* Darker green for contrast */
+    color: #004d40; 
     margin: 5px 0 20px;
 }
 
 .login-form {
     background: #fff;
-    padding: 30px; /* More padding for better spacing */
+    padding: 30px; 
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
     width: 100%;
     max-width: 400px;
 }
@@ -42,8 +42,8 @@
 label {
     display: block;
     margin-bottom: 5px;
-    font-weight: 600; /* Make the label text bold */
-    color: #00796b; /* Matching the header */
+    font-weight: 600; 
+    color: #00796b; 
 }
 
 input {
@@ -60,7 +60,7 @@ input:focus {
     outline: none;
 }
 
-button {
+.submit-button {
     width: 100%;
     padding: 12px;
     background-color: #007bff;
@@ -72,7 +72,7 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
+.submit-button:hover {
     background-color: #0056b3;
 }
 
@@ -88,11 +88,11 @@ button:hover {
 }
 
 .link-container a {
-    color: #007bff; /* Blue color */
-    text-decoration: underline; /* Underlined */
-    font-weight: 600; /* Make it bold */
+    color: #007bff; 
+    text-decoration: underline; 
+    font-weight: 600; 
 }
 
 .link-container a:hover {
-    color: #0056b3; /* Darker blue on hover */
+    color: #0056b3; 
 }

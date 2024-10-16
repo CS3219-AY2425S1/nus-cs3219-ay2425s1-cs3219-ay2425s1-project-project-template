@@ -29,8 +29,10 @@ function LoginPage() {
       });
   
       if (response.status === 200) {
-        const { token } = response.data;
-        localStorage.setItem('jwt', token); // Store token for future authenticated requests
+        const userData = response.data.data; // Extract all the user data
+
+        localStorage.setItem('user', JSON.stringify(userData)); // Store all user data as a string in localStorage
+        
         navigate('/question'); // Redirect to the question page
       }
     } catch (error) {
@@ -77,7 +79,7 @@ function LoginPage() {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button className="submit-button" type="submit">Login</button>
         <div className="link-container">
           <p>Don't have an account? <a href="/register">Add a new account</a></p>
         </div>

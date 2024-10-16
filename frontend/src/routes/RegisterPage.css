@@ -60,7 +60,7 @@ input:focus {
     outline: none;
 }
 
-button {
+.register-button {
     width: 100%;
     padding: 12px;
     background-color: #007bff;
@@ -72,6 +72,6 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
+.register-button:hover {
     background-color: #0056b3;
 }
