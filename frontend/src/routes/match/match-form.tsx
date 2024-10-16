@@ -44,26 +44,29 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
     console.log('Form Submitted:', data);
     setLoading(true);
     setErrorMessage(null);
+
     const response = await requestMatch(data);
 
-    const socketURL = response.socket;
-
-    if (!socketURL || socketURL.length === 0) {
+    if (!response) {
       setLoading(false);
       setErrorMessage('Error. Please try again later.');
     } else {
-      navigate(ROUTES.WAITING_ROOM, { state: { socketURL } });
+      const socketPort = response.socketPort;
+      navigate(ROUTES.WAITING_ROOM, { state: { socketPort } });
     }
   };
 
   return (
     <Card className='text-card-foreground bg-primary-foreground border-border flex w-full max-w-[400px] flex-col items-center justify-center rounded-xl border shadow md:size-full md:max-h-[600px]'>
-      <CardHeader className='flex items-center pb-10'>
+      <CardHeader className='mt-20 flex items-start justify-center'>
         <CardTitle className='text-3xl'>Find A Partner</CardTitle>
       </CardHeader>
-      <CardContent className='w-full items-center'>
+      <CardContent className='w-full grow items-center justify-center '>
         <FormProvider {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className='flex w-full flex-col gap-2 '>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className='flex size-full flex-col justify-center gap-2'
+          >
             <FormField
               control={control}
               name='selectedTopics'
@@ -77,11 +80,8 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                     className='whitespace-nowrap md:w-[350px] '
                   >
                     <FormControl>
-                      <MultiSelectorTrigger>
-                        <MultiSelectorInput
-                          placeholder='Select topic(s)'
-                          className='overflow-x:auto'
-                        />
+                      <MultiSelectorTrigger className='max-h-24 overflow-y-auto'>
+                        <MultiSelectorInput placeholder='Select topic(s)' />
                       </MultiSelectorTrigger>
                     </FormControl>
                     <MultiSelectorContent>

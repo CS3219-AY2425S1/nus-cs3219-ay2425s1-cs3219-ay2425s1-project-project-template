@@ -1,9 +1,16 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import { logger } from './lib/utils';
+import { UI_HOST } from './config';
 
 export const createWs = (server: ReturnType<(typeof http)['createServer']>) => {
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: {
+      // to update
+      origin: [UI_HOST, 'http://localhost:5174'],
+      credentials: true,
+    },
+  });
   io.on('connection', (socket) => {
     logger.info(`${socket.id} connected`);
 

@@ -25,9 +25,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /match-service/ {
-        rewrite ^/match-service(/.*)$ $1 break;
-        proxy_pass ${VITE_MATCH_SERVICE};
+    location /matching-service/ {
+        rewrite ^/matching-service(/.*)$ $1 break;
+        proxy_pass ${VITE_MATCHING_SERVICE};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -5,5 +5,5 @@ export type IRequestMatchPayload = {
 };
 
 export type IRequestMatchResponse = {
-  socket: string;
+  socketPort: string;
 };

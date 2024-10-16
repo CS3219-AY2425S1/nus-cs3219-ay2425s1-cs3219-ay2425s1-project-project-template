@@ -48,7 +48,6 @@ export const DetailsCard = ({ questionDetails }: DetailsCardProps) => {
             components={{
               code: ({ children, className, ...rest }) => {
                 // const isCodeBlock = /language-(\w+)/.exec(className || '');
-
                 return (
                   <code
                     {...rest}

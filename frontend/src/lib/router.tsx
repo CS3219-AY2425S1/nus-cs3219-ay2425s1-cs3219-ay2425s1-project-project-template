@@ -16,6 +16,7 @@ import { ROUTES } from './routes';
 import { Match } from '@/routes/match/main';
 import { loader as topicsLoader } from '@/routes/match/logic';
 import { WaitingRoom } from '@/routes/match/waiting';
+import { Collab, loader as matchedQuestionDetailsLoader } from '@/routes/collab/main';
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,11 @@ export const router = createBrowserRouter([
               {
                 path: ROUTES.WAITING_ROOM,
                 element: <WaitingRoom />,
+              },
+              {
+                path: ROUTES.COLLAB,
+                loader: matchedQuestionDetailsLoader(queryClient),
+                element: <Collab />,
               },
             ],
           },

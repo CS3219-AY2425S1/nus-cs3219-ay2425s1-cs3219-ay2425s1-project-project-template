@@ -5,8 +5,8 @@ import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
-import { getQuestionDetails } from '@/services/question-service';
 import { DetailsCard } from './details-card';
+import { getQuestionDetails } from '@/services/question-service';
 
 const questionDetailsQuery = (id: number) =>
   queryOptions({

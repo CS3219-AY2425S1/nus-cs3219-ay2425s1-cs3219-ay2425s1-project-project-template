@@ -29,6 +29,11 @@ export const useLoginForm = () => {
     mutationKey: ['login'],
     mutationFn: login,
     onSuccess: (_response, _params, _context) => {
+      const userID = _response?.data?.id;
+      if (userID) {
+        localStorage.setItem('cachedUserID', userID);
+      }
+
       navigate(0);
     },
   });
