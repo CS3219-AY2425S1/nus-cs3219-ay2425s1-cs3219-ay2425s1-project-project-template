@@ -1,15 +1,15 @@
 "use client";
 
-import { useAuth } from "@/components/auth/AuthContext";
+import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 import LandingPage from "./components/landing-page/LandingPage";
 // import Dashboard from "./components/dashboard/Dashboard";
 import LeetcodeDashboard from "./leetcode-dashboard/LeetcodeDashboard";
 
 const Home = () => {
-  const { token } = useAuth();
+  const { authStatus } = useAuth();
 
   return (
-    token ? <LeetcodeDashboard/> : <LandingPage/>
+    authStatus === AuthStatus.ADMIN ? <LeetcodeDashboard/> : <LandingPage/>
   );
 };
 
