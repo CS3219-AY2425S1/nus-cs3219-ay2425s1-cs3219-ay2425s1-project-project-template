@@ -25,6 +25,8 @@ import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { AuthType, userServiceUri } from "@/lib/api-uri";
+import { isPasswordComplex } from "@/lib/password";
+import { userServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<User> => {
   // Retrieve the JWT token from localStorage
@@ -299,16 +301,6 @@ export default function UserSettings({ userId }: { userId: string }) {
       setPasswordsMatch(true);
     }
   }, [newPassword, confirmPassword]);
-
-  const isPasswordComplex = (password: string) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(
-      password
-    );
-
-    return password.length >= minLength && hasUpperCase && hasSpecialChar;
-  };
 
   if (isLoading) {
     return <LoadingScreen />;

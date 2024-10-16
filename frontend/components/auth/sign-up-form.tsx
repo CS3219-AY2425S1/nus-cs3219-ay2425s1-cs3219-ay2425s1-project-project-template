@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/hooks/use-toast";
 import { signUp } from "@/lib/signup";
+import { isPasswordComplex } from "@/lib/password";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,14 @@ export function SignUpForm() {
       toast({
         title: "Password Mismatch",
         description: "The passwords you entered do not match",
+      });
+      return;
+    }
+    if (!isPasswordComplex(passwordConfirmation)) {
+      toast({
+        title: "Weak Password",
+        description:
+          "Password must be at least 8 characters long, include 1 uppercase letter and 1 special character.",
       });
       return;
     }
