@@ -4,6 +4,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { createUser } from "../services/UserService";
+import { Eye, EyeOff } from "lucide-react";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -15,6 +16,11 @@ const SignUp = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { reset } = useForm();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const {
     register,
@@ -27,7 +33,7 @@ const SignUp = () => {
     try {
       const response = await createUser(userData);
       toast.success("Account Created");
-      navigate('/dashboard')
+      navigate("/dashboard");
     } catch (error) {
       if (error.response && error.response.data) {
         toast.error("User already exists");
@@ -41,7 +47,6 @@ const SignUp = () => {
     reset();
     console.log(userData);
     sendPostUser(userData);
-    
   };
 
   useEffect(() => {
@@ -149,9 +154,9 @@ const SignUp = () => {
               </div>
 
               {/* Password */}
-              <div>
+              <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
                   placeholder="Enter a strong password"
@@ -169,6 +174,17 @@ const SignUp = () => {
                     },
                   })}
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-4 flex items-center"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <EyeOff className="text-gray-300" />
+                  ) : (
+                    <Eye className="text-gray-300" />
+                  )}
+                </button>
                 {errors.password && (
                   <p className="mx-2 mt-1 text-red-500">
                     {errors.password.message}
@@ -177,9 +193,9 @@ const SignUp = () => {
               </div>
 
               {/* Confirm Password */}
-              <div>
+              <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="confirmPassword"
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
                   placeholder="Confirm your password"
@@ -189,6 +205,17 @@ const SignUp = () => {
                       value === password || "Passwords do not match.",
                   })}
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-4 flex items-center"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <EyeOff className="text-gray-300" />
+                  ) : (
+                    <Eye className="text-gray-300" />
+                  )}
+                </button>
                 {errors.confirmPassword && (
                   <p className="mx-2 mt-1 text-red-500">
                     {errors.confirmPassword.message}

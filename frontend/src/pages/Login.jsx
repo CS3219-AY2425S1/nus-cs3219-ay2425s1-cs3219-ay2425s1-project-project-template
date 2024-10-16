@@ -1,8 +1,9 @@
-import { ArrowBigRightDash, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -13,6 +14,11 @@ const carouselItems = [
 const Login = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { reset } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const {
     register,
@@ -121,9 +127,9 @@ const Login = () => {
               </div>
 
               {/* Password */}
-              <div>
+              <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   className="mt-1 w-full rounded-xl border border-gray-100/30 bg-gray-300/10 px-4 py-4 focus:outline-none focus:ring-0"
                   placeholder="Enter your password"
@@ -135,6 +141,17 @@ const Login = () => {
                     },
                   })}
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-4 flex items-center"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <EyeOff className="text-gray-300" />
+                  ) : (
+                    <Eye className="text-gray-300" />
+                  )}
+                </button>
                 {errors.password && (
                   <p className="mx-2 mt-1 text-red-500">
                     {errors.password.message}
