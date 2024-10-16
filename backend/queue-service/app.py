@@ -18,9 +18,7 @@ def produce_message(message):
         credentials = pika.PlainCredentials('peerprep', 'peerprep')
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
         channel = connection.channel()
-        # Declare a queue named 'match_queue'
         channel.queue_declare(queue='match_queue')
-        # Publish the message to the queue
         channel.basic_publish(exchange='',
                             routing_key='match_queue',
                             body=message)
@@ -30,7 +28,6 @@ def produce_message(message):
     except Exception as e:
         print("Failed: " + str(e), file=sys.stderr)
 
-    # Close the connection
     
 
 @app.get('/')
