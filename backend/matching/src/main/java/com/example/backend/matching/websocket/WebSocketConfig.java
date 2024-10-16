@@ -1,4 +1,4 @@
-package com.example.backend.matching.config;
+package com.example.backend.matching.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
