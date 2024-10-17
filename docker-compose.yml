@@ -5,17 +5,20 @@ services:
     build:
       context: ./frontend 
     ports:
-      - "5173:5173"
-    command: npm run dev -- --host
+      - "5173:5173" 
+    volumes:
+      - ./frontend:/app 
+      - /app/node_modules 
+    command: npm run dev -- --host 
 
   question-service:
     build:
-      context: ./backend/question-service  
+      context: ./backend/question-service
     ports:
       - "8080:8080"
 
   user-service:
     build:
-      context: ./backend/user-service 
+      context: ./backend/user-service
     ports:
       - "8081:8081"
