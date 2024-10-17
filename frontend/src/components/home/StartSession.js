@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/start-session.css';
 import { topics } from "../../assets/topics";
+import MatchPopup from "./MatchPopup";
 
 const StartSession = ({ username }) => {
   const [difficulty, setDifficulty] = useState('Easy');
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState('Python');
+  const [showPopup, setShowPopup] = useState(false);
+  const [countdown, setCountdown] = useState(30);
 
   const handleFindMatch = async () => {
     // Send a POST request to the backend to find a match
@@ -29,7 +32,30 @@ const StartSession = ({ username }) => {
     } catch (error) {
       console.error('Network error:', error);
     }
+
+    // Show the popup and start the countdown
+    setShowPopup(true);
+    setCountdown(30);
   };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
+  useEffect(() => {
+    let timer;
+    if (showPopup && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown(prevCountdown => prevCountdown - 1);
+      }, 1000); // Decrease countdown every second
+    }
+
+    if (countdown === 0) {
+      setShowPopup(false); // Automatically close dialog when countdown is 0
+    }
+
+    return () => clearInterval(timer);
+  }, [showPopup, countdown]);
 
   return (
     <div className="start-session-container">
@@ -68,6 +94,9 @@ const StartSession = ({ username }) => {
         </div>
         <button onClick={handleFindMatch}>Find a Match</button>
       </div>
+
+      {/* Render the MatchPopup component */}
+      <MatchPopup countdown={countdown} showPopup={showPopup} closePopup={closePopup} />
     </div>
   );
 };
