@@ -10,7 +10,6 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import Link from "next/link";
 import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
 import { FaCode } from "react-icons/fa";
 
 interface SidebarMenuItemProps {
@@ -68,8 +67,7 @@ const menuItemStyles: MenuItemStyles = {
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { authStatus, login, logout } = useAuth();
-  const router = useRouter();
+  const { authStatus, logout } = useAuth();
 
   return (
     <div className="flex h-full overflow-y-auto">

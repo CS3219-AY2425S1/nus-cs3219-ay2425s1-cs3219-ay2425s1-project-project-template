@@ -32,11 +32,16 @@ export const verifyToken = async (needsLogin: boolean) => {
     if (needsLogin) logout();
     return false;
   }
+
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/verify-token`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  }).then((res) => {
+    return res.json();
+  }).catch((_) => {
+    return { status: 500 };
   });
   
   switch (response.status) {
@@ -46,15 +51,12 @@ export const verifyToken = async (needsLogin: boolean) => {
       if (needsLogin) logout();
       return false;
     default:
-      toast.fire({
-        icon: "error",
-        title: "An error occurred while verifying your token",
-      });
+      if (needsLogin) logout();
       return false;
   }
 };
 
-export const login = async (email: string, password: string) => {
+export const login = async (username: string, password: string) => {
   const encryptedPassword = btoa(password);
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/login`, {
     method: "POST",
@@ -62,9 +64,13 @@ export const login = async (email: string, password: string) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      email,
+      username,
       password: encryptedPassword,
     }),
+  }).then((res) => {
+    return res.json();
+  }).catch((_) => {
+    return { status: 500 };
   });
 
   switch (response.status) {
@@ -85,6 +91,7 @@ export const login = async (email: string, password: string) => {
 };
 
 export const handleSuccessfulLogin = async (response: Response) => {
+  // const { accessToken, username, id, isAdmin } = { accessToken: "accessToken", username: "username", id: "id", isAdmin: true };
   const { accessToken, username, id, isAdmin } = await response.json();
   setToken(accessToken);
   const redirect = localStorage.getItem("redirect");
@@ -98,7 +105,7 @@ export const handleSuccessfulLogin = async (response: Response) => {
   return { username, id, isAdmin };
 };
 
-export const redirectToLogin = () => {
+export const redirectToLogin = async () => {
   localStorage.setItem("redirect", window.location.pathname);
   window.location.href = "/login";
 }
@@ -108,7 +115,12 @@ export const logout = () => {
   localStorage.removeItem("username");
   localStorage.removeItem("id");
   localStorage.removeItem("isAdmin");
-  redirectToLogin();
+  redirectToLogin().then(() => {
+    toast.fire({
+      icon: "success",
+      title: "Logged out successfully",
+    });
+  })
 };
 
 export const register = async (email: string, password: string, username: string) => {
@@ -123,6 +135,10 @@ export const register = async (email: string, password: string, username: string
       password: encryptedPassword,
       username,
     }),
+  }).then((res) => {
+    return res.json();
+  }).catch((_) => {
+    return { status: 500 };
   });
 
   switch (response.status) {
@@ -156,7 +172,11 @@ export const getUser = async () => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  });
+  }).then((res) => {
+    return res.json();
+  }).catch((_) => {
+    return { status: 500 };
+  })
 
   switch (response.status) {
     case 200:
@@ -182,11 +202,16 @@ export const updateUser = async (data: { email: string, password: string, bio: s
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
+  }).then((res) => {
+    return res.json();
+  }).catch((error) => {
+    console.error("Error:", error);
+    return { status: 500 };
   });
 
   switch (response.status) {
     case 200:
-      return await response.json();
+      return response;
     case 400:
       toast.fire({
         icon: "error",

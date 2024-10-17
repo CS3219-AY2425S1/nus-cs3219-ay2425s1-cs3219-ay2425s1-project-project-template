@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { getUser, updateUser } from "@/api/user";
+import { getUser, redirectToLogin, updateUser } from "@/api/user";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
+import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 
 const formSchema = z.object({
   username: z.string()
@@ -28,6 +29,7 @@ const formSchema = z.object({
 });
 
 const ProfilePage = () => {
+  const { authStatus } = useAuth();
   const [user, setUser] = useState<User>({});
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -47,6 +49,10 @@ const ProfilePage = () => {
     });
   }, [form]);
 
+  useEffect(() => {
+    if (authStatus === "UNAUTHENTICATED") redirectToLogin();
+  }, []); 
+
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     updateUser(data).then(() => {
       Swal.fire({
@@ -56,7 +62,7 @@ const ProfilePage = () => {
     });
   };
 
-  return (
+  return authStatus !== AuthStatus.UNAUTHENTICATED && (
     <div className="mx-auto max-w-xl my-10 p-4">
       <h1 className="text-white font-extrabold text-h1">Welcome, {user?.username}!</h1>
 

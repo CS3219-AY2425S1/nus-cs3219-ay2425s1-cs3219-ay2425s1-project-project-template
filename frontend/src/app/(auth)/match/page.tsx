@@ -1,5 +1,7 @@
 "use client";
 
+import { redirectToLogin, verifyToken } from "@/api/user";
+import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -17,6 +19,7 @@ import {
   QuestionTopics,
 } from "@/types/find-match";
 import { capitalizeWords } from "@/utils/string_utils";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 interface FindMatchFormOutput {
@@ -40,6 +43,12 @@ const FindPeerHeader = () => {
 };
 
 const FindPeer = () => {
+  const { authStatus } = useAuth();
+
+  useEffect(() => {
+    if (authStatus === AuthStatus.UNAUTHENTICATED) redirectToLogin();
+  }, []);
+
   const form = useForm({
     defaultValues: {
       questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
@@ -68,7 +77,7 @@ const FindPeer = () => {
     console.log(data);
   };
 
-  return (
+  return authStatus !== AuthStatus.UNAUTHENTICATED && (
     <Container>
       <FindPeerHeader />
       <Form {...form}>
