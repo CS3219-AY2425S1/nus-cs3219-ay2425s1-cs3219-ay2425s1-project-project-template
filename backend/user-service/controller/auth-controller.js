@@ -22,7 +22,7 @@ export async function handleLogin(req, res) {
       const accessToken = jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "1h" }
       );
 
       // Generate refresh token
@@ -35,7 +35,7 @@ export async function handleLogin(req, res) {
       // Set access token as an HTTP-only cookie
       res.cookie("accessToken", accessToken, {
         httpOnly: true,  // Ensure it's not accessible via JavaScript (XSS protection)
-        maxAge: 15 * 60 * 1000,  // 15 minutes
+        maxAge: 60 * 60 * 1000,  // 1 hour
       });
 
       // Set refresh token as an HTTP-only cookie
@@ -100,20 +100,20 @@ export async function handleRefreshToken(req, res) {
     const newAccessToken = jwt.sign(
       { id: decoded.id },
       process.env.JWT_SECRET,
-      { expiresIn: "15m" } // Short lifespan for access token
+      { expiresIn: "1h" } // Short lifespan for access token
     );
 
     // Optionally, rotate the refresh token (to increase security)
     const newRefreshToken = jwt.sign(
       { id: decoded.id },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "1d" } // 7-day lifespan for refresh token
+      { expiresIn: "1d" } // 1-day lifespan for refresh token
     );
 
     // Set the new access token as an HTTP-only cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      maxAge: 60 * 60 * 1000, // 1 hour
     });
 
     // Set the new refresh token as an HTTP-only cookie (if rotating)
