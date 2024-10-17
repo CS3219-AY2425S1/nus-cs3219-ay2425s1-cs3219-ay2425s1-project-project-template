@@ -19,7 +19,7 @@ async function initRabbitMQ() {
         try {
             connection = await amqp.connect('amqp://rabbitmq:5672');
             channel = await connection.createChannel();
-            await channel.assertQueue('matching-queue', { durable: false });
+            await channel.assertQueue('matching-queue', { durable: true });
             console.log('Connected to RabbitMQ');
             startConsumer(channel); // Start consumer
             return; // Exit the function if successful
@@ -39,10 +39,10 @@ async function addToQueue(matchData) {
             return;
         }
         const queue = 'matching-queue';
-        await channel.assertQueue(queue, { durable: false });
+        await channel.assertQueue(queue, { durable: true });
         channel.sendToQueue(queue, Buffer.from(JSON.stringify(matchData)));
         console.log(`Added to queue: ${JSON.stringify(matchData)}`);
-        
+
     } catch (error) {
         console.error('Error adding to queue:', error);
     }

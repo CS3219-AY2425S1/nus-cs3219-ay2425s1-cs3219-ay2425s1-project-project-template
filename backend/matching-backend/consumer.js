@@ -24,6 +24,15 @@ async function findMatch(user) {
     // No match found, add user to waiting list
     waitingUsers.push(user);
     console.log(`User ${user.username} added to waiting list.`);
+
+    setTimeout(() => {
+        const userIndex = waitingUsers.findIndex(waitingUser => waitingUser.username === user.username);
+        if (userIndex !== -1) {
+            waitingUsers.splice(userIndex, 1);
+            console.log(`Time's up! User ${user.username} removed from the waiting list`);
+        }
+    }, 30000);
+
     return false; // Return false if no match was found
 }
 
@@ -33,7 +42,7 @@ async function startConsumer() {
         const channel = await connection.createChannel();
         const queue = 'matching-queue';
 
-        await channel.assertQueue(queue, { durable: false });
+        await channel.assertQueue(queue, { durable: true });
         console.log('Waiting for messages in %s. To exit press CTRL+C', queue);
 
         channel.consume(queue, (msg) => {
