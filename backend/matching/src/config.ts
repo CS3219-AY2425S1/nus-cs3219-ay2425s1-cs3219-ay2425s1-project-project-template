@@ -12,3 +12,5 @@ export const DB_URL = `redis://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:${DB
 // export const DB_URL = `redis://${DB_HOSTNAME}:${DB_PORT}`;
 
 export const NODE_ENV = process.env.NODE_ENV;
+
+export const IS_MILESTONE_D4 = true;
