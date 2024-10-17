@@ -1,5 +1,6 @@
 const Match = require('../models/Match'); // Import the Match model
 
+/* This function is discontinued due to not interfacing with the frontend. Replacement below will be called by matchRequestController
 // Create a new match
 const createMatch = async (req, res) => {
     const { user1Id, user2Id, category, complexity } = req.body;
@@ -21,7 +22,22 @@ const createMatch = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ message: 'Error creating match.', error: err.message });
     }
-};
+};*/
+
+// Create a new match to be stored in the database
+const createMatch = async (matchResult) => {
+    try {
+        const result = await Match.create({
+            user1Id: matchResult.user1,
+            user2Id: req.body.user2,
+            category: req.body.category,
+            difficulty: req.body.difficulty
+        });
+        return true
+    } catch (err) {
+        return false
+    }
+}
 
 // Retrieve a single match by its ID
 const getMatchById = async (req, res) => {

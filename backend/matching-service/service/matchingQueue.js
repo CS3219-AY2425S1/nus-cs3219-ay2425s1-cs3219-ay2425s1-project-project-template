@@ -40,13 +40,14 @@ const matchUsers = async () => {
 
         if (matchedRequest) {
             requests.splice(requests.indexOf(matchedRequest), 1)
-            result = JSON.stringify({ matched: true, 
-                                      user1: newRequest.id, 
-                                      user2: matchedRequest.id,  
-                                      category: newRequest.category,
-                                      difficulty: newRequest.difficulty
-                                    });
+            result = { matched: true, 
+                       user1: newRequest.id, 
+                       user2: matchedRequest.id,  
+                       category: newRequest.category,
+                       difficulty: newRequest.difficulty
+                    };
             console.log(`Matched ${result.user1} and ${result.user2}`)
+            result = JSON.stringify(result)
             channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); // B to D
             channel.publish(resCh, matchedRequest.id, Buffer.from(JSON.stringify(result)));
         };
@@ -87,23 +88,23 @@ const calculateMatchScore = (request1, request2) => {
 }
 
 
-const handleMatchRequest = async (user) => {
+const handleMatchRequest = async (request) => {
     const connection = await amqp.connect(process.env.RABBITMQ_URI);
     const channel = await connection.createChannel();
     await channel.assertExchange(reqCh, 'fanout', { durable: false });  // C (fanout)
     await channel.assertExchange(resCh, 'topic', { durable: false });  // D (topic)
 
     const q = await channel.assertQueue('', { exclusive: true }) // Bind to D
-    channel.bindQueue(q.queue, resCh, user.id);
+    channel.bindQueue(q.queue, resCh, request.id);
 
     //Sending user details
-    channel.publish(reqCh, '', Buffer.from(JSON.stringify(user))); // C to A
-    console.log(`Sent user ${user.id} for matching.`);
+    channel.publish(reqCh, '', Buffer.from(JSON.stringify(request))); // C to A
+    console.log(`Sent user ${request.id} for matching.`);
 
     //Waiting for results
     let recevied = false;
     channel.consume(q.queue, msg => {
-        console.log(`User ${user.id} ~ Result: ${msg.content.toString()}`);
+        console.log(`User ${request.id} ~ Result: ${msg.content.toString()}`);
         result = JSON.parse(msg.content.toString());
         recevied = true;
         return result;
@@ -113,8 +114,13 @@ const handleMatchRequest = async (user) => {
     setTimeout(() => {
         //If by 60 seconds no response, return not matched.
         if (!recevied) {
-            console.log(`60 seconds time out for matching for user ${user.id}`)
-            return { matched: false, user1: "", user2: "" };
+            console.log(`60 seconds time out for matching for user ${request.id}`)
+            return { matched: false, 
+                     user1: "", 
+                     user2: "", 
+                     category: request.category, 
+                     difficulty: request.difficulty 
+                    };
         }
         connection.close();
     }, 60000)
@@ -123,7 +129,7 @@ const handleMatchRequest = async (user) => {
 const handleDeleteRequest = (user) => {
     if (requests.filter(request => request.id == user.id).length != 0) {
         requests = requests.filter(request => request.id !== user.id);
-        console.log(`User ${user.id} deleted.`)
+        console.log(`Match request for user ${user.id} deleted.`)
         return true;
     }
     return false;

@@ -18,10 +18,11 @@ const matchSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    complexity: {
+    difficulty: {
         type: String,
         required: true
     }
+    
 })
 
 module.exports = mongoose.model("matches", matchSchema);
