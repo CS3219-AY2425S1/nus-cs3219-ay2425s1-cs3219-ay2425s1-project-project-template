@@ -7,6 +7,7 @@ import { useLogin } from "@/hooks/api/auth";
 import DefaultLayout from "@/layouts/default";
 import { useUser } from "@/hooks/users";
 import { User } from "@/types/user";
+import { Card } from "@nextui-org/card";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -39,7 +40,7 @@ const LoginPage = () => {
             setErrorMessage("An unexpected error occurred. Please try again.");
           }
         },
-      },
+      }
     );
   };
 
@@ -54,11 +55,8 @@ const LoginPage = () => {
   return (
     <DefaultLayout isLoggedIn={false}>
       <div className="flex items-start justify-center pt-[25vh]">
-        <div
-          className="w-full max-w-lg p-8 rounded-lg shadow-lg"
-          style={{ backgroundColor: "#19191b" }}
-        >
-          <h2 className="text-3xl font-semibold text-center text-white">
+        <Card className="w-full max-w-lg p-8">
+          <h2 className="text-3xl font-semibold text-center">
             Welcome to PeerPrep!
           </h2>
 
@@ -68,20 +66,19 @@ const LoginPage = () => {
           {isPending && <p className="text-gray-400 mt-4">Logging in...</p>}
 
           <div className="mt-6 text-center">
-            <h3 className="text-white">Don&apos;t have an account?</h3>
+            <h3>Don&apos;t have an account?</h3>
             <Button className="mt-2" onClick={handleRegister}>
               Register
             </Button>
           </div>
 
           <div className="mt-6 text-center">
-            <h3 className="text-white"> Forgot your password?</h3>
+            <h3> Forgot your password?</h3>
             <Button className="mt-2" onClick={handleForgetPassword}>
               Click Here
             </Button>
           </div>
-
-        </div>
+        </Card>
       </div>
     </DefaultLayout>
   );
