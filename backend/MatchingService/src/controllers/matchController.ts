@@ -3,15 +3,18 @@ import { MatchRequest, UserMatch, QueuedUser } from "../utils/types";
 import { config } from "../utils/config";
 import logger from "../utils/logger";
 import redisClient from "../utils/redisClient";
+import { Mutex } from "async-mutex";
 
 export class MatchController extends EventEmitter {
   private matchTimeouts: Map<string, NodeJS.Timeout>;
   private connectedUsers: Map<string, string>; // userId: socketId
+  private queueMutex: Mutex;
 
   constructor() {
     super();
     this.matchTimeouts = new Map();
     this.connectedUsers = new Map();
+    this.queueMutex = new Mutex();
   }
 
   isUserConnected(userId: string): boolean {
@@ -37,13 +40,51 @@ export class MatchController extends EventEmitter {
     );
   }
 
+  private async getQueueLen(difficultyLevel: string): Promise<number> {
+    const release = await this.queueMutex.acquire();
+    try {
+      const queueSize = await redisClient.lLen(difficultyLevel);
+      return queueSize;
+    } finally {
+      release();
+    }
+  }
+
+  private async getQueueItems(difficultyLevel: string): Promise<string[]> {
+    const release = await this.queueMutex.acquire();
+    try {
+      const queue = await redisClient.lRange(difficultyLevel, 0, -1);
+      return queue;
+    } finally {
+      release();
+    }
+  }
+
+  private async addToQueue(difficultyLevel: string, queuedUser: QueuedUser) {
+    const release = await this.queueMutex.acquire();
+    try {
+      await redisClient.rPush(difficultyLevel, JSON.stringify(queuedUser));
+    } finally {
+      release();
+    }
+  }
+
+  private async removeFromQueue(difficultyLevel: string, queuedUser: QueuedUser) {
+    const release = await this.queueMutex.acquire();
+    try {
+      await redisClient.lRem(difficultyLevel, 1, JSON.stringify(queuedUser));
+    } finally {
+      release();
+    }
+  }
+
+
   async addToMatchingPool(
     userId: string,
     request: MatchRequest
   ): Promise<void> {
     const { difficultyLevel, category } = request;
-
-    const queueSize = await redisClient.lLen(difficultyLevel);
+    const queueSize = await this.getQueueLen(difficultyLevel);
     logger.info(
       `Queue size is ${queueSize} in ${difficultyLevel} queue`
     );
@@ -54,19 +95,17 @@ export class MatchController extends EventEmitter {
       );
       // Add user to the appropriate Redis queue
       const queuedUser: QueuedUser = { ...request, userId }; // Include userId in the request
-      await redisClient.rPush(difficultyLevel, JSON.stringify(queuedUser));
+      await this.addToQueue(difficultyLevel, queuedUser);
 
       logger.info(
-        `User ${userId} added to ${difficultyLevel} queue. Queue size: ${await redisClient.lLen(
-          difficultyLevel
-        )}`
+        `User ${userId} added to ${difficultyLevel} queue. Queue size: ${await this.getQueueLen(difficultyLevel)}`
       );
 
       const timeout = setTimeout(() => {
         this.removeFromMatchingPool(userId, request);
         this.emit("match-timeout", this.connectedUsers.get(userId));
         this.removeConnection(userId);
-        logger.info(`x  Match timeout for user ${userId}`);
+        logger.info(`Match timeout for user ${userId}`);
       }, config.matchTimeout);
 
       this.matchTimeouts.set(userId, timeout);
@@ -76,7 +115,7 @@ export class MatchController extends EventEmitter {
         `Attempting match for user ${userId} in ${difficultyLevel} queue with queue size: ${queueSize}`
       );
   
-      const queue = await redisClient.lRange(difficultyLevel, 0, -1);
+      const queue = await this.getQueueItems(difficultyLevel);
   
       for (const item of queue) {
         const potentialMatch = JSON.parse(item);
@@ -121,15 +160,11 @@ export class MatchController extends EventEmitter {
   ): Promise<void> {
     const { difficultyLevel } = request;
 
-    const queue = await redisClient.lRange(difficultyLevel, 0, -1);
+    const queue = await this.getQueueItems(difficultyLevel);
     for (const item of queue) {
       const potentialUser = JSON.parse(item);
       if (potentialUser.userId === userId) {
-        await redisClient.lRem(
-          difficultyLevel,
-          1,
-          JSON.stringify(potentialUser)
-        );
+        await this.removeFromQueue(difficultyLevel, potentialUser);
         logger.info(`User ${userId} removed from ${difficultyLevel} queue`);
         break;
       }
