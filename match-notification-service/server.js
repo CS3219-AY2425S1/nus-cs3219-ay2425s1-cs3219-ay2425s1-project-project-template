@@ -4,7 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 const app = express();
-const PORT = 4001;
+const PORT = process.env.MATCHING_NOTIFICATION_PORT || 4001;
 
 const server = http.createServer(app);
 const io = new Server(server);
