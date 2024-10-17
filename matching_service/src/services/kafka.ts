@@ -2,7 +2,6 @@ import {
   Kafka,
   Producer,
   Consumer,
-  EachMessagePayload,
   KafkaMessage,
   RecordMetadata,
 } from "kafkajs";
@@ -97,9 +96,7 @@ export class ProducerFactory {
   }
 }
 
-export type KafkaMessageProcessor = (
-  messagePayload: EachMessagePayload
-) => Promise<void>;
+export type KafkaMessageProcessor = (messagePayload: KafkaMessage) => void;
 
 export class ConsumerFactory {
   private consumer: Consumer;
@@ -118,7 +115,7 @@ export class ConsumerFactory {
     this.topic = topic;
   }
 
-  public async start() {
+  public async start(processMessage: KafkaMessageProcessor) {
     await this.consumer.connect().then(() => console.log("Consumer connected"));
     await this.consumer
       .subscribe({
@@ -126,23 +123,11 @@ export class ConsumerFactory {
         fromBeginning: true,
       })
       .then(() => console.log(`Subscribed to topic ${this.topic}`));
-  }
-
-  public async getMessages(
-    next: (messages: KafkaMessage[]) => void
-  ): Promise<void> {
-    try {
-      await this.start();
-      await this.consumer.run({
-        eachBatchAutoResolve: false,
-        eachBatch: async ({ batch }) => {
-          next(batch.messages);
-          this.shutdown();
-        },
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    await this.consumer.run({
+      eachMessage: async ({ message }) => {
+        processMessage(message);
+      },
+    });
   }
 
   public async commit(

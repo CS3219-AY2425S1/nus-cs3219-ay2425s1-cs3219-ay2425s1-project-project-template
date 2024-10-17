@@ -103,7 +103,7 @@ export function MatchForm() {
           <Button
             text={`Find`}
             loading={loading}
-            disabled={!(formData.topic && !formData.difficultyLevel)}
+            disabled={!(formData.topic && formData.difficultyLevel)}
             onClick={() => {
               sendMatch();
               setIsTimerModalOpen(true);

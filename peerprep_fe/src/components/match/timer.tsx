@@ -8,7 +8,7 @@ type TimerProps = {
 const Timer: React.FC<TimerProps> = ({ onClose }) => {
   const [time, setTime] = useState<number>(0);
   const router = useRouter(); // Initialize router for navigation
-  const duration = 5; // Set total duration in seconds (for testing)
+  const duration = 30; // Set total duration in seconds (for testing)
 
   // Format time as MM:SS
   const formatTime = (time: number): string => {
