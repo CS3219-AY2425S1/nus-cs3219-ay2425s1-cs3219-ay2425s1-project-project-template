@@ -18,27 +18,37 @@ const matchUsers = async () => {
 
     //Waiting for user details to come in
     channel.consume(q.queue, msg => {
-        const user = JSON.parse(msg.content.toString());
+        const newRequest = JSON.parse(msg.content.toString());
 
-        //""" YOUR CODE HERE """
-        if (requests.length == 0) {
-            requests.push(user);
+        let matchedCategory = requests.filter(function(req) {
+            return req.category == newRequest.category
+        })
+        let matchedDiffculty = requests.filter(function(req) {
+            return req.difficulty == newRequest.difficulty
+        })
+
+
+
+        if (matchedCategory.length == 0) {
+            requests.push(newRequest);
         } else {
             //For now I just match the first 2 people that enters.
-            const user1 = user;
-            const user2 = requests.pop();
-            result = JSON.stringify({ matched: true, user1: user1.id, user2: user2.id });
-            channel.publish(resCh, user.id, Buffer.from(JSON.stringify(result))); // B to D
-            channel.publish(resCh, user2.id, Buffer.from(JSON.stringify(result)));
+            const request1 = newRequest;
+            const request2 = requests.pop();
+            result = JSON.stringify({ matched: true, 
+                                      user1: request1.id, 
+                                      user2: request2.id,  
+                                      category: request1.category,
+                                      difficulty: request1.difficulty
+                                    });
+            channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); // B to D
+            channel.publish(resCh, request2.id, Buffer.from(JSON.stringify(result)));
         }
 
-        //""" YOUR CODE END HERE """
-
-
         setTimeout(() => {
-            if (handleDeleteRequest(user)) {
-                result = { matched: false, user1: user.id, user2: "" };
-                channel.publish(resCh, user.id, Buffer.from(JSON.stringify(result))); //B to D
+            if (handleDeleteRequest(newRequest)) {
+                result = { matched: false, user1: newRequest.id, user2: "" };
+                channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); //B to D
             }
         }, timeout)
     }, { noAck: true });
