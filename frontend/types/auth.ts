@@ -30,3 +30,7 @@ export interface RegisterCredentials {
   email: string;
   password: string;
 }
+
+export interface LogoutResponse {
+  message: string;
+}
