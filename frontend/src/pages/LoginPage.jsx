@@ -38,7 +38,9 @@ const Login = () => {
       if (!response.ok) {
         const errorData = await response.json();
         if (response.status === 401) {
-          throw new Error('Wrong email and/or password');
+          throw new Error('Wrong email and/or password!');
+        } else if (response.status === 400) {
+          throw new Error('Your account is deleted!');
         } else {
           throw new Error(errorData.message || 'An error occurred, please try again.');
         }
