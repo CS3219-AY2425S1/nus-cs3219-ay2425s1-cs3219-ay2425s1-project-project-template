@@ -1,4 +1,5 @@
 import { IMatch, IMatchRequest, IQueue } from "./queue";
+import { createRoom } from "./room";
 
 export interface INotifier {
   notify(success: boolean, usermame: string, roomId: string): void;
@@ -17,7 +18,7 @@ export class Matcher {
   }
 
   public match(queue: IQueue, notifier: INotifier) {
-    this.queue.getRequests().then((requests) => {
+    this.queue.getRequests().then(async (requests) => {
       console.log("Matching users...");
       console.log("Removing expired requests...");
       // Remove expired requests
@@ -49,7 +50,7 @@ export class Matcher {
 
       console.log("Matching users by topic and difficulty...");
       // Match users by topic and difficulty
-      const rooms = this.matchUsers(requestMap);
+      const rooms = await this.matchUsers(requestMap);
 
       console.log("Notifying users of match...");
       // Notify users of match
@@ -105,7 +106,9 @@ export class Matcher {
     return map;
   }
 
-  private matchUsers(requestMap: Map<string, IMatchRequest[]>): IMatch[] {
+  private async matchUsers(
+    requestMap: Map<string, IMatchRequest[]>
+  ): Promise<IMatch[]> {
     let rooms = [];
     for (let key of Array.from(requestMap.keys())) {
       const requests = requestMap.get(key);
@@ -123,7 +126,7 @@ export class Matcher {
         // Create Room and place users inside
         const user1 = users[0];
         const user2 = users[1];
-        const room = this.createRoom(user1, user2);
+        const room = await this.createRoom(user1, user2);
         rooms.push(room);
 
         // Remove users from queue
@@ -135,14 +138,23 @@ export class Matcher {
     return rooms;
   }
 
-  private createRoom(user1: IMatchRequest, user2: IMatchRequest): IMatch {
+  private async createRoom(
+    user1: IMatchRequest,
+    user2: IMatchRequest
+  ): Promise<IMatch> {
     // Match user1 and user2
-    return {
-      roomId: `${user1.username}-${user2.username}`,
-      usernames: [user1.username, user2.username],
-      topic: user1.topic,
-      difficulty: user1.difficulty,
-    };
+    let users = [user1.username, user2.username];
+    let room = await createRoom(user1.topic, user1.difficulty, users);
+    if (room) {
+      console.log(`Match Found, Forwarding to room${room._id.toString()}`);
+      return {
+        roomId: room._id.toString(),
+        usernames: room.users,
+        topic: room.topic,
+        difficulty: room.difficulty,
+      };
+    }
+    throw Error("Invalid Room");
   }
 
   public start() {

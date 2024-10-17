@@ -12,12 +12,27 @@ import {
   MatchRequest,
   MatchCancelRequest,
 } from "peerprep-shared-types";
+import mongoose from "mongoose";
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const port = process.env.MATCHING_SERVICE_PORT;
+
+// MongoDB Atlas connection string
+const mongoURI = process.env.MONGODB_URI;
+
+if (!mongoURI) {
+  console.error("MONGODB_URI is not defined in the environment variables.");
+  process.exit(1);
+}
+
+// Connect to MongoDB
+mongoose
+  .connect(mongoURI)
+  .then(() => console.log("Connected to MongoDB Atlas"))
+  .catch((err) => console.error("Error connecting to MongoDB:", err));
 
 app.use(cors());
 app.use(express.json());
