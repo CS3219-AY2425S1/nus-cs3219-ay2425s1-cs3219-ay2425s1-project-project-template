@@ -27,6 +27,7 @@ const LoginPage = () => {
           };
 
           setUser(user);
+          router.reload();
           router.push("/match");
         },
         onError: (err) => {
