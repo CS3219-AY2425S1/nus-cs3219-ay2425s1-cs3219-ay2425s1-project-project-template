@@ -10,7 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "kafkajs": "^2.2.4"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
