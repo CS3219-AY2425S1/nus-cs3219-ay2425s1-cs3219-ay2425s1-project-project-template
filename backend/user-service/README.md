@@ -241,6 +241,66 @@
     | 404 (Not Found)             | User with the specified ID not found                    |
     | 500 (Internal Server Error) | Database or server error                                |
 
+### Get All User Completed Questions
+
+- This endpoint allows retrieval of all completed questions from a user in the database.
+- HTTP Method: `GET`
+- Endpoint: http://localhost:8081/users/questions/{userId}
+- Headers
+    - Required: `Authorization: Bearer <JWT_ACCESS_TOKEN>`
+    - Auth Rules:
+
+        - Admin users: Can retrieve all users' data. The server verifies the user associated with the JWT token is an admin user and allows access to all users' data.
+          
+        - Non-admin users: Can only see their own data. The server checks if the user ID in the request URL matches the ID of the user associated with the JWT token. If it matches, the server returns the user's own data.
+
+- Responses:
+
+    | Response Code               | Explanation                                      |
+    |-----------------------------|--------------------------------------------------|
+    | 200 (OK)                    | Success, questions array returned                |
+    | 401 (Unauthorized)          | Access denied due to missing/invalid/expired JWT |
+    | 403 (Forbidden)             | Access denied for non-admin users                |
+    | 500 (Internal Server Error) | Database or server error                         |
+
+### Update User Completed Quesions
+
+- This endpoint allows updating a user’s completed questions, i.e., adding a question into the user's `questionDone` field.
+
+- HTTP Method: `PATCH`
+
+- Endpoint: http://localhost:8081/users/questions/{userId}
+
+- Parameters
+  - Required: `userId` path parameter
+
+- Body
+  - Required: `question_id` (string)
+
+    ```json
+    {
+      "question_id": "66f94cc2645aa018611228a6"
+    }
+    ```
+
+- Headers
+    - Required: `Authorization: Bearer <JWT_ACCESS_TOKEN>`
+    - Auth Rules:
+
+        - Admin users: Can update any user's questions completed. The server verifies the user associated with the JWT token is an admin user and allows the update.
+        - Non-admin users: Can only update their own data. The server checks if the user ID in the request URL matches the ID of the user associated with the JWT token. If it matches, the server updates the user's own data.
+
+- Responses:
+
+    | Response Code               | Explanation                                                     |
+    |-----------------------------|-----------------------------------------------------------------|
+    | 200 (OK)                    | questionDone updated successfully, updated user data returned   |
+    | 400 (Bad Request)           | Missing fields                                                  |
+    | 401 (Unauthorized)          | Access denied due to missing/invalid/expired JWT                |
+    | 403 (Forbidden)             | Access denied for non-admin users                               |
+    | 404 (Not Found)             | User with the specified ID not found                            |
+    | 500 (Internal Server Error) | Database or server error                                        |
+
 ### Login
 
 - This endpoint allows a user to authenticate with an email and password and returns a JWT access token. The token is valid for 1 day and can be used subsequently to access protected resources. For example usage, refer to the [Authorization header section in the Get User endpoint](#auth-header).

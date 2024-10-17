@@ -29,6 +29,14 @@ const UserModelSchema = new Schema({
   isActive: {
     type: Boolean,
     default: true,
+  },   
+  questionDone: {
+    type: Array,
+    default: [], //Just store question id.
+  },
+  onlineDate: {
+    type: Array,
+    default: [],
   },
 });
 

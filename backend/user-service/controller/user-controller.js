@@ -1,3 +1,4 @@
+import axios from 'axios';
 import bcrypt from "bcrypt";
 import { isValidObjectId } from "mongoose";
 import {
@@ -12,6 +13,8 @@ import {
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
   softDeleteUserById as _softDeleteUserById,
+  updateOnlineTimeById as _updateOnlineTimeById,
+  updateQuestionDoneById as _updateQuestionDoneById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -73,7 +76,7 @@ export async function getAllUsers(req, res) {
 export async function getAllActiveUsers(req, res) {
   try {
     const users = await _findAllActiveUsers();
-  
+
     return res.status(200).json({ message: `Found active users`, data: users.map(formatUserResponse) });
   } catch (err) {
     console.error(err);
@@ -151,6 +154,84 @@ export async function updateUserPrivilege(req, res) {
   }
 }
 
+export async function updateOnlineTime(user) {
+  const currentDate = new Date(Date.now());
+  const parsedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+
+  const onlineDate = user.onlineDate;
+  const foundDate = onlineDate.filter(date => date == parsedDate);
+  if (foundDate == 0) {
+    onlineDate.push(parsedDate);
+    await _updateOnlineTimeById(user.id, onlineDate);
+    console.log("New login date updated");
+  }
+}
+
+export async function addQuestionToUser(req, res) {
+
+  const userId = req.params.id;
+  const questionId = req.body.question_id;
+
+  if (!isValidObjectId(userId)) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  if (!questionId) {
+    return res.status(404).json({ message: `question_id not found in body` });
+  }
+
+  const user = await _findUserById(userId);
+  if (!user) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  const questionDone = user.questionDone;
+  if (questionDone.filter(question => question == questionId) == 0) {
+
+    questionDone.push(questionId);
+    await _updateQuestionDoneById(user.id, questionDone);
+    console.log(`Question ${questionId} added to User ${userId}.`);
+    return res.status(200).json({ message: `Question ${questionId} added to User ${userId}.`, data: user});
+  }
+  return res.status(409).json({ message: `Question ${questionId} already exist!` });
+}
+
+export async function getQuestionDetails(req, res) {
+  const authHeader = req.headers["authorization"];
+  const accessToken = authHeader.split(" ")[1];
+  const userId = req.params.id;
+  if (!isValidObjectId(userId)) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  const user = await _findUserById(userId);
+  if (!user) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  const questionDone = user.questionDone;
+  
+    try {
+      // Make a GET request to user-service with the token
+      const dataToSend = { questions: questionDone };
+      const response = await axios.post('http://question-service:8080/questions/selected', dataToSend, {
+          headers: {
+              Authorization: `Bearer ${accessToken}`
+          }
+      });
+  
+      if (!response) {
+          return res.status(error.status).json({ error: `${error.response}` });
+      } 
+      
+      return res.status(200).json({ data: response.data });
+  
+  } catch (error) {
+      console.log(`${error.status}: ${error.response.data.message}`);
+      return res.status(error.status).json({ error: `${error.response}` });
+  }
+}
+
 export async function deleteUser(req, res) {
   try {
     const userId = req.params.id;
@@ -178,6 +259,8 @@ export function formatUserResponse(user) {
     email: user.email,
     isAdmin: user.isAdmin,
     isActive: user.isActive,
+    onlineDate: user.onlineDate,
+    questionDone: user.questionDone,
     createdAt: user.createdAt,
   };
 }
