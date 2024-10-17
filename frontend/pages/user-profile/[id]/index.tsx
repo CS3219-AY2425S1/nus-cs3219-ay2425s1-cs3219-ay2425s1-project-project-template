@@ -1,5 +1,5 @@
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import NavigationColumn from "@/components/users/NavigationColumn";
@@ -15,21 +15,21 @@ const UserProfilePage = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  let colourTheme = "";
-
-  if (theme === "light") {
-    colourTheme =
-      "flex h-full rounded-3xl bg-slate-100 divide-[#11181c]/25 divide-x ";
-  } else {
-    colourTheme =
-      "flex h-full rounded-3xl bg-zinc-800 divide-[#ecedee]/25 divide-x ";
-  }
-
   const [userProfileFormData, setUserProfileFormData] = useState<UserProfile>({
-    username: user?.username || "",
-    email: user?.email || "",
+    username: "",
+    email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const userProfile = {
+      username: user?.username || "",
+      email: user?.email || "",
+      password: "",
+    };
+
+    setUserProfileFormData(userProfile);
+  }, [user]);
 
   const { mutate: updateUser, isError, error } = useUpdateUser();
 
@@ -55,7 +55,13 @@ const UserProfilePage = () => {
   return (
     <>
       <DefaultLayout isLoggedIn={true}>
-        <div className={colourTheme}>
+        <div
+          className={
+            theme === "dark"
+              ? "flex h-full rounded-3xl bg-zinc-800 divide-[#ecedee]/25 divide-x "
+              : "flex h-full rounded-3xl bg-slate-100 divide-[#11181c]/25 divide-x "
+          }
+        >
           <div className="flex-1">
             <NavigationColumn />
           </div>

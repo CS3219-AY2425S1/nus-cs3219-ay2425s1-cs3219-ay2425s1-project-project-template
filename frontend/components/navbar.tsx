@@ -16,6 +16,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 
 import NavLink from "@/components/navLink";
+import { useLogout } from "@/hooks/api/auth";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";
@@ -29,6 +30,16 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
   const router = useRouter();
   const { user } = useUser();
+
+  const { mutate: logout } = useLogout();
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        router.push("/");
+      },
+    });
+  };
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
@@ -67,75 +78,50 @@ export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
         </Link>
         <ThemeSwitch />
 
-        <Dropdown placement="bottom-end">
-          <DropdownTrigger>
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="secondary"
-              name={user?.username || ""}
-              size="sm"
-            />
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Profile Actions"
-            disabledKeys={["profile"]}
-            variant="flat"
-          >
-            <DropdownItem
-              key="profile"
-              className="h-14 gap-2"
-              textValue="profile"
+        {isLoggedIn && (
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="secondary"
+                name={user?.username || ""}
+                size="sm"
+              />
+            </DropdownTrigger>
+            <DropdownMenu
+              aria-label="Profile Actions"
+              disabledKeys={["profile"]}
+              variant="flat"
             >
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">{user?.email || ""}</p>
-            </DropdownItem>
-            <DropdownItem
-              key="myprofile"
-              href={`/user-profile/${user?.id}`}
-              textValue="myprofile"
-            >
-              My Profile
-            </DropdownItem>
-            <DropdownItem key="logout" color="danger" textValue="logout">
-              Log Out
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </NavbarContent>
-
-      {/* only for smaller screens - can remove */}
-      {/* <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
-
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
+              <DropdownItem
+                key="profile"
+                className="h-14 gap-2"
+                textValue="profile"
               >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu> */}
+                <p className="font-semibold">Signed in as</p>
+                <p className="font-semibold">{user?.email || ""}</p>
+              </DropdownItem>
+              <DropdownItem
+                key="myprofile"
+                href={`/user-profile/${user?.id}`}
+                textValue="myprofile"
+              >
+                My Profile
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                textValue="logout"
+                onPress={() => handleLogout()}
+              >
+                Log Out
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
+      </NavbarContent>
     </NextUINavbar>
   );
 };

@@ -31,6 +31,8 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({
   const [newPassword, setNewPassword] = useState<string>("");
   const [checkNewPassword, setCheckNewPassword] = useState<string>("");
   const [passwordMismatch, setPasswordMismatch] = useState<string>("");
+  const [usernameEmpty, setUsernameEmpty] = useState<string>("");
+  const [emailEmpty, setEmailEmpty] = useState<string>("");
 
   const toggleNewPasswordVisibility = () =>
     setIsNewPasswordVisible(!isNewPasswordVisible);
@@ -55,11 +57,24 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({
   const handleSubmit = () => {
     if (newPassword || checkNewPassword) {
       if (newPassword !== checkNewPassword) {
-        setPasswordMismatch("Passwords do not match");
+        setPasswordMismatch("Passwords do not match!");
 
         return;
       }
     }
+
+    if (!!!formData.username) {
+      setUsernameEmpty("Username cannot be empty!");
+
+      return;
+    }
+
+    if (!!!formData.email) {
+      setEmailEmpty("Email cannot be empty!");
+
+      return;
+    }
+
     onSubmit(formData);
   };
 
@@ -81,7 +96,8 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({
       <Divider />
       <Input
         className="max-w-xs pt-5"
-        isClearable={true}
+        errorMessage={usernameEmpty}
+        isInvalid={!!usernameEmpty}
         label="Username"
         labelPlacement="outside"
         placeholder="Enter your username"
@@ -93,7 +109,8 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({
       />
       <Input
         className="max-w-xs pt-5"
-        isClearable={true}
+        errorMessage={emailEmpty}
+        isInvalid={!!emailEmpty}
         label="Email Address"
         labelPlacement="outside"
         placeholder="Enter your email"

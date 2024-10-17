@@ -32,6 +32,9 @@ func main() {
 	// Route for adding users
 	router.POST("/addUser", controllers.AddUserHandler)
 
+	// Route for cancelling user
+	router.POST("/cancel/:userID", controllers.CancelMatchHandler)
+
 	// Start the server
 	log.Println("Server started on :3002")
 	router.Run(":3002")

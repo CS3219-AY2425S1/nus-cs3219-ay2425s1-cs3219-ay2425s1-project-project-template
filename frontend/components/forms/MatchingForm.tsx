@@ -8,7 +8,6 @@ import QuestionDifficultyDropDown from "../matching/DifficultyDropdown";
 import TopicSelection from "../matching/TopicSelection";
 import MatchingTimer from "../matching/MatchingTimer";
 
-import createWebSocket from "@/utils/webSocket";
 import { useAddUserToMatch } from "@/hooks/api/matching";
 import { UserMatchRequest } from "@/types/match";
 
@@ -32,7 +31,7 @@ export default function MatchingForm() {
     topicsRef.current = topics;
   };
 
-  const onSuccess = () => alert("Successfully Matched");
+  const onSuccess = () => alert("Successfully Matched A");
 
   const { mutate, isPending, isError, error } = useAddUserToMatch(onSuccess);
 
@@ -47,9 +46,6 @@ export default function MatchingForm() {
       programming_languages: programmingLanguagesRef.current,
       generalize_languages: false,
     };
-
-    console.log(userMatchRequest);
-    const ws = createWebSocket(socketId);
 
     mutate(userMatchRequest);
     setIsMatching(true);

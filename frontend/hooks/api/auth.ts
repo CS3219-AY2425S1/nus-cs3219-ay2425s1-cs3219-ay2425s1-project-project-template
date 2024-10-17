@@ -8,7 +8,9 @@ import {
   Credentials,
   RegisterResponse,
   RegisterCredentials,
+  LogoutResponse,
 } from "@/types/auth";
+import { User } from "@/types/user";
 
 // Login: Send credentials to the server and return the response
 const login = async (credentials: Credentials): Promise<LoginResponse> => {
@@ -62,14 +64,24 @@ interface ForgetPasswordCredentials {
 }
 
 // ForgetPassword: Send user email to the backend and return the response
-const forgetPassword = async (credentials: ForgetPasswordCredentials): Promise<ForgetPasswordResponse> => {
-  const response = await axios.post("/user-service/auth/forgot-password", credentials);
-  return response.data.data;  
+const forgetPassword = async (
+  credentials: ForgetPasswordCredentials,
+): Promise<ForgetPasswordResponse> => {
+  const response = await axios.post(
+    "/user-service/auth/forgot-password",
+    credentials,
+  );
+
+  return response.data.data;
 };
 
 // ForgetPassword hook
 export const useForgetPassword = () => {
-  return useMutation<ForgetPasswordResponse, AxiosError, ForgetPasswordCredentials>({
+  return useMutation<
+    ForgetPasswordResponse,
+    AxiosError,
+    ForgetPasswordCredentials
+  >({
     mutationFn: forgetPassword,
     onSuccess: (data) => {
       // Handle success response (for example, show a notification)
@@ -98,9 +110,11 @@ interface DecodedToken {
 }
 
 // Function to handle the reset password logic (fetch user and then patch password)
-const resetPassword = async (credentials: ResetPasswordCredentials): Promise<ResetPasswordResponse> => {
+const resetPassword = async (
+  credentials: ResetPasswordCredentials,
+): Promise<ResetPasswordResponse> => {
   // Step 1: Decode the token to get the user ID
-  const decodedToken: DecodedToken = jwtDecode(credentials.tokenString); 
+  const decodedToken: DecodedToken = jwtDecode(credentials.tokenString);
   const userId = decodedToken.id;
 
   // Prepare the Authorization header with the JWT access token
@@ -109,6 +123,7 @@ const resetPassword = async (credentials: ResetPasswordCredentials): Promise<Res
       Authorization: `Bearer ${credentials.tokenString}`, // Include the JWT token in the header
     },
   };
+
   console.log(config);
 
   // Step 2: Fetch the user using the userId (GET request with Authorization)
@@ -120,15 +135,24 @@ const resetPassword = async (credentials: ResetPasswordCredentials): Promise<Res
   }
 
   // Step 3: Patch the password using the user ID (PATCH request with Authorization)
-  const patchResponse = await axios.patch(`/user-service/users/${userId}`, {
-    password: credentials.newPassword,
-  }, config); 
+  const patchResponse = await axios.patch(
+    `/user-service/users/${userId}`,
+    {
+      password: credentials.newPassword,
+    },
+    config,
+  );
+
   return patchResponse.data;
 };
 
 // ResetPassword hook using react-query's useMutation
 export const useResetPassword = () => {
-  return useMutation<ResetPasswordResponse, AxiosError, ResetPasswordCredentials>({
+  return useMutation<
+    ResetPasswordResponse,
+    AxiosError,
+    ResetPasswordCredentials
+  >({
     mutationFn: resetPassword,
     onSuccess: (data) => {
       // Handle success response (e.g., show a notification)
@@ -149,9 +173,27 @@ const verifyToken = async () => {
 };
 
 export const useVerifyToken = () => {
-  return useQuery<void, AxiosError>({
+  return useQuery<User, AxiosError>({
     queryKey: ["verifyToken"],
     queryFn: () => verifyToken(),
-  })
-  
+  });
+};
+
+const logout = async (): Promise<LogoutResponse> => {
+  const response = await axios.post("/user-service/auth/logout");
+
+  return response.data.message;
+};
+
+// Login hook
+export const useLogout = () => {
+  return useMutation<LogoutResponse, AxiosError>({
+    mutationFn: logout,
+    onSuccess: () => {
+      console.log("Logout successful!");
+    },
+    onError: () => {
+      console.error("Logout failed!");
+    },
+  });
 };

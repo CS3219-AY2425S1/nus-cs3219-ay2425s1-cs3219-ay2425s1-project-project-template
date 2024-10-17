@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import { Button } from "@nextui-org/button";
+import { Card } from "@nextui-org/react";
 
 import RegistrationForm from "@/components/forms/RegistrationForm";
 import { useRegister } from "@/hooks/api/auth";
@@ -11,11 +12,10 @@ const RegisterPage = () => {
   const { mutate: register, isPending, isError, error } = useRegister();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
-
   const handleRegister = (
     username: string,
     email: string,
-    password: string,
+    password: string
   ) => {
     register(
       { username, email, password },
@@ -27,7 +27,7 @@ const RegisterPage = () => {
           console.error("Registration failed:", err);
           setErrorMessage("An unexpected error occurred. Please try again.");
         },
-      },
+      }
     );
   };
   const handleLogin = () => {
@@ -37,11 +37,8 @@ const RegisterPage = () => {
   return (
     <DefaultLayout isLoggedIn={false}>
       <div className="flex items-start justify-center pt-[25vh]">
-        <div
-          className="w-full max-w-lg p-8 rounded-lg shadow-lg"
-          style={{ backgroundColor: "#19191b" }}
-        >
-          <h2 className="text-3xl font-semibold text-center text-white">
+        <Card className="w-full max-w-lg p-8">
+          <h2 className="text-3xl font-semibold text-center">
             Welcome to Peerprep!
           </h2>
 
@@ -51,12 +48,12 @@ const RegisterPage = () => {
           {isPending && <p className="text-gray-400 mt-4">Registering...</p>}
 
           <div className="mt-6 text-center">
-            <h3 className="text-white"> Have an account?</h3>
+            <h3> Have an account?</h3>
             <Button className="mt-2" onClick={handleLogin}>
               Back to Login
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </DefaultLayout>
   );
