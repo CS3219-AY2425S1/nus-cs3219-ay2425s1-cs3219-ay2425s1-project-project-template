@@ -2,11 +2,9 @@ import {
   Kafka,
   Producer,
   Consumer,
-  EachMessagePayload,
   KafkaMessage,
   RecordMetadata,
 } from "kafkajs";
-import { IQueue } from "./queue";
 
 export interface KafkaRequest {
   timestamp: number;
@@ -127,28 +125,10 @@ export class ConsumerFactory {
       .then(() => console.log(`Subscribed to topic ${this.topic}`));
     await this.consumer.run({
       eachMessage: async ({ message }) => {
-        console.log(message);
         processMessage(message);
       },
     });
   }
-
-  // public async getMessages(
-  //   next: (messages: KafkaMessage[]) => void
-  // ): Promise<void> {
-  //   try {
-  //     await this.start();
-  //     await this.consumer.run({
-  //       eachBatchAutoResolve: false,
-  //       eachBatch: async ({ batch }) => {
-  //         next(batch.messages);
-  //         this.shutdown();
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   public async commit(
     offset: string,
