@@ -4,8 +4,7 @@ const reqCh = process.env.RABBITMQ_REQ_CH;
 const resCh = process.env.RABBITMQ_RES_CH;
 
 let requests = [];
-//TOCHANGE: timeout to 30000.
-let timeout = 5000;
+let timeout = 30000;
 
 const matchUsers = async () => {
     const connection = await amqp.connect(process.env.RABBITMQ_URI);

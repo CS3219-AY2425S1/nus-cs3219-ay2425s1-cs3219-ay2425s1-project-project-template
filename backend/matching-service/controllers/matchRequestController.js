@@ -1,10 +1,15 @@
 const MatchingQueue = require('../service/matchingQueue')
-const MatchController = require('../matchController')
-const { request } = require('express')
+const MatchController = require('../controllers/matchController')
 
 const createMatchRequest = async (req, res) => {
-    if (!(req.body.id && req.body.difficulty && req.body.category)) {
-        return res.status(400).json({ 'message' : 'At least one field is missing!'})
+    if (!(req.body.id)) {
+        return res.status(400).json({ 'message' : 'User ID is missing!'})
+    }
+    if (!(req.body.difficulty)) {
+        return res.status(400).json({ 'message' : 'Difficulty is not selected!'})
+    }
+    if (!(req.body.category)) {
+        return res.status(400).json({ 'message' : 'Category is not selected!'})
     }
 
     // Format required fields appropriately
