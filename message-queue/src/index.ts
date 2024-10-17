@@ -2,6 +2,7 @@ import express , { Express, Request, Response } from "express"
 import amqp, { Connection, Channel, ConsumeMessage } from "amqplib"
 import dotenv from "dotenv"
 import { RoutingKey, UserData } from "./types"
+import { DIFFICULTY_QUEUE } from "./constants"
 
 const app: Express = express()
 
@@ -33,8 +34,12 @@ const addDataToExchange = async (userData: UserData, key: string) => {
   await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
-const pullDataFromExchange = async () => {
-  await channel
+const pullDataFromExchange = async (queueName: string) => {
+  await channel.assertQueue(DIFFICULTY_QUEUE, {
+    durable: true,
+  });
+
+  await channel.consume(queueName, )
 }
 
 // Publish message to exchange
@@ -53,6 +58,7 @@ app.post("/", (req: Request, res: Response) => {
 
 app.get("/", (req: Request, res: Response, next) => {
   console.log("Hello World")
+  pullDataFromExchange(req.body.queueName)
   res.json({
     message: "This is message queue."
   })
