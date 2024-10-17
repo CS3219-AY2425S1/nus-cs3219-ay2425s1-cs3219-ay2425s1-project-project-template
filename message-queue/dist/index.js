@@ -81,3 +81,4 @@ app.use((error, req, res, next) => {
 app.listen(3002, () => {
     console.log("Publisher running.");
 });
+

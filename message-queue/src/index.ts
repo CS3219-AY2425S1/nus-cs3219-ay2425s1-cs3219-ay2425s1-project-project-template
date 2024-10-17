@@ -1,8 +1,9 @@
-import express , { Express, Request, Response } from "express"
-import amqp, { Connection, Channel, ConsumeMessage } from "amqplib"
+import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
 import dotenv from "dotenv"
-import { RoutingKey, UserData } from "./types"
+import express, { Express, Request, Response } from "express"
+
 import { DIFFICULTY_QUEUE } from "./constants"
+import { UserData } from "./types"
 
 const app: Express = express()
 
@@ -30,22 +31,47 @@ const connectRabbitMQ = async () => {
 
 connectRabbitMQ()
 
-const addDataToExchange = async (userData: UserData, key: string) => {
-  await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
+const handleIncomingNotification = (msg: string) => {
+  try {
+    const parsedMessage = JSON.parse(msg)
+
+    console.log(`Received Notification`, parsedMessage)
+    return parsedMessage
+  } catch (error) {
+    console.error(`Error while parsing the message`)
+  }
+}
+
+// Decide again if needs to be asynchronous
+const addDataToExchange = (userData: UserData, key: string) => {
+  channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
 const pullDataFromExchange = async (queueName: string) => {
-  await channel.assertQueue(DIFFICULTY_QUEUE, {
-    durable: true,
-  });
+  let message: amqp.ConsumeMessage
+  await channel.assertQueue(queueName, {
+    durable: true
+  })
 
-  await channel.consume(queueName, )
+  channel.prefetch(1)
+  await channel.consume(queueName, (msg) => {
+    if (!msg) {
+      return console.error("Invalid incoming message")
+    }
+    message = msg;
+    handleIncomingNotification(msg?.content?.toString())
+  })
+
+  return {
+    channel,
+    message
+  }
 }
 
 // Publish message to exchange
-app.post("/", (req: Request, res: Response) => {
+app.post("/match", (req: Request, res: Response) => {
   try {
-    const { userData, key } = req.body //key-value pair of userData will be <difficulty>.<topic(s)> 
+    const { userData, key } = req.body //key-value pair of userData will be <difficulty>.<topic(s)>
     addDataToExchange(userData, key)
     console.log("Data Sent: ", req.body)
     res.json({ message: "Data Sent" })
@@ -56,16 +82,24 @@ app.post("/", (req: Request, res: Response) => {
   }
 })
 
-app.get("/", (req: Request, res: Response, next) => {
-  console.log("Hello World")
-  pullDataFromExchange(req.body.queueName)
-  res.json({
-    message: "This is message queue."
-  })
+app.get("/match", async (req: Request, res: Response, next) => {
+  if (req.query.hasOwnProperty("queueName")) {
+    const { channel, message } = await pullDataFromExchange(
+      req.query.queueName as string
+    )
+    if (message) {
+      // Do some logic, then ACK
+      console.log("Now then we acknowledge, so we force 1 message to be received at each time")
+      channel.ack(message);
+    }
+    res.json({
+      message: JSON.parse(message.content.toString())
+    })
+  }
 })
 
 app.use((req: Request, res: Response, next) => {
-  const error : Error = new Error("Route Not Found")
+  const error: Error = new Error("Route Not Found")
   next(error)
 })
 
