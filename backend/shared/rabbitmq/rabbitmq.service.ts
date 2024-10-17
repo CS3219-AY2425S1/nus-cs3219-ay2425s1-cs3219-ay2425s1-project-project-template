@@ -12,8 +12,9 @@ export class RabbitMQService {
         this.connection = amqp.connect(url)
         this.channel = this.connection.createChannel({
             json: true,
-            setup: () => {
+            setup: (channel: Channel) => {
                 console.log('RabbitMq connected')
+                return channel.assertQueue('match_queue', {durable: true})
             }
         })
     }

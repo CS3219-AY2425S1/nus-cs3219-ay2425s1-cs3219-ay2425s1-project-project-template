@@ -11,5 +11,5 @@ export class MatchRequestDTO {
 
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  clientId: string;
 }

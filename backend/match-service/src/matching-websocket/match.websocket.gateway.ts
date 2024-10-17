@@ -21,6 +21,7 @@ export class MatchWebSocket {
 
   @SubscribeMessage('initMatch')
   async handleMatchRequest(@MessageBody() data: MatchRequestDTO) {
+    console.log(data);
     await this.rabbitMQService.sendToQueue('match_queue', data);
   }
 

@@ -1,6 +1,8 @@
 import { MatchWebSocket } from '../matching-websocket/match.websocket.gateway';
 import { RabbitMQService } from '../../../shared/rabbitmq/rabbitmq.service';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class MatchService {
   private waitingUsers: any[] = [];
 
@@ -8,6 +10,10 @@ export class MatchService {
     private readonly rabbitMQService: RabbitMQService,
     private readonly matchWebSocket: MatchWebSocket,
   ) {
+    this.waitConnection();
+  }
+
+  private async waitConnection() {
     this.consumeMatchRequest();
   }
 
@@ -15,9 +21,12 @@ export class MatchService {
     await this.rabbitMQService.consumeFromQueue(
       'match_queue',
       async (message: any) => {
-        const { clientId } = message;
+        const { topic, difficulty, clientId } = message;
 
-        this.matchWebSocket.sendMatchingResult(clientId, 'Sent');
+        this.matchWebSocket.sendMatchingResult(
+          clientId,
+          `topic of ${topic}, difficluty of ${difficulty}`,
+        );
       },
     );
   }
