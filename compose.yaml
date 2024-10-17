@@ -11,6 +11,7 @@ services:
     environment:
       USER_SERVICE_ADDR: user-service:3001
       QUESTION_SERVICE_ADDR: question-service:8000
+      MATCH_NOTIFICATION_SERVICE_ADDR: match-notification-service:4001
     ports:
       - "80:80"
       - "443:443"
