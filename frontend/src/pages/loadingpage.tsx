@@ -10,10 +10,10 @@ const LoadingPage: React.FC = () => {
 
   useEffect(() => {
 
-    const timer = setTimeout(() => {
+    const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev === 1) {
-          clearTimeout(timer);
+          clearInterval(timer);
           // navigate('/profile');
           return 0;
         }
@@ -21,7 +21,7 @@ const LoadingPage: React.FC = () => {
       });
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => clearInterval(timer);
   }, [navigate]);
 
 
