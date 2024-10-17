@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { MatchingService } from './services/matching.services';
+import { MatchingService } from './services/matching.service';
 import { ConfigModule } from '@nestjs/config';
 import config from './config';
 

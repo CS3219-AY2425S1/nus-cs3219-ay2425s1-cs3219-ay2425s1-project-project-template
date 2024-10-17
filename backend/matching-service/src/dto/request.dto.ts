@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 
 // Copied from question-service
-enum QuestionTopic {
+export enum QuestionTopic {
     ARRAY = 'array',
     BINARY = "binary",
     BINARY_SEARCH = "binary_search",
@@ -29,7 +29,7 @@ enum QuestionTopic {
     TRIE = "trie"
 }
 
-enum QuestionComplexity {
+export enum QuestionComplexity {
     EASY = 'easy',
     MEDIUM = 'medium',
     HARD = 'hard',
