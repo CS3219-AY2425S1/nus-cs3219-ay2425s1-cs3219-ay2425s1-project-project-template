@@ -102,8 +102,6 @@ services:
     image: redis:latest
     volumes:
       - redis-data:/data/db
-    ports:
-      - "6379:6379"
       
 volumes:
   mongo-data:
