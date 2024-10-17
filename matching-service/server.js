@@ -65,8 +65,8 @@ async function initRedis() {
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  const matchedByTopics = findMatchByTopics(topics);
-  const matchedByDifficulty = findMatchByDifficulty(difficulty);
+  const matchedByTopics = await findMatchByTopics(topics);
+  const matchedByDifficulty = await findMatchByDifficulty(difficulty);
 
   const matchedByDifficultyIds = new Set(
     matchedByDifficulty.map((item) => item.id),
@@ -79,58 +79,61 @@ async function matchUsers(searchRequest) {
   if (matchedUser) {
     const matchMessage = {
       userId,
-      matchUserId: matchedUser.userId,
+      matchUserId: matchedUser,
     };
 
-    channel.sendToQueue(
-      'match_found_queue',
-      Buffer.from(JSON.stringify(matchMessage)),
-    );
+    // channel.sendToQueue(
+    //   'match_found_queue',
+    //   Buffer.from(JSON.stringify(matchMessage)),
+    // );
     console.log(
-      `Match found: User ID ${userId} matched with ${matchedUser.userId}`,
+      `Match found: User ID ${userId} matched with ${matchMessage.matchUserId}`,
     );
+    redisClient.del(matchMessage.matchUserId);
     delete activeSearches[userId];
     delete activeSearches[matchedUser.userId];
   } else {
     console.log(`No match found for User ID: ${userId}`);
     redisClient.set(userId, userId);
     difficulty.forEach((tag) => {
-      redisClient.sadd(`difficulty:${tag}`, userId);
+      redisClient.SADD(`difficulty:${tag}`, userId);
     });
     topics.forEach((tag) => {
-      redisClient.sadd(`topics:${tag}`, userId);
+      redisClient.SADD(`topics:${tag}`, userId);
     });
   }
 }
 
-function findMatchByTopics(topics) {
-  return new Promise((resolve, reject) => {
-    const multi = redisClient.multi();
-    topics.forEach((tag) => multi.smembers(`topics:${tag}`));
+async function findMatchByTopics(topics) {
+  const multi = redisClient.multi();
 
+  topics.forEach((tag) => multi.sMembers(`topics:${tag}`));
+
+  const replies = await
     multi.exec((err, replies) => {
       if (err) return reject(err);
-
-      // Flatten the array of keys and get unique ones
-      const keys = [...new Set(replies.flat())];
-      resolve(keys);
+      console.log('Replies from Redis:', replies); // Log replies
+      resolve(replies);
     });
-  });
+
+  const keys = [...new Set(replies.flat())];
+  return keys;
 }
 
-function findMatchByDifficulty(difficulty) {
-  return new Promise((resolve, reject) => {
-    const multi = redisClient.multi();
-    difficulty.forEach((tag) => multi.smembers(`difficulty:${tag}`));
+async function findMatchByDifficulty(difficulty) {
+  const multi = redisClient.multi();
 
+  difficulty.forEach((tag) => multi.sMembers(`difficulty:${tag}`));
+
+  const replies = await
     multi.exec((err, replies) => {
       if (err) return reject(err);
-
-      // Flatten the array of keys and get unique ones
-      const keys = [...new Set(replies.flat())];
-      resolve(keys);
+      console.log('Replies from Redis:', replies); // Log replies
+      resolve(replies);
     });
-  });
+
+  const keys = [...new Set(replies.flat())];
+  return keys;
 }
 
 function handleDisconnection(userId) {
@@ -140,8 +143,42 @@ function handleDisconnection(userId) {
   }
 }
 
+// async function showKeys () {
+//   const keys = await redisClient.keys('*');
+//   console.log("keys", keys);
+// }
+
+// async function clearAll () {
+//   await redisClient.flushAll();
+// }
+
+// async function test () {
+//   await clearAll();
+//   await showKeys();
+//   await matchUsers({
+//     userId: 'user1',
+//     difficulty: ['easy', 'medium'],
+//     topics: ['trees', 'graphs'],
+//   });
+
+//   await matchUsers({
+//     userId: 'user2',
+//     difficulty: ['hard'],
+//     topics: ['array'],
+//   });
+//   await showKeys();
+//   await matchUsers({
+//     userId: 'user3',
+//     difficulty: ['easy', 'medium'],
+//     topics: ['trees', 'graphs'],
+//   });
+//   await showKeys();
+//   await clearAll();
+// }
+
 initRabbitMQ();
 initRedis();
+// test();
 
 app.listen(PORT, () => {
   console.log(`Matching service is running and listening on port ${PORT}`);
