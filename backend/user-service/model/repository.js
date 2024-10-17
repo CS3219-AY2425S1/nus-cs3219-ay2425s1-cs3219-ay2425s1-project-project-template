@@ -42,6 +42,10 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
+export async function findAllActiveUsers() {
+  return UserModel.find({ isActive: true });
+}
+
 export async function updateUserById(userId, username, email, password) {
   return UserModel.findByIdAndUpdate(
     userId,
@@ -62,6 +66,18 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
     {
       $set: {
         isAdmin,
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function softDeleteUserById(userId, isActive = false) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        isActive,
       },
     },
     { new: true },  // return the updated user

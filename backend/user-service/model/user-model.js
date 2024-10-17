@@ -26,6 +26,10 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 export default mongoose.model("UserModel", UserModelSchema);

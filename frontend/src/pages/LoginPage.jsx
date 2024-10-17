@@ -1,17 +1,22 @@
-/* eslint-disable react/no-unescaped-entities */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, accessToken, userId } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (accessToken && userId) {
+      navigate('/dashboard');
+    }
+  }, [accessToken, userId, navigate]);  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +38,9 @@ const Login = () => {
       if (!response.ok) {
         const errorData = await response.json();
         if (response.status === 401) {
-          throw new Error('Wrong email and/or password');
+          throw new Error('Wrong email and/or password!');
+        } else if (response.status === 400) {
+          throw new Error('Your account is deleted!');
         } else {
           throw new Error(errorData.message || 'An error occurred, please try again.');
         }

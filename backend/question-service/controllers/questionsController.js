@@ -15,7 +15,9 @@ const createQuestion = async (req, res) => {
     // Convert category to an array if it's a comma-separated string
     let categoryArray = req?.body?.category;
     if (typeof req?.body?.category === 'string') {
-        categoryArray = req?.body?.category.split(',').map(item => item.trim()); // Convert string to array and trim spaces
+        categoryArray = req?.body?.category.split(',')
+        .map(item => item.trim()) // Trim spaces
+        .filter(item => item != ""); // Filter out empty strings explicitly
     }
 
     // Check for duplicate questions by title and description
@@ -74,7 +76,9 @@ const updateQuestion = async (req, res) => {
     // Convert category to an array if it's a comma-separated string
     let categoryArray = req?.body?.category;
     if (typeof req?.body?.category === 'string') {
-        categoryArray = req?.body?.category.split(',').map(item => item.trim()); // Convert string to array and trim spaces
+        categoryArray = req?.body?.category.split(',')
+        .map(item => item.trim()) // Trim spaces
+        .filter(item => item != ""); // Filter out empty strings explicitly
     }
 
     if (req.body?.title) question.title = req.body.title;

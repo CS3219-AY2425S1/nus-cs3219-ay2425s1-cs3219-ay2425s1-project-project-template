@@ -4,14 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
 
 const ManageProfilePage = () => {
-  const { userId, accessToken } = useAuth(); 
+  const { userId, accessToken, logout } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State for showing password
+  const [isHoveredBack, setIsHoveredBack] = useState(false);
+  const [isHoveredSave, setIsHoveredSave] = useState(false); 
+  const [isHoveredDelete, setIsHoveredDelete] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +74,37 @@ const ManageProfilePage = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:8081/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete account.");
+      }
+
+      alert("Account deleted successfully!");
+
+      logout();
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+
   const handleBack = () => {
     navigate("/dashboard"); 
   };
@@ -91,26 +124,27 @@ const ManageProfilePage = () => {
     }}>
       <button
         onClick={handleBack}
+        onMouseEnter={() => setIsHoveredBack(true)} 
+        onMouseLeave={() => setIsHoveredBack(false)} 
         style={{
           position: "absolute", 
           top: "30px", 
           left: "30px", 
-          padding: "10px 20px",
-          backgroundColor: "white",
-          color: "black",
+          padding: "15px 30px",
+          backgroundColor: isHoveredBack ? '#f0f0f0' : 'white', 
+          color: isHoveredBack ? 'black' : 'black',
           border: "none",
-          borderRadius: "10px",
+          borderRadius: "15px",
           cursor: "pointer",
-          fontSize: "16px",
-          fontFamily: "Figtree",
+          fontSize: '16px',
+          fontFamily: 'Figtree',
           transition: "background-color 0.3s",
-          width: "auto",
         }}
       >
-        Back to Dashboard
+        Back
       </button>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: "350px", width: "100%", margin: "0 auto" }}>
+      <form onSubmit={handleSubmit} style={{ maxWidth: "400px", width: "100%", margin: "0 auto" }}>
         <div style={{ marginBottom: "20px" }}>
           <div style={{ 
             fontSize: "24px", 
@@ -220,29 +254,47 @@ const ManageProfilePage = () => {
 
         <button
           type="submit"
-          onMouseEnter={() => setIsHovered(true)} 
-          onMouseLeave={() => setIsHovered(false)} 
+          onMouseEnter={() => setIsHoveredSave(true)} 
+          onMouseLeave={() => setIsHoveredSave(false)} 
           style={{
             marginTop: "30px",
-            padding: "15px 20px",
-            backgroundColor: isHovered ? '#f0f0f0' : 'white',
+            padding: "10px 0", 
+            backgroundColor: isHoveredSave ? '#f0f0f0' : 'white',
             color: 'black',
             border: "none",
-            borderRadius: "10px",
+            borderRadius: "15px",
+            cursor: "pointer",
+            fontSize: '16px',
+            fontFamily: 'Figtree',
+            transition: "background-color 0.3s",
+            width: "100%", 
+            height: "50px", 
+          }}
+        >
+          Save Changes
+        </button>
+
+        <button
+          type="button"
+          onClick={handleDeleteAccount}
+          onMouseEnter={() => setIsHoveredDelete(true)} 
+          onMouseLeave={() => setIsHoveredDelete(false)} 
+          style={{
+            marginTop: "70px", 
+            padding: "10px 0", 
+            backgroundColor: isHoveredDelete ? '#cc0000' : '#990000', 
+            color: 'white',
+            border: "none",
+            borderRadius: "15px",
             cursor: "pointer",
             fontSize: '16px',
             fontFamily: 'Figtree',
             transition: "background-color 0.3s",
             width: "100%",
-            maxWidth: "200px",
-            margin: "0 auto",
-            height: "60px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            height: "50px", 
           }}
         >
-          Save Changes
+          Delete Account
         </button>
       </form>
     </div>

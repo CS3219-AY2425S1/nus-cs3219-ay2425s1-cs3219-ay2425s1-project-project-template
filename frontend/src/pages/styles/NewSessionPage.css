@@ -8,7 +8,7 @@
 .back-btn {
     cursor: pointer;
     background-color: var(--white);
-    font-weight: bold;
+    /* font-weight: bold; */
     font-size: 1.25rem;
     padding: 1rem 2rem;
     border: none;
@@ -30,7 +30,7 @@
 
 .difficulty-selection > p, .topic-selection > p {
     background-color: var(--secondary);
-    font-weight: bold;
+    /* font-weight: bold; */
     font-size: 1.25rem;
     padding: 0.75rem 1rem;
     color: var(--white);
@@ -88,7 +88,7 @@
     width: 40%;
     border: none;
     border-radius: 1rem;
-    font-weight: bold;
+    /* font-weight: bold; */
     font-size: 1.25rem;
     transition: all 0.3s ease, transform 0.3s ease;
 }

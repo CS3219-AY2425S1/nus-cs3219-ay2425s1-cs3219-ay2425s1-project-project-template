@@ -4,12 +4,14 @@ import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,
   findAllUsers as _findAllUsers,
+  findAllActiveUsers as _findAllActiveUsers,
   findUserByEmail as _findUserByEmail,
   findUserById as _findUserById,
   findUserByUsername as _findUserByUsername,
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  softDeleteUserById as _softDeleteUserById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -61,10 +63,21 @@ export async function getAllUsers(req, res) {
   try {
     const users = await _findAllUsers();
 
-    return res.status(200).json({ message: `Found users`, data: users.map(formatUserResponse) });
+    return res.status(200).json({ message: `Found all users`, data: users.map(formatUserResponse) });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when getting all users!" });
+  }
+}
+
+export async function getAllActiveUsers(req, res) {
+  try {
+    const users = await _findAllActiveUsers();
+  
+    return res.status(200).json({ message: `Found active users`, data: users.map(formatUserResponse) });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when getting all active users!" });
   }
 }
 
@@ -149,8 +162,9 @@ export async function deleteUser(req, res) {
       return res.status(404).json({ message: `User ${userId} not found` });
     }
 
-    await _deleteUserById(userId);
-    return res.status(200).json({ message: `Deleted user ${userId} successfully` });
+    //await _deleteUserById(userId);
+    await _softDeleteUserById(userId);
+    return res.status(200).json({ message: `Soft deleted user ${userId} successfully` });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when deleting user!" });
@@ -163,6 +177,7 @@ export function formatUserResponse(user) {
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,
+    isActive: user.isActive,
     createdAt: user.createdAt,
   };
 }

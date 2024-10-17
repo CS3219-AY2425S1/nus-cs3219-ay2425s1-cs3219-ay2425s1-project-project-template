@@ -4,18 +4,26 @@ import withAuth from "../hoc/withAuth";
 
 const WaitingPage = () => {
   const location = useLocation();
-  const { userPref } = location.state || { userPref: {} };
+  const { userPref } = location.state || { userPref: {} }; 
+  const navigate = useNavigate(); 
+
+  // Check if userPref is not defined, redirect to NewSessionPage
+  useEffect(() => {
+    if (!userPref || Object.keys(userPref).length === 0) {
+      navigate('/new-session'); // Redirect if userPref is missing
+    }
+  }, [navigate, userPref]);
+
   const [loading, setLoading] = useState(true);
   const [matchFound, setMatchFound] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [timeoutReached, setTimeoutReached] = useState(false); 
-  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (loading) {
       const interval = setInterval(() => {
         setSeconds((prevSeconds) => prevSeconds + 1);
-      }, 1000); //timer
+      }, 1000); 
   
       const timer = setTimeout(() => {
         setLoading(false);
@@ -32,7 +40,7 @@ const WaitingPage = () => {
   }, [loading, matchFound]);
 
   const handleRetry = () => {
-    // need to re-add user into queue using the same choices here
+    // re-add user into queue using the same choices here
     setLoading(true); 
     setMatchFound(false);
     setTimeoutReached(false);
