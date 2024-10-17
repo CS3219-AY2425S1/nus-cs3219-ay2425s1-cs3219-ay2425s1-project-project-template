@@ -5,8 +5,7 @@ export interface INotifier {
 }
 
 export class Matcher {
-  private readonly shortInterval: number = 5000; // In milliseconds
-  private readonly longInterval: number = 2000; // In milliseconds
+  private readonly interval: number = 1000; // In milliseconds
   private queue: IQueue;
   private notifer: INotifier;
   private timeoutId: NodeJS.Timeout | null = null;
@@ -41,15 +40,15 @@ export class Matcher {
         this.notifer.notify(true, username, room.roomId)
       );
     });
-
     //TODO: Create rooms in database
 
     if (!this.queue.getLength()) {
+      console.log("Queue is empty, stopping matcher...");
       return;
     }
 
     console.log("Setting timeout for next match...");
-    this.timeoutId = setTimeout(() => this.match(), this.shortInterval);
+    this.timeoutId = setTimeout(() => this.match(), this.interval);
   }
 
   private removeExpiredRequests(requestMap: Map<string, IMatchRequest[]>): {
