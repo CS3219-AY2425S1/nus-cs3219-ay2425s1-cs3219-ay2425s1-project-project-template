@@ -1,4 +1,3 @@
-matchingService.js
 const amqp = require('amqplib');
 const express = require('express');
 const redis = require('redis');
@@ -8,9 +7,18 @@ const PORT = 4000;
 
 const redisClient = redis.createClient({
   socket: {
-    host: 'matching-service-redis',
     port: 6379,
-  }
+    reconnectStrategy: function (retries) {
+      if (retries > 20) {
+        console.log(
+          'Too many attempts to reconnect. Redis connection was terminated',
+        );
+        return new Error('Too many retries.');
+      } else {
+        return retries * 500;
+      }
+    },
+  },
 });
 
 app.use(express.json());
@@ -24,7 +32,7 @@ async function initRabbitMQ() {
   channel = await connection.createChannel();
 
   // Declare queues
-  await channel.assertQueue('search_queue')
+  await channel.assertQueue('search_queue');
   await channel.assertQueue('match_found_queue');
   await channel.assertQueue('disconnect_queue');
 
@@ -57,7 +65,16 @@ async function initRedis() {
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  const matchedUser = findMatchByTopics(topics) && findMatchByDifficulty(difficulty);
+  const matchedByTopics = findMatchByTopics(topics);
+  const matchedByDifficulty = findMatchByDifficulty(difficulty);
+
+  const matchedByDifficultyIds = new Set(
+    matchedByDifficulty.map((item) => item.id),
+  );
+  const combinedMatches = matchedByTopics.filter((item) =>
+    matchedByDifficultyIds.has(item.id),
+  );
+  const matchedUser = combinedMatches[0];
 
   if (matchedUser) {
     const matchMessage = {
@@ -65,25 +82,55 @@ async function matchUsers(searchRequest) {
       matchUserId: matchedUser.userId,
     };
 
-    channel.sendToQueue('match_found_queue', Buffer.from(JSON.stringify(matchMessage)));
-    console.log(`Match found: User ID ${userId} matched with ${matchedUser.userId}`);
+    channel.sendToQueue(
+      'match_found_queue',
+      Buffer.from(JSON.stringify(matchMessage)),
+    );
+    console.log(
+      `Match found: User ID ${userId} matched with ${matchedUser.userId}`,
+    );
     delete activeSearches[userId];
     delete activeSearches[matchedUser.userId];
+  } else {
+    console.log(`No match found for User ID: ${userId}`);
+    redisClient.set(userId, userId);
+    difficulty.forEach((tag) => {
+      redisClient.sadd(`difficulty:${tag}`, userId);
+    });
+    topics.forEach((tag) => {
+      redisClient.sadd(`topics:${tag}`, userId);
+    });
   }
 }
 
 function findMatchByTopics(topics) {
-  if (topics.includes("simulate cannot find match")) {
-    return null;
-  }
-  return { userId: 'mockUser123' };
+  return new Promise((resolve, reject) => {
+    const multi = redisClient.multi();
+    topics.forEach((tag) => multi.smembers(`topics:${tag}`));
+
+    multi.exec((err, replies) => {
+      if (err) return reject(err);
+
+      // Flatten the array of keys and get unique ones
+      const keys = [...new Set(replies.flat())];
+      resolve(keys);
+    });
+  });
 }
 
 function findMatchByDifficulty(difficulty) {
-  if (difficulty == "simulate cannot find match") {
-    return null;
-  }
-  return { userId: 'mockUser456' };
+  return new Promise((resolve, reject) => {
+    const multi = redisClient.multi();
+    difficulty.forEach((tag) => multi.smembers(`difficulty:${tag}`));
+
+    multi.exec((err, replies) => {
+      if (err) return reject(err);
+
+      // Flatten the array of keys and get unique ones
+      const keys = [...new Set(replies.flat())];
+      resolve(keys);
+    });
+  });
 }
 
 function handleDisconnection(userId) {
