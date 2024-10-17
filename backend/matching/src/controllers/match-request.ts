@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { client } from '@/lib/db';
+import { client, logQueueStatus } from '@/lib/db';
 import type { IRedisClient, IRequestMatchPayload } from '@/types';
 import { createNotifSocket, queueingService } from '@/services';
+import { logger } from '@/lib/utils';
 
 let redisClient: IRedisClient;
 export const matchRequestController = async (req: Request, res: Response) => {
@@ -38,4 +39,6 @@ export const matchRequestController = async (req: Request, res: Response) => {
     socketPort: socketRoom,
     timestamp,
   });
+
+  logQueueStatus(logger, redisClient, `Queue Status Before Matching: <PLACEHOLDER>`);
 };

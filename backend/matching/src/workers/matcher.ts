@@ -1,4 +1,4 @@
-import { client } from '@/lib/db';
+import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
@@ -76,6 +76,7 @@ async function processMatch(
       setTimeout(() => {
         sendMatchLogic(requestorSocketPort);
       }, 1000);
+      await logQueueStatus(logger, redisClient, `Queue Status After Matching: <PLACEHOLDER>`);
       return true;
     }
   }
