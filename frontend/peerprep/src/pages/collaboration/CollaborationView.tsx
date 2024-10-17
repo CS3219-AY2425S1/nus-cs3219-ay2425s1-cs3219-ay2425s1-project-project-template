@@ -6,40 +6,39 @@ const Collaboration: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
   const [room, setRoom] = useState<string>('');
-  const [socketId, setSocketId] = useState<string | undefined>(undefined); // Accepts undefined
+  const [socketId, setSocketId] = useState<string | undefined>(''); // Allow undefined
+
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3000"); // Replace with your backend URL
     setSocket(newSocket);
 
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id); // Log socket ID
+      setSocketId(newSocket.id); // Set the socket ID state
+    });
+
     newSocket.on("assignSocketId", (data: { socketId: string }) => {
-      setSocketId(data.socketId); // Set the socket ID when assigned
+      console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
+      setSocketId(data.socketId); // Set the socket ID from the server
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        `You are assigned to: ${data.socketId}`, // Add to messages
+      ]);
     });
 
     newSocket.on("message", (data: string) => {
       setMessages((prevMessages) => [...prevMessages, data]);
       if (chatBoxRef.current) {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
       }
     });
 
-    newSocket.on('roomJoined', (data: { roomCode: string, socketId: string }) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You joined Room: ${data.roomCode} with Socket ID: ${data.socketId}`
-      ]);
-    });
-
-    newSocket.on('userJoined', (data: { message: string }) => {
-      setMessages((prevMessages) => [...prevMessages, data.message]);
-    });
-
-    // Cleanup function to disconnect the socket on component unmount
     return () => {
       newSocket.disconnect();
     };
-  }, []); // Run once after initial render
+  }, []);
 
   const sendMessage = () => {
     if (message.trim() && socket) {
@@ -57,14 +56,14 @@ const Collaboration: React.FC = () => {
   };
 
   const joinQueue = () => {
-    if (socket && room) { // Assuming room is the topic or any identifier you want to use
+    if (socket && room) {
       socket.emit("joinQueue", {
         username: "qqq", // Replace with actual user data if available
         topic: room,
         difficulty: "easy", // Add difficulty or other data as necessary
         questionId: "12345" // Replace with actual question ID if available
       });
-      const displaySocketId = socketId ? socketId : "No socket ID assigned"; // Conditional check
+      const displaySocketId = socketId || "No socket ID assigned"; // Conditional check
       setMessages((prevMessages) => [
         ...prevMessages,
         `You have joined the queue with Socket ID: ${displaySocketId}`
@@ -72,7 +71,6 @@ const Collaboration: React.FC = () => {
     }
   };
   
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       sendMessage();
@@ -85,6 +83,10 @@ const Collaboration: React.FC = () => {
         {messages.map((msg, index) => (
           <div key={index} style={styles.message}>{msg}</div>
         ))}
+      </div>
+
+      <div className="socket-id-display" style={styles.socketIdDisplay}>
+        {socketId && <div>Your Socket ID: {socketId}</div>} {/* Display the socket ID */}
       </div>
 
       <div className="chat-input" style={styles.chatInput}>
@@ -141,6 +143,12 @@ const styles = {
   },
   message: {
     color: 'black',
+  },
+  socketIdDisplay: {
+    padding: '10px',
+    backgroundColor: '#e9ecef',
+    textAlign: 'center' as 'center',
+    color: 'blue',
   },
   chatInput: {
     display: 'flex',
