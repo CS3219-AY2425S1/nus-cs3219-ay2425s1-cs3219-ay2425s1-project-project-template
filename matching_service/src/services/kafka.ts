@@ -128,29 +128,20 @@ export class ConsumerFactory {
       .then(() => console.log(`Subscribed to topic ${this.topic}`));
   }
 
-  public async getMessages(): Promise<KafkaMessage[]> {
+  public async getMessages(
+    next: (messages: KafkaMessage[]) => void
+  ): Promise<void> {
     try {
-      let messageBuffer: Array<KafkaMessage> = [];
-
+      await this.start();
       await this.consumer.run({
-        autoCommit: false,
-        eachMessage: async (messagePayload) => {
-          console.log(
-            "Received message:",
-            messagePayload.message.value?.toString()
-          );
-          messageBuffer.push(messagePayload.message);
+        eachBatchAutoResolve: false,
+        eachBatch: async ({ batch }) => {
+          next(batch.messages);
+          this.shutdown();
         },
-      });
-
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve(messageBuffer);
-        }, 1000);
       });
     } catch (error) {
       console.log(error);
-      return [];
     }
   }
 
