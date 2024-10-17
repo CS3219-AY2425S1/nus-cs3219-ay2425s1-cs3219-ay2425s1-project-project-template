@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { MatchRequest, UserMatch, QueuedUser } from "../utils/types";
+import { MatchRequest, UserMatch, QueuedUser, Category } from "../utils/types";
 import { config } from "../utils/config";
 import logger from "../utils/logger";
 import redisClient from "../utils/redisClient";
@@ -125,7 +125,12 @@ export class MatchController extends EventEmitter {
             difficultyLevel,
             category: category || potentialMatch.category || null,
           };
-  
+          if (!category && !potentialMatch.category) {
+            logger.info(
+              `Choosing a random category for ${userId} and ${potentialMatch.userId}`
+            );
+            match.category = this.getRandomCategory();
+          }
           this.removeFromMatchingPool(userId, request);
           this.removeFromMatchingPool(potentialMatch.userId, potentialMatch);
   
@@ -181,5 +186,11 @@ export class MatchController extends EventEmitter {
       !request1.category ||
       !request2.category
     );
+  }
+
+  private getRandomCategory(): Category {
+    const categories = Object.values(Category);
+    const randomIndex = Math.floor(Math.random() * categories.length);
+    return categories[randomIndex];
   }
 }
