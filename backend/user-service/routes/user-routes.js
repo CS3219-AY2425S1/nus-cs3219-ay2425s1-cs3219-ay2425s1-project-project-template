@@ -38,8 +38,8 @@ router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 //Get all completed questions from a user
 router.get("/questions/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getQuestionDetails);
 
-//Save comepleted questions by id
-router.post("/questions/:id", verifyAccessToken, verifyIsOwnerOrAdmin, addQuestionToUser);
+//Save completed questions by id
+router.patch("/questions/:id", verifyAccessToken, verifyIsOwnerOrAdmin, addQuestionToUser);
 
 
 

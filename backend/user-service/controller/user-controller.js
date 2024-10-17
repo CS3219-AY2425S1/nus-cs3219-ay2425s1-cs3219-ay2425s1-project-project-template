@@ -191,7 +191,7 @@ export async function addQuestionToUser(req, res) {
     questionDone.push(questionId);
     await _updateQuestionDoneById(user.id, questionDone);
     console.log(`Question ${questionId} added to User ${userId}.`);
-    return res.status(200).json({ message: `Question ${questionId} added to User ${userId}.` });
+    return res.status(200).json({ message: `Question ${questionId} added to User ${userId}.`, data: user});
   }
   return res.status(409).json({ message: `Question ${questionId} already exist!` });
 }
@@ -224,7 +224,7 @@ export async function getQuestionDetails(req, res) {
           return res.status(error.status).json({ error: `${error.response}` });
       } 
       
-      return res.status(200).json({ questions: response.data });
+      return res.status(200).json({ data: response.data });
   
   } catch (error) {
       console.log(`${error.status}: ${error.response.data.message}`);
