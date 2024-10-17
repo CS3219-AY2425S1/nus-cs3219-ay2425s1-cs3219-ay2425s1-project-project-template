@@ -11,7 +11,7 @@ export default function LoginPage() {
 	const navigate = useNavigate();
 
 	if (loggedIn) {
-		return <Navigate to={'/loading'} />;
+		return <Navigate to={'/matching-page'} />;
 	}
 
 	const onSuccess = async (credentialResponse: CredentialResponse) => {
@@ -27,7 +27,7 @@ export default function LoginPage() {
 			setLoggedIn(true);
 			setToken(jwtToken);
 			localStorage.setItem("access_token", jwtToken);
-			navigate('/loading');
+			navigate('/matching-page');
 		}
 	} catch (error) {
 		alert("Error logging in: " + error);		

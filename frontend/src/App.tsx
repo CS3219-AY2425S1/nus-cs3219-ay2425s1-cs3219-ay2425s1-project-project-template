@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import QuestionServicePage from './pages/questionservicepage';
 import LoadingPage from './pages/loadingpage'; 
+import MatchingPage from './pages/matchingpage';
 import { UserContextProvider } from './UserContextProvider';
 import './App.css';
 
@@ -21,6 +22,7 @@ const App: React.FC = () => {
           <Route path='/loading' element={<LoadingPage />} />
           <Route path='/profile' element={<ProfilePage />} />
           <Route path='/questions-page' element={<QuestionServicePage />} />
+          <Route path='/matching-page' element={<MatchingPage />} />
         </Routes>
       </div>
     </UserContextProvider>

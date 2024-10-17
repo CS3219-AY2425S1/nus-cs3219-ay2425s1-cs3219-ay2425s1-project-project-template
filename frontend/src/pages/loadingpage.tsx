@@ -44,7 +44,7 @@ const LoadingPage: React.FC = () => {
             <button className="bg-blue-700 motion-safe:hover:scale-110 hover:bg-blue-500 text-white py-2 px-4 rounded-full transition" onClick={resetTimer}>
               Retry
             </button>
-            <button className="bg-red-700 motion-safe:hover:scale-110 hover:bg-red-500 text-white py-2 px-4 rounded-full transition" onClick={() => navigate("/profile")}>
+            <button className="bg-red-700 motion-safe:hover:scale-110 hover:bg-red-500 text-white py-2 px-4 rounded-full transition" onClick={() => navigate("/matching-page")}>
               Exit
             </button>
           </div>
