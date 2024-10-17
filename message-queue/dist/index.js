@@ -63,8 +63,7 @@ app.get("/", (req, res, next) => {
 });
 app.use((req, res, next) => {
     const error = new Error("Route Not Found");
-    res.
-        next(error);
+    next(error);
 });
 app.use((error, req, res, next) => {
     res.status(error.status || 500);

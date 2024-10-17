@@ -1,8 +1,9 @@
-import express from "express"
+import express , { Express, Request, Response } from "express"
 import amqp from "amqplib"
 import dotenv from "dotenv"
+import { RoutingKey, UserData } from "./types"
 
-const app = express()
+const app: Express = express()
 
 dotenv.config()
 
@@ -28,7 +29,7 @@ const connectRabbitMQ = async () => {
 
 connectRabbitMQ()
 
-const addDataToExchange = async (userData, key) => {
+const addDataToExchange = async (userData: UserData, key: RoutingKey) => {
   await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
@@ -37,7 +38,7 @@ const pullDataFromExchange = async () => {
 }
 
 // Publish message to exchange
-app.post("/", (req, res) => {
+app.post("/", (req: Request, res: Response) => {
   try {
     const { userData, key } = req.body //key-value pair of userData will be <difficulty>.<topic(s)> 
     addDataToExchange(userData, key)
@@ -50,20 +51,19 @@ app.post("/", (req, res) => {
   }
 })
 
-app.get("/", (req, res, next) => {
+app.get("/", (req: Request, res: Response, next) => {
   console.log("Hello World")
   res.json({
     message: "This is message queue."
   })
 })
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next) => {
   const error : Error = new Error("Route Not Found")
-  res.
   next(error)
 })
 
-app.use((error, req, res, next) => {
+app.use((error, req: Request, res: Response, next) => {
   res.status(error.status || 500)
   res.json({
     error: {
