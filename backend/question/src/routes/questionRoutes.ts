@@ -4,6 +4,7 @@ import Question, { TQuestion } from "../models/Question";
 import {
   createQuestionValidators,
   idValidators,
+  pickQuestionValidators,
   updateQuestionValidators,
 } from "./validators";
 
@@ -60,24 +61,29 @@ router.post("/all", async (req: Request, res: Response) => {
   let pagination = parseInt(req.body.pagination as string, 10) || 1; // Default page is 1
   const page_size = parseInt(req.body.page_size as string, 10) || 10; // Default limit is 10
   const skip = (pagination - 1) * page_size; // Calculate how many documents to skip
+
+  const { title, complexity, category } = req.body;
+
+  const query: any = { deleted: false };
+  if (title) query.title = { $regex: title, $options: "i" };
+  if (complexity) query.complexity = { $in: complexity };
+  if (category) query.category = { $in: category };
+
   try {
-    const questions = await Question.find(
-      { deleted: false },
-      {
-        questionid: 1,
-        title: 1,
-        description: 1,
-        complexity: 1,
-        category: 1,
-      }
-    )
+    const questions = await Question.find(query, {
+      questionid: 1,
+      title: 1,
+      description: 1,
+      complexity: 1,
+      category: 1,
+    })
       .lean()
       .sort({ questionid: "ascending" })
       .skip(skip)
       .limit(page_size)
       .exec();
 
-    const total = await Question.countDocuments({ deleted: false }).exec();
+    const total = await Question.countDocuments(query).exec();
     const totalPages = Math.ceil(total / page_size);
     if (totalPages < pagination) pagination = 1;
 
@@ -122,6 +128,47 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
     return res.status(500).send("Internal server error");
   }
 });
+
+// Retrieve a random question by complexity and category
+router.post(
+  "/pick-question",
+  [...pickQuestionValidators],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { complexity, category } = req.body;
+
+    const query: any = { deleted: false };
+    if (complexity) query.complexity = { $in: complexity };
+    if (category) query.category = { $in: category };
+
+    try {
+      const randomQuestion = await Question.aggregate([
+        { $match: query }, // Filter by complexity and category
+        { $sample: { size: 1 } }, // Randomly select one document
+        {
+          $project: {
+            questionid: 1,
+            title: 1,
+            description: 1,
+            complexity: 1,
+            category: 1,
+          },
+        },
+      ]);
+
+      if (!randomQuestion.length) {
+        return res.status(404).json({ message: "No questions found" });
+      }
+
+      return res.json(randomQuestion[0]);
+    } catch (error) {
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
 
 // Update a specific question by id
 router.post(

@@ -10,15 +10,50 @@ export const createQuestionValidators = [
       throw new Error("Category must be a non-empty array");
     }
     //check if array contains only non-empty strings and trim whitespace
-    if (!category.every((element) => typeof element === "string" && element.length > 0 && element.trim().length > 0)) {
+    if (
+      !category.every(
+        (element) =>
+          typeof element === "string" &&
+          element.length > 0 &&
+          element.trim().length > 0
+      )
+    ) {
       throw new Error("Category must contain only non-empty strings");
     }
     return true;
-  }
-  ),
+  }),
 ];
 
 export const idValidators = [check("id").isInt({ min: 1 })];
+
+export const pickQuestionValidators = [
+  check("complexity").custom((complexity) => {
+    if (!Array.isArray(complexity) || complexity.length === 0) {
+      throw new Error("Category must be a non-empty array");
+    }
+    if (
+      !complexity.every(
+        (element) => typeof element === "string" && element.trim().length > 0
+      )
+    ) {
+      throw new Error("Category must contain only non-empty strings");
+    }
+    return true;
+  }),
+  check("category").custom((category) => {
+    if (!Array.isArray(category) || category.length === 0) {
+      throw new Error("Category must be a non-empty array");
+    }
+    if (
+      !category.every(
+        (element) => typeof element === "string" && element.trim().length > 0
+      )
+    ) {
+      throw new Error("Category must contain only non-empty strings");
+    }
+    return true;
+  }),
+];
 
 export const updateQuestionValidators = [
   check("id").isInt(),
@@ -35,7 +70,14 @@ export const updateQuestionValidators = [
             throw new Error("Category must be a non-empty array");
           }
           //check if array contains only non-empty strings and trim whitespace
-          if (!field.every((element) => typeof element === "string" && element.length > 0 && element.trim().length > 0)) {
+          if (
+            !field.every(
+              (element) =>
+                typeof element === "string" &&
+                element.length > 0 &&
+                element.trim().length > 0
+            )
+          ) {
             throw new Error("Category must contain only non-empty strings");
           }
         } else {
