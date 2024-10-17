@@ -6,7 +6,7 @@ import ConfirmationModal from "../components/dashboard/ConfirmationModal";
 import withAuth from "../hoc/withAuth"; 
 import { useAuth } from "../AuthContext"; 
 import DropdownMenu from "../components/dashboard/DropdownMenu"; 
-import DailyChallenge from "../components/dashboard/DailyChallenge"; // Import the new component
+import RandomChallenge from "../components/dashboard/RandomChallenge"; 
 
 const DashboardPage = () => {
   const navigate = useNavigate(); 
@@ -16,16 +16,8 @@ const DashboardPage = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [username, setUsername] = useState(''); 
-  const [dailyChallenge, setDailyChallenge] = useState({ difficulty: "", topic: "" });
   const hasActiveSession = false; 
 
-  const difficulties = ["Easy", "Medium", "Hard"];
-  const topics = [
-    "Array", "String", "Linked List", "Tree", "Graph", "Dynamic Programming", 
-    "Backtracking", "Binary Search", "Two Pointers", "Sorting", "Greedy", "Hash Table"
-  ];
-
-  // Logout handler
   const handleLogout = () => {
     logout(); 
     navigate('/login'); 
@@ -46,7 +38,6 @@ const DashboardPage = () => {
     setDropdownVisible(!dropdownVisible);
   };
 
-  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -73,16 +64,6 @@ const DashboardPage = () => {
       fetchUserData();
     }
   }, [userId, accessToken]); 
-
-  useEffect(() => {
-    const generateDailyChallenge = () => {
-      const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
-      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-      setDailyChallenge({ difficulty: randomDifficulty, topic: randomTopic });
-    };
-
-    generateDailyChallenge();
-  }, []);
 
   return (
     <div style={{ paddingTop: "30px", display: "flex", justifyContent: "center", position: 'relative' }}>
@@ -123,8 +104,8 @@ const DashboardPage = () => {
           setCurrentYear={setCurrentYear}
         />
 
-        {/* Daily Challenge Section */}
-        <DailyChallenge dailyChallenge={dailyChallenge} /> 
+        {/* Random Challenge Section */}
+        {/* <RandomChallenge />  */}
       </div>
 
       <DropdownMenu 

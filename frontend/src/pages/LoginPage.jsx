@@ -50,7 +50,6 @@ const Login = () => {
         const userId = data.data.id; 
         const accessToken = data.data.accessToken; 
 
-        // Perform login and store accessToken and userId
         login(accessToken, userId);
         navigate('/dashboard'); 
       } else {
