@@ -56,7 +56,7 @@ export const verifyToken = async (needsLogin: boolean) => {
   }
 };
 
-export const login = async (username: string, password: string) => {
+export const login = async (email: string, password: string) => {
   const encryptedPassword = btoa(password);
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/login`, {
     method: "POST",
@@ -64,7 +64,7 @@ export const login = async (username: string, password: string) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      username,
+      email,
       password: encryptedPassword,
     }),
   }).then((res) => {
