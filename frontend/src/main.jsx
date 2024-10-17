@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Settings from "./pages/Settings.jsx";
 import Help from "./pages/Help.jsx";
 import FindingPeer from "./pages/FindingPeer.jsx";
-import MatchingService from "./pages/matchingService.jsx";
+import MatchingService from "./pages/MatchingService.jsx";
 import Room from "./pages/Room.jsx";
 
 const router = createBrowserRouter([
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "/room/{id}",
+    path: "/room/:roomId",
     element: <Room />,
     errorElement: <ErrorPage />,
   },

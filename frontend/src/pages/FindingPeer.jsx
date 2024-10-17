@@ -22,8 +22,14 @@ const FindingPeer = () => {
       }, 1000);
     } else if (time === 0) {
       clearInterval(interval);
-      toast.info("No match found, redirecting...");
-      navigate("/matching-service");
+      toast.info("No match found, redirecting to matching service...");
+      toast.info("Please try again later...");
+
+      // Wait for 3 seconds before navigating
+      // Delay the navigation to ensure toast is visible
+      setTimeout(() => {
+        navigate("/matching-service");
+      }, 3000);  // Wait for 3 seconds before navigating
     }
 
     return () => clearInterval(interval);
@@ -45,16 +51,20 @@ const FindingPeer = () => {
       .then(() => {
         toast.success("Connected to matching service");
 
+        // When match is Found, call the onMatchFound event
         matchingService.onMatchFound((roomId) => {
+          console.log("Match found, redirecting to room:", roomId);
           clearInterval();
           toast.success("Match found! Redirecting...");
           navigate(`/room/${roomId}`);
         });
-
+        
+        //  When an error message is received, call the onError event
         matchingService.onError((err) => {
           toast.error(`Error: ${err.message}`);
         });
-
+        
+        // When the socket is disconnected, call the onDisconnect event
         matchingService.onDisconnect((reason) => {
           if (time > 0) {
             toast.warn(`Disconnected: ${reason}`);
@@ -62,11 +72,13 @@ const FindingPeer = () => {
         });
       })
       .catch((err) => {
-        toast.error(`Connection failed: ${err.message}`);
+        toast.error(`Connection failed: ${err.message} Could not connect to matching service`);
       });
       
-    return () => matchingService.disconnect();
-  }, [selectedTopics, selectedLevel, time, navigate]);
+    return () => {
+      matchingService.disconnect();
+    };
+  }, [selectedTopics, selectedLevel, navigate]);
 
   return (
     <div className="flex min-h-screen bg-black">
