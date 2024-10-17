@@ -59,6 +59,17 @@ services:
     volumes:
       - ./matching-service/request-service:/app
       - /app/node_modules
+
+  matcher-service:
+    build: ./matching-service/matcher-service
+    ports:
+      - 3003:3003
+    depends_on:
+      - user-service
+      # - question-service # maybe to retrieve information on the questions difficulties/topics
+    volumes:
+      - ./matching-service/matcher-service:/app
+      - /app/node_modules
   
   kafka:
     image: bitnami/kafka
