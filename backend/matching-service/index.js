@@ -30,5 +30,5 @@ mongoose.connection.once('open', () => {
 initRabbitMQ();
 
 //Test
-//setTimeout(() => { handleMatchRequest({ id: '1', complexity: ['A, B'], difficulty: 'Easy' });}, 2000)
-//setTimeout(() => { handleMatchRequest({ id: '2', complexity: ['A, B'], difficulty: 'Easy' });}, 2500)
+setTimeout(() => { handleMatchRequest({ id: '1', category: 'array', difficulty: 'easy' });}, 2000)
+setTimeout(() => { handleMatchRequest({ id: '2', category: 'array', difficulty: 'easy' });}, 2500)
