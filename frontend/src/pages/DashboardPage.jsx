@@ -1,4 +1,3 @@
-// src/pages/DashboardPage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Calendar from "../components/dashboard/Calendar"; 
@@ -7,6 +6,7 @@ import ConfirmationModal from "../components/dashboard/ConfirmationModal";
 import withAuth from "../hoc/withAuth"; 
 import { useAuth } from "../AuthContext"; 
 import DropdownMenu from "../components/dashboard/DropdownMenu"; 
+import RandomChallenge from "../components/dashboard/RandomChallenge"; 
 
 const DashboardPage = () => {
   const navigate = useNavigate(); 
@@ -18,7 +18,6 @@ const DashboardPage = () => {
   const [username, setUsername] = useState(''); 
   const hasActiveSession = false; 
 
-  // Logout handler
   const handleLogout = () => {
     logout(); 
     navigate('/login'); 
@@ -97,13 +96,16 @@ const DashboardPage = () => {
         />
       </div>
 
-      <div style={{ marginLeft: "20px", marginTop: "70px"}}>  
+      <div style={{ marginLeft: "20px", marginTop: "70px" }}>  
         <Calendar
           currentMonth={currentMonth}
           currentYear={currentYear}
           setCurrentMonth={setCurrentMonth}
           setCurrentYear={setCurrentYear}
         />
+
+        {/* Random Challenge Section */}
+        {/* <RandomChallenge />  */}
       </div>
 
       <DropdownMenu 
