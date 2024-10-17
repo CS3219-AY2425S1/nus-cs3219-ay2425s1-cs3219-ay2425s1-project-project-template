@@ -137,7 +137,7 @@ const ManageProfilePage = () => {
         Back
       </button>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: "350px", width: "100%", margin: "0 auto" }}>
+      <form onSubmit={handleSubmit} style={{ maxWidth: "400px", width: "100%", margin: "0 auto" }}>
         <div style={{ marginBottom: "20px" }}>
           <div style={{ 
             fontSize: "24px", 
@@ -251,7 +251,7 @@ const ManageProfilePage = () => {
           onMouseLeave={() => setIsHoveredSave(false)} 
           style={{
             marginTop: "30px",
-            padding: "10px 20px",
+            padding: "10px 0", // Updated padding
             backgroundColor: isHoveredSave ? '#f0f0f0' : 'white',
             color: 'black',
             border: "none",
@@ -260,13 +260,8 @@ const ManageProfilePage = () => {
             fontSize: '16px',
             fontFamily: 'Figtree',
             transition: "background-color 0.3s",
-            width: "100%",
-            maxWidth: "200px",
-            margin: "0 auto",
-            height: "50px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            width: "100%", // Ensures button width matches form
+            height: "50px", // Consistent height
           }}
         >
           Save Changes
@@ -278,8 +273,8 @@ const ManageProfilePage = () => {
           onMouseEnter={() => setIsHoveredDelete(true)} 
           onMouseLeave={() => setIsHoveredDelete(false)} 
           style={{
-            marginTop: "15px", 
-            padding: "10px 20px",
+            marginTop: "70px", 
+            padding: "10px 0", 
             backgroundColor: isHoveredDelete ? '#cc0000' : '#990000', 
             color: 'white',
             border: "none",
@@ -289,12 +284,7 @@ const ManageProfilePage = () => {
             fontFamily: 'Figtree',
             transition: "background-color 0.3s",
             width: "100%",
-            maxWidth: "200px",
-            margin: "0 auto",
             height: "50px", 
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
           }}
         >
           Delete Account

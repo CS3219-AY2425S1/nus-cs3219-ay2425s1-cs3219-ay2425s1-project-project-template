@@ -4,7 +4,6 @@ import Cookies from 'js-cookie';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Use cookies to store accessToken and userId
   const [accessToken, setAccessToken] = useState(() => {
     return Cookies.get('accessToken') || null; 
   });
