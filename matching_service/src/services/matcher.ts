@@ -5,7 +5,7 @@ export interface INotifier {
 }
 
 export class Matcher {
-  private readonly shortInterval: number = 500; // In milliseconds
+  private readonly shortInterval: number = 5000; // In milliseconds
   private readonly longInterval: number = 2000; // In milliseconds
   private queue: IQueue;
   private notifer: INotifier;
@@ -17,77 +17,76 @@ export class Matcher {
   }
 
   public match(queue: IQueue, notifier: INotifier) {
-    this.queue.getRequests((requests: IMatchRequest[]) => {
-      console.log("Matching users...");
-      console.log("Removing expired requests...");
-      // Remove expired requests
+    const map = this.queue.getRequests();
+    console.log("Matching users...");
+    console.log("Removing expired requests...");
+    // Remove expired requests
 
-      console.log("Num requests:", requests.length);
-      const { expired, valid } = this.checkExpiredRequests(requests);
+    // console.log("Num requests:", map.length);
+    const { expired } = this.removeExpiredRequests(map);
 
-      console.log("Notifying expired requests...");
-      // Remove expired requests from queue
-      expired.forEach((request) => {
-        this.queue.cancel(request);
-        this.notifer.notify(false, request.username, "");
-      });
+    console.log("Notifying expired requests...");
+    // Remove expired requests from queue
+    expired.forEach((request) => {
+      this.queue.cancel(request);
+      this.notifer.notify(false, request.username, "");
+    });
 
-      if (valid.length < 2) {
-        console.log(
-          "Not enough requests to match. Switching to long interval..."
-        );
-        this.timeoutId = setTimeout(
-          () => this.match(queue, notifier),
-          this.longInterval
-        );
-        return;
-      }
+    // if (valid.length < 2) {
+    //   console.log(
+    //     "Not enough requests to match. Switching to long interval..."
+    //   );
+    //   this.timeoutId = setTimeout(
+    //     () => this.match(queue, notifier),
+    //     this.longInterval
+    //   );
+    //   return;
+    // }
 
-      console.log("Splitting requests by topic and difficulty...");
-      // If requests not split by topic and difficulty, split them
-      const requestMap = this.splitRequests(valid);
+    // console.log("Splitting requests by topic and difficulty...");
+    // // If requests not split by topic and difficulty, split them
+    // const requestMap = this.splitRequests(valid);
 
-      console.log("Matching users by topic and difficulty...");
-      // Match users by topic and difficulty
-      const rooms = this.matchUsers(requestMap);
+    console.log("Matching users by topic and difficulty...");
+    // Match users by topic and difficulty
+    const rooms = this.matchUsers(map);
 
-      console.log("Notifying users of match...");
-      // Notify users of match
-      rooms.forEach((room) => {
-        room.usernames.forEach((username) =>
-          this.notifer.notify(true, username, room.roomId)
-        );
-      });
-
-      //TODO: Create rooms in database
-
-      console.log("Setting timeout for next match...");
-      this.timeoutId = setTimeout(
-        () => this.match(queue, notifier),
-        this.shortInterval
+    console.log("Notifying users of match...");
+    // Notify users of match
+    rooms.forEach((room) => {
+      room.usernames.forEach((username) =>
+        this.notifer.notify(true, username, room.roomId)
       );
     });
+
+    //TODO: Create rooms in database
+
+    console.log("Setting timeout for next match...");
+    this.timeoutId = setTimeout(
+      () => this.match(queue, notifier),
+      this.shortInterval
+    );
   }
 
-  private checkExpiredRequests(requests: IMatchRequest[]): {
+  private removeExpiredRequests(requestMap: Map<string, IMatchRequest[]>): {
     expired: IMatchRequest[];
-    valid: IMatchRequest[];
   } {
     const expired: IMatchRequest[] = [];
-    const valid: IMatchRequest[] = [];
+    // const valid: IMatchRequest[] = [];
     const now = Date.now();
     console.log("now:", now);
 
-    requests.forEach((request) => {
-      console.log(request.timestamp);
-      if (request.timestamp < now - 30 * 1000) {
-        expired.push(request);
-      } else {
-        valid.push(request);
-      }
+    requestMap.forEach((requests, key, map) => {
+      requests.forEach((request) => {
+        console.log(request.timestamp);
+        if (request.timestamp < now - 30 * 1000) {
+          expired.push(request);
+          map.get(key)?.filter((x) => x == request);
+        }
+      });
     });
 
-    return { expired, valid };
+    return { expired };
   }
 
   private splitRequests(

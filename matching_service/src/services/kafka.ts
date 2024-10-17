@@ -6,6 +6,7 @@ import {
   KafkaMessage,
   RecordMetadata,
 } from "kafkajs";
+import { IQueue } from "./queue";
 
 export interface KafkaRequest {
   timestamp: number;
@@ -97,9 +98,7 @@ export class ProducerFactory {
   }
 }
 
-export type KafkaMessageProcessor = (
-  messagePayload: EachMessagePayload
-) => Promise<void>;
+export type KafkaMessageProcessor = (messagePayload: KafkaMessage) => void;
 
 export class ConsumerFactory {
   private consumer: Consumer;
@@ -118,7 +117,7 @@ export class ConsumerFactory {
     this.topic = topic;
   }
 
-  public async start() {
+  public async start(processMessage: KafkaMessageProcessor) {
     await this.consumer.connect().then(() => console.log("Consumer connected"));
     await this.consumer
       .subscribe({
@@ -126,24 +125,30 @@ export class ConsumerFactory {
         fromBeginning: true,
       })
       .then(() => console.log(`Subscribed to topic ${this.topic}`));
+    await this.consumer.run({
+      eachMessage: async ({ message }) => {
+        console.log(message);
+        processMessage(message);
+      },
+    });
   }
 
-  public async getMessages(
-    next: (messages: KafkaMessage[]) => void
-  ): Promise<void> {
-    try {
-      await this.start();
-      await this.consumer.run({
-        eachBatchAutoResolve: false,
-        eachBatch: async ({ batch }) => {
-          next(batch.messages);
-          this.shutdown();
-        },
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // public async getMessages(
+  //   next: (messages: KafkaMessage[]) => void
+  // ): Promise<void> {
+  //   try {
+  //     await this.start();
+  //     await this.consumer.run({
+  //       eachBatchAutoResolve: false,
+  //       eachBatch: async ({ batch }) => {
+  //         next(batch.messages);
+  //         this.shutdown();
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   public async commit(
     offset: string,
