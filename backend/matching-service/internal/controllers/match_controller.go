@@ -6,6 +6,7 @@ import (
 	"matching-service/internal/services"
 	"matching-service/internal/socket"
 	"matching-service/internal/utils"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +34,22 @@ func AddUserHandler(c *gin.Context) {
 	go startMatchingProcess(matchingInfo)
 
 	c.JSON(200, gin.H{"message": "User added", "user_id": matchingInfo.UserID})
+}
+
+// CancelMatchHandler handles the request to cancel a user's match search
+func CancelMatchHandler(c *gin.Context) {
+	userID := c.Param("userID")
+
+	// Update the user's status to 'Cancelled' in MongoDB
+	err := services.CancelUserMatch(userID)
+	if err != nil {
+		log.Printf("Error canceling match for user_id: %s, error: %v", userID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to cancel match"})
+		return
+	}
+
+	log.Printf("User %s has successfully canceled their match", userID)
+	c.JSON(http.StatusOK, gin.H{"message": "Match search canceled"})
 }
 
 // matchProgrammingLanguages checks if users share at least one common programming language or if they want to generalize the language matching
@@ -76,6 +93,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 
 		// If generalization is allowed or languages match, proceed with the match
 		matchChan <- result
+
 	}()
 
 	// Set up a 30-second timeout
@@ -84,6 +102,24 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 		if matchedUser != nil {
 			// A match was found, proceed with the match
 			log.Printf("Found a match for user_id: %s", matchingInfo.UserID)
+
+			// Check if both users are still Pending before proceeding
+			user1Status, err := services.GetUserStatus(matchingInfo.UserID)
+			if err != nil {
+				log.Printf("Error retrieving status for user_id: %s", matchingInfo.UserID)
+				return
+			}
+
+			user2Status, err := services.GetUserStatus(matchedUser.UserID)
+			if err != nil {
+				log.Printf("Error retrieving status for user_id: %s", matchedUser.UserID)
+				return
+			}
+
+			if user1Status == models.Cancelled || user2Status == models.Cancelled {
+				log.Printf("User %s or %s has cancelled, match discarded", matchingInfo.UserID, matchedUser.UserID)
+				return
+			}
 
 			// Cancel the timeout for both users
 			if timer, ok := utils.Store[matchingInfo.UserID]; ok {
@@ -99,8 +135,8 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			// Use the room_id of the first user (initiator) and set it for both users
 			roomID := matchingInfo.RoomID
 
-			// Update the status and room_id of both users in MongoDB
-			err := services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, "Matched", roomID)
+			// Update the status and room_id of both users in MongoDB (only after the match is confirmed)
+			err = services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, "Matched", roomID)
 			if err != nil {
 				log.Printf("Error updating status for user_id: %s", matchingInfo.UserID)
 			}
