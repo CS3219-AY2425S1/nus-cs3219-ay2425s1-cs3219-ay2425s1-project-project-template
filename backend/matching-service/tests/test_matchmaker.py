@@ -20,7 +20,7 @@ def redis_container():
         yield test_client
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def matchmaker_thread(redis_container: Redis):
     """Fixture to set up the Matchmaker with a background thread."""
     mm = Matchmaker()
