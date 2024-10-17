@@ -84,12 +84,12 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                 name='selectedTopics'
                 rules={{ required: 'Please select at least one topic.' }}
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className='md:w-[350px]'>
                     <FormLabel>Topics</FormLabel>
                     <MultiSelector
                       values={field.value}
                       onValuesChange={field.onChange}
-                      className='whitespace-nowrap md:w-[350px] '
+                      className='whitespace-nowrap'
                     >
                       <FormControl>
                         <MultiSelectorTrigger className='max-h-24 overflow-y-auto'>
@@ -107,8 +107,8 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                           })}
                         </MultiSelectorList>
                       </MultiSelectorContent>
+                      <FormMessage />
                     </MultiSelector>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
