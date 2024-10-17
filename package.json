@@ -9,7 +9,8 @@
 	"workspaces": [
 		"question-service",
 		"peerprep-fe",
-		"user-service"
+		"user-service",
+		"matching-service"
 	],
 	"dependencies": {
 		"nuqs": "^1.19.3"
