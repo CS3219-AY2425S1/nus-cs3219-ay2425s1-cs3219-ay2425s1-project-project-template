@@ -92,7 +92,7 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                       className='whitespace-nowrap'
                     >
                       <FormControl>
-                        <MultiSelectorTrigger className='max-h-24 overflow-y-auto'>
+                        <MultiSelectorTrigger className='bg-primary-muted max-h-24 overflow-y-auto'>
                           <MultiSelectorInput placeholder='Select topic(s)' />
                         </MultiSelectorTrigger>
                       </FormControl>
@@ -122,7 +122,7 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                     <FormLabel>Difficulty</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger className='bg-white'>
+                        <SelectTrigger>
                           <SelectValue placeholder='Select difficulty' />
                         </SelectTrigger>
                       </FormControl>

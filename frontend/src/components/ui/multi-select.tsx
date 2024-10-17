@@ -283,7 +283,7 @@ const MultiSelectorInput = forwardRef<
       onClick={() => setActiveIndex(-1)}
       placeholder={shouldShowPlaceholder ? placeholder : ''}
       className={cn(
-        'ml-2 bg-transparent outline-none placeholder:text-black flex-1',
+        'ml-2 bg-transparent outline-none placeholder:text-text flex-1',
         className,
         activeIndex !== -1 && 'caret-transparent'
       )}

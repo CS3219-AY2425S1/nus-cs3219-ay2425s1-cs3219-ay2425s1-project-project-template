@@ -38,12 +38,12 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: WaitingRoomProps) =>
       setStatus(CANCELLING_STATUS);
     } else if (connected) {
       timerRef.current = window.setInterval(() => {
-        if (countdownRef.current > 0) {
+        if (countdownRef.current > 1) {
           countdownRef.current -= 1;
           updateDescription(`Time left: ${countdownRef.current} seconds`);
         } else {
-          clearInterval(timerRef.current!);
           setStatus(FAILED_STATUS);
+          clearInterval(timerRef.current!);
         }
       }, 1000);
     }
@@ -116,7 +116,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: WaitingRoomProps) =>
   };
 
   return (
-    <div className='flex flex-col items-center justify-center p-10'>
+    <div className='text-text flex flex-col items-center justify-center p-10'>
       <h1 className='mb-4 text-3xl'>{status.header}</h1>
       <div className='flex flex-col items-center justify-center'>
         {status.icon}
