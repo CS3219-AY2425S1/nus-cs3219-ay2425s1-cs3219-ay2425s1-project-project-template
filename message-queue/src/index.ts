@@ -1,5 +1,5 @@
 import express , { Express, Request, Response } from "express"
-import amqp from "amqplib"
+import amqp, { Connection, Channel, ConsumeMessage } from "amqplib"
 import dotenv from "dotenv"
 import { RoutingKey, UserData } from "./types"
 
@@ -12,7 +12,7 @@ app.use(express.json())
 
 const EXCHANGE = "topics_exchange"
 
-var connection, channel
+let connection: Connection, channel: Channel
 
 const connectRabbitMQ = async () => {
   try {
@@ -29,7 +29,7 @@ const connectRabbitMQ = async () => {
 
 connectRabbitMQ()
 
-const addDataToExchange = async (userData: UserData, key: RoutingKey) => {
+const addDataToExchange = async (userData: UserData, key: string) => {
   await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
