@@ -43,47 +43,26 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <SignedOut>
-        <body
-          className={clsx(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable
-          )}
-        >
-          <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-            <div className="relative flex flex-col h-screen">
-              <div className="flex flex-grow mx-6 z-10">
-                <main className="flex-grow max-w-screen">{children}</main>
-              </div>
+      <body
+        className={clsx(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
+      >
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
+          <div className="relative flex flex-col h-screen">
+            <div className="flex flex-grow mx-6 z-10">
+              <main className="flex-grow max-w-screen">{children}</main>
             </div>
-            <div
-              className="fixed z-0 inset-0 w-full h-full bg-gradient-to-t from-fuchsia-400 to-violet-500 dark:from-teal-200 dark:to-violet-500 p-10 opacity-90"
-              style={{
-                clipPath: "polygon(100% 10%, 100% 0%, 100% 100%, 0% 100%)",
-              }}
-            ></div>
-          </Providers>
-        </body>
-      </SignedOut>
-      <SignedIn>
-        <body
-          className={clsx(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable
-          )}
-        >
-          <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-            <div className="relative flex flex-col h-screen">
-              <NavbarLoggedIn />
-              <div className="flex flex-grow mx-6">
-                <Sidebar />
-                <main className="flex-grow max-w-screen">{children}</main>
-              </div>
-              <footer className="w-full flex items-center justify-center py-3" />
-            </div>
-          </Providers>
-        </body>
-      </SignedIn>
+          </div>
+          <div
+            className="fixed z-0 inset-0 w-full h-full bg-gradient-to-t from-fuchsia-400 to-violet-500 dark:from-teal-200 dark:to-violet-500 p-10 opacity-90"
+            style={{
+              clipPath: "polygon(100% 10%, 100% 0%, 100% 100%, 0% 100%)",
+            }}
+          ></div>
+        </Providers>
+      </body>
     </html>
   );
 }

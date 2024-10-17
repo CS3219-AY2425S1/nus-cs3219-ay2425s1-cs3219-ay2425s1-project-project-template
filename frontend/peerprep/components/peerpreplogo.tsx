@@ -9,7 +9,7 @@ const PeerprepLogo = () => {
       width="48px"
       viewBox="0 0 512 512"
       enable-background="new 0 0 512 512"
-      className="rounded-xl p-1"
+      className="rounded-xl"
     >
       <path
         fill="#6A0CE2"

@@ -1,12 +1,16 @@
 import { Button } from "@nextui-org/button";
-import { SignInButton } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export const SignInButtonWrapped = () => {
+  const router = useRouter();
+
+  const handleSignInClick = () => {
+    router.push("/sign-in"); // Navigate to /sign-in page
+  };
+
   return (
-    <SignInButton>
-      <Button variant="light">
-        <u>Sign-in</u>
-      </Button>
-    </SignInButton>
+    <Button variant="light" onClick={handleSignInClick}>
+      <u>Sign-in</u>
+    </Button>
   );
 };
