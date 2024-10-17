@@ -68,7 +68,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			// Check if programming languages match
 			if !matchProgrammingLanguages(matchingInfo.ProgrammingLanguages, result.ProgrammingLanguages, matchingInfo.GeneralizeLanguages) {
 				// If programming languages do not match and generalization is not allowed, discard the match
-				log.Printf("No match for user_id: %d due to language mismatch", matchingInfo.UserID)
+				log.Printf("No match for user_id: %s due to language mismatch", matchingInfo.UserID)
 				matchChan <- nil
 				return
 			}
@@ -83,7 +83,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 	case matchedUser := <-matchChan:
 		if matchedUser != nil {
 			// A match was found, proceed with the match
-			log.Printf("Found a match for user_id: %d", matchingInfo.UserID)
+			log.Printf("Found a match for user_id: %s", matchingInfo.UserID)
 
 			// Cancel the timeout for both users
 			if timer, ok := utils.Store[matchingInfo.UserID]; ok {
@@ -102,12 +102,12 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			// Update the status and room_id of both users in MongoDB
 			err := services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, "Matched", roomID)
 			if err != nil {
-				log.Printf("Error updating status for user_id: %d", matchingInfo.UserID)
+				log.Printf("Error updating status for user_id: %s", matchingInfo.UserID)
 			}
 
 			err = services.UpdateMatchStatusAndRoomID(matchedUser.UserID, "Matched", roomID)
 			if err != nil {
-				log.Printf("Error updating status for user_id: %d", matchedUser.UserID)
+				log.Printf("Error updating status for user_id: %s", matchedUser.UserID)
 			}
 
 			// Prepare the match result
@@ -130,19 +130,20 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				State: "Matched",
 			})
 
-			log.Printf("User %d and User %d have been matched and published to RabbitMQ", matchingInfo.UserID, matchedUser.UserID)
+			log.Printf("User %s and User %s have been matched and published to RabbitMQ", matchingInfo.UserID, matchedUser.UserID)
 
 		} else {
 			// No match was found within the matchChan logic
-			log.Printf("No match found for user_id: %d within matchChan logic", matchingInfo.UserID)
+			log.Printf("No match found for user_id: %s within matchChan logic", matchingInfo.UserID)
+
 			time.Sleep(30 * time.Second) // Give the match process time to continue
 			services.MarkAsTimeout(matchingInfo)
-			log.Printf("User %d has been marked as Timeout", matchingInfo.UserID)
+			log.Printf("User %s has been marked as Timeout", matchingInfo.UserID)
 		}
 	case <-time.After(30 * time.Second):
 		// Timeout after 30 seconds, no match was found
-		log.Printf("Timeout occurred for user_id: %d, no match found", matchingInfo.UserID)
+		log.Printf("Timeout occurred for user_id: %s, no match found", matchingInfo.UserID)
 		services.MarkAsTimeout(matchingInfo)
-		log.Printf("User %d has been marked as Timeout (Timeout elapsed)", matchingInfo.UserID)
+		log.Printf("User %s has been marked as Timeout (Timeout elapsed)", matchingInfo.UserID)
 	}
 }

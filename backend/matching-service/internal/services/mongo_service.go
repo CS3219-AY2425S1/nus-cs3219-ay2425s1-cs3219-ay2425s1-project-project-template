@@ -69,7 +69,7 @@ func InsertMatching(matchingInfo models.MatchingInfo) (*models.MatchingInfo, err
 	}
 
 	log.Printf("MongoDB Insert Result: %+v", result)
-	log.Printf("Inserted matching info for user_id: %d", matchingInfo.UserID)
+	log.Printf("Inserted matching info for user_id: %s", matchingInfo.UserID)
 	return &matchingInfo, nil
 }
 
@@ -96,7 +96,7 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 	var potentialMatch models.MatchingInfo
 	err := MatchingCollection.FindOne(ctx, filter).Decode(&potentialMatch)
 	if err != nil {
-		log.Printf("No matching user found for user_id: %d", matchingInfo.UserID)
+		log.Printf("No matching user found for user_id: %s", matchingInfo.UserID)
 		return nil, nil
 	}
 
@@ -106,11 +106,11 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 	})
 
 	if err != nil {
-		log.Printf("Error updating match status for user_id %d: %v", potentialMatch.UserID, err)
+		log.Printf("Error updating match status for user_id %s: %v", potentialMatch.UserID, err)
 		return nil, err
 	}
 
-	log.Printf("Found match for user_id: %d", matchingInfo.UserID)
+	log.Printf("Found match for user_id: %s", matchingInfo.UserID)
 	return &potentialMatch, nil
 }
 
@@ -128,16 +128,16 @@ func MarkAsTimeout(matchingInfo models.MatchingInfo) error {
 	})
 
 	if err != nil {
-		log.Printf("Error marking user_id %d as Timeout: %v", matchingInfo.UserID, err)
+		log.Printf("Error marking user_id %s as Timeout: %v", matchingInfo.UserID, err)
 		return err
 	}
 
-	log.Printf("User %d has been marked as Timeout", matchingInfo.UserID)
+	log.Printf("User %s has been marked as Timeout", matchingInfo.UserID)
 	return nil
 }
 
 // UpdateMatchStatusAndRoomID updates the status and room_id of a user in MongoDB
-func UpdateMatchStatusAndRoomID(userID int, status string, roomID string) error {
+func UpdateMatchStatusAndRoomID(userID string, status string, roomID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -151,10 +151,10 @@ func UpdateMatchStatusAndRoomID(userID int, status string, roomID string) error 
 
 	_, err := MatchingCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		log.Printf("Error updating match status and room_id for user_id %d: %v", userID, err)
+		log.Printf("Error updating match status and room_id for user_id %s: %v", userID, err)
 		return err
 	}
 
-	log.Printf("Updated user_id %d status to %s and room_id to %s", userID, status, roomID)
+	log.Printf("Updated user_id %s status to %s and room_id to %s", userID, status, roomID)
 	return nil
 }

@@ -33,7 +33,7 @@ const (
 
 // MatchingInfo struct includes user matching criteria
 type MatchingInfo struct {
-	UserID               int                       `json:"user_id" bson:"user_id"`
+	UserID               string                    `json:"user_id" bson:"user_id"`
 	SocketID             string                    `json:"socket_id" bson:"socket_id"`
 	DifficultyLevel      []QuestionComplexityEnum  `json:"difficulty_levels" bson:"difficulty_levels"`
 	Categories           []string                  `json:"categories" bson:"categories"`
