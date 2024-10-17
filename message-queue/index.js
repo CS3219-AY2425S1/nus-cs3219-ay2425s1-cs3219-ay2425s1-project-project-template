@@ -3,6 +3,9 @@ const express = require("express")
 const app = express()
 
 const amqp = require("amqplib")
+const dotenv = require("dotenv")
+
+dotenv.config()
 
 app.use(express.json())
 // app.use(express.urlencoded({ extended: true }))
@@ -13,13 +16,13 @@ var connection, channel
 
 const connectRabbitMQ = async () => {
   try {
-    const amqpServer = 'amqps://lguugvwb:UtQY1D0zOoX8s0ZvR4GunuRDk0xv8UuI@octopus.rmq3.cloudamqp.com/lguugvwb'
+    const amqpServer = process.env.AMQP_SERVER
     console.log(amqpServer)
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
-    await channel.assertExchange(EXCHANGE, 'topic', {durable: false})
-    console.log('Connected to RabbitMQ')
-  } catch(err) {
+    await channel.assertExchange(EXCHANGE, "topic", { durable: false })
+    console.log("Connected to RabbitMQ")
+  } catch (err) {
     console.error(err)
   }
 }
@@ -30,16 +33,17 @@ const addDataToExchange = async (userData, key) => {
   await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
+// Publish message to exchange
 app.post("/", (req, res) => {
   try {
-    const { userData, key } = req.body //key will be <difficulty>.<topic(s)>
+    const { userData, key } = req.body //key-value pair of userData will be <difficulty>.<topic(s)> 
     addDataToExchange(userData, key)
     console.log("Data Sent: ", req.body)
     res.json({ message: "Data Sent" })
   } catch (e) {
     console.error("Message incorrectly sent out")
     console.error(e)
-    res.json({ message: "Data failed to send"})
+    res.json({ message: "Data failed to send" })
   }
 })
 
