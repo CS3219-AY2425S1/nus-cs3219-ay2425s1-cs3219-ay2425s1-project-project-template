@@ -14,7 +14,7 @@ const MatchingPage: React.FC = () => {
   const handleMatchMe = () => {
     // TODO: Make a long-poll API request to `matching-service`
     const getMatchLongPoll = () => {
-      fetch("http://localhost:3002/match-me", {
+      fetch("http://localhost:3002/find-match", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
