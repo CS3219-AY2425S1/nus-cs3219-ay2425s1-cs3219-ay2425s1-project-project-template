@@ -1,9 +1,10 @@
 import { ArrowUpRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Eye, EyeOff } from "lucide-react";
+import { loginUser } from "../services/UserService";
 
 const carouselItems = [
   "Transforming the way you prepare for Technical Interviews",
@@ -15,6 +16,7 @@ const Login = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { reset } = useForm();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -26,10 +28,27 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    toast.success("Successfully Logged In")
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      // Send a login request to the server
+      const response = await loginUser(data);
+      const { token } = response.data;
+
+      // Store the JWT token in localStorage or sessionStorage
+      localStorage.setItem("jwtToken", token);
+
+      // Show a success message
+      toast.success("Successfully Logged In");
+
+      // Redirect to the dashboard
+      navigate("/dashboard");
+
+      // Reset the form
+      reset();
+    } catch (error) {
+      toast.error("Invalid login credentials");
+      console.error(error.message);
+    }
   };
 
   useEffect(() => {
