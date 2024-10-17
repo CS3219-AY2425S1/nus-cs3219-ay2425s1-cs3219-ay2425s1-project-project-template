@@ -15,12 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const amqplib_1 = __importDefault(require("amqplib"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const constants_1 = require("./constants");
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 app.use(express_1.default.json());
 // app.use(express.urlencoded({ extended: true }))
 const EXCHANGE = "topics_exchange";
-var connection, channel;
+let connection, channel;
 const connectRabbitMQ = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const amqpServer = process.env.AMQP_SERVER;
@@ -38,8 +39,11 @@ connectRabbitMQ();
 const addDataToExchange = (userData, key) => __awaiter(void 0, void 0, void 0, function* () {
     yield channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)));
 });
-const pullDataFromExchange = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield channel;
+const pullDataFromExchange = (queueName) => __awaiter(void 0, void 0, void 0, function* () {
+    yield channel.assertQueue(constants_1.DIFFICULTY_QUEUE, {
+        durable: true,
+    });
+    yield channel.consume(queueName);
 });
 // Publish message to exchange
 app.post("/", (req, res) => {
@@ -57,6 +61,7 @@ app.post("/", (req, res) => {
 });
 app.get("/", (req, res, next) => {
     console.log("Hello World");
+    pullDataFromExchange(req.body.queueName);
     res.json({
         message: "This is message queue."
     });
