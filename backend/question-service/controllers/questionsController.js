@@ -7,6 +7,16 @@ const getAllQuestions = async (req, res) => {
     res.json(questions);
 }
 
+const getSelectedQuestions = async (req, res) => {
+    if (!req?.body.questions) {
+        return res.status(400).json({ 'message': 'questions (Array) field is required!' });
+    }
+
+    const questions = await QuestionSchema.find();  
+    filteredQuestions = questions.filter(question => req?.body.questions.includes(question.id));
+    res.json(filteredQuestions);
+}
+
 const createQuestion = async (req, res) => {
     if (!(req?.body?.title && req?.body?.description && req?.body?.category && req?.body?.complexity)) {
         return res.status(400).json({ 'message': 'Title, description, category and complexity are required!' });
@@ -128,5 +138,6 @@ module.exports = {
     createQuestion,
     updateQuestion,
     deleteQuestion,
-    getQuestion
+    getQuestion,
+    getSelectedQuestions,
 }
