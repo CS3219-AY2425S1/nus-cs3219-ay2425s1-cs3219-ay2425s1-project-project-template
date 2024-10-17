@@ -1,4 +1,5 @@
 import Queue from "bull";
+import { notifyUsersOfMatch, notifyUserOfMatchFailed } from '../controller/websocket-controller.js';
 
 // Initialize the Bull queue with Redis connection
 const matchingQueue = new Queue("matching", "redis://127.0.0.1:6379");
@@ -35,6 +36,10 @@ matchingQueue.process(1, async (job) => {
           );
           await delayedJob.promote();
           console.log("Match promoted");
+
+          // Notify websocket of the match
+          const room = `room-${job.data.socketId}-${delayedJob.data.socketId}`;
+          notifyUsersOfMatch(job.data.socketId, delayedJob.data.socketId, room);
           break;
         }
       }
@@ -60,6 +65,7 @@ matchingQueue.process(1, async (job) => {
               questionId: waitingJob.data.questionId,
               matched: true,
               matchedUser: job.data.username,
+              matchedUserId: job.data.socketId,
             },
             { lifo: true }
           );
@@ -73,6 +79,7 @@ matchingQueue.process(1, async (job) => {
             questionId: job.data.questionId,
             matched: true,
             matchedUser: waitingJob.data.username,
+            matchedUserId: waitingJob.data.socketId,
           });
           return "Job matched";
         }
@@ -85,6 +92,7 @@ matchingQueue.process(1, async (job) => {
     //   message: "No user suitable for match, retrying...",
     // });
   } catch (error) {
+    notifyUserOfMatchFailed(job.data.socketId, "No suitable user found, please try again later.");
     console.error("Error processing job:", job.id, error);
     throw error; // Ensure errors are propagated to be handled by Bull
   }
@@ -94,6 +102,7 @@ matchingQueue.on("failed", (job, err) => {
   console.log(
     `Job failed attempt ${job.attemptsMade} out of ${job.opts.attempts}. Error: ${err.message}`
   );
+  notifyUserOfMatchFailed(job.data.socketId, "Failed to find a match after multiple attempts.");
 });
 
 // matchingQueue.on("waiting", async (job) => {

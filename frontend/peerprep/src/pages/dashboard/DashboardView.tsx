@@ -1,14 +1,13 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { Button, Avatar } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
-
 import { UserContext } from "../../context/UserContext";
 import Dropdown from "./Dropdown";
 
 const DashboardView = () => {
   const difficulties: string[] = ["Easy", "Medium", "Hard"];
+  
   const services: string[] = ["View Questions", "Let's Match"];
   const navigate = useNavigate();
 
@@ -75,6 +74,11 @@ const DashboardView = () => {
               color="white"
               _hover={{ bgColor: "purple.600" }}
               rightIcon={<FaArrowRight />}
+              onClick={() => {
+                if (value === "Let's Match") {
+                  navigate("/collaboration"); // Navigate to Collaboration View
+                }
+              }}
             >
               {value}
             </Button>
