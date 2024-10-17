@@ -15,6 +15,7 @@ import ResetPasswordController from "./pages/user/controllers/ResetPasswordContr
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";
+import CollaborationView from "./pages/collaboration/CollaborationView";
 import { initApi, authApi, questionApi } from "./utils/api";
 
 const App: React.FC = () => {
@@ -47,6 +48,7 @@ const App: React.FC = () => {
             <Route path="/questions" element={<QuestionController />} />
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/profile" element={<ProfileView />} />
+            <Route path="/collaboration" element={<CollaborationView />} />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route
@@ -57,6 +59,8 @@ const App: React.FC = () => {
             path="/register"
             element={<RegistrationController api={auth} setAuth={setAuth} />}
           />
+          <Route path="/collaboration" element={<CollaborationView />} />
+
           {/* <Route
             path="/forget-password"
             element={<ForgetPasswordController />}

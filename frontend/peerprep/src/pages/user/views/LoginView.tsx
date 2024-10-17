@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import InputBox from "../../../components/InputBox";
 import LargeButton from "../../../components/SubmitButton";
 import logo from "/peerprep_logo.png";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 import { useButtonWithLoading } from "../../../hooks/ButtonHooks";
+
 interface LoginViewProps {
   onSubmit: (email: string, password: string) => Promise<void>;
   onCreateAccount: () => void;
@@ -21,6 +23,8 @@ const LoginView: React.FC<LoginViewProps> = ({
   const [isSubmitting, onSubmitWithLoading] = useButtonWithLoading(() =>
     onSubmit(email, password)
   );
+
+  const navigate = useNavigate(); // Initialize navigate
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]">
@@ -73,6 +77,15 @@ const LoginView: React.FC<LoginViewProps> = ({
           >
             Create account
           </a>
+        </div>
+        
+        {/* New Button to Navigate to Collaboration Page */}
+        <div className="mt-6">
+          <LargeButton
+            text="Go to Collaboration Page"
+            onClick={() => navigate("/collaboration")} // Navigate to Collaboration Page
+            isLoading={false} // Set isLoading to false
+          />
         </div>
       </div>
     </div>
