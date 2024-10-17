@@ -4,7 +4,12 @@ import './styles.scss';
 import { handleReselectMatchOptions, handleRetryMatch } from '../handlers';
 import { formatTime } from '@/utils/DateTime';
 
-const MatchCancelledContent: React.FC = () => {
+interface Props {
+    retry(): void,
+    reselect(): void,
+}
+
+const MatchCancelledContent: React.FC<Props> = ({retry, reselect}) => {
     return (
         <div className="match-cancelled-content">
             <div className="cancel-icon-container">
@@ -23,12 +28,12 @@ const MatchCancelledContent: React.FC = () => {
                 Your match request has been cancelled after waiting {formatTime(83)}
             </div>
             <button className="retry-match-button"
-                onClick={() => handleRetryMatch()}
+                onClick={retry}
             >
                 Retry
             </button>
             <button className="reselect-match-options-button"
-                onClick={() => handleReselectMatchOptions()}
+                onClick={reselect}
             >
                 Reselect Options
             </button>

@@ -5,8 +5,20 @@ import 'typeface-montserrat';
 import './styles.scss';
 import { handleCancelMatch, handleJoinMatch } from '../handlers';
 import { formatTime } from '@/utils/DateTime';
+import { useTimer } from "react-timer-hook"
 
-const MatchFoundContent: React.FC = () => {
+interface Props {
+    join(): void,
+    cancel(): void,
+}
+
+const TIMEOUT = 10;
+
+const MatchFoundContent: React.FC<Props> = ({join, cancel}) => {
+    const { totalSeconds } = useTimer({
+        expiryTimestamp: new Date(TIMEOUT * 1000),
+    });
+    
     return (
         <div className="matching-found-content">
             <div className="matched-profiles">
@@ -24,15 +36,15 @@ const MatchFoundContent: React.FC = () => {
             </div>
             <div className="match-status-label">Match Found!</div>
             <div className="match-status-message">
-                Joining in... {formatTime(83)}
+                Joining in... {formatTime(totalSeconds)}
             </div>
             <button className="join-match-button"
-                onClick={() => handleJoinMatch()}
+                onClick={join}
             >
                 Join
             </button>
             <button className="cancel-match-button"
-                onClick={() => handleCancelMatch()}
+                onClick={cancel}
             >
                 Cancel
             </button>

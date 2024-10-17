@@ -14,6 +14,6 @@ type MatchFound struct {
 }
 
 type Timeout struct {
-	Type    string `json:"timeout"`
+	Type    string `json:"type"`
 	Message string `json:"message"`
 }

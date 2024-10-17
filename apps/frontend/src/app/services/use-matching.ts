@@ -41,7 +41,9 @@ export default function useMatching(): MatchState {
         },
         onMessage({data: response}) {
             const responseJson: MatchResponse = JSON.parse(response);
+            console.log("got here");
             if (responseJson.type == "timeout") {
+                
                 setIsSocket(false);
                 setSte({
                     state: "timeout",
