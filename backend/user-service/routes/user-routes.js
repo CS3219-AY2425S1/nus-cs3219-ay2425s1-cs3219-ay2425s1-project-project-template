@@ -8,6 +8,7 @@ import {
   getUser,
   updateUser,
   updateUserPrivilege,
+  addQuestionToUser,
 } from "../controller/user-controller.js";
 import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
 
@@ -34,8 +35,10 @@ router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 
 
 //Get questions done (id)
+//router.get("/questions:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 
 //Save questions (id)
+router.post("/questions/:id", verifyAccessToken, verifyIsOwnerOrAdmin, addQuestionToUser);
 
 
 

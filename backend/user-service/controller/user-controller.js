@@ -166,6 +166,37 @@ export async function updateOnlineTime(user) {
   }
 }
 
+export async function addQuestionToUser(req, res) {
+  
+  const userId = req.params.id;
+  const questionId = req.body.question_id;
+
+  if (!isValidObjectId(userId)) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  if (!questionId) {
+    return res.status(404).json({ message: `question_id not found in body` });
+  }
+
+  const user = await _findUserById(userId);
+  if (!user) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  const questionDone = user.questionDone;
+  if (questionDone.filter(question => question == questionId) == 0) {
+
+    questionDone.push(questionId);
+    await _updateQuestionDoneById(user.id, questionDone);
+    console.log(`Question ${questionId} added to User ${userId}.`);
+    return res.status(200).json({ message: `Question ${questionId} added to User ${userId}.` });
+  }
+  
+  return res.status(409).json({ message: `Question ${questionId} already exist!` });
+}
+
+
 export async function deleteUser(req, res) {
   try {
     const userId = req.params.id;
