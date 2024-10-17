@@ -21,11 +21,11 @@ type WebSocketFailureMessage = {
     type: 'fail'
 }
 
-type WebSocketMessage = WebSocketSuccessMessage | WebSocketFailureMessage
-
-interface CustomEventDetail {
-    matchId?: string
+type WebSocketCancelMessage = {
+    type: 'cancel'
 }
+
+type WebSocketMessage = WebSocketSuccessMessage | WebSocketFailureMessage | WebSocketCancelMessage
 
 export const NewSession = () => {
     const router = useRouter()
@@ -66,8 +66,6 @@ export const NewSession = () => {
         }
     }, [modalData.isMatchmaking, timeElapsed])
 
-    // const socketRef = useRef(undefined)
-
     const handleMatchmaking = async () => {
         if (!selectedTopic || !selectedComplexity) {
             toast.error('Please select a topic and complexity level to start matchmaking.')
@@ -105,7 +103,7 @@ export const NewSession = () => {
                 const newMessage: WebSocketMessage = JSON.parse(event.data) as WebSocketMessage // Parse JSON message
                 switch (newMessage.type) {
                     case 'success':
-                        handleMatchFound(newMessage.matchId)
+                        handleMatchFound()
                         break
                     case 'fail':
                         socketRef.current?.close()
@@ -134,11 +132,10 @@ export const NewSession = () => {
     }
 
     const handleCancelMatchmaking = async () => {
-        //TODO: Add logic to call API to blacklist user/ remove user from matchmaking queue here
-        // socketRef.current.send("cancel")
-        // socketRef.current.close()
-        // socketRef.current = undefined
-
+        const cancelMessage: WebSocketCancelMessage = { type: 'cancel' }
+        socketRef.current?.send(JSON.stringify(cancelMessage))
+        socketRef.current?.close()
+        socketRef.current = undefined
         setModalData((modalData) => {
             return {
                 ...modalData,
@@ -148,12 +145,11 @@ export const NewSession = () => {
         })
     }
 
-    const handleMatchFound = async (matchID: string) => {
+    const handleMatchFound = async () => {
         setModalData((modalData) => ({
             ...modalData,
             isMatchFound: true,
             isMatchmaking: false,
-            matchID,
         }))
         router.push('/code')
     }
