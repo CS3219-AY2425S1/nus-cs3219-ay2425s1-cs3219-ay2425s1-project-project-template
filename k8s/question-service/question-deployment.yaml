@@ -19,5 +19,5 @@ spec:
         - containerPort: 3000
         env:
         - name: MONGO_URI
-          value: mongodb://mongo-service:27017/
+          value: mongodb://mongo-question-service:27017/
 
