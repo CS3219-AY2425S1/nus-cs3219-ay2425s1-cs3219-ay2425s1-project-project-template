@@ -1,3 +1,4 @@
+import axios from 'axios';
 import bcrypt from "bcrypt";
 import { isValidObjectId } from "mongoose";
 import {
@@ -156,7 +157,7 @@ export async function updateUserPrivilege(req, res) {
 export async function updateOnlineTime(user) {
   const currentDate = new Date(Date.now());
   const parsedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
-  
+
   const onlineDate = user.onlineDate;
   const foundDate = onlineDate.filter(date => date == parsedDate);
   if (foundDate == 0) {
@@ -167,7 +168,7 @@ export async function updateOnlineTime(user) {
 }
 
 export async function addQuestionToUser(req, res) {
-  
+
   const userId = req.params.id;
   const questionId = req.body.question_id;
 
@@ -192,10 +193,44 @@ export async function addQuestionToUser(req, res) {
     console.log(`Question ${questionId} added to User ${userId}.`);
     return res.status(200).json({ message: `Question ${questionId} added to User ${userId}.` });
   }
-  
   return res.status(409).json({ message: `Question ${questionId} already exist!` });
 }
 
+export async function getQuestionDetails(req, res) {
+  const authHeader = req.headers["authorization"];
+  const accessToken = authHeader.split(" ")[1];
+  const userId = req.params.id;
+  if (!isValidObjectId(userId)) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  const user = await _findUserById(userId);
+  if (!user) {
+    return res.status(404).json({ message: `User ${userId} not found` });
+  }
+
+  const questionDone = user.questionDone;
+  
+    try {
+      // Make a GET request to user-service with the token
+      const dataToSend = { questions: questionDone };
+      const response = await axios.post('http://question-service:8080/questions/selected', dataToSend, {
+          headers: {
+              Authorization: `Bearer ${accessToken}`
+          }
+      });
+  
+      if (!response) {
+          return res.status(error.status).json({ error: `${error.response}` });
+      } 
+      
+      return res.status(200).json({ questions: response.data });
+  
+  } catch (error) {
+      console.log(`${error.status}: ${error.response.data.message}`);
+      return res.status(error.status).json({ error: `${error.response}` });
+  }
+}
 
 export async function deleteUser(req, res) {
   try {

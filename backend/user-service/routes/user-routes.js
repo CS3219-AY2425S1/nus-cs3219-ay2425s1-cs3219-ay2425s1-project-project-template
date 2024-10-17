@@ -9,6 +9,7 @@ import {
   updateUser,
   updateUserPrivilege,
   addQuestionToUser,
+  getQuestionDetails,
 } from "../controller/user-controller.js";
 import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
 
@@ -34,10 +35,10 @@ router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 //Get public profile (all and id)
 
 
-//Get questions done (id)
-//router.get("/questions:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
+//Get all completed questions from a user
+router.get("/questions/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getQuestionDetails);
 
-//Save questions (id)
+//Save comepleted questions by id
 router.post("/questions/:id", verifyAccessToken, verifyIsOwnerOrAdmin, addQuestionToUser);
 
 
