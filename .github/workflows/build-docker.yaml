@@ -91,7 +91,7 @@ jobs:
             --arg pkg "frontend" \
             --arg img "$DOCKER_REGISTRY_USN/frontend" \
             --arg ctx "./frontend" \
-            --arg dkr "./frontend/express.Dockerfile" \
+            --arg dkr "./frontend/frontend.Dockerfile" \
             --arg bag "port=$FRONTEND_PORT" \
             '{package: $pkg, image: $img, context: $ctx, dockerfile: $dkr, "build-args": $bag}')
           matrix+=("$config")
@@ -105,7 +105,7 @@ jobs:
     if: ${{ fromJson(needs.changes.outputs.matrix)[0] != null }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.changes.outputs.matrix) }} # Use the matrix from the first job
           # - package: user
