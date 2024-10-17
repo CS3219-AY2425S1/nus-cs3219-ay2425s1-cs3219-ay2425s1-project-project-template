@@ -7,7 +7,6 @@ export const ROUTES = {
   QUESTIONS: '/questions',
   QUESTION_DETAILS: '/questions/:questionId',
   MATCH: '/match',
-  WAITING_ROOM: '/match/waiting',
   COLLAB: '/collab/:roomId',
 };
 
