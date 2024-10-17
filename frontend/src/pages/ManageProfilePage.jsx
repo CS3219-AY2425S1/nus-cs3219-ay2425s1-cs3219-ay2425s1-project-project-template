@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
 
 const ManageProfilePage = () => {
-  const { userId, accessToken } = useAuth(); 
+  const { userId, accessToken, logout } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -80,11 +80,11 @@ const ManageProfilePage = () => {
 
     try {
       const response = await fetch(`http://localhost:8081/users/${userId}`, {
-        method: 'DELETE', 
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -92,11 +92,18 @@ const ManageProfilePage = () => {
       }
 
       alert("Account deleted successfully!");
+
+      logout();
+
+      localStorage.clear();
+      sessionStorage.clear();
+
       navigate("/");
     } catch (err) {
       setError(err.message);
     }
   };
+
 
   const handleBack = () => {
     navigate("/dashboard"); 
