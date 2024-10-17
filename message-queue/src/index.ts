@@ -1,9 +1,8 @@
-const express = require("express")
+import express from "express"
+import amqp from "amqplib"
+import dotenv from "dotenv"
 
 const app = express()
-
-const amqp = require("amqplib")
-const dotenv = require("dotenv")
 
 dotenv.config()
 
@@ -33,6 +32,10 @@ const addDataToExchange = async (userData, key) => {
   await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
+const pullDataFromExchange = async () => {
+  await channel
+}
+
 // Publish message to exchange
 app.post("/", (req, res) => {
   try {
@@ -55,8 +58,8 @@ app.get("/", (req, res, next) => {
 })
 
 app.use((req, res, next) => {
-  const error = new Error("Route Not Found")
-  error.status = 404
+  const error : Error = new Error("Route Not Found")
+  res.
   next(error)
 })
 
