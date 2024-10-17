@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const userId = `user_12345`;
+const userId = `user_1234`;
 
 const socket = io("http://localhost:3000", {
   auth: {

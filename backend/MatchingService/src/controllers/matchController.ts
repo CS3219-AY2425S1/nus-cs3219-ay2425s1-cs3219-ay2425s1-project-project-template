@@ -41,29 +41,78 @@ export class MatchController extends EventEmitter {
     userId: string,
     request: MatchRequest
   ): Promise<void> {
-    const { difficultyLevel } = request;
+    const { difficultyLevel, category } = request;
 
-    // Add user to the appropriate Redis queue
-    const queuedUser: QueuedUser = { ...request, userId }; // Include userId in the request
-    await redisClient.rPush(difficultyLevel, JSON.stringify(queuedUser));
-
+    const queueSize = await redisClient.lLen(difficultyLevel);
     logger.info(
-      `User ${userId} added to ${difficultyLevel} queue. Queue size: ${await redisClient.lLen(
-        difficultyLevel
-      )}`
+      `Queue size is ${queueSize} in ${difficultyLevel} queue`
     );
+    // Check if queue is empty
+    if (queueSize === 0) {
+      logger.info(
+        `Queue is empty in ${difficultyLevel} queue`
+      );
+      // Add user to the appropriate Redis queue
+      const queuedUser: QueuedUser = { ...request, userId }; // Include userId in the request
+      await redisClient.rPush(difficultyLevel, JSON.stringify(queuedUser));
 
-    const timeout = setTimeout(() => {
-      this.removeFromMatchingPool(userId, request);
-      this.emit("match-timeout", this.connectedUsers.get(userId));
-      this.removeConnection(userId);
-      logger.info(`Match timeout for user ${userId}`);
-    }, config.matchTimeout);
+      logger.info(
+        `User ${userId} added to ${difficultyLevel} queue. Queue size: ${await redisClient.lLen(
+          difficultyLevel
+        )}`
+      );
 
-    this.matchTimeouts.set(userId, timeout);
+      const timeout = setTimeout(() => {
+        this.removeFromMatchingPool(userId, request);
+        this.emit("match-timeout", this.connectedUsers.get(userId));
+        this.removeConnection(userId);
+        logger.info(`x  Match timeout for user ${userId}`);
+      }, config.matchTimeout);
 
-    // Try to match immediately after adding
-    this.tryMatch(userId, request);
+      this.matchTimeouts.set(userId, timeout);
+      return;
+    } else {
+      logger.info(
+        `Attempting match for user ${userId} in ${difficultyLevel} queue with queue size: ${queueSize}`
+      );
+  
+      const queue = await redisClient.lRange(difficultyLevel, 0, -1);
+  
+      for (const item of queue) {
+        const potentialMatch = JSON.parse(item);
+    
+        if (this.isCompatibleMatch(request, potentialMatch)) {
+          const match: UserMatch = {
+            difficultyLevel,
+            category: category || potentialMatch.category || null,
+          };
+  
+          this.removeFromMatchingPool(userId, request);
+          this.removeFromMatchingPool(potentialMatch.userId, potentialMatch);
+  
+          // Clear the timeout for both users
+          clearTimeout(this.matchTimeouts.get(userId));
+          clearTimeout(this.matchTimeouts.get(potentialMatch.userId));
+          this.matchTimeouts.delete(userId);
+          this.matchTimeouts.delete(potentialMatch.userId);
+  
+          this.emit("match-success", {
+            socket1Id: this.connectedUsers.get(userId),
+            socket2Id: this.connectedUsers.get(potentialMatch.userId),
+            match,
+          });
+  
+          logger.info(
+            `Match success: User ${userId} matched with ${potentialMatch.userId} in ${difficultyLevel} queue`
+          );
+  
+          this.removeConnection(userId);
+          this.removeConnection(potentialMatch.userId);
+  
+          return;
+        }
+      }
+    }
   }
 
   async removeFromMatchingPool(
@@ -84,66 +133,6 @@ export class MatchController extends EventEmitter {
         logger.info(`User ${userId} removed from ${difficultyLevel} queue`);
         break;
       }
-    }
-  }
-
-  private async tryMatch(userId: string, request: MatchRequest): Promise<void> {
-    const { difficultyLevel, category } = request;
-
-    const queueSize = await redisClient.lLen(difficultyLevel);
-
-    //This part never seems to run
-    if (queueSize === 0) {
-      logger.info(
-        `Queue is empty or no match for ${userId} in ${difficultyLevel} queue`
-      );
-      return;
-    }
-
-    logger.info(
-      `Attempting match for user ${userId} in ${difficultyLevel} queue with queue size: ${queueSize}`
-    );
-
-    const queue = await redisClient.lRange(difficultyLevel, 0, -1);
-
-    for (const item of queue) {
-      const potentialMatch = JSON.parse(item);
-
-      if (potentialMatch.userId === userId) continue; // Skip the current user
-
-      if (this.isCompatibleMatch(request, potentialMatch)) {
-        const match: UserMatch = {
-          difficultyLevel,
-          category: category || potentialMatch.category || null,
-        };
-
-        this.removeFromMatchingPool(userId, request);
-        this.removeFromMatchingPool(potentialMatch.userId, potentialMatch);
-
-        // Clear the timeout for both users
-        clearTimeout(this.matchTimeouts.get(userId));
-        clearTimeout(this.matchTimeouts.get(potentialMatch.userId));
-        this.matchTimeouts.delete(userId);
-        this.matchTimeouts.delete(potentialMatch.userId);
-
-        this.emit("match-success", {
-          socket1Id: this.connectedUsers.get(userId),
-          socket2Id: this.connectedUsers.get(potentialMatch.userId),
-          match,
-        });
-
-        logger.info(
-          `Match success: User ${userId} matched with ${potentialMatch.userId} in ${difficultyLevel} queue`
-        );
-
-        this.removeConnection(userId);
-        this.removeConnection(potentialMatch.userId);
-
-        return;
-      }
-      logger.info(
-        `No match found for user ${userId} in ${difficultyLevel} queue`
-      );
     }
   }
 
