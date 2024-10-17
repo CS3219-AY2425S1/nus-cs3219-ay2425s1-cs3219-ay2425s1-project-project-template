@@ -4,19 +4,14 @@ import {
   NavbarBrand,
   NavbarItem,
 } from "@nextui-org/navbar";
-import { Avatar, AvatarIcon } from "@nextui-org/react";
 import NextLink from "next/link";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { fontFun } from "@/config/fonts";
-import { UserButton } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
 
-export const NavbarLoggedIn = async () => {
-  const user = await currentUser();
-
+export const NavbarLoggedIn = () => {
   return (
     <NextUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full gap-10" justify="start">
@@ -33,7 +28,7 @@ export const NavbarLoggedIn = async () => {
             margin: "10px",
           }}
         >
-          Hello {user?.username} 👋🏻,
+          Hello user 👋🏻,
         </div>
       </NavbarContent>
 
@@ -44,8 +39,6 @@ export const NavbarLoggedIn = async () => {
             <NotificationButton />
             <ThemeSwitch className="ml-2.5" />
           </div>
-
-          <UserButton />
         </NavbarItem>
       </NavbarContent>
     </NextUINavbar>

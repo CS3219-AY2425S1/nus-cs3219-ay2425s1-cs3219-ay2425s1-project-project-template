@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Textarea } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { useState } from "react";
 
@@ -45,7 +45,7 @@ export default function Home() {
             <Card>
               <CardBody>
                 <h3 className="text-lg font-semibold mb-2 p-3">Friends</h3>
-                <ul className="space-y-4 min-h-40"></ul>
+                <ul className="space-y-4 min-h-40" />
               </CardBody>
             </Card>
           </div>

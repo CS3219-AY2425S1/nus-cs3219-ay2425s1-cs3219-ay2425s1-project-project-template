@@ -46,7 +46,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleRegisterForMatching = async (
     difficulty: Set<string>,
-    topic: Set<string>
+    topic: Set<string>,
   ) => {
     const userParams = {
       difficulty: Array.from(difficulty).join(","),
@@ -60,7 +60,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
       handleMatchingTimeout,
       (error) => {
         console.error("Error during matchmaking:", error); // Handle error
-      }
+      },
     );
   };
 

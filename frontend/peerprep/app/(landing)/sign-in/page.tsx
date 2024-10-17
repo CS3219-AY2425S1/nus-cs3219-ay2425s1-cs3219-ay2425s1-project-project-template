@@ -1,15 +1,16 @@
 "use client";
 
+import { Button } from "@nextui-org/button";
+import { Input } from "@nextui-org/input";
+import { useState } from "react";
+import { useRouter } from "next/navigation"; // For redirection
+
 import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun, fontLogo } from "@/config/fonts";
 import { loginUser } from "@/services/userService";
 import Toast from "@/components/toast"; // Import Toast component
-import { Button } from "@nextui-org/button";
-import { Input } from "@nextui-org/input";
-import { useState } from "react";
-import { useRouter } from "next/navigation"; // For redirection
 
 export default function SignInPage() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function SignInPage() {
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -53,11 +54,7 @@ export default function SignInPage() {
         />
       )}
 
-      <div
-        className="flex flex-col gap-10 w-[450px] bg-slate-200/25 dark:bg-gradient-to-tl from-fuchsia-900/50 to-violet-900/80 p-8 rounded-lg backdrop-blur-sm shadow-lg"
-        onKeyDown={handleKeyDown} // Add onKeyDown event to capture Enter key press
-        tabIndex={0} // Make div focusable for onKeyDown to work
-      >
+      <div className="flex flex-col gap-10 w-[450px] bg-slate-200/25 dark:bg-gradient-to-tl from-fuchsia-900/50 to-violet-900/80 p-8 rounded-lg backdrop-blur-sm shadow-lg">
         <div className="flex flex-col items-center gap-2">
           <div className="flex flex-row items-center gap-1">
             <PeerprepLogo />
@@ -79,7 +76,7 @@ export default function SignInPage() {
             Welcome back!
           </h1>
           <span className="text-xs">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="/sign-up" className="underline text-primary">
               Sign-up
             </a>
@@ -97,6 +94,7 @@ export default function SignInPage() {
             size="md"
             className="w-md"
             onValueChange={setId}
+            onKeyDown={handleKeyDown}
           />
           <Input
             value={password}
@@ -124,6 +122,7 @@ export default function SignInPage() {
               </Button>
             }
             type={isVisible ? "text" : "password"}
+            onKeyDown={handleKeyDown}
           />
         </div>
 

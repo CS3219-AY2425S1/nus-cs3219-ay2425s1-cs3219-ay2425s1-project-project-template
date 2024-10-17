@@ -1,12 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { Input } from "@nextui-org/input";
+import { Button } from "@nextui-org/button";
+
 import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun } from "@/config/fonts";
-import { useState } from "react";
-import { Input } from "@nextui-org/input";
-import { Button } from "@nextui-org/button";
 import { createUser, loginUser } from "@/services/userService";
 import Toast from "@/components/toast"; // Import the Toast component
 
@@ -17,7 +18,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState<string>("");
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
 
   // Validations
@@ -77,6 +78,7 @@ export default function SignUpPage() {
         }
       } else {
         const errorMessage = await userCreationResponse.json();
+
         setToast({
           message: errorMessage.message || "User creation failed",
           type: "error",
@@ -100,11 +102,7 @@ export default function SignUpPage() {
         />
       )}
 
-      <div
-        className="flex flex-col gap-10 w-[450px] bg-slate-200/25 dark:bg-gradient-to-tl from-fuchsia-900/50 to-violet-900/80 p-8 rounded-lg backdrop-blur-sm shadow-lg"
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-      >
+      <div className="flex flex-col gap-10 w-[450px] bg-slate-200/25 dark:bg-gradient-to-tl from-fuchsia-900/50 to-violet-900/80 p-8 rounded-lg backdrop-blur-sm shadow-lg">
         <div className="flex flex-col items-center gap-2">
           <PeerprepLogo />
           <h1
@@ -134,6 +132,7 @@ export default function SignUpPage() {
             radius="sm"
             size="md"
             className="text-start"
+            onKeyDown={handleKeyDown}
           />
           <Input
             labelPlacement="outside"
@@ -147,6 +146,7 @@ export default function SignUpPage() {
             radius="sm"
             size="md"
             className="text-start"
+            onKeyDown={handleKeyDown}
           />
           <Input
             labelPlacement="outside"
@@ -177,6 +177,7 @@ export default function SignUpPage() {
               </Button>
             }
             type={isVisible ? "text" : "password"}
+            onKeyDown={handleKeyDown}
           />
         </div>
 

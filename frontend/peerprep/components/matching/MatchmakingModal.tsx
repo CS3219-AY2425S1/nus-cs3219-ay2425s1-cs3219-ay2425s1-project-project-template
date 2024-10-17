@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Select, SelectItem, Spinner } from "@nextui-org/react";
 import {
   Modal,
@@ -17,7 +17,7 @@ interface StartSessionProps {
   handleDeregisterForMatching: () => void;
   handleRegisterForMatching: (
     difficulty: Set<string>,
-    topic: Set<string>
+    topic: Set<string>,
   ) => void;
   isConnected: boolean;
   onClose: () => void;
@@ -45,7 +45,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
 
   //TODO: Load difficulty and topic from the question-service
   const [selectedDifficultyKeys, setSelectedDifficultyKeys] = useState(
-    new Set<string>()
+    new Set<string>(),
   );
   const [selectedTopicKeys, setSelectedTopicKeys] = useState(new Set<string>());
   const [isMatching, setIsMatching] = useState(false);

@@ -1,55 +1,21 @@
 "use client";
 
-import { fontFun } from "@/config/fonts";
-import landingPageImage from "../../images/LandingPageImage.png";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  useAuth,
-} from "@clerk/nextjs";
-import { Button } from "@nextui-org/button";
-import { SignUpButtonWrapped } from "@/components/signupbuttonwrapped";
-import { SignInButtonWrapped } from "@/components/signinbuttonwrapped";
-import { Logo } from "@/components/icons";
-import { ThemeSwitch } from "@/components/theme-switch";
 import {
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
 } from "@nextui-org/navbar";
-import MatchUI from "@/components/matching/MatchUI";
-import { Textarea } from "@nextui-org/input";
-import { Card, CardBody, CardFooter } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+
+import landingPageImage from "../../images/LandingPageImage.png";
+
+import { fontFun } from "@/config/fonts";
+import { SignUpButtonWrapped } from "@/components/signupbuttonwrapped";
+import { SignInButtonWrapped } from "@/components/signinbuttonwrapped";
+import { Logo } from "@/components/icons";
+import { ThemeSwitch } from "@/components/theme-switch";
 
 export default function Landing() {
-  const [isMatchUIVisible, setIsMatchUIVisible] = useState(false);
-  const { getToken } = useAuth(); // Retrieve token function
-  const template = "BackendJWT";
-
-  const handleClose = () => {
-    setIsMatchUIVisible(false);
-  };
-
-  const fetchAndStoreJwt = async () => {
-    try {
-      const token = await getToken({ template });
-      if (token) {
-        localStorage.setItem("jwt", token); // Store in localStorage
-      }
-    } catch (error) {
-      console.error("Failed to fetch JWT:", error);
-    }
-  };
-
-  const handleStartSession = async () => {
-    await fetchAndStoreJwt(); // Get and store the JWT
-    setIsMatchUIVisible(true); // Show the Match UI
-  };
-
   return (
     <div>
       <Navbar position="sticky" maxWidth="full" shouldHideOnScroll>

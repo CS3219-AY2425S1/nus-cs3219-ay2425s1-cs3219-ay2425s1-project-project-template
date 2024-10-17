@@ -1,8 +1,9 @@
 import * as React from "react";
 
+import PeerprepLogo from "./peerpreplogo";
+
 import { IconSvgProps } from "@/types";
 import { fontLogo } from "@/config/fonts";
-import PeerprepLogo from "./peerpreplogo";
 
 export const Logo: React.FC = () => (
   <div className="flex flex-row gap-1 w-fit">

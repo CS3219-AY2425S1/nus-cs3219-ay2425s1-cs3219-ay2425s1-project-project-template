@@ -7,9 +7,6 @@ import { Providers } from "../providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { Sidebar } from "@/components/sidebar";
-import { NavbarLoggedIn } from "@/components/navbarloggedin";
 
 export const metadata: Metadata = {
   title: {
@@ -46,7 +43,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
@@ -60,7 +57,7 @@ export default function RootLayout({
             style={{
               clipPath: "polygon(100% 10%, 100% 0%, 100% 100%, 0% 100%)",
             }}
-          ></div>
+          />
         </Providers>
       </body>
     </html>

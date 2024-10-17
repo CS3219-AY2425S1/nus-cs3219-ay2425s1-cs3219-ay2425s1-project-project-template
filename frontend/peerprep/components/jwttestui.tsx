@@ -9,6 +9,7 @@ export default function JwtTestUI() {
 
     if (!token) {
       setTokenStatus("No JWT token found in localStorage.");
+
       return;
     }
 
@@ -23,6 +24,7 @@ export default function JwtTestUI() {
 
       if (response.ok) {
         const data = await response.json();
+
         setTokenStatus("JWT is valid!");
         setUserInfo(data.user);
       } else {
