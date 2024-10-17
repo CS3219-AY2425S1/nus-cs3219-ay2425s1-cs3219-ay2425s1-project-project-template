@@ -42,8 +42,9 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: WaitingRoomProps) =>
           countdownRef.current -= 1;
           updateDescription(`Time left: ${countdownRef.current} seconds`);
         } else {
-          setStatus(FAILED_STATUS);
+          countdownRef.current = 0;
           clearInterval(timerRef.current!);
+          setStatus(FAILED_STATUS);
         }
       }, 1000);
     }
