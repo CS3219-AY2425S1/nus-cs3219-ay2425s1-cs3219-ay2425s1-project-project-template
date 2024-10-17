@@ -4,7 +4,7 @@ import QuestionPage from "./pages/QuestionPage";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import DashboardPageForUsers from "./pages/DashBoardForUsersPage";
-import MatchingModal from "./components/MatchingModal";
+import MatchingModal from "./components/matchingModals/MatchingModal";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -18,12 +18,14 @@ const App: React.FC = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/question/:title" element={<QuestionPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/dashboardForUsers" element={<DashboardPageForUsers />} />
+          <Route
+            path="/dashboardForUsers"
+            element={<DashboardPageForUsers />}
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/matching" element={<MatchingModal />} />
-      </Routes>
+        </Routes>
       </BrowserRouter>
     </UserProvider>
   );
