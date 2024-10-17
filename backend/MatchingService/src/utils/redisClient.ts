@@ -1,9 +1,10 @@
 import { createClient } from "redis";
 import logger from "./logger"; // Adjust the path based on your structure
+import { config } from './config';
 
 // Create a Redis client
 const redisClient = createClient({
-  url: "redis://localhost:6379", // Adjust the URL as necessary
+  url: "redis://redis:" + config.redis, // For local execution: url: "redis://localhost:" + config.redis,
 });
 
 // Connect to Redis

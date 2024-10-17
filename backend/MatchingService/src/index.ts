@@ -10,7 +10,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: config.corsOrigin,
+        origin: '*', //config.corsOrigin? This should be set to frontend domain
         methods: ["GET", "POST"]
     }
 });
