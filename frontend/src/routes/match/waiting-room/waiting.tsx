@@ -1,23 +1,31 @@
 import { Button } from '@/components/ui/button';
-import { ROUTES } from '@/lib/routes';
 import { cancelMatch } from '@/services/match-service';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { WAITING_STATUS, FAILED_STATUS, SOCKET_EVENTS, CANCELLING_STATUS } from './constants';
+import {
+  WAITING_STATUS,
+  FAILED_STATUS,
+  SOCKET_EVENTS,
+  CANCELLING_STATUS,
+  SUCCESS_STATUS,
+} from './constants';
 
-export const WaitingRoom = () => {
-  const location = useLocation();
+interface WaitingRoomProps {
+  socketPort: string | null;
+  setIsModalOpen: (isOpen: boolean) => void;
+}
+
+export const WaitingRoom = ({ socketPort, setIsModalOpen }: WaitingRoomProps) => {
   const navigate = useNavigate();
 
-  const socketPort = location.state?.socketPort;
   const [connected, setConnected] = useState(false);
   const [cancel, setCancel] = useState(false);
   const countdownRef = useRef(31);
   const [status, setStatus] = useState(WAITING_STATUS);
   const timerRef = useRef<number | null>(null);
 
-  const updateStatus = (newDescription: string) => {
+  const updateDescription = (newDescription: string) => {
     setStatus((prevStatus) => ({
       ...prevStatus,
       description: newDescription,
@@ -32,7 +40,7 @@ export const WaitingRoom = () => {
       timerRef.current = window.setInterval(() => {
         if (countdownRef.current > 0) {
           countdownRef.current -= 1;
-          updateStatus(`Time left: ${countdownRef.current} seconds`);
+          updateDescription(`Time left: ${countdownRef.current} seconds`);
         } else {
           clearInterval(timerRef.current!);
           setStatus(FAILED_STATUS);
@@ -45,7 +53,7 @@ export const WaitingRoom = () => {
 
   useEffect(() => {
     if (!socketPort) {
-      navigate(ROUTES.MATCH);
+      setIsModalOpen(false);
       return;
     }
     const socket = io({
@@ -78,7 +86,8 @@ export const WaitingRoom = () => {
         const questionId = data?.questionId;
         clearInterval(timerRef.current!);
 
-        navigate(`/collab/${roomId}?questionId=${questionId}`);
+        setStatus(SUCCESS_STATUS);
+        updateDescription(`RoomId: ${roomId}\nQuestionId: ${questionId} `);
       });
 
       socket.on(SOCKET_EVENTS.FAILED, () => {
@@ -92,33 +101,33 @@ export const WaitingRoom = () => {
       socket.close();
       clearInterval(timerRef.current!);
     };
-  }, [socketPort, navigate]);
+  }, [socketPort, navigate, setIsModalOpen]);
 
   const handleCancel = async () => {
     try {
       setCancel(true);
       countdownRef.current = 0;
       await cancelMatch();
-      navigate(ROUTES.MATCH);
+      setIsModalOpen(false);
     } catch (error) {
       console.error('Failed to cancel match:', error);
     }
   };
 
   return (
-    <div className='flex h-screen flex-col items-center justify-center'>
+    <div className='flex flex-col items-center justify-center p-10'>
       <h1 className='mb-4 text-3xl'>{status.header}</h1>
       <div className='flex flex-col items-center justify-center'>
         {status.icon}
-        <p className='mt-4 text-lg'>{status.description}</p>
+        <p className='mt-4 whitespace-pre-wrap text-lg'>{status.description}</p>
       </div>
       {countdownRef.current > 0 || cancel ? (
         <Button className='mt-5' variant='destructive' onClick={handleCancel} disabled={cancel}>
           Cancel
         </Button>
       ) : (
-        <Button className='mt-5' variant='outline'>
-          <Link to={ROUTES.MATCH}>Back</Link>
+        <Button className='mt-5' variant='outline' onClick={() => setIsModalOpen(false)}>
+          Back
         </Button>
       )}
     </div>

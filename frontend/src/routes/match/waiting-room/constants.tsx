@@ -1,4 +1,4 @@
-import { CircleX, LoaderCircle } from 'lucide-react';
+import { CircleCheckBig, CircleX, LoaderCircle } from 'lucide-react';
 
 export const SOCKET_EVENTS = {
   CONNECT: 'connect',
@@ -26,4 +26,10 @@ export const CANCELLING_STATUS = {
   header: 'Cancelling Match....',
   icon: <LoaderCircle className='animate-spin' />,
   description: 'Loading...',
+};
+
+export const SUCCESS_STATUS = {
+  header: 'Found a Match!',
+  icon: <CircleCheckBig color='green' />,
+  description: 'Match Details:',
 };
