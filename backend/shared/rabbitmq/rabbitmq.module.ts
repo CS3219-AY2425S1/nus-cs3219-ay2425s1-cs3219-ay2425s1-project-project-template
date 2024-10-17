@@ -9,7 +9,11 @@ export class RabbitMQModule {
       providers: [
         {
           provide: RabbitMQService,
-          useFactory: () => new RabbitMQService(config),
+          useFactory: () => {
+            const rabbitmqService = new RabbitMQService(config);
+            rabbitmqService.connect(config.url)
+            return rabbitmqService
+          },
         },
       ],
       exports: [RabbitMQService],
