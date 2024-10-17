@@ -82,8 +82,8 @@ services:
       context: ./matching-service
     container_name: matching-service
     depends_on:
-      rabbitmq:
-        condition: service_healthy  # Ensure matching service waits for RabbitMQ to be healthy
+      - rabbitmq
+      - matching-service-redis
     env_file:
       - .env/.matching_env
 
@@ -96,8 +96,17 @@ services:
         condition: service_healthy  # Ensure notification service waits for RabbitMQ to be healthy
     env_file:
       - .env/.notification_env
+
+  matching-service-redis:
+    container_name: matching-service-redis
+    image: redis:latest
+    volumes:
+      - redis-data:/data/db
+    ports:
+      - "6379:6379"
       
 volumes:
   mongo-data:
   react-build:
   rabbitmq_data:
+  redis-data:

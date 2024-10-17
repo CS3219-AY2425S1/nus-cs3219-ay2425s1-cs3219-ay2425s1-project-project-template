@@ -1,9 +1,17 @@
-// matchingService.js
+matchingService.js
 const amqp = require('amqplib');
 const express = require('express');
+const redis = require('redis');
 
 const app = express();
 const PORT = 4000;
+
+const redisClient = redis.createClient({
+  socket: {
+    host: 'matching-service-redis',
+    port: 6379,
+  }
+});
 
 app.use(express.json());
 
@@ -17,8 +25,8 @@ async function initRabbitMQ() {
 
   // Declare queues
   await channel.assertQueue('search_queue')
-  await channel.assertQueue('match_found_queue'); 
-  await channel.assertQueue('disconnect_queue'); 
+  await channel.assertQueue('match_found_queue');
+  await channel.assertQueue('disconnect_queue');
 
   // Start listening for search requests
   channel.consume('search_queue', (msg) => {
@@ -41,10 +49,15 @@ async function initRabbitMQ() {
   });
 }
 
+async function initRedis() {
+  redisClient.on('error', (err) => console.log('Redis Client Error', err));
+  await redisClient.connect();
+}
+
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  const matchedUser = findMatchByTopics(topics) || findMatchByDifficulty(difficulty);
+  const matchedUser = findMatchByTopics(topics) && findMatchByDifficulty(difficulty);
 
   if (matchedUser) {
     const matchMessage = {
@@ -81,6 +94,7 @@ function handleDisconnection(userId) {
 }
 
 initRabbitMQ();
+initRedis();
 
 app.listen(PORT, () => {
   console.log(`Matching service is running and listening on port ${PORT}`);
