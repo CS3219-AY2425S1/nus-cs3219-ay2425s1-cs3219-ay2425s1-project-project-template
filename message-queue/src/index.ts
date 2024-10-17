@@ -93,7 +93,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
       channel.ack(message);
     }
     res.json({
-      message: "This is message queue."
+      message: JSON.parse(message.content.toString())
     })
   }
 })
