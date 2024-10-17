@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Kafka, KafkaMessage, RecordMetadata } from "kafkajs";
+import { KafkaMessage, RecordMetadata } from "kafkajs";
 import {
   KafkaRequest,
   ProducerFactory,
@@ -38,7 +38,7 @@ export interface IQueue {
   add(request: IMatchRequest): Promise<IMatchResponse>;
   cancel(request: IMatchCancelRequest): Promise<IMatchCancelResponse>;
   getRequests(): Map<string, IMatchRequest[]>;
-  processMessage(message: KafkaMessage): void;
+  getLength(): number;
 }
 
 interface KafkaMessageLocation {
@@ -113,6 +113,7 @@ export class Queue implements IQueue {
       const { topic } = msgLocation;
       success = true;
       this.topicMap.get(topic)?.filter((x) => x.username == request.username);
+      this.userMap.delete(request.username);
     }
 
     return {
@@ -123,6 +124,12 @@ export class Queue implements IQueue {
   public getRequests(): Map<string, IMatchRequest[]> {
     // return all requests in the queue
     return this.topicMap;
+  }
+
+  public getLength(): number {
+    var numRequests = 0;
+    this.topicMap.forEach((value) => (numRequests += value.length));
+    return numRequests;
   }
 
   private checkIfUserExists(username: string): boolean {
@@ -139,7 +146,7 @@ export class Queue implements IQueue {
     }
   }
 
-  public processMessage(message: KafkaMessage) {
+  private processMessage(message: KafkaMessage) {
     const request: IMatchRequest = JSON.parse(message.value?.toString() ?? "");
 
     const topic = this.getTopic(request);

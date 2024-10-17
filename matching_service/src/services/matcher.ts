@@ -16,13 +16,11 @@ export class Matcher {
     this.notifer = notifier;
   }
 
-  public match(queue: IQueue, notifier: INotifier) {
+  public match() {
     const map = this.queue.getRequests();
     console.log("Matching users...");
     console.log("Removing expired requests...");
     // Remove expired requests
-
-    // console.log("Num requests:", map.length);
     const { expired } = this.removeExpiredRequests(map);
 
     console.log("Notifying expired requests...");
@@ -31,21 +29,6 @@ export class Matcher {
       this.queue.cancel(request);
       this.notifer.notify(false, request.username, "");
     });
-
-    // if (valid.length < 2) {
-    //   console.log(
-    //     "Not enough requests to match. Switching to long interval..."
-    //   );
-    //   this.timeoutId = setTimeout(
-    //     () => this.match(queue, notifier),
-    //     this.longInterval
-    //   );
-    //   return;
-    // }
-
-    // console.log("Splitting requests by topic and difficulty...");
-    // // If requests not split by topic and difficulty, split them
-    // const requestMap = this.splitRequests(valid);
 
     console.log("Matching users by topic and difficulty...");
     // Match users by topic and difficulty
@@ -61,18 +44,18 @@ export class Matcher {
 
     //TODO: Create rooms in database
 
+    if (!this.queue.getLength()) {
+      return;
+    }
+
     console.log("Setting timeout for next match...");
-    this.timeoutId = setTimeout(
-      () => this.match(queue, notifier),
-      this.shortInterval
-    );
+    this.timeoutId = setTimeout(() => this.match(), this.shortInterval);
   }
 
   private removeExpiredRequests(requestMap: Map<string, IMatchRequest[]>): {
     expired: IMatchRequest[];
   } {
     const expired: IMatchRequest[] = [];
-    // const valid: IMatchRequest[] = [];
     const now = Date.now();
     console.log("now:", now);
 
@@ -87,21 +70,6 @@ export class Matcher {
     });
 
     return { expired };
-  }
-
-  private splitRequests(
-    requests: IMatchRequest[]
-  ): Map<string, IMatchRequest[]> {
-    let map = new Map<string, IMatchRequest[]>();
-    requests.forEach((request) => {
-      const key = `${request.topic}-${request.difficulty}`;
-      if (!map.has(key)) {
-        map.set(key, []);
-      }
-      map.get(key)?.push(request);
-    });
-
-    return map;
   }
 
   private matchUsers(requestMap: Map<string, IMatchRequest[]>): IMatch[] {
@@ -146,7 +114,7 @@ export class Matcher {
 
   public start() {
     if (this.timeoutId === null) {
-      this.match(this.queue, this.notifer);
+      this.match();
     }
   }
 
