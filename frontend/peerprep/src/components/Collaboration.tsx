@@ -1,80 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { useState, useRef } from 'react';
 
-const Collaboration: React.FC = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+const ChatUI: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
   const [room, setRoom] = useState<string>('');
-  const [socketId, setSocketId] = useState<string | undefined>(''); // Allow undefined
-
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:3000"); // Replace with your backend URL
-    setSocket(newSocket);
-
-    newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id); // Log socket ID
-      setSocketId(newSocket.id); // Set the socket ID state
-    });
-
-    newSocket.on("assignSocketId", (data: { socketId: string }) => {
-      console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
-      setSocketId(data.socketId); // Set the socket ID from the server
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You are assigned to: ${data.socketId}`, // Add to messages
-      ]);
-    });
-
-    newSocket.on("message", (data: string) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-      if (chatBoxRef.current) {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
-      }
-    });
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
-
   const sendMessage = () => {
-    if (message.trim() && socket && room) {
-      // Send the message to the server with the room info
-      socket.emit("message", { room, text: message });
-      
-      // Show the message in the local UI
+    if (message.trim()) {
       setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
-      setMessage(''); // Clear the input after sending
+      setMessage('');
+      if (chatBoxRef.current) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }
     }
   };
-  
 
   const joinRoom = () => {
-    if (room.trim() && socket) {
-      socket.emit("joinRoom", { roomCode: room });
+    if (room.trim()) {
+      setMessages((prevMessages) => [...prevMessages, `You joined Room: ${room}`]);
       setRoom('');
     }
   };
 
   const joinQueue = () => {
-    if (socket && room) {
-      socket.emit("joinQueue", {
-        username: "qqq", // Replace with actual user data if available
-        topic: room,
-        difficulty: "easy", // Add difficulty or other data as necessary
-        questionId: "12345" // Replace with actual question ID if available
-      });
-      const displaySocketId = socketId || "No socket ID assigned"; // Conditional check
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You have joined the queue with Socket ID: ${displaySocketId}`
-      ]);
-    }
+    // Here you can add your logic to join the queue
+    console.log('Joining queue...');
+    // Optionally, send a socket event to the backend to join the queue
   };
-  
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       sendMessage();
@@ -87,10 +41,6 @@ const Collaboration: React.FC = () => {
         {messages.map((msg, index) => (
           <div key={index} style={styles.message}>{msg}</div>
         ))}
-      </div>
-
-      <div className="socket-id-display" style={styles.socketIdDisplay}>
-        {socketId && <div>Your Socket ID: {socketId}</div>} {/* Display the socket ID */}
       </div>
 
       <div className="chat-input" style={styles.chatInput}>
@@ -116,10 +66,11 @@ const Collaboration: React.FC = () => {
           style={styles.input}
         />
         <button onClick={joinRoom} style={styles.joinButton}>
-          Join Room
+          Join
         </button>
       </div>
 
+      {/* Add a Join Queue button */}
       <div className="queue-input" style={styles.queueInput}>
         <button onClick={joinQueue} style={styles.queueButton}>
           Join Queue
@@ -147,12 +98,6 @@ const styles = {
   },
   message: {
     color: 'black',
-  },
-  socketIdDisplay: {
-    padding: '10px',
-    backgroundColor: '#e9ecef',
-    textAlign: 'center' as 'center',
-    color: 'blue',
   },
   chatInput: {
     display: 'flex',
@@ -193,7 +138,7 @@ const styles = {
   },
   queueButton: {
     padding: '8px 12px',
-    backgroundColor: '#FFA500',
+    backgroundColor: '#FFA500', // Change color for differentiation
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -201,4 +146,4 @@ const styles = {
   },
 };
 
-export default Collaboration;
+export default ChatUI;

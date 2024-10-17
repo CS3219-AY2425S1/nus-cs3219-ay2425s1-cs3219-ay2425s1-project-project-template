@@ -1,18 +1,24 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Avatar } from "@chakra-ui/react";
+import { Button, Avatar, Text, Box } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { UserContext } from "../../context/UserContext";
 import Dropdown from "./Dropdown";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 const DashboardView = () => {
   const difficulties: string[] = ["Easy", "Medium", "Hard"];
-  
   const services: string[] = ["View Questions", "Let's Match"];
   const navigate = useNavigate();
 
   const userContext = useContext(UserContext);
   const user = userContext?.user;
+
+  // State for selected topic and difficulty
+  const [selectedTopic, setSelectedTopic] = useState<string>("Select a Topic");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Select Difficulty");
 
   return (
     <div className="p-10 min-w-full h-screen">
@@ -48,7 +54,8 @@ const DashboardView = () => {
       </div>
       <div className="grid grid-cols-3">
         <div className="flex justify-end">
-          <Dropdown />
+          {/* Pass onSelect to Dropdown */}
+          <Dropdown onSelect={(topic) => setSelectedTopic(topic)} />
         </div>
         <div className="flex flex-col space-y-2 items-center">
           {difficulties.map((value, ind) => (
@@ -59,12 +66,15 @@ const DashboardView = () => {
               bgColor="purple.500"
               color="white"
               _hover={{ bgColor: "purple.600" }}
+              onClick={() => {
+                setSelectedDifficulty(value); // Update difficulty state
+              }}
             >
               {value}
             </Button>
           ))}
         </div>
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-2 items-center">
           {services.map((value, ind) => (
             <Button
               key={ind}
@@ -76,6 +86,17 @@ const DashboardView = () => {
               rightIcon={<FaArrowRight />}
               onClick={() => {
                 if (value === "Let's Match") {
+                  // Prepare connection message before navigating
+                  if (user) {
+                    const connectionMessage = {
+                      username: user.username,
+                      userId: user.id,
+                      topic: selectedTopic,
+                      difficulty: selectedDifficulty,
+                    };
+                    console.log("Connection message sent to backend:", connectionMessage); // Log the message being sent
+                    socket.emit("initialConnection", connectionMessage); // Send the message to backend
+                  }
                   navigate("/collaboration"); // Navigate to Collaboration View
                 }
               }}
@@ -83,6 +104,11 @@ const DashboardView = () => {
               {value}
             </Button>
           ))}
+          {/* Show the selected topic and difficulty below the "Let's Match" button */}
+          <Box mt={4}>
+            <Text fontSize="l" fontWeight="bold">Selected Topic: {selectedTopic}</Text>
+            <Text fontSize="l" fontWeight="bold">Selected Difficulty: {selectedDifficulty}</Text>
+          </Box>
         </div>
       </div>
     </div>

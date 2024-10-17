@@ -32,6 +32,17 @@ export const initializeCollaborationService = (server) => {
       socket.emit('queueEntered', { message: "You have joined the queue" });
     });
 
+    // Handle message sending and broadcasting to other users
+    socket.on('sendMessage', (messageData) => {
+      console.log(`User ${messageData.username} sent a message: ${messageData.message}`);
+  
+    // Broadcast the message to all other connected users
+    socket.broadcast.emit('receiveMessage', {
+      username: messageData.username,
+      message: messageData.message
+  });
+});
+
     // Handle disconnection
     socket.on('disconnect', () => {
       console.log(`User disconnected: ${socket.id}`);
