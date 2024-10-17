@@ -17,7 +17,7 @@ export class Matcher {
   }
 
   public match(queue: IQueue, notifier: INotifier) {
-    this.queue.getRequests().then((requests) => {
+    this.queue.getRequests((requests: IMatchRequest[]) => {
       console.log("Matching users...");
       console.log("Removing expired requests...");
       // Remove expired requests

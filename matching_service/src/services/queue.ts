@@ -37,7 +37,7 @@ export interface IMatch {
 export interface IQueue {
   add(request: IMatchRequest): Promise<IMatchResponse>;
   cancel(request: IMatchCancelRequest): Promise<IMatchCancelResponse>;
-  getRequests(): Promise<IMatchRequest[]>;
+  getRequests(next: (requests: IMatchRequest[]) => void): void;
 }
 
 interface KafkaMessageLocation {
@@ -124,11 +124,16 @@ export class Queue implements IQueue {
     };
   }
 
-  public async getRequests(): Promise<IMatchRequest[]> {
+  public async getRequests(
+    next: (requests: IMatchRequest[]) => void
+  ): Promise<void> {
     // return all requests in the queue
-    const messages: KafkaMessage[] = await this.consumer.getMessages();
-    return messages.flatMap((message) => {
-      return JSON.parse(message.value?.toString() ?? "");
+    this.consumer.getMessages((messages: KafkaMessage[]) => {
+      next(
+        messages.flatMap((message) => {
+          return JSON.parse(message.value?.toString() ?? "");
+        })
+      );
     });
   }
 
