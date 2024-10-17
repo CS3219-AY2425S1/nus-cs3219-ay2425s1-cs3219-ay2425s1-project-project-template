@@ -8,10 +8,10 @@ const initRabbitMQ = () => {
       function (error0, connection) {
         if (error0) {
           console.error(
-            "RabbitMQ connection error, retrying in 1 second.",
+            "RabbitMQ connection error, retrying in 5 second.",
             error0
           );
-          setTimeout(connect, 1000);
+          setTimeout(connect, 5000);
           return;
         }
         matchUsers();
