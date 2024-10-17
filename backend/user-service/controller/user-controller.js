@@ -12,6 +12,8 @@ import {
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
   softDeleteUserById as _softDeleteUserById,
+  updateOnlineTimeById as _updateOnlineTimeById,
+  updateQuestionDoneById as _updateQuestionDoneById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -73,7 +75,7 @@ export async function getAllUsers(req, res) {
 export async function getAllActiveUsers(req, res) {
   try {
     const users = await _findAllActiveUsers();
-  
+
     return res.status(200).json({ message: `Found active users`, data: users.map(formatUserResponse) });
   } catch (err) {
     console.error(err);
@@ -151,6 +153,19 @@ export async function updateUserPrivilege(req, res) {
   }
 }
 
+export async function updateOnlineTime(user) {
+  const currentDate = new Date(Date.now());
+  const parsedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+  
+  const onlineDate = user.onlineDate;
+  const foundDate = onlineDate.filter(date => date == parsedDate);
+  if (foundDate == 0) {
+    onlineDate.push(parsedDate);
+    await _updateOnlineTimeById(user.id, onlineDate);
+    console.log("New login date updated");
+  }
+}
+
 export async function deleteUser(req, res) {
   try {
     const userId = req.params.id;
@@ -178,6 +193,8 @@ export function formatUserResponse(user) {
     email: user.email,
     isAdmin: user.isAdmin,
     isActive: user.isActive,
+    onlineDate: user.onlineDate,
+    questionDone: user.questionDone,
     createdAt: user.createdAt,
   };
 }

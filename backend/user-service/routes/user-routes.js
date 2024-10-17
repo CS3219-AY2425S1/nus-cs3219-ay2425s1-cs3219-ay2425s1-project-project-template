@@ -13,8 +13,10 @@ import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middl
 
 const router = express.Router();
 
+//Get all users
 router.get("/", verifyAccessToken, verifyIsAdmin, getAllUsers);
 
+//Get active users only
 router.get("/active", verifyAccessToken, verifyIsAdmin, getAllActiveUsers);
 
 router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivilege);
@@ -25,6 +27,17 @@ router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 
+//Soft delete
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
+
+//Get public profile (all and id)
+
+
+//Get questions done (id)
+
+//Save questions (id)
+
+
+
 
 export default router;
