@@ -1,4 +1,3 @@
-"use client";
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -12,8 +11,12 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { fontFun } from "@/config/fonts";
+import { UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 
-export const Navbar = () => {
+export const NavbarLoggedIn = async () => {
+  const user = await currentUser();
+
   return (
     <NextUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full gap-10" justify="start">
@@ -30,7 +33,7 @@ export const Navbar = () => {
             margin: "10px",
           }}
         >
-          Hello User 👋🏻,
+          Hello {user?.username} 👋🏻,
         </div>
       </NavbarContent>
 
@@ -42,14 +45,7 @@ export const Navbar = () => {
             <ThemeSwitch className="ml-2.5" />
           </div>
 
-          <Avatar
-            classNames={{
-              base: "bg-primary h-6 w-6",
-              icon: "text-white/80",
-            }}
-            icon={<AvatarIcon />}
-            size="sm"
-          />
+          <UserButton />
         </NavbarItem>
       </NavbarContent>
     </NextUINavbar>
