@@ -1,5 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
-import IsConnected from "./IsConnected";
+import MatchButton from "./matchingModals/MatchButton";
 import ProfileButton from "./ProfileButton";
 import { useUser } from "../context/UserContext";
 
@@ -19,9 +19,9 @@ const NavBar = () => {
         />
       </div>
 
-      {/* IsConnected component (Center-aligned, independent of flex) */}
+      {/* Match Button component (Center-aligned, independent of flex) */}
       <div className="absolute left-1/2 transform -translate-x-1/2">
-        <IsConnected isConnected={false} />
+        <MatchButton onClick={() => {}} />
       </div>
 
       {/* ProfileButton or Enter as Admin/User buttons (Right-aligned) */}

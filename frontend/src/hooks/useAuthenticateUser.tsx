@@ -19,6 +19,8 @@ const useAuthenticateUser = () => {
             const userData = result.data;
             if (userData == undefined) {
                 console.log("User data undefined, API response:", result);
+            } else {
+                setSuccess(true);
             }
             setSuccess(true);
         } catch (error) {

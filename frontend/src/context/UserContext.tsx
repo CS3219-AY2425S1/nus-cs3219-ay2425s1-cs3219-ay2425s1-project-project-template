@@ -19,7 +19,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Retrieve user from local storage on mount
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.log("Failed to parse user from local storage:", error);
+        setUser(undefined);
+      }
     }
   }, []);
 
