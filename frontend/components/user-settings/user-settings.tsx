@@ -18,12 +18,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
+import DeleteAccountModal from "@/components/common/delete-account-modal";
 import ProfileTab from "@/components/user-settings/profile-tab";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
+import { isPasswordComplex } from "@/lib/password";
 import { userServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<User> => {
@@ -300,16 +301,6 @@ export default function UserSettings({ userId }: { userId: string }) {
     }
   }, [newPassword, confirmPassword]);
 
-  const isPasswordComplex = (password: string) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(
-      password
-    );
-
-    return password.length >= minLength && hasUpperCase && hasSpecialChar;
-  };
-
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -470,6 +461,7 @@ export default function UserSettings({ userId }: { userId: string }) {
                 handleDeleteAccount={handleDeleteAccount}
                 isDeleteButtonEnabled={isDeleteButtonEnabled}
                 setShowDeleteModal={setShowDeleteModal}
+                isAdmin={false}
               />
 
               <Card className="mt-4">

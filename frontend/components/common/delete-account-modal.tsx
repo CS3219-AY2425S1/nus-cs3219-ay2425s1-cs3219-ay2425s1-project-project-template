@@ -17,6 +17,7 @@ interface DeleteAccountModalProps {
   handleDeleteAccount: () => void;
   isDeleteButtonEnabled: boolean;
   setShowDeleteModal: (show: boolean) => void;
+  isAdmin: boolean;
 }
 
 const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
@@ -27,6 +28,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   handleDeleteAccount,
   isDeleteButtonEnabled,
   setShowDeleteModal,
+  isAdmin,
 }) => {
   return (
     <>
@@ -37,10 +39,18 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               <DialogTitle>Confirm Delete Account</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <p>To confirm, please type your username ({originalUsername}):</p>
+              {isAdmin ? (
+                <p>
+                  To delete, please confirm the username ({originalUsername}):
+                </p>
+              ) : (
+                <p>
+                  To confirm, please type your username ({originalUsername}):
+                </p>
+              )}
               <Input
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Confirm username"
                 value={confirmUsername}
                 onChange={(e) => setConfirmUsername(e.target.value)}
               />
@@ -57,7 +67,11 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               </Button>
               <Button
                 variant="destructive"
-                onClick={handleDeleteAccount}
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setConfirmUsername("");
+                  handleDeleteAccount();
+                }}
                 disabled={!isDeleteButtonEnabled}
               >
                 Delete Account
