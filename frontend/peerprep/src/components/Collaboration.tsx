@@ -1,70 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { useState, useRef } from 'react';
 
-const Collaboration: React.FC = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+const ChatUI: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
   const [room, setRoom] = useState<string>('');
-  const [socketId, setSocketId] = useState<string | undefined>(undefined); // Accepts undefined
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:3000"); // Replace with your backend URL
-    setSocket(newSocket);
-
-    newSocket.on("assignSocketId", (data: { socketId: string }) => {
-      setSocketId(data.socketId); // Set the socket ID when assigned
-    });
-
-    newSocket.on("message", (data: string) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
+  const sendMessage = () => {
+    if (message.trim()) {
+      setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
+      setMessage('');
       if (chatBoxRef.current) {
         chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
       }
-    });
-
-    newSocket.on('roomJoined', (data: { roomCode: string, socketId: string }) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You joined Room: ${data.roomCode} with Socket ID: ${data.socketId}`
-      ]);
-    });
-
-    newSocket.on('userJoined', (data: { message: string }) => {
-      setMessages((prevMessages) => [...prevMessages, data.message]);
-    });
-
-    // Cleanup function to disconnect the socket on component unmount
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []); // Run once after initial render
-
-  const sendMessage = () => {
-    if (message.trim() && socket) {
-      socket.emit("message", { room, text: message });
-      setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
-      setMessage('');
     }
   };
 
   const joinRoom = () => {
-    if (room.trim() && socket) {
-      socket.emit("joinRoom", { roomCode: room });
+    if (room.trim()) {
+      setMessages((prevMessages) => [...prevMessages, `You joined Room: ${room}`]);
       setRoom('');
     }
   };
 
   const joinQueue = () => {
-    if (socket) {
-      socket.emit("joinQueue");
-      const displaySocketId = socketId ? socketId : "No socket ID assigned"; // Conditional check
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You have joined the queue with Socket ID: ${displaySocketId}`
-      ]);
-    }
+    // Here you can add your logic to join the queue
+    console.log('Joining queue...');
+    // Optionally, send a socket event to the backend to join the queue
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -104,10 +66,11 @@ const Collaboration: React.FC = () => {
           style={styles.input}
         />
         <button onClick={joinRoom} style={styles.joinButton}>
-          Join Room
+          Join
         </button>
       </div>
 
+      {/* Add a Join Queue button */}
       <div className="queue-input" style={styles.queueInput}>
         <button onClick={joinQueue} style={styles.queueButton}>
           Join Queue
@@ -175,7 +138,7 @@ const styles = {
   },
   queueButton: {
     padding: '8px 12px',
-    backgroundColor: '#FFA500',
+    backgroundColor: '#FFA500', // Change color for differentiation
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -183,4 +146,4 @@ const styles = {
   },
 };
 
-export default Collaboration;
+export default ChatUI;
