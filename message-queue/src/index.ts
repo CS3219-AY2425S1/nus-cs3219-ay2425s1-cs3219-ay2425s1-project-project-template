@@ -36,41 +36,43 @@ const handleIncomingNotification = (msg: string) => {
     const parsedMessage = JSON.parse(msg)
 
     console.log(`Received Notification`, parsedMessage)
+    return parsedMessage
   } catch (error) {
-    console.error(`Error While Parsing the message`)
+    console.error(`Error while parsing the message`)
   }
 }
 
 // Decide again if needs to be asynchronous
-const addDataToExchange = async (userData: UserData, key: string) => {
-  await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
+const addDataToExchange = (userData: UserData, key: string) => {
+  channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
 const pullDataFromExchange = async (queueName: string) => {
+  let message: amqp.ConsumeMessage
   await channel.assertQueue(queueName, {
     durable: true
   })
 
-  await channel.consume(
-    queueName,
-    (msg) => {
-      if (!msg) {
-        return console.error("Invalid incoming message")
-      }
-      handleIncomingNotification(msg?.content?.toString())
-      channel.ack(msg)
-    },
-    {
-      noAck: false
+  channel.prefetch(1)
+  await channel.consume(queueName, (msg) => {
+    if (!msg) {
+      return console.error("Invalid incoming message")
     }
-  )
+    message = msg;
+    handleIncomingNotification(msg?.content?.toString())
+  })
+
+  return {
+    channel,
+    message
+  }
 }
 
 // Publish message to exchange
-app.post("/match", async (req: Request, res: Response) => {
+app.post("/match", (req: Request, res: Response) => {
   try {
     const { userData, key } = req.body //key-value pair of userData will be <difficulty>.<topic(s)>
-    await addDataToExchange(userData, key)
+    addDataToExchange(userData, key)
     console.log("Data Sent: ", req.body)
     res.json({ message: "Data Sent" })
   } catch (e) {
@@ -81,10 +83,15 @@ app.post("/match", async (req: Request, res: Response) => {
 })
 
 app.get("/match", async (req: Request, res: Response, next) => {
-  console.log("Hello World")
-  // console.log(req);
   if (req.query.hasOwnProperty("queueName")) {
-    await pullDataFromExchange(req.query.queueName as string)
+    const { channel, message } = await pullDataFromExchange(
+      req.query.queueName as string
+    )
+    if (message) {
+      // Do some logic, then ACK
+      console.log("Now then we acknowledge, so we force 1 message to be received at each time")
+      channel.ack(message);
+    }
     res.json({
       message: "This is message queue."
     })
@@ -108,4 +115,3 @@ app.use((error, req: Request, res: Response, next) => {
 app.listen(3002, () => {
   console.log("Publisher running.")
 })
- 
