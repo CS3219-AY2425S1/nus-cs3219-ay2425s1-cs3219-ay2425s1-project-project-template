@@ -82,10 +82,10 @@ async function matchUsers(searchRequest) {
       matchUserId: matchedUser,
     };
 
-    // channel.sendToQueue(
-    //   'match_found_queue',
-    //   Buffer.from(JSON.stringify(matchMessage)),
-    // );
+    channel.sendToQueue(
+      'match_found_queue',
+      Buffer.from(JSON.stringify(matchMessage)),
+    );
     console.log(
       `Match found: User ID ${userId} matched with ${matchMessage.matchUserId}`,
     );
@@ -143,42 +143,8 @@ function handleDisconnection(userId) {
   }
 }
 
-// async function showKeys () {
-//   const keys = await redisClient.keys('*');
-//   console.log("keys", keys);
-// }
-
-// async function clearAll () {
-//   await redisClient.flushAll();
-// }
-
-// async function test () {
-//   await clearAll();
-//   await showKeys();
-//   await matchUsers({
-//     userId: 'user1',
-//     difficulty: ['easy', 'medium'],
-//     topics: ['trees', 'graphs'],
-//   });
-
-//   await matchUsers({
-//     userId: 'user2',
-//     difficulty: ['hard'],
-//     topics: ['array'],
-//   });
-//   await showKeys();
-//   await matchUsers({
-//     userId: 'user3',
-//     difficulty: ['easy', 'medium'],
-//     topics: ['trees', 'graphs'],
-//   });
-//   await showKeys();
-//   await clearAll();
-// }
-
 initRabbitMQ();
 initRedis();
-// test();
 
 app.listen(PORT, () => {
   console.log(`Matching service is running and listening on port ${PORT}`);
