@@ -28,7 +28,9 @@ export const createSingleLeetcodeQuestion = async (
 
 export const getLeetcodeDashboardData = async (
   pagination: number,
-  pageSize: number
+  pageSize: number,
+  title: string,
+  complexity: string[]
 ): Promise<QuestionAll> => {
   const url = `${QUESTION_SERVICE}/all`;
   const response = await fetch(url, {
@@ -39,6 +41,8 @@ export const getLeetcodeDashboardData = async (
     body: JSON.stringify({
       pagination: pagination,
       pageSize: pageSize,
+      title: title,
+      complexity: complexity,
     }),
   });
   const data = await response.json();

@@ -65,9 +65,10 @@ router.post("/all", async (req: Request, res: Response) => {
   const { title, complexity, category } = req.body;
 
   const query: any = { deleted: false };
-  if (title) query.title = { $regex: title, $options: "i" };
-  if (complexity) query.complexity = { $in: complexity };
-  if (category) query.category = { $in: category };
+  if (title !== "") query.title = { $regex: title, $options: "i" };
+  if (complexity && complexity.length > 0)
+    query.complexity = { $in: complexity };
+  if (category && category.length > 0) query.category = { $in: category };
 
   try {
     const questions = await Question.find(query, {

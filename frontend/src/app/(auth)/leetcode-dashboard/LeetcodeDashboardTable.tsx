@@ -26,13 +26,17 @@ import {
   deleteSingleLeetcodeQuestion,
   getLeetcodeDashboardData,
 } from "@/api/leetcode-dashboard";
-import { QuestionMinified } from "@/types/find-match";
+import { QuestionDifficulty, QuestionMinified } from "@/types/find-match";
 import MoonLoader from "react-spinners/MoonLoader";
 import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/EditQuestionDialog";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { ListFilter, Search } from "lucide-react";
+import { MultiSelect } from "@/components/ui/multiselect";
+import { capitalizeWords } from "@/utils/string_utils";
 
 const Cell = ({
   className,
@@ -105,6 +109,20 @@ export function LeetcodeDashboardTable({
   });
 
   const [totalPages, setTotalPage] = React.useState<number>(1);
+  const [searchTitle, setSearchTitle] = React.useState<string>("");
+  const [searchDifficulty, setSearchDifficulty] = React.useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = React.useState<boolean>(false);
+
+  const questionDifficulty = Object.values(QuestionDifficulty).map((q1) => {
+    return {
+      label: capitalizeWords(q1),
+      value: q1,
+    };
+  });
+
+  const toggleDropdown = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
 
   const columns: ColumnDef<QuestionMinified>[] = [
     {
@@ -184,12 +202,21 @@ export function LeetcodeDashboardTable({
   useEffect(() => {
     getLeetcodeDashboardData(
       pagination.pageIndex + 1,
-      pagination.pageSize
+      pagination.pageSize,
+      searchTitle,
+      searchDifficulty
     ).then((data) => {
-      setData(data.questions);
       setTotalPage(data.totalPages);
+      if (data.totalPages < pagination.pageIndex + 1) {
+        setPagination((prev) => ({
+          ...prev,
+          pageIndex: data.totalPages - 1,
+        }));
+      } else {
+        setData(data.questions);
+      }
     });
-  }, [refreshKey, pagination.pageIndex]);
+  }, [refreshKey, pagination.pageIndex, searchTitle, searchDifficulty]);
 
   const table = useReactTable({
     data,
@@ -211,7 +238,44 @@ export function LeetcodeDashboardTable({
           <TableHeader className="w-full">
             <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
               <TableCell colSpan={5} className="pl-10">
-                Past Collaborations
+                <div className="flex items-center">
+                  <span>LeetCode Question Bank</span>
+                  <span className="ml-auto flex place-items-center gap-6 pr-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-4" />
+                      <Input
+                        className="w-[16rem] pl-10 !placeholder-primary-400"
+                        placeholder="Search Question Name"
+                        onChange={(e) => setSearchTitle(e.target.value)}
+                      />
+                    </div>
+                    <div className="relative">
+                      <Button
+                        className="gap-2 bg-transparent text-primary-400 border-[1px] hover:bg-primary-300"
+                        onClick={toggleDropdown}
+                      >
+                        <ListFilter />
+                        Filter By
+                      </Button>
+                      {isFilterOpen && (
+                        <div className="absolute right-0 mt-2 h-80 w-52 bg-primary-800 text-primary-300 border border-gray-300 rounded shadow-lg z-10">
+                          <div className="flex flex-col place-items-center mt-4">
+                            <div className="w-[90%]">
+                              <div className="text-xs">Difficulty</div>
+                              <MultiSelect
+                                options={questionDifficulty}
+                                onValueChange={setSearchDifficulty}
+                                placeholder="Select options"
+                                variant="inverted"
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </span>
+                </div>
               </TableCell>
             </TableRow>
             {table.getHeaderGroups().map((headerGroup) => (
