@@ -18,7 +18,7 @@ const Problem: React.FC<ProblemProps> = () => {
   }, [token]);
 
   return (
-    <div className="flex flex-col h-screen p-4">
+    <div className="flex flex-col h-full p-4">
       {/* Title bar for the problem */}
       <div className="workspacecomponent p-4 bg-gray-100 border-b border-gray-200 shadow-sm">
         <h2 className="questiontitle">{question?.title}</h2>
@@ -26,10 +26,11 @@ const Problem: React.FC<ProblemProps> = () => {
 
       {/* Problem content */}
       <div className="flex-grow p-6 bg-white rounded-b-lg shadow-sm">
-
         {/* Difficulty*/}
         <div className="mb-4">
-          <span className={`difficulty ${getDifficultyColor(question?.difficultyLevel)}`}>
+          <span
+            className={`difficulty ${getDifficultyColor(question?.difficultyLevel)}`}
+          >
             {question?.difficultyLevel}
           </span>
         </div>
@@ -45,7 +46,10 @@ const Problem: React.FC<ProblemProps> = () => {
           <div className="mb-4">
             <h3 className="title">Examples</h3>
             {question.examples.map((example, index) => (
-              <div key={index} className="mb-4 bg-gray-50 p-4 border rounded-lg">
+              <div
+                key={index}
+                className="mb-4 bg-gray-50 p-4 border rounded-lg"
+              >
                 <pre className="text-gray-700 mb-2">
                   <strong>Input:</strong> {example.input}
                 </pre>
@@ -78,14 +82,12 @@ const Problem: React.FC<ProblemProps> = () => {
         <div className="mb-4">
           <h3 className="title">Topics</h3>
           <p>
-          {question?.topic?.map((topic, index) => (
-            <span
-              key={index}
-              className="topic"
-            >
-              {topic}
-            </span>
-          ))}</p>
+            {question?.topic?.map((topic, index) => (
+              <span key={index} className="topic">
+                {topic}
+              </span>
+            ))}
+          </p>
         </div>
       </div>
     </div>
