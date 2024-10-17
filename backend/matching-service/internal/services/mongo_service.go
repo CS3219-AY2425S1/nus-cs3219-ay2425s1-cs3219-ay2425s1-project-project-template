@@ -114,13 +114,24 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 	return &potentialMatch, nil
 }
 
-// MarkAsTimeout updates the user's match status to Timeout after a 30-second timeout
 func MarkAsTimeout(matchingInfo models.MatchingInfo) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Recheck the user's status to ensure they are still Pending
+	currentStatus, err := GetUserStatus(matchingInfo.UserID)
+	if err != nil {
+		return err
+	}
+
+	// Only mark as Timeout if the user is still Pending
+	if currentStatus != models.Pending {
+		log.Printf("User %s is not Pending, skipping Timeout marking", matchingInfo.UserID)
+		return nil
+	}
+
 	// Update the user's status to Timeout in MongoDB
-	_, err := MatchingCollection.UpdateOne(ctx, bson.M{
+	_, err = MatchingCollection.UpdateOne(ctx, bson.M{
 		"user_id": matchingInfo.UserID,
 		"status":  models.Pending,
 	}, bson.M{
@@ -156,5 +167,67 @@ func UpdateMatchStatusAndRoomID(userID string, status string, roomID string) err
 	}
 
 	log.Printf("Updated user_id %s status to %s and room_id to %s", userID, status, roomID)
+	return nil
+}
+
+// GetUserStatus retrieves the current status of the user from MongoDB
+func GetUserStatus(userID string) (models.MatchStatusEnum, error) {
+	// Set up the MongoDB collection (assuming you have a users collection)
+	collection := MatchingCollection
+	// Create a context with a timeout for the query
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Filter for the userID
+	filter := bson.M{"user_id": userID}
+
+	// Define a struct to hold the result
+	var result struct {
+		Status models.MatchStatusEnum `bson:"status"`
+	}
+
+	// Query MongoDB for the user's status
+	err := collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Printf("No user found with user_id: %s", userID)
+			return "", nil
+		}
+		log.Printf("Error retrieving status for user_id: %s, error: %v", userID, err)
+		return "", err
+	}
+
+	// Return the status
+	return result.Status, nil
+}
+
+// CancelUserMatch updates the user's status to 'Cancelled' in MongoDB
+func CancelUserMatch(userID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Update the user's status to 'Cancelled' if they are currently 'Pending'
+	filter := bson.M{
+		"user_id": userID,
+		"status":  models.Pending, // Only cancel if the user is still in 'Pending' state
+	}
+	update := bson.M{
+		"$set": bson.M{"status": models.Cancelled},
+	}
+
+	// Perform the update in MongoDB
+	result, err := MatchingCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("Error updating status to 'Cancelled' for user_id: %s, error: %v", userID, err)
+		return err
+	}
+
+	// Check if a document was actually updated (i.e., if the user was in 'Pending' status)
+	if result.ModifiedCount == 0 {
+		log.Printf("No pending match found for user_id: %s, unable to cancel", userID)
+		return nil
+	}
+
+	log.Printf("User %s has been successfully marked as 'Cancelled'", userID)
 	return nil
 }
