@@ -18,7 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
+import DeleteAccountModal from "@/components/common/delete-account-modal";
 import ProfileTab from "@/components/user-settings/profile-tab";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
@@ -461,6 +461,7 @@ export default function UserSettings({ userId }: { userId: string }) {
                 handleDeleteAccount={handleDeleteAccount}
                 isDeleteButtonEnabled={isDeleteButtonEnabled}
                 setShowDeleteModal={setShowDeleteModal}
+                isAdmin={false}
               />
 
               <Card className="mt-4">

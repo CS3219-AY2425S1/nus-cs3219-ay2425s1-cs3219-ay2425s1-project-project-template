@@ -8,7 +8,7 @@ export default function UserSettingsPage({
 }) {
   return (
     <AuthPageWrapper requireLoggedIn userId={params.user_id}>
-      <UserSettings userId={params.user_id} />;
+      <UserSettings userId={params.user_id} />
     </AuthPageWrapper>
   );
 }
