@@ -57,8 +57,13 @@ const Collaboration: React.FC = () => {
   };
 
   const joinQueue = () => {
-    if (socket) {
-      socket.emit("joinQueue");
+    if (socket && room) { // Assuming room is the topic or any identifier you want to use
+      socket.emit("joinQueue", {
+        username: "qqq", // Replace with actual user data if available
+        topic: room,
+        difficulty: "easy", // Add difficulty or other data as necessary
+        questionId: "12345" // Replace with actual question ID if available
+      });
       const displaySocketId = socketId ? socketId : "No socket ID assigned"; // Conditional check
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -66,6 +71,7 @@ const Collaboration: React.FC = () => {
       ]);
     }
   };
+  
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {

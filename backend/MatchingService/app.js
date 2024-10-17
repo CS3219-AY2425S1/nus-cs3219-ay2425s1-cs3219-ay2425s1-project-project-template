@@ -8,6 +8,10 @@ import {
   addUserToQueue,
   obliberateQueue,
 } from "./controller/queue-controller.js";
+import http from 'http';
+import cors from 'cors';
+import { initializeCollaborationService } from './controller/websocket-controller.js'; // Adjusted path
+
 
 const app = express();
 const port = 3000;
@@ -21,6 +25,7 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
   serverAdapter: serverAdapter,
 });
 
+// Uncomment and configure the Redis client if needed
 // const client = createClient({
 //   password: "Wn0eVNObgsDyQkJVKcTJfpHogb7VDZ5s",
 //   socket: {
@@ -32,6 +37,7 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
 // client.on("error", (err) => console.log("Redis Client Error", err));
 
 // await client.connect();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -45,10 +51,19 @@ app.post("/queue", addUserToQueue);
 
 app.get("/remove", obliberateQueue);
 
-app.listen(port, () => {
+// Create an HTTP server to use with Socket.IO
+const server = http.createServer(app);
+
+// Enable CORS for your API
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST"],
+  credentials: true // Set to true if you are using credentials (cookies, etc.)
+}));
+
+// Initialize the collaboration service
+initializeCollaborationService(server);
+
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
-
-// create api route to user to the queue
-
-// create api route to check when user is done
