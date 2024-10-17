@@ -2,20 +2,20 @@ const express = require('express');
 const amqp = require('amqplib');
 
 const app = express();
-const PORT = 3000; // Change this port if necessary
+const PORT = 3000;
 
 app.use(express.json()); // Middleware to parse JSON request bodies
 
-async function sendMessage(message) {
+async function sendMessage(userId) {
     try {
-        const connection = await amqp.connect('amqp://rabbitmq:5672'); // Connection string
+        const connection = await amqp.connect('amqp://rabbitmq:5672');
         const channel = await connection.createChannel();
-        const queue = 'matching-queue'; // Your queue name
+        const queue = 'matching-queue';
 
         await channel.assertQueue(queue, { durable: false });
-        channel.sendToQueue(queue, Buffer.from(message));
+        channel.sendToQueue(queue, Buffer.from(userId));
 
-        console.log(`Sent: ${message}`);
+        console.log(`Sent: ${userId}`);
         setTimeout(() => {
             connection.close();
         }, 500);
@@ -24,18 +24,16 @@ async function sendMessage(message) {
     }
 }
 
-// POST endpoint to trigger message sending
-app.post('/api/send-message', (req, res) => {
-    const { message } = req.body; // Expecting { "message": "your message" }
-    if (!message) {
-        return res.status(400).send({ error: 'Message is required' });
+app.post('/api/match-user', (req, res) => {
+    const { userId } = req.body;
+    if (!userId) {
+        return res.status(400).send({ error: 'User ID is required' });
     }
     
-    sendMessage(message);
-    res.status(200).send({ status: 'Message sent', message });
+    sendMessage(userId);
+    res.status(200).send({ status: 'User ID sent for matching', userId });
 });
 
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
