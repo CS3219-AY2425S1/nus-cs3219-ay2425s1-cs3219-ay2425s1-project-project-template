@@ -7,31 +7,34 @@ const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'request-service' });
 
-router.post('/find-match', async (req, res) => {
-    console.log('Authorization Header:', req.headers.authorization);
-    console.log('Request Body:', req.body);
 
+const verifyJWT = async (authorizationHeader: string | undefined) => {
     try {
-        // Verify the JWT
         const response = await fetch("http://user-service:3001/auth/verify-token", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `${req.headers.authorization}`,
+                Authorization: `${authorizationHeader}`,
             },
         });
         const data = await response.json();
         if (data.message !== "Token verified") {
-            res.json({ message: `Error finding match: ${data.message}` });
-            return
+            throw new Error(`JWT verification failed: ${data.message}`);
         }
+        return data.data; // Return user data if verification is successful
+    } catch (error) {
+        throw new Error("Failed to verify JWT");
+    }
+};
 
-        // Extract userID
-        const userID = data.data.id;
+
+router.post('/find-match', async (req, res) => {
+    try {
+        const userData = await verifyJWT(req.headers.authorization);
 
         // Create match request data
         const matchData = {
-            userID: userID,  // Attach the userID
+            userID: userData.id,  // Attach the userID
             topic: req.body.topic,
             difficulty: req.body.difficulty,
         };
@@ -40,7 +43,7 @@ router.post('/find-match', async (req, res) => {
         await kafkaProducer.connect();
         await kafkaProducer.send({
             topic: "match-events",
-            messages: [{ key: userID, value: JSON.stringify(matchData) }],
+            messages: [{ key: userData.id, value: JSON.stringify(matchData) }],
         });
         await kafkaProducer.disconnect();
 
@@ -78,7 +81,27 @@ router.post('/find-match', async (req, res) => {
 });
 
 router.post('/cancel-matching', async (req, res) => {
-    // TODO: Produce a `cancel-match-event`
+    try {
+        const userData = await verifyJWT(req.headers.authorization);
+
+        // Create cancelMatchData
+        const cancelMatchData = {
+            userID: userData.id,  // Attach the userID
+        };
+
+        // Produce a `cancel-match-event`
+        await kafkaProducer.connect();
+        await kafkaProducer.send({
+            topic: "cancel-match-events",
+            messages: [{ key: userData.id, value: JSON.stringify(cancelMatchData) }],
+        });
+        await kafkaProducer.disconnect();
+
+    } catch (error) {
+        // TODO: Improve error handling
+        console.error("Error: ", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 })
 
 router.get('/match-status', async (req, res) => {

@@ -12,7 +12,6 @@ const MatchingPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleMatchMe = () => {
-    // TODO: Make a long-poll API request to `matching-service`
     const getMatchLongPoll = () => {
       fetch("http://localhost:3002/find-match", {
         method: "POST",
@@ -31,7 +30,9 @@ const MatchingPage: React.FC = () => {
       .then(data => {console.log("matching-service response: ", data)})
       .catch(err => {console.error(err)});
     };
+
     getMatchLongPoll();
+
     setStage("countdown");
   };
 
@@ -48,6 +49,18 @@ const MatchingPage: React.FC = () => {
   };
 
   const handleCancel = () => {
+    const sendCancelMatchingRequest = () => {
+      fetch("http://localhost:3002/cancel-matching", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      })
+    }
+
+    sendCancelMatchingRequest();
+
     setStage("matchme");
   };
 
