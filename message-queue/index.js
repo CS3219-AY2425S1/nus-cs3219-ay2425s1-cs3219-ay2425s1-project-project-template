@@ -1,23 +1,23 @@
-const express = require('express')
+const express = require("express")
 
 const app = express()
 
-const amqp = require('amqplib')
+const amqp = require("amqplib")
 
 app.use(express.json())
 // app.use(express.urlencoded({ extended: true }))
 
-const EXCHANGE = 'topics_exchange'
+const EXCHANGE = "topics_exchange"
 
 var connection, channel
 
-const connectRabbitMQ = async() => {
+const connectRabbitMQ = async () => {
   try {
-    const amqpServer = 'amqp://guest:guest@localhost:5672'
+    const amqpServer = "amqp://guest:guest@localhost:5672"
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
-    await channel.assertExchange(EXCHANGE, 'topic', {durable: false})
-  } catch(err) {
+    await channel.assertExchange(EXCHANGE, "topic", { durable: false })
+  } catch (err) {
     console.error(err)
   }
 }
@@ -28,16 +28,21 @@ const addDataToExchange = async (userData, key) => {
   await channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
-app.post('/', (req, res) => {
-  const {userData, key} = req.body //key will be <difficulty>.<topic(s)>
-  addDataToExchange(userData, key)
-  console.log('Data Sent: ', req.body)
-  res.json({ message: 'Data Sent' })
- 
+app.post("/", (req, res) => {
+  try {
+    const { userData, key } = req.body //key will be <difficulty>.<topic(s)>
+    addDataToExchange(userData, key)
+    console.log("Data Sent: ", req.body)
+    res.json({ message: "Data Sent" })
+  } catch (e) {
+    console.error("Message incorrectly sent out")
+    console.error(e)
+    res.json({ message: "Data failed to send"})
+  }
 })
 
 app.get("/", (req, res, next) => {
-  console.log('Hello World')
+  console.log("Hello World")
   res.json({
     message: "This is message queue."
   })
