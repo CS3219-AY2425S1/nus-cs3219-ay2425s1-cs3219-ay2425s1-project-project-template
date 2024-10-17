@@ -42,6 +42,7 @@ app.get("/", (req, res, next) => {
 
 // Handle When No Route Match Is Found
 app.use((req, res, next) => {
+  console.log(req.url);
   const error = new Error("Route Not Found");
   error.status = 404;
   next(error);

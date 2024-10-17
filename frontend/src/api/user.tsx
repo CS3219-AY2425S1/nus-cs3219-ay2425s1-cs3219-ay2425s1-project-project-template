@@ -38,20 +38,16 @@ export const verifyToken = async (needsLogin: boolean) => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  }).then((res) => {
-    return res.json();
-  }).catch((_) => {
-    return { status: 500 };
   });
   
   switch (response.status) {
     case 200:
       return true;
     case 401:
-      if (needsLogin) logout();
+      // if (needsLogin) logout();
       return false;
     default:
-      if (needsLogin) logout();
+      // if (needsLogin) logout();
       return false;
   }
 };
@@ -67,10 +63,6 @@ export const login = async (email: string, password: string) => {
       email,
       password: encryptedPassword,
     }),
-  }).then((res) => {
-    return res.json();
-  }).catch((_) => {
-    return { status: 500 };
   });
 
   switch (response.status) {
@@ -91,8 +83,8 @@ export const login = async (email: string, password: string) => {
 };
 
 export const handleSuccessfulLogin = async (response: Response) => {
-  // const { accessToken, username, id, isAdmin } = { accessToken: "accessToken", username: "username", id: "id", isAdmin: true };
   const { accessToken, username, id, isAdmin } = await response.json();
+  setBaseUserData({ username, id, isAdmin });
   setToken(accessToken);
   const redirect = localStorage.getItem("redirect");
   if (!redirect) {
@@ -102,7 +94,7 @@ export const handleSuccessfulLogin = async (response: Response) => {
 
   localStorage.removeItem("redirect");
   window.location.href = redirect;
-  return { username, id, isAdmin };
+  return;
 };
 
 export const redirectToLogin = async () => {
@@ -135,14 +127,10 @@ export const register = async (email: string, password: string, username: string
       password: encryptedPassword,
       username,
     }),
-  }).then((res) => {
-    return res.json();
-  }).catch((_) => {
-    return { status: 500 };
   });
 
   switch (response.status) {
-    case 200:
+    case 201:
       return handleSuccessfulLogin(response);
     case 400:
       toast.fire({
@@ -172,11 +160,7 @@ export const getUser = async () => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  }).then((res) => {
-    return res.json();
-  }).catch((_) => {
-    return { status: 500 };
-  })
+  });
 
   switch (response.status) {
     case 200:
@@ -202,11 +186,6 @@ export const updateUser = async (data: { email: string, password: string, bio: s
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
-  }).then((res) => {
-    return res.json();
-  }).catch((error) => {
-    console.error("Error:", error);
-    return { status: 500 };
   });
 
   switch (response.status) {

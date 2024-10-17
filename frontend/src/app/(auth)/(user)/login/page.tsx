@@ -10,8 +10,8 @@ import Swal from "sweetalert2";
 import { z } from "zod";
 
 const formSchema = z.object({
-  username: z.string()
-    .min(5, "Username must be at least 5 characters"),
+  email: z.string()
+    .email("Invalid email"),
   password: z.string()
     .min(8, "Password must be at least 8 characters"),
 });
@@ -20,7 +20,7 @@ const Login = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -28,7 +28,7 @@ const Login = () => {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const data = form.getValues();
-    login(data.username, data.password);
+    login(data.email, data.password);
   }
 
   return (
@@ -41,12 +41,12 @@ const Login = () => {
         <form className="my-10 grid gap-4" onSubmit={onSubmit}>
           <FormField
             control={form.control}
-            name="username"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-yellow-500 text-lg">USERNAME</FormLabel>
+                <FormLabel className="text-yellow-500 text-lg">EMAIL</FormLabel>
                 <FormControl>
-                  <Input placeholder="username" {...field} className="focus:border-yellow-500 text-white"/>
+                  <Input placeholder="email" {...field} className="focus:border-yellow-500 text-white"/>
                 </FormControl>
                 {/* <FormDescription>This is your public display name.</FormDescription> */}
                 <FormMessage/>
