@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import '../../styles/start-session.css';
 import { topics } from "../../assets/topics";
 
-const StartSession = () => {
+const StartSession = ({ username }) => {
   const [difficulty, setDifficulty] = useState('Easy');
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState('Python');
 
   const handleFindMatch = async () => {
     // Send a POST request to the backend to find a match
-    const matchData = { difficulty, topic, language };
+    const matchData = { username, difficulty, topic, language };
 
     try {
       const response = await fetch('http://localhost:3002/api/find-match', {

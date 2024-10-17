@@ -6,10 +6,10 @@ const app = express();
 const PORT = 3002;
 
 app.use(cors({
-    origin: 'http://localhost:3000',  // Your frontend URL
+    origin: 'http://localhost:3000',
 }));
 
-app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.json());
 
 async function addToQueue(matchData) {
     try {
@@ -30,12 +30,12 @@ async function addToQueue(matchData) {
 }
 
 app.post('/api/find-match', (req, res) => {
-    const { difficulty, topic, language } = req.body;
-    if (!difficulty || !topic || !language) {
+    const { username, difficulty, topic, language } = req.body;
+    if (!username || !difficulty || !topic || !language) {
         return res.status(400).send({ error: 'Missing matching parameters' });
     }
     
-    const matchData = { difficulty, topic, language, timestamp: Date.now() };
+    const matchData = { username, difficulty, topic, language, timestamp: Date.now() };
     
     // Add the match request to the RabbitMQ queue
     addToQueue(matchData);
