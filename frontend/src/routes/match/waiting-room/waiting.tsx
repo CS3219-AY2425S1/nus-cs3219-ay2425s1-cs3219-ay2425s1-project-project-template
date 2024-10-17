@@ -84,6 +84,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: WaitingRoomProps) =>
 
         const roomId = data?.roomId;
         const questionId = data?.questionId;
+        countdownRef.current = 0;
         clearInterval(timerRef.current!);
 
         setStatus(SUCCESS_STATUS);

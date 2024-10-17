@@ -51,7 +51,6 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
   const [socketPort, setSocketPort] = useState<string | null>(null);
 
   const onSubmit = async (data: MatchFormData) => {
-    console.log('Form Submitted:', data);
     setLoading(true);
     setErrorMessage(null);
 
@@ -145,8 +144,8 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
           </FormProvider>
         </CardContent>
       </Card>
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className='max-h-[500px]'>
+      <Dialog modal={true} open={isModalOpen}>
+        <DialogContent className='max-h-[500px] [&>button]:hidden'>
           <DialogHeader>
             <VisuallyHidden>
               <DialogTitle>Waiting Room</DialogTitle>
