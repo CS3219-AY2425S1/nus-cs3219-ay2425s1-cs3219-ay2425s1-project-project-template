@@ -7,9 +7,28 @@ const StartSession = () => {
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState('Python');
 
-  const handleFindMatch = () => {
-    // implement logic to find a match based on the selected values
-    console.log(`Finding a match for ${difficulty}, ${topic}, ${language}`);
+  const handleFindMatch = async () => {
+    // Send a POST request to the backend to find a match
+    const matchData = { difficulty, topic, language };
+
+    try {
+      const response = await fetch('http://localhost:3002/api/find-match', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(matchData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Match request sent:', result);
+      } else {
+        console.error('Error finding match:', result.error);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
   };
 
   return (

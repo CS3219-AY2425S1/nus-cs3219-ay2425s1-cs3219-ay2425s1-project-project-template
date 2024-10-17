@@ -52,7 +52,7 @@ services:
   matching-service:
     build: ./backend/matching-backend
     ports:
-      - "3002:3000"
+      - "3002:3002"
     environment:
       - RABBITMQ_URL=amqp://rabbitmq:5672
     networks:
