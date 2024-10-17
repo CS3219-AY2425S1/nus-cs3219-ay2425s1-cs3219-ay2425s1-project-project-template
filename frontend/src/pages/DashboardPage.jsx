@@ -18,7 +18,6 @@ const DashboardPage = () => {
   const [dailyChallenge, setDailyChallenge] = useState({ difficulty: "", topic: "" });
   const hasActiveSession = false; 
 
-  // LeetCode Topics and Difficulties
   const difficulties = ["Easy", "Medium", "Hard"];
   const topics = [
     "Array", "String", "Linked List", "Tree", "Graph", "Dynamic Programming", 
@@ -74,7 +73,6 @@ const DashboardPage = () => {
     }
   }, [userId, accessToken]); 
 
-  // Generate a random daily challenge
   useEffect(() => {
     const generateDailyChallenge = () => {
       const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
@@ -82,7 +80,7 @@ const DashboardPage = () => {
       setDailyChallenge({ difficulty: randomDifficulty, topic: randomTopic });
     };
 
-    generateDailyChallenge(); // Generate on component mount
+    generateDailyChallenge();
   }, []);
 
   return (

@@ -10,10 +10,10 @@ const ManageProfilePage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isHoveredBack, setIsHoveredBack] = useState(false); // Separate hover state for Back button
-  const [isHoveredSave, setIsHoveredSave] = useState(false); // Separate hover state for Save Changes button
-  const [isHoveredDelete, setIsHoveredDelete] = useState(false); // Separate hover state for Delete button
-  const [showPassword, setShowPassword] = useState(false); // State for showing password
+  const [isHoveredBack, setIsHoveredBack] = useState(false);
+  const [isHoveredSave, setIsHoveredSave] = useState(false); 
+  const [isHoveredDelete, setIsHoveredDelete] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +92,7 @@ const ManageProfilePage = () => {
       }
 
       alert("Account deleted successfully!");
-      navigate("/"); // Redirect to homepage after deletion
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }
@@ -124,7 +124,7 @@ const ManageProfilePage = () => {
           top: "30px", 
           left: "30px", 
           padding: "15px 30px",
-          backgroundColor: isHoveredBack ? '#f0f0f0' : 'white', // Hover state for Back button
+          backgroundColor: isHoveredBack ? '#f0f0f0' : 'white', 
           color: isHoveredBack ? 'black' : 'black',
           border: "none",
           borderRadius: "15px",
@@ -251,7 +251,7 @@ const ManageProfilePage = () => {
           onMouseLeave={() => setIsHoveredSave(false)} 
           style={{
             marginTop: "30px",
-            padding: "10px 20px", // Reduced padding
+            padding: "10px 20px",
             backgroundColor: isHoveredSave ? '#f0f0f0' : 'white',
             color: 'black',
             border: "none",
@@ -263,7 +263,7 @@ const ManageProfilePage = () => {
             width: "100%",
             maxWidth: "200px",
             margin: "0 auto",
-            height: "50px", // Reduced height
+            height: "50px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -278,9 +278,9 @@ const ManageProfilePage = () => {
           onMouseEnter={() => setIsHoveredDelete(true)} 
           onMouseLeave={() => setIsHoveredDelete(false)} 
           style={{
-            marginTop: "30px", // Gap between buttons
-            padding: "10px 20px", // Reduced padding
-            backgroundColor: isHoveredDelete ? '#cc0000' : '#990000', // Darker red
+            marginTop: "15px", 
+            padding: "10px 20px",
+            backgroundColor: isHoveredDelete ? '#cc0000' : '#990000', 
             color: 'white',
             border: "none",
             borderRadius: "15px",
@@ -291,7 +291,7 @@ const ManageProfilePage = () => {
             width: "100%",
             maxWidth: "200px",
             margin: "0 auto",
-            height: "50px", // Reduced height
+            height: "50px", 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
