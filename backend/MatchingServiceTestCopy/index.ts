@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const userId = `user_12345`;
+const userId = `user_6789`;
 
 const socket = io("http://localhost:3000", {
   auth: {
@@ -14,7 +14,7 @@ socket.on("connect", () => {
   // Request a match
   console.log("Requesting match...");
   socket.emit("request-match", {
-    difficultyLevel: "MEDIUM",
+    difficultyLevel: "EASY",
     category: "ARRAYS",
   });
 });
