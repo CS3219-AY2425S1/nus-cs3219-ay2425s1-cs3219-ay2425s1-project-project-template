@@ -1,1 +1,2 @@
-export * from './IMessage'
+export * from './WebSocketMessage'
+export * from './WebSocketMessageType'

@@ -11,21 +11,7 @@ import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
-
-type WebSocketSuccessMessage = {
-    type: 'success'
-    matchId: string
-}
-
-type WebSocketFailureMessage = {
-    type: 'fail'
-}
-
-type WebSocketCancelMessage = {
-    type: 'cancel'
-}
-
-type WebSocketMessage = WebSocketSuccessMessage | WebSocketFailureMessage | WebSocketCancelMessage
+import { WebSocketMessageType } from '@repo/ws-types'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -100,7 +86,7 @@ export const NewSession = () => {
         socketRef.current = socket
         socketRef.current.onmessage = (event: MessageEvent) => {
             if (typeof event.data === 'string') {
-                const newMessage: WebSocketMessage = JSON.parse(event.data) as WebSocketMessage // Parse JSON message
+                const newMessage = JSON.parse(event.data)
                 switch (newMessage.type) {
                     case 'success':
                         handleMatchFound()
@@ -132,7 +118,7 @@ export const NewSession = () => {
     }
 
     const handleCancelMatchmaking = async () => {
-        const cancelMessage: WebSocketCancelMessage = { type: 'cancel' }
+        const cancelMessage = { type: WebSocketMessageType.CANCEL }
         socketRef.current?.send(JSON.stringify(cancelMessage))
         socketRef.current?.close()
         socketRef.current = undefined
