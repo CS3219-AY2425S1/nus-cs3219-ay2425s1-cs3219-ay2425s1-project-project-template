@@ -84,7 +84,8 @@ class QueueService {
             userId: matchRequest.userId,
             matchId: matchId,
             topic: matchRequest.topic,
-            difficulty: matchRequest.difficulty
+            difficulty: matchRequest.difficulty,
+            timestamp: new Date(),
         }
         
         logger.info(`Sending match request for match ID: ${matchId}`);

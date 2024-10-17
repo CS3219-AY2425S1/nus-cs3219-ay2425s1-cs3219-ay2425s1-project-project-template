@@ -102,7 +102,8 @@ class Consumer {
             userId: jsonObject.userId,
             matchId: jsonObject.matchId,
             topic: jsonObject.topic,
-            difficulty: jsonObject.difficulty
+            difficulty: jsonObject.difficulty,
+            timestamp: jsonObject.timestamp,
         }
         return req;
     }
@@ -112,6 +113,7 @@ class Consumer {
 
         if (!this.pendingReq) {
             this.pendingReq = incomingReq;
+            this.setPendingReqExpiration(incomingReq);
             logger.debug(`Stored pending request: ${incomingReq.matchId}`);
             return;
         }
@@ -128,6 +130,23 @@ class Consumer {
 
         logger.debug("Responses sent to matched requests");
         this.pendingReq = null;
+    }
+
+    private setPendingReqExpiration(req: MatchRequestDTO): void {
+        const timestamp = new Date(req.timestamp).getTime(); // Ensure timestamp is in milliseconds
+        const expirationTime = 0.5 * 60 * 1000; // 5 minutes in milliseconds
+        const currentTime = Date.now();
+
+        const delay = (timestamp + expirationTime) - currentTime;
+        if (delay > 0) {
+            setTimeout(() => {
+                logger.debug(`Pending request expired: ${req.matchId}`);
+                this.pendingReq = null; // Clear the pending request
+            }, delay);
+        } else {
+            logger.debug(`Pending request already expired: ${req.matchId}`);
+            this.pendingReq = null; // Clear if already expired
+        }
     }
 
     private deleteMatchRequestById(matchId: string): void {

@@ -5,4 +5,5 @@ export type MatchRequestDTO = {
     readonly matchId: string;
     readonly topic: Topic;
     readonly difficulty: Difficulty;
+    readonly timestamp: Date;
 }
