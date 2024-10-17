@@ -19,6 +19,24 @@ const checkQuestionExists = async (
     }
 }
 
+const getPossibleDuplicates = async (
+    existingQuestionId: number,
+    title: string,
+    description: string
+) => {
+    try {
+        let questions = await Question.find({
+            $or: [{ title }, 
+                { description }],
+        })
+        
+        questions = questions.filter(question => question.questionId !== existingQuestionId)
+        return questions
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 const getQuestionById = async (questionId: number) => {
     try {
         const question = await Question.findOne({ questionId })
@@ -45,4 +63,4 @@ const getNextQuestionId = async () => {
     }
 }
 
-export { checkQuestionExists, getQuestionById, getNextQuestionId }
+export { checkQuestionExists, getPossibleDuplicates, getQuestionById, getNextQuestionId }

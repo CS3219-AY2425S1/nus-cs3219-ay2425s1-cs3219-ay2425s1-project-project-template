@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import Question from '../models/question'
-import { checkQuestionExists, getQuestionById } from '../utils/utils'
+import { getPossibleDuplicates, getQuestionById } from '../utils/utils'
 import logger from '../utils/logger'
 
 const editQuestion = async (req: Request, res: Response) => {
@@ -20,31 +20,20 @@ const editQuestion = async (req: Request, res: Response) => {
     }
 
     try {
-        const updatedFields: any = {}
+        if (title != existingQuestion.title || description != existingQuestion.description) {
+            const possibleDuplicates = await getPossibleDuplicates(
+                parseInt(questionId),
+                title,
+                description
+            )
 
-        if (title) updatedFields.title = title
-        if (description) updatedFields.description = description
-        if (categories) updatedFields.categories = categories
-        if (difficulty) updatedFields.difficulty = difficulty
-
-        if (Object.keys(updatedFields).length === 0) {
-            logger.error('At least one field required to update question')
-            return res
-                .status(400)
-                .json({
-                    message: 'At least one field required to update question',
-                })
+            if (possibleDuplicates && possibleDuplicates.length > 0) {
+                logger.error('Question already exists')
+                return res.status(400).json({ message: 'Question already exists' })
+            }
         }
 
-        const isDuplicate = await checkQuestionExists(
-            updatedFields.title,
-            updatedFields.description
-        )
-
-        if (isDuplicate && existingQuestion.difficulty === difficulty && existingQuestion.categories === categories) {
-            logger.error('Question already exists')
-            return res.status(400).json({ message: 'Question already exists' })
-        }
+        const updatedFields = { title, description, categories, difficulty }
 
         const updatedQuestion = await Question.findOneAndUpdate(
             { questionId },
