@@ -5,11 +5,15 @@ const matchController = require('../controllers/matchController');
 // Get all matches
 router.get('/', matchController.getAllMatches);
 
+// Get match based on ID
+router.get('/:id', matchController.getMatchById);
+
+
+//To be deleted
+
 // Create a new match
 router.post('/', matchController.createMatch);
 
-// Get match based on ID
-router.get('/:id', matchController.getMatchById);
 
 // Optionally delete a match by ID
 router.delete('/:id', matchController.deleteMatchById);

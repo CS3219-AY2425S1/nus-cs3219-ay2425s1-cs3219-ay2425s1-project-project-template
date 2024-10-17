@@ -38,7 +38,7 @@ const matchUsers = async () => {
         setTimeout(() => {
             if (handleDeleteRequest(user)) {
                 result = { matched: false, user1: user.id, user2: "" };
-                channel.publish(resCh, user.id, Buffer.from(JSON.stringify())); //B to D
+                channel.publish(resCh, user.id, Buffer.from(JSON.stringify(result))); //B to D
             }
         }, timeout)
     }, { noAck: true });
@@ -77,7 +77,7 @@ const handleMatchRequest = async (user) => {
             return { matched: false, user1: "", user2: "" };
         }
         connection.close();
-    }, 50000)
+    }, 60000)
 }
 
 const handleDeleteRequest = (user) => {
