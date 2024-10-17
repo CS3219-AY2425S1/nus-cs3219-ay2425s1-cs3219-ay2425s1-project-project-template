@@ -40,7 +40,7 @@ const WaitingPage = () => {
   }, [loading, matchFound]);
 
   const handleRetry = () => {
-    // need to re-add user into queue using the same choices here
+    // re-add user into queue using the same choices here
     setLoading(true); 
     setMatchFound(false);
     setTimeoutReached(false);
