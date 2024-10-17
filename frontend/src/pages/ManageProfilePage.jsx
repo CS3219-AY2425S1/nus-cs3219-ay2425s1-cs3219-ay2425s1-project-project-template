@@ -258,7 +258,7 @@ const ManageProfilePage = () => {
           onMouseLeave={() => setIsHoveredSave(false)} 
           style={{
             marginTop: "30px",
-            padding: "10px 0", // Updated padding
+            padding: "10px 0", 
             backgroundColor: isHoveredSave ? '#f0f0f0' : 'white',
             color: 'black',
             border: "none",
@@ -267,8 +267,8 @@ const ManageProfilePage = () => {
             fontSize: '16px',
             fontFamily: 'Figtree',
             transition: "background-color 0.3s",
-            width: "100%", // Ensures button width matches form
-            height: "50px", // Consistent height
+            width: "100%", 
+            height: "50px", 
           }}
         >
           Save Changes
