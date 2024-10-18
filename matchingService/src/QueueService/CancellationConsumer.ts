@@ -36,9 +36,7 @@ export default class CancellationConsumer {
         try {
             logger.debug("Assigning cancellation request to consumer");
             var req: CancelRequest = this.parseCancelRequest(msg);
-            const correlationId: string = msg.properties.correlationId;
-            const replyQueue: string = msg.properties.replyTo;
-            const reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req, correlationId);
+            const reqWithInfo: CancelRequestWithQueueInfo = CancelRequestWithQueueInfo.createFromCancelRequest(req);
 
             const consumer: Consumer | undefined = this.consumerMap.get(`${reqWithInfo.getTopic()}_${reqWithInfo.getDifficulty()}`);
             if (!consumer) {

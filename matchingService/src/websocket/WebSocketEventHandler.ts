@@ -23,7 +23,7 @@ export class WebSocketEventHandler {
 
     private handleMatchRequestResponse(socket: Socket, matchId: string, data: any) {
         this.io.to(matchId).emit("receiveMatchResponse", data);
-        logger.info(`Match resopnse tsent to room: ${matchId}`);
+        logger.info(`Match response sent to room: ${matchId}`);
 
         this.io.to(matchId).socketsLeave(matchId);
     }
