@@ -20,7 +20,7 @@ import { capitalizeWords } from "@/utils/string_utils";
 import { useForm } from "react-hook-form";
 import { Client as StompClient } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { send } from "process";
 import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
@@ -63,71 +63,77 @@ const SOCKET_URL =
 
 const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
 
-const TIMEOUT_TIMER = 15; // in seconds
+const TIMEOUT_TIMER = 2; // in seconds
 
 const FindPeer = () => {
-  const [stompClient, setStompClient] = useState<StompClient | null>(null);
+  const stompClientRef = useRef<StompClient | null>(null); // Use useRef to store client instance
+  const [isConnected, setIsConnected] = useState(false);
   const [socketMessages, setSocketMessages] = useState<string[]>([]);
-  const [isConnected, setIsConnected] = useState(false); // Manage connection state
 
-  useEffect(() => {
-    const socket = new SockJS(SOCKET_URL);
-    const client = new StompClient({
-      webSocketFactory: () => socket,
-      debug: function (str) {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      onConnect: () => {
-        console.log("STOMP connection established");
-        setIsConnected(true);
+  const makeSocketConnection = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const socket = new SockJS(SOCKET_URL);
+      const client = new StompClient({
+        webSocketFactory: () => socket,
+        debug: function (str) {
+          console.log(str);
+        },
+        reconnectDelay: 5000,
+        onConnect: () => {
+          console.log("STOMP connection established");
+          setIsConnected(true);
 
-        // Subscribe to a topic
-        client.subscribe("/user/queue/matches", (message) => {
-          console.log("Received message: ", message.body);
-          setSocketMessages((prevMessages) => [...prevMessages, message.body]);
-        });
-      },
-      onDisconnect: () => {
-        console.log("STOMP connection closed");
-      },
-      onStompError: (error) => {
-        console.error("STOMP error: ", error);
-      },
+          // Subscribe to a topic
+          client.subscribe("/user/queue/matches", (message) => {
+            console.log("Received message: ", message.body);
+            setSocketMessages((prevMessages) => [
+              ...prevMessages,
+              message.body,
+            ]);
+          });
+
+          stompClientRef.current = client; // Store the client in the ref
+          resolve();
+        },
+        onDisconnect: () => {
+          console.log("STOMP connection closed");
+        },
+        onStompError: (error) => {
+          console.error("STOMP error: ", error);
+          reject(error);
+        },
+      });
+
+      client.activate();
     });
+  };
 
-    client.activate();
-    setStompClient(client);
-
-    return () => {
-      client.deactivate();
-    };
-  }, []);
-
-  const sendMatchRequest = (userFilter: FindMatchFormOutput) => {
-    if (!stompClient || !isConnected) {
-      console.log("STOMP client is not connected.");
-      return;
+  const sendMatchRequest = async (userFilter: FindMatchFormOutput) => {
+    if (stompClientRef.current == null || !isConnected) {
+      console.log("STOMP client not connected. Attempting to connect...");
+      await makeSocketConnection();
     }
 
     // Repackage user filter data
     const userMatchRequest: FindMatchSocketMessage = {
       userEmail: CURRENT_USER,
-      topic: userFilter.questionTopics[0], // to change
-      programmingLanguage: userFilter.preferredLanguages[0],
+      topics: userFilter.questionTopics,
+      programmingLanguage: userFilter.preferredLanguages,
       difficulty: userFilter.questionDifficulty,
     };
 
     console.log("Sending match request with data: ", userMatchRequest);
 
-    if (stompClient?.connected !== true) {
+    const client = stompClientRef.current; // Use the ref to get the client instance
+
+    if (client?.connected !== true) {
       console.error(
         "STOMP client is not connected. Connection error encountered."
       );
       return;
     }
 
-    stompClient.publish({
+    client.publish({
       destination: "/app/matchRequest",
       body: JSON.stringify(userMatchRequest),
     });
@@ -136,6 +142,7 @@ const FindPeer = () => {
     showLoadingSpinner();
 
     const timeout = setTimeout(() => {
+      stompClientRef.current?.deactivate();
       Swal.update({
         title: "Timeout",
         text: "We could not find a match for you. Perhaps try a new set of filters? :(",
@@ -145,7 +152,7 @@ const FindPeer = () => {
     }, TIMEOUT_TIMER * 1000);
 
     try {
-      stompClient.subscribe("/user/queue/matches", (message) => {
+      client.subscribe("/user/queue/matches", (message) => {
         console.log("Received message: ", message.body);
         closeLoadingSpinner();
         clearTimeout(timeout);
