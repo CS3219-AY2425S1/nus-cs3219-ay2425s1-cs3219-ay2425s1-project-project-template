@@ -38,10 +38,12 @@ export interface MatchCancelRequest extends PeerprepRequest {
 
 export interface MatchAddedResponse extends PeerprepResponse {
   event: ServerSocketEvents.MATCH_REQUESTED;
+  success: boolean;
 }
 
 export interface MatchCancelResponse extends PeerprepResponse {
   event: ServerSocketEvents.MATCH_CANCELED;
+  success: boolean;
 }
 
 export interface MatchFoundResponse extends PeerprepResponse {
