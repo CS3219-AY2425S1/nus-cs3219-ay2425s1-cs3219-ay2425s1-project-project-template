@@ -578,7 +578,7 @@ function useDeleteQuestion() {
 const queryClient = new QueryClient();
 
 const DataTable = () => (
-  <Box sx={{ margin: "50px", width: "90vw", "maxWidth": "1024px" }}>
+  <Box sx={{ margin: "50px", width: "90vw", "maxWidth": "1027px" }}>
     <QueryClientProvider client={queryClient}>
       <Table />
     </QueryClientProvider>
