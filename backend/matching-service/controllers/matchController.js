@@ -50,7 +50,7 @@ const getMatchById = async (req, res) => {
 
         filteredMatches = matches.filter(match => match.user1Id == id || match.user2Id == id);
         if (filteredMatches.length == 0) {
-            return res.status(404).json({ message: `No match found with ID: ${id}` });
+            return res.status(204).json(filteredMatches);
         }
 
         return res.status(200).json(filteredMatches);
@@ -66,7 +66,7 @@ const getAllMatches = async (req, res) => {
         const matches = await Match.find();  // Retrieve all matches from the database
 
         if (matches.length === 0) {
-            return res.status(204).json({ message: 'No matches found.' });
+            return res.status(204).json(matches);
         }
 
         return res.status(200).json(matches);
@@ -77,7 +77,7 @@ const getAllMatches = async (req, res) => {
 
 // Optionally delete a match by ID
 const deleteMatchById = async (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
 
     try {
         const deletedMatch = await Match.findByIdAndDelete(id);
