@@ -4,7 +4,7 @@ import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequest
 import mqConnection from '../services/rabbitmq.service'
 import { randomUUID } from 'crypto'
 import { WebSocketMessageType } from '@repo/ws-types'
-import wsConnection from '../server'
+import wsConnection from '../services/ws.service'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const websocketID = randomUUID()

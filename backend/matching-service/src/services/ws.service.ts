@@ -1,4 +1,4 @@
-import http, { IncomingMessage } from 'http'
+import { IncomingMessage } from 'http'
 import WebSocket, { Server as WebSocketServer } from 'ws'
 import loggerUtil from '../common/logger.util'
 import url from 'url'
@@ -9,8 +9,8 @@ export class WebSocketConnection {
     private wss: WebSocketServer
     private clients: Map<string, WebSocket> = new Map()
 
-    constructor(private server: http.Server) {
-        this.wss = new WebSocketServer({ server })
+    constructor() {
+        this.wss = new WebSocketServer({ port: 3007 })
         this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
             const query = url.parse(req.url, true).query
             const websocketId = query.id as string
@@ -64,3 +64,6 @@ export class WebSocketConnection {
         }
     }
 }
+
+const wsConnection = new WebSocketConnection()
+export default wsConnection
