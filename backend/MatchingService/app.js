@@ -6,12 +6,12 @@ import { BullAdapter } from "@bull-board/api/bullAdapter.js";
 import { matchingQueue } from "./queue/matching-queue.js";
 import {
   addUserToQueue,
+  addUserToQueueReq,
   obliberateQueue,
 } from "./controller/queue-controller.js";
-import http from 'http';
-import cors from 'cors';
-import { initializeCollaborationService } from './controller/websocket-controller.js'; // Adjusted path
-
+import http from "http";
+import cors from "cors";
+import { initializeCollaborationService } from "./controller/websocket-controller.js"; // Adjusted path
 
 const app = express();
 const port = 3000;
@@ -47,7 +47,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/queue", addUserToQueue);
+app.post("/queue", addUserToQueueReq);
 
 app.get("/remove", obliberateQueue);
 
@@ -55,11 +55,13 @@ app.get("/remove", obliberateQueue);
 const server = http.createServer(app);
 
 // Enable CORS for your API
-app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST"],
-  credentials: true // Set to true if you are using credentials (cookies, etc.)
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true, // Set to true if you are using credentials (cookies, etc.)
+  })
+);
 
 // Initialize the collaboration service
 initializeCollaborationService(server);
