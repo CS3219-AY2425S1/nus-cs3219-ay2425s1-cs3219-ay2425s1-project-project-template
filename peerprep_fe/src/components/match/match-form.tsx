@@ -70,6 +70,7 @@ export function MatchForm() {
       };
       socket.on(ServerSocketEvents.MATCH_CANCELED, onMatchCancel);
       socket.emit(ClientSocketEvents.CANCEL_MATCH, matchRequest);
+      unregisterListeners();
     }
   };
 
