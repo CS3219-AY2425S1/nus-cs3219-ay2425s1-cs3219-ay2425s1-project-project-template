@@ -8,20 +8,16 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute.jsx";
+import Settings from "./pages/Settings.jsx";
+import Help from "./pages/Help.jsx";
+import FindingPeer from "./pages/FindingPeer.jsx";
+import MatchingService from "./pages/MatchingService.jsx";
+import Room from "./pages/Room.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <ProtectedRoute>
-        <Dashboard />
-      </ProtectedRoute>
-    ),
     errorElement: <ErrorPage />,
   },
   {
@@ -31,8 +27,43 @@ const router = createBrowserRouter([
   },
   {
     path: "/register",
-    element: <SignUp/>,
+    element: <SignUp />,
     errorElement: <ErrorPage />,
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/matching-service",
+        element: <MatchingService />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/help",
+        element: <Help />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/finding-a-peer",
+        element: <FindingPeer />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/room/:id",
+        element: <Room />,
+        errorElement: <ErrorPage />,
+      },
+    ],
   },
 ]);
 

@@ -3,10 +3,9 @@ import { deleteQuestion, getQuestions } from "../services/QuestionService";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import QuestionModal from "./QuestionModal";
 
-const Questions = () => {
+const Questions = ({ isAdmin }) => {
   const [questions, setQuestions] = useState([]);
   const [openQuestion, setOpenQuestion] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -62,18 +61,21 @@ const Questions = () => {
   };
 
   return (
-    <div className="w-full rounded-3xl border border-gray-300/30 bg-transparent p-6">
+    <div className="w-full max-w-lg rounded-3xl border border-gray-300/30 p-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">
           Interview Questions
         </h2>
-        <span
-          onClick={addQuestion}
-          className="flex cursor-pointer rounded-full border px-4 py-1 text-sm hover:border-lime-300 hover:bg-lime-300 hover:text-black"
-        >
-          <Plus className="mr-2 rounded-full" />
-          <h1>Add Question</h1>
-        </span>
+
+        {isAdmin && (
+          <span
+            onClick={addQuestion}
+            className="flex cursor-pointer rounded-full border px-4 py-1 text-sm hover:border-lime-300 hover:bg-lime-300 hover:text-black"
+          >
+            <Plus className="mr-2 rounded-full" />
+            <h1>Add Question</h1>
+          </span>
+        )}
       </div>
 
       {/* Questions List */}
@@ -87,47 +89,71 @@ const Questions = () => {
             <div className="flex-grow">
               <div className="flex flex-row items-center justify-between">
                 <h3 className="font-semibold">{item.title}</h3>
-                <div className="flex space-x-2">
-                  {/* Delete button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      sendDeleteQuestion(item._id);
-                    }}
-                  >
-                    <Trash2 className="text-red-500" />
-                  </button>
-                  {/* Edit button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      editQuestion(item._id);
-                    }}
-                  >
-                    <Pencil className="text-blue-400" />
-                  </button>
-                </div>
+
+                {isAdmin ? (
+                  <div className="flex space-x-2">
+                    {/* Delete button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sendDeleteQuestion(item._id);
+                      }}
+                    >
+                      <Trash2 className="text-red-500" />
+                    </button>
+                    {/* Edit button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        editQuestion(item._id);
+                      }}
+                    >
+                      <Pencil className="text-blue-400" />
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <h3
+                      className={`rounded-full px-4 py-1 text-xs font-light ${
+                        item.complexity === "Easy"
+                          ? "bg-lime-300 text-gray-900"
+                          : item.complexity === "Medium"
+                            ? "bg-yellow-400 text-gray-900"
+                            : item.complexity === "Hard"
+                              ? "bg-red-500 text-white"
+                              : ""
+                      }`}
+                    >
+                      {item.complexity}
+                    </h3>
+                  </div>
+                )}
               </div>
+
+              {isAdmin && (
+                <div className="mt-2 flex">
+                  <h3
+                    className={`rounded-full px-4 py-1 text-xs font-light ${
+                      item.complexity === "Easy"
+                        ? "bg-lime-300 text-gray-900"
+                        : item.complexity === "Medium"
+                          ? "bg-yellow-400 text-gray-900"
+                          : item.complexity === "Hard"
+                            ? "bg-red-500 text-white"
+                            : ""
+                    }`}
+                  >
+                    {item.complexity}
+                  </h3>
+                </div>
+              )}
+
               {item.category && (
                 <p className="text-sm text-gray-300/30">
                   Category: {item.category}
                 </p>
               )}
-              <div className="mt-2 flex">
-                <h3
-                  className={`rounded-full px-4 py-1 text-xs font-light ${
-                    item.complexity === "Easy"
-                      ? "bg-lime-300 text-gray-900"
-                      : item.complexity === "Medium"
-                        ? "bg-yellow-400 text-gray-900"
-                        : item.complexity === "Hard"
-                          ? "bg-red-500 text-white"
-                          : ""
-                  }`}
-                >
-                  {item.complexity}
-                </h3>
-              </div>
+
               {openQuestion === item._id && (
                 <p className="mt-4 text-sm font-light text-white">
                   {item.description}
@@ -137,6 +163,7 @@ const Questions = () => {
           </div>
         ))}
       </div>
+
       {showModal && (
         <QuestionModal
           closeModal={() => setShowModal(false)}

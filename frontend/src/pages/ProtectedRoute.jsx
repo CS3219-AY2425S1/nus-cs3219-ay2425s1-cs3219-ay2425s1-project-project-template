@@ -1,7 +1,7 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
   const token = localStorage.getItem("jwtToken");
 
   // If no token, redirect to the login page
@@ -10,8 +10,8 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If token exists, allow access to the children component (Dashboard in this case)
-  return children;
+  // If token exists, allow access to the children components
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

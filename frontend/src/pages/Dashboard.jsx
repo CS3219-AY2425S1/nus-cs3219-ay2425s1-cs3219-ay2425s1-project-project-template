@@ -1,13 +1,11 @@
-import React from "react";
 import Calendar from "../components/Calendar";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 import Questions from "../components/Questions";
 import ProgressOverview from "../components/ProgressOverview";
 import Welcome from "../components/Welcome";
 import History from "../components/History";
-import MonthlyProgress from "../components/MonthlyProgress";
-import { ToastContainer } from "react-toastify";
+import PeerPrep from "./PeerPrep";
+import { useEffect, useState } from "react";
+import { fetchCurrentUser } from "../services/UserService";
 
 const peerSessions = [
   {
@@ -19,60 +17,48 @@ const peerSessions = [
   },
   {
     id: 2,
-    date: "2024-09-18",
-    peerName: "Jane Smith",
-    topics: ["Dynamic Programming", "Recursion"],
-    result: "Failed",
-  },
-  {
-    id: 3,
-    date: "2024-09-18",
-    peerName: "Sarah James",
-    topics: ["Dynamic Programming", "Recursion"],
+    date: "2024-09-21",
+    peerName: "John Doe",
+    topics: ["Arrays", "Sorting"],
     result: "Success",
   },
   {
-    id: 4,
-    date: "2024-09-18",
-    peerName: "Robert Wu",
-    topics: ["Dynamic Programming", "Recursion"],
+    id: 3,
+    date: "2024-09-21",
+    peerName: "John Doe",
+    topics: ["Arrays", "Sorting"],
     result: "Success",
   },
 ];
 
-const suggestedQuestion = {
-  title: "Binary Search Tree Insertion",
-  category: "Data Structures",
-};
-
 export default function Dashboard() {
-  return (
-    <div className="max-h-screen">
-      <ToastContainer />
-      <div className="overflow-hidden">
-        <Header />
-        <div className="flex">
-          <Sidebar />
-          <main className="flex-1 overflow-auto p-4">
-            <div className="flex space-x-2">
-              <Welcome userName="Alex" suggestedQuestion={suggestedQuestion} />
-              <Questions />
+  const [user, setUser] = useState(null);
 
-              <Calendar />
-            </div>
-            <div className="mt-2 flex space-x-2">
-              <MonthlyProgress
-                monthlyPracticeData={[
-                  5, 12, 8, 14, 10, 9, 7, 11, 15, 9, 13, 10,
-                ]}
-                startMonth={2}
-              />
-              <ProgressOverview dataPoints={[10, 20, 15, 30, 40, 35, 50]} />
-              <History sessions={peerSessions} />
-            </div>
-          </main>
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const currentUser = await fetchCurrentUser();
+        setUser(currentUser.data);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    getUser();
+  }, []);
+
+  return (
+    <PeerPrep>
+      <main className="flex-1 overflow-auto rounded-3xl">
+        <div className="flex space-x-5">
+          <Welcome username={user?.firstName} />
+          <ProgressOverview />
         </div>
-      </div>
-    </div>
+        <div className="mt-5 flex space-x-5">
+          <Questions isAdmin={false} />
+          <History sessions={peerSessions} />
+          <Calendar />
+        </div>
+      </main>
+    </PeerPrep>
   );
 }
