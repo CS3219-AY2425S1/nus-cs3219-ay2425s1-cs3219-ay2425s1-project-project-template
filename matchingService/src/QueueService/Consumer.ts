@@ -93,6 +93,10 @@ class Consumer {
         if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.matchId)) {
             this.deleteMatchRequestById(this.pendingReq.matchId);
             this.pendingReq = null;
+            if (this.pendingReqTimeout) {
+                clearTimeout(this.pendingReqTimeout);
+                this.pendingReqTimeout = null;
+            }
         }
     }
 
@@ -110,6 +114,10 @@ class Consumer {
                 logger.debug("Deleting pending match");
                 this.deleteMatchRequestById(this.pendingReq.matchId);
                 this.pendingReq = null;
+                if (this.pendingReqTimeout) {
+                    clearTimeout(this.pendingReqTimeout);
+                    this.pendingReqTimeout = null;
+                }
                 return;
             }
 
@@ -180,7 +188,7 @@ class Consumer {
 
     private startPendingReqTimeout(req: MatchRequestDTO): void {
         const timestamp = new Date(req.timestamp).getTime(); // Ensure timestamp is in milliseconds
-        const expirationTime = 0.2 * 60 * 1000; // 5 minutes in milliseconds
+        const expirationTime = 0.48 * 60 * 1000; // Give some buffer for frontend
         const currentTime = Date.now();
 
         const delay = (timestamp + expirationTime) - currentTime;
