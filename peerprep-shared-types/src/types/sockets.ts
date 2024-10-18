@@ -14,53 +14,55 @@ export enum ServerSocketEvents {
   MATCH_TIMEOUT = "MATCH_TIMEOUT",
 }
 
+export interface PeerprepRequest {
+  event: ClientSocketEvents;
+  username: string;
+  timestamp?: string;
+}
+
+export interface PeerprepResponse {
+  event: ServerSocketEvents;
+  username: string;
+}
+
 // Matching service
-export interface MatchRequest {
+export interface MatchRequest extends PeerprepRequest {
   selectedDifficulty: DifficultyLevel;
   selectedTopic: string;
   event: ClientSocketEvents.REQUEST_MATCH;
-  username: string;
-  timestamp?: string;
 }
 
-export interface MatchCancelRequest {
+export interface MatchCancelRequest extends PeerprepRequest {
   event: ClientSocketEvents.CANCEL_MATCH;
-  username: string;
-  timestamp?: string;
 }
 
-export interface MatchAddedResponse {
+export interface MatchAddedResponse extends PeerprepResponse {
   event: ServerSocketEvents.MATCH_REQUESTED;
-  username: string;
 }
 
-export interface MatchCancelResponse {
+export interface MatchCancelResponse extends PeerprepResponse {
   event: ServerSocketEvents.MATCH_CANCELED;
-  username: string;
 }
 
-export interface MatchFoundResponse {
+export interface MatchFoundResponse extends PeerprepResponse {
   event: ServerSocketEvents.MATCH_FOUND;
   roomId: string;
   opponentUsername: string;
   questionId: string;
 }
 
-export interface MatchTimeoutResponse {
+export interface MatchTimeoutResponse extends PeerprepResponse {
   event: ServerSocketEvents.MATCH_TIMEOUT;
-  username: string;
 }
 
-export interface RoomJoinRequest {
+export interface RoomJoinRequest extends PeerprepRequest {
   event: ClientSocketEvents.JOIN_ROOM;
   roomId: string;
-  username: string;
 }
 
-export interface RoomLeaveRequest {
+export interface RoomLeaveRequest extends PeerprepRequest {
   event: ClientSocketEvents.LEAVE_ROOM;
   roomId: string;
-  username: string;
 }
 
 export interface ServerToClientEvents {
