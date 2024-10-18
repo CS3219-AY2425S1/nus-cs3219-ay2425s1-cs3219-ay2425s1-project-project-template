@@ -23,6 +23,8 @@ import SockJS from "sockjs-client";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { send } from "process";
+import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
+import { preferredLanguagesList, topicsList } from "@/utils/constants";
 
 interface FindMatchFormOutput {
   questionDifficulty: string;
@@ -36,21 +38,6 @@ interface FindMatchSocketMessage {
   programmingLanguage: string[];
   difficulty: string;
 }
-
-const FindPeerHeader = () => {
-  return (
-    <div className="flex flex-col mt-8">
-      <span className="text-h3 font-medium text-white">Find a Peer</span>
-      <div className="flex flex-col text-white text-lg font-light">
-        <span>
-          Customize your experience by selecting multiple languages, difficulty
-          levels,
-        </span>
-        <span>and question topics.</span>
-      </div>
-    </div>
-  );
-};
 
 const FindPeer = () => {
   const [stompClient, setStompClient] = useState<StompClient | null>(null);
@@ -136,22 +123,6 @@ const FindPeer = () => {
       questionTopics: "",
     },
   });
-
-  const preferredLanguagesList = Object.values(QuestionLanguages).map((ql) => {
-    return {
-      label: capitalizeWords(ql),
-      value: ql,
-    };
-  });
-
-  const topicsList = Object.values(QuestionTopics)
-    .map((qt) => {
-      return {
-        label: capitalizeWords(qt),
-        value: qt,
-      };
-    })
-    .sort((a, b) => a.label.localeCompare(b.label));
 
   const onSubmit = (data: FindMatchFormOutput) => {
     sendMatchRequest(data);
