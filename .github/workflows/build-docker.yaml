@@ -181,3 +181,16 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  results:
+    runs-on: ubuntu-latest
+    name: Final Results
+    needs: build-and-push-image
+    steps:
+      - run: |
+          result="${{ needs.build-and-push-image.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
