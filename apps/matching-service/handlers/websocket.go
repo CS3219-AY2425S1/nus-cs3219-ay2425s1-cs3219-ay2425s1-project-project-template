@@ -126,12 +126,12 @@ func waitForResult(ws *websocket.Conn, ctx, timeoutCtx, matchCtx context.Context
 	case <-ctx.Done():
 		log.Println("Matching cancelled")
 		// Cleanup Redis
-		processes.CleanUpUser(processes.GetRedisClient(), username, ctx)
+		processes.CleanUpUser(processes.GetRedisClient(), username, context.Background())
 		return
 	case <-timeoutCtx.Done():
 		log.Println("Connection timed out")
 		// Cleanup Redis
-		processes.CleanUpUser(processes.GetRedisClient(), username, ctx)
+		processes.CleanUpUser(processes.GetRedisClient(), username, context.Background())
 		sendTimeoutResponse(ws)
 		return
 	case <-matchCtx.Done():
