@@ -7,6 +7,7 @@ from typing import List
 
 from .config import settings
 from matching_service.common import MatchRequest
+from matching_service.config import RedisSettings
 
 logger = get_logger()
 
@@ -34,15 +35,8 @@ def request_match(publisher: Redis, user: MatchRequest):
 
 
 
-# Define the request model
-class User(BaseModel):
-    user: str
-    topic: str
-    difficulty: str
-
-
-@app.get("/match", response_model=dict)
-async def get_match(user: User):
+@app.get("/")
+async def get_match():
     """
     Example GET endpoint for basic testing.
     """
@@ -50,14 +44,11 @@ async def get_match(user: User):
 
 
 @app.post("/match", response_model=dict)
-async def create_match(user: User):
+async def create_match(req: MatchRequest):
     """
     Create a match request for a user. This will publish the match request to the Redis channel.
     """
     try:
-        # Create a MatchRequest object from the incoming User data
-        match_request = MatchRequest(user=user.user, topic=user.topic, difficulty=user.difficulty)
-
         # Publish the match request to the Redis channel using the request_match function
         request_match(redis_client, match_request)
 
