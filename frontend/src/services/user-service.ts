@@ -1,4 +1,5 @@
 import { HttpStatusCode } from 'axios';
+
 import type { IForgotPasswordPayload, ILoginPayload, ISignUpPayload } from '@/types/user-types';
 
 import { userApiClient, userApiGetClient } from './api-clients';
@@ -43,6 +44,7 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
           expiresAt: response.data ? new Date(response.data.expiresAt) : new Date(),
         };
       }
+
       return {
         isAuthed: false,
       };

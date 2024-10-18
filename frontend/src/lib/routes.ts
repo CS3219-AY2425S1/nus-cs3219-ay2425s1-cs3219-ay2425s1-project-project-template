@@ -34,6 +34,7 @@ export const getBreadCrumbs = (path: string): Array<BreadCrumb> => {
       ];
     }
   }
+
   return [];
 };
 

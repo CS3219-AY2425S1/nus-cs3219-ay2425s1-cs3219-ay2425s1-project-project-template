@@ -1,6 +1,7 @@
-import { generatePasswordHash } from '@/lib/passwords';
 import { admin as adminTable, db, users as usersTable } from '.';
 import { eq } from 'drizzle-orm';
+
+import { generatePasswordHash } from '@/lib/passwords';
 
 const TEST_USER_CREDENTIALS = {
   username: 'testuser01',
@@ -15,12 +16,14 @@ const main = async () => {
     // Clear all users
     try {
       const seedRecords = await tx.select().from(adminTable).where(eq(adminTable.action, 'SEED'));
+
       if (seedRecords && seedRecords.length > 0) {
         console.info(
           `[Users]: Seeded already at: ${(seedRecords[seedRecords.length - 1].createdAt ?? new Date()).toLocaleString()}`
         );
         return;
       }
+
       await tx.delete(usersTable);
 
       const password = generatePasswordHash(TEST_USER_CREDENTIALS.password);
