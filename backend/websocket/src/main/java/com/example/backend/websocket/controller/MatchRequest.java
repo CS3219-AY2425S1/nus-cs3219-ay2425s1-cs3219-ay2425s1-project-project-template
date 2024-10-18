@@ -1,4 +1,4 @@
-package com.example.backend.matching.controller;
+package com.example.backend.websocket.controller;
 
 import lombok.Data;
 

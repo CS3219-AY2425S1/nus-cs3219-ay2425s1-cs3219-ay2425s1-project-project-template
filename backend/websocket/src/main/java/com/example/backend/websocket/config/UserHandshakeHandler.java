@@ -1,4 +1,4 @@
-package com.example.backend.matching.websocket;
+package com.example.backend.websocket.config;
 
 import java.security.Principal;
 import java.util.Map;
