@@ -14,7 +14,6 @@ app.use(express.json());
 
 let channel, connection;
 
-        }
 async function initRabbitMQ() {
     try {
         connection = await amqp.connect('amqp://rabbitmq:5672');
