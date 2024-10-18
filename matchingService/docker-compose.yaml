@@ -4,7 +4,7 @@ services:
     image: rabbitmq:4.0.0-rc.1-management-alpine
     ports:
       - "5672:5672" 
-      - "15672:15672" # Dashboard port
+      - "15672:15672" # Dashboard port -dev purpose
     environment:
       RABBITMQ_NODE_PORT: 5672
     healthcheck:
@@ -16,11 +16,11 @@ services:
 
   matchingservice:
     build:
-      context: .
+      context: ./matchingService
       dockerfile: Dockerfile
     ports:
       - "3000:3000" 
-      - "8080:8080"
+      - "8081:8081"
     environment:
       - RABBITMQ_URL=amqp://rabbitmq:5672
     container_name: matchingservice
