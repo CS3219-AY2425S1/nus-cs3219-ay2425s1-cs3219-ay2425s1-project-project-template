@@ -69,24 +69,34 @@ export const NewSession = () => {
         //TODO: Modify this response to match the response from the API
         let response: { websocketID: string } | undefined = { websocketID: '' }
 
+        const t = new Date().toISOString()
+        setTimestamp(t)
         try {
-            const t = new Date().toISOString()
-            setTimestamp(t)
-            const temp = {
-                userId: session?.user.id ?? '',
-                proficiency: session?.user.proficiency as Proficiency,
-                complexity: selectedComplexity as Complexity,
-                topic: selectedTopic as Category,
-                timestamp: t,
-            }
-            const r = await addUserToMatchmaking(temp)
+            const r = await addUserToMatchmaking()
             response.websocketID = r.websocketID
         } catch {
             await handleFailedMatchmaking()
         }
 
-        const socket = new WebSocket(`wss://${response?.websocketID}`)
+        if (!response.websocketID) {
+            toast.error('Failed to retrieve websocket ID.')
+            return
+        }
+
+        const socket = new WebSocket(`ws://localhost:3006/?id=${response.websocketID}`)
         socketRef.current = socket
+        socketRef.current.onopen = () => {
+            socketRef.current?.send(
+                JSON.stringify({
+                    userId: session?.user.id ?? '',
+                    proficiency: session?.user.proficiency as Proficiency,
+                    complexity: selectedComplexity as Complexity,
+                    topic: selectedTopic as Category,
+                    timestamp: t,
+                    websocketId: response.websocketID,
+                })
+            )
+        }
         socketRef.current.onmessage = (event: MessageEvent) => {
             if (typeof event.data === 'string') {
                 const newMessage = JSON.parse(event.data)
@@ -142,36 +152,6 @@ export const NewSession = () => {
         }))
         router.push('/code')
     }
-
-    const [message, setMessage] = React.useState('')
-
-    React.useEffect(() => {
-        // Replace the URL with your WebSocket server URL
-        const ws = new WebSocket('ws://localhost:8080') // Use 'wss://' if you're using a secure WebSocket
-
-        ws.onopen = () => {
-            console.log('Connected to WebSocket server')
-            ws.send('Hello from the frontend') // Example of sending a message to the server
-        }
-
-        ws.onmessage = (event) => {
-            console.log('Message from server: ', event.data)
-            setMessage(event.data) // Set received message to state
-        }
-
-        ws.onerror = (error) => {
-            console.error('WebSocket error: ', error)
-        }
-
-        ws.onclose = () => {
-            console.log('WebSocket connection closed')
-        }
-
-        // Clean up WebSocket connection when component unmounts
-        return () => {
-            ws.close()
-        }
-    }, [])
 
     return (
         <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
