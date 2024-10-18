@@ -73,7 +73,10 @@ const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
 
   if (result.success) {
     sendResponse(ServerSocketEvents.MATCH_REQUESTED, message.username);
-    matcher.start();
+
+    setTimeout(() => {
+      matcher.start();
+    }, 1000); // Delayed to allow requests to be properly added to the queue
   }
 };
 

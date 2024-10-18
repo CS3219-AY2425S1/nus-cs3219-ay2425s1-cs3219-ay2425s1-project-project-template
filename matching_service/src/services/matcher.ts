@@ -55,13 +55,13 @@ export class Matcher {
     console.log("now:", now);
 
     requestMap.forEach((requests, key, map) => {
-      requests.forEach((request) => {
-        console.log(request.timestamp);
-        if (request.timestamp < now - 30 * 1000) {
-          expired.push(request);
-          map.get(key)?.filter((x) => x == request);
+      // Remove requests older than 30 seconds
+      for (let i = requests.length - 1; i >= 0; i--) {
+        if (requests[i].timestamp < now - 30 * 1000) {
+          expired.push(requests[i]);
+          requests.splice(i, 1);
         }
-      });
+      }
     });
 
     return { expired };
@@ -127,7 +127,6 @@ export class Matcher {
     console.log("Notifying expired requests...");
 
     for (let request of expired) {
-      await this.queue.cancel(request);
       this.notifer(ServerSocketEvents.MATCH_TIMEOUT, request.username);
     }
   }

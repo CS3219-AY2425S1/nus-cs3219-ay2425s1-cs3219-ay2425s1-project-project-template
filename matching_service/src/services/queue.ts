@@ -114,11 +114,14 @@ export class Queue implements IQueue {
 
     if (msgLocation != undefined) {
       const { topic } = msgLocation;
-      success = true;
-      await this.topicMap
-        .get(topic)
-        ?.filter((x) => x.username == request.username);
+      const requests = this.topicMap.get(topic) ?? [];
+      for (let i = requests.length - 1; i >= 0; i--) {
+        if (requests[i].username == request.username) {
+          requests.splice(i, 1);
+        }
+      }
       this.userMap.delete(request.username);
+      success = true;
     }
 
     return {
