@@ -3,13 +3,13 @@ const MatchController = require('../controllers/matchController')
 
 const createMatchRequest = async (req, res) => {
     if (!(req.body.id)) {
-        return res.status(400).json({ 'message' : 'User ID is missing!'})
+        return res.status(400).json({ 'message' : 'User ID is missing!'});
     }
     if (!(req.body.difficulty)) {
-        return res.status(400).json({ 'message' : 'Difficulty is not selected!'})
+        return res.status(400).json({ 'message' : 'Difficulty is not selected!'});
     }
     if (!(req.body.category)) {
-        return res.status(400).json({ 'message' : 'Category is not selected!'})
+        return res.status(400).json({ 'message' : 'Category is not selected!'});
     }
 
     // Format required fields appropriately
@@ -18,14 +18,18 @@ const createMatchRequest = async (req, res) => {
                 category: req.body.category
     }
 
-    matchingResult = MatchingQueue.handleMatchRequest(request)
+    await MatchingQueue.handleMatchRequest(request).then(matchingResult => {
+        if (matchingResult.matched) {
+            MatchController.createMatch(matchingResult);
+        }             
+        // Return the result as 201 even if not matched.
+        return res.status(201).json(matchingResult);
 
-    if (matchingResult.matched) {
-        MatchController.createMatch(matchingResult)
-        return res.status(201).json(matchingResult)
-    } else {
-        return res.status(404).json(matchingResult)
-    }
+    }).catch(error => {
+        console.log(`error`, error);
+        return res.status(400).json({ 'message' : 'Something went wrong during matching!'});
+    });
+
 }
 
 const cancelMatchRequest = async (req, res) => {

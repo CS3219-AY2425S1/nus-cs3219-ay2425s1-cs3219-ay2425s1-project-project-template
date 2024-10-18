@@ -28,17 +28,17 @@ const matchUsers = async () => {
             return; // Skip adding this request
         }
 
-        let perfectMatches = requests.filter(function(req) {
+        let perfectMatches = requests.filter(function (req) {
             return calculateMatchScore(newRequest, req) >= 4
         });
-        let closeMatches = requests.filter(function(req) {
+        let closeMatches = requests.filter(function (req) {
             return calculateMatchScore(newRequest, req) >= 3
         });
         var matchedRequest = false
 
         if (perfectMatches.length == 0 && closeMatches.length == 0) {
             requests.push(newRequest);
-        } else if (perfectMatches.length > 0){
+        } else if (perfectMatches.length > 0) {
             matchedRequest = perfectMatches.pop()
         } else {
             matchedRequest = closeMatches.pop()
@@ -46,12 +46,13 @@ const matchUsers = async () => {
 
         if (matchedRequest) {
             requests.splice(requests.indexOf(matchedRequest), 1)
-            result = { matched: true,
-                       user1: newRequest.id,
-                       user2: matchedRequest.id,
-                       category: newRequest.category,
-                       difficulty: newRequest.difficulty
-                    };
+            result = {
+                matched: true,
+                user1: newRequest.id,
+                user2: matchedRequest.id,
+                category: newRequest.category,
+                difficulty: newRequest.difficulty
+            };
             console.log(`Matched ${result.user1} and ${result.user2}`)
             result = JSON.stringify(result)
             channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); // B to D
@@ -60,7 +61,13 @@ const matchUsers = async () => {
 
         setTimeout(() => {
             if (handleDeleteRequest(newRequest)) {
-                result = { matched: false, user1: newRequest.id, user2: "" };
+                result = {
+                    matched: false,
+                    user1: newRequest.id,
+                    user2: "",
+                    category: newRequest.category,
+                    difficulty: newRequest.difficulty
+                };
                 channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); //B to D
                 console.log(`${newRequest.id} timed out.`)
             }
@@ -107,29 +114,31 @@ const handleMatchRequest = async (request) => {
     channel.publish(reqCh, '', Buffer.from(JSON.stringify(request))); // C to A
     console.log(`Sent user ${request.id} for matching.`);
 
-    //Waiting for results
-    let recevied = false;
-    channel.consume(q.queue, msg => {
-        console.log(`User ${request.id} ~ Result: ${msg.content.toString()}`);
-        result = JSON.parse(msg.content.toString());
-        recevied = true;
-        return result;
-    }, { noAck: true });
+    //Promise
+    return new Promise((resolve, reject) => {
 
+        // Consume the result from the queue
+        channel.consume(q.queue, msg => {
+            console.log(`User ${request.id} ~ Result: ${msg.content.toString()}`);
+            result = JSON.parse(msg.content.toString());
+            connection.close();
+            resolve(result);  // Resolve with result once received
+        }, { noAck: true });
 
-    setTimeout(() => {
-        //If by 30 seconds no response, return not matched.
-        if (!recevied) {
-            console.log(`30 seconds time out for matching for user ${request.id}`)
-            return { matched: false,
-                     user1: "",
-                     user2: "",
-                     category: request.category,
-                     difficulty: request.difficulty
-                    };
-        }
-        connection.close();
-    }, 30000)
+        // Timeout after 45 seconds if no response is received (failsafe).
+        setTimeout(() => {
+            console.log(`45 seconds timeout for matching user ${request.id}`);
+            connection.close();
+            resolve({
+                matched: false,
+                user1: "",
+                user2: "",
+                category: request.category,
+                difficulty: request.difficulty
+            });
+        }, 45000);
+    });
+
 }
 
 const handleDeleteRequest = (user) => {
