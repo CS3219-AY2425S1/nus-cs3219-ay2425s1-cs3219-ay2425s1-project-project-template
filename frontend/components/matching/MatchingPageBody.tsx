@@ -99,6 +99,28 @@ export default function MatchingPageBody() {
       onErrorWebSocket,
       onWebSocketMessage,
     );
+    // Close the WebSocket when the component unmounts or the user leaves the page
+    const handleUnload = () => {
+      if (
+        webSocketRef.current &&
+        webSocketRef.current.readyState === WebSocket.OPEN
+      ) {
+        webSocketRef.current.close();
+        console.log("WebSocket closed due to page unload or refresh");
+      }
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      if (webSocketRef.current) {
+        webSocketRef.current.close();
+        webSocketRef.current = null;
+        console.log("WebSocket closed due to component unmount");
+      }
+    };
   }, [userMatchInfo]);
   // end of WebSocket Handlers
 

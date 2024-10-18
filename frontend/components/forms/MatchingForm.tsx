@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useContext } from "react";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 import { v4 } from "uuid";
@@ -9,6 +9,8 @@ import TopicSelection from "../matching/TopicSelection";
 
 import { UserMatchRequest, UserMatchResponse } from "@/types/match";
 import { useAddUserToMatch } from "@/hooks/api/matching";
+import { UserContext } from "@/context/UserContext";
+import { User } from "@/types/user";
 
 const CARD_STYLES = "w-9/12 gap-y-7 flex mx-auto flex-col justify-center p-16";
 
@@ -24,6 +26,24 @@ export default function MatchingForm({
   const programmingLanguagesRef = useRef<string[]>([]);
   const topicsRef = useRef<string[]>([]);
   const [invalidFields, setInvalidFields] = useState<Set<number>>(new Set());
+  const userProps = useContext(UserContext);
+  const onSuccessMatch = (responseData: UserMatchResponse) => {
+    questionDifficultyRef.current = [];
+    programmingLanguagesRef.current = [];
+    topicsRef.current = [];
+    onSuccess(responseData);
+  };
+  // initialise mutate hook to add user to match-service
+  const {
+    mutate,
+    isPending: isPendingMatch,
+    isError,
+  } = useAddUserToMatch(onSuccessMatch);
+
+  if (!userProps || userProps.user === null) {
+    return <p>Invalid User</p>;
+  }
+  const user: User = userProps.user;
   // onSelect Handlers
   const onSelectQuestionDifficulty = (difficulties: string[]) => {
     questionDifficultyRef.current = difficulties;
@@ -37,18 +57,6 @@ export default function MatchingForm({
     topicsRef.current = topics;
   };
 
-  const onSuccessMatch = (responseData: UserMatchResponse) => {
-    questionDifficultyRef.current = [];
-    programmingLanguagesRef.current = [];
-    topicsRef.current = [];
-    onSuccess(responseData);
-  };
-  // initialise mutate hook to add user to match-service
-  const {
-    mutate,
-    isPending: isPendingMatch,
-    isError,
-  } = useAddUserToMatch(onSuccessMatch);
   // validates and addUser
   const onSubmit = () => {
     const invalidSet: Set<number> = new Set();
@@ -66,7 +74,6 @@ export default function MatchingForm({
     if (invalidSet.size !== 0) {
       return;
     }
-    const userId = v4();
     const socketId = v4();
     let generalize = false;
     let languages = programmingLanguagesRef.current;
@@ -76,14 +83,14 @@ export default function MatchingForm({
       languages = [];
     }
     const userMatchRequest: UserMatchRequest = {
-      user_id: userId,
+      user_id: user.id,
       socket_id: socketId,
       difficulty_levels: questionDifficultyRef.current,
       categories: topicsRef.current,
       programming_languages: languages,
       generalize_languages: generalize,
     };
-
+    console.log(userMatchRequest);
     mutate(userMatchRequest);
   };
 
