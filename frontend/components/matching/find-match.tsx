@@ -15,6 +15,7 @@ export default function FindMatch() {
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [waitTime, setWaitTime] = useState<number>(0);
   const [websocket, setWebsocket] = useState<WebSocket>();
+  const [queueTimeout, setQueueTimeout] = useState<NodeJS.Timeout>();
   const { toast } = useToast();
   const auth = useAuth();
 
@@ -26,17 +27,14 @@ export default function FindMatch() {
       }, 1000);
     } else {
       setWaitTime(0);
+      clearTimeout(queueTimeout);
+      setQueueTimeout(undefined);
     }
-    return () => clearInterval(interval);
-  }, [isSearching]);
 
-  useEffect(() => {
     return () => {
-      if (websocket) {
-        websocket.close();
-      }
+      clearInterval(interval);
     };
-  }, [websocket]);
+  }, [isSearching]);
 
   const handleSearch = async () => {
     if (!selectedDifficulty || !selectedTopic) {
@@ -105,6 +103,11 @@ export default function FindMatch() {
             variant: "destructive",
           });
         };
+        setQueueTimeout(
+          setTimeout(() => {
+            handleCancel();
+          }, 60000)
+        );
         setWebsocket(ws);
         return;
       default:

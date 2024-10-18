@@ -48,9 +48,9 @@ class ConnectionManager:
             return
 
         await asyncio.gather(
-            *[websocket.close() for websocket in self.connection_map[key]]
+            *[self._close_and_ignore(websocket) for websocket in self.connection_map[key]]
         )
-        del self.connection_map[key]
+        self.connection_map.pop(key, None)
 
     '''
     Disconnects the single connection.
@@ -68,8 +68,14 @@ class ConnectionManager:
 
         self.connection_map[key].remove(websocket)
         if len(self.connection_map[key]) == 0:
-            del self.connections_map[key]
-        websocket.close()
+            self.connection_map.pop(key, None)
+        self._close_and_ignore(websocket)
+    
+    async def _close_and_ignore(self, websocket: WebSocket):
+        try:
+            await websocket.close()
+        except Exception:
+            pass
 
     '''
     Data is sent to through all connections associated with

@@ -39,4 +39,4 @@ async def subscribe(
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(user_id, topic, difficulty, websocket)
+        await manager.disconnect(user_id, topic, difficulty, websocket)
