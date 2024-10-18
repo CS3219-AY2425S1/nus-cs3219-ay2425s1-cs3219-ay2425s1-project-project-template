@@ -21,7 +21,7 @@ func main() {
 	}
 	port := os.Getenv("PORT")
 
-	// Set up link with redis server
+	// Retrieve redis url env variable and setup the redis client
 	redisAddr := os.Getenv("REDIS_URL")
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
@@ -37,8 +37,10 @@ func main() {
 		log.Println("Connected to Redis at the following address: " + redisAddr)
 	}
 
-	// Pass the connect redis client to processes in match
+	// Set redis client
 	processes.SetRedisClient(client)
+
+	// Run a goroutine that matches users
 
 	// Routes
 	http.HandleFunc("/match", handlers.HandleWebSocketConnections)

@@ -76,8 +76,7 @@ Client sends matching parameters:
   "type": "match_request",
   "topics": ["Algorithms", "Arrays"],
   "difficulties": ["Easy", "Medium"],
-  "username": "Jane Doe",
-  "email": "janedoe@gmail.com" // possible to change to user ID in mongodb
+  "username": "Jane Doe"
 }
 ```
 
@@ -86,9 +85,11 @@ Server response on successful match:
 ```json
 {
   "type": "match_found",
-  "matchID": "aa41c004e589642402215c2c0a3a165a",
-  "partnerID": 54321, // currently identifying via partner's websocket port --> change to user ID in mongodb
-  "partnerName": "John Doe" // partner username
+  "matchId": "1c018916a34c5bee21af0b2670bd6156",
+  "user": "zkb4px",
+  "matchedUser": "JohnDoe",
+  "topic": "Algorithms",
+  "difficulty": "Medium"
 }
 ```
 
@@ -98,6 +99,15 @@ If no match is found after a set period of time, the server will send a timeout 
 {
   "type": "timeout",
   "message": "No match found. Please try again later."
+}
+```
+
+If user has an existing websocket connection and wants to initiate another match, the server will reject the request:
+
+```json
+{
+  "type": "match_rejected",
+  "message": "You are already in a matchmaking queue. Please disconnect before reconnecting."
 }
 ```
 
