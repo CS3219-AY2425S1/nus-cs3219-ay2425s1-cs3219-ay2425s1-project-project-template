@@ -1,5 +1,8 @@
+import dotenv from 'dotenv'
 import { connect, Connection } from 'amqplib'
 import logger from '../utils/logger'
+
+dotenv.config({ path: './.env' })
 
 const rabbitUrl: string = String(process.env.RABBITMQ_URL)
 

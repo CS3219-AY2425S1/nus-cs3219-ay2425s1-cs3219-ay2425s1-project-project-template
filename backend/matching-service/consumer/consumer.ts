@@ -25,7 +25,6 @@ const startConsumer = async (
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            
             connection = await connect(
                 rabbitPort,
             )
@@ -95,6 +94,7 @@ const processMatching = async (
         let reqIndex = requestQueue.findIndex((x) => x.name === req.name)
         if (reqIndex !== -1) {
             requestQueue.splice(reqIndex, 1)
+            logger.info(`${req.name} has been removed from the queue`)
         }
 
         if (matchPartner) {
@@ -104,6 +104,7 @@ const processMatching = async (
             )
             if (partnerIndex !== -1) {
                 requestQueue.splice(partnerIndex, 1)
+                logger.info(`${matchPartner.name} has been removed from the queue`)
             }
             return
         } else {

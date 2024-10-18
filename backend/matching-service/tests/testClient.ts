@@ -1,8 +1,9 @@
 /*
 How to run:
 
-1. cd into backend/matchingservice/tests
-2. npx ts-node testClient.ts Name difficulty category category
+1. Ensure backend is running
+2. cd into backend/matching-service/tests
+3. npx ts-node testClient.ts Name difficulty category category
 e.g. npx ts-node testClient.ts Alice medium algo recursion
 
 do this in 2 different terminals e.g. 
