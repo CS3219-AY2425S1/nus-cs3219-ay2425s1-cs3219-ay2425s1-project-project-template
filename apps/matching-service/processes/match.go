@@ -45,7 +45,7 @@ func getPortNumber(addr string) (int64, error) {
 	return port, nil
 }
 
-func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matchFoundChan chan models.MatchFound) {
+func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matchFoundChannels map[string]chan models.MatchFound) {
 	// Acquire mutex
 	mu.Lock()
 	// Defer unlocking the mutex
@@ -73,7 +73,7 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 		// Peek at the user queue
 		username, err := redisClient.LIndex(context.Background(), "matchmaking_queue", 0).Result()
 		if err != nil {
-			// log.Println("Error peeking user from queue:", err)
+			log.Println("Error peeking user from queue:", err)
 			time.Sleep(1 * time.Second)
 			continue
 		}
@@ -81,7 +81,7 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 		// log.Printf("Performing matching for user: %s", username)
 		matchedUsername, matchedTopic, matchedDifficulty, err := FindMatchingUser(redisClient, username, ctx)
 		if err != nil {
-			// log.Println("Error finding matching user:", err)
+			log.Println("Error finding matching user:", err)
 			time.Sleep(1 * time.Second)
 			continue
 		}
@@ -111,7 +111,7 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 			}
 
 			// Signal that a match has been found
-			matchFoundChan <- models.MatchFound{
+			matchFoundChannels[username] <- models.MatchFound{
 				Type:        "match_found",
 				MatchID:     matchId,
 				User:        username,
