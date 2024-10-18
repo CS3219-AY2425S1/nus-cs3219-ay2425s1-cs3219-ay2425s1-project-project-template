@@ -25,7 +25,7 @@ app.add_middleware(
 )
 
 # Define the Redis client
-redis_client = Redis.from_url(settings.redis_url)
+redis_client = Redis.from_url("redis://localhost:6379/0")
 
 def request_match(publisher: Redis, user: MatchRequest):
     channel = RedisSettings.Channels.REQUESTS.value
@@ -41,12 +41,12 @@ class User(BaseModel):
     difficulty: str
 
 
-# @app.get("/match", response_model=dict)
-# async def get_match(user: User):
-#     """
-#     Example GET endpoint for basic testing.
-#     """
-#     return {"message": "Hello from matching service"}
+@app.get("/match", response_model=dict)
+async def get_match(user: User):
+    """
+    Example GET endpoint for basic testing.
+    """
+    return {"message": "Hello from matching service"}
 
 
 @app.post("/match", response_model=dict)
