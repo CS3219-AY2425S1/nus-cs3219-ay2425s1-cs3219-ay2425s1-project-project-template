@@ -1,13 +1,14 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from structlog import get_logger
-from pydantic import BaseModel
-from redis import Redis
 from typing import List
 
-from .config import settings
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from redis import Redis
+from structlog import get_logger
+
 from matching_service.common import MatchRequest
 from matching_service.config import RedisSettings
+
+from .config import settings
 
 logger = get_logger()
 
@@ -28,11 +29,11 @@ app.add_middleware(
 # Define the Redis client
 redis_client = Redis.from_url("redis://localhost:6379/0")
 
+
 def request_match(publisher: Redis, user: MatchRequest):
     channel = RedisSettings.Channels.REQUESTS.value
     publisher.publish(channel, user.model_dump_json())
     logger.info(f"CLIENT: User {user.user} requested match for {user.topic}, {user.difficulty}")
-
 
 
 @app.get("/")
@@ -50,10 +51,10 @@ async def create_match(req: MatchRequest):
     """
     try:
         # Publish the match request to the Redis channel using the request_match function
-        request_match(redis_client, match_request)
+        request_match(redis_client, req)
 
         # Return a success response
-        return {"message": f"Match request for {user.user} has been created successfully."}
+        return {"message": f"Match request for {req.user} has been created successfully."}
     except Exception as e:
         logger.error(f"Error while creating match: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while creating the match.")
