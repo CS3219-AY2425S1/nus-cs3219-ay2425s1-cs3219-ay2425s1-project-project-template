@@ -55,7 +55,6 @@ class Matchmaker:
                 logger.info(f"\t⏳ User {req.user} added to the unmatched pool for {unmatched_key}")
 
     def exception_handler(self, ex, _pubsub, _thread):
-        logger.info("called!")
         logger.warn(ex)
 
     def stop(self):
