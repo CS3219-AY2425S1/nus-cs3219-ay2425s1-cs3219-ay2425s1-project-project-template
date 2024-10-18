@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multiselect";
+import MoonLoader from "react-spinners/MoonLoader";
 import {
   Select,
   SelectContent,
@@ -11,21 +12,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  QuestionDifficulty,
-  QuestionLanguages,
-  QuestionTopics,
-} from "@/types/find-match";
-import { capitalizeWords } from "@/utils/string_utils";
+import { QuestionDifficulty, QuestionLanguages } from "@/types/find-match";
 import { useForm } from "react-hook-form";
 import { Client as StompClient } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { send } from "process";
 import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
 import { preferredLanguagesList, topicsList } from "@/utils/constants";
 import Swal from "sweetalert2";
+import { createRoot } from "react-dom/client";
 
 interface FindMatchFormOutput {
   questionDifficulty: string;
@@ -40,16 +36,30 @@ interface FindMatchSocketMessage {
   difficulty: string;
 }
 
-const showLoadingSpinner = () => {
+const showLoadingSpinner = (onCancel: () => void) => {
   Swal.fire({
-    title: "Processing...",
-    text: "Finding a match...",
+    title: "Finding a match...",
+    html: `
+      <div id="spinner-container" class="flex flex-col items-center p-5">
+      </div>
+    `,
     allowOutsideClick: false,
     allowEscapeKey: false,
+    showCancelButton: true,
+    cancelButtonText: "Cancel",
     showConfirmButton: false,
     didOpen: () => {
-      Swal.showLoading();
+      const container = document.getElementById("spinner-container");
+      if (container) {
+        const root = createRoot(container);
+        root.render(<MoonLoader size={60} color={"#3498db"} />);
+      }
     },
+  }).then((result) => {
+    // Handle cancel button click
+    if (result.dismiss === Swal.DismissReason.cancel) {
+      onCancel();
+    }
   });
 };
 
@@ -63,12 +73,20 @@ const SOCKET_URL =
 
 const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
 
-const TIMEOUT_TIMER = 2; // in seconds
+const TIMEOUT_TIMER = 500000; // in seconds
 
 const FindPeer = () => {
-  const stompClientRef = useRef<StompClient | null>(null); // Use useRef to store client instance
+  const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [socketMessages, setSocketMessages] = useState<string[]>([]);
+
+  const cancelSocketConnection = () => {
+    if (stompClientRef.current) {
+      stompClientRef.current.deactivate();
+      console.log("WebSocket connection canceled by user.");
+    }
+    closeLoadingSpinner();
+  };
 
   const makeSocketConnection = (): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -83,7 +101,6 @@ const FindPeer = () => {
           console.log("STOMP connection established");
           setIsConnected(true);
 
-          // Subscribe to a topic
           client.subscribe("/user/queue/matches", (message) => {
             console.log("Received message: ", message.body);
             setSocketMessages((prevMessages) => [
@@ -92,11 +109,12 @@ const FindPeer = () => {
             ]);
           });
 
-          stompClientRef.current = client; // Store the client in the ref
+          stompClientRef.current = client;
           resolve();
         },
         onDisconnect: () => {
           console.log("STOMP connection closed");
+          setIsConnected(false);
         },
         onStompError: (error) => {
           console.error("STOMP error: ", error);
@@ -139,7 +157,7 @@ const FindPeer = () => {
     });
     console.log("Match request sent: ", CURRENT_USER);
 
-    showLoadingSpinner();
+    showLoadingSpinner(cancelSocketConnection);
 
     const timeout = setTimeout(() => {
       stompClientRef.current?.deactivate();
