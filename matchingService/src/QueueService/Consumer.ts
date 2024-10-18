@@ -30,7 +30,7 @@ class Consumer {
         // Incoming cancellation requests may reference non-existing matches. 
         // If these requests are not deleted from the hashmap, they will accumulate over time.
         // To prevent this, we regularly clean up expired cancellation requests from the hashmap.
-        const intervalDuration = 1 * 60 * 1000;
+        const intervalDuration = 5 * 60 * 1000;
         this.cleanupInterval = setInterval(() => this.cleanupExpiredCancellationRequests(), intervalDuration);
     }
 
@@ -91,12 +91,7 @@ class Consumer {
             return;
         }
         if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.matchId)) {
-            this.deleteMatchRequestById(this.pendingReq.matchId);
-            this.pendingReq = null;
-            if (this.pendingReqTimeout) {
-                clearTimeout(this.pendingReqTimeout);
-                this.pendingReqTimeout = null;
-            }
+            this.deletePendingMatchRequestById(this.pendingReq.matchId);
         }
     }
 
@@ -112,18 +107,13 @@ class Consumer {
 
             if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.matchId)) {
                 logger.debug("Deleting pending match");
-                this.deleteMatchRequestById(this.pendingReq.matchId);
-                this.pendingReq = null;
-                if (this.pendingReqTimeout) {
-                    clearTimeout(this.pendingReqTimeout);
-                    this.pendingReqTimeout = null;
-                }
+                this.deletePendingMatchRequestById(this.pendingReq.matchId);
                 return;
             }
 
             if (this.isCancelledMatchRequest(req.matchId)) { // Handle case whereby cancellation requests comes before match request due to latency issue
                 logger.debug("Deleting new match request");
-                this.deleteMatchRequestById(req.matchId);
+                this.deleteIncomingMatchRequestById(req.matchId);
                 return;
             }
 
@@ -205,9 +195,7 @@ class Consumer {
         }
     }
 
-    private deleteMatchRequestById(matchId: string): void {
-        logger.debug(`Processing cancellation for match ID: ${matchId}`);
-        
+    private deleteIncomingMatchRequestById(matchId: string): void {
         const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
         if (!cancellationResponseQueue) {
             logger.warn("Missing response queue for cancellation");
@@ -217,6 +205,25 @@ class Consumer {
         if (this.isCancelledMatchRequest(matchId)) {
             logger.debug(`Deleting cancelled match request: ${matchId}`);
             this.cancelledMatches.delete(matchId);
+        }
+        return;
+    }
+
+    private deletePendingMatchRequestById(matchId: string): void {
+        const cancellationResponseQueue: CancelRequestWithQueueInfo | null = this.getCancellationResponseQueue(matchId);
+        if (!cancellationResponseQueue) {
+            logger.warn("Missing response queue for cancellation");
+            return;
+        }
+        
+        if (this.isCancelledMatchRequest(matchId)) {
+            logger.debug(`Deleting cancelled match request: ${matchId}`);
+            this.cancelledMatches.delete(matchId);
+            this.pendingReq = null;
+            if (this.pendingReqTimeout) {
+                clearTimeout(this.pendingReqTimeout);
+                this.pendingReqTimeout = null;
+            }
         }
         return;
     }
