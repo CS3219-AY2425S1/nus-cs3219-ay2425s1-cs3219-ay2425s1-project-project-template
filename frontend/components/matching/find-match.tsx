@@ -14,8 +14,6 @@ export default function FindMatch() {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [waitTime, setWaitTime] = useState<number>(0);
-  const [websocket, setWebsocket] = useState<WebSocket>();
-  const [queueTimeout, setQueueTimeout] = useState<NodeJS.Timeout>();
   const { toast } = useToast();
   const auth = useAuth();
 
@@ -27,8 +25,6 @@ export default function FindMatch() {
       }, 1000);
     } else {
       setWaitTime(0);
-      clearTimeout(queueTimeout);
-      setQueueTimeout(undefined);
     }
 
     return () => {
@@ -86,8 +82,12 @@ export default function FindMatch() {
           selectedTopic,
           selectedDifficulty
         );
+        const queueTimeout = setTimeout(() => {
+          handleCancel();
+        }, 60000);
         ws.onmessage = () => {
           setIsSearching(false);
+          clearTimeout(queueTimeout);
           toast({
             title: "Matched",
             description: "Successfully matched",
@@ -97,18 +97,13 @@ export default function FindMatch() {
         };
         ws.onclose = () => {
           setIsSearching(false);
+          clearTimeout(queueTimeout);
           toast({
             title: "Matching Stopped",
             description: "Matching has been stopped",
             variant: "destructive",
           });
         };
-        setQueueTimeout(
-          setTimeout(() => {
-            handleCancel();
-          }, 60000)
-        );
-        setWebsocket(ws);
         return;
       default:
         toast({
@@ -158,7 +153,6 @@ export default function FindMatch() {
       case 200:
         setIsSearching(false);
         setWaitTime(0);
-        setWebsocket(undefined);
         toast({
           title: "Success",
           description: "Successfully left queue",
