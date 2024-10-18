@@ -7,6 +7,7 @@ import (
 	"matching-service/processes"
 	"matching-service/utils"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -99,7 +100,13 @@ func readMatchRequest(ws *websocket.Conn) (models.MatchRequest, error) {
 	if err := ws.ReadJSON(&matchRequest); err != nil {
 		return matchRequest, err
 	}
-	log.Printf("Received match request: %v", matchRequest)
+	// Get the remote address (client's IP and port)
+	clientAddr := ws.RemoteAddr().String()
+
+	// Extract the port (after the last ':')
+	clientPort := clientAddr[strings.LastIndex(clientAddr, ":")+1:]
+
+	log.Printf("Received match request: %v from client port: %s", matchRequest, clientPort)
 	return matchRequest, nil
 }
 
@@ -137,7 +144,6 @@ func waitForResult(ws *websocket.Conn, ctx, timeoutCtx, matchCtx context.Context
 			return
 		}
 		log.Println("Match found for user: " + result.User)
-
 		// Notify the users about the match
 		notifyMatch(result.User, result.MatchedUser, result)
 
@@ -185,7 +191,7 @@ func notifyMatch(username, matchedUsername string, result models.MatchFound) {
 
 	if cancelFunc, exists := matchContexts[matchedUsername]; exists {
 		delete(matchContexts, matchedUsername)
-		cancelFunc()
+		defer cancelFunc() // TODO: CancelFunction here is not causing the matchCtx to be done
 	}
 
 	// Remove users from the activeConnections map
