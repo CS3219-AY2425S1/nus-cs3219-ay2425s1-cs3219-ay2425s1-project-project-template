@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/ui/Header";
 
 const Navbar = () => {
-    const isActive = (path: string) => window.location.pathname === path;
+    const [currentPath, setCurrentPath] = useState("");
+
+    useEffect(() => {
+        // Update the state with the current pathname on the client side
+        setCurrentPath(window.location.pathname);
+    }, []);
+    
+    const isActive = (path: string) => currentPath === path;
     return (
         <nav className="flex justify-between items-center p-4 bg-gray-900">
         <div className="flex-shrink-0">
@@ -11,7 +18,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex space-x-6">
-            <Link href="/home" className={`text-primary-300 hover:underline ${isActive("/") ? "opacity-100" : "opacity-50 hover:opacity-100"}`}>
+            <Link href="/" className={`text-primary-300 hover:underline ${isActive("/") ? "opacity-100" : "opacity-50 hover:opacity-100"}`}>
             Home
             </Link>
             <Link href="" className={`text-primary-300 hover:underline ${isActive("/about") ? "opacity-100" : "opacity-50 hover:opacity-100"}`}>
