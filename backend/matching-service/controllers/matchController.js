@@ -43,15 +43,18 @@ const createMatch = async (matchResult) => {
 
 // Retrieve a single match by its ID
 const getMatchById = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const match = await Match.findById(id);
+    const id = req.params.id;
 
-        if (!match) {
+    try {
+        const matches = await Match.find();
+
+        filteredMatches = matches.filter(match => match.user1Id == id || match.user2Id == id);
+        if (filteredMatches.length == 0) {
             return res.status(404).json({ message: `No match found with ID: ${id}` });
         }
 
-        return res.status(200).json(match);
+        return res.status(200).json(filteredMatches);
+
     } catch (err) {
         return res.status(500).json({ message: 'Error retrieving match.', error: err.message });
     }
