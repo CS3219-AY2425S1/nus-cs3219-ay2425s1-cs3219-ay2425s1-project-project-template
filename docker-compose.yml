@@ -48,6 +48,20 @@ services:
     networks:
       - peerprep-network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - peerprep-network
+      
   matching_service:
     build:
       context: ./backend/matching-service
@@ -62,6 +76,9 @@ services:
     command: ["npm", "run", "dev"]
     environment:
       - NODE_ENV=development
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - rabbitmq
     networks:
       - peerprep-network
 
@@ -77,4 +94,6 @@ volumes:
   question-service-node-modules:
     driver: local
   matching-service-node-modules:
+    driver: local
+  rabbitmq-data:
     driver: local

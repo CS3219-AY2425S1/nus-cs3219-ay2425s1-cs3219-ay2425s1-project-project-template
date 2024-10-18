@@ -13,49 +13,64 @@ const startConsumer = async (
     io: Server,
     connectedClients: Map<string, string>,
 ) => {
-    try {
-        const connection: Connection = await connect(
-            'amqp://guest:guest@localhost',
-        )
-        const channel = await connection.createChannel()
+    let connection: Connection | null = null
+    let channel: any = null
 
-        const queue = 'matching_requests'
-        await channel.assertQueue(queue, { durable: false })
+    // because sometimes, rabbitmq starts later than matching service, so we need to retry the connection.
+    // rabbitmq usually takes around 10s to set up
 
-        logger.info('Waiting for matching requests...')
+    const maxRetries = 3
+    const retryDelay = 13000 // 13 secs
+    let rabbitPort: string = String(process.env.RABBITMQ_URL)
 
-        channel.consume(
-            queue,
-            (msg) => {
-                if (msg) {
-                    const { name, difficulty, category } = JSON.parse(
-                        msg.content.toString(),
-                    )
-                    const request: TimedMatchRequest = {
-                        name,
-                        difficulty,
-                        category,
-                        timestamp: Date.now(),
-                    }
-                    logger.info(
-                        `Received matching request: ${JSON.stringify(request)}`,
-                    )
-                    requestQueue.push(request)
-                    console.log(requestQueue)
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            
+            connection = await connect(
+                rabbitPort,
+            )
+            channel = await connection.createChannel()
+            const queue = 'matching_requests'
+            await channel.assertQueue(queue, { durable: false })
 
-                    setTimeout(() => {
-                        processMatching(request, io, connectedClients)
-                    }, MATCH_TIMEOUT)
-                }
-            },
-            { noAck: true },
-        )
-    } catch (error: any) {
-        logger.error(
-            `Error occurred while consuming matching requests: ${error.message}`,
-        )
-        throw error
+            logger.info('Connected to RabbitMQ and waiting for matching requests...')
+            break
+        } catch (error: any) {
+            logger.error(`Attempt ${attempt}: Failed to connect to RabbitMQ: ${error.message}`)
+            if (attempt === maxRetries) {
+                logger.error('Max retries reached. Exiting.')
+                process.exit(1)
+            }
+            logger.info(`Retrying in ${retryDelay / 1000} seconds...`)
+            await new Promise(res => setTimeout(res, retryDelay))
+        }
     }
+
+    channel.consume(
+        'matching_requests',
+        (msg: { content: { toString: () => string } }) => {
+            if (msg) {
+                const { name, difficulty, category } = JSON.parse(
+                    msg.content.toString(),
+                )
+                const request: TimedMatchRequest = {
+                    name,
+                    difficulty,
+                    category,
+                    timestamp: Date.now(),
+                }
+                logger.info(
+                    `Received matching request: ${JSON.stringify(request)}`,
+                )
+                requestQueue.push(request)
+
+                setTimeout(() => {
+                    processMatching(request, io, connectedClients)
+                }, MATCH_TIMEOUT)
+            }
+        },
+        { noAck: true },
+    )
 }
 
 const processMatching = async (
@@ -65,34 +80,38 @@ const processMatching = async (
 ) => {
     if (isMatching) {
         setTimeout(() => processMatching(req, io, connectedClients), 100)
+        return
     }
 
-    // lock
     isMatching = true
 
     try {
         const currTime = Date.now()
         const activeRequests = requestQueue.filter(
-            (req) => currTime - req.timestamp <= MATCH_TIMEOUT,
+            (r) => currTime - r.timestamp <= MATCH_TIMEOUT,
         )
 
         const matchPartner = performMatching(req, activeRequests)
-        let reqIndex = requestQueue.findIndex((x) => x.name == req.name)
-        requestQueue.splice(reqIndex, 1)
+        let reqIndex = requestQueue.findIndex((x) => x.name === req.name)
+        if (reqIndex !== -1) {
+            requestQueue.splice(reqIndex, 1)
+        }
 
         if (matchPartner) {
             sendMatchResult(req, matchPartner, io, connectedClients)
             let partnerIndex = requestQueue.findIndex(
-                (x) => x.name == matchPartner.name,
+                (x) => x.name === matchPartner.name,
             )
-            requestQueue.splice(partnerIndex, 1)
+            if (partnerIndex !== -1) {
+                requestQueue.splice(partnerIndex, 1)
+            }
             return
         } else {
             const requestSockId = connectedClients.get(req.name)
 
             if (requestSockId) {
                 io.to(requestSockId).emit('noMatchFound', {
-                    message: 'No suitable match found at this time ',
+                    message: 'No suitable match found at this time',
                 })
             }
         }
