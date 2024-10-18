@@ -46,8 +46,8 @@ services:
     image: matching-service:latest
     ports:
       - "8082:8082"  # Expose matching service on port 8082
-    volumes:
-      - ./matching-service:/usr/src/app  # For local development with live reloading
+    # volumes:
+      # - ./matching-service:/usr/src/app  # For local development with live reloading
       # - matching_service_node_modules:/usr/src/app/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
