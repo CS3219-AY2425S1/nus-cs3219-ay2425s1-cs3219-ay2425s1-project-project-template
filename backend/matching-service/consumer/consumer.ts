@@ -85,13 +85,20 @@ const processMatching = async (
     isMatching = true
 
     try {
+        let reqIndex = requestQueue.findIndex((x) => x.name === req.name)
+
+        if (reqIndex === -1) {
+            logger.info(`${req.name} has already been matched and removed from the queue`)
+            return
+        }
+
         const currTime = Date.now()
         const activeRequests = requestQueue.filter(
             (r) => currTime - r.timestamp <= MATCH_TIMEOUT,
         )
 
         const matchPartner = performMatching(req, activeRequests)
-        let reqIndex = requestQueue.findIndex((x) => x.name === req.name)
+        
         if (reqIndex !== -1) {
             requestQueue.splice(reqIndex, 1)
             logger.info(`${req.name} has been removed from the queue`)
