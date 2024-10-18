@@ -7,7 +7,6 @@ import { useToast } from "@/components/hooks/use-toast";
 import { useAuth } from "@/app/auth/auth-context";
 import { joinMatchQueue } from "@/lib/join-match-queue";
 import { leaveMatchQueue } from "@/lib/leave-match-queue";
-import { matchingServiceWebSockUri } from "@/lib/api-uri";
 import { subscribeMatch } from "@/lib/subscribe-match";
 
 export default function FindMatch() {
@@ -105,7 +104,7 @@ export default function FindMatch() {
             description: "Matching has been stopped",
             variant: "destructive",
           });
-        }
+        };
         setWebsocket(ws);
         return;
       default:
@@ -146,7 +145,12 @@ export default function FindMatch() {
       return;
     }
 
-    const response = await leaveMatchQueue(auth.token, auth.user?.id, selectedTopic, selectedDifficulty);
+    const response = await leaveMatchQueue(
+      auth.token,
+      auth.user?.id,
+      selectedTopic,
+      selectedDifficulty
+    );
     switch (response.status) {
       case 200:
         setIsSearching(false);

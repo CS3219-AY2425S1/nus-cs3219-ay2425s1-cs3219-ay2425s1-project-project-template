@@ -8,7 +8,7 @@ export const subscribeMatch = async (
   const params = new URLSearchParams({
     topic: category,
     difficulty: complexity,
-  })
+  });
   return new WebSocket(
     `${matchingServiceWebSockUri(window.location.hostname)}/match/subscribe/${userId}?${params}`
   );

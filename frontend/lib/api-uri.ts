@@ -11,5 +11,6 @@ export const questionServiceUri: (baseUri: string) => string = (baseUri) =>
 export const matchingServiceUri: (baseUri: string) => string = (baseUri) =>
   constructUri(baseUri, process.env.NEXT_PUBLIC_MATCHING_SVC_PORT);
 
-export const matchingServiceWebSockUri: (baseUri: string) => string = (baseUri) =>
-  constructWebSockUri(baseUri, process.env.NEXT_PUBLIC_MATCHING_SVC_PORT);
+export const matchingServiceWebSockUri: (baseUri: string) => string = (
+  baseUri
+) => constructWebSockUri(baseUri, process.env.NEXT_PUBLIC_MATCHING_SVC_PORT);
