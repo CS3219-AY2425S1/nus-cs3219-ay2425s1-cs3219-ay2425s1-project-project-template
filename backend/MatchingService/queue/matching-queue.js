@@ -2,7 +2,7 @@ import Queue from "bull";
 import { notifyUsersOfMatch, notifyUserOfMatchFailed } from '../controller/websocket-controller.js';
 
 // Initialize the Bull queue with Redis connection
-const matchingQueue = new Queue("matching", "redis://127.0.0.1:6379");
+const matchingQueue = new Queue("matching", process.env.REDIS_URL);
 
 // Process the queue
 matchingQueue.process(1, async (job) => {
@@ -22,7 +22,6 @@ matchingQueue.process(1, async (job) => {
 
     // Get delayed jobs first
     const delayedJobs = await matchingQueue.getDelayed();
-
     if (job.data.matched == true) {
       return "Job matched";
     }
