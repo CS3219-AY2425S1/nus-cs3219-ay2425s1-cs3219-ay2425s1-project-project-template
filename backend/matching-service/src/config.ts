@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('config', () => ({
-  kafkaBrokerId: process.env.KAFKA_BROKER_ID,
+  kafkaBrokerUri: process.env.KAFKA_BROKER_URI,
+  consumerGroupId: process.env.MATCHING_SERVICE_CONSUMER_GROUP_ID,
 }));
