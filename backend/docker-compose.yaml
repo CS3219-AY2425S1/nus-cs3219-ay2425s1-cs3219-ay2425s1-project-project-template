@@ -51,6 +51,7 @@ services:
   matching-service:
     depends_on:
       - matchmaker-redis
+      - question-service
     build:
       context: ./matching-service
       dockerfile: Dockerfile
@@ -58,6 +59,7 @@ services:
     environment:
       - REDIS_HOST=matchmaker-redis
       - REDIS_PORT=6379
+      - QUESTIONS_GRPC=question-service:50051
     ports:
       - "8002:8000"
   matching-worker:

@@ -215,23 +215,6 @@ all = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "httpx (>
 standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "httpx (>=0.23.0)", "jinja2 (>=2.11.2)", "python-multipart (>=0.0.7)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
-name = "grpc-proto-validator"
-version = "0.1.2.dev0"
-description = "grpc proto validator."
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-files = [
-    {file = "grpc-proto-validator-0.1.2.dev0.tar.gz", hash = "sha256:735cab0de7f4f3cf9a27c5ac371ac865baed141ed303159d54a0cc1a430271a5"},
-    {file = "grpc_proto_validator-0.1.2.dev0-py2.py3-none-any.whl", hash = "sha256:bcfcc8f7edaf1077e926a4a97242f5e91c2b8af7ab6e8e4c3f491529ce29644d"},
-]
-
-[package.dependencies]
-grpcio = ">=1.11.0"
-grpcio-tools = ">=1.11.0"
-protobuf = ">3.6.0"
-six = ">=1.11.0"
-
-[[package]]
 name = "grpcio"
 version = "1.67.0"
 description = "HTTP/2-based RPC framework"
@@ -965,17 +948,6 @@ test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=
 type = ["importlib-metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.11.*)", "pytest-mypy"]
 
 [[package]]
-name = "six"
-version = "1.16.0"
-description = "Python 2 and 3 compatibility utilities"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-files = [
-    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
-    {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
-]
-
-[[package]]
 name = "sniffio"
 version = "1.3.1"
 description = "Sniff out which async library your code is running under"
@@ -1304,4 +1276,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "833fe82c77d20fe6c87c58da9d3e9bcbd276081dabb30fbeb023cdfbe0b00159"
+content-hash = "bfb3224a59e3352f2d0c7e024de0205129fc148d03b765883e9d2682749ac410"
