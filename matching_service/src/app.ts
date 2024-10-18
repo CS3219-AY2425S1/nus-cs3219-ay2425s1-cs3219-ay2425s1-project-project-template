@@ -10,8 +10,10 @@ import {
   ServerSocketEvents,
   MatchRequest,
   MatchCancelRequest,
+  PeerprepResponse,
 } from "peerprep-shared-types";
 import mongoose from "mongoose";
+import { sendMessage } from "./utility/socketHelper";
 
 dotenv.config();
 
@@ -36,8 +38,6 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-// const queue = new Queue();
-
 app.get("/", (req, res) => {
   res.send("Matching Service is running!");
 });
@@ -56,18 +56,7 @@ const io = new Server(server, {
 });
 
 const queue = new Queue();
-const matcher = new Matcher(queue, {
-  notify: (success: boolean, username: string, roomId: string) => {
-    console.log("Notifying client:", success, username, roomId);
-    io.emit("serverToClient", {
-      event: success
-        ? ServerSocketEvents.MATCH_FOUND
-        : ServerSocketEvents.MATCH_CANCELED,
-      username,
-      roomId,
-    });
-  },
-});
+const matcher = new Matcher(queue, sendResponse.bind(this));
 
 const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
   console.log("Received match request:", message);
@@ -82,7 +71,10 @@ const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
   const result = await queue.add(matchRequest);
   console.log(result);
 
-  matcher.start();
+  if (result.success) {
+    sendResponse(ServerSocketEvents.MATCH_REQUESTED, message.username);
+    matcher.start();
+  }
 };
 
 const handleCancelMatch = async (
@@ -97,10 +89,9 @@ const handleCancelMatch = async (
   const result = await queue.cancel(cancelRequest);
   console.log(result);
 
-  io.emit("serverToClient", {
-    event: ServerSocketEvents.MATCH_CANCELED,
-    username: message.username,
-  });
+  if (result.success) {
+    sendResponse(ServerSocketEvents.MATCH_CANCELED, message.username);
+  }
 };
 
 io.on("connection", (socket) => {
@@ -118,3 +109,23 @@ io.on("connection", (socket) => {
     socket.disconnect(true);
   });
 });
+
+function sendResponse(
+  event:
+    | ServerSocketEvents.MATCH_FOUND
+    | ServerSocketEvents.MATCH_REQUESTED
+    | ServerSocketEvents.MATCH_CANCELED
+    | ServerSocketEvents.MATCH_TIMEOUT,
+  username: string,
+  message?: any
+) {
+  console.log("Notifying client:", event, username, message);
+
+  const response: PeerprepResponse = {
+    event: event,
+    username,
+    ...message,
+  };
+
+  sendMessage(io, response);
+}

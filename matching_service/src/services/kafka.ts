@@ -124,6 +124,7 @@ export class ConsumerFactory {
       })
       .then(() => console.log(`Subscribed to topic ${this.topic}`));
     await this.consumer.run({
+      autoCommit: true,
       eachMessage: async ({ message }) => {
         processMessage(message);
       },
