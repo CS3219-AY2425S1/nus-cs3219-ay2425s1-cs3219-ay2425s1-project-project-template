@@ -31,6 +31,7 @@ export async function addUserToQueue(userData) {
 export async function addUserToQueueReq(req, res) {
   try {
     const userData = req.body;
+    console.log("userData", userData);
     await matchingQueue.add(
       {
         username: userData.username,
