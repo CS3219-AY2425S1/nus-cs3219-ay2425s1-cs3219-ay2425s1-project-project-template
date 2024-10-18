@@ -1,15 +1,29 @@
 package com.example.backend.websocket.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class MatchRequest {
     private String userEmail;
-    private String topic;
-    private String programmingLanguage;
-    private String difficulty;
+    private String[] topics;
+    private String[] programmingLanguages;
+    private String[] difficulties;
 
-    public String getMatchCriteriaKey() {
-        return topic + "_" + programmingLanguage + "_" + difficulty;
+    public List<String> getMatchCriteriaKey() {
+        System.out.println("topics" + topics);
+        System.out.println(programmingLanguages);
+        System.out.println(difficulties);
+        List<String> combinations = new ArrayList<>();
+        for (String t : topics) {
+            for (String pl : programmingLanguages) {
+                for (String d : difficulties) {
+                    combinations.add(t + "_" + pl + "_" + d);
+                }
+            }
+        }
+        return combinations;
     }
 }
