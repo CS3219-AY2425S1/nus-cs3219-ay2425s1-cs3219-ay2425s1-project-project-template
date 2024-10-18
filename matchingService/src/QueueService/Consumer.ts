@@ -4,7 +4,6 @@ import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import logger from "../utils/logger";
 import { MatchRequestDTO } from "../models/MatchRequestDTO";
 import QueueManager from "./QueueManager";
-import { buffer } from "stream/consumers";
 import { Difficulty, Topic } from "./matchingEnums";
 
 /** 
@@ -58,8 +57,6 @@ class Consumer {
         logger.debug("Consumer received fallback match request");
         try {
             const req: MatchRequestDTO = this.parseMatchRequest(msg);
-            const correlationId: string = msg?.properties.correlationId;
-            const replyQueue: string = msg?.properties.replyTo;
             const maxRetries = Object.keys(Difficulty).length;
 
             if (req.retries >= maxRetries) {
@@ -69,14 +66,11 @@ class Consumer {
             req.retries++;
             if (!this.pendingReq) {
                 const updatedMessageContent = Buffer.from(JSON.stringify(req));
-                this.channel.sendToQueue(msg.fields.routingKey, updatedMessageContent, {
-                    correlationId: msg.properties.correlationId,
-                    replyTo: msg.properties.replyTo,
-                });
+                this.channel.sendToQueue(msg.fields.routingKey, updatedMessageContent, {});
                 return;
             }
             req.difficulty = this.difficulty; // Fallback request's difficulty will change depending on who is available
-            this.processMatchRequest(req, replyQueue, correlationId);
+            this.processMatchRequest(req);
         } catch (e) {
             if (e instanceof Error) {
                 logger.error(`Error occurred while handling match request: ${e.message}`);
@@ -111,8 +105,6 @@ class Consumer {
         logger.debug("Consumer received match request");
         try {
             const req: MatchRequestDTO = this.parseMatchRequest(msg);
-            const correlationId: string = msg?.properties.correlationId;
-            const replyQueue: string = msg?.properties.replyTo;
 
             if (this.pendingReq && this.isCancelledMatchRequest(this.pendingReq.matchId)) {
                 logger.debug("Deleting pending match");
@@ -127,7 +119,7 @@ class Consumer {
                 return;
             }
 
-            this.processMatchRequest(req, replyQueue, correlationId);
+            this.processMatchRequest(req);
         } catch (e) {
             if (e instanceof Error) {
                 logger.error(`Error occurred while handling match request: ${e.message}`);
@@ -158,7 +150,7 @@ class Consumer {
         return req;
     }
 
-    private processMatchRequest(incomingReq: MatchRequestDTO, replyQueue: string, correlationId: string): void {
+    private processMatchRequest(incomingReq: MatchRequestDTO): void {
         logger.debug(`Processing match request: ${incomingReq.matchId}`);
 
         if (!this.pendingReq) {
