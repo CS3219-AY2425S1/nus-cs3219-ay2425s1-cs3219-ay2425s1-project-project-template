@@ -19,7 +19,7 @@ export const routes: Routes = [
   { path: "add-question", component: AddPageComponent },
   { path: "edit-question", component: EditPageComponent },
   { path: "question-list", component: QuestionListComponent },
-  { path: "loading-screen", component: MatchModalComponent }
+  { path: "loading-screen", component: MatchModalComponent },
   { path: "question-list", component: QuestionListComponent },
   { path: "landing", component: LandingPageComponent }
 ]
