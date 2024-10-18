@@ -18,10 +18,23 @@ import {
 } from "@/types/find-match";
 import { capitalizeWords } from "@/utils/string_utils";
 import { useForm } from "react-hook-form";
+import { Client as StompClient } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { send } from "process";
 
 interface FindMatchFormOutput {
   questionDifficulty: string;
   preferredLanguages: string;
+  questionTopics: string[];
+}
+
+interface FindMatchSocketMessage {
+  userEmail: string;
+  topics: string[];
+  programmingLanguage: string[];
+  difficulty: string;
 }
 
 const FindPeerHeader = () => {
@@ -40,6 +53,82 @@ const FindPeerHeader = () => {
 };
 
 const FindPeer = () => {
+  const [stompClient, setStompClient] = useState<StompClient | null>(null);
+  const [socketMessages, setSocketMessages] = useState<string[]>([]);
+  const [isConnected, setIsConnected] = useState(false); // Manage connection state
+
+  const SOCKET_URL =
+    process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
+    "http://localhost:3002/matching-websocket";
+
+  const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
+
+  // Function to trigger a connection to the web socket
+  const connectWebSocket = () => {
+    const socket = new SockJS(SOCKET_URL);
+    const client = new StompClient({
+      webSocketFactory: () => socket,
+      debug: function (str) {
+        console.log(str);
+      },
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log("STOMP connection established");
+        setIsConnected(true);
+
+        // Subscribe to a topic
+        client.subscribe("/user/queue/matches", (message) => {
+          console.log("Received message: ", message.body);
+          setSocketMessages((prevMessages) => [...prevMessages, message.body]);
+        });
+      },
+      onDisconnect: () => {
+        console.log("STOMP connection closed");
+      },
+      onStompError: (error) => {
+        console.error("STOMP error: ", error);
+      },
+    });
+
+    client.activate();
+    setStompClient(client);
+  };
+
+  const sendMatchRequest = (userFilter: FindMatchFormOutput) => {
+    if (!stompClient || !isConnected) {
+      console.log("STOMP client is not connected. Attempting to connect");
+      try {
+        connectWebSocket();
+      } catch (error) {
+        console.error("Failed to connect to STOMP client: ", error);
+        return;
+      }
+    }
+
+    // Repackage user filter data
+    const userMatchRequest: FindMatchSocketMessage = {
+      userEmail: CURRENT_USER,
+      topic: userFilter.questionTopics[0], // to change
+      programmingLanguage: userFilter.preferredLanguages[0],
+      difficulty: userFilter.questionDifficulty,
+    };
+
+    console.log("Sending match request with data: ", userMatchRequest);
+
+    if (!stompClient) {
+      console.error(
+        "STOMP client is not connected. Connection error encountered."
+      );
+      return;
+    }
+
+    stompClient.publish({
+      destination: "/app/matchRequest",
+      body: JSON.stringify(userMatchRequest),
+    });
+    console.log("Match request sent: ", CURRENT_USER);
+  };
+
   const form = useForm({
     defaultValues: {
       questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
@@ -65,7 +154,7 @@ const FindPeer = () => {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   const onSubmit = (data: FindMatchFormOutput) => {
-    console.log(data);
+    sendMatchRequest(data);
   };
 
   return (
