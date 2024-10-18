@@ -14,13 +14,20 @@ const matchUsers = async () => {
 
     const q = await channel.assertQueue('', { exclusive: true }) // Bind to A
     channel.bindQueue(q.queue, reqCh);
-    
+
 
     //Waiting for user details to come in
     channel.consume(q.queue, msg => {
 
         //Matching logic is designed inefficiently for now to facilitate upgrades
         const newRequest = JSON.parse(msg.content.toString());
+
+        // Check if user is already in requests
+        if (requests.find(req => req.id === newRequest.id)) {
+            console.log(`User ${newRequest.id} is already in the request queue.`);
+            return; // Skip adding this request
+        }
+
         let perfectMatches = requests.filter(function(req) {
             return calculateMatchScore(newRequest, req) >= 4
         });
@@ -28,10 +35,10 @@ const matchUsers = async () => {
             return calculateMatchScore(newRequest, req) >= 3
         });
         var matchedRequest = false
-    
+
         if (perfectMatches.length == 0 && closeMatches.length == 0) {
             requests.push(newRequest);
-        } else if (perfectMatches.length == 0){
+        } else if (perfectMatches.length > 0){
             matchedRequest = perfectMatches.pop()
         } else {
             matchedRequest = closeMatches.pop()
@@ -39,9 +46,9 @@ const matchUsers = async () => {
 
         if (matchedRequest) {
             requests.splice(requests.indexOf(matchedRequest), 1)
-            result = { matched: true, 
-                       user1: newRequest.id, 
-                       user2: matchedRequest.id,  
+            result = { matched: true,
+                       user1: newRequest.id,
+                       user2: matchedRequest.id,
                        category: newRequest.category,
                        difficulty: newRequest.difficulty
                     };
@@ -111,18 +118,18 @@ const handleMatchRequest = async (request) => {
 
 
     setTimeout(() => {
-        //If by 60 seconds no response, return not matched.
+        //If by 30 seconds no response, return not matched.
         if (!recevied) {
-            console.log(`60 seconds time out for matching for user ${request.id}`)
-            return { matched: false, 
-                     user1: "", 
-                     user2: "", 
-                     category: request.category, 
-                     difficulty: request.difficulty 
+            console.log(`30 seconds time out for matching for user ${request.id}`)
+            return { matched: false,
+                     user1: "",
+                     user2: "",
+                     category: request.category,
+                     difficulty: request.difficulty
                     };
         }
         connection.close();
-    }, 60000)
+    }, 30000)
 }
 
 const handleDeleteRequest = (user) => {

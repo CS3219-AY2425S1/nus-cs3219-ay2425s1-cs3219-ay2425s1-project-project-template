@@ -6,7 +6,7 @@ import loading from "../assets/loading.svg";
 import "./styles/NewSessionPage.css";
 
 const NewSessionPage = () => {
-  const { accessToken } = useAuth();
+  const { accessToken, userId } = useAuth();
   const navigate = useNavigate();
   const [topicsArray, setTopicsArray] = useState([]);
   const [targetTopicsArray, setTargetTopicsArray] = useState([]);
@@ -35,7 +35,7 @@ const NewSessionPage = () => {
         console.error("Error fetching questions:", error);
       }
     };
-  
+
     fetchQuestions();
   }, []);
 
@@ -100,8 +100,15 @@ const NewSessionPage = () => {
     const formData = new FormData(form);
     const formObj = Object.fromEntries(formData.entries());
 
+    // Add userId to formObj, rename topic to category to match backend
+    const userPref = {
+      id: userId,
+      difficulty: formObj.difficulty,
+      category: formObj.topic
+    };
+
     if (formObj.hasOwnProperty('difficulty') && formObj.hasOwnProperty('topic')) {
-      navigate('/waiting', { state: { userPref: formObj } });
+      navigate('/waiting', { state: { userPref } });
     } else {
       alert("Select a difficulty/topic");
     }
@@ -158,3 +165,4 @@ const NewSessionPage = () => {
 
 const WrappedNewSessionPage = withAuth(NewSessionPage);
 export default WrappedNewSessionPage;
+

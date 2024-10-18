@@ -29,6 +29,7 @@ const createMatchRequest = async (req, res) => {
 }
 
 const cancelMatchRequest = async (req, res) => {
+    console.log('Received request body:', req.body);
     if (!(req.body.id && req.body.difficulty && req.body.category)) {
         return res.status(400).json({ 'message' : 'At least one field is missing!'})
     }
