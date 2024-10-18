@@ -2,14 +2,16 @@ import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { client, logQueueStatus } from '@/lib/db';
-import type { IRedisClient, IRequestMatchPayload } from '@/types';
-import { createNotifSocket, queueingService } from '@/services';
 import { logger } from '@/lib/utils';
+import { createNotifSocket, queueingService } from '@/services';
+import type { IRedisClient, IRequestMatchPayload } from '@/types';
 
 let redisClient: IRedisClient;
+
 export const matchRequestController = async (req: Request, res: Response) => {
   const payload: Partial<IRequestMatchPayload> = req.body;
   const { userId, difficulty, topic } = payload;
+
   if (!userId || (!difficulty && !topic)) {
     return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed Request');
   }

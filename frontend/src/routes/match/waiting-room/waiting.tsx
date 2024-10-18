@@ -1,14 +1,16 @@
-import { Button } from '@/components/ui/button';
-import { cancelMatch } from '@/services/match-service';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
+
+import { Button } from '@/components/ui/button';
+import { cancelMatch } from '@/services/match-service';
+
 import {
-  WAITING_STATUS,
+  CANCELLING_STATUS,
   FAILED_STATUS,
   SOCKET_EVENTS,
-  CANCELLING_STATUS,
   SUCCESS_STATUS,
+  WAITING_STATUS,
 } from './constants';
 
 interface WaitingRoomProps {
@@ -57,6 +59,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: WaitingRoomProps) =>
       setIsModalOpen(false);
       return;
     }
+
     const socket = io({
       path: '/matching-socket/',
       reconnection: true,

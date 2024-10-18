@@ -24,6 +24,7 @@ export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDeta
 };
 
 export const ROWS_PER_PAGE = 8;
+
 export async function fetchQuestions(pageNum: number = 0): Promise<IGetQuestionsResponse> {
   const params = new URLSearchParams({
     pageNum: String(pageNum),

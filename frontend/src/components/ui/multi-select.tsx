@@ -2,19 +2,20 @@
 
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Command, CommandItem, CommandEmpty, CommandList } from '@/components/ui/command';
-import { cn } from '@/lib/utils';
 import { Command as CommandPrimitive } from 'cmdk';
-import { X as RemoveIcon, Check } from 'lucide-react';
+import { Check, X as RemoveIcon } from 'lucide-react';
 import React, {
-  KeyboardEvent,
   createContext,
   forwardRef,
+  KeyboardEvent,
   useCallback,
   useContext,
   useState,
 } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Command, CommandEmpty, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 interface MultiSelectorProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive> {
   values: string[];
@@ -39,9 +40,11 @@ const MultiSelectContext = createContext<MultiSelectContextProps | null>(null);
 
 const useMultiSelect = () => {
   const context = useContext(MultiSelectContext);
+
   if (!context) {
     throw new Error('useMultiSelect must be used within MultiSelectProvider');
   }
+
   return context;
 };
 
@@ -127,6 +130,7 @@ const MultiSelector = ({
               movePrev();
             }
           }
+
           break;
 
         case 'ArrowRight':
@@ -139,6 +143,7 @@ const MultiSelector = ({
               moveNext();
             }
           }
+
           break;
 
         case 'Backspace':
@@ -155,6 +160,7 @@ const MultiSelector = ({
               }
             }
           }
+
           break;
 
         case 'Enter':
@@ -167,6 +173,7 @@ const MultiSelector = ({
           } else if (open) {
             setOpen(false);
           }
+
           break;
       }
     },
@@ -366,9 +373,9 @@ MultiSelectorItem.displayName = 'MultiSelectorItem';
 
 export {
   MultiSelector,
-  MultiSelectorTrigger,
-  MultiSelectorInput,
   MultiSelectorContent,
-  MultiSelectorList,
+  MultiSelectorInput,
   MultiSelectorItem,
+  MultiSelectorList,
+  MultiSelectorTrigger,
 };

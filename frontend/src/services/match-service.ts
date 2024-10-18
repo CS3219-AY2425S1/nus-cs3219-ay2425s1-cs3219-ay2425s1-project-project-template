@@ -1,6 +1,7 @@
-import { IRequestMatchResponse } from '@/types/match-types';
-import { matchApiClient } from './api-clients';
 import { MatchFormData } from '@/routes/match/logic';
+import { IRequestMatchResponse } from '@/types/match-types';
+
+import { matchApiClient } from './api-clients';
 
 const MATCHING_SERVICE_ROUTES = {
   REQUEST_MATCH: '/match/request',

@@ -1,7 +1,8 @@
 import { observer } from 'mobx-react';
-import { MatchForm } from './match-form';
 import { Suspense } from 'react';
-import { useLoaderData, Await } from 'react-router-dom';
+import { Await, useLoaderData } from 'react-router-dom';
+
+import { MatchForm } from './match-form';
 
 export const Match = observer(() => {
   const { topics } = useLoaderData() as { topics: Promise<string[]> };

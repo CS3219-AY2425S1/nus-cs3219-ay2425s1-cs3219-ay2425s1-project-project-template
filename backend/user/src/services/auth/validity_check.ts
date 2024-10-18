@@ -1,11 +1,13 @@
 import { eq, sql } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
+
 import { db, users } from '@/lib/db';
+
 import {
-  IUsernameValidResponse,
-  IUsernameValidPayload,
   IEmailValidPayload,
   IEmailValidResponse,
+  IUsernameValidPayload,
+  IUsernameValidResponse,
 } from './types';
 
 export const checkUsernameValidService = async (

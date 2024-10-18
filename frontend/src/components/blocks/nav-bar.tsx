@@ -7,7 +7,6 @@ import { MobileThemeSwitch } from '@/components/common/mobile-theme-switch';
 import { ThemeSwitch } from '@/components/common/theme-switch';
 import { UserDropdown } from '@/components/common/user-dropdown';
 import { Button } from '@/components/ui/button';
-
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
 

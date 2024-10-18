@@ -2,21 +2,20 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { AuthedLayout } from '@/components/blocks/authed';
 import { RootLayout } from '@/components/blocks/root-layout';
-import { RouteGuard, loader as routeGuardLoader } from '@/components/blocks/route-guard';
-
+import { loader as routeGuardLoader, RouteGuard } from '@/components/blocks/route-guard';
+import { Collab } from '@/routes/collab/main';
+import { loader as matchedQuestionDetailsLoader } from '@/routes/collab/utils';
 import { ForgotPassword } from '@/routes/forgot-password';
 import { HomePage } from '@/routes/home';
 import { Login } from '@/routes/login';
-import { QuestionDetails, loader as questionDetailsLoader } from '@/routes/questions/details';
-import { Questions, loader as questionsLoader } from '@/routes/questions/main';
+import { loader as topicsLoader } from '@/routes/match/logic';
+import { Match } from '@/routes/match/main';
+import { loader as questionDetailsLoader, QuestionDetails } from '@/routes/questions/details';
+import { loader as questionsLoader, Questions } from '@/routes/questions/main';
 import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';
 import { ROUTES } from './routes';
-import { Match } from '@/routes/match/main';
-import { loader as topicsLoader } from '@/routes/match/logic';
-import { Collab } from '@/routes/collab/main';
-import { loader as matchedQuestionDetailsLoader } from '@/routes/collab/utils';
 
 export const router = createBrowserRouter([
   {

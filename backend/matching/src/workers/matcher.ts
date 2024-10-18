@@ -3,6 +3,7 @@ import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/c
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
 import { MATCH_SVC_EVENT } from '@/ws';
+
 import { connectClient, sendNotif } from './common';
 
 const logger = {
@@ -13,10 +14,12 @@ const logger = {
 const sleepTime = 500;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
+
 const cancel = () => {
   stopSignal = true;
   clearTimeout(timeout);
 };
+
 const shutdown = () => {
   cancel();
   client.disconnect().then(() => {
@@ -47,6 +50,7 @@ async function processMatch(
         timestamp, // We use timestamp as the Stream ID
         socketPort: matchedSocketPort,
       } = decodePoolTicket(matched);
+
       if (matchedUserId === requestorUserId) {
         continue;
       }
@@ -67,10 +71,12 @@ async function processMatch(
 
       // Notify both sockets
       const { ...matchItems } = getMatchItems({ userId1: requestorUserId, userId2: matchedUserId });
+
       const sendMatchLogic = (socketPort: string) => {
         sendNotif([socketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
         sendNotif([socketPort], MATCH_SVC_EVENT.DISCONNECT);
       };
+
       // TODO: If client disconnected, stop sending to requestor
       sendMatchLogic(matchedSocketPort);
       setTimeout(() => {
@@ -99,12 +105,14 @@ async function match() {
       BLOCK: 2000,
     }
   );
+
   if (!stream || stream.length === 0) {
     await new Promise((resolve, _reject) => {
       timeout = setTimeout(() => resolve('Next Loop'), sleepTime);
     });
     return;
   }
+
   for (const group of stream) {
     // Perform matching
     for (const matchRequest of group.messages) {
@@ -122,9 +130,11 @@ async function match() {
       sendNotif([requestorSocketPort], MATCH_SVC_EVENT.MATCHING);
 
       const clause = [`-@userId:(${requestorUserId})`];
+
       if (difficulty) {
         clause.push(`@difficulty:{${difficulty}}`);
       }
+
       if (topic) {
         clause.push(`@topic:{${topic}}`);
       }
@@ -142,6 +152,7 @@ async function match() {
         exactMatches,
         'exact match'
       );
+
       if (exactMatchFound || !topic || !difficulty) {
         // Match found, or Partial search completed
         continue;
@@ -159,6 +170,7 @@ async function match() {
         topicMatches,
         'topic'
       );
+
       if (topicMatchFound) {
         continue;
       }
@@ -185,6 +197,7 @@ async function match() {
 }
 
 logger.info('Process Healthy');
+
 (function loop() {
   if (stopSignal) {
     return;

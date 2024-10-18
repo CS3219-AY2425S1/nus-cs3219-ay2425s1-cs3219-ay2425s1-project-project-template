@@ -1,8 +1,16 @@
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
   MultiSelector,
@@ -22,15 +30,7 @@ import {
 import { requestMatch } from '@/services/match-service';
 
 import { MatchFormData } from './logic';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { WaitingRoom } from './waiting-room/waiting';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface MatchFormProps {
   topics: string[];

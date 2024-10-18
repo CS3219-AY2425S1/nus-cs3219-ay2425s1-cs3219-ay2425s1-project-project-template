@@ -1,6 +1,7 @@
+import { QueryClient, queryOptions } from '@tanstack/react-query';
+import { defer, LoaderFunctionArgs } from 'react-router-dom';
+
 import { fetchTopics } from '@/services/question-service';
-import { queryOptions, QueryClient } from '@tanstack/react-query';
-import { LoaderFunctionArgs, defer } from 'react-router-dom';
 
 export interface MatchFormData {
   selectedTopics: string[];

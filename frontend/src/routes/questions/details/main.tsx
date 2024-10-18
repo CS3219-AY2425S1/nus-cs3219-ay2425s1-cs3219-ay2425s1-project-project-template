@@ -1,12 +1,13 @@
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
-import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 
+import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
-import { DetailsCard } from './details-card';
 import { getQuestionDetails } from '@/services/question-service';
+
+import { DetailsCard } from './details-card';
 
 const questionDetailsQuery = (id: number) =>
   queryOptions({

@@ -2,6 +2,7 @@ import { client, logQueueStatus } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey } from '@/lib/utils';
 import { MATCH_SVC_EVENT } from '@/ws';
+
 import { connectClient, sendNotif } from './common';
 
 const logger = {
@@ -17,6 +18,7 @@ const cancel = () => {
   stopSignal = true;
   clearTimeout(timeout);
 };
+
 const shutdown = () => {
   cancel();
   client.disconnect().then(() => {
@@ -44,11 +46,13 @@ async function clean() {
     });
     return;
   }
+
   // ACK, Delete
   for (const message of response.messages) {
     if (!message) {
       continue;
     }
+
     logger.info(`Expiring ${JSON.stringify(message)}`);
     const { userId, socketPort: socketRoom } = decodePoolTicket(message);
     const POOL_KEY = getPoolKey(userId);
@@ -70,6 +74,7 @@ async function clean() {
 }
 
 logger.info('Process Healthy');
+
 (function loop() {
   if (stopSignal) {
     return;

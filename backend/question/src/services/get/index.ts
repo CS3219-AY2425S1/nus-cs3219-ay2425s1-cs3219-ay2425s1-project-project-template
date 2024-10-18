@@ -1,19 +1,19 @@
 import { and, arrayOverlaps, eq, ilike, inArray, not, sql } from 'drizzle-orm';
+import { StatusCodes } from 'http-status-codes';
 
 import { db } from '@/lib/db/index';
 import { questions } from '@/lib/db/schema';
 
 import type {
-  IGetQuestionsPayload,
-  IGetQuestionsResponse,
+  IGetDifficultiesResponse,
   IGetQuestionPayload,
   IGetQuestionResponse,
+  IGetQuestionsPayload,
+  IGetQuestionsResponse,
   IGetRandomQuestionPayload,
   IGetRandomQuestionResponse,
   IGetTopicsResponse,
-  IGetDifficultiesResponse,
 } from './types';
-import { StatusCodes } from 'http-status-codes';
 
 export const getQuestionsService = async (
   payload: IGetQuestionsPayload
@@ -26,9 +26,11 @@ export const getQuestionsService = async (
   if (questionName) {
     whereClause.push(ilike(questions.title, `%${questionName}%`));
   }
+
   if (difficulty) {
     whereClause.push(eq(questions.difficulty, difficulty));
   }
+
   if (topic && topic.length > 0) {
     whereClause.push(arrayOverlaps(questions.topic, topic));
   }
@@ -107,6 +109,7 @@ export const getRandomQuestionService = async (
   const topicArray = (Array.isArray(topic) ? topic : [topic]).filter(
     (t): t is string => t !== undefined
   );
+
   if (topicArray.length > 0) {
     whereClause.push(arrayOverlaps(questions.topic, topicArray));
   }
@@ -142,6 +145,7 @@ export const getRandomQuestionService = async (
       },
     };
   }
+
   return {
     code: StatusCodes.OK,
     data: { question: result[0] },

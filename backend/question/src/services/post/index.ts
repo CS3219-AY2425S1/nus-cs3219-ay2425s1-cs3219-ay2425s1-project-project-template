@@ -1,7 +1,9 @@
-import { db } from '../../lib/db/index';
 import { eq } from 'drizzle-orm';
-import { questions } from '../../lib/db/schema';
-import { ICreateQuestionPayload, IUpdateQuestionPayload, IDeleteQuestionPayload } from './types';
+
+import { db } from '@/lib/db/index';
+import { questions } from '@/lib/db/schema';
+
+import { ICreateQuestionPayload, IDeleteQuestionPayload, IUpdateQuestionPayload } from './types';
 
 export const createQuestionService = async (payload: ICreateQuestionPayload) => {
   try {

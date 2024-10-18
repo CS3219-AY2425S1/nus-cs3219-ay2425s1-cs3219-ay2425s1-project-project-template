@@ -1,6 +1,7 @@
-import { getQuestionDetails } from '@/services/question-service';
-import { queryOptions, QueryClient } from '@tanstack/react-query';
+import { QueryClient, queryOptions } from '@tanstack/react-query';
 import { LoaderFunctionArgs } from 'react-router-dom';
+
+import { getQuestionDetails } from '@/services/question-service';
 
 export const questionDetailsQuery = (id: number) =>
   queryOptions({

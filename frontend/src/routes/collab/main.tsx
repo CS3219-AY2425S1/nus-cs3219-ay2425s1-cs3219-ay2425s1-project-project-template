@@ -1,7 +1,8 @@
-import { DetailsCard } from '../questions/details/details-card';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useLoaderData } from 'react-router-dom';
+
+import { DetailsCard } from '../questions/details/details-card';
 import { loader, questionDetailsQuery } from './utils';
 
 export const Collab = () => {
