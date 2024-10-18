@@ -14,11 +14,9 @@ interface Props {
 }
 
 const MatchingInProgressContent: React.FC<Props> = ({cancelMatch: cancel, timeout}) => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + TIMEOUT);
     const { totalSeconds } = useTimer({
-        expiryTimestamp: time,
-        onExpire: () => timeout(TIMEOUT),
+        expiryTimestamp: new Date(Date.now() + 10 * 1000),
+        onExpire: () => timeout(TIMEOUT - totalSeconds),
     });
 
     return (
@@ -31,7 +29,7 @@ const MatchingInProgressContent: React.FC<Props> = ({cancelMatch: cancel, timeou
             </div>
             <button className="cancel-match-button"
                 onClick={() => {
-                    timeout(TIMEOUT);
+                    cancel(TIMEOUT - totalSeconds);
                 }}
             >
                 Cancel

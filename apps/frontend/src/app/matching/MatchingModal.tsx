@@ -79,7 +79,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                     }}
                 />
             case 'timeout':
-                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={timeoutAfter}/>;
+                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={10}/>;
             default:
                 throw new Error('Invalid matching state.');
         }

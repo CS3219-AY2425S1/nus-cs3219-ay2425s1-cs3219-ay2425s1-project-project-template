@@ -10,6 +10,8 @@ if (MATCHING_SERVICE_URL == undefined) {
 
 export type MatchRequestParams = {
     type: "match_request",
+    username: string,
+    email: string,
     topics: string[],
     difficulties: string[],
 }
@@ -23,6 +25,11 @@ export type MatchFoundResponse = {
 
 export type MatchTimeoutResponse = {
     type: "timeout",
+    message: string,
+}
+
+export type MatchRejectedResponse = {
+    type: "match_rejected",
     message: string,
 }
 
@@ -41,7 +48,6 @@ export default function useMatching(): MatchState {
         },
         onMessage({data: response}) {
             const responseJson: MatchResponse = JSON.parse(response);
-            console.log("got here");
             if (responseJson.type == "timeout") {
                 timeout();
                 return;

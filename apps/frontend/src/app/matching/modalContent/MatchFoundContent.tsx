@@ -16,7 +16,8 @@ const TIMEOUT = 10;
 
 const MatchFoundContent: React.FC<Props> = ({join, cancel}) => {
     const { totalSeconds } = useTimer({
-        expiryTimestamp: new Date(TIMEOUT * 1000),
+        expiryTimestamp: new Date(Date.now() + 10 * 1000),
+        onExpire: join
     });
     
     return (

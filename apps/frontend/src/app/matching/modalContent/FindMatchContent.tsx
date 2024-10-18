@@ -11,8 +11,8 @@ import {
 import type { SelectProps } from 'antd';
 import 'typeface-montserrat';
 import './styles.scss';
-import { handleFindMatch } from '../handlers';
-import useMatching, { type MatchRequestParams } from '@/app/services/use-matching';
+import { ValidateUser } from "@/app/services/user"
+import { type MatchRequestParams } from '@/app/services/use-matching';
 
 interface DifficultySelectorProps {
     className?: string;
@@ -33,6 +33,7 @@ interface Props {
 const FindMatchContent: React.FC<Props> = ({ beginMatch }) => {
     const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleDifficultyChange = (difficulties: string[]) => {
         setSelectedDifficulties(difficulties);
@@ -60,13 +61,28 @@ const FindMatchContent: React.FC<Props> = ({ beginMatch }) => {
                 />          
             </div>
             <button className="find-match-button"
-                onClick={() => {
+                onClick={async () => {
+
+                    async function ValidateUser() {
+                        return {
+                            data: {
+                                email: "asda",
+                                username: "sajdhkas"
+                            }
+                        }
+                    }
+                    
+                    setIsLoading(true);
+                    const user = await ValidateUser();
                     beginMatch({
+                        email: user.data.email,
+                        username: user.data.username,
                         type: "match_request",
                         difficulties: selectedDifficulties,
                         topics: selectedTopics,
                     })
                 }}
+                disabled={isLoading}
             >
                 Find Match
             </button>
