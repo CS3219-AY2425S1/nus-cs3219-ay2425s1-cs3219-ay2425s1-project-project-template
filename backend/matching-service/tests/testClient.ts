@@ -4,6 +4,14 @@ How to run:
 1. cd into backend/matchingservice/tests
 2. npx ts-node testClient.ts Name difficulty category category
 e.g. npx ts-node testClient.ts Alice medium algo recursion
+
+do this in 2 different terminals e.g. 
+npx ts-node testClient.ts urmum medium algo recursion 
+
+and in another terminal
+npx ts-node testClient.ts urdad medium algo recursion
+
+urmum should match with urdad
 */
 import { io } from 'socket.io-client';
 
@@ -13,9 +21,9 @@ interface MatchRequest {
   categories: string[];
 }
 
-const userName = process.argv[2]; // User name
-const difficulty = process.argv[3]; // Difficulty level
-const categories = process.argv.slice(4); // Categories
+const userName = process.argv[2];
+const difficulty = process.argv[3];
+const categories = process.argv.slice(4);
 
 if (!userName || !difficulty || categories.length === 0) {
   console.error('Usage: ts-node testClient.ts <name> <difficulty> <category1> <category2> ...');
