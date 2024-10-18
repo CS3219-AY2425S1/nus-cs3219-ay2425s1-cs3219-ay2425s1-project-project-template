@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { ListFilter, Search } from "lucide-react";
 import { MultiSelect } from "@/components/ui/multiselect";
 import { capitalizeWords } from "@/utils/string_utils";
+import { topicsList } from "@/utils/constants";
 
 const Cell = ({
   className,
@@ -111,6 +112,7 @@ export function LeetcodeDashboardTable({
   const [totalPages, setTotalPage] = React.useState<number>(1);
   const [searchTitle, setSearchTitle] = React.useState<string>("");
   const [searchDifficulty, setSearchDifficulty] = React.useState<string[]>([]);
+  const [searchTopic, setSearchTopic] = React.useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = React.useState<boolean>(false);
 
   const questionDifficulty = Object.values(QuestionDifficulty).map((q1) => {
@@ -204,7 +206,8 @@ export function LeetcodeDashboardTable({
       pagination.pageIndex + 1,
       pagination.pageSize,
       searchTitle,
-      searchDifficulty
+      searchDifficulty,
+      searchTopic
     ).then((data) => {
       setTotalPage(data.totalPages);
       if (data.totalPages < pagination.pageIndex + 1) {
@@ -216,7 +219,13 @@ export function LeetcodeDashboardTable({
         setData(data.questions);
       }
     });
-  }, [refreshKey, pagination.pageIndex, searchTitle, searchDifficulty]);
+  }, [
+    refreshKey,
+    pagination.pageIndex,
+    searchTitle,
+    searchDifficulty,
+    searchTopic,
+  ]);
 
   const table = useReactTable({
     data,
@@ -234,7 +243,7 @@ export function LeetcodeDashboardTable({
   return (
     <div className="w-full test">
       <div>
-        <Table className="font-light">
+        <Table className="font-light min-h-[50vh]">
           <TableHeader className="w-full">
             <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
               <TableCell colSpan={5} className="pl-10">
@@ -258,13 +267,23 @@ export function LeetcodeDashboardTable({
                         Filter By
                       </Button>
                       {isFilterOpen && (
-                        <div className="absolute right-0 mt-2 h-80 w-52 bg-primary-800 text-primary-300 border border-gray-300 rounded shadow-lg z-10">
-                          <div className="flex flex-col place-items-center mt-4">
+                        <div className="absolute right-0 mt-2 w-72 min-h-[184px] bg-primary-800 text-primary-300 border border-gray-300 rounded shadow-lg z-10">
+                          <div className="flex flex-col place-items-center mt-4 gap-4">
                             <div className="w-[90%]">
                               <div className="text-xs">Difficulty</div>
                               <MultiSelect
                                 options={questionDifficulty}
                                 onValueChange={setSearchDifficulty}
+                                placeholder="Select options"
+                                variant="inverted"
+                                className="mt-1"
+                              />
+                            </div>
+                            <div className="w-[90%] mb-4">
+                              <div className="text-xs">Topics</div>
+                              <MultiSelect
+                                options={topicsList}
+                                onValueChange={setSearchTopic}
                                 placeholder="Select options"
                                 variant="inverted"
                                 className="mt-1"
