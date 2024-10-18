@@ -84,8 +84,26 @@ const WaitingPage = () => {
     setSeconds(0);
   };
 
-  const handleGoHome = () => {
-    navigate('/dashboard');
+  const handleGoHome = async () => {
+    try {
+      navigate('/dashboard');
+      const response = await fetch(
+              `http://localhost:8082/matches/${userPref.id}`,
+              {
+                method: "DELETE",
+                headers: getHeaders(),
+                body: JSON.stringify(userPref),
+              }
+            );
+      console.log('Response:', response.data); // Log the response for debugging
+      if (response.status === 200) {
+        setMatchFound(false);
+      }
+
+    } catch (error) {
+      console.error('Error deleting match request:', error);
+      navigate('/dashboard');
+    }
   };
 
 
