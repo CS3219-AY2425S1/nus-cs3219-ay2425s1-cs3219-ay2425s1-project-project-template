@@ -107,6 +107,7 @@ export default function MatchingPageBody() {
       ) {
         webSocketRef.current.close();
         console.log("WebSocket closed due to page unload or refresh");
+        mutate(userMatchInfo.user_id);
       }
     };
 
@@ -139,7 +140,7 @@ export default function MatchingPageBody() {
   //   end of addMatch handlers
   //   start of cancel Match
   const onCancelTimer = () => {
-    if (!userMatchInfo) {
+    if (userMatchInfo === undefined) {
       return;
     }
     mutate(userMatchInfo.user_id);
