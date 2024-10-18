@@ -1,5 +1,7 @@
 import { useState } from "react";
 import io from "socket.io-client";
+import MatchingRequestForm from "./MatchingRequestForm";
+import { MatchingRequestFormState } from "../../types";
 import IsConnected from "../IsConnected";
 
 interface MatchingModalProps {
@@ -8,17 +10,23 @@ interface MatchingModalProps {
 
 const MATCH_WEBSOCKET_URL: string = "ws://localhost:3001";
 
-const MatchingModal: React.FC<MatchingModalProps> = ({ closeMatchingModal }) => {
+const MatchingModal: React.FC<MatchingModalProps> = ({
+  closeMatchingModal,
+}) => {
   // --- Declare your states ----
   var matchId: string;
-  var topic: string = "algorithm";
-  var difficulty: string = "hard";
+
+  const [formData, setFormData] = useState<MatchingRequestFormState>({
+    name: "",
+    topic: "",
+    difficulty: "",
+  });
 
   const [isMatchFound, setIsMatchFound] = useState(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
-  async function handleFindMatchRequest() {
+  async function handleFindMatchRequest(formData: MatchingRequestFormState) {
     const res = await fetch("http://localhost:3000/match/findMatch", {
       mode: "cors",
       method: "POST",
@@ -26,9 +34,9 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ closeMatchingModal }) => 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: "Mike2",
-        topic: topic,
-        difficulty: difficulty,
+        name: "test", // set up with user context later
+        topic: formData.topic,
+        difficulty: formData.difficulty,
       }),
     });
     matchId = (await res.json()).matchId;
@@ -58,7 +66,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ closeMatchingModal }) => 
   async function handleCancelMatchRequest() {
     console.log(`Cancelling request of matchId: ${matchId}`);
     await fetch(
-      `http://localhost:3000/match/cancelMatch?matchId=${matchId}&topic=${topic}&difficulty=${difficulty}`,
+      `http://localhost:3000/match/cancelMatch?matchId=${matchId}&topic=${formData.topic}&difficulty=${formData.difficulty}`,
       {
         mode: "cors",
         method: "DELETE",
@@ -71,7 +79,10 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ closeMatchingModal }) => 
     <div className="fixed inset-0 flex items-center justify-center p-6 bg-gray-800 bg-opacity-50">
       <div className="relative p-6 bg-white rounded-lg shadow-lg">
         <button
-          onClick={closeMatchingModal}
+          onClick={() => {
+            closeMatchingModal();
+            handleCancelMatchRequest();
+          }}
           id="submit"
           className="absolute top-2 right-2 px-2 rounded-lg hover:bg-gray-200"
         >
@@ -86,12 +97,13 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ closeMatchingModal }) => 
           )}
         </div>
         <div className="flex flex-col space-y-2">
-          <button
-            onClick={handleFindMatchRequest}
-            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700"
-          >
-            Find Match here
-          </button>
+          <MatchingRequestForm
+            handleSubmit={() =>
+              handleFindMatchRequest(formData)
+            }
+            formData={formData}
+            setFormData={setFormData}
+          />
           <button
             onClick={handleCancelMatchRequest}
             className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-700"
