@@ -23,13 +23,14 @@ export const Login = () => {
                 if (response.status === 200) {
                     localStorage.setItem("userId", response.data.data.id);
                     localStorage.setItem("accessToken", response.data.data.accessToken);
+                    localStorage.setItem("username", response.data.data.username);
                     alert('Successfully logged in!');
                     navigate("/home");
                 } else {
                     alert('Unable to log in.');
                 }
             } catch (error) {
-                if (error.response.status === 401) {
+                if (error.response && error.response.status === 401) {
                     alert('Invalid username or password!');
                 } else {
                     alert('An error occurred!');

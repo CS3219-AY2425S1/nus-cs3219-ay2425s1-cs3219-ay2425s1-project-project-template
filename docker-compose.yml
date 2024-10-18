@@ -28,6 +28,31 @@ services:
       - peerprep-network
     env_file:
       - ./user-service.env
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: peerprep
+      RABBITMQ_DEFAULT_PASS: peerprep
+    networks:
+      - peerprep-network
+
+  queue-service:
+    build: ./backend/queue-service
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./queue-service.env
+    networks:
+      - peerprep-network
 
 networks:
   peerprep-network:
