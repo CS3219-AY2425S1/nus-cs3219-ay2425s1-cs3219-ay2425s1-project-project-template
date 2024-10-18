@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import { getEmptyFieldErrorMessage } from '@/lib/forms';
-import { useMutation } from '@tanstack/react-query';
 import { login } from '@/services/user-service';
-import { useNavigate } from 'react-router-dom';
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, getEmptyFieldErrorMessage('Username')),
@@ -35,9 +35,11 @@ export const useLoginForm = () => {
 
   const onSubmit = (data: ILoginFormSchema) => {
     const parseResult = loginFormSchema.safeParse(data);
+
     if (parseResult.error || !parseResult.data) {
       return;
     }
+
     const payload = parseResult.data;
     sendLoginRequest(payload);
   };

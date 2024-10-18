@@ -18,6 +18,7 @@ export const logQueueStatus = async (
   if (!IS_MILESTONE_D4) {
     return;
   }
+
   const queueStatusLog = await getQueueStatusLog(redisClient);
   logger.info(message.replace('<PLACEHOLDER>', queueStatusLog));
 };

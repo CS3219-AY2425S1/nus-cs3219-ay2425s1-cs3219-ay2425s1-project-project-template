@@ -78,12 +78,14 @@ export const useSignupForm = () => {
 
   const onSubmit = (formData: ISignupFormSchema) => {
     const parseResult = signUpSchema.safeParse(formData);
+
     if (parseResult.error || !parseResult.data) {
       // TODO: Add toast notification
       // eslint-disable-next-line no-console
       console.error('An error occurred: ' + JSON.stringify(formData));
       return;
     }
+
     const { confirmPassword: _, ...payload } = parseResult.data;
     sendSignUpRequest(payload);
   };

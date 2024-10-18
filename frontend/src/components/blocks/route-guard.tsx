@@ -12,6 +12,7 @@ import {
 import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 import { checkIsAuthed } from '@/services/user-service';
+
 import { Loading } from './loading';
 
 export const loader =
@@ -52,6 +53,7 @@ export const RouteGuard = () => {
             if (authedPayload.isAuthed !== isAuthedRoute) {
               navigate(isAuthedRoute ? ROUTES.LOGIN : ROUTES.HOME);
             }
+
             setIsLoading(false);
           }, []);
           usePageTitle(path);

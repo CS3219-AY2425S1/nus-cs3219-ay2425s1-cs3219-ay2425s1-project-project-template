@@ -1,10 +1,12 @@
+import http from 'http';
+
 import cors from 'cors';
 import express, { json } from 'express';
-import http from 'http';
 import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
 
 import matchRouter from '@/routes/match';
+
 import { UI_HOST } from './config';
 import { createWs } from './ws';
 

@@ -1,5 +1,6 @@
-import { JWT_SECRET_KEY } from '@/config';
 import jwt from 'jsonwebtoken';
+
+import { JWT_SECRET_KEY } from '@/config';
 
 export const COOKIE_NAME = 'peerprep-user-session';
 
@@ -39,5 +40,6 @@ export const isAuthed = <T extends object>(cookie: string, payload: T) => {
   if (!isCookieValid(cookie) || decodeCookie(cookie) !== payload) {
     return false;
   }
+
   return true;
 };
