@@ -1,6 +1,15 @@
 version: "3.9"
 
 services:
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   mongo_db:
     container_name: db_container
     image: mongo:latest
@@ -9,6 +18,14 @@ services:
       - "27017:27017"
     volumes:
       - mongo_db:/data/db
+
+  matching_service:
+    container_name: matching_service
+    build: ./MatchingService
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
 
   user_service:
     container_name: user_service
@@ -25,22 +42,6 @@ services:
       - "3002:3002"
     depends_on:
       - mongo_db
-
-  matching_service_redis:
-    image: redis/redis-stack-server:latest
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
-  matching_service:
-    container_name: matching_service
-    build: ./MatchingService
-    ports:
-      - "3000:3000"
-    depends_on:
-      - mongo_db
-      - matching_service_redis
 
   frontend:
     container_name: frontend_service

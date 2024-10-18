@@ -8,10 +8,8 @@ import {
 const matchingQueue = new Queue("matching", {
   redis: {
     host:
-      process.env.ENV == "DEV"
-        ? process.env.REDIS_SERVICE_NAME
-        : process.env.REDIS_URL,
-    port: process.env.REDIS_PORT,
+      process.env.ENV == "DEV" ? process.env.REDIS_URL : process.env.REDIS_HOST,
+    port: 6379,
   },
 });
 
