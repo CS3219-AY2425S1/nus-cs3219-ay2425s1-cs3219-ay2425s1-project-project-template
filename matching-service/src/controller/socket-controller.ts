@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
-import { addUserToSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
+import { addUserToSearchPool, getSocketIdForUser, isUserInSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
 import { getRedisClient } from '../utils/redis-client';
 import { formatSearchPoolStatus, writeLogToFile } from "../utils/logger";
 
@@ -31,6 +31,13 @@ export function initializeSocketIO(io: Server) {
 export function handleRegisterForMatching(socket: Socket, io: Server) {
     const { userId } = socket.data;
     socket.on('registerForMatching', async (criteria) => {
+
+        if (await isUserInSearchPool(userId)) {
+            socket.emit('error', 'User is already registered for matching.');
+            socket.disconnect(true);
+            return;
+        }
+
         if (criteria.difficulty && criteria.topic) {
 
             const timeout = setTimeout(async () => {
@@ -40,7 +47,7 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                 socket.emit('matchingTimeout');
             }, MATCHING_TIMEOUT);
 
-            userTimeouts[userId] = timeout;
+            userTimeouts[socket.id] = timeout;
 
             const status = await matchOrAddUserToSearchPool(userId, socket.id, criteria);
             if (status) {
@@ -54,14 +61,14 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                 if (socket1 && socket2) {
 
                     // Clear timeouts
-                    if (userTimeouts[userId]) {
-                        clearTimeout(userTimeouts[userId]);
-                        delete userTimeouts[userId];
+                    if (userTimeouts[socketId1]) {
+                        clearTimeout(userTimeouts[socketId1]);
+                        delete userTimeouts[socketId1];
                     }
 
-                    if (userTimeouts[status[1].userId]) {
-                        clearTimeout(userTimeouts[status[1].userId]);
-                        delete userTimeouts[status[1].userId];
+                    if (userTimeouts[socketId2]) {
+                        clearTimeout(userTimeouts[socketId2]);
+                        delete userTimeouts[socketId2];
                     }
 
                     io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId }); //INSERT SESSION ID HERE
@@ -99,9 +106,9 @@ export function handleDeregisterForMatching(socket: Socket) {
         await removeUserFromSearchPool(socket.data.userId);
         writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
         // Clear timeout
-        if (userTimeouts[socket.data.userId]) {
-            clearTimeout(userTimeouts[socket.data.userId]);
-            delete userTimeouts[socket.data.userId];
+        if (userTimeouts[socket.data.socketId]) {
+            clearTimeout(userTimeouts[socket.data.socketId]);
+            delete userTimeouts[socket.data.socketId];
         }
 
     });
@@ -112,13 +119,19 @@ export function handleDisconnect(socket: Socket) {
     const { userId } = socket.data;
     socket.on('disconnect', async () => {
         writeLogToFile(`User ${userId} disconnected`);
-        await removeUserFromSearchPool(userId);
-        writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
-        // Clear timeout
-        if (userTimeouts[userId]) {
-            clearTimeout(userTimeouts[userId]);
-            delete userTimeouts[userId];
+
+        // Remove user from search pool only if socketID matches (to prevent duplicate connections from removing users)
+        const userData = await getSocketIdForUser(userId);
+        if (userData === socket.id) {
+            await removeUserFromSearchPool(userId);
+            writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
+            if (userTimeouts[socket.id]) {
+                clearTimeout(userTimeouts[socket.id]);
+                delete userTimeouts[socket.id];
+            }
         }
+        // Clear timeout
+
     });
 }
 

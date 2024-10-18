@@ -56,6 +56,11 @@ export async function getSocketIdForUser(userId: string): Promise<string> {
     return user.socketId;
 }
 
+export async function isUserInSearchPool(userId: string): Promise<boolean> {
+    const redisClient = getRedisClient();
+    return await redisClient.sIsMember('searchPool', userId);
+}
+
 // Add user to the search pool
 export async function addUserToSearchPool(userId: string, socketId: string, criteria: SearchCriteria) {
     const redisClient = getRedisClient();

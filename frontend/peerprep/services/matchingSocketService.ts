@@ -41,7 +41,7 @@ const createSocketConnection = (token: string): Socket => {
 
 // Function to initialize and connect the socket
 export const initializeSocket = () => {
-  const token = localStorage.getItem("jwt") || "invalid"; // TODO: Replace with real JWT token
+  const token = localStorage.getItem("accessToken") || "invalid"; // TODO: Replace with real JWT token
 
   socket = createSocketConnection(token);
   socket.connect();
