@@ -183,6 +183,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   results:
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     name: Final Results
     needs: build-and-push-image
