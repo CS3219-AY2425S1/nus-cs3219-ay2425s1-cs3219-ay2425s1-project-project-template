@@ -1,7 +1,7 @@
 import { useState } from "react";
 import io from "socket.io-client";
 
-const MATCH_WEBSOCKET_URL: string = "ws://localhost:3001";
+const MATCH_WEBSOCKET_URL: string = "ws://localhost:8080";
 
 const MatchingModal: React.FC = () => {
 
