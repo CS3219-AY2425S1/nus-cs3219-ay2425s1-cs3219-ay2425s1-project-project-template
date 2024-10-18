@@ -3,6 +3,7 @@ import { CalendarIcon, ClockIcon, CheckIcon, PlusIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import CreateSessionDialog from '@/components/CreateSessionDialog'
 
 interface Session {
   id: number
@@ -71,14 +72,7 @@ export default function SessionsPage() {
 
           <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Past Coding Sessions</h2>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusIcon className="w-4 h-4 mr-2" />
-                Create Session
-              </Button>
-            </DialogTrigger>
-          </Dialog>
+          <CreateSessionDialog /> 
         </div>
         <div className="space-y-6">
           {renderYearSessions(2023)}
