@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: "question-service-sha256-1"
-        image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3219-ay2425s1-project-g15/question-service@sha256:1683a34f11f2c138f06b6f6534fac869ca8ab4465dce12dfa81760219eb7c3e5"
+        image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3219-ay2425s1-project-g15/question-service-2@sha256:cb1020aa14c04857524be5d84c3e293f8c480c3133fe7f888990a354e95da55f"
         resources:
           requests:
             memory: "1Gi"
