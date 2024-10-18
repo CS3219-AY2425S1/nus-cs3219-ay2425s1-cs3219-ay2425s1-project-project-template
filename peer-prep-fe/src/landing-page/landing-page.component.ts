@@ -62,7 +62,7 @@ export class LandingPageComponent {
     
   }
 
-  imagePath: string = "assets/ufo.png";
+  imagePath: string = "../assets/ufo.png";
   xPosition: string = '0px'; 
   yPosition: string = '0px';
 
