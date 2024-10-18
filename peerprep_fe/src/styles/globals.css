@@ -45,6 +45,28 @@ body {
   border-top-right-radius: 0.5rem; /* rounded-t-lg */
 }
 
+.difficulty {
+  padding-left: 0.75rem; /* px-3 */
+  padding-right: 0.75rem; /* px-3 */
+  padding-top: 0.25rem; /* py-1 */
+  padding-bottom: 0.25rem; /* py-1 */
+  border-radius: 9999px; /* rounded-full */
+  color: #ffffff; /* text-white */
+  font-weight: 500; /* font-medium */
+  font-size: 0.875rem; /* text-sm */
+}
+
+.topic {
+  @apply ml-2 px-3 py-1 rounded-full text-white font-medium text-sm bg-gray-400;
+}
+
+.questiontitle {
+  @apply text-2xl font-bold text-gray-800
+}
+
+.title {
+  @apply text-lg font-semibold text-gray-800 mb-2
+}
 
 @layer utilities {
   .text-balance {

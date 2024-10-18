@@ -25,7 +25,7 @@ const Workspace: React.FC<WorkspaceProps> = () => {
   }, [token, router]);
 
   return (
-    <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10 overscroll-contain">
+    <div className="h-screen w-[80%] flex flex-col  mx-auto py-10 overscroll-contain">
       <Header>
         <Button
           text="Match"
@@ -43,7 +43,7 @@ const Workspace: React.FC<WorkspaceProps> = () => {
       </Header>
       <div className="flex h-full">
         {/* Left Pane */}
-        <div className="flex-1 min-w-[50px] border-r border-gray-300">
+        <div className="flex-1 min-w-[50px] border-r border-gray-300 h-[80%]">
           <Problem />
         </div>
         {/* Right Pane */}
