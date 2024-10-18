@@ -15,9 +15,10 @@ spec:
       containers:
       - name: question-service
         image: gcr.io/peerprep-438713/question-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
         - name: MONGO_URI
-          value: mongodb://mongo-question-service:27017/
+          value: mongodb://root:example@mongo-question-service:27017/
 

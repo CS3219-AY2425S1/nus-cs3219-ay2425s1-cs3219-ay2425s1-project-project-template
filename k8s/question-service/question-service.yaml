@@ -7,6 +7,6 @@ spec:
     app: question-service
   ports:
   - protocol: TCP
-    port: 4000
+    port: 3000
     targetPort: 3000
   type: LoadBalancer
