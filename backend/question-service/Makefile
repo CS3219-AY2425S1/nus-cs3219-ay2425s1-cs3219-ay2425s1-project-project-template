@@ -12,7 +12,7 @@ dropdb:
 
 .PHONY: proto
 proto:
-	@python3 -m grpc_tools.protoc -I ./question_service/protos --python_out=./question_service/protos --pyi_out=./question_service/protos --grpc_python_out=./question_service/protos ./question_service/protos/question.proto
+	@python3 -m grpc_tools.protoc -I ../protos --python_out=./question_service/protos --pyi_out=./question_service/protos --grpc_python_out=./question_service/protos ../protos/question.proto
 .PHONY: server
 server:
 	@uvicorn question_service.main:app --reload --host 0.0.0.0 --port 8000
