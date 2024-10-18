@@ -1,6 +1,5 @@
 import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
 from typing import Union
 
 from logic.matching import find_match_else_enqueue, remove_user_from_queue
@@ -16,11 +15,7 @@ async def enqueue_user(
     topic: str,
     difficulty: str
 ):
-    response = await find_match_else_enqueue(user_id, topic, difficulty)
-    if isinstance(response, MatchModel):
-        return JSONResponse(status_code=200, content=response.json())
-    elif isinstance(response, MessageModel):
-        return JSONResponse(status_code=202, content=response.json())
+    return await find_match_else_enqueue(user_id, topic, difficulty)
 
 # Remove a user from the queue
 @router.delete("/queue/{user_id}")
@@ -29,12 +24,9 @@ async def dequeue_user(
     topic: str,
     difficulty: str
 ):
-    return JSONResponse(
-        status_code=200,
-        content=await remove_user_from_queue(user_id, topic, difficulty)
-    )
+    return await remove_user_from_queue(user_id, topic, difficulty)
 
-@router.websocket("/subscribe/{user_id}/{topic}/{difficulty}")
+@router.websocket("/subscribe/{user_id}")
 async def subscribe(
     websocket: WebSocket,
     user_id: str,
@@ -47,4 +39,4 @@ async def subscribe(
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        pass
+        manager.disconnect(user_id, topic, difficulty, websocket)

@@ -37,21 +37,39 @@ class ConnectionManager:
     '''
     Disconnects all connections associated with (user_id, topic, complexity)
     '''
+    async def disconnect_all(
+        self,
+        user_id: str,
+        topic: str,
+        complexity: str,
+    ) -> None:
+        key: Tuple[str, str, str] = (user_id, topic, complexity)
+        if key not in self.connection_map:
+            return
+
+        await asyncio.gather(
+            *[websocket.close() for websocket in self.connection_map[key]]
+        )
+        del self.connection_map[key]
+
+    '''
+    Disconnects the single connection.
+    '''
     async def disconnect(
         self,
         user_id: str,
         topic: str,
         complexity: str,
         websocket: WebSocket,
-    ) -> None:
+    ):
         key: Tuple[str, str, str] = (user_id, topic, complexity)
-        if not key in self.connection_map:
+        if key not in self.connection_map:
             return
 
-        await asyncio.gather(
-            *[websocket for websocket in self.connection_map[key]]
-        )
-        del self.connection_map[key]
+        self.connection_map[key].remove(websocket)
+        if len(self.connection_map[key]) == 0:
+            del self.connections_map[key]
+        websocket.close()
 
     '''
     Data is sent to through all connections associated with
@@ -65,7 +83,7 @@ class ConnectionManager:
         data: str,
     ):
         key: Tuple[str, str, str] = (user_id, topic, complexity)
-        if not key in self.connection_map:
+        if key not in self.connection_map:
             return
 
         await asyncio.gather(
