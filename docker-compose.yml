@@ -17,6 +17,8 @@ services:
     container_name: matching-container
     ports:
       - "3002:3002"
+    env_file:
+      - ./backend/matching/.env # Env file for matching service, to test in prod
     volumes:
       - ./backend/matching/src:/app/src
     networks:
