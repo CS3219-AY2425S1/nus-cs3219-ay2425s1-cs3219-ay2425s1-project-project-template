@@ -49,7 +49,7 @@ class User(BaseModel):
 #     return {"message": "Hello from matching service"}
 
 
-@app.get("/match", response_model=dict)
+@app.post("/match", response_model=dict)
 async def create_match(user: User):
     """
     Create a match request for a user. This will publish the match request to the Redis channel.
