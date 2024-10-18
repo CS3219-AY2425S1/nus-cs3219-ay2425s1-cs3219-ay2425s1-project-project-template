@@ -34,6 +34,7 @@ export default function MatchingPageBody() {
     useCancelUserMatch(onCancelSuccess);
   //   start of webSocket Handlers
   const onWebSocketMessage = (event: MessageEvent) => {
+    console.log("Message recevied from server:", event);
     try {
       const messageData = JSON.parse(event.data);
 
