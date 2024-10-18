@@ -10,7 +10,7 @@ export class WebSocketConnection {
     private clients: Map<string, WebSocket> = new Map()
 
     constructor() {
-        this.wss = new WebSocketServer({ port: 3007 })
+        this.wss = new WebSocketServer({ port: process.env.WS_PORT })
         this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
             const query = url.parse(req.url, true).query
             const websocketId = query.id as string
@@ -21,7 +21,6 @@ export class WebSocketConnection {
             }
 
             this.clients.set(websocketId, ws)
-
             ws.on('message', (message: string) => this.handleMessage(message, websocketId))
             ws.on('close', () => this.handleClose(websocketId))
         })
