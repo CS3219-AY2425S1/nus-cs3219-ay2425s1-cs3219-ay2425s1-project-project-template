@@ -140,7 +140,7 @@ export class Matcher {
       });
       this.notifer(ServerSocketEvents.MATCH_FOUND, room.usernames[1], {
         roomId: room.roomId,
-        opponentUsername: room.usernames,
+        opponentUsername: room.usernames[0],
       });
     });
   }

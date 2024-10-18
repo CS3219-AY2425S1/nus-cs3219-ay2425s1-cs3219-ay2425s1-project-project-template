@@ -72,7 +72,7 @@ const handleRequestMatch = async (socket: Socket, message: MatchRequest) => {
   console.log(result);
 
   if (result.success) {
-    sendResponse(ServerSocketEvents.MATCH_REQUESTED, message.username);
+    sendResponse(ServerSocketEvents.MATCH_REQUESTED, message.username, result);
 
     setTimeout(() => {
       matcher.start();
@@ -93,7 +93,7 @@ const handleCancelMatch = async (
   console.log(result);
 
   if (result.success) {
-    sendResponse(ServerSocketEvents.MATCH_CANCELED, message.username);
+    sendResponse(ServerSocketEvents.MATCH_CANCELED, message.username, result);
   }
 };
 

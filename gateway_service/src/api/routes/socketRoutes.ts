@@ -40,6 +40,7 @@ const handleMatchingServiceMessage = (
       console.error("No socket found for username");
       return;
     }
+    console.log(`Forwarding message to client: ${message.username}`);
     socket.emit(message.event, message);
   }
 };
