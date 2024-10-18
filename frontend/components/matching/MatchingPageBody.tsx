@@ -9,6 +9,7 @@ import MatchingTimer from "./MatchingTimer";
 
 import { SuccessfulMatchResponse, UserMatchResponse } from "@/types/match";
 import createWebSocket from "@/utils/webSocket";
+import { useCancelUserMatch } from "@/hooks/api/matching";
 
 export default function MatchingPageBody() {
   const [userMatchInfo, setUserMatchInfo] = useState<
@@ -17,6 +18,20 @@ export default function MatchingPageBody() {
   const webSocketRef = useRef<WebSocket | null>(null);
   const router = useRouter();
 
+  const onCancelSuccess = () => {
+    toast.dismiss();
+    toast.error("Match Cancelled", {
+      className: "z-50",
+      autoClose: 2000,
+    });
+    if (webSocketRef.current) {
+      webSocketRef.current.close();
+      webSocketRef.current = null;
+    }
+    setUserMatchInfo(undefined);
+  };
+  const { isError: isCancelError, mutate } =
+    useCancelUserMatch(onCancelSuccess);
   //   start of webSocket Handlers
   const onWebSocketMessage = (event: MessageEvent) => {
     try {
@@ -100,24 +115,22 @@ export default function MatchingPageBody() {
     router.push("/questions");
   };
   //   end of addMatch handlers
-
+  //   start of cancel Match
   const onCancelTimer = () => {
-    toast.dismiss();
-    toast.error("Match Cancelled", {
-      className: "z-50 bg-success-100",
-      autoClose: 2000,
-    });
-    if (webSocketRef.current) {
-      webSocketRef.current.close();
-      webSocketRef.current = null;
+    if (!userMatchInfo) {
+      return;
     }
-    setUserMatchInfo(undefined);
+    mutate(userMatchInfo.user_id);
   };
-
   let content: ReactNode;
 
   if (userMatchInfo !== undefined) {
-    content = <MatchingTimer seconds={30} onCancel={onCancelTimer} />;
+    content = (
+      <>
+        <MatchingTimer seconds={30} onCancel={onCancelTimer} />
+        {isCancelError && <div>Error Cancelling Match</div>}
+      </>
+    );
   } else {
     content = (
       <MatchingForm onCancel={onCancelMatch} onSuccess={onSuccessAddMatch} />

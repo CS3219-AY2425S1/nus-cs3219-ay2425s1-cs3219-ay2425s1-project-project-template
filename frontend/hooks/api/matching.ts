@@ -23,3 +23,14 @@ export const useAddUserToMatch = (
     onSuccess: onSuccess,
   });
 };
+
+const removeUserFromQueue = async (userID: string) => {
+  await axios.post(`/matching-service/cancel/${userID}`);
+};
+
+export const useCancelUserMatch = (onSuccess: () => void) => {
+  return useMutation({
+    mutationFn: removeUserFromQueue,
+    onSuccess: onSuccess,
+  });
+};
