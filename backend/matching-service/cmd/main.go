@@ -5,6 +5,7 @@ import (
 	"matching-service/internal/controllers"
 	"matching-service/internal/services"
 	"matching-service/internal/socket"
+	"matching-service/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -40,11 +41,17 @@ func main() {
 	// WebSocket route to handle connections
 	router.GET("/ws", socket.HandleConnections)
 
-	// Route for adding users
-	router.POST("/addUser", controllers.AddUserHandler)
+	// Apply authentication middleware to all routes that need protection
+	authRoutes := router.Group("/")
+	authRoutes.Use(middleware.VerifyAccessToken) // Apply authentication to all routes within this group
+	{
+		// Route for adding users (requires authentication)
+		authRoutes.POST("/addUser", controllers.AddUserHandler)
 
-	// Route for cancelling user
-	router.POST("/cancel/:userID", controllers.CancelMatchHandler)
+		// Route for cancelling a user (requires authentication)
+		authRoutes.POST("/cancel/:userID", controllers.CancelMatchHandler)
+	}
+
 
 	// Start the server
 	log.Println("Server started on :3002")
