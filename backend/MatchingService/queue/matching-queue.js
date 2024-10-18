@@ -3,7 +3,8 @@ import Queue from "bull";
 // Initialize the Bull queue with Redis connection
 const matchingQueue = new Queue("matching", {
   redis: {
-    host: "redis",
+    host:
+      process.env.ENV == "DEV" ? process.env.REDIS_URL : process.env.REDIS_HOST,
     port: 6379,
   },
 });

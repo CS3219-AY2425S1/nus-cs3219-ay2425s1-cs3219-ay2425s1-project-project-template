@@ -3,6 +3,7 @@ import express from "express";
 import { createBullBoard } from "@bull-board/api";
 import { ExpressAdapter } from "@bull-board/express";
 import { BullAdapter } from "@bull-board/api/bullAdapter.js";
+import "dotenv/config";
 
 import { matchingQueue } from "./queue/matching-queue.js";
 import {
