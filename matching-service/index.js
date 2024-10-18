@@ -1,7 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv').config();
-const matchingRouter = require('./routes/matching-router')
+const { createChannel, receive } = require('./rabbit/rabbit.js');
+const { processMatchRequest } = require('./controllers/matching-controller.js')
 
 const app = express()
 
@@ -31,12 +32,24 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
+let channel = null;
+
+(async () => {
+    channel = await createChannel(); // Wait until channel is created
+    if (channel) {
+        // TODO: processMatchRequest to be implemented
+        receive(channel, processMatchRequest(channel));
+    } else {
+        console.error("Failed to create RabbitMQ channel.");
+    }
+})();
+
+
+
 const PORT_MATCHING = process.env.PORT_MATCHING;
 
 app.listen(PORT_MATCHING, () => {
     console.log(`Server is running on port ${PORT_MATCHING}`)
 })
-
-app.use('/api/matching', matchingRouter);
 
 module.exports = app
