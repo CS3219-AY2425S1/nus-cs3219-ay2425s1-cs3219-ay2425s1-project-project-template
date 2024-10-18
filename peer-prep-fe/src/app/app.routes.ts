@@ -8,6 +8,7 @@ import { AppComponent } from "./app.component"
 import { CreateAccountComponent } from "./create-account/create-account.component"
 import { HomeComponent } from "./home/home.component"
 import { LoginComponent } from "./login/login.component"
+import { LandingPageComponent } from "../landing-page/landing-page.component"
 import {MatchModalComponent} from "../loading-screen/match-modal/match-modal.component";
 
 export const routes: Routes = [
@@ -19,4 +20,6 @@ export const routes: Routes = [
   { path: "edit-question", component: EditPageComponent },
   { path: "question-list", component: QuestionListComponent },
   { path: "loading-screen", component: MatchModalComponent }
+  { path: "question-list", component: QuestionListComponent },
+  { path: "landing", component: LandingPageComponent }
 ]
