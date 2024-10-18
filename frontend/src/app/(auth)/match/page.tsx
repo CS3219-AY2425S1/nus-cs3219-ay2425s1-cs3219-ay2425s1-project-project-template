@@ -20,11 +20,12 @@ import { capitalizeWords } from "@/utils/string_utils";
 import { useForm } from "react-hook-form";
 import { Client as StompClient } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { send } from "process";
 import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
 import { preferredLanguagesList, topicsList } from "@/utils/constants";
+import Swal from "sweetalert2";
 
 interface FindMatchFormOutput {
   questionDifficulty: string;
@@ -39,19 +40,37 @@ interface FindMatchSocketMessage {
   difficulty: string;
 }
 
+const showLoadingSpinner = () => {
+  Swal.fire({
+    title: "Processing...",
+    text: "Finding a match...",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+};
+
+const closeLoadingSpinner = () => {
+  Swal.close();
+};
+
+const SOCKET_URL =
+  process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
+  "http://localhost:3002/matching-websocket";
+
+const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
+
+const TIMEOUT_TIMER = 15; // in seconds
+
 const FindPeer = () => {
   const [stompClient, setStompClient] = useState<StompClient | null>(null);
   const [socketMessages, setSocketMessages] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false); // Manage connection state
 
-  const SOCKET_URL =
-    process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
-    "http://localhost:3002/matching-websocket";
-
-  const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
-
-  // Function to trigger a connection to the web socket
-  const connectWebSocket = () => {
+  useEffect(() => {
     const socket = new SockJS(SOCKET_URL);
     const client = new StompClient({
       webSocketFactory: () => socket,
@@ -79,17 +98,16 @@ const FindPeer = () => {
 
     client.activate();
     setStompClient(client);
-  };
+
+    return () => {
+      client.deactivate();
+    };
+  }, []);
 
   const sendMatchRequest = (userFilter: FindMatchFormOutput) => {
     if (!stompClient || !isConnected) {
-      console.log("STOMP client is not connected. Attempting to connect");
-      try {
-        connectWebSocket();
-      } catch (error) {
-        console.error("Failed to connect to STOMP client: ", error);
-        return;
-      }
+      console.log("STOMP client is not connected.");
+      return;
     }
 
     // Repackage user filter data
@@ -102,7 +120,7 @@ const FindPeer = () => {
 
     console.log("Sending match request with data: ", userMatchRequest);
 
-    if (!stompClient) {
+    if (stompClient?.connected !== true) {
       console.error(
         "STOMP client is not connected. Connection error encountered."
       );
@@ -114,6 +132,40 @@ const FindPeer = () => {
       body: JSON.stringify(userMatchRequest),
     });
     console.log("Match request sent: ", CURRENT_USER);
+
+    showLoadingSpinner();
+
+    const timeout = setTimeout(() => {
+      Swal.update({
+        title: "Timeout",
+        text: "We could not find a match for you. Perhaps try a new set of filters? :(",
+        icon: "error",
+        showCloseButton: true,
+      });
+    }, TIMEOUT_TIMER * 1000);
+
+    try {
+      stompClient.subscribe("/user/queue/matches", (message) => {
+        console.log("Received message: ", message.body);
+        closeLoadingSpinner();
+        clearTimeout(timeout);
+        Swal.fire(
+          "Match Found!",
+          `We found a match for you! You have been matched with ${message.body}.`,
+          "success"
+        );
+      });
+    } catch (error) {
+      console.error("Error subscribing to /user/queue/matches: ", error);
+      closeLoadingSpinner();
+      clearTimeout(timeout);
+
+      Swal.fire(
+        "Error",
+        "An error occurred while trying to find a match for you. Please try again later.",
+        "error"
+      );
+    }
   };
 
   const form = useForm({
