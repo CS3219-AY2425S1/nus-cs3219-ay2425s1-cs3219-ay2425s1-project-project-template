@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { EventPattern, Payload, MessagePattern } from '@nestjs/microservices';
+import { CodeChangeDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -8,10 +9,10 @@ export class AppController {
 
   // Handle incoming code change events from Redis
   @EventPattern('codeChange')
-  async handleCodeChange(@Payload() data: { roomId: string; userId: string; code: string }) {
+  async handleCodeChange(@Payload() data: CodeChangeDto) {
     console.log('Received code change:', data);
     // Process the code change using the AppService
-    await this.appService.processCodeChange(data.roomId, data.userId, data.code);
+    await this.appService.processCodeChange(data);
   }
 
   @EventPattern('addUserToRoom')

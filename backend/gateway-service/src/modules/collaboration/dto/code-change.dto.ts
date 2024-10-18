@@ -1,11 +1,14 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class MatchDeclineDto {
+export class CodeChangeDto {
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  operationType: 'insert' | 'delete';
+
+  @IsNotEmpty()
+  position: number;
 
   @IsString()
   @IsNotEmpty()
-  matchId: string;
+  text: string;
 }

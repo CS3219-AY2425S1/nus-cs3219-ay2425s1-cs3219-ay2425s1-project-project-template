@@ -46,8 +46,8 @@ export class RedisService {
   
     for (const roomKey of roomKeys) {
       const users = await this.redisPublisher.smembers(roomKey);
-      const room = roomKey.replace(REDIS_ROOM_POOL_PREFIX, '');
-      rooms.push({ room, users });
+      const roomId = roomKey.replace(REDIS_ROOM_POOL_PREFIX, '');
+      rooms.push({ roomId, users });
     }
   
     return rooms;

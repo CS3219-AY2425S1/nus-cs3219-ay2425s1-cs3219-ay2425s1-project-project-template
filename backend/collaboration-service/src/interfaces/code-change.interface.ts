@@ -1,7 +1,10 @@
 export interface CodeChangeEvent {
-  id: string;
+  eventId: string;
   roomId: string;
   userId: string;
-  code: string;
+  operationType: 'insert' | 'delete';
+  position: number;
+  text: string
+  version: number;
   timestamp: Date;
 }
