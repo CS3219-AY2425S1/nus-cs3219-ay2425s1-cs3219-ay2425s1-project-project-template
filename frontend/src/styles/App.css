@@ -16,7 +16,7 @@ body {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: pink;
+  background-color: white;
   color: black;
   border: none;
   border-radius: 15px;
@@ -26,8 +26,7 @@ body {
 }
 
 .button-custom:hover {
-  background-color: #ff69b4;
-  /* Slightly darker pink on hover */
+  background-color: #f0f0f0;
 }
 
 .App-header {
