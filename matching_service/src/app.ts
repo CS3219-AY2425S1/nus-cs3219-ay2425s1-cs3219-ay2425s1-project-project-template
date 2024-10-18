@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import cors from "cors";
-import { validateSocketConnection } from "./utility/socketHelper";
 import { Queue, IMatchRequest, IMatchCancelRequest } from "./services/queue";
 import { Matcher } from "./services/matcher";
 import {

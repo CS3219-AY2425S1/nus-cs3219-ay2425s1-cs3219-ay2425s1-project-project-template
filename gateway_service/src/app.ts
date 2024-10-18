@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import userRoutes from "./api/routes/userRoutes";
 import questionRoutes from "./api/routes/questionRoutes";
-import { authenticateToken, authenticateSocket } from "./utility/jwtHelper";
+import { authenticateToken } from "./utility/jwtHelper";
 import initializeSocketHandler from "./api/routes/socketRoutes";
 import http from "http";
 import cors from "cors";
