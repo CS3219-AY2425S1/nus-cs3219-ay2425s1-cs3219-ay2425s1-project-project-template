@@ -1,7 +1,8 @@
-import { admin as adminTable, db, users as usersTable } from '.';
 import { eq } from 'drizzle-orm';
 
 import { generatePasswordHash } from '@/lib/passwords';
+
+import { admin as adminTable, db, users as usersTable } from '.';
 
 const TEST_USER_CREDENTIALS = {
   username: 'testuser01',
