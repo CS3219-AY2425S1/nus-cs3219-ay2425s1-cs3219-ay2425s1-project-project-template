@@ -14,14 +14,13 @@ socket.on("connect", () => {
   // Request a match
   console.log("Requesting match...");
   socket.emit("request-match", {
-    difficultyLevel: "EASY",
-    category: "ARRAYS",
+    difficultyLevel: "Easy",
+    category: "Arrays",
   });
 });
 
 socket.on("connection-error", (error) => {
   console.log("Connection error:", error.message);
-  socket.disconnect();
 });
 
 socket.on("match-request-accepted", () => {
@@ -34,15 +33,12 @@ socket.on("match-found", (match) => {
 
 socket.on("match-timeout", () => {
   console.log("Match timeout");
-  socket.disconnect();
 });
 
 socket.on("match-request-error", (message) => {
   console.log("Error requesting match:", message);
-  socket.disconnect();
 });
 
 socket.on("disconnect", (reason) => {
   console.log("Disconnected:", reason);
-  socket.disconnect();
 });

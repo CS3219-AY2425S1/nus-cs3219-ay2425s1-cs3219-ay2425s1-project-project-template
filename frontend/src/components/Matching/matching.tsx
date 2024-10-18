@@ -12,7 +12,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Typography from "@mui/material/Typography";
 import toast from "react-hot-toast";
+import { io, Socket } from "socket.io-client";
 
+const userId = Date.now();
 const complexities = ["Easy", "Medium", "Hard"];
 const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
 const timeout = 30000;
@@ -22,22 +24,65 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
   const [category, setCategory] = useState("");
   const [isMatching, setIsMatching] = useState(false);
 
+  const socket = useRef<Socket | undefined>(undefined);
   const intervalReference = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const startTime = useRef(0);
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
     if (isMatching) {
-      intervalReference.current = setInterval(() => {
-        if (Date.now() - startTime.current > timeout) {
-          toast.error("Matching timed out");
-          setIsMatching(false);
-        }
-        setElapsedTime(Date.now() - startTime.current);
-      }, 250);
+      socket.current = io(`http://localhost:${process.env.REACT_APP_MATCHING_SVC_PORT}`, {
+        auth: {
+          userId: userId,
+        },
+      });
+      
+      socket.current.on("connect", () => {
+        console.log("Connected with user ID:", userId);
+        console.log(`Requesting match for ${category} on ${complexity} difficulty...`);
+        socket.current!.emit("request-match", {
+          difficultyLevel: complexity,
+          category: category || null,
+        });
+      });
+      
+      socket.current.on("connection-error", (error: Error) => {
+        toast.error(`Connection error: ${error.message}`);
+        setIsMatching(false);
+      });
+      
+      socket.current.on("match-request-accepted", () => {
+        startTime.current = Date.now();
+        intervalReference.current = setInterval(() => {
+          if (Date.now() - startTime.current > timeout) {
+            toast.error("Matching timed out");
+            setIsMatching(false);
+          }
+          setElapsedTime(Date.now() - startTime.current);
+        }, 250);
+      });
+      
+      socket.current.on("match-found", (match) => {
+        toast.success(`Match found!`);
+        setIsMatching(false);
+      });
+      
+      socket.current.on("match-timeout", () => {
+        toast.error("Matching timed out");
+        setIsMatching(false);
+      });
+      
+      socket.current.on("match-request-error", (message: string) => {
+        toast.error(`Error requesting match: ${message}`);
+        setIsMatching(false);
+      });
     }
 
     return () => {
+      if (socket.current) {
+        socket.current.disconnect();
+      }
+
       clearInterval(intervalReference.current);
       setElapsedTime(0);
     }
@@ -60,8 +105,6 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
   }
 
   const startMatching = () => {
-    console.log(`Looking for match with ${category} on ${complexity} difficulty`);
-    startTime.current = Date.now();
     setIsMatching(true);
   }
 

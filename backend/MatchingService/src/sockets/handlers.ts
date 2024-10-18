@@ -11,11 +11,13 @@ export const initializeSocketHandlers = (io: Server): void => {
     const userId = socket.handshake.auth.userId;
     if (!userId) {
       socket.emit("connection-error", { message: "User ID is required" });
+      socket.disconnect(true);
       return;
     }
 
     if (!matchController.addConnection(userId, socket.id)) {
       socket.emit("connection-error", { message: "User is already connected" });
+      socket.disconnect(true);
       return;
     }
 
