@@ -1,7 +1,12 @@
 import Queue from "bull";
 
 // Initialize the Bull queue with Redis connection
-const matchingQueue = new Queue("matching", "redis://127.0.0.1:6379");
+const matchingQueue = new Queue("matching", {
+  redis: {
+    host: "redis",
+    port: 6379,
+  },
+});
 
 // Process the queue
 matchingQueue.process(1, async (job) => {
