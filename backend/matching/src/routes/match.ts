@@ -1,6 +1,6 @@
-import { matchRequestController } from '@/controllers/match-request';
-
 import { Router } from 'express';
+
+import { matchRequestController } from '@/controllers/match-request';
 
 const route = Router();
 

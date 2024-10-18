@@ -6,9 +6,11 @@ class DarkModeStore {
   constructor() {
     makeAutoObservable(this);
     const isDark = localStorage.getItem('theme') === 'dark';
+
     if (isDark) {
       document.documentElement.classList.add('dark');
     }
+
     this.mode = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
   }
 

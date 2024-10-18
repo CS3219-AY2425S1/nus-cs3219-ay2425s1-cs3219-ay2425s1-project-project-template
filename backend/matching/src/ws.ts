@@ -1,5 +1,7 @@
 import http from 'http';
+
 import { Server } from 'socket.io';
+
 import { logger } from './lib/utils';
 
 export const createWs = (server: ReturnType<(typeof http)['createServer']>) => {
@@ -12,6 +14,7 @@ export const createWs = (server: ReturnType<(typeof http)['createServer']>) => {
         logger.warn('joinRoom event received without a roomId');
         return;
       }
+
       socket.join(roomId);
       logger.info(`Socket ${socket.id} joined room: ${roomId}`);
       socket.emit('joinedRoom', roomId);

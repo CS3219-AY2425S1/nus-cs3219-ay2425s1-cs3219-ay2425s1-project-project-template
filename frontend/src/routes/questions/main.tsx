@@ -1,6 +1,6 @@
-import { queryOptions, useInfiniteQuery, type QueryClient } from '@tanstack/react-query';
+import { type QueryClient, queryOptions, useInfiniteQuery } from '@tanstack/react-query';
 import { Suspense, useEffect, useMemo } from 'react';
-import { Await, defer, useLoaderData, type LoaderFunctionArgs } from 'react-router-dom';
+import { Await, defer, type LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
 import { Loading } from '@/components/blocks/loading';
@@ -65,6 +65,7 @@ export function Questions() {
     } else if (initialData?.initialPage?.questions) {
       return initialData.initialPage.questions;
     }
+
     return [];
   }, [data, initialData]);
 

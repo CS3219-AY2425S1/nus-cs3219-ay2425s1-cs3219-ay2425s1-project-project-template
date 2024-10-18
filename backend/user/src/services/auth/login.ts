@@ -1,12 +1,14 @@
 import { eq, getTableColumns, sql } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
 
-import { db, users } from '@/lib/db';
-import type { ILoginPayload, ILoginResponse } from './types';
 import { CookiePayload, generateCookie } from '@/lib/cookies';
+import { db, users } from '@/lib/db';
 import { getIsPasswordValid } from '@/lib/passwords';
 
+import type { ILoginPayload, ILoginResponse } from './types';
+
 const _FAILED_ATTEMPTS_ALLOWED = 3;
+
 const _getSchema = () => {
   const { id, username, password, email, failedAttempts, unlockTime } = getTableColumns(users);
   return {
@@ -18,6 +20,7 @@ const _getSchema = () => {
     unlockTime,
   };
 };
+
 export const loginService = async (payload: ILoginPayload): Promise<ILoginResponse> => {
   const rows = await db
     .select(_getSchema())
@@ -34,11 +37,13 @@ export const loginService = async (payload: ILoginPayload): Promise<ILoginRespon
       },
     };
   }
+
   const { unlockTime, password, failedAttempts, ...user } = rows[0];
 
   // 2. Locked out
   if (unlockTime !== null) {
     const currentTime = new Date();
+
     if (unlockTime > currentTime) {
       return {
         code: StatusCodes.CONFLICT,
@@ -51,6 +56,7 @@ export const loginService = async (payload: ILoginPayload): Promise<ILoginRespon
 
   // 3. Wrong Password
   const isPasswordValid = getIsPasswordValid(payload.password, password);
+
   if (!isPasswordValid) {
     const newFailedAttempts = (failedAttempts ?? 0) + 1;
     const updateValues = {
@@ -74,6 +80,7 @@ export const loginService = async (payload: ILoginPayload): Promise<ILoginRespon
       unlockTime: null,
     });
   }
+
   const jwtToken = generateCookie<CookiePayload>({ id: user.id });
   return {
     code: StatusCodes.OK,
