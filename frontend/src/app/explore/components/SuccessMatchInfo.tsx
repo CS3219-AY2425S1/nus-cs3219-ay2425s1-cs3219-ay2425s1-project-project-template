@@ -8,10 +8,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { UserIcon } from 'lucide-react';
+import { Progress } from "@/components/ui/progress"
 
 interface SuccessMatchInfoProps {
     isOpen: boolean;
@@ -75,6 +74,7 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                 <DialogFooter>
                     <Button onClick={handleAccept}>Accept</Button>
                 </DialogFooter>
+                <Progress className='bg-white ' value={35} />
             </DialogContent>
         </Dialog>
     )
