@@ -6,13 +6,14 @@ import {
   ConsumerFactory,
   KafkaFactory,
 } from "./kafka";
+import { DifficultyLevel } from "../models/Room";
 
 dotenv.config();
 
 export interface IMatchRequest extends KafkaRequest {
   username: string;
   topic: string;
-  difficulty: string;
+  difficulty: DifficultyLevel;
 }
 
 export interface IMatchCancelRequest {
@@ -31,7 +32,7 @@ export interface IMatch {
   roomId: string;
   usernames: string[];
   topic: string;
-  difficulty: string;
+  difficulty: DifficultyLevel;
 }
 
 export interface IQueue {

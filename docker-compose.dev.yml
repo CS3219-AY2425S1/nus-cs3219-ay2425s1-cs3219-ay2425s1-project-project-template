@@ -73,6 +73,7 @@ services:
       - ./matching_service:/app
       - /app/node_modules # This prevents the host's node_modules from overwriting the container's
     environment:
+      - MONGODB_URI=${MONGODB_URI}
       - MATCHING_SERVICE_PORT=${MATCHING_SERVICE_PORT}
       - API_GATEWAY_PORT=${API_GATEWAY_PORT}
       - USER_SERVICE_PORT=${USER_SERVICE_PORT}

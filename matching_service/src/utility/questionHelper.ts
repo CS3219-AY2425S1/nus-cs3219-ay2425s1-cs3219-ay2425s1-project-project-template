@@ -1,9 +1,11 @@
+import { DifficultyLevel } from "../models/Room";
+
 interface QuestionParams {
   topic: string | string[];
-  difficultyLevel: "Easy" | "Medium" | "Hard";
+  difficultyLevel: DifficultyLevel;
 }
 
-async function generateQuestion(token: string, params?: QuestionParams) {
+export async function generateQuestion(params?: QuestionParams) {
   try {
     let url = new URL(
       "http://gateway-service:5003/api/questions/questions/random"
@@ -24,7 +26,6 @@ async function generateQuestion(token: string, params?: QuestionParams) {
 
     const response = await fetch(url.toString(), {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
