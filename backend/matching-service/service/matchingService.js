@@ -31,7 +31,7 @@ const handleMatchRequest = (userId, category, complexity) => {
         "hard": 3
     };
 
-  // Attempt to find a match based on category and difficulty
+  // Attempt to find a match based on category and complexity
   let potentialMatch = requestQueue[category].find(req => {
 
       const userComplexityLevel = complexityLevels[complexity];
