@@ -2,7 +2,6 @@ import { Server } from "socket.io";
 import { MatchRequest } from "../types/match-types";
 import { connectRabbitMQ, getChannel } from "../queue/rabbitmq";
 import Redis from "ioredis";
-import { activeMatches } from "../server";
 
 let matchQueue: MatchRequest[] = [];
 const redis = new Redis();
@@ -42,9 +41,6 @@ async function processMatchRequest(request: MatchRequest, io: Server) {
     redis.del(`match_request:${match.userName}`);
     console.log(`Match found between ${request.userName} and ${match.userName}`);
 
-    activeMatches.set(request.userName, match.userName);
-    activeMatches.set(match.userName, request.userName);
-
     io.to(request.userName).emit("match_found", {
       success: true,
       matchUserName: match.userName,
@@ -70,7 +66,7 @@ async function processMatchRequest(request: MatchRequest, io: Server) {
         io.to(request.userName).emit("immediate_match_not_found", { success: false });
         redis.del(requestKey);
       }
-    }, 30000);
+    }, 31000);
 
     redis.set(`timer:${request.userName}`, timerId.toString(), "EX", 31);
   }
