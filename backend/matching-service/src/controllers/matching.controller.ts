@@ -3,6 +3,8 @@ import { Response } from 'express'
 import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
 import mqConnection from '../services/rabbitmq.service'
 import { randomUUID } from 'crypto'
+import { WebSocketMessageType } from '@repo/ws-types'
+import wsConnection from '../server'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const websocketID = randomUUID()
@@ -20,4 +22,5 @@ export async function addUserToMatchmaking(data: UserQueueRequest): Promise<void
 
 export async function removeUserFromMatchingQueue(websocketId: string): Promise<void> {
     await mqConnection.addUserToCancelledSet(websocketId)
+    wsConnection.sendMessageToUser(websocketId, JSON.stringify({ type: WebSocketMessageType.CANCEL }))
 }

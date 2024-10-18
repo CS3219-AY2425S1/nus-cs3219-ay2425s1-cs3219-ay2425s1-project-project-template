@@ -101,13 +101,24 @@ export const NewSession = () => {
             if (typeof event.data === 'string') {
                 const newMessage = JSON.parse(event.data)
                 switch (newMessage.type) {
-                    case 'success':
+                    case WebSocketMessageType.SUCCESS:
                         handleMatchFound()
                         break
-                    case 'fail':
+                    case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
                         socketRef.current = undefined
                         handleFailedMatchmaking()
+                        break
+                    case WebSocketMessageType.CANCEL:
+                        socketRef.current?.close()
+                        socketRef.current = undefined
+                        setModalData((modalData) => {
+                            return {
+                                ...modalData,
+                                isOpen: false,
+                                isMatchmaking: false,
+                            }
+                        })
                         break
                     default:
                         console.error('Unexpected message type received')
@@ -133,15 +144,6 @@ export const NewSession = () => {
     const handleCancelMatchmaking = async () => {
         const cancelMessage = { type: WebSocketMessageType.CANCEL }
         socketRef.current?.send(JSON.stringify(cancelMessage))
-        socketRef.current?.close()
-        socketRef.current = undefined
-        setModalData((modalData) => {
-            return {
-                ...modalData,
-                isOpen: false,
-                isMatchmaking: false,
-            }
-        })
     }
 
     const handleMatchFound = async () => {

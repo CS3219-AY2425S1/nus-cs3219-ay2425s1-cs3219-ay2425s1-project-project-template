@@ -3,6 +3,7 @@ import WebSocket, { Server as WebSocketServer } from 'ws'
 import loggerUtil from '../common/logger.util'
 import url from 'url'
 import { addUserToMatchmaking, removeUserFromMatchingQueue } from '../controllers/matching.controller'
+import { WebSocketMessageType } from '@repo/ws-types/src/WebSocketMessageType'
 
 export class WebSocketConnection {
     private wss: WebSocketServer
@@ -27,8 +28,6 @@ export class WebSocketConnection {
     }
 
     private handleMessage(message: string, websocketId: string): void {
-        console.log(`Received ${message}`)
-
         if (!message) {
             loggerUtil.error(`Received empty message`)
             return
@@ -37,8 +36,7 @@ export class WebSocketConnection {
         try {
             const data = JSON.parse(message)
 
-            if (data.type === 'cancel') {
-                console.log(`Received a cancel message`)
+            if (data.type === WebSocketMessageType.CANCEL) {
                 removeUserFromMatchingQueue(websocketId)
             } else if (data.userId) {
                 addUserToMatchmaking(data)
@@ -52,7 +50,7 @@ export class WebSocketConnection {
 
     // Handle WebSocket close event
     private handleClose(websocketId: string): void {
-        console.log(`User ${websocketId} disconnected`)
+        loggerUtil.info(`User ${websocketId} disconnected`)
         this.clients.delete(websocketId)
     }
 
@@ -62,7 +60,7 @@ export class WebSocketConnection {
         if (client && client.readyState === WebSocket.OPEN) {
             client.send(message)
         } else {
-            console.log(`User ${websocketId} is not connected`)
+            loggerUtil.info(`User ${websocketId} is not connected`)
         }
     }
 }
