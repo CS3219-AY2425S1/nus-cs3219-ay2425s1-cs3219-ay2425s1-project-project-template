@@ -22,7 +22,6 @@ matchingQueue.process(1, async (job) => {
 
     // Get delayed jobs first
     const delayedJobs = await matchingQueue.getDelayed();
-
     if (job.data.matched == true) {
       return "Job matched";
     }

@@ -95,7 +95,7 @@ const DashboardView = () => {
                       difficulty: selectedDifficulty,
                     };
                     console.log("Connection message sent to backend:", connectionMessage); // Log the message being sent
-                    socket.emit("initialConnection", connectionMessage); // Send the message to backend
+                    socket.emit("joinQueue", connectionMessage); // Send the message to backend
                   }
                   navigate("/collaboration"); // Navigate to Collaboration View
                 }

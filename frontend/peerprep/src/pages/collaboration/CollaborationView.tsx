@@ -1,25 +1,43 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { UserContext } from '../../context/UserContext';
 
 const Collaboration: React.FC = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
-  const [room, setRoom] = useState<string>('');
+  const [room, setRoom] = useState<string>(''); // Room name is set automatically after matching
   const [socketId, setSocketId] = useState<string | undefined>(''); // Allow undefined
-
+  const [isMatched, setIsMatched] = useState<boolean>(false); // Tracks if the user is matched to a room
   const chatBoxRef = useRef<HTMLDivElement>(null);
+  const userContext = useContext(UserContext);
+  const user = userContext?.user;
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000"); // Replace with your backend URL
-    setSocket(newSocket);
+    socketRef.current = io("http://localhost:3000");
+    const socket = socketRef.current;
 
-    newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id); // Log socket ID
-      setSocketId(newSocket.id); // Set the socket ID state
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id); // Log socket ID
+      setSocketId(socket.id); // Set the socket ID state
     });
 
-    newSocket.on("assignSocketId", (data: { socketId: string }) => {
+    // Listen for the matched event from the backend
+    socket.on('matched', (data: { room: string }) => {
+      console.log(`Matched and assigned to room: ${data.room}`);
+      setRoom(data.room); // Set the room name received from the backend
+      setIsMatched(true); // Set matched state to true
+    });
+
+    socket.on('queueEntered', (data: { message: string }) => {
+      console.log(data.message);
+    });
+
+    socket.on("matchFailed", (data: { error: string }) => {
+      console.log("Match failed:", data.error);
+    });
+
+    socket.on("assignSocketId", (data: { socketId: string }) => {
       console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
       setSocketId(data.socketId); // Set the socket ID from the server
       setMessages((prevMessages) => [
@@ -28,53 +46,39 @@ const Collaboration: React.FC = () => {
       ]);
     });
 
-    newSocket.on("message", (data: string) => {
+    socket.on("message", (data: string) => {
       setMessages((prevMessages) => [...prevMessages, data]);
       if (chatBoxRef.current) {
         chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
       }
     });
 
+    socket.on('receiveMessage', (data: { username: string, message: string }) => {
+      setMessages((prevMessages) => [...prevMessages, `${data.username}: ${data.message}`]);
+      if (chatBoxRef.current) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }
+    });
+    
     return () => {
-      newSocket.disconnect();
+      socket.disconnect();
     };
-  }, []);
+  }, []); // Ensure the effect runs when room or socketId changes
 
   const sendMessage = () => {
-    if (message.trim() && socket && room) {
+    if (message.trim() && socketRef && isMatched) {
       // Send the message to the server with the room info
-      socket.emit("message", { room, text: message });
-      
+      socketRef.current?.emit("sendMessage", { 
+        room: room,
+        message: message,
+        username: user?.username });
       // Show the message in the local UI
       setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
       setMessage(''); // Clear the input after sending
     }
-  };
-  
-
-  const joinRoom = () => {
-    if (room.trim() && socket) {
-      socket.emit("joinRoom", { roomCode: room });
-      setRoom('');
-    }
+    console.log(message);
   };
 
-  const joinQueue = () => {
-    if (socket && room) {
-      socket.emit("joinQueue", {
-        username: "qqq", // Replace with actual user data if available
-        topic: room,
-        difficulty: "easy", // Add difficulty or other data as necessary
-        questionId: "12345" // Replace with actual question ID if available
-      });
-      const displaySocketId = socketId || "No socket ID assigned"; // Conditional check
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You have joined the queue with Socket ID: ${displaySocketId}`
-      ]);
-    }
-  };
-  
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       sendMessage();
@@ -104,25 +108,6 @@ const Collaboration: React.FC = () => {
         />
         <button onClick={sendMessage} style={styles.sendButton}>
           Send
-        </button>
-      </div>
-
-      <div className="room-input" style={styles.roomInput}>
-        <input
-          type="text"
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-          placeholder="Room"
-          style={styles.input}
-        />
-        <button onClick={joinRoom} style={styles.joinButton}>
-          Join Room
-        </button>
-      </div>
-
-      <div className="queue-input" style={styles.queueInput}>
-        <button onClick={joinQueue} style={styles.queueButton}>
-          Join Queue
         </button>
       </div>
     </div>
@@ -158,14 +143,6 @@ const styles = {
     display: 'flex',
     padding: '10px',
   },
-  roomInput: {
-    display: 'flex',
-    padding: '10px',
-  },
-  queueInput: {
-    display: 'flex',
-    padding: '10px',
-  },
   input: {
     width: '100%',
     padding: '8px',
@@ -178,22 +155,6 @@ const styles = {
   sendButton: {
     padding: '8px 12px',
     backgroundColor: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  joinButton: {
-    padding: '8px 12px',
-    backgroundColor: '#007BFF',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  queueButton: {
-    padding: '8px 12px',
-    backgroundColor: '#FFA500',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
