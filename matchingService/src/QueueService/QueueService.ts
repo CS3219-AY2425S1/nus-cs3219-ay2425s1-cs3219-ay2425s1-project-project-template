@@ -70,9 +70,10 @@ class QueueService {
         cancellationConsumer.consumeCancelRequest();
         for (const topic of Object.values(Topic)) {
             for (const difficulty of Object.values(Difficulty)) {
-                const consumer: Consumer = new Consumer(channel, this.directExchange);
+                const consumer: Consumer = new Consumer(channel, this.directExchange, difficulty, topic);
                 cancellationConsumer.registerConsumer(`${topic}_${difficulty}`, consumer);
                 await consumer.consumeMatchRequest(topic, difficulty);
+                await consumer.consumeFallbackMatchRequest(topic);
             }
         }
         logger.info("Consumer successully initialised and consuming");
@@ -86,6 +87,7 @@ class QueueService {
             topic: matchRequest.topic,
             difficulty: matchRequest.difficulty,
             timestamp: new Date(),
+            retries: 0,
         }
         
         logger.info(`Sending match request for match ID: ${matchId}`);

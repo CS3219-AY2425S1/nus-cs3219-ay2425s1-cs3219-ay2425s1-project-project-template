@@ -41,6 +41,7 @@ class QueueManager {
         // Create topic queues that will be consumed by all consumers of that topic
         for (const topic of Object.values(Topic)) {
             await this.channel.assertQueue(topic, { durable: false });
+            await this.channel.bindQueue(topic, this.directExchange, topic);
         }
         
         await this.channel.assertQueue(QueueManager.CANCELLATION_QUEUE, { durable: false });

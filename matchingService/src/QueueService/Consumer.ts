@@ -4,6 +4,8 @@ import CancelRequestWithQueueInfo from "../models/CancelRequestWithQueueInfo";
 import logger from "../utils/logger";
 import { MatchRequestDTO } from "../models/MatchRequestDTO";
 import QueueManager from "./QueueManager";
+import { buffer } from "stream/consumers";
+import { Difficulty, Topic } from "./matchingEnums";
 
 /** 
  * Consumer consumes incoming messages from queues that will contain Matchmaking requests
@@ -15,11 +17,16 @@ class Consumer {
     private pendingReq: MatchRequestDTO | null;
     private cancelledMatches: Map<string, CancelRequestWithQueueInfo> = new Map();
     private cleanupInterval: NodeJS.Timeout;
+    private pendingReqTimeout: NodeJS.Timeout | null = null;
+    private topic: Topic;
+    private difficulty: Difficulty;
 
-    constructor(channel: Channel, directExchange: string) {
+    constructor(channel: Channel, directExchange: string, difficulty: Difficulty, topic: Topic) {
         this.channel = channel;
         this.directExchange = directExchange;
         this.pendingReq = null;
+        this.difficulty = difficulty;
+        this.topic = topic;
 
         // Incoming cancellation requests may reference non-existing matches. 
         // If these requests are not deleted from the hashmap, they will accumulate over time.
@@ -35,6 +42,47 @@ class Consumer {
         await this.channel.consume(queueName, (message) => {
             this.handleMatchRequest(message);
         }, { noAck: true });
+    }
+
+    public async consumeFallbackMatchRequest(topic: string): Promise<void> {
+        await this.channel.consume(topic, (message) => {
+            this.handleFallbackMatchRequest(message);
+        }, { noAck: true }); // require explicit ack
+    }
+
+    private handleFallbackMatchRequest(msg: QueueMessage | null): void {
+        if (!msg) {
+            logger.warn("Received null message in handleMatchRequest");
+            return;
+        }
+        logger.debug("Consumer received fallback match request");
+        try {
+            const req: MatchRequestDTO = this.parseMatchRequest(msg);
+            const correlationId: string = msg?.properties.correlationId;
+            const replyQueue: string = msg?.properties.replyTo;
+            
+            if (req.retries >= 3) {
+                logger.warn("Removing match request with maximum retry");
+                return;
+            }
+            req.retries++;
+            if (!this.pendingReq) {
+                const updatedMessageContent = Buffer.from(JSON.stringify(req));
+                this.channel.sendToQueue(msg.fields.routingKey, updatedMessageContent, {
+                    correlationId: msg.properties.correlationId,
+                    replyTo: msg.properties.replyTo,
+                });
+                return;
+            }
+            req.difficulty = this.difficulty; // Fallback request's difficulty will change depending on who is available
+            this.processMatchRequest(req, replyQueue, correlationId);
+        } catch (e) {
+            if (e instanceof Error) {
+                logger.error(`Error occurred while handling match request: ${e.message}`);
+            } else {
+                logger.error(`Unexpected error occurred: ${JSON.stringify(e)}`);
+            }
+        }
     }
 
     public addCancelRequest(req: CancelRequestWithQueueInfo) {
@@ -104,6 +152,7 @@ class Consumer {
             topic: jsonObject.topic,
             difficulty: jsonObject.difficulty,
             timestamp: jsonObject.timestamp,
+            retries: jsonObject.retries,
         }
         return req;
     }
@@ -113,7 +162,7 @@ class Consumer {
 
         if (!this.pendingReq) {
             this.pendingReq = incomingReq;
-            this.setPendingReqExpiration(incomingReq);
+            this.startPendingReqTimeout(incomingReq);
             logger.debug(`Stored pending request: ${incomingReq.matchId}`);
             return;
         }
@@ -130,18 +179,24 @@ class Consumer {
 
         logger.debug("Responses sent to matched requests");
         this.pendingReq = null;
+        if (this.pendingReqTimeout) {
+            clearTimeout(this.pendingReqTimeout);
+            this.pendingReqTimeout = null;
+        }
     }
 
-    private setPendingReqExpiration(req: MatchRequestDTO): void {
+    private startPendingReqTimeout(req: MatchRequestDTO): void {
         const timestamp = new Date(req.timestamp).getTime(); // Ensure timestamp is in milliseconds
-        const expirationTime = 0.5 * 60 * 1000; // 5 minutes in milliseconds
+        const expirationTime = 0.2 * 60 * 1000; // 5 minutes in milliseconds
         const currentTime = Date.now();
 
         const delay = (timestamp + expirationTime) - currentTime;
         if (delay > 0) {
-            setTimeout(() => {
+            this.pendingReqTimeout = setTimeout(() => {
                 logger.debug(`Pending request expired: ${req.matchId}`);
                 this.pendingReq = null; // Clear the pending request
+                this.channel.publish(this.directExchange, req.topic, Buffer.from(JSON.stringify(req)), {});
+                logger.debug(`Expired request sent to ${req.topic}`);
             }, delay);
         } else {
             logger.debug(`Pending request already expired: ${req.matchId}`);
