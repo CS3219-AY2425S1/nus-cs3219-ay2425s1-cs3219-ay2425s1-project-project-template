@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { MultiSelect } from "@/components/multi-select";
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/spinner'
+import SuccessMatchInfo from './SuccessMatchInfo';
 
 const MatchingFilters = () => {
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
@@ -12,6 +13,7 @@ const MatchingFilters = () => {
     const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0);
+    const [isMatchFound, setIsMatchFound] = useState(false);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -73,10 +75,25 @@ const MatchingFilters = () => {
 
     const onSearchPress = () => {
         setIsSearching(!isSearching);
+        if (!isSearching) {
+            setTimeout(() => {
+                setIsMatchFound(true);
+                setIsSearching(false);
+            }, 3000);
+        }
+    }
+
+    const sampleMatch = {
+        user: "John Doe",
+        question: "Two Sum",
+        language: "Python",
+        difficulty: "Easy",
+        categories: ["Bitmap", "Recursion"],
     }
 
     return (
         <div className="flex flex-col p-8 gap-4">
+            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={sampleMatch} onOpenChange={setIsMatchFound} handleAccept={() => {}}/>}
             <h1 className="text-2xl font-bold self-start text-transparent bg-clip-text bg-gradient-to-r from-[var(--gradient-text-first)] via-[var(--gradient-text-second)] to-[var(--gradient-text-third)]">Look for peers to code now!</h1>
             <div className='flex gap-6'>
                 <div className='w-1/3'>
