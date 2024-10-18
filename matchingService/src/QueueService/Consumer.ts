@@ -47,7 +47,7 @@ class Consumer {
     public async consumeFallbackMatchRequest(topic: string): Promise<void> {
         await this.channel.consume(topic, (message) => {
             this.handleFallbackMatchRequest(message);
-        }, { noAck: true }); // require explicit ack
+        }, { noAck: true });
     }
 
     private handleFallbackMatchRequest(msg: QueueMessage | null): void {
@@ -60,8 +60,9 @@ class Consumer {
             const req: MatchRequestDTO = this.parseMatchRequest(msg);
             const correlationId: string = msg?.properties.correlationId;
             const replyQueue: string = msg?.properties.replyTo;
-            
-            if (req.retries >= 3) {
+            const maxRetries = Object.keys(Difficulty).length;
+
+            if (req.retries >= maxRetries) {
                 logger.warn("Removing match request with maximum retry");
                 return;
             }
