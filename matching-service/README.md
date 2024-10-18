@@ -25,7 +25,7 @@
 
   ```
   {
-    "userId": "(Replace with userName)",
+    "userName": "(Replace with userName)",
     "topic": "array",
     "difficulty": "easy"
   }
@@ -58,4 +58,34 @@
 
   ```
   Match found between John and Doe
+  ```
+### Cancel match
+
+- Description: This endpoint allows cancelling a match
+
+- HTTP method: `POST`
+
+- Endpoint: `http://localhost:3000/api/cancel`
+
+- Body:
+
+  - Required: userName (string)
+
+  ```
+  {
+    "userName": "(Replace with userName)",
+  }
+  ```
+
+- Example usage:
+
+  ```
+  {
+    "userName": "John"
+  }
+  ```
+  Expected output:
+
+  ```
+  Match request for John was cancelled.
   ```

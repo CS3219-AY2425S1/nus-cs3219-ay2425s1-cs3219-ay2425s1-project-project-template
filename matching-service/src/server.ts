@@ -20,7 +20,14 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(cors());
 
-app.use("/api", matchRoutes);
+// Middleware to attach the Socket.io instance to the req object
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+app.use('/api', matchRoutes);
+
 
 server.listen(PORT, async () => {
   try {
@@ -36,12 +43,20 @@ server.listen(PORT, async () => {
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
-  socket.on("join_room", ({ userName }) => {
+  socket.on("join_room", (data, callback) => {
+    const { userName } = data;
+
+    // Let the user join their room
     socket.join(userName);
+
     console.log(`User ${userName} joined their room for match updates.`);
+
+    // Send acknowledgment back to the client
+    callback({ success: true });
   });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
   });
 });
+
