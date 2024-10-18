@@ -23,22 +23,30 @@ function MatchPage() {
     setStatus('Matching...difficulty:'+difficulty+"; topic:"+topic);
     // Simulate a delay for matching (e.g., API call)
     const url = new URL('http://localhost:8000/match');
-    url.searchParams.append('topic', topic);
-    url.searchParams.append('difficulty', difficulty);
-    //user = ???
-    //url.searchParams.append('user', user);
+    const user = JSON.parse(localStorage.getItem('user'));
+    const payload = {
+      topic: topic,
+      difficulty: difficulty,
+      user: user ? user.id : null // Add user ID if user is not null
+    };
+    alert(user.id)
 
     fetch(url, {
-      method: 'GET'
+      method: 'POST', // Change method to POST
+      headers: {
+        'Content-Type': 'application/json' // Indicate that we're sending JSON data
+      },
+      body: JSON.stringify(payload) // Convert the payload object to a JSON string
     })
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        setStatus( response.json()); // Assuming the server returns JSON
+        return response.json(); // Assuming the server returns JSON
       })
       .then(data => {
-        console.log('Success:', data); // Handle the response data
+        setStatus(data); // Handle the response data
+        console.log('Success:', data); // Log success
       })
       .catch(error => {
         console.error('Error:', error); // Handle any errors
