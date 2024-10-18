@@ -2,6 +2,7 @@
 Integration test for matchmaker
 """
 
+import json
 import time
 from threading import Thread
 
@@ -28,13 +29,11 @@ def matchmaker_thread(redis_container: Redis):
     mm.pubsub = mm.client.pubsub()
     mm.timeout = 2
 
-    thread = Thread(target=mm.run)
-    thread.start()
+    mm.run()
 
     yield mm
 
     mm.stop()
-    thread.join()
 
 
 def test_single_user_leaves_user_in_queue(redis_container: Redis, matchmaker_thread: Thread):
@@ -49,7 +48,7 @@ def test_single_user_leaves_user_in_queue(redis_container: Redis, matchmaker_thr
     assert result == 1
 
 
-def test_match_removes_users(redis_container: Redis, matchmaker_thread: Thread):
+def test_match_removes_users(redis_container: Redis, matchmaker_thread: Matchmaker):
     redis_container.flushall()
     match_req1 = MatchRequest(user="user1", difficulty="Easy", topic="test")
     match_req2 = MatchRequest(user="user2", difficulty="Easy", topic="test")
@@ -63,7 +62,7 @@ def test_match_removes_users(redis_container: Redis, matchmaker_thread: Thread):
     assert result == 0
 
 
-def test_users_with_different_topic_does_not_match(redis_container: Redis, matchmaker_thread: Thread):
+def test_users_with_different_topic_does_not_match(redis_container: Redis, matchmaker_thread: Matchmaker):
     redis_container.flushall()
     match_req1 = MatchRequest(user="user1", difficulty="Easy", topic="dp")
     match_req2 = MatchRequest(user="user2", difficulty="Easy", topic="linked-list")
@@ -79,7 +78,7 @@ def test_users_with_different_topic_does_not_match(redis_container: Redis, match
     assert topic2 == 1
 
 
-def test_expired_requests_does_not_match(redis_container: Redis, matchmaker_thread: Thread):
+def test_expired_requests_does_not_match(redis_container: Redis, matchmaker_thread: Matchmaker):
     redis_container.flushall()
     match_req1 = MatchRequest(user="user1", difficulty="Easy", topic="test")
     match_req2 = MatchRequest(user="user2", difficulty="Easy", topic="test")
@@ -92,3 +91,19 @@ def test_expired_requests_does_not_match(redis_container: Redis, matchmaker_thre
 
     result = redis_container.exists(match_req1.get_key())
     assert result == 1
+
+
+def test_exception_handler_called_on_invalid_request(mocker, redis_container: Redis):
+    mm = Matchmaker()
+    exception_handler_spy = mocker.spy(mm, "exception_handler")
+    mm.client = redis_container
+    mm.pubsub = mm.client.pubsub()
+    mm.run()
+
+    invalid_request = {"invalid": "invalid", "broken": 2}
+    req = json.dumps(invalid_request)
+    redis_container.publish("requests", req)
+    time.sleep(0.5)
+    mm.stop()
+
+    assert exception_handler_spy.call_count == 1

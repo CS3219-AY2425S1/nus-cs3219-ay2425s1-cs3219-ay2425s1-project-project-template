@@ -1,6 +1,5 @@
 import json
-import time
-from threading import Event
+from typing import Any
 
 from pydantic import ValidationError
 from redis import Redis
@@ -25,35 +24,39 @@ class Matchmaker:
         self.timeout: int = settings.MATCH_TIMEOUT
         self.pubsub = self.client.pubsub()
 
-        self._stop_event = Event()
+        self.r_thread = None
         logger.info(f"MATCHMAKER: connected to {self.client.get_connection_kwargs()}")
 
     def run(self):
-        self.pubsub.subscribe(self.channel.value)
-        while not self._stop_event.is_set():
-            message = self.pubsub.get_message()
-            if message and message["type"] == "message":
-                logger.info("MATCHMAKER: Received match request")
-                user_data = json.loads(message["data"])
+        self.pubsub.subscribe(**{"requests": self.message_handler})
+        self.r_thread = self.pubsub.run_in_thread(sleep_time=0.1, exception_handler=self.exception_handler)
 
-                try:
-                    req = MatchRequest(**user_data)
-                except ValidationError as e:
-                    logger.warn(f"\tUnrecognised request format discarded: {e}")
-                    continue
+    def message_handler(self, message: dict[str, Any] | None):
+        if message and message["type"] == "message":
+            logger.info("MATCHMAKER: Received match request")
+            user_data = json.loads(message["data"])
 
-                logger.info(f"\t💬 Received matchmaking request from User {req.user} for {req.get_key()}")
+            try:
+                req = MatchRequest(**user_data)
+            except ValidationError as e:
+                # just raise and let redis exception_handler handle
+                raise ValueError(f"\tUnrecognised request format discarded: {e}")
 
-                unmatched_key = req.get_key()
-                unmatched_user_exists = self.client.exists(unmatched_key)
-                if unmatched_user_exists:
-                    other_user = self.client.get(unmatched_key).decode("utf-8")
-                    self.client.delete(unmatched_key)
-                    logger.info(f"\t✅ Matched Users: {req.user} and {other_user} for {unmatched_key}!")
-                else:
-                    self.client.setex(unmatched_key, self.timeout, req.user)
-                    logger.info(f"\t⏳ User {req.user} added to the unmatched pool for {unmatched_key}")
-            time.sleep(0.1)
+            logger.info(f"\t💬 Received matchmaking request from User {req.user} for {req.get_key()}")
+
+            unmatched_key = req.get_key()
+            unmatched_user_exists = self.client.exists(unmatched_key)
+            if unmatched_user_exists:
+                other_user = self.client.get(unmatched_key).decode("utf-8")
+                self.client.delete(unmatched_key)
+                logger.info(f"\t✅ Matched Users: {req.user} and {other_user} for {unmatched_key}!")
+            else:
+                self.client.setex(unmatched_key, self.timeout, req.user)
+                logger.info(f"\t⏳ User {req.user} added to the unmatched pool for {unmatched_key}")
+
+    def exception_handler(self, ex, _pubsub, _thread):
+        logger.info("called!")
+        logger.warn(ex)
 
     def stop(self):
         """
@@ -62,10 +65,9 @@ class Matchmaker:
         - tests
         - matchmaking-service needs to run both api server and matchmaker in a single container (not recommended)
         """
-        self._stop_event.set()
-        self.pubsub.unsubscribe()
+        self.r_thread.stop()
+        self.r_thread.join(timeout=1.0)
         self.pubsub.close()
-        self.client.close()
 
 
 def request_match(publisher: Redis, user: MatchRequest):
