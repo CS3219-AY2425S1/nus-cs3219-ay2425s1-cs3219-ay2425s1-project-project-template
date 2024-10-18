@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 import toast from "@/components/modals/toast";
+import { UserLogin } from "@/types/user";
 
 export const setToken = (token: string) => {
   localStorage.setItem("token", token);
@@ -10,11 +11,15 @@ export const getToken = () => {
   return localStorage.getItem("token");
 };
 
-export const setBaseUserData = (data: { username: string, id: string, isAdmin: string }) => {
+export const setBaseUserData = (data: {
+  username: string;
+  id: string;
+  isAdmin: string;
+}) => {
   localStorage.setItem("username", data.username);
   localStorage.setItem("id", data.id);
   localStorage.setItem("isAdmin", data.isAdmin);
-}
+};
 
 export const getBaseUserData = () => {
   return {
@@ -22,7 +27,7 @@ export const getBaseUserData = () => {
     id: localStorage.getItem("id"),
     isAdmin: localStorage.getItem("isAdmin"),
   };
-}
+};
 
 const NEXT_PUBLIC_USER_SERVICE = process.env.NEXT_PUBLIC_USER_SERVICE;
 
@@ -33,13 +38,16 @@ export const verifyToken = async (needsLogin: boolean) => {
     return false;
   }
 
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/verify-token`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  
+  const response = await fetch(
+    `${NEXT_PUBLIC_USER_SERVICE}/auth/verify-token`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
   switch (response.status) {
     case 200:
       return true;
@@ -61,13 +69,14 @@ export const login = async (email: string, password: string) => {
     },
     body: JSON.stringify({
       email,
-      password: encryptedPassword,
+      password: password,
     }),
   });
+  const data = await response.json();
 
   switch (response.status) {
     case 200:
-      return handleSuccessfulLogin(response);
+      return handleSuccessfulLogin(data.data);
     case 401:
       toast.fire({
         icon: "error",
@@ -82,8 +91,8 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const handleSuccessfulLogin = async (response: Response) => {
-  const { accessToken, username, id, isAdmin } = await response.json();
+export const handleSuccessfulLogin = async (data: UserLogin) => {
+  const { accessToken, username, id, isAdmin } = data;
   setBaseUserData({ username, id, isAdmin });
   setToken(accessToken);
   const redirect = localStorage.getItem("redirect");
@@ -100,7 +109,7 @@ export const handleSuccessfulLogin = async (response: Response) => {
 export const redirectToLogin = async () => {
   localStorage.setItem("redirect", window.location.pathname);
   window.location.href = "/login";
-}
+};
 
 export const logout = () => {
   localStorage.removeItem("token");
@@ -112,10 +121,14 @@ export const logout = () => {
       icon: "success",
       title: "Logged out successfully",
     });
-  })
+  });
 };
 
-export const register = async (email: string, password: string, username: string) => {
+export const register = async (
+  email: string,
+  password: string,
+  username: string
+) => {
   const encryptedPassword = btoa(password);
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users`, {
     method: "POST",
@@ -124,14 +137,15 @@ export const register = async (email: string, password: string, username: string
     },
     body: JSON.stringify({
       email,
-      password: encryptedPassword,
+      password: password,
       username,
     }),
   });
+  const data = await response.json();
 
   switch (response.status) {
     case 201:
-      return handleSuccessfulLogin(response);
+      return handleSuccessfulLogin(data.data);
     case 400:
       toast.fire({
         icon: "error",
@@ -150,7 +164,7 @@ export const register = async (email: string, password: string, username: string
         title: "An error occurred while registering",
       });
   }
-}
+};
 
 export const getUser = async () => {
   const token = getToken();
@@ -174,9 +188,15 @@ export const getUser = async () => {
         title: "An error occurred while fetching your profile",
       });
   }
-}
+};
 
-export const updateUser = async (data: { email: string, password: string, bio: string, linkedin: string, github: string }) => {
+export const updateUser = async (data: {
+  email: string;
+  password: string;
+  bio: string;
+  linkedin: string;
+  github: string;
+}) => {
   const token = getToken();
   const { id } = getBaseUserData();
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users/${id}`, {
@@ -203,4 +223,4 @@ export const updateUser = async (data: { email: string, password: string, bio: s
         title: "An error occurred while updating your profile",
       });
   }
-}
+};
