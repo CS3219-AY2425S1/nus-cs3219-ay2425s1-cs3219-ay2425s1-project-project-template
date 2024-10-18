@@ -6,6 +6,6 @@ const router = Router()
 
 router.use(passport.authenticate('jwt', { session: false }))
 
-router.get('/', generateWS)
+router.post('/', generateWS)
 
 export default router

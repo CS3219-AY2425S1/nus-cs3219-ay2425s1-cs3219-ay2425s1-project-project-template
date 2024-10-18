@@ -83,7 +83,7 @@ export const NewSession = () => {
             return
         }
 
-        const socket = new WebSocket(`ws://localhost:3006/?id=${response.websocketID}`)
+        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${response.websocketID}`)
         socketRef.current = socket
         socketRef.current.onopen = () => {
             socketRef.current?.send(

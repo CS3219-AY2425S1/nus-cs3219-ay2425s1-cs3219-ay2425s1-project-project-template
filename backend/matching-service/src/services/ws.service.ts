@@ -1,9 +1,10 @@
-import http, { IncomingMessage } from 'http'
+import http, { IncomingMessage, Server } from 'http'
 import WebSocket, { Server as WebSocketServer } from 'ws'
 import loggerUtil from '../common/logger.util'
 import url from 'url'
 import { addUserToMatchmaking, removeUserFromMatchingQueue } from '../controllers/matching.controller'
 import { WebSocketMessageType } from '@repo/ws-types/src/WebSocketMessageType'
+import index from '../index'
 
 export class WebSocketConnection {
     private wss: WebSocketServer
@@ -21,7 +22,6 @@ export class WebSocketConnection {
             }
 
             this.clients.set(websocketId, ws)
-
             ws.on('message', (message: string) => this.handleMessage(message, websocketId))
             ws.on('close', () => this.handleClose(websocketId))
         })
@@ -64,3 +64,8 @@ export class WebSocketConnection {
         }
     }
 }
+
+const server: Server = http.createServer(index)
+const wsConnection = new WebSocketConnection(server)
+
+export { server, wsConnection }
