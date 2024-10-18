@@ -3,7 +3,6 @@ import { MatchRequest } from "../types/match-types";
 import { connectRabbitMQ, getChannel } from "../queue/rabbitmq";
 import Redis from "ioredis";
 
-let matchQueue: MatchRequest[] = [];
 const redis = new Redis();
 
 // Function to add a match request to the queue
@@ -66,7 +65,7 @@ async function processMatchRequest(request: MatchRequest, io: Server) {
         io.to(request.userName).emit("immediate_match_not_found", { success: false });
         redis.del(requestKey);
       }
-    }, 31000);
+    }, 30000);
 
     redis.set(`timer:${request.userName}`, timerId.toString(), "EX", 31);
   }

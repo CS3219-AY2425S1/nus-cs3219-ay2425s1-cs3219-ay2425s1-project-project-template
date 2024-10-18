@@ -43,10 +43,16 @@ server.listen(PORT, async () => {
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
-  socket.on("join_room", ({ userName }) => {
+  socket.on("join_room", (data, callback) => {
+    const { userName } = data;
+
+    // Let the user join their room
     socket.join(userName);
+
     console.log(`User ${userName} joined their room for match updates.`);
 
+    // Send acknowledgment back to the client
+    callback({ success: true });
   });
 
   socket.on("disconnect", () => {

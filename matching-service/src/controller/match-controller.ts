@@ -30,10 +30,10 @@ export async function requestMatch(req: Request, res: Response): Promise<void> {
 }
 
 export async function cancelMatch(req: Request, res: Response): Promise<void> {
-  const { userId } = req.body;
+  const { userName } = req.body;
   const io = req.io; // Get Socket.io instance from the request
 
-  if (!userId) {
+  if (!userName) {
     res.status(400).json({ success: false, message: 'Missing required fields.' });
     return;
   }
@@ -44,7 +44,7 @@ export async function cancelMatch(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    await cancelMatchRequest(userId, io); // Pass the `io` instance here
+    await cancelMatchRequest(userName, io); // Pass the `io` instance here
     res.status(200).json({ success: true, message: 'Match request cancelled.' });
   } catch (error) {
     console.error('Error cancelling match request:', error);
