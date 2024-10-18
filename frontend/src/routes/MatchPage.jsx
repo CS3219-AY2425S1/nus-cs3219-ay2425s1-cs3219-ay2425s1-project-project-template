@@ -10,7 +10,7 @@ function MatchPage() {
 
   // Fetch topics from API when the component mounts
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/topic")
+    fetch("http://localhost:8000/topic")
       .then((response) => response.json()) // Parse the JSON response
       .then((data) => {setTopics(data);
         if (data.length > 0) {
@@ -22,6 +22,28 @@ function MatchPage() {
   const handleMatchClick = () => {
     setStatus('Matching...difficulty:'+difficulty+"; topic:"+topic);
     // Simulate a delay for matching (e.g., API call)
+    const url = new URL('http://localhost:8000/match');
+    url.searchParams.append('topic', topic);
+    url.searchParams.append('difficulty', difficulty);
+    //user = ???
+    //url.searchParams.append('user', user);
+
+    fetch(url, {
+      method: 'GET'
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        setStatus( response.json()); // Assuming the server returns JSON
+      })
+      .then(data => {
+        console.log('Success:', data); // Handle the response data
+      })
+      .catch(error => {
+        console.error('Error:', error); // Handle any errors
+      });
+
     setTimeout(() => {
       setStatus('Match not found!');
     }, 2000);
@@ -44,7 +66,7 @@ function MatchPage() {
         <div className="form-group">
         <label>Topic:</label>
         <select value={topic} id="topicselect" onChange={(e) => setTopic(e.target.value)}>
-          {topics.map((topic) => (
+          {Array.isArray(topics) &&topics.map((topic) => (
             <option key={topic} value={topic}>
               {topic}
             </option>
