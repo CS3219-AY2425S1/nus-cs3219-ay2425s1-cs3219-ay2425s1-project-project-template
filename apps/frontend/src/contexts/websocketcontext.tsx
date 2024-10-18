@@ -10,6 +10,7 @@ export type SocketState = {
 } | {
     state: "matching";
     cancel(): void;
+    timeout(): void;
 };
 
 export type MatchState = SocketState | {

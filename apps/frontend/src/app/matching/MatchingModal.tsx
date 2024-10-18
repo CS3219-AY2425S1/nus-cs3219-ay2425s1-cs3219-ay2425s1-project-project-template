@@ -20,6 +20,7 @@ interface MatchingModalProps {
 const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) => {
     const matchingState = useMatching();
     const [closedType, setClosedType] = useState<"finding" | "cancelled" | "joined">("finding");
+    const [timeoutAfter, setTimeoutAfter] = useState<number>(9999);
     const isClosable = ["timeout", "closed"].includes(matchingState.state);
 
     function close() {
@@ -27,6 +28,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
         if (matchingState.state === "timeout") {
             matchingState.ok();
         }
+        setClosedType("finding");
         _close();
     }
 
@@ -42,6 +44,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                                 setClosedType("finding");
                             }}
                             retry={() => {}}
+                            canceledIn={timeoutAfter}
                         />;
                     case "joined":
                         return <JoinedMatchContent cancel={() => {
@@ -49,12 +52,19 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                         }}/>;
                 }
             case 'matching':
-                return <MatchingInProgressContent cancelMatch={() => {
-                    matchingState.cancel();
-                    setClosedType("cancelled");
-                }}/>;
+                return <MatchingInProgressContent 
+                    cancelMatch={(timeoutAfter: number) => {
+                        setClosedType("cancelled");
+                        setTimeoutAfter(timeoutAfter);
+                        matchingState.cancel();
+                    }}
+                    timeout={(timeoutAfter: number) => {
+                        matchingState.timeout()
+                        setTimeoutAfter(timeoutAfter);
+                    }}
+                />;
             case 'cancelling':
-                return <MatchingInProgressContent cancelMatch={() => {}}/>;
+                return <MatchingInProgressContent cancelMatch={() => {}} timeout={() => {}}/>;
             case 'starting':
                 return <FindMatchContent beginMatch={() => {}}/>
             case 'found':
@@ -69,7 +79,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                     }}
                 />
             case 'timeout':
-                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}/>;
+                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={timeoutAfter}/>;
             default:
                 throw new Error('Invalid matching state.');
         }

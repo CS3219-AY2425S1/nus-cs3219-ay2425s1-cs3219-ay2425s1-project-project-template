@@ -43,12 +43,7 @@ export default function useMatching(): MatchState {
             const responseJson: MatchResponse = JSON.parse(response);
             console.log("got here");
             if (responseJson.type == "timeout") {
-                
-                setIsSocket(false);
-                setSte({
-                    state: "timeout",
-                    ok: cancel,
-                })
+                timeout();
                 return;
             }
 
@@ -73,6 +68,14 @@ export default function useMatching(): MatchState {
         sendJsonMessage, 
     } = useWebSocket<MatchResponse>(MATCHING_SERVICE_URL as string, options, isSocket);
     
+    function timeout() {
+        setIsSocket(false);
+        setSte({
+            state: "timeout",
+            ok: cancel,
+        });
+    }
+
     function cancel() {
         setIsSocket(false)
         setSte({
@@ -80,6 +83,7 @@ export default function useMatching(): MatchState {
             start,
         })
     }
+    
     function start(request: MatchRequestParams) {
         setIsSocket(true)
         sendJsonMessage(request);
@@ -92,7 +96,7 @@ export default function useMatching(): MatchState {
             matchState = {state: "closed", start}
             break;
         case ReadyState.OPEN:
-            matchState = {state: "matching", cancel}
+            matchState = {state: "matching", cancel, timeout}
             break;
         case ReadyState.CONNECTING:
             matchState = {state: "starting"}

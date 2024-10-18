@@ -7,9 +7,10 @@ import { formatTime } from '@/utils/DateTime';
 interface Props {
     retry(): void,
     reselect(): void,
+    canceledIn: number,
 }
 
-const MatchCancelledContent: React.FC<Props> = ({retry, reselect}) => {
+const MatchCancelledContent: React.FC<Props> = ({retry, reselect, canceledIn}) => {
     return (
         <div className="match-cancelled-content">
             <div className="cancel-icon-container">
@@ -25,13 +26,13 @@ const MatchCancelledContent: React.FC<Props> = ({retry, reselect}) => {
             </div>
             <div className="match-status-label">Match Cancelled!</div>
             <div className="match-status-message">
-                Your match request has been cancelled after waiting {formatTime(83)}
+                Your match request has been cancelled after waiting {formatTime(canceledIn)}
             </div>
-            <button className="retry-match-button"
+            {/* <button className="retry-match-button"
                 onClick={retry}
             >
                 Retry
-            </button>
+            </button> */}
             <button className="reselect-match-options-button"
                 onClick={reselect}
             >
