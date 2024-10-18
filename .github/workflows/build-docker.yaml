@@ -1,7 +1,11 @@
 name: Build & publish PeerPrep images
 on:
   pull_request:
-    types: [review_requested, ready_for_review]
+    types: 
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches: 
       - main
@@ -16,6 +20,7 @@ env:
 
 jobs:
   changes:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     # Required permissions
     permissions:
