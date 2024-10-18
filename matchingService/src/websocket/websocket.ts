@@ -6,7 +6,7 @@ import { WebSocketEventHandler } from "./WebSocketEventHandler";
 import logger from "../utils/logger";
 
 export default function initialiseWebsocket(app: Application, queueService: QueueService) {
-    const WEBSOCKET_PORT: number = 8080;
+    const WEBSOCKET_PORT: number = 8081;
     const server = createServer(app);
     const io: Server = new Server(server, {
         cors: {
