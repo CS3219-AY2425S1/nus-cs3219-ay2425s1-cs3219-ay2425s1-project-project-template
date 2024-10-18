@@ -87,6 +87,7 @@ const MatchingFilters = () => {
                         defaultValue={selectedLanguages}
                         placeholder="Select language..."
                         maxCount={3}
+                        disabled={isSearching}
                     />
                 </div>
                 <div className='w-1/3'>
@@ -97,6 +98,7 @@ const MatchingFilters = () => {
                         defaultValue={selectedDifficulty}
                         placeholder="Select difficulty..."
                         maxCount={3}
+                        disabled={isSearching}
                     />
                 </div>
                 <div className='w-1/3'>
@@ -107,6 +109,7 @@ const MatchingFilters = () => {
                         defaultValue={selectedCategories}
                         placeholder="Select categories..."
                         maxCount={3}
+                        disabled={isSearching}
                     />
                 </div>
             </div>
@@ -118,6 +121,7 @@ const MatchingFilters = () => {
                     defaultValue={selectedQuestions}
                     placeholder="Select categories..."
                     maxCount={3}
+                    disabled={isSearching}
                 />
             </div>
             <div className="flex justify-end w-full space-x-2 mt-4">
