@@ -133,10 +133,11 @@ const FindPeer = () => {
     }
 
     // Repackage user filter data
+    // TODO: Change this to use multiselect later
     const userMatchRequest: FindMatchSocketMessage = {
       userEmail: CURRENT_USER,
-      topics: userFilter.questionTopics,
-      programmingLanguage: userFilter.preferredLanguages,
+      topic: userFilter.questionTopics[0],
+      programmingLanguage: userFilter.preferredLanguages[0],
       difficulty: userFilter.questionDifficulty,
     };
 
@@ -179,6 +180,7 @@ const FindPeer = () => {
           `We found a match for you! You have been matched with ${message.body}.`,
           "success"
         );
+        client.deactivate();
       });
     } catch (error) {
       console.error("Error subscribing to /user/queue/matches: ", error);
