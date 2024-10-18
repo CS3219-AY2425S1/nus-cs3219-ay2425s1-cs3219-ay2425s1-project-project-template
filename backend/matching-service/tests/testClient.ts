@@ -1,0 +1,49 @@
+/*
+How to run:
+
+1. cd into backend/matchingservice/tests
+2. npx ts-node testClient.ts Name difficulty category category
+e.g. npx ts-node testClient.ts Alice medium algo recursion
+*/
+import { io } from 'socket.io-client';
+
+interface MatchRequest {
+  name: string;
+  difficulty: string;
+  categories: string[];
+}
+
+const userName = process.argv[2]; // User name
+const difficulty = process.argv[3]; // Difficulty level
+const categories = process.argv.slice(4); // Categories
+
+if (!userName || !difficulty || categories.length === 0) {
+  console.error('Usage: ts-node testClient.ts <name> <difficulty> <category1> <category2> ...');
+  process.exit(1);
+}
+
+const socket = io('http://localhost:5002');
+
+socket.on('connect', () => {
+  console.log(`Connected as ${userName} with socket ID: ${socket.id}`);
+  socket.emit('login', userName);
+
+  socket.emit('requestMatch', {
+    name: userName,
+    difficulty: difficulty,
+    category: categories,
+  });
+  console.log(`Sent match request for ${userName}`);
+});
+
+socket.on('matchFound', (partner: any) => {
+  console.log(`Match found for ${userName}:`, partner);
+});
+
+socket.on('noMatchFound', (data: any) => {
+  console.log(`No match found for ${userName}:`, data.message);
+});
+
+socket.on('disconnect', () => {
+  console.log(`${userName} disconnected`);
+});

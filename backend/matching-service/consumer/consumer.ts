@@ -6,7 +6,7 @@ import logger from '../utils/logger'
 import { sendMatchResult } from './sendMatchResults'
 
 const requestQueue: TimedMatchRequest[] = []
-const MATCH_TIMEOUT = 5000
+const MATCH_TIMEOUT = 15000
 let isMatching: boolean = false
 
 const startConsumer = async (
