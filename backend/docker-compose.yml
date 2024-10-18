@@ -26,6 +26,10 @@ services:
     depends_on:
       - mongo_db
   
+  matching_service_redis:
+    image: redis/redis-stack-server:latest
+    ports:
+      - "6379:6379"
   matching_service:
     container_name: matching_service
     build: ./MatchingService
@@ -33,6 +37,7 @@ services:
       - "3000:3000"
     depends_on:
       - mongo_db
+      - matching_service_redis
 
   frontend:
     container_name: frontend_service
