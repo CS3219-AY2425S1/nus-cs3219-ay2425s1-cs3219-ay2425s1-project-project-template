@@ -1,4 +1,3 @@
-// src/components/AddQuestionForm.js
 import React, { useState } from "react";
 
 const AddQuestionForm = ({ onAdd }) => {
@@ -14,17 +13,14 @@ const AddQuestionForm = ({ onAdd }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check if the complexity is valid
     if (!validComplexities.includes(complexity)) {
       setError("Complexity must be one of: Easy, Medium, Hard");
       return;
     }
 
-    // Clear the error and proceed to add the question
     setError("");
     onAdd({ title, description, category, complexity });
 
-    // Clear the form fields
     setTitle("");
     setDescription("");
     setCategory("");
@@ -40,10 +36,11 @@ const AddQuestionForm = ({ onAdd }) => {
         margin: "0 auto",
         padding: "20px",
         boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)",
+        fontFamily: "'Figtree', sans-serif",
       }}
     >
       <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Title:
           <input
             type="text"
@@ -55,12 +52,13 @@ const AddQuestionForm = ({ onAdd }) => {
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              fontFamily: "'Figtree', sans-serif", 
             }}
           />
         </label>
       </div>
       <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Description:
           <textarea
             value={description}
@@ -68,16 +66,17 @@ const AddQuestionForm = ({ onAdd }) => {
             required
             style={{
               width: "100%",
-              height: "200px", 
-              padding: "10px", 
+              height: "200px",
+              padding: "10px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              fontFamily: "'Figtree', sans-serif",
             }}
           />
         </label>
       </div>
       <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Category:
           <input
             type="text"
@@ -89,12 +88,13 @@ const AddQuestionForm = ({ onAdd }) => {
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              fontFamily: "'Figtree', sans-serif", 
             }}
           />
         </label>
       </div>
       <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Complexity:
         </label>
         <div className="complexity-group" style={{ marginTop: "24px" }}>
@@ -107,28 +107,30 @@ const AddQuestionForm = ({ onAdd }) => {
                 checked={complexity === comp}
                 onChange={(e) => setComplexity(e.target.value)}
                 required
+                style={{ marginRight: "2px", transform: "scale(0.9)" }} 
               />
-              <label className="radio-label" htmlFor={`complexity-${comp}`}>
+              <label
+                className="radio-label"
+                htmlFor={`complexity-${comp}`}
+                style={{ fontSize: "14px", margin: 0 }} 
+              >
                 {comp}
               </label>
             </div>
           ))}
         </div>
-        {error && <div style={{ color: "red", fontSize: "12px", marginTop: "16px" }}>{error}</div>}{" "}
-        {/* Error message */}
+        {error && <div style={{ color: "red", fontSize: "12px", marginTop: "16px" }}>{error}</div>}
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        {" "}
-        {/* Wrapper for margin */}
         <button
           type="submit"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           style={{
             padding: "12px 15px",
-            backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
-            color: "#000",
+            backgroundColor: isHovered ? '#2a4b5e' : '#1a3042',
+            color: "#fff",
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
@@ -138,6 +140,7 @@ const AddQuestionForm = ({ onAdd }) => {
             alignItems: "center",
             justifyContent: "center",
             width: "100%",
+            fontFamily: "'Figtree', sans-serif", 
           }}
         >
           Add Question

@@ -14,6 +14,8 @@ const QuestionDetail = ({ question, onClose }) => {
         backgroundColor: "#fff",
         overflowY: "auto", // Scrollable content if it exceeds the max height
         position: "relative",
+        fontFamily: "'Figtree', sans-serif", // Set font family to Figtree
+        color: "#444", // Base text color
       }}
     >
       <h1 style={{ fontSize: "24px", marginBottom: "10px", color: "#333" }}>
@@ -51,8 +53,8 @@ const QuestionDetail = ({ question, onClose }) => {
           onMouseLeave={() => setIsHovered(false)}
           style={{
             padding: "12px 15px",
-            backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
-            color: "#000",
+            backgroundColor: isHovered ? "#2a4b5e" : "#1a3042", // Match button colors to forms
+            color: "#fff", // Button text color
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
@@ -60,6 +62,7 @@ const QuestionDetail = ({ question, onClose }) => {
             lineHeight: "1.5",
             display: "block",
             width: "100%",
+            fontFamily: "'Figtree', sans-serif", // Ensure button text also uses Figtree
           }}
         >
           Close

@@ -1,4 +1,3 @@
-// src/components/EditQuestionForm.js
 import { useState, useEffect } from "react";
 
 const EditQuestionForm = ({ question, onUpdate }) => {
@@ -22,7 +21,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate complexity
-    if (!["Easy", "Medium", "Hard"].includes(complexity)) {
+    if (!validComplexities.includes(complexity)) {
       setError("Complexity must be one of: Easy, Medium, Hard");
       return;
     } else {
@@ -46,7 +45,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
       }}
     >
       <div style={{ marginBottom: "5px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Title:
           <input
             type="text"
@@ -58,12 +57,13 @@ const EditQuestionForm = ({ question, onUpdate }) => {
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              fontFamily: "'Figtree', sans-serif", // Figtree font
             }}
           />
         </label>
       </div>
       <div style={{ marginBottom: "5px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Description:
           <textarea
             value={description}
@@ -75,12 +75,13 @@ const EditQuestionForm = ({ question, onUpdate }) => {
               borderRadius: "4px",
               border: "1px solid #ccc",
               height: "200px",
+              fontFamily: "'Figtree', sans-serif", // Figtree font
             }}
           />
         </label>
       </div>
       <div style={{ marginBottom: "5px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Category:
           <input
             type="text"
@@ -92,12 +93,13 @@ const EditQuestionForm = ({ question, onUpdate }) => {
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              fontFamily: "'Figtree', sans-serif", // Figtree font
             }}
           />
         </label>
       </div>
       <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontSize: "20px" }}>
           Complexity:
         </label>
         <div className="complexity-group" style={{ marginTop: "24px" }}>
@@ -131,8 +133,8 @@ const EditQuestionForm = ({ question, onUpdate }) => {
           disabled={isLoading}
           style={{
             padding: "12px 15px", // Button padding
-            backgroundColor: isHovered ? "#ff80b3" : "#ffb3d9",
-            color: "#000",
+            backgroundColor: isHovered ? '#2a4b5e' : '#1a3042',
+            color: "#fff",
             border: "none",
             borderRadius: "4px",
             cursor: isLoading ? "not-allowed" : "pointer",
@@ -142,6 +144,7 @@ const EditQuestionForm = ({ question, onUpdate }) => {
             alignItems: "center",
             justifyContent: "center",
             width: "100%",
+            fontFamily: "'Figtree', sans-serif", // Figtree font for button
           }}
         >
           {isLoading ? "Updating..." : "Update Question"}
