@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 type TimerProps = {
   onClose: () => void; // Callback to close the modal
@@ -7,7 +6,6 @@ type TimerProps = {
 
 const Timer: React.FC<TimerProps> = ({ onClose }) => {
   const [time, setTime] = useState<number>(0);
-  const router = useRouter(); // Initialize router for navigation
   const duration = 30; // Set total duration in seconds (for testing)
 
   // Format time as MM:SS
@@ -26,7 +24,6 @@ const Timer: React.FC<TimerProps> = ({ onClose }) => {
       setTime((prevTime) => {
         if (prevTime >= duration) {
           clearInterval(intervalId); // Stop the timer
-          router.push("/workspace"); // Redirect to the home page
           onClose(); // Close the modal if necessary
           return prevTime; // Return the final time
         }
@@ -35,7 +32,7 @@ const Timer: React.FC<TimerProps> = ({ onClose }) => {
     }, 1000);
 
     return () => clearInterval(intervalId); // Cleanup the interval on unmount
-  }, [router, onClose]);
+  }, [onClose]);
 
   // Calculate the stroke dash offset for the circular loader
   const radius = 80; // Set radius to 80

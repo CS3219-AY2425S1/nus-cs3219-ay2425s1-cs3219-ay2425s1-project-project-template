@@ -11,18 +11,13 @@ import CodeEditor from "@/components/workspace/code-editor";
 
 type WorkspaceProps = {};
 
-const Workspace: React.FC<WorkspaceProps> = () => {
+const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
   const router = useRouter();
   const { token, deleteToken } = useAuth();
 
   useEffect(() => {
-    if (token) {
-      console.log(token);
-      // TODO: Validate token is still valid
-    } else {
-      router.push("/auth/login"); // Redirect if no token
-    }
-  }, [token, router]);
+    console.log(params.id);
+  }, []);
 
   return (
     <div className="h-screen w-[80%] flex flex-col  mx-auto py-10 overscroll-contain">

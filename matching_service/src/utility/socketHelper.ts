@@ -1,13 +1,9 @@
-export function validateSocketConnection(message: any): boolean {
-  if (message.connectionId == null || message.connectionId == undefined) {
-    console.error("No connectionId specified in message");
-    return false;
-  }
+import { Server, Socket } from "socket.io";
+import { PeerprepResponse } from "peerprep-shared-types";
 
-  if (message.event == null || message.event == undefined) {
-    console.error("No event specified in message");
-    return false;
-  }
-
-  return true;
+export function sendMessage(
+  socket: Server | Socket,
+  message: PeerprepResponse
+) {
+  socket.emit("serverToClient", message);
 }

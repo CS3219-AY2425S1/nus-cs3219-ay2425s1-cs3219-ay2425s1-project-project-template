@@ -14,9 +14,6 @@ const Problem: React.FC<any> = ({ params }) => {
 
   useEffect(() => {
     if (token) {
-      console.log(token);
-      // // TODO: Validate token is still valid
-
       getQuestion(params.id, token).then((data) => {
         setQuestion(data?.message);
       });

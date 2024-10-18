@@ -1,11 +1,6 @@
 import { Server, Socket as ServerSocket } from "socket.io";
 import { io as Client, Socket as ClientSocket } from "socket.io-client";
-import {
-  ClientSocketEvents,
-  ServerSocketEvents,
-  ServicesSocket,
-  MatchRequest,
-} from "peerprep-shared-types";
+import { ClientSocketEvents, ServicesSocket } from "peerprep-shared-types";
 import { authenticateSocket } from "../../utility/jwtHelper";
 import dotenv from "dotenv";
 
@@ -45,6 +40,7 @@ const handleMatchingServiceMessage = (
       console.error("No socket found for username");
       return;
     }
+    console.log(`Forwarding message to client: ${message.username}`);
     socket.emit(message.event, message);
   }
 };

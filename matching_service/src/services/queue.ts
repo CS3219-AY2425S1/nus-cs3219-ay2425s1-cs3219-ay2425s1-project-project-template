@@ -86,11 +86,11 @@ export class Queue implements IQueue {
 
     // add to queue, then return success message
     let success = false;
-    this.producer.sendMessage(
+    await this.producer.sendMessage(
       request,
-      (record) => {
+      () => {
         success = true;
-        this.onAddRequestSuccess(request, record);
+        this.onAddRequestSuccess(request);
       },
       (error) => {
         console.error("Error sending message: ", error);
@@ -110,11 +110,18 @@ export class Queue implements IQueue {
     const msgLocation = this.userMap.get(request.username);
     var success = false;
 
+    console.log("msgLocation:", msgLocation);
+
     if (msgLocation != undefined) {
       const { topic } = msgLocation;
-      success = true;
-      this.topicMap.get(topic)?.filter((x) => x.username == request.username);
+      const requests = this.topicMap.get(topic) ?? [];
+      for (let i = requests.length - 1; i >= 0; i--) {
+        if (requests[i].username == request.username) {
+          requests.splice(i, 1);
+        }
+      }
       this.userMap.delete(request.username);
+      success = true;
     }
 
     return {
@@ -137,14 +144,12 @@ export class Queue implements IQueue {
     return this.userMap.has(username);
   }
 
-  private onAddRequestSuccess(request: IMatchRequest, record: RecordMetadata) {
+  private onAddRequestSuccess(request: IMatchRequest) {
     // Validate the record metadata
-    if (record.baseOffset !== undefined) {
-      this.userMap.set(request.username, {
-        topic: this.getTopic(request),
-      });
-      console.log("Successfully added request to queue");
-    }
+    this.userMap.set(request.username, {
+      topic: this.getTopic(request),
+    });
+    console.log("Successfully added request to queue");
   }
 
   private processMessage(message: KafkaMessage) {

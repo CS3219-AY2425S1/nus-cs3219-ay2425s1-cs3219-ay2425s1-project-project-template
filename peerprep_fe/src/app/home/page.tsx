@@ -24,9 +24,6 @@ export default function Home() {
 
   useEffect(() => {
     if (token) {
-      console.log(token);
-      // // TODO: Validate token is still valid
-
       getQuestions(token).then((data) => {
         setQuestions(data?.message);
       });

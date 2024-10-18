@@ -1,8 +1,17 @@
+import { ServerSocketEvents } from "peerprep-shared-types";
 import { IMatch, IMatchRequest, IQueue } from "./queue";
 import { createRoom } from "./room";
 
 export interface INotifier {
-  notify(success: boolean, usermame: string, roomId: string): void;
+  (
+    success:
+      | ServerSocketEvents.MATCH_FOUND
+      | ServerSocketEvents.MATCH_REQUESTED
+      | ServerSocketEvents.MATCH_CANCELED
+      | ServerSocketEvents.MATCH_TIMEOUT,
+    username: string,
+    message?: any
+  ): void;
 }
 
 export class Matcher {
@@ -19,63 +28,48 @@ export class Matcher {
   public match() {
     const map = this.queue.getRequests();
     console.log("Matching users...");
-    console.log("Removing expired requests...");
-    // Remove expired requests
     const { expired } = this.removeExpiredRequests(map);
-
-    console.log("Notifying expired requests...");
-    // Remove expired requests from queue
-    expired.forEach((request) => {
-      this.queue.cancel(request);
-      this.notifer.notify(false, request.username, "");
-    });
-
-    console.log("Matching users by topic and difficulty...");
-    // Match users by topic and difficulty
+    this.notifyExpired(expired);
     const rooms = this.matchUsers(map);
-
-    console.log("Notifying users of match...");
-    // Notify users of match
-    rooms.forEach((room) => {
-      room.usernames.forEach((username) =>
-        this.notifer.notify(true, username, room.roomId)
-      );
-    });
-    //TODO: Create rooms in database
+    console.log(rooms);
+    this.notifyMatches(rooms);
 
     if (!this.queue.getLength()) {
       console.log("Queue is empty, stopping matcher...");
+      this.stop();
       return;
     }
 
     console.log("Setting timeout for next match...");
     this.timeoutId = setTimeout(() => this.match(), this.interval);
+
+    //TODO: Create rooms in database
   }
 
   private removeExpiredRequests(requestMap: Map<string, IMatchRequest[]>): {
     expired: IMatchRequest[];
   } {
+    console.log("Removing expired requests...");
     const expired: IMatchRequest[] = [];
     const now = Date.now();
     console.log("now:", now);
 
     requestMap.forEach((requests, key, map) => {
-      requests.forEach((request) => {
-        console.log(request.timestamp);
-        if (request.timestamp < now - 30 * 1000) {
-          expired.push(request);
-          map.get(key)?.filter((x) => x == request);
+      // Remove requests older than 30 seconds
+      for (let i = requests.length - 1; i >= 0; i--) {
+        if (requests[i].timestamp < now - 30 * 1000) {
+          expired.push(requests[i]);
+          requests.splice(i, 1);
         }
-      });
+      }
     });
 
     return { expired };
   }
 
-  private async matchUsers(
-    requestMap: Map<string, IMatchRequest[]>
-  ): Promise<IMatch[]> {
-    let rooms = [];
+  private matchUsers(requestMap: Map<string, IMatchRequest[]>): IMatch[] {
+    console.log("Matching users by topic and difficulty...");
+    let rooms: IMatch[] = [];
     for (let key of Array.from(requestMap.keys())) {
       const requests = requestMap.get(key);
       if (!requests || requests.length < 2) {
@@ -92,8 +86,14 @@ export class Matcher {
         // Create Room and place users inside
         const user1 = users[0];
         const user2 = users[1];
-        const room = await this.createRoom(user1, user2);
-        rooms.push(room);
+        rooms.push({
+          roomId: user1.username + "-" + user2.username,
+          usernames: [user1.username, user2.username],
+          topic: user1.topic,
+          difficulty: user1.difficulty,
+        });
+        // const room = await this.createRoom(user1, user2);
+        // rooms.push(room);
 
         // Remove users from queue
         this.queue.cancel({ username: user1.username });
@@ -121,6 +121,28 @@ export class Matcher {
       };
     }
     throw Error("Invalid Room");
+  }
+
+  private async notifyExpired(expired: IMatchRequest[]) {
+    console.log("Notifying expired requests...");
+
+    for (let request of expired) {
+      this.notifer(ServerSocketEvents.MATCH_TIMEOUT, request.username);
+    }
+  }
+
+  private async notifyMatches(matches: IMatch[]) {
+    console.log("Notifying users of match...");
+    matches.forEach((room) => {
+      this.notifer(ServerSocketEvents.MATCH_FOUND, room.usernames[0], {
+        roomId: room.roomId,
+        opponentUsername: room.usernames[1],
+      });
+      this.notifer(ServerSocketEvents.MATCH_FOUND, room.usernames[1], {
+        roomId: room.roomId,
+        opponentUsername: room.usernames[0],
+      });
+    });
   }
 
   public start() {

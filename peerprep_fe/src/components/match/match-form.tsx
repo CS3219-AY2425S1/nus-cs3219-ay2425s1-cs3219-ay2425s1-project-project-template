@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
-import { useAuth } from "@/contexts/auth-context";
-import { DifficultyLevel } from "peerprep-shared-types";
+import {
+  ClientSocketEvents,
+  DifficultyLevel,
+  MatchAddedResponse,
+  MatchCancelRequest,
+  MatchCancelResponse,
+  MatchFoundResponse,
+  MatchRequest,
+  MatchTimeoutResponse,
+  ServerSocketEvents,
+} from "peerprep-shared-types";
 import Timer from "@/components/match/timer";
 import "../../styles/modal.css";
 import { useSocket } from "@/contexts/socket-context";
-
-type MatchFormProps = {};
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 export interface MatchFormQuestions {
   difficultyLevel: DifficultyLevel;
@@ -15,42 +24,18 @@ export interface MatchFormQuestions {
 }
 
 export function MatchForm() {
-  const { token } = useAuth();
-  const { sendMatchRequest, cancelMatchRequest } = useSocket();
   const [formData, setFormData] = useState<MatchFormQuestions>({
     difficultyLevel: DifficultyLevel.Easy,
     topic: "",
   });
   const [error, setError] = useState<string>("");
+  const { socket } = useSocket();
+  const { username } = useAuth();
 
   // Usage in form submission
-
   const [loading, setLoading] = useState<boolean>(false);
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   setLoading(true);
-  //   setError("");
-
-  //   try {
-  //     let response = null;
-  //     response = await findMatch(token, formData);
-  //     if (!response) {
-  //       return;
-  //     }
-
-  //     if (response.errors) {
-  //       console.log("Error Finding Match:", response.errors.errorMessage);
-  //       setError(response.errors.errorMessage);
-  //     } else {
-  //       console.log("Success!:", response.message);
-  //     }
-  //   } catch (err) {
-  //     setError("An unexpected error occurred.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
+  const router = useRouter();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -61,7 +46,62 @@ export function MatchForm() {
     });
   };
 
-  const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
+  const sendMatchRequest = (
+    selectedDifficulty: DifficultyLevel,
+    selectedTopic: string
+  ) => {
+    if (socket && username) {
+      const matchRequest: MatchRequest = {
+        event: ClientSocketEvents.REQUEST_MATCH,
+        selectedDifficulty,
+        selectedTopic,
+        username: username,
+      };
+      registerListeners();
+      socket.emit(ClientSocketEvents.REQUEST_MATCH, matchRequest);
+    }
+  };
+
+  const cancelMatchRequest = () => {
+    if (socket && username) {
+      const matchRequest: MatchCancelRequest = {
+        event: ClientSocketEvents.CANCEL_MATCH,
+        username: username,
+      };
+      socket.on(ServerSocketEvents.MATCH_CANCELED, onMatchCancel);
+      socket.emit(ClientSocketEvents.CANCEL_MATCH, matchRequest);
+    }
+  };
+
+  const onMatchAdded = (match: MatchAddedResponse) => {
+    console.log("Match Request Response", match);
+    if (match.success) {
+      setIsTimerModalOpen(true);
+    }
+  };
+
+  const onMatchFound = (match: MatchFoundResponse) => {
+    unregisterListeners();
+    console.log("Match found", match);
+    setIsTimerModalOpen(false);
+    router.push(`/workspace/${match.roomId}`);
+  };
+
+  const onTimeOut = (response: MatchTimeoutResponse) => {
+    unregisterListeners();
+    console.log("Time out response", response);
+    setIsTimerModalOpen(false);
+    alert("No match found. Please try again.");
+  };
+
+  const onMatchCancel = (response: MatchCancelResponse) => {
+    socket?.off(ServerSocketEvents.MATCH_CANCELED, onMatchCancel);
+    console.log("Match cancel response", response);
+
+    if (response.success) {
+      setIsTimerModalOpen(false);
+    }
+  };
 
   const sendMatch = () => {
     sendMatchRequest(formData.difficultyLevel, formData.topic);
@@ -70,6 +110,18 @@ export function MatchForm() {
   const cancelMatch = () => {
     cancelMatchRequest();
     setIsTimerModalOpen(false);
+  };
+
+  const registerListeners = () => {
+    socket?.on(ServerSocketEvents.MATCH_FOUND, onMatchFound);
+    socket?.on(ServerSocketEvents.MATCH_REQUESTED, onMatchAdded);
+    socket?.on(ServerSocketEvents.MATCH_TIMEOUT, onTimeOut);
+  };
+
+  const unregisterListeners = () => {
+    socket?.off(ServerSocketEvents.MATCH_FOUND, onMatchFound);
+    socket?.off(ServerSocketEvents.MATCH_REQUESTED, onMatchAdded);
+    socket?.off(ServerSocketEvents.MATCH_TIMEOUT, onTimeOut);
   };
 
   return (
