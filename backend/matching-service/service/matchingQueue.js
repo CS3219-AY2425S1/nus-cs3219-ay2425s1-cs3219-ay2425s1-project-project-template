@@ -51,7 +51,7 @@ const matchUsers = async () => {
                 user1: newRequest.id,
                 user2: matchedRequest.id,
                 category: newRequest.category,
-                difficulty: newRequest.difficulty
+                complexity: newRequest.complexity
             };
             console.log(`Matched ${result.user1} and ${result.user2}`)
             result = JSON.stringify(result)
@@ -65,8 +65,8 @@ const matchUsers = async () => {
                     matched: false,
                     user1: newRequest.id,
                     user2: "",
-                    category: newRequest.category,
-                    difficulty: newRequest.difficulty
+                    category: "",
+                    complexity: ""
                 };
                 channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); //B to D
                 console.log(`${newRequest.id} timed out.`)
@@ -84,12 +84,12 @@ const calculateMatchScore = (request1, request2) => {
         matchScore += 2
     };
     const difficultyLevels = {
-        "easy": 1,
-        "medium": 2,
-        "hard": 3
+        "Easy": 1,
+        "Medium": 2,
+        "Hard": 3
     };
-    const difficultyLevel1 = difficultyLevels[request1.difficulty];
-    const difficultyLevel2 = difficultyLevels[request2.difficulty];
+    const difficultyLevel1 = difficultyLevels[request1.complexity];
+    const difficultyLevel2 = difficultyLevels[request2.complexity];
     if (Math.abs(difficultyLevel1 - difficultyLevel2) <= 1) {
         matchScore += 1
     }
@@ -116,26 +116,29 @@ const handleMatchRequest = async (request) => {
 
     //Promise
     return new Promise((resolve, reject) => {
-
+        let received = false;
         // Consume the result from the queue
         channel.consume(q.queue, msg => {
             console.log(`User ${request.id} ~ Result: ${msg.content.toString()}`);
             result = JSON.parse(msg.content.toString());
             connection.close();
+            received = true;
             resolve(result);  // Resolve with result once received
         }, { noAck: true });
 
         // Timeout after 45 seconds if no response is received (failsafe).
         setTimeout(() => {
-            console.log(`45 seconds timeout for matching user ${request.id}`);
-            connection.close();
-            resolve({
-                matched: false,
-                user1: "",
-                user2: "",
-                category: request.category,
-                difficulty: request.difficulty
-            });
+            if (!received) {
+                console.log(`45 seconds timeout for matching user ${request.id}`);
+                connection.close();
+                resolve({
+                    matched: false,
+                    user1: "",
+                    user2: "",
+                    category: request.category,
+                    complexity: request.complexity
+                });
+            }
         }, 45000);
     });
 

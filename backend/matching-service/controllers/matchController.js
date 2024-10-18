@@ -31,7 +31,7 @@ const createMatch = async (matchResult) => {
             user1Id: matchResult.user1,
             user2Id: req.body.user2,
             category: req.body.category,
-            difficulty: req.body.difficulty
+            complexity: req.body.complexity
         });
         return true
     } catch (err) {

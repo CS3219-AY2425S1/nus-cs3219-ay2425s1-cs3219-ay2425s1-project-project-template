@@ -5,8 +5,8 @@ const createMatchRequest = async (req, res) => {
     if (!(req.body.id)) {
         return res.status(400).json({ 'message' : 'User ID is missing!'});
     }
-    if (!(req.body.difficulty)) {
-        return res.status(400).json({ 'message' : 'Difficulty is not selected!'});
+    if (!(req.body.complexity)) {
+        return res.status(400).json({ 'message' : 'Complexity is not selected!'});
     }
     if (!(req.body.category)) {
         return res.status(400).json({ 'message' : 'Category is not selected!'});
@@ -14,7 +14,7 @@ const createMatchRequest = async (req, res) => {
 
     // Format required fields appropriately
     request = { id: req.body.id,
-                difficulty: req.body.difficulty,
+                complexity: req.body.complexity,
                 category: req.body.category
     }
 
@@ -34,13 +34,13 @@ const createMatchRequest = async (req, res) => {
 
 const cancelMatchRequest = async (req, res) => {
     console.log('Received request body:', req.body);
-    if (!(req.body.id && req.body.difficulty && req.body.category)) {
+    if (!(req.body.id && req.body.complexity && req.body.category)) {
         return res.status(400).json({ 'message' : 'At least one field is missing!'})
     }
 
     // Format required fields appropriately
     request = { id: req.body.id,
-        difficulty: req.body.difficulty,
+        complexity: req.body.complexity,
         category: req.body.category
     }
 

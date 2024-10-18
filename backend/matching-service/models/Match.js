@@ -11,18 +11,17 @@ const matchSchema = new mongoose.Schema({
         required: true
     },
     user2Id: {
-            type: String,
-            required: true
-    },
-    category: {
         type: String,
         required: true
     },
-    difficulty: {
+    category: {
+        type: Array,
+        required: true
+    },
+    complexity: {
         type: String,
         required: true
     }
-    
 })
 
 module.exports = mongoose.model("matches", matchSchema);
