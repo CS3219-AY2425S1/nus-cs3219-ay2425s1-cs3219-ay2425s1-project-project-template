@@ -1,13 +1,13 @@
 import { Router } from 'express';
 
 import {
-  searchQuestionsByTitle,
-  getQuestions,
-  getQuestionDetails,
-  getRandomQuestion,
   createQuestion,
-  updateQuestion,
   deleteQuestion,
+  getQuestionDetails,
+  getQuestions,
+  getRandomQuestion,
+  searchQuestionsByTitle,
+  updateQuestion,
 } from '@/controller/question-controller';
 
 const router = Router();

@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { getQuestionDetails } from '@/services/question-service';

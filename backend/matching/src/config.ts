@@ -10,3 +10,5 @@ const DB_PORT = Number.parseInt(process.env.MATCHING_DB_PORT ?? '6379');
 export const DB_URL = `redis://${DB_HOSTNAME}:${DB_PORT}`;
 
 export const NODE_ENV = process.env.NODE_ENV;
+
+export const IS_MILESTONE_D4 = true;

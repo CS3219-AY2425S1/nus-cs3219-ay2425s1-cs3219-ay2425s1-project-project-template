@@ -1,5 +1,7 @@
 import http from 'http';
+
 import { Server } from 'socket.io';
+
 import { logger } from './lib/utils';
 
 export const createWs = (server: ReturnType<(typeof http)['createServer']>) => {
@@ -7,16 +9,33 @@ export const createWs = (server: ReturnType<(typeof http)['createServer']>) => {
   io.on('connection', (socket) => {
     logger.info(`${socket.id} connected`);
 
-    socket.on('joinRoom', (room) => {
-      socket.join(room);
-      logger.info(`Client joined room: ${room}`);
-      socket.to(room).emit('message', `A new user has joined room: ${room}`);
+    socket.on('joinRoom', (roomId) => {
+      if (!roomId) {
+        logger.warn('joinRoom event received without a roomId');
+        return;
+      }
+
+      socket.join(roomId);
+      logger.info(`Socket ${socket.id} joined room: ${roomId}`);
+      socket.emit('joinedRoom', roomId);
     });
     // socket.on('create', (room) => {
     //   socket.join(room);
     // });
+    socket.on('cancelRoom', (roomId) => {
+      if (roomId) {
+        io.in(roomId).socketsLeave(roomId);
+        logger.info(`Room ${roomId} has been cancelled and closed.`);
+        socket.emit('roomCancelled', roomId);
+      } else {
+        logger.warn('No room ID provided for cancellation');
+      }
+    });
     socket.on('leave', (room) => {
       socket.leave(room);
+    });
+    socket.on('disconnect', () => {
+      logger.info(`Client disconnected: ${socket.id}`);
     });
   });
   return io;

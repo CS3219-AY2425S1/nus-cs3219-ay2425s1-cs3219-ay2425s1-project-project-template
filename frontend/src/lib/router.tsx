@@ -2,13 +2,12 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { AuthedLayout } from '@/components/blocks/authed';
 import { RootLayout } from '@/components/blocks/root-layout';
-import { RouteGuard, loader as routeGuardLoader } from '@/components/blocks/route-guard';
-
+import { loader as routeGuardLoader, RouteGuard } from '@/components/blocks/route-guard';
 import { ForgotPassword } from '@/routes/forgot-password';
 import { HomePage } from '@/routes/home';
 import { Login } from '@/routes/login';
-import { QuestionDetails, loader as questionDetailsLoader } from '@/routes/questions/details';
-import { Questions, loader as questionsLoader } from '@/routes/questions/main';
+import { loader as questionDetailsLoader, QuestionDetails } from '@/routes/questions/details';
+import { loader as questionsLoader, Questions } from '@/routes/questions/main';
 import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';

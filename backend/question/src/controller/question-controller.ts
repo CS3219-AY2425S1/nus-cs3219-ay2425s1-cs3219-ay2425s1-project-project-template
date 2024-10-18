@@ -1,28 +1,27 @@
-import { StatusCodes } from 'http-status-codes';
 import type { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 import {
-  getQuestionsService,
   getQuestionDetailsService,
+  getQuestionsService,
   getRandomQuestionService,
   searchQuestionsByTitleService,
 } from '@/services/get/index';
 import type {
-  ICreateQuestionPayload,
-  IDeleteQuestionPayload,
-  IUpdateQuestionPayload,
-} from '@/services/post/types';
-
+  IGetQuestionPayload,
+  IGetQuestionsPayload,
+  IGetRandomQuestionPayload,
+} from '@/services/get/types';
 import {
   createQuestionService,
   deleteQuestionService,
   updateQuestionService,
 } from '@/services/post';
 import type {
-  IGetQuestionsPayload,
-  IGetQuestionPayload,
-  IGetRandomQuestionPayload,
-} from '@/services/get/types';
+  ICreateQuestionPayload,
+  IDeleteQuestionPayload,
+  IUpdateQuestionPayload,
+} from '@/services/post/types';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
   const { questionName, difficulty, topic, pageNum, recordsPerPage } = req.query;
@@ -36,11 +35,13 @@ export const getQuestions = async (req: Request, res: Response): Promise<Respons
 
   try {
     const result = await getQuestionsService(payload);
+
     if (!result.data || result.code >= 400) {
       return res.status(result.code).json({
         message: result.error?.message ?? 'An error occurred',
       });
     }
+
     return res.status(result.code).json(result.data);
   } catch (error) {
     return res
@@ -56,11 +57,13 @@ export const getQuestionDetails = async (req: Request, res: Response): Promise<R
 
   try {
     const result = await getQuestionDetailsService(payload);
+
     if (!result.data || result.code >= 400) {
       return res.status(result.code).json({
         message: result.error?.message ?? 'An error occurred',
       });
     }
+
     return res.status(result.code).json(result.data);
   } catch (error) {
     return res
@@ -75,6 +78,7 @@ export const getRandomQuestion = async (req: Request, res: Response): Promise<Re
     difficulty: req.body.difficulty,
     topic: req.body.topic,
   };
+
   try {
     const result = await getRandomQuestionService(payload);
     return res.status(result.code).json(result);
@@ -124,11 +128,13 @@ export const createQuestion = async (req: Request, res: Response): Promise<Respo
 
   try {
     const result = await createQuestionService(payload);
+
     if (!result.data || result.code >= 400) {
       return res.status(result.code).json({
         message: result.message ?? 'An error occurred',
       });
     }
+
     return res.status(result.code).json(result.data);
   } catch (error) {
     return res
@@ -139,6 +145,7 @@ export const createQuestion = async (req: Request, res: Response): Promise<Respo
 
 export const updateQuestion = async (req: Request, res: Response): Promise<Response> => {
   const { title, description, difficulty, topics } = req.body;
+
   if (!title && !description && !difficulty && (!topics || !Array.isArray(topics))) {
     return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed');
   }

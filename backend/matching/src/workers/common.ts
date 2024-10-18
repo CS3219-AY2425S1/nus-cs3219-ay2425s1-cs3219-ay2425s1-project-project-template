@@ -17,6 +17,7 @@ export const sendNotif = (roomIds: Array<string>, event: IMatchEvent, message?: 
 
 export const connectClient = async (importedClient: typeof client) => {
   let redisClient: typeof client;
+
   try {
     redisClient =
       importedClient.isOpen || importedClient.isReady
@@ -29,5 +30,6 @@ export const connectClient = async (importedClient: typeof client) => {
     );
     process.exit(1);
   }
+
   return redisClient;
 };
