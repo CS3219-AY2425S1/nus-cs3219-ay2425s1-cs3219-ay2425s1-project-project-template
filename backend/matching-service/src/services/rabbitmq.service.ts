@@ -267,39 +267,6 @@ class RabbitMQConnection {
         }
     }
 
-    async listenToDeadLetterQueue() {
-        try {
-            if (!this.channel) {
-                await this.connect()
-            }
-
-            // DeadLetter-Queue setup parameters
-            const DLX_QUEUE = 'deadletter-queue'
-            const DLX_EXCHANGE = 'dlx'
-            const DLX_ROUTING_KEY = 'dlx-key'
-            await this.channel.assertExchange(DLX_EXCHANGE, 'direct', { durable: true })
-            await this.channel.assertQueue(DLX_QUEUE, { durable: true })
-            await this.channel.bindQueue(DLX_QUEUE, DLX_EXCHANGE, DLX_ROUTING_KEY)
-
-            // Consume messages
-            await this.channel.consume(DLX_QUEUE, (msg) => {
-                if (msg !== null) {
-                    logger.info('[DeadLetter-Queue] Received message:', msg.content.toString()) // For some reason this is always empty. TODO: fix this issue
-                    this.channel.ack(msg)
-                }
-            })
-        } catch (error) {
-            logger.error('[DeadLetter-Queue] Error while consuming from the dead letter queue:', error)
-        }
-    }
-
-    private getDlxArgs() {
-        return {
-            'x-dead-letter-exchange': 'dlx',
-            'x-dead-letter-routing-key': 'dlx-key',
-            'x-message-ttl': 100000,
-        }
-    }
 
     async addUserToCancelledSet(userId: string, timestamp: string) {
         this.cancelledUsers.add(this.createId(userId, timestamp))
