@@ -18,7 +18,7 @@
     MONGODB_ENDPOINT=peerprep.xvavl.mongodb.net
     MONGODB_DB=peerprepMatchingServiceDB  
 
-    RABBITMQ_URI=amqp://guest:guest@rabbitmq:5672
+    RABBITMQ_URI=amqp://guest:guest@localhost:5672
     RABBITMQ_REQ_CH=request
     RABBITMQ_RES_CH=response  
     ```
@@ -32,7 +32,7 @@
 
 | Endpoint               | Request Type | Body Fields | Description                                                    |
 |------------------------| ------------ |  -- |----------------------------------------------------------------|
-| /matches               | `GET` | \* | Get all matches <br>                                           |
-| /matches               | `POST` | title: `str`<br>description: `str`<br>category: `Array`<br>complexity: `str` | Create a new match <br>                                        |
-| /matches/{question_id} | `DELETE`     | _id: `str` | Delete match based on ID <br>       |
-| /matches/{question_id} | `GET`       | * | Get one match based on ID <br> |
+| /matches               | `GET` | * | Get all matches <br>                                           |
+| /matches               | `POST` | id: `str`<br>category: `Array`<br>complexity: `str` | Start the matching process. <br>                                        |
+| /matches/{user_id} | `DELETE`     | * | Cancel the matching process based on ID. <br>       |
+| /matches/{user_id} | `GET`       | * | Get all matched records from a user. <br> |
