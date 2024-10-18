@@ -29,13 +29,15 @@ const createMatch = async (matchResult) => {
     try {
         const result = await Match.create({
             user1Id: matchResult.user1,
-            user2Id: req.body.user2,
-            category: req.body.category,
-            complexity: req.body.complexity
+            user2Id: matchResult.user2,
+            category: matchResult.category,
+            complexity: matchResult.complexity
         });
-        return true
+        console.log(`Matching data saved for ${matchResult.user1} and ${matchResult.user2}.`);
+        return result
     } catch (err) {
-        return false
+        console.log("error:", err);
+        return result
     }
 }
 

@@ -23,6 +23,7 @@ const createMatchRequest = async (req, res) => {
             MatchController.createMatch(matchingResult);
         }             
         // Return the result as 201 even if not matched.
+        //MatchController.createMatch({user1: "1", user2: "2", category: ["HI"], complexity: "Easy"});
         return res.status(201).json(matchingResult);
 
     }).catch(error => {
