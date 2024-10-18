@@ -1,7 +1,8 @@
 import { useState } from "react";
 import io from "socket.io-client";
 import MatchingRequestForm from "./MatchingRequestForm";
-import { MatchingRequestFormState } from "../../types";
+import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
+import Timer from "./timer";
 import IsConnected from "../IsConnected";
 
 interface MatchingModalProps {
@@ -14,15 +15,14 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
   closeMatchingModal,
 }) => {
   // --- Declare your states ----
-  var matchId: string;
-
+  const [matchId, setMatchId] = useState("");
   const [formData, setFormData] = useState<MatchingRequestFormState>({
-    name: "",
     topic: "",
     difficulty: "",
   });
 
   const [isMatchFound, setIsMatchFound] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
@@ -39,7 +39,9 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         difficulty: formData.difficulty,
       }),
     });
-    matchId = (await res.json()).matchId;
+    const response = await res.json();
+    setMatchId(response.matchId);
+    console.log(response);
 
     socket.connect();
     socket.on("connect", () => {
@@ -97,13 +99,15 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
           )}
         </div>
         <div className="flex flex-col space-y-2">
-          <MatchingRequestForm
-            handleSubmit={() =>
-              handleFindMatchRequest(formData)
-            }
-            formData={formData}
-            setFormData={setFormData}
-          />
+          {showTimer ? (
+            <Timer />
+          ) : (
+            <MatchingRequestForm
+              handleSubmit={() => handleFindMatchRequest(formData)}
+              formData={formData}
+              setFormData={setFormData}
+            />
+          )}
           <button
             onClick={handleCancelMatchRequest}
             className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-700"

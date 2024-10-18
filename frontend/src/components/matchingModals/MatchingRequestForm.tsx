@@ -1,5 +1,4 @@
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
-import InputTextBox from "../InputTextBox";
 
 interface MatchingRequestFormProps {
   handleSubmit: () => Promise<void>;
@@ -22,12 +21,10 @@ const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="items-center">
+    <form onSubmit={handleSubmit}>
       {/* Topic input */}
       <div className="mb-4">
-        <label htmlFor="topic">
-          Topic:
-        </label>
+        <label htmlFor="topic">Topic:</label>
         <input
           type="text"
           id="topic"
