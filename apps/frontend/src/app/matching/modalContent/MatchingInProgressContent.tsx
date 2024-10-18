@@ -6,7 +6,7 @@ import { handleCancelMatch } from '../handlers';
 import { useTimer } from "react-timer-hook"
 import {formatTime} from '@/utils/DateTime';
 
-const TIMEOUT = 5;
+const TIMEOUT = 10;
 
 interface Props {
     cancelMatch(cancelledIn: number): void
