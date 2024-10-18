@@ -1,16 +1,22 @@
 package routes
 
 import (
+	"net/http"
+	
 	"question-service/internal/controllers"
+	"question-service/internal/middleware"
 
 	"github.com/gorilla/mux"
 )
 
 // RegisterQuestionRoutes defines the API routes for managing questions
 func RegisterQuestionRoutes(router *mux.Router) {
-	router.HandleFunc("/questions", controllers.CreateQuestion).Methods("POST")
-	router.HandleFunc("/questions/{id}", controllers.UpdateQuestion).Methods("PUT")
-	router.HandleFunc("/questions/{id}", controllers.DeleteQuestion).Methods("DELETE")
-	router.HandleFunc("/questions/{id}", controllers.GetQuestionByID).Methods("GET")
-	router.HandleFunc("/questions", controllers.GetAllQuestions).Methods("GET")
+	// Public routes (GET requests)
+	router.Handle("/questions", middleware.VerifyAccessToken(http.HandlerFunc(controllers.GetAllQuestions))).Methods("GET")
+	router.Handle("/questions/{id}", middleware.VerifyAccessToken(http.HandlerFunc(controllers.GetQuestionByID))).Methods("GET")
+
+	// Admin-only routes (POST, PUT, DELETE requests)
+	router.Handle("/questions", middleware.ProtectAdmin(http.HandlerFunc(controllers.CreateQuestion))).Methods("POST")
+	router.Handle("/questions/{id}", middleware.ProtectAdmin(http.HandlerFunc(controllers.UpdateQuestion))).Methods("PUT")
+	router.Handle("/questions/{id}", middleware.ProtectAdmin(http.HandlerFunc(controllers.DeleteQuestion))).Methods("DELETE")
 }

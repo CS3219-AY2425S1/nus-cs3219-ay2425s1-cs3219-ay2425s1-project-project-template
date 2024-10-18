@@ -7,15 +7,6 @@ export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
-  // If both access token and refresh token are present, user does not need to login again
-  if (
-    accessToken &&
-    refreshToken &&
-    (url.pathname.startsWith("/login") || url.pathname === "/")
-  ) {
-    return NextResponse.redirect(new URL("/match", req.nextUrl));
-  }
-
   // Define public routes that don't require authentication
   const publicRoutes = [
     "/",
@@ -39,6 +30,8 @@ export async function middleware(req: NextRequest) {
   if (!accessToken && !refreshToken) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
+
+  return NextResponse.next();
 }
 
 // Apply middleware to specific paths
