@@ -7,9 +7,12 @@ import axios from "@/utils/axios";
 const addUserToMatchQueue = async (
   userMatchRequest: UserMatchRequest,
 ): Promise<UserMatchResponse> => {
-  const response = await axios.post("/addUser", userMatchRequest);
+  const response = await axios.post(
+    "matching-service/addUser",
+    userMatchRequest,
+  );
 
-  return response.data.data;
+  return response.data;
 };
 
 export const useAddUserToMatch = (

@@ -24,6 +24,8 @@ interface ItemProps {
 }
 interface QuestionDifficultyProps {
   onSelect: (selectionItems: string[]) => void;
+  isInvalid: boolean;
+  errorMessage: string;
 }
 const QUESTION_DIFFICULTY_DROPDOWN: ItemProps[] = [
   {
@@ -51,6 +53,8 @@ const QUESTION_DIFFICULTY_DROPDOWN: ItemProps[] = [
 
 export default function QuestionDifficultyDropDown({
   onSelect,
+  isInvalid,
+  errorMessage,
 }: QuestionDifficultyProps) {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
 
@@ -75,6 +79,8 @@ export default function QuestionDifficultyDropDown({
             mainWrapper: "w-2/3",
           }}
           endContent={<DownArrowIcon />}
+          errorMessage={errorMessage}
+          isInvalid={isInvalid && selectedValue === ""}
           label={"Question Difficulty"}
           labelPlacement="outside-left"
           placeholder="Select A Difficulty"

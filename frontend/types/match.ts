@@ -10,4 +10,11 @@ export interface UserMatchRequest {
 export interface UserMatchResponse {
   message: string;
   user_id: string;
+  socket_id: string;
+}
+
+export interface SuccessfulMatchResponse {
+  state: string;
+  user1: string;
+  user2: string;
 }

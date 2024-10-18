@@ -13,6 +13,8 @@ interface Category {
 }
 interface TopicSelectionProps {
   onSelect: (selectedItems: string[]) => void;
+  isInvalid: boolean;
+  errorMessage: string;
 }
 
 const CATEGORIES: Category[] = getAllQuestionCategories().map((category) => ({
@@ -21,7 +23,11 @@ const CATEGORIES: Category[] = getAllQuestionCategories().map((category) => ({
 }));
 const CATEGORY_COLORS: { [key: string]: string } = getCategoriesWithColors();
 
-export default function TopicSelection({ onSelect }: TopicSelectionProps) {
+export default function TopicSelection({
+  onSelect,
+  isInvalid,
+  errorMessage,
+}: TopicSelectionProps) {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const onSelectionChange = (selectedItems: Selection) => {
     onSelect(Array.from(selectedItems).map((value) => value as string));
@@ -38,6 +44,8 @@ export default function TopicSelection({ onSelect }: TopicSelectionProps) {
         value:
           "flex-wrap flex gap-y-2 gap-x-2 text-center items-center justify-stretch",
       }}
+      errorMessage={errorMessage}
+      isInvalid={isInvalid && Array.from(selectedKeys).length < 1}
       items={CATEGORIES}
       label="Topics"
       labelPlacement="outside-left"

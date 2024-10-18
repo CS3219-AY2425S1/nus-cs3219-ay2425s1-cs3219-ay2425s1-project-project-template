@@ -1,4 +1,4 @@
-import { useRef, useState, ReactNode } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 import { v4 } from "uuid";
@@ -6,19 +6,25 @@ import { v4 } from "uuid";
 import ProgrammingLanguageSelectDropdown from "../matching/ProgrammingLanguageSelectDropdown";
 import QuestionDifficultyDropDown from "../matching/DifficultyDropdown";
 import TopicSelection from "../matching/TopicSelection";
-import MatchingTimer from "../matching/MatchingTimer";
 
+import { UserMatchRequest, UserMatchResponse } from "@/types/match";
 import { useAddUserToMatch } from "@/hooks/api/matching";
-import { UserMatchRequest } from "@/types/match";
 
 const CARD_STYLES = "w-9/12 gap-y-7 flex mx-auto flex-col justify-center p-16";
 
-export default function MatchingForm() {
+interface MatchingFormProps {
+  onSuccess: (data: UserMatchResponse) => void;
+  onCancel: () => void;
+}
+export default function MatchingForm({
+  onSuccess,
+  onCancel,
+}: MatchingFormProps) {
   const questionDifficultyRef = useRef<string[]>([]);
   const programmingLanguagesRef = useRef<string[]>([]);
   const topicsRef = useRef<string[]>([]);
-  const [isMatching, setIsMatching] = useState<boolean>(false);
-
+  const [invalidFields, setInvalidFields] = useState<Set<number>>(new Set());
+  // onSelect Handlers
   const onSelectQuestionDifficulty = (difficulties: string[]) => {
     questionDifficultyRef.current = difficulties;
   };
@@ -31,58 +37,95 @@ export default function MatchingForm() {
     topicsRef.current = topics;
   };
 
-  const onSuccess = () => alert("Successfully Matched A");
-
-  const { mutate, isPending, isError, error } = useAddUserToMatch(onSuccess);
-
+  const onSuccessMatch = (responseData: UserMatchResponse) => {
+    questionDifficultyRef.current = [];
+    programmingLanguagesRef.current = [];
+    topicsRef.current = [];
+    onSuccess(responseData);
+  };
+  // initialise mutate hook to add user to match-service
+  const {
+    mutate,
+    isPending: isPendingMatch,
+    isError,
+  } = useAddUserToMatch(onSuccessMatch);
+  // validates and addUser
   const onSubmit = () => {
+    const invalidSet: Set<number> = new Set();
+
+    if (questionDifficultyRef.current.length < 1) {
+      invalidSet.add(1);
+    }
+    if (programmingLanguagesRef.current.length < 1) {
+      invalidSet.add(2);
+    }
+    if (topicsRef.current.length < 1) {
+      invalidSet.add(3);
+    }
+    setInvalidFields(invalidSet);
+    if (invalidSet.size !== 0) {
+      return;
+    }
     const userId = v4();
     const socketId = v4();
+    let generalize = false;
+    let languages = programmingLanguagesRef.current;
+
+    if (programmingLanguagesRef.current.includes("generalize")) {
+      generalize = true;
+      languages = [];
+    }
     const userMatchRequest: UserMatchRequest = {
       user_id: userId,
       socket_id: socketId,
       difficulty_levels: questionDifficultyRef.current,
       categories: topicsRef.current,
-      programming_languages: programmingLanguagesRef.current,
-      generalize_languages: false,
+      programming_languages: languages,
+      generalize_languages: generalize,
     };
 
     mutate(userMatchRequest);
-    setIsMatching(true);
   };
 
-  const onCancel = () => setIsMatching(false);
-
-  let content: ReactNode;
-
-  if (isMatching) {
-    content = <MatchingTimer seconds={5} onCancel={onCancel} />;
-  } else {
-    content = (
-      <Card className={CARD_STYLES}>
-        <h2 className="text-4xl">Session Details</h2>
-        <ul className="flex flex-col gap-y-5 items-center">
-          <li className="w-full">
-            <QuestionDifficultyDropDown onSelect={onSelectQuestionDifficulty} />
-          </li>
-          <li className="w-full">
-            <ProgrammingLanguageSelectDropdown
-              onSelect={onSelectProgrammingLanguages}
-            />
-          </li>
-          <li className="w-full">
-            <TopicSelection onSelect={onSelectTopics} />
-          </li>
-        </ul>
-        <div className="flex items-center justify-end gap-5">
-          <Button color="danger">Cancel</Button>
-          <Button color="warning" onPress={onSubmit}>
-            Submit
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
-  return content;
+  return (
+    <Card className={CARD_STYLES}>
+      <h2 className="text-4xl">Session Details</h2>
+      <ul className="flex flex-col gap-y-5 items-center">
+        <li className="w-full">
+          <QuestionDifficultyDropDown
+            errorMessage="You must select at least one difficulty"
+            isInvalid={invalidFields.has(1)}
+            onSelect={onSelectQuestionDifficulty}
+          />
+        </li>
+        <li className="w-full">
+          <ProgrammingLanguageSelectDropdown
+            errorMessage="You must select one programming language"
+            isInvalid={invalidFields.has(2)}
+            onSelect={onSelectProgrammingLanguages}
+          />
+        </li>
+        <li className="w-full">
+          <TopicSelection
+            errorMessage="You must select a topic"
+            isInvalid={invalidFields.has(3)}
+            onSelect={onSelectTopics}
+          />
+        </li>
+      </ul>
+      <div className="flex items-center justify-end gap-5">
+        <Button color="danger" onPress={onCancel}>
+          Cancel
+        </Button>
+        <Button color="warning" isLoading={isPendingMatch} onPress={onSubmit}>
+          Submit
+        </Button>
+      </div>
+      {isError && (
+        <h3 className="text-danger-500">
+          Error Occurred While Adding User to Queue, Try Again
+        </h3>
+      )}
+    </Card>
+  );
 }

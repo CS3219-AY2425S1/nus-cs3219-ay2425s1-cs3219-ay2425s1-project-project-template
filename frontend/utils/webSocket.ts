@@ -1,4 +1,9 @@
-export default function createWebSocket(socketId: string): WebSocket {
+export default function createWebSocket(
+  socketId: string,
+  onClose: () => void,
+  onError: () => void,
+  onMessage: (event: MessageEvent) => void,
+): WebSocket {
   const ws = new WebSocket(`ws://localhost:3002/ws?socket_id=${socketId}`);
 
   //   define openEvent handler
@@ -8,19 +13,13 @@ export default function createWebSocket(socketId: string): WebSocket {
   };
 
   //   define onClose behavior
-  ws.onclose = (event) => {
-    console.log("Succesfully closed connection");
-  };
+  ws.onclose = onClose;
 
   // define error
-  ws.onerror = (event) => {
-    console.log("Error occured with WebSocket", event);
-  };
+  ws.onerror = onError;
 
   //   define behaviour for message
-  ws.onmessage = (event) => {
-    console.log(`Message Received From the Server: ${event.data}`);
-  };
+  ws.onmessage = onMessage;
 
   return ws;
 }

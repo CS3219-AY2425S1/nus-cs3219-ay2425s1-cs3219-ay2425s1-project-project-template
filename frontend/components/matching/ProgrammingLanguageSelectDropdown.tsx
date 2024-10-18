@@ -11,6 +11,7 @@ import {
   RubyIcon,
   GoLangIcon,
   PhpIcon,
+  TypeScriptIcon,
 } from "../icons";
 
 import { IconSvgProps } from "@/types";
@@ -22,8 +23,11 @@ interface Language {
 }
 interface ProgrammingLanguageDropdownProps {
   onSelect: (selectedItems: string[]) => void;
+  isInvalid: boolean;
+  errorMessage: string;
 }
 const PROGRAMMING_LANGUAGES: Language[] = [
+  { key: "generalize", label: "Any" },
   { key: "python", label: "Python", Icon: PythonIcon },
   { key: "js", label: "JS", Icon: JavaScriptIcon },
   { key: "java", label: "Java", Icon: JavaIcon },
@@ -32,28 +36,40 @@ const PROGRAMMING_LANGUAGES: Language[] = [
   { key: "ruby", label: "Ruby", Icon: RubyIcon },
   { key: "go", label: "Go", Icon: GoLangIcon },
   { key: "php", label: "PHP", Icon: PhpIcon },
-  { key: "typescript", label: "TypeScript" },
-  { key: "swift", label: "Swift" },
-  { key: "kotlin", label: "Kotlin" },
-  { key: "rust", label: "Rust" },
-  { key: "scala", label: "Scala" },
-  { key: "r", label: "R" },
-  { key: "perl", label: "Perl" },
-  { key: "dart", label: "Dart" },
-  { key: "haskell", label: "Haskell" },
-  { key: "objective-c", label: "Objective-C" },
-  { key: "lua", label: "Lua" },
-  { key: "elixir", label: "Elixir" },
+  { key: "typescript", label: "TypeScript", Icon: TypeScriptIcon },
 ];
 
 export default function ProgrammingLanguageSelectDropdown({
   onSelect,
+  isInvalid,
+  errorMessage,
 }: ProgrammingLanguageDropdownProps) {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const onSelectionChange = (selectedItems: Selection) => {
-    onSelect(Array.from(selectedItems).map((value) => value as string));
+    const selectedValues = Array.from(selectedItems).map(
+      (value) => value as string,
+    );
+
+    if (selectedValues.includes("generalize")) {
+      onSelect(["generalize"]);
+      setSelectedKeys(new Set(["generalize"]));
+
+      return;
+    }
+    onSelect(selectedValues);
     setSelectedKeys(selectedItems);
   };
+
+  let disabledKeys: (string | number)[] = [];
+  const selectedValues = Array.from(selectedKeys).map(
+    (value) => value as string,
+  );
+
+  if (selectedValues.includes("generalize")) {
+    disabledKeys = PROGRAMMING_LANGUAGES.slice(1).map(
+      (language) => language.key,
+    );
+  }
 
   return (
     <Select
@@ -65,6 +81,9 @@ export default function ProgrammingLanguageSelectDropdown({
         value:
           "grid grid-cols-4 gap-y-2 text-center items-center justify-center",
       }}
+      disabledKeys={disabledKeys}
+      errorMessage={errorMessage}
+      isInvalid={isInvalid && selectedValues.length < 1}
       items={PROGRAMMING_LANGUAGES}
       label="Programming Language"
       labelPlacement="outside-left"

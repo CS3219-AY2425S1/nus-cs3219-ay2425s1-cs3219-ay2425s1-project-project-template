@@ -1,13 +1,13 @@
 "use client";
 
-import MatchingForm from "@/components/forms/MatchingForm";
+import MatchingPageBody from "@/components/matching/MatchingPageBody";
 import DefaultLayout from "@/layouts/default";
 
 const MatchPage = () => {
   return (
     <>
       <DefaultLayout isLoggedIn={true}>
-        <MatchingForm />
+        <MatchingPageBody />
       </DefaultLayout>
     </>
   );
