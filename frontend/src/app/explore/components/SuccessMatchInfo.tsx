@@ -31,7 +31,7 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
     const { isOpen, match, onOpenChange, handleAccept } = props;
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-[#8A63D2] via-[#5932C3] to-[#2A185D] text-white border-none rounded-xl shadow-lg">
                 <DialogHeader>
                     <DialogTitle className='mt-10 flex justify-center'>
                         <h1 className='text-2xl'>Match Found!</h1>
@@ -39,30 +39,30 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                 </DialogHeader>
                 <div className="grid gap-4 p-2">
                     <div>
-                        <p className="font-semibold text-sm text-muted-foreground mb-2">Partner:</p>
+                        <p className="text-sm mb-2">Partner:</p>
                         <div className="flex items-center gap-4">
                             <div className="rounded-full bg-secondary p-2">
                                 <UserIcon className="h-8 w-8" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">{match.user}</h4>
+                                <h4 className="text-lg font-semibold">{match.user}</h4>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <p className="font-semibold text-sm text-muted-foreground mb-2">Question:</p>
+                        <p className="text-sm mb-2">Question:</p>
                         <div>
-                            <h4 className="font-semibold">{match.question}</h4>
+                            <h4 className="text-lg font-semibold">{match.question}</h4>
                         </div>
                     </div>
                     <div>
-                        <h5 className="font-semibold text-sm text-muted-foreground mb-2">Difficulty:</h5>
+                        <h5 className="text-sm mb-2">Difficulty:</h5>
                         <div>
-                            <h4 className="font-semibold">{match.difficulty}</h4>
+                            <h4 className="text-lg font-semibold">{match.difficulty}</h4>
                         </div>
                     </div>
                     <div>
-                        <h5 className="font-semibold text-sm text-muted-foreground mb-2">Categories:</h5>
+                        <h5 className="text-sm mb-2">Categories:</h5>
                         <div className="flex flex-wrap gap-2">
                             {match.categories.map((categories, index) => (
                                 <span key={index} className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm">
