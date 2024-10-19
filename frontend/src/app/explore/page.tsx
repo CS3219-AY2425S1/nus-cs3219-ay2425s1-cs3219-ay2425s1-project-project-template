@@ -19,6 +19,8 @@ export default function ExplorePage() {
         }
     }
 
+    let categories = []
+
     useEffect(() => {
         fetchQuestions()
     }, [])

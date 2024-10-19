@@ -14,6 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { io, Socket } from 'socket.io-client';
 
 const MatchingFilters = () => {
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
@@ -23,25 +24,15 @@ const MatchingFilters = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [isMatchFound, setIsMatchFound] = useState(false);
+    const [matchPartner, setMatchPartner] = useState<any | null>(null);
 
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isSearching) {
-            interval = setInterval(() => {
-                setElapsedTime((prev) => prev + 1);
-            }, 1000);
-        } else {
-            setElapsedTime(0);
-        }
-        return () => clearInterval(interval);
-    }, [isSearching])
-
-    const formatTime = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}m ${remainingSeconds}s`;
+    const sampleMatch = {
+        user: "John Doe",
+        question: "Two Sum",
+        language: "Python",
+        difficulty: "Easy",
+        categories: ["Bitmap", "Recursion"],
     }
-
     const languagesList = [
         { label: "Python", value: "Python" },
         { label: "JavaScript", value: "JavaScript" },
@@ -82,24 +73,66 @@ const MatchingFilters = () => {
         { label: "Question 10", value: "Question 10" },
     ]
 
+    let socket: Socket;
+
+    // Setup socket connection and event handlers
+    useEffect(() => {
+        socket = io('http://localhost:5002');
+
+        socket.on('connect', () => {
+            console.log(`Connected with socket ID: ${socket.id}`);
+        });
+
+        socket.on('matchFound', (partner: any) => {
+            console.log(`Match found:`, partner);
+            setMatchPartner(partner);
+            setIsMatchFound(true);
+            setIsSearching(false);
+        });
+
+        socket.on('noMatchFound', (data: any) => {
+            console.log(`No match found:`, data.message);
+            setIsSearching(false);
+        });
+
+        return () => {
+            socket.disconnect();
+        }
+    }, []);
+
     // PUSH USER TO QUEUE
     const onSearchPress = () => {
         setIsSearching(!isSearching);
         if (!isSearching) {
-            setTimeout(() => {
-                setIsMatchFound(true);
-                setIsSearching(false);
-            }, 3000);
+            // Sample match request
+            const matchRequest = {
+                name: "John Doe",
+                difficulty: "Easy",
+                categories: ["Bitmap", "Recursion"],
+            }
+
+            socket.emit('requestMatch', matchRequest);
+            console.log('Sent match request', matchRequest);
         }
     }
 
-    const sampleMatch = {
-        user: "John Doe",
-        question: "Two Sum",
-        language: "Python",
-        difficulty: "Easy",
-        categories: ["Bitmap", "Recursion"],
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}m ${remainingSeconds}s`;
     }
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isSearching) {
+            interval = setInterval(() => {
+                setElapsedTime((prev) => prev + 1);
+            }, 1000);
+        } else {
+            setElapsedTime(0);
+        }
+        return () => clearInterval(interval);
+    }, [isSearching])
 
     return (
         <div className="flex flex-col p-8 gap-4">
