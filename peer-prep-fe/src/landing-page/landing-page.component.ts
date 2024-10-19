@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { CategoryService } from '../services/category.service';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing-page',
@@ -28,7 +29,7 @@ export class LandingPageComponent {
   errorMessage: string | null = null;
   matchButtonActive: boolean = false;
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
     this.categoryLines = this.distributeCategories();
@@ -122,18 +123,22 @@ isMatchButtonActive() {
   const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
   this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
 
-    if (!hasSelectedDifficulty && !hasSelectedTopics) {
-      this.displayError("Please select one difficulty and at least one topic.");
-    } else if (!hasSelectedDifficulty && hasSelectedTopics) {
-      this.displayError("Please select a difficulty.");
-    } else if (hasSelectedDifficulty && !hasSelectedTopics) {
-      this.displayError("Please select at least one topic.");   
-    }  
-    else {
-      this.errorMessage = null;
-      this.matchButtonActive = true
-    }
+  if (!hasSelectedDifficulty && !hasSelectedTopics) {
+    this.displayError("Please select one difficulty and at least one topic.");
+  } else if (!hasSelectedDifficulty && hasSelectedTopics) {
+    this.displayError("Please select a difficulty.");
+  } else if (hasSelectedDifficulty && !hasSelectedTopics) {
+    this.displayError("Please select at least one topic.");   
+  }  
+  else {
+    this.errorMessage = null;
+    this.matchButtonActive = true
   }
+
+  if (this.matchButtonActive) {
+    this.router.navigate(['/loading-screen']);
+  }
+}
 
 displayError(message: string) {
   this.errorMessage = message; 
