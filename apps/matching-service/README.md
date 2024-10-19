@@ -27,7 +27,7 @@ go mod tidy
 - `PORT`: Specifies the port for the WebSocket server. Default is `8081`.
 - `JWT_SECRET`: The secret key used to verify JWT tokens.
 - `MATCH_TIMEOUT`: The time in seconds to wait for a match before timing out.
-- `REDIS_URL`: The URL for the Redis server. Default is `localhost:6379`.
+- `REDIS_URL`: The URL for the Redis server. Default is `localhost:6379`. If you are using docker, use `redis-container:6379`
 
 4. Start a local redis server:
 
@@ -123,12 +123,22 @@ You can open one instance of the HTML file in multiple tabs to simulate multiple
 
 ## Running the Application via Docker
 
+Before running the following commands, ensure that the URL for the Redis server in `.env` file has been changed to `redis-container:6379`
+
 To run the application via Docker, run the following command:
 
 ```bash
-docker build -t matching-service .
+docker build -f Dockerfile -t match-go-app .
 ```
 
 ```bash
-docker run -d -p 8081:8081 -p 6379:6379 --name matching-service-container matching-service
+docker network create redis-go-network
+```
+
+```bash
+docker run -d --name redis-container --network redis-go-network redis
+```
+
+```bash
+docker run -d -p 8081:8081 --name go-app-container --network redis-go-network match-go-app
 ```
