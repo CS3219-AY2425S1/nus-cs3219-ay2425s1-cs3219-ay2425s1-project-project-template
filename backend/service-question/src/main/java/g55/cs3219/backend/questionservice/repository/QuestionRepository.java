@@ -13,8 +13,8 @@ public interface QuestionRepository extends MongoRepository<Question, Integer> {
     List<Question> findAll();
     List<Question> findByCategoriesContaining(String category);
     List<Question> findByDifficulty(String difficulty);
+    List<Question> findByCategoriesContainingAndDifficulty(String category, String difficulty);
 
     @Query(value = "{}", fields = "{ 'categories' : 1 }")
     List<Question> findDistinctCategories();
-
 }
