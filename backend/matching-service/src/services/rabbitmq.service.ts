@@ -123,6 +123,7 @@ class RabbitMQConnection {
                 expiration: ttl,
                 headers: {
                     sentAt: Date.now(),
+                    userId: message.userId,
                 },
             })
 
@@ -267,7 +268,6 @@ class RabbitMQConnection {
         }
     }
 
-
     async addUserToCancelledSet(userId: string, timestamp: string) {
         this.cancelledUsers.add(this.createId(userId, timestamp))
         logger.info(`[Cancel-User] User ${userId} has been blacklisted from matchmaking`)
@@ -293,8 +293,10 @@ class RabbitMQConnection {
 
             // Consume messages
             await this.channel.consume(DLX_QUEUE, (msg) => {
-                if (msg !== null) {
-                    logger.info('[DeadLetter-Queue] Received message:', msg.content.toString()) // For some reason this is always empty. TODO: fix this issue
+                if (msg) {
+                    const userId = msg.properties.headers.userId
+                    const queue = msg.properties.headers['x-first-death-queue']
+                    logger.info(`[DeadLetter-Queue] Received dead letter message from user ${userId} from ${queue}`)
                     this.channel.ack(msg)
                 }
             })
