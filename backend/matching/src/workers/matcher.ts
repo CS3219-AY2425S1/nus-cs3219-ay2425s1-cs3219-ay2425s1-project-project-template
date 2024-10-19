@@ -74,7 +74,9 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = getMatchItems(searchIdentifier, topic, difficulty, requestorUserId, matchedUserId);
+      const { ...matchItems } = await getMatchItems(searchIdentifier, topic, difficulty, requestorUserId, matchedUserId);
+      logger.info(`matchItems: ${JSON.stringify(matchItems)}`);
+      
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
 
@@ -89,6 +91,7 @@ async function processMatch(
 
 async function match() {
   const redisClient = await connectClient(client);
+  
   const stream = await redisClient.xReadGroup(
     STREAM_GROUP,
     STREAM_WORKER,

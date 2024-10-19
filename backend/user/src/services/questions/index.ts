@@ -24,7 +24,7 @@ interface IAddAttemptedQuestionResponse {
       const user = await db
         .select({ attemptedQuestions: users.attemptedQuestions })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.username, userId))
         .limit(1);
   
       if (user.length === 0) {
@@ -49,14 +49,7 @@ interface IAddAttemptedQuestionResponse {
         .set({
           attemptedQuestions: sql`array_append(${users.attemptedQuestions}, ${questionId})`,
         })
-        .where(eq(users.id, userId));
-  
-      if (result.length === 0) {
-        return {
-          code: StatusCodes.NOT_FOUND,
-          error: new Error('Failed to update user'),
-        };
-      }
+        .where(eq(users.username, userId))
   
       return {
         code: StatusCodes.OK,
@@ -76,7 +69,7 @@ export const getAttemptedQuestionsService = async (userId: string): Promise<IGet
     const result = await db
       .select({ attemptedQuestions: users.attemptedQuestions })
       .from(users)
-      .where(eq(users.id, userId))
+      .where(eq(users.username, userId))
       .limit(1);
 
     if (result.length === 0) {

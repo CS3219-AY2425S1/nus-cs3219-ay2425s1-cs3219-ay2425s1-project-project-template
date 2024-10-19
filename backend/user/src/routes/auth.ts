@@ -2,7 +2,6 @@ import express from 'express';
 
 import { checkEmailValid, checkUsernameValid, login, logout, register } from '@/controllers/auth';
 import { limiter } from '@/lib/ratelimit';
-import { getAttemptedQuestions, addAttemptedQuestion } from '@/controllers/questions';
 
 const router = express.Router();
 
@@ -12,8 +11,7 @@ router.post('/register', register);
 router.post('/username-valid', checkUsernameValid);
 router.post('/email-valid', checkEmailValid);
 
-router.post('/attempted-questions', getAttemptedQuestions)
-router.post('/attempt-question', addAttemptedQuestion)
+
 router.use(limiter);
 
 export default router;

@@ -7,6 +7,13 @@ interface IGetRandomQuestionPayload {
   topic?: string;
 }
 
+
+interface IServiceResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: { message: string };
+  }
+
 interface IQuestion {
   id: number;
   title: string;
@@ -15,25 +22,19 @@ interface IQuestion {
   topic: string[];
 }
 
-interface IServiceResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: { message: string };
-}
-
 interface IMatchItemsResponse {
-  roomId: string;
-  questionId: number;
-  question: IQuestion;
+    roomName: string;
+    questionId: number;
+    question: IQuestion;
 }
 
 export const getMatchItems = async (
-  searchIdentifier: IMatchType,
-  topic?: string,
-  difficulty?: string,
-  userId1?: string,
-  userId2?: string
-): Promise<IServiceResponse<IMatchItemsResponse>> => {
+    searchIdentifier: IMatchType,
+    topic?: string,
+    difficulty?: string,
+    userId1?: string,
+    userId2?: string
+): Promise<IMatchItemsResponse | undefined> => {
   const userEndpoint = `${process.env.USER_SERVER_ENDPOINT}`;
   const questionEndpoint = `${process.env.QUESTION_SERVER_ENDPOINT}`;
   const collabServerEndpoint = `${process.env.COLLAB_SERVER_ENDPOINT}`;
@@ -68,11 +69,11 @@ export const getMatchItems = async (
 
     // Query the question endpoint using the /random endpoint
     const questionResponse = await axios.post<IServiceResponse<{ question: IQuestion }>>(
-      `${questionEndpoint}/random`,
+      `${questionEndpoint}/questions/random`,
       payload
     );
 
-    if (!questionResponse.data.success || !questionResponse.data.data?.question) {
+    if (questionResponse.status !== 200 || !questionResponse.data.data) {
       throw new Error(questionResponse.data.error?.message || 'Failed to get a random question');
     }
 
@@ -85,56 +86,48 @@ export const getMatchItems = async (
     ]);
 
     // Query the collab server for the room ID
-    const roomResponse = await axios.get<IServiceResponse<{ roomId: string }>>(
-      `${collabServerEndpoint}/rooms`,
+    const roomResponse = await axios.get<{ roomName: string }>(
+      `${collabServerEndpoint}/room`,
       {
         params: {
-          userId1,
-          userId2,
-          questionId: questionId.toString(),
+          userid1: userId1,
+          userid2: userId2,
+          questionid: questionId.toString(),
         }
       }
-    );
-
-    if (!roomResponse.data.success || !roomResponse.data.data?.roomId) {
-      throw new Error(roomResponse.data.error?.message || 'Failed to create room');
+    );    
+    if (roomResponse.status !== 200 || !roomResponse.data?.roomName) {
+      throw new Error('Failed to create room');
     }
 
+    console.log("Succesfully got match items");
     return {
-      success: true,
-      data: {
-        roomId: roomResponse.data.data.roomId,
+        roomName: roomResponse.data.roomName,
         questionId: questionId,
         question: questionResponse.data.data.question,
       }
-    };
   } catch (error) {
     console.error('Error in getMatchItems:', error);
-    return {
-      success: false,
-      error: {
-        message: error instanceof Error ? error.message : 'An unknown error occurred',
-      }
-    };
-  }
 };
+}
 
 async function fetchAttemptedQuestions(userEndpoint: string, userId: string): Promise<number[]> {
-  const response = await axios.get<IServiceResponse<{ attemptedQuestions: number[] }>>(
+  const response = await axios.get<number[]>(
     `${userEndpoint}/user/${userId}/attempted-questions`
   );
-  if (!response.data.success || !response.data.data?.attemptedQuestions) {
+  if (response.status !== 200 || !response.data) {
     throw new Error(`Failed to fetch attempted questions for user ${userId}`);
   }
-  return response.data.data.attemptedQuestions;
+  return response.data || []
 }
 
 async function updateAttemptedQuestions(userEndpoint: string, userId: string, questionId: number): Promise<void> {
-  const response = await axios.post<IServiceResponse<{ message: string }>>(
-    `${userEndpoint}/user/${userId}/attempted-question`,
+  const response = await axios.post<unknown>(
+    `${userEndpoint}/user/${userId}/attempt-question`,
     { questionId }
   );
-  if (!response.data.success) {
-    throw new Error(`Failed to update attempted questions for user ${userId}`);
+  if (response.status !== 200 || !response.data) {
+    throw new Error(`Failed to fetch attempted questions for user ${userId}`);
   }
+    return;
 }
