@@ -13,7 +13,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 sio = socketio.Client()
-NOTIFICATION_SERVICE = NOTIFICATION_SERVICE = os.getenv('NOTIFICATION_SERVICE', 'http://notification-service:5000')
+NOTIFICATION_SERVICE = NOTIFICATION_SERVICE = os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
 
 PORT = int(os.environ.get('PORT', 5001))
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
