@@ -1,25 +1,18 @@
 import { Model, model } from 'mongoose'
 import matchSchema from './matching.model'
 import { IMatch } from '../types/IMatch'
-import { Category, Complexity } from '@repo/user-types'
+import { MatchDto } from '../types/MatchDto'
 
 const matchModel: Model<IMatch> = model('Match', matchSchema)
 
-export async function createMatch(
-    user1: string,
-    user2: string,
-    complexity: Complexity,
-    categories: Category[],
-    timestamp: number
-): Promise<IMatch> {
-    const questionId = '1fkjsn92ehd' // TODO: get random question id from question service
-    return matchModel.create({
-        user1Id: user1,
-        user2Id: user2,
-        questionId: questionId,
-        isCompleted: false,
-        complexity: complexity,
-        topic: categories,
-        createdAt: new Date(timestamp),
+export async function createMatch(dto: MatchDto): Promise<IMatch> {
+    return matchModel.create(dto)
+}
+
+export async function isUserInMatch(userId: string): Promise<boolean> {
+    const match = await matchModel.findOne({
+        $or: [{ user1Id: userId }, { user2Id: userId }],
+        $and: [{ isCompleted: false }],
     })
+    return !!match
 }

@@ -5,7 +5,7 @@ import { IUserQueueMessage } from '../types/IUserQueueMessage'
 import logger from '../common/logger.util'
 import { Proficiency } from '@repo/user-types'
 import { IMatch } from '../types/IMatch'
-import { createMatch } from '../models/matching.repository'
+import { handleCreateMatch } from '../controllers/matching.controller'
 
 class RabbitMQConnection {
     connection!: Connection
@@ -256,7 +256,7 @@ class RabbitMQConnection {
                     categories: [content.topic],
                     complexity: content.complexity,
                 }
-                await createMatch(match.user1Id, match.user2Id, match.complexity, match.categories, Date.now())
+                await handleCreateMatch(match as IMatch)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {
