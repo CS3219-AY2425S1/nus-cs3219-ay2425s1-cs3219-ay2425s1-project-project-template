@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "27017:27017"
+    command: mongod --quiet --logpath /tmp/mongo.log --setParameter logLevel=0 > /dev/null 2>&1
     environment:
     - MONGO_INITDB_DATABASE=questions_db
     - INIT_QUESTION_COLLECTION=questions

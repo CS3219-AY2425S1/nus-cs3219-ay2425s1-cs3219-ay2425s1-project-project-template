@@ -6,7 +6,7 @@ from redis import Redis
 from structlog import get_logger
 
 from matching_service.common import MatchRequest
-from matching_service.config import RedisSettings, settings
+from matching_service.config import Channels, RedisSettings, settings
 
 logger = get_logger()
 
@@ -19,7 +19,7 @@ TODO
 
 class Matchmaker:
     def __init__(self):
-        self.channel = RedisSettings.Channels.REQUESTS
+        self.channel = Channels.REQUESTS
         self.client: Redis = Redis.from_url(RedisSettings.redis_url(self.channel))
         self.timeout: int = settings.MATCH_TIMEOUT
         self.pubsub = self.client.pubsub()
@@ -67,7 +67,6 @@ class Matchmaker:
         self.r_thread.stop()
         self.r_thread.join(timeout=1.0)
         self.pubsub.close()
-
 
 
 if __name__ == "__main__":

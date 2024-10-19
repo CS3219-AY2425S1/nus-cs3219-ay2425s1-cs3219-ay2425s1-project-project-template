@@ -40,11 +40,12 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-class RedisSettings:
-    class Channels(Enum):
-        REQUESTS: str = "requests"
-        MATCHES: str = "matches"
+class Channels(Enum):
+    REQUESTS: str = "requests"
+    MATCHES: str = "matches"
 
+
+class RedisSettings:
     db_map = {e.value: i for i, e in enumerate(Channels)}
 
     def redis_url(chan: Channels) -> str:

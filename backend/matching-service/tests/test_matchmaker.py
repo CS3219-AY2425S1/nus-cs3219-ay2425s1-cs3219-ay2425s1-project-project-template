@@ -7,8 +7,9 @@ import time
 from threading import Thread
 
 import pytest
+from matching_service.api import request_match
 from matching_service.common import MatchRequest
-from matching_service.matchmaker import Matchmaker, request_match
+from matching_service.matchmaker import Matchmaker
 from redis import Redis
 from testcontainers.redis import RedisContainer
 

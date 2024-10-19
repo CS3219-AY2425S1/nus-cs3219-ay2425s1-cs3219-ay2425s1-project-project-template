@@ -18,9 +18,9 @@ class QuestionGrpc(pb2_grpc.QuestionServicer):
     async def QuestionsExists(
         self, request: pb2.QuestionsExistsRequest, context: grpc.aio.ServicerContext
     ) -> pb2.QuestionsExistsReply:
-        logger.info(f"[question-grpc] questionExists: {request.topic}, {request.difficulty}")
         questions = await get_questions(topic=request.topic, difficulty=request.difficulty)
         num_questions = len(questions)
+        logger.info(f"[question-grpc] questionExists: {request.topic}, {request.difficulty}: {num_questions} found!")
         return pb2.QuestionsExistsReply(numQuestions=num_questions)
 
 
