@@ -1,8 +1,6 @@
 package com.example.backend.websocket.kafka.consumers;
 
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import com.example.backend.websocket.WebSocketService;
@@ -21,30 +19,23 @@ public class MatchRequestConsumer {
     }
 
     @KafkaListener(topics = "SUCCESSFUL_MATCHES")
-    public void listen(@Header(KafkaHeaders.RECEIVED_KEY) String key, String value) {
+    public void listen(String value) {
         System.out.println("Received successful match: " + value);
-        System.out.println("Informing user " + key + " about the match");
         
         String[] userInformation = value.split("_");
         String user1Id = userInformation[0];
         String user1Email = userInformation[1];
         String user2Id = userInformation[2];
         String user2Email = userInformation[3];
-        
-        MatchNotification notification;
-
-        if (key.equals(user1Id)) {
-            notification = new MatchNotification(user2Email);
-        } else if (key.equals(user2Id)) {
-            notification = new MatchNotification(user1Email);
-        } else {
-            System.out.println("Unexpected key: " + key);
-            return;
-        }
+    
+        MatchNotification user1Notification = new MatchNotification(user2Email);
+        MatchNotification user2Notification = new MatchNotification(user1Email);
 
         try {
-            String jsonNotification = objectMapper.writeValueAsString(notification);
-            webSocketService.notifyUser(key, jsonNotification);
+            String jsonNotification1 = objectMapper.writeValueAsString(user1Notification);
+            String jsonNotification2 = objectMapper.writeValueAsString(user2Notification);
+            webSocketService.notifyUser(user1Id, jsonNotification1);
+            webSocketService.notifyUser(user2Id, jsonNotification2);
         } catch (JsonProcessingException e) {
             System.err.println("Error converting notification to JSON: " + e.getMessage());
         }

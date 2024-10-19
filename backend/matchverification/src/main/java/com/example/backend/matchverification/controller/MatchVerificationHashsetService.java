@@ -4,7 +4,10 @@ import java.util.HashSet;
 
 import org.springframework.stereotype.Service;
 
+import lombok.Data;
+
 @Service
+@Data
 public class MatchVerificationHashsetService {
     private final HashSet<String> seenMatchRequests = new HashSet<>();
 
@@ -14,9 +17,5 @@ public class MatchVerificationHashsetService {
 
     public boolean isSeen(String matchRequest) {
         return seenMatchRequests.contains(matchRequest);
-    }
-
-    public HashSet<String> getSeenMatchRequests() {
-        return seenMatchRequests;
     }
 }

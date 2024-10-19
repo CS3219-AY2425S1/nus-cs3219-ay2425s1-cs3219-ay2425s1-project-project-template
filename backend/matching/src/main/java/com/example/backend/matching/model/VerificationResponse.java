@@ -2,6 +2,9 @@ package com.example.backend.matching.model;
 
 import java.util.List;
 
+import lombok.Data;
+
+@Data
 public class VerificationResponse {
     private String status;
     private String message;
@@ -14,36 +17,4 @@ public class VerificationResponse {
         this.validMatches = validMatches;
         this.invalidMatches = invalidMatches;
     }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public List<String> getValidMatches() {
-        return validMatches;
-    }
-
-    public void setValidMatches(List<String> validMatches) {
-        this.validMatches = validMatches;
-    }
-
-    public List<String> getInvalidMatches() {
-        return invalidMatches;
-    }
-
-    public void setInvalidMatches(List<String> invalidMatches) {
-        this.invalidMatches = invalidMatches;
-    } 
 }

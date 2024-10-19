@@ -18,7 +18,7 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");  // Kafka broker address
-        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "matching-service");  // Group ID for consumers
+        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "match-verification-service");  // Group ID for consumers
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);  // Key deserializer
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);  // Value deserializer
         return new DefaultKafkaConsumerFactory<>(configProps);

@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example.backend</groupId>
-    <artifactId>matching</artifactId>
+    <artifactId>matchverification</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>matching</name>
+    <name>matchverification</name>
     <description>Matching Verification Service for PeerPrep</description>
     <url/>
     <licenses>
@@ -67,6 +67,13 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
+
+        <dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.20</version>
+            <scope>provided</scope>
+		</dependency>
     </dependencies>
 
     <build>

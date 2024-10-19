@@ -21,5 +21,6 @@ public class WebSocketService {
             messagingTemplate.convertAndSendToUser(userId, "/queue/matches", message);
         } else {
             System.out.println("User " + userId + " is not connected.");
-        }    }
+        }    
+    }
 }

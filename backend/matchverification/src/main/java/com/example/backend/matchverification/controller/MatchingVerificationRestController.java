@@ -3,22 +3,24 @@ package com.example.backend.matchverification.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.matchverification.kafka.producers.MatchVerificationProducer;
+import com.example.backend.matchverification.model.Match;
 import com.example.backend.matchverification.model.VerificationResponse;
-
+import com.example.backend.matchverification.repository.MatchesRepository;
 
 @RestController
 @RequestMapping("/api")
 public class MatchingVerificationRestController {
 
-    
     private final MatchVerificationHashsetService invalidMatchesHashset;
+    private MatchVerificationProducer matchVerificationProducer;
+    private MatchesRepository matchesRepository;
 
     private enum VerificationStatus {
         SUCCESS,
@@ -26,9 +28,10 @@ public class MatchingVerificationRestController {
         CONFLICT_BOTH_INVALID
     }
 
-    @Autowired
-    public MatchingVerificationRestController(MatchVerificationHashsetService matchRequestService) {
+    public MatchingVerificationRestController(MatchVerificationHashsetService matchRequestService, MatchVerificationProducer matchVerificationProducer, MatchesRepository matchesRepository) {
         this.invalidMatchesHashset = matchRequestService;
+        this.matchVerificationProducer = matchVerificationProducer;
+        this.matchesRepository = matchesRepository;
     }
 
     @GetMapping("")
@@ -49,13 +52,15 @@ public class MatchingVerificationRestController {
 
         String matchReq1 = userMatches.get(0);
         String matchReq2 = userMatches.get(1);
-        String wsID1 = matchReq1.split("_")[0];
-        String wsID2 = matchReq2.split("_")[0];
+        String userId1 = matchReq1.split("_")[0];
+        String userEmail1 = matchReq1.split("_")[1];
+        String userId2 = matchReq2.split("_")[0];
+        String userEmail2 = matchReq2.split("_")[1];
 
         System.out.println("Verifying match requests: " + matchReq1 + " and " + matchReq2);
 
-        boolean match1IsInvalid = invalidMatchesHashset.isSeen(wsID1);
-        boolean match2IsInvalid = invalidMatchesHashset.isSeen(wsID2);
+        boolean match1IsInvalid = invalidMatchesHashset.isSeen(userId1);
+        boolean match2IsInvalid = invalidMatchesHashset.isSeen(userId2);
         System.out.println("Match1 status: " + !match1IsInvalid + " Match2 status: " + !match2IsInvalid);
 
         List<String> validMatches = new ArrayList<>();
@@ -86,10 +91,12 @@ public class MatchingVerificationRestController {
         } else {
             System.out.println("VALID MATCH");
             message = "Both match requests are new and valid.";
-            invalidMatchesHashset.addToSeenRequests(wsID1); // Add wsid
-            invalidMatchesHashset.addToSeenRequests(wsID2); // Add wsid
+            invalidMatchesHashset.addToSeenRequests(userId1); // Add userId1
+            invalidMatchesHashset.addToSeenRequests(userId2); // Add userId2
+            String successfulMatch = userId1 + "_" + userEmail1 + "_" + userId2 + "_" + userEmail2;
+            matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", successfulMatch, successfulMatch);
+            matchesRepository.save(new Match(userEmail1, userEmail2));
         }
-
 
         return new VerificationResponse(
             status,
