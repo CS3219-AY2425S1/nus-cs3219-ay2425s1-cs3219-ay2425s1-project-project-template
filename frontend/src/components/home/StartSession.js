@@ -107,20 +107,21 @@ const StartSession = ({ username }) => {
 
   // WebSocket to listen for match events
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3002'); // Backend WebSocket endpoint
-  
+    const ws = new WebSocket(`ws://localhost:3002?username=${username}`); // Pass the username as a query parameter
+
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.matchFound && data.user1 && data.user2) {
-        setMatchFound(true);
-        setMatchedUser({ user1: data.user1, user2: data.user2 });
-        setShowPopup(true); // Ensure popup remains open when match is found
-        setNoMatchFound(false);
-      }
+        const data = JSON.parse(event.data);
+        if (data.matchFound && (data.user1 === username || data.user2 === username)) {
+            setMatchFound(true);
+            setMatchedUser({ user1: data.user1, user2: data.user2 });
+            setShowPopup(true); // Show the popup for matched users
+            setNoMatchFound(false);
+        }
     };
-  
+
     return () => ws.close(); // Clean up WebSocket on component unmount
-  }, []);
+}, [username]);
+
 
   return (
     <div className="start-session-container">

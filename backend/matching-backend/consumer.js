@@ -20,6 +20,16 @@ async function findMatch(user, notifyMatch) {
         const matchedUser = waitingUsers[matchIndex];
         console.log(`Matched users: ${user.username} and ${matchedUser.username}`);
         
+        // Clear the timeout for the current user if it exists
+        if (user.timeoutId) {
+            clearTimeout(user.timeoutId);
+        }
+
+        // Clear the timeout for the matched user if it exists
+        if (matchedUser.timeoutId) {
+            clearTimeout(matchedUser.timeoutId);
+        }
+
         // Remove matched users from waiting list
         waitingUsers.splice(matchIndex, 1);
         notifyMatch(user, matchedUser);
@@ -31,13 +41,7 @@ async function findMatch(user, notifyMatch) {
     }
 
     // No match found, add user to waiting list
-    waitingUsers.push(user);
-    console.log(`User ${user.username} added to waiting list.`);
-
-    // Log queue status after adding the user
-    console.log(`Queue after adding user: ${waitingUsers.length} users waiting`);
-
-    setTimeout(() => {
+    user.timeoutId = setTimeout(() => {
         const userIndex = waitingUsers.findIndex(waitingUser => waitingUser.username === user.username);
         if (userIndex !== -1) {
             waitingUsers.splice(userIndex, 1);
@@ -47,6 +51,13 @@ async function findMatch(user, notifyMatch) {
             console.log(`Queue after removing user due to timeout: ${waitingUsers.length} users waiting`);
         }
     }, 30000);
+    
+    waitingUsers.push(user);
+    console.log(`User ${user.username} added to waiting list.`);
+
+    // Log queue status after adding the user
+    console.log(`Queue after adding user: ${waitingUsers.length} users waiting`);
+
 
     return false; // Return false if no match was found
 }
@@ -90,11 +101,11 @@ async function startConsumer(channel, notifyMatch) {
 function cancelUser(username) {
     const userIndex = waitingUsers.findIndex(user => user.username === username);
     if (userIndex !== -1) {
-      waitingUsers.splice(userIndex, 1);
-      console.log(`User ${username} cancelled and removed from waiting list`);
+        waitingUsers.splice(userIndex, 1); // Remove the user from the queue
+        console.log(`User ${username} cancelled and removed from waiting list`);
     } else {
-      console.log(`User ${username} not found in waiting list`);
+        console.log(`User ${username} not found in waiting list`);
     }
-  }
+}
 
 module.exports = startConsumer;

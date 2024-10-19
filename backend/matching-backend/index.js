@@ -28,17 +28,52 @@ async function initRabbitMQ() {
     }
 }
 
+let clients = {};
+
+// Initialize the WebSocket server
+wss = new WebSocket.Server({ noServer: true }); // Using noServer to handle upgrades manually
+
+const server = app.listen(PORT, () => {
+    console.log(`Matching service running on http://localhost:${PORT}`);
+    initRabbitMQ();
+});
+
+server.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request); // Emit connection event
+    });
+});
+
+// WebSocket connection event
+wss.on('connection', (ws, req) => {
+    const params = new URLSearchParams(req.url.split('?')[1]); // Extract query params from the URL
+    const username = params.get('username'); // Extract the username from the query
+
+    if (username) {
+        clients[username] = ws; // Store WebSocket connection by username
+    }
+
+    ws.on('close', () => {
+        delete clients[username]; // Remove the client when they disconnect
+    });
+});
+
 // WebSocket to notify matched users
 function notifyMatch(user1, user2) {
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-                matchFound: true,
-                user1: user1.username,
-                user2: user2.username
-            }));
-        }
-    });
+    if (clients[user1.username]) {
+        clients[user1.username].send(JSON.stringify({
+            matchFound: true,
+            user1: user1.username,
+            user2: user2.username
+        }));
+    }
+    if (clients[user2.username]) {
+        clients[user2.username].send(JSON.stringify({
+            matchFound: true,
+            user1: user1.username,
+            user2: user2.username
+        }));
+    }
 }
 
 async function addToQueue(matchData) {
@@ -79,25 +114,17 @@ app.post('/api/cancel-match', (req, res) => {
     // Publish a message to the queue to remove the user
     cancelMatch(username);
     res.status(200).send({ status: 'Cancel request sent', username });
-  });
+});
   
-  // Function to notify the consumer to cancel the user
-  function cancelMatch(username) {
+// Function to notify the consumer to cancel the user
+function cancelMatch(username) {
     if (!channel) {
-      console.error('Channel is not initialized');
-      return;
+        console.error('Channel is not initialized');
+        return;
     }
-    
+
     const cancelQueue = 'cancel-queue';
     channel.assertQueue(cancelQueue, { durable: true });
     channel.sendToQueue(cancelQueue, Buffer.from(JSON.stringify({ username })));
     console.log(`Cancel request for ${username} sent to queue.`);
-  }
-  
-
-  const server = app.listen(PORT, () => {
-    console.log(`Matching service running on http://localhost:${PORT}`);
-    initRabbitMQ();
-});
-
-wss = new WebSocket.Server({ server });
+}
