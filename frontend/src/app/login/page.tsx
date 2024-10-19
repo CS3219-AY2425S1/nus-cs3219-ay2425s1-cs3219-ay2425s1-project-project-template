@@ -1,0 +1,89 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+const LoginPage = () => {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      setLoading(false);
+      router.push('/profile');
+    } catch (error) {
+      setLoading(false);
+      console.error('Login failed', error);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-md p-8 bg-white shadow-md rounded-md">
+        <h1 className="text-2xl font-bold text-center mb-6">PeerPrep</h1>
+
+        <form onSubmit={handleLogin}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium mb-1">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
+          </Button>
+        </form>
+
+        <div className="flex justify-between mt-4">
+          <Link href="/forgot-password" className="text-sm hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+
+        <div className="flex items-center my-4">
+          <div className="border-t flex-grow"></div>
+          <span className="mx-4 text-sm">or</span>
+          <div className="border-t flex-grow"></div>
+        </div>
+
+        <p className="mt-4 text-sm text-center">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;

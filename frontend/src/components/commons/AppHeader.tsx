@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserIcon, SettingsIcon, LogOutIcon, User, Settings, LogOut } from "lucide-react";
+import { User, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"; // Adjust the path as per your project structure
+} from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
