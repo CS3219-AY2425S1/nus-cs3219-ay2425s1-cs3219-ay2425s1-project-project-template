@@ -13,17 +13,6 @@ import java.util.List;
 
 @Configuration
 public class RabbitMQConfig {
-
-    @Bean
-    public RabbitAdmin rabbitAdmin(RabbitTemplate rabbitTemplate) {
-        return new RabbitAdmin(rabbitTemplate);
-    }
-
-    @Bean
-    public TopicExchange matchingExchange() {
-        return new TopicExchange("matchingExchange");
-    }
-
     @Bean
     public Queue matchingQueue() {
         return new Queue("matchingQueue", false);
