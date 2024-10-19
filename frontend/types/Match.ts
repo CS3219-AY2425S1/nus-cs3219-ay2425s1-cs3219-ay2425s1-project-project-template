@@ -2,7 +2,7 @@ import { QuestionComplexity } from "./Question";
 import { QuestionTopic } from "./Question";
 
 export type MatchRequest = {
-  userID: "string";
+  userId: string;
   topic: QuestionTopic;
   difficulty: QuestionComplexity;
   timestamp: number;
