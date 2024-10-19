@@ -2,37 +2,21 @@ package processes
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"matching-service/models"
 	"strings"
-	"sync"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var mutex sync.Mutex // Mutex for concurrency safety
-
-// To simulate generating a random matchID for collaboration service (TODO: Future)
-func GenerateMatchID() (string, error) {
-	b := make([]byte, 16) // 16 bytes = 128 bits
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	matchID := hex.EncodeToString(b)
-	return matchID, nil
-}
-
 // Print existing users in the matching queue
 func PrintMatchingQueue(client *redis.Client, status string, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
-	users, err := client.LRange(ctx, "matchmaking_queue", 0, -1).Result()
+	users, err := client.LRange(ctx, matchmakingQueueRedisKey, 0, -1).Result()
 	if err != nil {
 		log.Println("Error retrieving users from queue:", err)
 		return
@@ -49,15 +33,12 @@ func PrintMatchingQueue(client *redis.Client, status string, ctx context.Context
 	log.Println("Redis Queue (" + status + "): " + concatenatedUsers.String())
 }
 
-//
-
 // Enqueue a user into the matchmaking queue
 func EnqueueUser(client *redis.Client, username string, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
-	key := "matchmaking_queue"
-	err := client.LPush(ctx, key, username).Err()
+	err := client.LPush(ctx, matchmakingQueueRedisKey, username).Err()
 	if err != nil {
 		log.Println("Error enqueuing user:", err)
 	}
@@ -65,11 +46,10 @@ func EnqueueUser(client *redis.Client, username string, ctx context.Context) {
 
 // Remove user from the matchmaking queue
 func DequeueUser(client *redis.Client, username string, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
-	key := "matchmaking_queue"
-	err := client.LRem(ctx, key, 1, username).Err()
+	err := client.LRem(ctx, matchmakingQueueRedisKey, 1, username).Err()
 	if err != nil {
 		log.Println("Error dequeuing user:", err)
 	}
@@ -77,8 +57,8 @@ func DequeueUser(client *redis.Client, username string, ctx context.Context) {
 
 // Add user into each specified topic set based on the topics selected by users
 func AddUserToTopicSets(client *redis.Client, request models.MatchRequest, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
 	for _, topic := range request.Topics {
 		err := client.SAdd(ctx, strings.ToLower(topic), request.Username).Err()
@@ -90,8 +70,8 @@ func AddUserToTopicSets(client *redis.Client, request models.MatchRequest, ctx c
 
 // Remove user from each specified topic set based on the topics selected by users
 func RemoveUserFromTopicSets(client *redis.Client, username string, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
 	request, err := GetUserDetails(client, username, ctx)
 	if err != nil {
@@ -109,8 +89,8 @@ func RemoveUserFromTopicSets(client *redis.Client, username string, ctx context.
 
 // Add user details into hashset in Redis
 func StoreUserDetails(client *redis.Client, request models.MatchRequest, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
 	topicsJSON, err := json.Marshal(request.Topics)
 	if err != nil {
@@ -175,8 +155,8 @@ func GetUserDetails(client *redis.Client, username string, ctx context.Context) 
 
 // Remove user details from HashSet
 func RemoveUserDetails(client *redis.Client, username string, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
 	err := client.Del(ctx, username).Err()
 	if err != nil {
@@ -186,8 +166,8 @@ func RemoveUserDetails(client *redis.Client, username string, ctx context.Contex
 
 // Find the first matching user based on topics
 func FindMatchingUser(client *redis.Client, username string, ctx context.Context) (string, string, string, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
 	user, err := GetUserDetails(client, username, ctx)
 	if err != nil {
@@ -207,7 +187,7 @@ func FindMatchingUser(client *redis.Client, username string, ctx context.Context
 					return "", "", "", err
 				}
 
-				commonDifficulty := GetCommonDifficulty(user.Difficulties, matchedUser.Difficulties)
+				commonDifficulty := models.GetCommonDifficulty(user.Difficulties, matchedUser.Difficulties)
 				return potentialMatch, topic, commonDifficulty, nil
 			}
 		}
@@ -216,72 +196,12 @@ func FindMatchingUser(client *redis.Client, username string, ctx context.Context
 	return "", "", "", nil
 }
 
-// Get the highest common difficulty between two users, if no common difficulty found, choose the min of the 2 arrays
-func GetCommonDifficulty(userArr []string, matchedUserArr []string) string {
-	commonDifficulties := make([]int, 3)
-	for i := range commonDifficulties {
-		commonDifficulties[i] = 0
-	}
-
-	for _, difficulty := range userArr {
-		formattedDifficulty := strings.ToLower(difficulty)
-		switch formattedDifficulty {
-		case "easy":
-			commonDifficulties[0]++
-		case "medium":
-			commonDifficulties[1]++
-		case "hard":
-			commonDifficulties[2]++
-		default:
-			log.Println("Unknown difficulty specified: " + difficulty)
-		}
-	}
-
-	for _, difficulty := range matchedUserArr {
-		formattedDifficulty := strings.ToLower(difficulty)
-		switch formattedDifficulty {
-		case "easy":
-			commonDifficulties[0]++
-		case "medium":
-			commonDifficulties[1]++
-		case "hard":
-			commonDifficulties[2]++
-		default:
-			log.Println("Unknown difficulty specified: " + difficulty)
-		}
-	}
-
-	lowest := "Hard"
-	for i := 2; i >= 0; i-- {
-		if commonDifficulties[i] == 2 {
-			switch i {
-			case 0:
-				return "Easy"
-			case 1:
-				return "Medium"
-			case 2:
-				return "Hard"
-			}
-		} else if commonDifficulties[i] > 0 {
-			switch i {
-			case 0:
-				lowest = "Easy"
-			case 1:
-				lowest = "Medium"
-			case 2:
-				lowest = "Hard"
-			}
-		}
-	}
-	return lowest
-}
-
 func CleanUpUser(client *redis.Client, username string, ctx context.Context) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
+
 	// Dequeue user
-	key := "matchmaking_queue"
-	err := client.LRem(ctx, key, 1, username).Err()
+	err := client.LRem(ctx, matchmakingQueueRedisKey, 1, username).Err()
 	if err != nil {
 		log.Println("Error dequeuing user:", err)
 	}
@@ -309,19 +229,17 @@ func CleanUpUser(client *redis.Client, username string, ctx context.Context) {
 }
 
 func PopAndInsert(client *redis.Client, username string, ctx context.Context) {
-	// Acquire Lock
-	mutex.Lock()
-	defer mutex.Unlock()
+	redisAccessMutex.Lock()
+	defer redisAccessMutex.Unlock()
 
 	// Pop user
-	username, err := client.LPop(ctx, "matchmaking_queue").Result()
+	username, err := client.LPop(ctx, matchmakingQueueRedisKey).Result()
 	if err != nil {
 		log.Println("Error popping user from queue:", err)
 	}
 
 	// Insert back in queue
-	key := "matchmaking_queue"
-	err = client.LPush(ctx, key, username).Err()
+	err = client.LPush(ctx, matchmakingQueueRedisKey, username).Err()
 	if err != nil {
 		log.Println("Error enqueuing user:", err)
 	}

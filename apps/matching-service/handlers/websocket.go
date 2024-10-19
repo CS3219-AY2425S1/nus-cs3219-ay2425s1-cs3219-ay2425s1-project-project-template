@@ -123,44 +123,42 @@ func createTimeoutContext() (context.Context, context.CancelFunc, error) {
 	return ctx, cancel, nil
 }
 
+// Cleans up the data associated with the user before ending the websocket connection.
+// If user is already removed, then nothing happens.
+func cleanUpUser(username string) {
+	// Cleanup Redis
+	processes.CleanUpUser(processes.GetRedisClient(), username, context.Background())
+
+	// Removes the match context and active
+	if cancelFunc, exists := matchContexts[username]; exists {
+		cancelFunc()
+		delete(matchContexts, username)
+	}
+	if _, exists := activeConnections[username]; exists {
+		delete(activeConnections, username)
+	}
+	if _, exists := matchFoundChannels[username]; exists {
+		delete(matchFoundChannels, username)
+	}
+}
+
 // waitForResult waits for a match result, timeout, or cancellation.
 func waitForResult(ws *websocket.Conn, ctx, timeoutCtx, matchCtx context.Context, matchFoundChan chan models.MatchFound, username string) {
 	select {
 	case <-ctx.Done():
 		log.Println("Matching cancelled")
-		// Cleanup Redis
-		processes.CleanUpUser(processes.GetRedisClient(), username, context.Background())
-		// Remove the match context and active
-		if _, exists := matchContexts[username]; exists {
-			delete(matchContexts, username)
-		}
-		if _, exists := activeConnections[username]; exists {
-			delete(activeConnections, username)
-		}
-		if _, exists := matchFoundChannels[username]; exists {
-			delete(matchFoundChannels, username)
-		}
-
+		cleanUpUser(username)
 		return
 	case <-timeoutCtx.Done():
 		log.Println("Connection timed out")
-		// Cleanup Redis
-		processes.CleanUpUser(processes.GetRedisClient(), username, context.Background())
-		// Remove the match context and active
-		if _, exists := matchContexts[username]; exists {
-			delete(matchContexts, username)
-		}
-		if _, exists := activeConnections[username]; exists {
-			delete(activeConnections, username)
-		}
-		if _, exists := matchFoundChannels[username]; exists {
-			delete(matchFoundChannels, username)
-		}
-
 		sendTimeoutResponse(ws)
+		cleanUpUser(username)
 		return
 	case <-matchCtx.Done():
 		log.Println("Match found for user: " + username)
+
+		// NOTE: user is already cleaned-up in the other process,
+		// so there is no need to clean up again.
 		return
 	case result, ok := <-matchFoundChan:
 		if !ok {
@@ -169,8 +167,11 @@ func waitForResult(ws *websocket.Conn, ctx, timeoutCtx, matchCtx context.Context
 			return
 		}
 		log.Println("Match found for user: " + username)
-		// Notify the users about the match
-		notifyMatch(result.User, result.MatchedUser, result)
+		// Notify the user about the match
+		notifyMatches(result.User, result)
+
+		// NOTE: user and other user are already cleaned up in a separate matching algorithm process
+		// so no clean up is required here.
 		return
 	}
 }
@@ -186,45 +187,15 @@ func sendTimeoutResponse(ws *websocket.Conn) {
 	}
 }
 
-func notifyMatch(username, matchedUsername string, result models.MatchFound) {
+// Notify matches
+func notifyMatches(username string, result models.MatchFound) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	// Send message to the first user
+	// Send message to matched user
 	if userConn, userExists := activeConnections[username]; userExists {
 		if err := userConn.WriteJSON(result); err != nil {
 			log.Printf("Error sending message to user %s: %v\n", username, err)
 		}
 	}
-
-	// Send message to the matched user
-	if matchedUserConn, matchedUserExists := activeConnections[matchedUsername]; matchedUserExists {
-		result.User, result.MatchedUser = result.MatchedUser, result.User // Swap User and MatchedUser values
-		if err := matchedUserConn.WriteJSON(result); err != nil {
-			log.Printf("Error sending message to user %s: %v\n", username, err)
-		}
-	}
-
-	// Remove the match context for both users and cancel for matched user
-	if cancelFunc, exists := matchContexts[username]; exists {
-		cancelFunc()
-		delete(matchContexts, username)
-	}
-
-	if cancelFunc2, exists := matchContexts[matchedUsername]; exists {
-		cancelFunc2()
-		delete(matchContexts, matchedUsername)
-	}
-
-	// Remove the match channels
-	if _, exists := matchFoundChannels[username]; exists {
-		delete(matchFoundChannels, username)
-	}
-	if _, exists := matchFoundChannels[matchedUsername]; exists {
-		delete(matchFoundChannels, matchedUsername)
-	}
-
-	// Remove users from the activeConnections map
-	delete(activeConnections, username)
-	delete(activeConnections, matchedUsername)
 }

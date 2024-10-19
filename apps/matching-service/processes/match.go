@@ -2,62 +2,26 @@ package processes
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"matching-service/models"
-	"strconv"
-	"strings"
-	"sync"
+	"matching-service/utils"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var (
-	redisClient *redis.Client
-	mu          sync.Mutex // Mutex to ensure only one matchmaking goroutine is running
-	ctx         = context.Background()
-)
-
-// SetRedisClient sets the Redis client to a global variable
-func SetRedisClient(client *redis.Client) {
-	redisClient = client
-}
-
-// Get redisclient
-func GetRedisClient() *redis.Client {
-	return redisClient
-}
-
-func getPortNumber(addr string) (int64, error) {
-	// Split the string by the colon
-	parts := strings.Split(addr, ":")
-	if len(parts) < 2 {
-		return 0, fmt.Errorf("no port number found")
-	}
-
-	// Convert the port string to an integer
-	port, err := strconv.ParseInt(parts[len(parts)-1], 10, 64)
-	if err != nil {
-		return 0, err // Return an error if conversion fails
-	}
-
-	return port, nil
-}
-
 func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matchFoundChannels map[string]chan models.MatchFound) {
 	// Acquire mutex
-	mu.Lock()
+	matchingRoutineMutex.Lock()
 	// Defer unlocking the mutex
-	defer mu.Unlock()
+	defer matchingRoutineMutex.Unlock()
 
 	for {
-
 		// Log queue before matchmaking
 		// PrintMatchingQueue(redisClient, "Before Matchmaking", context.Background())
 
 		// Check if the queue is empty
-		queueLength, err := redisClient.LLen(context.Background(), "matchmaking_queue").Result()
+		queueLength, err := redisClient.LLen(context.Background(), matchmakingQueueRedisKey).Result()
 		if err != nil {
 			log.Println("Error checking queue length:", err)
 			time.Sleep(1 * time.Second)
@@ -71,7 +35,7 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 		}
 
 		// Peek at the user queue
-		username, err := redisClient.LIndex(context.Background(), "matchmaking_queue", 0).Result()
+		username, err := redisClient.LIndex(context.Background(), matchmakingQueueRedisKey, 0).Result()
 		if err != nil {
 			log.Println("Error peeking user from queue:", err)
 			time.Sleep(1 * time.Second)
@@ -93,29 +57,35 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 			// Log down which users got matched
 			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", username, matchedUsername, matchedTopic, matchedDifficulty)
 
-			// Clean up queue, sets and hashset in Redis
-			DequeueUser(redisClient, username, ctx)
-			DequeueUser(redisClient, matchedUsername, ctx)
-			RemoveUserFromTopicSets(redisClient, username, ctx)
-			RemoveUserFromTopicSets(redisClient, matchedUsername, ctx)
-			RemoveUserDetails(redisClient, username, ctx)
-			RemoveUserDetails(redisClient, matchedUsername, ctx)
-
 			// Log queue after matchmaking
 			PrintMatchingQueue(redisClient, "After Matchmaking", context.Background())
 
+			// Clean up redis for this match
+			cleanUp(redisClient, username, ctx)
+			cleanUp(redisClient, matchedUsername, ctx)
+
 			// Generate a random match ID
-			matchId, err := GenerateMatchID()
+			matchId, err := utils.GenerateMatchID()
 			if err != nil {
 				log.Println("Unable to randomly generate matchID")
 			}
 
-			// Signal that a match has been found
+			// Signal that a match has been found for user
 			matchFoundChannels[username] <- models.MatchFound{
 				Type:        "match_found",
 				MatchID:     matchId,
 				User:        username,
 				MatchedUser: matchedUsername,
+				Topic:       matchedTopic,
+				Difficulty:  matchedDifficulty,
+			}
+
+			// Signal that a match has been found for matchedUser
+			matchFoundChannels[matchedUsername] <- models.MatchFound{
+				Type:        "match_found",
+				MatchID:     matchId,
+				User:        matchedUsername,
+				MatchedUser: username,
 				Topic:       matchedTopic,
 				Difficulty:  matchedDifficulty,
 			}
@@ -127,4 +97,11 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 			PopAndInsert(redisClient, username, ctx)
 		}
 	}
+}
+
+// Clean up queue, sets and hashset in Redis
+func cleanUp(redisClient *redis.Client, username string, ctx context.Context) {
+	DequeueUser(redisClient, username, ctx)
+	RemoveUserFromTopicSets(redisClient, username, ctx)
+	RemoveUserDetails(redisClient, username, ctx)
 }
