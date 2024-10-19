@@ -19,6 +19,7 @@ const Questions = ({ isAdmin }) => {
     const fetchQuestions = async () => {
       try {
         const questions = await getQuestions();
+        console.log("Fetched questions:", questions);
         setQuestions(questions);
       } catch (error) {
         console.error("Error fetching questions:", error);
@@ -59,6 +60,8 @@ const Questions = ({ isAdmin }) => {
     setQuestions(updatedQuestions);
     setShowModal(false);
   };
+
+  console.log(questions);
 
   return (
     <div className="w-full max-w-lg rounded-3xl border border-gray-300/30 p-6">
