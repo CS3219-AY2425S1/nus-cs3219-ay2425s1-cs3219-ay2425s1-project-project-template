@@ -5,6 +5,7 @@
   "tabWidth": 2,
   "trailingComma": "none",
   "bracketSameLine": true,
+  "printWidth": 120,
   "importOrder": [
     "^(react/(.*)$)|^(react$)",
     "^(next/(.*)$)|^(next$)",
