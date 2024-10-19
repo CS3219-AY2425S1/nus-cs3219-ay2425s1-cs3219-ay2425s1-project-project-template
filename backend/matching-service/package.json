@@ -32,6 +32,7 @@
         "@repo/request-types": "*",
         "@repo/typescript-config": "*",
         "@repo/user-types": "*",
+        "@repo/question-types": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/amqplib": "^0.10.5",
         "@types/cors": "^2.8.17",
