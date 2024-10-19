@@ -112,9 +112,6 @@ export function QuestionForm({
 
   return (
     <div>
-      <h1 className="font-bold text-slate-200 dark:text-slate-700">
-        {type} Question
-      </h1>
       <form onSubmit={handleSubmit}>
         <LargeTextfield
           name="title"

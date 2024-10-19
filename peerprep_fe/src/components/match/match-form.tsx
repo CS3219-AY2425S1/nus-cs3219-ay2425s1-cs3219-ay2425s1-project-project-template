@@ -17,6 +17,7 @@ import "../../styles/modal.css";
 import { useSocket } from "@/contexts/socket-context";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
+import Modal from "../common/modal";
 
 export interface MatchFormQuestions {
   difficultyLevel: DifficultyLevel;
@@ -35,6 +36,9 @@ export function MatchForm() {
   // Usage in form submission
   const [loading, setLoading] = useState<boolean>(false);
   const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
+  const [isMatchFoundModalOpen, setIsMatchFoundModalOpen] = useState(false);
+  const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false);
+  const [roomId, setRoomId] = useState<string>("");
   const router = useRouter();
 
   const handleChange = (
@@ -85,14 +89,15 @@ export function MatchForm() {
     unregisterListeners();
     console.log("Match found", match);
     setIsTimerModalOpen(false);
-    router.push(`/workspace/${match.roomId}`);
+    setIsMatchFoundModalOpen(true);
+    setRoomId(match.roomId);
   };
 
   const onTimeOut = (response: MatchTimeoutResponse) => {
     unregisterListeners();
     console.log("Time out response", response);
     setIsTimerModalOpen(false);
-    alert("No match found. Please try again.");
+    setIsTimeoutModalOpen(true);
   };
 
   const onMatchCancel = (response: MatchCancelResponse) => {
@@ -111,6 +116,86 @@ export function MatchForm() {
   const cancelMatch = () => {
     cancelMatchRequest();
     setIsTimerModalOpen(false);
+  };
+
+  const MatchFoundModal = () => {
+    return (
+      <Modal
+        title="Match Found!"
+        isOpen={isMatchFoundModalOpen}
+        isCloseable={false}
+        width="lg"
+      >
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-hairline font-albert">Join room?</h1>
+          <div className="w-1/2 flex space-x-5 self-end">
+            <Button
+              type="reset"
+              text="No Thanks"
+              onClick={() => {
+                setIsMatchFoundModalOpen(false);
+              }}
+            />
+            <Button
+              type="button"
+              text="Join"
+              onClick={() => {
+                setIsMatchFoundModalOpen(false);
+                router.push(`/workspace/${roomId}`);
+              }}
+            />
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+
+  const TimeOutModal = () => {
+    return (
+      <Modal isOpen={isTimeoutModalOpen} isCloseable={false} width="lg">
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-hairline font-albert p-5">
+            No Match Found
+          </h1>
+          <div className="w-1/2 flex space-x-5 self-end">
+            <Button
+              type="reset"
+              text="Close"
+              onClick={() => {
+                setIsTimeoutModalOpen(false);
+              }}
+            />
+            <Button
+              type="button"
+              text="Try Again"
+              onClick={() => {
+                sendMatch();
+                setIsTimeoutModalOpen(false);
+                setIsTimerModalOpen(true);
+              }}
+            />
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+
+  const TimerModal = () => {
+    return (
+      <Modal isOpen={isTimerModalOpen} isCloseable={false} width="md">
+        <div>
+          <Timer onClose={() => setIsTimerModalOpen(false)} />
+          <Button
+            type="reset"
+            onClick={() => {
+              cancelMatch();
+              setIsTimerModalOpen(false);
+            }}
+            text="CLOSE"
+          />
+        </div>
+      </Modal>
+    );
   };
 
   const registerListeners = () => {
@@ -164,26 +249,9 @@ export function MatchForm() {
           />
         }
       </form>
-      {isTimerModalOpen && (
-        <div className="timermodal">
-          <div
-            onClick={() => {
-              setIsTimerModalOpen(false);
-            }}
-            className="overlay"
-          ></div>
-          <div className="timermodal-content">
-            <Timer onClose={() => setIsTimerModalOpen(false)} />
-            <Button
-              type="reset"
-              onClick={() => {
-                cancelMatch();
-              }}
-              text="CLOSE"
-            />
-          </div>
-        </div>
-      )}
+      <MatchFoundModal />
+      <TimeOutModal />
+      <TimerModal />
     </div>
   );
 }

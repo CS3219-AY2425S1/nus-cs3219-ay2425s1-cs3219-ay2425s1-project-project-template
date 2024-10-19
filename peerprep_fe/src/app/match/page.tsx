@@ -7,6 +7,8 @@ import Button from "@/components/common/button";
 import { MatchForm } from "@/components/match/match-form";
 import Head from "next/head"; // Import Head from next/head
 
+interface MatchPageProps {}
+
 const match: React.FC<MatchPageProps> = () => {
   const router = useRouter();
   const { token, deleteToken } = useAuth();
@@ -24,7 +26,7 @@ const match: React.FC<MatchPageProps> = () => {
           text="Logout"
           onClick={() => {
             deleteToken();
-            router.push("/auth/login");
+            router.push("/");
           }}
         />
       </Header>
