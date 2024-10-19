@@ -40,6 +40,8 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
 
         if (criteria.difficulty && criteria.topic && Array.isArray(criteria.difficulty) && Array.isArray(criteria.topic)) {
 
+            writeLogToFile(`User ${userId} registered for matching with criteria (Topic: ${criteria.topic}, Difficulty: ${criteria.difficulty})`);
+
             const timeout = setTimeout(async () => {
                 writeLogToFile(`User ${userId} timed out for matching`);
                 await removeUserFromSearchPool(userId);
@@ -89,7 +91,6 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                     }
                 }
             } else {
-                writeLogToFile(`User ${userId} registered for matching with criteria (Topic: ${criteria.topic}, Difficulty: ${criteria.difficulty})`);
                 socket.emit('registrationSuccess', { message: `User ${userId} registered for matching successfully.` });
                 writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
             }
