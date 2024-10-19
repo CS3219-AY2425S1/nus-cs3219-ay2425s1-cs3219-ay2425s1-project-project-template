@@ -34,7 +34,7 @@ def produce_message(message):
 def home():
     return f"Server is running on port {PORT}"
 
-@app.route('/match', methods=['POST'])
+@app.route('/enqueue', methods=['POST'])
 def queue():
     data = json.dumps(request.get_json())
     produce_message(data)
