@@ -2,7 +2,7 @@ import { useState } from "react";
 import io from "socket.io-client";
 import MatchingRequestForm from "./MatchingRequestForm";
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
-import Timer from "./timer";
+import Timer from "./Timer.tsx";
 import { useUser } from "../../context/UserContext.tsx";
 import IsConnected from "../IsConnected";
 
@@ -56,7 +56,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         console.error("No match ID received");
         return;
       }
-      setShowTimer(false);
+      
       setMatchId(data.matchId);
 
       // Execute socket logic after returning the response object
@@ -68,6 +68,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         // --- Successfully matched!!! ---
         // Change in some state here
         socket.emit("broadcast", `hi from ${user?.username}`);
+        setShowTimer(false);
         setIsMatchFound(true);
       });
       console.log(`Listening to room: ${data.matchId}`);
@@ -126,7 +127,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         </div>
         <div className="flex flex-col space-y-4">
           {showTimer ? (
-            <Timer />
+            <Timer showTimer={showTimer} cancelMatchRequest={handleCancelMatchRequest} setShowTimer={setShowTimer}/>
           ) : (
             <MatchingRequestForm
               handleSubmit={() => handleFindMatchRequest(formData)}
