@@ -1,10 +1,11 @@
-package com.example.backend.matching.kafka;
+package com.example.backend.matching.kafka.consumers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.backend.matching.kafka.producers.MatchVerificationProducer;
 import com.example.backend.matching.model.VerificationResponse;
 
 @Component
@@ -31,9 +33,16 @@ public class MatchRequestConsumer {
 
     private final Map<String, String> waitingRequests = new HashMap<>();
 
+    private final MatchVerificationProducer matchVerificationProducer;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     private static final String VERIFY_API_URL = "http://matchverification:3006/api/verify"; // TODO: Put in .env
+
+    @Autowired
+    public MatchRequestConsumer(MatchVerificationProducer matchVerificationProducer) {
+        this.matchVerificationProducer = matchVerificationProducer;
+    }
 
     @KafkaListener(topics = "MATCH_REQUESTS", groupId = "matching-service")
     public void listen(@Header(KafkaHeaders.RECEIVED_KEY) String key, String value) {
@@ -82,6 +91,19 @@ public class MatchRequestConsumer {
 
                 if (vStatus.equals(VerificationStatus.SUCCESS.toString())) {
                     System.out.println("Match verified successfully. Sending to Kafka topic.");
+                    List<String> validMatches = verificationResponse.getValidMatches();
+                    List<String> invalidMatches = verificationResponse.getInvalidMatches();
+
+                    if (validMatches.size() == 2 && invalidMatches.isEmpty() && vStatus.equals(VerificationStatus.SUCCESS.toString())) {
+                        System.out.println(validMatches);
+                        String payload = validMatches.get(0) + "_" + validMatches.get(1);
+
+                        for (String match : validMatches) {
+                            System.out.println(match);
+                            String userID = match.split("_")[0];
+                            matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", userID, payload);
+                        }
+                    }
                 } else if (vStatus.equals(VerificationStatus.CONFLICT_PARTIAL_INVALID.toString())) {
                     System.out.println("Partial match verification failed. Not sending to Kafka topic.");
                     assert verificationResponse.getInvalidMatches().size() == 1; // Defensive check

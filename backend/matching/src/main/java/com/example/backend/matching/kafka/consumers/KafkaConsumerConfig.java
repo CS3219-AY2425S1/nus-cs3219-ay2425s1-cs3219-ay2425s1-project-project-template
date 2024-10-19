@@ -1,4 +1,4 @@
-package com.example.backend.matching.kafka;
+package com.example.backend.matching.kafka.consumers;
 
 import java.util.HashMap;
 import java.util.Map;

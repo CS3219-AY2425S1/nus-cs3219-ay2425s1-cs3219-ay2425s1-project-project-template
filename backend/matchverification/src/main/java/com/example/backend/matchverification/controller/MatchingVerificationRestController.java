@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.matchverification.kafka.producers.MatchVerificationProducer;
 import com.example.backend.matchverification.model.VerificationResponse;
 
 
@@ -18,7 +17,7 @@ import com.example.backend.matchverification.model.VerificationResponse;
 @RequestMapping("/api")
 public class MatchingVerificationRestController {
 
-    private final MatchVerificationProducer matchVerificationProducer;
+    
     private final MatchVerificationHashsetService invalidMatchesHashset;
 
     private enum VerificationStatus {
@@ -28,9 +27,7 @@ public class MatchingVerificationRestController {
     }
 
     @Autowired
-    public MatchingVerificationRestController(MatchVerificationProducer matchVerificationProducer,
-                                              MatchVerificationHashsetService matchRequestService) {
-        this.matchVerificationProducer = matchVerificationProducer;
+    public MatchingVerificationRestController(MatchVerificationHashsetService matchRequestService) {
         this.invalidMatchesHashset = matchRequestService;
     }
 
@@ -89,18 +86,8 @@ public class MatchingVerificationRestController {
         } else {
             System.out.println("VALID MATCH");
             message = "Both match requests are new and valid.";
-        }
-
-        if (validMatches.size() == 2 && invalidMatches.isEmpty() && status.equals(VerificationStatus.SUCCESS.toString())) {
-            System.out.println(validMatches);
-            String payload = validMatches.get(0) + "_" + validMatches.get(1);
             invalidMatchesHashset.addToSeenRequests(wsID1); // Add wsid
             invalidMatchesHashset.addToSeenRequests(wsID2); // Add wsid
-            for (String match : validMatches) {
-                System.out.println(match);
-                String userID = match.split("_")[0];
-                matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", userID, payload);
-            }
         }
 
 
