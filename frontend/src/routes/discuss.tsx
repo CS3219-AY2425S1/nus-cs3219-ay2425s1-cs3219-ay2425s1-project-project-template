@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -230,34 +230,80 @@ export default function DiscussRoute() {
   const [queuePosition, setQueuePosition] = React.useState(0);
   const [roomId, setRoomId] = React.useState('');
 
-  const startMatching = (selectedTopic: string, selectedDifficulty: string) => {
+  const ws = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    // Establish WebSocket connection
+    ws.current = new WebSocket('ws://localhost:8080/ws/matching');
+
+    ws.current.onopen = () => {
+      console.log('WebSocket Connected');
+    };
+
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log('Received message:', message);
+
+      if (message.type === 'MATCH_FOUND') {
+        setMatchStatus('matched');
+        setRoomId(message.roomId);
+      } else if (message.type === 'TIMEOUT') {
+        setMatchStatus('timeout');
+      }
+    };
+
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setMatchStatus('error');
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
+
+  const startMatching = async (
+    selectedTopic: string,
+    selectedDifficulty: string
+  ) => {
     setMatchStatus('waiting');
 
-    // TODO: Implement actual API call and SSE
-    // Simulating API call and SSE
-    setTimeout(() => {
-      const random = Math.random();
-      if (random < 0.6) {
-        setMatchStatus('matched');
-        console.log(
-          `Matching started with topic: ${selectedTopic}, difficulty: ${selectedDifficulty}`
-        );
-        setRoomId('ROOM-' + Math.random().toString(36).substr(2, 9));
-      } else if (random < 0.9) {
-        setMatchStatus('timeout');
-      } else {
-        setMatchStatus('error');
+    try {
+      const response = await fetch('http://localhost:8080/api/match', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // TODO: Replace with actual user ID
+          userId: 'user-' + Math.random().toString().split('.')[1], // Generate a random user ID
+          topic: selectedTopic,
+          difficultyLevel: selectedDifficulty,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to start matching');
       }
-    }, 3000);
 
-    // TODO: Implement timeout handling
-    // For actual timeout handling
-    // const matchTimeout = setTimeout(() => {
-    //   setMatchStatus('timeout');
-    // }, 30000);
+      const result = await response.json();
+      console.log('Matching request sent:', result);
 
-    // Remember to clear the timeout when the match is found
-    // clearTimeout(matchTimeout);
+      // Start a 30-second timeout
+      const timeoutId = setTimeout(() => {
+        if (matchStatus === 'waiting') {
+          setMatchStatus('timeout');
+        }
+      }, 30000);
+
+      // Clear the timeout if the component unmounts or if we get a match
+      return () => clearTimeout(timeoutId);
+    } catch (error) {
+      console.error('Error starting match:', error);
+      setMatchStatus('error');
+    }
   };
 
   // TODO: Implement retry logic for different match status
@@ -265,6 +311,36 @@ export default function DiscussRoute() {
     setMatchStatus('idle');
     setQueuePosition(0);
     setRoomId('');
+
+    // Close existing WebSocket connection
+    if (ws.current) {
+      ws.current.close();
+    }
+
+    // Open a new WebSocket connection
+    ws.current = new WebSocket('ws://localhost:8080/ws/matching');
+
+    // Re-attach event listeners
+    ws.current.onopen = () => {
+      console.log('WebSocket Reconnected');
+    };
+
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log('Received message:', message);
+
+      if (message.type === 'MATCH_FOUND') {
+        setMatchStatus('matched');
+        setRoomId(message.roomId);
+      } else if (message.type === 'TIMEOUT') {
+        setMatchStatus('timeout');
+      }
+    };
+
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setMatchStatus('error');
+    };
   };
 
   return (
