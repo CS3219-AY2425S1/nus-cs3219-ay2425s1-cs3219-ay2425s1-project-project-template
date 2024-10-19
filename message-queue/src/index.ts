@@ -57,7 +57,16 @@ const pullDataFromExchange = async (queueName: string) => {
       return console.error("Invalid incoming message")
     }
     message = msg;
-    handleIncomingNotification(msg?.content?.toString())
+    try {
+      handleIncomingNotification(msg?.content?.toString())
+    } catch (e) {
+      console.log("Invalid message received")
+      console.error(e);
+      return {
+        channel,
+        message: ""
+      }
+    }
   })
 
   return {
@@ -89,10 +98,14 @@ app.get("/match", async (req: Request, res: Response, next) => {
       // Do some logic, then ACK
       console.log("Now then we acknowledge, so we force 1 message to be received at each time")
       channel.ack(message);
+      res.json({
+        message: JSON.parse(message.content.toString())
+      })
+    } else {
+      res.json({
+        message: JSON.parse(null)
+      })
     }
-    res.json({
-      message: JSON.parse(message.content.toString())
-    })
   }
 })
 
