@@ -13,13 +13,15 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Typography from "@mui/material/Typography";
 import toast from "react-hot-toast";
 import { io, Socket } from "socket.io-client";
+import { useContext } from "react";
+import { AuthContext } from "../../hooks/AuthContext";
 
-const userId = Date.now();
 const complexities = ["Easy", "Medium", "Hard"];
 const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
 const timeout = 30000;
 
 export default function MatchingDialog({ open, handleMatchScreenClose } : { open: boolean, handleMatchScreenClose: () => void }) {
+  const { user } = useContext(AuthContext);
   const [complexity, setComplexity] = useState("");
   const [category, setCategory] = useState("");
   const [isMatching, setIsMatching] = useState(false);
@@ -33,12 +35,12 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
     if (isMatching) {
       socket.current = io(`http://localhost:${process.env.REACT_APP_MATCHING_SVC_PORT}`, {
         auth: {
-          userId: userId,
+          userId: user.id,
+          username: user.username,
         },
       });
       
       socket.current.on("connect", () => {
-        console.log("Connected with user ID:", userId);
         console.log(`Requesting match for ${category} on ${complexity} difficulty...`);
         socket.current!.emit("request-match", {
           difficultyLevel: complexity,
@@ -63,7 +65,8 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
       });
       
       socket.current.on("match-found", (match) => {
-        toast.success(`Match found!`);
+        console.log(match);
+        toast.success(`Matched with ${match.matchedUsername}!`);
         setIsMatching(false);
       });
       
