@@ -107,6 +107,12 @@ app.get("/match", async (req: Request, res: Response, next) => {
     await pullDataFromExchange(req.query.queueName as string)
     const firstUser = users.shift()
     console.log(">> FIRST USER: ", firstUser)
+    if (!firstUser) {
+      res.json({
+        matchedUsers,
+        timeout: true
+      })
+    }
     matchedUsers.push(firstUser)
 
     // Case 3: Only 1 person in the queue
@@ -130,7 +136,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
       }
 
       console.log("CURRENT TOTAL USER WAITING CASE 3: ", currentTotalUsersWaiting)
-      console.log("users lengtth: ", users.length)
+      console.log("users length: ", users.length)
 
       // Means if new users have been added to the overall queue
       if (currentTotalUsersWaiting != users.length) {
@@ -219,15 +225,13 @@ app.get("/match", async (req: Request, res: Response, next) => {
     }
 
     for (const user of users) {
-      console.log("Reached this case")
+      console.log("Reached Case 1")
       // Case (1) - 2 people in queue have matching topic
       if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
         matchedUsers.push(user)
         break
       }
     }
-
-    console.log("Reached here: ", matchedUsers)
 
     if (matchedUsers.length == 2) {
       res.json({
