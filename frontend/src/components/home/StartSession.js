@@ -41,27 +41,33 @@ const StartSession = ({ username }) => {
   };
 
   const closePopup = async () => {
+    if (matchFound) {
+      setShowPopup(false);
+      setMatchFound(false);
+
+    } else {
     setShowPopup(false);
     setMatchFound(false);
   
-    // Notify the backend to remove the user from the queue
-    try {
-      const response = await fetch('http://localhost:3002/api/cancel-match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username }), // Send the username to identify the user
-      });
-  
-      if (response.ok) {
-        console.log('User removed from queue');
-      } else {
-        console.error('Failed to remove user from queue');
+      // Notify the backend to remove the user from the queue
+      try {
+        const response = await fetch('http://localhost:3002/api/cancel-match', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username }), // Send the username to identify the user
+        });
+    
+        if (response.ok) {
+          console.log('User removed from queue');
+        } else {
+          console.error('Failed to remove user from queue');
+        }
+      } catch (error) {
+        console.error('Error cancelling match:', error);
       }
-    } catch (error) {
-      console.error('Error cancelling match:', error);
-    }
+    } 
   };
   
 
