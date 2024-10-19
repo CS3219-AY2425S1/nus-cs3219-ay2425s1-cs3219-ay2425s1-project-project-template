@@ -4,7 +4,11 @@ import { Slide, ToastContainer } from 'react-toastify';
 import './App.css'; // Import your CSS file here
 
 import 'react-toastify/dist/ReactToastify.css';
+import LoginPage from './routes/LoginPage';
 import QuestionPage from './routes/QuestionPage';
+import RegisterPage from './routes/RegisterPage';
+import MatchPage from './routes/MatchPage'
+
 
 
 function App() {
@@ -12,8 +16,11 @@ function App() {
     <>
     <Router>
       <Routes>
-        <Route path="/" element={<QuestionPage />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/question" element={<QuestionPage />} />
+        <Route path="/match" element={<MatchPage />} />
       </Routes>
     </Router>
     <ToastContainer
