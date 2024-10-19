@@ -1,10 +1,12 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Sse, Param,MessageEvent } from '@nestjs/common';
 import { RabbitMQService } from './rabbitmq.service';
 import { EnterQueueDto } from 'src/dto/EnterQueue.dto';
+import { map, Observable, Subject, interval } from 'rxjs';
 
 @Controller('rabbitmq')
 export class RabbitMQController {
-  constructor(private readonly rabbitMQService: RabbitMQService) {}
+  constructor(private readonly rabbitMQService: RabbitMQService) { }
+  private matchUsers: Record<string, Subject<any>> = {};
 
   @Post('enter')
   sendMessage(@Body() enterQueueDto: EnterQueueDto) {
@@ -17,4 +19,12 @@ export class RabbitMQController {
     this.rabbitMQService.consumeQueue();
     return { status: 'Started consuming queue' };
   }
+
+  @Sse(':userEmail') // SSE endpoint
+  sse(@Param('userEmail') userEmail: string): Observable<any> {
+    console.log("sse called")
+    console.log(userEmail)
+    return this.rabbitMQService.createSSEStream(userEmail);
+  }
+
 }

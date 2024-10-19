@@ -32,11 +32,16 @@ const LoadingPage: React.FC = () => {
     }
 
     const eventSource = new EventSource(`http://localhost:3009/rabbitmq/${decodedToken?.email}`);
+    console.log("connected")
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.userEmail === decodedToken?.email && data.matchFound) {
+      if (data.userEmail === decodedToken?.email) {
         setMatchFound(true);
         clearInterval(timer);
+      } else {
+        console.log("Error")
+        console.log(data.userEmail)
+        console.log(decodedToken?.email)
       }
     };
 

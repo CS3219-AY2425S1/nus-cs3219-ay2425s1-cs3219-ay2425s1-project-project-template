@@ -1,28 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import * as amqp from 'amqplib/callback_api.js';
 import { EnterQueueDto } from 'src/dto/EnterQueue.dto';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable } from 'rxjs';
 
-interface CustomJwtPayload extends JwtPayload {
-  email?: string;
-  name?: string;
-}
+
 
 @Injectable()
 export class RabbitMQService {
+  constructor(private readonly eventEmitter: EventEmitter2) { }
+
   private readonly queueName = 'matching_queue';
-  private readonly rabbitmqUrl = 'amqp://rabbitmq';
+  private readonly rabbitmqUrl = 'amqp://localhost:5672';
   private unmatchedRequests: Record<string, any> = {};
 
   enterQueue(enterQueueDto: EnterQueueDto): void {
-    // const jwtToken = localStorage.getItem('access_token');
-    // let decodedToken: CustomJwtPayload | null = null;
-
-    // if (jwtToken) {
-    //   decodedToken = jwtDecode<CustomJwtPayload>(jwtToken);
-    // } else {
-    //   console.log('No token found in localStorage');
-    // }
 
     amqp.connect(this.rabbitmqUrl, (err, connection) => {
       if (err) {
@@ -95,6 +87,7 @@ export class RabbitMQService {
       const matchedUser = this.unmatchedRequests[matchingKey];
       console.log(`Match found between ${email} and ${matchedUser.email}`);
       delete this.unmatchedRequests[matchingKey];
+      this.notifyMatchFound(email, matchedUser.email)
     } else {
       this.unmatchedRequests[matchingKey] = userRequest;
       console.log(`No match found for user ${email}, waiting for a match...`);
@@ -109,5 +102,58 @@ export class RabbitMQService {
         }
       }, 60000);
     }
+  }
+
+  notifyMatchFound(userEmail: string, matchEmail: string) {
+    const time = new Date().toISOString(); // Current timestamp in ISO format
+    // const matchData = {
+    //   users: [
+    //     { email: userEmail, matchedWith: matchEmail },
+    //     { email: matchEmail, matchedWith: userEmail },
+    //   ],
+    //   timestamp: new Date().toISOString(), // Current timestamp in ISO format
+    // };
+
+    // matchData.users.forEach(user => {
+      const userData = {
+        userEmail: userEmail,
+        timestamp: time
+      };
+      
+      const matchData = {
+        userEmail: matchEmail,
+        timestamp: time
+      };
+
+      // Emit the event as a JSON string
+      this.eventEmitter.emit('match.found', JSON.stringify(userData));
+      this.eventEmitter.emit('match.found', JSON.stringify(matchData));
+      // this.eventEmitter.emit('match.found', JSON.stringify(matchData));
+    // });
+  }
+
+  createSSEStream(userEmail: string): Observable<any> {
+    return new Observable((subscriber) => {
+      const handleMatchFound = (data) => {
+        // if (data === userEmail) {
+        subscriber.next(data);
+        console.log("Notifying", data);
+
+        //   console.log(data)
+        // } else {
+        //   console.log("NOOOO")
+        //   console.log(userEmail)
+        //   console.log(data)
+        // }
+      };
+
+      this.eventEmitter.on('match.found', handleMatchFound);
+
+      return () => {
+        console.log("ENded")
+        this.eventEmitter.off('match.found', handleMatchFound);
+
+      };
+    });
   }
 }

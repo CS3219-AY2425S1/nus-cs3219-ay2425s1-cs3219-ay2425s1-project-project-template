@@ -38,6 +38,7 @@ export default function MatchingPage() {
     const [selectedLanguage, setSelectedLanguage] = useState(lang[0]);
 
     const handleSubmit = async () => {
+        console.log("submit button pressed");
         const requestData = {
             categories: selectedTopic,
             complexity: selectedDificulty,
