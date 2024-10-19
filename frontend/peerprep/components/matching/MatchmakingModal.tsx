@@ -97,6 +97,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
             isDisabled={isMatching}
             showScrollIndicators={true}
             popoverProps={{ placement: "bottom", shouldFlip: false }}
+            selectionMode="multiple"
           >
             {difficulties.map((diff) => (
               <SelectItem key={diff}>{diff}</SelectItem>
@@ -118,6 +119,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
             popoverProps={{ placement: "bottom", shouldFlip: false }}
             isInvalid={categoryError}
             errorMessage={categoryError ? "Error loading categories" : ""}
+            selectionMode="multiple"
           >
             {uniqueCategories && uniqueCategories.length > 0
               ? uniqueCategories.map((category: any) => (

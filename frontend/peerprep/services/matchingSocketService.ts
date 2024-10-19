@@ -49,7 +49,7 @@ export const initializeSocket = () => {
 
 // Function to register the user for matchmaking
 export const registerUser = (
-  userParams: any,
+  userParams: { difficulty: string[]; topic: string[] },
   onMatchFound: (matchData: any) => void,
   onRegistrationSuccess: () => void,
   onMatchingTimeout: () => void,
