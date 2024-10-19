@@ -41,19 +41,25 @@ function LoginModal({
     },
   });
 
+  const handleCloseLoginModal = () => {
+    form.reset();
+    setLoginError(null);
+    closeLoginModal();
+  };
+
   const handleLogInClick = (values: typeof form.values) => {
     auth.loginAction(values, setLoginError);
   };
 
   const handleSignUpClick = () => {
-    closeLoginModal();
+    handleCloseLoginModal();
     openSignUpModal();
   };
 
   return (
     <Modal
       opened={isLoginModalOpened}
-      onClose={closeLoginModal}
+      onClose={handleCloseLoginModal}
       withCloseButton={false}
       centered
       overlayProps={{
