@@ -2,7 +2,7 @@
 
 import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 import { useState, useEffect } from "react";
-import LandingPage from "@/app/(home)/components/landing-page/LandingPage";
+import LandingPage from "@/app/(auth)/home/components/landing-page/LandingPage";
 import LeetcodeDashboard from "./LeetcodeDashboard";
 import { getToken } from "@/api/user";
 
@@ -13,8 +13,10 @@ const LeetcodeDashboardPage = () => {
 
   // Simulate token fetching or resolving logic
   useEffect(() => {
-    if (token !== undefined) {
+    if (!!token) {
       setLoading(false);
+    } else {
+      window.location.href = "/login";
     }
   }, [token]);
 

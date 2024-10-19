@@ -53,10 +53,8 @@ export const verifyToken = async (needsLogin: boolean) => {
     case 200:
       return true;
     case 401:
-      // if (needsLogin) logout();
       return false;
     default:
-      // if (needsLogin) logout();
       return false;
   }
 };
@@ -116,12 +114,7 @@ export const logout = () => {
   Cookie.remove("username");
   Cookie.remove("id");
   Cookie.remove("isAdmin");
-  redirectToLogin().then(() => {
-    toast.fire({
-      icon: "success",
-      title: "Logged out successfully",
-    });
-  });
+  redirectToLogin();
 };
 
 export const register = async (

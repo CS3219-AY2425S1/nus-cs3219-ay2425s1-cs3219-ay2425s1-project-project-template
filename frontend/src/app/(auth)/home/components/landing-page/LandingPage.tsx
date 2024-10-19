@@ -1,4 +1,4 @@
-import CodeSnippet from "@/app/(home)/components/code-snippet/CodeSnippetHighlight";
+import CodeSnippet from "@/app/(auth)/home/components/code-snippet/CodeSnippetHighlight";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
