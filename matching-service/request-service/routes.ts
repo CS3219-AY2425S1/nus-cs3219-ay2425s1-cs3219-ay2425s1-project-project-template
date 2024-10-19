@@ -10,6 +10,7 @@ const dequeueConsumer = kafka.consumer({ groupId: 'request-service-dequeue' }); 
 
 const matchesMap = new Map();
 const statusMap = new Map();
+const matchTimestamps = new Map();  // New map to store request timestamps
 
 // TODO: When `cancel-match-event`, ser user status to `isNotMatching`
 
@@ -89,6 +90,7 @@ router.post('/find-match', async (req, res) => {
         // Set user status to `isMatching`
         statusMap.set(userData.id, 'isMatching');
         res.json({ message: "Received match request" });
+        matchTimestamps.set(userData.id, Date.now());  // Store the time when the match was requested
 
         // Wait for information from the producer to see if match found
         // const intervalID = setInterval(() => {
@@ -178,6 +180,25 @@ router.get('/match-status', async (req, res) => {
         res.json({ matchStatus: 'isNotMatching' })
     }
 })
+
+router.get('/waiting-time', async (req, res) => {
+    try {
+        const userData = await verifyJWT(req.headers.authorization);
+
+        if (matchTimestamps.has(userData.id)) {
+            const currentTime = Date.now();
+            const requestTime = matchTimestamps.get(userData.id);
+
+            const waitingTimeInSeconds = Math.floor((currentTime - requestTime) / 1000);  // Time in seconds
+            res.json({ waitingTime: waitingTimeInSeconds });
+        } else {
+            res.status(404).json({ message: "User is not in the match queue" });
+        }
+    } catch (error) {
+        console.error("Error: ", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 router.get('/reset-match-status', async (req, res) => {
     statusMap.clear();

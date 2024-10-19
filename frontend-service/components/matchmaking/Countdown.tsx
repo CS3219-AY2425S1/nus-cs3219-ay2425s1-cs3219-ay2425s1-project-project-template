@@ -13,6 +13,7 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
 } from "@chakra-ui/react";
+import { fetchWithAuth } from "../../src/utils/fetchWithAuth";
 
 interface CountdownProps {
   onSuccess: () => void; // Called when match found
@@ -25,18 +26,34 @@ const Countdown: React.FC<CountdownProps> = ({
   onFailure,
   onCancel,
 }) => {
-  const [seconds, setSeconds] = useState(30);
+  const [seconds, setSeconds] = useState(0); // Start from 0 seconds
   const [isCheckingMatch, setIsCheckingMatch] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (seconds > 0) {
-      const timerId = setTimeout(() => setSeconds(seconds - 1), 1000);
-      return () => clearTimeout(timerId);
-    } else {
-      // checkForMatch();
+  // Function to fetch initial waiting time
+  const fetchWaitingTime = async () => {
+    try {
+      const result = await fetchWithAuth("http://localhost:3002/waiting-time", { method: "GET" });
+      if (result.waitingTime !== undefined) {
+        setSeconds(result.waitingTime); // Set the starting point from the server
+      } else {
+        console.error("Failed to fetch waiting time");
+      }
+    } catch (error) {
+      console.error("Error fetching waiting time:", error);
     }
+  };
+
+  // Call the waiting-time endpoint on component mount
+  useEffect(() => {
+    fetchWaitingTime();
+  }, []);
+
+  // Count-up effect
+  useEffect(() => {
+    const timerId = setTimeout(() => setSeconds(seconds + 1), 1000);
+    return () => clearTimeout(timerId);
   }, [seconds]);
 
   // TODO: update with matching-service backend
@@ -59,12 +76,6 @@ const Countdown: React.FC<CountdownProps> = ({
   //   }
   // };
 
-  // useEffect(() => {
-  //   if (seconds === 20) {
-  //     onSuccess();
-  //   }
-  // }, [seconds, onSuccess]);
-
   const handleCancel = () => {
     setIsDialogOpen(true);
   };
@@ -79,7 +90,7 @@ const Countdown: React.FC<CountdownProps> = ({
       <Flex align="center" flexDirection="column">
         <Heading mb={4}>Finding you a peer...</Heading>
         <Spinner size="xl" mb={4} />
-        <Text fontSize="2xl">{seconds} seconds left</Text>
+        <Text fontSize="2xl">{seconds} seconds passed</Text>
 
         <Button
           colorScheme="red"
