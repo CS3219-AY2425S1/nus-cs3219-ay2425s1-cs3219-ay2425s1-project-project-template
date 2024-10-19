@@ -34,6 +34,7 @@ export class UserQueueRequestDto {
     static fromRequest({
         body: { proficiency, complexity, topic, userId, timestamp },
     }: ITypedBodyRequest<UserQueueRequestDto>): UserQueueRequestDto {
+        timestamp = timestamp || new Date().toISOString()
         return new UserQueueRequestDto(proficiency, complexity, topic, userId, timestamp)
     }
 
