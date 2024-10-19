@@ -1,7 +1,16 @@
 import { matchingQueue } from "../queue/matching-queue.js";
 
-export async function addUserToQueue(userData) {
+export async function addUserToQueue(userData, socket) {
   try {
+    // Check if the matching queue has socket id
+    const queue = await matchingQueue.getJobs(["active", "waiting", "delayed"]);
+
+    for (const job of queue) {
+      if (job.data.socketId === socket.id) {
+        return { message: "User already in queue" };
+      }
+    }
+
     await matchingQueue.add(
       {
         username: userData.username,
@@ -21,10 +30,10 @@ export async function addUserToQueue(userData) {
       }
     );
 
-    return res.status(200).json({ message: "added to queue" });
+    return { message: "added to queue" };
   } catch (err) {
     console.error("Error adding to queue:", err);
-    return res.status(500).json({ error: "Failed to add to queue" });
+    throw new Error("Failed to add to queue");
   }
 }
 

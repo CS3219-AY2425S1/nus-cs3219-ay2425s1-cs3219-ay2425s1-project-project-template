@@ -15,21 +15,21 @@ export const initializeCollaborationService = (server) => {
     console.log(`User connected: ${socket.id}`);
 
     // Handle user joining the queue
-    socket.on("joinQueue", (userData) => {
-      console.log(
-        `${userData.username} joined the queue for topic: ${userData.topic}`
-      );
+    socket.on("joinQueue", async (userData) => {
+      socket.emit("assignSocketId", { assignedSocket: socket.id });
 
       // Add the user to the matching queue with socketId for later communication
-      addUserToQueue(userData)
-        .then()
-        .catch((err) => {
-          console.log(err);
+      try {
+        const resp = await addUserToQueue(userData, socket);
+        console.log("User added to queue:", resp);
+        socket.emit("queueEntered", { message: "You have joined the queue" });
+      } catch (err) {
+        console.error("Error adding user to queue:", err.message);
+        socket.emit("joinQueueFailed", {
+          error: "Failed to join the queue, please try again",
         });
-
-      socket.emit("assignSocketId", { assignedSocket: socket.id });
+      }
       // Notify the user they've joined the queue
-      socket.emit("queueEntered", { message: "You have joined the queue" });
     });
 
     // Handle message sending and broadcasting to other users
