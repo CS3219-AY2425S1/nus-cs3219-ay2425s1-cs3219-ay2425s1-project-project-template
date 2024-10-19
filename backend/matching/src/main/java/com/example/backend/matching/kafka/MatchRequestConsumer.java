@@ -40,8 +40,8 @@ public class MatchRequestConsumer {
         System.out.println("Notifying users about match");
         String user1Id = user1.split("_")[0];
         String user1Email = user1.split("_")[1];
-        String user2Id = user1.split("_")[0];
-        String user2Email = user1.split("_")[1];
+        String user2Id = user2.split("_")[0];
+        String user2Email = user2.split("_")[1];
         webSocketService.notifyUser(user1Id, "Matched with: " + user2Email);
         webSocketService.notifyUser(user2Id, "Matched with: " + user1Email);
     }
