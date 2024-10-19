@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import EmailIcon from '@mui/icons-material/Email';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import PersonIcon from '@mui/icons-material/Person'
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
@@ -13,6 +14,7 @@ export default function SignupPage() {
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
     defaultValues: {
+      userName: "",
       email: "",
       password: "",
       cfmPassword: "",
@@ -24,7 +26,7 @@ export default function SignupPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Record<string, string>) => {
-      return axios.post("Insert signup API", data)
+      return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users`, data)
     },
     onSuccess: (data) => {
       toast.success("Account created!")
@@ -44,6 +46,7 @@ export default function SignupPage() {
 
   const onSubmit = (formData: Record<string, string>) => {
     const data = {
+      username: formData.userName,
       email: formData.email,
       password: formData.password,
     }
@@ -57,6 +60,14 @@ export default function SignupPage() {
     <div className="py-12 flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
       <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />
       <form className="flex w-3/5 flex-col gap-y-8" onSubmit={handleSubmit(onSubmit)}>
+      <div className="relative flex flex-col">
+          <input className={textBoxStyle} type="text" placeholder="Enter username"
+            {...register("userName", {
+              required: { value: true, message: "Username is required" }
+            })} />
+          <PersonIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
+          <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.email?.message}</span>
+        </div>
         <div className="relative flex flex-col">
           <input className={textBoxStyle} type="text" placeholder="Enter email"
             {...register("email", {

@@ -6,9 +6,11 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
+import { useContext } from "react";
+import { AuthContext, authState } from "../../hooks/AuthContext";
 
 export default function LoginPage() {
-
+  const {user, setUser, setIsAuthenticated} = useContext(AuthContext);
   const navigate = useNavigate();
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
@@ -20,11 +22,15 @@ export default function LoginPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Record<string, string>) => {
-      return axios.post("Insert login API", data)
+      return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, data, {
+        withCredentials:true,
+      })
     },
     onSuccess: (data) => {
-      reset()
-      navigate("/")
+      setIsAuthenticated(authState.TRUE);
+      setUser({name: data.data.data.username});
+      reset();
+      navigate("/");
     },
     onError: (error: AxiosError) => {
       let message: string;
