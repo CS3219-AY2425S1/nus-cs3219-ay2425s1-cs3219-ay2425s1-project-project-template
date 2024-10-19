@@ -41,7 +41,8 @@ const Countdown: React.FC<CountdownProps> = ({
         console.error("Failed to fetch waiting time");
       }
     } catch (error) {
-      console.error("Error fetching waiting time:", error);
+      setSeconds(0);
+      // console.error("Error fetching waiting time:", error);
     }
   };
 

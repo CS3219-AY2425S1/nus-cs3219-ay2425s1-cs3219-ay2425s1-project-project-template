@@ -8,6 +8,7 @@ const app = express();
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'dequeue-service' });
+const matchFoundConsumer = kafka.consumer({ groupId: 'dequeue-service-matchfound' }); // New consumer for match-found-events
 
 app.use(express.json());
 app.use(cors());
@@ -54,6 +55,33 @@ const timersMap = new Map<string, TimerData>();
 
             // Store the timer reference and topic in the map
             timersMap.set(userID, { userID, topic, timerID });
+        },
+    });
+})();
+
+// Listen for `match-found-events` to clear the timers for `userA` and `userB`
+(async () => {
+    await matchFoundConsumer.connect();
+    await matchFoundConsumer.subscribe({ topic: 'match-found-events', fromBeginning: false });
+
+    matchFoundConsumer.run({
+        eachMessage: async ({ message }) => {
+            const matchFoundEvent = message.value ? JSON.parse(message.value.toString()) : {};
+            const { userA, userB } = matchFoundEvent;
+
+            console.log(`Match found between userA: ${userA} and userB: ${userB}`);
+
+            // Clear the timers for userA and userB if they exist
+            [userA, userB].forEach((userID) => {
+                if (timersMap.has(userID)) {
+                    const timerData = timersMap.get(userID);
+                    if (timerData) {
+                        clearTimeout(timerData.timerID); // Clear the timer
+                        timersMap.delete(userID); // Remove from the map
+                        console.log(`Cleared timer for user: ${userID}`);
+                    }
+                }
+            });
         },
     });
 })();

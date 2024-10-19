@@ -61,6 +61,8 @@ const MatchingPage: React.FC = () => {
       setStage(STAGE.COUNTDOWN);
     } else if (matchStatus == "isMatched") {
       handleMatchFound();
+    } else if (matchStatus == "unsuccessful") {
+      handleMatchUnsuccess();
     }
   };
 
@@ -85,8 +87,14 @@ const MatchingPage: React.FC = () => {
     setStage(STAGE.UNSUCCESSFUL);
   };
 
-  const handleRetry = () => {
-    setStage(STAGE.COUNTDOWN);
+  const handleRetry = async () => {
+    // setStage(STAGE.COUNTDOWN);
+    try {
+      await fetchWithAuth("http://localhost:3002/reset-status", { method: "POST" });
+    } catch (error) {
+      console.error("Failed to reset status: ", error);
+    }
+    setStage(STAGE.MATCHME);
   };
 
   const handleCancel = async () => {
