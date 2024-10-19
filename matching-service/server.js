@@ -74,7 +74,20 @@ async function matchUsers(searchRequest) {
   const combinedMatches = matchedByTopics.filter((item) =>
     matchedByDifficultyIds.has(item.id),
   );
-  const matchedUser = combinedMatches[0];
+
+  const combinedMatchesWValues = await Promise.all(
+    combinedMatches.map(async (key) => {
+      const value = await redisClient.get(key);
+      return { key, value };
+    }),
+  );
+
+  combinedMatchesWValues.sort((a, b) => {
+    if (a.value < b.value) return -1; // a comes before b
+    if (a.value > b.value) return 1; // a comes after b
+    return 0; // a and b are equal
+  });
+  const matchedUser = combinedMatchesWValues[0]?.key;
 
   if (matchedUser) {
     const matchMessage = {
@@ -94,7 +107,7 @@ async function matchUsers(searchRequest) {
     delete activeSearches[matchedUser.userId];
   } else {
     console.log(`No match found for User ID: ${userId}`);
-    redisClient.set(userId, userId);
+    redisClient.set(userId, Date.now());
     difficulty.forEach((tag) => {
       redisClient.SADD(`difficulty:${tag}`, userId);
     });
@@ -138,6 +151,7 @@ async function findMatchByDifficulty(difficulty) {
 
 function handleDisconnection(userId) {
   if (activeSearches[userId]) {
+    redisClient.del(userId);
     delete activeSearches[userId];
     console.log(`User ID: ${userId} has been removed from active searches.`);
   }
