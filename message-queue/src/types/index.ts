@@ -1,4 +1,5 @@
 export interface UserData {
     difficulty: string
-    user_id?: string
+    topic: string
+    user_id: string
 }

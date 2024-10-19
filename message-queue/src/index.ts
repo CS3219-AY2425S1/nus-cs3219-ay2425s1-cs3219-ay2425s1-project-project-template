@@ -10,7 +10,8 @@ const app: Express = express()
 dotenv.config()
 
 app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
+
+let users : UserData[] = []
 
 let connection: Connection, channel: Channel
 
@@ -29,11 +30,15 @@ const connectRabbitMQ = async () => {
 
 connectRabbitMQ()
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 const handleIncomingNotification = (msg: string) => {
   try {
     const parsedMessage = JSON.parse(msg)
 
     console.log(`Received Notification`, parsedMessage)
+    users.push(parsedMessage)
+    console.log(">>USERS: ", users)
     return parsedMessage
   } catch (error) {
     console.error(`Error while parsing the message`)
@@ -51,17 +56,17 @@ const pullDataFromExchange = async (queueName: string) => {
     durable: true
   })
 
-  channel.prefetch(1)
   await channel.consume(queueName, (msg) => {
     if (!msg) {
       return console.error("Invalid incoming message")
     }
-    message = msg;
+    message = msg
     try {
       handleIncomingNotification(msg?.content?.toString())
+      channel.ack(msg)
     } catch (e) {
       console.log("Invalid message received")
-      console.error(e);
+      console.error(e)
       return {
         channel,
         message: ""
@@ -90,22 +95,104 @@ app.post("/match", (req: Request, res: Response) => {
 })
 
 app.get("/match", async (req: Request, res: Response, next) => {
+  const matchedUsers = []
   if (req.query.hasOwnProperty("queueName")) {
-    const { channel, message } = await pullDataFromExchange(
-      req.query.queueName as string
-    )
-    if (message) {
-      // Do some logic, then ACK
-      console.log("Now then we acknowledge, so we force 1 message to be received at each time")
-      channel.ack(message);
-      res.json({
-        message: JSON.parse(message.content.toString())
-      })
-    } else {
-      res.json({
-        message: JSON.parse(null)
-      })
+    // 1. Pull data from the respective queue, store into global users array
+    // const messageFetchingInterval = setInterval(async () => {
+    await pullDataFromExchange(req.query.queueName as string)
+    const firstUser = users.shift()
+    matchedUsers.push(firstUser);
+
+    console.log(">>MATCHED USERS SO FAR: ", matchedUsers);
+    // if (users.length >= 3) {
+    // clearInterval(messageFetchingInterval)
+    // }
+    // }, 3000)
+
+    // Case 3: Only 1 person in the queue
+    let timeWaitedForMessage = 0
+    let currentTotalUsersWaiting = users.length;
+
+    // if (users.length == 0) {
+    //   const waitForNewMessagesInterval = setInterval(async () => {
+    //     if (timeWaitedForMessage == 8) {
+    //       clearInterval(waitForNewMessagesInterval)
+    //     }
+    //     await pullDataFromExchange(req.query.queueName as string)
+    //     timeWaitedForMessage += 2
+    //   }, 2000)
+      
+    //   while (timeWaitedForMessage != 8) { 
+    //     sleep(1000);
+    //   }
+
+    //   if (currentTotalUsersWaiting > users.length) {
+    //     for (const user of users) {
+          
+    //     }
+    //   } else {
+    //     // Randomly match amongst current users
+    //   }
+    // }
+
+    for (const user of users) {
+      console.log("Reached this case")
+      // Case (1) - 2 people in queue have matching topic
+      if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
+        matchedUsers.push(user);
+        break;
+      }
     }
+
+    console.log("Reached here: ", matchedUsers);
+    
+    if (matchedUsers.length == 2) {
+      res.json({
+        matchedUsers
+      })
+      users = [];
+      return;
+    }
+
+    // Case (2) - >1 person in queue, non matched topic so far
+    // timeWaitedForMessage = 0
+    // currentTotalUsersWaiting = users.length;
+    // const waitForNewMessagesInterval = setInterval(async () => {
+    //   if (timeWaitedForMessage == 8) {
+    //     clearInterval(waitForNewMessagesInterval)
+    //   }
+    //   await pullDataFromExchange(req.query.queueName as string)
+    //   timeWaitedForMessage += 2
+    // }, 2000)
+    
+    // while (timeWaitedForMessage != 8) { 
+    //   await sleep(1000);
+    // }
+
+    // Check currentTotalUsersWaiting with current user's length
+    // If different, means new user added 
+    if (currentTotalUsersWaiting > users.length) {
+      for (const user of users) {
+        
+      }
+    } else {
+      // Randomly match amongst current users
+    }
+
+
+    // const { channel, message } = await pullDataFromExchange(
+    //   req.query.queueName as string
+    // )
+    // Assuming only one message comes through
+    // if (message) {
+    //   // Consume all the messages coming through
+    //   const parsedMessage = JSON.parse(message.content.toString())
+    //   channel.ack(message);
+    //   res.json({
+    //     message: JSON.parse(message.content.toString())
+    //   })
+    // } else {
+    // }
   }
 })
 
