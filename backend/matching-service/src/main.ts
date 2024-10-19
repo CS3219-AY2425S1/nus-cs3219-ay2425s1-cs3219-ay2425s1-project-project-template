@@ -6,6 +6,8 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+
+  app.enableShutdownHooks();
   await app.listen(3009);
 }
 bootstrap();

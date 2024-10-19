@@ -14,26 +14,6 @@ export default function LoginPage() {
 		return <Navigate to={'/matching-page'} />;
 	}
 
-	const startConsume = async () => {
-        try {
-            // Assuming login is successful and user token is saved
-            const response = await fetch('http://localhost:3009/rabbitmq/consume', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                console.log('Consuming started successfully');
-            } else {
-                console.error('Failed to start consuming queue');
-            }
-        } catch (error) {
-            console.error('Error while consuming messages:', error);
-        }
-    };
-
 	const onSuccess = async (credentialResponse: CredentialResponse) => {
 		try {
 		const token = credentialResponse.credential;
@@ -47,7 +27,6 @@ export default function LoginPage() {
 			setLoggedIn(true);
 			setToken(jwtToken);
 			localStorage.setItem("access_token", jwtToken);
-			startConsume();
 			navigate('/matching-page');
 		}
 	} catch (error) {

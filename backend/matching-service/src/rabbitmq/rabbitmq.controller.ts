@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Sse, Param,MessageEvent } from '@nestjs/common';
+import { Controller, Post, Body, Sse, Param, MessageEvent } from '@nestjs/common';
 import { RabbitMQService } from './rabbitmq.service';
 import { EnterQueueDto } from 'src/dto/EnterQueue.dto';
 import { map, Observable, Subject, interval } from 'rxjs';
@@ -20,11 +20,9 @@ export class RabbitMQController {
     return { status: 'Started consuming queue' };
   }
 
-  @Sse(':userEmail') // SSE endpoint
+  @Sse(':userEmail')
   sse(@Param('userEmail') userEmail: string): Observable<any> {
-    console.log("sse called")
-    console.log(userEmail)
+    console.log("sse called by ", userEmail)
     return this.rabbitMQService.createSSEStream(userEmail);
   }
-
 }

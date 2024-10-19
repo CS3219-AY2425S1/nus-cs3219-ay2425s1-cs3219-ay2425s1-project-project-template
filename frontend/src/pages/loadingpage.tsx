@@ -84,7 +84,7 @@ const LoadingPage: React.FC = () => {
             <button className="bg-blue-600 motion-safe:hover:scale-110 hover:bg-blue-500 text-white py-2 px-4 rounded-full transition">
               Accept
             </button>
-            <button className="bg-red-600 motion-safe:hover:scale-110 hover:bg-red-500 text-white py-2 px-4 rounded-full transition" onClick={() => navigate("/profile")}>
+            <button className="bg-red-600 motion-safe:hover:scale-110 hover:bg-red-500 text-white py-2 px-4 rounded-full transition" onClick={() => navigate("/matching-page")}>
               Decline
             </button>
           </div>

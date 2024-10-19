@@ -1,88 +1,97 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import * as amqp from 'amqplib/callback_api.js';
 import { EnterQueueDto } from 'src/dto/EnterQueue.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Observable } from 'rxjs';
 
-
-
 @Injectable()
-export class RabbitMQService {
+export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   constructor(private readonly eventEmitter: EventEmitter2) { }
-
+  private readonly matchBuffer: Record<string, any[]> = {};
+  private readonly connectedUsers: Set<string> = new Set();
   private readonly queueName = 'matching_queue';
   private readonly rabbitmqUrl = 'amqp://localhost:5672';
+  private connection: amqp.Connection;
+  private channel: amqp.Channel;
   private unmatchedRequests: Record<string, any> = {};
 
-  enterQueue(enterQueueDto: EnterQueueDto): void {
-
-    amqp.connect(this.rabbitmqUrl, (err, connection) => {
-      if (err) {
-        console.error('Failed to connect to RabbitMQ:', err);
-        throw err;
-      }
-
-      connection.createChannel((channelErr, channel) => {
-        if (channelErr) {
-          console.error('Failed to create a channel:', channelErr);
-          throw channelErr;
-        }
-
-        channel.assertQueue(this.queueName, { durable: false });
-        console.log(
-          'messegae sent is ',
-          Buffer.from(JSON.stringify(enterQueueDto)),
-        );
-        channel.sendToQueue(
-          this.queueName,
-          Buffer.from(JSON.stringify(enterQueueDto)),
-        );
-        console.log('User sent to queue:', enterQueueDto);
-
-        setTimeout(() => {
-          connection.close();
-        }, 500);
-      });
-    });
+  async onModuleInit() {
+    await this.connect();
+    this.consumeQueue();
   }
 
-  consumeQueue(): void {
-    amqp.connect(this.rabbitmqUrl, (err, connection) => {
-      if (err) {
-        console.error('Failed to connect to RabbitMQ:', err);
-        throw err;
-      }
+  async onModuleDestroy() {
+    await this.closeConnection();
+  }
 
-      connection.createChannel((channelErr, channel) => {
-        if (channelErr) {
-          console.error('Failed to create a channel:', channelErr);
-          throw channelErr;
+  private async connect(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      amqp.connect(this.rabbitmqUrl, (err, connection) => {
+        if (err) {
+          console.error('Failed to connect to RabbitMQ:', err);
+          throw err;
         }
-
-        channel.assertQueue(this.queueName, { durable: false });
-        console.log('Waiting for users in queue...');
-
-        channel.consume(this.queueName, (msg) => {
-          console.log('parsed to', JSON.parse(msg.content.toString()));
-          if (msg !== null) {
-            const userRequest = JSON.parse(msg.content.toString());
-            console.log(
-              `Received match request for user ${userRequest.userId}`,
-            );
-            this.matchUser(userRequest);
-            channel.ack(msg);
-          } else {
-            console.log('Received a null user, skipping.');
+        this.connection = connection
+        connection.createChannel((channelErr, channel) => {
+          if (channelErr) {
+            console.error('Failed to create a channel:', channelErr);
+            throw channelErr;
           }
+          this.channel = channel;
+          channel.assertQueue(this.queueName, { durable: false }, (error2, _ok) => {
+            if (error2) {
+              console.error('Failed to assert queue:', error2);
+              return;
+            }
+            console.log(`Queue ${this.queueName} is ready`);
+            resolve();
+          });
         });
       });
-    });
+      console.log('Connected to RabbitMQ');
+    })
+  }
+
+  private async closeConnection() {
+    try {
+      await this.channel.close();
+      await this.connection.close();
+      console.log('RabbitMQ connection closed.');
+    } catch (error) {
+      console.error('Error in closing RabbitMQ connection:', error);
+    }
+  }
+
+  enterQueue(enterQueueDto: EnterQueueDto): void {
+    this.channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(enterQueueDto)));
+    console.log('User sent to queue:', enterQueueDto);
+  };
+
+  consumeQueue() {
+    if (this.channel) {
+      console.log('Waiting for users in queue...');
+      this.channel.consume(this.queueName, (msg) => {
+        console.log('parsed to', JSON.parse(msg.content.toString()));
+        if (msg !== null) {
+          const userRequest = JSON.parse(msg.content.toString());
+          console.log(
+            `Received match request for user ${userRequest.userId}`,
+          );
+          this.matchUser(userRequest);
+          this.channel.ack(msg);
+        } else {
+          console.log('Received a null user, skipping.');
+        }
+      });
+    } else {
+      console.error('Cannot consume messages, channel not initialized');
+    }
   }
 
   private matchUser(userRequest: EnterQueueDto): void {
     const { email, categories, complexity, language } = userRequest;
     const matchingKey = `${categories}-${complexity}-${language}`;
-
+    console.log(this.unmatchedRequests)
     if (this.unmatchedRequests[matchingKey]) {
       const matchedUser = this.unmatchedRequests[matchingKey];
       console.log(`Match found between ${email} and ${matchedUser.email}`);
@@ -105,54 +114,64 @@ export class RabbitMQService {
   }
 
   notifyMatchFound(userEmail: string, matchEmail: string) {
-    const time = new Date().toISOString(); // Current timestamp in ISO format
-    // const matchData = {
-    //   users: [
-    //     { email: userEmail, matchedWith: matchEmail },
-    //     { email: matchEmail, matchedWith: userEmail },
-    //   ],
-    //   timestamp: new Date().toISOString(), // Current timestamp in ISO format
-    // };
+    const time = new Date().toISOString();
+    const userData = {
+      userEmail: userEmail,
+      timestamp: time
+    };
 
-    // matchData.users.forEach(user => {
-      const userData = {
-        userEmail: userEmail,
-        timestamp: time
-      };
-      
-      const matchData = {
-        userEmail: matchEmail,
-        timestamp: time
-      };
+    const matchData = {
+      userEmail: matchEmail,
+      timestamp: time
+    };
 
-      // Emit the event as a JSON string
-      this.eventEmitter.emit('match.found', JSON.stringify(userData));
-      this.eventEmitter.emit('match.found', JSON.stringify(matchData));
-      // this.eventEmitter.emit('match.found', JSON.stringify(matchData));
-    // });
-  }
+    if (this.connectedUsers.has(userData.userEmail)) {
+      this.eventEmitter.emit('match.found', userData);
+    } else {
+      if (!this.matchBuffer[userData.userEmail]) {
+        this.matchBuffer[userData.userEmail] = []; // Create an array if it doesn't exist
+      }
+      this.matchBuffer[userData.userEmail].push(userData);
+    }
+
+    if (this.connectedUsers.has(matchData.userEmail)) {
+      this.eventEmitter.emit('match.found', matchData);
+    } else {
+      if (!this.matchBuffer[matchData.userEmail]) {
+        this.matchBuffer[matchData.userEmail] = []; // Create an array if it doesn't exist
+      }
+      this.matchBuffer[matchData.userEmail].push(matchData);
+    }
+  };
+
 
   createSSEStream(userEmail: string): Observable<any> {
-    return new Observable((subscriber) => {
-      const handleMatchFound = (data) => {
-        // if (data === userEmail) {
-        subscriber.next(data);
-        console.log("Notifying", data);
 
-        //   console.log(data)
-        // } else {
-        //   console.log("NOOOO")
-        //   console.log(userEmail)
-        //   console.log(data)
-        // }
+    return new Observable((subscriber) => {
+
+      this.connectedUsers.add(userEmail);
+      console.log(this.connectedUsers)
+
+
+      if (this.matchBuffer[userEmail]) {
+        console.log("Notifying buffered events for ", userEmail, ":", this.matchBuffer[userEmail]);
+        this.matchBuffer[userEmail].forEach((data) => {
+          subscriber.next(JSON.stringify(data)); // Notify each buffered event
+        });
+        delete this.matchBuffer[userEmail];
+      }
+
+      const handleMatchFound = (data) => {
+        subscriber.next(JSON.stringify(data));
+        console.log("Notifying", data);
       };
 
       this.eventEmitter.on('match.found', handleMatchFound);
 
       return () => {
-        console.log("ENded")
         this.eventEmitter.off('match.found', handleMatchFound);
-
+        this.connectedUsers.delete(userEmail);
+        console.log("after cleanup ", this.connectedUsers);
       };
     });
   }
