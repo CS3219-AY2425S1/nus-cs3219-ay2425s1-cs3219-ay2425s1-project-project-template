@@ -16,7 +16,14 @@ const sendMatchResult = async (
     }
 
     if (partnerSockId) {
-        const { timestamp, ...requester } = req
+        const requester: MatchPartner = { 
+            name: req.name, 
+            questionId: partner.questionId,  
+            title: partner.title, 
+            difficulty: req.difficulty,
+            category: partner.category
+        }
+
         io.to(partnerSockId).emit('matchFound', requester)
     }
 

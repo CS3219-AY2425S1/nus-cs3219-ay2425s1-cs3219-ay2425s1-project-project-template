@@ -24,7 +24,7 @@ const getQuestionsByFilter = async (req: Request, res: Response) => {
         }
 
         if (difficulty) {
-            filter.difficulty = difficulty
+            filter.difficulty = { $regex: difficulty, $options: 'i' }
         }
 
         const retrievedQuestions = await Question.find(filter)

@@ -16,18 +16,20 @@ const getRandomQuestion = async (req: Request, res: Response) => {
         }
 
         if (difficulty) {
-            filter.difficulty = difficulty
+            filter.difficulty = { $regex: difficulty, $options: 'i' }
         }
 
         const retrievedQuestions = await Question.find(filter)
-        const n = retrievedQuestions.length
-        const randomIndex = Math.floor(Math.random() * n)
-        const randomQuestion = retrievedQuestions[randomIndex]
 
         if (!retrievedQuestions) {
             logger.error('No questions found')
             return res.status(400).json({ message: 'No questions found' })
         }
+
+        console.log(retrievedQuestions)
+        const n = retrievedQuestions.length
+        const randomIndex = Math.floor(Math.random() * n)
+        const randomQuestion = retrievedQuestions[randomIndex]
 
         let logMessage = `Question chosen`
 

@@ -97,7 +97,7 @@ const processMatching = async (
             (r) => currTime - r.timestamp <= MATCH_TIMEOUT,
         )
 
-        const matchPartner = performMatching(req, activeRequests)
+        const matchPartner = await performMatching(req, activeRequests)
         
         if (reqIndex !== -1) {
             requestQueue.splice(reqIndex, 1)

@@ -7,6 +7,8 @@ export interface TimedMatchRequest {
 
 export interface MatchPartner {
     name: string
+    questionId: number,
+    title: string,
     difficulty: string
     category: string[]
 }
