@@ -11,6 +11,7 @@ export async function createRoom(
     const questionParams = { topic: topic, difficultyLevel: difficulty };
     const question = await generateQuestion(questionParams);
     const newRoom = new RoomModel({
+      id: `room_${users.join("_")}`,
       users,
       question,
       topic,
