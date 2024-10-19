@@ -7,6 +7,11 @@ redis:
 server:
 	@uvicorn matching_service.api:app --reload --host 0.0.0.0 --port 8000
 
+.PHONY: server-prod
+server-prod:
+	@uvicorn matching_service.api:app --host 0.0.0.0 --port 8000 --log-level error
+
+
 .PHONY: proto
 proto:
 	@python3 -m grpc_tools.protoc -I ../protos --python_out=./matching_service/protos --pyi_out=./matching_service/protos --grpc_python_out=./matching_service/protos ../protos/question.proto

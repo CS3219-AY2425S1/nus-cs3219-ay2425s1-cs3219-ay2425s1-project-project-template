@@ -1,12 +1,20 @@
 import json
 from typing import Any
 
+import structlog
 from pydantic import ValidationError
 from redis import Redis
 from structlog import get_logger
 
 from matching_service.common import MatchRequest
 from matching_service.config import Channels, RedisSettings, settings
+
+structlog.configure(
+    processors=[
+        structlog.processors.add_log_level,
+        structlog.dev.ConsoleRenderer(),
+    ]
+)
 
 logger = get_logger()
 

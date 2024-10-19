@@ -1,3 +1,4 @@
+import structlog
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
@@ -9,6 +10,13 @@ from matching_service.config import RedisSettings
 from .common import Difficulty
 from .config import Channels, settings
 from .grpc import query_num_questions
+
+structlog.configure(
+    processors=[
+        structlog.processors.add_log_level,
+        structlog.dev.ConsoleRenderer(),
+    ]
+)
 
 logger = get_logger()
 

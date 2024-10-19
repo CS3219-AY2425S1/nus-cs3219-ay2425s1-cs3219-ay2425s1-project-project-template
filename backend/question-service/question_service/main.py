@@ -1,5 +1,6 @@
 import asyncio
 
+import structlog
 import uvicorn
 from beanie import init_beanie
 from fastapi import FastAPI, Request, status
@@ -16,6 +17,12 @@ from .grpc import serve
 from .models import Question
 from .schemas import CustomValidationErrorResponse
 
+structlog.configure(
+    processors=[
+        structlog.processors.add_log_level,
+        structlog.dev.ConsoleRenderer(),
+    ]
+)
 logger = get_logger()
 
 

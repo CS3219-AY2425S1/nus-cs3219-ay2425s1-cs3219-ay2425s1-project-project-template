@@ -1,5 +1,6 @@
 from concurrent import futures
 
+import structlog
 from structlog import get_logger
 
 import grpc
@@ -7,6 +8,13 @@ import grpc
 from .protos import question_pb2 as pb2
 from .protos import question_pb2_grpc as pb2_grpc
 from .service import get_questions
+
+structlog.configure(
+    processors=[
+        structlog.processors.add_log_level,
+        structlog.dev.ConsoleRenderer(),
+    ]
+)
 
 logger = get_logger()
 

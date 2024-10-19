@@ -13,6 +13,7 @@ services:
   question-service:
     depends_on:
       - question-db
+    command: make server-prod
     build:
       context: ./question-service
       dockerfile: Dockerfile
@@ -56,7 +57,7 @@ services:
     build:
       context: ./matching-service
       dockerfile: Dockerfile
-    command: make server
+    command: make server-prod
     environment:
       - REDIS_HOST=matchmaker-redis
       - REDIS_PORT=6379
