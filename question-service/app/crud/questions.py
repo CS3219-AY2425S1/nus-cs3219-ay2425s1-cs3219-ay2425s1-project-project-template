@@ -109,7 +109,7 @@ def get_question_complexities() -> List[ComplexityEnum]:
 '''
 This section comprises of helper functions.
 '''
-def _parse_oid(oid: str):
+def _parse_oid(oid: str) -> ObjectId:
     try:
         return ObjectId(oid)
     except InvalidId:
