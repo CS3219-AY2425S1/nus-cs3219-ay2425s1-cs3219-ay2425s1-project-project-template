@@ -7,16 +7,10 @@ const app = express();
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'matcher-service' });
-
+const dequeueConsumer = kafka.consumer({ groupId: 'matcher-service-dequeue' }); // New consumer for dequeue-events
 
 app.use(express.json());
 app.use(cors());
-
-
-// TODO: Implement PQ instead of just FIFO
-// TODO: Have multiple PQs based on topic
-
-// TODO: Implement logic to consume `cancel-match-event` and remove from PQ
 
 interface MatchRequestData {
   userID: string,
@@ -36,6 +30,24 @@ let matchRequests: MatchRequestData[] = [];
       const matchRequestData = message.value ? JSON.parse(message.value.toString()) : {};
       console.log(`Received match request: ${JSON.stringify(matchRequestData)}`);
       matchRequests.push(matchRequestData); // Store the match requests
+    },
+  });
+})();
+
+// Listen to dequeue events
+(async () => {
+  await dequeueConsumer.connect();
+  await dequeueConsumer.subscribe({ topic: 'dequeue-events', fromBeginning: false });
+
+  await dequeueConsumer.run({
+    eachMessage: async ({ message }) => {
+      const { userID } = message.value ? JSON.parse(message.value.toString()) : {};
+      console.log(`Received dequeue event for userID: ${userID}`);
+      
+      // Remove the user's match request from the queue
+      matchRequests = matchRequests.filter(request => request.userID !== userID);
+      
+      console.log(`User ${userID} removed from match queue.`);
     },
   });
 })();
@@ -71,7 +83,6 @@ const runMatchingAlgorithm = async () => {
   await kafkaProducer.connect();
   runMatchingAlgorithm();
 })();
-
 
 app.listen(3003, () => {
     console.log("Server started on port 3003");

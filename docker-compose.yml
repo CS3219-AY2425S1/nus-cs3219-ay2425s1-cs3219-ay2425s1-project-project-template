@@ -70,7 +70,18 @@ services:
     volumes:
       - ./matching-service/matcher-service:/app
       - /app/node_modules
-  
+
+  dequeue-service:
+    build: ./matching-service/dequeue-service
+    ports:
+      - 3004:3004
+    # depends_on:
+      # - user-service
+      # - question-service # maybe to retrieve information on the questions difficulties/topics
+    volumes:
+      - ./matching-service/dequeue-service:/app
+      - /app/node_modules
+
   kafka:
     image: bitnami/kafka
     ports:

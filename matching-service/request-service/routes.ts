@@ -6,6 +6,7 @@ const router = Router();
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'request-service' });
+const dequeueConsumer = kafka.consumer({ groupId: 'request-service-dequeue' }); // New consumer for dequeue-events
 
 const matchesMap = new Map();
 const statusMap = new Map();
@@ -30,6 +31,21 @@ const statusMap = new Map();
             }
         },
     });
+})();
+
+// Listen to dequeue events
+(async () => {
+  await dequeueConsumer.connect();
+  await dequeueConsumer.subscribe({ topic: 'dequeue-events', fromBeginning: false });
+
+  await dequeueConsumer.run({
+    eachMessage: async ({ message }) => {
+      const { userID } = message.value ? JSON.parse(message.value.toString()) : {};
+      console.log(`Received dequeue event for userID: ${userID}`);
+      statusMap.set(userID, 'isNotMatching');
+      console.log(`User ${userID} removed from match queue.`);
+    },
+  });
 })();
 
 const verifyJWT = async (authorizationHeader: string | undefined) => {
