@@ -114,6 +114,7 @@ export function LeetcodeDashboardTable({
   const [searchDifficulty, setSearchDifficulty] = React.useState<string[]>([]);
   const [searchTopic, setSearchTopic] = React.useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const questionDifficulty = Object.values(QuestionDifficulty).map((q1) => {
     return {
@@ -202,6 +203,7 @@ export function LeetcodeDashboardTable({
   ];
 
   useEffect(() => {
+    setIsLoading(true);
     getLeetcodeDashboardData(
       pagination.pageIndex + 1,
       pagination.pageSize,
@@ -225,6 +227,7 @@ export function LeetcodeDashboardTable({
         setData(data.questions);
       }
     });
+    setIsLoading(false);
   }, [
     refreshKey,
     pagination.pageIndex,
@@ -249,7 +252,7 @@ export function LeetcodeDashboardTable({
   return (
     <div className="w-full test">
       <div>
-        <Table className="font-light min-h-[40vh]">
+        <Table className="font-light min-h-[280px]">
           <TableHeader className="w-full">
             <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
               <TableCell colSpan={5} className="pl-10">
@@ -344,7 +347,11 @@ export function LeetcodeDashboardTable({
               <TableRow>
                 <TableCell colSpan={columns.length}>
                   <div className="w-full flex justify-center items-center">
-                    <MoonLoader color="#FFFFFF" size="30" />
+                    {isLoading ? (
+                      <MoonLoader color="#FFFFFF" size="30" />
+                    ) : (
+                      <div className="text-base">No data found</div>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
