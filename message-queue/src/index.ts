@@ -36,8 +36,8 @@ const handleIncomingNotification = (msg: string) => {
   try {
     const parsedMessage = JSON.parse(msg)
 
-    console.log(`Received Notification`, parsedMessage)
-    users.push(parsedMessage)
+    // console.log(`Received Notification`, parsedMessage)
+    users.unshift(parsedMessage)
     console.log(">>USERS: ", users)
     return parsedMessage
   } catch (error) {
@@ -103,7 +103,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
     const firstUser = users.shift()
     matchedUsers.push(firstUser);
 
-    console.log(">>MATCHED USERS SO FAR: ", matchedUsers);
+    // console.log(">>MATCHED USERS SO FAR: ", matchedUsers);
     // if (users.length >= 3) {
     // clearInterval(messageFetchingInterval)
     // }
