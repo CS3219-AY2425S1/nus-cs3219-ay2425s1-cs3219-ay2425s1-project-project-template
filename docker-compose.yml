@@ -24,6 +24,18 @@ services:
     networks:
       - peer-prep-network
 
+  matchingverification:
+    build: ./backend/matchverification
+    container_name: matching-verification-container
+    ports:
+      - "3006:3006"
+    env_file:
+      - ./backend/matchverification/.env # Env file for matching service, to test in prod
+    volumes:
+      - ./backend/matchverification/src:/app/src
+    networks:
+      - peer-prep-network
+
   websocket:
     build: ./backend/websocket
     container_name: websocket-container
