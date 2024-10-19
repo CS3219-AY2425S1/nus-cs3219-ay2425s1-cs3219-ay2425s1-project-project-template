@@ -40,11 +40,11 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
   }, [socketPort]);
 
   return (
-    <div className='flex h-full items-center justify-center'>
+    <div className='flex size-full items-center justify-center'>
       <Card
         className={cn(
           'text-card-foreground bg-primary-foreground rounded-xl border border-border shadow',
-          'flex w-full max-w-[400px] md:size-full md:max-h-[600px]',
+          'flex max-w-[400px] size-full md:max-h-[600px]',
           'flex-col items-center justify-center'
         )}
       >

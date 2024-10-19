@@ -24,7 +24,7 @@ export const WaitingRoomModal: FC<IMatchingModalProps> = ({
 }) => {
   return (
     <Dialog modal={true} open={isModalOpen}>
-      <DialogContent className='max-h-[500px] [&>button]:hidden'>
+      <DialogContent className='border-border max-h-[500px] [&>button]:hidden'>
         <DialogHeader>
           <VisuallyHidden>
             <DialogTitle>Waiting Room</DialogTitle>

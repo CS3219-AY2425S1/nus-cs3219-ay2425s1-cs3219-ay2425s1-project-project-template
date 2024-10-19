@@ -2,22 +2,20 @@ import { observer } from 'mobx-react';
 import { Suspense } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
 
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { MatchForm } from './match-form';
 
 export const Match = observer(() => {
   const { topics } = useLoaderData() as { topics: Promise<Array<string>> };
 
   return (
-    <div className='m-auto flex grow items-center justify-center'>
+    <ScrollArea className='flex size-full py-8'>
       <Suspense fallback={<div>Loading topics...</div>}>
         <Await resolve={topics}>
-          {(resolvedTopics) => (
-            <div className='flex size-full items-center justify-center'>
-              <MatchForm topics={resolvedTopics.topics} />
-            </div>
-          )}
+          {(resolvedTopics) => <MatchForm topics={resolvedTopics.topics} />}
         </Await>
       </Suspense>
-    </div>
+    </ScrollArea>
   );
 });

@@ -17,7 +17,8 @@ type IWaitingRoomProps = {
 
 type IWaitingRoomUIState = {
   connected: boolean;
-  cancel: boolean;
+  isCancelling: boolean;
+  canCancel: boolean;
   uiState: (typeof UI_STATUS)[keyof typeof UI_STATUS];
 };
 
@@ -25,11 +26,13 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
   const navigate = useNavigate();
   const { values } = useMatchRequest();
 
-  const [{ connected, cancel, uiState }, setUIState] = useState<IWaitingRoomUIState>({
-    connected: false,
-    cancel: false,
-    uiState: UI_STATUS.WAITING_STATUS,
-  });
+  const [{ connected, isCancelling, canCancel, uiState }, setUIState] =
+    useState<IWaitingRoomUIState>({
+      connected: false,
+      isCancelling: false,
+      canCancel: false,
+      uiState: UI_STATUS.WAITING_STATUS,
+    });
 
   const countdownRef = useRef(31);
   const timerRef = useRef<number | null>(null);
@@ -45,11 +48,12 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
   };
 
   useEffect(() => {
-    if (cancel) {
+    if (isCancelling) {
       clearInterval(timerRef.current!);
       setUIState((state) => ({
         ...state,
-        cancel: true,
+        isCancelling: true,
+        canCancel: false,
       }));
     } else if (connected) {
       timerRef.current = window.setInterval(() => {
@@ -68,7 +72,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
     }
 
     return () => clearInterval(timerRef.current!);
-  }, [connected, cancel]);
+  }, [connected, isCancelling]);
 
   useEffect(() => {
     if (!socketPort) {
@@ -101,10 +105,12 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
 
       socket.on(MATCHING_EVENT.MATCHING, () => {
         console.log('Matching in progress');
+        setUIState((prev) => ({ ...prev, canCancel: false }));
       });
 
       socket.on(MATCHING_EVENT.PENDING, () => {
         console.log('Waiting in pool');
+        setUIState((prev) => ({ ...prev, canCancel: true }));
       });
 
       socket.on(MATCHING_EVENT.SUCCESS, (data) => {
@@ -148,7 +154,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
     try {
       setUIState((prevState) => ({
         ...prevState,
-        cancel: true,
+        isCancelling: true,
         uiState: UI_STATUS.CANCELLING_STATUS,
       }));
       countdownRef.current = 0;
@@ -166,8 +172,13 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
         {uiState.icon}
         <p className='mt-4 whitespace-pre-wrap text-lg'>{uiState.description}</p>
       </div>
-      {countdownRef.current > 0 || cancel ? (
-        <Button className='mt-5' variant='destructive' onClick={handleCancel} disabled={cancel}>
+      {countdownRef.current > 0 || isCancelling ? (
+        <Button
+          className='mt-5'
+          variant='destructive'
+          onClick={handleCancel}
+          disabled={isCancelling || !canCancel}
+        >
           Cancel
         </Button>
       ) : (
