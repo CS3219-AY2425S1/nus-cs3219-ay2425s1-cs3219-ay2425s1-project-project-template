@@ -5,13 +5,17 @@ import NavBar from "./components/NavBar/navbar";
 import LoginPage from "./pages/Login/login";
 import SignupPage from "./pages/Signup/signup";
 import PrivateRoute from "./routes/PrivateRoute";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, redirect, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider, } from '@tanstack/react-query'
 import { Toaster } from "react-hot-toast";
+import { useContext } from "react";
+import { AuthContext } from "./hooks/AuthContext";
+import PublicRoute from "./routes/PublicRoute";
 
 const queryClient = new QueryClient();
 
 function App() {
+  const {isAuthenticated} = useContext(AuthContext);
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster position="bottom-center"/>
@@ -19,8 +23,10 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="*" element={<NotFoundPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+            <Route element={<PublicRoute/>}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+            </Route>
             <Route element={<PrivateRoute/>}>
               <Route path="/" element= {<><NavBar /><QuestionPage /></>} />
             </Route>

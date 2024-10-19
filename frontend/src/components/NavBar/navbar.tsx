@@ -15,10 +15,9 @@ import PeopleIcon from "@mui/icons-material/People";
 import MatchingDialog from "../Matching/matching";
 import axios from "axios";
 import { AuthContext, authState } from "../../hooks/AuthContext";
-import { useNavigate } from "react-router-dom";
+
 
 function NavBar() {
-  const navigate = useNavigate();
   const settings = [
     {
       name: "Settings",
@@ -30,13 +29,13 @@ function NavBar() {
         axios.delete(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, {
           withCredentials: true,
         }).then(_ => {
-          navigate("/login");
+          setIsAuthenticated(authState.FALSE);
         });
       }
     },
   ];
 
-  const { user } = React.useContext(AuthContext);
+  const { user, setIsAuthenticated } = React.useContext(AuthContext);
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
