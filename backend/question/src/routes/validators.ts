@@ -29,14 +29,14 @@ export const idValidators = [check("id").isInt({ min: 1 })];
 export const pickQuestionValidators = [
   check("complexity").custom((complexity) => {
     if (!Array.isArray(complexity) || complexity.length === 0) {
-      throw new Error("Category must be a non-empty array");
+      throw new Error("Complexity must be a non-empty array");
     }
     if (
       !complexity.every(
         (element) => typeof element === "string" && element.trim().length > 0
       )
     ) {
-      throw new Error("Category must contain only non-empty strings");
+      throw new Error("Complexity must contain only non-empty strings");
     }
     return true;
   }),

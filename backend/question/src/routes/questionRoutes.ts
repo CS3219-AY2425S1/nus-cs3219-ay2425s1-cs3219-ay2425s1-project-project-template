@@ -65,7 +65,7 @@ router.post("/all", async (req: Request, res: Response) => {
   const { title, complexity, category } = req.body;
 
   const query: any = { deleted: false };
-  if (title !== "") query.title = { $regex: title, $options: "i" };
+  if (title && title !== "") query.title = { $regex: title, $options: "i" };
   if (complexity && complexity.length > 0)
     query.complexity = { $in: complexity };
   if (category && category.length > 0) query.category = { $in: category };
@@ -228,10 +228,6 @@ router.post(
       );
       return res.json(updatedQuestion);
     } catch (error) {
-      //to catch pre-middleware defined error
-      if (error instanceof Error) {
-        return res.status(404).json(error.message);
-      }
       return res.status(500).send("Internal server error");
     }
   }
