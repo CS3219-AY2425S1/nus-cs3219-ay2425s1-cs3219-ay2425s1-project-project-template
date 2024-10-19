@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { requestMatch } from '@/services/match-service';
 import { fetchTopics } from '@/services/question-service';
+import { getUserId } from '@/services/user-service';
 
 export interface MatchFormData {
   selectedTopics: string[];
@@ -32,10 +33,14 @@ const formSchema = z.object({
   difficulty: z.string().min(1, 'Difficulty cannot be empty'),
 });
 
-type IRequestMatchFormSchema = z.infer<typeof formSchema>;
+export type IRequestMatchFormSchema = z.infer<typeof formSchema>;
 
 export const useRequestMatchForm = () => {
+  // TODO: Set on RouteGuard is-authed request and then query Context API
+  const userId = getUserId() as string;
+
   const [socketPort, setSocketPort] = useState('');
+
   const form = useForm<IRequestMatchFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,10 +50,11 @@ export const useRequestMatchForm = () => {
     mode: 'onSubmit',
   });
   const { selectedTopics: topic, difficulty } = form.watch();
+
   const { mutate, error, isPending, isSuccess } = useMutation({
     mutationKey: ['requestMatch', topic, difficulty],
-    mutationFn: (data: IRequestMatchFormSchema) => {
-      return requestMatch(data);
+    mutationFn: () => {
+      return requestMatch({ userId });
     },
     onSuccess(data, _variables, _context) {
       if (data && data.socketPort) {
@@ -60,8 +66,8 @@ export const useRequestMatchForm = () => {
     },
   });
 
-  const onSubmit = (data: IRequestMatchFormSchema) => {
-    mutate(data);
+  const onSubmit = (_data: IRequestMatchFormSchema) => {
+    mutate();
   };
 
   return {

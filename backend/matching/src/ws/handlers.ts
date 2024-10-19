@@ -5,7 +5,7 @@ import { logger } from '@/lib/utils';
 import { queueingService } from '@/services';
 import type { IRedisClient, IRequestMatchEvent } from '@/types';
 
-import { MATCHING_EVENT,WS_EVENT } from './events';
+import { MATCHING_EVENT, WS_EVENT } from './events';
 
 type ISocketIOServer<T> = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, T>;
 type ISocketIOSocket<T> = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, T>;
@@ -56,31 +56,37 @@ export const queueEventHandler =
       (!payload.topic && !payload.difficulty) ||
       (payload.topic && !Array.isArray(payload.topic))
     ) {
-      socket.emit(MATCHING_EVENT.ERROR, `Payload for ${WS_EVENT.START_QUEUING} is invalid.`);
+      const message = `Payload for ${WS_EVENT.START_QUEUING} is invalid.`;
+      logger.warn(message);
+      socket.emit(MATCHING_EVENT.ERROR, message);
       return;
     }
 
     // 3. Start Queuing
-    if (!redisClient || !redisClient.isOpen || !redisClient.isReady) {
-      try {
+    try {
+      if (!redisClient || !redisClient.isOpen || !redisClient.isReady) {
         redisClient = await client.connect();
-        const { userId, difficulty, topic } = payload;
-        const timestamp = `${Date.now()}`;
-        await queueingService(redisClient, {
-          userId,
-          difficulty,
-          topic,
-          socketPort: roomId,
-          timestamp,
-        });
-      } catch (error) {
-        const { name, message, stack, cause } = error as Error;
-        logger.error({ name, message, stack, cause }, `An error occurred connecting to the client`);
-        socket.emit(MATCHING_EVENT.ERROR, 'Error connecting to client');
-        return;
       }
-    }
 
-    socket.emit(MATCHING_EVENT.QUEUED);
-    logQueueStatus(logger, redisClient, `Queue Status Before Matching: <PLACEHOLDER>`);
+      const { userId, difficulty, topic } = payload;
+      const timestamp = `${Date.now()}`;
+      await queueingService(redisClient, {
+        userId,
+        difficulty,
+        topic,
+        socketPort: roomId,
+        timestamp,
+      });
+      socket.emit(MATCHING_EVENT.QUEUED);
+      await logQueueStatus(
+        logger,
+        redisClient,
+        `[ws::queueEventHandler] Queue Status Before Matching: <PLACEHOLDER>`
+      );
+    } catch (error) {
+      const { name, message, stack, cause } = error as Error;
+      logger.error({ name, message, stack, cause }, `An error occurred.`);
+      socket.emit(MATCHING_EVENT.ERROR, 'Error connecting to client');
+      return;
+    }
   };

@@ -72,16 +72,9 @@ async function processMatch(
       // Notify both sockets
       const { ...matchItems } = getMatchItems({ userId1: requestorUserId, userId2: matchedUserId });
 
-      const sendMatchLogic = (socketPort: string) => {
-        sendNotif([socketPort], MATCHING_EVENT.SUCCESS, matchItems);
-        sendNotif([socketPort], MATCHING_EVENT.DISCONNECT);
-      };
+      sendNotif([matchedSocketPort, requestorSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
+      sendNotif([matchedSocketPort, requestorSocketPort], MATCHING_EVENT.DISCONNECT);
 
-      // TODO: If client disconnected, stop sending to requestor
-      sendMatchLogic(matchedSocketPort);
-      setTimeout(() => {
-        sendMatchLogic(requestorSocketPort);
-      }, 1000);
       await logQueueStatus(logger, redisClient, `Queue Status After Matching: <PLACEHOLDER>`);
       return true;
     }

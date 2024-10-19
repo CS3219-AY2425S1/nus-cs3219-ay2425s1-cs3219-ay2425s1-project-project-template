@@ -1,4 +1,3 @@
-import { MatchFormData } from '@/routes/match/logic';
 import { IRequestMatchResponse } from '@/types/match-types';
 
 import { matchApiClient } from './api-clients';
@@ -8,11 +7,11 @@ const MATCHING_SERVICE_ROUTES = {
   CANCEL_MATCH: '/match/cancel',
 };
 
-export const requestMatch = (data: MatchFormData): Promise<IRequestMatchResponse | null> => {
+export const requestMatch = (
+  params: { userId?: string } | undefined
+): Promise<IRequestMatchResponse | null> => {
   const payload = {
-    userId: localStorage.getItem('cachedUserID'),
-    topic: data.selectedTopics,
-    difficulty: data.difficulty,
+    userId: params?.userId,
   };
 
   return matchApiClient

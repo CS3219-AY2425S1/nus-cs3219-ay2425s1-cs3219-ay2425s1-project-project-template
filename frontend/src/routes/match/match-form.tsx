@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { MatchRequestStoreProvider } from '@/stores/match-request-store';
 
 import { useRequestMatchForm } from './logic';
 import { WaitingRoomModal } from './waiting-room';
@@ -125,7 +126,9 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
           </FormProvider>
         </CardContent>
       </Card>
-      <WaitingRoomModal {...{ socketPort, isModalOpen, setIsModalOpen }} />
+      <MatchRequestStoreProvider value={{ form }}>
+        <WaitingRoomModal {...{ socketPort, isModalOpen, setIsModalOpen, form }} />
+      </MatchRequestStoreProvider>
     </div>
   );
 };
