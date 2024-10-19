@@ -47,7 +47,7 @@ class RabbitMQConnection {
                 await this.connect()
             }
 
-            if (this.cancelledUsers.has(this.createId(message.userId, message.timestamp))) {
+            if (this.cancelledUsers.has(message.websocketId)) {
                 logger.info(`[Entry-Queue] Blacklisted user ${message.userId} tried to enter queue`)
                 return
             }
@@ -139,9 +139,9 @@ class RabbitMQConnection {
             } else {
                 if (waitingUser.content) {
                     const content: IUserQueueMessage = JSON.parse(waitingUser.content.toString())
-                    if (this.cancelledUsers.has(this.createId(content.userId, content.timestamp))) {
+                    if (this.cancelledUsers.has(content.websocketId)) {
                         this.channel.ack(waitingUser)
-                        this.cancelledUsers.delete(this.createId(content.userId, content.timestamp))
+                        this.cancelledUsers.delete(content.websocketId)
                         return false
                     } else {
                         logger.info(
@@ -172,10 +172,10 @@ class RabbitMQConnection {
 
             if (directMatch) {
                 const directMatchContent = JSON.parse(directMatch.content.toString())
-                if (this.cancelledUsers.has(this.createId(directMatchContent.userId, directMatchContent.timestamp))) {
+                if (this.cancelledUsers.has(directMatchContent.websocketId)) {
                     logger.info(`[Waiting-Queue] User ${directMatchContent.userId} has withdrawn from queue`)
                     this.channel.ack(directMatch)
-                    this.cancelledUsers.delete(this.createId(directMatchContent.userId, directMatchContent.timestamp))
+                    this.cancelledUsers.delete(directMatchContent.websocketId)
                     return
                 } else {
                     // Add logic to combine users
@@ -274,13 +274,9 @@ class RabbitMQConnection {
         }
     }
 
-    async addUserToCancelledSet(userId: string, timestamp: string) {
-        this.cancelledUsers.add(this.createId(userId, timestamp))
-        logger.info(`[Cancel-User] User ${userId} has been blacklisted from matchmaking`)
-    }
-
-    createId(userId: string, timestamp: string): string {
-        return userId + timestamp
+    async addUserToCancelledSet(websocketId: string) {
+        this.cancelledUsers.add(websocketId)
+        logger.info(`[Cancel-User] User ${websocketId} has been blacklisted from matchmaking`)
     }
 }
 
