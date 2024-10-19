@@ -22,7 +22,6 @@ const useAuthenticateUser = () => {
             } else {
                 setSuccess(true);
             }
-            setSuccess(true);
         } catch (error) {
             console.log("Error fetching user data:", error);
         }

@@ -3,14 +3,14 @@ import io from "socket.io-client";
 import MatchingRequestForm from "./MatchingRequestForm";
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
 import Timer from "./timer";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "../../context/UserContext.tsx";
 import IsConnected from "../IsConnected";
 
 interface MatchingModalProps {
   closeMatchingModal: () => void;
 }
 
-const MATCH_WEBSOCKET_URL: string = "ws://localhost:3001";
+const MATCH_WEBSOCKET_URL: string = "ws://localhost:8082";
 
 const MatchingModal: React.FC<MatchingModalProps> = ({
   closeMatchingModal,
@@ -31,6 +31,8 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
 
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
     try {
+      setShowTimer(true);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       socket.connect();
       socket.on("connect", () => {
         console.log("Connected to server", socket.id);
@@ -54,7 +56,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         console.error("No match ID received");
         return;
       }
-
+      setShowTimer(false);
       setMatchId(data.matchId);
 
       // Execute socket logic after returning the response object
@@ -66,7 +68,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         // --- Successfully matched!!! ---
         // Change in some state here
         socket.emit("broadcast", `hi from ${user?.username}`);
-        socket.disconnect();
+        setIsMatchFound(true);
       });
       console.log(`Listening to room: ${data.matchId}`);
 
@@ -98,17 +100,23 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     socket.disconnect();
   }
 
+  const handleCancel = () => {
+    if (matchId) {
+      handleCancelMatchRequest();
+      setShowTimer(false);
+    }
+  }
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-6 bg-gray-800 bg-opacity-50">
-      <div className="relative p-6 bg-white rounded-lg shadow-lg">
+    <div className="fixed inset-0 flex items-center justify-center p-4 bg-gray-900 bg-opacity-60">
+      <div className="relative p-6 bg-white rounded-lg shadow-lg space-y-6"> {/* Consistent spacing inside modal */}
         <button
           onClick={closeMatchingModal}
-          id="submit"
-          className="absolute top-2 right-2 px-2 rounded-lg hover:bg-gray-200"
+          className="absolute top-2 right-2 px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-full"
         >
           X
         </button>
-        <div className="mb-4 text-lg font-semibold text-center">
+        <div className="text-lg font-semibold text-center">
           Found Match?:{" "}
           {isMatchFound ? (
             <div className="text-green-500">Found!</div>
@@ -116,7 +124,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
             <div className="text-red-500">Not found yet</div>
           )}
         </div>
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-4">
           {showTimer ? (
             <Timer />
           ) : (
@@ -126,11 +134,13 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
               setFormData={setFormData}
             />
           )}
+        </div>
+        <div className="flex justify-center mt-4">
           <button
-            onClick={handleCancelMatchRequest}
-            className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-700"
+            onClick={handleCancel}
+            className="px-6 py-2 text-white bg-yellow rounded hover:bg-brown"
           >
-            Cancel match request! Ensure you press the above button first!!
+            Cancel match request
           </button>
         </div>
       </div>

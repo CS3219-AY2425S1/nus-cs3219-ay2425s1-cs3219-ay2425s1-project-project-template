@@ -25,7 +25,9 @@ const useLoginUser = () => {
         body: JSON.stringify({
             "email": emailValue,
             "password": passwordValue
-        }),
+        "email": emailValue,
+        "password": passwordValue
+        })
       });
 
       if (!response.ok) {

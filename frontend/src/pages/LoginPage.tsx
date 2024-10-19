@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
           {/* Email */}
           <div className="flex flex-col">
             <InputBoxLabel labelString="Email" />
-            <InputTextBox currInput={""} setInputValue={() => setEmailValue} />
+            <InputTextBox currInput={""} setInputValue={setEmailValue} />
           </div>
 
           {/* Password */}

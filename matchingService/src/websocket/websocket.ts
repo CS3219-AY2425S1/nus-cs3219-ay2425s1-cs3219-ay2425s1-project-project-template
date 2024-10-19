@@ -9,7 +9,7 @@ export default function initialiseWebsocket(
   app: Application,
   queueService: QueueService
 ) {
-  const WEBSOCKET_PORT: number = 3001;
+  const WEBSOCKET_PORT: number = 8082;
   const server = createServer(app);
   const io: Server = new Server(server, {
     cors: {
