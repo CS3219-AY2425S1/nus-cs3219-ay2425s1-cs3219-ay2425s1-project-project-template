@@ -33,15 +33,6 @@ const Collaboration: React.FC = () => {
     }
 
     socketRef.current = io("http://localhost:3000/");
-    return () => {
-      if (socketRef.current !== null) {
-        console.log("disconnecting socket...");
-        socketRef.current.disconnect();
-      }
-    };
-  }, []); // Ensure the effect runs when room or socketId changes
-
-  useEffect(() => {
     const socket = socketRef.current;
 
     if (socket === null) {
@@ -104,7 +95,13 @@ const Collaboration: React.FC = () => {
         }
       }
     );
-  }, [socketRef.current]);
+    return () => {
+      if (socketRef.current !== null) {
+        console.log("disconnecting socket...");
+        socketRef.current.disconnect();
+      }
+    };
+  }, []); // Ensure the effect runs when room or socketId changes
 
   const sendMessage = () => {
     if (message.trim() && socketRef && isMatched) {

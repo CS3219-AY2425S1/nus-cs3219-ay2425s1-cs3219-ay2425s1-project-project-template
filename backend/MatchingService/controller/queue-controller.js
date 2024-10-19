@@ -6,7 +6,7 @@ export async function addUserToQueue(userData, socket) {
     const queue = await matchingQueue.getJobs(["active", "waiting", "delayed"]);
 
     for (const job of queue) {
-      if (job.data.socketId === socket.id) {
+      if (job.data.username === userData.username) {
         return { message: "User already in queue" };
       }
     }
@@ -32,7 +32,7 @@ export async function addUserToQueue(userData, socket) {
       }
     );
 
-    return { message: "added to queue" };
+    return { message: "Sucessfully been added to queue" };
   } catch (err) {
     console.error("Error adding to queue:", err);
     throw new Error("Failed to add to queue");

@@ -13,22 +13,17 @@ const matchingQueue = new Queue("matching", {
   },
 });
 
+// Cleanup jobs from queue
+setInterval(async () => {
+  await matchingQueue.clean(10000, "completed"); // clear jobs completed for 10 seconds
+  await matchingQueue.clean(10000, "failed");
+}, 360000);
+
 // Process the queue
 matchingQueue.process(1, async (job) => {
   // Simulate a processing delay (for testing purposes)
 
   try {
-    // Check active jobs count
-    // const waitingJobCount = await matchingQueue.getWaiting();
-    // const delayedJobCount = await matchingQueue.getDelayed();
-
-    // if (waitingJobCount < 1 && delayedJobCount < 1) {
-    //   console.log("Queue is has not enough ppl. Pausing queue...");
-    //   await job.moveToFailed({ message: "Not enough users to match" }, true);
-    //   // await matchingQueue.pause();
-    //   return;
-    // }
-
     // Get delayed jobs first
     const delayedJobs = await matchingQueue.getDelayed();
     if (job.data.matched == true) {
@@ -40,11 +35,6 @@ matchingQueue.process(1, async (job) => {
       if (job.data.topic == delayedJob.data.topic) {
         if (job.data.difficulty == delayedJob.data.difficulty) {
           await delayedJob.promote();
-
-          // Notify websocket of the match
-          // const room = `room-${job.data.socketId}-${delayedJob.data.socketId}`;
-          // notifyUsersOfMatch(job.data.socketId, delayedJob.data.socketId, room);
-          // break;
         }
       }
     }
@@ -96,20 +86,13 @@ matchingQueue.process(1, async (job) => {
 
     // unable to find match
     throw new Error("No user suitable for match, retrying...");
-    // await job.moveToFailed({
-    //   message: "No user suitable for match, retrying...",
-    // });
   } catch (error) {
-    // notifyUserOfMatchFailed(
-    //   job.data.socketId,
-    //   "No suitable user found, please try again later."
-    // );
     console.error("Error processing job:", job.id, error);
     throw error; // Ensure errors are propagated to be handled by Bull
   }
 });
 
-matchingQueue.on("failed", (job, err) => {
+matchingQueue.on("failed", async (job, err) => {
   console.log(
     `Job failed attempt ${job.attemptsMade} out of ${job.opts.attempts}. Error: ${err.message}`
   );
@@ -121,19 +104,9 @@ matchingQueue.on("failed", (job, err) => {
   }
 });
 
-matchingQueue.on("completed", (job) => {
+matchingQueue.on("completed", async (job) => {
   console.log("User matched", job.data.username);
   handleUserMatch(job);
 });
-
-// matchingQueue.on("waiting", async (job) => {
-//   const isPaused = await matchingQueue.isPaused();
-//   if (isPaused) {
-//     console.log("Queue is paused. Resuming...");
-//     await matchingQueue.resume();
-//   }
-
-//   return;
-// });
 
 export { matchingQueue };
