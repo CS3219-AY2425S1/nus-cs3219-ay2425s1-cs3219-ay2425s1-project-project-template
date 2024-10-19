@@ -35,7 +35,9 @@ const AppHeader: React.FC = () => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <Link href="./profile">
+                Profile
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
               <Settings className="mr-2 h-4 w-4" />
