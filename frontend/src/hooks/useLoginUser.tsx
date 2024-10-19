@@ -1,13 +1,13 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { UserResponse } from '../types/UserResponse';
-import { User } from '../types/User';
+import { useUser } from '../context/UserContext';
 
 const useLoginUser = () => {
   const [loading, setLoading] = useState(false);
+  const { updateUser } = useUser();
   const loginUser = async (
     emailValue: string,
     passwordValue: string,
-    setLoggedInUser: Dispatch<SetStateAction<User | undefined>>,
     setSuccess: Dispatch<SetStateAction<boolean>>,
     setErrorMessage: Dispatch<SetStateAction<string>>,
     setShowErrorMessage: Dispatch<SetStateAction<boolean>>
@@ -40,7 +40,7 @@ const useLoginUser = () => {
 
       const loggedInUser: UserResponse = await response.json();
       console.log('Logged in', emailValue, ':', loggedInUser);
-      setLoggedInUser(loggedInUser.data);
+      updateUser(loggedInUser.data);
       setShowErrorMessage(false);
       // setSuccess(true);
       return loggedInUser; // Return new user if successful

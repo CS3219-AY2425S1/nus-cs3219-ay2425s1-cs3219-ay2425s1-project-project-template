@@ -5,7 +5,6 @@ import WelcomeMessage from "../components/UserAuth/WelcomeMessage.tsx";
 import InputBoxLabel from "../components/UserAuth/InputBoxLabel.tsx";
 import InputTextBox from "../components/InputTextBox.tsx";
 import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.tsx";
-import { User } from "../types/User.tsx";
 import useLoginUser from "../hooks/useLoginUser.tsx";
 import { useUser } from "../context/UserContext.tsx";
 import useAuthenticateUser from "../hooks/useAuthenticateUser.tsx";
@@ -23,9 +22,8 @@ const LoginPage: React.FC = () => {
   const { loginUser } = useLoginUser();
   const { authenticateUser } = useAuthenticateUser();
   /* Component's instance of registered user */
-  const [loggedInUser, setLoggedInUser] = useState<User | undefined>(undefined);
   /* User context */
-  const { updateUser } = useUser();
+  const { user } = useUser();
 
   const handleSubmit = async () => {
     console.log("submitted");
@@ -33,26 +31,32 @@ const LoginPage: React.FC = () => {
     const newUser = await loginUser(
       emailValue,
       passwordValue,
-      setLoggedInUser,
       setSuccess,
       setErrorMessage,
       setShowErrorMessage
     ); // Call the custom hook function
-    authenticateUser(setSuccess);
     console.log(newUser);
+    
   };
+
+  useEffect(() => {
+    if (user) {
+      authenticateUser(setSuccess);
+    }
+  }, [user])
 
   const navigate = useNavigate();
   useEffect(() => {
     if (success) {
-      updateUser(loggedInUser);
-      if (loggedInUser?.isAdmin) {
-        navigate("/dashboard", { replace: true }); // Replace: true to clear back history
+      // if (loggedInUser?.isAdmin) {
+      if (user?.isAdmin) {
+        navigate('/dashboard', { replace: true}); // Replace: true to clear back history
       } else {
         navigate("/dashboardForUsers", { replace: true }); // Replace: true to clear back history
       }
     }
   }, [success]);
+
 
   return (
     <div className="w-screen h-screen flex flex-col">

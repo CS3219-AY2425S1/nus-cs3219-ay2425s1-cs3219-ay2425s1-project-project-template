@@ -7,6 +7,7 @@ const useAuthenticateUser = () => {
     const { user } = useUser();
     const authenticateUser = async (setSuccess: Dispatch<SetStateAction<boolean>>) => {
         try {
+            console.log("user access token sent for verification : ", user);
             const response = await fetch(`${apiConfig.userServiceAuthUrl}/verify-token`, {
                 mode: "cors",
                 headers: {
@@ -19,6 +20,7 @@ const useAuthenticateUser = () => {
             const userData = result.data;
             if (userData == undefined) {
                 console.log("User data undefined, API response:", result);
+                setSuccess(false);
             } else {
                 setSuccess(true);
             }

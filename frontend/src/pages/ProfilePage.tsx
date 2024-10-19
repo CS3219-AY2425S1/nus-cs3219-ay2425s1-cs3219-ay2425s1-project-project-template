@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/NavBar.tsx";
-import { User } from '../types/User.tsx';
-import useRetrieveUser from '../hooks/useRetrieveUser.tsx';
 import EditUsernameModal from '../components/ProfileModals/EditUsernameModal.tsx';
 import EditEmailModal from '../components/ProfileModals/EditEmailModal.tsx';
 import EditPasswordModal from '../components/ProfileModals/EditPasswordModal.tsx';

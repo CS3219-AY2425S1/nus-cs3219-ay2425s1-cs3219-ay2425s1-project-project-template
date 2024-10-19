@@ -5,7 +5,7 @@ import useQuestionList from "../hooks/useQuestionList.tsx";
 
 const DashboardForUsersPage: React.FC = () => {
   const {questions, fetchData} = useQuestionList();
-  
+
   useEffect(() => {
     fetchData();
   }, []); // IMPT Do not put fetchData in the dependency array so as to avoid infinite renders
