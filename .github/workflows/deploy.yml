@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - kubernetes-config
 
 jobs:
   ci:
@@ -31,8 +30,8 @@ jobs:
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker
 
-      # - name: Submit Cloud Build
-      #   run: gcloud builds submit --config=cloudbuild.yaml .
+      - name: Submit Cloud Build
+        run: gcloud builds submit --config=cloudbuild.yaml .
 
   cd:
     name: Deploy to GKE
