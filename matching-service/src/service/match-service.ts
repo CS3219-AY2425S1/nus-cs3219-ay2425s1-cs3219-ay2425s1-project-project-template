@@ -3,8 +3,9 @@ import { MatchRequest } from "../types/match-types";
 import { connectRabbitMQ, getChannel } from "../queue/rabbitmq";
 import Redis from "ioredis";
 
-const redis = new Redis();
+const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
+const redis = new Redis(REDIS_URL);
 // Function to add a match request to the queue
 export async function addMatchRequest(matchRequest: MatchRequest): Promise<void> {
   await connectRabbitMQ();
@@ -107,9 +108,28 @@ async function findMatch(request: MatchRequest): Promise<MatchRequest | null> {
     matchUserName = await redis.spop(exactMatchKey);
   }
 
+  const topicMatchKey = `match_queue:topic:${topic}`;
+  await redis.srem(topicMatchKey, userName);
+  matchUserName = await redis.spop(topicMatchKey);
+
+  while (matchUserName) {
+    if (matchUserName !== userName) {
+      const matchData = await redis.get(`match_request:${matchUserName}`);
+      if (matchData) {
+        const matchRequest: MatchRequest = JSON.parse(matchData);
+        return matchRequest; 
+      }
+    }
+    matchUserName = await redis.spop(topicMatchKey);
+  }
+
+
   await redis.sadd(exactMatchKey, userName);
   await redis.expire(exactMatchKey, 31);
 
+  await redis.sadd(topicMatchKey, userName);
+  await redis.expire(topicMatchKey, 31); 
+  
   return null;
 }
 
