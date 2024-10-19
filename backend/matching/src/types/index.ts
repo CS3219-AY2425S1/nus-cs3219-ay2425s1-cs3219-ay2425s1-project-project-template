@@ -4,14 +4,22 @@ const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
 
 export type ITopicDifficulty = (typeof DIFFICULTIES)[number];
 
-export type IRequestMatchPayload = {
+export type IRequestMatchRESTPayload = {
   userId: string;
+};
+
+export type IRequestMatchWSPayload = {
   topic: string | string[];
   difficulty: string;
 };
 
-export type IQueueRequest = Partial<Pick<IRequestMatchPayload, 'topic' | 'difficulty'>> &
-  Pick<IRequestMatchPayload, 'userId'> & {
+export type IRequestMatchEvent = IRequestMatchWSPayload &
+  IRequestMatchRESTPayload & {
+    roomId: string;
+  };
+
+export type IQueueRequest = Partial<IRequestMatchWSPayload> &
+  IRequestMatchRESTPayload & {
     socketPort: string;
     timestamp: string;
   };

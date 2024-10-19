@@ -1,16 +1,8 @@
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
   MultiSelector,
@@ -27,60 +19,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { requestMatch } from '@/services/match-service';
+import { cn } from '@/lib/utils';
 
-import { MatchFormData } from './logic';
-import { WaitingRoom } from './waiting-room/waiting';
+import { useRequestMatchForm } from './logic';
+import { WaitingRoomModal } from './waiting-room';
 
 interface MatchFormProps {
   topics: string[];
 }
 
 export const MatchForm = ({ topics }: MatchFormProps) => {
-  const form = useForm({
-    defaultValues: {
-      selectedTopics: [],
-      difficulty: '',
-    },
-  });
-
-  const { handleSubmit, control } = form;
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [socketPort, setSocketPort] = useState<string | null>(null);
 
-  const onSubmit = async (data: MatchFormData) => {
-    setLoading(true);
-    setErrorMessage(null);
+  const { form, onSubmit, matchRequestError, isMatchRequestPending, socketPort } =
+    useRequestMatchForm();
 
-    const response = await requestMatch(data);
-
-    if (!response || !response.socketPort) {
-      setLoading(false);
-      setErrorMessage('Error. Please try again later.');
-    } else {
-      const socketPort = response.socketPort;
-      setSocketPort(socketPort);
-      setIsModalOpen(true);
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    setIsModalOpen(!!socketPort);
+  }, [socketPort]);
 
   return (
     <div className='flex h-full items-center justify-center'>
-      <Card className='text-card-foreground bg-primary-foreground border-border flex w-full max-w-[400px] flex-col items-center justify-center rounded-xl border shadow md:size-full md:max-h-[600px]'>
+      <Card
+        className={cn(
+          'text-card-foreground bg-primary-foreground rounded-xl border border-border shadow',
+          'flex w-full max-w-[400px] md:size-full md:max-h-[600px]',
+          'flex-col items-center justify-center'
+        )}
+      >
         <CardHeader className='mt-10 flex items-start justify-center'>
           <CardTitle className='text-3xl'>Find A Partner</CardTitle>
         </CardHeader>
         <CardContent className='size-full grow items-center justify-center'>
           <FormProvider {...form}>
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={onSubmit}
               className='flex size-full h-full flex-col justify-center gap-2'
             >
               <FormField
-                control={control}
+                control={form.control}
                 name='selectedTopics'
                 rules={{ required: 'Please select at least one topic.' }}
                 render={({ field }) => (
@@ -114,7 +91,7 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
               />
 
               <FormField
-                control={control}
+                control={form.control}
                 name='difficulty'
                 rules={{ required: 'Please select a difficulty level.' }}
                 render={({ field }) => (
@@ -136,29 +113,19 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                   </FormItem>
                 )}
               />
-              {errorMessage && <p className='mt-2 text-center text-red-500'>{errorMessage}</p>}
-              <Button className='mt-5 w-full' type='submit'>
-                {loading ? 'Finding Partner...' : 'Find Partner'}
+              {matchRequestError !== null && (
+                <p className='mt-2 text-center text-red-500'>
+                  An error occurred requesting a match. Please try again later.
+                </p>
+              )}
+              <Button disabled={isMatchRequestPending} className='mt-5 w-full' type='submit'>
+                {isMatchRequestPending ? 'Finding Partner...' : 'Find Partner'}
               </Button>
             </form>
           </FormProvider>
         </CardContent>
       </Card>
-      <Dialog modal={true} open={isModalOpen}>
-        <DialogContent className='max-h-[500px] [&>button]:hidden'>
-          <DialogHeader>
-            <VisuallyHidden>
-              <DialogTitle>Waiting Room</DialogTitle>
-            </VisuallyHidden>
-          </DialogHeader>
-          <VisuallyHidden>
-            <DialogDescription>
-              You are currently in the waiting room. Please wait while we find a match for you.
-            </DialogDescription>
-          </VisuallyHidden>
-          <WaitingRoom socketPort={socketPort} setIsModalOpen={setIsModalOpen} />
-        </DialogContent>
-      </Dialog>
+      <WaitingRoomModal {...{ socketPort, isModalOpen, setIsModalOpen }} />
     </div>
   );
 };

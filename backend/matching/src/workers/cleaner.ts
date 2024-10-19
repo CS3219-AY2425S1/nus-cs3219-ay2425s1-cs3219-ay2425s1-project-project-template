@@ -1,7 +1,7 @@
 import { client, logQueueStatus } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey } from '@/lib/utils';
-import { MATCH_SVC_EVENT } from '@/ws';
+import { MATCH_SVC_EVENT } from '@/ws/main';
 
 import { connectClient, sendNotif } from './common';
 

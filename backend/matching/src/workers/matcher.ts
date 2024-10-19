@@ -2,7 +2,7 @@ import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
-import { MATCH_SVC_EVENT } from '@/ws';
+import { MATCH_SVC_EVENT } from '@/ws/main';
 
 import { connectClient, sendNotif } from './common';
 

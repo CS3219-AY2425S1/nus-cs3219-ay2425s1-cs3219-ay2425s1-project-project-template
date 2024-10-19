@@ -5,7 +5,7 @@ import path from 'path';
 import type { Server } from 'socket.io';
 
 import { logger } from '@/lib/utils';
-import { type IChildProcessMessage, MATCH_SVC_EVENT } from '@/ws';
+import { type IChildProcessMessage, MATCH_SVC_EVENT } from '@/ws/main';
 
 let nWorkers = 0; // For tracking graceful exit of main process
 
@@ -28,7 +28,7 @@ export const initWorker = (name: string, io: Server) => {
     const { rooms, event, message: payload } = messagePayload as IChildProcessMessage;
 
     if (event === MATCH_SVC_EVENT.DISCONNECT) {
-      io.sockets.in(rooms).disconnectSockets();
+      io.sockets.in(rooms).socketsLeave(rooms);
       return;
     }
 

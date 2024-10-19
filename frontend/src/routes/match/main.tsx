@@ -5,7 +5,7 @@ import { Await, useLoaderData } from 'react-router-dom';
 import { MatchForm } from './match-form';
 
 export const Match = observer(() => {
-  const { topics } = useLoaderData() as { topics: Promise<string[]> };
+  const { topics } = useLoaderData() as { topics: Promise<Array<string>> };
 
   return (
     <div className='m-auto flex grow items-center justify-center'>
