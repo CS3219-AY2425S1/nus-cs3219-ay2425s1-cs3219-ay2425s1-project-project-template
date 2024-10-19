@@ -2,6 +2,7 @@ package g55.cs3219.backend.userService.service;
 
 import g55.cs3219.backend.userService.responses.JwtTokenValidationResponse;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,9 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -58,6 +61,17 @@ class JwtServiceTest {
         String username = jwtService.extractUsername(token);
 
         assertEquals("testUser", username);
+    }
+
+    @Test
+    void extractUsername_shouldThrowMalformedJwtException_whenTokenIsMalformed() {
+        String malformedToken = "part1.part2.part3.extra";
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        assertThrows(MalformedJwtException.class, () -> {
+            jwtService.extractUsername(malformedToken);
+        }, "Expected MalformedJwtException to be thrown");
     }
 
     @Test
@@ -109,7 +123,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void isTokenValid_shouldReturnFalseAndExpiredMessageForExpiredToken() {
+    void isTokenValid_shouldReturnFalseAndExpiredMessage_whenTokenIsExpired() {
         String expiredToken = Jwts.builder()
                 .setSubject("testUser")
                 .setIssuedAt(Date.from(Instant.now().minusMillis(7200000L)))
@@ -126,20 +140,15 @@ class JwtServiceTest {
     }
 
     @Test
-    void isTokenValid_shouldReturnFalseAndExpiredMessage_whenTokenIsExpired() {
-        String expiredToken = Jwts.builder()
-                .setSubject("testUser")
-                .setIssuedAt(Date.from(Instant.now().minusMillis(7200000L)))
-                .setExpiration(Date.from(Instant.now().minusMillis(3600000L)))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+    public void isTokenValid_shouldReturnFalseAndTokenValidationFailedMessage_whenUnexpectedExceptionThrown() {
+        String token = "dummyToken";
+        UserDetails userDetails = mock(UserDetails.class);
+        JwtService jwtService = new JwtService();
 
-        when(userDetails.getUsername()).thenReturn("testUser");
-
-        JwtTokenValidationResponse response = jwtService.isTokenValid(expiredToken, userDetails);
+        JwtTokenValidationResponse response = jwtService.isTokenValid(token, userDetails);
 
         assertFalse(response.isValid());
-        assertEquals("Token is expired.", response.getMessage());
+        assertEquals("Token validation failed.", response.getMessage());
     }
 
 }

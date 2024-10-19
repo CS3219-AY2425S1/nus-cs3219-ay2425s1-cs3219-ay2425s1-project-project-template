@@ -4,6 +4,7 @@ import g55.cs3219.backend.userService.responses.JwtTokenValidationResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class JwtService {
     @Value("${security.jwt.expirationTime}")
     private Long jwtExpiration;
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) throws MalformedJwtException {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -69,23 +70,12 @@ public class JwtService {
             if (!username.equals(userDetails.getUsername())) {
                 return new JwtTokenValidationResponse(false, "Username does not match.");
             }
-            if (isTokenExpired(token)) {
-                return new JwtTokenValidationResponse(false, "Token is expired.");
-            }
             return new JwtTokenValidationResponse(true, "Token is valid.");
         } catch (ExpiredJwtException e) {
             return new JwtTokenValidationResponse(false, "Token is expired.");
         } catch (Exception e) {
             return new JwtTokenValidationResponse(false, "Token validation failed.");
         }
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 
     private Claims extractAllClaims(String token) {
