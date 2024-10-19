@@ -4,6 +4,7 @@ import QuestionPage from "./pages/Question/page";
 import NavBar from "./components/NavBar/navbar";
 import LoginPage from "./pages/Login/login";
 import SignupPage from "./pages/Signup/signup";
+import PrivateRoute from "./routes/PrivateRoute";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider, } from '@tanstack/react-query'
 import { Toaster } from "react-hot-toast";
@@ -20,8 +21,9 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            
-            <Route path="/" element={<><NavBar /><QuestionPage /></>} />
+            <Route element={<PrivateRoute/>}>
+              <Route path="/" element= {<><NavBar /><QuestionPage /></>} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </div>
