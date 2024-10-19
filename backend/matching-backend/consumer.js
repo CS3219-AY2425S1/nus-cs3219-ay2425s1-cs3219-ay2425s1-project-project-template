@@ -2,7 +2,7 @@ const amqp = require('amqplib');
 
 let waitingUsers = []; 
 
-async function findMatch(user) {
+async function findMatch(user, notifyMatch) {
     const { difficulty, topic, language } = user;
 
     const matchIndex = waitingUsers.findIndex((waitingUser) =>
@@ -18,6 +18,7 @@ async function findMatch(user) {
         
         // Remove matched users from waiting list
         waitingUsers.splice(matchIndex, 1);
+        notifyMatch(user, matchedUser);
         return true;
     }
 
@@ -36,7 +37,7 @@ async function findMatch(user) {
     return false; // Return false if no match was found
 }
 
-async function startConsumer() {
+async function startConsumer(channel, notifyMatch) {
     try {
         const connection = await amqp.connect('amqp://rabbitmq:5672');
         const channel = await connection.createChannel();
@@ -52,7 +53,7 @@ async function startConsumer() {
         channel.consume(queue, (msg) => {
             if (msg !== null) {
                 const matchData = JSON.parse(msg.content.toString());
-                findMatch(matchData);
+                findMatch(matchData, notifyMatch);
                 channel.ack(msg);
             }
         });

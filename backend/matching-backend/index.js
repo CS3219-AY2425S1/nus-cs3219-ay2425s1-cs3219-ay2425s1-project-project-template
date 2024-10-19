@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const amqp = require('amqplib');
+const WebSocket = require('ws');
 const startConsumer = require('./consumer');
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors({
 app.use(express.json());
 
 let channel, connection;
+let wss;
 
 async function initRabbitMQ() {
     try {
@@ -20,12 +22,23 @@ async function initRabbitMQ() {
         channel = await connection.createChannel();
         await channel.assertQueue('matching-queue', { durable: true });
         console.log('Connected to RabbitMQ');
-        startConsumer(channel); // Start consumer
+        startConsumer(channel, notifyMatch); // Start consumer
     } catch (error) {
         console.error('Error connecting to RabbitMQ: ', error);
     }
 }
 
+// WebSocket to notify matched users
+function notifyMatch(user1, user2) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                matchFound: true,
+                matchedUser: user2.username
+            }));
+        }
+    });
+}
 
 async function addToQueue(matchData) {
     try {
@@ -81,7 +94,9 @@ app.post('/api/cancel-match', (req, res) => {
   }
   
 
-app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Matching service running on http://localhost:${PORT}`);
     initRabbitMQ();
 });
+
+wss = new WebSocket.Server({ server });

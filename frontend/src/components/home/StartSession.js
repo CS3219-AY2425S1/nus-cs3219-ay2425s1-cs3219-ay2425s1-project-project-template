@@ -9,6 +9,8 @@ const StartSession = ({ username }) => {
   const [language, setLanguage] = useState('Python');
   const [showPopup, setShowPopup] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const [matchFound, setMatchFound] = useState(false);
+  const [matchedUser, setMatchedUser] = useState(null);
 
   const handleFindMatch = async () => {
     // Send a POST request to the backend to find a match
@@ -77,6 +79,22 @@ const StartSession = ({ username }) => {
     return () => clearInterval(timer);
   }, [showPopup, countdown]);
 
+  // WebSocket to listen for match events
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:3002'); // Backend WebSocket endpoint
+  
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.matchFound && data.matchedUser) {
+        setMatchFound(true);
+        setMatchedUser(data.matchedUser);
+        setShowPopup(true); // Ensure popup remains open when match is found
+      }
+    };
+  
+    return () => ws.close(); // Clean up WebSocket on component unmount
+  }, []);
+
   return (
     <div className="start-session-container">
       <div className="session-header">
@@ -116,7 +134,12 @@ const StartSession = ({ username }) => {
       </div>
 
       {/* Render the MatchPopup component */}
-      <MatchPopup countdown={countdown} showPopup={showPopup} closePopup={closePopup} />
+      <MatchPopup 
+        countdown={countdown}
+        showPopup={showPopup}
+        closePopup={closePopup}
+        matchFound={matchFound}
+        matchedUser={matchedUser} />
     </div>
   );
 };
