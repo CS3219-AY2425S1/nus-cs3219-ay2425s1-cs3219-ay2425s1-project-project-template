@@ -20,7 +20,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.backend.matching.kafka.producers.MatchVerificationProducer;
+import com.example.backend.matching.model.MatchingModel;
 import com.example.backend.matching.model.VerificationResponse;
+import com.example.backend.matching.repository.MatchingRepository;
 
 @Component
 public class MatchRequestConsumer {
@@ -35,13 +37,16 @@ public class MatchRequestConsumer {
 
     private final MatchVerificationProducer matchVerificationProducer;
 
+    private final MatchingRepository matchingRepository;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private static final String VERIFY_API_URL = "http://matchverification:3006/api/verify"; // TODO: Put in .env
+    private static final String VERIFY_API_URL = System.getenv( "VERIFY_API_URL");
 
     @Autowired
-    public MatchRequestConsumer(MatchVerificationProducer matchVerificationProducer) {
+    public MatchRequestConsumer(MatchVerificationProducer matchVerificationProducer, MatchingRepository matchingRepository) {
         this.matchVerificationProducer = matchVerificationProducer;
+        this.matchingRepository = matchingRepository;
     }
 
     @KafkaListener(topics = "MATCH_REQUESTS", groupId = "matching-service")
@@ -94,6 +99,7 @@ public class MatchRequestConsumer {
                     List<String> validMatches = verificationResponse.getValidMatches();
                     List<String> invalidMatches = verificationResponse.getInvalidMatches();
 
+                    // Defensive check
                     if (validMatches.size() == 2 && invalidMatches.isEmpty() && vStatus.equals(VerificationStatus.SUCCESS.toString())) {
                         System.out.println(validMatches);
                         String payload = validMatches.get(0) + "_" + validMatches.get(1);
@@ -103,6 +109,11 @@ public class MatchRequestConsumer {
                             String userID = match.split("_")[0];
                             matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", userID, payload);
                         }
+
+                        // Save to database
+                        String userEmail1 = validMatches.get(0).split("_")[1];
+                        String userEmail2 = validMatches.get(1).split("_")[1];
+                        this.matchingRepository.save(new MatchingModel(userEmail1, userEmail2));
                     }
                 } else if (vStatus.equals(VerificationStatus.CONFLICT_PARTIAL_INVALID.toString())) {
                     System.out.println("Partial match verification failed. Not sending to Kafka topic.");
