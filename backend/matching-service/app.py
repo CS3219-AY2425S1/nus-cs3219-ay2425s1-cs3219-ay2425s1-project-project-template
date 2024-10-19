@@ -61,7 +61,15 @@ def remove_request(request):
 
 
 def notify_users(user1, user2, message):
-    # TODO: Send a notification to both users
+    # TODO: Replace print statements with actual notification logic
+    if message == "Matched difficulty and topic":
+        print(f"Matched {user1['username']} and {user2['username']} with topic {user1['topic']} and difficulty {user1['difficulty']}")
+    elif message == "Matched topic":
+        print(f"Matched {user1['username']} and {user2['username']} with topic {user1['topic']}")
+    elif message == "Matched difficulty":
+        print(f"Matched {user1['username']} and {user2['username']} with difficulty {user1['difficulty']}")
+    else:
+        print("No users matched")
     pass
 
 
