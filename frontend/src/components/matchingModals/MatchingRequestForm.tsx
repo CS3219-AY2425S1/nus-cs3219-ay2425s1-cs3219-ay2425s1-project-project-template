@@ -21,7 +21,12 @@ const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+    >
       {/* Topic input */}
       <div className="mb-4">
         <label htmlFor="topic">Topic:</label>

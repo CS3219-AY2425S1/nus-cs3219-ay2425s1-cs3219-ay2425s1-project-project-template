@@ -3,6 +3,7 @@ import io from "socket.io-client";
 import MatchingRequestForm from "./MatchingRequestForm";
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
 import Timer from "./timer";
+import { useUser } from "../../context/UserContext";
 import IsConnected from "../IsConnected";
 
 interface MatchingModalProps {
@@ -21,48 +22,68 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     difficulty: "",
   });
 
+  const { user } = useUser();
+
   const [isMatchFound, setIsMatchFound] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
-    const res = await fetch("http://localhost:3000/match/findMatch", {
-      mode: "cors",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "test", // set up with user context later
-        topic: formData.topic,
-        difficulty: formData.difficulty,
-      }),
-    });
-    const response = await res.json();
-    setMatchId(response.matchId);
-    console.log(response);
+    try {
+      socket.connect();
+      socket.on("connect", () => {
+        console.log("Connected to server", socket.id);
+      });
 
-    socket.connect();
-    socket.on("connect", () => {
-      console.log("Connected to server", socket.id);
-      socket.emit("joinMatchResponseRoom", matchId);
+      const res = await fetch("http://localhost:3000/match/findMatch", {
+        mode: "cors",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: user?.username, // set up with user context later
+          topic: formData.topic,
+          difficulty: formData.difficulty,
+        }),
+      });
+      const data = await res.json();
 
-      socket.on("receiveMatchResponse", (data, ack) => {
-        console.log("Received match response:", data);
+      if (!data.matchId) {
+        console.error("No match ID received");
+        return;
+      }
+
+      setMatchId(data.matchId);
+
+      // Execute socket logic after returning the response object
+      socket.emit("joinMatchResponseRoom", data.matchId);
+
+      socket.on("receiveMatchResponse", (responseData, ack) => {
+        console.log("Received match response:", responseData);
         ack(true);
-        socket.disconnect();
         // --- Successfully matched!!! ---
         // Change in some state here
-        setIsMatchFound(true);
+        socket.emit("broadcast", `hi from ${user?.username}`);
+        socket.disconnect();
       });
-      console.log(`Listening to room: ${matchId}`);
-    });
+      console.log(`Listening to room: ${data.matchId}`);
 
-    socket.on("disconnect", () => {
-      socket.off();
-      console.log("Disconnected from server");
-    });
+      socket.on("broadcast", (message) => {
+        console.log("Received broadcast message:", message);
+      }); 
+
+      socket.on("disconnect", () => {
+        socket.off();
+        console.log("Disconnected from server");
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Error finding match:", error);
+      return;
+    }
   }
 
   async function handleCancelMatchRequest() {
@@ -81,10 +102,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     <div className="fixed inset-0 flex items-center justify-center p-6 bg-gray-800 bg-opacity-50">
       <div className="relative p-6 bg-white rounded-lg shadow-lg">
         <button
-          onClick={() => {
-            closeMatchingModal();
-            handleCancelMatchRequest();
-          }}
+          onClick={closeMatchingModal}
           id="submit"
           className="absolute top-2 right-2 px-2 rounded-lg hover:bg-gray-200"
         >

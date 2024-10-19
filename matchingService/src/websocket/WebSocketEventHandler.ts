@@ -2,33 +2,49 @@ import { Server, Socket } from "socket.io";
 import logger from "../utils/logger";
 
 export class WebSocketEventHandler {
-    private io: Server;
+  private io: Server;
 
-    constructor(io: Server) {
-        this.io = io;
-    }
+  constructor(io: Server) {
+    this.io = io;
+  }
 
-    public setUpListeners() {
-        this.io.on("connection", (socket: Socket) => {
-            socket.on("joinMatchResponseRoom", (matchId) => this.handleJoinMatchResponseRoom(socket, matchId));
-            socket.on("matchRequestResponse", (matchId, data) => this.handleMatchRequestResponse(socket, matchId, data));
-            socket.on("disconnect", () => this.handleDisconnect(socket));
-        })
-    }
+  public setUpListeners() {
+    this.io.on("connection", (socket: Socket) => {
+      socket.on("joinMatchResponseRoom", (matchId) =>
+        this.handleJoinMatchResponseRoom(socket, matchId)
+      );
+      socket.on("matchRequestResponse", (matchId, data) =>
+        this.handleMatchRequestResponse(socket, matchId, data)
+      );
+      socket.on("broadcast", (message) =>
+        this.handleBroadcast(socket, message)
+      );
+      socket.on("disconnect", () => this.handleDisconnect(socket));
+    });
+  }
 
-    private handleJoinMatchResponseRoom(socket: Socket, matchId: string) {
-        socket.join(matchId);
-        logger.info(`Client joined room: ${matchId}`);
-    }
+  private handleBroadcast(socket: Socket, message: string) {
+    logger.info(`Broadcasting message: ${message}`);
+    this.io.emit("broadcast", message);
+  }
 
-    private handleMatchRequestResponse(socket: Socket, matchId: string, data: any) {
-        this.io.to(matchId).emit("receiveMatchResponse", data);
-        logger.info(`Match resopnse tsent to room: ${matchId}`);
+  private handleJoinMatchResponseRoom(socket: Socket, matchId: string) {
+    socket.join(matchId);
+    logger.info(`Client joined room: ${matchId}`);
+  }
 
-        this.io.to(matchId).socketsLeave(matchId);
-    }
+  private handleMatchRequestResponse(
+    socket: Socket,
+    matchId: string,
+    data: any
+  ) {
+    this.io.to(matchId).emit("receiveMatchResponse", data);
+    logger.info(`Match resopnse sent to room: ${matchId}`);
 
-    private handleDisconnect(socket: Socket) {
-        logger.info(`Client disconnected: ${socket.id}`);
-    }
+    this.io.to(matchId).socketsLeave(matchId);
+  }
+
+  private handleDisconnect(socket: Socket) {
+    logger.info(`Client disconnected: ${socket.id}`);
+  }
 }
