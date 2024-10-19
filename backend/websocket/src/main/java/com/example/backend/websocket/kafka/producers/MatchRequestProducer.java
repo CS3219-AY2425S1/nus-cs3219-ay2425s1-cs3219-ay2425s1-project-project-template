@@ -1,4 +1,4 @@
-package com.example.backend.matching.kafka;
+package com.example.backend.websocket.kafka.producers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

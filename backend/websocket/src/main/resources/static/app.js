@@ -39,9 +39,9 @@ function sendMatchRequest() {
   // Create a hardcoded test match request object
   const matchRequest = JSON.stringify({
     userEmail: "testuser@example.com",
-    topic: "test_topic",
-    programmingLanguage: "Java",
-    difficulty: "medium",
+    topics: ["test_topic_1", "test_topic_2"],
+    programmingLanguages: ["Java", "Python"],
+    difficulties: ["medium"],
   });
 
   // Check if stompClient is connected before sending

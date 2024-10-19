@@ -14,6 +14,6 @@ public class WebSocketService {
 
     public void notifyUser(String userId, String message) {
         System.out.println("Sending message to user: " + userId + "Message: " + message);
-        messagingTemplate.convertAndSendToUser(userId, "/queue/matches", message);
+        messagingTemplate.convertAndSendTUser(userId, "/queue/matches", message);
     }
 }
