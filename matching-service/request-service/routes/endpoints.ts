@@ -7,6 +7,23 @@ const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'request-service' });
 
+const matchesMap = new Map();
+
+(async () => {
+    await kafkaProducer.connect();
+    await kafkaConsumer.connect();
+    await kafkaConsumer.subscribe({ topic: 'match-found-events', fromBeginning: false });
+    kafkaConsumer.run({
+        eachMessage: async ({ message }) => {
+            console.log(message);
+            if (message.value) {
+                const matchFoundData = JSON.parse(message.value.toString());
+                matchesMap.set(matchFoundData.userA, matchFoundData);
+                matchesMap.set(matchFoundData.userB, matchFoundData);
+            }
+        },
+    });
+})();
 
 const verifyJWT = async (authorizationHeader: string | undefined) => {
     try {
@@ -33,45 +50,28 @@ router.post('/find-match', async (req, res) => {
         const userData = await verifyJWT(req.headers.authorization);
 
         // Create match request data
-        const matchData = {
-            userID: userData.id,  // Attach the userID
+        const matchRequestData = {
+            userID: userData.id,
             topic: req.body.topic,
             difficulty: req.body.difficulty,
-        };
+            timestamp: Date.now().toString(),
+        }
 
         // Produce a `match-event`
-        await kafkaProducer.connect();
         await kafkaProducer.send({
             topic: "match-events",
-            messages: [{ key: userData.id, value: JSON.stringify(matchData) }],
+            messages: [{ key: userData.id, value: JSON.stringify(matchRequestData) }],
         });
-        await kafkaProducer.disconnect();
 
-        // Set up consumer for `match-found-event`
-        let responded = false;
-        await kafkaConsumer.connect();
-        await kafkaConsumer.subscribe({ topic: 'match-found-events', fromBeginning: false });
-
-        // Kafka consumer logic
-        await kafkaConsumer.run({
-            eachMessage: async ({ message }) => {
-                // TODO: Logic to check if the match-found-event is for the specific user
-                // const foundMatch = JSON.parse(message.value.toString());
-                // if (foundMatch.userID === userID && !responded) {
-                //     responded = true;
-                //     return res.json({ message: "Match found!", data: foundMatch });
-                // }
-            },
-        });
-        await kafkaConsumer.disconnect();
-
-        // Fallback response after delay (simulating long-polling)
-        setTimeout(() => {
-            if (!responded) {
-                responded = true;
-                res.json({ message: "Pseudo match found!" });
+        // Wait for information from the producer to see if match found
+        setInterval(() => {
+            console.log(matchesMap);
+            if (matchesMap.has(userData.id)) {
+                res.json({ message: "Match found!" });
+                matchesMap.delete(userData.id);
+                return
             }
-        }, 3000);
+        }, 2000);
 
     } catch (error) {
         // TODO: Improve error handling
@@ -90,12 +90,10 @@ router.post('/cancel-matching', async (req, res) => {
         };
 
         // Produce a `cancel-match-event`
-        await kafkaProducer.connect();
         await kafkaProducer.send({
             topic: "cancel-match-events",
             messages: [{ key: userData.id, value: JSON.stringify(cancelMatchData) }],
         });
-        await kafkaProducer.disconnect();
 
     } catch (error) {
         // TODO: Improve error handling
