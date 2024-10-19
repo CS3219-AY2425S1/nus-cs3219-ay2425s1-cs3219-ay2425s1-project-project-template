@@ -1,7 +1,6 @@
 package com.example.backend.matchverification.controller;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +18,13 @@ import com.example.backend.matchverification.model.VerificationResponse;
 public class MatchingVerificationRestController {
 
     private final MatchVerificationProducer matchVerificationProducer;
-    private final HashSet<String> seenMatchRequests = new HashSet<>(); 
+    private final MatchVerificationHashsetService matchVerificationHashset;
 
     @Autowired
-    public MatchingVerificationRestController(MatchVerificationProducer matchVerificationProducer) {
+    public MatchingVerificationRestController(MatchVerificationProducer matchVerificationProducer,
+                                              MatchVerificationHashsetService matchRequestService) {
         this.matchVerificationProducer = matchVerificationProducer;
+        this.matchVerificationHashset = matchRequestService;
     }
 
     @GetMapping("")
@@ -45,8 +46,8 @@ public class MatchingVerificationRestController {
         String matchReq1 = userMatches.get(0);
         String matchReq2 = userMatches.get(1);
 
-        boolean match1Exists = seenMatchRequests.contains(matchReq1);
-        boolean match2Exists = seenMatchRequests.contains(matchReq2);
+        boolean match1Exists = matchVerificationHashset.isSeen(matchReq1);
+        boolean match2Exists = matchVerificationHashset.isSeen(matchReq2);
 
         List<String> seenMatches = new ArrayList<>();
         List<String> unseenMatches = new ArrayList<>();
@@ -77,7 +78,8 @@ public class MatchingVerificationRestController {
 
         if (unseenMatches.size() == 2) {
             String payload = unseenMatches.get(0) + "_" + unseenMatches.get(1);
-            seenMatchRequests.addAll(unseenMatches);
+            matchVerificationHashset.addToSeenRequests(matchReq1);
+            matchVerificationHashset.addToSeenRequests(matchReq2);
             for (String match : unseenMatches) {
                 String userID = match.split("_")[0];
                 matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", userID, payload);

@@ -43,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setUserDestinationPrefix("/user");
     }
 
-    // Intercepts messages coming from the client and handles disconnection events
+    // Intercepts messages coming from the client and handles connection and disconnection events
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new ChannelInterceptor() {
@@ -51,10 +51,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 
-                if (accessor != null && StompCommand.DISCONNECT.equals(accessor.getCommand())) {
-                    String disconnectedUser = accessor.getUser().getName();
-                    System.out.println("User disconnected: " + disconnectedUser);
-                    disconnectProducer.sendMessage("DISCONNECTS", disconnectedUser, disconnectedUser);
+                if (accessor != null) {
+                    // Handle connection events
+                    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                        String connectedUser = accessor.getUser().getName(); 
+                        System.out.println("User connected: " + connectedUser);
+                    }
+                    
+                    // Handle disconnection events
+                    if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+                        String disconnectedUser = accessor.getUser().getName();
+                        System.out.println("User disconnected: " + disconnectedUser);
+                        disconnectProducer.sendMessage("DISCONNECTS", disconnectedUser, disconnectedUser);
+                    }
                 }
                 
                 return message;
