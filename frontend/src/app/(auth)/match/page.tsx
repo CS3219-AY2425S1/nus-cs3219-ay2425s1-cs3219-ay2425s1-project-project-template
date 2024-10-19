@@ -77,7 +77,7 @@ const closeLoadingSpinner = () => {
 
 const SOCKET_URL =
   process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
-  "http://localhost:3002/matching-websocket";
+  "http://localhost:3005/matching-websocket";
 
 const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
 
@@ -110,6 +110,14 @@ const FindPeer = () => {
           setIsConnected(true);
 
           client.subscribe("/user/queue/matches", (message) => {
+            console.log("Received message: ", message.body);
+            setSocketMessages((prevMessages) => [
+              ...prevMessages,
+              message.body,
+            ]);
+          });
+
+          client.subscribe("/user/queue/requestRejection", (message) => {
             console.log("Received message: ", message.body);
             setSocketMessages((prevMessages) => [
               ...prevMessages,
@@ -179,6 +187,19 @@ const FindPeer = () => {
     }, TIMEOUT_TIMER * 1000);
 
     try {
+      client.subscribe("/user/queue/requestRejection", (message) => {
+        const response: String = message.body;
+        console.log("Received message: ", response);
+        closeLoadingSpinner();
+        clearTimeout(timeout);
+        Swal.fire(
+          "A new Match Request cannot be sent!",
+          `${response}`,
+          "error"
+        );
+        client.deactivate();
+      });
+
       client.subscribe("/user/queue/matches", (message) => {
         const response: FindMatchSocketMessageResponse = JSON.parse(
           message.body

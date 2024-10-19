@@ -8,12 +8,10 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
-import com.sun.security.auth.UserPrincipal;
-
 public class UserHandshakeHandler extends DefaultHandshakeHandler{
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler,
             Map<String, Object> attributes) {
-        return new UserPrincipal(UUID.randomUUID().toString());
+        return new MyUserPrincipal(UUID.randomUUID().toString());
     }
 }
