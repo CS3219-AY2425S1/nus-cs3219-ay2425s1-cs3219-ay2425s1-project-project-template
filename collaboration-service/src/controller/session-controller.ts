@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import Session from '../model/session-model';
 
 export const sessionController = {
     createSession: async (req: Request, res: Response) => {
         const {
-            //session_id, // assuming session id is passed in the request body
             participants, // pair of strings
             question,
             code, // retrieval of code from question #TODO change this out
         } = req.body;
 
-        const sessionId = Math.random().toString(36).substring(2, 8); // #TODO 
+        const sessionId = uuidv4(); // Use UUID for unique session ID
         const session = new Session({
             session_id: sessionId, // session_id, 
             date_created: new Date(),
@@ -19,13 +19,13 @@ export const sessionController = {
             code,
         });
 
-        await session.save()
-            .then((data) => {
-                res.status(201).json(data);
-            })
-            .catch((err) => {
-                res.status(500).json({ message: (err as Error).message });
-            });
+        try {
+            const data = await session.save();
+            res.status(201).json(data);
+        } catch (err) {
+            console.error('Error creating session:', err); // Log the error
+            res.status(500).json({ message: (err as Error).message });
+        }
     },
     joinSession: async (req: Request, res: Response) => {
         const { sessionId, userId } = req.body

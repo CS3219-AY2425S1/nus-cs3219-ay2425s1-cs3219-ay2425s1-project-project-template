@@ -8,6 +8,8 @@ import { validateSocketJWT } from './middleware/jwt-validation';
 import { handleEditorChanges } from './utils/editor-handler';
 import router from './routes/session-routes';
 
+dotenv.config();
+
 const app = express();
 app.use(cors());
 app.use(express.json());

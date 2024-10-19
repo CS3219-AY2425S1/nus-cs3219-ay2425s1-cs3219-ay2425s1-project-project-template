@@ -8,13 +8,13 @@ const router = Router();
 router.get('/', (req, res) => {res.send('Hello from session service!')}); 
 
 // Create a new session
-router.post("/session/create", sessionController.createSession);
+router.post("/create", sessionController.createSession);
 
 // Join a session
-router.post("/session", /* validateApiJWT,*/ sessionController.joinSession);
+router.post("/", /* validateApiJWT,*/ sessionController.joinSession);
 
 // Terminate a session
-router.delete("/session", /* validateApiJWT,*/ sessionController.terminateSession);
+router.delete("/", /* validateApiJWT,*/ sessionController.terminateSession);
 
 
 export default router;

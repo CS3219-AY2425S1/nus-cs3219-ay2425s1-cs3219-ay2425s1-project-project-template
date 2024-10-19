@@ -1,4 +1,4 @@
-// currently not in use
+// currently not in use, will be used in future once session service is up and running to update the language in real time
 
 import { useEffect } from "react";
 

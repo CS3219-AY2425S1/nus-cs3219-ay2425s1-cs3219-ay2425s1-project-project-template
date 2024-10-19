@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 interface Session {
-    session_id: number;
+    session_id: string;
     date_created: Date;
     participants: string[];
     question: string;
@@ -10,7 +10,7 @@ interface Session {
 }
 
 const sessionSchema: Schema = new Schema({
-    session_id: { type: Number, unique: true },
+    session_id: { type: String, unique: true },
     date_created: { type: Date, required: true },
     participants: { 
         type: [String], 
