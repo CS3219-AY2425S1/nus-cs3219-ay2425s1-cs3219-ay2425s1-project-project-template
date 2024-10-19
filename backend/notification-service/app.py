@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_socketio import SocketIO
 import os
 from dotenv import load_dotenv
 
