@@ -117,8 +117,6 @@ function AdminPage() {
           filters={filters}
           updateFilter={updateFilter}
           removeFilter={removeFilter}
-          isAdmin
-          buttonCallback={() => setIsAddDialogOpen(true)}
         />
         <ProblemTable
           problems={problems}

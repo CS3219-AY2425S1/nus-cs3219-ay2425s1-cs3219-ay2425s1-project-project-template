@@ -39,13 +39,18 @@ export default function Navbar() {
             Questions
           </Link>
           {/* Admin users should be able to add questions instead of match */}
-          {!user?.isAdmin ?
+          {!user?.isAdmin ? (
             <Link href="/match" className="text-gray-300 hover:text-white">
               Match
-            </Link> :
-            <Link href="/add-question" className="text-gray-300 hover:text-white">
+            </Link>
+          ) : (
+            <Link
+              href="/add-question"
+              className="text-gray-300 hover:text-white"
+            >
               Add Question
-            </Link>}
+            </Link>
+          )}
           {isAuth ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

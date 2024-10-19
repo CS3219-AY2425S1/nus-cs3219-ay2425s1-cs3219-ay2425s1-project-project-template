@@ -15,16 +15,12 @@ interface FilterBarProps {
     value: string | string[] | null,
   ) => void;
   removeFilter: (key: keyof FilterState, value?: string) => void;
-  isAdmin?: boolean;
-  buttonCallback?: () => void;
 }
 
 export default function FilterBar({
   filters,
   updateFilter,
   removeFilter,
-  isAdmin = false,
-  buttonCallback,
 }: FilterBarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300); // 300ms delay
