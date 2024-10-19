@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly eventEmitter: EventEmitter2) { }
+  constructor(private readonly eventEmitter: EventEmitter2) {}
   private readonly matchBuffer: Record<string, any[]> = {};
   private readonly connectedUsers: Set<string> = new Set();
   private readonly queueName = 'matching_queue';
@@ -31,25 +31,29 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
           console.error('Failed to connect to RabbitMQ:', err);
           throw err;
         }
-        this.connection = connection
+        this.connection = connection;
         connection.createChannel((channelErr, channel) => {
           if (channelErr) {
             console.error('Failed to create a channel:', channelErr);
             throw channelErr;
           }
           this.channel = channel;
-          channel.assertQueue(this.queueName, { durable: false }, (error2, _ok) => {
-            if (error2) {
-              console.error('Failed to assert queue:', error2);
-              return;
-            }
-            console.log(`Queue ${this.queueName} is ready`);
-            resolve();
-          });
+          channel.assertQueue(
+            this.queueName,
+            { durable: false },
+            (error2, _ok) => {
+              if (error2) {
+                console.error('Failed to assert queue:', error2);
+                return;
+              }
+              console.log(`Queue ${this.queueName} is ready`);
+              resolve();
+            },
+          );
         });
       });
       console.log('Connected to RabbitMQ');
-    })
+    });
   }
 
   private async closeConnection() {
@@ -63,9 +67,12 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   }
 
   enterQueue(enterQueueDto: EnterQueueDto): void {
-    this.channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(enterQueueDto)));
+    this.channel.sendToQueue(
+      this.queueName,
+      Buffer.from(JSON.stringify(enterQueueDto)),
+    );
     console.log('User sent to queue:', enterQueueDto);
-  };
+  }
 
   consumeQueue() {
     if (this.channel) {
@@ -74,9 +81,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
         console.log('parsed to', JSON.parse(msg.content.toString()));
         if (msg !== null) {
           const userRequest = JSON.parse(msg.content.toString());
-          console.log(
-            `Received match request for user ${userRequest.userId}`,
-          );
+          console.log(`Received match request for user ${userRequest.userId}`);
           this.matchUser(userRequest);
           this.channel.ack(msg);
         } else {
@@ -91,12 +96,40 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private matchUser(userRequest: EnterQueueDto): void {
     const { email, categories, complexity, language } = userRequest;
     const matchingKey = `${categories}-${complexity}-${language}`;
-    console.log(this.unmatchedRequests)
+    console.log(this.unmatchedRequests);
     if (this.unmatchedRequests[matchingKey]) {
       const matchedUser = this.unmatchedRequests[matchingKey];
       console.log(`Match found between ${email} and ${matchedUser.email}`);
       delete this.unmatchedRequests[matchingKey];
-      this.notifyMatchFound(email, matchedUser.email)
+      this.notifyMatchFound(email, matchedUser.email);
+    } else if (
+      Object.values(this.unmatchedRequests).find(
+        (req) => req.categories === categories,
+      )
+    ) {
+      const matchedUser = Object.values(this.unmatchedRequests).find(
+        (req) => req.categories === categories,
+      );
+      console.log(
+        `Partial match found between ${email} and ${matchedUser.email} based on categories.`,
+      );
+      const partialMatchingKey = `${matchedUser.categories}-${matchedUser.complexity}-${matchedUser.language}`;
+      delete this.unmatchedRequests[partialMatchingKey];
+      this.notifyMatchFound(email, matchedUser.email);
+    } else if (
+      Object.values(this.unmatchedRequests).find(
+        (req) => req.complexity === complexity,
+      )
+    ) {
+      const matchedUser = Object.values(this.unmatchedRequests).find(
+        (req) => req.complexity === complexity,
+      );
+      console.log(
+        `Partial match found between ${email} and ${matchedUser.email} based on comlexity.`,
+      );
+      const partialMatchingKey = `${matchedUser.categories}-${matchedUser.complexity}-${matchedUser.language}`;
+      delete this.unmatchedRequests[partialMatchingKey];
+      this.notifyMatchFound(email, matchedUser.email);
     } else {
       this.unmatchedRequests[matchingKey] = userRequest;
       console.log(`No match found for user ${email}, waiting for a match...`);
@@ -117,12 +150,12 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     const time = new Date().toISOString();
     const userData = {
       userEmail: userEmail,
-      timestamp: time
+      timestamp: time,
     };
 
     const matchData = {
       userEmail: matchEmail,
-      timestamp: time
+      timestamp: time,
     };
 
     if (this.connectedUsers.has(userData.userEmail)) {
@@ -142,19 +175,20 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       }
       this.matchBuffer[matchData.userEmail].push(matchData);
     }
-  };
-
+  }
 
   createSSEStream(userEmail: string): Observable<any> {
-
     return new Observable((subscriber) => {
-
       this.connectedUsers.add(userEmail);
-      console.log(this.connectedUsers)
-
+      console.log(this.connectedUsers);
 
       if (this.matchBuffer[userEmail]) {
-        console.log("Notifying buffered events for ", userEmail, ":", this.matchBuffer[userEmail]);
+        console.log(
+          'Notifying buffered events for ',
+          userEmail,
+          ':',
+          this.matchBuffer[userEmail],
+        );
         this.matchBuffer[userEmail].forEach((data) => {
           subscriber.next(JSON.stringify(data)); // Notify each buffered event
         });
@@ -163,7 +197,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
       const handleMatchFound = (data) => {
         subscriber.next(JSON.stringify(data));
-        console.log("Notifying", data);
+        console.log('Notifying', data);
       };
 
       this.eventEmitter.on('match.found', handleMatchFound);
@@ -171,7 +205,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       return () => {
         this.eventEmitter.off('match.found', handleMatchFound);
         this.connectedUsers.delete(userEmail);
-        console.log("after cleanup ", this.connectedUsers);
+        console.log('after cleanup ', this.connectedUsers);
       };
     });
   }
