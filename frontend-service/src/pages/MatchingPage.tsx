@@ -98,11 +98,11 @@ const MatchingPage: React.FC = () => {
   };
 
   const handleCancel = async () => {
-    // try {
-    //   await fetchWithAuth("http://localhost:3002/cancel-matching", { method: "POST" });
-    // } catch (error) {
-    //   console.error("Failed to cancel matching.");
-    // }
+    try {
+      await fetchWithAuth("http://localhost:3002/cancel-matching", { method: "POST" });
+    } catch (error) {
+      console.error("Failed to cancel matching.");
+    }
     setStage(STAGE.MATCHME);
   };
 

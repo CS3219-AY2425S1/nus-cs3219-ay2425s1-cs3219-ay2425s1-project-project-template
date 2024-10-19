@@ -11,6 +11,7 @@ const dequeueConsumer = kafka.consumer({ groupId: 'request-service-dequeue' });
 const matchesMap = new Map();
 const statusMap = new Map();
 const matchTimestamps = new Map();  // New map to store request timestamps
+const matchTopicsMap = new Map();  // New map to store topic based on userID
 
 // TODO: When `cancel-match-event`, set user status to `isNotMatching`
 
@@ -40,12 +41,21 @@ const matchTimestamps = new Map();  // New map to store request timestamps
 
   await dequeueConsumer.run({
     eachMessage: async ({ message }) => {
-      const { userID } = message.value ? JSON.parse(message.value.toString()) : {};
-      console.log(`Received dequeue event for userID: ${userID}`);
+      const { userID, reason } = message.value ? JSON.parse(message.value.toString()) : {};
+      console.log(`Received dequeue event for userID: ${userID} with reason: ${reason}`);
       
-      // Set the user's status to `unsuccessful` instead of `isNotMatching`
-      statusMap.set(userID, 'unsuccessful');
-      console.log(`User ${userID} status set to unsuccessful.`);
+      // Check the reason for the dequeue event
+      if (reason === 'timeout') {
+        // Set the user's status to `unsuccessful`
+        statusMap.set(userID, 'unsuccessful');
+        console.log(`User ${userID} status set to unsuccessful due to timeout.`);
+      } else if (reason === 'cancel') {
+        // Set the user's status to `isNotMatching` for cancellation
+        statusMap.set(userID, 'isNotMatching');
+        console.log(`User ${userID} status set to isNotMatching due to cancel.`);
+      } else {
+        console.log(`Unknown reason: ${reason} for userID: ${userID}`);
+      }
     },
   });
 })();
@@ -79,7 +89,7 @@ router.post('/find-match', async (req, res) => {
             topic: req.body.topic,
             difficulty: req.body.difficulty,
             timestamp: Date.now().toString(),
-        }
+        };
 
         // Produce a `match-event`
         await kafkaProducer.send({
@@ -89,12 +99,51 @@ router.post('/find-match', async (req, res) => {
 
         // Set user status to `isMatching`
         statusMap.set(userData.id, 'isMatching');
-        res.json({ message: "Received match request" });
         matchTimestamps.set(userData.id, Date.now());  // Store the time when the match was requested
+        matchTopicsMap.set(userData.id, req.body.topic);  // Store the topic when the match was requested
+
+        res.json({ message: "Received match request" });
 
     } catch (error) {
         // TODO: Improve error handling
         console.error("Error: ", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// New cancel-matching endpoint
+router.post('/cancel-matching', async (req, res) => {
+    try {
+        const userData = await verifyJWT(req.headers.authorization);
+
+        // Retrieve the topic from matchTopicsMap based on userID
+        const topic = matchTopicsMap.get(userData.id);
+        if (!topic) {
+            res.status(400).json({ message: "No matching request found for user" });
+            return
+        }
+
+        // Create cancel match data
+        const cancelMatchData = {
+            userID: userData.id,
+            topic: topic,  // Include the topic stored for this user
+        };
+
+        // Produce a `cancel-match-event`
+        await kafkaProducer.send({
+            topic: "cancel-match-events",
+            messages: [{ key: userData.id, value: JSON.stringify(cancelMatchData) }],
+        });
+
+        // Clear user's status and remove from matchTimestamps and matchTopicsMap
+        statusMap.delete(userData.id);
+        matchTimestamps.delete(userData.id);
+        matchTopicsMap.delete(userData.id);
+
+        res.json({ message: "Match canceled successfully and status cleared" });
+
+    } catch (error) {
+        console.error("Error canceling match:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });

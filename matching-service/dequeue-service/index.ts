@@ -8,7 +8,8 @@ const app = express();
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'dequeue-service' });
-const matchFoundConsumer = kafka.consumer({ groupId: 'dequeue-service-matchfound' }); // New consumer for match-found-events
+const matchFoundConsumer = kafka.consumer({ groupId: 'dequeue-service-matchfound' });
+const cancelMatchConsumer = kafka.consumer({ groupId: 'dequeue-service-cancelmatch' });
 
 app.use(express.json());
 app.use(cors());
@@ -43,10 +44,10 @@ const timersMap = new Map<string, TimerData>();
             const timerID = setTimeout(async () => {
                 console.log(`Timer up for user: ${userID}, topic: ${topic}. Producing dequeue-event.`);
 
-                // Produce `dequeue-event` with userID and topic
+                // Produce `dequeue-event` with userID, topic, and reason: 'timeout'
                 await kafkaProducer.send({
                     topic: 'dequeue-events',
-                    messages: [{ key: userID, value: JSON.stringify({ userID, topic }) }],
+                    messages: [{ key: userID, value: JSON.stringify({ userID, topic, reason: 'timeout' }) }],
                 });
 
                 // Remove the timer reference
@@ -82,6 +83,37 @@ const timersMap = new Map<string, TimerData>();
                     }
                 }
             });
+        },
+    });
+})();
+
+// Listen for `cancel-match-events` to produce a `dequeue-event`
+(async () => {
+    await cancelMatchConsumer.connect();
+    await cancelMatchConsumer.subscribe({ topic: 'cancel-match-events', fromBeginning: false });
+
+    cancelMatchConsumer.run({
+        eachMessage: async ({ message }) => {
+            const cancelMatchEvent = message.value ? JSON.parse(message.value.toString()) : {};
+            const { userID, topic } = cancelMatchEvent;
+
+            console.log(`Received cancel-match-event for user: ${userID}, topic: ${topic}`);
+
+            // Produce a `dequeue-event` with userID, topic, and reason: 'cancel'
+            await kafkaProducer.send({
+                topic: 'dequeue-events',
+                messages: [{ key: userID, value: JSON.stringify({ userID, topic, reason: 'cancel' }) }],
+            });
+
+            // Clear the timer for the canceled match
+            if (timersMap.has(userID)) {
+                const timerData = timersMap.get(userID);
+                if (timerData) {
+                    clearTimeout(timerData.timerID); // Clear the timer
+                    timersMap.delete(userID); // Remove from the map
+                    console.log(`Cleared timer for canceled user: ${userID}`);
+                }
+            }
         },
     });
 })();
