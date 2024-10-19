@@ -11,6 +11,46 @@ const MatchingPage: React.FC = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const navigate = useNavigate();
 
+  // Trigger handlers according to match status in server
+  const checkMatchStatus = async () => {
+    const response = await fetch("http://localhost:3002/match-status", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+    const result = await response.json();
+    const matchStatus = result["matchStatus"];
+    handleMatchStatusReceived(matchStatus);
+  };
+  const handleMatchStatusReceived = (matchStatus:string) => {
+    if (matchStatus == "isNotMatching") {
+      // handleCancel();
+      setStage("matchme");
+    } else if (matchStatus == "isMatching") {
+      // handleMatchMe();
+      setStage("countdown");
+      fetch("http://localhost:3002/continue-matching", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("matching-service response: ", data)
+        if (data.message == "Match found!") {
+          handleMatchFound();
+        }
+      })
+      .catch(err => {console.error(err)});
+    } else if (matchStatus == "isMatched") {
+      handleMatchFound();
+    }
+  };
+
   const handleMatchMe = () => {
     const getMatchLongPoll = () => {
       fetch("http://localhost:3002/find-match", {
@@ -72,28 +112,11 @@ const MatchingPage: React.FC = () => {
     navigate("/dashboard");
   };
 
-  const handleMatchStatusReceived = (matchStatus:string) => {
-    if (matchStatus == "isNotMatching") {
-      handleCancel();
-    } else if (matchStatus == "isMatching") {
-      handleMatchMe();
-    } else if (matchStatus == "isMatched") {
-      handleMatchFound();
-    } else {
-      handleCancel();
-    }
-  };
 
   // Ensure that when the page is loaded/reloaded, the stage state is always
   // correct with respect to the actual user's match state in backend.
   useEffect(() => {
-    const fetchMatchStatus = async () => {
-      const response = await fetch("http://localhost:3002/match-status");
-      const result = await response.json();
-      const matchStatus = result["matchStatus"];
-      handleMatchStatusReceived(matchStatus);
-    };
-    fetchMatchStatus();
+    checkMatchStatus();
   }, []);
 
   return (

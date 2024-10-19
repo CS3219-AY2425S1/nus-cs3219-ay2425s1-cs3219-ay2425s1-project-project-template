@@ -8,6 +8,9 @@ const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'request-service' });
 
 const matchesMap = new Map();
+const statusMap = new Map();
+
+// TODO: When `cancel-match-event`, ser user status to `isNotMatching`
 
 (async () => {
     await kafkaProducer.connect();
@@ -63,12 +66,16 @@ router.post('/find-match', async (req, res) => {
             messages: [{ key: userData.id, value: JSON.stringify(matchRequestData) }],
         });
 
+        // Set user status to `isMatching`
+        statusMap.set(userData.id, 'isMatching');
+
         // Wait for information from the producer to see if match found
         const intervalID = setInterval(() => {
             console.log(matchesMap);
             if (matchesMap.has(userData.id)) {
                 res.json({ message: "Match found!" });
                 matchesMap.delete(userData.id);
+                statusMap.set(userData.id, 'isMatched');
                 clearInterval(intervalID);
             }
         }, 2000);
@@ -79,6 +86,29 @@ router.post('/find-match', async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
+// Called when the client is already finding a match, and needs to listen for match found
+router.post('/continue-matching', async (req, res) => {
+    try {
+        const userData = await verifyJWT(req.headers.authorization);
+
+        // Wait for information from the producer to see if match found
+        const intervalID = setInterval(() => {
+            console.log(matchesMap);
+            if (matchesMap.has(userData.id)) {
+                res.json({ message: "Match found!" });
+                matchesMap.delete(userData.id);
+                statusMap.set(userData.id, 'isMatched');
+                clearInterval(intervalID);
+            }
+        }, 2000);
+
+    } catch (error) {
+        // TODO: Improve error handling
+        console.error("Error: ", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+})
 
 router.post('/cancel-matching', async (req, res) => {
     try {
@@ -103,10 +133,17 @@ router.post('/cancel-matching', async (req, res) => {
 })
 
 router.get('/match-status', async (req, res) => {
-    // TODO: Actually pull the correct match status instead of hardcoded
-    res.json({
-        matchStatus: "isNotMatching" // [isNotMatching, isMatching, isMatched]
-    })
+    const userData = await verifyJWT(req.headers.authorization);
+
+    if (statusMap.has(userData.id)) {
+        res.json({ matchStatus: `${statusMap.get(userData.id)}` });
+    } else {
+        res.json({ matchStatus: 'isNotMatching' })
+    }
+})
+
+router.get('/reset-match-status', async (req, res) => {
+    statusMap.clear();
 })
 
 export default router;
