@@ -11,6 +11,8 @@ from .common import Difficulty
 from .config import Channels, settings
 from .grpc import query_num_questions
 
+import json
+
 structlog.configure(
     processors=[
         structlog.processors.add_log_level,
@@ -38,11 +40,28 @@ app.add_middleware(
 match_request_redis_url = RedisSettings.redis_url(Channels.REQUESTS)
 redis_client = Redis.from_url(match_request_redis_url)
 
-
 def request_match(publisher: Redis, user: MatchRequest):
     channel = Channels.REQUESTS.value
     publisher.publish(channel, user.model_dump_json())
     logger.info(f"CLIENT: User {user.user} requested match for {user.topic}, {user.difficulty}")
+
+# Endpoint to query matches for a user
+@app.get("/matches/{user_id}")
+async def get_matches(user_id: str):
+    pattern = f"match:{user_id}:*"
+    match_keys = redis_client.keys(pattern)
+    matches = []
+    try:
+        for key in match_keys:
+            match_data = redis_client.get(key)
+            if match_data:
+                matches.append(json.loads(match_data))
+        if not matches:
+            return {"message": "No matches found"}
+        return {"matches": matches}
+    except Exception as e:
+        logger.error(f"Error while retrieving matches for {user_id}: {e}")
+        raise
 
 
 @app.get("/")
