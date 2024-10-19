@@ -83,8 +83,10 @@ services:
       context: ./matching-service
     container_name: matching-service
     depends_on:
-      - rabbitmq
-      - matching-service-redis
+      rabbitmq:
+        condition: service_healthy
+      matching-service-redis:
+        condition: service_healthy
     env_file:
       - .env/.matching_env
 
@@ -103,6 +105,11 @@ services:
     image: redis:latest
     volumes:
       - redis-data:/data/db
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  # Adjust based on how long it takes for RabbitMQ to be ready
       
 volumes:
   mongo-data:
