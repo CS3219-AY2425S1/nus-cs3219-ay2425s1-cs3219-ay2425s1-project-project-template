@@ -167,8 +167,8 @@ func waitForResult(ws *websocket.Conn, ctx, timeoutCtx, matchCtx context.Context
 			return
 		}
 		log.Println("Match found for user: " + username)
-		// Notify the users about the match
-		notifyMatches(result.User, result.MatchedUser, result)
+		// Notify the user about the match
+		notifyMatches(result.User, result)
 
 		// NOTE: user and other user are already cleaned up in a separate matching algorithm process
 		// so no clean up is required here.
@@ -187,21 +187,14 @@ func sendTimeoutResponse(ws *websocket.Conn) {
 	}
 }
 
-func notifyMatches(username, matchedUsername string, result models.MatchFound) {
+// Notify matches
+func notifyMatches(username string, result models.MatchFound) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	// Send message to the first user
+	// Send message to matched user
 	if userConn, userExists := activeConnections[username]; userExists {
 		if err := userConn.WriteJSON(result); err != nil {
-			log.Printf("Error sending message to user %s: %v\n", username, err)
-		}
-	}
-
-	// Send message to the matched user
-	if matchedUserConn, matchedUserExists := activeConnections[matchedUsername]; matchedUserExists {
-		result.User, result.MatchedUser = result.MatchedUser, result.User // Swap User and MatchedUser values
-		if err := matchedUserConn.WriteJSON(result); err != nil {
 			log.Printf("Error sending message to user %s: %v\n", username, err)
 		}
 	}

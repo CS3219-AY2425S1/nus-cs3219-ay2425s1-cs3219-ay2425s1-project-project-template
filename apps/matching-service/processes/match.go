@@ -70,12 +70,22 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 				log.Println("Unable to randomly generate matchID")
 			}
 
-			// Signal that a match has been found
+			// Signal that a match has been found for user
 			matchFoundChannels[username] <- models.MatchFound{
 				Type:        "match_found",
 				MatchID:     matchId,
 				User:        username,
 				MatchedUser: matchedUsername,
+				Topic:       matchedTopic,
+				Difficulty:  matchedDifficulty,
+			}
+
+			// Signal that a match has been found for matchedUser
+			matchFoundChannels[matchedUsername] <- models.MatchFound{
+				Type:        "match_found",
+				MatchID:     matchId,
+				User:        matchedUsername,
+				MatchedUser: username,
 				Topic:       matchedTopic,
 				Difficulty:  matchedDifficulty,
 			}
