@@ -287,8 +287,8 @@ class RabbitMQConnection {
             const DLX_QUEUE = 'deadletter-queue'
             const DLX_EXCHANGE = 'dlx'
             const DLX_ROUTING_KEY = 'dlx-key'
-            await this.channel.assertExchange(DLX_EXCHANGE, 'direct', { durable: true })
-            await this.channel.assertQueue(DLX_QUEUE, { durable: true })
+            await this.channel.assertExchange(DLX_EXCHANGE, 'direct', { durable: false })
+            await this.channel.assertQueue(DLX_QUEUE, { durable: false })
             await this.channel.bindQueue(DLX_QUEUE, DLX_EXCHANGE, DLX_ROUTING_KEY)
 
             // Consume messages
