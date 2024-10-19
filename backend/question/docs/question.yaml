@@ -66,10 +66,39 @@ paths:
                   type: integer
                   default: 1
                   description: Page number
+                  example: 1
                 page_size:
                   type: integer
                   default: 10
                   description: Number of questions per page
+                  example: 10
+                title:
+                  type: string
+                  default: ""
+                  description: Filter by title
+                  example: "Two Sum"
+                complexity:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by complexities
+                  example: ["Easy", "Medium", "Hard"]
+                category:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by categories
+                  example:
+                    [
+                      "Hash Table",
+                      "Array",
+                      "Linked List",
+                      "Dynamic Programming",
+                      "Math",
+                      "String",
+                    ]
       responses:
         "200":
           description: List of questions
@@ -153,6 +182,43 @@ paths:
                 $ref: "#/components/schemas/Question"
         "404":
           description: Question not found
+        "500":
+          description: Internal server error
+  /pick-question:
+    post:
+      summary: Pick a random question given a list of complexities and categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                complexity:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by complexities
+                  example: ["Easy"]
+                category:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by categories
+                  example: ["Hash Table"]
+
+      responses:
+        "200":
+          description: Question picked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "400":
+          description: Bad Request (validation error)
+        "404":
+          description: No Question found
         "500":
           description: Internal server error
 
