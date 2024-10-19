@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const userEndpoint = `${process.env.USER_SERVER_ENDPOINT}`;
+import { PEERPREP_USER_HOST } from '@/config';
 
 export async function fetchAttemptedQuestions(userId: string): Promise<number[]> {
   const response = await axios.post<number[]>(
-    `${userEndpoint}/user/attempted-question/get`,
+    `${PEERPREP_USER_HOST}/user/attempted-question/get`,
     {userId}
   );
   if (response.status !== 200 || !response.data) {
@@ -15,7 +15,7 @@ export async function fetchAttemptedQuestions(userId: string): Promise<number[]>
 
 export async function updateAttemptedQuestions(userIds: string[], questionId: number): Promise<void> {
   const response = await axios.post<unknown>(
-    `${userEndpoint}/user/attempted-question/add`,
+    `${PEERPREP_USER_HOST}/user/attempted-question/add`,
     { questionId, userIds }
   );
   if (response.status !== 200 || !response.data) {

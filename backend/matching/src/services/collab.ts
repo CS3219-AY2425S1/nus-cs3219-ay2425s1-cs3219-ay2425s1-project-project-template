@@ -1,10 +1,10 @@
 import axios from 'axios';
+import { PEERPREP_COLLAB_HOST } from '@/config';
 
-const collabServerEndpoint = `${process.env.COLLAB_SERVER_ENDPOINT}`;
 
 export async function createRoom(userId1: string, userId2: string, questionId: string): Promise<string> {
   const response = await axios.get<{ roomName: string }>(
-    `${collabServerEndpoint}/room`,
+    `${PEERPREP_COLLAB_HOST}/room`,
     {
       params: {
         userid1: userId1,

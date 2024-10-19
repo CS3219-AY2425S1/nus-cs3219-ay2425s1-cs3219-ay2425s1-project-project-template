@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { IServiceResponse, IQuestion, IGetRandomQuestionPayload } from '../types/index';
-
-const questionEndpoint = `${process.env.QUESTION_SERVER_ENDPOINT}`;
+import { PEERPREP_QUESTION_HOST } from '@/config';
 
 export async function getRandomQuestion(payload: IGetRandomQuestionPayload): Promise<IQuestion> {
   const response = await axios.post<IServiceResponse<{ question: IQuestion }>>(
-    `${questionEndpoint}/questions/random`,
+    `${PEERPREP_QUESTION_HOST}/questions/random`,
     payload
   );
 
