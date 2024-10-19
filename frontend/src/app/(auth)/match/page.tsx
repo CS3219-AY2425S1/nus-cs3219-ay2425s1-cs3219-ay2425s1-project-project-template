@@ -37,7 +37,11 @@ interface FindMatchSocketMessage {
   userEmail: string;
   topics: string[];
   programmingLanguages: string[];
-  difficulties: string;
+  difficulties: string[];
+}
+
+interface FindMatchSocketMessageResponse {
+  matchedUserEmail: string;
 }
 
 const showLoadingSpinner = (onCancel: () => void) => {
@@ -176,12 +180,16 @@ const FindPeer = () => {
 
     try {
       client.subscribe("/user/queue/matches", (message) => {
-        console.log("Received message: ", message.body);
+        const response: FindMatchSocketMessageResponse = JSON.parse(
+          message.body
+        );
+        console.log("Received message: ", response);
+        const matchedUserEmail = response.matchedUserEmail;
         closeLoadingSpinner();
         clearTimeout(timeout);
         Swal.fire(
           "Match Found!",
-          `We found a match for you! You have been matched with ${message.body}.`,
+          `We found a match for you! You have been matched with ${matchedUserEmail}.`,
           "success"
         );
         client.deactivate();
