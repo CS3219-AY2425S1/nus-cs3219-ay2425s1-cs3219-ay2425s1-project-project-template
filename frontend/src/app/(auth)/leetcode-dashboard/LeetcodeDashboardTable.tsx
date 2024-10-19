@@ -216,6 +216,12 @@ export function LeetcodeDashboardTable({
           pageIndex: data.totalPages - 1,
         }));
       } else {
+        if (pagination.pageIndex + 1 == 0 && data.totalPages !== 0) {
+          setPagination((prev) => ({
+            ...prev,
+            pageIndex: 0,
+          }));
+        }
         setData(data.questions);
       }
     });
@@ -243,7 +249,7 @@ export function LeetcodeDashboardTable({
   return (
     <div className="w-full test">
       <div>
-        <Table className="font-light min-h-[50vh]">
+        <Table className="font-light min-h-[40vh]">
           <TableHeader className="w-full">
             <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
               <TableCell colSpan={5} className="pl-10">
@@ -267,7 +273,7 @@ export function LeetcodeDashboardTable({
                         Filter By
                       </Button>
                       {isFilterOpen && (
-                        <div className="absolute right-0 mt-2 w-72 min-h-[184px] bg-primary-800 text-primary-300 border border-gray-300 rounded shadow-lg z-10">
+                        <div className="absolute right-0 mt-2 w-[408px] min-h-[184px] bg-primary-800 text-primary-300 border border-gray-300 rounded shadow-lg z-10">
                           <div className="flex flex-col place-items-center mt-4 gap-4">
                             <div className="w-[90%]">
                               <div className="text-xs">Difficulty</div>
