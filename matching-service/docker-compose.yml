@@ -18,6 +18,8 @@ services:
       - "${MATCHING_SERVICE_PORT}:${MATCHING_SERVICE_PORT}"  # Bind port using env variable
     depends_on:
       - redis
+    volumes:
+      - ${MATCHING_SERVICE_LOGS_DIR}:/usr/src/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${MATCHING_SERVICE_PORT}/api"]
       interval: 10s

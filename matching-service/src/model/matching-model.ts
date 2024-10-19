@@ -1,3 +1,4 @@
+import { formatMatchedUsers, writeLogToFile } from '../utils/logger';
 import { getRedisClient } from '../utils/redis-client';
 
 interface SearchCriteria {
@@ -39,15 +40,11 @@ export async function matchOrAddUserToSearchPool(userId: string, socketId: strin
 
     const result = await redisClient.matchOrAddUser(topic, difficulty, userId, socketId, startTime);
 
-    console.log(`Matching user ${userId} with topic ${topic} and difficulty ${difficulty}`);
-    console.log(`matching result for user ${userId}: ${JSON.stringify(result)}`);
-
     if (result) {
         const match = result;
-        console.log(`Match found between ${match.matchedUsers[0].userId} and ${match.matchedUsers[1].userId}`);
+        writeLogToFile(formatMatchedUsers(result));
         return match.matchedUsers;
     } else {
-        console.log(`No match found, user ${userId} added to the search pool`);
         return null;
     }
 }

@@ -2,8 +2,8 @@ version: '3'
 services:
 
   frontend:
-    image: delishad21/g38-frontend:latest
-    container_name: g38-frontend
+    image: delishad21/frontend-peerprep:dev
+    container_name: g38-frontend-dev
     env_file:
       - .env
     ports:
@@ -11,7 +11,7 @@ services:
 
   user-mongodb:
     image: mongo:latest
-    container_name: user-service-mongodb
+    container_name: user-service-mongodb-dev
     # expose port for testing purposes or to view database in MongoDB Compass
     ports:
       - "27017:27017"
@@ -27,8 +27,8 @@ services:
     restart: no
 
   g38-user-service:
-    image: delishad21/g38-user-service:latest
-    container_name: user-service
+    image: delishad21/user-service:dev
+    container_name: user-service-dev
     env_file:
       - .env  # Loads environment variables from .env file
     environment:
@@ -40,7 +40,7 @@ services:
 
   question-mongodb:
     image: mongo:latest
-    container_name: question-service-mongodb
+    container_name: question-service-mongodb-dev
     # expose port for testing purposes or to view database in MongoDB Compass
     ports:
       - "27018:27017"
@@ -55,8 +55,8 @@ services:
     restart: no
 
   g38-question-service:
-    image: delishad21/g38-question-service:latest
-    container_name: question-service
+    image: delishad21/question-service:dev
+    container_name: question-service-dev
     env_file:
       - .env  # Loads environment variables from .env file
     environment:
@@ -68,17 +68,17 @@ services:
 
   redis:
     image: redis:latest
-    container_name: test-redis-container
+    container_name: redis-container-dev
     command: redis-server --save 30 1 --loglevel warning
     volumes:
       - ./redis-data:/data
     # expose ports when testing
-    # ports:
-    #   - "6379:6379"
+    ports:
+      - "6379:6379"
 
   g38-matching-service:
-    image: delishad21/g38-matching-service:latest
-    container_name: matching-service
+    image: delishad21/matching-service:dev
+    container_name: matching-service-dev
     env_file:
       - .env  # Loads environment variables from .env file
     volumes:
