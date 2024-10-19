@@ -8,13 +8,13 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useCookies } from "next-client-cookies";
+import { validateToken } from "@/app/actions/auth";
 
 interface TAuthContext {
   token: string | null;
+  username: string | null;
   updateToken: (token: string) => void;
   deleteToken: () => void;
-  username: string | null;
-  setUsername: (username: string) => void;
 }
 
 export const AuthContext = createContext<TAuthContext>({
@@ -22,7 +22,6 @@ export const AuthContext = createContext<TAuthContext>({
   updateToken: () => {},
   deleteToken: () => {},
   username: null,
-  setUsername: () => {},
 });
 
 interface Props {
@@ -47,6 +46,51 @@ export const AuthProvider = ({ children }: Props) => {
     setToken(token);
   };
 
+  const deleteToken = () => {
+    cookies.remove("token");
+    setToken(null);
+  };
+
+  // Loads token from cookies on mount
+  useEffect(() => {
+    const token = cookies.get("token");
+    if (token) {
+      setToken(token);
+    }
+  }, [cookies]);
+
+  // Checks if token is valid on page load
+  useEffect(() => {
+    const authenticateToken = async () => {
+      let success = false;
+      if (token) {
+        const response = await validateToken(token);
+        if (response) {
+          success = true;
+        }
+      }
+      return success;
+    };
+
+    authenticateToken().then((success) => {
+      if (!success && !pathname.startsWith("/auth")) {
+        if (token) {
+          alert("Session expired. Please log in again.");
+        } else {
+          alert("Please log in to access this page.");
+        }
+        deleteToken();
+        router.push("/auth/login");
+        return;
+      }
+
+      if (success && (pathname.startsWith("/auth") || pathname === "/")) {
+        router.push("/home");
+      }
+    });
+  }, [pathname]);
+
+  // Updates username when token changes
   useEffect(() => {
     if (token) {
       // Decode the token to get the username
@@ -62,31 +106,16 @@ export const AuthProvider = ({ children }: Props) => {
       setUsername(null);
       cookies.remove("username");
     }
-  }, [token]);
-
-  const deleteToken = () => {
-    cookies.remove("token");
-    setToken(null);
-  };
-
-  useEffect(() => {
-    const storedToken = cookies.get("token");
-    // TODO: Add token validation
-    if (storedToken) {
-      setToken(storedToken);
-      if (pathname.startsWith("/auth") || pathname === "/") {
-        router.push("/home");
-      }
-    } else {
-      if (!pathname.startsWith("/auth")) {
-        router.push("/auth/login");
-      }
-    }
-  }, [pathname]);
+  }, [cookies, token]);
 
   return (
     <AuthContext.Provider
-      value={{ token, updateToken, deleteToken, username, setUsername }}
+      value={{
+        token,
+        username,
+        updateToken,
+        deleteToken,
+      }}
     >
       {children}
     </AuthContext.Provider>
