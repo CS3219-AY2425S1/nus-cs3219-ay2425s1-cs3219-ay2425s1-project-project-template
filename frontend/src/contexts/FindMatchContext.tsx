@@ -27,7 +27,7 @@ interface FindMatchContextProps {
   showConfigurationPanel: boolean;
   showContinueDialog: boolean;
   timer: number;
-  difficulties: Difficulty[];
+  difficulties: Difficulty;
   topics: Category[];
   handleFindMatch: () => void;
   handleCancelMatch: () => void;
@@ -35,7 +35,7 @@ interface FindMatchContextProps {
   handleDeclineMatch: () => void;
   setShowConfigurationPanel: (show: boolean) => void;
   setShowContinueDialog: (show: boolean) => void;
-  setDifficulty: (difficulty: Difficulty[]) => void;
+  setDifficulty: (difficulty: Difficulty) => void;
   setTopics: (topics: Category[]) => void;
 }
 
@@ -54,10 +54,9 @@ export function FindMatchProvider({
   children,
 }: PropsWithChildren<FindMatchProviderProps>) {
   const { toast } = useToast();
+  
+  const [difficulty, setDifficulty] = useState<Difficulty>(DifficultyEnum.enum.Medium);
 
-  const [difficulty, setDifficulty] = useState<Difficulty[]>([
-    DifficultyEnum.enum.Medium,
-  ]);
   const [topics, setTopics] = useState<Category[]>(["Array"]);
 
   const [showConfigurationPanel, setShowConfigurationPanel] = useState(false);
@@ -84,7 +83,7 @@ export function FindMatchProvider({
   const matchRequest: MatchRequest = useMemo(() => {
     return {
       userId: userId,
-      selectedDifficulty: difficulty[0],
+      selectedDifficulty: difficulty,
       selectedTopic: topics,
     };
   }, [userId, difficulty, topics]);
@@ -103,8 +102,10 @@ export function FindMatchProvider({
     socket.connect();
     socket.once("connected", () => {
       socket.emit("findMatch", matchRequest);
+      socket.once("matchRequested", () => {
+        setFindingMatch(true);
+      });
     });
-    setFindingMatch(true);
   }, [socket, matchRequest]);
 
   const handleCancelMatch = useCallback(() => {
@@ -188,10 +189,14 @@ export function FindMatchProvider({
 
   const onMatchConfirmed = useCallback(
     ({ message, sessionId }: { message: string; sessionId: string }) => {
+      toast({
+        title: "Match Confirmed",
+        description: `You should be redirected to /${sessionId}`,
+      });
       console.log("Redirect to:", sessionId, message);
       reset();
     },
-    []
+    [toast]
   );
 
   const handleError = useCallback(
@@ -200,8 +205,9 @@ export function FindMatchProvider({
         title: "Error",
         description: error,
       });
+      socket.disconnect();
     },
-    [toast]
+    [socket, toast]
   );
 
   useEffect(() => {
