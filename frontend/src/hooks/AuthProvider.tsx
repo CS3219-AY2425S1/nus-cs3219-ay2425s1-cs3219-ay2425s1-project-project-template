@@ -2,11 +2,15 @@ import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { login } from '../apis/AuthApi';
+import { LoginInput } from '../types/Api';
 
 type AuthContextProps = {
   token: string;
   user: string;
-  loginAction: (email: string, password: string) => Promise<void>;
+  loginAction: (
+    loginInput: LoginInput,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => Promise<void>;
   logOutAction: () => void;
 };
 
@@ -22,18 +26,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState('');
   const navigate = useNavigate();
 
-  const loginAction = async (email: string, password: string) => {
-    const data = { email, password };
-
-    login(data).then(
+  const loginAction = async (
+    loginInput: LoginInput,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => {
+    login(loginInput).then(
       (response: any) => {
+        setError(null);
         setToken(response.data.accessToken);
         setUser(response.data.user);
         localStorage.setItem('login', response.accessToken);
         navigate('/');
       },
       (error: any) => {
-        console.log(error.response);
+        setError(error);
       },
     );
   };

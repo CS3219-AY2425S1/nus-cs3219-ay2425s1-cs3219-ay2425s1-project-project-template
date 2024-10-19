@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Modal,
   PasswordInput,
@@ -9,6 +10,8 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { isEmail, isNotEmpty, useForm } from '@mantine/form';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { useState } from 'react';
 
 import { useAuth } from '../../hooks/AuthProvider';
 
@@ -23,6 +26,7 @@ function LoginModal({
   closeLoginModal,
   openSignUpModal,
 }: LoginModalProps) {
+  const [loginError, setLoginError] = useState<string | null>(null);
   const auth = useAuth();
 
   const form = useForm({
@@ -38,8 +42,7 @@ function LoginModal({
   });
 
   const handleLogInClick = (values: typeof form.values) => {
-    const { email, password } = values;
-    auth.loginAction(email, password);
+    auth.loginAction(values, setLoginError);
   };
 
   const handleSignUpClick = () => {
@@ -72,6 +75,14 @@ function LoginModal({
             key={form.key('password')}
             placeholder="Password"
           />
+          {loginError && (
+            <Alert
+              variant="light"
+              title={loginError}
+              color="red"
+              icon={<IconAlertCircle />}
+            />
+          )}
           <Button type="submit">Log in</Button>
           <Text ta="center">
             Don't have an account yet?{' '}

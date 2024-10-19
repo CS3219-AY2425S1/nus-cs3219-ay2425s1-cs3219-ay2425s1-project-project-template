@@ -9,6 +9,6 @@ api.interceptors.response.use(
   (error) => {
     const message = error.response?.data?.message || error.message;
 
-    return Promise.reject(error);
+    return Promise.reject(message);
   },
 );
