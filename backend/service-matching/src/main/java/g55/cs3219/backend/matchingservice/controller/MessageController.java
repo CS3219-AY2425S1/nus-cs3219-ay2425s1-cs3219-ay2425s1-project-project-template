@@ -26,7 +26,7 @@ public class MessageController {
     @PostMapping("/match")
     public void sendMessage(@RequestBody MatchingRequest matchingRequest) {
         try {
-            rabbitMQProducer.send(matchingRequest.getTopic(), matchingRequest.getDifficulty(), matchingRequest.getUserId());
+            rabbitMQProducer.send(matchingRequest.getTopic(), matchingRequest.getDifficultyLevel(), matchingRequest.getUserId());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -35,7 +35,7 @@ public class MessageController {
     @PostMapping("/consume")
     public void consumeMessage(@RequestBody MatchingRequest matchingRequest) {
         try {
-            String queueName = matchingRequest.getTopic() + "." + matchingRequest.getDifficulty();
+            String queueName = matchingRequest.getTopic() + "." + matchingRequest.getDifficultyLevel();
             rabbitMQConsumer.receive(queueName);
         } catch (Exception e) {
             e.printStackTrace();
