@@ -73,11 +73,6 @@ class Matchmaker:
         self.client.close()
 
 
-def request_match(publisher: Redis, user: MatchRequest):
-    channel = RedisSettings.Channels.REQUESTS.value
-    publisher.publish(channel, user.model_dump_json())
-    logger.info(f"CLIENT: User {user.user} requested match for {user.topic}, {user.difficulty}")
-
 
 if __name__ == "__main__":
     logger.info("🤖 Matchmaker started!")
