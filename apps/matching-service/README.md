@@ -29,7 +29,7 @@ go mod tidy
 - `MATCH_TIMEOUT`: The time in seconds to wait for a match before timing out.
 - `REDIS_URL`: The URL for the Redis server. Default is `localhost:6379`.
 
-4. Start a local redis server:
+4. Start a local Redis server:
 
 ```bash
 docker run -d -p 6379:6379 redis
