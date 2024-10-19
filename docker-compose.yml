@@ -28,6 +28,7 @@ services:
       - PORT=${USER_SVC_PORT}
       - DB_LOCAL_URI=${USER_DB_URI}
       - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_PORT=${FRONTEND_PORT}
     volumes:
       - ./backend/UserService:/app
       - /app/node_modules
