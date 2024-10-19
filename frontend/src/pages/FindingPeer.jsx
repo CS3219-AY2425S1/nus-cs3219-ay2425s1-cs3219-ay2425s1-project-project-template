@@ -42,7 +42,7 @@ const FindingPeer = () => {
   };
 
   useEffect(() => {
-    const token = null; // <---- this needs to updated when we have the real token
+    const token = localStorage.getItem("jwtToken");
     const complexity = selectedLevel;
     const waitTime = time;
 

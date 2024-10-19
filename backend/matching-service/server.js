@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { startRedis, enqueueSocket } from './controller/redis.js';
+import { verifyAccessToken } from './middleware/basic-access-control.js';
 import cors from 'cors'; // Import cors
 import exp from 'constants';
 
@@ -34,15 +35,14 @@ httpServer.listen(port, () => {
 
 console.log('Matching Service listening on port ' + port);
 
+// Check if the token is valid and verify the token before any connection of the socket
+io.use(verifyAccessToken);
+
 io.on('connection', async (socket) => {
   try {
     console.log('New socket connected: ' + socket.id);
-    const jwt = socket.handshake.auth.token;
-    // Do checks here to verify the user
-    // if (notVerifiedUser) {
-    //   console.log('User not verified');
-    //   socket.disconnect();
-    // }
+
+    // Get the topic, complexity, and waitTime from the query parameters
     const topic = socket.handshake.query.topic;
     const complexity = socket.handshake.query.complexity;
     const waitTime = socket.handshake.query.waitTime;

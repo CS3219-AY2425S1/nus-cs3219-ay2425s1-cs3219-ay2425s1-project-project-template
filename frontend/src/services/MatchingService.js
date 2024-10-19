@@ -7,7 +7,7 @@ const matchingApi = createAxiosInstance(matchingServiceBaseURL);
 class MatchingService {
   constructor() {
     this.socket = null;
-    this.url = 'http://localhost:3003'; // Ensure you set this in your environment variables
+    this.url = matchingServiceBaseURL || 'http://localhost:3003'; // Ensure you set this in your environment variables
   }
 
   // Initialize the Socket.IO connection

@@ -31,8 +31,13 @@ export const enqueueSocket = async (socketId, topic, complexity, waitTime) => {
     io.to(socketId).emit('matchFound', roomId);
     io.to(socketId2).emit('matchFound', roomId);
     console.log(`Matched ${socketId} with ${socketId2}, roomId: ${roomId}`);
+    if (socketId === socketId2) {
+      // If both sockets are the same, disconnect the socket
+      io.sockets.connected[socketId].disconnect();
+    }
     io.sockets.sockets.get(socketId).disconnect();
     io.sockets.sockets.get(socketId2).disconnect();
+    console.log(`Disconnected ${socketId} and ${socketId2}`);
   } else {
     // No match found
     console.log('Waiting for match');
