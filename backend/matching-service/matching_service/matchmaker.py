@@ -49,28 +49,25 @@ class Matchmaker:
                 other_user = self.client.get(unmatched_key).decode("utf-8")
                 self.client.delete(unmatched_key)
                 logger.info(f"\t✅ Matched Users: {req.user} and {other_user} for {unmatched_key}!")
-                self.add_successful_match(req.user, other_user, unmatched_key)
+
+                # Add successful match directly in the block
+                logger.info("adding successful match")
+                match_key = f"match:{req.user}:{other_user}"
+                match_data = {
+                    "user_id": str(req.user),
+                    "other_user_id": str(other_user),
+                    "key": unmatched_key,
+                    "status": "successful"
+                }
+                try:
+                    self.client.set(match_key, json.dumps(match_data))
+                    logger.info(f"Match {match_key} between {req.user} and {other_user} recorded successfully.")
+                except Exception as e:
+                    logger.error(f"Error while recording match: {e}")
+                    raise
             else:
                 self.client.setex(unmatched_key, self.timeout, req.user)
                 logger.info(f"\t⏳ User {req.user} added to the unmatched pool for {unmatched_key}")
-
-    def add_successful_match(self, user_id: str, other_user_id: str, key: str):
-        """
-        Adds a successful match to the Redis database.
-        """
-        match_key = f"match:{user_id}:{other_user_id}"
-        match_data = {
-            "user_id": user_id,
-            "other_user_id": other_user_id,
-            "key": key,
-            "status": "successful"
-        }
-        try:
-            self.client.set(match_key, json.dumps(match_data))
-            logger.info(f"Match {match_key} between {user_id} and {other_user_id} recorded successfully.")
-        except Exception as e:
-            logger.error(f"Error while recording match: {e}")
-            raise
 
     def exception_handler(self, ex, _pubsub, _thread):
         logger.warn(ex)
