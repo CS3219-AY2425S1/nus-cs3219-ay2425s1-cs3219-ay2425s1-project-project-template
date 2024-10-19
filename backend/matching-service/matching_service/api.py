@@ -53,20 +53,14 @@ async def get_matches(user_id: str):
     matches = []
     try:
         cursor = '0'
+        patterns = [pattern_user, pattern_other]
         while cursor != 0:
-            cursor, match_keys = redis_client.scan(cursor=cursor, match=pattern_user)
-            for key in match_keys:
-                match_data = redis_client.get(key)
-                if match_data:
-                    matches.append(json.loads(match_data))
-        
-        cursor = '0'
-        while cursor != 0:
-            cursor, match_keys = redis_client.scan(cursor=cursor, match=pattern_other)
-            for key in match_keys:
-                match_data = redis_client.get(key)
-                if match_data:
-                    matches.append(json.loads(match_data))
+            for pattern in patterns:
+                cursor, match_keys = redis_client.scan(cursor=cursor, match=pattern)
+                for key in match_keys:
+                    match_data = redis_client.get(key)
+                    if match_data:
+                        matches.append(json.loads(match_data))
         
         if not matches:
             return {"message": "No matches found"}
