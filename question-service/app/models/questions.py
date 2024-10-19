@@ -12,10 +12,10 @@ class ComplexityEnum(str, Enum):
 class CategoryEnum(str, Enum):
     algorithms      = "Algorithms"
     arrays          = "Arrays"
-    bitmanipulation = "Bit Manipulation"
+    bit_manipulation = "Bit Manipulation"
     brainteaser     = "Brainteaser"
     databases       = "Databases"
-    datastructures  = "Data Structures"
+    data_structures  = "Data Structures"
     recursion       = "Recursion"
     strings         = "Strings"
 
