@@ -8,8 +8,6 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.matching.websocket.WebSocketService;
-
 @Component
 public class MatchRequestConsumer {
 
