@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 import { UserContext } from "../../context/UserContext";
 import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Collaboration: React.FC = () => {
+  const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
@@ -20,6 +22,16 @@ const Collaboration: React.FC = () => {
 
   // initialize socket upon component mount
   useEffect(() => {
+    if (
+      topic === null ||
+      difficulty === null ||
+      topic === "" ||
+      difficulty === ""
+    ) {
+      navigate("/dashboard");
+      return;
+    }
+
     socketRef.current = io("http://localhost:3000/");
     return () => {
       if (socketRef.current !== null) {

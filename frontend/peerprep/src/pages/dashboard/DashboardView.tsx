@@ -14,9 +14,8 @@ const DashboardView = () => {
   const user = useUserContext().user;
 
   // State for selected topic and difficulty
-  const [selectedTopic, setSelectedTopic] = useState<string>("Select a Topic");
-  const [selectedDifficulty, setSelectedDifficulty] =
-    useState<string>("Select Difficulty");
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 
   return (
     <div className="p-10 min-w-full h-screen">
@@ -82,23 +81,12 @@ const DashboardView = () => {
               color="white"
               _hover={{ bgColor: "purple.600" }}
               rightIcon={<FaArrowRight />}
+              isDisabled={
+                value === "Let's Match" &&
+                (selectedDifficulty == "" || selectedTopic == "")
+              }
               onClick={() => {
                 if (value === "Let's Match") {
-                  // Prepare connection message before navigating
-                  // if (user) {
-                  //   const connectionMessage = {
-                  //     username: user.username,
-                  //     userId: user.id,
-                  //     topic: selectedTopic,
-                  //     difficulty: selectedDifficulty,
-                  //   };
-                  //   console.log(
-                  //     "Connection message sent to backend:",
-                  //     connectionMessage
-                  //   ); // Log the message being sent
-                  //   console.log("Socket ID:", socket.id); // Log the socket ID
-                  //   socket.emit("joinQueue", connectionMessage); // Send the message to backend
-                  // }
                   navigate(
                     `/collaboration?topic=${selectedTopic}&difficulty=${selectedDifficulty}`
                   ); // Navigate to Collaboration View
@@ -110,10 +98,13 @@ const DashboardView = () => {
           ))}
           {/* Show the selected topic and difficulty below the "Let's Match" button */}
           <Box mt={4}>
-            <Text fontSize="l" fontWeight="bold">
-              Selected Topic: {selectedTopic}
-            </Text>
-            <Text fontSize="l" fontWeight="bold">
+            {(selectedDifficulty == "" || selectedTopic == "") && (
+              <Text fontWeight="bold" color="red">
+                Select a topic and difficulty before matching
+              </Text>
+            )}
+            <Text fontWeight="bold">Selected Topic: {selectedTopic}</Text>
+            <Text fontWeight="bold">
               Selected Difficulty: {selectedDifficulty}
             </Text>
           </Box>

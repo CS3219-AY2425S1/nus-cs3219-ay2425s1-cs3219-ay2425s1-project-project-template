@@ -94,24 +94,6 @@ export const handleUserMatch = (job) => {
   if (userSocket) {
     notifyUserOfMatchSuccess(socketId, userSocket, job);
   }
-
-  // if (user1Socket && user2Socket) {
-  //   // Make both users join the room
-  //   user1Socket.join(room);
-  //   user2Socket.join(room);
-
-  //   // Emit the 'matched' event to notify both users that they've been matched
-  //   io.to(user1SocketId).emit("matched", { room });
-  //   io.to(user2SocketId).emit("matched", { room });
-
-  //   console.log(
-  //     `Users ${user1SocketId} and ${user2SocketId} have joined room: ${room}`
-  //   );
-  // } else {
-  //   console.log(
-  //     `Error: Could not find sockets for users: ${user1SocketId} or ${user2SocketId}`
-  //   );
-  // }
 };
 
 export const notifyUserOfMatchSuccess = (socketId, socket, job) => {

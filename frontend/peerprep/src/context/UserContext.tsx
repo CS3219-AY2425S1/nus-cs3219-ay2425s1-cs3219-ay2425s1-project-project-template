@@ -80,8 +80,6 @@ export const UserProvider = ({
     refetch: refetchUserData,
   };
 
-  console.log("userData", userData);
-
   return (
     <UserContext.Provider value={userContext}>{children}</UserContext.Provider>
   );
