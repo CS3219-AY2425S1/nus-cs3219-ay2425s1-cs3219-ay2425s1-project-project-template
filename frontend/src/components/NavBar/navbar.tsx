@@ -13,10 +13,31 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import PeopleIcon from "@mui/icons-material/People";
 import MatchingDialog from "../Matching/matching";
-
-const settings = ["Settings", "Logout"];
+import axios from "axios";
+import { AuthContext, authState } from "../../hooks/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function NavBar() {
+  const navigate = useNavigate();
+  const settings = [
+    {
+      name: "Settings",
+      onClick: () => {}
+    },
+    {
+      name: "Logout",
+      onClick: () => {
+        axios.delete(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, {
+          withCredentials: true,
+        }).then(_ => {
+          navigate("/login");
+        });
+      }
+    },
+  ];
+
+  const { user } = React.useContext(AuthContext);
+
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
@@ -58,6 +79,7 @@ function NavBar() {
             </Button>
             {/* Flexible space to push avatar to the right */}
             <Box sx={{ flexGrow: 1 }} />
+            <Typography sx={{ mx: 3 }} >{`Welcome, ${user.username}`}</Typography>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
@@ -80,8 +102,8 @@ function NavBar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: "center" }}>{setting}</Typography>
+                <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
+                  <Typography sx={{ textAlign: "center" }} onClick={setting.onClick}>{setting.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>

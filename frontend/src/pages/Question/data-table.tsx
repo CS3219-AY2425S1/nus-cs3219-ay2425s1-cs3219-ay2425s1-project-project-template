@@ -34,6 +34,8 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../../hooks/AuthContext";
 
 import { type Question, categories, complexities, validateQuestion } from "./question";
 
@@ -62,6 +64,7 @@ const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
 }));
 
 const Table = () => {
+  const { user } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [isCrudError, setIsCrudError] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
@@ -308,7 +311,7 @@ const Table = () => {
     data: fetchedQuestions,
     createDisplayMode: "modal",
     editDisplayMode: "modal",
-    enableEditing: true,
+    enableRowActions: user.isAdmin,
     initialState: { columnVisibility: { description: false } },
     enableDensityToggle: false,
     enableFullScreenToggle: false,

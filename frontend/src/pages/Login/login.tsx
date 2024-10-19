@@ -13,7 +13,7 @@ export default function LoginPage() {
   const {user, setUser, setIsAuthenticated} = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
       email: "",
       password: "",
@@ -23,12 +23,12 @@ export default function LoginPage() {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Record<string, string>) => {
       return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, data, {
-        withCredentials:true,
-      })
+        withCredentials: true,
+      });
     },
     onSuccess: (data) => {
       setIsAuthenticated(authState.TRUE);
-      setUser({name: data.data.data.username});
+      setUser(data.data.data);
       reset();
       navigate("/");
     },

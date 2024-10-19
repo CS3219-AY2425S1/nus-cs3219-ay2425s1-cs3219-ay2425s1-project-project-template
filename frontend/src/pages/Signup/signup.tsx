@@ -9,7 +9,6 @@ import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
 export default function SignupPage() {
-
   const navigate = useNavigate();
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
@@ -29,9 +28,9 @@ export default function SignupPage() {
       return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users`, data)
     },
     onSuccess: (data) => {
-      toast.success("Account created!")
+      toast.success("Account created!");
       reset();
-      navigate("/login")
+      navigate("/login", { replace: true });
     },
     onError: (error: AxiosError) => {
       let message: string;
@@ -63,10 +62,12 @@ export default function SignupPage() {
       <div className="relative flex flex-col">
           <input className={textBoxStyle} type="text" placeholder="Enter username"
             {...register("userName", {
-              required: { value: true, message: "Username is required" }
+              required: { value: true, message: "Username is required" },
+              minLength: { value: 4, message: "Username must be at least 4 characters." },
+              maxLength: { value: 20, message: "Username must be at most 20 characters." },
             })} />
           <PersonIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
-          <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.email?.message}</span>
+          <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.userName?.message}</span>
         </div>
         <div className="relative flex flex-col">
           <input className={textBoxStyle} type="text" placeholder="Enter email"
@@ -81,7 +82,7 @@ export default function SignupPage() {
           <input className={textBoxStyle} type="password" placeholder="Enter password"
             {...register("password", {
               required: { value: true, message: "Password is required." },
-              minLength: { value: 6, message: "Password must be at least 6 characters." }
+              minLength: { value: 6, message: "Password must be at least 6 characters." },
             })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.password?.message}</span>

@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser"
 import { findUserByEmail as _findUserByEmail } from "../model/repository.js";
 import { formatUserResponse } from "./user-controller.js";
 
@@ -24,16 +23,25 @@ export async function handleLogin(req, res) {
         expiresIn: "1d",
       });
       res.cookie("token", accessToken, {
-        httpOnly: false,
-        maxAge: 24 * 60 * 60 * 1000
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        secure: true,
+        sameSite: "Strict",
       });
-      return res.status(200).json({ message: "User logged in", data: {accessToken, ...formatUserResponse(user)} });
+      return res.status(200).json({ message: "User logged in", data: formatUserResponse(user) });
     } catch (err) {
       return res.status(500).json({ message: err.message });
     }
   } else {
     return res.status(400).json({ message: "Missing email and/or password" });
   }
+}
+
+export async function handleLogout(req, res) {
+  res.cookie("token", "", {
+    maxAge: -1,
+  });
+  return res.status(200).json({ message: "User logged out" });
 }
 
 export async function handleVerifyToken(req, res) {

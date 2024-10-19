@@ -9,12 +9,12 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({    credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
-  origin: `http://localhost:${process.env.FRONTEND_PORT}`})); // config cors so that front-end can use
-app.options("*", cors());
-app.use(cookieParser())
-
+app.use(cors({
+  origin: `http://localhost:${process.env.FRONTEND_PORT}`, // config cors so that front-end can use
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
+}));
+app.use(cookieParser());
 
 // To handle CORS Errors
 // app.use((req, res, next) => {
