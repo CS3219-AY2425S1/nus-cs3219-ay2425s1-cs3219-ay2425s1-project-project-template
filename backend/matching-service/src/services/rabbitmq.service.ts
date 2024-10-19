@@ -301,19 +301,19 @@ class RabbitMQConnection {
                 await this.connect()
             }
 
-            // DeadLetter-Queue setup parameters
+            const dlxArgs = this.getDlxArgs()
             const DLX_QUEUE = 'deadletter-queue'
-            const DLX_EXCHANGE = 'dlx'
-            const DLX_ROUTING_KEY = 'dlx-key'
+            const DLX_EXCHANGE = dlxArgs['x-dead-letter-exchange']
+            const DLX_ROUTING_KEY = dlxArgs['x-dead-letter-routing-key']
+
             await this.channel.assertExchange(DLX_EXCHANGE, 'direct', { durable: false })
             await this.channel.assertQueue(DLX_QUEUE, { durable: false })
             await this.channel.bindQueue(DLX_QUEUE, DLX_EXCHANGE, DLX_ROUTING_KEY)
 
-            // Consume messages
             await this.channel.consume(DLX_QUEUE, (msg) => {
                 if (msg) {
-                    const socketId = msg.properties.headers.websocketId
-                    const queue = msg.properties.headers['x-first-death-queue']
+                    const socketId = msg.properties?.headers?.websocketId
+                    const queue = msg.properties?.headers['x-first-death-queue']
                     logger.info(
                         `[DeadLetter-Queue] Received dead letter message from ${queue}, with socketId ${socketId}`
                     )
