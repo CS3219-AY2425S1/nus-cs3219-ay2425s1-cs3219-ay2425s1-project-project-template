@@ -105,27 +105,46 @@ app.get("/match", async (req: Request, res: Response, next) => {
     let timeWaitedForMessage = 0
     let currentTotalUsersWaiting = users.length;
 
-    // if (users.length == 0) {
-    //   const waitForNewMessagesInterval = setInterval(async () => {
-    //     if (timeWaitedForMessage == 8) {
-    //       clearInterval(waitForNewMessagesInterval)
-    //     }
-    //     await pullDataFromExchange(req.query.queueName as string)
-    //     timeWaitedForMessage += 2
-    //   }, 2000)
+    if (users.length == 0) {
+      const waitForNewMessagesInterval = setInterval(async () => {
+        await pullDataFromExchange(req.query.queueName as string)
+        timeWaitedForMessage += 2
+        console.log("Time waited for message Case 3: ", timeWaitedForMessage);
+        if (timeWaitedForMessage == 16) {
+          clearInterval(waitForNewMessagesInterval)
+        }
+      }, 2000)
       
-    //   while (timeWaitedForMessage != 8) { 
-    //     sleep(1000);
-    //   }
+      while (timeWaitedForMessage != 8) { 
+        sleep(1000);
+      }
 
-    //   if (currentTotalUsersWaiting > users.length) {
-    //     for (const user of users) {
-          
-    //     }
-    //   } else {
-    //     // Randomly match amongst current users
-    //   }
-    // }
+      if (currentTotalUsersWaiting > users.length) {
+        for (const user of users) {
+          if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
+            matchedUsers.push(user);
+            break;
+          }
+        }
+  
+        if (matchedUsers.length == 2) {
+          res.json({
+            matchedUsers
+          });
+          return;
+        }
+      } else {
+      // Randomly match amongst current users
+      console.log("Randomly matched amongst current users")
+      const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1);
+      const nextUser = users.splice(randomlySelectedIndex, 1);
+      matchedUsers.push(nextUser[0])
+      res.json({
+        matchedUsers
+      });
+      return;
+      }
+    }
 
     for (const user of users) {
       console.log("Reached this case")
@@ -146,13 +165,13 @@ app.get("/match", async (req: Request, res: Response, next) => {
       return;
     }
 
-    // Case (2) - >1 person in queue, non matched topic so far
+    // Case (2) -> 1 person in queue, non matched topic so far
     timeWaitedForMessage = 0
     currentTotalUsersWaiting = users.length;
     const waitForNewMessagesInterval = setInterval(async () => {
       await pullDataFromExchange(req.query.queueName as string)
       timeWaitedForMessage += 2
-      console.log("Time waited for message: ", timeWaitedForMessage);
+      console.log("Time waited for message Case 2: ", timeWaitedForMessage);
       if (timeWaitedForMessage == 8) {
         clearInterval(waitForNewMessagesInterval)
       }
@@ -160,7 +179,6 @@ app.get("/match", async (req: Request, res: Response, next) => {
     
     while (timeWaitedForMessage < 8) { 
       await sleep(1000);
-      console.log("Im here now")
     }
 
     // Check currentTotalUsersWaiting with current user's length
@@ -191,20 +209,6 @@ app.get("/match", async (req: Request, res: Response, next) => {
       return;
     }
 
-
-    // const { channel, message } = await pullDataFromExchange(
-    //   req.query.queueName as string
-    // )
-    // Assuming only one message comes through
-    // if (message) {
-    //   // Consume all the messages coming through
-    //   const parsedMessage = JSON.parse(message.content.toString())
-    //   channel.ack(message);
-    //   res.json({
-    //     message: JSON.parse(message.content.toString())
-    //   })
-    // } else {
-    // }
   }
 })
 
