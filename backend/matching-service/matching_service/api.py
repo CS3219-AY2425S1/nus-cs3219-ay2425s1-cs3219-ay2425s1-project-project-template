@@ -5,10 +5,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
 from structlog import get_logger
 
+
+from .common import Difficulty
+
 from matching_service.common import MatchRequest
 from matching_service.config import RedisSettings
 
+
 from .config import settings
+from .grpc import query_num_questions
 
 logger = get_logger()
 
@@ -44,6 +49,23 @@ async def get_match():
     return {"message": "Hello from matching service"}
 
 
+
+"""
+Sample gRPC use
+
+NOTE
+- it should NOT be an API endpoint
+- in `/match` endpoint, check that the combination given by user is valid (ie `num_questions > 0`)
+    - if it is valid, proceed to publish to queues to find matches
+    - else, return an error code for frontend to handle/ display
+"""
+
+
+@app.get("/test")
+async def test():
+    num_questions = query_num_questions(topic="dynamic-programming", difficulty=Difficulty.Hard)
+    return {"message": num_questions}
+
 @app.post("/match", response_model=dict)
 async def create_match(req: MatchRequest):
     """
@@ -58,3 +80,4 @@ async def create_match(req: MatchRequest):
     except Exception as e:
         logger.error(f"Error while creating match: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while creating the match.")
+
