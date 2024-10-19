@@ -3,8 +3,8 @@ import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
 import { EXCHANGE } from "./constants"
-import { UserData } from "./types"
 import { getRandomIntegerInclusive, sleep } from "./helper"
+import { UserData } from "./types"
 
 const app: Express = express()
 
@@ -12,7 +12,7 @@ dotenv.config()
 
 app.use(express.json())
 
-let users : UserData[] = []
+let users: UserData[] = []
 
 let connection: Connection, channel: Channel
 
@@ -36,7 +36,7 @@ const handleIncomingNotification = (msg: string) => {
     const parsedMessage = JSON.parse(msg)
 
     // console.log(`Received Notification`, parsedMessage)
-    users.unshift(parsedMessage)
+    users.push(parsedMessage)
     console.log(">>USERS: ", users)
     return parsedMessage
   } catch (error) {
@@ -99,50 +99,77 @@ app.get("/match", async (req: Request, res: Response, next) => {
     // 1. Pull data from the respective queue, store into global users array
     await pullDataFromExchange(req.query.queueName as string)
     const firstUser = users.shift()
-    matchedUsers.push(firstUser);
+    console.log(">> FIRST USER: ", firstUser)
+    matchedUsers.push(firstUser)
 
     // Case 3: Only 1 person in the queue
     let timeWaitedForMessage = 0
-    let currentTotalUsersWaiting = users.length;
+    let currentTotalUsersWaiting = users.length
+
+    console.log(">>USER LENGTH: ", users.length)
 
     if (users.length == 0) {
       const waitForNewMessagesInterval = setInterval(async () => {
         await pullDataFromExchange(req.query.queueName as string)
         timeWaitedForMessage += 2
-        console.log("Time waited for message Case 3: ", timeWaitedForMessage);
+        console.log("Time waited for message Case 3: ", timeWaitedForMessage)
         if (timeWaitedForMessage == 16) {
           clearInterval(waitForNewMessagesInterval)
         }
       }, 2000)
-      
-      while (timeWaitedForMessage != 8) { 
-        sleep(1000);
+
+      while (timeWaitedForMessage < 16) {
+        await sleep(1000)
       }
 
-      if (currentTotalUsersWaiting > users.length) {
+      console.log(
+        "CURRENT TOTAL USER WAITING CASE 3: ",
+        currentTotalUsersWaiting
+      )
+      console.log("users lengtth: ", users.length)
+
+      // Means if new users have been added to the overall queue
+      if (currentTotalUsersWaiting != users.length) {
         for (const user of users) {
-          if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
-            matchedUsers.push(user);
-            break;
+          if (
+            user.topic == firstUser.topic &&
+            user.user_id != firstUser.user_id
+          ) {
+            matchedUsers.push(user)
+            break
           }
         }
-  
+
         if (matchedUsers.length == 2) {
           res.json({
-            matchedUsers
-          });
-          return;
+            matchedUsers,
+            timeout: false
+          })
+          return
         }
+      }
+
+      if (users.length > 0) {
+        // If still stuck with the same number of people
+        // Randomly match amongst current users
+        console.log("Randomly matched amongst current users case 3")
+        const randomlySelectedIndex = getRandomIntegerInclusive(
+          0,
+          users.length - 1
+        )
+        const nextUser = users.splice(randomlySelectedIndex, 1)
+        matchedUsers.push(nextUser[0])
+        res.json({
+          matchedUsers,
+          timeout: false
+        })
+        return
       } else {
-      // Randomly match amongst current users
-      console.log("Randomly matched amongst current users")
-      const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1);
-      const nextUser = users.splice(randomlySelectedIndex, 1);
-      matchedUsers.push(nextUser[0])
-      res.json({
-        matchedUsers
-      });
-      return;
+        // Timeout, cannot find match
+        res.json({
+          matchedUsers: [],
+          timeout: true
+        })
       }
     }
 
@@ -150,65 +177,80 @@ app.get("/match", async (req: Request, res: Response, next) => {
       console.log("Reached this case")
       // Case (1) - 2 people in queue have matching topic
       if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
-        matchedUsers.push(user);
-        break;
+        matchedUsers.push(user)
+        break
       }
     }
 
-    console.log("Reached here: ", matchedUsers);
-    
+    console.log("Reached here: ", matchedUsers)
+
     if (matchedUsers.length == 2) {
       res.json({
-        matchedUsers
+        matchedUsers,
+        timeout: false
       })
-      users = [];
-      return;
+      return
     }
 
     // Case (2) -> 1 person in queue, non matched topic so far
     timeWaitedForMessage = 0
-    currentTotalUsersWaiting = users.length;
+    currentTotalUsersWaiting = users.length
     const waitForNewMessagesInterval = setInterval(async () => {
       await pullDataFromExchange(req.query.queueName as string)
       timeWaitedForMessage += 2
-      console.log("Time waited for message Case 2: ", timeWaitedForMessage);
+      console.log("Time waited for message Case 2: ", timeWaitedForMessage)
       if (timeWaitedForMessage == 8) {
         clearInterval(waitForNewMessagesInterval)
       }
     }, 2000)
-    
-    while (timeWaitedForMessage < 8) { 
-      await sleep(1000);
+
+    while (timeWaitedForMessage < 8) {
+      await sleep(1000)
     }
 
     // Check currentTotalUsersWaiting with current user's length
-    // If different, means new user added 
-    if (currentTotalUsersWaiting > users.length) {
+    // If different, means new user added
+    if (currentTotalUsersWaiting != users.length) {
       for (const user of users) {
-        if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
-          matchedUsers.push(user);
-          break;
+        if (
+          user.topic == firstUser.topic &&
+          user.user_id != firstUser.user_id
+        ) {
+          matchedUsers.push(user)
+          break
         }
       }
 
       if (matchedUsers.length == 2) {
         res.json({
-          matchedUsers
-        });
-        return;
+          matchedUsers,
+          timeout: false
+        })
+        return
       }
-    } else {
-      // Randomly match amongst current users
-      console.log("Randomly matched amongst current users")
-      const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1);
-      const nextUser = users.splice(randomlySelectedIndex, 1);
-      matchedUsers.push(nextUser[0])
-      res.json({
-        matchedUsers
-      });
-      return;
     }
 
+    if (users.length > 0) {
+      // Randomly match amongst current users
+      console.log("Randomly matched amongst current users")
+      const randomlySelectedIndex = getRandomIntegerInclusive(
+        0,
+        users.length - 1
+      )
+      const nextUser = users.splice(randomlySelectedIndex, 1)
+      matchedUsers.push(nextUser[0])
+      res.json({
+        matchedUsers,
+        timeout: false
+      })
+      return
+    } else {
+      // Timeout, cannot find match
+      res.json({
+        matchedUsers: [],
+        timeout: true
+      })
+    }
   }
 })
 
