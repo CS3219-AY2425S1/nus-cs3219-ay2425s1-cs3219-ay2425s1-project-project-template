@@ -80,6 +80,20 @@ export async function login(state: FormState, formData: FormData) {
   }
 }
 
+export async function validateToken(token: string) {
+  const response = await fetch(
+    `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/auth/validate`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.status === 200;
+}
+
 function validateEmail(email: string): boolean {
   const re = /\S+@\S+\.\S+/;
   return re.test(email);

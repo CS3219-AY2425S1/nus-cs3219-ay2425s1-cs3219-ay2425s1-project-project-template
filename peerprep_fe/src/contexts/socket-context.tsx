@@ -41,6 +41,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const { token } = useAuth();
 
   useEffect(() => {
+    if (!token) {
+      return;
+    }
+
     const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
       "http://localhost:5003",
       {
