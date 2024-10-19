@@ -6,6 +6,7 @@ import logger from '../common/logger.util'
 import { Proficiency } from '@repo/user-types'
 import { IMatch } from '../types/IMatch'
 import { handleCreateMatch } from '../controllers/matching.controller'
+import wsConnection from '../services/ws.service'
 
 class RabbitMQConnection {
     connection!: Connection
@@ -125,7 +126,7 @@ class RabbitMQConnection {
                 expiration: ttl,
                 headers: {
                     sentAt: Date.now(),
-                    userId: message.userId,
+                    websocketId: message.websocketId,
                 },
             })
 
@@ -311,9 +312,12 @@ class RabbitMQConnection {
             // Consume messages
             await this.channel.consume(DLX_QUEUE, (msg) => {
                 if (msg) {
-                    const userId = msg.properties.headers.userId
+                    const socketId = msg.properties.headers.websocketId
                     const queue = msg.properties.headers['x-first-death-queue']
-                    logger.info(`[DeadLetter-Queue] Received dead letter message from user ${userId} from ${queue}`)
+                    logger.info(
+                        `[DeadLetter-Queue] Received dead letter message from ${queue}, with socketId ${socketId}`
+                    )
+                    wsConnection.closeConnectionOnTimeout(socketId)
                     this.channel.ack(msg)
                 }
             })
