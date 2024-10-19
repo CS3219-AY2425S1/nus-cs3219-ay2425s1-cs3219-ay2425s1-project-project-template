@@ -1,18 +1,18 @@
 import React from "react";
 import { useRouter } from "next/router";
 import { Button } from "@nextui-org/button";
+import { Card } from "@nextui-org/card";
 
 import LoginForm from "@/components/forms/LoginForm";
 import { useLogin } from "@/hooks/api/auth";
 import DefaultLayout from "@/layouts/default";
 import { useUser } from "@/hooks/users";
 import { User } from "@/types/user";
-import { Card } from "@nextui-org/card";
 
 const LoginPage = () => {
   const router = useRouter();
   const { setUser } = useUser();
-  const { mutate: login, isPending, isError, error } = useLogin();
+  const { mutate: login, isPending } = useLogin();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const handleLogin = (email: string, password: string) => {
@@ -20,6 +20,7 @@ const LoginPage = () => {
       { email, password },
       {
         onSuccess: (data) => {
+          console.log("Login successful!");
           const user: User = {
             id: data.id,
             username: data.username,
@@ -39,7 +40,7 @@ const LoginPage = () => {
             setErrorMessage("An unexpected error occurred. Please try again.");
           }
         },
-      }
+      },
     );
   };
 
