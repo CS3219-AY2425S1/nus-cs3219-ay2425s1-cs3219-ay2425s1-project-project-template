@@ -80,3 +80,18 @@ const onSocketExpiry = async (socketId, topic, complexity) => {
     console.log(error.message);
   }
 };
+
+export const dequeueSocket = async (socketId, topic, complexity) => {
+  const topicAndComplexity = `${topic}:${complexity}`;
+  try {
+    const matchExists = await socketChannel.get(topicAndComplexity);
+    if (matchExists === socketId) {
+      socketChannel.del(topicAndComplexity);
+      console.log(`Removed ${socketId} from queue`);
+    } else {
+      console.log(`Socket ${socketId} not found in queue`);
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};

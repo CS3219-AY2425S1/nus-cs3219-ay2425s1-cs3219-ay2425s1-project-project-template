@@ -1,7 +1,11 @@
 import 'dotenv/config';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { startRedis, enqueueSocket } from './controller/redis.js';
+import {
+  startRedis,
+  enqueueSocket,
+  dequeueSocket,
+} from './controller/redis.js';
 import { verifyAccessToken } from './middleware/basic-access-control.js';
 import cors from 'cors'; // Import cors
 import exp from 'constants';
@@ -52,13 +56,13 @@ io.on('connection', async (socket) => {
     const waitTime = socket.handshake.query.waitTime;
 
     enqueueSocket(socket.id, topic, complexity, waitTime);
+
+    socket.on('disconnect', () => {
+      dequeueSocket(socket.id, topic, complexity);
+      console.log('Socket disconnected: ' + socket.id);
+    });
   } catch (err) {
     console.log(err.message);
     socket.disconnect();
   }
-});
-
-io.on('disconnect', async (socket) => {
-  console.log('Socket disconnected: ' + socket.id);
-  dequeueSocket(socket.id);
 });
