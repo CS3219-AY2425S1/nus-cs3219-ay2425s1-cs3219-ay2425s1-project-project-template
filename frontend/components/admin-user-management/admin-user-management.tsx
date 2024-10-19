@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import LoadingScreen from "@/components/common/loading-screen";
 import AdminEditUserModal from "@/components/admin-user-management/admin-edit-user-modal";
+import DeleteAccountModal from "@/components/common/delete-account-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
 import { userServiceUri } from "@/lib/api/api-uri";
@@ -51,6 +52,9 @@ export default function AdminUserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User>();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmUsername, setConfirmUsername] = useState("");
+  const [isDeleteButtonEnabled, setIsDeleteButtonEnabled] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -58,18 +62,23 @@ export default function AdminUserManagement() {
     }
   }, [data]);
 
+  // Enable delete button in the delete account modal only when the input username matches the original username
+  useEffect(() => {
+    setIsDeleteButtonEnabled(confirmUsername === selectedUser?.username);
+  }, [confirmUsername, selectedUser]);
+
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  const handleDelete = async (userId: string) => {
+  const handleDelete = async () => {
     const token = auth?.token;
     if (!token) {
       throw new Error("No authentication token found");
     }
 
     const response = await fetch(
-      `${userServiceUri(window.location.hostname)}/users/${userId}`,
+      `${userServiceUri(window.location.hostname)}/users/${selectedUser?.id}`,
       {
         method: "DELETE",
         headers: {
@@ -82,7 +91,7 @@ export default function AdminUserManagement() {
       throw new Error("Failed to delete user");
     }
 
-    setUsers(users.filter((user) => user.id !== userId));
+    setUsers(users.filter((user) => user.id !== selectedUser?.id));
   };
 
   const onUserUpdate = () => {
@@ -99,6 +108,16 @@ export default function AdminUserManagement() {
           setShowModal={setShowModal}
           user={selectedUser}
           onUserUpdate={onUserUpdate}
+        />
+        <DeleteAccountModal
+          showDeleteModal={showDeleteModal}
+          originalUsername={selectedUser?.username || ""}
+          confirmUsername={confirmUsername}
+          setConfirmUsername={setConfirmUsername}
+          handleDeleteAccount={handleDelete}
+          isDeleteButtonEnabled={isDeleteButtonEnabled}
+          setShowDeleteModal={setShowDeleteModal}
+          isAdmin={true}
         />
         <Table>
           <TableHeader>
@@ -130,7 +149,10 @@ export default function AdminUserManagement() {
                   </Button>
                   <Button
                     variant="destructive"
-                    onClick={() => handleDelete(user.id)}
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setShowDeleteModal(true);
+                    }}
                   >
                     <Trash2Icon className="h-4 w-4" />
                   </Button>
