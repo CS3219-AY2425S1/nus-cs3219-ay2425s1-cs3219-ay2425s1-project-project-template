@@ -31,8 +31,8 @@ jobs:
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker
 
-      - name: Submit Cloud Build
-        run: gcloud builds submit --config=cloudbuild.yaml .
+      # - name: Submit Cloud Build
+      #   run: gcloud builds submit --config=cloudbuild.yaml .
 
   cd:
     name: Deploy to GKE
@@ -58,6 +58,9 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Get GKE Credentials
         run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
