@@ -153,10 +153,11 @@ app.get("/match", async (req: Request, res: Response, next) => {
       }
 
       if (users.length > 0) {
+        console.log("Reach the default route")
         // Filter one more level (Obtain users that are of the requested difficulty, try)
         // To try and match on difficulty at least (tie-break)
         const filteredUsersForDesiredDifficulty = users.filter((user: UserData) => {
-          return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.topic
+          return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.difficulty
         })
 
         let nextUser: UserData
@@ -177,6 +178,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
         })
         return
       } else {
+        console.log("Reach the filtered route")
         // Try to pull data from other difficulty queues
         const filteredQueueNames = DIFFICULTY_ROUTING_KEYS.filter((routeKey) => {
           return routeKey != req.query.queueName
@@ -273,7 +275,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
       // Filter one more level (Obtain users that are of the requested difficulty, try)
       // To try and match on difficulty at least (tie-break)
       const filteredUsersForDesiredDifficulty = users.filter((user: UserData) => {
-        return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.topic
+        return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.difficulty
       })
 
       let nextUser: UserData
