@@ -32,18 +32,8 @@ const Login = () => {
     try {
       // Send a login request to the server
       const response = await loginUser(data);
-      const { token } = response.data;
-
-      // Store the JWT token in localStorage or sessionStorage
-      localStorage.setItem("jwtToken", token);
-
-      // Show a success message
       toast.success("Successfully Logged In");
-
-      // Redirect to the dashboard
       navigate("/dashboard");
-
-      // Reset the form
       reset();
     } catch (error) {
       toast.error("Invalid login credentials");
