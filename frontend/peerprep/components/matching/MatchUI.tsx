@@ -99,8 +99,8 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
     topic: Set<string>
   ) => {
     const userParams = {
-      difficulty: Array.from(difficulty).join(","),
-      topic: Array.from(topic).join(","),
+      difficulty: Array.from(difficulty),
+      topic: Array.from(topic),
     };
 
     registerUser(

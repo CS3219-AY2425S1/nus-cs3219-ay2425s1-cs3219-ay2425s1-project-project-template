@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
-import { addUserToSearchPool, getSocketIdForUser, isUserInSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
+import { addUserToSearchPool, getSearchPoolStatus, getSocketIdForUser, isUserInSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
 import { getRedisClient } from '../utils/redis-client';
 import { formatSearchPoolStatus, writeLogToFile } from "../utils/logger";
 
@@ -38,7 +38,7 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
             return;
         }
 
-        if (criteria.difficulty && criteria.topic) {
+        if (criteria.difficulty && criteria.topic && Array.isArray(criteria.difficulty) && Array.isArray(criteria.topic)) {
 
             const timeout = setTimeout(async () => {
                 writeLogToFile(`User ${userId} timed out for matching`);
@@ -89,7 +89,7 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                     }
                 }
             } else {
-                writeLogToFile(`User ${userId} registered for matching with criteria (${criteria.topic}, ${criteria.difficulty})`);
+                writeLogToFile(`User ${userId} registered for matching with criteria (Topic: ${criteria.topic}, Difficulty: ${criteria.difficulty})`);
                 socket.emit('registrationSuccess', { message: `User ${userId} registered for matching successfully.` });
                 writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
             }
@@ -133,29 +133,4 @@ export function handleDisconnect(socket: Socket) {
         // Clear timeout
 
     });
-}
-
-export async function getSearchPoolStatus() {
-    const redisClient = getRedisClient();
-    const userIds: string[] = await redisClient.sMembers('searchPool');
-
-    const users = [];
-
-    for (const userId of userIds) {
-        const userData = await redisClient.hGetAll(`user:${userId}`);
-        if (userData) {
-            const criteria = JSON.parse(userData.criteria); // Parse criteria JSON
-            const socketId = userData.socketId; // Accessing by key
-            const startTime = userData.startTime; // Accessing by key
-
-            users.push({
-                userId,
-                socketId,
-                criteria,
-                startTime
-            });
-        }
-    }
-
-    return { users };
 }

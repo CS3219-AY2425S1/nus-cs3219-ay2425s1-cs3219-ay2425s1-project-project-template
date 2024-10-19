@@ -33,15 +33,23 @@ export function formatSearchPoolStatus(poolStatus: any): string {
         output += `- User ID: ${user.userId}\n`;
         output += `- Socket ID: ${user.socketId}\n`;
         output += `- Matching Criteria:\n`;
-        output += `  - Topic: ${user.criteria.topic || 'N/A'}\n`;
-        output += `  - Difficulty: ${user.criteria.difficulty || 'N/A'}\n`;
+
+        // Format topics as a comma-separated string
+        const topics = Array.isArray(user.criteria.topic) ? user.criteria.topic.join(', ') : 'N/A';
+        output += `  - Topics: ${topics}\n`;
+
+        // Format difficulties as a comma-separated string
+        const difficulties = Array.isArray(user.criteria.difficulty) ? user.criteria.difficulty.join(', ') : 'N/A';
+        output += `  - Difficulties: ${difficulties}\n`;
+
         output += `- Start Time: ${new Date(parseInt(user.startTime)).toLocaleString()}\n`;
     });
 
     return output;
 }
 
-export function formatMatchedUsers(data: { matchedUsers: Array<{ userId: string; socketId: string; criteria: { difficulty: string; topic: string; } }> }): string {
+
+export function formatMatchedUsers(data: { matchedUsers: Array<{ userId: string; socketId: string; criteria: { difficulty: string[]; topic: string[]; } }> }): string {
     const lines: string[] = [];
 
     lines.push("Matched Found! Matched Users:\n");
@@ -51,8 +59,15 @@ export function formatMatchedUsers(data: { matchedUsers: Array<{ userId: string;
         lines.push(`  User ID: ${user.userId}`);
         lines.push(`  Socket ID: ${user.socketId}`);
         lines.push(`  Criteria:`);
-        lines.push(`    Topic: ${user.criteria.topic}`);
-        lines.push(`    Difficulty: ${user.criteria.difficulty}`);
+
+        // Format topics as a comma-separated string
+        const topics = Array.isArray(user.criteria.topic) ? user.criteria.topic.join(', ') : 'N/A';
+        lines.push(`    Topics: ${topics}`);
+
+        // Format difficulties as a comma-separated string
+        const difficulties = Array.isArray(user.criteria.difficulty) ? user.criteria.difficulty.join(', ') : 'N/A';
+        lines.push(`    Difficulties: ${difficulties}`);
+
         lines.push(""); // Adding an empty line for better separation
     });
 
