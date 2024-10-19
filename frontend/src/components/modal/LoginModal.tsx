@@ -10,6 +10,8 @@ import {
 } from '@mantine/core';
 import { isEmail, isNotEmpty, useForm } from '@mantine/form';
 
+import { useAuth } from '../../hooks/AuthProvider';
+
 interface LoginModalProps {
   isLoginModalOpened: boolean;
   closeLoginModal: () => void;
@@ -21,6 +23,8 @@ function LoginModal({
   closeLoginModal,
   openSignUpModal,
 }: LoginModalProps) {
+  const auth = useAuth();
+
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
@@ -32,6 +36,11 @@ function LoginModal({
       password: isNotEmpty('Password cannot be empty'),
     },
   });
+
+  const handleLogInClick = (values: typeof form.values) => {
+    const { email, password } = values;
+    auth.loginAction(email, password);
+  };
 
   const handleSignUpClick = () => {
     closeLoginModal();
@@ -48,7 +57,7 @@ function LoginModal({
         blur: 4,
       }}
     >
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <form onSubmit={form.onSubmit(handleLogInClick)}>
         <Stack p="16px">
           <Title order={3} ta="center">
             Login
