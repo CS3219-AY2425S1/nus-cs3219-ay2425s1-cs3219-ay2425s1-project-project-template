@@ -231,6 +231,7 @@ export function LeetcodeDashboardTable({
   }, [
     refreshKey,
     pagination.pageIndex,
+    pagination.pageSize,
     searchTitle,
     searchDifficulty,
     searchTopic,
