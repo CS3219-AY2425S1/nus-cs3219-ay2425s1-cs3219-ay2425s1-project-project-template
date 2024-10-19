@@ -22,3 +22,8 @@ export type CheckMatchResponse = {
   matchedWithUserId: string;
   topic: string; //TODO: Change to QuestionTopic and QuestionComplexity from backend
 };
+
+export type CheckMatchResponseError = {
+  status: "NONE";
+  message: string;
+};
