@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/start-session.css';
 import { topics } from "../../assets/topics";
-import MatchPopup from "./MatchPopup";
+import FindingMatch from "../matching/FindingMatch";
+import MatchNotFound from "../matching/MatchNotFound";
+import MatchFound from "../matching/MatchFound";
 
 const StartSession = ({ username }) => {
   const [difficulty, setDifficulty] = useState('Easy');
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState('Array');
   const [language, setLanguage] = useState('Python');
   const [showPopup, setShowPopup] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const [matchFound, setMatchFound] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
+  const [noMatchFound, setNoMatchFound] = useState(false);
 
   const handleFindMatch = async () => {
     // Send a POST request to the backend to find a match
+
     const matchData = { username, difficulty, topic, language };
+    
+    setNoMatchFound(false);
+    setMatchFound(false);
+    setShowPopup(true);
 
     try {
       const response = await fetch('http://localhost:3002/api/find-match', {
@@ -36,18 +44,21 @@ const StartSession = ({ username }) => {
     }
 
     // Show the popup and start the countdown
-    setShowPopup(true);
+    // setShowPopup(true);
+    setCountdown(30);
+  };
+
+  const normalClosePopup = async () => {
+    setShowPopup(false);
+    setMatchFound(false);
+    setNoMatchFound(false);
     setCountdown(30);
   };
 
   const closePopup = async () => {
-    if (matchFound) {
-      setShowPopup(false);
-      setMatchFound(false);
-
-    } else {
     setShowPopup(false);
     setMatchFound(false);
+    setNoMatchFound(false);
   
       // Notify the backend to remove the user from the queue
       try {
@@ -67,7 +78,6 @@ const StartSession = ({ username }) => {
       } catch (error) {
         console.error('Error cancelling match:', error);
       }
-    } 
   };
   
 
@@ -79,9 +89,17 @@ const StartSession = ({ username }) => {
       }, 1000); // Decrease countdown every second
     }
 
+    if (matchFound) {
+      clearInterval(timer);
+    }
+
     if (countdown === 0) {
       setShowPopup(false); // Automatically close dialog when countdown is 0
-      setMatchFound(false);
+      if (!matchFound) {
+        setNoMatchFound(true); // Set noMatchFound if match was not found when time runs out
+        setShowPopup(true); // Reopen popup to show the "unsuccessful" message
+      }
+      setMatchFound(false); // Reset matchFound
     }
 
     return () => clearInterval(timer);
@@ -97,6 +115,7 @@ const StartSession = ({ username }) => {
         setMatchFound(true);
         setMatchedUser(data.matchedUser);
         setShowPopup(true); // Ensure popup remains open when match is found
+        setNoMatchFound(false);
       }
     };
   
@@ -140,14 +159,16 @@ const StartSession = ({ username }) => {
         </div>
         <button onClick={handleFindMatch}>Find a Match</button>
       </div>
-
-      {/* Render the MatchPopup component */}
-      <MatchPopup 
-        countdown={countdown}
-        showPopup={showPopup}
-        closePopup={closePopup}
-        matchFound={matchFound}
-        matchedUser={matchedUser} />
+      {/* Conditionally render popups */}
+      {showPopup && !matchFound && !noMatchFound && (
+        <FindingMatch countdown={countdown} closePopup={closePopup} />
+      )}
+      {noMatchFound && (
+        <MatchNotFound closePopup={normalClosePopup} />
+      )}
+      {matchFound && matchedUser && (
+        <MatchFound matchedUser={matchedUser} closePopup={normalClosePopup} />
+      )}
     </div>
   );
 };
