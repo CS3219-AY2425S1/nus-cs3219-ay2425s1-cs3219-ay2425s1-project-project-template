@@ -30,7 +30,7 @@ export default function Navbar() {
           PeerPrep
         </Link>
         <div className="flex items-center space-x-4">
-          {user?.isAdmin && (
+          {user!.isAdmin && (
             <Link href="/admin" className="text-gray-300 hover:text-white">
               Admin
             </Link>
@@ -38,9 +38,14 @@ export default function Navbar() {
           <Link href="/" className="text-gray-300 hover:text-white">
             Questions
           </Link>
-          <Link href="/match" className="text-gray-300 hover:text-white">
-            Match
-          </Link>
+          {/* Admin users should be able to add questions instead of match */}
+          {!user!.isAdmin ?
+            <Link href="/match" className="text-gray-300 hover:text-white">
+              Match
+            </Link> :
+            <Link href="/add-question" className="text-gray-300 hover:text-white">
+              Add Question
+            </Link>}
           {isAuth ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
