@@ -55,7 +55,7 @@ public class AuthenticationController {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
             String jwtToken = jwtService.generateToken(authenticatedUser);
             LoginResponse loginResponse = new LoginResponse(authenticatedUser.getId(), jwtToken,
-                    jwtService.getExpirationTime());
+                    authenticatedUser.getEmail(), authenticatedUser.getName(), authenticatedUser.isAdmin());
             return ResponseEntity.ok(loginResponse);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -87,7 +87,8 @@ public class AuthenticationController {
         try {
             User currentUser = (User) authentication.getPrincipal();
 
-            UserResponse response = new UserResponse(currentUser.getId(), currentUser.getName(), currentUser.getEmail());
+            UserResponse response = new UserResponse(currentUser.getId(), currentUser.getName(),
+                    currentUser.getEmail(), currentUser.isAdmin());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while verifying the token.");
