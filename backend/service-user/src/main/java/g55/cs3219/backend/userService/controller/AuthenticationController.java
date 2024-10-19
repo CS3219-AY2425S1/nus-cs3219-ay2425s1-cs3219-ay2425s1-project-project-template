@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 // https://youtu.be/uZGuwX3St_c?si=hQ2vppx_ACMhrS7u
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RestController
 public class AuthenticationController {
 
