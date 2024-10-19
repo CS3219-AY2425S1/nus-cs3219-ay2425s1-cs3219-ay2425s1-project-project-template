@@ -5,7 +5,7 @@ let socketChannel;
 
 export const startRedis = async () => {
   socketChannel = new Redis({
-    port: 3003,
+    port: 6379,
     host: 'localhost',
   });
 };
@@ -13,11 +13,12 @@ export const startRedis = async () => {
 export const enqueueSocket = async (socketId, topic, complexity, waitTime) => {
   // Check if there is another socket in the queue with the same complexity
   const topicAndComplexity = `${topic}:${complexity}`;
-  const waitTimeInSeconds = 0
-  if (waitTime <= 5) {  // handles 1, 2 and 5 minutes
-    waitTimeInSeconds = waitTime * 60;
-  } else {
-    waitTimeInSeconds = waitTime;
+  const waitTimeInSeconds = (waitTime <= 5) ? (parseInt(waitTime) * 60) : parseInt(waitTime);
+
+  if (isNaN(waitTimeInSeconds) || waitTimeInSeconds < 0) {
+    console.error(`Invalid waitTimeInSeconds: ${waitTimeInSeconds}`);
+    io.to(socketId).emit('error', 'Invalid wait time');
+    return;
   }
   const matchExists = await socketChannel.get(topicAndComplexity); //return null if not found, else socketId. Ideally same as socketId
   if (matchExists) {
@@ -30,8 +31,13 @@ export const enqueueSocket = async (socketId, topic, complexity, waitTime) => {
     io.to(socketId).emit('matchFound', roomId);
     io.to(socketId2).emit('matchFound', roomId);
     console.log(`Matched ${socketId} with ${socketId2}, roomId: ${roomId}`);
+    if (socketId === socketId2) {
+      // If both sockets are the same, disconnect the socket
+      io.sockets.connected[socketId].disconnect();
+    }
     io.sockets.sockets.get(socketId).disconnect();
     io.sockets.sockets.get(socketId2).disconnect();
+    console.log(`Disconnected ${socketId} and ${socketId2}`);
   } else {
     // No match found
     console.log('Waiting for match');
@@ -48,7 +54,7 @@ const storeSocket = async (socketId, topic, complexity, waitTimeInSeconds) => {
   } catch (error) {
     console.log(error.message);
     io.to(socketId).emit('error', 'Failed to store socket');
-    io.to(socketId).disconnect();
+    io.sockets.connected[socketId].disconnect();
   }
 };
 
@@ -63,7 +69,7 @@ const onSocketExpiry = async (socketId, topic, complexity) => {
       socketChannel.del(topicAndComplexity);
       console.log(`Socket ${socketId} expired`);
       io.to(socketId).emit('message', 'Failed to find match');
-      io.to(socketId).disconnect();
+      io.sockets.connected[socketId].disconnect();
     }
   } catch (error) {
     console.log(error.message);

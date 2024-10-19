@@ -14,7 +14,7 @@ import {
 
 export async function createUser(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const { firstName, lastName, username, email, password } = req.body;
     if (username && email && password) {
       const existingUser = await _findUserByUsernameOrEmail(username, email);
       if (existingUser) {
@@ -23,7 +23,7 @@ export async function createUser(req, res) {
 
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
-      const createdUser = await _createUser(username, email, hashedPassword);
+      const createdUser = await _createUser(firstName, lastName, username, email, hashedPassword);
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
         data: formatUserResponse(createdUser),
@@ -69,7 +69,7 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const { firstName, lastName, username, email, password } = req.body;
     if (username || email || password) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
@@ -159,6 +159,8 @@ export async function deleteUser(req, res) {
 export function formatUserResponse(user) {
   return {
     id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,

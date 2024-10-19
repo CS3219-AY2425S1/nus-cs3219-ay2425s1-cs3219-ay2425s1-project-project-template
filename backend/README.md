@@ -1,5 +1,5 @@
 # For matching service, run redis server locally using this
-redis-server --port 3003        
+redis-server --port 6379        
 
 
 For windows, run from Windows Subsystem for Linux (WSL)

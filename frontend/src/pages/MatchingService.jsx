@@ -9,7 +9,7 @@ export default function MatchingService() {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedWaitTime, setSelectedWaitTime] = useState("");
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -104,9 +104,7 @@ export default function MatchingService() {
           </div>
         </div>
 
-        {error && (
-          <p className="mt-2 text-red-500">{error}</p> 
-        )}
+        {error && <p className="mt-2 text-red-500">{error}</p>}
 
         <button
           onClick={handleStartMatching}
