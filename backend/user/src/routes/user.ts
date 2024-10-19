@@ -5,7 +5,7 @@ import { getAttemptedQuestions, addAttemptedQuestion } from '@/controllers/quest
 
 const router = express.Router();
 
-router.get('/:userId/attempted-questions/', getAttemptedQuestions)
-router.post('/:userId/attempt-question', addAttemptedQuestion)
+router.post('/attempted-question/get', getAttemptedQuestions)
+router.post('/attempted-question/add', addAttemptedQuestion)
 
 export default router;

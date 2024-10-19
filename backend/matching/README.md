@@ -7,9 +7,6 @@
     docker build \
       -t match-express-local \
       --build-arg port=9004 \
-      --build-arg USER_SERVER_ENDPOINT=http://host.docker.internal:9001 \
-      --build-arg QUESTION_SERVER_ENDPOINT=http://host.docker.internal:9002 \
-      --build-arg COLLAB_SERVICE_ENDPOINT=http://host.docker.internal:9003 \
       -f express.Dockerfile .
     ```
 2. Run this command, from the root folder:

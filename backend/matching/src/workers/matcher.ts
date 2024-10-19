@@ -75,7 +75,7 @@ async function processMatch(
 
       // Notify both sockets
       const { ...matchItems } = await getMatchItems(searchIdentifier, topic, difficulty, requestorUserId, matchedUserId);
-      logger.info(`matchItems: ${JSON.stringify(matchItems)}`);
+      logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
       
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);

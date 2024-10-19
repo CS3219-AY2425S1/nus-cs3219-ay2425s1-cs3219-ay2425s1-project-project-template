@@ -16,44 +16,42 @@ interface IAddAttemptedQuestionResponse {
   }
   
   export const addAttemptedQuestionService = async (
-    userId: string, 
+    userIds: string[], 
     questionId: number
   ): Promise<IAddAttemptedQuestionResponse> => {
     try {
-      // First, check if the question is already in the attemptedQuestions array
-      const user = await db
-        .select({ attemptedQuestions: users.attemptedQuestions })
+      // Check if the users exist
+      const userRecords = await db
+        .select({ id: users.id, attemptedQuestions: users.attemptedQuestions })
         .from(users)
-        .where(eq(users.username, userId))
-        .limit(1);
+        .where(sql`${users.username} = ANY(${userIds})`);
   
-      if (user.length === 0) {
+      if (userRecords.length === 0) {
         return {
           code: StatusCodes.NOT_FOUND,
-          error: new Error('User not found'),
+          error: new Error('No users found'),
         };
       }
   
-      const attemptedQuestions = user[0].attemptedQuestions || [];
+      // Update attemptedQuestions for each user
+      const updatePromises = userRecords.map(user => {
+        const attemptedQuestions = user.attemptedQuestions || [];
+        if (!attemptedQuestions.includes(questionId)) {
+          return db
+            .update(users)
+            .set({
+              attemptedQuestions: sql`array_append(${users.attemptedQuestions}, ${questionId})`,
+            })
+            .where(eq(users.id, user.id));
+        }
+        return Promise.resolve(); // No update needed if question already attempted
+      });
   
-      if (attemptedQuestions.includes(questionId)) {
-        return {
-          code: StatusCodes.OK,
-          data: { message: 'Question already marked as attempted' },
-        };
-      }
-  
-      // If the question is not in the array, add it
-      const result = await db
-        .update(users)
-        .set({
-          attemptedQuestions: sql`array_append(${users.attemptedQuestions}, ${questionId})`,
-        })
-        .where(eq(users.username, userId))
+      await Promise.all(updatePromises);
   
       return {
         code: StatusCodes.OK,
-        data: { message: 'Question added to attempted questions' },
+        data: { message: 'Question added to attempted questions for applicable users' },
       };
     } catch (error) {
       console.error('Error adding attempted question:', error);

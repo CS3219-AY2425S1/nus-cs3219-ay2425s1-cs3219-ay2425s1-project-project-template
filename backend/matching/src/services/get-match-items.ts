@@ -1,133 +1,49 @@
-import { IMatchType } from "@/types";
-import axios from 'axios';
+import { IMatchType, IMatchItemsResponse } from '../types/index';
+import { fetchAttemptedQuestions, updateAttemptedQuestions } from './user';
+import { getRandomQuestion } from './question';
+import { createRoom } from './collab';
 
-interface IGetRandomQuestionPayload {
-  attemptedQuestions: number[];
-  difficulty?: string;
-  topic?: string;
-}
-
-
-interface IServiceResponse<T> {
-    success: boolean;
-    data?: T;
-    error?: { message: string };
-  }
-
-interface IQuestion {
-  id: number;
-  title: string;
-  description: string;
-  difficulty: string;
-  topic: string[];
-}
-
-interface IMatchItemsResponse {
-    roomName: string;
-    questionId: number;
-    question: IQuestion;
-}
-
-export const getMatchItems = async (
-    searchIdentifier: IMatchType,
-    topic?: string,
-    difficulty?: string,
-    userId1?: string,
-    userId2?: string
-): Promise<IMatchItemsResponse | undefined> => {
-  const userEndpoint = `${process.env.USER_SERVER_ENDPOINT}`;
-  const questionEndpoint = `${process.env.QUESTION_SERVER_ENDPOINT}`;
-  const collabServerEndpoint = `${process.env.COLLAB_SERVER_ENDPOINT}`;
-
+export async function getMatchItems(
+  searchIdentifier: IMatchType,
+  topic?: string,
+  difficulty?: string,
+  userId1?: string,
+  userId2?: string
+): Promise<IMatchItemsResponse | undefined> {
   try {
     if (!userId1 || !userId2) {
       throw new Error('Both user IDs are required');
     }
 
-    // Fetch attempted questions for both users
     const [attemptedQuestions1, attemptedQuestions2] = await Promise.all([
-      fetchAttemptedQuestions(userEndpoint, userId1),
-      fetchAttemptedQuestions(userEndpoint, userId2)
+      fetchAttemptedQuestions(userId1),
+      fetchAttemptedQuestions(userId2)
     ]);
 
-    // Combine attempted questions from both users
+
     const allAttemptedQuestions = [...new Set([...attemptedQuestions1, ...attemptedQuestions2])];
 
-    // Prepare payload for the /random endpoint
-    const payload: IGetRandomQuestionPayload = {
+    const payload = {
       attemptedQuestions: allAttemptedQuestions,
+      ...(searchIdentifier === 'difficulty' && difficulty ? { difficulty } : {}),
+      ...(searchIdentifier === 'topic' && topic ? { topic } : {}),
+      ...(searchIdentifier === 'exact match' && topic && difficulty ? { topic, difficulty } : {}),
     };
 
-    if (searchIdentifier === 'difficulty' && difficulty) {
-      payload.difficulty = difficulty;
-    } else if (searchIdentifier === 'topic' && topic) {
-      payload.topic = topic;
-    } else if (searchIdentifier === 'exact match' && topic && difficulty) {
-      payload.topic = topic;
-      payload.difficulty = difficulty;
-    }
+    // Get a random question
+    const question = await getRandomQuestion(payload);
 
-    // Query the question endpoint using the /random endpoint
-    const questionResponse = await axios.post<IServiceResponse<{ question: IQuestion }>>(
-      `${questionEndpoint}/questions/random`,
-      payload
-    );
 
-    if (questionResponse.status !== 200 || !questionResponse.data.data) {
-      throw new Error(questionResponse.data.error?.message || 'Failed to get a random question');
-    }
+    const roomName = await createRoom(userId1, userId2, question.id.toString());
 
-    const questionId = questionResponse.data.data.question.id;
-
-    // Update attempted questions for both users
-    await Promise.all([
-      updateAttemptedQuestions(userEndpoint, userId1, questionId),
-      updateAttemptedQuestions(userEndpoint, userId2, questionId)
-    ]);
-
-    // Query the collab server for the room ID
-    const roomResponse = await axios.get<{ roomName: string }>(
-      `${collabServerEndpoint}/room`,
-      {
-        params: {
-          userid1: userId1,
-          userid2: userId2,
-          questionid: questionId.toString(),
-        }
-      }
-    );    
-    if (roomResponse.status !== 200 || !roomResponse.data?.roomName) {
-      throw new Error('Failed to create room');
-    }
-
-    console.log("Succesfully got match items");
+    console.log("Successfully got match items");
     return {
-        roomName: roomResponse.data.roomName,
-        questionId: questionId,
-        question: questionResponse.data.data.question,
-      }
+      roomName,
+      questionId: question.id,
+      question,
+    };
   } catch (error) {
     console.error('Error in getMatchItems:', error);
-};
-}
-
-async function fetchAttemptedQuestions(userEndpoint: string, userId: string): Promise<number[]> {
-  const response = await axios.get<number[]>(
-    `${userEndpoint}/user/${userId}/attempted-questions`
-  );
-  if (response.status !== 200 || !response.data) {
-    throw new Error(`Failed to fetch attempted questions for user ${userId}`);
+    return undefined;
   }
-  return response.data || []
-}
-
-async function updateAttemptedQuestions(userEndpoint: string, userId: string, questionId: number): Promise<void> {
-  const response = await axios.post<unknown>(
-    `${userEndpoint}/user/${userId}/attempt-question`,
-    { questionId }
-  );
-  if (response.status !== 200 || !response.data) {
-    throw new Error(`Failed to fetch attempted questions for user ${userId}`);
-  }
-    return;
 }
