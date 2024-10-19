@@ -1,7 +1,5 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Settings } from 'lucide-react';
 import { FilterSelect } from './FilterSelect';
 import { FilterBadge } from './FilterBadge';
 import { TopicsPopover } from './TopicsPopover';
@@ -70,25 +68,6 @@ export default function FilterBar({
             onChange={handleSearch}
           />
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="border-gray-700 bg-gray-800"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
-        {!isAdmin ? (
-          <Button className="bg-green-600 text-white hover:bg-green-700">
-            Match
-          </Button>
-        ) : (
-          <Button
-            className="bg-blue-600 text-white hover:bg-blue-700"
-            onClick={buttonCallback}
-          >
-            Add
-          </Button>
-        )}
       </div>
       <div className="flex flex-wrap gap-2">
         {filters.difficulty && (
