@@ -42,12 +42,12 @@ export const Match = () => {
     if (isMatching) {
       startTime = Date.now();
 
-      // Update timer every second for 30s
+      // Update timer every second for 60s
       interval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         setTimer(elapsed);
 
-        if (elapsed >= 30) {
+        if (elapsed >= 60) {
           stopMatching();
         }
       }, 1000);
@@ -86,7 +86,8 @@ export const Match = () => {
       const response = await axios.post(`${QUEUE_SERVICE}/enqueue`, {
         topic: selectedTopic,
         difficulty: selectedDifficulty,
-        username: localStorage.getItem("username")
+        username: localStorage.getItem("username"),
+        email: localStorage.getItem("email")
       }, {
         headers: { "Content-Type": "application/json" }
       });
