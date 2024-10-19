@@ -39,6 +39,9 @@ def cancel_request(user_id):
     logger.info(f"Cancel request for user {user_id}")
     redis_client = get_local_redis_client()
     state = redis_client.hget(f"user:{user_id}", "state")
+    token = request.headers.get("Authorization")
+    if not validate_user(token):
+        return jsonify({"error": "Invalid token"}), 401
     if not state:
         logger.error(f"No matching request found for user {user_id}")
         return jsonify({"error": "No matching request found for user"}), 404
@@ -66,7 +69,9 @@ def match_request():
     category = data.get("category")
     difficulty = data.get("difficulty")
     redis_client = get_local_redis_client()
-
+    token = request.headers.get("Authorization")
+    if not validate_user(token):
+        return jsonify({"error": "Invalid token"}), 401
     if not user_id:
         return jsonify({"error": "user_id is required"}), 400
 
@@ -129,3 +134,30 @@ def delivery_report(err, msg):
         logger.error("Message delivery failed: {}".format(err))
     else:
         logger.info("Message delivered to {} [{}]".format(msg.topic(), msg.partition()))
+
+
+import requests
+
+
+def validate_user(token):
+    try:
+        res = requests.post(
+            "http://user_service:5001/auth/verify_token",
+            headers={"Authorization": f"{token}"},
+        )
+
+        if res.status_code != 200:
+            logger.error(f"User service returned {res.status_code}: {res.text}")
+            return False
+
+        try:
+            output = res.json()
+        except requests.exceptions.JSONDecodeError:
+            logger.error("Failed to parse JSON response")
+            return False
+
+        return output.get("isValid") == True
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request to auth service failed: {e}")
+        return False

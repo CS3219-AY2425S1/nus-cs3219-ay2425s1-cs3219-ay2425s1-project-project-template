@@ -4,7 +4,6 @@ import ComboBox from '@/components/ComboBox.vue'
 import { useWebSocket } from '@vueuse/core';
 import { useCollaborationStore, type TCollaborationInfo } from '~/stores/collaborationStore';
 import { ref, onMounted } from 'vue';
-const auth = useFirebaseAuth();
 const user = useCurrentUser();
 const runtimeConfig = useRuntimeConfig()
 const collaborationStore = useCollaborationStore()
@@ -36,7 +35,6 @@ const fetchTopics = async () => {
       throw new Error('Failed to fetch topics');
     }
     const categories = (data.value as { categories: string[] }).categories || [];
-    // console.log('Categories', categories);
     leetcodeTopics.value = categories.map((category: string) => ({
       value: category,
       label: category
@@ -113,11 +111,14 @@ async function updateCollaborationInfo(message: any, status: string) {
 }
 
 async function handleCancel() {
+
+  const token = await user.value?.getIdToken();
   try {
     const response = await $fetch(`${runtimeConfig.public.matchingRequestUrl}/cancel/${user.value?.uid}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     }
     );
@@ -142,6 +143,8 @@ type MatchResponse = {
 }
 
 async function handleSubmit() {
+
+  const token = await user.value?.getIdToken();
   isProcessing.value = true
   isMatching.value = true
   matchFound.value = false
@@ -155,7 +158,8 @@ async function handleSubmit() {
     const response: MatchResponse = await $fetch(`${runtimeConfig.public.matchingRequestUrl}/matching`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: body
     });
@@ -164,11 +168,20 @@ async function handleSubmit() {
   } catch (error: unknown) {
     isMatching.value = false;
     matchFound.value = false
+    isProcessing.value = false
     const fetchError = createError(error as Partial<Error> & { data?: { error?: string } });
     if (fetchError?.data?.error) {
       console.error("Error from server:", fetchError.data.error);
+      toast({
+        description: fetchError.data.error,
+        variant: 'destructive',
+      });
     } else if (fetchError.message) {
       console.error("An error occurred:", fetchError.message);
+      toast({
+        description: 'An error occurred while trying to find a match.',
+        variant: 'destructive',
+      });
     } else {
       console.error("An unknown error occurred:", error);
     }
