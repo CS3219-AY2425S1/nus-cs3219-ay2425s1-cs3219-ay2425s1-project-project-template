@@ -180,8 +180,8 @@ class RabbitMQConnection {
                 } else {
                     // Add logic to combine users
                     logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
-                    this.channel.ack(directMatch)
                     matchedUser = directMatch
+                    this.channel.ack(directMatch)
                     await this.removeIfEmptyQueue(destinationQueue)
                 }
             } else {
@@ -217,30 +217,30 @@ class RabbitMQConnection {
                         // Choose directMatch over match2
                         logger.info(`[Waiting-Queue] Match found: ${match1.content.toString()}`)
                         this.channel.ack(match1)
-                        this.channel.nack(match2)
                         matchedUser = match1
+                        this.channel.nack(match2)
                         await this.removeIfEmptyQueue(queryQueueName1)
                     } else {
                         // Choose match2 over directMatch
                         logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                         this.channel.ack(match2)
-                        this.channel.nack(match1)
                         matchedUser = match2
+                        this.channel.nack(match1)
                         await this.removeIfEmptyQueue(queryQueueName2)
                     }
                 } else if (match1) {
                     // Only directMatch can match
                     logger.info(`[Waiting-Queue] Match found: ${match1.content.toString()}`)
                     // Choose match2 over directMatch
-                    this.channel.ack(match1)
                     matchedUser = match1
+                    this.channel.ack(match1)
                     await this.removeIfEmptyQueue(queryQueueName1)
                 } else if (match2) {
                     // Only match2 can match
                     logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                     // Choose match2 over directMatch
-                    this.channel.ack(match2)
                     matchedUser = match2
+                    this.channel.ack(match2)
                     await this.removeIfEmptyQueue(queryQueueName2)
                 } else {
                     // No match found, enqueue user into waiting queue
