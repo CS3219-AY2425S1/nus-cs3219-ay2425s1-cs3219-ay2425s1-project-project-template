@@ -2,7 +2,7 @@ import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
-import { MATCH_SVC_EVENT } from '@/ws/main';
+import { MATCHING_EVENT } from '@/ws/events';
 
 import { connectClient, sendNotif } from './common';
 
@@ -56,7 +56,7 @@ async function processMatch(
       }
 
       // To block cancellation
-      sendNotif([matchedSocketPort], MATCH_SVC_EVENT.MATCHING);
+      sendNotif([matchedSocketPort], MATCHING_EVENT.MATCHING);
 
       const matchedStreamId = getStreamId(timestamp);
 
@@ -73,8 +73,8 @@ async function processMatch(
       const { ...matchItems } = getMatchItems({ userId1: requestorUserId, userId2: matchedUserId });
 
       const sendMatchLogic = (socketPort: string) => {
-        sendNotif([socketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
-        sendNotif([socketPort], MATCH_SVC_EVENT.DISCONNECT);
+        sendNotif([socketPort], MATCHING_EVENT.SUCCESS, matchItems);
+        sendNotif([socketPort], MATCHING_EVENT.DISCONNECT);
       };
 
       // TODO: If client disconnected, stop sending to requestor
@@ -127,7 +127,7 @@ async function match() {
       } = decodePoolTicket(matchRequest);
 
       // To Block Cancellation
-      sendNotif([requestorSocketPort], MATCH_SVC_EVENT.MATCHING);
+      sendNotif([requestorSocketPort], MATCHING_EVENT.MATCHING);
 
       const clause = [`-@userId:(${requestorUserId})`];
 
@@ -190,7 +190,7 @@ async function match() {
 
       if (!hasDifficultyMatch) {
         // To allow cancellation
-        sendNotif([requestorSocketPort], MATCH_SVC_EVENT.PENDING);
+        sendNotif([requestorSocketPort], MATCHING_EVENT.PENDING);
       }
     }
   }

@@ -5,19 +5,10 @@ import { logger } from '@/lib/utils';
 import { queueingService } from '@/services';
 import type { IRedisClient, IRequestMatchEvent } from '@/types';
 
-import { MATCH_SVC_EVENT } from './main';
+import { MATCHING_EVENT,WS_EVENT } from './events';
 
 type ISocketIOServer<T> = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, T>;
 type ISocketIOSocket<T> = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, T>;
-
-export const EVENTS = {
-  ERROR: 'ERROR',
-  JOIN_ROOM: 'joinRoom',
-  CANCEL_ROOM: 'cancelRoom',
-  LEAVE_ROOM: 'leave',
-  START_QUEUE: 'startQueue',
-  DISCONNECT: 'disconnect',
-} as const;
 
 export const joinRoomHandler =
   <T>(socket: ISocketIOSocket<T>) =>
@@ -53,7 +44,7 @@ export const queueEventHandler =
     if (!payload.roomId) {
       const errorMessage = 'Queuing Event triggered without room.';
       logger.warn(errorMessage);
-      socket.emit(EVENTS.ERROR, errorMessage);
+      socket.emit(MATCHING_EVENT.ERROR, errorMessage);
       return;
     }
 
@@ -65,7 +56,7 @@ export const queueEventHandler =
       (!payload.topic && !payload.difficulty) ||
       (payload.topic && !Array.isArray(payload.topic))
     ) {
-      socket.emit(EVENTS.ERROR, `Payload for ${EVENTS.START_QUEUE} is invalid.`);
+      socket.emit(MATCHING_EVENT.ERROR, `Payload for ${WS_EVENT.START_QUEUING} is invalid.`);
       return;
     }
 
@@ -85,11 +76,11 @@ export const queueEventHandler =
       } catch (error) {
         const { name, message, stack, cause } = error as Error;
         logger.error({ name, message, stack, cause }, `An error occurred connecting to the client`);
-        socket.emit(EVENTS.ERROR, 'Error connecting to client');
+        socket.emit(MATCHING_EVENT.ERROR, 'Error connecting to client');
         return;
       }
     }
 
-    socket.emit(MATCH_SVC_EVENT.QUEUED);
+    socket.emit(MATCHING_EVENT.QUEUED);
     logQueueStatus(logger, redisClient, `Queue Status Before Matching: <PLACEHOLDER>`);
   };

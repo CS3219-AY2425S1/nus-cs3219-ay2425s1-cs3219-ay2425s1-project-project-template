@@ -1,4 +1,5 @@
 import { client } from '@/lib/db';
+import { MATCHING_EVENT } from '@/ws/events';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
 
@@ -35,4 +36,11 @@ export type IStreamMessage = {
     [x: string]: string;
   };
   value?: Awaited<ReturnType<(typeof client)['ft']['search']>>['documents'][number]['value'];
+};
+
+export type IMatchEvent = (typeof MATCHING_EVENT)[keyof typeof MATCHING_EVENT];
+export type IChildProcessMessage = {
+  rooms: Array<string>;
+  event: IMatchEvent;
+  message?: unknown;
 };

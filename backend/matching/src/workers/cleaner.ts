@@ -1,7 +1,7 @@
 import { client, logQueueStatus } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey } from '@/lib/utils';
-import { MATCH_SVC_EVENT } from '@/ws/main';
+import { MATCHING_EVENT } from '@/ws/events';
 
 import { connectClient, sendNotif } from './common';
 
@@ -65,8 +65,8 @@ async function clean() {
 
     if (socketRoom) {
       // Notify client
-      sendNotif([socketRoom], MATCH_SVC_EVENT.FAILED);
-      sendNotif([socketRoom], MATCH_SVC_EVENT.DISCONNECT);
+      sendNotif([socketRoom], MATCHING_EVENT.FAILED);
+      sendNotif([socketRoom], MATCHING_EVENT.DISCONNECT);
     }
 
     await logQueueStatus(logger, redisClient, `Queue Status after Expiring Request: <PLACEHOLDER>`);
