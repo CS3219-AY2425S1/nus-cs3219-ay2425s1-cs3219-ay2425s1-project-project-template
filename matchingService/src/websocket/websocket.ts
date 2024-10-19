@@ -13,7 +13,7 @@ export default function initialiseWebsocket(
   const server = createServer(app);
   const io: Server = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173"],
+      origin: ["http://localhost:5173", "http://localhost:5174"],
       methods: ["GET", "POST"],
     },
   });

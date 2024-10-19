@@ -13,14 +13,11 @@ RUN npm install -g typescript
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
-# Install all dependencies, including dev dependencies.
-RUN npm ci
+# Install dependencies.
+RUN npm ci --omit=dev
 
 # Copy the rest of the source files into the image.
 COPY . .
-
-# Install @types for missing modules (like socket.io, cors). - find a better way to do this
-RUN npm install --save-dev @types/socket.io @types/cors 
 
 # Compile TypeScript to JavaScript.
 RUN npx tsc
