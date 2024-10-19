@@ -62,6 +62,14 @@ export class WebSocketConnection {
             loggerUtil.info(`User ${websocketId} is not connected`)
         }
     }
+
+    public closeConnectionOnTimeout(websocketId: string): void {
+        const client = this.clients.get(websocketId)
+        if (client && client.readyState === WebSocket.OPEN) {
+            client.close(1001, 'Connection timeout.')
+            loggerUtil.info(`User ${websocketId} connection closed due to timeout`)
+        }
+    }
 }
 
 const wsConnection = new WebSocketConnection()
