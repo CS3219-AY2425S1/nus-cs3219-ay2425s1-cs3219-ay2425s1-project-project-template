@@ -87,8 +87,8 @@ public class AuthenticationController {
         try {
             User currentUser = (User) authentication.getPrincipal();
 
-            UserResponse response = new UserResponse(currentUser.getId(), currentUser.getName(),
-                    currentUser.getEmail(), currentUser.isAdmin());
+            UserResponse response = new UserResponse(currentUser.getId(), currentUser.getEmail(),
+                    currentUser.getUsername(), currentUser.isAdmin());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while verifying the token.");
