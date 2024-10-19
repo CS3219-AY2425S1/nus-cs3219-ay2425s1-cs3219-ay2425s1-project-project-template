@@ -10,6 +10,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { useCookies } from "next-client-cookies";
 import { validateToken } from "@/app/actions/auth";
 
+import Modal from "@/components/common/modal";
+import Button from "@/components/common/button";
+
 interface TAuthContext {
   token: string | null;
   username: string | null;
@@ -31,9 +34,33 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
   const [token, setToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const router = useRouter();
   const pathname = usePathname();
   const cookies = useCookies();
+
+  const RedirectModal = () => {
+    return (
+      <Modal
+        isOpen={isRedirectModalOpen}
+        title=""
+        isCloseable={false}
+        onClose={() => setIsRedirectModalOpen(false)}
+      >
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-semibold mb-4">{modalMessage}</h1>
+          <Button
+            text="Log In"
+            onClick={() => {
+              setIsRedirectModalOpen(false);
+              router.push("/");
+            }}
+          />
+        </div>
+      </Modal>
+    );
+  };
 
   const updateToken = (token: string) => {
     const expireDate = new Date();
@@ -75,12 +102,12 @@ export const AuthProvider = ({ children }: Props) => {
     authenticateToken().then((success) => {
       if (!success && pathname !== "/") {
         if (token) {
-          alert("Session expired. Please log in again.");
+          setModalMessage("Session expired. Please log in again.");
         } else {
-          alert("Please log in to access this page.");
+          setModalMessage("Unauthorized. Please log in.");
         }
         deleteToken();
-        router.push("/");
+        setIsRedirectModalOpen(true);
         return;
       }
 
@@ -88,7 +115,7 @@ export const AuthProvider = ({ children }: Props) => {
         router.push("/home");
       }
     });
-  }, [pathname]);
+  }, [pathname, router, token]);
 
   // Updates username when token changes
   useEffect(() => {
@@ -117,7 +144,8 @@ export const AuthProvider = ({ children }: Props) => {
         deleteToken,
       }}
     >
-      {children}
+      {(token != null || pathname === "/") && children}
+      <RedirectModal />
     </AuthContext.Provider>
   );
 };
