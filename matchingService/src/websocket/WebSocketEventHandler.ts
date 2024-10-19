@@ -28,18 +28,9 @@ export class WebSocketEventHandler {
     this.io.emit("broadcast", message);
   }
 
-  private handleJoinMatchResponseRoom(socket: Socket, matchId: string) {
-    socket.join(matchId);
-    logger.info(`Client joined room: ${matchId}`);
-  }
-
-  private handleMatchRequestResponse(
-    socket: Socket,
-    matchId: string,
-    data: any
-  ) {
-    this.io.to(matchId).emit("receiveMatchResponse", data);
-    logger.info(`Match resopnse sent to room: ${matchId}`);
+private handleMatchRequestResponse(socket: Socket, matchId: string, data: any) {
+  this.io.to(matchId).emit("receiveMatchResponse", data);
+  logger.info(`Match response sent to room: ${matchId}`);
 
     this.io.to(matchId).socketsLeave(matchId);
   }

@@ -2,7 +2,7 @@ import { Difficulty, Topic } from "../QueueService/matchingEnums";
 import { CancelRequest } from "./CancelRequest";
 
 /**
- * CancelRequestWithQueueInfo stores additional information - timestamp and correlationid. 
+ * CancelRequestWithQueueInfo stores additional information - timestamp. 
  * This enables the consumer to remember which repsonse queue to reply to.
  */
 class CancelRequestWithQueueInfo {
@@ -11,14 +11,12 @@ class CancelRequestWithQueueInfo {
     private readonly topic: Topic;
 
     private static readonly EXPIRATION_DURATION = 1 * 60 * 1000;
-    private correlationId: string;
     private timestamp: Date;
 
-    constructor(matchId: string, difficulty: Difficulty, topic: Topic, correlationId: string) {
+    constructor(matchId: string, difficulty: Difficulty, topic: Topic) {
         this.matchId = matchId;
         this.difficulty = difficulty;
         this.topic = topic;
-        this.correlationId = correlationId;
         this.timestamp = new Date();
     }
 
@@ -34,13 +32,9 @@ class CancelRequestWithQueueInfo {
         return this.topic;
     }
 
-    public getCorrelationId(): string {
-        return this.correlationId;
-    }
-
-    public static createFromCancelRequest(cancelRequest: CancelRequest, correlationId: string): CancelRequestWithQueueInfo {
+    public static createFromCancelRequest(cancelRequest: CancelRequest): CancelRequestWithQueueInfo {
         return new CancelRequestWithQueueInfo(cancelRequest.matchId, 
-            cancelRequest.difficulty, cancelRequest.topic, correlationId);
+            cancelRequest.difficulty, cancelRequest.topic);
     }
 
     public hasExpired(): boolean {
