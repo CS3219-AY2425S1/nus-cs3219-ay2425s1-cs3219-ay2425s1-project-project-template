@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - kubernetes-config
 
 jobs:
   build:
