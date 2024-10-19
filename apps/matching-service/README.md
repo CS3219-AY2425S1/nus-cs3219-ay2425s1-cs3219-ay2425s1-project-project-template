@@ -121,6 +121,14 @@ Make sure to open the HTML file in a web browser while the WebSocket server is r
 
 You can open one instance of the HTML file in multiple tabs to simulate multiple clients connecting to the server. (In the future: ensure that only one connection is allowed per user)
 
-## Docker Support
+## Running the Application via Docker
 
-TODO: Add section for Docker setup and usage instructions.
+To run the application via Docker, run the following command:
+
+```bash
+docker build -t matching-service .
+```
+
+```bash
+docker run -d -p 8081:8081 -p 6379:6379 --name matching-service-container matching-service
+```
