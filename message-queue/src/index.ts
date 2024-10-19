@@ -2,7 +2,14 @@ import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
-import { DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EASY_ROUTING_KEY, EXCHANGE, HARD_ROUTING_KEY, MEDIUM_ROUTING_KEY } from "./constants"
+import {
+  DIFFICULTY_ROUTING_KEYS,
+  DIFFICULTY_ROUTING_MAPPING,
+  EASY_ROUTING_KEY,
+  EXCHANGE,
+  HARD_ROUTING_KEY,
+  MEDIUM_ROUTING_KEY
+} from "./constants"
 import { deepEqual, getRandomIntegerInclusive, sleep } from "./helper"
 import { UserData } from "./types"
 
@@ -149,13 +156,21 @@ app.get("/match", async (req: Request, res: Response, next) => {
         // Filter one more level (Obtain users that are of the requested difficulty, try)
         // To try and match on difficulty at least (tie-break)
         const filteredUsersForDesiredDifficulty = users.filter((user: UserData) => {
-          return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.topic;
+          return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.topic
         })
 
-        const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsersForDesiredDifficulty.length - 1)
-        const nextUser = filteredUsersForDesiredDifficulty[randomlySelectedIndex];
-        const userIdxOriginalArr = users.findIndex((user) => deepEqual(nextUser, user));
-        users.splice(userIdxOriginalArr, 1);
+        let nextUser: UserData
+        if (filteredUsersForDesiredDifficulty.length > 0) {
+          const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsersForDesiredDifficulty.length - 1)
+          nextUser = filteredUsersForDesiredDifficulty[randomlySelectedIndex]
+          const userIdxOriginalArr = users.findIndex((user) => deepEqual(nextUser, user))
+          users.splice(userIdxOriginalArr, 1)
+        } else {
+          const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1)
+          nextUser = users.splice(randomlySelectedIndex, 1)[0]
+        }
+
+        matchedUsers.push(nextUser)
         res.json({
           matchedUsers,
           timeout: false
@@ -258,13 +273,19 @@ app.get("/match", async (req: Request, res: Response, next) => {
       // Filter one more level (Obtain users that are of the requested difficulty, try)
       // To try and match on difficulty at least (tie-break)
       const filteredUsersForDesiredDifficulty = users.filter((user: UserData) => {
-        return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.topic;
+        return DIFFICULTY_ROUTING_MAPPING[req.query.queueName as string] == user.topic
       })
 
-      const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsersForDesiredDifficulty.length - 1)
-      const nextUser = filteredUsersForDesiredDifficulty[randomlySelectedIndex];
-      const userIdxOriginalArr = users.findIndex((user) => deepEqual(nextUser, user));
-      users.splice(userIdxOriginalArr, 1);
+      let nextUser: UserData
+      if (filteredUsersForDesiredDifficulty.length > 0) {
+        const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsersForDesiredDifficulty.length - 1)
+        nextUser = filteredUsersForDesiredDifficulty[randomlySelectedIndex]
+        const userIdxOriginalArr = users.findIndex((user) => deepEqual(nextUser, user))
+        users.splice(userIdxOriginalArr, 1)
+      } else {
+        const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1)
+        nextUser = users.splice(randomlySelectedIndex, 1)[0]
+      }
       matchedUsers.push(nextUser)
       res.json({
         matchedUsers,
