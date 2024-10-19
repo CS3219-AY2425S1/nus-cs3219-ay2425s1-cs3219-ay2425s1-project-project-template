@@ -12,6 +12,7 @@ import { validateToken } from "@/app/actions/auth";
 
 import Modal from "@/components/common/modal";
 import Button from "@/components/common/button";
+import { on } from "events";
 
 interface TAuthContext {
   token: string | null;
@@ -78,6 +79,27 @@ export const AuthProvider = ({ children }: Props) => {
     setToken(null);
   };
 
+  const onAuthenticateTokenSuccess = () => {
+    setIsRedirectModalOpen(false);
+
+    if (pathname === "/") {
+      router.push("/home");
+    }
+  };
+
+  const onAuthenticateTokenFailure = () => {
+    if (pathname !== "/") {
+      if (token) {
+        setModalMessage("Session expired. Please log in again.");
+      } else {
+        setModalMessage("Unauthorized. Please log in.");
+      }
+      setIsRedirectModalOpen(true);
+      return;
+    }
+    deleteToken();
+  };
+
   // Loads token from cookies on mount
   useEffect(() => {
     const token = cookies.get("token");
@@ -98,24 +120,14 @@ export const AuthProvider = ({ children }: Props) => {
       }
       return success;
     };
-
     authenticateToken().then((success) => {
-      if (!success && pathname !== "/") {
-        if (token) {
-          setModalMessage("Session expired. Please log in again.");
-        } else {
-          setModalMessage("Unauthorized. Please log in.");
-        }
-        deleteToken();
-        setIsRedirectModalOpen(true);
-        return;
-      }
-
-      if (success && pathname === "/") {
-        router.push("/home");
+      if (success) {
+        onAuthenticateTokenSuccess();
+      } else {
+        onAuthenticateTokenFailure();
       }
     });
-  }, [pathname, router, token]);
+  }, [token, pathname]);
 
   // Updates username when token changes
   useEffect(() => {
@@ -144,7 +156,7 @@ export const AuthProvider = ({ children }: Props) => {
         deleteToken,
       }}
     >
-      {(token != null || pathname === "/") && children}
+      {!isRedirectModalOpen && children}
       <RedirectModal />
     </AuthContext.Provider>
   );
