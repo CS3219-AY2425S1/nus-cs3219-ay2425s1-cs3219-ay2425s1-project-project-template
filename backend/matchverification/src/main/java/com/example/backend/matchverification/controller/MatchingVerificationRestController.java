@@ -4,19 +4,27 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.matchverification.kafka.producers.MatchVerificationProducer;
 import com.example.backend.matchverification.model.VerificationResponse;
 
 @RestController
 @RequestMapping("/api")
 public class MatchingVerificationRestController {
 
+    private final MatchVerificationProducer matchVerificationProducer;
     private final HashSet<String> seenMatchRequests = new HashSet<>(); 
+
+    @Autowired
+    public MatchingVerificationRestController(MatchVerificationProducer matchVerificationProducer) {
+        this.matchVerificationProducer = matchVerificationProducer;
+    }
 
     @GetMapping("")
     public String greeting() {
@@ -59,19 +67,23 @@ public class MatchingVerificationRestController {
         String message;
         if (!seenMatches.isEmpty() && !unseenMatches.isEmpty()) {
             message = "One or more of the match requests have been seen before.";
-            status = "Conflict_Both_Seen";
+            status = "Conflict_Partial_Seen";
         } else if (!seenMatches.isEmpty()) {
             message = "Both match requests have been seen before.";
-            status = "Conflict_Partial_Seen";
+            status = "Conflict_Both_Seen";
         } else {
             message = "Both match requests are new and unseen.";
         }
 
         if (unseenMatches.size() == 2) {
+            String payload = unseenMatches.get(0) + "_" + unseenMatches.get(1);
             seenMatchRequests.addAll(unseenMatches);
+            for (String match : unseenMatches) {
+                String userID = match.split("_")[0];
+                matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", userID, payload);
+            }
         }
 
-        // TODO: If both match requests are valid, send message to SUCCESSFUL_MATCH Kafka topic
 
         return new VerificationResponse(
             status,

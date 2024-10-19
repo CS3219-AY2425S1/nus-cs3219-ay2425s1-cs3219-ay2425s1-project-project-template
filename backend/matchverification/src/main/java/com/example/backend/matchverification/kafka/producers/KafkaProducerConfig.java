@@ -1,4 +1,4 @@
-package com.example.backend.websocket.kafka.producers;
+package com.example.backend.matchverification.kafka.producers;
 
 import java.util.HashMap;
 import java.util.Map;
