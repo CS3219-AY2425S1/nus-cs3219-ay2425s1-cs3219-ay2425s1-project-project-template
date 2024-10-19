@@ -75,7 +75,9 @@ class AuthenticationControllerTest {
         assertNotNull(loginResponse);
         assertEquals(mockUser.getId(), loginResponse.getId());
         assertEquals(token, loginResponse.getToken());
-        assertEquals(3600000L, loginResponse.getExpiresIn());
+        assertEquals(mockUser.getEmail(), loginResponse.getEmail());
+        assertEquals(mockUser.getName(), loginResponse.getUsername());
+        assertEquals(mockUser.isAdmin(), loginResponse.isAdmin());
         verify(authenticationService, times(1)).authenticate(loginUserDto);
     }
 
@@ -148,6 +150,8 @@ class AuthenticationControllerTest {
         assertNotNull(userResponse);
         assertEquals(mockUser.getId(), userResponse.getId());
         assertEquals(mockUser.getEmail(), userResponse.getEmail());
+        assertEquals(mockUser.isAdmin(), userResponse.isAdmin());
+        assertEquals(mockUser.getName(), userResponse.getUsername());
     }
 
     @Test
