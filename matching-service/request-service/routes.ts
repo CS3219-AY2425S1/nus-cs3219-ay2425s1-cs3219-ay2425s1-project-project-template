@@ -14,6 +14,8 @@ const statusMap = new Map();
 
 (async () => {
     await kafkaProducer.connect();
+
+    // Setup Kafka consumer to update matchesMap and status map once any match has been found
     await kafkaConsumer.connect();
     await kafkaConsumer.subscribe({ topic: 'match-found-events', fromBeginning: false });
     kafkaConsumer.run({
@@ -23,6 +25,8 @@ const statusMap = new Map();
                 const matchFoundData = JSON.parse(message.value.toString());
                 matchesMap.set(matchFoundData.userA, matchFoundData);
                 matchesMap.set(matchFoundData.userB, matchFoundData);
+                statusMap.set(matchFoundData.userA, 'isMatched');
+                statusMap.set(matchFoundData.userB, 'isMatched');
             }
         },
     });
@@ -68,17 +72,18 @@ router.post('/find-match', async (req, res) => {
 
         // Set user status to `isMatching`
         statusMap.set(userData.id, 'isMatching');
+        res.json({ message: "Received match request" });
 
         // Wait for information from the producer to see if match found
-        const intervalID = setInterval(() => {
-            console.log(matchesMap);
-            if (matchesMap.has(userData.id)) {
-                res.json({ message: "Match found!" });
-                matchesMap.delete(userData.id);
-                statusMap.set(userData.id, 'isMatched');
-                clearInterval(intervalID);
-            }
-        }, 2000);
+        // const intervalID = setInterval(() => {
+        //     console.log("Initial find: ", matchesMap);
+        //     if (matchesMap.has(userData.id)) {
+        //         res.json({ message: "Match found!" });
+        //         matchesMap.delete(userData.id);
+        //         statusMap.set(userData.id, 'isMatched');
+        //         clearInterval(intervalID);
+        //     }
+        // }, 2000);
 
     } catch (error) {
         // TODO: Improve error handling
@@ -88,49 +93,65 @@ router.post('/find-match', async (req, res) => {
 });
 
 // Called when the client is already finding a match, and needs to listen for match found
-router.post('/continue-matching', async (req, res) => {
-    try {
-        const userData = await verifyJWT(req.headers.authorization);
+// To store active intervals for each user
+// const activeIntervals = new Map();
+// 
+// router.post('/continue-matching', async (req, res) => {
+//     try {
+//         const userData = await verifyJWT(req.headers.authorization);
+// 
+//         // If an interval is already active for this user, clear it first
+//         if (activeIntervals.has(userData.id)) {
+//             clearInterval(activeIntervals.get(userData.id));  // Clear the old interval
+//             activeIntervals.delete(userData.id);  // Remove it from the map
+//         }
+// 
+//         // Start a new interval to check for a match
+//         const intervalID = setInterval(() => {
+//             console.log("Continue: ", matchesMap);
+// 
+//             if (matchesMap.has(userData.id)) {
+//                 // Match found, send response and clear interval
+//                 res.json({ message: "Match found!" });
+//                 matchesMap.delete(userData.id);  // Remove the match from the map
+//                 statusMap.set(userData.id, 'isMatched');  // Update status
+// 
+//                 clearInterval(intervalID);  // Clear the current interval
+//                 activeIntervals.delete(userData.id);  // Remove from active intervals map
+//             }
+//         }, 2000);
+// 
+//         // Store the interval in the activeIntervals map
+//         activeIntervals.set(userData.id, intervalID);
+// 
+//     } catch (error) {
+//         console.error("Error: ", error);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+// });
 
-        // Wait for information from the producer to see if match found
-        const intervalID = setInterval(() => {
-            console.log(matchesMap);
-            if (matchesMap.has(userData.id)) {
-                res.json({ message: "Match found!" });
-                matchesMap.delete(userData.id);
-                statusMap.set(userData.id, 'isMatched');
-                clearInterval(intervalID);
-            }
-        }, 2000);
 
-    } catch (error) {
-        // TODO: Improve error handling
-        console.error("Error: ", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-})
-
-router.post('/cancel-matching', async (req, res) => {
-    try {
-        const userData = await verifyJWT(req.headers.authorization);
-
-        // Create cancelMatchData
-        const cancelMatchData = {
-            userID: userData.id,  // Attach the userID
-        };
-
-        // Produce a `cancel-match-event`
-        await kafkaProducer.send({
-            topic: "cancel-match-events",
-            messages: [{ key: userData.id, value: JSON.stringify(cancelMatchData) }],
-        });
-
-    } catch (error) {
-        // TODO: Improve error handling
-        console.error("Error: ", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-})
+// router.post('/cancel-matching', async (req, res) => {
+//     try {
+//         const userData = await verifyJWT(req.headers.authorization);
+// 
+//         // Create cancelMatchData
+//         const cancelMatchData = {
+//             userID: userData.id,  // Attach the userID
+//         };
+// 
+//         // Produce a `cancel-match-event`
+//         await kafkaProducer.send({
+//             topic: "cancel-match-events",
+//             messages: [{ key: userData.id, value: JSON.stringify(cancelMatchData) }],
+//         });
+// 
+//     } catch (error) {
+//         // TODO: Improve error handling
+//         console.error("Error: ", error);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+// })
 
 router.get('/match-status', async (req, res) => {
     const userData = await verifyJWT(req.headers.authorization);

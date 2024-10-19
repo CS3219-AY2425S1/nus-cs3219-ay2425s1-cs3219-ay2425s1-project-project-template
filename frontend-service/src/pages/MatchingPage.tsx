@@ -5,123 +5,118 @@ import Countdown from "../../components/matchmaking/Countdown";
 import MatchUnsuccess from "../../components/matchmaking/MatchUnsuccess";
 import MatchSuccess from "../../components/matchmaking/MatchSuccess";
 
+// Define constants for match stages
+const STAGE = {
+  MATCHME: "matchme",
+  COUNTDOWN: "countdown",
+  SUCCESS: "success",
+  UNSUCCESSFUL: "unsuccessful",
+};
+
 const MatchingPage: React.FC = () => {
-  const [stage, setStage] = useState("matchme");
+  const [stage, setStage] = useState(STAGE.MATCHME);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate();
+
+  // Helper function to handle fetch requests with error handling
+  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+    const token = localStorage.getItem("token");
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    };
+
+    try {
+      const response = await fetch(url, { ...options, headers });
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error("Request failed:", error);
+      throw error;
+    }
+  };
 
   // Trigger handlers according to match status in server
   const checkMatchStatus = async () => {
-    const response = await fetch("http://localhost:3002/match-status", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    });
-    const result = await response.json();
-    const matchStatus = result["matchStatus"];
-    handleMatchStatusReceived(matchStatus);
+    // setLoading(true); // Indicate loading
+    try {
+      const result = await fetchWithAuth("http://localhost:3002/match-status");
+      const matchStatus = result.matchStatus;
+      console.log(matchStatus);
+      handleMatchStatusReceived(matchStatus);
+    } catch {
+      console.error("Failed to check match status.");
+    } finally {
+      // setLoading(false); // Remove loading
+    }
   };
-  const handleMatchStatusReceived = (matchStatus:string) => {
+
+  const handleMatchStatusReceived = (matchStatus: string) => {
     if (matchStatus == "isNotMatching") {
-      // handleCancel();
-      setStage("matchme");
+      setStage(STAGE.MATCHME);
     } else if (matchStatus == "isMatching") {
-      // handleMatchMe();
-      setStage("countdown");
-      fetch("http://localhost:3002/continue-matching", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("matching-service response: ", data)
-        if (data.message == "Match found!") {
-          handleMatchFound();
-        }
-      })
-      .catch(err => {console.error(err)});
+      setStage(STAGE.COUNTDOWN);
     } else if (matchStatus == "isMatched") {
       handleMatchFound();
     }
   };
 
-  const handleMatchMe = () => {
-    const getMatchLongPoll = () => {
-      fetch("http://localhost:3002/find-match", {
+  // Simply send a find match request to be put in the queue
+  const handleMatchMe = async () => {
+    setStage(STAGE.COUNTDOWN);
+    try {
+      await fetchWithAuth("http://localhost:3002/find-match", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(
-          {
-            topic: selectedTopic,
-            difficulty: selectedDifficulty
-          }
-        )
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("matching-service response: ", data)
-        if (data.message == "Match found!") {
-          handleMatchFound();
-        }
-      })
-      .catch(err => {console.error(err)});
-    };
-
-    setStage("countdown");
-    getMatchLongPoll();
+        body: JSON.stringify({ topic: selectedTopic, difficulty: selectedDifficulty }),
+      });
+    } catch (error) {
+      console.error("Failed to find match: ", error);
+    }
   };
 
   const handleMatchFound = () => {
-    setStage("success");
+    setStage(STAGE.SUCCESS);
   };
 
   const handleMatchUnsuccess = () => {
-    setStage("unsuccessful");
+    setStage(STAGE.UNSUCCESSFUL);
   };
 
   const handleRetry = () => {
-    setStage("countdown");
+    setStage(STAGE.COUNTDOWN);
   };
 
-  const handleCancel = () => {
-    const sendCancelMatchingRequest = () => {
-      fetch("http://localhost:3002/cancel-matching", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-    }
-
-    sendCancelMatchingRequest();
-
-    setStage("matchme");
+  const handleCancel = async () => {
+    // try {
+    //   await fetchWithAuth("http://localhost:3002/cancel-matching", { method: "POST" });
+    // } catch (error) {
+    //   console.error("Failed to cancel matching.");
+    // }
+    setStage(STAGE.MATCHME);
   };
 
   const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
 
-
   // Ensure that when the page is loaded/reloaded, the stage state is always
   // correct with respect to the actual user's match state in backend.
   useEffect(() => {
     checkMatchStatus();
+    const interval = setInterval(() => {
+      checkMatchStatus();
+    }, 2000);
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
   return (
     <div>
-      {stage === "matchme" &&
+      {loading && <p>Loading...</p>} {/* Show loading message */}
+      
+      {stage === STAGE.MATCHME && (
         <MatchMe
           onMatchMe={handleMatchMe}
           selectedTopic={selectedTopic}
@@ -129,21 +124,24 @@ const MatchingPage: React.FC = () => {
           selectedDifficulty={selectedDifficulty}
           updateSelectedDifficulty={setSelectedDifficulty}
         />
-      }
-      {stage === "countdown" && (
+      )}
+
+      {stage === STAGE.COUNTDOWN && (
         <Countdown
           onSuccess={handleMatchFound}
           onFailure={handleMatchUnsuccess}
           onCancel={handleCancel}
         />
       )}
-      {stage === "unsuccessful" && (
+
+      {stage === STAGE.UNSUCCESSFUL && (
         <MatchUnsuccess
           onRetry={handleRetry}
           onBackToDashboard={handleBackToDashboard}
         />
       )}
-      {stage === "success" && <MatchSuccess />}
+
+      {stage === STAGE.SUCCESS && <MatchSuccess />}
     </div>
   );
 };

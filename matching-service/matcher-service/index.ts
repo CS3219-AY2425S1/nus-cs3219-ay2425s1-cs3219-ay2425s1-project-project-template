@@ -1,5 +1,6 @@
 import express from 'express';
 import { Kafka } from 'kafkajs';
+import cors from "cors";
 
 const app = express();
 
@@ -9,6 +10,7 @@ const kafkaConsumer = kafka.consumer({ groupId: 'matcher-service' });
 
 
 app.use(express.json());
+app.use(cors());
 
 
 // TODO: Implement PQ instead of just FIFO
@@ -41,8 +43,6 @@ let matchRequests: MatchRequestData[] = [];
 // Continuous function to periodically run the matching algorithm
 const runMatchingAlgorithm = async () => {
   setInterval(async () => {
-    console.log("Running matching algorithm")
-    console.log(matchRequests);
     if (matchRequests.length > 1) {
       const matchReqDataA = matchRequests.shift();
       const matchReqDataB = matchRequests.shift();
@@ -63,7 +63,7 @@ const runMatchingAlgorithm = async () => {
         });
       }
     }
-  }, 5000);
+  }, 2000);
 };
 
 // Start the producer and the continuous matching algorithm
