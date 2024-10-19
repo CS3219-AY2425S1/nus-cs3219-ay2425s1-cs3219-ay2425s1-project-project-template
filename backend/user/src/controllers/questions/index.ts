@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
+
+import { addAttemptedQuestionService,getAttemptedQuestionsService } from '@/services/questions';
 import type { IRouteHandler } from '@/types';
-import { getAttemptedQuestionsService, addAttemptedQuestionService } from '@/services/questions';
 
 export const addAttemptedQuestion: IRouteHandler = async (req, res) => {
   const { questionId, userIds } = req.body; // Assuming the questionId is passed in the request body

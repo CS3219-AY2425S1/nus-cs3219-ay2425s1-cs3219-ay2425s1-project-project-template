@@ -1,6 +1,8 @@
 import axios from 'axios';
-import { IServiceResponse, IQuestion, IGetRandomQuestionPayload } from '../types/index';
+
 import { PEERPREP_QUESTION_HOST } from '@/config';
+
+import { IGetRandomQuestionPayload,IQuestion, IServiceResponse } from '../types/index';
 
 export async function getRandomQuestion(payload: IGetRandomQuestionPayload): Promise<IQuestion> {
   const response = await axios.post<IServiceResponse<{ question: IQuestion }>>(

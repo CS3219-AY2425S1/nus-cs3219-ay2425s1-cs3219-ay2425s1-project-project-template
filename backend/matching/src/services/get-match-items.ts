@@ -1,7 +1,7 @@
-import { IMatchType, IMatchItemsResponse } from '../types/index';
-import { fetchAttemptedQuestions, updateAttemptedQuestions } from './user';
-import { getRandomQuestion } from './question';
+import { IMatchItemsResponse,IMatchType } from '../types/index';
 import { createRoom } from './collab';
+import { getRandomQuestion } from './question';
+import { fetchAttemptedQuestions } from './user';
 
 export async function getMatchItems(
   searchIdentifier: IMatchType,
@@ -17,9 +17,8 @@ export async function getMatchItems(
 
     const [attemptedQuestions1, attemptedQuestions2] = await Promise.all([
       fetchAttemptedQuestions(userId1),
-      fetchAttemptedQuestions(userId2)
+      fetchAttemptedQuestions(userId2),
     ]);
-
 
     const allAttemptedQuestions = [...new Set([...attemptedQuestions1, ...attemptedQuestions2])];
 
@@ -33,10 +32,9 @@ export async function getMatchItems(
     // Get a random question
     const question = await getRandomQuestion(payload);
 
-
     const roomName = await createRoom(userId1, userId2, question.id.toString());
 
-    console.log("Successfully got match items");
+    console.log('Successfully got match items');
     return {
       roomName,
       questionId: question.id,

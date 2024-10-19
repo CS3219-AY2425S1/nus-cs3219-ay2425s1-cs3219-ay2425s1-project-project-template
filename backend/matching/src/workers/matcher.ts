@@ -2,8 +2,8 @@ import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
-import { MATCH_SVC_EVENT } from '@/ws';
 import { IMatchType } from '@/types';
+import { MATCH_SVC_EVENT } from '@/ws';
 
 import { connectClient, sendNotif } from './common';
 
@@ -64,7 +64,6 @@ async function processMatch(
       const matchedStreamId = getStreamId(timestamp);
 
       logger.info(`Found match: ${JSON.stringify(matched)}`);
-      
 
       await Promise.all([
         // Remove other from pool
@@ -74,9 +73,15 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = await getMatchItems(searchIdentifier, topic, difficulty, requestorUserId, matchedUserId);
+      const { ...matchItems } = await getMatchItems(
+        searchIdentifier,
+        topic,
+        difficulty,
+        requestorUserId,
+        matchedUserId
+      );
       logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
-      
+
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
 
@@ -91,7 +96,7 @@ async function processMatch(
 
 async function match() {
   const redisClient = await connectClient(client);
-  
+
   const stream = await redisClient.xReadGroup(
     STREAM_GROUP,
     STREAM_WORKER,

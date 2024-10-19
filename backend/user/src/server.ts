@@ -12,8 +12,8 @@ import { dbConfig, UI_HOST } from '@/config';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import authRoutes from '@/routes/auth';
-import userRoutes from '@/routes/user';
 import authCheckRoutes from '@/routes/auth-check';
+import userRoutes from '@/routes/user';
 
 const app = express();
 app.use(pino());
@@ -29,7 +29,7 @@ app.use(
 
 app.use('/auth', authRoutes);
 app.use('/auth-check', authCheckRoutes);
-app.use('/user', userRoutes)
+app.use('/user', userRoutes);
 
 // Health Check for Docker
 app.get('/health', (_req, res) => res.status(StatusCodes.OK).send('OK'));
