@@ -5,6 +5,10 @@ let waitingUsers = [];
 async function findMatch(user, notifyMatch) {
     const { difficulty, topic, language } = user;
 
+    // Log queue status before attempting to find a match
+    console.log(`Queue before match attempt: ${waitingUsers.length} users waiting`);
+
+
     const matchIndex = waitingUsers.findIndex((waitingUser) =>
         waitingUser.difficulty === difficulty &&
         waitingUser.topic === topic &&
@@ -19,6 +23,10 @@ async function findMatch(user, notifyMatch) {
         // Remove matched users from waiting list
         waitingUsers.splice(matchIndex, 1);
         notifyMatch(user, matchedUser);
+
+        // Log queue status after the match is found
+        console.log(`Queue after match: ${waitingUsers.length} users waiting`);
+
         return true;
     }
 
@@ -26,11 +34,17 @@ async function findMatch(user, notifyMatch) {
     waitingUsers.push(user);
     console.log(`User ${user.username} added to waiting list.`);
 
+    // Log queue status after adding the user
+    console.log(`Queue after adding user: ${waitingUsers.length} users waiting`);
+
     setTimeout(() => {
         const userIndex = waitingUsers.findIndex(waitingUser => waitingUser.username === user.username);
         if (userIndex !== -1) {
             waitingUsers.splice(userIndex, 1);
             console.log(`Time's up! User ${user.username} removed from the waiting list`);
+
+            // Log queue status after timeout
+            console.log(`Queue after removing user due to timeout: ${waitingUsers.length} users waiting`);
         }
     }, 30000);
 

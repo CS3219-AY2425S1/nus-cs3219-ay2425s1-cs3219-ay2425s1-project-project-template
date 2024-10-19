@@ -42,6 +42,7 @@ const StartSession = ({ username }) => {
 
   const closePopup = async () => {
     setShowPopup(false);
+    setMatchFound(false);
   
     // Notify the backend to remove the user from the queue
     try {
@@ -74,6 +75,7 @@ const StartSession = ({ username }) => {
 
     if (countdown === 0) {
       setShowPopup(false); // Automatically close dialog when countdown is 0
+      setMatchFound(false);
     }
 
     return () => clearInterval(timer);
