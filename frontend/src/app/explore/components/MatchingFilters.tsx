@@ -5,6 +5,15 @@ import { MultiSelect } from "@/components/multi-select";
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/spinner'
 import SuccessMatchInfo from './SuccessMatchInfo';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 const MatchingFilters = () => {
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
@@ -94,10 +103,10 @@ const MatchingFilters = () => {
 
     return (
         <div className="flex flex-col p-8 gap-4">
-            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={sampleMatch} onOpenChange={setIsMatchFound} handleAccept={() => {}}/>}
+            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={sampleMatch} onOpenChange={setIsMatchFound} handleAccept={() => { }} />}
             <h1 className="text-2xl font-bold self-start text-transparent bg-clip-text bg-gradient-to-r from-[var(--gradient-text-first)] via-[var(--gradient-text-second)] to-[var(--gradient-text-third)]">Look for peers to code now!</h1>
             <div className='flex gap-6'>
-                <div className='w-1/3'>
+                {/* <div className='w-1/3'>
                     <Label>Language</Label>
                     <MultiSelect
                         options={languagesList}
@@ -107,19 +116,31 @@ const MatchingFilters = () => {
                         maxCount={3}
                         disabled={isSearching}
                     />
-                </div>
+                </div> */}
                 <div className='w-1/3'>
                     <Label>Difficulty</Label>
-                    <MultiSelect
+                    <Select>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a difficulty" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {difficultyList.map((difficulty) => (
+                                <SelectItem key={difficulty.value} value={difficulty.value}>
+                                    {difficulty.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {/* <MultiSelect
                         options={difficultyList}
                         onValueChange={setSelectedDifficulty}
                         defaultValue={selectedDifficulty}
                         placeholder="Select difficulty..."
                         maxCount={3}
                         disabled={isSearching}
-                    />
+                    /> */}
                 </div>
-                <div className='w-1/3'>
+                <div className='w-2/3'>
                     <Label>Categories</Label>
                     <MultiSelect
                         options={categoriesList}
@@ -131,7 +152,7 @@ const MatchingFilters = () => {
                     />
                 </div>
             </div>
-            <div>
+            {/* <div>
                 <Label>Selected Questions</Label>
                 <MultiSelect
                     options={questionsList}
@@ -141,7 +162,7 @@ const MatchingFilters = () => {
                     maxCount={3}
                     disabled={isSearching}
                 />
-            </div>
+            </div> */}
             <div className="flex justify-end w-full space-x-2 mt-4">
                 <Button variant={isSearching ? "destructive" : "default"} onClick={onSearchPress}>
                     {isSearching ? (
