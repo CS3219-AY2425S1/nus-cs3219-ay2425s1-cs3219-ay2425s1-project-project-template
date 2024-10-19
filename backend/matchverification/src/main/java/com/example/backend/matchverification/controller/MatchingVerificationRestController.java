@@ -13,18 +13,25 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.matchverification.kafka.producers.MatchVerificationProducer;
 import com.example.backend.matchverification.model.VerificationResponse;
 
+
 @RestController
 @RequestMapping("/api")
 public class MatchingVerificationRestController {
 
     private final MatchVerificationProducer matchVerificationProducer;
-    private final MatchVerificationHashsetService matchVerificationHashset;
+    private final MatchVerificationHashsetService invalidMatchesHashset;
+
+    private enum VerificationStatus {
+        SUCCESS,
+        CONFLICT_PARTIAL_INVALID,
+        CONFLICT_BOTH_INVALID
+    }
 
     @Autowired
     public MatchingVerificationRestController(MatchVerificationProducer matchVerificationProducer,
                                               MatchVerificationHashsetService matchRequestService) {
         this.matchVerificationProducer = matchVerificationProducer;
-        this.matchVerificationHashset = matchRequestService;
+        this.invalidMatchesHashset = matchRequestService;
     }
 
     @GetMapping("")
@@ -45,42 +52,52 @@ public class MatchingVerificationRestController {
 
         String matchReq1 = userMatches.get(0);
         String matchReq2 = userMatches.get(1);
+        String wsID1 = matchReq1.split("_")[0];
+        String wsID2 = matchReq2.split("_")[0];
 
-        boolean match1Exists = matchVerificationHashset.isSeen(matchReq1);
-        boolean match2Exists = matchVerificationHashset.isSeen(matchReq2);
+        System.out.println("Verifying match requests: " + matchReq1 + " and " + matchReq2);
 
-        List<String> seenMatches = new ArrayList<>();
-        List<String> unseenMatches = new ArrayList<>();
+        boolean match1IsInvalid = invalidMatchesHashset.isSeen(wsID1);
+        boolean match2IsInvalid = invalidMatchesHashset.isSeen(wsID2);
+        System.out.println("Match1 status: " + !match1IsInvalid + " Match2 status: " + !match2IsInvalid);
 
-        if (match1Exists) {
-            seenMatches.add(matchReq1);
+        List<String> validMatches = new ArrayList<>();
+        List<String> invalidMatches = new ArrayList<>();
+
+        if (match1IsInvalid) {
+            invalidMatches.add(matchReq1);
         } else {
-            unseenMatches.add(matchReq1);
+            validMatches.add(matchReq1);
         }
 
-        if (match2Exists) {
-            seenMatches.add(matchReq2);
+        if (match2IsInvalid) {
+            invalidMatches.add(matchReq2);
         } else {
-            unseenMatches.add(matchReq2);
+            validMatches.add(matchReq2);
         }
 
-        String status = "Success";
+        String status = VerificationStatus.SUCCESS.toString();
         String message;
-        if (!seenMatches.isEmpty() && !unseenMatches.isEmpty()) {
-            message = "One or more of the match requests have been seen before.";
-            status = "Conflict_Partial_Seen";
-        } else if (!seenMatches.isEmpty()) {
-            message = "Both match requests have been seen before.";
-            status = "Conflict_Both_Seen";
+        if (validMatches.size() == 1 && invalidMatches.size() == 1) {
+            System.out.println("PARTIAL INVALID MATCH");
+            message = "One or more of the match requests are invalid.";
+            status = VerificationStatus.CONFLICT_PARTIAL_INVALID.toString();
+        } else if (invalidMatches.size() == 2) {
+            System.out.println("BOTH INVALID MATCH");
+            message = "Both match requests are invalid.";
+            status = VerificationStatus.CONFLICT_BOTH_INVALID.toString();
         } else {
-            message = "Both match requests are new and unseen.";
+            System.out.println("VALID MATCH");
+            message = "Both match requests are new and valid.";
         }
 
-        if (unseenMatches.size() == 2) {
-            String payload = unseenMatches.get(0) + "_" + unseenMatches.get(1);
-            matchVerificationHashset.addToSeenRequests(matchReq1);
-            matchVerificationHashset.addToSeenRequests(matchReq2);
-            for (String match : unseenMatches) {
+        if (validMatches.size() == 2 && invalidMatches.isEmpty() && status.equals(VerificationStatus.SUCCESS.toString())) {
+            System.out.println(validMatches);
+            String payload = validMatches.get(0) + "_" + validMatches.get(1);
+            invalidMatchesHashset.addToSeenRequests(wsID1); // Add wsid
+            invalidMatchesHashset.addToSeenRequests(wsID2); // Add wsid
+            for (String match : validMatches) {
+                System.out.println(match);
                 String userID = match.split("_")[0];
                 matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", userID, payload);
             }
@@ -90,8 +107,8 @@ public class MatchingVerificationRestController {
         return new VerificationResponse(
             status,
             message,
-            seenMatches,
-            unseenMatches
+            validMatches,
+            invalidMatches
         );
     }
 }

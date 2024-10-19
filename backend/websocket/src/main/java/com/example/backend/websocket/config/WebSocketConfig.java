@@ -62,7 +62,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
                         String disconnectedUser = accessor.getUser().getName();
                         System.out.println("User disconnected: " + disconnectedUser);
-                        disconnectProducer.sendMessage("DISCONNECTS", disconnectedUser, disconnectedUser);
+                        disconnectProducer.sendMessage("DISCONNECTS", disconnectedUser, disconnectedUser); 
                     }
                 }
                 

@@ -5,14 +5,14 @@ import java.util.List;
 public class VerificationResponse {
     private String status;
     private String message;
-    private List<String> seenMatches;
-    private List<String> unseenMatches;
+    private List<String> validMatches;
+    private List<String> invalidMatches;
 
-    public VerificationResponse(String status, String message, List<String> seenMatches, List<String> unseenMatches) {
+    public VerificationResponse(String status, String message, List<String> validMatches, List<String> invalidMatches) {
         this.status = status;
         this.message = message;
-        this.seenMatches = seenMatches;
-        this.unseenMatches = unseenMatches;
+        this.validMatches = validMatches;
+        this.invalidMatches = invalidMatches;
     }
 
     public String getStatus() {
@@ -31,19 +31,19 @@ public class VerificationResponse {
         this.message = message;
     }
 
-    public List<String> getSeenMatches() {
-        return seenMatches;
+    public List<String> getValidMatches() {
+        return validMatches;
     }
 
-    public void setSeenMatches(List<String> seenMatches) {
-        this.seenMatches = seenMatches;
+    public void setValidMatches(List<String> validMatches) {
+        this.validMatches = validMatches;
     }
 
-    public List<String> getUnseenMatches() {
-        return unseenMatches;
+    public List<String> getInvalidMatches() {
+        return invalidMatches;
     }
 
-    public void setUnseenMatches(List<String> unseenMatches) {
-        this.unseenMatches = unseenMatches;
-    }
+    public void setInvalidMatches(List<String> invalidMatches) {
+        this.invalidMatches = invalidMatches;
+    } 
 }

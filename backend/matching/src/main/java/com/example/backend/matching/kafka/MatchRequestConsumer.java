@@ -23,6 +23,12 @@ import com.example.backend.matching.model.VerificationResponse;
 @Component
 public class MatchRequestConsumer {
 
+    private enum VerificationStatus {
+        SUCCESS,
+        CONFLICT_PARTIAL_INVALID,
+        CONFLICT_BOTH_INVALID
+    }
+
     private final Map<String, String> waitingRequests = new HashMap<>();
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -39,6 +45,7 @@ public class MatchRequestConsumer {
 
             System.out.println("Match found for key: " + key);
             System.out.println("Matching users: " + value + " and " + otherUserValue);
+            System.out.println("Verifying match requests...");
 
             List<String> matchRequests = new ArrayList<>();
             matchRequests.add(value);
@@ -56,17 +63,41 @@ public class MatchRequestConsumer {
                     new ParameterizedTypeReference<VerificationResponse>() {}
                 );
 
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    VerificationResponse verificationResponse = response.getBody();
-                    if (verificationResponse != null) {
-                        System.out.println("Verification Status: " + verificationResponse.getStatus());
-                        System.out.println("Message: " + verificationResponse.getMessage());
-                        System.out.println("Seen Matches: " + verificationResponse.getSeenMatches());
-                        System.out.println("Unseen Matches: " + verificationResponse.getUnseenMatches());
-                    }
-                } else {
-                    System.err.println("Failed to verify match requests. Status Code: " + response.getStatusCode());
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    throw new RestClientException("Failed to verify match requests. Status code: " + response.getStatusCode());
                 }
+
+                VerificationResponse verificationResponse = response.getBody();
+                if (verificationResponse == null) {
+                    System.err.println("Failed to verify match requests. Verification response is missing.");
+                }
+                
+                String vStatus = verificationResponse.getStatus();
+
+                System.out.println("Verification Status: " + vStatus);
+                System.out.println("Message: " + verificationResponse.getMessage());
+                System.out.println("Valid Matches: " + verificationResponse.getValidMatches());
+                System.out.println("Invalid Matches: " + verificationResponse.getInvalidMatches());
+
+
+                if (vStatus.equals(VerificationStatus.SUCCESS.toString())) {
+                    System.out.println("Match verified successfully. Sending to Kafka topic.");
+                } else if (vStatus.equals(VerificationStatus.CONFLICT_PARTIAL_INVALID.toString())) {
+                    System.out.println("Partial match verification failed. Not sending to Kafka topic.");
+                    assert verificationResponse.getInvalidMatches().size() == 1; // Defensive check
+                    String unseenMatch = verificationResponse.getValidMatches().get(0);
+                    waitingRequests.put(key, unseenMatch);
+                } else if (vStatus.equals(VerificationStatus.CONFLICT_BOTH_INVALID.toString())) {
+                    System.out.println("Both matches are invalid. Not sending to Kafka topic.");
+                    assert verificationResponse.getInvalidMatches().isEmpty(); // Defensive check
+                } else {
+                    if (verificationResponse.getMessage() != null) {
+                        System.err.println("Verification failed: " + verificationResponse.getMessage());
+                }
+                    System.out.println("Match verification failed. Not sending to Kafka topic.");
+                }
+
+
             } catch (RestClientException e) {
                 System.err.println("Error calling verification service: " + e.getMessage());
             }

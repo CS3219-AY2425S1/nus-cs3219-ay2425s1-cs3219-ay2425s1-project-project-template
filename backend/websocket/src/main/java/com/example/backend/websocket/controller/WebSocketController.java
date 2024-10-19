@@ -18,7 +18,7 @@ public class WebSocketController {
 
     @MessageMapping("/matchRequest")
     public void processMatchRequest(MatchRequest matchRequest, Principal principal) {
-        String userId = principal.getName(); // This should return the user's UUID
+        String userId = principal.getName(); // This should return the wsid
         System.out.println("Received match request from user: " + matchRequest.getUserEmail());
         matchRequest.getMatchCriteriaKey().forEach(key -> {
             matchRequestProducer.sendMessage("MATCH_REQUESTS", key, userId + "_" + matchRequest.getUserEmail());
