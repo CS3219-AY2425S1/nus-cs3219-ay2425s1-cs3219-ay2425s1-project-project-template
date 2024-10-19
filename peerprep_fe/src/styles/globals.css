@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&display=swap");
-
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,7 +39,9 @@ body {
 .workspacecomponent {
   background-color: #d4d4d4; /* bg-gray-50 */
   border-bottom: 1px solid #e5e7eb; /* border-b border-gray-200 */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); /* shadow-md */
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06); /* shadow-md */
   padding: 0.75rem 1.25rem; /* py-3 px-5 */
   border-top-left-radius: 0.5rem; /* rounded-t-lg */
   border-top-right-radius: 0.5rem; /* rounded-t-lg */
@@ -61,11 +63,19 @@ body {
 }
 
 .questiontitle {
-  @apply text-2xl font-bold text-gray-800
+  @apply text-2xl font-bold text-gray-800;
 }
 
 .title {
-  @apply text-lg font-semibold text-gray-800 mb-2
+  @apply text-lg font-semibold text-gray-800 mb-2;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 @layer utilities {
@@ -73,4 +83,3 @@ body {
     text-wrap: balance;
   }
 }
-
