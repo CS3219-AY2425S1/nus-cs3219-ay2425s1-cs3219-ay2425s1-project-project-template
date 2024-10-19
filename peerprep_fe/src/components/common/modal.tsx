@@ -1,7 +1,7 @@
 export interface ModalProps {
   isOpen: boolean;
-  title: string;
-  onClose: () => void;
+  title?: string;
+  onClose?: () => void;
   children: React.ReactNode;
   isCloseable?: boolean;
   width?: "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";
@@ -25,14 +25,16 @@ function getWidth(width: "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl") {
 }
 
 export default function Modal(props: ModalProps) {
+  const title = props.title ?? "";
   const isCloseable = props.isCloseable ?? true;
+  const onClose = props.onClose ?? (() => {});
   const width = getWidth(props.width || "2xl");
 
   if (!props.isOpen) return null;
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-zinc-900 bg-opacity-80 flex justify-center items-center z-50">
       <div
-        className={`bg-white dark:bg-black w-screen ${width} p-8 rounded-lg`}
+        className={`bg-white dark:bg-black w-screen ${width} p-5 rounded-lg`}
       >
         <div className="flex justify-between items-center pb-5">
           <h3 className="text-2xl font-bold">{props.title}</h3>
@@ -42,7 +44,7 @@ export default function Modal(props: ModalProps) {
             </button>
           )}
         </div>
-        <div className="p-10">{props.children}</div>
+        {props.children}
       </div>
     </div>
   );
