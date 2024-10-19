@@ -24,17 +24,6 @@ jobs:
       run: |
         cd backend/service-question
         mvn clean verify
-
-    - name: Generate JaCoCo coverage report for service question
-      run: |
-        cd backend/service-question
-        mvn jacoco:report
-
-    - name: Output coverage summary for service question
-      run: |
-        COVERAGE_PERCENT=$(grep -Po '(\d+\.\d+%)' backend/service-question/target/site/jacoco/index.html | head -n 1)
-        echo "Code coverage is $COVERAGE_PERCENT"
-        echo "::set-output name=coverage::$COVERAGE_PERCENT"
         
     - name: Create .env file
       run: |
@@ -50,17 +39,6 @@ jobs:
       run: |
         cd backend/service-user
         mvn clean verify
-
-    - name: Generate JaCoCo coverage report for service user
-      run: |
-        cd backend/service-user
-        mvn jacoco:report
-
-    - name: Output coverage summary for service user
-      run: |
-        COVERAGE_PERCENT=$(grep -Po '(\d+\.\d+%)' backend/service-user/target/site/jacoco/index.html | head -n 1)
-        echo "Code coverage is $COVERAGE_PERCENT"
-        echo "::set-output name=coverage::$COVERAGE_PERCENT"
     
     - name: Clean up .env file
       if: always()
