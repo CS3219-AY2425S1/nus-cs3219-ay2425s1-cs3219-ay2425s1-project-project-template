@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import StartSessionDialog from "./StartSessionDialog";
 
 export default function CreateSessionDialog() {
   const { control, handleSubmit, watch, reset, formState: { errors } } = useForm({
@@ -21,26 +22,11 @@ export default function CreateSessionDialog() {
   const isFormValid = difficulty && topic;
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
   const [timer, setTimer] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (status === 'loading') {
-      const timeout = window.setTimeout(() => {
-        setStatus('error');  
-      }, 30000);  
-      setTimer(timeout);
-    }
-
-    return () => {
-      if (timer !== null) {
-        clearTimeout(timer);
-      }
-    };
-  }, [status]);
+  const [showMatchDialog, setShowMatchDialog] = useState(false);
+  const [matchedUsers, setMatchedUsers] = useState<string[]>([]);
 
   const handleCreateSession = () => {
-    if (status !== 'loading') { 
-      setStatus('loading');
-    }
+    //TODO
   };
 
   const handleCancel = () => {
@@ -56,6 +42,7 @@ export default function CreateSessionDialog() {
   };
 
   return (
+    <>
     <Dialog>
       <DialogTrigger asChild>
         <Button>
@@ -141,5 +128,13 @@ export default function CreateSessionDialog() {
         </div>}
       </DialogContent>
     </Dialog>
+    {showMatchDialog && (
+      <StartSessionDialog
+        isOpen={showMatchDialog}
+        onClose={() => setShowMatchDialog(false)}
+        matchedUsers={matchedUsers}
+      />
+    )}
+    </>
   );
 }
