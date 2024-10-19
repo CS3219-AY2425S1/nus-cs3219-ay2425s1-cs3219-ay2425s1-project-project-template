@@ -10,6 +10,11 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"; // Adjust the path as per your project structure
 import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 
 const AppHeader: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -49,7 +54,41 @@ const AppHeader: React.FC = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-    </header>
+    <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+    <DialogContent className="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Settings</DialogTitle>
+      </DialogHeader>
+      <Tabs defaultValue="theme">
+        <TabsList className="grid grid-cols-1">
+          <TabsTrigger value="password">Password</TabsTrigger>
+        </TabsList>
+        <TabsContent value="password">
+          <Card>
+            <CardHeader>
+              <CardTitle>Change Password</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="space-y-1">
+                <Label htmlFor="current">Current Password</Label>
+                <Input id="current" type="password" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="new">New Password</Label>
+                <Input id="new" type="password" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="confirm">Confirm New Password</Label>
+                <Input id="confirm" type="password" />
+              </div>
+              <Button>Change Password</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </DialogContent>
+  </Dialog>
+</header>
   );
 };
 
