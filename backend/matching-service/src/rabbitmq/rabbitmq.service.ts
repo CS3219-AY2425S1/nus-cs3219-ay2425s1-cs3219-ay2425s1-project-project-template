@@ -68,36 +68,38 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
   enterQueue(enterQueueDto: EnterQueueDto): void {
     const { email } = enterQueueDto;
-    
+
     this.channel.sendToQueue(
       this.queueName,
       Buffer.from(JSON.stringify(enterQueueDto)),
     );
     console.log('User sent to queue:', enterQueueDto);
-  
+
     const timeoutId = setTimeout(() => {
       const keyToRemove = Object.keys(this.unmatchedRequests).find(
         (key) => this.unmatchedRequests[key].email === email,
       );
-  
+      console.log('key to remove is', keyToRemove);
+
       if (keyToRemove) {
         delete this.unmatchedRequests[keyToRemove];
-        console.log(`User ${email} removed from queue after 30 seconds of no match.`);
+        console.log(
+          `User ${email} removed from queue after 30 seconds of no match.`,
+        );
       }
-    }, 30000); 
-  
+    }, 3000);
+
     // timeoutId
     // this.unmatchedRequests[`${enterQueueDto.categories}-${enterQueueDto.complexity}-${enterQueueDto.language}`] = {
     //   ...enterQueueDto,
     //   timeoutId,
     // };
   }
-  
 
   consumeQueue() {
     if (this.channel) {
       console.log('Waiting for users in queue...');
-      console.log("unmatched request is", this.unmatchedRequests);
+      console.log('unmatched request is', this.unmatchedRequests);
       this.channel.consume(this.queueName, (msg) => {
         console.log('parsed to', JSON.parse(msg.content.toString()));
         if (msg !== null) {
@@ -168,6 +170,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   }
 
   notifyMatchFound(userEmail: string, matchEmail: string) {
+    console.log('connected users are', this.connectedUsers);
     const time = new Date().toISOString();
     const userData = {
       userEmail: userEmail,

@@ -11,7 +11,7 @@ interface CustomJwtPayload extends JwtPayload {
 
 const LoadingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(3);
   const [matchFound, setMatchFound] = useState(false);
 
   useEffect(() => {
@@ -36,6 +36,7 @@ const LoadingPage: React.FC = () => {
     );
     console.log("connected");
     eventSource.onmessage = (event) => {
+      console.log("EVENT IS", event);
       const data = JSON.parse(event.data);
       if (data.userEmail === decodedToken?.email) {
         setMatchFound(true);
@@ -54,7 +55,7 @@ const LoadingPage: React.FC = () => {
   }, [countdown, matchFound]);
 
   const resetTimer = () => {
-    setCountdown(30);
+    setCountdown(3);
     setMatchFound(false);
   };
 
@@ -69,7 +70,7 @@ const LoadingPage: React.FC = () => {
           content={`Matching in ${countdown} seconds`}
         />
       );
-    } else if (countdown === 0 && !matchFound) {
+    } else if (countdown <= 0 && !matchFound) {
       return (
         <Container textAlign="center">
           <Header as="h1" size="huge" style={{ color: "white" }}>
@@ -95,6 +96,8 @@ const LoadingPage: React.FC = () => {
         </Container>
       );
     } else {
+      console.log("match found is", matchFound);
+      console.log("count down is", countdown);
       return (
         <Container textAlign="center">
           <Header as="h1" size="huge" style={{ color: "white" }}>
