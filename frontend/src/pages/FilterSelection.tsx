@@ -1,24 +1,17 @@
 import {
-  Accordion,
   AppShell,
   Button,
   Card,
   Container,
   Group,
-  Modal,
   MultiSelect,
   Select,
   Stack,
-  Text,
-  TextInput,
-  Textarea,
   Title,
 } from '@mantine/core';
-import { useListState } from '@mantine/hooks';
 import { useDisclosure } from '@mantine/hooks';
-import { Notifications, notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import MatchingModal from '../components/modal/MatchingModal';
 
@@ -42,6 +35,8 @@ function Filter() {
     { open: openMatchingModal, close: closeMatchingModal },
   ] = useDisclosure(false);
 
+  const username = localStorage.getItem('user_id');
+
   return (
     <>
       <AppShell withBorder={false} header={{ height: 80 }}>
@@ -50,7 +45,7 @@ function Filter() {
             <a href="." className="logo">
               <Title c="white">PeerPrep</Title>
             </a>
-            <Button>Log in</Button>
+            <Button>{username}</Button>
           </Group>
         </AppShell.Header>
 
@@ -94,6 +89,8 @@ function Filter() {
       <MatchingModal
         isMatchingModalOpened={isMatchingModalOpened}
         closeMatchingModal={closeMatchingModal}
+        difficulty={filterDifficulty}
+        topics={filterTopic.length > 0 ? filterTopic : topics}
       />
     </>
   );
