@@ -10,7 +10,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private readonly matchBuffer: Record<string, any[]> = {};
   private readonly connectedUsers: Set<string> = new Set();
   private readonly queueName = 'matching_queue';
-  private readonly rabbitmqUrl = 'amqp://localhost:5672';
+  private readonly rabbitmqUrl = 'amqp://guest:guest@rabbitmq:5672';
   private connection: amqp.Connection;
   private channel: amqp.Channel;
   private unmatchedRequests: Record<string, any> = {};
