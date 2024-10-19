@@ -50,7 +50,10 @@ async def create(question: CreateQuestionModel):
     except DuplicateQuestionError as e:
         raise HTTPException(status_code=409, detail=str(e))
 
-@router.get("/", response_description="Get all questions", response_model=QuestionCollection)
+@router.get("/",
+            response_description="Get all questions",
+            response_model=QuestionCollection
+            )
 async def get_all(
     category:   Annotated[List[CategoryEnum | None] | None, Query()] = None,
     complexity: Annotated[ComplexityEnum | None, Query()] = None,
@@ -58,7 +61,10 @@ async def get_all(
 ):
     return await get_all_questions(category, complexity, search)
 
-@router.get("/{question_id}", response_description="Get question with specified id", response_model=QuestionModel)
+@router.get("/{question_id}",
+            response_description="Get question with specified id",
+            response_model=QuestionModel
+            )
 async def get_question(question_id: str):
     try:
         return await get_question_by_id(question_id)
@@ -67,7 +73,10 @@ async def get_question(question_id: str):
     except QuestionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.delete("/{question_id}", response_description="Delete question with specified id", response_model=MessageModel)
+@router.delete("/{question_id}",
+               response_description="Delete question with specified id",
+               response_model=MessageModel
+               )
 async def delete(question_id: str):
     try:
         return await delete_question(question_id)
@@ -76,7 +85,10 @@ async def delete(question_id: str):
     except QuestionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.put("/{question_id}", response_description="Update question with specified id", response_model=QuestionModel)
+@router.put("/{question_id}",
+            response_description="Update question with specified id",
+            response_model=QuestionModel
+            )
 async def update_question(question_id: str, question_data: UpdateQuestionModel):
     try:
         updated_question = await update_question_by_id(question_id, question_data)
@@ -109,10 +121,16 @@ async def batch_upload(questions: List[CreateQuestionModel]):
     except BatchUploadFailedError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/enum/category", response_description="Get all valid question categories", response_model=List[CategoryEnum])
+@router.get("/enum/categories",
+            response_description="Get all valid question categories",
+            response_model=List[CategoryEnum]
+            )
 async def get_categories():
     return get_question_categories()
 
-@router.get("/enum/complexity", response_description="Get all valid question complexities", response_model=List[ComplexityEnum])
+@router.get("/enum/complexities",
+            response_description="Get all valid question complexities",
+            response_model=List[ComplexityEnum]
+            )
 async def get_complexities():
     return get_question_complexities()
