@@ -53,7 +53,10 @@ class RabbitMQConnection {
             // Set durable true to ensure queue stays even with mq restart (does not include message persistance)
             await this.channel.assertExchange('Entry-Queue', 'direct', { durable: false })
 
-            await this.channel.assertQueue('entry_queue', { durable: false })
+            await this.channel.assertQueue('entry_queue', {
+                durable: false,
+                arguments: this.getDlxArgs(),
+            })
 
             // Params: Queue, Exchange, Routing Key
             await this.channel.bindQueue('entry_queue', 'Entry-Queue', 'entry')
@@ -70,12 +73,16 @@ class RabbitMQConnection {
                 await this.connect()
             }
             await this.channel.assertExchange('Entry-Queue', 'direct', { durable: false })
-            const q = await this.channel.assertQueue('entry_queue', { durable: false })
+
+            const q = await this.channel.assertQueue('entry_queue', {
+                durable: false,
+                arguments: this.getDlxArgs(),
+            })
             await this.channel.bindQueue(q.queue, 'Entry-Queue', 'entry')
             this.channel.consume(
                 q.queue,
                 async (msg) => {
-                    if (msg.content) {
+                    if (msg && msg.content) {
                         try {
                             this.attemptMatch(msg)
                             this.channel.ack(msg)
@@ -104,7 +111,10 @@ class RabbitMQConnection {
             await this.channel.assertExchange('Waiting-Queue', 'direct', { durable: false })
 
             // asserts if queue exists, if it does not, create one
-            const q = await this.channel.assertQueue(queueName, { durable: false })
+            const q = await this.channel.assertQueue(queueName, {
+                durable: false,
+                arguments: this.getDlxArgs(),
+            })
 
             // Params: Queue, Exchange, Routing Key
             await this.channel.bindQueue(q.queue, 'Waiting-Queue', queueName)
@@ -113,6 +123,7 @@ class RabbitMQConnection {
                 expiration: ttl,
                 headers: {
                     sentAt: Date.now(),
+                    userId: message.userId,
                 },
             })
 
@@ -129,7 +140,10 @@ class RabbitMQConnection {
             if (!this.channel) {
                 await this.connect()
             }
-            await this.channel.assertQueue(queueName, { durable: false })
+            await this.channel.assertQueue(queueName, {
+                durable: false,
+                arguments: this.getDlxArgs(),
+            })
             const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
             if (waitingUser === false) {
                 logger.info(`[Check-Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
@@ -257,6 +271,42 @@ class RabbitMQConnection {
     async addUserToCancelledSet(websocketId: string) {
         this.cancelledUsers.add(websocketId)
         logger.info(`[Cancel-User] User ${websocketId} has been blacklisted from matchmaking`)
+    }
+
+    async listenToDeadLetterQueue() {
+        try {
+            if (!this.channel) {
+                await this.connect()
+            }
+
+            // DeadLetter-Queue setup parameters
+            const DLX_QUEUE = 'deadletter-queue'
+            const DLX_EXCHANGE = 'dlx'
+            const DLX_ROUTING_KEY = 'dlx-key'
+            await this.channel.assertExchange(DLX_EXCHANGE, 'direct', { durable: false })
+            await this.channel.assertQueue(DLX_QUEUE, { durable: false })
+            await this.channel.bindQueue(DLX_QUEUE, DLX_EXCHANGE, DLX_ROUTING_KEY)
+
+            // Consume messages
+            await this.channel.consume(DLX_QUEUE, (msg) => {
+                if (msg) {
+                    const userId = msg.properties.headers.userId
+                    const queue = msg.properties.headers['x-first-death-queue']
+                    logger.info(`[DeadLetter-Queue] Received dead letter message from user ${userId} from ${queue}`)
+                    this.channel.ack(msg)
+                }
+            })
+        } catch (error) {
+            logger.error('[DeadLetter-Queue] Error while consuming from the dead letter queue:', error)
+        }
+    }
+
+    private getDlxArgs() {
+        return {
+            'x-dead-letter-exchange': 'dlx',
+            'x-dead-letter-routing-key': 'dlx-key',
+            'x-message-ttl': 180000,
+        }
     }
 }
 
