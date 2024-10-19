@@ -20,6 +20,7 @@ import {
   MATCH_WAITING_STATUS,
   MATCH_IDLE_STATUS,
 } from '@/lib/consts';
+import io from 'socket.io-client';
 
 // TODO: Request topics from Question Service
 const topics = ['Arrays', 'Strings', 'Linked Lists', 'Trees', 'Graphs'];
@@ -241,20 +242,31 @@ export default function DiscussRoute() {
   const [queuePosition, setQueuePosition] = React.useState(0);
   const [roomId, setRoomId] = React.useState('');
 
-  const ws = useRef<WebSocket | null>(null);
-
   useEffect(() => {
-    // Establish WebSocket connection
-    // TODO: Include userId as a query parameter
-    ws.current = new WebSocket('ws://localhost:8082/ws/matching');
+    const userId = 'user-' + Math.random().toString().split('.')[1];
+    const socket = io('http://localhost:8082', {
+      path: '/ws/matching',
+      transports: ['websocket'],
+      query: { userId },
+    });
 
-    ws.current.onopen = () => {
-      console.log('WebSocket Connected');
-    };
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket');
+    });
 
-    ws.current.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log('Received message:', message);
+    socket.on('disconnect', (reason) => {
+      console.log('Disconnected from WebSocket:', reason);
+      setMatchStatus(MATCH_ERROR_STATUS);
+    });
+
+    socket.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      setMatchStatus(MATCH_ERROR_STATUS);
+    });
+
+    socket.on('message', (data) => {
+      console.log('Received message:', data);
+      const message = JSON.parse(data);
 
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
@@ -262,17 +274,10 @@ export default function DiscussRoute() {
       } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
         setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
-    };
-
-    ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setMatchStatus(MATCH_ERROR_STATUS);
-    };
+    });
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
-      }
+      socket.disconnect();
     };
   }, []);
 
@@ -323,48 +328,22 @@ export default function DiscussRoute() {
     setMatchStatus(MATCH_IDLE_STATUS);
     setQueuePosition(0);
     setRoomId('');
-
-    // Close existing WebSocket connection
-    if (ws.current) {
-      ws.current.close();
-    }
-
-    // Open a new WebSocket connection
-    ws.current = new WebSocket('ws://localhost:8082/ws/matching');
-
-    // Re-attach event listeners
-    ws.current.onopen = () => {
-      console.log('WebSocket Reconnected');
-    };
-
-    ws.current.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log('Received message:', message);
-
-      if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
-        setMatchStatus(MATCH_FOUND_STATUS);
-        setRoomId(message.roomId);
-      } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
-        setMatchStatus(MATCH_TIMEOUT_STATUS);
-      }
-    };
-
-    ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setMatchStatus(MATCH_ERROR_STATUS);
-    };
   };
 
   return (
     <div className="container mx-auto p-4">
-      {matchStatus === MATCH_IDLE_STATUS && <IdleView onStartMatching={startMatching} />}
+      {matchStatus === MATCH_IDLE_STATUS && (
+        <IdleView onStartMatching={startMatching} />
+      )}
       {matchStatus === MATCH_WAITING_STATUS && (
         <WaitingView queuePosition={queuePosition} />
       )}
       {matchStatus === MATCH_FOUND_STATUS && (
         <MatchedView roomId={roomId} onNewMatch={resetState} />
       )}
-      {matchStatus === MATCH_TIMEOUT_STATUS && <TimeoutView onRetry={resetState} />}
+      {matchStatus === MATCH_TIMEOUT_STATUS && (
+        <TimeoutView onRetry={resetState} />
+      )}
       {matchStatus === MATCH_ERROR_STATUS && <ErrorView onRetry={resetState} />}
     </div>
   );
