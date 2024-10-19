@@ -75,5 +75,11 @@ jobs:
           kubectl apply -f k8s/user-service/
           kubectl apply -f k8s/question-service/
           kubectl apply -f k8s/frontend/
+          
+      - name: Force Restart Deployment
+        run: |
+          kubectl rollout restart deployment user-service
+          kubectl rollout restart deployment question-service
+          kubectl rollout restart deployment frontend
 
 
