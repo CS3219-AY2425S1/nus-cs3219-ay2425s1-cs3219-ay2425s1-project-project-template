@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { addUserToQueue } from "./queue-controller.js";
+import { matchingQueue } from "../queue/matching-queue.js";
 let io;
 
 // Set up socket.io and handle user interactions
@@ -56,7 +57,20 @@ export const initializeCollaborationService = (server) => {
     });
 
     // Handle disconnection
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
+      const currentJobs = await matchingQueue.getJobs([
+        "active",
+        "waiting",
+        "delayed",
+      ]);
+
+      for (const job of currentJobs) {
+        if (job.data.socketId === socket.id) {
+          await job.remove();
+          console.log(`User ${socket.id} removed from queue`);
+        }
+      }
+
       console.log(`User disconnected: ${socket.id}`);
     });
   });

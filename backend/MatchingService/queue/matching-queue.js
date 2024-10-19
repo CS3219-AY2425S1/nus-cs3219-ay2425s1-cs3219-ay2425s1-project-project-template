@@ -121,6 +121,8 @@ matchingQueue.on("failed", (job, err) => {
   }
 });
 
+matchingQueue.on("completed", (job) => {});
+
 // matchingQueue.on("waiting", async (job) => {
 //   const isPaused = await matchingQueue.isPaused();
 //   if (isPaused) {
