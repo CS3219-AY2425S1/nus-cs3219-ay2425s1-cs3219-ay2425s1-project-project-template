@@ -103,11 +103,13 @@ export class MatchController extends EventEmitter {
       const timeout = setTimeout(() => {
         this.removeFromMatchingPool(userId, request);
         this.emit("match-timeout", this.connectedUsers.get(userId));
-        this.removeConnection(userId);
+        // this.removeConnection(userId);
         logger.info(`Match timeout for user ${username} (${userId})`);
+        this.matchTimeouts.delete(userId);
       }, config.matchTimeout);
 
       this.matchTimeouts.set(userId, timeout);
+
       return;
     } else {
       logger.info(
@@ -134,10 +136,8 @@ export class MatchController extends EventEmitter {
           await this.removeFromMatchingPool(potentialMatch.userId, potentialMatch);
   
           // Clear the timeout for both users
-          clearTimeout(this.matchTimeouts.get(userId));
-          clearTimeout(this.matchTimeouts.get(potentialMatch.userId));
-          this.matchTimeouts.delete(userId);
-          this.matchTimeouts.delete(potentialMatch.userId);
+          this.removeTimeout(userId);
+          this.removeTimeout(potentialMatch.userId);
   
           this.emit("match-success", {
             socket1Id: this.connectedUsers.get(userId),
@@ -150,10 +150,9 @@ export class MatchController extends EventEmitter {
           logger.info(
             `Match success: User ${username} (${userId}) matched with ${potentialMatchUsername} (${potentialMatch.userId}) in ${difficultyLevel} queue.  Queue size: ${await this.getQueueLen(difficultyLevel)}`
           );
-          this.removeConnection(userId);
-          this.removeConnection(potentialMatch.userId);
-          
-  
+          // Currently not removing connection upon match found for user in collaboration service
+          // this.removeConnection(userId);
+          // this.removeConnection(potentialMatch.userId);
           return;
         }
       }
@@ -175,6 +174,11 @@ export class MatchController extends EventEmitter {
         break;
       }
     }
+  }
+
+  removeTimeout(userId: string): void {
+    clearTimeout(this.matchTimeouts.get(userId));
+    this.matchTimeouts.delete(userId)
   }
 
   private isCompatibleMatch(

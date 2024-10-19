@@ -57,6 +57,7 @@ export const initializeSocketHandlers = (io: Server): void => {
     const matchRequest: MatchRequest | undefined = socket.data.matchRequest;
     if (matchRequest) {
       matchController.removeFromMatchingPool(userId, matchRequest);
+      matchController.removeTimeout(userId);
       socket.emit("match-cancelled");
       logger.info(`Match cancelled for user ${username} (${userId})`);
     } else {
@@ -72,10 +73,10 @@ export const initializeSocketHandlers = (io: Server): void => {
     const matchRequest: MatchRequest | undefined = socket.data.matchRequest;
     if (matchRequest) {
       matchController.removeFromMatchingPool(userId, matchRequest);
+      matchController.removeTimeout(userId);
     }
     matchController.removeConnection(userId);
     // socket.disconnect(true);
-    logger.info(`User disconnected: user ${username} (${userId})`);
   };
 
   io.on("connection", (socket: Socket) => {
