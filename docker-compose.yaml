@@ -187,8 +187,14 @@ services:
       - MATCHING_DB_HOSTNAME=match-db
       - MATCHING_DB_PORT=6379
       - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+      - USER_SERVER_ENDPOINT=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+      - QUESTION_SERVER_ENDPOINT=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - COLLAB_SERVER_ENDPOINT=http://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
     depends_on:
       - match-db
+      - user-service
+      - question-service
+      - collab-service
     networks:
       - match-db-network
       - match-api-network
