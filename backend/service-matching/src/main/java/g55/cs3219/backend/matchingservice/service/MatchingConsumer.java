@@ -13,7 +13,7 @@ import g55.cs3219.backend.matchingservice.model.MatchingRequest;
 public class MatchingConsumer {
 
     private final MatchingService matchingService;
-    private final NotificationService notificationService; // You'll need to create this
+    private final NotificationService notificationService;
 
     public MatchingConsumer(MatchingService matchingService, NotificationService notificationService) {
         this.matchingService = matchingService;
