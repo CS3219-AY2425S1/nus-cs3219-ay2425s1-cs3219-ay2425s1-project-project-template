@@ -29,4 +29,4 @@ jobs:
       run: gcloud auth configure-docker
 
     - name: Submit Cloud Build
-      run: gcloud builds submit --config=cloudbuild.yaml ../../
+      run: gcloud builds submit --config=cloudbuild.yaml .
