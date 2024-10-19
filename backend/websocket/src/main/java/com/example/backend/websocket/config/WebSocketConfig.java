@@ -22,10 +22,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private DisconnectProducer disconnectProducer;
 
+    private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // HTTP URL for the WebSocket connection used by the client
         registry.addEndpoint("/matching-websocket")
+                .setAllowedOrigins(allowedOrigin) 
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();
     }

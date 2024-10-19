@@ -1,4 +1,4 @@
-import { QuestionLanguages, QuestionTopics } from "@/types/find-match";
+import { QuestionDifficulty, QuestionLanguages, QuestionTopics } from "@/types/find-match";
 import { capitalizeWords } from "@/utils/string_utils";
 
 export const preferredLanguagesList = Object.values(QuestionLanguages).map((ql) => {
@@ -17,3 +17,10 @@ export const topicsList = Object.values(QuestionTopics)
   };
 })
 .sort((a, b) => a.label.localeCompare(b.label));
+
+export const questionDifficulties = Object.values(QuestionDifficulty).map((qd) => {
+  return {
+    label: capitalizeWords(qd),
+    value: qd,
+  };
+})

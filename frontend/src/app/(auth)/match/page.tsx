@@ -19,21 +19,25 @@ import SockJS from "sockjs-client";
 import { useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
-import { preferredLanguagesList, topicsList } from "@/utils/constants";
+import {
+  preferredLanguagesList,
+  questionDifficulties,
+  topicsList,
+} from "@/utils/constants";
 import Swal from "sweetalert2";
 import { createRoot } from "react-dom/client";
 
 interface FindMatchFormOutput {
-  questionDifficulty: string;
-  preferredLanguages: string;
+  questionDifficulties: string[];
+  preferredLanguages: string[];
   questionTopics: string[];
 }
 
 interface FindMatchSocketMessage {
   userEmail: string;
   topics: string[];
-  programmingLanguage: string[];
-  difficulty: string;
+  programmingLanguages: string[];
+  difficulties: string;
 }
 
 const showLoadingSpinner = (onCancel: () => void) => {
@@ -136,9 +140,9 @@ const FindPeer = () => {
     // TODO: Change this to use multiselect later
     const userMatchRequest: FindMatchSocketMessage = {
       userEmail: CURRENT_USER,
-      topic: userFilter.questionTopics[0],
-      programmingLanguage: userFilter.preferredLanguages[0],
-      difficulty: userFilter.questionDifficulty,
+      topics: userFilter.questionTopics,
+      programmingLanguages: userFilter.preferredLanguages,
+      difficulties: userFilter.questionDifficulties,
     };
 
     console.log("Sending match request with data: ", userMatchRequest);
@@ -197,7 +201,7 @@ const FindPeer = () => {
 
   const form = useForm({
     defaultValues: {
-      questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
+      questionDifficulties: QuestionDifficulty.MEDIUM.valueOf(),
       preferredLanguages: QuestionLanguages.PYTHON.valueOf(),
       questionTopics: "",
     },
@@ -216,21 +220,22 @@ const FindPeer = () => {
             <span className="text-sm text-primary-400 self-center">
               Difficulty
             </span>
-            <Select
-              name="questionDifficulty"
-              defaultValue={QuestionDifficulty.MEDIUM.valueOf()}
-            >
-              <SelectTrigger className="w-full bg-primary-800 text-white">
-                <SelectValue placeholder="Choose a difficulty..." />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(QuestionDifficulty).map((qd) => (
-                  <SelectItem value={qd} key={qd}>
-                    <span className="capitalize">{qd}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FormField
+              control={form.control}
+              name="questionDifficulties"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <MultiSelect
+                      options={questionDifficulties}
+                      onValueChange={field.onChange}
+                      placeholder="Select options"
+                      variant="inverted"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <span className="text-sm text-primary-400">
               Preferred Languages
