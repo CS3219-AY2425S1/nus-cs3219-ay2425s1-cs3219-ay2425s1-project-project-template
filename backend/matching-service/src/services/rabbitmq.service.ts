@@ -4,6 +4,8 @@ import config from '../common/config.util'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
 import logger from '../common/logger.util'
 import { Proficiency } from '@repo/user-types'
+import { IMatch } from '../types/IMatch'
+import { handleCreateMatch } from '../controllers/matching.controller'
 
 class RabbitMQConnection {
     connection!: Connection
@@ -180,6 +182,8 @@ class RabbitMQConnection {
             // Check for exact match if possible, else
             const directMatch = await this.checkWaitingQueue(destinationQueue)
 
+            let matchedUser: client.GetMessage = null
+
             if (directMatch) {
                 const directMatchContent = JSON.parse(directMatch.content.toString())
                 if (this.cancelledUsers.has(directMatchContent.websocketId)) {
@@ -190,6 +194,7 @@ class RabbitMQConnection {
                 } else {
                     // Add logic to combine users
                     logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
+                    matchedUser = directMatch
                     this.channel.ack(directMatch)
                     await this.removeIfEmptyQueue(destinationQueue)
                 }
@@ -226,12 +231,14 @@ class RabbitMQConnection {
                         // Choose directMatch over match2
                         logger.info(`[Waiting-Queue] Match found: ${match1.content.toString()}`)
                         this.channel.ack(match1)
+                        matchedUser = match1
                         this.channel.nack(match2)
                         await this.removeIfEmptyQueue(queryQueueName1)
                     } else {
                         // Choose match2 over directMatch
                         logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                         this.channel.ack(match2)
+                        matchedUser = match2
                         this.channel.nack(match1)
                         await this.removeIfEmptyQueue(queryQueueName2)
                     }
@@ -239,18 +246,32 @@ class RabbitMQConnection {
                     // Only directMatch can match
                     logger.info(`[Waiting-Queue] Match found: ${match1.content.toString()}`)
                     // Choose match2 over directMatch
+                    matchedUser = match1
                     this.channel.ack(match1)
                     await this.removeIfEmptyQueue(queryQueueName1)
                 } else if (match2) {
                     // Only match2 can match
                     logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                     // Choose match2 over directMatch
+                    matchedUser = match2
                     this.channel.ack(match2)
                     await this.removeIfEmptyQueue(queryQueueName2)
                 } else {
                     // No match found, enqueue user into waiting queue
                     this.sendToWaitingQueue(content, destinationQueue, '60000')
                 }
+            }
+
+            if (matchedUser) {
+                const matchedUserId = JSON.parse(matchedUser.content.toString()).userId
+                const match: Partial<IMatch> = {
+                    user1Id: content.userId,
+                    user2Id: matchedUserId,
+                    categories: [content.topic],
+                    complexity: content.complexity,
+                }
+                await handleCreateMatch(match as IMatch)
+                logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {
             logger.error(`[Entry-Queue] Issue checking with Waiting-Queue: ${error}`)
