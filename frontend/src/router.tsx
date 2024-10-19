@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     element: <Admin />,
   },
   {
-    path: '/pages',
+    path: '/select',
     element: <FilterSelection />,
   },
 ]);
