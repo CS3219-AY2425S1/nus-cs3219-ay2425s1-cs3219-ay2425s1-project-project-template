@@ -2,7 +2,7 @@ import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
-import { DIFFICULTY_QUEUE } from "./constants"
+import { DIFFICULTY_QUEUE, EXCHANGE } from "./constants"
 import { UserData } from "./types"
 
 const app: Express = express()
@@ -11,8 +11,6 @@ dotenv.config()
 
 app.use(express.json())
 // app.use(express.urlencoded({ extended: true }))
-
-const EXCHANGE = "topics_exchange"
 
 let connection: Connection, channel: Channel
 
