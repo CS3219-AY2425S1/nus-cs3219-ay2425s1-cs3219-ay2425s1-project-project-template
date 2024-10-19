@@ -2,8 +2,9 @@ import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
-import { DIFFICULTY_QUEUE, EXCHANGE } from "./constants"
+import { EXCHANGE } from "./constants"
 import { UserData } from "./types"
+import { getRandomIntegerInclusive, sleep } from "./helper"
 
 const app: Express = express()
 
@@ -29,8 +30,6 @@ const connectRabbitMQ = async () => {
 }
 
 connectRabbitMQ()
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const handleIncomingNotification = (msg: string) => {
   try {
@@ -98,16 +97,9 @@ app.get("/match", async (req: Request, res: Response, next) => {
   const matchedUsers = []
   if (req.query.hasOwnProperty("queueName")) {
     // 1. Pull data from the respective queue, store into global users array
-    // const messageFetchingInterval = setInterval(async () => {
     await pullDataFromExchange(req.query.queueName as string)
     const firstUser = users.shift()
     matchedUsers.push(firstUser);
-
-    // console.log(">>MATCHED USERS SO FAR: ", matchedUsers);
-    // if (users.length >= 3) {
-    // clearInterval(messageFetchingInterval)
-    // }
-    // }, 3000)
 
     // Case 3: Only 1 person in the queue
     let timeWaitedForMessage = 0
@@ -155,28 +147,48 @@ app.get("/match", async (req: Request, res: Response, next) => {
     }
 
     // Case (2) - >1 person in queue, non matched topic so far
-    // timeWaitedForMessage = 0
-    // currentTotalUsersWaiting = users.length;
-    // const waitForNewMessagesInterval = setInterval(async () => {
-    //   if (timeWaitedForMessage == 8) {
-    //     clearInterval(waitForNewMessagesInterval)
-    //   }
-    //   await pullDataFromExchange(req.query.queueName as string)
-    //   timeWaitedForMessage += 2
-    // }, 2000)
+    timeWaitedForMessage = 0
+    currentTotalUsersWaiting = users.length;
+    const waitForNewMessagesInterval = setInterval(async () => {
+      await pullDataFromExchange(req.query.queueName as string)
+      timeWaitedForMessage += 2
+      console.log("Time waited for message: ", timeWaitedForMessage);
+      if (timeWaitedForMessage == 8) {
+        clearInterval(waitForNewMessagesInterval)
+      }
+    }, 2000)
     
-    // while (timeWaitedForMessage != 8) { 
-    //   await sleep(1000);
-    // }
+    while (timeWaitedForMessage < 8) { 
+      await sleep(1000);
+      console.log("Im here now")
+    }
 
     // Check currentTotalUsersWaiting with current user's length
     // If different, means new user added 
     if (currentTotalUsersWaiting > users.length) {
       for (const user of users) {
-        
+        if (user.topic == firstUser.topic && user.user_id != firstUser.user_id) {
+          matchedUsers.push(user);
+          break;
+        }
+      }
+
+      if (matchedUsers.length == 2) {
+        res.json({
+          matchedUsers
+        });
+        return;
       }
     } else {
       // Randomly match amongst current users
+      console.log("Randomly matched amongst current users")
+      const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1);
+      const nextUser = users.splice(randomlySelectedIndex, 1);
+      matchedUsers.push(nextUser[0])
+      res.json({
+        matchedUsers
+      });
+      return;
     }
 
 
