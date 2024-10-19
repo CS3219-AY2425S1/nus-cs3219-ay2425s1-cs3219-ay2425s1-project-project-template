@@ -1,59 +1,115 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import withAuth from "../hoc/withAuth"; 
+import withAuth from "../hoc/withAuth";
+import axios from 'axios';
 
 const WaitingPage = () => {
   const location = useLocation();
-  const { userPref } = location.state || { userPref: {} }; 
-  const navigate = useNavigate(); 
+  const { userPref } = location.state || { userPref: {} };
+  const navigate = useNavigate();
+
+  const getHeaders = () => {
+    return {
+      "Content-Type": "application/json",
+    };
+  };
 
   // Check if userPref is not defined, redirect to NewSessionPage
   useEffect(() => {
     if (!userPref || Object.keys(userPref).length === 0) {
       navigate('/new-session'); // Redirect if userPref is missing
+    } else {
+      // Initiate match request on load
+      createMatchRequest(userPref);
     }
   }, [navigate, userPref]);
 
   const [loading, setLoading] = useState(true);
   const [matchFound, setMatchFound] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [timeoutReached, setTimeoutReached] = useState(false); 
+  const [timeoutReached, setTimeoutReached] = useState(false);
+
+  const createMatchRequest = async (userPref) => {
+    try {
+      const response = await axios.post('http://localhost:8082/matches', userPref);
+
+      // Check if the response status is 200 or 201 (success)
+      if (response.status === 200 || response.status === 201) {
+        // Check if the match was successful based on response data
+        if (response.data.matched) {
+          setMatchFound(true);
+          console.log('Match found:', response.data);
+        } else {
+          console.log('No match found:', response.data);
+        }
+      } else {
+        console.error('Unexpected response status:', response.status);
+      }
+    } catch (error) {
+        console.error('Error', error.message);
+    }
+  };
 
   useEffect(() => {
     if (loading) {
       const interval = setInterval(() => {
         setSeconds((prevSeconds) => prevSeconds + 1);
-      }, 1000); 
-  
+      }, 1000);
+
       const timer = setTimeout(() => {
         setLoading(false);
-        if (!matchFound) {
-          setTimeoutReached(true); 
-        }
+        setTimeoutReached(true); // Set timeoutReached after 30 seconds
       }, 30000);  // 30 seconds max waiting time
-  
+
       return () => {
         clearInterval(interval);
         clearTimeout(timer);
       };
     }
-  }, [loading, matchFound]);
+  }, [loading]);
+
+   useEffect(() => {
+      if (!loading && !matchFound) {
+        // If loading has finished and no match found, update the state
+        setTimeoutReached(true);
+      }
+   }, [loading, matchFound]);
 
   const handleRetry = () => {
     // re-add user into queue using the same choices here
-    setLoading(true); 
+    createMatchRequest(userPref);
+    setLoading(true);
     setMatchFound(false);
     setTimeoutReached(false);
-    setSeconds(0); 
+    setSeconds(0);
   };
 
-  const handleGoHome = () => {
-    navigate('/dashboard');
+  const handleGoHome = async () => {
+    try {
+      navigate('/dashboard');
+      const response = await fetch(
+              `http://localhost:8082/matches/${userPref.id}`,
+              {
+                method: "DELETE",
+                headers: getHeaders(),
+                body: JSON.stringify(userPref),
+              }
+            );
+      console.log('Response:', response.data); // Log the response for debugging
+      if (response.status === 200) {
+        setMatchFound(false);
+      }
+
+    } catch (error) {
+      console.error('Error deleting match request:', error);
+      navigate('/dashboard');
+    }
   };
+
 
   const buttonStyle = {
-    padding: "15px 30px", 
-    backgroundColor: "#fff", 
+    padding: "15px 30px",
+    backgroundColor: "#fff",
     color: "#000",
     border: "none",
     borderRadius: "15px",

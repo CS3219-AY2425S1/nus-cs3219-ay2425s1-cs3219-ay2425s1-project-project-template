@@ -14,24 +14,31 @@ const matchUsers = async () => {
 
     const q = await channel.assertQueue('', { exclusive: true }) // Bind to A
     channel.bindQueue(q.queue, reqCh);
-    
+
 
     //Waiting for user details to come in
     channel.consume(q.queue, msg => {
 
         //Matching logic is designed inefficiently for now to facilitate upgrades
         const newRequest = JSON.parse(msg.content.toString());
-        let perfectMatches = requests.filter(function(req) {
+
+        // Check if user is already in requests
+        if (requests.find(req => req.id === newRequest.id)) {
+            console.log(`User ${newRequest.id} is already in the request queue.`);
+            return; // Skip adding this request
+        }
+
+        let perfectMatches = requests.filter(function (req) {
             return calculateMatchScore(newRequest, req) >= 4
         });
-        let closeMatches = requests.filter(function(req) {
+        let closeMatches = requests.filter(function (req) {
             return calculateMatchScore(newRequest, req) >= 3
         });
         var matchedRequest = false
-    
+
         if (perfectMatches.length == 0 && closeMatches.length == 0) {
             requests.push(newRequest);
-        } else if (perfectMatches.length == 0){
+        } else if (perfectMatches.length > 0) {
             matchedRequest = perfectMatches.pop()
         } else {
             matchedRequest = closeMatches.pop()
@@ -39,12 +46,13 @@ const matchUsers = async () => {
 
         if (matchedRequest) {
             requests.splice(requests.indexOf(matchedRequest), 1)
-            result = { matched: true, 
-                       user1: newRequest.id, 
-                       user2: matchedRequest.id,  
-                       category: newRequest.category,
-                       difficulty: newRequest.difficulty
-                    };
+            result = {
+                matched: true,
+                user1: newRequest.id,
+                user2: matchedRequest.id,
+                category: newRequest.category,
+                complexity: newRequest.complexity
+            };
             console.log(`Matched ${result.user1} and ${result.user2}`)
             result = JSON.stringify(result)
             channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); // B to D
@@ -53,7 +61,13 @@ const matchUsers = async () => {
 
         setTimeout(() => {
             if (handleDeleteRequest(newRequest)) {
-                result = { matched: false, user1: newRequest.id, user2: "" };
+                result = {
+                    matched: false,
+                    user1: newRequest.id,
+                    user2: "",
+                    category: "",
+                    complexity: ""
+                };
                 channel.publish(resCh, newRequest.id, Buffer.from(JSON.stringify(result))); //B to D
                 console.log(`${newRequest.id} timed out.`)
             }
@@ -70,12 +84,12 @@ const calculateMatchScore = (request1, request2) => {
         matchScore += 2
     };
     const difficultyLevels = {
-        "easy": 1,
-        "medium": 2,
-        "hard": 3
+        "Easy": 1,
+        "Medium": 2,
+        "Hard": 3
     };
-    const difficultyLevel1 = difficultyLevels[request1.difficulty];
-    const difficultyLevel2 = difficultyLevels[request2.difficulty];
+    const difficultyLevel1 = difficultyLevels[request1.complexity];
+    const difficultyLevel2 = difficultyLevels[request2.complexity];
     if (Math.abs(difficultyLevel1 - difficultyLevel2) <= 1) {
         matchScore += 1
     }
@@ -100,29 +114,34 @@ const handleMatchRequest = async (request) => {
     channel.publish(reqCh, '', Buffer.from(JSON.stringify(request))); // C to A
     console.log(`Sent user ${request.id} for matching.`);
 
-    //Waiting for results
-    let recevied = false;
-    channel.consume(q.queue, msg => {
-        console.log(`User ${request.id} ~ Result: ${msg.content.toString()}`);
-        result = JSON.parse(msg.content.toString());
-        recevied = true;
-        return result;
-    }, { noAck: true });
+    //Promise
+    return new Promise((resolve, reject) => {
+        let received = false;
+        // Consume the result from the queue
+        channel.consume(q.queue, msg => {
+            console.log(`User ${request.id} ~ Result: ${msg.content.toString()}`);
+            result = JSON.parse(msg.content.toString());
+            connection.close();
+            received = true;
+            resolve(result);  // Resolve with result once received
+        }, { noAck: true });
 
+        // Timeout after 45 seconds if no response is received (failsafe).
+        setTimeout(() => {
+            if (!received) {
+                console.log(`45 seconds timeout for matching user ${request.id}`);
+                connection.close();
+                resolve({
+                    matched: false,
+                    user1: "",
+                    user2: "",
+                    category: request.category,
+                    complexity: request.complexity
+                });
+            }
+        }, 45000);
+    });
 
-    setTimeout(() => {
-        //If by 60 seconds no response, return not matched.
-        if (!recevied) {
-            console.log(`60 seconds time out for matching for user ${request.id}`)
-            return { matched: false, 
-                     user1: "", 
-                     user2: "", 
-                     category: request.category, 
-                     difficulty: request.difficulty 
-                    };
-        }
-        connection.close();
-    }, 60000)
 }
 
 const handleDeleteRequest = (user) => {

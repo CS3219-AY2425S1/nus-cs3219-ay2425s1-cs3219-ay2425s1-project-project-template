@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import "./styles/NewSessionPage.css";
 
 const NewSessionPage = () => {
-  const { accessToken } = useAuth();
+  const { accessToken, userId } = useAuth();
   const navigate = useNavigate();
   const [topicsArray, setTopicsArray] = useState([]);
   const [targetTopicsArray, setTargetTopicsArray] = useState([]);
@@ -36,7 +36,7 @@ const NewSessionPage = () => {
         console.error("Error fetching questions:", error);
       }
     };
-  
+
     fetchQuestions();
   }, []);
 
@@ -101,38 +101,46 @@ const NewSessionPage = () => {
     const formData = new FormData(form);
     const formObj = Object.fromEntries(formData.entries());
 
+    // Add userId to formObj, rename topic to category to match backend
+    const userPref = {
+      id: userId,
+      difficulty: formObj.difficulty,
+      category: formObj.topic
+    };
+
     if (formObj.hasOwnProperty('difficulty') && formObj.hasOwnProperty('topic')) {
-        const userId = Cookies.get('userId'); 
-        const { difficulty, topic } = formObj;
+        // const userId = Cookies.get('userId'); 
+        // const { difficulty, topic } = formObj;
 
-        const payload = {
-            id: userId, // user ID from cookies
-            difficulty: difficulty, // selected difficulty
-            category: topic // selected topic
-        };
+        // const payload = {
+        //     id: userId, // user ID from cookies
+        //     difficulty: difficulty, // selected difficulty
+        //     category: topic // selected topic
+        // };
 
-        const apiUrl = 'http://localhost:8082/matches/'; // maybe this is wrong
+        // const apiUrl = 'http://localhost:8082/matches/'; // maybe this is wrong
 
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}` // remove if don't need bearer access token in header 
-                },
-                body: JSON.stringify(payload),
-            });
+        // try {
+        //     const response = await fetch(apiUrl, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Authorization': `Bearer ${accessToken}` // remove if don't need bearer access token in header 
+        //         },
+        //         body: JSON.stringify(payload),
+        //     });
 
-            if (!response.ok) {
-                throw new Error('Failed to add to queue');
-            }
+        //     if (!response.ok) {
+        //         throw new Error('Failed to add to queue');
+        //     }
 
-            // if successful, navigate to the waiting page
-            navigate('/waiting', { state: { userPref: formObj } });
-        } catch (error) {
-            console.error('Error submitting data:', error);
-            alert(`I just tried to send a POST API call to ${apiUrl}, with this JSON raw values ${JSON.stringify(payload)}, and I failed.`);
-        }
+        //     // if successful, navigate to the waiting page
+        //     navigate('/waiting', { state: { userPref: formObj } });
+        // } catch (error) {
+        //     console.error('Error submitting data:', error);
+        //     alert(`I just tried to send a POST API call to ${apiUrl}, with this JSON raw values ${JSON.stringify(payload)}, and I failed.`);
+        // }
+      navigate('/waiting', { state: { userPref } });
     } else {
         alert('Select a difficulty/topic');
     }
@@ -190,3 +198,4 @@ const NewSessionPage = () => {
 
 const WrappedNewSessionPage = withAuth(NewSessionPage);
 export default WrappedNewSessionPage;
+
