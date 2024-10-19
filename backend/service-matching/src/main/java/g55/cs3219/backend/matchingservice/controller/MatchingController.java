@@ -19,6 +19,6 @@ public class MatchingController {
     @PostMapping
     public ResponseEntity<String> requestMatch(@RequestBody MatchingRequest request) {
         matchingProducer.sendMatchingRequest(request);
-        return ResponseEntity.ok("Matching request sent");
+        return ResponseEntity.ok("{\"message\": \"Matching request sent\"}");
     }
 }
