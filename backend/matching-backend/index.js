@@ -56,6 +56,30 @@ app.post('/api/find-match', (req, res) => {
     res.status(200).send({ status: 'Added to queue', matchData });
 });
 
+app.post('/api/cancel-match', (req, res) => {
+    const { username } = req.body;
+    if (!username) {
+      return res.status(400).send({ error: 'Username is required to cancel match' });
+    }
+  
+    // Publish a message to the queue to remove the user
+    cancelMatch(username);
+    res.status(200).send({ status: 'Cancel request sent', username });
+  });
+  
+  // Function to notify the consumer to cancel the user
+  function cancelMatch(username) {
+    if (!channel) {
+      console.error('Channel is not initialized');
+      return;
+    }
+    
+    const cancelQueue = 'cancel-queue';
+    channel.assertQueue(cancelQueue, { durable: true });
+    channel.sendToQueue(cancelQueue, Buffer.from(JSON.stringify({ username })));
+    console.log(`Cancel request for ${username} sent to queue.`);
+  }
+  
 
 app.listen(PORT, () => {
     console.log(`Matching service running on http://localhost:${PORT}`);

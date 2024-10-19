@@ -41,10 +41,14 @@ async function startConsumer() {
         const connection = await amqp.connect('amqp://rabbitmq:5672');
         const channel = await connection.createChannel();
         const queue = 'matching-queue';
+        const cancelQueue = 'cancel-queue';
 
         await channel.assertQueue(queue, { durable: true });
+        await channel.assertQueue(cancelQueue, { durable: true });
+
         console.log('Waiting for messages in %s. To exit press CTRL+C', queue);
 
+        // Consumer for matching queue
         channel.consume(queue, (msg) => {
             if (msg !== null) {
                 const matchData = JSON.parse(msg.content.toString());
@@ -52,9 +56,30 @@ async function startConsumer() {
                 channel.ack(msg);
             }
         });
+
+        // Consumer for cancel queue
+        channel.consume(cancelQueue, (msg) => {
+            if (msg !== null) {
+            const cancelData = JSON.parse(msg.content.toString());
+            const { username } = cancelData;
+            cancelUser(username);
+            channel.ack(msg);
+            }
+        });
+
     } catch (error) {
         console.error('Error in consumer:', error);
     }
 }
+
+function cancelUser(username) {
+    const userIndex = waitingUsers.findIndex(user => user.username === username);
+    if (userIndex !== -1) {
+      waitingUsers.splice(userIndex, 1);
+      console.log(`User ${username} cancelled and removed from waiting list`);
+    } else {
+      console.log(`User ${username} not found in waiting list`);
+    }
+  }
 
 module.exports = startConsumer;
