@@ -61,13 +61,6 @@ export function SignupForm() {
         </div>
         <Button type="submit" text="Sign Up" />
       </form>
-
-      <div className="mt-5">
-        <p className="text-sm font-hairline">
-          Already have an account?{" "}
-          <TextButton text="Login" link="/auth/login" />
-        </p>
-      </div>
     </div>
   );
 }

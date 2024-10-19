@@ -73,18 +73,18 @@ export const AuthProvider = ({ children }: Props) => {
     };
 
     authenticateToken().then((success) => {
-      if (!success && !pathname.startsWith("/auth")) {
+      if (!success && pathname !== "/") {
         if (token) {
           alert("Session expired. Please log in again.");
         } else {
           alert("Please log in to access this page.");
         }
         deleteToken();
-        router.push("/auth/login");
+        router.push("/");
         return;
       }
 
-      if (success && (pathname.startsWith("/auth") || pathname === "/")) {
+      if (success && pathname === "/") {
         router.push("/home");
       }
     });

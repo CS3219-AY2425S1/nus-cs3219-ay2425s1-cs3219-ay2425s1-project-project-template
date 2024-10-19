@@ -48,12 +48,6 @@ export function LoginForm() {
         <p className="error">{state?.errors?.password}</p>
         <Button type="submit" text="Login" />
       </form>
-
-      <div className="mt-5">
-        <p className="text-sm font-hairline">
-          Need an account? <TextButton text="Sign Up" link="/auth/signup" />
-        </p>
-      </div>
     </div>
   );
 }
