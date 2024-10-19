@@ -1,8 +1,12 @@
-import { Button } from '@/components/ui/button';
+import LoginDialog from '@/components/auth/login-dialog';
+import { UserMenuAvatar } from '@/components/auth/user-avatar';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { CodeXml } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Navbar() {
+  const user = useAuth();
+
   return (
     <nav className='col-span-12 bg-background shadow-sm h-16'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
@@ -29,7 +33,7 @@ export default function Navbar() {
             </div>
           </div>
           <div className='hidden sm:ml-6 sm:flex sm:items-center'>
-            <Button variant={'secondary'}>Sign In</Button>
+            {user ? <UserMenuAvatar /> : <LoginDialog />}
           </div>
         </div>
       </div>
