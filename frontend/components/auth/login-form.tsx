@@ -41,11 +41,26 @@ export function LoginForm() {
           description: "Login Failed.",
         });
       }
-    } catch (err) {
+    } catch (err: any) {
+      let description_text = "";
+      switch (err.message) {
+        case "Email and/or password is missing.":
+          description_text = "Please provide both email and password.";
+          break;
+        case "Invalid email or password.":
+          description_text = "Username or password is incorrect.";
+          break;
+        case "Internal server error. Please try again later.":
+          description_text = "There was an issue with the server. Please try again later.";
+          break;
+        default:
+          description_text = "An unexpected error occurred. Please try again.";
+          break;
+      }
       toast({
         title: "Error",
         variant: "destructive",
-        description: "Username or/and password provided is wrong.",
+        description: description_text,
       });
     }
   };
