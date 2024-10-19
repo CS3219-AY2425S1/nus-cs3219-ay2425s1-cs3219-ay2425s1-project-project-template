@@ -168,7 +168,7 @@ class RabbitMQConnection {
             // Check for exact match if possible, else
             const directMatch = await this.checkWaitingQueue(destinationQueue)
 
-            let matchedUserId: string = ''
+            let matchedUser: client.GetMessage = null
 
             if (directMatch) {
                 const directMatchContent = JSON.parse(directMatch.content.toString())
@@ -181,8 +181,8 @@ class RabbitMQConnection {
                     // Add logic to combine users
                     logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
                     this.channel.ack(directMatch)
-                    matchedUserId = directMatchContent.userId
                     await this.removeIfEmptyQueue(destinationQueue)
+                    matchedUser = directMatch
                 }
             } else {
                 let match1: false | GetMessage = false
@@ -219,14 +219,14 @@ class RabbitMQConnection {
                         this.channel.ack(match1)
                         this.channel.nack(match2)
                         await this.removeIfEmptyQueue(queryQueueName1)
-                        matchedUserId = JSON.parse(match1.content.toString()).userId
+                        matchedUser = match1
                     } else {
                         // Choose match2 over directMatch
                         logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                         this.channel.ack(match2)
                         this.channel.nack(match1)
                         await this.removeIfEmptyQueue(queryQueueName2)
-                        matchedUserId = JSON.parse(match2.content.toString()).userId
+                        matchedUser = match2
                     }
                 } else if (match1) {
                     // Only directMatch can match
@@ -234,21 +234,22 @@ class RabbitMQConnection {
                     // Choose match2 over directMatch
                     this.channel.ack(match1)
                     await this.removeIfEmptyQueue(queryQueueName1)
-                    matchedUserId = JSON.parse(match1.content.toString()).userId
+                    matchedUser = match1
                 } else if (match2) {
                     // Only match2 can match
                     logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                     // Choose match2 over directMatch
                     this.channel.ack(match2)
                     await this.removeIfEmptyQueue(queryQueueName2)
-                    matchedUserId = JSON.parse(match2.content.toString()).userId
+                    matchedUser = match2
                 } else {
                     // No match found, enqueue user into waiting queue
                     this.sendToWaitingQueue(content, destinationQueue, '60000')
                 }
             }
 
-            if (matchedUserId) {
+            if (matchedUser) {
+                const matchedUserId = JSON.parse(matchedUser.content.toString()).userId
                 const match: Partial<IMatch> = {
                     user1Id: content.userId,
                     user2Id: matchedUserId,
