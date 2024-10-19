@@ -12,7 +12,7 @@ import { io } from "socket.io-client";
 import axios from 'axios';
 
 const NOTIFICATION_SERVICE = "http://localhost:5000";
-const QUEUE_SERVICE = "http://localhost:5001";
+const MATCHING_SERVICE = "http://localhost:5001";
 const userId = localStorage.getItem("userId");
 const topics = [
   "Algorithms",
@@ -83,7 +83,7 @@ export const Match = () => {
     setTimer(0);
 
     try {
-      const response = await axios.post(`${QUEUE_SERVICE}/enqueue`, {
+      const response = await axios.post(`${MATCHING_SERVICE}/enqueue`, {
         topic: selectedTopic,
         difficulty: selectedDifficulty,
         username: localStorage.getItem("username"),
