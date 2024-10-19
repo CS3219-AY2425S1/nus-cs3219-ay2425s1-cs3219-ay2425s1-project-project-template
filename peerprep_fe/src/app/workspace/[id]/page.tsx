@@ -32,7 +32,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
           text="Logout"
           onClick={() => {
             deleteToken();
-            router.push("/auth/login");
+            router.push("/");
           }}
         />
       </Header>

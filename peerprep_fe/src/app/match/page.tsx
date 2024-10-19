@@ -24,7 +24,7 @@ const match: React.FC<MatchPageProps> = () => {
           text="Logout"
           onClick={() => {
             deleteToken();
-            router.push("/auth/login");
+            router.push("/");
           }}
         />
       </Header>

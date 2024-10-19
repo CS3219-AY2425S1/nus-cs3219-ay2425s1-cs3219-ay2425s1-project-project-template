@@ -47,7 +47,7 @@ export default function Home() {
           text="Logout"
           onClick={() => {
             deleteToken();
-            router.push("/auth/login");
+            router.push("/");
           }}
         />
       </Header>
@@ -59,7 +59,7 @@ export default function Home() {
         text="Add Question"
       />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto bg-white shadow-md   scroll-smooth">
+        <table className="min-w-full table-auto bg-white shadow-md scroll-smooth">
           <thead className="sticky top-0">
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">Questions</th>
