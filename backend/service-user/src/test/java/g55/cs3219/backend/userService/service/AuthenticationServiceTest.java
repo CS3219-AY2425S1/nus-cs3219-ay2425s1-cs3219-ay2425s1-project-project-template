@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -246,6 +247,29 @@ class AuthenticationServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> authenticationService.resendVerificationCode(email));
 
         assertEquals("User Not Found with email " + email, exception.getMessage());
+    }
+
+    @Test
+    void resendVerificationCode_shouldInvalidateOldCode_whenNewCodeIsSent() {
+        User user = new User("testUser", "test@example.com", "encodedPassword");
+        user.setEnabled(false);
+        user.setVerificationCode("oldCode");
+
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+
+        authenticationService.resendVerificationCode("test@example.com");
+
+        assertNotEquals("oldCode", user.getVerificationCode()); 
+        assertNotNull(user.getVerificationCode());
+
+        try {
+            verify(emailService, times(1)).sendVerificationEmail(eq("test@example.com"),
+                    eq("Account Verification"),
+                    anyString());
+            verify(userRepository, times(1)).save(user);
+        } catch (MessagingException e) {
+            fail("MessagingException occurred: " + e.getMessage());
+        }
     }
 
     @Test
