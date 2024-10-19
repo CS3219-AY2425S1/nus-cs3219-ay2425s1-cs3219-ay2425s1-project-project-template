@@ -86,21 +86,23 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       }
     }, 30000); 
   
-    this.unmatchedRequests[`${enterQueueDto.categories}-${enterQueueDto.complexity}-${enterQueueDto.language}`] = {
-      ...enterQueueDto,
-      timeoutId,
-    };
+    // timeoutId
+    // this.unmatchedRequests[`${enterQueueDto.categories}-${enterQueueDto.complexity}-${enterQueueDto.language}`] = {
+    //   ...enterQueueDto,
+    //   timeoutId,
+    // };
   }
   
 
   consumeQueue() {
     if (this.channel) {
       console.log('Waiting for users in queue...');
+      console.log("unmatched request is", this.unmatchedRequests);
       this.channel.consume(this.queueName, (msg) => {
         console.log('parsed to', JSON.parse(msg.content.toString()));
         if (msg !== null) {
           const userRequest = JSON.parse(msg.content.toString());
-          console.log(`Received match request for user ${userRequest.userId}`);
+          console.log(`Received match request for user ${userRequest.email}`);
           this.matchUser(userRequest);
           this.channel.ack(msg);
         } else {
@@ -111,11 +113,11 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       console.error('Cannot consume messages, channel not initialized');
     }
   }
-
+  //DEBUG HERE
   private matchUser(userRequest: EnterQueueDto): void {
+    // console.log("unmatched request is", this.unmatchedRequests);
     const { email, categories, complexity, language } = userRequest;
     const matchingKey = `${categories}-${complexity}-${language}`;
-    console.log(this.unmatchedRequests);
     if (this.unmatchedRequests[matchingKey]) {
       const matchedUser = this.unmatchedRequests[matchingKey];
       console.log(`Match found between ${email} and ${matchedUser.email}`);
