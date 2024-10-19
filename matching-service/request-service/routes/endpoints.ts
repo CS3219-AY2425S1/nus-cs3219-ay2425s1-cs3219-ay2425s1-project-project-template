@@ -64,12 +64,12 @@ router.post('/find-match', async (req, res) => {
         });
 
         // Wait for information from the producer to see if match found
-        setInterval(() => {
+        const intervalID = setInterval(() => {
             console.log(matchesMap);
             if (matchesMap.has(userData.id)) {
                 res.json({ message: "Match found!" });
                 matchesMap.delete(userData.id);
-                return
+                clearInterval(intervalID);
             }
         }, 2000);
 

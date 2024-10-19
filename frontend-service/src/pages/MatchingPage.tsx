@@ -27,13 +27,17 @@ const MatchingPage: React.FC = () => {
         )
       })
       .then(response => response.json())
-      .then(data => {console.log("matching-service response: ", data)})
+      .then(data => {
+        console.log("matching-service response: ", data)
+        if (data.message == "Match found!") {
+          handleMatchFound();
+        }
+      })
       .catch(err => {console.error(err)});
     };
 
-    getMatchLongPoll();
-
     setStage("countdown");
+    getMatchLongPoll();
   };
 
   const handleMatchFound = () => {
