@@ -27,20 +27,18 @@ const Register = () => {
     },
   });
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = form.getValues();
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     register(data.email, data.password, data.username);
-  }
+  };
 
   return (
     <div className="max-w-xl mx-auto my-10 p-2">
       <h1 className="text-white font-extrabold text-h1">Register</h1>
       <p className="text-primary-300 text-lg">
-        Register to our platform to access its features! Have an account? <a href="/login" className="text-yellow-500 hover:underline">Login here</a>
+        Register to our platform to access its features! Have an account? <a href="/login" className="text-yellow-500 hover:underline">Login here!</a>
       </p>
       <Form {...form}>
-        <form className="my-10 grid gap-4" onSubmit={onSubmit}>
+        <form className="my-10 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="username"

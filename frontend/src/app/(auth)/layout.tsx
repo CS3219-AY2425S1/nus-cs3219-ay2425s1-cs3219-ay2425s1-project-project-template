@@ -9,7 +9,6 @@ import { IconType } from "react-icons";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import Link from "next/link";
 import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
-import { useRouter } from "next/navigation";
 import { FaCode } from "react-icons/fa";
 
 interface SidebarMenuItemProps {

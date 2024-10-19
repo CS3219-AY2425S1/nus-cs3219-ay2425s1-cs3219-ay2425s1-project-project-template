@@ -1,7 +1,6 @@
 "use client";
 
-import { redirectToLogin, verifyToken } from "@/api/user";
-import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
+import { getToken } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -43,11 +42,11 @@ const FindPeerHeader = () => {
 };
 
 const FindPeer = () => {
-  const { authStatus } = useAuth();
+  const token = getToken();
 
   useEffect(() => {
-    if (authStatus === AuthStatus.UNAUTHENTICATED) redirectToLogin();
-  }, []);
+    if (!token) window.location.href = "/login";
+  }, [token]); 
 
   const form = useForm({
     defaultValues: {
@@ -77,7 +76,7 @@ const FindPeer = () => {
     console.log(data);
   };
 
-  return authStatus !== AuthStatus.UNAUTHENTICATED && (
+  return !!token && (
     <Container>
       <FindPeerHeader />
       <Form {...form}>

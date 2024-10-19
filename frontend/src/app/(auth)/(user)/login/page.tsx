@@ -6,7 +6,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import Swal from "sweetalert2";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -25,20 +24,18 @@ const Login = () => {
     },
   });
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = form.getValues();
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     login(data.email, data.password);
-  }
+  };
 
   return (
     <div className="max-w-xl mx-auto my-10 p-2">
       <h1 className="text-white font-extrabold text-h1">Login</h1>
       <p className="text-primary-300 text-lg">
-        Login to our platform to access its features! Don't have an account? <a href="/register" className="text-yellow-500 hover:underline">Register here</a>
+        Login to our platform to access its features! Don&apos;t have an account? <a href="/register" className="text-yellow-500 hover:underline">Register here!</a>
       </p>
       <Form {...form}>
-        <form className="my-10 grid gap-4" onSubmit={onSubmit}>
+        <form className="my-10 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="email"

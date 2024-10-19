@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { getUser, redirectToLogin, updateUser } from "@/api/user";
+import { getToken, getUser, updateUser } from "@/api/user";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
-import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 
 const formSchema = z.object({
   username: z.string()
@@ -29,13 +28,15 @@ const formSchema = z.object({
 });
 
 const ProfilePage = () => {
-  const { authStatus } = useAuth();
+  const token = getToken();
   const [user, setUser] = useState<User>({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
+      email: "",
+      password: "",
       bio: "",
       linkedin: "",
       github: "",
@@ -43,15 +44,15 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    getUser().then((data) => {
-      setUser(data);
-      form.reset(data);
+    getUser().then((res) => {
+      setUser(res.data);
+      form.reset(res.data);
     });
   }, [form]);
 
   useEffect(() => {
-    if (authStatus === "UNAUTHENTICATED") redirectToLogin();
-  }, []); 
+    if (!token) window.location.href = "/login";
+  }, [token]); 
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     updateUser(data).then(() => {
@@ -62,7 +63,7 @@ const ProfilePage = () => {
     });
   };
 
-  return authStatus !== AuthStatus.UNAUTHENTICATED && (
+  return !!token && (
     <div className="mx-auto max-w-xl my-10 p-4">
       <h1 className="text-white font-extrabold text-h1">Welcome, {user?.username}!</h1>
 
@@ -101,7 +102,7 @@ const ProfilePage = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-yellow-500 text-lg">PASSWORD</FormLabel>
+                <FormLabel className="text-yellow-500 text-lg">NEW PASSWORD</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="password" {...field} className="focus:border-yellow-500 text-white"/>
                 </FormControl>
@@ -155,7 +156,6 @@ const ProfilePage = () => {
           <Button type="submit" className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black">Save Changes</Button>
         </form>
       </Form>
-
     </div>
   );
 }

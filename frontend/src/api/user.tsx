@@ -2,13 +2,14 @@
 
 import toast from "@/components/modals/toast";
 import { UserLogin } from "@/types/user";
+import Cookie from "js-cookie";
 
 export const setToken = (token: string) => {
-  localStorage.setItem("token", token);
+  Cookie.set("token", token, { expires: 1 });
 };
 
 export const getToken = () => {
-  return localStorage.getItem("token");
+  return Cookie.get("token");
 };
 
 export const setBaseUserData = (data: {
@@ -16,16 +17,16 @@ export const setBaseUserData = (data: {
   id: string;
   isAdmin: string;
 }) => {
-  localStorage.setItem("username", data.username);
-  localStorage.setItem("id", data.id);
-  localStorage.setItem("isAdmin", data.isAdmin);
+  Cookie.set("username", data.username, { expires: 1 });
+  Cookie.set("id", data.id, { expires: 1 });
+  Cookie.set("isAdmin", data.isAdmin, { expires: 1 });
 };
 
 export const getBaseUserData = () => {
   return {
-    username: localStorage.getItem("username"),
-    id: localStorage.getItem("id"),
-    isAdmin: localStorage.getItem("isAdmin"),
+    username: Cookie.get("username"),
+    id: Cookie.get("id"),
+    isAdmin: Cookie.get("isAdmin"),
   };
 };
 
@@ -61,7 +62,6 @@ export const verifyToken = async (needsLogin: boolean) => {
 };
 
 export const login = async (email: string, password: string) => {
-  const encryptedPassword = btoa(password);
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/login`, {
     method: "POST",
     headers: {
@@ -69,7 +69,7 @@ export const login = async (email: string, password: string) => {
     },
     body: JSON.stringify({
       email,
-      password: password,
+      password,
     }),
   });
   const data = await response.json();
@@ -95,27 +95,27 @@ export const handleSuccessfulLogin = async (data: UserLogin) => {
   const { accessToken, username, id, isAdmin } = data;
   setBaseUserData({ username, id, isAdmin });
   setToken(accessToken);
-  const redirect = localStorage.getItem("redirect");
+  const redirect = Cookie.get("redirect");
   if (!redirect) {
     window.location.href = "/";
     return;
   }
 
-  localStorage.removeItem("redirect");
+  Cookie.remove("redirect");
   window.location.href = redirect;
   return;
 };
 
 export const redirectToLogin = async () => {
-  localStorage.setItem("redirect", window.location.pathname);
+  Cookie.set("redirect", window.location.pathname, { expires: 1 });
   window.location.href = "/login";
 };
 
 export const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("username");
-  localStorage.removeItem("id");
-  localStorage.removeItem("isAdmin");
+  Cookie.remove("token");
+  Cookie.remove("username");
+  Cookie.remove("id");
+  Cookie.remove("isAdmin");
   redirectToLogin().then(() => {
     toast.fire({
       icon: "success",
@@ -129,7 +129,6 @@ export const register = async (
   password: string,
   username: string
 ) => {
-  const encryptedPassword = btoa(password);
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users`, {
     method: "POST",
     headers: {

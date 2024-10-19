@@ -189,7 +189,7 @@ export function LeetcodeDashboardTable({
       setData(data.questions);
       setTotalPage(data.totalPages);
     });
-  }, [refreshKey, pagination.pageIndex]);
+  }, [refreshKey, pagination.pageIndex, pagination.pageSize]);
 
   const table = useReactTable({
     data,
