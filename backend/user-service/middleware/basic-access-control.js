@@ -40,6 +40,7 @@ export function verifyIsOwnerOrAdmin(req, res, next) {
 
   const userIdFromReqParams = req.params.id;
   const userIdFromToken = req.user.id;
+  // check if the user ID stored in token matches the user ID of the requested resource
   if (userIdFromReqParams === userIdFromToken) {
     return next();
   }

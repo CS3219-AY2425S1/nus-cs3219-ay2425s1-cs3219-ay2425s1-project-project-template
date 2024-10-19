@@ -24,6 +24,7 @@ export const Login = () => {
                     localStorage.setItem("userId", response.data.data.id);
                     localStorage.setItem("accessToken", response.data.data.accessToken);
                     localStorage.setItem("username", response.data.data.username);
+                    localStorage.setItem("email", response.data.data.email);
                     alert('Successfully logged in!');
                     navigate("/home");
                 } else {

@@ -12,7 +12,7 @@ import { io } from "socket.io-client";
 import axios from 'axios';
 
 const NOTIFICATION_SERVICE = "http://localhost:5000";
-const MATCH_SERVICE = "http://localhost:5001";
+const MATCHING_SERVICE = "http://localhost:5001";
 const userId = localStorage.getItem("userId");
 const topics = [
   "Algorithms",
@@ -34,7 +34,7 @@ export const Match = () => {
   const [socket, setSocket] = useState(null);
   const [timer, setTimer] = useState(0);
 
-  // Timer
+  // Timer that waits for 30s before calling stopMatching
   useEffect(() => {
     let interval;
     let startTime;
@@ -42,11 +42,12 @@ export const Match = () => {
     if (isMatching) {
       startTime = Date.now();
 
+      // Update timer every second for 60s
       interval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         setTimer(elapsed);
 
-        if (elapsed >= 30) {
+        if (elapsed >= 60) {
           stopMatching();
         }
       }, 1000);
@@ -64,6 +65,10 @@ export const Match = () => {
     setSelectedDifficulty(difficulty);
   };
 
+  const handleLogoClick = (e) => {
+    navigate("/home");
+  };
+
   const handleProfileButton = (e) => {
     navigate("/profile");
   };
@@ -78,10 +83,11 @@ export const Match = () => {
     setTimer(0);
 
     try {
-      const response = await axios.post(`${MATCH_SERVICE}/match`, {
+      const response = await axios.post(`${MATCHING_SERVICE}/enqueue`, {
         topic: selectedTopic,
         difficulty: selectedDifficulty,
-        username: localStorage.getItem("username")
+        username: localStorage.getItem("username"),
+        email: localStorage.getItem("email")
       }, {
         headers: { "Content-Type": "application/json" }
       });
@@ -129,7 +135,7 @@ export const Match = () => {
     <div className="match">
       {/* Menu Bar */}
       <nav className="menu-bar">
-        <img src={logo} alt="PeerPrep" className="logo" />
+        <img src={logo} alt="PeerPrep" className="logo" onClick={handleLogoClick} style={{cursor: "pointer"}} />
         <FontAwesomeIcon
           icon={faUserCircle}
           className="profile-icon"

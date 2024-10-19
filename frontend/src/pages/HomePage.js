@@ -117,6 +117,7 @@ export const HomePage = () => {
         </table>
         <div className="button-div">
           {isAdmin ? <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button> : null}
+          <button className="create-btn" onClick={(e) => navigate("/match")}>Solve with a friend!</button>
           <button className="create-btn" onClick={(e) => navigate("/profile")}>Profile</button>
         </div>
       </header>
