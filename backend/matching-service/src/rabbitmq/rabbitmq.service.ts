@@ -67,12 +67,31 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   }
 
   enterQueue(enterQueueDto: EnterQueueDto): void {
+    const { email } = enterQueueDto;
+    
     this.channel.sendToQueue(
       this.queueName,
       Buffer.from(JSON.stringify(enterQueueDto)),
     );
     console.log('User sent to queue:', enterQueueDto);
+  
+    const timeoutId = setTimeout(() => {
+      const keyToRemove = Object.keys(this.unmatchedRequests).find(
+        (key) => this.unmatchedRequests[key].email === email,
+      );
+  
+      if (keyToRemove) {
+        delete this.unmatchedRequests[keyToRemove];
+        console.log(`User ${email} removed from queue after 30 seconds of no match.`);
+      }
+    }, 30000); 
+  
+    this.unmatchedRequests[`${enterQueueDto.categories}-${enterQueueDto.complexity}-${enterQueueDto.language}`] = {
+      ...enterQueueDto,
+      timeoutId,
+    };
   }
+  
 
   consumeQueue() {
     if (this.channel) {
