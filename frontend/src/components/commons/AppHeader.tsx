@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { UserIcon, SettingsIcon, LogOutIcon } from "lucide-react";
+import React, { useState } from "react";
+import { UserIcon, SettingsIcon, LogOutIcon, User, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -9,8 +9,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"; // Adjust the path as per your project structure
+import { Button } from "../ui/button";
 
 const AppHeader: React.FC = () => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   return (
     <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
       <div className="flex">
@@ -23,6 +25,28 @@ const AppHeader: React.FC = () => {
           </Link>
         </nav>
       </div>
+      <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-8 h-8 p-0 hover:bg-gray-700 rounded-full">
+              <User className="h-6 w-6 text-white" />
+              <span className="sr-only">Open user menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
     </header>
   );
 };
