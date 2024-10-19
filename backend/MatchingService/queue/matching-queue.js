@@ -100,10 +100,10 @@ matchingQueue.process(1, async (job) => {
     //   message: "No user suitable for match, retrying...",
     // });
   } catch (error) {
-    notifyUserOfMatchFailed(
-      job.data.socketId,
-      "No suitable user found, please try again later."
-    );
+    // notifyUserOfMatchFailed(
+    //   job.data.socketId,
+    //   "No suitable user found, please try again later."
+    // );
     console.error("Error processing job:", job.id, error);
     throw error; // Ensure errors are propagated to be handled by Bull
   }
@@ -113,10 +113,12 @@ matchingQueue.on("failed", (job, err) => {
   console.log(
     `Job failed attempt ${job.attemptsMade} out of ${job.opts.attempts}. Error: ${err.message}`
   );
-  notifyUserOfMatchFailed(
-    job.data.socketId,
-    "Failed to find a match after multiple attempts."
-  );
+  if (job.attemptsMade >= job.opts.attempts) {
+    notifyUserOfMatchFailed(
+      job.data.socketId,
+      "Failed to find a match after multiple attempts."
+    );
+  }
 });
 
 // matchingQueue.on("waiting", async (job) => {

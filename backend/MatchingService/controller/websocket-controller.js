@@ -16,7 +16,7 @@ export const initializeCollaborationService = (server) => {
 
     // Handle user joining the queue
     socket.on("joinQueue", async (userData) => {
-      socket.emit("assignSocketId", { assignedSocket: socket.id });
+      socket.emit("assignSocketId", { socketId: socket.id });
 
       // Add the user to the matching queue with socketId for later communication
       try {

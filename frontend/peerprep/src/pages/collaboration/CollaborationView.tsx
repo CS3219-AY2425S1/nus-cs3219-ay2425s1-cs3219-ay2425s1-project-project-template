@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 import { UserContext } from "../../context/UserContext";
+import { useSearchParams } from "react-router-dom";
 
 const Collaboration: React.FC = () => {
   const socketRef = useRef<Socket | null>(null);
@@ -13,13 +14,38 @@ const Collaboration: React.FC = () => {
   const userContext = useContext(UserContext);
   const user = userContext?.user;
 
+  const [searchParams] = useSearchParams();
+  const topic = searchParams.get("topic");
+  const difficulty = searchParams.get("difficulty");
+
+  // initialize socket upon component mount
   useEffect(() => {
     socketRef.current = io("http://localhost:3000/");
+    return () => {
+      if (socketRef.current !== null) {
+        console.log("disconnecting socket...");
+        socketRef.current.disconnect();
+      }
+    };
+  }, []); // Ensure the effect runs when room or socketId changes
+
+  useEffect(() => {
     const socket = socketRef.current;
 
+    if (socket === null) {
+      return;
+    }
+
+    // upon successful connection, join the queue
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id); // Log socket ID
       setSocketId(socket.id); // Set the socket ID state
+
+      socket.emit("joinQueue", {
+        username: user?.username,
+        topic: topic,
+        difficulty: difficulty,
+      });
     });
 
     // Listen for the matched event from the backend
@@ -65,11 +91,7 @@ const Collaboration: React.FC = () => {
         }
       }
     );
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []); // Ensure the effect runs when room or socketId changes
+  }, [socketRef.current]);
 
   const sendMessage = () => {
     if (message.trim() && socketRef && isMatched) {

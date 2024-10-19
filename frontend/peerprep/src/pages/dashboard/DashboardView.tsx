@@ -1,24 +1,22 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Avatar, Text, Box } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
-import { UserContext } from "../../context/UserContext";
+import { useUserContext } from "../../context/UserContext";
 import Dropdown from "./Dropdown";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3000");
 
 const DashboardView = () => {
   const difficulties: string[] = ["Easy", "Medium", "Hard"];
   const services: string[] = ["View Questions", "Let's Match"];
   const navigate = useNavigate();
 
-  const userContext = useContext(UserContext);
-  const user = userContext?.user;
+  // const userContext = useContext(UserContext);
+  const user = useUserContext().user;
 
   // State for selected topic and difficulty
   const [selectedTopic, setSelectedTopic] = useState<string>("Select a Topic");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Select Difficulty");
+  const [selectedDifficulty, setSelectedDifficulty] =
+    useState<string>("Select Difficulty");
 
   return (
     <div className="p-10 min-w-full h-screen">
@@ -28,7 +26,7 @@ const DashboardView = () => {
             <Avatar size="2xl" src="" />
           </div>
           <div className="col-span-2 text-[50px] content-center">
-            Welcome Back, {user?.username || "User"}
+            Welcome Back, {user.username}
           </div>
         </div>
         <div className="border-2 rounded-3xl m-10 p-6 grid grid-cols-3 content-center">
@@ -87,17 +85,23 @@ const DashboardView = () => {
               onClick={() => {
                 if (value === "Let's Match") {
                   // Prepare connection message before navigating
-                  if (user) {
-                    const connectionMessage = {
-                      username: user.username,
-                      userId: user.id,
-                      topic: selectedTopic,
-                      difficulty: selectedDifficulty,
-                    };
-                    console.log("Connection message sent to backend:", connectionMessage); // Log the message being sent
-                    socket.emit("joinQueue", connectionMessage); // Send the message to backend
-                  }
-                  navigate("/collaboration"); // Navigate to Collaboration View
+                  // if (user) {
+                  //   const connectionMessage = {
+                  //     username: user.username,
+                  //     userId: user.id,
+                  //     topic: selectedTopic,
+                  //     difficulty: selectedDifficulty,
+                  //   };
+                  //   console.log(
+                  //     "Connection message sent to backend:",
+                  //     connectionMessage
+                  //   ); // Log the message being sent
+                  //   console.log("Socket ID:", socket.id); // Log the socket ID
+                  //   socket.emit("joinQueue", connectionMessage); // Send the message to backend
+                  // }
+                  navigate(
+                    `/collaboration?topic=${selectedTopic}&difficulty=${selectedDifficulty}`
+                  ); // Navigate to Collaboration View
                 }
               }}
             >
@@ -106,8 +110,12 @@ const DashboardView = () => {
           ))}
           {/* Show the selected topic and difficulty below the "Let's Match" button */}
           <Box mt={4}>
-            <Text fontSize="l" fontWeight="bold">Selected Topic: {selectedTopic}</Text>
-            <Text fontSize="l" fontWeight="bold">Selected Difficulty: {selectedDifficulty}</Text>
+            <Text fontSize="l" fontWeight="bold">
+              Selected Topic: {selectedTopic}
+            </Text>
+            <Text fontSize="l" fontWeight="bold">
+              Selected Difficulty: {selectedDifficulty}
+            </Text>
           </Box>
         </div>
       </div>
