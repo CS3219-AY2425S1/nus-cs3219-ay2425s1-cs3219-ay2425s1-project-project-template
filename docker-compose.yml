@@ -17,16 +17,14 @@ services:
     container_name: matching-container
     ports:
       - "3002:3002"
-    env_file:
-      - ./backend/matching/.env # Env file for matching service, to test in prod
     volumes:
       - ./backend/matching/src:/app/src
     networks:
       - peer-prep-network
 
-  matchingverification:
+  matchverification:
     build: ./backend/matchverification
-    container_name: matching-verification-container
+    container_name: match-verification-container
     ports:
       - "3006:3006"
     env_file:
