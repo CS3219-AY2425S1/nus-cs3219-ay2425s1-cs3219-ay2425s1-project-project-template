@@ -30,6 +30,10 @@ export const Register = () => {
         });
         if (response.status === 201) {
           alert('Successfully created user!');
+          localStorage.setItem("userId", response.data.data.id);
+          localStorage.setItem("accessToken", response.data.data.accessToken);
+          localStorage.setItem("username", response.data.data.username);
+          localStorage.setItem("email", response.data.data.email);
           navigate("/login");
         } else {
           alert('Unable to create user.');
