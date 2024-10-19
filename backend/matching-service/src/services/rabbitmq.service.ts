@@ -181,7 +181,7 @@ class RabbitMQConnection {
                     // Add logic to combine users
                     logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
                     this.channel.ack(directMatch)
-                    matchedUserId = directMatchContent.userId
+                    matchedUser = directMatch
                     await this.removeIfEmptyQueue(destinationQueue)
                     matchedUser = directMatch
                 }
