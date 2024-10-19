@@ -4,11 +4,17 @@ export interface ModalProps {
   onClose?: () => void;
   children: React.ReactNode;
   isCloseable?: boolean;
-  width?: "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";
+  width?: "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";
 }
 
-function getWidth(width: "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl") {
+function getWidth(
+  width: "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl"
+) {
   switch (width) {
+    case "md":
+      return "max-w-md";
+    case "lg":
+      return "max-w-lg";
     case "xl":
       return "max-w-xl";
     case "2xl":
@@ -25,7 +31,6 @@ function getWidth(width: "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl") {
 }
 
 export default function Modal(props: ModalProps) {
-  const title = props.title ?? "";
   const isCloseable = props.isCloseable ?? true;
   const onClose = props.onClose ?? (() => {});
   const width = getWidth(props.width || "2xl");

@@ -78,6 +78,15 @@ body {
     "opsz" 24;
 }
 
+.material-symbols-outlined:hover {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 700,
+    "GRAD" 20,
+    "opsz" 48;
+  color: grey;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

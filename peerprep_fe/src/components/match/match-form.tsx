@@ -120,12 +120,15 @@ export function MatchForm() {
 
   const MatchFoundModal = () => {
     return (
-      <Modal isOpen={isMatchFoundModalOpen} isCloseable={false}>
+      <Modal
+        title="Match Found!"
+        isOpen={isMatchFoundModalOpen}
+        isCloseable={false}
+        width="lg"
+      >
         <div className="flex flex-col">
-          <h1 className="text-2xl font-hairline font-albert p-5">
-            Match Found!
-          </h1>
-          <div className="w-2/5 flex space-x-5 self-end">
+          <h1 className="text-2xl font-hairline font-albert">Join room?</h1>
+          <div className="w-1/2 flex space-x-5 self-end">
             <Button
               type="reset"
               text="No Thanks"
@@ -149,12 +152,12 @@ export function MatchForm() {
 
   const TimeOutModal = () => {
     return (
-      <Modal isOpen={isTimeoutModalOpen} isCloseable={false} width="xl">
+      <Modal isOpen={isTimeoutModalOpen} isCloseable={false} width="lg">
         <div className="flex flex-col">
           <h1 className="text-2xl font-hairline font-albert p-5">
             No Match Found
           </h1>
-          <div className="w-2/5 flex space-x-5 self-end">
+          <div className="w-1/2 flex space-x-5 self-end">
             <Button
               type="reset"
               text="Close"
@@ -179,12 +182,7 @@ export function MatchForm() {
 
   const TimerModal = () => {
     return (
-      <Modal
-        title="Matching..."
-        isOpen={isTimerModalOpen}
-        isCloseable={false}
-        width="xl"
-      >
+      <Modal isOpen={isTimerModalOpen} isCloseable={false} width="md">
         <div>
           <Timer onClose={() => setIsTimerModalOpen(false)} />
           <Button

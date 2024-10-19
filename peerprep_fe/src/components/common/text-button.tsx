@@ -10,7 +10,11 @@ export default function TextButton({
   onClick?: () => void;
 }) {
   return (
-    <Link href={link} onClick={onClick} className="text-blue-500">
+    <Link
+      href={link}
+      onClick={onClick}
+      className="text-blue-500 hover:underline"
+    >
       {text}
     </Link>
   );
