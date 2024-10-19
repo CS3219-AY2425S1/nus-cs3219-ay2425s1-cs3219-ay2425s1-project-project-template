@@ -41,8 +41,10 @@ const Timer: React.FC<TimerProps> = ({ onClose }) => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="text-2xl font-bold text-black mb-2">Matching...</div>
-      <div className="relative mb-6">
+      <div className="text-2xl font-bold text-black dark:text-white mb-2">
+        Matching...
+      </div>
+      <div className="relative">
         <svg width="200" height="200" className="mb-4">
           {" "}
           {/* Increased size of SVG */}
@@ -66,10 +68,12 @@ const Timer: React.FC<TimerProps> = ({ onClose }) => {
             style={{ transition: "stroke-dashoffset 1s linear" }}
           />
         </svg>
-        <div className="timer">{formatTime(time)}</div>
+        <div className={`timer text-black dark:text-white`}>
+          {formatTime(time)}
+        </div>
       </div>
       {time < duration && (
-        <div className="loader mb-4">
+        <div className="loader">
           <i className="fas fa-spinner fa-spin text-white text-2xl"></i>{" "}
           {/* Loading icon */}
         </div>

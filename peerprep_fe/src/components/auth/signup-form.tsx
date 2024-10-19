@@ -3,21 +3,17 @@
 import { useFormState } from "react-dom";
 import Textfield from "@/components/common/text-field";
 import Button from "@/components/common/button";
-import TextButton from "@/components/common/text-button";
 import { signup } from "@/app/actions/auth";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 
 export function SignupForm() {
   const [state, action] = useFormState(signup, undefined);
-  const router = useRouter();
   const { updateToken } = useAuth();
 
   useEffect(() => {
     if (state?.message) {
       updateToken(state.message);
-      router.push("/home");
     } else if (state?.errors?.errorMessage) {
       alert(state.errors.errorMessage);
     }
@@ -61,13 +57,6 @@ export function SignupForm() {
         </div>
         <Button type="submit" text="Sign Up" />
       </form>
-
-      <div className="mt-5">
-        <p className="text-sm font-hairline">
-          Already have an account?{" "}
-          <TextButton text="Login" link="/auth/login" />
-        </p>
-      </div>
     </div>
   );
 }

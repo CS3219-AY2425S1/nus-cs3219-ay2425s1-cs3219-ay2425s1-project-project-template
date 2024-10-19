@@ -10,6 +10,10 @@ import { useRouter, usePathname } from "next/navigation";
 import { useCookies } from "next-client-cookies";
 import { validateToken } from "@/app/actions/auth";
 
+import Modal from "@/components/common/modal";
+import Button from "@/components/common/button";
+import { on } from "events";
+
 interface TAuthContext {
   token: string | null;
   username: string | null;
@@ -31,9 +35,33 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
   const [token, setToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const router = useRouter();
   const pathname = usePathname();
   const cookies = useCookies();
+
+  const RedirectModal = () => {
+    return (
+      <Modal
+        isOpen={isRedirectModalOpen}
+        title=""
+        isCloseable={false}
+        onClose={() => setIsRedirectModalOpen(false)}
+      >
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-semibold mb-4">{modalMessage}</h1>
+          <Button
+            text="Log In"
+            onClick={() => {
+              setIsRedirectModalOpen(false);
+              router.push("/");
+            }}
+          />
+        </div>
+      </Modal>
+    );
+  };
 
   const updateToken = (token: string) => {
     const expireDate = new Date();
@@ -49,6 +77,27 @@ export const AuthProvider = ({ children }: Props) => {
   const deleteToken = () => {
     cookies.remove("token");
     setToken(null);
+  };
+
+  const onAuthenticateTokenSuccess = () => {
+    setIsRedirectModalOpen(false);
+
+    if (pathname === "/") {
+      router.push("/home");
+    }
+  };
+
+  const onAuthenticateTokenFailure = () => {
+    if (pathname !== "/") {
+      if (token) {
+        setModalMessage("Session expired. Please log in again.");
+      } else {
+        setModalMessage("Unauthorized. Please log in.");
+      }
+      setIsRedirectModalOpen(true);
+      return;
+    }
+    deleteToken();
   };
 
   // Loads token from cookies on mount
@@ -71,24 +120,14 @@ export const AuthProvider = ({ children }: Props) => {
       }
       return success;
     };
-
     authenticateToken().then((success) => {
-      if (!success && !pathname.startsWith("/auth")) {
-        if (token) {
-          alert("Session expired. Please log in again.");
-        } else {
-          alert("Please log in to access this page.");
-        }
-        deleteToken();
-        router.push("/auth/login");
-        return;
-      }
-
-      if (success && (pathname.startsWith("/auth") || pathname === "/")) {
-        router.push("/home");
+      if (success) {
+        onAuthenticateTokenSuccess();
+      } else {
+        onAuthenticateTokenFailure();
       }
     });
-  }, [pathname]);
+  }, [token, pathname]);
 
   // Updates username when token changes
   useEffect(() => {
@@ -117,7 +156,8 @@ export const AuthProvider = ({ children }: Props) => {
         deleteToken,
       }}
     >
-      {children}
+      {!isRedirectModalOpen && children}
+      <RedirectModal />
     </AuthContext.Provider>
   );
 };
