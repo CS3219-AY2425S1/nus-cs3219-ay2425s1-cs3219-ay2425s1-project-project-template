@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
                 textValue="profile"
               >
                 <p className="font-semibold">Signed in as</p>
-                <p className="font-semibold">{user?.email || ""}</p>
+                <p className="font-semibold">{user?.username || ""}</p>
               </DropdownItem>
               <DropdownItem
                 key="myprofile"
