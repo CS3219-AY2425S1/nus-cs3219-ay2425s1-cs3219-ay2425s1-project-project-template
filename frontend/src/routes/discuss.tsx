@@ -10,7 +10,18 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Timer } from 'lucide-react';
+import {
+  MATCH_TIMEOUT_DURATION,
+  MATCH_FOUND_MESSAGE_TYPE,
+  MATCH_TIMEOUT_MESSAGE_TYPE,
+  MATCH_FOUND_STATUS,
+  MATCH_TIMEOUT_STATUS,
+  MATCH_ERROR_STATUS,
+  MATCH_WAITING_STATUS,
+  MATCH_IDLE_STATUS,
+} from '@/lib/consts';
 
+// TODO: Request topics from Question Service
 const topics = ['Arrays', 'Strings', 'Linked Lists', 'Trees', 'Graphs'];
 const difficultyLevels = ['Easy', 'Medium', 'Hard'];
 
@@ -234,7 +245,8 @@ export default function DiscussRoute() {
 
   useEffect(() => {
     // Establish WebSocket connection
-    ws.current = new WebSocket('ws://localhost:8080/ws/matching');
+    // TODO: Include userId as a query parameter
+    ws.current = new WebSocket('ws://localhost:8082/ws/matching');
 
     ws.current.onopen = () => {
       console.log('WebSocket Connected');
@@ -244,17 +256,17 @@ export default function DiscussRoute() {
       const message = JSON.parse(event.data);
       console.log('Received message:', message);
 
-      if (message.type === 'MATCH_FOUND') {
-        setMatchStatus('matched');
+      if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
+        setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
-      } else if (message.type === 'TIMEOUT') {
-        setMatchStatus('timeout');
+      } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
+        setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
     };
 
     ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
-      setMatchStatus('error');
+      setMatchStatus(MATCH_ERROR_STATUS);
     };
 
     return () => {
@@ -268,10 +280,10 @@ export default function DiscussRoute() {
     selectedTopic: string,
     selectedDifficulty: string
   ) => {
-    setMatchStatus('waiting');
+    setMatchStatus(MATCH_WAITING_STATUS);
 
     try {
-      const response = await fetch('http://localhost:8080/api/match', {
+      const response = await fetch('http://localhost:8082/api/match', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -293,22 +305,22 @@ export default function DiscussRoute() {
 
       // Start a 30-second timeout
       const timeoutId = setTimeout(() => {
-        if (matchStatus === 'waiting') {
-          setMatchStatus('timeout');
+        if (matchStatus === MATCH_WAITING_STATUS) {
+          setMatchStatus(MATCH_TIMEOUT_STATUS);
         }
-      }, 30000);
+      }, MATCH_TIMEOUT_DURATION);
 
       // Clear the timeout if the component unmounts or if we get a match
       return () => clearTimeout(timeoutId);
     } catch (error) {
       console.error('Error starting match:', error);
-      setMatchStatus('error');
+      setMatchStatus(MATCH_ERROR_STATUS);
     }
   };
 
   // TODO: Implement retry logic for different match status
   const resetState = () => {
-    setMatchStatus('idle');
+    setMatchStatus(MATCH_IDLE_STATUS);
     setQueuePosition(0);
     setRoomId('');
 
@@ -318,7 +330,7 @@ export default function DiscussRoute() {
     }
 
     // Open a new WebSocket connection
-    ws.current = new WebSocket('ws://localhost:8080/ws/matching');
+    ws.current = new WebSocket('ws://localhost:8082/ws/matching');
 
     // Re-attach event listeners
     ws.current.onopen = () => {
@@ -329,31 +341,31 @@ export default function DiscussRoute() {
       const message = JSON.parse(event.data);
       console.log('Received message:', message);
 
-      if (message.type === 'MATCH_FOUND') {
-        setMatchStatus('matched');
+      if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
+        setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
-      } else if (message.type === 'TIMEOUT') {
-        setMatchStatus('timeout');
+      } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
+        setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
     };
 
     ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
-      setMatchStatus('error');
+      setMatchStatus(MATCH_ERROR_STATUS);
     };
   };
 
   return (
     <div className="container mx-auto p-4">
-      {matchStatus === 'idle' && <IdleView onStartMatching={startMatching} />}
-      {matchStatus === 'waiting' && (
+      {matchStatus === MATCH_IDLE_STATUS && <IdleView onStartMatching={startMatching} />}
+      {matchStatus === MATCH_WAITING_STATUS && (
         <WaitingView queuePosition={queuePosition} />
       )}
-      {matchStatus === 'matched' && (
+      {matchStatus === MATCH_FOUND_STATUS && (
         <MatchedView roomId={roomId} onNewMatch={resetState} />
       )}
-      {matchStatus === 'timeout' && <TimeoutView onRetry={resetState} />}
-      {matchStatus === 'error' && <ErrorView onRetry={resetState} />}
+      {matchStatus === MATCH_TIMEOUT_STATUS && <TimeoutView onRetry={resetState} />}
+      {matchStatus === MATCH_ERROR_STATUS && <ErrorView onRetry={resetState} />}
     </div>
   );
 }
