@@ -14,25 +14,26 @@ import { useUniqueCategoriesFetcher } from "@/services/questionService";
 import { capitalize } from "@/utils/utils";
 
 interface StartSessionProps {
-  handleDeregisterForMatching: () => void;
-  handleRegisterForMatching: (
-    difficulty: Set<string>,
-    topic: Set<string>,
-  ) => void;
   isConnected: boolean;
   onClose: () => void;
   isOpen: boolean;
+  isMatching: boolean;
+  matchmakingTime: number;
+  handleStop: () => void;
+  handleContinue: (difficulty: Set<string>, topic: Set<string>) => void;
 }
 
 // Maybe pass these in as props? Need to be dynamically retrieved from question-service
 const difficulties = ["Easy", "Medium", "Hard"];
 
 const MatchmakingModal: React.FC<StartSessionProps> = ({
-  handleDeregisterForMatching,
-  handleRegisterForMatching,
   isConnected,
   onClose,
   isOpen,
+  isMatching,
+  matchmakingTime,
+  handleStop,
+  handleContinue,
 }) => {
   const { categoryData, categoryError, categoryLoading } =
     useUniqueCategoriesFetcher();
@@ -45,21 +46,9 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
 
   //TODO: Load difficulty and topic from the question-service
   const [selectedDifficultyKeys, setSelectedDifficultyKeys] = useState(
-    new Set<string>(),
+    new Set<string>()
   );
   const [selectedTopicKeys, setSelectedTopicKeys] = useState(new Set<string>());
-  const [isMatching, setIsMatching] = useState(false);
-  const [matchmakingTime, setMatchmakingTime] = useState<number>(0);
-  const [intervalID, setIntervalID] = useState<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (!isConnected) {
-      setIsMatching(false);
-      if (intervalID) {
-        clearInterval(intervalID);
-      }
-    }
-  }, [isConnected, intervalID]);
 
   const handleDifficultyChange = (keys: any) => {
     if (new Set(keys).size >= 1) {
@@ -73,28 +62,6 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
       // Stops empty selection
       setSelectedTopicKeys(new Set(keys));
     }
-  };
-
-  const handleContinue = async () => {
-    // Set timer for matchmaking
-    let time = 0;
-    const interval = setInterval(() => {
-      setMatchmakingTime(time);
-      time += 1;
-    }, 1000);
-
-    setIntervalID(interval);
-    // Call the register function
-    await handleRegisterForMatching(selectedDifficultyKeys, selectedTopicKeys);
-    setIsMatching(true);
-  };
-
-  const handleStop = () => {
-    handleDeregisterForMatching();
-    if (intervalID) {
-      clearInterval(intervalID);
-    }
-    setIsMatching(false);
   };
 
   return (
@@ -130,6 +97,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
             isDisabled={isMatching}
             showScrollIndicators={true}
             popoverProps={{ placement: "bottom", shouldFlip: false }}
+            selectionMode="multiple"
           >
             {difficulties.map((diff) => (
               <SelectItem key={diff}>{diff}</SelectItem>
@@ -151,6 +119,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
             popoverProps={{ placement: "bottom", shouldFlip: false }}
             isInvalid={categoryError}
             errorMessage={categoryError ? "Error loading categories" : ""}
+            selectionMode="multiple"
           >
             {uniqueCategories && uniqueCategories.length > 0
               ? uniqueCategories.map((category: any) => (
@@ -183,7 +152,9 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
               className="flex-1 mx-1"
               radius="sm"
               size="lg"
-              onClick={() => handleContinue()}
+              onClick={() =>
+                handleContinue(selectedDifficultyKeys, selectedTopicKeys)
+              }
               isDisabled={
                 isMatching ||
                 !isConnected ||
