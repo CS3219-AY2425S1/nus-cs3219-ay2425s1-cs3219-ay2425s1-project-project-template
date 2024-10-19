@@ -171,6 +171,13 @@ app.get("/match", async (req: Request, res: Response, next) => {
           nextUser = users.splice(randomlySelectedIndex, 1)[0]
         }
 
+        if (nextUser.user_id == firstUser.user_id) {
+          res.json({
+            matchedUsers: [], // don't allow 2 same user to match
+            timeout: false
+          })
+          return;
+        }
         matchedUsers.push(nextUser)
         res.json({
           matchedUsers,
@@ -288,6 +295,15 @@ app.get("/match", async (req: Request, res: Response, next) => {
         const randomlySelectedIndex = getRandomIntegerInclusive(0, users.length - 1)
         nextUser = users.splice(randomlySelectedIndex, 1)[0]
       }
+
+      if (nextUser.user_id == firstUser.user_id) {
+        res.json({
+          matchedUsers: [], // don't allow 2 same user to match
+          timeout: false
+        })
+        return;
+      }
+
       matchedUsers.push(nextUser)
       res.json({
         matchedUsers,
