@@ -1,6 +1,7 @@
 import { Button, Group, Loader, Modal, Stack, Text } from '@mantine/core';
 import { Notifications, notifications } from '@mantine/notifications';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 interface MatchingModalProps {
@@ -20,6 +21,8 @@ function MatchingModal({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [matchFound, setMatchFound] = useState<any | null>(null);
   const hasTimedOut = useRef(false);
+
+  const navigate = useNavigate();
 
   const handleTimeout = useCallback(() => {
     if (!hasTimedOut.current) {
@@ -59,6 +62,8 @@ function MatchingModal({
           message: 'We found a perfect match for you!',
           color: 'green',
         });
+
+        navigate('../../select/');
       });
 
       setSocket(newSocket);

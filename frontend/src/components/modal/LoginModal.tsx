@@ -64,7 +64,7 @@ function LoginModal({
             key={form.key('password')}
             placeholder="Password"
           />
-          <Link to="../../pages/">
+          <Link to="../../select/">
             <Button type="submit">Log in</Button>
           </Link>
           <Text ta="center">
