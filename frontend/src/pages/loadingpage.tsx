@@ -31,10 +31,10 @@ const LoadingPage: React.FC = () => {
         decodedToken = jwtDecode<CustomJwtPayload>(jwtToken);
     }
 
-    const eventSource = new EventSource(`http://localhost:3009/rabbitmq/${decodedToken.email}`);
+    const eventSource = new EventSource(`http://localhost:3009/rabbitmq/${decodedToken?.email}`);
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.matchFound) {
+      if (data.userEmail === decodedToken?.email && data.matchFound) {
         setMatchFound(true);
         clearInterval(timer);
       }
