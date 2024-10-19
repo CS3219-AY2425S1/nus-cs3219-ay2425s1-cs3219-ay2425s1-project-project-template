@@ -7,6 +7,7 @@ const PORT = 4000;
 
 const redisClient = redis.createClient({
   socket: {
+    host: 'matching-service-redis',
     port: 6379,
     reconnectStrategy: function (retries) {
       if (retries > 20) {
