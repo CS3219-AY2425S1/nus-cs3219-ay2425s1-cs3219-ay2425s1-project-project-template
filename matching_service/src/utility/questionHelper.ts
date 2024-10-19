@@ -1,4 +1,7 @@
 import { DifficultyLevel } from "../models/Room";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface QuestionParams {
   topic: string | string[];
@@ -8,7 +11,7 @@ interface QuestionParams {
 export async function generateQuestion(params?: QuestionParams) {
   try {
     let url = new URL(
-      "http://gateway-service:5003/api/questions/questions/random"
+      `http://${process.env.QUESTION_SERVICE_ROUTE}:${process.env.QUESTION_SERVICE_PORT}/api/questions/random`
     );
 
     if (params) {

@@ -25,12 +25,12 @@ export class Matcher {
     this.notifer = notifier;
   }
 
-  public match() {
+  public async match() {
     const map = this.queue.getRequests();
     console.log("Matching users...");
     const { expired } = this.removeExpiredRequests(map);
     this.notifyExpired(expired);
-    const rooms = this.matchUsers(map);
+    const rooms = await this.matchUsers(map);
     console.log(rooms);
     this.notifyMatches(rooms);
 
@@ -67,7 +67,9 @@ export class Matcher {
     return { expired };
   }
 
-  private matchUsers(requestMap: Map<string, IMatchRequest[]>): IMatch[] {
+  private async matchUsers(
+    requestMap: Map<string, IMatchRequest[]>
+  ): Promise<IMatch[]> {
     console.log("Matching users by topic and difficulty...");
     let rooms: IMatch[] = [];
     for (let key of Array.from(requestMap.keys())) {
@@ -86,14 +88,8 @@ export class Matcher {
         // Create Room and place users inside
         const user1 = users[0];
         const user2 = users[1];
-        rooms.push({
-          roomId: user1.username + "-" + user2.username,
-          usernames: [user1.username, user2.username],
-          topic: user1.topic,
-          difficulty: user1.difficulty,
-        });
-        // const room = await this.createRoom(user1, user2);
-        // rooms.push(room);
+        const room = await this.createRoom(user1, user2);
+        rooms.push(room);
 
         // Remove users from queue
         this.queue.cancel({ username: user1.username });

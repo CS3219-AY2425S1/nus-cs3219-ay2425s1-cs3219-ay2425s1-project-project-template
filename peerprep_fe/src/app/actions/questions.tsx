@@ -2,7 +2,7 @@
 
 import { QuestionForm } from "@/components/questions/question-form";
 import dotenv from "dotenv";
-import { QuestionDto } from "../types/QuestionDto";
+import { QuestionDto } from "peerprep-shared-types";
 import { parseFormData } from "../utility/questionsHelper";
 
 dotenv.config();

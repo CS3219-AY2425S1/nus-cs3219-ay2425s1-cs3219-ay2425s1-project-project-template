@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
-import { createRoom, DifficultyLevel } from "./room";
+import { createRoom } from "./room";
+import { DifficultyLevel } from "peerprep-shared-types";
 
 interface ServerToClientEvents {
   roomMessage: (message: string) => void;
