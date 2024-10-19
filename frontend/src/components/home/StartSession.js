@@ -111,9 +111,9 @@ const StartSession = ({ username }) => {
   
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.matchFound && data.matchedUser) {
+      if (data.matchFound && data.user1 && data.user2) {
         setMatchFound(true);
-        setMatchedUser(data.matchedUser);
+        setMatchedUser({ user1: data.user1, user2: data.user2 });
         setShowPopup(true); // Ensure popup remains open when match is found
         setNoMatchFound(false);
       }

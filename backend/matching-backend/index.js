@@ -34,7 +34,8 @@ function notifyMatch(user1, user2) {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({
                 matchFound: true,
-                matchedUser: user2.username
+                user1: user1.username,
+                user2: user2.username
             }));
         }
     });
