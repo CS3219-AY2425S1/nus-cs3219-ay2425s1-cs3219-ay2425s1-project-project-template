@@ -9,7 +9,7 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
-import axios from 'axios';
+import axios from "axios";
 
 const NOTIFICATION_SERVICE = "http://localhost:5000";
 const MATCHING_SERVICE = "http://localhost:5001";
@@ -83,27 +83,26 @@ export const Match = () => {
     setTimer(0);
 
     try {
-      const response = await axios.post(`${MATCHING_SERVICE}/enqueue`, {
-        topic: selectedTopic,
-        difficulty: selectedDifficulty,
-        username: localStorage.getItem("username"),
-        email: localStorage.getItem("email")
-      }, {
-        headers: { "Content-Type": "application/json" }
-      });
-
-      console.log(response);
-      // if (response.status === 200) {
-      //   alert("Finding match! Please wait for up to 2 minutes");
-      // } else {
-      //   alert("Error occured!");
-      // }
-
-      // Establish WebSocket connection to notification service
-      const socket = io(NOTIFICATION_SERVICE, {
+      const socket = await io(NOTIFICATION_SERVICE, {
         query: { role: "user", user_id: userId },
         transports: ["websocket"],
       });
+
+      const response = await axios.post(
+        `${MATCHING_SERVICE}/enqueue`,
+        {
+          topic: selectedTopic,
+          difficulty: selectedDifficulty,
+          username: localStorage.getItem("username"),
+          email: localStorage.getItem("email"),
+          userId: userId,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log(response);
 
       setSocket(socket);
       socket.on("connect", () => {
@@ -111,7 +110,9 @@ export const Match = () => {
       });
 
       socket.on("notification", (data) => {
-        alert(`You have been matched with ${data.data}!`);
+        alert(
+          `You have been matched with ${data.match}!\n${data.match_message}`
+        );
         stopMatching();
       });
 
@@ -135,7 +136,13 @@ export const Match = () => {
     <div className="match">
       {/* Menu Bar */}
       <nav className="menu-bar">
-        <img src={logo} alt="PeerPrep" className="logo" onClick={handleLogoClick} style={{cursor: "pointer"}} />
+        <img
+          src={logo}
+          alt="PeerPrep"
+          className="logo"
+          onClick={handleLogoClick}
+          style={{ cursor: "pointer" }}
+        />
         <FontAwesomeIcon
           icon={faUserCircle}
           className="profile-icon"
