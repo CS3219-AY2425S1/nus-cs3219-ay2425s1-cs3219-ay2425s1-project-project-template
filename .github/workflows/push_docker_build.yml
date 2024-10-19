@@ -1,4 +1,4 @@
-name: CI - Build and Push Docker Images
+name: CI - Build and Push Docker Images to GCR
 
 on:
   push:
@@ -9,7 +9,10 @@ on:
 jobs:
   build:
     name: Build and Push Docker Images
+
     runs-on: ubuntu-latest
+
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code

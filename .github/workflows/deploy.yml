@@ -1,0 +1,39 @@
+name: CD - Deploy to GKE
+
+on:
+  workflow_run:
+    workflows: ["CI - Build and Push Docker Images to GCR"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy to GKE
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+  
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+  
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Get GKE Credentials
+        run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GKE_CLUSTER_ZONE }}
+
+      - name: Set kubectl context
+        run: kubectl config set-context $(kubectl config current-context) --namespace=default
+
+      - name: Deploy to GKE
+        run: kubectl apply -f k8s/
