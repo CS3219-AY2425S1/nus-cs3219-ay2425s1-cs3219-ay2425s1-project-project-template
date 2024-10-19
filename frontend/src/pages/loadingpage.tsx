@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Loader, Button, Header, Container } from 'semantic-ui-react';
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
-import 'semantic-ui-css/semantic.min.css';
+import React, { useEffect, useState } from "react";
+import { Loader, Button, Header, Container } from "semantic-ui-react";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import "semantic-ui-css/semantic.min.css";
 
 interface CustomJwtPayload extends JwtPayload {
-  email?: string; 
-  name?: string;  
-};
+  email?: string;
+  name?: string;
+}
 
 const LoadingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -28,20 +28,22 @@ const LoadingPage: React.FC = () => {
     const jwtToken = localStorage.getItem("access_token");
     let decodedToken: CustomJwtPayload | null = null;
     if (jwtToken) {
-        decodedToken = jwtDecode<CustomJwtPayload>(jwtToken);
-    };
+      decodedToken = jwtDecode<CustomJwtPayload>(jwtToken);
+    }
 
-    const eventSource = new EventSource(`http://localhost:3009/rabbitmq/${decodedToken?.email}`);
-    console.log("connected")
+    const eventSource = new EventSource(
+      `http://localhost:3009/rabbitmq/${decodedToken?.email}`
+    );
+    console.log("connected");
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.userEmail === decodedToken?.email) {
         setMatchFound(true);
         clearInterval(timer);
       } else {
-        console.log("Error")
-        console.log(data.userEmail)
-        console.log(decodedToken?.email)
+        console.log("Error");
+        console.log(data.userEmail);
+        console.log(decodedToken?.email);
       }
     };
 
@@ -59,34 +61,62 @@ const LoadingPage: React.FC = () => {
   const conditionalRender = () => {
     if (countdown > 0 && !matchFound) {
       return (
-        <Loader active inverted indeterminate size="massive" content={`Matching in ${countdown} seconds`} />
+        <Loader
+          active
+          inverted
+          indeterminate
+          size="massive"
+          content={`Matching in ${countdown} seconds`}
+        />
       );
     } else if (countdown === 0 && !matchFound) {
       return (
         <Container textAlign="center">
-          <Header as="h1" size="huge" style={{color: 'white'}}>Unable to find a match</Header>
-          <Header as="h2" size="large" style={{color: 'white'}}>Retry matchmaking?</Header>
-          <div style={{display: 'flex', justifyContent: 'center', gap: '20px'}}>
-              <Button primary size="large" onClick={resetTimer}>
-                Retry
-              </Button>
-              <Button color="red" size="large" onClick={() => navigate("/matching-page")}>
-                Exit
-              </Button>
+          <Header as="h1" size="huge" style={{ color: "white" }}>
+            Unable to find a match
+          </Header>
+          <Header as="h2" size="large" style={{ color: "white" }}>
+            Retry matchmaking?
+          </Header>
+          <div
+            style={{ display: "flex", justifyContent: "center", gap: "20px" }}
+          >
+            <Button primary size="large" onClick={resetTimer}>
+              Retry
+            </Button>
+            <Button
+              color="red"
+              size="large"
+              onClick={() => navigate("/matching-page")}
+            >
+              Exit
+            </Button>
           </div>
         </Container>
       );
     } else {
       return (
         <Container textAlign="center">
-          <Header as="h1" size="huge" style={{color: 'white'}}>Match Found</Header>
-          <div style={{display: 'flex', justifyContent: 'center', gap: '20px'}}>
-              <Button positive size="large" onClick={() => navigate("/matching-page")}>
-                Accept
-              </Button>
-              <Button negative size="large" onClick={() => navigate("/matching-page")}>
-                Decline
-              </Button>
+          <Header as="h1" size="huge" style={{ color: "white" }}>
+            Match Found
+          </Header>
+          <div
+            style={{ display: "flex", justifyContent: "center", gap: "20px" }}
+          >
+            <Button
+              negative
+              size="large"
+              onClick={() => navigate("/matching-page")}
+            >
+              Decline
+            </Button>
+            <Button
+              positive
+              size="large"
+              onClick={() => navigate("/matching-page")}
+            >
+              Accept
+            </Button>
           </div>
         </Container>
       );
