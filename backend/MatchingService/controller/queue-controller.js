@@ -16,10 +16,12 @@ export async function addUserToQueue(userData, socket) {
         username: userData.username,
         topic: userData.topic,
         difficulty: userData.difficulty,
-        questionId: userData.questionId,
+        // questionId: userData.questionId,
         socketId: socket.id,
         matched: false,
         matchedUser: "",
+        matchedUserId: "",
+        userNumber: 0,
       },
       {
         attempts: 6,
@@ -40,7 +42,6 @@ export async function addUserToQueue(userData, socket) {
 export async function addUserToQueueReq(req, res) {
   try {
     const userData = req.body;
-    console.log("userData", userData);
     await matchingQueue.add(
       {
         username: userData.username,

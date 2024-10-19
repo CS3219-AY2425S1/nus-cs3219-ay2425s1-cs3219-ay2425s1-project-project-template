@@ -49,7 +49,8 @@ const Collaboration: React.FC = () => {
     });
 
     // Listen for the matched event from the backend
-    socket.on("matched", (data: { room: string }) => {
+    socket.on("matched", (data: { message: string; room: string }) => {
+      console.log("Success:", data.message);
       console.log(`Matched and assigned to room: ${data.room}`);
       setRoom(data.room); // Set the room name received from the backend
       setIsMatched(true); // Set matched state to true

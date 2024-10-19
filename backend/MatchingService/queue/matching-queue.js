@@ -1,6 +1,6 @@
 import Queue from "bull";
 import {
-  notifyUsersOfMatch,
+  handleUserMatch,
   notifyUserOfMatchFailed,
 } from "../controller/websocket-controller.js";
 
@@ -39,16 +39,12 @@ matchingQueue.process(1, async (job) => {
       // if found match
       if (job.data.topic == delayedJob.data.topic) {
         if (job.data.difficulty == delayedJob.data.difficulty) {
-          console.log(
-            `Matched users: ${job.data.username} and ${delayedJob.data.username}`
-          );
           await delayedJob.promote();
-          console.log("Match promoted");
 
           // Notify websocket of the match
-          const room = `room-${job.data.socketId}-${delayedJob.data.socketId}`;
-          notifyUsersOfMatch(job.data.socketId, delayedJob.data.socketId, room);
-          break;
+          // const room = `room-${job.data.socketId}-${delayedJob.data.socketId}`;
+          // notifyUsersOfMatch(job.data.socketId, delayedJob.data.socketId, room);
+          // break;
         }
       }
     }
@@ -70,10 +66,12 @@ matchingQueue.process(1, async (job) => {
               username: waitingJob.data.username,
               topic: waitingJob.data.topic,
               difficulty: waitingJob.data.difficulty,
-              questionId: waitingJob.data.questionId,
+              socketId: waitingJob.data.socketId,
+              // questionId: waitingJob.data.questionId,
               matched: true,
               matchedUser: job.data.username,
               matchedUserId: job.data.socketId,
+              userNumber: 2,
             },
             { lifo: true }
           );
@@ -84,10 +82,12 @@ matchingQueue.process(1, async (job) => {
             username: job.data.username,
             topic: job.data.topic,
             difficulty: job.data.difficulty,
-            questionId: job.data.questionId,
+            // questionId: job.data.questionId,
+            socketId: job.data.socketId,
             matched: true,
             matchedUser: waitingJob.data.username,
             matchedUserId: waitingJob.data.socketId,
+            userNumber: 1,
           });
           return "Job matched";
         }
@@ -121,7 +121,10 @@ matchingQueue.on("failed", (job, err) => {
   }
 });
 
-matchingQueue.on("completed", (job) => {});
+matchingQueue.on("completed", (job) => {
+  console.log("User matched", job.data.username);
+  handleUserMatch(job);
+});
 
 // matchingQueue.on("waiting", async (job) => {
 //   const isPaused = await matchingQueue.isPaused();
