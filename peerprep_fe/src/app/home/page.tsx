@@ -1,16 +1,21 @@
 "use client";
 
-import Header from "@/components/common/header";
-import { getQuestions } from "@/app/actions/questions";
 import { useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
+import { QuestionDto } from "peerprep-shared-types";
+
 import "../../styles/modal.css";
+
+import { getQuestions } from "@/app/actions/questions";
+
+import { useAuth } from "@/contexts/auth-context";
+
+import Header from "@/components/common/header";
 import { QuestionForm } from "@/components/questions/question-form";
 import Button from "@/components/common/button";
 import TableRow from "@/components/questions/table-row";
-import { useAuth } from "@/contexts/auth-context";
 import { FormType } from "@/components/questions/question-form";
-import { QuestionDto } from "peerprep-shared-types";
+import Modal from "@/components/common/modal";
 
 export default function Home() {
   const router = useRouter();
@@ -32,6 +37,49 @@ export default function Home() {
 
   const handleDelete = (id: string) => {
     setQuestions(questions.filter((question) => question._id != id));
+  };
+
+  const AddQuestionModal = () => {
+    if (!isAddModalOpen) return null;
+    return (
+      <Modal
+        isOpen={isAddModalOpen}
+        title="Add Question"
+        width="4xl"
+        onClose={() => setIsAddModalOpen(false)}
+      >
+        <QuestionForm
+          type={FormType.ADD}
+          afterSubmit={() => {
+            setIsAddModalOpen(false);
+          }}
+          setQuestions={setQuestions}
+          questions={questions}
+        />
+      </Modal>
+    );
+  };
+
+  const EditQuestionModel = () => {
+    if (!currentEditQuestion) return null;
+    return (
+      <Modal
+        isOpen={currentEditQuestion ? true : false}
+        title="Edit Question"
+        width="4xl"
+        onClose={() => setCurrentEditQuestion(null)}
+      >
+        <QuestionForm
+          type={FormType.EDIT}
+          afterSubmit={() => {
+            setCurrentEditQuestion(null);
+          }}
+          initialQuestion={currentEditQuestion}
+          setQuestions={setQuestions}
+          questions={questions}
+        />
+      </Modal>
+    );
   };
 
   return (
@@ -85,61 +133,8 @@ export default function Home() {
           </tbody>
         </table>
       </div>
-      {isAddModalOpen && (
-        <div className="modal">
-          <div
-            onClick={() => {
-              setIsAddModalOpen(false);
-            }}
-            className="overlay"
-          ></div>
-          <div className="modal-content">
-            <QuestionForm
-              type={FormType.ADD}
-              afterSubmit={() => {
-                setIsAddModalOpen(false);
-              }}
-              setQuestions={setQuestions}
-              questions={questions}
-            />
-            <Button
-              type="reset"
-              onClick={() => {
-                setIsAddModalOpen(false);
-              }}
-              text="CLOSE"
-            />
-          </div>
-        </div>
-      )}
-      {currentEditQuestion && (
-        <div className="modal">
-          <div
-            onClick={() => {
-              setCurrentEditQuestion(null);
-            }}
-            className="overlay"
-          ></div>
-          <div className="modal-content">
-            <QuestionForm
-              type={FormType.EDIT}
-              afterSubmit={() => {
-                setCurrentEditQuestion(null);
-              }}
-              initialQuestion={currentEditQuestion}
-              setQuestions={setQuestions}
-              questions={questions}
-            />
-            <Button
-              type="reset"
-              onClick={() => {
-                setCurrentEditQuestion(null);
-              }}
-              text="CLOSE"
-            />
-          </div>
-        </div>
-      )}
+      <AddQuestionModal />
+      <EditQuestionModel />
     </div>
   );
 }
