@@ -15,10 +15,11 @@ app.use(cors());
 interface MatchRequestData {
   userID: string,
   topic: string,
-  difficulty: string
+  difficulty: string,
 }
 
-let matchRequests: MatchRequestData[] = [];
+// Use a Map to store a queue per topic
+const matchRequestsByTopic: Map<string, MatchRequestData[]> = new Map();
 
 // Start the Kafka Consumer, listen to match events.
 (async () => {
@@ -27,9 +28,16 @@ let matchRequests: MatchRequestData[] = [];
 
   await kafkaConsumer.run({
     eachMessage: async ({ message }) => {
-      const matchRequestData = message.value ? JSON.parse(message.value.toString()) : {};
+      const matchRequestData: MatchRequestData = message.value ? JSON.parse(message.value.toString()) : {};
       console.log(`Received match request: ${JSON.stringify(matchRequestData)}`);
-      matchRequests.push(matchRequestData); // Store the match requests
+
+      const { topic } = matchRequestData;
+
+      // Add the match request to the appropriate queue for the topic
+      if (!matchRequestsByTopic.has(topic)) {
+        matchRequestsByTopic.set(topic, []); // Create a queue for the topic if not exists
+      }
+      matchRequestsByTopic.get(topic)?.push(matchRequestData); // Push the request to the topic queue
     },
   });
 })();
@@ -41,38 +49,44 @@ let matchRequests: MatchRequestData[] = [];
 
   await dequeueConsumer.run({
     eachMessage: async ({ message }) => {
-      const { userID } = message.value ? JSON.parse(message.value.toString()) : {};
-      console.log(`Received dequeue event for userID: ${userID}`);
-      
-      // Remove the user's match request from the queue
-      matchRequests = matchRequests.filter(request => request.userID !== userID);
-      
-      console.log(`User ${userID} removed from match queue.`);
+      const { userID, topic } = message.value ? JSON.parse(message.value.toString()) : {};
+      console.log(`Received dequeue event for userID: ${userID} and topic: ${topic}`);
+
+      // Remove the user's match request from the topic-specific queue
+      if (matchRequestsByTopic.has(topic)) {
+        matchRequestsByTopic.set(
+          topic,
+          matchRequestsByTopic.get(topic)?.filter(request => request.userID !== userID) || []
+        );
+        console.log(`User ${userID} removed from match queue for topic: ${topic}.`);
+      }
     },
   });
 })();
 
-// Continuous function to periodically run the matching algorithm
+// Continuous function to periodically run the matching algorithm per topic
 const runMatchingAlgorithm = async () => {
   setInterval(async () => {
-    if (matchRequests.length > 1) {
-      const matchReqDataA = matchRequests.shift();
-      const matchReqDataB = matchRequests.shift();
+    for (const [topic, queue] of matchRequestsByTopic.entries()) {
+      if (queue.length > 1) {
+        const matchReqDataA = queue.shift();
+        const matchReqDataB = queue.shift();
 
-      // Ensure both requests are valid
-      if (matchReqDataA && matchReqDataB) {
-        const matchResult = {
-          userA: matchReqDataA.userID,
-          userB: matchReqDataB.userID,
-          topic: matchReqDataA.topic,
-        };
-        console.log(`Match found: ${JSON.stringify(matchResult)}`);
+        // Ensure both requests are valid
+        if (matchReqDataA && matchReqDataB) {
+          const matchResult = {
+            userA: matchReqDataA.userID,
+            userB: matchReqDataB.userID,
+            topic: matchReqDataA.topic,
+          };
+          console.log(`Match found in topic '${topic}': ${JSON.stringify(matchResult)}`);
 
-        // Produce a `match-found-event`
-        await kafkaProducer.send({
-          topic: 'match-found-events',
-          messages: [{ value: JSON.stringify(matchResult) }],
-        });
+          // Produce a `match-found-event`
+          await kafkaProducer.send({
+            topic: 'match-found-events',
+            messages: [{ value: JSON.stringify(matchResult) }],
+          });
+        }
       }
     }
   }, 2000);
