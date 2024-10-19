@@ -21,11 +21,13 @@ public class NotificationService {
     }
 
     public void notifyMatched(String userId, String matchedUserId) {
-        sendMessage(userId, "You've been matched with user " + matchedUserId);
+        String message = String.format("{\"type\": \"MATCH_FOUND\", \"roomId\": \"%s\", \"userId\": \"%s\"}", "someRoomId", matchedUserId);
+        sendMessage(userId, message);
     }
 
     public void notifyTimeout(String userId) {
-        sendMessage(userId, "Sorry, we couldn't find a match within 30 seconds.");
+        String message = "{\"type\": \"MATCH_TIMEOUT\"}";
+        sendMessage(userId, message);
     }
 
     private void sendMessage(String userId, String message) {
