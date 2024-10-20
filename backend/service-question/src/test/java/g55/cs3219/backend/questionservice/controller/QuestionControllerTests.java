@@ -85,7 +85,7 @@ class QuestionControllerTests {
     }
 
     @Test
-    void getAllQuestions_ReturnsQuestions() {
+    void getAllQuestions_QuestionsExists_ReturnsQuestions() {
         List<QuestionDto> questions = Arrays.asList(questionDto1, questionDto2);
 
         when(questionService.getAllQuestions()).thenReturn(questions);
@@ -102,7 +102,7 @@ class QuestionControllerTests {
     }
 
     @Test
-    void getAllQuestions_NoQuestions_ReturnsEmptyList() {
+    void getAllQuestions_QuestionDoesNotExist_ReturnsEmptyList() {
         when(questionService.getAllQuestions()).thenReturn(Collections.emptyList());
 
         ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
@@ -128,7 +128,7 @@ class QuestionControllerTests {
     }
 
     @Test
-    void getQuestionsByFilters_ReturnsQuestions() {
+    void getQuestionsByFilters_QuestionExists_ReturnsQuestions() {
         List<QuestionDto> questions = Arrays.asList(questionDto1, questionDto2);
 
         when(questionService.getQuestionsByFilters("category", "easy")).thenReturn(questions);
@@ -145,7 +145,7 @@ class QuestionControllerTests {
     }
 
     @Test
-    void getQuestionsByFilters_NoQuestions_ReturnsEmptyList() {
+    void getQuestionsByFilters_QuestionDoesNotExist_ReturnsEmptyList() {
         when(questionService.getQuestionsByFilters("category", "easy"))
                 .thenReturn(Collections.emptyList());
 
