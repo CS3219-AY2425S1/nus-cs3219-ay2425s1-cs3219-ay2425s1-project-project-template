@@ -32,13 +32,6 @@ const MatchingFilters = () => {
     const [isMatchFound, setIsMatchFound] = useState(false);
     const [matchPartner, setMatchPartner] = useState<any | null>(null);
 
-    const sampleMatch = {
-        user: "John Doe",
-        question: "Two Sum",
-        language: "Python",
-        difficulty: "Easy",
-        categories: ["Bitmap", "Recursion"],
-    }
     const languagesList = [
         { label: "Python", value: "Python" },
         { label: "JavaScript", value: "JavaScript" },
@@ -79,8 +72,6 @@ const MatchingFilters = () => {
         { label: "Question 10", value: "Question 10" },
     ]
 
-    let socket: Socket;
-
     // Setup socket connection and event handlers
     useEffect(() => {
         socketRef.current = io('http://localhost:5002');
@@ -107,19 +98,27 @@ const MatchingFilters = () => {
             })
         });
 
+        socket.on('matchCanceled', (data: any) => {
+            console.log(`Match canceled:`, data.message);
+            toast({
+                title: "Match Canceled",
+                description: data.message,
+            })
+            setIsSearching(false);
+        });
+
         return () => {
             socket.off('connect');
             socket.off('matchFound');
             socket.off('noMatchFound');
+            socket.off('matchCanceled');
             socket.disconnect();
         }
-    }, []);
+    }, [user]);
 
-    // PUSH USER TO QUEUE
     const onSearchPress = () => {
-        setIsSearching(!isSearching);
         if (!isSearching) {
-            // Sample match request
+            setIsSearching(true);
             const matchRequest = {
                 userId: user?.id,
                 userName: user?.name,
@@ -129,6 +128,10 @@ const MatchingFilters = () => {
             socketRef.current?.emit('login', user?.id);
             socketRef.current?.emit('requestMatch', matchRequest);
             console.log('Sent match request', matchRequest);
+        } else {
+            setIsSearching(false);
+            socketRef.current?.emit('cancelMatch', user?.id);
+            console.log('Sent cancel match for user', user?.id);
         }
     }
 
@@ -180,14 +183,6 @@ const MatchingFilters = () => {
                             ))}
                         </SelectContent>
                     </Select>
-                    {/* <MultiSelect
-                        options={difficultyList}
-                        onValueChange={setSelectedDifficulty}
-                        defaultValue={selectedDifficulty}
-                        placeholder="Select difficulty..."
-                        maxCount={3}
-                        disabled={isSearching}
-                    /> */}
                 </div>
                 <div className='w-2/3'>
                     <Label>Categories</Label>
@@ -217,7 +212,7 @@ const MatchingFilters = () => {
                     {isSearching ? (
                         <>
                             <Spinner size='small' className="size-small mr-2" />
-                            <span>{formatTime(elapsedTime)}</span>
+                            <span>{formatTime(elapsedTime)} - Cancel</span>
                         </>
                     ) : (
                         "Match Now"
