@@ -87,8 +87,14 @@ function MatchingModal({
 
     socketRef.current.on('disconnect', () => {
       console.log('Disconnected from WebSocket server');
+      notifications.show({
+        title: 'Seach cancelled',
+        message: 'There is already an existing matching session. Please try again later.',
+        color: 'red',
+      });
+      handleCancel();
     });
-  }, [difficulty, topics, matchFound, isConnecting, navigate]);
+  }, [difficulty, topics, matchFound, isConnecting, navigate, closeMatchingModal]);
 
   useEffect(() => {
     if (isMatchingModalOpened) {
