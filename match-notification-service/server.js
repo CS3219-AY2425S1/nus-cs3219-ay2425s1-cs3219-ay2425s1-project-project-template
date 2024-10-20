@@ -7,15 +7,23 @@ const { Server } = require('socket.io');
 const app = express();
 const PORT = process.env.MATCHING_NOTIFICATION_PORT || 4001;
 
+// Apply CORS middleware
+app.use(cors());
+app.options("*", cors());
+
+// Add a route handler for the root path
+app.get('/', (req, res) => {
+  res.send('Match Notification Service is running');
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",  // Allow all origins
-  }
+  },
+  pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
+  pingInterval: 25000,  // Interval between ping packets
 });
-
-app.use(cors());
-app.options("*", cors());
 
 // Store connected clients
 let connectedClients = {};  // Mapping of userId to socketId

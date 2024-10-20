@@ -7,7 +7,7 @@ import { Socket, io } from 'socket.io-client';
 interface MatchingModalProps {
   isMatchingModalOpened: boolean;
   closeMatchingModal: () => void;
-  difficulty: string | null;
+  difficulty: string[];
   topics: string[];
 }
 
@@ -17,19 +17,20 @@ function MatchingModal({
   difficulty,
   topics,
 }: MatchingModalProps) {
-  const [timer, setTimer] = useState(0);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [displayTimer, setDisplayTimer] = useState(0);
+  const timerRef = useRef(0);
   const [matchFound, setMatchFound] = useState<any | null>(null);
   const hasTimedOut = useRef(false);
-
   const navigate = useNavigate();
+  const socketRef = useRef<Socket | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const handleTimeout = useCallback(() => {
     if (!hasTimedOut.current) {
       hasTimedOut.current = true;
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
       }
       notifications.show({
         title: 'Timeout',
@@ -38,83 +39,102 @@ function MatchingModal({
       });
       closeMatchingModal();
     }
-  }, [closeMatchingModal, socket]);
+  }, [closeMatchingModal]);
+
+  const connectSocket = useCallback(() => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+
+    setIsConnecting(true);
+
+    socketRef.current = io('http://match-notification-service:4001', {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    socketRef.current.on('connection', () => {
+      console.log('Connected to WebSocket server');
+      setIsConnecting(false);
+      const userId = 'user123'; // This should be dynamically set based on your authentication system
+      console.log('Registering user:', userId);
+      socketRef.current?.emit('register', userId, difficulty, topics);
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+      setIsConnecting(false);
+      notifications.show({
+        title: 'Connection Error',
+        message: 'Failed to connect to the matching service. Please try again.',
+        color: 'red',
+      });
+    });
+
+    socketRef.current.on('match_found', (match) => {
+      setMatchFound(match);
+      notifications.show({
+        title: 'Match found',
+        message: 'We found a perfect match for you!',
+        color: 'green',
+      });
+      navigate('../../select/');
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+  }, [difficulty, topics, navigate]);
+
+  useEffect(() => {
+    if (isMatchingModalOpened) {
+      connectSocket();
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [isMatchingModalOpened, connectSocket]);
 
   useEffect(() => {
     let interval: number;
     if (isMatchingModalOpened) {
-      setTimer(0);
+      timerRef.current = 0;
+      setDisplayTimer(0);
       hasTimedOut.current = false;
-      setMatchFound(null);
-
-      const newSocket = io('http://localhost:4001');
-
-      newSocket.on('connect', () => {
-        console.log('Connected to WebSocket server');
-        const userId = localStorage.getItem('user_id');
-        newSocket.emit('register', userId, difficulty, topics);
-      });
-
-      newSocket.on('match_found', (match) => {
-        setMatchFound(match);
-        notifications.show({
-          title: 'Match found',
-          message: 'We found a perfect match for you!',
-          color: 'green',
-        });
-
-        navigate('../../select/');
-      });
-
-      setSocket(newSocket);
 
       interval = setInterval(() => {
-        setTimer((prevTimer) => {
-          if (prevTimer + 1 >= 180) {
-            handleTimeout();
-            return prevTimer;
-          }
-          return prevTimer + 1;
-        });
+        timerRef.current += 1;
+        setDisplayTimer(timerRef.current);
+        if (timerRef.current >= 180) {
+          handleTimeout();
+        }
       }, 1000);
-    } else {
-      setTimer(0);
-      hasTimedOut.current = false;
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-      }
     }
 
     return () => {
       clearInterval(interval);
+      timerRef.current = 0;
+      setDisplayTimer(0);
       hasTimedOut.current = false;
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-      }
     };
-  }, [
-    isMatchingModalOpened,
-    handleTimeout,
-    difficulty,
-    topics,
-    socket,
-    matchFound,
-  ]);
-
-  const handleCancel = () => {
-    if (socket) {
-      socket.disconnect();
-      setSocket(null);
-    }
-    closeMatchingModal();
-  };
+  }, [isMatchingModalOpened, handleTimeout]);
 
   const formatTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleCancel = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+    closeMatchingModal();
   };
 
   return (
@@ -132,7 +152,7 @@ function MatchingModal({
         <Stack justify="xl" align="center">
           <Group justify="center" mt="md">
             <Loader size="md" />
-            <Text size="lg">{formatTime(timer)}</Text>
+            <Text size="lg">{formatTime(displayTimer)}</Text>
           </Group>
           <Button variant="light" onClick={handleCancel}>
             Cancel

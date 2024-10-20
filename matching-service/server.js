@@ -3,10 +3,11 @@ const express = require('express');
 const redis = require('redis');
 
 const app = express();
-const PORT = process.env.MATCHING_PORT || 4000;
+const PORT = 4000;
 
 const redisClient = redis.createClient({
   socket: {
+    host: 'matching-service-redis',
     port: 6379,
     reconnectStrategy: function (retries) {
       if (retries > 20) {
@@ -20,7 +21,6 @@ const redisClient = redis.createClient({
     },
   },
 });
-
 
 app.use(express.json());
 
@@ -136,16 +136,16 @@ async function findMatchByTopics(topics) {
 
 async function findMatchByDifficulty(difficulty) {
   const multi = redisClient.multi();
-  
+
   difficulty.forEach((tag) => multi.sMembers(`difficulty:${tag}`));
-  
+
   const replies = await
     multi.exec((err, replies) => {
       if (err) return reject(err);
       console.log('Replies from Redis:', replies); // Log replies
       resolve(replies);
     });
-  
+
   const keys = [...new Set(replies.flat())];
   return keys;
 }
