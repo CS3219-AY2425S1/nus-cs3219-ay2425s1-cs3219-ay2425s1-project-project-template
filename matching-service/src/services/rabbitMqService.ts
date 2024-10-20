@@ -103,7 +103,10 @@ export const sendToQueue = async (
   try {
     if (!channel) throw new Error("RabbitMQ channel is not initialized");
 
-    await channel.assertQueue(queue);
+    await channel.assertQueue(queue, {
+      durable: true,
+      expires: 300000, //expire after 5 minutes of idle
+    });
 
     await channel.sendToQueue(queue, Buffer.from(JSON.stringify(payload)));
     console.log(`User sent to RabbitMQ queue "${queue}":`, payload);
