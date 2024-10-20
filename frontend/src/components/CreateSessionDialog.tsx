@@ -95,7 +95,6 @@ export default function CreateSessionDialog(): JSX.Element {
     });
 
     newSocket.on('matchResult', (data: MatchResult) => {
-      console.log(data)
       if (data.success && data.peerUserId && data.difficulty) {
         setStatus('success');
         setRedirectTimer(5);
