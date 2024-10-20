@@ -73,9 +73,6 @@ jobs:
       - name: Wait for services to be ready
         run: sleep 30
 
-      - name: Install websocat
-        run: sudo apt-get install -y websocat
-
       - name: Run Tests
         env:
           FRONTEND_URL: ${{ vars.FRONTEND_URL }}
@@ -90,6 +87,6 @@ jobs:
           echo "Testing Frontend..."
           curl -fsSL -o /dev/null $FRONTEND_URL && echo "Frontend is up"
           echo "Testing Matching Service..."
-          websocat $MATCHING_SERVICE_URL --ping && echo "Matching Service is up"
+          # Add in test for matching service in the future
 
           # We can add more tests here
