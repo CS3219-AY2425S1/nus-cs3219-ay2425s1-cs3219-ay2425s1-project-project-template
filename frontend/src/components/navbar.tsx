@@ -1,8 +1,32 @@
 import LoginDialog from '@/components/auth/login-dialog';
 import { UserMenuAvatar } from '@/components/auth/user-avatar';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { cn } from '@/lib/utils';
 import { CodeXml } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+
+export function NavbarLink({
+  to,
+  children,
+}: {
+  to: string;
+  children: React.ReactNode;
+}) {
+  const pathname = useLocation().pathname;
+  return (
+    <Link
+      to={to}
+      className={cn(
+        'border-transparent text-muted-foreground  hover:text-foreground inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition',
+        pathname === to
+          ? 'border-primary text-foreground border-b-2'
+          : 'hover:border-muted-foreground'
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function Navbar() {
   const user = useAuth();
@@ -18,18 +42,9 @@ export default function Navbar() {
               </Link>
             </div>
             <div className='hidden sm:ml-6 sm:flex sm:space-x-8'>
-              <Link
-                to='/problems'
-                className='border-primary text-foreground font-bold inline-flex items-center px-1 pt-1 border-b-2 text-sm'
-              >
-                Problems
-              </Link>
-              <Link
-                to='/discuss'
-                className='border-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition'
-              >
-                Discuss
-              </Link>
+              <NavbarLink to='/'>Home</NavbarLink>
+              <NavbarLink to='/problems'>Problems</NavbarLink>
+              <NavbarLink to='/discuss'>Discuss</NavbarLink>
             </div>
           </div>
           <div className='hidden sm:ml-6 sm:flex sm:items-center'>
