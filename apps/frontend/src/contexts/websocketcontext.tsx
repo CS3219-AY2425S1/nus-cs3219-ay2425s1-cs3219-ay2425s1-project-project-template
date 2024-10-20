@@ -12,14 +12,14 @@ export type SocketState = {
     cancel(): void;
     timeout(): void;
 };
-
+export type MatchInfo = {
+    matchId: string;
+    partnerId: string;
+    partnerName: string;
+}
 export type MatchState = SocketState | {
     state: "found";
-    info: {
-        matchId: string;
-        partnerId: string;
-        partnerName: string;
-    };
+    info: MatchInfo;
     ok(): void;
 } | {
     state: "timeout";

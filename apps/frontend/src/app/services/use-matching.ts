@@ -1,4 +1,4 @@
-import { MatchState } from "@/contexts/websocketcontext";
+import { MatchInfo, MatchState } from "@/contexts/websocketcontext";
 import { useEffect, useState } from "react";
 import useWebSocket, { Options, ReadyState } from "react-use-websocket";
 
@@ -21,6 +21,13 @@ export type MatchFoundResponse = {
     matchId: number,
     partnerId: number,
     partnerName: string,
+} | {
+    type: "match_found",
+    matchId: string,
+    user: string,
+    matchedUser: string,
+    topic: string | string[],
+    difficulty: string
 }
 
 export type MatchTimeoutResponse = {
@@ -33,7 +40,7 @@ export type MatchRejectedResponse = {
     message: string,
 }
 
-type MatchResponse = MatchFoundResponse | MatchTimeoutResponse;
+type MatchResponse = MatchFoundResponse | MatchTimeoutResponse | MatchRejectedResponse;
 
 export default function useMatching(): MatchState {
     const [isSocket, setIsSocket] = useState<boolean>(false);
@@ -55,15 +62,19 @@ export default function useMatching(): MatchState {
 
             if (responseJson.type == "match_found") {
                 setIsSocket(false);
+
+                const info: MatchInfo = parseInfoFromResponse(responseJson);
                 setSte({
                     state: "found",
-                    info: {
-                        matchId: responseJson.matchId.toString(),
-                        partnerId: responseJson.partnerId.toString(),
-                        partnerName: responseJson.partnerName,
-                    },
+                    info: info,
                     ok: cancel
                 })
+                return;
+            }
+
+            if (responseJson.type == "match_rejected") {
+                console.log("match rejected: " + responseJson.message);
+                cancel();
                 return;
             }
         }
@@ -113,4 +124,21 @@ export default function useMatching(): MatchState {
     }
 
     return isSocket ? matchState : ste;
+}
+
+function parseInfoFromResponse(responseJson: MatchFoundResponse): MatchInfo {
+    // test whether old or new
+    if ("partnerId" in responseJson) {
+        return {
+            matchId: responseJson.matchId?.toString() ?? "unknown",
+            partnerId: responseJson.partnerId?.toString() ?? "unknown",
+            partnerName: responseJson.partnerName ?? "unknown",
+        };
+    } else {
+        return {
+            matchId: responseJson.matchId?.toString() ?? "unknown",
+            partnerId: "unknown",
+            partnerName: responseJson.matchedUser ?? "unknown",
+        };
+    }
 }
