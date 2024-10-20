@@ -54,7 +54,7 @@ public class UserController {
             User currentUser = (User) authentication.getPrincipal();
             User fetchedUser = userService.getUserById(Long.parseLong(userId), currentUser);
             return ResponseEntity.ok(new UserResponse(fetchedUser.getId(), fetchedUser.getEmail(),
-                    fetchedUser.getName(), fetchedUser.isAdmin()));
+                    fetchedUser.getUsername(), fetchedUser.isAdmin()));
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Forbidden")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied.");
