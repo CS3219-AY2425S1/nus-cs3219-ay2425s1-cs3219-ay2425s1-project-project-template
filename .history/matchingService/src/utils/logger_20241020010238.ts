@@ -12,10 +12,10 @@ const logger: Logger = winston.createLogger({
       return `[${timestamp} ${level}]: ${message}`;
     })
   ),
-  transports: [
-    new winston.transports.Console(),
-    // new winston.transports.File({ filename: "logs/combined.log" }),
-  ],
+  // transports: [
+  //   new winston.transports.Console(),
+  //   new winston.transports.File({ filename: 'logs/combined.log' })
+  // ]
 });
 
 export default logger;
