@@ -129,6 +129,10 @@ async function matchUsers(searchRequest) {
       `Match found: User ID ${userId} matched with ${matchMessage.matchUserId}`,
     );
     redisClient.del(matchMessage.matchUserId);
+    const keys = await redisClient.keys('*');
+    keys.forEach((key) => {
+      redisClient.SREM(key, userId);
+    });
   } else {
     console.log(`No match found for User ID: ${userId}`);
     redisClient.set(userId, Date.now());
@@ -175,8 +179,12 @@ async function findMatchByDifficulty(difficulty) {
   return keys;
 }
 
-function handleDisconnection(userId) {
+async function handleDisconnection(userId) {
   redisClient.del(userId);
+  const keys = await redisClient.keys('*');
+  keys.forEach((key) => {
+    redisClient.SREM(key, userId);
+  });
   console.log(`User ID: ${userId} has been removed from active searches.`);
 }
 
