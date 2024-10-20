@@ -5,13 +5,6 @@ import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multiselect";
 import MoonLoader from "react-spinners/MoonLoader";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { QuestionDifficulty, QuestionLanguages } from "@/types/find-match";
 import { useForm } from "react-hook-form";
 import { Client as StompClient } from "@stomp/stompjs";
@@ -86,6 +79,7 @@ const TIMEOUT_TIMER = 500000; // in seconds
 const FindPeer = () => {
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [socketMessages, setSocketMessages] = useState<string[]>([]);
 
   const cancelSocketConnection = () => {
@@ -134,7 +128,7 @@ const FindPeer = () => {
         },
         onStompError: (error) => {
           console.error("STOMP error: ", error);
-          reject(error);
+          reject(new Error(error.headers.message));
         },
       });
 
@@ -149,7 +143,6 @@ const FindPeer = () => {
     }
 
     // Repackage user filter data
-    // TODO: Change this to use multiselect later
     const userMatchRequest: FindMatchSocketMessage = {
       userEmail: CURRENT_USER,
       topics: userFilter.questionTopics,
@@ -188,7 +181,7 @@ const FindPeer = () => {
 
     try {
       client.subscribe("/user/queue/requestRejection", (message) => {
-        const response: String = message.body;
+        const response: string = message.body;
         console.log("Received message: ", response);
         closeLoadingSpinner();
         clearTimeout(timeout);
@@ -230,9 +223,9 @@ const FindPeer = () => {
 
   const form = useForm({
     defaultValues: {
-      questionDifficulties: QuestionDifficulty.MEDIUM.valueOf(),
-      preferredLanguages: QuestionLanguages.PYTHON.valueOf(),
-      questionTopics: "",
+      questionDifficulties: [QuestionDifficulty.MEDIUM.valueOf()],
+      preferredLanguages: [QuestionLanguages.PYTHON.valueOf()],
+      questionTopics: [""],
     },
   });
 
