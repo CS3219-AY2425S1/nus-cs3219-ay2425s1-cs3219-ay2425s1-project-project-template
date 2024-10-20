@@ -65,6 +65,7 @@ export const NewSession = () => {
             isMatchmaking: true,
             isMatchFound: false,
             isMatchmakingFailed: false,
+            isDuplicate: false,
         }))
 
         //TODO: Modify this response to match the response from the API
@@ -118,6 +119,7 @@ export const NewSession = () => {
                                 ...modalData,
                                 isOpen: false,
                                 isMatchmaking: false,
+                                isDuplicate: false,
                             }
                         })
                         break
@@ -147,6 +149,7 @@ export const NewSession = () => {
             ...modalData,
             isMatchmaking: false,
             isMatchmakingFailed: true,
+            isDuplicate: false,
         }))
     }
 
@@ -157,6 +160,7 @@ export const NewSession = () => {
             ...modalData,
             isOpen: false,
             isMatchmaking: false,
+            isDuplicate: false,
         }))
     }
 

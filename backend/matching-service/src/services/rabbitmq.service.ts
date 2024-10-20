@@ -263,14 +263,14 @@ class RabbitMQConnection {
             }
 
             if (matchedUser) {
-                const matchedUserId = JSON.parse(matchedUser.content.toString()).userId
+                const matchedUserContent = JSON.parse(matchedUser.content.toString())
                 const match: Partial<IMatch> = {
                     user1Id: content.userId,
-                    user2Id: matchedUserId,
+                    user2Id: matchedUserContent.userId,
                     categories: [content.topic],
                     complexity: content.complexity,
                 }
-                await handleCreateMatch(match as IMatch)
+                await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {
