@@ -130,7 +130,10 @@ async function matchUsers(searchRequest) {
     );
     redisClient.del(matchMessage.matchUserId);
     const keys = await redisClient.keys('*');
-    keys.forEach((key) => {
+    const filteredKeys = keys.filter(
+      (key) => key.startsWith('difficulty:') || key.startsWith('topics:'),
+    );
+    filteredKeys.forEach((key) => {
       redisClient.SREM(key, userId);
     });
   } else {
@@ -182,7 +185,10 @@ async function findMatchByDifficulty(difficulty) {
 async function handleDisconnection(userId) {
   redisClient.del(userId);
   const keys = await redisClient.keys('*');
-  keys.forEach((key) => {
+  const filteredKeys = keys.filter(
+    (key) => key.startsWith('difficulty:') || key.startsWith('topics:'),
+  );
+  filteredKeys.forEach((key) => {
     redisClient.SREM(key, userId);
   });
   console.log(`User ID: ${userId} has been removed from active searches.`);
