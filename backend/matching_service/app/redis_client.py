@@ -11,7 +11,16 @@ COMPLETE_MATCHING_PATTERN = "c_matching:*:*"
 PARTIAL_MATCHING_PATTERN = "p_matching:*"
 
 
-def get_available_matching_requests(is_before, redis_client, logger, is_complete=True):
+def get_available_matching_requests(
+    is_before,
+    redis_client,
+    logger,
+    is_complete=True,
+    req_user_id=None,
+    req_user_category=None,
+    req_user_difficulty=None,
+    req_user_request_time=None,
+):
     if is_before:
         logger.info("Queue before matching:")
     else:
@@ -51,6 +60,18 @@ def get_available_matching_requests(is_before, redis_client, logger, is_complete
                     "category": category,
                     "difficulty": difficulty,
                     "user_id": user_id.decode("utf-8"),
+                    "req_time": readable_time,
+                }
+            )
+        if is_before:
+            readable_time = datetime.fromtimestamp(
+                req_user_request_time, tz=timezone(timedelta(hours=8))
+            ).strftime("%Y-%m-%d %H:%M:%S")
+            all_requests.append(
+                {
+                    "user_id": req_user_id,
+                    "category": req_user_category,
+                    "difficulty": req_user_difficulty,
                     "req_time": readable_time,
                 }
             )

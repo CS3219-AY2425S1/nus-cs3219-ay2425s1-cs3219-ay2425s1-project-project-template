@@ -112,6 +112,7 @@ def process_message(message, producer):
                     producer,
                     category,
                     difficulty,
+                    request_time,
                 )
                 if res is False:
                     return
@@ -144,12 +145,19 @@ def find_and_handle_match(
     producer,
     category,
     difficulty,
+    request_time,
 ):
     matches = redis_client.zrangebyscore(
         key if match_type == "complete" else category_key, current_time, "+inf"
     )
     get_available_matching_requests(
-        is_before=True, redis_client=redis_client, logger=logger
+        is_before=True,
+        redis_client=redis_client,
+        logger=logger,
+        req_user_id=user_id,
+        req_user_difficulty=difficulty,
+        req_user_category=category,
+        req_user_request_time=request_time,
     )
 
     for match in matches:
