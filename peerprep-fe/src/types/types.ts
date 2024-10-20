@@ -48,6 +48,19 @@ interface User {
   username: string;
 }
 
+interface MatchData {
+  _id: string;
+  name: string;
+  topic: string;
+  difficulty: string;
+  // Add any other properties that your match data includes
+}
+
+interface WebSocketMessage {
+  type: string;
+  data: MatchData;
+}
+
 export type {
   Problem,
   ProblemDialogData,
@@ -55,4 +68,6 @@ export type {
   FilterBadgeProps,
   FilterSelectProps,
   User,
+  MatchData,
+  WebSocketMessage,
 };

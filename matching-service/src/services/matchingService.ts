@@ -7,6 +7,7 @@ import {
 } from "../model/userModel";
 import { User } from "../types";
 import { sendToQueue } from "./rabbitMqService";
+import { notifyMatch } from "../app"; // Add this import at the top of the file
 
 /**
  * Check match in queue, if there is a match, we will remove that user from the queue, and return
@@ -62,7 +63,12 @@ export const processOldUsers = async (): Promise<void> => {
           status: "matched",
           match: match,
         });
-        continue;
+        console.log(
+          `Notifying match for OLD users: ${match._id} and ${user._id}`,
+        );
+        notifyMatch(match._id, user._id, { user1: match, user2: user });
+        return;
+        // continue;
       }
 
       // Transfer to difficulty queue if there is no match
@@ -105,6 +111,8 @@ export const processNewUser = async (user: User): Promise<void> => {
       status: "matched",
       match: match,
     });
+    // Call notifyMatch here
+    notifyMatch(match._id, user._id, { user1: match, user2: user });
   } else {
     // Add to the topic queue if no match
     await transferToTopicQueue(user);
