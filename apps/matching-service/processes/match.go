@@ -2,87 +2,106 @@ package processes
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"matching-service/models"
-	"strconv"
-	"strings"
-	"sync"
+	"matching-service/utils"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var (
-	redisClient *redis.Client
-	mu          sync.Mutex
-)
-
-// SetRedisClient sets the Redis client to a global variable
-func SetRedisClient(client *redis.Client) {
-	redisClient = client
-}
-
-func getPortNumber(addr string) (int64, error) {
-	// Split the string by the colon
-	parts := strings.Split(addr, ":")
-	if len(parts) < 2 {
-		return 0, fmt.Errorf("no port number found")
-	}
-
-	// Convert the port string to an integer
-	port, err := strconv.ParseInt(parts[len(parts)-1], 10, 64)
-	if err != nil {
-		return 0, err // Return an error if conversion fails
-	}
-
-	return port, nil
-}
-
-func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matchFoundChan chan models.MatchFound) {
-	defer close(matchFoundChan) // Safely close the channel after matching completes
+func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matchFoundChannels map[string]chan models.MatchFound) {
+	// Acquire mutex
+	matchingRoutineMutex.Lock()
+	// Defer unlocking the mutex
+	defer matchingRoutineMutex.Unlock()
 
 	for {
-		select {
-		case <-ctx.Done():
-			// Cleaning up, dequeue the user
-			err := dequeueUser(redisClient, matchRequest)
+		// Log queue before matchmaking
+		// PrintMatchingQueue(redisClient, "Before Matchmaking", context.Background())
+
+		// Check if the queue is empty
+		queueLength, err := redisClient.LLen(context.Background(), matchmakingQueueRedisKey).Result()
+		if err != nil {
+			log.Println("Error checking queue length:", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		if queueLength == 0 {
+			// log.Println("No users in the queue")
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		// Peek at the user queue
+		username, err := redisClient.LIndex(context.Background(), matchmakingQueueRedisKey, 0).Result()
+		if err != nil {
+			log.Println("Error peeking user from queue:", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		// log.Printf("Performing matching for user: %s", username)
+		matchedUsername, matchedTopic, matchedDifficulty, err := FindMatchingUser(redisClient, username, ctx)
+		if err != nil {
+			log.Println("Error finding matching user:", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		if matchedUsername != "" {
+			// Log down the state of queue before matchmaking
+			PrintMatchingQueue(redisClient, "Before Matchmaking", context.Background())
+
+			// Log down which users got matched
+			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", username, matchedUsername, matchedTopic, matchedDifficulty)
+
+			// Log queue after matchmaking
+			PrintMatchingQueue(redisClient, "After Matchmaking", context.Background())
+
+			// Clean up redis for this match
+			cleanUp(redisClient, username, ctx)
+			cleanUp(redisClient, matchedUsername, ctx)
+
+			// Generate a random match ID
+			matchId, err := utils.GenerateMatchID()
 			if err != nil {
-				log.Println("Failed to dequeue user:", err)
+				log.Println("Unable to randomly generate matchID")
 			}
 
-			return
-
-		default:
-			// Continue matching logic...
-			mu.Lock()
-			match, err := matchUser(redisClient, matchRequest)
-			mu.Unlock()
-			if err != nil {
-				log.Println("Error occurred during matching:", err)
-				return
+			// Signal that a match has been found for user
+			matchFoundChannels[username] <- models.MatchFound{
+				Type:        "match_found",
+				MatchID:     matchId,
+				User:        username,
+				MatchedUser: matchedUsername,
+				Topic:       matchedTopic,
+				Difficulty:  matchedDifficulty,
 			}
 
-			if match != "" {
-				arr := strings.Split(match, ",")
-				username := arr[0]
-				// email := arr[1]
-				port := arr[2]
-				matchId := arr[3]
-				partnerPort, err := getPortNumber(port)
-				if err != nil {
-					log.Println("Error occurred while getting PartnerID:", err)
-					return
-				}
-
-				result := models.MatchFound{
-					Type:        "match_found",
-					MatchID:     matchId,
-					PartnerID:   partnerPort, // Use the retrieved PartnerID
-					PartnerName: username,
-				}
-				matchFoundChan <- result
-				return
+			// Signal that a match has been found for matchedUser
+			matchFoundChannels[matchedUsername] <- models.MatchFound{
+				Type:        "match_found",
+				MatchID:     matchId,
+				User:        matchedUsername,
+				MatchedUser: username,
+				Topic:       matchedTopic,
+				Difficulty:  matchedDifficulty,
 			}
+
+		} else {
+			// log.Printf("No match found for user: %s", username)
+
+			// Pop user and add user back into queue
+			PopAndInsert(redisClient, username, ctx)
 		}
 	}
+}
+
+// Clean up queue, sets and hashset in Redis
+func cleanUp(redisClient *redis.Client, username string, ctx context.Context) {
+	DequeueUser(redisClient, username, ctx)
+	RemoveUserFromTopicSets(redisClient, username, ctx)
+	RemoveUserDetails(redisClient, username, ctx)
 }
