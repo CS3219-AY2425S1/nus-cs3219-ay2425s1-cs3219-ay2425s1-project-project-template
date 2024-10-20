@@ -6,7 +6,7 @@ export const requestMatch = (channel) => {
             // const { complexity, category, } = req.body
             // const { id } = req.user
             // const { socketId } = 
-            const payload = { id: req.user, ...req.body }
+            const payload = { id: req.user.id, ...req.body }
             sendMatchRequest(channel, payload)
             res.status(200).send({ message: "match request sent" })
         } catch (e) {

@@ -8,7 +8,10 @@ const waitingRequests = {}
 const COMPLEXITIES_MAPPING = {
     "Easy": 1,
     "Medium": 2,
-    "Hard": 3
+    "Hard": 3,
+    "easy": 1,
+    "medium": 2,
+    "hard": 3
 }
 
 exports.processMatchRequest = (channel) => {
@@ -31,7 +34,7 @@ exports.processMatchRequest = (channel) => {
                 // No perfect match
                 // Add to wait queue
                 waitingRequests[uuid] = request
-                console.log(`Request ${id} waiting`)
+                console.log(`Request ${uuid} waiting`)
                 // Wait 30s
                 setTimeout(async () => {
                     console.log(`Request ${uuid} finished waiting`)
