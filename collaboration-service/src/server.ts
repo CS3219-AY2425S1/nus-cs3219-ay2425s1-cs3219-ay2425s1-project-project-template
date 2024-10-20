@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { validateSocketJWT } from './middleware/jwt-validation';
 import { handleEditorChanges } from './utils/editor-handler';
+import './utils/cron-jobs';
 import router from './routes/session-routes';
 
 dotenv.config();
