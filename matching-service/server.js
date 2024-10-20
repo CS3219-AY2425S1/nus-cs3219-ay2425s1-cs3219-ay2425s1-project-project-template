@@ -61,7 +61,7 @@ async function initRedis() {
   await redisClient.connect();
 }
 
-async function showUserQueue() {
+async function showUserQueue(status) {
   const keys = await redisClient.keys('*');
 
   const filteredKeys = keys.filter(
@@ -75,13 +75,13 @@ async function showUserQueue() {
     }),
   );
 
-  console.log(values);
+  console.log(status + ": " + JSON.stringify(values, null, 2)); 
 }
 
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  await showUserQueue();
+  await showUserQueue("Before queue");
 
   if (userId == null) return; 
 
@@ -147,7 +147,7 @@ async function matchUsers(searchRequest) {
     });
   }
 
-  await showUserQueue();
+  await showUserQueue("After queue");
 }
 
 async function findMatchByTopics(topics) {
