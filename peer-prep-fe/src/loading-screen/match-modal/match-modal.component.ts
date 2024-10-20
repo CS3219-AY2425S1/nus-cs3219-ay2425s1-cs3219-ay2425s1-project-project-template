@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Inject, Injectable, Input, OnInit} from '@angular/core';
 import { interval, Subscription, take } from 'rxjs';
 import { NgClass, NgIf } from "@angular/common";
 import { Router, ActivatedRoute } from '@angular/router';
@@ -17,6 +17,8 @@ import { CommonModule } from '@angular/common';
   ],
   styleUrls: ['./match-modal.component.css']
 })
+
+@Injectable({providedIn: 'root'})
 export class MatchModalComponent implements OnInit {
 
   @Input() queueName: string = '';

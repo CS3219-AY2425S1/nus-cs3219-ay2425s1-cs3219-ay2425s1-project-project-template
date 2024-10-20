@@ -1,18 +1,26 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
 import { MatchModalComponent } from './match-modal.component';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs'; // Import 'of' for mock observables
 
 describe('MatchModalComponent', () => {
   let component: MatchModalComponent;
-  let fixture: ComponentFixture<MatchModalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatchModalComponent]
+      declarations: [ MatchModalComponent ],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParams: of({ category: 'test-category', difficulty: 'test-difficulty', userId: 'test-id', queueName: 'test-queue' })
+          }
+        }
+      ]
     })
     .compileComponents();
-
-    fixture = TestBed.createComponent(MatchModalComponent);
+    
+    const fixture = TestBed.createComponent(MatchModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
