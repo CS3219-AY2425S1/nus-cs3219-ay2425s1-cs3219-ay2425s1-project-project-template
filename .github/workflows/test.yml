@@ -33,6 +33,9 @@ jobs:
           FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
           DB_CLOUD_URI: ${{ secrets.USER_SERVICE_DB_CLOUD_URI }}
           USER_SERVICE_PORT: ${{ vars.USER_SERVICE_PORT }}
+          MATCHING_SERVICE_PORT: ${{ vars.MATCHING_SERVICE_PORT }}
+          MATCHING_SERVICE_TIMEOUT: ${{ vars.MATCHING_SERVICE_TIMEOUT }}
+          REDIS_URL: ${{ vars.REDIS_URL }}
         run: |
           cd ./apps/frontend
           echo "NEXT_PUBLIC_QUESTION_SERVICE_URL=$QUESTION_SERVICE_URL" >> .env
@@ -47,6 +50,12 @@ jobs:
           echo "DB_CLOUD_URI=$DB_CLOUD_URI" >> .env
           echo "PORT=$USER_SERVICE_PORT" >> .env
           echo "JWT_SECRET=$JWT_SECRET" >> .env
+
+          cd ../matching-service
+          echo "PORT=$MATCHING_SERVICE_PORT" >> .env
+          echo "MATCH_TIMEOUT=$MATCHING_SERVICE_TIMEOUT" >> .env
+          echo "JWT_SECRET=$JWT_SECRET" >> .env
+          echo "REDIS_URL=$REDIS_URL" >> .env
 
       - name: Create Database Credential Files
         env:
@@ -69,9 +78,11 @@ jobs:
           FRONTEND_URL: ${{ vars.FRONTEND_URL }}
           USER_SERVICE_URL: ${{ vars.USER_SERVICE_URL }}
           QUESTION_SERVICE_URL: ${{ vars.QUESTION_SERVICE_URL }}
+          MATCHING_SERVICE_URL: ${{ vars.MATCHING_SERVICE_URL }}
         run: |
           curl -sSL -o /dev/null $QUESTION_SERVICE_URL
           curl -fsSL -o /dev/null $USER_SERVICE_URL
           curl -fsSL -o /dev/null $FRONTEND_URL
+          curl -fsSL -o /dev/null $MATCHING_SERVICE_URL
 
           # We can add more tests here
