@@ -19,6 +19,7 @@ class Producer {
             return false;
         }
 
+        const correlationId = uuidv4();
         const messageHeaders: MessageHeader = {
             topic: msg.topic,
             difficulty: msg.difficulty
@@ -27,9 +28,10 @@ class Producer {
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
             replyTo: replyQueueName,
+            correlationId: correlationId,
         });
 
-        logger.info(`Match request sent!`);
+        logger.info(`Match request sent with correlation ID: ${correlationId}`);
         return true;
     }
 
@@ -43,15 +45,18 @@ class Producer {
             return;
         }
 
+        const correlationId = uuidv4();
         const messageHeaders: CancelMessageHeader = {
             matchId: msg.matchId,
         };
         
         channel.publish(directExchange, "cancellation", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
+            replyTo: replyQueueName,
+            correlationId: correlationId,
         });
 
-        logger.info(`Cancellation request`);
+        logger.info(`Cancellation request sent with correlation ID: ${correlationId}`);
         return;
     }
 }
