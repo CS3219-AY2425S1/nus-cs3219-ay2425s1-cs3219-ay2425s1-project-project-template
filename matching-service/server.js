@@ -3,7 +3,7 @@ const express = require('express');
 const redis = require('redis');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.MATCHING_PORT || 4000;
 
 const redisClient = redis.createClient({
   socket: {
