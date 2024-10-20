@@ -3,7 +3,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
-import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE } from "./constants"
+import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, DIFFICULTY_EXCHANGE, CONFIRMATION_EXCHANGE } from "./constants"
 import { deepEqual, getRandomIntegerInclusive, sleep } from "./helper"
 import { UserData } from "./types"
 
@@ -24,7 +24,8 @@ const connectRabbitMQ = async () => {
     console.log(amqpServer)
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
-    await channel.assertExchange(EXCHANGE, "topic", { durable: false })
+    await channel.assertExchange(DIFFICULTY_EXCHANGE, "topic", { durable: true })
+    await channel.assertExchange(CONFIRMATION_EXCHANGE, "topic", { durable: true })
     console.log("Connected to RabbitMQ")
   } catch (err) {
     console.error(err)
@@ -48,7 +49,7 @@ const handleIncomingNotification = (msg: string) => {
 
 // Decide again if needs to be asynchronous
 const addDataToExchange = (userData: UserData, key: string) => {
-  channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
+  channel.publish(DIFFICULTY_EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
 const pullDataFromExchange = async (queueName: string) => {
@@ -331,7 +332,6 @@ const matchUsers = async (userData: UserData, key: string) => {
 }
 
 
-
 // Publish message to exchange
 app.post("/match", async (req: Request, res: Response) => {
   try {
@@ -357,7 +357,7 @@ app.post("/match", async (req: Request, res: Response) => {
       //console.log("Length of users: " + users.length)
     }
 
-    console.log("SUCCESSFUL MATCH: " + response.matchedUsers)
+    console.log("SUCCESSFUL MATCH: ", response.matchedUsers)
 
     // Timeout, cannot find match; assumes matchedUsers.length != 2
     res.json(response)
@@ -370,6 +370,25 @@ app.post("/match", async (req: Request, res: Response) => {
       timeout: true
     })
   }
+})
+
+app.post("/match/:id", async (req: Request, res: Response) => {
+  const { userConfirmation, key } = req.body
+
+  channel.assertQueue('userConfirmation.match_id', {
+    exclusive: true,
+  })
+
+  channel.bindQueue(userConfirmation.match_id, CONFIRMATION_EXCHANGE,'true')
+  channel.publish(CONFIRMATION_EXCHANGE, key, Buffer.from(JSON.stringify(userConfirmation)))
+  sleep(10000)
+  await channel.consume(userConfirmation.match_id, (msg) => {
+    console.log("Received message: ", msg.content.toString())
+  })
+  res.json({
+    acceptedUsers: ["I am here"],
+    timeout: true
+  })
 })
 
 app.use((req: Request, res: Response, next) => {
