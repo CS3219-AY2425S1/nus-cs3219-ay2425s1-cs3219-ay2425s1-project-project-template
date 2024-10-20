@@ -1,7 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Consumer, Kafka, Producer } from 'kafkajs';
-import { QuestionComplexity, QuestionTopic, MatchRequestDto } from 'src/dto/request.dto';
+import { randomUUID } from 'crypto';
+import { Queue } from 'src/utils/queue';
+import { QuestionComplexity, QuestionTopic, MatchResponse, MatchRequestDto } from 'src/dto/request.dto';
 
 export enum MatchStatus {
   PENDING = 'PENDING',
@@ -10,10 +12,14 @@ export enum MatchStatus {
 }
 
 type UserEntry = {
+  userId: string;
   status: MatchStatus;
   topic: string;
   matchedWithUserId: string;
   matchedTopic: string;
+  matchedRoom: string;
+  createTime: number;
+  expiryTime: number;
 }
 
 enum MessageAction {
@@ -25,21 +31,27 @@ type Message = {
   action: MessageAction;
   userId: string;
   timestamp: number;
+  expiryTime?: number;
 }
 
 @Injectable()
 export class MatchingService implements OnModuleInit {
+  private readonly REQUEST_TIMEOUT = 30000; // epoch time 30s
+  private readonly CLEAN_TIMEOUT = 3000;
   private readonly kafkaBrokerUri: string;
   private readonly consumerGroupId: string;
   private readonly kafka: Kafka;
   private readonly producer: Producer;
   private readonly consumer: Consumer;
+
+  private requestQueue: Queue<UserEntry>;
+  private intervalId: NodeJS.Timeout;
   private userPool: { [userId: string]: UserEntry } = {}; // In-memory store for user pool
 
   constructor(private configService: ConfigService) {
     this.kafkaBrokerUri = this.getKafkaBrokerUri();
     this.consumerGroupId = this.getConsumerGroupId();
-
+    this.requestQueue = new Queue();
     this.kafka = new Kafka({
       clientId: 'matching-service',
       brokers: [this.kafkaBrokerUri],
@@ -56,6 +68,20 @@ export class MatchingService implements OnModuleInit {
     await this.subscribeToTopics();
     // Consume message loop
     await this.consumeMessages();
+
+    this.intervalId = setInterval(() => {
+      const currentTime = Date.now();
+      // console.log(`Cleaning request queue for timeout at ${currentTime}`);
+      // only keep expiry more than currentTime
+      this.requestQueue.clean((userEntry) => userEntry.expiryTime > currentTime);
+      console.log(`Current queue size is: ${this.requestQueue.size()}`)
+    }, this.CLEAN_TIMEOUT);
+  }
+
+  async onModuleDestroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 
   getKafkaBrokerUri(): string {
@@ -105,18 +131,24 @@ export class MatchingService implements OnModuleInit {
     await this.consumer.subscribe({ topics: allTopics, fromBeginning: false });
   }
 
-  async addMatchRequest(req: MatchRequestDto) {
+  async addMatchRequest(req: MatchRequestDto): Promise<MatchResponse> {
     var kafkaTopic = `${req.difficulty}-${req.topic}`;
     console.log("Topic is: ", kafkaTopic);
     // Add message
+    const currentTime = Date.now();
+    const expiryTime = currentTime + this.REQUEST_TIMEOUT;
     await this.producer.send({
       topic: kafkaTopic,
       messages: [{value: JSON.stringify({
         action: MessageAction.REQUEST_MATCH,
         userId: req.userId,
-        timestamp: req.timestamp
+        timestamp: currentTime,
+        expiryTime: expiryTime
       })}]
     });
+    return {
+      message: `Match Request received for ${req.userId} at ${currentTime}`,
+    }
   }
 
   async addCancelRequest(req: MatchRequestDto) {
@@ -141,7 +173,7 @@ export class MatchingService implements OnModuleInit {
     const questionDifficulty1 = kafkaTopic1.split('-')[0];
     const questionTopic1 = kafkaTopic1.split('-')[1];
 
-    const questionDifficulty2 =kafkaTopic2.split('-')[0];
+    const questionDifficulty2 = kafkaTopic2.split('-')[0];
     const questionTopic2 = kafkaTopic2.split('-')[1];
 
     if (questionDifficulty1 === QuestionComplexity.ANY || questionDifficulty2 === QuestionComplexity.ANY) {
@@ -183,44 +215,64 @@ export class MatchingService implements OnModuleInit {
 
   private async handleMatchRequest(kafkaTopic: string, matchRequest: Message) {
       const requesterUserId = matchRequest.userId;
+      const currTime = Date.now();
 
       // Check if this is a duplicate request
-      if (this.userPool[requesterUserId]) {
+      if (this.userPool[requesterUserId] 
+        && this.userPool[requesterUserId].status !== MatchStatus.CANCELLED // not cancelled (deprecated, keep first)
+        && this.userPool[requesterUserId].expiryTime > currTime // not expired
+      ) {
         console.log(`Duplicate match request received for ${requesterUserId}`);
         return;
       }
 
       console.log(`Received match request: ${matchRequest} on topic: ${kafkaTopic}`);
 
-      // Check if a matching user exists
-      const existingMatch = Object.keys(this.userPool).find(
-        (userId) => 
-          // Find a user with the same topic, or either has 'any' topic
-          this.matchTopics(this.userPool[userId].topic, kafkaTopic)
-          && this.userPool[userId].status == MatchStatus.PENDING // Ensure the user is waiting for a match
-          && userId !== requesterUserId // Ensure the user is not the requester
-      );
+      // Check if a matching user exists in the Queue
+      // atomic retrieve (and popped from queue)
+      const matchingUser: UserEntry | undefined = await this.requestQueue.retrieve((userInQueue: UserEntry) => {
+        return this.matchTopics(userInQueue.topic, kafkaTopic)
+          && userInQueue.status == MatchStatus.PENDING // Ensure the user is waiting for a match
+          && userInQueue.userId !== requesterUserId
+      })
+      var existingMatch: string | undefined = undefined;
+      if (matchingUser) {
+        existingMatch = matchingUser.userId;
+      }
 
       if (existingMatch) {
         // Pair the users if match is found
         const matchedTopic = this.getMatchedTopic(this.userPool[existingMatch].topic, kafkaTopic);
+        const roomId = randomUUID();
         this.userPool[existingMatch].matchedWithUserId = requesterUserId;
         this.userPool[existingMatch].status = MatchStatus.MATCHED;
+        this.userPool[existingMatch].matchedRoom = roomId;
         this.userPool[existingMatch].matchedTopic = matchedTopic;
+
         this.userPool[requesterUserId] = {
+          userId: requesterUserId,
           status: MatchStatus.MATCHED,
           topic: kafkaTopic,
           matchedWithUserId: existingMatch,
           matchedTopic: matchedTopic,
+          matchedRoom: roomId,
+          createTime: matchRequest.timestamp,
+          expiryTime: matchRequest.expiryTime,
         };
         console.log(`Match found for ${requesterUserId} and ${existingMatch} in topic: ${kafkaTopic}`);
       } else {
-        this.userPool[requesterUserId] = {
+        const userEntry: UserEntry = {
+          userId: requesterUserId,
           status: MatchStatus.PENDING,
           topic: kafkaTopic,
           matchedWithUserId: '',
           matchedTopic: '',
+          matchedRoom: '',
+          createTime: matchRequest.timestamp,
+          expiryTime: matchRequest.expiryTime,
         }
+        await this.requestQueue.enqueue(userEntry)
+        this.userPool[requesterUserId] = userEntry
       }
   }
 
@@ -238,8 +290,9 @@ export class MatchingService implements OnModuleInit {
       console.log(`Cannot cancel. Match already found for ${requesterUserId}`);
       return;
     } else {
-      this.userPool[requesterUserId].status = MatchStatus.CANCELLED;
-      this.userPool[requesterUserId].matchedWithUserId = '';
+      // removes from queue if exists
+      this.requestQueue.retrieve((userEntry: UserEntry) =>  userEntry.userId === requesterUserId);
+      this.removeFromUserPool(requesterUserId);
       console.log(`Match request cancelled for ${requesterUserId} in topic: ${topic}`);
     }
   }

@@ -21,11 +21,7 @@ export class AppController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async match(@Body() body: MatchRequestDto): Promise<MatchResponse> {
     try {
-      await this.matchService.addMatchRequest(body);
-
-      return {
-        message: `Sent match request for ${body.userId} on time: ${body.timestamp}`,
-      };
+      return this.matchService.addMatchRequest(body);
     } catch (error) {
       console.error('Error processing match request:', error);
       return {
