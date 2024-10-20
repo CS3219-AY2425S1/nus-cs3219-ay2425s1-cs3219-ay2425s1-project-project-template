@@ -2,12 +2,14 @@
 
 import Header from "@/components/common/header";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/common/button";
 import Chat from "@/components/workspace/chat";
 import Problem from "@/components/workspace/problem";
 import CodeEditor from "@/components/workspace/code-editor";
+import { getQuestion } from "@/app/actions/questions";
+import { getRoomById } from "@/app/actions/room";
 
 type WorkspaceProps = {
   params: {
@@ -23,6 +25,16 @@ const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
   useEffect(() => {
     console.log(params.id);
   }, []);
+
+  const [question, setQuestion] = useState<RoomDto>();
+
+  useEffect(() => {
+    if (token) {
+      getRoomById(params.id, token).then((data) => {
+        setQuestion(data?.message);
+      });
+    }
+  }, [token]);
 
   return (
     <div className="h-screen w-[80%] flex flex-col  mx-auto py-10 overscroll-contain">
