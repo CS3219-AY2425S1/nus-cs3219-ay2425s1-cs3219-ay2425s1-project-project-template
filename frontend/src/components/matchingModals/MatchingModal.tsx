@@ -27,7 +27,6 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
   const [showTimer, setShowTimer] = useState(false);
   const [showCancelButton, setShowCancelButton] = useState(false);
   const [cancelAlert, setCancelAlert] = useState<boolean>(false);
-  // const [matchFoundAlert, setMatchFoundAlert] = useState<boolean>(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
