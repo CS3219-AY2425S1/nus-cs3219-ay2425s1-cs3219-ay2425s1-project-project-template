@@ -276,7 +276,6 @@ export class MatchingService implements OnModuleInit {
           expiryTime: matchRequest.expiryTime,
         }
         await this.requestQueue.enqueue(userEntry)
-        // No need to insert first?
         this.userPool[requesterUserId] = userEntry
       }
   }
