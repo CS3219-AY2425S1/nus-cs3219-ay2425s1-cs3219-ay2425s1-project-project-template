@@ -26,7 +26,7 @@ class Producer {
 
         channel.publish(exchange, "", Buffer.from(JSON.stringify(msg)), {
             headers: messageHeaders,
-            replyTo: replyQueueName,
+            replyTo: replyQueueName
         });
 
         logger.info(`Match request sent!`);
@@ -48,10 +48,10 @@ class Producer {
         };
         
         channel.publish(directExchange, "cancellation", Buffer.from(JSON.stringify(msg)), {
-            headers: messageHeaders,
+            headers: messageHeaders
         });
 
-        logger.info(`Cancellation request`);
+        logger.info(`Cancellation request sent`);
         return;
     }
 }

@@ -14,7 +14,7 @@ RUN npm install -g typescript
 COPY package.json package-lock.json ./
 
 # Install all dependencies, including dev dependencies.
-RUN npm ci
+# RUN npm ci
 
 # Copy the rest of the source files into the image.
 COPY . .
