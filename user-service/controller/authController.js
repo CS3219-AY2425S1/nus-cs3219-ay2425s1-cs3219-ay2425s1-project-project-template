@@ -27,8 +27,10 @@ const loginUser = async (req, res) => {
     user.lastLogin = new Date();
     await updateUserById(user._id, { lastLogin: user.lastLogin });
 
-    const token = jwt.sign({ userId: user._id }, process.env.USER_JWT_SECRET, { expiresIn: '1y' });
-    res.json({ token: token, user_id: user._id.toString() });
+    const token = jwt.sign({ userId: user._id }, process.env.USER_JWT_SECRET, {
+      expiresIn: '1y',
+    });
+    res.json({ token: token, userId: user._id.toString() });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -41,7 +43,9 @@ const forgotPassword = async (req, res) => {
   try {
     const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(400).json({ message: 'No account with that email exists.' });
+      return res
+        .status(400)
+        .json({ message: 'No account with that email exists.' });
     }
 
     // Generate reset token
@@ -50,7 +54,7 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await updateUserById(user._id.toString(), {
       resetPasswordToken: user.resetPasswordToken,
-      resetPasswordExpires: user.resetPasswordExpires
+      resetPasswordExpires: user.resetPasswordExpires,
     });
 
     // Send reset email
@@ -71,7 +75,7 @@ const forgotPassword = async (req, res) => {
       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
              Please click on the following link, or paste this into your browser to complete the process:\n\n
              http://localhost:3000/reset-password/${resetToken}\n\n
-             If you did not request this, please ignore this email and your password will remain unchanged.\n`
+             If you did not request this, please ignore this email and your password will remain unchanged.\n`,
     };
 
     transporter.sendMail(mailOptions, (err) => {
@@ -93,7 +97,9 @@ const resetPassword = async (req, res) => {
   try {
     const user = await findByToken(token);
     if (!user) {
-      return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+      return res
+        .status(400)
+        .json({ message: 'Password reset token is invalid or has expired.' });
     }
 
     user.password = await bcrypt.hash(password, 10);
@@ -111,11 +117,13 @@ const resetPassword = async (req, res) => {
 const handleVerifyToken = async (req, res) => {
   try {
     const verifiedUser = req.user;
-    return res.status(200).json({ message: "Token verified", data: verifiedUser });
+    return res
+      .status(200)
+      .json({ message: 'Token verified', data: verifiedUser });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-}
+};
 
 module.exports = {
   loginUser,
