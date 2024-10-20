@@ -32,4 +32,8 @@ export class UserService {
       headers
     })
   }
+
+  getCurrUserId(): string {
+    return userJson !== null ? JSON.parse(userJson).data.id : "";
+  }
 }

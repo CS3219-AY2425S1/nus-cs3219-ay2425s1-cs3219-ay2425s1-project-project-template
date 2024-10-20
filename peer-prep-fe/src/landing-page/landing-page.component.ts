@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { CategoryService } from '../services/category.service';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { MatchService } from '../services/match.service';
+import { QUEUE_NAMES, DIFFICULTY } from '../app/constants/queue-constants';
+import { UserService } from '../app/userService/user-service';
 
 @Component({
   selector: 'app-landing-page',
@@ -14,6 +15,7 @@ import { Router } from '@angular/router';
 
 export class LandingPageComponent {
   selectedDifficulty: string | null = null;
+  selectedCategory: string | null = null;
   question_categories = [
     { name: "Algorithms", selected: false },
     { name: "Arrays", selected: false },
@@ -29,14 +31,18 @@ export class LandingPageComponent {
   errorMessage: string | null = null;
   matchButtonActive: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private matchService: MatchService, 
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.categoryLines = this.distributeCategories();
   }
 
 
-  // constructor(private http: HttpClient) {}
+  // ===== LATER OPTIMISATION OF CATEGORIES ====== 
 
   // ngOnInit() {
   //   this.fetchCategoriesFromApi();
@@ -56,6 +62,46 @@ export class LandingPageComponent {
   //     });
   // }
 
+  // =================================================
+
+  findMatch() {
+    // const selectedTopic = this.question_categories.filter(topic => topic.selected).map(topic => topic.name);
+    const queueName = this.getQueueName();
+    const userData = {
+      difficulty: this.selectedDifficulty || '',
+      topic: this.selectedCategory || '',
+      user_id: this.userService.getCurrUserId() || '', // not sure if it'l work
+      // user_id: '1',
+    };
+
+    this.matchService.sendMatchRequest(userData, queueName).subscribe(
+      (error) => {
+        console.error('Match request failed:', error);
+        this.displayError('Failed to find a match. Please try again.');
+      }
+    );
+    this.router.navigate(['/loading-screen']);
+  }
+
+  findMatchDummy() {
+    this.matchService.sendMatchRequest({difficulty: 'easy', topic: 'arrays', user_id: '1'}, 'easy_queue').subscribe(
+      (error) => {
+        console.error('Match request failed:', error);
+        this.displayError('Failed to find a match. Please try again.');
+      }
+    )
+    this.router.navigate(['/loading-screen']);
+  }
+
+  getQueueName(): string {
+    switch(this.selectedDifficulty) {
+      case DIFFICULTY.EASY: return QUEUE_NAMES.EASY;
+      case DIFFICULTY.MEDIUM: return QUEUE_NAMES.MEDIUM;
+      case DIFFICULTY.HARD: return QUEUE_NAMES.HARD;
+      default: return '';
+    }
+  }
+
   
   toggleCategory(category: any) {
     category.selected = !category.selected; // Toggle the selected state
@@ -70,15 +116,15 @@ export class LandingPageComponent {
   rotation: string = '0deg';
 
   showImage(difficulty: string) {
-    if (difficulty === 'EASY') {
+    if (difficulty === DIFFICULTY.EASY) {
         this.rotation = '-50.39deg'; 
         this.xPosition = '140px'; // Initial X position
         this.yPosition = '-80px';
-    } else if (difficulty === 'MEDIUM') {
+    } else if (difficulty === DIFFICULTY.MEDIUM) {
         this.rotation = '-20deg'; 
         this.xPosition = '360px'; // Initial X position
         this.yPosition = '-80px';
-    } else if (difficulty === 'HARD') {
+    } else if (difficulty === DIFFICULTY.HARD){
         this.rotation = '10.39deg'; 
         this.xPosition = '570px'; // Initial X position
         this.yPosition = '-80px';
@@ -86,61 +132,69 @@ export class LandingPageComponent {
     this.selectedDifficulty = difficulty; // Update the selected difficulty
     this.checkSelections();
   
-}
+  }
 
-distributeCategories() {
-  const lines = [];
-  let currentLine = []; 
-  let count = 0; 
+  // only one category can be selected, click on another means give up current
+  selectCategory(category: any) {
+    this.selectedCategory = category;
+    this.checkSelections();
+  }
 
-  for (let j = 0; j < this.question_categories.length; j++) {
-    currentLine.push(this.question_categories[j]);
-    if ((count % 2 === 0 && currentLine.length === 4) || (count % 2 !== 0 && currentLine.length === 3)) {
-      lines.push(currentLine);  
-      currentLine = [];         
-      count++;                  
+  distributeCategories() {
+    const lines = [];
+    let currentLine = []; 
+    let count = 0; 
+
+    for (let j = 0; j < this.question_categories.length; j++) {
+      currentLine.push(this.question_categories[j]);
+      if ((count % 2 === 0 && currentLine.length === 4) || (count % 2 !== 0 && currentLine.length === 3)) {
+        lines.push(currentLine);  
+        currentLine = [];         
+        count++;                  
+      }
+    }
+
+    if (currentLine.length > 0) {
+      lines.push(currentLine);
+    }
+    console.log(lines)
+    return lines;
+  }
+
+  checkSelections() {
+    const hasSelectedDifficulty = this.selectedDifficulty !== null;
+    // const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
+    const hasSelectedTopics = this.selectedCategory !== null;
+    
+    this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
+    
+  }
+
+  isMatchButtonActive() {
+    this.errorMessage = null;
+    const hasSelectedDifficulty = this.selectedDifficulty !== null;
+    // const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
+    const hasSelectedTopics = this.selectedCategory !== null;
+    this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
+
+    if (!hasSelectedDifficulty && !hasSelectedTopics) {
+      this.displayError("Please select one difficulty and at least one topic.");
+    } else if (!hasSelectedDifficulty && hasSelectedTopics) {
+      this.displayError("Please select a difficulty.");
+    } else if (hasSelectedDifficulty && !hasSelectedTopics) {
+      this.displayError("Please select at least one topic.");   
+    }  
+    else {
+      this.errorMessage = null;
+      this.matchButtonActive = true
+    }
+
+    if (this.matchButtonActive) {
+      this.findMatch();
     }
   }
 
-  if (currentLine.length > 0) {
-    lines.push(currentLine);
-  }
-  console.log(lines)
-  return lines;
-}
-
-checkSelections() {
-  const hasSelectedDifficulty = this.selectedDifficulty !== null;
-  const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
-  
-  this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
-  
-}
-
-isMatchButtonActive() {
-  this.errorMessage = null;
-  const hasSelectedDifficulty = this.selectedDifficulty !== null;
-  const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
-  this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
-
-  if (!hasSelectedDifficulty && !hasSelectedTopics) {
-    this.displayError("Please select one difficulty and at least one topic.");
-  } else if (!hasSelectedDifficulty && hasSelectedTopics) {
-    this.displayError("Please select a difficulty.");
-  } else if (hasSelectedDifficulty && !hasSelectedTopics) {
-    this.displayError("Please select at least one topic.");   
-  }  
-  else {
-    this.errorMessage = null;
-    this.matchButtonActive = true
-  }
-
-  if (this.matchButtonActive) {
-    this.router.navigate(['/loading-screen']);
-  }
-}
-
-displayError(message: string) {
-  this.errorMessage = message; 
+  displayError(message: string) {
+    this.errorMessage = message; 
   }
 }
