@@ -20,9 +20,8 @@ import {
   MATCH_WAITING_STATUS,
   MATCH_IDLE_STATUS,
 } from '@/lib/consts';
+import { useQuestionCategories } from '@/hooks/useQuestions';
 
-// TODO: Request topics from Question Service
-const topics = ['Arrays', 'Strings', 'Linked Lists', 'Trees', 'Graphs'];
 const difficultyLevels = ['Easy', 'Medium', 'Hard'];
 
 interface IdleViewProps {
@@ -34,6 +33,8 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
   const [difficulty, setDifficulty] = useState('');
   const [showErrors, setShowErrors] = useState(false);
 
+  const { data: topics, isLoading } = useQuestionCategories();
+
   const handleStartMatching = () => {
     if (topic && difficulty) {
       onStartMatching(topic, difficulty);
@@ -42,6 +43,15 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
       setShowErrors(true);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin" />
+        <p className="mt-2">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -56,11 +66,12 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
                 <SelectValue placeholder="Select a topic" />
               </SelectTrigger>
               <SelectContent>
-                {topics.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
+                {topics &&
+                  topics.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             {showErrors && !topic && (
@@ -248,16 +259,18 @@ export default function DiscussRoute() {
     // TODO: Include userId as a query parameter
     // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a random user ID
     // const userId = 'user-123'; // Use a fixed user ID for testing
-    ws.current = new WebSocket(`ws://localhost:8082/ws/matching?userId=${userId}`);
-  
+    ws.current = new WebSocket(
+      `ws://localhost:8082/ws/matching?userId=${userId}`
+    );
+
     ws.current.onopen = () => {
       console.log('WebSocket Connected');
     };
-  
+
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       console.log('Received message:', message);
-  
+
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
@@ -265,7 +278,7 @@ export default function DiscussRoute() {
         setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
     };
-  
+
     ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
       setMatchStatus(MATCH_ERROR_STATUS);
@@ -274,12 +287,14 @@ export default function DiscussRoute() {
     ws.current.onclose = (event) => {
       console.log('WebSocket closed:', event);
       if (event.wasClean) {
-        console.log(`Closed cleanly, code=${event.code}, reason=${event.reason}`);
+        console.log(
+          `Closed cleanly, code=${event.code}, reason=${event.reason}`
+        );
       } else {
         console.error('Connection died');
       }
     };
-  
+
     return () => {
       if (ws.current) {
         ws.current.close();
@@ -292,10 +307,10 @@ export default function DiscussRoute() {
     selectedDifficulty: string
   ) => {
     setMatchStatus(MATCH_WAITING_STATUS);
-  
+
     // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a random user ID
     // const userId = 'user-123'; // Use a fixed user ID for testing
-  
+
     try {
       const response = await fetch('http://localhost:8082/api/match', {
         method: 'POST',
@@ -308,21 +323,21 @@ export default function DiscussRoute() {
           difficultyLevel: selectedDifficulty,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to start matching');
       }
-  
+
       const result = await response.json();
       console.log('Matching request sent:', result);
-  
+
       // Start a 30-second timeout
       const timeoutId = setTimeout(() => {
         if (matchStatus === MATCH_WAITING_STATUS) {
           setMatchStatus(MATCH_TIMEOUT_STATUS);
         }
       }, MATCH_TIMEOUT_DURATION);
-  
+
       // Clear the timeout if the component unmounts or if we get a match
       return () => clearTimeout(timeoutId);
     } catch (error) {
@@ -336,26 +351,28 @@ export default function DiscussRoute() {
     setMatchStatus(MATCH_IDLE_STATUS);
     setQueuePosition(0);
     setRoomId('');
-  
+
     // Close existing WebSocket connection
     if (ws.current) {
       ws.current.close();
     }
-  
+
     // Open a new WebSocket connection
     // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a new random user ID
     // const userId = 'user-123'; // Use a fixed user ID for testing
-    ws.current = new WebSocket(`ws://localhost:8082/ws/matching?userId=${userId}`);
-  
+    ws.current = new WebSocket(
+      `ws://localhost:8082/ws/matching?userId=${userId}`
+    );
+
     // Re-attach event listeners
     ws.current.onopen = () => {
       console.log('WebSocket Reconnected');
     };
-  
+
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       console.log('Received message:', message);
-  
+
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
@@ -363,7 +380,7 @@ export default function DiscussRoute() {
         setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
     };
-  
+
     ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
       setMatchStatus(MATCH_ERROR_STATUS);
