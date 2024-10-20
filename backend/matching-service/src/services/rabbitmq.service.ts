@@ -303,8 +303,9 @@ class RabbitMQConnection {
         }
     }
 
-    async addUserToCancelledSet(websocketId: string) {
+    async cancelUser(websocketId: string, userId: string) {
         this.cancelledUsers.add(websocketId)
+        this.currentUsers.delete(userId)
         logger.info(`[Cancel-User] User ${websocketId} has been blacklisted from matchmaking`)
     }
 

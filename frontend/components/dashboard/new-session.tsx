@@ -80,11 +80,6 @@ export const NewSession = () => {
             await handleUserInMatchmaking()
         }
 
-        if (!websocketId) {
-            toast.error('Failed to retrieve websocket ID.')
-            return
-        }
-
         const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${websocketId}`)
         socketRef.current = socket
         socketRef.current.onclose = () => {
@@ -166,7 +161,7 @@ export const NewSession = () => {
     }
 
     const handleCancelMatchmaking = async () => {
-        const cancelMessage = { type: WebSocketMessageType.CANCEL }
+        const cancelMessage = { type: WebSocketMessageType.CANCEL, userId: session?.user.id }
         socketRef.current?.send(JSON.stringify(cancelMessage))
         setModalData((modalData) => ({
             ...modalData,

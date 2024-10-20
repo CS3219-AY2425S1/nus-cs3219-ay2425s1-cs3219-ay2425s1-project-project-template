@@ -34,8 +34,8 @@ export async function addUserToMatchmaking(data: UserQueueRequest): Promise<void
     await mqConnection.sendToEntryQueue(createDto)
 }
 
-export async function removeUserFromMatchingQueue(websocketId: string): Promise<void> {
-    await mqConnection.addUserToCancelledSet(websocketId)
+export async function removeUserFromMatchingQueue(websocketId: string, userId: string): Promise<void> {
+    await mqConnection.cancelUser(websocketId, userId)
     wsConnection.sendMessageToUser(websocketId, JSON.stringify({ type: WebSocketMessageType.CANCEL }))
 }
 
