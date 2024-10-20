@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { MultiSelect } from "@/components/multi-select";
 import { Label } from '@/components/ui/label'
@@ -17,6 +17,7 @@ import {
 import { io, Socket } from 'socket.io-client';
 
 const MatchingFilters = () => {
+    const socketRef = useRef<Socket | null>(null);
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
     const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -77,7 +78,9 @@ const MatchingFilters = () => {
 
     // Setup socket connection and event handlers
     useEffect(() => {
-        socket = io('http://localhost:5002');
+        socketRef.current = io('http://localhost:5002');
+
+        const { current: socket } = socketRef;
 
         socket.on('connect', () => {
             console.log(`Connected with socket ID: ${socket.id}`);
@@ -96,6 +99,9 @@ const MatchingFilters = () => {
         });
 
         return () => {
+            socket.off('connect');
+            socket.off('matchFound');
+            socket.off('noMatchFound');
             socket.disconnect();
         }
     }, []);
