@@ -8,6 +8,7 @@ import sys
 import threading
 import socketio
 import time
+import traceback
 
 load_dotenv()
 app = Flask(__name__)
@@ -36,7 +37,7 @@ pending_requests = []
 
 
 def match_user(request):
-    print(f"trying to find matches with incoming request {request}")
+    print(f"trying to find matches with incoming request {request}", file=sys.stderr)
     topic, difficulty = request['topic'], request['difficulty']
     user1 = request
 
@@ -82,9 +83,13 @@ def remove_request(request):
 
 
 def consume_messages():
+    print("Trying")
+    time.sleep(30)
+    print("Attempting connection")
     try:
         credentials = pika.PlainCredentials('peerprep', 'peerprep')
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        print("connection ready")
         channel = connection.channel()
 
         channel.queue_declare(queue='match_queue')
@@ -93,13 +98,15 @@ def consume_messages():
             print(f" [x] Received {body}")
             request = json.loads(body)
             match_user(request)
-
+        print("Ready to consume", file=sys.stdout)
+        print("Ready to consume")
         channel.basic_consume(queue='match_queue', on_message_callback=callback, auto_ack=True)
 
         print(' [*] Waiting for messages. To exit press CTRL+C')
         channel.start_consuming()
     except Exception as e:
         print("Failed: " + str(e), file=sys.stderr)
+        traceback.print_exc()
 
 
 @sio.event
