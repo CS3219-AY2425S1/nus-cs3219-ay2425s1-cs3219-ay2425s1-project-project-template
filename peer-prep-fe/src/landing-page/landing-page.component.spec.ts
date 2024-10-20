@@ -1,20 +1,18 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LandingPageComponent } from './landing-page.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatchService } from '../services/match.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing'; // Import HttpClientTestingModule
 
 describe('LandingPageComponent', () => {
   let component: LandingPageComponent;
+  let fixture: ComponentFixture<LandingPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LandingPageComponent ],
-      imports: [ HttpClientTestingModule ], // Add this
-      providers: [ MatchService ]
+      imports: [LandingPageComponent, HttpClientTestingModule] // Include HttpClientTestingModule here
     })
-    .compileComponents();
+      .compileComponents();
 
-    const fixture = TestBed.createComponent(LandingPageComponent);
+    fixture = TestBed.createComponent(LandingPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
