@@ -9,8 +9,15 @@
     *ngIf="isAdmin()"
     routerLink="/admin-controls"
     routerLinkActive="activebutton"
-    >Admin</a
-  >
+  >Admin
+  </a>
+  <a 
+    class="button" 
+    *ngIf="isLoggedIn()"
+    routerLink="/landing"
+    routerLinkActive="activebutton"
+    >Pratice
+  </a>
   <button class="logout-button" *ngIf="isLoggedIn()" (click)="logout()">
     Logout
   </button>
