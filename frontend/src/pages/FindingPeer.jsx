@@ -55,8 +55,12 @@ const FindingPeer = () => {
         matchingService.onMatchFound((roomId) => {
           console.log("Match found, redirecting to room:", roomId);
           clearInterval();
-          toast.success("Match found! Redirecting...");
-          navigate(`/room/${roomId}`);
+          toast.success("Match found! Redirecting to the collaboration room...");
+          
+          // Delay the navigation to ensure toast is visible
+          setTimeout(() => {
+            navigate(`/room/${roomId}`);
+          }, 3000);  // Wait for 3 seconds before navigating
         });
         
         //  When an error message is received, call the onError event
