@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 interface StartSessionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  // matchedUsers: string[];
-  matchedUsers: string;
+  matchedUsers: string[];
 }
 
 const StartSessionDialog: React.FC<StartSessionDialogProps> = ({ isOpen, onClose, matchedUsers }) => {

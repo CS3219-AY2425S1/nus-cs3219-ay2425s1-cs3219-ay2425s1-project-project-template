@@ -1,25 +1,37 @@
-"use client";
+'use client'
 
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { PlusIcon } from "lucide-react";
-import { SetStateAction, useEffect, useState } from "react";
+import { PlusIcon, XCircle } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import StartSessionDialog from "./StartSessionDialog";
-import { io } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 
-const socket = io('http://localhost:3232');
-
-interface CreateSessionDialogProps {
-  difficulty: string
-  topic: string
-  onClose: () => void
+interface FormData {
+  difficulty: string;
+  topic: string;
 }
 
-export default function CreateSessionDialog() {
-  const { control, handleSubmit, watch, reset, formState: { errors } } = useForm({
+interface MatchRequest {
+  userId: string;
+  topic: string;
+  difficulty: string;
+  timestamp: number;
+}
+
+interface MatchResult {
+  success: boolean;
+  message: string;
+  peerUserId?: string;
+}
+
+type Status = 'idle' | 'loading' | 'error' | 'success';
+
+export default function CreateSessionDialog(): JSX.Element {
+  const { control, handleSubmit, watch, reset } = useForm<FormData>({
     defaultValues: {
       difficulty: '',
       topic: ''
@@ -28,173 +40,204 @@ export default function CreateSessionDialog() {
 
   const difficulty = watch('difficulty');
   const topic = watch('topic');
-  const isFormValid = difficulty && topic;
-  const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
-  const [timer, setTimer] = useState<NodeJS.Timeout  | null>(null);
-  const [showMatchDialog, setShowMatchDialog] = useState(false);
+  const isFormValid = !!difficulty && !!topic;
+  const [status, setStatus] = useState<Status>('idle');
+  const [timer, setTimer] = useState<number | null>(null);
+  const [showMatchDialog, setShowMatchDialog] = useState<boolean>(false);
   const [matchedUsers, setMatchedUsers] = useState<string[]>([]);
-  const [matchResult, setMatchResult] = useState(null);
-
-  const handleCreateSession = () => {
-    console.log('Creating Session:', { topic, difficulty });
-    const matchRequest = {
-      topic,
-      difficulty,
-      clientId: socket.id,
-    };
-
-    setStatus('loading');
-
-    console.log("statussss", status);
-
-    socket.emit('initMatch', matchRequest);
-    console.log('Match Request Sent:', matchRequest);
-
-  };
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
-    socket.on('matchResult', (result) => {
-      console.log('Match Result:', result);
-      setStatus('success');
-      setMatchResult(result);
-      clearTimeout(timeoutId);
+    setUserId(`user_${Math.random().toString(36).substr(2, 9)}`);
+
+    const newSocket = io('ws://localhost:3002');
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => {
+      console.log('Connected to WebSocket');
     });
 
-    console.log('status', status);
+    newSocket.on('requestAcknowledged', (data: { message: string; timestamp: string }) => {
+      console.log('Request acknowledged:', data);
+    });
 
-    const timeoutId = setTimeout(() => {
-      console.log('Match result not received within 30 seconds');
+    newSocket.on('cancelAcknowledged', (data: { message: string; timestamp: string }) => {
+      console.log('Cancel acknowledged:', data);
+      resetState();
+    });
+
+    newSocket.on('matchError', (data: { message: string; timestamp: string }) => {
+      console.log('Error:', data);
       setStatus('error');
-    }, 30000);
+      setTimer(null);
+    });
 
-    console.log('timeoutId', timeoutId);
-
-    if (status === 'error' || status === 'success') {
-      clearTimeout(timeoutId);
-    }
+    newSocket.on('matchResult', (data: MatchResult) => {
+      console.log('Match result:', data);
+      if (data.success && data.peerUserId) {
+        setMatchedUsers([data.peerUserId]);
+        setShowMatchDialog(true);
+        resetState();
+      } else {
+        setStatus('error');
+        setTimer(null);
+      }
+    });
 
     return () => {
-      socket.off('matchResult');
-      console.log('thissss', status);
-      clearTimeout(timeoutId);
+      newSocket.disconnect();
     };
-  }, [socket, status]);
+  }, []);
 
-  const handleCancel = () => {
-    setStatus('idle');
-    if (timer !== null) {
-      clearTimeout(timer);
-      setTimer(null);
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timer !== null && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => (prevTimer !== null ? prevTimer - 1 : null));
+      }, 1000);
+    } else if (timer === 0) {
+      setStatus('error');
     }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const resetState = () => {
+    setStatus('idle');
+    setTimer(null);
     reset({
       difficulty: '',
       topic: ''
     });
   };
 
-  console.log('outsidee', status);
+  const handleCreateSession = (data: FormData) => {
+    setStatus('loading');
+    setTimer(30);
+    const matchRequest: MatchRequest = {
+      userId: userId,
+      topic: data.topic,
+      difficulty: data.difficulty,
+      timestamp: Date.now()
+    };
+    socket?.emit('requestMatch', matchRequest);
+  };
+
+  const handleCancel = () => {
+    if (status === 'loading') {
+      socket?.emit('cancelMatch', { userId: userId });
+    }
+    resetState();
+  };
 
   return (
     <>
-    <Dialog onOpenChange={handleCancel}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="w-4 h-4 mr-2" />
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>
+            <PlusIcon className="w-4 h-4 mr-2" />
             Create Session
           </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Coding Interview Prep</DialogTitle>
-          <DialogDescription>Find a partner to practice coding interviews with.</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(handleCreateSession)}>
-          <div className="grid gap-4 p-4">
-            <div className="grid gap-2">
-              <Label htmlFor="difficulty">Question Difficulty</Label>
-              <Controller
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Coding Interview Prep</DialogTitle>
+            <DialogDescription>Find a partner to practice coding interviews with.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(handleCreateSession)}>
+            <div className="grid gap-4 p-4">
+              <div className="grid gap-2">
+                <Label htmlFor="difficulty">Question Difficulty</Label>
+                <Controller
                   name="difficulty"
                   control={control}
                   render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="topic">Question Topic</Label>
-              <Controller
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select difficulty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="topic">Question Topic</Label>
+                <Controller
                   name="topic"
                   control={control}
                   render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select topic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="strings">Strings</SelectItem>
-                    <SelectItem value="algorithms">Algorithms</SelectItem>
-                    <SelectItem value="data-structures">Data Structures</SelectItem>
-                    <SelectItem value="bit-Manipulation">Bit Manipulation</SelectItem>
-                    <SelectItem value="recursion">Recursion</SelectItem>
-                    <SelectItem value="databases">Databases</SelectItem>
-                    <SelectItem value="arrays">Arrays</SelectItem>
-                    <SelectItem value="brainteaser">Brainteaser</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              />
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select topic" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="strings">Strings</SelectItem>
+                        <SelectItem value="algorithms">Algorithms</SelectItem>
+                        <SelectItem value="data-structures">Data Structures</SelectItem>
+                        <SelectItem value="bit-manipulation">Bit Manipulation</SelectItem>
+                        <SelectItem value="recursion">Recursion</SelectItem>
+                        <SelectItem value="databases">Databases</SelectItem>
+                        <SelectItem value="arrays">Arrays</SelectItem>
+                        <SelectItem value="brainteaser">Brainteaser</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
             </div>
-          </div>
-        </form>
-        <DialogFooter className="flex justify-center gap-2 p-4">
-          <DialogClose asChild>
-            <Button variant="outline" className="flex-1" onClick={handleCancel} >Cancel</Button>
-          </DialogClose>
-          <Button type="submit" className="flex-1 px-4 py-2" onClick={handleCreateSession} disabled={status === 'loading' || !isFormValid}>
+          </form>
+          <DialogFooter className="flex justify-center gap-2 p-4">
             {status === 'loading' ? (
-              <>
-                Creating Session
-                <div className="ml-2 animate-spin" />
-              </>
-            ) : status === 'error' ? (
-              <>
-                Try Again
-                <div className="ml-2 animate-spin" />
-              </>
+              <Button variant="outline" className="flex-1" onClick={handleCancel}>
+                <XCircle className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
             ) : (
-              "Create Session"
+              <DialogClose asChild>
+                <Button variant="outline" className="flex-1">Close</Button>
+              </DialogClose>
             )}
-          </Button>
-        </DialogFooter>
-        {status === 'error' && <div className="p-2 text-center">
-          No match found. Please try again later or try another topic or difficulty.
-        </div>}
-      </DialogContent>
-    </Dialog>
-    {/* {showMatchDialog && (
-      <StartSessionDialog
-        isOpen={showMatchDialog}
-        onClose={() => setShowMatchDialog(false)}
-        matchedUsers={matchedUsers}
-      />
-    )} */}
-    {matchResult && (
-      <StartSessionDialog
-        isOpen={matchResult}
-        onClose={() => setMatchResult(null)}
-        matchedUsers={matchResult}
-      />
-    )}
+            <Button 
+              type="submit" 
+              className="flex-1 px-4 py-2" 
+              onClick={handleSubmit(handleCreateSession)} 
+              disabled={status === 'loading' || !isFormValid}
+            >
+              {status === 'loading' ? (
+                <>
+                  Finding Match ({timer}s)
+                  <div className="ml-2 animate-spin" />
+                </>
+              ) : status === 'error' ? (
+                'Try Again'
+              ) : (
+                'Create Session'
+              )}
+            </Button>
+          </DialogFooter>
+          {status === 'error' && (
+            <div className="p-2 text-center text-red-500">
+              Failed to find a match. Please try again.
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      {showMatchDialog && (
+        <StartSessionDialog
+          isOpen={showMatchDialog}
+          onClose={() => {
+            setShowMatchDialog(false);
+            resetState();
+          }}
+          matchedUsers={matchedUsers}
+        />
+      )}
     </>
   );
 }
