@@ -1,4 +1,4 @@
-import { matchingServiceUri } from "@/lib/api-uri";
+import { matchingServiceUri } from "@/lib/api/api-uri";
 
 export const joinMatchQueue = async (
   jwtToken: string,
