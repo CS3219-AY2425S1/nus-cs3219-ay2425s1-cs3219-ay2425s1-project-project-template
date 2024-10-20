@@ -49,6 +49,9 @@ export const Match = () => {
 
         if (elapsed >= 60) {
           stopMatching();
+          alert(
+            "Couldn't find anyone to match you with at this time...please try again."
+          );
         }
       }, 1000);
     } else {
