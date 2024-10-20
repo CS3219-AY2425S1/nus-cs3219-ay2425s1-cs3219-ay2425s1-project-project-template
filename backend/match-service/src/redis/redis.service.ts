@@ -11,7 +11,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly REQUEST_EXPIRATION_MS = 30000;
 
   constructor() {
-    this.redis = new Redis(REDIS_CONFIG.url);
+    this.redis = new Redis({
+      host: REDIS_CONFIG.host,
+      port: REDIS_CONFIG.port as number
+    })
   }
 
   async onModuleInit() {
@@ -34,7 +37,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const value = JSON.stringify(matchRequest);
 
     await this.redis.zadd(REDIS_CONFIG.keys.matchRequests, score, value);
-    
+
     await this.redis.set(
       `${REDIS_CONFIG.keys.userMatches}${matchRequest.userId}`,
       value,
@@ -65,7 +68,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async createMatch(match: MatchedPairDto): Promise<void> {
     const matchKey = `${REDIS_CONFIG.keys.matchDetails}${match.matchId}`;
-    
+
     await this.redis.hmset(matchKey, {
       ...match,
       timestamp: Date.now().toString(),
@@ -92,7 +95,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         '-inf',
         '+inf'
       );
-      
+
       return matches.map(match => JSON.parse(match));
     } catch (error) {
       this.logger.error('Failed to get all match requests:', error);
@@ -104,7 +107,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       const matches = await this.getAllMatchRequests();
       const matchRequest = matches.find(match => match.socketId === socketId);
-      
+
       if (matchRequest) {
         await this.removeMatchRequest(matchRequest.userId);
       }

@@ -5,7 +5,7 @@ import { MatchRequestDto } from './dto/match-request.dto';
 import { MatchedPairDto } from './dto/matched-pair.dto';
 import { MatchResult } from './interfaces/match-result.interface';
 import { v4 as uuidv4 } from 'uuid';
-import { QuestionComplexity } from '../../../question-service/src/questions/types/question.types';
+import { QuestionComplexity } from './types/question.types';
 
 @Injectable()
 export class MatchService {
