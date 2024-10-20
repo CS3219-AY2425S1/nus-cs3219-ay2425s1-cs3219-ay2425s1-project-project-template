@@ -160,6 +160,8 @@ export class MatchService {
         peerUserId: request1.userId,
       } as MatchResult);
 
+      this.logger.log(`Match created: ${matchedPair.user1.userId} and ${matchedPair.user2.userId} in ${matchedPair.difficulty} difficulty and ${matchedPair.topic}`);
+
     } catch (error) {
       this.logger.error('Error creating match:', error);
     }
