@@ -85,7 +85,7 @@ async function matchUsers(searchRequest) {
 
   await showUserQueue();
 
-  if (userId !== null) return; 
+  if (userId == null) return; 
 
   const userExists = (await redisClient.get(userId)) !== null;
   if (userExists) {
