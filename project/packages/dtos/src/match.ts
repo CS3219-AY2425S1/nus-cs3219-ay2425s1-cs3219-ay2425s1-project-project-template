@@ -27,12 +27,12 @@ export const matchRequestMsgSchema = matchCriteriaSchema.extend({
 });
 
 export const matchRequestSchema = matchRequestMsgSchema.extend({
+  match_req_id: z.string().uuid(),
   timestamp: z.number().int(),
 });
 
 export const matchCancelSchema = z.object({
   match_req_id: z.string().uuid(),
-  user_id: z.string().uuid(),
 });
 
 export type MatchCriteriaDto = z.infer<typeof matchCriteriaSchema>;

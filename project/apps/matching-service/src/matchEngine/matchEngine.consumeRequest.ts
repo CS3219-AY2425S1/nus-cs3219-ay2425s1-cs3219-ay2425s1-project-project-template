@@ -2,20 +2,43 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import amqp, { ChannelWrapper } from 'amqp-connection-manager';
 import { ConfirmChannel } from 'amqplib';
 import { MATCH_QUEUE } from 'src/constants/queue';
-import { EnvService } from 'src/env/env.service';
+// import { EnvService } from 'src/env/env.service';
 import { MatchEngineService } from './matchEngine.service';
-import { MatchRequestMsgDto, matchRequestMsgSchema } from '@repo/dtos/match';
+import { MatchRequestDto, matchRequestSchema } from '@repo/dtos/match';
 
 @Injectable()
 export class MatchEngineConsumer implements OnModuleInit {
   private channelWrapper: ChannelWrapper;
   private readonly logger = new Logger(MatchEngineConsumer.name);
   constructor(
-    private readonly envService: EnvService,
+    // private readonly envService: EnvService,
     private readonly matchEngineService: MatchEngineService,
   ) {
-    const connection_url = envService.get('RABBITMQ_URL');
+    // const connection_url = envService.get('RABBITMQ_URL');
+
+    // temp fix for milestone D4
+    let connection_url = process.env.RABBITMQ_URL;
+    if (!connection_url) {
+      connection_url = 'amqp://rabbitmq:5672';
+    }
+
+    this.logger.log(`Connecting to RabbitMQ at url: ${connection_url}`);
+
     const connection = amqp.connect([connection_url]);
+
+    // Monitor the connection events
+    connection.on('connect', () => {
+      this.logger.log('Successfully connected to RabbitMQ');
+    });
+
+    connection.on('disconnect', (params) => {
+      this.logger.error('Disconnected from RabbitMQ', params.err);
+    });
+
+    connection.on('error', (error) => {
+      this.logger.error('RabbitMQ connection error', error);
+    });
+
     this.channelWrapper = connection.createChannel();
   }
 
@@ -27,7 +50,7 @@ export class MatchEngineConsumer implements OnModuleInit {
           if (message) {
             try {
               const content = JSON.parse(message.content.toString());
-              const matchRequest = matchRequestMsgSchema.parse(content);
+              const matchRequest = matchRequestSchema.parse(content);
               await this.consumeMessage(matchRequest);
               channel.ack(message);
             } catch (err) {
@@ -43,7 +66,7 @@ export class MatchEngineConsumer implements OnModuleInit {
     }
   }
 
-  public async consumeMessage(content: MatchRequestMsgDto) {
+  public async consumeMessage(content: MatchRequestDto) {
     this.logger.log('Processing Match Request:', content);
     this.matchEngineService.generateMatch(content);
   }

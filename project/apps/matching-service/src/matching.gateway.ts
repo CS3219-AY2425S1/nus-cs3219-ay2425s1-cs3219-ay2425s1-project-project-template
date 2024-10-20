@@ -15,7 +15,7 @@ import {
   WEBSOCKET_RETRY_DELAY,
 } from './constants/websocket';
 
-enum MatchEvent {
+export enum MatchEvent {
   'MATCH_FOUND' = 'match_found',
   'MATCH_REQUEST_EXPIRED' = 'match_request_expired',
   'MATCH_INVALID' = 'match_invalid',
@@ -30,8 +30,8 @@ enum MatchEvent {
 export class MatchingGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer()
-  server: Server;
+  @WebSocketServer() server: Server;
+
   private readonly logger = new Logger(MatchingGateway.name);
 
   constructor(
@@ -46,6 +46,7 @@ export class MatchingGateway
 
     // Disconnect Client if no cookie provided
     if (!cookie) {
+      this.logger.log('No cookie provided');
       client.disconnect();
       return;
     }
@@ -54,6 +55,7 @@ export class MatchingGateway
     const accessToken = cookies['access_token'];
     // Disconnect client if no token provided
     if (!accessToken) {
+      this.logger.log('No token provided');
       client.disconnect();
       return;
     }
@@ -75,8 +77,9 @@ export class MatchingGateway
         userId: data.id,
         socketId: client.id,
       });
+      console.log(client.id);
     } catch (error) {
-      this.logger.log(error);
+      this.logger.log(`Error verifying token: ${error.message}`);
       client.disconnect();
     }
     // Check if token is valid
@@ -103,10 +106,7 @@ export class MatchingGateway
       if (!socketId) {
         throw new Error(`Socket not found for user ${userId}`);
       }
-      const socket = this.server.sockets.sockets.get(socketId);
-      if (!socket || !socket.connected) {
-        throw new Error(`Socket ${socketId} is no longer connected`);
-      }
+      const socket = this.server.to(socketId);
 
       socket.emit(event, message);
       this.logger.debug(`Message sent to socket ${socketId} on event ${event}`);
@@ -157,8 +157,7 @@ export class MatchingGateway
     userId: string;
     message: string;
   }) {
-    const socketId = await this.matchRedis.getSocketByUserId(userId);
-    if (socketId) {
+    if (userId) {
       this.sendMessageToClient({
         userId,
         message,
@@ -174,8 +173,7 @@ export class MatchingGateway
     userId: string;
     message: string;
   }) {
-    const socketId = await this.matchRedis.getSocketByUserId(userId);
-    if (socketId) {
+    if (userId) {
       this.sendMessageToClient({
         userId,
         message,

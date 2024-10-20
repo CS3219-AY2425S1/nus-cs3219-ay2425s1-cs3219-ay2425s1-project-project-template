@@ -6,7 +6,7 @@ import { MatchingGateway } from 'src/matching.gateway';
 import {
   MatchCriteriaDto,
   MatchDataDto,
-  MatchRequestMsgDto,
+  MatchRequestDto,
 } from '@repo/dtos/match';
 import { MATCH_TIMEOUT } from 'src/constants/queue';
 
@@ -28,13 +28,14 @@ export class MatchEngineService {
    * @returns
    */
 
-  async generateMatch(matchRequest: MatchRequestMsgDto) {
+  async generateMatch(matchRequest: MatchRequestDto) {
     const { userId, category, complexity } = matchRequest;
 
-    const matchedData = await this.matchRedis.findPotentialMatch({
+    const matchedData = await this.matchRedis.findPotentialMatch(
+      userId,
       category,
       complexity,
-    });
+    );
 
     if (matchedData) {
       this.logger.log(
@@ -92,15 +93,15 @@ export class MatchEngineService {
       // TODO: Call Collaboration service to intiialize a new collaboration session
     } else {
       this.logger.log(
-        `No match found for user ${userId}, adding to matching queue`,
+        `No immediate match found for user ${userId}, adding to matching queue`,
       );
       // No match found, add the match to redis
-      const matchid = await this.matchRedis.addMatchRequest(matchRequest);
-      if (!matchid) {
+      const match_req_id = await this.matchRedis.addMatchRequest(matchRequest);
+      if (!match_req_id) {
         throw new Error('Failed to add match request');
       }
       await this.matchEngineProduceExpiry.enqueueMatchExpiryRequest(
-        matchid,
+        match_req_id,
         MATCH_TIMEOUT,
       );
     }

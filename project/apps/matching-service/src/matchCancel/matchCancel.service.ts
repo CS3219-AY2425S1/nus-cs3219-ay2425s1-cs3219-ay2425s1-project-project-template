@@ -7,6 +7,7 @@ export class MatchCancelService {
   constructor(private readonly matchRedis: MatchRedis) {}
 
   async cancelMatchRequest(matchCancel: MatchCancelDto) {
-    this.matchRedis.addToCancelledMatchList(matchCancel.match_req_id);
+    const { match_req_id } = matchCancel;
+    return await this.matchRedis.addToCancelledMatchList(match_req_id);
   }
 }

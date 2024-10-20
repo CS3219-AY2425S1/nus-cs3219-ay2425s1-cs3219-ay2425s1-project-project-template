@@ -10,16 +10,27 @@ export class MatchExpiryService {
     private readonly matchGateway: MatchingGateway,
   ) {}
 
-  async handleExpiryMessage(expiredMatchId: string) {
+  async handleExpiryMessage(expiredMatchReqId: string) {
     // Perform some sort of message handling
-    const matchRequest =
-      await this.matchRedis.removeMatchRequest(expiredMatchId);
-    if (!matchRequest) {
+    const isMatchRequestAlreadyCancelled =
+      await this.matchRedis.isMatchRequestCancelled(expiredMatchReqId);
+
+    if (isMatchRequestAlreadyCancelled) {
       this.logger.debug(
-        `Match request with id ${expiredMatchId} does not exist`,
+        `Match request with id ${expiredMatchReqId} is already cancelled, skipping expiry message`,
       );
       return;
     }
+
+    const matchRequest =
+      await this.matchRedis.removeMatchRequest(expiredMatchReqId);
+    if (!matchRequest) {
+      this.logger.warn(
+        `Match request with id ${expiredMatchReqId} does not exist`,
+      );
+      return;
+    }
+
     // Send notification to user about expiry of request
     this.matchGateway.sendMatchRequestExpired({
       userId: matchRequest.userId,

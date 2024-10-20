@@ -12,7 +12,7 @@ import Topbar from '@/components/Topbar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
-import useMatchStore from '@/stores/useMatchStore';
+import useSocketStore from '@/stores/useSocketStore';
 
 import './globals.css';
 
@@ -33,7 +33,7 @@ const LayoutWithSidebarAndTopbar = ({
   children: React.ReactNode;
 }) => {
   const pathname = usePathname();
-  const { isMatching } = useMatchStore();
+  const { isSearching } = useSocketStore();
   const user = useAuthStore.use.user();
   const signOut = useAuthStore.use.signOut();
 
@@ -45,14 +45,14 @@ const LayoutWithSidebarAndTopbar = ({
 
   return (
     <div className="flex h-screen overflow-hidden transition-opacity duration-500 ease-out">
-      {renderSidebarAndTopbar && !isMatching && (
+      {renderSidebarAndTopbar && !isSearching && (
         <>
           <Topbar user={user} />
           <Sidebar signOut={signOut} />
         </>
       )}
       <main
-        className={`flex-1 transition-all duration-500 ease-in-out ${renderSidebarAndTopbar && !isMatching ? 'ml-20 mt-16' : 'mt-0 ml-0'} overflow-auto`}
+        className={`flex-1 transition-all duration-500 ease-in-out ${renderSidebarAndTopbar && !isSearching ? 'ml-20 mt-16' : 'mt-0 ml-0'} overflow-auto`}
       >
         {children}
       </main>
@@ -67,6 +67,7 @@ const RootLayout = ({
 }>) => {
   const pathname = usePathname();
   const fetchUser = useAuthStore.use.fetchUser();
+  const { connect, disconnect } = useSocketStore();
   const excludeLoginStatePaths = ['/login'];
   const shouldEnforceLoginState = !excludeLoginStatePaths.includes(pathname);
 
@@ -75,12 +76,17 @@ const RootLayout = ({
     const initializeUser = async () => {
       try {
         await fetchUser();
+        connect();
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
     };
     initializeUser();
-  }, [fetchUser]);
+
+    return () => {
+      disconnect();
+    };
+  }, [fetchUser, connect, disconnect]);
 
   return (
     <html lang="en" className={inter.className}>
