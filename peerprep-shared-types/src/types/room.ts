@@ -11,6 +11,7 @@ export interface RoomDto {
   //     content: string;
   //     timestamp: Date;
   //   }[];
+
   createdAt: Date;
   updatedAt: Date;
 }
