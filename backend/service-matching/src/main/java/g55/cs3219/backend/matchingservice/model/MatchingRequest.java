@@ -11,4 +11,13 @@ public class MatchingRequest implements Serializable {
     private String userId;
     private String topic;
     private String difficultyLevel;
+
+    @Override
+    public String toString() {
+        return "MatchingRequest{" +
+                "userId='" + userId + '\'' +
+                ", topic='" + topic + '\'' +
+                ", difficultyLevel='" + difficultyLevel + '\'' +
+                '}';
+    }
 }
