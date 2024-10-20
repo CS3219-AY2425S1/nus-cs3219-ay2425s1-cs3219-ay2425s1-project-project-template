@@ -1,4 +1,5 @@
 import * as amqp from 'amqplib'
+import "dotenv/config";
 
 const REQUEST_EXCHANGE = 'REQUEST-EXCHANGE'
 const RESULT_EXCHANGE = 'RESULT-EXCHANGE'
@@ -16,7 +17,7 @@ const CANCEL_RESULT_ROUTING = 'CANCEL-REQUEST-ROUTING'
 
 export const createChannel = async () => {
     try {
-        const connection = await amqp.connect('amqp://rabbitmq:5672')
+        const connection = await amqp.connect(process.env.RABBIT_URI ? process.env.RABBIT_URI :'amqp://rabbitmq:5672')
         const channel = await connection.createChannel()
 
         await channel.assertExchange(REQUEST_EXCHANGE, 'direct')

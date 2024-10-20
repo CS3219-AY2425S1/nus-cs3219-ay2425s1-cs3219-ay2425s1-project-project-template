@@ -120,7 +120,8 @@ export const cancelMatch = (channel) => {
 export const requestMatch = (channel) => {
     return (req, res, next) => {
         try {
-            const payload = { id: req.user.id, ...req.body }
+            
+            const payload = { id: req.user, ...req.body }
             sendMatchRequest(channel, payload)
             res.status(200).send({ message: "match request sent" })
         } catch (e) {
