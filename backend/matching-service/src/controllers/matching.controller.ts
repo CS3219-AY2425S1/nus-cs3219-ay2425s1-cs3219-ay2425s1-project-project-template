@@ -15,6 +15,11 @@ export async function generateWS(request: ITypedBodyRequest<void>, response: Res
 }
 
 export async function addUserToMatchmaking(data: UserQueueRequest): Promise<void> {
+    const isAnyUserInMatch = await isUserInMatch(data.userId)
+    if (isAnyUserInMatch) {
+        wsConnection.sendMessageToUser(data.websocketId, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
+        return
+    }
     const createDto = UserQueueRequestDto.fromJSON(data)
     const errors = await createDto.validate()
     if (errors.length) {
@@ -28,10 +33,11 @@ export async function removeUserFromMatchingQueue(websocketId: string): Promise<
     wsConnection.sendMessageToUser(websocketId, JSON.stringify({ type: WebSocketMessageType.CANCEL }))
 }
 
-export async function handleCreateMatch(data: IMatch): Promise<IMatch> {
+export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string): Promise<IMatch> {
     const isAnyUserInMatch = (await isUserInMatch(data.user1Id)) || (await isUserInMatch(data.user2Id))
     if (isAnyUserInMatch) {
-        throw new Error('User is already in a match')
+        wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
+        wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
     data.questionId = randomUUID() // TODO: replace with actual question ID
     const createDto = MatchDto.fromJSON(data)
@@ -39,5 +45,7 @@ export async function handleCreateMatch(data: IMatch): Promise<IMatch> {
     if (errors.length) {
         throw new Error('Invalid match data')
     }
+    wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.SUCCESS }))
+    wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.SUCCESS }))
     return createMatch(createDto)
 }

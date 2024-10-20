@@ -12,6 +12,7 @@ import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 import { WebSocketMessageType } from '@repo/ws-types'
+import { IPostMatching } from '@/types/matching-api'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -31,13 +32,13 @@ export const NewSession = () => {
 
     const [selectedTopic, setSelectedTopic] = React.useState('')
     const [selectedComplexity, setSelectedComplexity] = React.useState('')
-    const [timestamp, setTimestamp] = React.useState('')
 
     const [modalData, setModalData] = React.useState({
         isOpen: false,
         isMatchmaking: false,
         isMatchFound: false,
         isMatchmakingFailed: false,
+        isDuplicate: false,
         matchID: '',
     })
 
@@ -64,38 +65,35 @@ export const NewSession = () => {
             isMatchmaking: true,
             isMatchFound: false,
             isMatchmakingFailed: false,
+            isDuplicate: false,
         }))
 
         //TODO: Modify this response to match the response from the API
-        let response: { websocketID: string } | undefined = { websocketID: '' }
+        let websocketId = ''
 
-        const t = new Date().toISOString()
-        setTimestamp(t)
         try {
             const r = await addUserToMatchmaking()
-            response.websocketID = r.websocketID
+            websocketId = r?.websocketID ?? ''
         } catch {
             await handleFailedMatchmaking()
         }
 
-        if (!response.websocketID) {
+        if (!websocketId) {
             toast.error('Failed to retrieve websocket ID.')
             return
         }
 
-        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${response.websocketID}`)
+        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${websocketId}`)
         socketRef.current = socket
         socketRef.current.onopen = () => {
-            socketRef.current?.send(
-                JSON.stringify({
-                    userId: session?.user.id ?? '',
-                    proficiency: session?.user.proficiency as Proficiency,
-                    complexity: selectedComplexity as Complexity,
-                    topic: selectedTopic as Category,
-                    timestamp: t,
-                    websocketId: response.websocketID,
-                })
-            )
+            const data: IPostMatching = {
+                userId: session?.user.id ?? '',
+                proficiency: session?.user.proficiency as Proficiency,
+                complexity: selectedComplexity as Complexity,
+                topic: selectedTopic as Category,
+                websocketId: websocketId,
+            }
+            socketRef.current?.send(JSON.stringify(data))
         }
         socketRef.current.onmessage = (event: MessageEvent) => {
             if (typeof event.data === 'string') {
@@ -117,6 +115,16 @@ export const NewSession = () => {
                                 ...modalData,
                                 isOpen: false,
                                 isMatchmaking: false,
+                                isDuplicate: false,
+                            }
+                        })
+                        break
+                    case WebSocketMessageType.DUPLICATE:
+                        setModalData((modalData) => {
+                            return {
+                                ...modalData,
+                                isMatchmaking: false,
+                                isDuplicate: true,
                             }
                         })
                         break
@@ -138,12 +146,19 @@ export const NewSession = () => {
             ...modalData,
             isMatchmaking: false,
             isMatchmakingFailed: true,
+            isDuplicate: false,
         }))
     }
 
     const handleCancelMatchmaking = async () => {
         const cancelMessage = { type: WebSocketMessageType.CANCEL }
         socketRef.current?.send(JSON.stringify(cancelMessage))
+        setModalData((modalData) => ({
+            ...modalData,
+            isOpen: false,
+            isMatchmaking: false,
+            isDuplicate: false,
+        }))
     }
 
     const handleMatchFound = async () => {
@@ -237,6 +252,12 @@ export const NewSession = () => {
                         {modalData.isMatchFound && (
                             <h2 className="text-xl font-bold text-center">
                                 Match found! Please wait while we redirect you to the coding session...
+                                {modalData.matchID}
+                            </h2>
+                        )}
+                        {modalData.isDuplicate && (
+                            <h2 className="text-xl font-bold text-center">
+                                You already have a match! Please wait while we redirect you to the coding session...
                                 {modalData.matchID}
                             </h2>
                         )}

@@ -26,6 +26,10 @@ export class WebSocketConnection {
         })
     }
 
+    public getClientsWebsockets() {
+        return this.clients
+    }
+
     private handleMessage(message: string, websocketId: string): void {
         if (!message) {
             loggerUtil.error(`Received empty message`)
