@@ -56,7 +56,7 @@ export async function middleware(req: NextRequest) {
     }
 
     // Extract user role from the decoded token (assuming the role is stored in the token)
-    const isAdmin = decodedAccessToken.isAdmin;
+    const isAdmin = decodedAccessToken.data.isAdmin;
 
     // Check if the user is trying to access an admin route (all routes starting with /admin)
     if (url.pathname.startsWith("/admin") && !isAdmin) {
