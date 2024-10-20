@@ -10,13 +10,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoginController from "./pages/user/controllers/LoginController";
 import QuestionController from "./pages/question/QuestionController";
 import RegistrationController from "./pages/user/controllers/RegistrationController";
-import ForgetPasswordController from "./pages/user/controllers/ForgetPasswordController";
-import ResetPasswordController from "./pages/user/controllers/ResetPasswordController";
+// import ForgetPasswordController from "./pages/user/controllers/ForgetPasswordController";
+// import ResetPasswordController from "./pages/user/controllers/ResetPasswordController";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";
 import CollaborationView from "./pages/collaboration/CollaborationView";
 import { initApi, authApi, questionApi } from "./utils/api";
+import MatchingPage from "./pages/matching/MatchingPage";
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App: React.FC = () => {
             element={<RegistrationController api={auth} setAuth={setAuth} />}
           />
           <Route path="/collaboration" element={<CollaborationView />} />
+          <Route path="/matching" element={<MatchingPage />} />
 
           {/* <Route
             path="/forget-password"

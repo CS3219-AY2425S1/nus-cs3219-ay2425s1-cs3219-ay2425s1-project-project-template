@@ -88,7 +88,8 @@ const DashboardView = () => {
               onClick={() => {
                 if (value === "Let's Match") {
                   navigate(
-                    `/collaboration?topic=${selectedTopic}&difficulty=${selectedDifficulty}`
+                    //`/collaboration?topic=${selectedTopic}&difficulty=${selectedDifficulty}`
+                    `/matching?topic=${selectedTopic}&difficulty=${selectedDifficulty}`
                   ); // Navigate to Collaboration View
                 }
               }}
