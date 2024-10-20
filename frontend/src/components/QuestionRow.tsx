@@ -8,7 +8,7 @@ import { CategoryBadge, ComplexityBadge } from './Badges'
 interface QuestionRowProps {
   question: Question
   index: number
-  onEdit: (question: Question) => void
+  onEdit?: (question: Question) => void
   onView: (question: Question) => void
 }
 
@@ -32,12 +32,14 @@ export default function QuestionRow({ question, index, onEdit, onView }: Questio
         <ComplexityBadge complexity={question.complexity} />
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <button
-          onClick={() => onEdit(question)}
-          aria-label="Edit Question"
-        >
-          <Pencil className="h-5 w-5" />
-        </button>
+        {onEdit && (
+          <button
+            onClick={() => onEdit(question)}
+            aria-label="Edit Question"
+          >
+            <Pencil className="h-5 w-5" />
+          </button>
+        )}
       </td>
     </tr>
   )
