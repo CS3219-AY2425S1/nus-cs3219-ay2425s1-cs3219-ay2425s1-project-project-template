@@ -20,8 +20,8 @@ public class NotificationService {
         userSessions.remove(userId);
     }
 
-    public void notifyMatched(String userId, String matchedUserId) {
-        String message = String.format("{\"type\": \"MATCH_FOUND\", \"roomId\": \"%s\", \"userId\": \"%s\"}", "someRoomId", matchedUserId);
+    public void notifyMatched(String userId, String matchedUserId, String roomId) {
+        String message = String.format("{\"type\": \"MATCH_FOUND\", \"roomId\": \"%s\", \"userId\": \"%s\"}", roomId, matchedUserId);
         sendMessage(userId, message);
     }
 
