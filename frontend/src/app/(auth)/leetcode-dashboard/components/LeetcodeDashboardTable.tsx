@@ -156,7 +156,10 @@ const ActionsCell: React.FC<ActionCellProps> = ({
   );
 };
 
-function debounce<T extends (...args: any[]) => void>(func: T, timeout = 300) {
+function debounce<T extends (...args: Parameters<T>) => void>(
+  func: T,
+  timeout = 300
+) {
   let timer: NodeJS.Timeout | undefined;
   return (...args: Parameters<T>) => {
     if (timer) clearTimeout(timer);
