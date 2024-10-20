@@ -85,6 +85,8 @@ async function matchUsers(searchRequest) {
 
   await showUserQueue();
 
+  if (userId == null) return; 
+
   const userExists = (await redisClient.get(userId)) !== null;
   if (userExists) {
     console.log("Duplicate user:", userId);
