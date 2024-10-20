@@ -1,16 +1,9 @@
 import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
-import { cors } from "cors"
+import cors from "cors"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
-import {
-  DIFFICULTY_ROUTING_KEYS,
-  DIFFICULTY_ROUTING_MAPPING,
-  EASY_ROUTING_KEY,
-  EXCHANGE,
-  HARD_ROUTING_KEY,
-  MEDIUM_ROUTING_KEY
-} from "./constants"
+import { DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE } from "./constants"
 import { deepEqual, getRandomIntegerInclusive, sleep } from "./helper"
 import { UserData } from "./types"
 
