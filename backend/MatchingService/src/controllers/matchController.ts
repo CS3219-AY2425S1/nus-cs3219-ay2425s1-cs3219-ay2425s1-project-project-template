@@ -21,7 +21,9 @@ export class MatchController extends EventEmitter {
 
   addConnection(userId: string, username: string, socketId: string): boolean {
     if (this.connectedUsers.has(userId)) {
-      logger.warn(`User ${username} (${userId}) already has an active connection`);
+      logger.warn(
+        `User ${username} (${userId}) already has an active connection`
+      );
       return false;
     }
     this.connectedUsers.set(userId, socketId);
@@ -70,7 +72,10 @@ export class MatchController extends EventEmitter {
     }
   }
 
-  private async removeFromQueue(difficultyLevel: string, queuedUser: QueuedUser) {
+  private async removeFromQueue(
+    difficultyLevel: string,
+    queuedUser: QueuedUser
+  ) {
     const release = await this.queueMutex.acquire();
     try {
       await redisClient.lRem(difficultyLevel, 1, JSON.stringify(queuedUser));
@@ -79,7 +84,6 @@ export class MatchController extends EventEmitter {
     }
   }
 
-
   async addToMatchingPool(
     userId: string,
     request: MatchRequest
@@ -87,9 +91,7 @@ export class MatchController extends EventEmitter {
     const { difficultyLevel, category } = request;
     const username = this.userIdToUsername.get(userId);
     const queueSize = await this.getQueueLen(difficultyLevel);
-    logger.info(
-      `Queue size is ${queueSize} in ${difficultyLevel} queue`
-    );
+    logger.info(`Queue size is ${queueSize} in ${difficultyLevel} queue`);
     // Check if queue is empty
     if (queueSize === 0) {
       // Add user to the appropriate Redis queue
@@ -97,28 +99,32 @@ export class MatchController extends EventEmitter {
       await this.addToQueue(difficultyLevel, queuedUser);
 
       logger.info(
-        `User ${username} (${userId}) added to ${difficultyLevel} queue. Queue size: ${await this.getQueueLen(difficultyLevel)}`
+        `User ${username} (${userId}) added to ${difficultyLevel} queue. Queue size of ${difficultyLevel} queue: ${await this.getQueueLen(
+          difficultyLevel
+        )}`
       );
 
       const timeout = setTimeout(() => {
         this.removeFromMatchingPool(userId, request);
         this.emit("match-timeout", this.connectedUsers.get(userId));
-        this.removeConnection(userId);
+        // this.removeConnection(userId);
         logger.info(`Match timeout for user ${username} (${userId})`);
+        this.matchTimeouts.delete(userId);
       }, config.matchTimeout);
 
       this.matchTimeouts.set(userId, timeout);
+
       return;
     } else {
       logger.info(
-        `Attempting match for user ${username} (${userId}) in ${difficultyLevel} queue with queue size: ${queueSize}`
+        `Attempting match for user ${username} (${userId}) in ${difficultyLevel} queue with queue size: ${queueSize} before matching`
       );
-  
+
       const queue = await this.getQueueItems(difficultyLevel);
-  
+
       for (const item of queue) {
         const potentialMatch = JSON.parse(item);
-    
+
         if (this.isCompatibleMatch(request, potentialMatch)) {
           const match: UserMatch = {
             difficultyLevel,
@@ -131,14 +137,15 @@ export class MatchController extends EventEmitter {
             match.category = this.getRandomCategory();
           }
           await this.removeFromMatchingPool(userId, request);
-          await this.removeFromMatchingPool(potentialMatch.userId, potentialMatch);
-  
+          await this.removeFromMatchingPool(
+            potentialMatch.userId,
+            potentialMatch
+          );
+
           // Clear the timeout for both users
-          clearTimeout(this.matchTimeouts.get(userId));
-          clearTimeout(this.matchTimeouts.get(potentialMatch.userId));
-          this.matchTimeouts.delete(userId);
-          this.matchTimeouts.delete(potentialMatch.userId);
-  
+          this.removeTimeout(userId);
+          this.removeTimeout(potentialMatch.userId);
+
           this.emit("match-success", {
             socket1Id: this.connectedUsers.get(userId),
             socket2Id: this.connectedUsers.get(potentialMatch.userId),
@@ -146,14 +153,19 @@ export class MatchController extends EventEmitter {
             username2: this.userIdToUsername.get(potentialMatch.userId),
             match,
           });
-          const potentialMatchUsername = this.userIdToUsername.get(potentialMatch.userId);
-          logger.info(
-            `Match success: User ${username} (${userId}) matched with ${potentialMatchUsername} (${potentialMatch.userId}) in ${difficultyLevel} queue.  Queue size: ${await this.getQueueLen(difficultyLevel)}`
+          const potentialMatchUsername = this.userIdToUsername.get(
+            potentialMatch.userId
           );
-          this.removeConnection(userId);
-          this.removeConnection(potentialMatch.userId);
-          
-  
+          logger.info(
+            `Match success: User ${username} (${userId}) matched with ${potentialMatchUsername} (${
+              potentialMatch.userId
+            }) in ${difficultyLevel} queue.  Queue size of ${difficultyLevel} queue after match: ${await this.getQueueLen(
+              difficultyLevel
+            )}`
+          );
+          // Currently not removing connection upon match found for user in collaboration service
+          // this.removeConnection(userId);
+          // this.removeConnection(potentialMatch.userId);
           return;
         }
       }
@@ -171,10 +183,18 @@ export class MatchController extends EventEmitter {
       const potentialUser = JSON.parse(item);
       if (potentialUser.userId === userId) {
         await this.removeFromQueue(difficultyLevel, potentialUser);
-        logger.info(`User ${userId} removed from ${difficultyLevel} queue`);
+        const newQueueLen = await this.getQueueLen(difficultyLevel);
+        logger.info(
+          `User ${userId} removed from ${difficultyLevel} queue. Queue size of ${difficultyLevel} queue : ${newQueueLen}`
+        );
         break;
       }
     }
+  }
+
+  removeTimeout(userId: string): void {
+    clearTimeout(this.matchTimeouts.get(userId));
+    this.matchTimeouts.delete(userId);
   }
 
   private isCompatibleMatch(
