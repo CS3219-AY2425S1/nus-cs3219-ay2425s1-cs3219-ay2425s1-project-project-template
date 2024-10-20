@@ -32,7 +32,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
     try {
       setShowTimer(true);
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
       socket.connect();
       socket.on("connect", () => {
         console.log("Connected to server", socket.id);
