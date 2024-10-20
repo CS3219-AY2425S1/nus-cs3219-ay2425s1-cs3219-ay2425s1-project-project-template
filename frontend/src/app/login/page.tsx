@@ -66,13 +66,7 @@ const LoginPage = () => {
             {loading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
-  
-        <div className="flex justify-between mt-4">
-          <Link href="/forgot-password" className="text-sm hover:underline">
-            Forgot password?
-          </Link>
-        </div>
-  
+
         <div className="flex items-center my-4">
           <div className="border-t flex-grow"></div>
           <span className="mx-4 text-sm">or</span>
