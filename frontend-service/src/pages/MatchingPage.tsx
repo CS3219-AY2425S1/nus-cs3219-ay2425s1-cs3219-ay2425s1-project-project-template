@@ -17,10 +17,9 @@ const MatchingPage: React.FC = () => {
   const [stage, setStage] = useState(STAGE.MATCHME);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
-  const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate();
 
-  // Helper function to handle fetch requests with error handling
+  // Helper function to handle authenticated fetch requests with error handling
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem("token");
     const headers = {
@@ -41,32 +40,24 @@ const MatchingPage: React.FC = () => {
 
   // Trigger handlers according to match status in server
   const checkMatchStatus = async () => {
-    // setLoading(true); // Indicate loading
     try {
       const result = await fetchWithAuth("http://localhost:3002/match-status");
       const matchStatus = result.matchStatus;
-      console.log(matchStatus);
-      handleMatchStatusReceived(matchStatus);
+      if (matchStatus == "isNotMatching") {
+        setStage(STAGE.MATCHME);
+      } else if (matchStatus == "isMatching") {
+        setStage(STAGE.COUNTDOWN);
+      } else if (matchStatus == "isMatched") {
+        handleMatchFound();
+      } else if (matchStatus == "unsuccessful") {
+        handleMatchUnsuccess();
+      }
     } catch {
       console.error("Failed to check match status.");
-    } finally {
-      // setLoading(false); // Remove loading
     }
   };
 
-  const handleMatchStatusReceived = (matchStatus: string) => {
-    if (matchStatus == "isNotMatching") {
-      setStage(STAGE.MATCHME);
-    } else if (matchStatus == "isMatching") {
-      setStage(STAGE.COUNTDOWN);
-    } else if (matchStatus == "isMatched") {
-      handleMatchFound();
-    } else if (matchStatus == "unsuccessful") {
-      handleMatchUnsuccess();
-    }
-  };
-
-  // Simply send a find match request to be put in the queue
+  // Send a find match request to be put in the queue
   const handleMatchMe = async () => {
     setStage(STAGE.COUNTDOWN);
     try {
@@ -87,8 +78,8 @@ const MatchingPage: React.FC = () => {
     setStage(STAGE.UNSUCCESSFUL);
   };
 
+  // Reset match request status in matching-service
   const handleRetry = async () => {
-    // setStage(STAGE.COUNTDOWN);
     try {
       await fetchWithAuth("http://localhost:3002/reset-status", { method: "POST" });
     } catch (error) {
@@ -97,6 +88,7 @@ const MatchingPage: React.FC = () => {
     setStage(STAGE.MATCHME);
   };
 
+  // Reset match request status in matching-service
   const handleCancel = async () => {
     try {
       await fetchWithAuth("http://localhost:3002/cancel-matching", { method: "POST" });
@@ -122,8 +114,6 @@ const MatchingPage: React.FC = () => {
 
   return (
     <div>
-      {loading && <p>Loading...</p>} {/* Show loading message */}
-      
       {stage === STAGE.MATCHME && (
         <MatchMe
           onMatchMe={handleMatchMe}

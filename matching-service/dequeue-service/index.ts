@@ -23,6 +23,8 @@ interface TimerData {
 
 const timersMap = new Map<string, TimerData>();
 
+const TIMEOUT_DURATION = 20000;
+
 // Start Kafka Producer
 (async () => {
     await kafkaProducer.connect();
@@ -40,7 +42,7 @@ const timersMap = new Map<string, TimerData>();
 
             console.log(`Received match-event for user: ${userID}, topic: ${topic}`);
 
-            // Start a timer for this match (e.g., 30 seconds)
+            // Start a timer for this match
             const timerID = setTimeout(async () => {
                 console.log(`Timer up for user: ${userID}, topic: ${topic}. Producing dequeue-event.`);
 
@@ -52,7 +54,7 @@ const timersMap = new Map<string, TimerData>();
 
                 // Remove the timer reference
                 timersMap.delete(userID);
-            }, 20000);
+            }, TIMEOUT_DURATION);
 
             // Store the timer reference and topic in the map
             timersMap.set(userID, { userID, topic, timerID });
@@ -79,7 +81,7 @@ const timersMap = new Map<string, TimerData>();
                     if (timerData) {
                         clearTimeout(timerData.timerID); // Clear the timer
                         timersMap.delete(userID); // Remove from the map
-                        console.log(`Cleared timer for user: ${userID}`);
+                        console.log(`Cleared timer for user: ${userID}, reason: match found for user`);
                     }
                 }
             });
@@ -111,7 +113,7 @@ const timersMap = new Map<string, TimerData>();
                 if (timerData) {
                     clearTimeout(timerData.timerID); // Clear the timer
                     timersMap.delete(userID); // Remove from the map
-                    console.log(`Cleared timer for canceled user: ${userID}`);
+                    console.log(`Cleared timer for canceled user: ${userID}, reason: user cancelled matching`);
                 }
             }
         },

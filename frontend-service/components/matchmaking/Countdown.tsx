@@ -57,26 +57,6 @@ const Countdown: React.FC<CountdownProps> = ({
     return () => clearTimeout(timerId);
   }, [seconds]);
 
-  // TODO: update with matching-service backend
-  // const checkForMatch = async () => {
-  //   setIsCheckingMatch(true); // Start checking for match
-  //   try {
-  //     const response = await fetch("");
-  //     const data = await response.json();
-
-  //     if (response.ok && data.matchFound) {
-  //       onSuccess(); // If match found, trigger success callback
-  //     } else {
-  //       onFailure(); // If no match found, trigger failure callback
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking for match:", error);
-  //     onFailure();
-  //   } finally {
-  //     setIsCheckingMatch(false); // End checking for match
-  //   }
-  // };
-
   const handleCancel = () => {
     setIsDialogOpen(true);
   };

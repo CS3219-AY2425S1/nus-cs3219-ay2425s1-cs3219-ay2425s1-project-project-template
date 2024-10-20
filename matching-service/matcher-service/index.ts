@@ -21,6 +21,18 @@ interface MatchRequestData {
 // Use a Map to store a queue per topic
 const matchRequestsByTopic: Map<string, MatchRequestData[]> = new Map();
 
+// Helper function to print the current state of topic queues
+const printTopicQueues = () => {
+  console.log("Current match requests by topic:");
+  for (const [topic, queue] of matchRequestsByTopic.entries()) {
+    console.log(`Topic: ${topic}, Queue Length: ${queue.length}`);
+    queue.forEach(request => {
+      console.log(`  - userID: ${request.userID}, difficulty: ${request.difficulty}`);
+    });
+  }
+  console.log("------------------------------------------------");
+};
+
 // Start the Kafka Consumer, listen to match events.
 (async () => {
   await kafkaConsumer.connect();
@@ -38,6 +50,9 @@ const matchRequestsByTopic: Map<string, MatchRequestData[]> = new Map();
         matchRequestsByTopic.set(topic, []); // Create a queue for the topic if not exists
       }
       matchRequestsByTopic.get(topic)?.push(matchRequestData); // Push the request to the topic queue
+
+      // Print the current state of the topic queues
+      printTopicQueues();
     },
   });
 })();
@@ -59,6 +74,9 @@ const matchRequestsByTopic: Map<string, MatchRequestData[]> = new Map();
           matchRequestsByTopic.get(topic)?.filter(request => request.userID !== userID) || []
         );
         console.log(`User ${userID} removed from match queue for topic: ${topic}.`);
+
+        // Print the current state of the topic queues
+        printTopicQueues();
       }
     },
   });
@@ -86,6 +104,9 @@ const runMatchingAlgorithm = async () => {
             topic: 'match-found-events',
             messages: [{ value: JSON.stringify(matchResult) }],
           });
+
+          // Print the current state of the topic queues
+          printTopicQueues();
         }
       }
     }
