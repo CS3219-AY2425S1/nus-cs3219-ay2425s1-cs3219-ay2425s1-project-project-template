@@ -170,8 +170,17 @@ func waitForResult(ws *websocket.Conn, ctx, timeoutCtx, matchCtx context.Context
 		// Notify the user about the match
 		notifyMatches(result.User, result)
 
-		// NOTE: user and other user are already cleaned up in a separate matching algorithm process
-		// so no clean up is required here.
+		// cleaning up from the global maps used still required
+		if _, exists := matchContexts[username]; exists {
+			delete(matchContexts, username)
+		}
+		if _, exists := activeConnections[username]; exists {
+			delete(activeConnections, username)
+		}
+		if _, exists := matchFoundChannels[username]; exists {
+			delete(matchFoundChannels, username)
+		}
+
 		return
 	}
 }
