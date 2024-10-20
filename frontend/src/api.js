@@ -7,5 +7,5 @@ export const questionAPI = axios.create({
 
 // Instance for the User Service
 export const userAPI = axios.create({
-  baseURL: "http://localhost:8081/api",
+  baseURL: "http://localhost:8081/",
 });

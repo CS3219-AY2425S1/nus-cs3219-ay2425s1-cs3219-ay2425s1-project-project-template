@@ -15,23 +15,22 @@ exports.processMatchRequest = (channel) => {
     return (data) => {
         console.log('Matching service received: ', data)
         if (data) {
-            const {id, complexity, category} = JSON.parse(data.content)
+            const {socketId, id, complexity, category} = JSON.parse(data.content)
             const uuid = v4()
-            console.log(uuid)
             console.log(`Received request: ${JSON.stringify(JSON.parse(data.content))}`)
-            console.log(waitingRequests)
+            const request = {socketId: socketId, id: id, complexity: complexity, category: category}
             // Perfect match
             const perfectMatch = findPerfectMatch(complexity, category)
             if (perfectMatch) {
                 console.log(perfectMatch)
-                const request = waitingRequests[perfectMatch]
-                console.log(JSON.stringify(request))
+                const waitingRequest = waitingRequests[perfectMatch]
+                console.log(JSON.stringify(waitingRequest))
                 delete waitingRequests[perfectMatch]
-                send(channel, ROUTING_KEY, Buffer.from(`Users ${id} and ${request.id} matched`))
+                send(channel, ROUTING_KEY, Buffer.from(JSON.stringify(createSuccessPayload(request, waitingRequest))))
             } else {
                 // No perfect match
                 // Add to wait queue
-                waitingRequests[uuid] = {id: id, complexity: complexity, category: category}
+                waitingRequests[uuid] = request
                 console.log(`Request ${id} waiting`)
                 // Wait 30s
                 setTimeout(async () => {
@@ -44,9 +43,9 @@ exports.processMatchRequest = (channel) => {
                     const match = findMatch(complexity, category)
                     console.log(`Request ${uuid} matched with ${match}`)
                     if (match) {
-                        const request = waitingRequests[match]
+                        const waitingRequest = waitingRequests[match]
                         delete waitingRequests[match]
-                        send(channel, ROUTING_KEY, Buffer.from(`Users ${id} and ${request.id} matched`))
+                        send(channel, ROUTING_KEY, Buffer.from(JSON.stringify(createSuccessPayload(request, waitingRequest))))
                     } else {
                         send(channel, ROUTING_KEY, Buffer.from(`User ${id} did not match`))
                     }
@@ -63,6 +62,15 @@ function findPerfectMatch(complexity, category) {
         }
     }
     return null
+}
+
+function createSuccessPayload(request1, request2) {
+    return {
+        user1Id: request1.id,
+        user2Id: request2.id,
+        user1SocketId: request1.socketId,
+        user2SocketId: request2.socketId
+    }
 }
 
 function findMatch(complexity, category) {

@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import NavBar from "./components/NavBar";
+import MatchUsers from "./pages/MatchUsers";
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/home" element={<Home />} />
 
+                <Route path="/users-match" element={<MatchUsers />} />
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
                     <Route path="/account-settings" element={<AccountSettings />} />

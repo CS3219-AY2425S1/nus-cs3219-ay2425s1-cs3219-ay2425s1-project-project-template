@@ -1,17 +1,22 @@
 import { Container, CssBaseline, Box, Avatar, Typography, TextField, Button, Grid } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { userAPI } from "../api.js";
 
 const Login = () => {
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
-            const response = await userAPI.post("/users/login", { username, password });
+            const response = await userAPI.post("/auth/login", { email, password });
+            localStorage.setItem('authorization', response.data.data.accessToken)
+            navigate('/users-match')
+            
             console.log(response);
         } catch (err) {
             console.log(err)
@@ -42,12 +47,12 @@ const Login = () => {
                             margin="normal"
                             required
                             fullWidth
-                            id="username"
-                            label="Username"
-                            name="username"
+                            id="email"
+                            label="Email"
+                            name="email"
                             autoFocus
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
 
                         <TextField

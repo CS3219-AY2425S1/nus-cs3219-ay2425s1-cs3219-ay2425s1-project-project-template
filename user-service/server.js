@@ -1,11 +1,11 @@
 import http from "http";
-import index from "./index.js";
+import server from "./index.js";
 import "dotenv/config";
 import { connectToDB } from "./model/repository.js";
 
 const port = process.env.PORT_USER || 3001;
 
-const server = http.createServer(index);
+// const server = http.createServer(index);
 
 await connectToDB().then(() => {
   console.log("MongoDB Connected!");
