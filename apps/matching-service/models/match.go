@@ -5,18 +5,23 @@ type MatchRequest struct {
 	Topics       []string `json:"topics"`
 	Difficulties []string `json:"difficulties"`
 	Username     string   `json:"username"`
-	Email        string   `json:"email"`
-	Port         string   `json:"port"`
 }
 
 type MatchFound struct {
 	Type        string `json:"type"`
 	MatchID     string `json:"matchId"`
-	PartnerID   int64  `json:"partnerId"`
-	PartnerName string `json:"partnerName"`
+	User        string `json:"user"`        // username
+	MatchedUser string `json:"matchedUser"` // matched username
+	Topic       string `json:"topic"`       // matched topic
+	Difficulty  string `json:"difficulty"`  // matched difficulty
 }
 
 type Timeout struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+}
+
+type MatchRejected struct {
 	Type    string `json:"type"`
 	Message string `json:"message"`
 }
