@@ -6,7 +6,7 @@ export interface MatchRequest {
 }
 
 export interface MatchResponse {
-    matchedUsers: []; // 0 or 2 - is an array of UserDatas 
+    matchedUsers: UserData[]; // 0 or 2 - is an array of UserDatas 
     timeout: boolean;
 }
 
