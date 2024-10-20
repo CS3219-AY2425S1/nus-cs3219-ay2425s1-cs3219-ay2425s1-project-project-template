@@ -13,8 +13,8 @@ const constructUri = (
   `http://${process.env.NEXT_PUBLIC_BASE_URI || baseUri}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}/${authType}/${serviceName}`;
 
 export const userServiceUri: (baseUri: string, authType: AuthType) => string = (
-  baseUri,
-  authType
+  baseUri: string,
+  authType: AuthType
 ) => constructUri(baseUri, authType, "user-service");
 export const questionServiceUri: (
   baseUri: string,
@@ -27,9 +27,15 @@ export const matchingServiceUri: (
 ) => string = (baseUri, authType) =>
   constructUri(baseUri, authType, "matching-service");
 
-const constructWebSockUri = (baseUri: string) =>
-  `ws://${process.env.NEXT_PUBLIC_BASE_URI || baseUri}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}`;
+const constructWebSockUri = (
+  baseUri: string,
+  authType: AuthType,
+  serviceName: string
+) =>
+  `ws://${process.env.NEXT_PUBLIC_BASE_URI || baseUri}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}/${authType}/${serviceName}`;
 
-export const matchingServiceWebSockUri: (baseUri: string) => string = (
-  baseUri
-) => constructWebSockUri(baseUri);
+export const matchingServiceWebSockUri: (
+  baseUri: string,
+  authType: AuthType
+) => string = (baseUri, authType) =>
+  constructWebSockUri(baseUri, authType, "matching-service");
