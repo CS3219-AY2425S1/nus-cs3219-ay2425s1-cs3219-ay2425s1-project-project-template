@@ -87,6 +87,9 @@ export const NewSession = () => {
 
         const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${websocketId}`)
         socketRef.current = socket
+        socketRef.current.onclose = () => {
+            handleFailedMatchmaking()
+        }
         socketRef.current.onopen = () => {
             const data: IPostMatching = {
                 userId: session?.user.id ?? '',
