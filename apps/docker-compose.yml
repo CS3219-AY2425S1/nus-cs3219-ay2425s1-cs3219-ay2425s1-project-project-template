@@ -39,7 +39,7 @@ services:
       - ./question-service:/question-service
 
   matching-service:
-    build: 
+    build:
       context: ./matching-service
       dockerfile: Dockerfile
     ports:
