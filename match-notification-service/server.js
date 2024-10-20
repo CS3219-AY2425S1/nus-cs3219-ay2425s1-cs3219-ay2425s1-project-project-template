@@ -20,6 +20,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",  // Allow all origins
+    methods: ['GET', 'POST'],
   },
   pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
   pingInterval: 25000,  // Interval between ping packets

@@ -54,7 +54,7 @@ function MatchingModal({
       reconnectionDelay: 1000,
     });
 
-    socketRef.current.on('connection', () => {
+    socketRef.current.on('connect', () => {
       console.log('Connected to WebSocket server');
       setIsConnecting(false);
       const userId = 'user123'; // This should be dynamically set based on your authentication system
@@ -85,7 +85,7 @@ function MatchingModal({
     socketRef.current.on('disconnect', () => {
       console.log('Disconnected from WebSocket server');
     });
-  }, [difficulty, topics, navigate]);
+  }, [difficulty, topics, matchFound, isConnecting, navigate]);
 
   useEffect(() => {
     if (isMatchingModalOpened) {
@@ -110,7 +110,7 @@ function MatchingModal({
       interval = setInterval(() => {
         timerRef.current += 1;
         setDisplayTimer(timerRef.current);
-        if (timerRef.current >= 180) {
+        if (timerRef.current >= 10) {
           handleTimeout();
         }
       }, 1000);

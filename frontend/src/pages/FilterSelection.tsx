@@ -34,8 +34,6 @@ function Filter() {
     { open: openMatchingModal, close: closeMatchingModal },
   ] = useDisclosure(false);
 
-  const username = localStorage.getItem('user_id');
-
   return (
     <>
       <AppShell withBorder={false} header={{ height: 80 }}>
@@ -44,7 +42,7 @@ function Filter() {
             <a href="." className="logo">
               <Title c="white">PeerPrep</Title>
             </a>
-            <Button>{username}</Button>
+            <Button>Log In</Button>
           </Group>
         </AppShell.Header>
 
