@@ -53,7 +53,7 @@ interface MatchData {
   name: string;
   topic: string;
   difficulty: string;
-  // Add any other properties that your match data includes
+  // Add as needed
 }
 
 interface WebSocketMessage {
