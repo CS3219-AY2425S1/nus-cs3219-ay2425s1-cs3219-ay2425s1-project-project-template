@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
-const DAYS_OF_WEEK = ["M", "T", "W", "T", "F", "S", "S"];
+const DAYS_OF_WEEK = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = [
   "January",
   "February",
@@ -94,7 +94,7 @@ export default function TrainingCalendar() {
   };
 
   return (
-    <div className="w-full max-w-sm rounded-3xl bg-[#191919] p-4 text-white border border-gray-300/30">
+    <div className="w-full max-w-sm rounded-3xl p-4 text-white border border-gray-300/30">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-md font-semibold">Calendar</h2>
         <div className="relative">
