@@ -251,7 +251,7 @@ export default function DiscussRoute() {
   const [matchStatus, setMatchStatus] = React.useState('idle');
   const [queuePosition, setQueuePosition] = React.useState(0);
   const [roomId, setRoomId] = React.useState('');
-  const [userId] = React.useState('');
+  const [userId] = React.useState(Math.random().toString().split('.')[1]);
 
   const ws = useRef<WebSocket | null>(null);
 
