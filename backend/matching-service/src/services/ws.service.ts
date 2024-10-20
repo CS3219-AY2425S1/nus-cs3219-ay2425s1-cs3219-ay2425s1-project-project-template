@@ -3,7 +3,7 @@ import WebSocket, { Server as WebSocketServer } from 'ws'
 import loggerUtil from '../common/logger.util'
 import url from 'url'
 import { addUserToMatchmaking, removeUserFromMatchingQueue } from '../controllers/matching.controller'
-import { WebSocketMessageType } from '@repo/ws-types/src/WebSocketMessageType'
+import { WebSocketMessageType } from '@repo/ws-types'
 
 export class WebSocketConnection {
     private wss: WebSocketServer

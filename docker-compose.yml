@@ -37,6 +37,10 @@ services:
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
             - RMQ_HOST=${RMQ_HOST}
+            - WS_PORT=3007
+        ports:
+            - 3006:3006
+            - 3007:3007
         build:
             context: .
             dockerfile: ./backend/matching-service/Dockerfile
@@ -79,6 +83,8 @@ services:
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
             - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
+        ports:
+            - 3002:3002
         build:
             context: .
             dockerfile: ./backend/user-service/Dockerfile
@@ -108,6 +114,8 @@ services:
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
+        ports:
+            - 3004:3004
         build:
             context: .
             dockerfile: ./backend/question-service/Dockerfile
