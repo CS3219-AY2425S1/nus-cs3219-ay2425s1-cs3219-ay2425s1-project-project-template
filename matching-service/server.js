@@ -66,6 +66,12 @@ async function initRedis() {
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
+  const userExists = (await redisClient.get(userId)) !== null;
+  if (userExists) {
+    console.log("Duplicate user:", userId);
+    return; 
+  }
+
   const matchedByTopics = await findMatchByTopics(topics);
   const matchedByDifficulty = await findMatchByDifficulty(difficulty);
 
