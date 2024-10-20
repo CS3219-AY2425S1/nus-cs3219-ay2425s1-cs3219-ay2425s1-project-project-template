@@ -5,7 +5,6 @@ import {
   Container,
   Group,
   MultiSelect,
-  Select,
   Stack,
   Title,
 } from '@mantine/core';
@@ -28,7 +27,7 @@ const topics = [
 ];
 
 function Filter() {
-  const [filterDifficulty, setFilterDifficulty] = useState<string | null>(null);
+  const [filterDifficulty, setFilterDifficulty] = useState<string[]>([]);
   const [filterTopic, setFilterTopic] = useState<string[]>([]);
   const [
     isMatchingModalOpened,
@@ -59,10 +58,12 @@ function Filter() {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Title order={2}>Start Your Collaboration</Title>
               <Stack justify="apart" mb="md">
-                <Select
+                <MultiSelect
                   description="Difficulty"
-                  placeholder="Select Difficulty"
                   clearable
+                  placeholder={
+                    filterDifficulty.length > 0 ? '' : 'Select Difficulty'
+                  }
                   data={difficulties}
                   value={filterDifficulty}
                   onChange={setFilterDifficulty}
@@ -89,7 +90,9 @@ function Filter() {
       <MatchingModal
         isMatchingModalOpened={isMatchingModalOpened}
         closeMatchingModal={closeMatchingModal}
-        difficulty={filterDifficulty}
+        difficulty={
+          filterDifficulty.length > 0 ? filterDifficulty : difficulties
+        }
         topics={filterTopic.length > 0 ? filterTopic : topics}
       />
     </>
