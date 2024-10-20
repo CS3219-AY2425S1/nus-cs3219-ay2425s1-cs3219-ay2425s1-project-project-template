@@ -1,42 +1,47 @@
 # This docker-compose file is for local development only. It is not intended to be deployed.
 
 services:
-    reverse-proxy:
-        container_name: reverse-proxy
-        environment:
-            - D=$
-            - NGINX_SERVER_NAME=localhost
-            - SSL_CERT_FILE=/etc/nginx/ssl/server.crt
-            - SSL_KEY_FILE=/etc/nginx/ssl/server.key
-            - USER_SERVICE_URL=http://user-service:3002
-            - QUESTION_SERVICE_URL=http://question-service:3004
-            - MATCHING_SERVICE_URL=http://matching-service:3006
-        image: nginx:1.27.2-alpine
-        ports:
-            - 443:443
-        restart: always
-        volumes:
-            - ./nginx/templates:/etc/nginx/templates
-            - ./nginx/ssl:/etc/nginx/ssl
-        networks:
-            - backend-network
-        depends_on:
-            - user-service
-            - question-service
-        command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    # reverse-proxy:
+    #     container_name: reverse-proxy
+    #     environment:
+    #         - D=$
+    #         - NGINX_SERVER_NAME=localhost
+    #         - SSL_CERT_FILE=/etc/nginx/ssl/server.crt
+    #         - SSL_KEY_FILE=/etc/nginx/ssl/server.key
+    #         - USER_SERVICE_URL=http://user-service:3002
+    #         - QUESTION_SERVICE_URL=http://question-service:3004
+    #         - MATCHING_SERVICE_URL=http://matching-service:3006
+    #     image: nginx:1.27.2-alpine
+    #     ports:
+    #         - 443:443
+    #     restart: always
+    #     volumes:
+    #         - ./nginx/templates:/etc/nginx/templates
+    #         - ./nginx/ssl:/etc/nginx/ssl
+    #     networks:
+    #         - backend-network
+    #     depends_on:
+    #         - user-service
+    #         - question-service
+    #     command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
 
     matching-service:
         container_name: matching-service
         environment:
             - NODE_ENV=development
             - PORT=3006
-            - DB_URL=mongodb://user-db:27017/user-service
+            - DB_URL=mongodb://matching-db:27017/matching-service
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
             - RMQ_HOST=${RMQ_HOST}
+            - WS_PORT=3007
+        ports:
+            - 3006:3006
+            - 3007:3007
         build:
             context: .
             dockerfile: ./backend/matching-service/Dockerfile
@@ -79,6 +84,8 @@ services:
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
             - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
+        ports:
+            - 3002:3002
         build:
             context: .
             dockerfile: ./backend/user-service/Dockerfile
@@ -108,6 +115,8 @@ services:
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
+        ports:
+            - 3004:3004
         build:
             context: .
             dockerfile: ./backend/question-service/Dockerfile

@@ -302,7 +302,7 @@ class RabbitMQConnection {
         try {
             const queueInfo = await this.channel.checkQueue(queueName)
             if (queueInfo.messageCount === 0) await this.channel.deleteQueue(queueName) // Remove empty queue to reduce memory usage
-            logger.info(`[Delete-Queue] Deleted empty queue: ${queueName}`)
+            // logger.info(`[Delete-Queue] Deleted empty queue: ${queueName}`)
         } catch (error) {
             logger.error(`[Waiting-Queue] Failed to delete queue ${queueName}: ${error}`)
         }
