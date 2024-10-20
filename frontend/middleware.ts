@@ -2,36 +2,75 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
+// Define public routes that don't require authentication
+const publicRoutes = [
+  "/",
+  "/login",
+  "/register",
+  "/forget-password",
+  "/reset-password",
+];
+
+const validateToken = async (accessToken: string | undefined): Promise<any> => {
+  try {
+    const response = await fetch(
+      "http://localhost/api/user-service/auth/verify-token",
+      {
+        method: "GET",
+        headers: {
+          Cookie: `accessToken=${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Token validation failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Unexpected error:", error);
+  }
+};
+
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const accessToken = req.cookies.get("accessToken")?.value;
-  const refreshToken = req.cookies.get("refreshToken")?.value;
-
-  // Define public routes that don't require authentication
-  const publicRoutes = [
-    "/",
-    "/login",
-    "/register",
-    "/forget-password",
-    "/reset-password",
-  ];
 
   // Allow access to public routes without checking tokens
   if (publicRoutes.some((route) => url.pathname === route)) {
     return NextResponse.next();
   }
 
-  // If both access token and refresh token are present, allow the user to proceed
-  if (accessToken && refreshToken) {
-    return NextResponse.next();
-  }
+  // If the access token is present, validate it
+  try {
+    const decodedAccessToken = await validateToken(accessToken);
 
-  // If no access token and the user is not on a public route, redirect to login
-  if (!accessToken && !refreshToken) {
+    if (!decodedAccessToken) {
+      console.log("Invalid access token, redirecting to login");
+
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+
+    // Extract user role from the decoded token (assuming the role is stored in the token)
+    const isAdmin = decodedAccessToken.isAdmin;
+
+    // Check if the user is trying to access an admin route (all routes starting with /admin)
+    if (url.pathname.startsWith("/admin") && !isAdmin) {
+      console.log("User is not an admin, redirecting to 403 page");
+
+      return NextResponse.redirect(new URL("/403", req.nextUrl)); // 403 Forbidden
+    }
+
+    console.log("User is authenticated");
+
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Token validation failed, redirecting to login:", error);
+
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
-
-  return NextResponse.next();
 }
 
 // Apply middleware to specific paths
