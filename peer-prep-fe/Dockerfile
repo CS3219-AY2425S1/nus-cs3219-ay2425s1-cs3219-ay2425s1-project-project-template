@@ -10,6 +10,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+# Copy the message-queue folder from the parent directory
+COPY ../message-queue /app/message-queue
+
 # Copy the rest of the application code
 COPY . .
 
