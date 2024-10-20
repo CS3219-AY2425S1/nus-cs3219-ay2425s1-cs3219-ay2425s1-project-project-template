@@ -1,7 +1,6 @@
 import { Server } from 'socket.io'
 import { TimedMatchRequest, MatchPartner } from '../models/types'
 import logger from '../utils/logger'
-import { connect } from 'amqplib'
 
 const sendMatchResult = async (
     req: TimedMatchRequest,
