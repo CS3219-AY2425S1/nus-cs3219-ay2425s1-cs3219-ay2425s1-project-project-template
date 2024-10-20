@@ -8,13 +8,20 @@ import { useEffect, useState } from "react";
 
 const Home = () => {
   const [userToken, setUserToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const token = getToken();
     if (token) {
       setUserToken(token);
     }
+    setLoading(false);
   }, []);
 
+  if (loading) {
+    return null; //Can render a loading spinner instead
+  }
+  
   return !!userToken ? (
     <AuthDashboard />
   ) : (
