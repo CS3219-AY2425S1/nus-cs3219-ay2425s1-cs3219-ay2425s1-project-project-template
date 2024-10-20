@@ -73,7 +73,6 @@ export class MatchingService implements OnModuleInit {
       const currentTime = Date.now();
       // only keep expiry more than currentTime
       var cleanedEntry = await this.requestQueue.clean((userEntry) => userEntry.expiryTime <= currentTime);
-      console.log(`Current queue size is: ${this.requestQueue.size()}`)
       for (let entry of cleanedEntry) {
         if (this.userPool[entry.userId] === entry) {
           this.removeFromUserPool(entry.userId);
@@ -138,7 +137,7 @@ export class MatchingService implements OnModuleInit {
 
   async addMatchRequest(req: MatchRequestDto): Promise<MatchResponse> {
     var kafkaTopic = `${req.difficulty}-${req.topic}`;
-    console.log("Topic is: ", kafkaTopic);
+    // console.log("Topic is: ", kafkaTopic);
     // Add message
     const currentTime = Date.now();
     const expiryTime = currentTime + this.REQUEST_TIMEOUT;
@@ -278,6 +277,8 @@ export class MatchingService implements OnModuleInit {
         await this.requestQueue.enqueue(userEntry)
         this.userPool[requesterUserId] = userEntry
       }
+
+      console.log(JSON.stringify(this.userPool, null, 2));
   }
 
   private async handleCancelRequest(topic: string, cancelRequest: Message) {
@@ -299,6 +300,8 @@ export class MatchingService implements OnModuleInit {
       this.removeFromUserPool(requesterUserId);
       console.log(`Match request cancelled for ${requesterUserId} in topic: ${topic}`);
     }
+
+    console.log(JSON.stringify(this.userPool, null, 2));
   }
 
   private async consumeMessages() {
@@ -313,11 +316,12 @@ export class MatchingService implements OnModuleInit {
           this.handleCancelRequest(topic, messageBody);
         }
       },
-    });
+    })
   }
 
   removeFromUserPool(userId: string) {
     delete this.userPool[userId];
+    console.log(JSON.stringify(this.userPool, null, 2));
   }
 
   pollForMatch(userId: string): UserEntry | null {
