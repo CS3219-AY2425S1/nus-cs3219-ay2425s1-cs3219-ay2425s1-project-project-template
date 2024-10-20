@@ -58,6 +58,16 @@ async function processMatch(
         continue;
       }
 
+      const setPendingToFalse = async (userId: string) => {
+        await redisClient.hSet(`match:${userId}`, 'pending', 'false');
+        console.log(`User ${userId} is now in MATCHING state, pending set to false.`);
+      };
+
+      await Promise.all([
+        setPendingToFalse(requestorUserId), // Set pending to false for requester
+        setPendingToFalse(matchedUserId), // Set pending to false for matched user
+      ]);
+
       // To block cancellation
       sendNotif([matchedSocketPort], MATCHING_EVENT.MATCHING);
 
@@ -81,7 +91,6 @@ async function processMatch(
         matchedUserId
       );
       logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
-
       sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.DISCONNECT);
 
