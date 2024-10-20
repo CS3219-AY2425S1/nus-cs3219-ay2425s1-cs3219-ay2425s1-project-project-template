@@ -3,6 +3,7 @@ import { Notifications, notifications } from '@mantine/notifications';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
+import { useAuth } from '../../hooks/AuthProvider';
 
 interface MatchingModalProps {
   isMatchingModalOpened: boolean;
@@ -24,6 +25,8 @@ function MatchingModal({
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+
+  const auth = useAuth();
 
   const handleTimeout = useCallback(() => {
     if (!hasTimedOut.current) {
@@ -57,9 +60,8 @@ function MatchingModal({
     socketRef.current.on('connect', () => {
       console.log('Connected to WebSocket server');
       setIsConnecting(false);
-      const userId = 'user123'; // This should be dynamically set based on your authentication system
-      console.log('Registering user:', userId);
-      socketRef.current?.emit('register', userId, difficulty, topics);
+      console.log('Registering user:', auth.userId);
+      socketRef.current?.emit('register', auth.userId, difficulty, topics);
     });
 
     socketRef.current.on('connect_error', (error) => {
