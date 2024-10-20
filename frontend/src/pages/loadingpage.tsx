@@ -13,6 +13,7 @@ const LoadingPage: React.FC = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(30);
   const [matchFound, setMatchFound] = useState(false);
+  const [matchData, setMatchData] = useState<any>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -40,6 +41,7 @@ const LoadingPage: React.FC = () => {
       const data = JSON.parse(event.data);
       if (data.userEmail === decodedToken?.email) {
         setMatchFound(true);
+        setMatchData(data);
         clearInterval(timer);
       } else {
         console.log("Error");
@@ -57,6 +59,23 @@ const LoadingPage: React.FC = () => {
   const resetTimer = () => {
     setCountdown(30);
     setMatchFound(false);
+    if (matchData) {
+      const updatedData = { ...matchData, timestamp: new Date().toISOString() };
+      fetch("http://localhost:3009/rabbitmq/enter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("Retry successful", result);
+        })
+        .catch((error) => {
+          console.error("Error during retry:", error);
+        });
+    }
   };
 
   const conditionalRender = () => {

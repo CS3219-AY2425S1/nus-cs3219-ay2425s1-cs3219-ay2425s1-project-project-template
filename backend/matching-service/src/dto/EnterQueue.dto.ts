@@ -20,9 +20,9 @@ enum Category {
 }
 
 enum Difficulty {
-  Easy = 'easy',
-  Medium = 'medium',
-  Hard = 'hard',
+  Easy = 'Easy',
+  Medium = 'Medium',
+  Hard = 'Hard',
 }
 
 enum Language {
@@ -52,7 +52,7 @@ export class EnterQueueDto {
 
   @IsNotEmpty()
   @IsEnum(Difficulty, {
-    message: 'Difficulty must be easy, medium, hard',
+    message: 'Difficulty must be Easy, Medium, Hard',
   })
   complexity: Difficulty;
 

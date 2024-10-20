@@ -12,7 +12,7 @@ interface CustomJwtPayload extends JwtPayload {
 export default function MatchingPage() {
 
     const topic = ['Algorithm', 'DynamicProgramming', 'Array', 'SQL', 'Heap', 'Recursion', 'Graph', 'Sorting']
-    const difficulty = ['easy', 'medium', 'hard']
+    const difficulty = ['Easy', 'Medium', 'Hard']
     const lang = ['C', 'C#', 'C++', 'Go', 'Java', 'Javascript', 'Kotlin', 'Python', 'Rust', 'TypeScript']
     const navigate = useNavigate();
     const [userEmail, setUserEmail] = useState('');

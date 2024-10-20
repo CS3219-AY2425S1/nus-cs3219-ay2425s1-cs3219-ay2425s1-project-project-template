@@ -44,7 +44,6 @@ export default function LoginPage() {
 						onSuccess={onSuccess}
 					// onError={onError}
 					/></div>
-
 			</div>
 		</div>
 	)
