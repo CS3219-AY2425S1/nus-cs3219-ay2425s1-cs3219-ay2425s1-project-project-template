@@ -17,7 +17,7 @@ import {
   topicsList,
 } from "@/utils/constants";
 import Swal from "sweetalert2";
-import { createRoot } from "react-dom/client";
+// import { createRoot } from "react-dom/client";
 
 interface FindMatchFormOutput {
   questionDifficulties: string[];
@@ -36,24 +36,27 @@ interface FindMatchSocketMessageResponse {
   matchedUserEmail: string;
 }
 
+const TIMEOUT_TIMER = 30; // in seconds
+
 const showLoadingSpinner = (onCancel: () => void) => {
   Swal.fire({
     title: "Finding a match...",
     html: `
-      <div id="spinner-container" class="flex flex-col items-center p-5">
-      </div>
+      <div> You have waited for <div><div id="timer"></div></div> seconds...</div>
     `,
     allowOutsideClick: false,
     allowEscapeKey: false,
     showCancelButton: true,
     cancelButtonText: "Cancel",
     showConfirmButton: false,
+    timer: TIMEOUT_TIMER * 1000,
+    timerProgressBar: true,
     didOpen: () => {
-      const container = document.getElementById("spinner-container");
-      if (container) {
-        const root = createRoot(container);
-        root.render(<MoonLoader size={60} color={"#3498db"} />);
-      }
+      Swal.showLoading();
+      const timer = Swal.getPopup()!.querySelector("#timer");
+      setInterval(() => {
+        timer!.textContent = `${Math.floor(Swal.getTimerLeft() / 1000)}`;
+      }, 100);
     },
   }).then((result) => {
     // Handle cancel button click
@@ -72,8 +75,6 @@ const SOCKET_URL =
   "http://localhost:3005/matching-websocket";
 
 const CURRENT_USER = getBaseUserData().username; // Username is unique
-
-const TIMEOUT_TIMER = 100; // in seconds
 
 const FindPeer = () => {
   const stompClientRef = useRef<StompClient | null>(null);
