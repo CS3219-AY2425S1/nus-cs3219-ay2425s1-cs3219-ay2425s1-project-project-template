@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import { connect } from 'amqplib';
@@ -5,20 +6,20 @@ import { connect } from 'amqplib';
 export const sendMessageToQueue = async (message: Record<string, any>) => {
   try {
     // 1. Connect to RabbitMQ server
-    const connection = await connect(process.env.RABBITMQ_URL);
+    const connection = await connect(process.env.RABBITMQ_URL!);
 
     // 2. Create a channel
     const channel = await connection.createChannel();
 
     // 3. Ensure the queue exists
     const queue = process.env.MATCHING_SERVICE_QUEUE;
-    await channel.assertQueue(queue, {
+    await channel.assertQueue(queue!, {
       durable: true,
     });
 
     // 4. Send a message to the queue
     const messageBuffer = Buffer.from(JSON.stringify(message));
-    channel.sendToQueue(queue, messageBuffer, {
+    channel.sendToQueue(queue!, messageBuffer, {
       persistent: true,
     });
 
@@ -40,9 +41,9 @@ export const consumeMessageFromQueue = async () => {
     (async () => {
       try {
         // Connect to RabbitMQ server
-        const connection = await connect(process.env.RABBITMQ_URL);
+        const connection = await connect(process.env.RABBITMQ_URL!);
         const channel = await connection.createChannel();
-        const queue = process.env.MATCHING_SERVICE_QUEUE;
+        const queue = process.env.MATCHING_SERVICE_QUEUE!;
 
         // Ensure the queue exists
         await channel.assertQueue(queue, { durable: true });

@@ -3,6 +3,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { FilterSelectProps } from '@/types/types';
 
@@ -12,7 +13,8 @@ export function FilterSelect({
   onChange,
   isMulti,
   value,
-}: FilterSelectProps) {
+  showSelectedValue = false, // New prop to control the display behavior
+}: FilterSelectProps & { showSelectedValue?: boolean }) {
   return (
     <Select
       onValueChange={onChange}
@@ -20,7 +22,11 @@ export function FilterSelect({
       value={isMulti ? undefined : (value as string)}
     >
       <SelectTrigger className="w-[120px] border-gray-700 bg-gray-800">
-        {placeholder}
+        {showSelectedValue ? (
+          <SelectValue placeholder={placeholder} />
+        ) : (
+          placeholder
+        )}
       </SelectTrigger>
       <SelectContent>
         {options.map((option) => (

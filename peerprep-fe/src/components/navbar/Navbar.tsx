@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { logout } from '@/lib/auth';
-import { sendMessageToQueue } from '@/lib/rabbitmq';
+// import { sendMessageToQueue } from '@/lib/rabbitmq';
 import { Button } from '@/components/ui/button';
-import { axiosAuthClient } from '@/network/axiosClient';
+// import { axiosAuthClient } from '@/network/axiosClient';
 import { UserCircle, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/state/useAuthStore';
+import { PreMatch } from '@/components/dialogs/PreMatch';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
@@ -25,25 +26,25 @@ export default function Navbar() {
     }
   };
 
-  const getProfileDetails = async () => {
-    const result = await axiosAuthClient.get('/auth/verify-token');
-    return result.data.data;
-  };
+  // const getProfileDetails = async () => {
+  //   const result = await axiosAuthClient.get('/auth/verify-token');
+  //   return result.data.data;
+  // };
 
-  const handleMatchClick = async () => {
-    try {
-      const profileDetails = await getProfileDetails();
-      const message = {
-        _id: profileDetails.id,
-        name: profileDetails.username,
-        topic: 'TO BE ADDED',
-        difficulty: 'TO BE ADDED',
-      };
-      await sendMessageToQueue(message);
-    } catch (err) {
-      console.error('Error in handleMatchClick:', err);
-    }
-  };
+  // const handleMatchClick = async () => {
+  //   try {
+  //     const profileDetails = await getProfileDetails();
+  //     const message = {
+  //       _id: profileDetails.id,
+  //       name: profileDetails.username,
+  //       topic: 'TO BE ADDED',
+  //       difficulty: 'TO BE ADDED',
+  //     };
+  //     await sendMessageToQueue(message);
+  //   } catch (err) {
+  //     console.error('Error in handleMatchClick:', err);
+  //   }
+  // };
 
   return (
     <nav className="fixed top-0 z-10 w-full bg-gray-800 p-4">
@@ -62,15 +63,7 @@ export default function Navbar() {
           </Link>
           {/* Admin users should be able to add questions instead of match */}
           {!user?.isAdmin ? (
-            // TODO: Change this such that it will pop up a toast for users to select topic and difficulty, the subsequent button will
-            //       then call "handleMatchClick"
-            <Link
-              href="/match"
-              className="text-gray-300 hover:text-white"
-              onClick={() => handleMatchClick()}
-            >
-              Match
-            </Link>
+            <PreMatch />
           ) : (
             <Link
               href="/add-question"
