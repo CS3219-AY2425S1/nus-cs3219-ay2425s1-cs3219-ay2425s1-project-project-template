@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const cors = require('cors');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -7,7 +8,14 @@ const app = express();
 const PORT = process.env.MATCHING_NOTIFICATION_PORT || 4001;
 
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",  // Allow all origins
+  }
+});
+
+app.use(cors());
+app.options("*", cors());
 
 // Store connected clients
 let connectedClients = {};  // Mapping of userId to socketId
