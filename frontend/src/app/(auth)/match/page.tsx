@@ -6,11 +6,10 @@ import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multiselect";
 import MoonLoader from "react-spinners/MoonLoader";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Client as StompClient } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
 import {
   preferredLanguagesList,
@@ -74,7 +73,7 @@ const SOCKET_URL =
 
 const CURRENT_USER = getBaseUserData().username; // Username is unique
 
-const TIMEOUT_TIMER = 3; // in seconds
+const TIMEOUT_TIMER = 100; // in seconds
 
 const FindPeer = () => {
   const stompClientRef = useRef<StompClient | null>(null);
@@ -189,9 +188,11 @@ const FindPeer = () => {
         onDisconnect: () => {
           console.log("STOMP connection closed");
           setIsConnected(false);
+          clearTimeout(timeout);
         },
         onStompError: (error) => {
           console.error("STOMP error: ", error);
+          clearTimeout(timeout);
           reject(new Error(error.headers.message));
         },
       });
@@ -248,6 +249,24 @@ const FindPeer = () => {
   });
 
   const onSubmit = (data: FindMatchFormOutput) => {
+    if (!data.questionDifficulties.length) {
+      Swal.fire(
+        "Error",
+        "Please select at least one difficulty level",
+        "error"
+      );
+      return;
+    } else if (!data.preferredLanguages.length) {
+      Swal.fire(
+        "Error",
+        "Please select at least one preferred programming language",
+        "error"
+      );
+      return;
+    } else if (!data.questionTopics.length) {
+      Swal.fire("Error", "Please select at least one topic", "error");
+      return;
+    }
     sendMatchRequest(data);
   };
 
