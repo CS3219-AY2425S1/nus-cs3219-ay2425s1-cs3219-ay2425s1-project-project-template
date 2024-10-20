@@ -34,12 +34,12 @@ export default function Navbar() {
       {/* Login and Register Buttons */}
       <div className="flex space-x-2">
         <Link to="/login">
-          <button className="rounded-full bg-white px-8 py-2 text-black ">
+          <button className="rounded-full bg-white px-8 py-2 text-black hover:transform hover:bg-gradient-to-r hover:from-white hover:to-cyan-400 hover:transition-colors hover:ease-linear">
             LOGIN
           </button>
         </Link>
         <Link to="/register">
-          <button className="rounded-full border border-transparent bg-[#C6FF46] px-8 py-2 font-medium text-black hover:opacity-95">
+          <button className="rounded-full border border-transparent bg-[#C6FF46] px-8 py-2 font-medium text-black hover:transform hover:bg-gradient-to-r hover:from-white hover:to-lime-400 hover:transition-colors hover:ease-linear">
             REGISTER
           </button>
         </Link>
