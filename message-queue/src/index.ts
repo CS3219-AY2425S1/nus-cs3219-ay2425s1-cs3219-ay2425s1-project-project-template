@@ -112,6 +112,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
         matchedUsers,
         timeout: true
       })
+      return;
     }
     matchedUsers.push(firstUser)
 
@@ -126,17 +127,14 @@ app.get("/match", async (req: Request, res: Response, next) => {
         await pullDataFromExchange(req.query.queueName as string)
         timeWaitedForMessage += 2
         console.log("Time waited for message Case 3: ", timeWaitedForMessage)
-        if (timeWaitedForMessage == 16) {
+        if (timeWaitedForMessage == 20 || users.length != currentTotalUsersWaiting) {
           clearInterval(waitForNewMessagesInterval)
         }
       }, 2000)
 
-      while (timeWaitedForMessage < 16) {
+      while (timeWaitedForMessage < 20 && users.length == currentTotalUsersWaiting) {
         await sleep(1000)
       }
-
-      console.log("CURRENT TOTAL USER WAITING CASE 3: ", currentTotalUsersWaiting)
-      console.log("users length: ", users.length)
 
       // Means if new users have been added to the overall queue
       if (currentTotalUsersWaiting != users.length) {
@@ -180,7 +178,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
         if (nextUser.user_id == firstUser.user_id) {
           res.json({
             matchedUsers: [], // don't allow 2 same user to match
-            timeout: false
+            timeout: true
           })
           return;
         }
@@ -248,12 +246,12 @@ app.get("/match", async (req: Request, res: Response, next) => {
       await pullDataFromExchange(req.query.queueName as string)
       timeWaitedForMessage += 2
       console.log("Time waited for message Case 2: ", timeWaitedForMessage)
-      if (timeWaitedForMessage == 8) {
+      if (timeWaitedForMessage == 20 || users.length != currentTotalUsersWaiting) {
         clearInterval(waitForNewMessagesInterval)
       }
     }, 2000)
 
-    while (timeWaitedForMessage < 8) {
+    while (timeWaitedForMessage < 20 && users.length == currentTotalUsersWaiting) {
       await sleep(1000)
     }
 
