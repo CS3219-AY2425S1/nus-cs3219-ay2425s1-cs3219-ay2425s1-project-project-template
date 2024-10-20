@@ -41,12 +41,37 @@ export function LoginForm() {
           description: "Login Failed.",
         });
       }
-    } catch (err) {
-      toast({
-        title: "Error",
-        variant: "destructive",
-        description: "Login Failed.",
-      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        let description_text = "";
+        switch (err.message) {
+          case "Email and/or password is missing.":
+            description_text = "Please provide both email and password.";
+            break;
+          case "Invalid email or password.":
+            description_text = "Username or password is incorrect.";
+            break;
+          case "Internal server error. Please try again later.":
+            description_text =
+              "There was an issue with the server. Please try again later.";
+            break;
+          default:
+            description_text =
+              "An unexpected error occurred. Please try again.";
+            break;
+        }
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: description_text,
+        });
+      } else {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "An unexpected error occurred. Please try again.",
+        });
+      }
     }
   };
 

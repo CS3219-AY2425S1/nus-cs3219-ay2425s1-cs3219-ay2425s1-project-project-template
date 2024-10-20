@@ -75,7 +75,16 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     );
 
     if (!response.ok) {
-      throw new Error("Not OK");
+      switch (response.status) {
+        case 400:
+          throw new Error("Email and/or password is missing.");
+        case 401:
+          throw new Error("Invalid email or password.");
+        case 500:
+          throw new Error("Internal server error. Please try again later.");
+        default:
+          throw new Error("Unexpected error occurred.");
+      }
     }
 
     const resJson = await response.json();
