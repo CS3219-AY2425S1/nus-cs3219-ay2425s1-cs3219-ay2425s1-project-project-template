@@ -30,7 +30,7 @@ export const getBaseUserData = () => {
   };
 };
 
-const NEXT_PUBLIC_USER_SERVICE = process.env.NEXT_PUBLIC_USER_SERVICE;
+const NEXT_PUBLIC_USER_SERVICE = process.env.NEXT_PUBLIC_USER_SERVICE || "https://user-service-598285527681.us-central1.run.app";
 
 export const verifyToken = async (needsLogin: boolean) => {
   const token = getToken();
