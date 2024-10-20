@@ -1,5 +1,6 @@
 export type AuthResponse = {
-  jwt: string;
+  token: string;
+  userId: string;
 };
 
 export type LoginInput = {

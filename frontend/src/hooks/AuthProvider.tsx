@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { login } from '../apis/AuthApi';
-import { LoginInput } from '../types/Api';
+import { AuthResponse, LoginInput } from '../types/Api';
 
 type AuthContextProps = {
   token: string | null;
@@ -33,7 +33,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => {
     login(loginInput).then(
-      (response: any) => {
+      (response: AuthResponse) => {
         setError(null);
         setToken(response.token);
         localStorage.setItem('token', response.token);
