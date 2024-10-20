@@ -58,12 +58,14 @@ const LoadingPage: React.FC = () => {
 
     return () => {
       clearInterval(timer);
+      eventSource.close();
     };
   }, [countdown, matchFound, matchDeclined]);
 
   const resetTimer = () => {
     setCountdown(30);
     setMatchFound(false);
+    setMatchDeclined(false);
     if (matchData) {
       const updatedData = { ...matchData, timestamp: new Date().toISOString() };
       fetch("http://localhost:3009/rabbitmq/enter", {
@@ -85,12 +87,13 @@ const LoadingPage: React.FC = () => {
 
 
   const handleDecline = () => {
+    console.log("DECLINE PRESSED")
     fetch("http://localhost:3009/rabbitmq/match_declined", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(matchData.matchEmail),
+      body: JSON.stringify({ email: matchData.matchEmail }),
     })
       .then((response) => response.json())
       .then((result) => {
@@ -138,12 +141,12 @@ const LoadingPage: React.FC = () => {
         </Container>
       );
     } else if (matchFound && matchDeclined) {
-      console.log("match declined by collaborator");
+      console.log("match declined");
       console.log("count down is", countdown);
       return (
         <Container textAlign="center">
           <Header as="h1" size="huge" style={{ color: "white" }}>
-            Match declined by collaborator
+            Match declined
           </Header>
           <div
             style={{ display: "flex", justifyContent: "center", gap: "20px" }}

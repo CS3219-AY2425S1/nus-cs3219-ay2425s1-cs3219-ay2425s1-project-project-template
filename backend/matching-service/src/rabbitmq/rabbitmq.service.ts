@@ -87,9 +87,9 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       const keyToRemove = Object.keys(this.unmatchedRequests).find(
         (key) => this.unmatchedRequests[key].email === email,
       );
-      console.log('key to remove is', keyToRemove);
 
       if (keyToRemove) {
+        console.log('key to remove is', keyToRemove);
         delete this.unmatchedRequests[keyToRemove];
         console.log(
           `User ${email} removed from queue after 30 seconds of no match.`,
@@ -204,6 +204,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       userEmail: email,
     }
     if (this.connectedUsers.has(email)) {
+      console.log(email, " for match declined")
       this.eventEmitter.emit('match.declined', declineData);
     } else {
       if (!this.declineBuffer[email]) {
@@ -218,18 +219,18 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       this.connectedUsers.add(userEmail);
       // console.log(this.connectedUsers);
 
-      // if (this.declineBuffer[userEmail]) {
-      //   console.log(
-      //     'Notifying buffered declined match for ',
-      //     userEmail,
-      //     ':',
-      //     this.declineBuffer[userEmail],
-      //   );
-      //   this.declineBuffer[userEmail].forEach((data) => {
-      //     subscriber.next(JSON.stringify(data)); // Notify each buffered event
-      //   });
-      //   delete this.declineBuffer[userEmail];
-      // }
+      if (this.declineBuffer[userEmail]) {
+        console.log(
+          'Notifying buffered declined match for ',
+          userEmail,
+          ':',
+          this.declineBuffer[userEmail],
+        );
+        this.declineBuffer[userEmail].forEach((data) => {
+          subscriber.next(JSON.stringify(data)); // Notify each buffered event
+        });
+        delete this.declineBuffer[userEmail];
+      }
 
       if (this.matchBuffer[userEmail]) {
         console.log(
@@ -259,7 +260,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
       return () => {
         this.eventEmitter.off('match.found', handleMatchFound);
-        this.eventEmitter.off('match.declined', handleMatchFound);
+        this.eventEmitter.off('match.declined', handleMatchDeclined);
         this.connectedUsers.delete(userEmail);
         // console.log('after cleanup ', this.connectedUsers);
       };

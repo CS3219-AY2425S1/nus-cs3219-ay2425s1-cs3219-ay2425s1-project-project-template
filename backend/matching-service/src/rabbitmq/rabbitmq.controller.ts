@@ -21,8 +21,9 @@ export class RabbitMQController {
     return { status: 'Started consuming queue' };
   }
 
-  @Post('match_decline')
+  @Post('match_declined')
   handleDecline(@Body() declineMatchDto: DeclineMatchDto) {
+    console.log("Endpoint reached")
     this.rabbitMQService.handleMatchDecline(declineMatchDto);
     return { status: 'Processing decline' };
   }
