@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
-const DAYS_OF_WEEK = ["M", "T", "W", "T", "F", "S", "S"];
+const DAYS_OF_WEEK = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = [
   "January",
   "February",
