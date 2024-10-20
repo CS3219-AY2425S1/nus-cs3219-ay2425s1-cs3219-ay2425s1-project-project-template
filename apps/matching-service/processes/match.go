@@ -57,12 +57,12 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context, matc
 			// Log down which users got matched
 			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", username, matchedUsername, matchedTopic, matchedDifficulty)
 
-			// Log queue after matchmaking
-			PrintMatchingQueue(redisClient, "After Matchmaking", context.Background())
-
 			// Clean up redis for this match
 			cleanUp(redisClient, username, ctx)
 			cleanUp(redisClient, matchedUsername, ctx)
+
+			// Log queue after matchmaking
+			PrintMatchingQueue(redisClient, "After Matchmaking", context.Background())
 
 			// Generate a random match ID
 			matchId, err := utils.GenerateMatchID()

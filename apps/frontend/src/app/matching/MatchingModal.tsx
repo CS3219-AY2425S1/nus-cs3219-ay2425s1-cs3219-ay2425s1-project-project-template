@@ -77,6 +77,8 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                         matchingState.ok();
                         setClosedType("joined");
                     }}
+                    name1={matchingState.info.myName}
+                    name2={matchingState.info.partnerName}
                 />
             case 'timeout':
                 return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={10}/>;
