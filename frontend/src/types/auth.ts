@@ -42,6 +42,11 @@ export const VerifyUserSchema = z.object({
 
 export type VerifyUser = z.infer<typeof VerifyUserSchema>;
 
+export const VerifyUserCodeSchema = VerifyUserSchema.pick({
+  verificationCode: true,
+});
+export type VerifyUserCode = z.infer<typeof VerifyUserCodeSchema>;
+
 /**
  * Keys for auth related data in local storage
  */

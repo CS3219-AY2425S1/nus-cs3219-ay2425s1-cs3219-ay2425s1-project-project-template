@@ -1,5 +1,6 @@
 import { AuthLoginForm } from '@/components/forms/auth-login';
 import { AuthRegisterForm } from '@/components/forms/auth-register';
+import AuthVerifyRegisterForm from '@/components/forms/auth-verify-register';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,9 +11,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLogin } from '@/hooks/auth/useLogin';
+import { UnverifiedAccountError, useLogin } from '@/hooks/auth/useLogin';
 import { useRegister } from '@/hooks/auth/useRegister';
-import { LoginUser, RegisterUser } from '@/types/auth';
+import {
+  useResendVerificationCode,
+  useVerifySignup,
+  VerificationCodeExpiredError,
+  VerificationCodeInvalidError,
+} from '@/hooks/auth/useVerify';
+import { LoginUser, RegisterUser, VerifyUserCode } from '@/types/auth';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -22,6 +29,14 @@ export default function LoginDialog() {
   const loginMutation = useLogin();
   const registerMutation = useRegister();
 
+  const [isAwaitingEmailVerification, setIsAwaitingEmailVerification] =
+    useState<string | null>(null);
+  const verifySignupMutation = useVerifySignup();
+  const resendVerificationCodeMutation = useResendVerificationCode();
+  const [initialCodeSentAt, setInitialCodeSentAt] = useState<number | null>(
+    null
+  );
+
   const handleLogin = async (data: LoginUser) => {
     try {
       await loginMutation.mutateAsync(data);
@@ -30,19 +45,63 @@ export default function LoginDialog() {
       // Refresh the page after successful login
       window.location.reload();
     } catch (error) {
-      console.error('Login failed:', error);
-      toast.error('Login failed');
+      if (error instanceof UnverifiedAccountError) {
+        setIsAwaitingEmailVerification(data.email);
+        setInitialCodeSentAt(Date.now());
+      } else {
+        console.error('Login failed:', error);
+        toast.error('Login failed');
+      }
     }
   };
 
   const handleSignup = async (data: RegisterUser) => {
     try {
       await registerMutation.mutateAsync(data);
-      setIsOpen(false);
       toast.success('Signup successful');
+      setIsAwaitingEmailVerification(data.email);
+      setInitialCodeSentAt(Date.now());
     } catch (error) {
       console.error('Signup failed:', error);
       toast.error('Signup failed');
+    }
+  };
+
+  const handleVerifySignup = async (data: VerifyUserCode) => {
+    if (!isAwaitingEmailVerification) return;
+
+    try {
+      await verifySignupMutation.mutateAsync({
+        email: isAwaitingEmailVerification,
+        verificationCode: data.verificationCode,
+      });
+      toast.success('Email verified.');
+      // Refresh the page after successful signup
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof VerificationCodeInvalidError) {
+        toast.error('Invalid verification code');
+      } else if (error instanceof VerificationCodeExpiredError) {
+        toast.info('Verification code expired');
+      } else {
+        console.error('Verify signup failed:', error);
+        toast.error('Verify signup failed');
+      }
+    }
+  };
+
+  const handleResendVerificationCode = async () => {
+    if (!isAwaitingEmailVerification) return;
+
+    try {
+      await resendVerificationCodeMutation.mutateAsync(
+        isAwaitingEmailVerification
+      );
+      setInitialCodeSentAt(Date.now());
+      toast.success('Verification code resent');
+    } catch (error) {
+      console.error('Resend verification code failed:', error);
+      toast.error('Resend verification code failed');
     }
   };
 
@@ -51,25 +110,39 @@ export default function LoginDialog() {
       <DialogTrigger asChild>
         <Button variant='outline'>Login / Sign Up</Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className='sm:max-w-[425px] flex flex-col justify-start'>
         <DialogHeader>
           <DialogTitle>Account</DialogTitle>
           <DialogDescription>
-            Login or create a new account to get started.
+            {isAwaitingEmailVerification
+              ? `Enter the verification code sent to your email.`
+              : 'Login or create a new account to get started.'}
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className='grid w-full grid-cols-2'>
-            <TabsTrigger value='signup'>Sign Up</TabsTrigger>
-            <TabsTrigger value='login'>Login</TabsTrigger>
-          </TabsList>
-          <TabsContent value='signup'>
-            <AuthRegisterForm onSubmit={handleSignup} />
-          </TabsContent>
-          <TabsContent value='login'>
-            <AuthLoginForm onSubmit={handleLogin} />
-          </TabsContent>
-        </Tabs>
+        {isAwaitingEmailVerification ? (
+          <AuthVerifyRegisterForm
+            onSubmit={handleVerifySignup}
+            onResendVerificationCode={handleResendVerificationCode}
+            initialCodeSentAt={initialCodeSentAt ?? 0}
+          />
+        ) : (
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className='h-full'
+          >
+            <TabsList className='grid w-full grid-cols-2'>
+              <TabsTrigger value='signup'>Sign Up</TabsTrigger>
+              <TabsTrigger value='login'>Login</TabsTrigger>
+            </TabsList>
+            <TabsContent value='signup'>
+              <AuthRegisterForm onSubmit={handleSignup} />
+            </TabsContent>
+            <TabsContent value='login'>
+              <AuthLoginForm onSubmit={handleLogin} />
+            </TabsContent>
+          </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );
