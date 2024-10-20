@@ -37,7 +37,7 @@ const performMatching = async (
             {
                 params: {
                     categories: commonCategories.join(','),
-                    difficulty: bestMatch.difficulty,
+                    difficulty: bestMatch.difficulty
                 },
             },
         )
@@ -52,7 +52,7 @@ const performMatching = async (
             questionId: res.data.questionId,
             title: res.data.title,
             difficulty: bestMatch.difficulty,
-            categories: res.data.categories,
+            categories: res.data.categories
         }
 
         logger.info(`Matched ${req.name} with ${bestMatch.name}`)
