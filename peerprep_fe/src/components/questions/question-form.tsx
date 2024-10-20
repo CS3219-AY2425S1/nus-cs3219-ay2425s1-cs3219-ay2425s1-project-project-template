@@ -231,7 +231,7 @@ export function QuestionForm({
         />
         <div className="text-xl text-gray-500 dark:text-gray-400 flex justify-between">
           Examples
-          <button onClick={onAddExample}>
+          <button onClick={onAddExample} type="button">
             <span className="material-symbols-outlined">add</span>
           </button>
         </div>
@@ -279,7 +279,7 @@ export function QuestionForm({
         })}
         <div className="text-xl text-gray-500 dark:text-gray-400 flex justify-between">
           Constraints
-          <button onClick={onAddConstraint}>
+          <button onClick={onAddConstraint} type="button">
             <span className="material-symbols-outlined">add</span>
           </button>
         </div>

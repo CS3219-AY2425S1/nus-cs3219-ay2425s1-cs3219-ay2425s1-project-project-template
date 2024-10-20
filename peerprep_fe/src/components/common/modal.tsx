@@ -69,7 +69,7 @@ export default function Modal(props: ModalProps) {
         <div className="flex justify-between items-center pt-5 px-5">
           <h3 className="text-2xl font-bold">{props.title}</h3>
           {isCloseable && (
-            <button onClick={onClose}>
+            <button onClick={onClose} type="button">
               <span className="material-symbols-outlined">close</span>
             </button>
           )}
