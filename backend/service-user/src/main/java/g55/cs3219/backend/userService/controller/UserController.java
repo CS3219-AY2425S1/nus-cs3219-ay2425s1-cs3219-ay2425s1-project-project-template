@@ -54,7 +54,7 @@ public class UserController {
             User currentUser = (User) authentication.getPrincipal();
             User fetchedUser = userService.getUserById(Long.parseLong(userId), currentUser);
             return ResponseEntity.ok(new UserResponse(fetchedUser.getId(), fetchedUser.getEmail(),
-                    fetchedUser.getUsername(), fetchedUser.isAdmin()));
+                    fetchedUser.getName(), fetchedUser.isAdmin()));
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Forbidden")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied.");
@@ -95,7 +95,7 @@ public class UserController {
         try {
             User createdUser = authenticationService.signup(registerUserDto);
             return new ResponseEntity<>(new UserResponse(createdUser.getId(), createdUser.getEmail(),
-                    createdUser.getUsername(), createdUser.isAdmin()), HttpStatus.CREATED);
+                    createdUser.getName(), createdUser.isAdmin()), HttpStatus.CREATED);
         } catch (RuntimeException e) {
             // Handle duplicate username or email
             if (e.getMessage().contains("exists")) {
