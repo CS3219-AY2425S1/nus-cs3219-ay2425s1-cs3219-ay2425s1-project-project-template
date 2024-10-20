@@ -59,27 +59,16 @@ export default function CreateSessionDialog(): JSX.Element {
 
     setSocket(newSocket);
 
-    newSocket.on('connect', () => {
-      console.log('Connected to WebSocket');
-    });
-
-    newSocket.on('requestAcknowledged', (data: { message: string; timestamp: string }) => {
-      console.log('Request acknowledged:', data);
-    });
-
     newSocket.on('cancelAcknowledged', (data: { message: string; timestamp: string }) => {
-      console.log('Cancel acknowledged:', data);
       resetState();
     });
 
     newSocket.on('matchError', (data: { message: string; timestamp: string }) => {
-      console.log('Error:', data);
       setStatus('error');
       setTimer(null);
     });
 
     newSocket.on('matchResult', (data: MatchResult) => {
-      console.log('Match result:', data);
       if (data.success && data.peerUserId && data.difficulty) {
         setStatus('success');
         setRedirectTimer(5);
