@@ -21,6 +21,7 @@ export const initializeCollaborationService = (server) => {
 
       // Add the user to the matching queue with socketId for later communication
       try {
+        console.log(userData)
         const resp = await addUserToQueue(userData, socket);
         socket.emit("queueEntered", resp);
       } catch (err) {

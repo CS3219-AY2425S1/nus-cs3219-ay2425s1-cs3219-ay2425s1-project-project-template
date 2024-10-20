@@ -3,9 +3,9 @@ import { Button, Spinner, Box, Text } from "@chakra-ui/react";
 import Timer from "./Timer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
-import { UserContext } from "../../context/UserContext";
+import { useUserContext } from "../../context/UserContext";
 
-const MatchingPage: React.FC = () => {
+const MatchingView: React.FC = () => {
 
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
@@ -18,8 +18,7 @@ const MatchingPage: React.FC = () => {
   const topic = searchParams.get("topic");
   const difficulty = searchParams.get("difficulty");
 
-  const userContext = useContext(UserContext);
-  const user = userContext?.user;
+  const user = useUserContext().user;
 
   const timerRef = useRef<number | null>(null);
 
@@ -68,9 +67,10 @@ const MatchingPage: React.FC = () => {
 
     // Join the queue when connected
     socket.on("connect", () => {
+      console.log(user)
       console.log("Socket connected:", socket.id);
       socket.emit("joinQueue", {
-        username: user?.username,
+        username: user.username,
         topic: topic,
         difficulty: difficulty,
       });
@@ -162,4 +162,4 @@ const MatchingPage: React.FC = () => {
   );
 };
 
-export default MatchingPage;
+export default MatchingView;

@@ -17,7 +17,8 @@ import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";
 import CollaborationView from "./pages/collaboration/CollaborationView";
 import { initApi, authApi, questionApi } from "./utils/api";
-import MatchingPage from "./pages/matching/MatchingPage";
+import MatchingPage from "./pages/matching/MatchingView";
+import MatchingView from "./pages/matching/MatchingView";
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App: React.FC = () => {
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/profile" element={<ProfileView />} />
             <Route path="/collaboration" element={<CollaborationView />} />
+            <Route path="/matching" element={<MatchingView />} />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route
@@ -60,9 +62,6 @@ const App: React.FC = () => {
             path="/register"
             element={<RegistrationController api={auth} setAuth={setAuth} />}
           />
-          <Route path="/collaboration" element={<CollaborationView />} />
-          <Route path="/matching" element={<MatchingPage />} />
-
           {/* <Route
             path="/forget-password"
             element={<ForgetPasswordController />}
