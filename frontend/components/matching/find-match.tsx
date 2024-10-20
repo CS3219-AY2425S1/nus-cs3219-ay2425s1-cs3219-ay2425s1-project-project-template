@@ -17,6 +17,8 @@ export default function FindMatch() {
   const { toast } = useToast();
   const auth = useAuth();
 
+  const waitTimeout = 60000;
+
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     if (isSearching) {
@@ -83,8 +85,8 @@ export default function FindMatch() {
           selectedDifficulty
         );
         const queueTimeout = setTimeout(() => {
-          handleCancel();
-        }, 60000);
+          handleCancel(true);
+        }, waitTimeout);
         ws.onmessage = () => {
           setIsSearching(false);
           clearTimeout(queueTimeout);
@@ -115,7 +117,7 @@ export default function FindMatch() {
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = async (timedOut: boolean) => {
     if (!selectedDifficulty || !selectedTopic) {
       toast({
         title: "Invalid Selection",
@@ -153,11 +155,19 @@ export default function FindMatch() {
       case 200:
         setIsSearching(false);
         setWaitTime(0);
-        toast({
-          title: "Success",
-          description: "Successfully left queue",
-          variant: "success",
-        });
+        if (timedOut) {
+          toast({
+            title: "Timed Out",
+            description: "Matching has been stopped",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Matching Stopped",
+            description: "Matching has been stopped",
+            variant: "destructive",
+          });
+        }
         return;
       default:
         toast({
@@ -178,7 +188,7 @@ export default function FindMatch() {
         setSelectedTopic={setSelectedTopic}
         handleSearch={handleSearch}
         isSearching={isSearching}
-        handleCancel={handleCancel}
+        handleCancel={() => handleCancel(false)}
       />
 
       {isSearching && <SearchProgress waitTime={waitTime} />}

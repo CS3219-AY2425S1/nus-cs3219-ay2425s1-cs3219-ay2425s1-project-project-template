@@ -1,6 +1,7 @@
 from fastapi.responses import JSONResponse, Response
 from typing import Union
 
+from logger import logger
 from models.match import MatchModel, MessageModel
 from utils.redis import acquire_lock, redis_client, release_lock
 from utils.socketmanager import manager
@@ -17,7 +18,7 @@ async def find_match_else_enqueue(
         raise Exception("Could not acquire lock")
 
     queue = await redis_client.lrange(queue_key, 0, -1)
-    _print_queue_state(topic, difficulty, queue, True)
+    logger.debug(_get_queue_state_message(topic, difficulty, queue, True))
 
     # Check if the user is already in the queue
     if user_id in queue:
@@ -27,17 +28,17 @@ async def find_match_else_enqueue(
     # Check if there are no other users in the queue
     if await redis_client.llen(queue_key) == 0:
         await redis_client.lpush(queue_key, user_id)
-        print(f"QUEUE:    Added {user_id} to queue")
+        logger.debug(f"Added {user_id} to Queue {(topic, difficulty)}")
         queue = await redis_client.lrange(queue_key, 0, -1)
-        _print_queue_state(topic, difficulty, queue, False)
+        logger.debug(_get_queue_state_message(topic, difficulty, queue, False))
         await release_lock(redis_client, queue_key)
         return Response(status_code=202)
     
     # There is a user in the queue
     matched_user = await redis_client.rpop(queue_key)
-    print(f"QUEUE:    Match found for {user_id} and {matched_user}")
+    logger.debug(f"Match found for {user_id} and {matched_user}")
     queue = await redis_client.lrange(queue_key, 0, -1)
-    _print_queue_state(topic, difficulty, queue, False)
+    logger.debug(_get_queue_state_message(topic, difficulty, queue, False))
     await release_lock(redis_client, queue_key)
     response = MatchModel(
         user1=matched_user,
@@ -61,13 +62,14 @@ async def remove_user_from_queue(
         raise Exception("Could not acquire lock")
 
     queue = await redis_client.lrange(queue_key, 0, -1)
-    _print_queue_state(topic, difficulty, queue, True)
+    logger.debug(_get_queue_state_message(topic, difficulty, queue, True))
 
     if user_id in queue:
         await redis_client.lrem(queue_key, 0, user_id)
-        print(f"QUEUE:    Removed {user_id} from queue")
-        queue = await redis_client.lrange(queue_key, 0, -1)
-        _print_queue_state(topic, difficulty, queue, False)
+        logger.debug(f"Removed {user_id} from queue {(topic, difficulty)}")
+
+    queue = await redis_client.lrange(queue_key, 0, -1)
+    logger.debug(_get_queue_state_message(topic, difficulty, queue, False))
 
     await release_lock(redis_client, queue_key)
     await manager.disconnect_all(user_id, topic, difficulty)
@@ -80,8 +82,8 @@ Helper functions for matching.
 def _build_queue_key(topic: str, difficulty: str):
     return f"{topic}:{difficulty}"
 
-def _print_queue_state(topic, difficulty, queue, before: bool):
+def _get_queue_state_message(topic, difficulty, queue, before: bool):
+    postfix = f"Queue for {(topic, difficulty)}: {queue}"
     if before:
-        print(f"QUEUE:    Before Queue for {(topic, difficulty)}: ", queue)
-    else:
-        print(f"QUEUE:    After Queue for {(topic, difficulty)}: ", queue)
+        return "Before - " + postfix
+    return "After - " + postfix
