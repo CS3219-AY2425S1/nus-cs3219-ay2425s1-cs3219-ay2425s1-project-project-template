@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import matchingService from "../services/MatchingService";
 
 const FindingPeer = () => {
   const location = useLocation();
@@ -9,7 +10,7 @@ const FindingPeer = () => {
   const { selectedTopics, selectedLevel, waitTimeInSeconds } =
     location.state || {};
 
-  const [time, setTime] = useState(waitTimeInSeconds || 120); 
+  const [time, setTime] = useState(waitTimeInSeconds || 120);
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
@@ -21,7 +22,14 @@ const FindingPeer = () => {
       }, 1000);
     } else if (time === 0) {
       clearInterval(interval);
-      navigate("/matching-service"); 
+      toast.info("No match found, redirecting to matching service...");
+      toast.info("Please try again later...");
+
+      // Wait for 3 seconds before navigating
+      // Delay the navigation to ensure toast is visible
+      setTimeout(() => {
+        navigate("/matching-service");
+      }, 3000);  // Wait for 3 seconds before navigating
     }
 
     return () => clearInterval(interval);
@@ -29,8 +37,48 @@ const FindingPeer = () => {
 
   const handleEndSession = () => {
     setIsActive(false);
+    matchingService.disconnect();
     navigate("/matching-service");
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    const complexity = selectedLevel;
+    const waitTime = time;
+
+    matchingService
+      .connect(token, selectedTopics.join(","), complexity, waitTime)
+      .then(() => {
+        toast.success("Connected to matching service");
+
+        // When match is Found, call the onMatchFound event
+        matchingService.onMatchFound((roomId) => {
+          console.log("Match found, redirecting to room:", roomId);
+          clearInterval();
+          toast.success("Match found! Redirecting...");
+          navigate(`/room/${roomId}`);
+        });
+        
+        //  When an error message is received, call the onError event
+        matchingService.onError((err) => {
+          toast.error(`Error: ${err.message}`);
+        });
+        
+        // When the socket is disconnected, call the onDisconnect event
+        matchingService.onDisconnect((reason) => {
+          if (time > 0) {
+            toast.warn(`Disconnected: ${reason}`);
+          }
+        });
+      })
+      .catch((err) => {
+        toast.error(`Connection failed: ${err.message} Could not connect to matching service`);
+      });
+      
+    return () => {
+      matchingService.disconnect();
+    };
+  }, [selectedTopics, selectedLevel, navigate]);
 
   return (
     <div className="flex min-h-screen bg-black">

@@ -1,48 +1,34 @@
-import jwt from "jsonwebtoken";
-import { findUserById as _findUserById } from "../model/repository.js";
+import jwt from 'jsonwebtoken';
 
-export function verifyAccessToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ message: "Authentication failed" });
-  }
-
-  // request auth header: `Authorization: Bearer + <access_token>`
-  const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
-    if (err) {
-      return res.status(401).json({ message: "Authentication failed" });
+// Middleware to verify JWT token
+export const verifyAccessToken = (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    
+    // Verify the JWT token
+    if (!token) {
+      const error = new Error('Authentication error: Token not provided');
+      error.data = { content: 'Please provide a valid token' };
+      return next(error);
     }
 
-    // load latest user info from DB
-    const dbUser = await _findUserById(user.id);
-    if (!dbUser) {
-      return res.status(401).json({ message: "Authentication failed" });
-    }
+    // Replace 'your_jwt_secret' with your secret key used to sign the token
+    jwt.verify(token, process.env.JWT_SECRET || 'you-can-replace-this-with-your-own-secret', (err, decoded) => {
+      if (err) {
+        const error = new Error('Authentication error: Invalid token');
+        error.data = { content: 'Invalid token' };
+        return next(error);
+      }
 
-    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdmin };
-    next();
-  });
-}
+      // Add decoded user data to the socket object (optional, for further use)
+      socket.user = decoded; // 'decoded' contains the user information embedded in the JWT
 
-export function verifyIsAdmin(req, res, next) {
-  if (req.user.isAdmin) {
-    next();
-  } else {
-    return res.status(403).json({ message: "Not authorized to access this resource" });
+      next();
+    });
+  } catch (err) {
+    console.log('Token verification failed:', err.message);
+    const error = new Error('Authentication error');
+    error.data = { content: 'Failed to authenticate' };
+    next(error);
   }
-}
-
-export function verifyIsOwnerOrAdmin(req, res, next) {
-  if (req.user.isAdmin) {
-    return next();
-  }
-
-  const userIdFromReqParams = req.params.id;
-  const userIdFromToken = req.user.id;
-  if (userIdFromReqParams === userIdFromToken) {
-    return next();
-  }
-
-  return res.status(403).json({ message: "Not authorized to access this resource" });
-}
+};

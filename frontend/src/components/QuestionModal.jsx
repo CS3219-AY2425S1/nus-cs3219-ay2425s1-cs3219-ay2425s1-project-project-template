@@ -65,7 +65,7 @@ const QuestionModal = (props) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75 text-white">
-      <div className="w-full max-w-md rounded-3xl bg-[#191919] bg-gradient-to-r from-white to-lime-400 p-1 shadow-lg">
+      <div className="w-full max-w-md rounded-3xl bg-[#191919] bg-gradient-to-r from-white to-lime-400 p-[0.1rem] shadow-lg">
         <div className="rounded-3xl bg-[#191919] p-6">
           <h2 className="mb-6 text-2xl font-semibold text-lime-300">
             {modalTitle}
