@@ -33,10 +33,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const score = matchRequest.timestamp;
     const value = JSON.stringify(matchRequest);
 
-    // Store match request in sorted set with timestamp as score
     await this.redis.zadd(REDIS_CONFIG.keys.matchRequests, score, value);
     
-    // Set expiration on the match request
     await this.redis.set(
       `${REDIS_CONFIG.keys.userMatches}${matchRequest.userId}`,
       value,
@@ -46,7 +44,6 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async findPotentialMatches(topic: string, userId: string): Promise<any[]> {
-    // Get all match requests for the topic
     const matches = await this.redis.zrangebyscore(
       REDIS_CONFIG.keys.matchRequests,
       '-inf',
@@ -59,12 +56,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async removeMatchRequest(userId: string): Promise<void> {
-    // Get the match request details
     const requestDetails = await this.redis.get(`${REDIS_CONFIG.keys.userMatches}${userId}`);
     if (requestDetails) {
-      // Remove from sorted set
       await this.redis.zrem(REDIS_CONFIG.keys.matchRequests, requestDetails);
-      // Remove from user matches
       await this.redis.del(`${REDIS_CONFIG.keys.userMatches}${userId}`);
     }
   }
@@ -72,13 +66,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async createMatch(match: MatchedPairDto): Promise<void> {
     const matchKey = `${REDIS_CONFIG.keys.matchDetails}${match.matchId}`;
     
-    // Store match details
     await this.redis.hmset(matchKey, {
       ...match,
       timestamp: Date.now().toString(),
     });
 
-    // Remove both users' match requests
     await this.removeMatchRequest(match.user1.userId);
     await this.removeMatchRequest(match.user2.userId);
   }
@@ -86,6 +78,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async checkUserHasActiveRequest(userId: string): Promise<boolean> {
     const exists = await this.redis.exists(`${REDIS_CONFIG.keys.userMatches}${userId}`);
     return exists === 1;
+  }
+
+  async checkRequestExists(userId: string, timestamp: number): Promise<boolean> {
+    const matchRequests = await this.getAllMatchRequests();
+    return matchRequests.some(match => match.userId === userId && match.timestamp === timestamp);
   }
 
   async getAllMatchRequests(): Promise<Array<MatchRequestDto & { socketId: string; timestamp: number }>> {

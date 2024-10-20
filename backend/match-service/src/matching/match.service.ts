@@ -6,8 +6,6 @@ import { MatchedPairDto } from './dto/matched-pair.dto';
 import { MatchResult } from './interfaces/match-result.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { QuestionComplexity } from '../../../question-service/src/questions/types/question.types';
-import { WebSocketServer } from '@nestjs/websockets';
-import { timestamp } from 'rxjs';
 
 @Injectable()
 export class MatchService {
@@ -25,7 +23,6 @@ export class MatchService {
         socketId: client.id,
       };
 
-      // Check if user already has an active request
       const hasActiveRequest = await this.redisService.checkUserHasActiveRequest(request.userId);
       if (hasActiveRequest) {
         client.emit('matchResult', {
@@ -35,24 +32,18 @@ export class MatchService {
         return;
       }
 
-      // Add request to Redis
       await this.redisService.addMatchRequest(request);
 
-      // Try to find a match immediately
       await this.findMatch(request, client);
 
-      // Set up timeout for match
       setTimeout(async () => {
         try {
-          this.logger.log(`Match request timed out: ${request.userId}`);
-          const hasRequest = await this.redisService.checkUserHasActiveRequest(request.userId);
+          const hasRequest = await this.redisService.checkRequestExists(request.userId, request.timestamp);
           if (!hasRequest) return;
-          this.logger.log(`Removing match request: ${request.userId}`);
+          this.logger.log(`Match request timed out: ${request.userId}`);
 
-          // Remove the request if it's still in Redis
           await this.redisService.removeMatchRequest(request.userId);
           
-          // Notify user if they haven't been matched yet
           client.emit('matchResult', {
             success: false,
             message: 'No match found within the timeout period',
@@ -73,18 +64,15 @@ export class MatchService {
 
   private async findMatch(request: MatchRequestDto & { socketId: string }, client: Socket) {
     try {
-      // Find potential matches with the same topic
       const potentialMatches = await this.redisService.findPotentialMatches(request.topic, request.userId);
       potentialMatches.sort((a, b) => a.timestamp - b.timestamp);
       
       if (potentialMatches.length !== 0) {
-        // First, look for exact matches (same topic and difficulty)
         const exactMatch = potentialMatches.find(
           match => match.difficulty === request.difficulty
         );
 
         if (exactMatch) {
-          // Create immediate match
           await this.createMatch(request, exactMatch, client);
           return;
         }
@@ -96,25 +84,20 @@ export class MatchService {
         }
       }
 
-      // If no exact match, wait briefly for potential exact matches
       setTimeout(async () => {
-        this.logger.log(`SAME DIFFICULTY TIMEOUT invoked: ${request.userId}`);
-        const hasRequest = await this.redisService.checkUserHasActiveRequest(request.userId);
+        const hasRequest = await this.redisService.checkRequestExists(request.userId, request.timestamp);
         if (!hasRequest) return;
-        this.logger.log(`SAME DIFFICULTY TIMEOUT invoked and user has active request: ${request.userId}`);
+        this.logger.log(`SAME DIFFICULTY TIMEOUT invoked: ${request.userId}`);
 
-        // Check again for matches
         const updatedMatches = await this.redisService.findPotentialMatches(request.topic, request.userId);
         const newExactMatch = updatedMatches.find(
           match => match.difficulty === request.difficulty
         );
 
         if (newExactMatch) {
-          // Create immediate match
           await this.createMatch(request, newExactMatch, client);
           return;
         } else if (updatedMatches.length > 0) {
-          // Match with the first available user
           await this.createMatch(request, updatedMatches[0], client);
         }
       }, this.SAME_DIFFICULTY_TIMEOUT);
@@ -157,12 +140,10 @@ export class MatchService {
         difficulty: this.getMinimumDifficulty(request1.difficulty, request2.difficulty),
       };
 
-      // Create the match in Redis
       await this.redisService.createMatch(matchedPair);
 
       const server = global.io;
       
-      // Notify both users
       server.to(request1.socketId).emit('matchResult', {
         success: true,
         message: 'Match found!',
@@ -189,8 +170,8 @@ export class MatchService {
       await this.redisService.removeMatchRequest(userId);
       const server = global.io;
       server.to(socketId).emit('matchResult', {
-        success: false,
-        message: 'Match request cancelled',
+        success: true,
+        message: 'Match request cancelled (if any)',
       } as MatchResult);
     } catch (error) {
       this.logger.error('Error cancelling match:', error);
