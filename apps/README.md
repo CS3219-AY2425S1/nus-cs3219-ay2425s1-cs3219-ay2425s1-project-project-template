@@ -16,17 +16,21 @@ In the `./apps` directory:
 ```plaintext
 .
 ├── docker-compose.yml       # Docker Compose configuration
+├── README.md                # Project documentation (for docker compose)
 ├── .env                     # Global environment variables (optional)
 ├── frontend
 │   ├── Dockerfile           # Dockerfile for frontend
 │   └── ... (other frontend files)
+├── matching-service
+│   ├── Dockerfile           # Dockerfile for matching-service
+│   └── ... (other matching-service files)
 ├── question-service
 │   ├── Dockerfile           # Dockerfile for question-service
 │   └── ... (other question-service files)
 ├── user-service
 │   ├── Dockerfile           # Dockerfile for user-service
 │   └── ... (other user-service files)
-└── README.md                # Project documentation (for docker compose)
+
 ```
 
 ## Docker Compose Setup
@@ -53,6 +57,8 @@ Once running, you can access:
 - The **frontend** at http://localhost:3000
 - The **user service** at http://localhost:3001
 - The **question service** at http://localhost:8080
+- The **matching service** at http://localhost:8081
+- The **redis service** at http://localhost:6379
 
 3. Stopping Services
 
