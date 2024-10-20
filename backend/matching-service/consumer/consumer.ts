@@ -1,12 +1,13 @@
-import { connect, Connection } from 'amqplib'
+// backend/matching-service/consumer/consumer.ts
+import { connect, Connection, Channel } from 'amqplib'
 import { Server } from 'socket.io'
 import { performMatching } from './matching'
-import { TimedMatchRequest } from '../models/types'
+import { TimedMatchRequest, MatchPartner } from '../models/types'
 import logger from '../utils/logger'
 import { sendMatchResult } from './sendMatchResults'
 
 const requestQueue: TimedMatchRequest[] = []
-const MATCH_TIMEOUT = 15000
+const MATCH_TIMEOUT = 15000 // 15 seconds
 let isMatching: boolean = false
 
 const startConsumer = async (
@@ -14,40 +15,41 @@ const startConsumer = async (
     connectedClients: Map<string, string>,
 ) => {
     let connection: Connection | null = null
-    let channel: any = null
-
-    // because sometimes, rabbitmq starts later than matching service, so we need to retry the connection.
-    // rabbitmq usually takes around 10s to set up
+    let channel: Channel | null = null
 
     const maxRetries = 3
-    const retryDelay = 13000 // 13 secs
-    let rabbitPort: string = String(process.env.RABBITMQ_URL)
+    const retryDelay = 13000 // 13 seconds
+    const rabbitUrl: string = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672'
+    const queueName = 'matching_requests'
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            connection = await connect(
-                rabbitPort,
-            )
+            logger.info(`Attempt ${attempt}: Connecting to RabbitMQ at ${rabbitUrl}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+            connection = await connect(rabbitUrl)
             channel = await connection.createChannel()
-            const queue = 'matching_requests'
-            await channel.assertQueue(queue, { durable: false })
+            await channel.assertQueue(queueName, { durable: false })
 
-            logger.info('Connected to RabbitMQ and waiting for matching requests...')
+            logger.info('Connected to RabbitMQ and waiting for matching requests...', { service: 'matching-service', timestamp: new Date().toISOString() })
             break
         } catch (error: any) {
-            logger.error(`Attempt ${attempt}: Failed to connect to RabbitMQ: ${error.message}`)
+            logger.error(`Attempt ${attempt}: Failed to connect to RabbitMQ: ${error.message}`, { service: 'matching-service', timestamp: new Date().toISOString() })
             if (attempt === maxRetries) {
-                logger.error('Max retries reached. Exiting.')
+                logger.error('Max retries reached. Exiting.', { service: 'matching-service', timestamp: new Date().toISOString() })
                 process.exit(1)
             }
-            logger.info(`Retrying in ${retryDelay / 1000} seconds...`)
+            logger.info(`Retrying in ${retryDelay / 1000} seconds...`, { service: 'matching-service', timestamp: new Date().toISOString() })
             await new Promise(res => setTimeout(res, retryDelay))
         }
     }
 
+    if (!channel) {
+        logger.error('Channel was not created. Exiting.', { service: 'matching-service', timestamp: new Date().toISOString() })
+        process.exit(1)
+    }
+
     channel.consume(
-        'matching_requests',
-        (msg: { content: { toString: () => string } }) => {
+        queueName,
+        (msg: any) => {
             if (msg) {
                 const { userId, userName, difficulty, categories } = JSON.parse(
                     msg.content.toString(),
@@ -61,6 +63,7 @@ const startConsumer = async (
                 }
                 logger.info(
                     `Received matching request: ${JSON.stringify(request)}`,
+                    { service: 'matching-service', timestamp: new Date().toISOString() }
                 )
                 requestQueue.push(request)
 
@@ -71,6 +74,18 @@ const startConsumer = async (
         },
         { noAck: true },
     )
+
+    const removeRequest = (userId: string) => {
+        const index = requestQueue.findIndex((x) => x.userId === userId)
+        if (index !== -1) {
+            requestQueue.splice(index, 1)
+            logger.info(`User ${userId} has been removed from the queue via cancellation`, { service: 'matching-service', timestamp: new Date().toISOString() })
+        } else {
+            logger.info(`User ${userId} not found in the queue during cancellation`, { service: 'matching-service', timestamp: new Date().toISOString() })
+        }
+    }
+
+    return { removeRequest }
 }
 
 const processMatching = async (
@@ -89,7 +104,7 @@ const processMatching = async (
         let reqIndex = requestQueue.findIndex((x) => x.userId === req.userId)
 
         if (reqIndex === -1) {
-            logger.info(`${req.userId} has already been matched and removed from the queue`)
+            logger.info(`${req.userId} has already been matched and removed from the queue`, { service: 'matching-service', timestamp: new Date().toISOString() })
             return
         }
 
@@ -102,7 +117,7 @@ const processMatching = async (
         
         if (reqIndex !== -1) {
             requestQueue.splice(reqIndex, 1)
-            logger.info(`${req.userId} has been removed from the queue`)
+            logger.info(`${req.userId} has been removed from the queue`, { service: 'matching-service', timestamp: new Date().toISOString() })
         }
 
         if (matchPartner) {
@@ -112,7 +127,7 @@ const processMatching = async (
             )
             if (partnerIndex !== -1) {
                 requestQueue.splice(partnerIndex, 1)
-                logger.info(`${matchPartner.userId} has been removed from the queue`)
+                logger.info(`${matchPartner.userId} has been removed from the queue`, { service: 'matching-service', timestamp: new Date().toISOString() })
             }
             return
         } else {
@@ -124,6 +139,8 @@ const processMatching = async (
                 })
             }
         }
+    } catch (error: any) {
+        logger.error(`Error during matching process: ${error.message}`, { service: 'matching-service', timestamp: new Date().toISOString() })
     } finally {
         isMatching = false
     }
