@@ -178,7 +178,7 @@ export const NewSession = () => {
             isMatchFound: true,
             isMatchmaking: false,
         }))
-        router.push('/code')
+        // router.push('/code')
     }
 
     return (
