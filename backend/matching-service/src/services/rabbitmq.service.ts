@@ -13,6 +13,15 @@ class RabbitMQConnection {
     channel!: Channel
     private connected!: boolean
     private cancelledUsers: Set<string>
+    private currentUsers: Set<string>
+
+    public userCurrentlyConnected(userId: string) {
+        return this.currentUsers.has(userId)
+    }
+
+    public addUserConnected(userId: string) {
+        this.currentUsers.add(userId)
+    }
 
     async connect() {
         if (this.connected && this.channel) return
@@ -33,6 +42,7 @@ class RabbitMQConnection {
             this.channel = await this.connection.createChannel()
 
             this.cancelledUsers = new Set<string>()
+            this.currentUsers = new Set<string>()
 
             logger.info(`[Init] Created RabbitMQ Channel successfully`)
         } catch (error) {
@@ -49,6 +59,7 @@ class RabbitMQConnection {
             }
 
             if (this.cancelledUsers.has(message.websocketId)) {
+                this.currentUsers.delete(message.userId)
                 logger.info(`[Entry-Queue] Blacklisted user ${message.userId} tried to enter queue`)
                 return
             }
@@ -127,6 +138,7 @@ class RabbitMQConnection {
                 headers: {
                     sentAt: Date.now(),
                     websocketId: message.websocketId,
+                    userId: message.userId,
                 },
             })
 
@@ -156,6 +168,7 @@ class RabbitMQConnection {
                     const content: IUserQueueMessage = JSON.parse(waitingUser.content.toString())
                     if (this.cancelledUsers.has(content.websocketId)) {
                         this.channel.ack(waitingUser)
+                        this.currentUsers.delete(content.userId)
                         this.cancelledUsers.delete(content.websocketId)
                         return false
                     } else {
@@ -190,6 +203,7 @@ class RabbitMQConnection {
                 if (this.cancelledUsers.has(directMatchContent.websocketId)) {
                     logger.info(`[Waiting-Queue] User ${directMatchContent.userId} has withdrawn from queue`)
                     this.channel.ack(directMatch)
+                    this.currentUsers.delete(directMatchContent.userId)
                     this.cancelledUsers.delete(directMatchContent.websocketId)
                     return
                 } else {
@@ -272,6 +286,10 @@ class RabbitMQConnection {
                     complexity: content.complexity,
                 }
                 await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
+                this.currentUsers.delete(content.userId)
+                this.currentUsers.delete(matchedUserContent.userId)
+                this.cancelledUsers.delete(content.websocketId)
+                this.cancelledUsers.delete(matchedUserContent.websocketId)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {
@@ -290,8 +308,9 @@ class RabbitMQConnection {
         }
     }
 
-    async addUserToCancelledSet(websocketId: string) {
+    async cancelUser(websocketId: string, userId: string) {
         this.cancelledUsers.add(websocketId)
+        this.currentUsers.delete(userId)
         logger.info(`[Cancel-User] User ${websocketId} has been blacklisted from matchmaking`)
     }
 
@@ -313,12 +332,15 @@ class RabbitMQConnection {
             await this.channel.consume(DLX_QUEUE, (msg) => {
                 if (msg) {
                     const socketId = msg.properties?.headers?.websocketId
+                    const userId = msg.properties?.headers?.userId
                     const queue = msg.properties?.headers['x-first-death-queue']
                     logger.info(
                         `[DeadLetter-Queue] Received dead letter message from ${queue}, with socketId ${socketId}`
                     )
                     wsConnection.closeConnectionOnTimeout(socketId)
                     this.channel.ack(msg)
+                    this.currentUsers.delete(userId)
+                    this.cancelledUsers.delete(socketId)
                 }
             })
         } catch (error) {

@@ -49,7 +49,7 @@ export class WebSocketConnection {
             const data = JSON.parse(message)
 
             if (data.type === WebSocketMessageType.CANCEL) {
-                removeUserFromMatchingQueue(websocketId)
+                removeUserFromMatchingQueue(websocketId, data.userId)
             } else if (data.userId) {
                 addUserToMatchmaking(data)
             } else {

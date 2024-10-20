@@ -9,9 +9,13 @@ export const addUserToMatchmaking = async (): Promise<any | undefined> => {
         return await axiosInstance.post(`/matching`)
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            throw new Error('An unexpected error occurred' + error.message)
+            if (error.response) {
+                throw { status: error.response.status, message: error.message }
+            } else {
+                throw { message: `Axios error: ${error.message}` }
+            }
         } else {
-            throw new Error('An unexpected error occurred')
+            throw { message: 'An unexpected error occurred' }
         }
     }
 }
