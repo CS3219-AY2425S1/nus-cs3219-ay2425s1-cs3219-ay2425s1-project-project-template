@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LargeTextfield from "@/components/common/large-text-field";
 import Button from "@/components/common/button";
 import {
@@ -18,6 +18,7 @@ import { useSocket } from "@/contexts/socket-context";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import Modal from "../common/modal";
+import { getQuestionTopics } from "@/app/actions/questions";
 
 export interface MatchFormQuestions {
   difficultyLevel: DifficultyLevel;
@@ -31,7 +32,26 @@ export function MatchForm() {
   });
   const [error, setError] = useState<string>("");
   const { socket } = useSocket();
-  const { username } = useAuth();
+  const { username, token } = useAuth();
+
+  const [topics, setTopics] = useState<string[]>();
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    if (token) {
+      getQuestionTopics(token).then((data) => {
+        setTopics(data?.message);
+      });
+    }
+  }, [token]);
+
+  const handleTopicChange = (topic: string) => {
+    setIsOpen(false);
+    setFormData((prev) => {
+      return { ...prev, topic: topic };
+    });
+  };
+
+  console.log(formData);
 
   // Usage in form submission
   const [loading, setLoading] = useState<boolean>(false);
@@ -228,14 +248,42 @@ export function MatchForm() {
             </option>
           ))}
         </select>
-        <LargeTextfield
-          name="topic"
-          secure={false}
-          placeholder_text="Topics (comma-separated, e.g., Array, Hash Table)"
-          text={formData.topic}
-          onChange={handleChange}
-          required
-        />
+        <div className="relative w-full ">
+          <div
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full px-4 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {formData.topic || "Select a topic"}
+            <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg
+                className="w-5 h-5 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </div>
+          {isOpen && (
+            <ul className="absolute z-10 w-full py-1 mt-1 overflow-auto bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none">
+              {topics?.map((topic) => (
+                <li
+                  key={topic}
+                  onClick={() => handleTopicChange(topic)}
+                  className="px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-blue-100 hover:text-blue-900"
+                >
+                  {topic}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         {error && <p className="error">{error}</p>}
         {
           <Button
