@@ -10,8 +10,14 @@ import { MatchDto } from '../types/MatchDto'
 import { createMatch, isUserInMatch } from '../models/matching.repository'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
+    const userHasMatch = await isUserInMatch(request.user.id)
+    if (userHasMatch) {
+        response.status(403).send('USER_ALREADY_IN_MATCH')
+        return
+    }
+
     if (mqConnection.userCurrentlyConnected(request.user.id)) {
-        response.status(400).send({ error: 'User already connected' })
+        response.status(409).send('USER_ALREADY_IN_QUEUE')
         return
     }
     mqConnection.addUserConnected(request.user.id)
@@ -21,8 +27,8 @@ export async function generateWS(request: ITypedBodyRequest<void>, response: Res
 }
 
 export async function addUserToMatchmaking(data: UserQueueRequest): Promise<void> {
-    const isAnyUserInMatch = await isUserInMatch(data.userId)
-    if (isAnyUserInMatch) {
+    const userHasMatch = await isUserInMatch(data.userId)
+    if (userHasMatch) {
         wsConnection.sendMessageToUser(data.websocketId, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         return
     }
@@ -51,7 +57,8 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
     if (errors.length) {
         throw new Error('Invalid match data')
     }
-    wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.SUCCESS }))
-    wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.SUCCESS }))
-    return createMatch(createDto)
+    const dto = await createMatch(createDto)
+    wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
+    wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
+    return dto
 }

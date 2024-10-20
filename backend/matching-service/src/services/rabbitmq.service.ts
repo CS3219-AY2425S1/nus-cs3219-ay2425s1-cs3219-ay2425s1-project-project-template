@@ -59,6 +59,7 @@ class RabbitMQConnection {
             }
 
             if (this.cancelledUsers.has(message.websocketId)) {
+                this.currentUsers.delete(message.userId)
                 logger.info(`[Entry-Queue] Blacklisted user ${message.userId} tried to enter queue`)
                 return
             }
@@ -167,6 +168,7 @@ class RabbitMQConnection {
                     const content: IUserQueueMessage = JSON.parse(waitingUser.content.toString())
                     if (this.cancelledUsers.has(content.websocketId)) {
                         this.channel.ack(waitingUser)
+                        this.currentUsers.delete(content.userId)
                         this.cancelledUsers.delete(content.websocketId)
                         return false
                     } else {
@@ -201,6 +203,7 @@ class RabbitMQConnection {
                 if (this.cancelledUsers.has(directMatchContent.websocketId)) {
                     logger.info(`[Waiting-Queue] User ${directMatchContent.userId} has withdrawn from queue`)
                     this.channel.ack(directMatch)
+                    this.currentUsers.delete(directMatchContent.userId)
                     this.cancelledUsers.delete(directMatchContent.websocketId)
                     return
                 } else {
@@ -285,6 +288,8 @@ class RabbitMQConnection {
                 await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
                 this.currentUsers.delete(content.userId)
                 this.currentUsers.delete(matchedUserContent.userId)
+                this.cancelledUsers.delete(content.websocketId)
+                this.cancelledUsers.delete(matchedUserContent.websocketId)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {

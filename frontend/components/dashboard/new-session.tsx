@@ -12,7 +12,7 @@ import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 import { WebSocketMessageType } from '@repo/ws-types'
-import { IPostMatching } from '@/types/matching-api'
+import { IPostMatching, MatchingStatus } from '@/types/matching-api'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -35,24 +35,20 @@ export const NewSession = () => {
 
     const [modalData, setModalData] = React.useState({
         isOpen: false,
-        isMatchmaking: false,
-        isMatchFound: false,
-        isMatchmakingFailed: false,
-        isDuplicate: false,
-        isUserInMatchmaking: false,
-        matchID: '',
+        matchStatus: MatchingStatus.NOT_IN_QUEUE,
+        matchId: '',
     })
 
     const [timeElapsed, setTimeElapsed] = React.useState(0)
     React.useEffect(() => {
-        if (modalData.isMatchmaking) {
+        if (modalData.matchStatus === MatchingStatus.QUEUED) {
             const timer = setTimeout(() => {
                 setTimeElapsed((timeElapsed) => timeElapsed + 1)
             }, 1000)
 
             return () => clearTimeout(timer)
         }
-    }, [modalData.isMatchmaking, timeElapsed])
+    }, [modalData.matchStatus, timeElapsed])
 
     const handleMatchmaking = async () => {
         if (!selectedTopic || !selectedComplexity) {
@@ -63,11 +59,7 @@ export const NewSession = () => {
         setModalData((modalData) => ({
             ...modalData,
             isOpen: true,
-            isMatchmaking: true,
-            isMatchFound: false,
-            isMatchmakingFailed: false,
-            isDuplicate: false,
-            isUserInMatchmaking: false,
+            matchStatus: MatchingStatus.QUEUED,
         }))
 
         //TODO: Modify this response to match the response from the API
@@ -76,14 +68,21 @@ export const NewSession = () => {
         try {
             const r = await addUserToMatchmaking()
             websocketId = r?.websocketID ?? ''
-        } catch {
-            await handleUserInMatchmaking()
+        } catch (e: any) {
+            if (e.status === 403) {
+                await updateMatchmakingStatus(MatchingStatus.MATCH_EXISTS)
+            } else if (e.status === 409) {
+                await updateMatchmakingStatus(MatchingStatus.USER_ALREADY_IN_QUEUE)
+            } else {
+                await updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
+            }
+            return
         }
 
         const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${websocketId}`)
         socketRef.current = socket
         socketRef.current.onclose = () => {
-            handleFailedMatchmaking()
+            updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
         }
         socketRef.current.onopen = () => {
             const data: IPostMatching = {
@@ -100,12 +99,12 @@ export const NewSession = () => {
                 const newMessage = JSON.parse(event.data)
                 switch (newMessage.type) {
                     case WebSocketMessageType.SUCCESS:
-                        handleMatchFound()
+                        updateMatchmakingStatus(MatchingStatus.MATCH_FOUND, newMessage.matchId)
                         break
                     case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
                         socketRef.current = undefined
-                        handleFailedMatchmaking()
+                        updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
                         break
                     case WebSocketMessageType.CANCEL:
                         socketRef.current?.close()
@@ -114,8 +113,7 @@ export const NewSession = () => {
                             return {
                                 ...modalData,
                                 isOpen: false,
-                                isMatchmaking: false,
-                                isDuplicate: false,
+                                matchStatus: MatchingStatus.NOT_IN_QUEUE,
                             }
                         })
                         break
@@ -123,8 +121,7 @@ export const NewSession = () => {
                         setModalData((modalData) => {
                             return {
                                 ...modalData,
-                                isMatchmaking: false,
-                                isDuplicate: true,
+                                matchStatus: MatchingStatus.MATCH_EXISTS,
                             }
                         })
                         break
@@ -141,22 +138,11 @@ export const NewSession = () => {
         }
     }
 
-    const handleUserInMatchmaking = () => {
+    const updateMatchmakingStatus = async (status: MatchingStatus, matchId?: string) => {
         setModalData((modalData) => ({
             ...modalData,
-            isMatchmaking: false,
-            isMatchmakingFailed: false,
-            isDuplicate: false,
-            isUserInMatchmaking: true,
-        }))
-    }
-
-    const handleFailedMatchmaking = async () => {
-        setModalData((modalData) => ({
-            ...modalData,
-            isMatchmaking: false,
-            isMatchmakingFailed: true,
-            isDuplicate: false,
+            matchStatus: status,
+            matchId: matchId ?? modalData.matchId,
         }))
     }
 
@@ -166,19 +152,8 @@ export const NewSession = () => {
         setModalData((modalData) => ({
             ...modalData,
             isOpen: false,
-            isMatchmaking: false,
-            isDuplicate: false,
-            isMatchmakingFailed: false,
+            matchStatus: MatchingStatus.NOT_IN_QUEUE,
         }))
-    }
-
-    const handleMatchFound = async () => {
-        setModalData((modalData) => ({
-            ...modalData,
-            isMatchFound: true,
-            isMatchmaking: false,
-        }))
-        // router.push('/code')
     }
 
     return (
@@ -233,7 +208,7 @@ export const NewSession = () => {
                             height={234}
                             alt="pros sitting around a monitor"
                         />
-                        {modalData.isMatchmaking && (
+                        {modalData.matchStatus === MatchingStatus.QUEUED && (
                             <>
                                 <h2 className="text-xl font-bold text-center">Finding collaborator</h2>
                                 <Loading />
@@ -245,7 +220,7 @@ export const NewSession = () => {
                                 </Button>
                             </>
                         )}
-                        {modalData.isUserInMatchmaking && (
+                        {modalData.matchStatus === MatchingStatus.USER_ALREADY_IN_QUEUE && (
                             <>
                                 <h2 className="text-xl font-bold text-center">User already in queue.</h2>
                                 <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleCancelMatchmaking}>
@@ -253,7 +228,7 @@ export const NewSession = () => {
                                 </Button>
                             </>
                         )}
-                        {modalData.isMatchmakingFailed && (
+                        {modalData.matchStatus === MatchingStatus.MATCH_NOT_FOUND && (
                             <>
                                 <h2 className="text-xl font-bold text-center">
                                     Failed to find a collaborator. Would you like to try again?
@@ -268,17 +243,26 @@ export const NewSession = () => {
                                 </div>
                             </>
                         )}
-                        {modalData.isMatchFound && (
-                            <h2 className="text-xl font-bold text-center">
-                                Match found! Please wait while we redirect you to the coding session...
-                                {modalData.matchID}
-                            </h2>
+                        {modalData.matchStatus === MatchingStatus.MATCH_FOUND && (
+                            <>
+                                <h2 className="text-xl font-bold text-center">
+                                    Match found! Please wait while we redirect you to the coding session...
+                                </h2>
+                                <h3 className="text-md font-bold text-center">Match ID: {modalData.matchId}</h3>
+                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={() => void router.push('/code')}>
+                                    Proceed to coding session
+                                </Button>
+                            </>
                         )}
-                        {modalData.isDuplicate && (
-                            <h2 className="text-xl font-bold text-center">
-                                You already have a match! Please wait while we redirect you to the coding session...
-                                {modalData.matchID}
-                            </h2>
+                        {modalData.matchStatus === MatchingStatus.MATCH_EXISTS && (
+                            <>
+                                <h2 className="text-xl font-bold text-center">
+                                    You already have a match! Please wait while we redirect you to the coding session...
+                                </h2>
+                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={() => void router.push('/code')}>
+                                    Proceed to coding session
+                                </Button>
+                            </>
                         )}
                     </div>
                 </CustomModal>
