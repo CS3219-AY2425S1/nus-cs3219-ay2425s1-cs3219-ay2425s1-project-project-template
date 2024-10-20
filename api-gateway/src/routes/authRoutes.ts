@@ -12,6 +12,6 @@ const authServiceProxy = createProxyMiddleware({
   },
 });
 
-router.use('/api/auth', authServiceProxy as express.RequestHandler);
+// router.use('/api/auth', authServiceProxy as express.RequestHandler);
 
 export default router;

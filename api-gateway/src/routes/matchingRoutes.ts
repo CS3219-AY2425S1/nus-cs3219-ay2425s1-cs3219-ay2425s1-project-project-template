@@ -13,7 +13,7 @@ const matchingServiceProxy = createProxyMiddleware({
   },
 });
 
-router.use(authMiddleware as express.RequestHandler);
-router.use('/api/matching', matchingServiceProxy as express.RequestHandler);
+// router.use(authMiddleware as express.RequestHandler);
+// router.use('/api/matching', matchingServiceProxy as express.RequestHandler);
 
 export default router;

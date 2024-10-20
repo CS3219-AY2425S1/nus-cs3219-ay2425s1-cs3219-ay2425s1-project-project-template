@@ -9,9 +9,9 @@ const router = express.Router();
 const questionServiceProxy = createProxyMiddleware({
   target: config.services.question,
   changeOrigin: true,
-  pathRewrite: {
-    '^/api/questions': '/api/v1/questions', // Rewrite the path
-  },
+  // pathRewrite: {
+  //   '^/questions': '/api/v1/questions', // Rewrite the path
+  // },
 });
 
 router.use((req, res, next) => {
@@ -28,6 +28,6 @@ router.use((req, res, next) => {
 // router.use(authMiddleware as express.RequestHandler);
 
 // Apply the proxy middleware only to routes starting with /api/questions
-router.use('/api/questions', questionServiceProxy as RequestHandler);
+// router.use('/api/questions', questionServiceProxy as RequestHandler);
 
 export default router;

@@ -28,8 +28,8 @@ export function TopicsPopover({
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        // const response = await axiosClient.get('/questions/tags');
-        const response = await axiosQuestionClient.get('/questions/tags');
+        const response = await axiosClient.get('/questions/tags');
+        // const response = await axiosQuestionClient.get('/questions/tags');
         setTopics(response.data);
       } catch (error) {
         console.error('Error fetching topics:', error);
