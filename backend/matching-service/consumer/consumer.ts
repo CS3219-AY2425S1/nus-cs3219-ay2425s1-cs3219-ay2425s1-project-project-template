@@ -65,6 +65,7 @@ const startConsumer = async (
                     { service: 'matching-service', timestamp: new Date().toISOString() }
                 )
                 requestQueue.push(request)
+                logger.info(`Request Queue: ${JSON.stringify(requestQueue, null, 2)}`, { service: 'matching-service', timestamp: new Date().toISOString() })
 
                 setTimeout(() => {
                     processMatching(request, io, connectedClients)
@@ -142,6 +143,7 @@ const processMatching = async (
         logger.error(`Error during matching process: ${error.message}`, { service: 'matching-service', timestamp: new Date().toISOString() })
     } finally {
         isMatching = false
+        logger.info(`Request Queue: ${JSON.stringify(requestQueue, null, 2)}`, { service: 'matching-service', timestamp: new Date().toISOString() })
     }
 }
 
