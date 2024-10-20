@@ -1,7 +1,7 @@
 "use client";
 
-import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/AddQuestionDialog";
-import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/LeetcodeDashboardTable";
+import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/components/AddQuestionDialog";
+import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/components/LeetcodeDashboardTable";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { PlusIcon } from "lucide-react";

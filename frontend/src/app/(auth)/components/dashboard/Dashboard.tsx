@@ -1,7 +1,7 @@
 import { getUserInterviewMetadata } from "@/api/dashboard";
+import { getToken } from "@/api/user";
 import DashboardCard from "@/app/(auth)/components/dashboard/DashboardCard";
 import { DashboardDataTable } from "@/app/(auth)/components/dashboard/DashboardDataTable";
-import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { UserInterviewMetadata } from "@/types/dashboard";
@@ -21,7 +21,7 @@ const initialUserInterviewMetaData: UserInterviewMetadata = {
 };
 
 const AuthDashboard = () => {
-  const { token } = useAuth();
+  const token = getToken();
 
   const [userInterviewMetadata, setUserInterviewMetadata] =
     useState<UserInterviewMetadata>(initialUserInterviewMetaData);

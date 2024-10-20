@@ -1,33 +1,10 @@
-import CodeSnippet from "@/app/(home)/components/code-snippet/CodeSnippetHighlight";
+import CodeSnippet from "@/app/(auth)/home/components/code-snippet/CodeSnippetHighlight";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import GoogleIcon from "@/app/(home)/components/icon/GoogleIcon";
-import { useAuth } from "@/components/auth/AuthContext";
-import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 
 const LandingPage = () => {
-    const { login, token } = useAuth();
     const router = useRouter();
-
-    const googleLogin = useGoogleLogin({
-        onSuccess: (response) => {
-            login(response);
-            router.push("/leetcode-dashboard"); // Redirect to dashboard after successful login
-        },
-        onError: (error) => {
-            console.error("Login Failed:", error);
-        },
-    });
-
-    // Trigger OAuth pop up only if user is not authenticated (token is not present)
-    const handleLogin = () => {
-        if (token) {
-            router.push("/leetcode-dashboard");
-        } else {
-            googleLogin();
-        }
-    }
 
     return (
         <div className="flex items-center justify-center min-h-[90vh]">
@@ -41,10 +18,9 @@ const LandingPage = () => {
                         Created for CS3219 Software Engineering Principles AY24/25 by Group 15.
                     </p>
                     <div className="pt-8">
-                        <Button className="font-semibold w-full" onClick={() => handleLogin()}>
-                                <GoogleIcon/>
-                                <span className="pl-2">Get Started with Google</span>
-                            </Button>
+                        <Button className="font-semibold w-full" onClick={() => router.push("/login")}>
+                            <span className="pl-2">Get Started</span>
+                        </Button>
                     </div>
                 </div>
                 <div className="flex-1 h-full">

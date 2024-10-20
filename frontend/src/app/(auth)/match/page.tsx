@@ -1,5 +1,6 @@
 "use client";
 
+import { getToken } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -17,6 +18,7 @@ import {
   QuestionTopics,
 } from "@/types/find-match";
 import { capitalizeWords } from "@/utils/string_utils";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 interface FindMatchFormOutput {
@@ -40,6 +42,12 @@ const FindPeerHeader = () => {
 };
 
 const FindPeer = () => {
+  const token = getToken();
+
+  useEffect(() => {
+    if (!token) window.location.href = "/login";
+  }, [token]); 
+
   const form = useForm({
     defaultValues: {
       questionDifficulty: QuestionDifficulty.MEDIUM.valueOf(),
@@ -68,7 +76,7 @@ const FindPeer = () => {
     console.log(data);
   };
 
-  return (
+  return !!token && (
     <Container>
       <FindPeerHeader />
       <Form {...form}>
