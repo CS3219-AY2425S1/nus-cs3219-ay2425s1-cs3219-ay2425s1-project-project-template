@@ -235,7 +235,7 @@ export default function CreateSessionDialog(): JSX.Element {
               </Button>
             ) : (
               <DialogClose asChild>
-                <Button variant="outline" className="flex-1">Close</Button>
+                <Button variant="outline" className="flex-1" disabled={status === 'success'}>Close</Button>
               </DialogClose>
             )}
             <Button 
