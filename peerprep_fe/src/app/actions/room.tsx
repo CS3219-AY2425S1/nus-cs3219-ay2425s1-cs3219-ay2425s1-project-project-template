@@ -1,3 +1,9 @@
+"use server";
+
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export async function getRoomById(id: string, token?: string | null) {
   const response = await fetch(
     `http://${process.env.GATEWAY_SERVICE_ROUTE}:${process.env.API_GATEWAY_PORT}/room/${id}`,

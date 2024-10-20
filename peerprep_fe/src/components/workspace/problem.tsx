@@ -3,19 +3,12 @@ import { QuestionDto } from "@/../../peerprep-shared-types/src/types/question";
 import { useAuth } from "@/contexts/auth-context";
 import React, { useEffect, useState } from "react";
 
-type ProblemProps = {};
+type ProblemProps = {
+  question?: QuestionDto;
+};
 
-const Problem: React.FC<ProblemProps> = () => {
-  const [question, setQuestion] = useState<QuestionDto>();
+const Problem: React.FC<ProblemProps> = ({ question }) => {
   const { token } = useAuth();
-
-  useEffect(() => {
-    if (token) {
-      getQuestion("66f80ee149fb3b6d5782fea1", token).then((data) => {
-        setQuestion(data?.message);
-      });
-    }
-  }, [token]);
 
   return (
     <div className="flex flex-col h-full p-4">

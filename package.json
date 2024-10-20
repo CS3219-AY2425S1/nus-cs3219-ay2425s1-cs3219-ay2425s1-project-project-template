@@ -3,6 +3,6 @@
     "prettier": "^3.3.3"
   },
   "scripts": {
-    "update-shared-types": "node update-shared-types.js"
+    "update-shared-types": "cd peerprep-shared-types && npm run update-and-commit && cd .. && node update-shared-types.js"
   }
 }
