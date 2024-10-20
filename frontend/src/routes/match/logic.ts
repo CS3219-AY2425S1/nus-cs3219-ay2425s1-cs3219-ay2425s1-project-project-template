@@ -29,8 +29,8 @@ export const loader =
   };
 
 const formSchema = z.object({
-  selectedTopics: z.string().min(1, 'Topic cannot be empty').array(),
-  difficulty: z.string().min(1, 'Difficulty cannot be empty'),
+  selectedTopics: z.array(z.string()).min(1, 'Please select at least one topic'),
+  difficulty: z.string().min(1, 'Please select a difficulty'),
 });
 
 export type IRequestMatchFormSchema = z.infer<typeof formSchema>;
@@ -61,8 +61,6 @@ export const useRequestMatchForm = () => {
         setSocketPort(data.socketPort);
         return;
       }
-
-      console.error(`[MatchService::match::request]: Unexpected response: ${JSON.stringify(data)}`);
     },
   });
 
