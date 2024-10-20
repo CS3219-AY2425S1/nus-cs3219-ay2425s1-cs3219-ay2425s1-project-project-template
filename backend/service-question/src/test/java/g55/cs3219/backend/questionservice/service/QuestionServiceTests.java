@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -198,6 +199,15 @@ class QuestionServiceTests {
     void updateQuestion_QuestionDoesNotExist_ThrowsQuestionNotFoundException() {
         when(questionRepository.findById(99)).thenReturn(Optional.empty());
 
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setTitle("Updated Title");
+
+        assertThrows(QuestionNotFoundException.class, () -> questionService.updateQuestion(99, updateDto));
+    }
+
+    @Test
+    void updateQuestion_NonExistentQuestion_ThrowsException() {
+        when(questionRepository.findById(99)).thenReturn(Optional.empty());
         QuestionDto updateDto = new QuestionDto();
         updateDto.setTitle("Updated Title");
 
