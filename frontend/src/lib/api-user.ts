@@ -10,14 +10,14 @@ export const loginUser = async (email: string, password: string) => {
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          throw new Error("Invalid email or password. Please try again.");
+          throw new Error("Invalid email or password! Please try again.");
         case 403:
-          throw new Error("Unauthorized access.");
+          throw new Error("Unauthorized access!");
         default:
           throw new Error(`An error occurred: ${error.response.status}`);
       }
     } else {
-      throw new Error("Network error or server did not respond.");
+      throw new Error("Network error or server did not respond!");
     }
   }
 };
@@ -30,18 +30,18 @@ export const registerUser = async (userData: { username: string; email: string; 
         if (error.response) {
           switch (error.response.status) {
             case 409:
-              throw new Error("Username or email already exists.");
+              throw new Error("Username or email already exists!");
             case 400:
-              throw new Error("Invalid input data. Please check your fields.");
+              throw new Error("Invalid input data! Please check your fields.");
             case 401:
-              throw new Error("Unauthorized access. Please log in.");
+              throw new Error("Unauthorized access! Please log in.");
             case 500:
-              throw new Error("Internal server error. Please try again later.");
+              throw new Error("Internal server error! Please try again later.");
             default:
               throw new Error(`An error occurred: ${error.response.status}`);
           }
         } else {
-          throw new Error("Network error or server did not respond.");
+          throw new Error("Network error or server did not respond!");
         }
   }
 };
@@ -56,14 +56,14 @@ export const verifyToken = async (token: string) => {
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          throw new Error("Unauthorized access. Please log in.");
+          throw new Error("Unauthorized access! Please log in.");
         case 403:
-          throw new Error("Token verification failed.");
+          throw new Error("User verification failed!");
         default:
           throw new Error(`An error occurred: ${error.response.status}`);
       }
     } else {
-      throw new Error("Network error or server did not respond.");
+      throw new Error("Network error or server did not respond!");
     }
   }
 };
@@ -80,16 +80,16 @@ export const updateUser = async (userId: string, token: string, data: { username
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          throw new Error("Unauthorized access. Please log in.");
+          throw new Error("Unauthorized access! Please log in.");
         case 404:
-          throw new Error("User not found.");
+          throw new Error("User not found!");
         case 400:
-          throw new Error("Invalid input data. Please check your fields.");
+          throw new Error("Invalid input data! Please check your fields.");
         default:
           throw new Error(`An error occurred: ${error.response.status}`);
       }
     } else {
-      throw new Error("Network error or server did not respond.");
+      throw new Error("Network error or server did not respond!");
     }
   }
 }
@@ -109,16 +109,16 @@ export const updatePassword = async (userId: string, token: string, password: st
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          throw new Error("Unauthorized access. Please log in.");
+          throw new Error("Unauthorized access! Please log in.");
         case 400:
-          throw new Error("Invalid password format. Please check your input.");
+          throw new Error("Invalid new password!");
         case 404:
-          throw new Error("User not found.");
+          throw new Error("User not found!");
         default:
           throw new Error(`An error occurred: ${error.response.status}`);
       }
     } else {
-      throw new Error("Network error or server did not respond.");
+      throw new Error("Network error or server did not respond!");
     }
   }
 };
