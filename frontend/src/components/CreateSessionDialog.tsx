@@ -55,7 +55,8 @@ export default function CreateSessionDialog(): JSX.Element {
   useEffect(() => {
     setUserId(`user_${Math.random().toString(36).substr(2, 9)}`);
 
-    const newSocket = io('ws://localhost:3002');
+    const newSocket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
+
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
