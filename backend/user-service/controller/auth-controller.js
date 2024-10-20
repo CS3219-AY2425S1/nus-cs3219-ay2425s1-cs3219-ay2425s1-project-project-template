@@ -28,26 +28,13 @@ export async function handleLogin(req, res) {
           createdAt: user.createdAt
         },
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
-
-      // Generate refresh token
-      const refreshToken = jwt.sign(
-        { id: user.id, username: user.username, email: user.email, isAdmin:user.isAdmin, createdAt:user.createdAt},
-        process.env.JWT_REFRESH_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "12h" }
       );
 
       // Set access token as an HTTP-only cookie
       res.cookie("accessToken", accessToken, {
         httpOnly: true,  // Ensure it's not accessible via JavaScript (XSS protection)
-        maxAge: 60 * 60 * 1000,  // 1 hour
-      });
-
-      // Set refresh token as an HTTP-only cookie
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,  // 1 day
+        maxAge: 12 * 60 * 60 * 1000,  // 12 hour
       });
 
       // Send access token and user data in the response body
@@ -81,62 +68,10 @@ export function handleLogout(req, res) {
     res.clearCookie("accessToken", {
       httpOnly: true,
     });
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-    });
 
     return res.status(200).json({ message: "User logged out successfully" });
   } catch (err) {
     return res.status(403).json({ message: "Invalid access token" });
-  }
-}
-
-export async function handleRefreshToken(req, res) {
-  const refreshToken = req.cookies["refreshToken"] // Get refresh token from cookies
-
-  if (!refreshToken) {
-    return res.status(401).json({ message: "No refresh token provided" });
-  }
-
-  try {
-    // Verify the refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-    // Generate a new access token
-    const newAccessToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Short lifespan for access token
-    );
-
-    // Optionally, rotate the refresh token (to increase security)
-    const newRefreshToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "1d" } // 1-day lifespan for refresh token
-    );
-
-    // Set the new access token as an HTTP-only cookie
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
-
-    // Set the new refresh token as an HTTP-only cookie (if rotating)
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
-
-    // Return success response with the new access token (optional, since it's already in the cookie)
-    return res.status(200).json({
-      message: "Token refreshed",
-      data: {
-        accessToken: newAccessToken, 
-      },
-    });
-  } catch (err) {
-    return res.status(403).json({ message: "Invalid refresh token" });
   }
 }
 
