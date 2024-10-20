@@ -29,7 +29,7 @@ def produce_message(message):
                             routing_key='match_queue',
                             body=message)
         
-        print(f" [x] Sent '{message}'")
+        print(f" [x] Sent '{message}'", file=sys.stderr)
     except Exception as e:
         print("Failed: " + str(e), file=sys.stderr)
 
@@ -45,18 +45,18 @@ def match_user(request):
         user2 = pending
 
         if pending['topic'] == topic and pending['difficulty'] == difficulty:
-            print(f"MATCHED {user1['username']} with {user2['username']}")
-            sio.emit("match_found", get_match_payload(user1, user2, "Matched on difficulty and topic"))
+            print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
+            sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty} and topic: {topic}"))
             pending_requests.remove(pending)
             return
         elif pending['topic'] == topic:
-            print(f"MATCHED {user1['username']} with {user2['username']}")
-            sio.emit("match_found", get_match_payload(user1, user2, "Matched on topic"))
+            print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
+            sio.emit("match_found", get_match_payload(user1, user2, f"Matched on topic: {topic}"))
             pending_requests.remove(pending)
             return
         elif pending['difficulty'] == difficulty:
-            print(f"MATCHED {user1['username']} with {user2['username']}")
-            sio.emit("match_found", get_match_payload(user1, user2, "Matched on difficulty"))
+            print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
+            sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty}"))
             pending_requests.remove(pending)
             return
 
@@ -95,11 +95,9 @@ def consume_messages():
         channel.queue_declare(queue='match_queue')
 
         def callback(ch, method, properties, body):
-            print(f" [x] Received {body}")
+            print(f" [x] Received {body}", file=sys.stderr)
             request = json.loads(body)
             match_user(request)
-        print("Ready to consume", file=sys.stdout)
-        print("Ready to consume")
         channel.basic_consume(queue='match_queue', on_message_callback=callback, auto_ack=True)
 
         print(' [*] Waiting for messages. To exit press CTRL+C')
