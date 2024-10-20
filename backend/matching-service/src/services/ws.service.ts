@@ -75,7 +75,7 @@ export class WebSocketConnection {
     public closeConnectionOnTimeout(websocketId: string): void {
         const client = this.clients.get(websocketId)
         if (client && client.readyState === WebSocket.OPEN) {
-            client.close(1001, 'Connection timeout.')
+            client.close(1001, 'Could not find a match.')
         }
     }
 }
