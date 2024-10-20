@@ -12,7 +12,7 @@ const getRandomQuestion = async (req: Request, res: Response) => {
                 typeof categories === 'string'
                     ? categories.split(',')
                     : categories
-            filter.categories = { $in: categoryArray }
+            filter.categories = { $all: categoryArray }
         }
 
         if (difficulty) {

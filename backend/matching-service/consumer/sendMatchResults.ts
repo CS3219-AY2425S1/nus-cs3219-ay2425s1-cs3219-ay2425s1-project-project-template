@@ -1,6 +1,7 @@
 import { Server } from 'socket.io'
 import { TimedMatchRequest, MatchPartner } from '../models/types'
 import logger from '../utils/logger'
+import { connect } from 'amqplib'
 
 const sendMatchResult = async (
     req: TimedMatchRequest,
@@ -16,12 +17,12 @@ const sendMatchResult = async (
     }
 
     if (partnerSockId) {
-        const requester: MatchPartner = { 
-            name: req.name, 
-            questionId: partner.questionId,  
-            title: partner.title, 
+        const requester: MatchPartner = {
+            name: req.name,
+            questionId: partner.questionId,
+            title: partner.title,
             difficulty: req.difficulty,
-            categories: partner.categories
+            categories: partner.categories,
         }
 
         io.to(partnerSockId).emit('matchFound', requester)

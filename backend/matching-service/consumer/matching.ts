@@ -42,6 +42,11 @@ const performMatching = async (
             },
         )
 
+        if (res.status !== 200) {
+            logger.error('Error occurred when fetching question')
+            return null
+        }
+
         const matchPartner: MatchPartner = {
             name: bestMatch.name,
             questionId: res.data.questionId,

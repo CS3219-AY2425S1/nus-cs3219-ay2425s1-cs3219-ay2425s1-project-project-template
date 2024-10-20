@@ -63,6 +63,7 @@ const startConsumer = async (
                 )
                 requestQueue.push(request)
 
+                console.log(connectedClients)
                 setTimeout(() => {
                     processMatching(request, io, connectedClients)
                 }, MATCH_TIMEOUT)

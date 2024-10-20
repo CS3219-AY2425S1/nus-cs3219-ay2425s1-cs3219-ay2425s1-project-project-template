@@ -118,6 +118,7 @@ const MatchingFilters = () => {
                 difficulty: selectedDifficulty,
                 categories: selectedCategories,
             }
+            socketRef.current?.emit('login', user?.id);
             socketRef.current?.emit('requestMatch', matchRequest);
             console.log('Sent match request', matchRequest);
         }
