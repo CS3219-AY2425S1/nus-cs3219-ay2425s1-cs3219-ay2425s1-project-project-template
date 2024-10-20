@@ -80,8 +80,27 @@ async function initRedis() {
   await redisClient.connect();
 }
 
+async function showUserQueue() {
+  const keys = await redisClient.keys('*');
+
+  const filteredKeys = keys.filter(
+    (key) => !key.startsWith('difficulty:') && !key.startsWith('topics:'),
+  );
+
+  const values = await Promise.all(
+    filteredKeys.map(async (key) => {
+      const value = await redisClient.get(key);
+      return { key, value };
+    }),
+  );
+
+  console.log(values);
+}
+
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
+
+  await showUserQueue();
 
   const userExists = (await redisClient.get(userId)) !== null;
   if (userExists) {
@@ -139,6 +158,8 @@ async function matchUsers(searchRequest) {
       redisClient.SADD(`topics:${tag}`, userId);
     });
   }
+
+  await showUserQueue();
 }
 
 async function findMatchByTopics(topics) {
