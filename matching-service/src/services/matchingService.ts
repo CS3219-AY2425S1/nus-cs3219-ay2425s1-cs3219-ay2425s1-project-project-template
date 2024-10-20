@@ -56,13 +56,11 @@ export const processOldUsers = async (): Promise<void> => {
         // Send to user subscribed queues if there is a match
         await sendToQueue(match._id, {
           status: "matched",
-          user1: match,
-          user2: user,
+          match: user,
         });
         await sendToQueue(user._id, {
           status: "matched",
-          user1: match,
-          user2: user,
+          match: match,
         });
         continue;
       }
@@ -101,13 +99,11 @@ export const processNewUser = async (user: User): Promise<void> => {
   if (match) {
     await sendToQueue(match._id, {
       status: "matched",
-      user1: match,
-      user2: user,
+      match: user,
     });
     await sendToQueue(user._id, {
       status: "matched",
-      user1: match,
-      user2: user,
+      match: match,
     });
   } else {
     // Add to the topic queue if no match
