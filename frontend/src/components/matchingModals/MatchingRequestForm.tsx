@@ -1,10 +1,23 @@
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
+import Select from 'react-select';
 
 interface MatchingRequestFormProps {
   handleSubmit: () => Promise<void>;
   formData: MatchingRequestFormState;
   setFormData: React.Dispatch<React.SetStateAction<MatchingRequestFormState>>;
 }
+
+const topics = [
+  { value: 'algorithm', label: 'Algorithms' },
+  { value: 'graph', label: 'Graphs' },
+  { value: 'dp', label: 'Dynamic Programming' },
+]
+
+const difficulty = [
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+]
 
 // MatchingRequestForm.tsx
 const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
@@ -34,8 +47,16 @@ const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
       </div>
       {/* Topic input */}
       <div className="flex items-center space-x-4">
-        <label htmlFor="topic" className="w-1/3 text-right">Topic:</label>
-        <input
+      <label htmlFor="topic" className="w-1/3 text-right">Topic:</label>
+        <Select
+          id="topic"
+          onChange={(e) => setFormData((prevFormData) => ({
+            ...prevFormData, // Spread the previous formData to keep the difficulty
+            topic: e.value, // Replace "new topic" with the actual value you want
+          }))}
+          options={topics}
+        />
+        {/* <input
           type="text"
           id="topic"
           name="topic"
@@ -43,13 +64,13 @@ const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
           onChange={handleInputChange}
           className="w-2/3 block rounded-md border border-gray-300 px-4 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
           required
-        />
+        /> */}
       </div>
 
       {/* Difficulty input */}
       <div className="flex items-center space-x-4">
         <label htmlFor="difficulty" className="w-1/3 text-right">Difficulty:</label>
-        <input
+        {/* <input
           type="text"
           id="difficulty"
           name="difficulty"
@@ -57,6 +78,14 @@ const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
           onChange={handleInputChange}
           className="w-2/3 block rounded-md border border-gray-300 px-4 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-black"
           required
+        /> */}
+        <Select
+          id="difficutly"
+          onChange={(e) => setFormData((prevFormData) => ({
+            ...prevFormData, // Spread the previous formData to keep the difficulty
+            difficulty: e.value, // Replace "new topic" with the actual value you want
+          }))}
+          options={difficulty}
         />
       </div>
 
