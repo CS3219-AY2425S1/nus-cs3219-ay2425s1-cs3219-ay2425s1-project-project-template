@@ -6,6 +6,7 @@ import './App.css';
 import AuthProvider from './hooks/AuthProvider';
 import Admin from './pages/Admin';
 import Landing from './pages/Landing';
+import FilterSelection from './pages/FilterSelection';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -34,6 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/select" element={<FilterSelection />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

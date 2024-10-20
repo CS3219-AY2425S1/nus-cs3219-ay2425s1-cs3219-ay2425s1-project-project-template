@@ -22,23 +22,6 @@ const redisClient = redis.createClient({
   },
 });
 
-const redisClient = redis.createClient({
-  socket: {
-    host: 'matching-service-redis',
-    port: 6379,
-    reconnectStrategy: function (retries) {
-      if (retries > 20) {
-        console.log(
-          'Too many attempts to reconnect. Redis connection was terminated',
-        );
-        return new Error('Too many retries.');
-      } else {
-        return retries * 500;
-      }
-    },
-  },
-});
-
 app.use(express.json());
 
 let connection;
