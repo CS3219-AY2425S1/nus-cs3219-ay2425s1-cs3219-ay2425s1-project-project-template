@@ -39,5 +39,25 @@ services:
     ports:
       - "27017:27017"
 
+  rabbitmq:
+    image: node:18-alpine
+    container_name: 'rabbitmq'
+    working_dir: /app
+    env_file:
+      - ./message-queue/.env
+    volumes:
+      - ./message-queue:/app
+      - rabbitmq_data:/var/lib/rabbitmq
+    command: sh -c "npm install && npm start"
+    ports:
+      - 3002:3002
+    networks:
+      - rabbitmqNetwork
+
+networks:
+  rabbitmqNetwork:
+    driver: bridge
+
 volumes:
   mongo_data:
+  rabbitmq_data:
