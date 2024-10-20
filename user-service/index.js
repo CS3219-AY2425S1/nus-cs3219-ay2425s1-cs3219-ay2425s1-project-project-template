@@ -1,11 +1,29 @@
 import express from "express";
 import cors from "cors";
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 
 import userRoutes from "./routes/user-routes.js";
 import authRoutes from "./routes/auth-routes.js";
 import matchRoutes from "./routes/match-routes.js";
 
 const app = express();
+const server = createServer(app);
+
+// Initialize socket.io
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+    // origin: "http://localhost:3000", // Update with your frontend address
+    // methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  // Handle socket events here
+});
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -33,7 +51,10 @@ app.use((req, res, next) => {
 
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
-app.use("/match", matchRoutes);
+app.use("/match", (req, res, next) => {
+  req.io = io; // Attach `io` to the request object so it can be accessed in routes
+  next();
+}, matchRoutes);
 
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
@@ -58,4 +79,4 @@ app.use((error, req, res, next) => {
   });
 });
 
-export default app;
+export default server;

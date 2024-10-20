@@ -3,9 +3,11 @@ import { send } from "../rabbit/rabbit.js"
 export const requestMatch = (channel) => {
     return (req, res, next) => {
         try {
-            const { complexity, category } = req.body
-            const { id } = req.user
-            sendMatchRequest(channel, id, complexity, category)
+            // const { complexity, category, } = req.body
+            // const { id } = req.user
+            // const { socketId } = 
+            const payload = { id: req.user, ...req.body }
+            sendMatchRequest(channel, payload)
             res.status(200).send({ message: "match request sent" })
         } catch (e) {
             res.status(500).send({
@@ -15,10 +17,11 @@ export const requestMatch = (channel) => {
     }
 }
 
-const sendMatchRequest = (channel, id, complexity, category) => {
-    console.log("id: ", id)
-    console.log("complexity: ", complexity)
-    console.log("category: ", category)
-    send(channel, { id: id, complexity: complexity, category: category })
+const sendMatchRequest = (channel, payload) => {
+    // console.log("id: ", payload.id)
+    // console.log("complexity: ", payload.complexity)
+    // console.log("category: ", payload.category)
+    // console.log("socketId: ", payload.socketId)
+    send(channel, payload)
 }
 

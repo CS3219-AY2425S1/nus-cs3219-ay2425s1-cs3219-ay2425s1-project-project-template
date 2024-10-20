@@ -1,7 +1,7 @@
 # frontend/Dockerfile
 
 # Use an official Node.js image as a base for building the frontend
-FROM node:18-alpine AS build
+FROM node:21.1.0-alpine3.18
 
 # Install dependencies needed for building native packages with vite
 RUN apk add --no-cache python3 make g++ 
@@ -30,7 +30,7 @@ COPY . .
 # Expose the frontend port
 EXPOSE 3000
 
-RUN npm run build
+# RUN npm run build
 
 # Command to run the frontend server
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "dev"]
