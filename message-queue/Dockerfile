@@ -6,6 +6,8 @@ WORKDIR /src
 
 COPY package*.json ./
 
+COPY ../message-queue ./message-queue
+
 COPY . .
 
 RUN npm install
