@@ -16,10 +16,13 @@ import {
 } from "@/components/ui/select"
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '@/context/authContext';
+import { useToast } from '@/hooks/use-toast';
+import { Hourglass } from 'lucide-react';
 
 const MatchingFilters = () => {
     const socketRef = useRef<Socket | null>(null);
     const { user, isAuthenticated } = useAuth();
+    const { toast } = useToast()
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -98,6 +101,10 @@ const MatchingFilters = () => {
         socket.on('noMatchFound', (data: any) => {
             console.log(`No match found:`, data.message);
             setIsSearching(false);
+            toast({
+                title: "Matchmaking timeout",
+                description: "We could not find a match for you in time. Try again!",
+            })
         });
 
         return () => {
@@ -161,7 +168,7 @@ const MatchingFilters = () => {
                 </div> */}
                 <div className='w-1/3'>
                     <Label>Difficulty</Label>
-                    <Select onValueChange={(value:string) => setSelectedDifficulty(value)}>
+                    <Select disabled={isSearching} onValueChange={(value: string) => setSelectedDifficulty(value)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a difficulty" />
                         </SelectTrigger>
