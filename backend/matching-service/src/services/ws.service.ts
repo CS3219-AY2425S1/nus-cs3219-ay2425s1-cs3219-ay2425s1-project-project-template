@@ -26,7 +26,7 @@ export class WebSocketConnection {
         })
     }
 
-    public getMap() {
+    public getClientsWebsockets() {
         return this.clients
     }
 
