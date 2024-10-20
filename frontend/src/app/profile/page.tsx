@@ -18,6 +18,7 @@ export default function ProfilePage() {
     username: "",
     email: "",
   });
+  const [originalUserData, setOriginalUserData] = useState(userData);
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -31,7 +32,9 @@ export default function ProfilePage() {
       }
       try {
         const res = await verifyToken(token)
-        setUserData({ id: res.data.id, username: res.data.username, email: res.data.email })
+        const fetchedData = { id: res.data.id, username: res.data.username, email: res.data.email };
+        setUserData(fetchedData);
+        setOriginalUserData(fetchedData);
         setLoading(false)
       } catch (error) {
         toast.error(error.message || 'User verification failed, please login again!')
@@ -50,9 +53,29 @@ export default function ProfilePage() {
 
   const handleEdit = () => {
     setIsEditing(!isEditing)
+    if (!isEditing) {
+      setOriginalUserData(userData);
+    }
+  }
+
+  const validateInput = () => {
+    if (!userData.username.trim()) {
+      toast.error('Username cannot be empty.')
+      return false
+    }
+    if (!userData.email.trim()) {
+      toast.error('Email cannot be empty.')
+      return false
+    }
+
+    return true
   }
 
   const handleSave = async () => {
+    if (!validateInput()) {
+      return
+    }
+
     setIsEditing(false)
     try {
       const token = localStorage.getItem('token')
@@ -60,7 +83,6 @@ export default function ProfilePage() {
         toast.error('You need to be logged in.')
         return
       }
-
       const res = await updateUser(userData.id, token, userData)
       if (res.status === 200) {
         toast.success('Profile updated successfully, please login again!')
@@ -68,10 +90,12 @@ export default function ProfilePage() {
         router.push('/login')
       } else {
         toast.error('Failed to update profile')
+        setUserData(originalUserData);
       }
     } catch (error) {
       console.error('Error updating user:', error)
       toast.error('An error occurred while updating your profile.')
+      setUserData(originalUserData);
     }
   }
 
