@@ -74,7 +74,8 @@ export const login = async (email: string, password: string) => {
 
   switch (response.status) {
     case 200:
-      return handleSuccessfulLogin(data.data);
+      handleSuccessfulLogin(data.data);
+      break;
     case 401:
       toast.fire({
         icon: "error",

@@ -74,7 +74,7 @@ const SOCKET_URL =
 
 const CURRENT_USER = getBaseUserData().username; // Username is unique
 
-const TIMEOUT_TIMER = 500000; // in seconds
+const TIMEOUT_TIMER = 3; // in seconds
 
 const FindPeer = () => {
   const stompClientRef = useRef<StompClient | null>(null);
@@ -91,6 +91,17 @@ const FindPeer = () => {
   };
 
   const makeSocketConnection = (): Promise<void> => {
+    const timeout = setTimeout(() => {
+      const client = stompClientRef.current;
+      client?.deactivate();
+      Swal.fire({
+        title: "Timeout",
+        text: "We could not find a match for you, try a new set of filters? :(",
+        icon: "error",
+        showCloseButton: true,
+      });
+    }, TIMEOUT_TIMER * 1000);
+
     return new Promise((resolve, reject) => {
       const socket = new SockJS(SOCKET_URL);
       const client = new StompClient({
@@ -104,19 +115,72 @@ const FindPeer = () => {
           setIsConnected(true);
 
           client.subscribe("/user/queue/matches", (message) => {
-            console.log("Received message: ", message.body);
-            setSocketMessages((prevMessages) => [
-              ...prevMessages,
-              message.body,
-            ]);
+            try {
+              console.log("Received message: ", message.body);
+              setSocketMessages((prevMessages) => [
+                ...prevMessages,
+                message.body,
+              ]);
+              const response: FindMatchSocketMessageResponse = JSON.parse(
+                message.body
+              );
+              const matchedUserEmail = response.matchedUserEmail;
+              closeLoadingSpinner();
+              clearTimeout(timeout);
+              Swal.fire(
+                "Match Found!",
+                `We found a match for you! You have been matched with ${matchedUserEmail}.`,
+                "success"
+              );
+              client.deactivate();
+            } catch (error) {
+              console.error(
+                "Error subscribing to /user/queue/matches: ",
+                error
+              );
+              closeLoadingSpinner();
+              clearTimeout(timeout);
+
+              Swal.fire(
+                "Error",
+                "An error occurred while trying to find a match for you. Please try again later.",
+                "error"
+              );
+              client.deactivate();
+            }
           });
 
           client.subscribe("/user/queue/requestRejection", (message) => {
-            console.log("Received message: ", message.body);
-            setSocketMessages((prevMessages) => [
-              ...prevMessages,
-              message.body,
-            ]);
+            try {
+              console.log("Received message: ", message.body);
+              setSocketMessages((prevMessages) => [
+                ...prevMessages,
+                message.body,
+              ]);
+              const response: string = message.body;
+              closeLoadingSpinner();
+              clearTimeout(timeout);
+              Swal.fire(
+                "A new Match Request cannot be sent!",
+                `${response}`,
+                "error"
+              );
+              client.deactivate();
+            } catch (error) {
+              console.error(
+                "Error subscribing to /user/queue/requestRejection: ",
+                error
+              );
+              closeLoadingSpinner();
+              clearTimeout(timeout);
+
+              Swal.fire(
+                "Error",
+                "An error occurred while trying to find a match for you. Please try again later.",
+                "error"
+              );
+              client.deactivate();
+            }
           });
 
           stompClientRef.current = client;
@@ -131,7 +195,7 @@ const FindPeer = () => {
           reject(new Error(error.headers.message));
         },
       });
-
+      stompClientRef.current = client;
       client.activate();
     });
   };
@@ -168,57 +232,6 @@ const FindPeer = () => {
     console.log("Match request sent: ", CURRENT_USER);
 
     showLoadingSpinner(cancelSocketConnection);
-
-    const timeout = setTimeout(() => {
-      stompClientRef.current?.deactivate();
-      Swal.update({
-        title: "Timeout",
-        text: "We could not find a match for you. Perhaps try a new set of filters? :(",
-        icon: "error",
-        showCloseButton: true,
-      });
-    }, TIMEOUT_TIMER * 1000);
-
-    try {
-      client.subscribe("/user/queue/requestRejection", (message) => {
-        const response: string = message.body;
-        console.log("Received message: ", response);
-        closeLoadingSpinner();
-        clearTimeout(timeout);
-        Swal.fire(
-          "A new Match Request cannot be sent!",
-          `${response}`,
-          "error"
-        );
-        client.deactivate();
-      });
-
-      client.subscribe("/user/queue/matches", (message) => {
-        const response: FindMatchSocketMessageResponse = JSON.parse(
-          message.body
-        );
-        console.log("Received message: ", response);
-        const matchedUserEmail = response.matchedUserEmail;
-        closeLoadingSpinner();
-        clearTimeout(timeout);
-        Swal.fire(
-          "Match Found!",
-          `We found a match for you! You have been matched with ${matchedUserEmail}.`,
-          "success"
-        );
-        client.deactivate();
-      });
-    } catch (error) {
-      console.error("Error subscribing to /user/queue/matches: ", error);
-      closeLoadingSpinner();
-      clearTimeout(timeout);
-
-      Swal.fire(
-        "Error",
-        "An error occurred while trying to find a match for you. Please try again later.",
-        "error"
-      );
-    }
   };
   const token = getToken();
 
