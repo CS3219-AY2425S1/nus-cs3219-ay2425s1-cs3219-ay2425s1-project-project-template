@@ -11,9 +11,11 @@ import java.net.URI;
 public class MatchingWebSocketHandler extends TextWebSocketHandler {
 
     private final NotificationService notificationService;
+    private final MatchingService matchingService;
 
-    public MatchingWebSocketHandler(NotificationService notificationService) {
+    public MatchingWebSocketHandler(NotificationService notificationService, MatchingService matchingService) {
         this.notificationService = notificationService;
+        this.matchingService = matchingService;
     }
 
     @Override
@@ -36,6 +38,7 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
         String userId = extractUserId(session);
         if (userId != null) {
             notificationService.removeUserSession(userId);
+            matchingService.removeFromWaiting(userId);
         }
     }
 
