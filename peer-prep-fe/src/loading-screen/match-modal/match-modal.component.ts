@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { timer, Subscription } from 'rxjs';
 import { NgClass, NgIf } from "@angular/common";
+// import { MatchService } from '../services/match.service'; ignore this line
 
 @Component({
   selector: 'app-match-modal',
@@ -13,7 +14,7 @@ import { NgClass, NgIf } from "@angular/common";
   styleUrls: ['./match-modal.component.css']
 })
 export class MatchModalComponent implements OnInit {
-  @Input() categories: string[] = ['bitwise', 'algorithm']
+  @Input() categories: string = 'bitwise'
   @Input() difficulty: string = 'easy'
 
   isVisible: boolean = false;
@@ -25,6 +26,7 @@ export class MatchModalComponent implements OnInit {
 
   ngOnInit(): void {
     // Placeholder for component initialization if needed
+    this.findMatch();
   }
 
   findMatch() {
@@ -34,7 +36,7 @@ export class MatchModalComponent implements OnInit {
     this.timeout = false;
     this.displayMessage = 'Finding Suitable Match...';
 
-    const countdown$ = timer(3000); // 30 seconds timer
+    const countdown$ = timer(30000); // 30 seconds timer
 
     this.countdownSubscription = countdown$.subscribe(() => {
       if (!this.matchFound) {
@@ -44,14 +46,16 @@ export class MatchModalComponent implements OnInit {
       }
     });
 
+
+
     // // Simulate match found before timeout (for testing purposes)
-    setTimeout(() => {
-      if (this.isCounting) {
-        this.matchFound = true;
-        this.isCounting = false;
-        this.displayMessage = 'MATCH FOUND';
-      }
-    }, Math.random() * 1000); // Random time within 30 seconds
+    // setTimeout(() => {
+    //   if (this.isCounting) {
+    //     this.matchFound = true;
+    //     this.isCounting = false;
+    //     this.displayMessage = 'MATCH FOUND';
+    //   }
+    // }, Math.random() * 1000); // Random time within 30 seconds
   }
 
   acceptMatch() {

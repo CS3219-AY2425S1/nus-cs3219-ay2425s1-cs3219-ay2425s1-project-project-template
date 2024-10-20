@@ -1,4 +1,4 @@
-<button (click)="findMatch()">Open Match Modal</button>
+<!-- <button (click)="findMatch()">Open Match Modal</button> -->
 
 <div class="modal-overlay" *ngIf="isVisible">
   <div class="modal-content">
@@ -17,7 +17,7 @@
 
         <div class="inner-content">
           <div class="message">{{ displayMessage }}</div>
-          <div class="details">{{ difficulty }} • {{categories.join(' • ')}}</div>
+          <div class="details">{{ difficulty }} • {{categories}}</div>
           <div class="button-wrapper">
             <button class="inner-button" *ngIf="matchFound" (click)="acceptMatch()">Accept!</button>
             <button class="inner-button" *ngIf="timeout" (click)="requeue()">Requeue</button>
