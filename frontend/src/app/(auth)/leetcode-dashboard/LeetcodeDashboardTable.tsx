@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   PaginationState,
+  Row,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -49,15 +50,114 @@ const Cell = ({
   return <div className={cn("text-center", className)}>{children}</div>;
 };
 
+interface CellProps {
+  row: Row<QuestionMinified>;
+}
+
+interface ActionCellProps {
+  row: Row<QuestionMinified>;
+  openModal(questionId: string): void;
+  editingQuestionId: string | null;
+  closeModal(): void;
+  modalAnimation: {
+    hidden: {
+      opacity: number;
+      scale: number;
+    };
+    visible: {
+      opacity: number;
+      scale: number;
+    };
+    exit: {
+      opacity: number;
+      scale: number;
+    };
+  };
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
+  handleDelete(questionId: string): void;
+}
+
 interface LeetcodeDashboardTableProps {
   refreshKey: number;
   setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }
 
+const QuestionIdHeader = () => <Cell>ID</Cell>;
+const QuestionIdCell: React.FC<CellProps> = ({ row }) => (
+  <Cell className="capitalize">{row.getValue("questionid")}</Cell>
+);
+
+const TitleHeader = () => <Cell>Question Title</Cell>;
+const TitleCell: React.FC<CellProps> = ({ row }) => (
+  <Cell>{row.getValue("title")}</Cell>
+);
+
+const ComplexityHeader = () => <Cell>Difficulty</Cell>;
+const ComplexityCell: React.FC<CellProps> = ({ row }) => {
+  return <Cell>{row.getValue("complexity")}</Cell>;
+};
+
+const CategoryHeader = () => <Cell>Topics</Cell>;
+const CategoryCell: React.FC<CellProps> = ({ row }) => {
+  const categoryValue = row.getValue("category");
+  const result: string = Array.isArray(categoryValue)
+    ? categoryValue.join(", ")
+    : String(categoryValue);
+  return <Cell>{result}</Cell>;
+};
+
+const ActionsHeader = () => <Cell>Actions</Cell>;
+const ActionsCell: React.FC<ActionCellProps> = ({
+  row,
+  openModal,
+  editingQuestionId,
+  closeModal,
+  modalAnimation,
+  setRefreshKey,
+  handleDelete,
+}) => {
+  const questionId: string = row.getValue("questionid");
+  return (
+    <Cell>
+      <Button onClick={() => openModal(questionId)} variant={"ghost"}>
+        <HiOutlinePencil />
+      </Button>
+      <Modal
+        isOpen={editingQuestionId === questionId}
+        onRequestClose={closeModal}
+        ariaHideApp={false}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-none"
+        style={{
+          overlay: {
+            backgroundColor: "rgba(29, 36, 51, 0.8)",
+          },
+        }}
+      >
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          variants={modalAnimation}
+          transition={{ duration: 0.3 }}
+        >
+          <EditQuestionDialog
+            questionId={questionId}
+            handleClose={closeModal}
+            setRefreshKey={setRefreshKey}
+          />
+        </motion.div>
+      </Modal>
+      <Button variant={"ghost"} onClick={() => handleDelete(questionId)}>
+        <FaRegTrashAlt />
+      </Button>
+    </Cell>
+  );
+};
+
 export function LeetcodeDashboardTable({
   refreshKey,
   setRefreshKey,
-}: LeetcodeDashboardTableProps) {
+}: Readonly<LeetcodeDashboardTableProps>) {
   const [data, setData] = useState<QuestionMinified[]>([]);
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
@@ -130,75 +230,37 @@ export function LeetcodeDashboardTable({
   const columns: ColumnDef<QuestionMinified>[] = [
     {
       accessorKey: "questionid",
-      header: () => <Cell>ID</Cell>,
-      cell: ({ row }) => (
-        <Cell className="capitalize">{row.getValue("questionid")}</Cell>
-      ),
+      header: QuestionIdHeader,
+      cell: ({ row }) => QuestionIdCell({ row }),
     },
     {
       accessorKey: "title",
-      header: () => <Cell>Question Title</Cell>,
-      cell: ({ row }) => <Cell>{row.getValue("title")}</Cell>,
+      header: TitleHeader,
+      cell: ({ row }) => TitleCell({ row }),
     },
     {
       accessorKey: "complexity",
-      header: () => <Cell>Difficulty</Cell>,
-      cell: ({ row }) => {
-        return <Cell>{row.getValue("complexity")}</Cell>;
-      },
+      header: ComplexityHeader,
+      cell: ({ row }) => ComplexityCell({ row }),
     },
     {
       accessorKey: "category",
-      header: () => <Cell>Topics</Cell>,
-      cell: ({ row }) => {
-        const categoryValue = row.getValue("category");
-        const result: string = Array.isArray(categoryValue)
-          ? categoryValue.join(", ")
-          : String(categoryValue);
-        return <Cell>{result}</Cell>;
-      },
+      header: CategoryHeader,
+      cell: ({ row }) => CategoryCell({ row }),
     },
     {
       accessorKey: "actions",
-      header: () => <Cell>Actions</Cell>,
-      cell: ({ row }) => {
-        const questionId: string = row.getValue("questionid");
-        return (
-          <Cell>
-            <Button onClick={() => openModal(questionId)} variant={"ghost"}>
-              <HiOutlinePencil />
-            </Button>
-            <Modal
-              isOpen={editingQuestionId === questionId}
-              onRequestClose={closeModal}
-              ariaHideApp={false}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-none"
-              style={{
-                overlay: {
-                  backgroundColor: "rgba(29, 36, 51, 0.8)",
-                },
-              }}
-            >
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={modalAnimation}
-                transition={{ duration: 0.3 }}
-              >
-                <EditQuestionDialog
-                  questionId={questionId}
-                  handleClose={closeModal}
-                  setRefreshKey={setRefreshKey}
-                />
-              </motion.div>
-            </Modal>
-            <Button variant={"ghost"} onClick={() => handleDelete(questionId)}>
-              <FaRegTrashAlt />
-            </Button>
-          </Cell>
-        );
-      },
+      header: ActionsHeader,
+      cell: ({ row }) =>
+        ActionsCell({
+          row,
+          openModal,
+          editingQuestionId,
+          closeModal,
+          modalAnimation,
+          setRefreshKey,
+          handleDelete,
+        }),
     },
   ];
 
