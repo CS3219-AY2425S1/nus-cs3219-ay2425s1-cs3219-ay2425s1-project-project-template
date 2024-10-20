@@ -5,6 +5,8 @@ import App from "./App.jsx";
 import "./globals.css";
 import ErrorPage from "./error-page.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Features from "./pages/Features.jsx";
+import About from "./pages/About.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute.jsx";
@@ -18,6 +20,16 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/features",
+    element: <Features />,
     errorElement: <ErrorPage />,
   },
   {
