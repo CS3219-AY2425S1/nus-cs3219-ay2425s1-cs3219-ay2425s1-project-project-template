@@ -280,6 +280,7 @@ class RabbitMQConnection {
                     categories: [content.topic],
                     complexity: content.complexity,
                 }
+                this.currentUsers.delete(content.userId)
                 await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
@@ -325,6 +326,7 @@ class RabbitMQConnection {
                     const queue = msg.properties.headers['x-first-death-queue']
                     logger.info(`[DeadLetter-Queue] Received dead letter message from user ${userId} from ${queue}`)
                     this.channel.ack(msg)
+                    this.currentUsers.delete(userId)
                 }
             })
         } catch (error) {
