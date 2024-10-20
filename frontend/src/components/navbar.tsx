@@ -29,6 +29,8 @@ export function NavbarLink({
 }
 
 export default function Navbar() {
+  const user = useAuth();
+
   return (
     <nav className='col-span-12 bg-background shadow-sm h-16'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
@@ -62,4 +64,3 @@ export default function Navbar() {
     </nav>
   );
 }
-
