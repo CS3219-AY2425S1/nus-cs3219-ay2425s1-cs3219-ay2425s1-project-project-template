@@ -7,10 +7,17 @@ export const loginUser = async (email: string, password: string) => {
     const response = await axios.post(`${BASE_URL}/auth/login`, { email, password });
     return response.data;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          throw new Error("Invalid email or password. Please try again.");
+        case 403:
+          throw new Error("Unauthorized access.");
+        default:
+          throw new Error(`An error occurred: ${error.response.status}`);
+      }
     } else {
-      console.error("An unknown error occurred");
+      throw new Error("Network error or server did not respond.");
     }
   }
 };
@@ -20,11 +27,22 @@ export const registerUser = async (userData: { username: string; email: string; 
     const response = await axios.post(`${BASE_URL}/users`, userData);
     return response.data;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-    } else {
-      console.error("An unknown error occurred");
-    }
+        if (error.response) {
+          switch (error.response.status) {
+            case 409:
+              throw new Error("Username or email already exists.");
+            case 400:
+              throw new Error("Invalid input data. Please check your fields.");
+            case 401:
+              throw new Error("Unauthorized access. Please log in.");
+            case 500:
+              throw new Error("Internal server error. Please try again later.");
+            default:
+              throw new Error(`An error occurred: ${error.response.status}`);
+          }
+        } else {
+          throw new Error("Network error or server did not respond.");
+        }
   }
 };
 
@@ -35,10 +53,17 @@ export const verifyToken = async (token: string) => {
     });
     return response.data;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          throw new Error("Unauthorized access. Please log in.");
+        case 403:
+          throw new Error("Token verification failed.");
+        default:
+          throw new Error(`An error occurred: ${error.response.status}`);
+      }
     } else {
-      console.error("An unknown error occurred");
+      throw new Error("Network error or server did not respond.");
     }
   }
 };
@@ -52,10 +77,19 @@ export const updateUser = async (userId: string, token: string, data: { username
     })
     return response
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          throw new Error("Unauthorized access. Please log in.");
+        case 404:
+          throw new Error("User not found.");
+        case 400:
+          throw new Error("Invalid input data. Please check your fields.");
+        default:
+          throw new Error(`An error occurred: ${error.response.status}`);
+      }
     } else {
-      console.error("An unknown error occurred");
+      throw new Error("Network error or server did not respond.");
     }
   }
 }
@@ -72,10 +106,19 @@ export const updatePassword = async (userId: string, token: string, password: st
       });
     return response.data;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          throw new Error("Unauthorized access. Please log in.");
+        case 400:
+          throw new Error("Invalid password format. Please check your input.");
+        case 404:
+          throw new Error("User not found.");
+        default:
+          throw new Error(`An error occurred: ${error.response.status}`);
+      }
     } else {
-      console.error("An unknown error occurred");
+      throw new Error("Network error or server did not respond.");
     }
   }
 };

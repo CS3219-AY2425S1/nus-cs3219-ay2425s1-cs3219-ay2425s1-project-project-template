@@ -34,7 +34,7 @@ export default function ProfilePage() {
         setUserData({ id: res.data.id, username: res.data.username, email: res.data.email })
         setLoading(false)
       } catch (error) {
-        toast.error('User verification failed, please login again!')
+        toast.error(error.message || 'User verification failed, please login again!')
         router.push('/login')
       }
     }

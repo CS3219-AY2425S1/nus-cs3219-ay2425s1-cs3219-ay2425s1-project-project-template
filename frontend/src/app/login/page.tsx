@@ -22,7 +22,7 @@ const LoginPage = () => {
       localStorage.setItem("token", res.data.accessToken); 
       router.push("./questions");
     } catch (error: any) {
-      toast.error("Unable to login. Please check your credentials.");
+      toast.error(error.message || "Unable to login. Please check your credentials.");
     } finally {
       setLoading(false);
     }

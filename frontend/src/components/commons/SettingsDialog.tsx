@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { updatePassword } from '@/lib/api-user';
+import { updatePassword, loginUser } from '@/lib/api-user';
 import { toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,12 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
       setLoading(true);
       const res = await verifyToken(token);
       const userId = res.data.id;
+      const userEmail = res.data.email;
+      try {
+        const loginRes = await loginUser(userEmail, currentPassword);
+      } catch (error) {
+        throw new Error("Current password is incorrect!");
+      }
       await updatePassword(userId, token, newPassword);
       toast.success("Password updated successfully! Please login again.");
       localStorage.removeItem('token');

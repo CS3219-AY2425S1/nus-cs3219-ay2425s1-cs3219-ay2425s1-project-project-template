@@ -43,7 +43,7 @@ export default function QuestionList({ questionsPromise}: QuestionListProps) {
           const res = await verifyToken(token)
           setIsAdmin(res.data.isAdmin)
         } catch (error) {
-          toast.error('User verification failed, please login again!')
+          toast.error(error.message || 'User verification failed, please login again!')
           router.push('/login')
         }
       }
@@ -65,7 +65,7 @@ export default function QuestionList({ questionsPromise}: QuestionListProps) {
         console.error('Failed to fetch full question details')
       }
     } catch (error) {
-      console.error('Error fetching question details:', error)
+      toast.error('Error fetching question details:')
     }
   }
 

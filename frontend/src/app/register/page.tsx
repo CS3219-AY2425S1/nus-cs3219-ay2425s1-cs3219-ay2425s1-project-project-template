@@ -6,6 +6,7 @@ import { registerUser } from "@/lib/api-user";
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -30,7 +31,7 @@ const RegisterPage = () => {
       const data = await registerUser(formData);
       router.push("/login");
     } catch (error: any) {
-      setError(error.message || "An error occurred during registration");
+      toast.error(error.message || "An error occurred during registration");
     } finally {
       setLoading(false);
     }
@@ -50,6 +51,7 @@ const RegisterPage = () => {
             <Input
               type="text"
               placeholder="Username"
+              required
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
             />
@@ -62,6 +64,7 @@ const RegisterPage = () => {
             <Input
               type="email"
               placeholder="Email"
+              required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
@@ -74,6 +77,7 @@ const RegisterPage = () => {
             <Input
               type="password"
               placeholder="Password"
+              required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
@@ -86,6 +90,7 @@ const RegisterPage = () => {
             <Input
               type="password"
               placeholder="Confirm Password"
+              required
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             />
