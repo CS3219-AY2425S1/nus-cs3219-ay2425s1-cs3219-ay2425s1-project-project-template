@@ -1,3 +1,4 @@
+import { logger } from '@/lib/utils';
 import type { IMatchItemsResponse, IMatchType } from '@/types';
 
 import { createRoom } from './collab';
@@ -16,12 +17,18 @@ export async function getMatchItems(
       throw new Error('Both user IDs are required');
     }
 
-    const [attemptedQuestions1, attemptedQuestions2] = await Promise.all([
-      fetchAttemptedQuestions(userId1),
-      fetchAttemptedQuestions(userId2),
-    ]);
+    let allAttemptedQuestions: number[] = [];
 
-    const allAttemptedQuestions = [...new Set([...attemptedQuestions1, ...attemptedQuestions2])];
+    try {
+      const [attemptedQuestions1, attemptedQuestions2] = await Promise.all([
+        fetchAttemptedQuestions(userId1),
+        fetchAttemptedQuestions(userId2),
+      ]);
+      allAttemptedQuestions = [...new Set([...attemptedQuestions1, ...attemptedQuestions2])];
+    } catch (error) {
+      logger.error('Error in getMatchItems: Failed to fetch attempted questions', error);
+    }
+
     const topics = topic?.split('|') ?? [];
     const payload = {
       attemptedQuestions: allAttemptedQuestions,
@@ -35,16 +42,21 @@ export async function getMatchItems(
     // Get a random question
     const question = await getRandomQuestion(payload);
 
+    if (!question) {
+      logger.info('No matching question found');
+      return undefined;
+    }
+
     const roomId = await createRoom(userId1, userId2, question.id.toString());
 
-    console.log('Successfully got match items');
+    logger.info('Successfully got match items');
     return {
       roomId,
       questionId: question.id,
       // question,
     };
   } catch (error) {
-    console.error('Error in getMatchItems:', error);
+    logger.error('Error in getMatchItems:', error);
     return undefined;
   }
 }
