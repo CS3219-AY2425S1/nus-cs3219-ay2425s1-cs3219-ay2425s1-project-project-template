@@ -84,7 +84,7 @@ const Register = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black">Login</Button>
+            <Button type="submit" className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black">Register</Button>
           </form>
         </Form>
       </div>
