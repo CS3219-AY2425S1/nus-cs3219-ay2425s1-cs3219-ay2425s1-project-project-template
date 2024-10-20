@@ -9,7 +9,6 @@ import {
   updateUserPrivilege,
 } from "../controller/user-controller.js";
 
-import { requestMatch } from "../controller/match-controller.js"
 
 import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
 

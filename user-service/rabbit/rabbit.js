@@ -1,24 +1,35 @@
 import * as amqp from 'amqplib'
 
-const SENDING_EXCHANGE_NAME = 'MATCH-REQUEST-EXCHANGE'
-const RECEIVING_EXCHANGE_NAME = 'MATCH-FOUND-EXCHANGE'
-const USER_ROUTING_KEY = 'USER-ROUTING-KEY'
-const MATCHING_ROUTING_KEY = 'MATCHING-ROUTING-KEY'
-const MATCH_FOUND_QUEUE = 'MATCH-FOUND-QUEUE'
+const REQUEST_EXCHANGE = 'REQUEST-EXCHANGE'
+const RESULT_EXCHANGE = 'RESULT-EXCHANGE'
+
 const MATCH_REQUEST_QUEUE = 'MATCH-REQUEST-QUEUE'
+const MATCH_RESULT_QUEUE = 'MATCH-RESULT-QUEUE'
+const MATCH_REQUEST_ROUTING = 'MATCH-REQUEST-ROUTING'
+const MATCH_RESULT_ROUTING = 'MATCH-RESULT-ROUTING'
+
+const CANCEL_REQUEST_QUEUE = 'CANCEL-REQUEST-QUEUE'
+const CANCEL_RESULT_QUEUE = 'CANCEL-RESULT-QUEUE'
+const CANCEL_REQUEST_ROUTING = 'CANCEL-REQUEST-ROUTING'
+const CANCEL_RESULT_ROUTING = 'CANCEL-REQUEST-ROUTING'
+
 
 export const createChannel = async () => {
     try {
         const connection = await amqp.connect('amqp://rabbitmq:5672')
         const channel = await connection.createChannel()
 
-        await channel.assertExchange(SENDING_EXCHANGE_NAME, 'direct')
+        await channel.assertExchange(REQUEST_EXCHANGE, 'direct')
         const matchRequestQueue = await channel.assertQueue(MATCH_REQUEST_QUEUE)
-        channel.bindQueue(matchRequestQueue.queue, SENDING_EXCHANGE_NAME, MATCHING_ROUTING_KEY)
-
-        await channel.assertExchange(RECEIVING_EXCHANGE_NAME, 'direct')
-        const matchFoundQueue = await channel.assertQueue(MATCH_FOUND_QUEUE)
-        channel.bindQueue(matchFoundQueue.queue, RECEIVING_EXCHANGE_NAME, USER_ROUTING_KEY)
+        channel.bindQueue(matchRequestQueue.queue, REQUEST_EXCHANGE, MATCH_REQUEST_ROUTING)
+        const cancelRequestQueue = await channel.assertQueue(CANCEL_REQUEST_QUEUE)
+        channel.bindQueue(cancelRequestQueue.queue, REQUEST_EXCHANGE, CANCEL_REQUEST_ROUTING)
+        
+        await channel.assertExchange(RESULT_EXCHANGE, 'direct')
+        const matchResultQueue = await channel.assertQueue(MATCH_RESULT_QUEUE)
+        channel.bindQueue(matchResultQueue.queue, RESULT_EXCHANGE, MATCH_RESULT_ROUTING)
+        const cancelResultQueue = await channel.assertQueue(CANCEL_RESULT_QUEUE)
+        channel.bindQueue(cancelResultQueue.queue, RESULT_EXCHANGE, CANCEL_RESULT_ROUTING)
 
         return channel
     } catch (e) {
@@ -26,20 +37,27 @@ export const createChannel = async () => {
     }
 }
 
-export const send = (channel, payload) => {
+export const sendMatchRequest = (channel, payload) => {
     try {
-        channel.publish(SENDING_EXCHANGE_NAME, MATCHING_ROUTING_KEY, Buffer.from(JSON.stringify(payload)))
+        channel.publish(REQUEST_EXCHANGE, MATCH_REQUEST_ROUTING, Buffer.from(JSON.stringify(payload)))
     } catch (e) {
         console.log(e)
     }
 }
 
-export const receive = async (channel, io) => {
+export const sendCancelRequest = (channel, payload) => {
     try {
-        channel.consume(MATCH_FOUND_QUEUE, (data) => {
+        channel.publish(REQUEST_EXCHANGE, CANCEL_REQUEST_ROUTING, Buffer.from(JSON.stringify(payload)))
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export const receiveMatchResult = async (channel, io) => {
+    try {
+        channel.consume(MATCH_RESULT_QUEUE, (data) => {
             if (data) {
                 const message = data.content.toString()
-                console.log('Users matched: ' + message)
                 channel.ack(data)
 
                 // Emit socket.io event when a match is found
@@ -67,6 +85,14 @@ export const receive = async (channel, io) => {
                 }
             }
         })
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export const receiveCancelResult = async (channel, io) => {
+    try {
+        
     } catch (e) {
         console.log(e)
     }

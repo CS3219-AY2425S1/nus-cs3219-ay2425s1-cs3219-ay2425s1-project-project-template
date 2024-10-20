@@ -1,8 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv').config();
-const { createChannel, receive } = require('./rabbit/rabbit.js');
-const { processMatchRequest } = require('./controllers/matching-controller.js')
+const { createChannel, receiveMatchRequest, receiveCancelRequest } = require('./rabbit/rabbit.js');
+const { processMatchRequest, processCancelRequest } = require('./controllers/matching-controller.js')
 
 const app = express()
 
@@ -38,7 +38,8 @@ let channel = null;
     channel = await createChannel(); // Wait until channel is created
     if (channel) {
         // TODO: processMatchRequest to be implemented
-        receive(channel, processMatchRequest(channel));
+        receiveMatchRequest(channel, processMatchRequest(channel));
+        receiveCancelRequest(channel, processCancelRequest(channel));
     } else {
         console.error("Failed to create RabbitMQ channel.");
     }

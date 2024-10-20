@@ -2,35 +2,39 @@ import React, { useState, useEffect } from "react";
 import { Button, Box, Typography, CircularProgress } from "@mui/material";
 import io from "socket.io-client";
 import axios from "axios";
-import { TokenRounded } from "@mui/icons-material";
 
 const socket = io("http://localhost:8081");
 
 const MatchComponent = () => {
     const [waitingTime, setWaitingTime] = useState(0);
     const [isWaiting, setIsWaiting] = useState(false);
+    const [isCanceling, setIsCanceling] = useState(false); // Track canceling state
     const [matchedUserId, setMatchedUserId] = useState(null);
 
     useEffect(() => {
         let timer;
-        socket.on("connect", () => {
-            console.log("Connected to the server"); // This runs when the client successfully connects
+        socket.on("connect", (data) => {
+            console.log("data: ", data);
         });
 
-        // Listen for match-found event from the server
         socket.on("match_found", (data) => {
-            console.log("USER FOUND!! ", data)
             setMatchedUserId(data.matchedUser.id);
-            setIsWaiting(false); // Stop the timer when matched
+            setIsWaiting(false);
         });
 
-        // Start the timer when waiting for a match
         if (isWaiting) {
             timer = setInterval(() => {
-                setWaitingTime((prevTime) => prevTime + 1);
+                setWaitingTime((prevTime) => {
+                    if (prevTime + 1 === 30) {
+                        setIsWaiting(false);
+                        cancelMatch();
+                        return 0; // Reset waiting time
+                    }
+                    return prevTime + 1; // Increment waiting time
+                });
             }, 1000);
         } else {
-            setWaitingTime(0); // Reset timer if not waiting
+            setWaitingTime(0);
         }
 
         return () => {
@@ -38,17 +42,14 @@ const MatchComponent = () => {
         };
     }, [isWaiting]);
 
-    // Function to request a match
     const requestMatch = async () => {
         try {
-            setIsWaiting(true); // Start waiting for a match
-            setMatchedUserId(null); // Reset previous match info
+            setIsWaiting(true);
+            setMatchedUserId(null);
             const token = localStorage.getItem("authorization");
 
             const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Authorization header
-                },
+                headers: { Authorization: `Bearer ${token}` },
             };
 
             const body = {
@@ -57,11 +58,30 @@ const MatchComponent = () => {
                 category: "algorithms",
             };
 
-            // Send a request to the server to find a match
             await axios.post("http://localhost:8081/match/match-request", body, config);
         } catch (error) {
             console.error("Error requesting match:", error);
-            setIsWaiting(false); // Stop waiting if there was an error
+            setIsWaiting(false);
+        }
+    };
+
+    const cancelMatch = async () => {
+        try {
+            setIsCanceling(true); // Disable the UI during cancellation
+            const token = localStorage.getItem("authorization");
+
+            const config = {
+                headers: { Authorization: `Bearer ${token}` },
+            };
+
+            const body = { socketId: socket.id };
+
+            await axios.post("http://localhost:8081/match/cancel-request", body, config);
+            setIsCanceling(false); // Enable UI once cancellation is done
+            setIsWaiting(false);
+        } catch (error) {
+            console.error("Error canceling match:", error);
+            setIsCanceling(false); // Enable UI even if an error occurs
         }
     };
 
@@ -69,13 +89,15 @@ const MatchComponent = () => {
         <Box sx={{ textAlign: "center", mt: 5 }}>
             <Typography variant="h4">User Matching Service</Typography>
 
-            {/* Show timer or match info */}
             {isWaiting ? (
                 <Box>
                     <CircularProgress />
                     <Typography variant="h6" sx={{ mt: 2 }}>
                         Waiting for a match... {waitingTime} seconds
                     </Typography>
+                    <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={cancelMatch} disabled={isCanceling}>
+                        {isCanceling ? "Cancelling..." : "Cancel Match"}
+                    </Button>
                 </Box>
             ) : matchedUserId ? (
                 <Typography variant="h6" color="green">
@@ -85,8 +107,7 @@ const MatchComponent = () => {
                 <Typography variant="h6">Click to start searching for a match!</Typography>
             )}
 
-            {/* Request match button */}
-            <Button variant="contained" color="primary" sx={{ mt: 3 }} onClick={requestMatch} disabled={isWaiting}>
+            <Button variant="contained" color="primary" sx={{ mt: 3 }} onClick={requestMatch} disabled={isWaiting || isCanceling}>
                 {isWaiting ? "Searching..." : "Find a Match"}
             </Button>
         </Box>

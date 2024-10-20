@@ -1,37 +1,73 @@
 var amqp = require('amqplib');
 
-const SENDING_EXCHANGE_NAME = 'MATCH-FOUND-EXCHANGE'
-const RECEIVING_EXCHANGE_NAME = 'MATCH-REQUEST-EXCHANGE'
-const ROUTING_KEY = 'MATCHING-ROUTING-KEY'
-const QUEUE_NAME = 'MATCH-REQUEST-QUEUE'
+const REQUEST_EXCHANGE = 'REQUEST-EXCHANGE'
+const RESULT_EXCHANGE = 'RESULT-EXCHANGE'
+
+const MATCH_REQUEST_QUEUE = 'MATCH-REQUEST-QUEUE'
+const MATCH_RESULT_QUEUE = 'MATCH-RESULT-QUEUE'
+const MATCH_REQUEST_ROUTING = 'MATCH-REQUEST-ROUTING'
+const MATCH_RESULT_ROUTING = 'MATCH-RESULT-ROUTING'
+
+const CANCEL_REQUEST_QUEUE = 'CANCEL-REQUEST-QUEUE'
+const CANCEL_RESULT_QUEUE = 'CANCEL-RESULT-QUEUE'
+const CANCEL_REQUEST_ROUTING = 'CANCEL-REQUEST-ROUTING'
+const CANCEL_RESULT_ROUTING = 'CANCEL-REQUEST-ROUTING'
+
 
 exports.createChannel = async () => {
     try {
         const connection = await amqp.connect('amqp://rabbitmq:5672')
         const channel = await connection.createChannel()
-        await channel.assertExchange(SENDING_EXCHANGE_NAME, 'direct')
-        await channel.assertExchange(RECEIVING_EXCHANGE_NAME, 'direct')
+        await channel.assertExchange(RESULT_EXCHANGE, 'direct')
+        await channel.assertExchange(REQUEST_EXCHANGE, 'direct')
         return channel
     } catch (e) {
         console.log(e)
     }
 }
 
-exports.send = (channel, routing_key, payload) => {
+exports.sendMatchResult = (channel, payload) => {
     try {
-        channel.publish(SENDING_EXCHANGE_NAME, routing_key, payload)
+        channel.publish(RESULT_EXCHANGE, MATCH_RESULT_ROUTING, payload)
     } catch (e) {
         console.log(e)
     }
 }
 
-exports.receive = async (channel, callback) => {
+exports.sendCancelResult = (channel, payload) => {
     try {
-        const queue = await channel.assertQueue(QUEUE_NAME) 
-        channel.bindQueue(queue.queue, RECEIVING_EXCHANGE_NAME, ROUTING_KEY)
+        channel.publish(RESULT_EXCHANGE, CANCEL_RESULT_ROUTING, payload)
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+exports.receiveMatchRequest = async (channel, callback) => {
+    try {
+        const queue = await channel.assertQueue(MATCH_REQUEST_QUEUE) 
+        channel.bindQueue(queue.queue, REQUEST_EXCHANGE, MATCH_REQUEST_ROUTING)
         channel.consume(queue.queue, (data) => {
             if (data) {
                 console.log('Match request arrived: ' + data.content.toString());
+                callback(data);  // Pass the message data to the callback
+                channel.ack(data);  // Acknowledge the message
+            } else {
+                console.log('No data received');
+            }
+        });
+    } catch(e) {
+        console.log(e)
+    }
+}
+
+
+exports.receiveCancelRequest = async (channel, callback) => {
+    try {
+        const queue = await channel.assertQueue(CANCEL_REQUEST_QUEUE) 
+        channel.bindQueue(queue.queue, REQUEST_EXCHANGE, CANCEL_REQUEST_ROUTING)
+        channel.consume(queue.queue, (data) => {
+            if (data) {
+                console.log('Cancel request arrived: ' + data.content.toString());
                 callback(data);  // Pass the message data to the callback
                 channel.ack(data);  // Acknowledge the message
             } else {
