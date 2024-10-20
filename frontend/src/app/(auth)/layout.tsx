@@ -70,44 +70,46 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="flex h-full overflow-y-auto">
-      {authStatus !== AuthStatus.UNAUTHENTICATED && <Sidebar
-        className="sticky top-0 h-screen"
-        rootStyles={{
-          borderColor: "#171C28",
-        }}
-        collapsed={!isHovered}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-        }}
-        backgroundColor={"#171C28"}
-      >
-        <div className="h-full flex flex-col justify-between">
-          <Menu menuItemStyles={menuItemStyles}>
-            {sidebarItems.map((item, idx) => (
-              <SidebarMenuItem
-                key={idx}
-                menuLabel={item["menuLabel"]}
-                menuIcon={item["menuIcon"]}
-                linksTo={item["linksTo"]}
-              />
-            ))}
-          </Menu>
-          <Menu
-            menuItemStyles={menuItemStyles}
-            rootStyles={{
-              marginBottom: "60px",
-            }}
-          >
-            <MenuItem
-              icon={<RiLogoutBoxLine size={iconSize} />}
-              onClick={logout}
+      {authStatus !== AuthStatus.UNAUTHENTICATED && (
+        <Sidebar
+          className="sticky top-0 h-screen"
+          rootStyles={{
+            borderColor: "#171C28",
+          }}
+          collapsed={!isHovered}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => {
+            setIsHovered(false);
+          }}
+          backgroundColor={"#171C28"}
+        >
+          <div className="h-full flex flex-col justify-between">
+            <Menu menuItemStyles={menuItemStyles}>
+              {sidebarItems.map((item, idx) => (
+                <SidebarMenuItem
+                  key={idx}
+                  menuLabel={item["menuLabel"]}
+                  menuIcon={item["menuIcon"]}
+                  linksTo={item["linksTo"]}
+                />
+              ))}
+            </Menu>
+            <Menu
+              menuItemStyles={menuItemStyles}
+              rootStyles={{
+                marginBottom: "60px",
+              }}
             >
-              Logout
-            </MenuItem>
-          </Menu>
-        </div>
-      </Sidebar>}
+              <MenuItem
+                icon={<RiLogoutBoxLine size={iconSize} />}
+                onClick={logout}
+              >
+                Logout
+              </MenuItem>
+            </Menu>
+          </div>
+        </Sidebar>
+      )}
       <div className="w-full overflow-y-scroll">{children}</div>
     </div>
   );

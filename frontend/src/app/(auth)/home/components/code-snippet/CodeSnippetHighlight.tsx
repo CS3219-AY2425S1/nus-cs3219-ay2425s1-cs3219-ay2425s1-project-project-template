@@ -1,8 +1,8 @@
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { darcula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const CodeSnippetHighlight = () => {
-    const code = `class Solution:
+  const code = `class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         idxDict = {}
         for i, num in enumerate(nums):
@@ -12,11 +12,11 @@ const CodeSnippetHighlight = () => {
             diff = target - num
             if diff in idxDict and i != idxDict[diff]:
                 return [i, idxDict[diff]]`;
-    return (
-        <SyntaxHighlighter language="python" style={darcula}>
-            {code}
-        </SyntaxHighlighter>
-    );
+  return (
+    <SyntaxHighlighter language="python" style={darcula}>
+      {code}
+    </SyntaxHighlighter>
+  );
 };
 
 export default CodeSnippetHighlight;
