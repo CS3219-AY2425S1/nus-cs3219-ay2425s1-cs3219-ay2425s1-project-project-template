@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatchService } from '../services/match.service';
 import { QUEUE_NAMES, DIFFICULTY } from '../app/constants/queue-constants';
 import { UserService } from '../app/userService/user-service';
+import { MatchModalComponent } from '../loading-screen/match-modal/match-modal.component';
 
 @Component({
   selector: 'app-landing-page',
@@ -14,8 +15,10 @@ import { UserService } from '../app/userService/user-service';
 })
 
 export class LandingPageComponent {
+  @ViewChild(MatchModalComponent) matchModal!: MatchModalComponent;
   selectedDifficulty: string | null = null;
   selectedCategory: string | null = null;
+  sendingPopup: boolean = false;
   question_categories = [
     { name: "Algorithms", selected: false },
     { name: "Arrays", selected: false },
@@ -64,34 +67,49 @@ export class LandingPageComponent {
 
   // =================================================
 
-  findMatch() {
+  async findMatch() {
     // const selectedTopic = this.question_categories.filter(topic => topic.selected).map(topic => topic.name);
     const userData = {
       difficulty: this.selectedDifficulty || '',
       topic: this.selectedCategory || '',
       user_id: this.userService.getCurrUserId() || '', // not sure if it'l work
-      // user_id: '1',
     };
     const queueName = this.getQueueName();
+    console.log('queueName printing:', queueName);
 
-    this.matchService.sendMatchRequest(userData, queueName).subscribe(
-      (error) => {
-        console.error('Match request failed:', error);
-        this.displayError('Failed to find a match. Please try again.');
-      }
-    );
-    this.router.navigate(['/loading-screen']);
+    try {
+      // const response = await this.matchService.sendMatchRequest(userData, queueName);
+      // console.log('Match request successful:', response);
+      // sleep for 3 seconds
+      this.router.navigate(['/loading-screen'],  {
+        queryParams: {
+          queueName: queueName,
+          difficulty: this.selectedDifficulty || '',
+          category: this.selectedCategory || '',
+          userId: userData.user_id
+        }
+      });
+    } catch (error) {
+      console.error('Match request failed:', error);
+      this.displayError('Failed to find a match. Please try again.');
+    }
+    // this.matchService.sendMatchRequest(userData, queueName).subscribe(
+    //   (error) => {
+    //     console.error('Match request failed:', error);
+    //     this.displayError('Failed to find a match. Please try again.');
+    //   }
+    // );
   }
 
-  findMatchDummy() {
-    this.matchService.sendMatchRequest({difficulty: 'easy', topic: 'arrays', user_id: '1'}, 'easy_queue').subscribe(
-      (error) => {
-        console.error('Match request failed:', error);
-        this.displayError('Failed to find a match. Please try again.');
-      }
-    )
-    this.router.navigate(['/loading-screen']);
-  }
+  // findMatchDummy() {
+  //   this.matchService.sendMatchRequest({difficulty: 'easy', topic: 'arrays', user_id: '1'}, 'easy_queue').subscribe(
+  //     (error) => {
+  //       console.error('Match request failed:', error);
+  //       this.displayError('Failed to find a match. Please try again.');
+  //     }
+  //   )
+  //   this.router.navigate(['/loading-screen']);
+  // }
 
   getQueueName(): string {
     // change to same case
