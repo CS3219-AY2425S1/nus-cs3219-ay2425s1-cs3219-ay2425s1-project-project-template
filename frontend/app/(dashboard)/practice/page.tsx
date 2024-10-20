@@ -42,9 +42,7 @@ export default function CreateQuestionPage() {
   const [matchedWithUser, setMatchedWithUser] = useState<string | undefined>(
     undefined
   );
-  const [matchedTopic, setMatchedTopic] = useState<string | undefined>(
-    undefined
-  );
+  const [matchedTopic, setMatchedTopic] = useState<string>("");
 
   const [checkMatchInterval, setCheckMatchInterval] =
     useState<NodeJS.Timeout | null>(null);
@@ -293,12 +291,22 @@ export default function CreateQuestionPage() {
                 </GridItem>
                 <GridItem>
                   <Text fontSize="lg" color="black">
+                    Difficulty:
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="teal.500">
+                    {matchedTopic.split("-")[0]}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="black">
                     Topic:
                   </Text>
                 </GridItem>
                 <GridItem>
                   <Text fontSize="lg" color="teal.500">
-                    {matchedTopic}
+                    {matchedTopic.split("-")[1]}
                   </Text>
                 </GridItem>
               </Grid>
