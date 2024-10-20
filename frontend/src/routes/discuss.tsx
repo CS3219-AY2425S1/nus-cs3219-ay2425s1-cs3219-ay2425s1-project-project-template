@@ -276,10 +276,10 @@ export default function DiscussRoute() {
       }
     };
 
-    ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setMatchStatus(MATCH_ERROR_STATUS);
-    };
+    // ws.current.onerror = (error) => {
+    //   console.error('WebSocket error:', error);
+    //   setMatchStatus(MATCH_ERROR_STATUS);
+    // };
 
     ws.current.onclose = (event) => {
       console.log('WebSocket closed:', event);
