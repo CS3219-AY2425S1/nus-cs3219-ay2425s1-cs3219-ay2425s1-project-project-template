@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - staging
+      - frontend-websocket-test
   pull_request:
     branches:
       - main
@@ -27,6 +28,7 @@ jobs:
         env:
           QUESTION_SERVICE_URL: ${{ vars.QUESTION_SERVICE_URL }}
           USER_SERVICE_URL: ${{ vars.USER_SERVICE_URL }}
+          MATCHING_SERVICE_URL: ${{ vars.MATCHING_SERVICE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
           DB_CLOUD_URI: ${{ secrets.USER_SERVICE_DB_CLOUD_URI }}
@@ -35,6 +37,7 @@ jobs:
           cd ./apps/frontend
           echo "NEXT_PUBLIC_QUESTION_SERVICE_URL=$QUESTION_SERVICE_URL" >> .env
           echo "NEXT_PUBLIC_USER_SERVICE_URL=$USER_SERVICE_URL" >> .env
+          echo "NEXT_PUBLIC_MATCHING_SERVICE_URL=$MATCHING_SERVICE_URL" >> .env
 
           cd ../question-service
           echo "FIREBASE_CREDENTIAL_PATH=$FIREBASE_CREDENTIAL_PATH" >> .env

@@ -17,15 +17,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("err loading: %v", err)
 	}
-	
+
 	// Setup redis client
 	processes.SetupRedisClient()
 
 	// Run a goroutine that matches users
-	
+
 	// Routes
 	http.HandleFunc("/match", handlers.HandleWebSocketConnections)
-	
+
 	// Start the server
 	port := os.Getenv("PORT")
 	log.Println(fmt.Sprintf("Server starting on :%s", port))
