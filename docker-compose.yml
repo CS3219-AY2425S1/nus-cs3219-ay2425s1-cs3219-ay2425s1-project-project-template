@@ -48,7 +48,7 @@ services:
     volumes:
       - ./message-queue:/app
       - rabbitmq_data:/var/lib/rabbitmq
-    command: sh -c "npm start"
+    command: sh -c "npm install && npm start"
     ports:
       - 3002:3002
     networks:
