@@ -35,6 +35,8 @@ services:
       - MATCHING_SERVICE_ROUTE=matching-service
     ports:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+    depends_on:
+      - matching-service
 
   user-service:
     build:
