@@ -1,136 +1,247 @@
 package g55.cs3219.backend.questionservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import g55.cs3219.backend.questionservice.dto.QuestionDto;
+import g55.cs3219.backend.questionservice.exception.ErrorResponse;
 import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
+import g55.cs3219.backend.questionservice.model.Question;
 import g55.cs3219.backend.questionservice.service.QuestionService;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser; // Import for @WithMockUser
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf; // Import for csrf()
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@WebMvcTest(QuestionController.class)
-@WithMockUser(username = "testuser", roles = {"USER"})
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class QuestionControllerTests {
 
     @Autowired
-    private MockMvc mockMvc;
+    private TestRestTemplate restTemplate;
 
     @MockBean
     private QuestionService questionService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private static QuestionDto questionDto1;
+    private static QuestionDto questionDto2;
+    private static QuestionDto questionDto3;
+
+    @BeforeEach
+    void setUp() {
+        Question question1 = Question.builder()
+                .id(1)
+                .title("Question 1")
+                .description("Description 1")
+                .difficulty("Easy")
+                .categories(Arrays.asList("Category1", "Category2"))
+                .examples(Arrays.asList(new HashMap<>()))
+                .constraints(Arrays.asList("Constraint1"))
+                .link("http://example1.com")
+                .build();
+
+        Question question2 = Question.builder()
+                .id(2)
+                .title("Question 2")
+                .description("Description 2")
+                .difficulty("Medium")
+                .categories(Arrays.asList("Category2", "Category3"))
+                .examples(Arrays.asList(new HashMap<>()))
+                .constraints(Arrays.asList("Constraint2"))
+                .link("http://example2.com")
+                .build();
+
+        Question question3 = Question.builder()
+                .id(3)
+                .title("Question 3")
+                .description("Description 3")
+                .difficulty("Hard")
+                .categories(Arrays.asList("Category1", "Category3"))
+                .examples(Arrays.asList(new HashMap<>()))
+                .constraints(Arrays.asList("Constraint3"))
+                .link("http://example3.com")
+                .build();
+
+        questionDto1 = convertToDto(question1);
+        questionDto2 = convertToDto(question2);
+        questionDto3 = convertToDto(question3);
+    }
 
     @Test
-    void getAllQuestions_ReturnsQuestions() throws Exception {
-        QuestionDto question1 = new QuestionDto();
-        question1.setId(1);
-        question1.setTitle("Question 1");
-        QuestionDto question2 = new QuestionDto();
-        question2.setId(2);
-        question2.setTitle("Question 2");
-        List<QuestionDto> questions = Arrays.asList(question1, question2);
+    void getAllQuestions_ReturnsQuestions() {
+        List<QuestionDto> questions = Arrays.asList(questionDto1, questionDto2);
 
         when(questionService.getAllQuestions()).thenReturn(questions);
 
-        mockMvc.perform(get("/api/question/questions"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].title").value("Question 1"))
-                .andExpect(jsonPath("$[1].title").value("Question 2"));
+        ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
+                "/api/question/questions",
+                QuestionDto[].class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals(2, response.getBody().length);
+        assertEquals("Question 1", response.getBody()[0].getTitle());
+        assertEquals("Question 2", response.getBody()[1].getTitle());
     }
 
     @Test
-    void getQuestionById_ExistingId_ReturnsQuestion() throws Exception {
-        QuestionDto question = new QuestionDto();
-        question.setId(1);
-        question.setTitle("Question 1");
+    void getAllQuestions_NoQuestions_ReturnsEmptyList() {
+        when(questionService.getAllQuestions()).thenReturn(Collections.emptyList());
 
-        when(questionService.getQuestionById(1)).thenReturn(question);
+        ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
+                "/api/question/questions",
+                QuestionDto[].class
+        );
 
-        mockMvc.perform(get("/api/question/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Question 1"));
+        assertEquals(OK, response.getStatusCode());
+        assertEquals(0, response.getBody().length);
     }
 
     @Test
-    void getQuestionById_NonExistingId_ReturnsNotFound() throws Exception {
-        when(questionService.getQuestionById(99)).thenThrow(new QuestionNotFoundException("Question not found"));
+    void getQuestionById_ExistingId_ReturnsQuestion() {
+        when(questionService.getQuestionById(1)).thenReturn(questionDto1);
 
-        mockMvc.perform(get("/api/question/99"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Question not found"));
+        ResponseEntity<QuestionDto> response = restTemplate.getForEntity(
+                "/api/question/1",
+                QuestionDto.class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals("Question 1", response.getBody().getTitle());
     }
 
     @Test
-    void createQuestion_ValidInput_ReturnsCreatedQuestion() throws Exception {
-        QuestionDto question = new QuestionDto();
-        question.setId(1);
-        question.setTitle("New Question");
+    void getQuestionsByFilters_ReturnsQuestions() {
+        List<QuestionDto> questions = Arrays.asList(questionDto1, questionDto2);
 
-        when(questionService.createQuestion(any(QuestionDto.class))).thenReturn(question);
+        when(questionService.getQuestionsByFilters("category", "easy")).thenReturn(questions);
 
-        mockMvc.perform(post("/api/question")
-                .with(csrf()) // Adding CSRF token
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(question)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("New Question"));
+        ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
+                "/api/question/filter?category=category&difficulty=easy",
+                QuestionDto[].class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals(2, response.getBody().length);
+        assertEquals("Question 1", response.getBody()[0].getTitle());
+        assertEquals("Question 2", response.getBody()[1].getTitle());
     }
 
     @Test
-    void updateQuestion_ExistingId_ReturnsUpdatedQuestion() throws Exception {
+    void getQuestionsByFilters_NoQuestions_ReturnsEmptyList() {
+        when(questionService.getQuestionsByFilters("category", "easy"))
+                .thenReturn(Collections.emptyList());
+
+        ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
+                "/api/question/filter?category=category&difficulty=easy",
+                QuestionDto[].class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals(0, response.getBody().length);
+    }
+
+    @Test
+    void createQuestion_ValidInput_ReturnsCreatedQuestion() {
+        when(questionService.createQuestion(any(QuestionDto.class))).thenReturn(questionDto1);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<QuestionDto> request = new HttpEntity<>(questionDto1, headers);
+
+        ResponseEntity<QuestionDto> response = restTemplate.postForEntity(
+                "/api/question",
+                request,
+                QuestionDto.class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals("Question 1", response.getBody().getTitle());
+    }
+
+    @Test
+    void updateQuestion_ExistingId_ReturnsUpdatedQuestion() {
         QuestionDto updatedQuestion = new QuestionDto();
         updatedQuestion.setId(1);
         updatedQuestion.setTitle("Updated Title");
 
         when(questionService.updateQuestion(Mockito.eq(1), any(QuestionDto.class))).thenReturn(updatedQuestion);
 
-        mockMvc.perform(put("/api/question/1")
-                .with(csrf()) // Adding CSRF token
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedQuestion)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Updated Title"));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<QuestionDto> request = new HttpEntity<>(updatedQuestion, headers);
+
+        ResponseEntity<QuestionDto> response = restTemplate.exchange(
+                "/api/question/1",
+                HttpMethod.PUT,
+                request,
+                QuestionDto.class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals("Updated Title", response.getBody().getTitle());
     }
 
     @Test
-    void deleteQuestion_ExistingId_ReturnsSuccessMessage() throws Exception {
-        when(questionService.deleteQuestion(1)).thenReturn("Question with ID 1 has been deleted.");
+    void deleteQuestion_ExistingId_ReturnsSuccessMessage() {
+        when(questionService.deleteQuestion(1))
+                .thenReturn("Question with ID 1 has been deleted.");
 
-        mockMvc.perform(delete("/api/question/1")
-                .with(csrf())) // Adding CSRF token
-                .andExpect(status().isOk())
-                .andExpect(content().string("Question with ID 1 has been deleted."));
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/question/1",
+                HttpMethod.DELETE,
+                null,
+                String.class
+        );
+
+        assertEquals(OK, response.getStatusCode());
+        assertEquals("Question with ID 1 has been deleted.", response.getBody());
     }
 
     @Test
-    void deleteQuestion_NonExistingId_ReturnsNotFound() throws Exception {
-        when(questionService.deleteQuestion(99)).thenThrow(new QuestionNotFoundException("Question not found"));
+    void deleteQuestion_NonExistingId_ReturnsNotFound() {
+        when(questionService.deleteQuestion(99))
+                .thenThrow(new QuestionNotFoundException("Question not found"));
 
-        mockMvc.perform(delete("/api/question/99")
-                .with(csrf())) // Adding CSRF token
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Question not found"));
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange(
+                "/api/question/99",
+                HttpMethod.DELETE,
+                null,
+                ErrorResponse.class
+        );
+
+        assertEquals(NOT_FOUND, response.getStatusCode());
+        assertEquals(404, response.getBody().getStatus());
+        assertEquals("Question not found", response.getBody().getMessage());
+    }
+
+    private QuestionDto convertToDto(Question question) {
+        QuestionDto dto = new QuestionDto();
+        dto.setId(question.getId());
+        dto.setTitle(question.getTitle());
+        dto.setDescription(question.getDescription());
+        dto.setDifficulty(question.getDifficulty());
+        dto.setCategories(question.getCategories());
+        dto.setExamples(question.getExamples());
+        dto.setConstraints(question.getConstraints());
+        dto.setLink(question.getLink());
+        return dto;
     }
 }
