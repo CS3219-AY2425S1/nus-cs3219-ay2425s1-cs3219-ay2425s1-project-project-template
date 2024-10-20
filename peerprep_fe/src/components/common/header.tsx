@@ -15,7 +15,9 @@ export default function Header({ children }: { children?: React.ReactNode }) {
           height={128}
         />
       </Link>
-      <div className="flex space-x-5">{children}</div>
+      <div className="flex space-x-5 justify-center items-center">
+        {children}
+      </div>
     </header>
   );
 }

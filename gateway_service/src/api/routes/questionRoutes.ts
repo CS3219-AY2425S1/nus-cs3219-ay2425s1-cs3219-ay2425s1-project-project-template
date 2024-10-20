@@ -20,6 +20,11 @@ router.get("/questions/random", async (req, res) => {
 });
 
 router.get(
+  "/questions/topics",
+  requestHelper.sendGetRequest("/questions/topics", QUESTION_SERVICE)
+);
+
+router.get(
   "/questions",
   requestHelper.sendGetRequest("/questions", QUESTION_SERVICE)
 );

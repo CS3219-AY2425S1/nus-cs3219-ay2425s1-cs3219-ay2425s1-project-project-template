@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { getUniqueTopics } from "../helper";
 import { DifficultyLevel, IQuestion, Question } from "../models/Question";
 
 const router = express.Router();
@@ -27,6 +28,15 @@ router.get("/questions", async (req, res) => {
     res.json(questions);
   } catch (error) {
     res.status(500).json({ message: "Error fetching questions", error });
+  }
+});
+
+router.get("/questions/topics", async (req, res) => {
+  try {
+    const topics = await getUniqueTopics();
+    res.json(topics);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching topics", error });
   }
 });
 

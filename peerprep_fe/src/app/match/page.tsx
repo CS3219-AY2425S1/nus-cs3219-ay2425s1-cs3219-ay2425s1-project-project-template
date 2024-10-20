@@ -11,7 +11,7 @@ interface MatchPageProps {}
 
 const match: React.FC<MatchPageProps> = () => {
   const router = useRouter();
-  const { token, deleteToken } = useAuth();
+  const { token, deleteToken, username } = useAuth();
 
   return (
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10 overscroll-contain">
@@ -22,6 +22,9 @@ const match: React.FC<MatchPageProps> = () => {
         />
       </Head>
       <Header>
+        <div className="w-fullz h-full flex items-center justify-center">
+          Hi {username}
+        </div>
         <Button
           text="Logout"
           onClick={() => {

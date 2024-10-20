@@ -25,7 +25,7 @@ export default function Home() {
   const [currentEditQuestion, setCurrentEditQuestion] =
     useState<QuestionDto | null>(null);
 
-  const { token, deleteToken } = useAuth();
+  const { token, deleteToken, username } = useAuth();
 
   useEffect(() => {
     if (token) {
@@ -85,6 +85,9 @@ export default function Home() {
   return (
     <div className="h-screen w-screen flex flex-col max-w-6xl mx-auto py-10 overscroll-contain">
       <Header>
+        <div className="w-full h-full flex items-center justify-center">
+          Hi {username}
+        </div>
         <Button
           text="Match"
           onClick={() => {
