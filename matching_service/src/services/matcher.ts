@@ -27,20 +27,17 @@ export class Matcher {
 
   public async match() {
     const map = this.queue.getRequests();
-    console.log("Matching users...");
     const { expired } = this.removeExpiredRequests(map);
     this.notifyExpired(expired);
     const rooms = await this.matchUsers(map);
-    console.log(rooms);
     this.notifyMatches(rooms);
-
-    if (!this.queue.getLength()) {
+    const queueLength = this.queue.getLength();
+    console.log(`Current Queue Length is: ${queueLength}`);
+    if (!queueLength) {
       console.log("Queue is empty, stopping matcher...");
       this.stop();
       return;
     }
-
-    console.log("Setting timeout for next match...");
     this.timeoutId = setTimeout(() => this.match(), this.interval);
 
     //TODO: Create rooms in database
@@ -49,10 +46,8 @@ export class Matcher {
   private removeExpiredRequests(requestMap: Map<string, IMatchRequest[]>): {
     expired: IMatchRequest[];
   } {
-    console.log("Removing expired requests...");
     const expired: IMatchRequest[] = [];
     const now = Date.now();
-    console.log("now:", now);
 
     requestMap.forEach((requests, key, map) => {
       // Remove requests older than 30 seconds
@@ -70,7 +65,6 @@ export class Matcher {
   private async matchUsers(
     requestMap: Map<string, IMatchRequest[]>
   ): Promise<IMatch[]> {
-    console.log("Matching users by topic and difficulty...");
     let rooms: IMatch[] = [];
     for (let key of Array.from(requestMap.keys())) {
       const requests = requestMap.get(key);
@@ -120,15 +114,12 @@ export class Matcher {
   }
 
   private async notifyExpired(expired: IMatchRequest[]) {
-    console.log("Notifying expired requests...");
-
     for (let request of expired) {
       this.notifer(ServerSocketEvents.MATCH_TIMEOUT, request.username);
     }
   }
 
   private async notifyMatches(matches: IMatch[]) {
-    console.log("Notifying users of match...");
     matches.forEach((room) => {
       this.notifer(ServerSocketEvents.MATCH_FOUND, room.usernames[0], {
         roomId: room.roomId,
