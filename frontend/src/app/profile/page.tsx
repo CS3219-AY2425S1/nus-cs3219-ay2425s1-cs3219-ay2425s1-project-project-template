@@ -1,37 +1,46 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { use, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { verifyToken } from '@/lib/api-user'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { User, Settings, LogOut } from 'lucide-react'
+import { Card, CardContent, CardHeader} from "@/components/ui/card"
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [userDetails, setUserDetails] = useState({
-    username: 'JohnDoe',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    githubId: 'johndoe123'
-  })
+  const [userData, setUserData] = useState({
+    username: "",
+    email: "",
+  });
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        router.push('/login')
+        return
+      }
+      try {
+        const res = await verifyToken(token)
+        setUserData({ username: res.data.username, email: res.data.email })
+        setLoading(false)
+      } catch (error) {
+        console.error('Token verification failed:', error)
+        router.push('/login') // Redirect to login if verification fails
+      }
+    }
+
+    fetchUserData()
+  }, [router])
+
+  if (loading) {
+    return <div>Loading...</div> // Show loading state while fetching user data
+  }
 
   const handleEdit = () => {
     setIsEditing(!isEditing)
@@ -39,13 +48,12 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     setIsEditing(false)
-    // Here you would typically send the updated userDetails to your backend
-    console.log('Saving user details:', userDetails)
+    console.log('Saving user details:', userData)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserDetails({
-      ...userDetails,
+    setUserData({
+      ...userData,
       [e.target.name]: e.target.value
     })
   }
@@ -56,8 +64,8 @@ export default function ProfilePage() {
         <Card className="max-w-2xl mx-auto">
             <CardHeader className="text-center">
             <Avatar className="w-24 h-24 mx-auto">
-              <AvatarImage src="/placeholder.svg?height=96&width=96" alt="@JohnDoe" />
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarImage src="/placeholder.svg?height=96&width=96" alt={`@${userData.username}`} />
+              <AvatarFallback className='text-4xl'>{userData.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
           </CardHeader>
           <CardContent className="pt-4">
@@ -68,7 +76,7 @@ export default function ProfilePage() {
                     <Input
                       id="username"
                       name="username"
-                      value={userDetails.username}
+                      value={userData.username}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
@@ -79,7 +87,7 @@ export default function ProfilePage() {
                     id="email"
                     name="email"
                     type="email"
-                    value={userDetails.email}
+                    value={userData.email}
                     onChange={handleInputChange}
                     disabled={!isEditing}
                   />
@@ -99,6 +107,6 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </main>
-      </div>
+    </div>
   )
 }

@@ -2,34 +2,37 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { registerUser } from "@/lib/api-user";
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 const RegisterPage = () => {
-  const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    setLoading(true);
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
       return;
     }
-    setLoading(true);
-    setError('');
     try {
+      const data = await registerUser(formData);
+      router.push("/login");
+    } catch (error: any) {
+      setError(error.message || "An error occurred during registration");
+    } finally {
       setLoading(false);
-      router.push('/profile');
-    } catch (error) {
-      setLoading(false);
-      setError('Registration failed. Please try again.');
-      console.error('Registration failed', error);
     }
   };
 
@@ -45,12 +48,10 @@ const RegisterPage = () => {
               Username
             </label>
             <Input
-              id="username"
-              type="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder="Enter your username"
+              type="text"
+              placeholder="Username"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
             />
           </div>
 
@@ -59,12 +60,10 @@ const RegisterPage = () => {
               Email
             </label>
             <Input
-              id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
 
@@ -73,12 +72,10 @@ const RegisterPage = () => {
               Password
             </label>
             <Input
-              id="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
           </div>
 
@@ -87,12 +84,10 @@ const RegisterPage = () => {
               Confirm Password
             </label>
             <Input
-              id="confirmPassword"
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              placeholder="Confirm your password"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             />
           </div>
 
