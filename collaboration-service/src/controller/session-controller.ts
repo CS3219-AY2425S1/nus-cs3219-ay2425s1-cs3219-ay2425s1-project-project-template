@@ -11,8 +11,12 @@ export const sessionController = {
         } = req.body;
 
         // Check if participants are already in another active session
-        const existingSession = await Session.findOne({ participants });
-        if (existingSession && existingSession.active) {
+        const existingSession = await Session.findOne({
+            participants: { $elemMatch: { $in: participants } },
+            active: true
+        });
+
+        if (existingSession) {
             return res.status(400).json({ message: 'At least one participant is already in another session' });
         }
 
@@ -23,6 +27,7 @@ export const sessionController = {
             participants,
             question,
             code,
+            active: true
         });
 
         try {
@@ -33,14 +38,14 @@ export const sessionController = {
             res.status(500).json({ message: (err as Error).message });
         }
     },
-    joinSession: async (req: Request, res: Response) => {
+    checkSessionStatus: async (req: Request, res: Response) => {
         const { userId } = req.body
 
         try {
             // Find an active session that the user is a participant of
-            const session = await Session.findOne({ participants: userId });
+            const session = await Session.findOne({ participants: userId, active: true });
 
-            if (!session || session.active === false) {
+            if (!session) {
                 return res.status(404).json({ message: 'Session not found' });
             }
 
@@ -50,17 +55,18 @@ export const sessionController = {
         }
     },
     terminateSession: async (req: Request, res: Response) => {
-        const { sessionId } = req.body;
+        const { userId } = req.body;
 
         try {
-            const session = await Session.findOne({ session_id: sessionId });
+            const session = await Session.findOne({ participants: userId, active: true });
 
-            if (!session || session.active === false) {
+            if (!session) {
                 return res.status(404).json({ message: 'Session not found' });
             }
 
             // Set active to false instead of deleting the session
             session.active = false;
+            await session.save(); // Save the updated session to persist the change
 
             res.status(200).json({ message: 'Session terminated successfully' });
         } catch (err) {

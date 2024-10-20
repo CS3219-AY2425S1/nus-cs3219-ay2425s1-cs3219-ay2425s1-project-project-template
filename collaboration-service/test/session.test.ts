@@ -37,7 +37,7 @@ describe('session related tests', () => {
             });
     });
 
-    test('user should be able to join room', (done) => {
+    test('checks that user is in an active session', (done) => {
         fetch(`http://localhost:${PORT}/api/session`, {
             method: 'POST',
             
@@ -57,4 +57,84 @@ describe('session related tests', () => {
                 done(err);
             });
     });
+
+    test('should not create another room if user is already in an active session', (done) => {
+        fetch(`http://localhost:${PORT}/api/session/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                participants: ['user1', 'user3'],
+                question: 'What is the meaning of life?',
+                code: 'console.log("Hello, World!");'
+            })
+        })
+            .then(res => {
+                expect(res.status).toBe(400);
+                done();
+            })
+            .catch(err => {
+                done(err);
+            });
+    });
+
+    test('should terminate a session', (done) => {
+        fetch(`http://localhost:${PORT}/api/session`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: 'user1'
+            })
+        })
+            .then(res => {
+                expect(res.status).toBe(200);
+                done();
+            })
+            .catch(err => {
+                done(err);
+            });
+    });
+
+    test('should now be able to create a new room', (done) => {
+        fetch(`http://localhost:${PORT}/api/session/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                participants: ['user1', 'user3'],
+                question: 'What is the meaning of life?',
+                code: 'console.log("Hello, World!");'
+            })
+        })
+            .then(res => {
+                expect(res.status).toBe(201);
+                done();
+                // Terminate session
+                fetch(`http://localhost:${PORT}/api/session`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: 'user1'
+                    })
+                })
+                    .then(res => {
+                        expect(res.status).toBe(200);
+                        done();
+                    })
+                    .catch(err => {
+                        done(err);
+                    }
+                );
+            })
+            .catch(err => {
+                done(err);
+            });
+    });
+
 });
