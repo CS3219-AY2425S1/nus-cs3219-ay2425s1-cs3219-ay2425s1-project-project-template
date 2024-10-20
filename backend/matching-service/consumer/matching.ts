@@ -39,11 +39,12 @@ const performMatching = async (
                     categories: commonCategories.join(','),
                     difficulty: bestMatch.difficulty
                 },
+                validateStatus: (status: number) => status >= 200 && status < 500
             },
         )
 
         if (res.status !== 200) {
-            logger.error('Error occurred when fetching question')
+            logger.error('Error occurred when fetching question for match')
             return null
         }
 

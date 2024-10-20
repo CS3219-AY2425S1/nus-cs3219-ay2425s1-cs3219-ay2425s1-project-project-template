@@ -21,12 +21,11 @@ const getRandomQuestion = async (req: Request, res: Response) => {
 
         const retrievedQuestions = await Question.find(filter)
 
-        if (!retrievedQuestions) {
+        if (!retrievedQuestions || retrievedQuestions.length === 0) {
             logger.error('No questions found')
             return res.status(400).json({ message: 'No questions found' })
         }
 
-        console.log(retrievedQuestions)
         const n = retrievedQuestions.length
         const randomIndex = Math.floor(Math.random() * n)
         const randomQuestion = retrievedQuestions[randomIndex]
