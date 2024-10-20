@@ -20,7 +20,6 @@ import {
   MATCH_WAITING_STATUS,
   MATCH_IDLE_STATUS,
 } from '@/lib/consts';
-import io from 'socket.io-client';
 
 // TODO: Request topics from Question Service
 const topics = ['Arrays', 'Strings', 'Linked Lists', 'Trees', 'Graphs'];
@@ -241,43 +240,50 @@ export default function DiscussRoute() {
   const [matchStatus, setMatchStatus] = React.useState('idle');
   const [queuePosition, setQueuePosition] = React.useState(0);
   const [roomId, setRoomId] = React.useState('');
+  const [userId, setUserId] = React.useState('');
+
+  const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const userId = 'user-' + Math.random().toString().split('.')[1];
-    const socket = io('http://localhost:8082', {
-      path: '/ws/matching',
-      transports: ['websocket'],
-      query: { userId },
-    });
-
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket');
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('Disconnected from WebSocket:', reason);
-      setMatchStatus(MATCH_ERROR_STATUS);
-    });
-
-    socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      setMatchStatus(MATCH_ERROR_STATUS);
-    });
-
-    socket.on('message', (data) => {
-      console.log('Received message:', data);
-      const message = JSON.parse(data);
-
+    // TODO: Include userId as a query parameter
+    // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a random user ID
+    // const userId = 'user-123'; // Use a fixed user ID for testing
+    ws.current = new WebSocket(`ws://localhost:8082/ws/matching?userId=${userId}`);
+  
+    ws.current.onopen = () => {
+      console.log('WebSocket Connected');
+    };
+  
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log('Received message:', message);
+  
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
       } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
         setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
-    });
+    };
+  
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setMatchStatus(MATCH_ERROR_STATUS);
+    };
 
+    ws.current.onclose = (event) => {
+      console.log('WebSocket closed:', event);
+      if (event.wasClean) {
+        console.log(`Closed cleanly, code=${event.code}, reason=${event.reason}`);
+      } else {
+        console.error('Connection died');
+      }
+    };
+  
     return () => {
-      socket.disconnect();
+      if (ws.current) {
+        ws.current.close();
+      }
     };
   }, []);
 
@@ -286,7 +292,10 @@ export default function DiscussRoute() {
     selectedDifficulty: string
   ) => {
     setMatchStatus(MATCH_WAITING_STATUS);
-
+  
+    // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a random user ID
+    // const userId = 'user-123'; // Use a fixed user ID for testing
+  
     try {
       const response = await fetch('http://localhost:8082/api/match', {
         method: 'POST',
@@ -294,27 +303,26 @@ export default function DiscussRoute() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // TODO: Replace with actual user ID
-          userId: 'user-' + Math.random().toString().split('.')[1], // Generate a random user ID
+          userId: userId,
           topic: selectedTopic,
           difficultyLevel: selectedDifficulty,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to start matching');
       }
-
+  
       const result = await response.json();
       console.log('Matching request sent:', result);
-
+  
       // Start a 30-second timeout
       const timeoutId = setTimeout(() => {
         if (matchStatus === MATCH_WAITING_STATUS) {
           setMatchStatus(MATCH_TIMEOUT_STATUS);
         }
       }, MATCH_TIMEOUT_DURATION);
-
+  
       // Clear the timeout if the component unmounts or if we get a match
       return () => clearTimeout(timeoutId);
     } catch (error) {
@@ -328,6 +336,38 @@ export default function DiscussRoute() {
     setMatchStatus(MATCH_IDLE_STATUS);
     setQueuePosition(0);
     setRoomId('');
+  
+    // Close existing WebSocket connection
+    if (ws.current) {
+      ws.current.close();
+    }
+  
+    // Open a new WebSocket connection
+    // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a new random user ID
+    // const userId = 'user-123'; // Use a fixed user ID for testing
+    ws.current = new WebSocket(`ws://localhost:8082/ws/matching?userId=${userId}`);
+  
+    // Re-attach event listeners
+    ws.current.onopen = () => {
+      console.log('WebSocket Reconnected');
+    };
+  
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log('Received message:', message);
+  
+      if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
+        setMatchStatus(MATCH_FOUND_STATUS);
+        setRoomId(message.roomId);
+      } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
+        setMatchStatus(MATCH_TIMEOUT_STATUS);
+      }
+    };
+  
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setMatchStatus(MATCH_ERROR_STATUS);
+    };
   };
 
   return (
