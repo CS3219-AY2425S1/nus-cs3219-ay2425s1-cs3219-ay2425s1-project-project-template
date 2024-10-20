@@ -81,6 +81,7 @@ export function AuthRegisterForm({ onSubmit }: AuthRegisterFormProps) {
                 <FormControl>
                   <Input type='password' placeholder='********' {...field} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -94,6 +95,7 @@ export function AuthRegisterForm({ onSubmit }: AuthRegisterFormProps) {
                 <FormControl>
                   <Input type='password' {...field} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
