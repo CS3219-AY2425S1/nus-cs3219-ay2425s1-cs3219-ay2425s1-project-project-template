@@ -30,7 +30,7 @@ import {
   Input
 } from "@chakra-ui/react";
 import { AtSignIcon, LinkIcon } from "@chakra-ui/icons";
-import { deleteUser, updateUser } from "@/services/userService";
+import { deleteUser, updateUser, logout } from "@/services/userService";
 import useAuth from "@/hooks/useAuth";
 
 export default function ProfilePage() {
@@ -92,7 +92,19 @@ export default function ProfilePage() {
       setUsername(newUsername);
       setEmail(newEmail);
       window.location.reload(); // This is a temporary fix to update the username in the navbar
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response.status === 409) {
+        toast.closeAll();
+        toast({
+          title: 'Error',
+          description: 'Username or email may already exists',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top'
+        });
+        return;
+      }
       toast.closeAll();
       toast({
         title: 'Error',
@@ -103,6 +115,10 @@ export default function ProfilePage() {
         position: 'top'
       });
     }
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -124,6 +140,7 @@ export default function ProfilePage() {
           </HStack>
           <Button backgroundColor='#38A169' color='#FFFFFF' margin='10px' onClick={() => setIsEdit(true)}>Edit Profile</Button>
           <Button colorScheme="red" margin='10px' onClick={() => setIsAlertOpen(true)}>Delete Profile</Button>
+          <Button colorScheme="blue" margin='10px' onClick={handleLogout}>Logout</Button>
 
           <AlertDialog
             isOpen={isAlertOpen}
