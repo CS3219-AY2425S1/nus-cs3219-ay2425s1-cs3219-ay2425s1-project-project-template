@@ -133,12 +133,14 @@ function parseInfoFromResponse(responseJson: MatchFoundResponse): MatchInfo {
             matchId: responseJson.matchId?.toString() ?? "unknown",
             partnerId: responseJson.partnerId?.toString() ?? "unknown",
             partnerName: responseJson.partnerName ?? "unknown",
+            myName: "unknown",
         };
     } else {
         return {
             matchId: responseJson.matchId?.toString() ?? "unknown",
             partnerId: "unknown",
             partnerName: responseJson.matchedUser ?? "unknown",
+            myName: responseJson.user ?? "unknown",
         };
     }
 }
