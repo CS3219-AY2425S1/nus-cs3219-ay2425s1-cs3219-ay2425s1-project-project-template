@@ -1,23 +1,17 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { Suspense, lazy } from 'react';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
 import './App.css';
+import './App.css';
+import AuthProvider from './hooks/AuthProvider';
+import Admin from './pages/Admin';
+import FilterSelection from './pages/FilterSelection';
 import Loading from './pages/Loading';
 
 const Landing = lazy(() => import('./pages/Landing'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Landing />,
-  },
-  {
-    path: '/dashboard',
-    element: <Dashboard />,
-  }
-]);
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -41,8 +35,17 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
-      <Suspense fallback={<Loading/>}>
-        <RouterProvider router={router} />
+      <Suspense fallback={<Loading />}>
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/select" element={<FilterSelection />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
       </Suspense>
     </MantineProvider>
   );

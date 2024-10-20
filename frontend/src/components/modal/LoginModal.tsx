@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Modal,
   PasswordInput,
@@ -9,6 +10,10 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { isEmail, isNotEmpty, useForm } from '@mantine/form';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { useState } from 'react';
+
+import { useAuth } from '../../hooks/AuthProvider';
 
 interface LoginModalProps {
   isLoginModalOpened: boolean;
@@ -21,6 +26,9 @@ function LoginModal({
   closeLoginModal,
   openSignUpModal,
 }: LoginModalProps) {
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const auth = useAuth();
+
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
@@ -33,19 +41,32 @@ function LoginModal({
     },
   });
 
-  const handleSignUpClick = () => {
+  const handleCloseLoginModal = () => {
+    form.reset();
+    setLoginError(null);
     closeLoginModal();
+  };
+
+  const handleLogInClick = (values: typeof form.values) => {
+    auth.loginAction(values, setLoginError);
+  };
+
+  const handleSignUpClick = () => {
+    handleCloseLoginModal();
     openSignUpModal();
   };
 
   return (
     <Modal
       opened={isLoginModalOpened}
-      onClose={closeLoginModal}
+      onClose={handleCloseLoginModal}
       withCloseButton={false}
       centered
+      overlayProps={{
+        blur: 4,
+      }}
     >
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <form onSubmit={form.onSubmit(handleLogInClick)}>
         <Stack p="16px">
           <Title order={3} ta="center">
             Login
@@ -60,6 +81,14 @@ function LoginModal({
             key={form.key('password')}
             placeholder="Password"
           />
+          {loginError && (
+            <Alert
+              variant="light"
+              title={loginError}
+              color="red"
+              icon={<IconAlertCircle />}
+            />
+          )}
           <Button type="submit">Log in</Button>
           <Text ta="center">
             Don't have an account yet?{' '}
