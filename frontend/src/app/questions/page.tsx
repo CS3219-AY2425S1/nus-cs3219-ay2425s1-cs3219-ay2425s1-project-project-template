@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import QuestionList from '@/components/QuestionList'
+import QuestionList from '@/components/questions/QuestionList'
 import { Loader2 } from 'lucide-react'
 
 
