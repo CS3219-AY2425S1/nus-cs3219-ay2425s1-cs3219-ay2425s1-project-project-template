@@ -5,9 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import StartSessionDialog from "./StartSessionDialog";
+import { io } from "socket.io-client";
+
+const socket = io('http://localhost:3232');
+
+interface CreateSessionDialogProps {
+  difficulty: string
+  topic: string
+  onClose: () => void
+}
 
 export default function CreateSessionDialog() {
   const { control, handleSubmit, watch, reset, formState: { errors } } = useForm({
@@ -21,13 +30,55 @@ export default function CreateSessionDialog() {
   const topic = watch('topic');
   const isFormValid = difficulty && topic;
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
-  const [timer, setTimer] = useState<number | null>(null);
+  const [timer, setTimer] = useState<NodeJS.Timeout  | null>(null);
   const [showMatchDialog, setShowMatchDialog] = useState(false);
   const [matchedUsers, setMatchedUsers] = useState<string[]>([]);
+  const [matchResult, setMatchResult] = useState(null);
 
   const handleCreateSession = () => {
-    //TODO
+    console.log('Creating Session:', { topic, difficulty });
+    const matchRequest = {
+      topic,
+      difficulty,
+      clientId: socket.id,
+    };
+
+    setStatus('loading');
+
+    console.log("statussss", status);
+
+    socket.emit('initMatch', matchRequest);
+    console.log('Match Request Sent:', matchRequest);
+
   };
+
+  useEffect(() => {
+    socket.on('matchResult', (result) => {
+      console.log('Match Result:', result);
+      setStatus('success');
+      setMatchResult(result);
+      clearTimeout(timeoutId);
+    });
+
+    console.log('status', status);
+
+    const timeoutId = setTimeout(() => {
+      console.log('Match result not received within 30 seconds');
+      setStatus('error');
+    }, 30000);
+
+    console.log('timeoutId', timeoutId);
+
+    if (status === 'error' || status === 'success') {
+      clearTimeout(timeoutId);
+    }
+
+    return () => {
+      socket.off('matchResult');
+      console.log('thissss', status);
+      clearTimeout(timeoutId);
+    };
+  }, [socket, status]);
 
   const handleCancel = () => {
     setStatus('idle');
@@ -41,9 +92,11 @@ export default function CreateSessionDialog() {
     });
   };
 
+  console.log('outsidee', status);
+
   return (
     <>
-    <Dialog>
+    <Dialog onOpenChange={handleCancel}>
       <DialogTrigger asChild>
         <Button>
           <PlusIcon className="w-4 h-4 mr-2" />
@@ -128,11 +181,18 @@ export default function CreateSessionDialog() {
         </div>}
       </DialogContent>
     </Dialog>
-    {showMatchDialog && (
+    {/* {showMatchDialog && (
       <StartSessionDialog
         isOpen={showMatchDialog}
         onClose={() => setShowMatchDialog(false)}
         matchedUsers={matchedUsers}
+      />
+    )} */}
+    {matchResult && (
+      <StartSessionDialog
+        isOpen={matchResult}
+        onClose={() => setMatchResult(null)}
+        matchedUsers={matchResult}
       />
     )}
     </>

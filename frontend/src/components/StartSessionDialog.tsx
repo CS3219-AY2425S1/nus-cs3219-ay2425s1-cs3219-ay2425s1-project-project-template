@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 interface StartSessionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  matchedUsers: string[];
+  // matchedUsers: string[];
+  matchedUsers: string;
 }
 
 const StartSessionDialog: React.FC<StartSessionDialogProps> = ({ isOpen, onClose, matchedUsers }) => {
@@ -19,7 +20,8 @@ const StartSessionDialog: React.FC<StartSessionDialogProps> = ({ isOpen, onClose
           <DialogDescription>Match found! Ready to start your session?</DialogDescription>
         </DialogHeader>
         <div>
-          <p>Matched with: {matchedUsers.join(", ")}</p>
+          {/* <p>Matched with: {matchedUsers.join(", ")}</p> */}
+          <p>Matched with: {matchedUsers}</p>
         </div>
         <DialogFooter>
           <Button>Start Session</Button>
