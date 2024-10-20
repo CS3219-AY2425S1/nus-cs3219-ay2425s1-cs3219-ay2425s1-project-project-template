@@ -38,7 +38,7 @@ export function joinRoomWhenReady(
   const user1 = socket1.data.user;
   const user2 = socket2.data.user;
 
-  createRoom(roomId, selectedTopic, selectedDifficulty, [user1, user2]);
+  createRoom(selectedTopic, selectedDifficulty, [user1, user2]);
 
   console.log(
     `Paired ${socket1.data.user.username} and ${socket2.data.user.username} in room ${roomId}`

@@ -40,7 +40,6 @@ interface IRoom extends Document {
 
 // Now, let's create the Mongoose schema
 const RoomSchema: Schema = new Schema({
-  _id: { type: String },
   users: { type: [String], required: true },
   topic: String,
   difficulty: { type: String, enum: DifficultyLevel },
