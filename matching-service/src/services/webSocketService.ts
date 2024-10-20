@@ -117,14 +117,10 @@ class WebSocketService {
     this.clients.delete(userId);
     // Remove any pending notifications for this user
     this.pendingNotifications.delete(userId);
-    // TODO: Implement logic to remove the user from Redis queues
     this.removeUserFromQueues(userId);
   }
 
   private async removeUserFromQueues(userId: string) {
-    // This method should remove the user from all Redis queues
-    // You'll need to implement this logic based on your Redis structure
-    // For example:
     const allTopics = await redisClient.keys("topic:*");
     const allDifficulties = await redisClient.keys("difficulty:*");
 
