@@ -17,7 +17,7 @@ import {
 import {
 	LANGUAGE_VERSIONS,
 	CODE_SNIPPETS,
-} from "../services/CodeEditorService";
+} from "../lib/CodeEditorUtil";
 
 const customQuestion: Question = {
 	id: "q123",
