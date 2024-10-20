@@ -113,7 +113,7 @@ function MatchingModal({
       interval = setInterval(() => {
         timerRef.current += 1;
         setDisplayTimer(timerRef.current);
-        if (timerRef.current >= 10) {
+        if (timerRef.current >= 180) {
           handleTimeout();
         }
       }, 1000);
