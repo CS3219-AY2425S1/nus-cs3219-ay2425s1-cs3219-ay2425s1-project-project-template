@@ -79,6 +79,7 @@ export class Queue implements IQueue {
 
     // check if user already exists in queue
     if (this.checkIfUserExists(request.username)) {
+      console.error("User already exists in the queue");
       return {
         success: false,
       };
@@ -91,6 +92,7 @@ export class Queue implements IQueue {
       () => {
         success = true;
         this.onAddRequestSuccess(request);
+        console.log(`User: ${request.username} has been added to the queue.`);
       },
       (error) => {
         console.error("Error sending message: ", error);
