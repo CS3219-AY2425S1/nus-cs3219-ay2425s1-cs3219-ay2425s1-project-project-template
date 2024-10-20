@@ -119,7 +119,6 @@
 
 .join-match-button {
   background-color: #28A745;
-  cursor: not-allowed // TODO: remove when collaboration service is implemented
 }
 
 .join-match-button:hover {
@@ -227,13 +226,4 @@ button:disabled, .joined-match-deactivated-button {
   width: 60px;
   height: 60px; 
   fill: #463F3A;
-}
-
-.user-caption {
-  display: flex;
-  justify-content: center;
-}
-
-.avatar-caption-container {
-  width: 64px;
 }

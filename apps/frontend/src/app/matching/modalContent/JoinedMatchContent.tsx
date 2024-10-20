@@ -13,9 +13,11 @@ import { formatTime } from '@/utils/DateTime';
 
 interface Props {
     cancel(): void
+    name1: string, // user's username
+    name2: string, // matched user's username
 }
 
-const JoinedMatchContent: React.FC<Props> = ({cancel}) => {
+const JoinedMatchContent: React.FC<Props> = ({cancel, name1: me, name2: you}) => {
     const matchAlreadyJoined = () => {
         throw new Error('Match already joined.');
     }
@@ -23,7 +25,10 @@ const JoinedMatchContent: React.FC<Props> = ({cancel}) => {
     return (
         <div className="joined-match-content">
             <div className="matched-profiles">
-                <Avatar size={64} icon={<UserOutlined />} />
+                <div className="avatar-caption-container">
+                    <Avatar size={64} icon={<UserOutlined />} />
+                    <div className="user-caption">{me}</div>
+                </div>
                 <svg xmlns="http://www.w3.org/2000/svg" 
                     height="24px" 
                     viewBox="0 -960 960 960" 
@@ -33,7 +38,10 @@ const JoinedMatchContent: React.FC<Props> = ({cancel}) => {
                 >
                     <path d="m422-232 207-248H469l29-227-185 267h139l-30 208ZM320-80l40-280H160l360-520h80l-40 320h240L400-80h-80Zm151-390Z"/>
                 </svg>
-                <Avatar size={64} icon={<UserOutlined />} />
+                <div className="avatar-caption-container">
+                    <Avatar size={64} icon={<UserOutlined />} />
+                    <div className="user-caption">{you}</div>
+                </div>
             </div>
             <div className="match-status-label">Match Found!</div>
             <div className="match-status-message">

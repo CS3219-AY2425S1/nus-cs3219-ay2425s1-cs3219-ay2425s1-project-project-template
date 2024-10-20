@@ -28,3 +28,7 @@ button:hover {
 button:active {
   transform: scale(0.95);
 }
+
+button:disabled:active {
+  transform: scale(1);
+}

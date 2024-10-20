@@ -6,6 +6,7 @@ export type SocketState = {
     state: "cancelling" | "starting"
 } | {
     state: "closed";
+    info: MatchInfo | null;
     start(req: MatchRequestParams): void;
 } | {
     state: "matching";
