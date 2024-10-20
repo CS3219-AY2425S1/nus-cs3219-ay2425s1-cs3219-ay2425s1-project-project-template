@@ -47,9 +47,13 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                             canceledIn={timeoutAfter}
                         />;
                     case "joined":
-                        return <JoinedMatchContent cancel={() => {
+                        return <JoinedMatchContent 
+                        cancel={() => {
                             setClosedType("cancelled");
-                        }}/>;
+                        }}
+                            name1={matchingState.info?.myName || ""}
+                            name2={matchingState.info?.partnerName || ""}
+                        />;
                 }
             case 'matching':
                 return <MatchingInProgressContent 
