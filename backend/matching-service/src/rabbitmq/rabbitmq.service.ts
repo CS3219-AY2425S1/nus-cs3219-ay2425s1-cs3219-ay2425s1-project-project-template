@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly eventEmitter: EventEmitter2) {}
+  constructor(private readonly eventEmitter: EventEmitter2) { }
   private readonly matchBuffer: Record<string, any[]> = {};
   private readonly connectedUsers: Set<string> = new Set();
   private readonly queueName = 'matching_queue';
@@ -154,16 +154,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     } else {
       this.unmatchedRequests[matchingKey] = userRequest;
       console.log(`No match found for user ${email}, waiting for a match...`);
-
-      setTimeout(() => {
-        if (
-          this.unmatchedRequests[matchingKey] &&
-          this.unmatchedRequests[matchingKey].userId === email
-        ) {
-          console.log(`No match found for user ${email}, timing out.`);
-          delete this.unmatchedRequests[matchingKey];
-        }
-      }, 60000);
     }
   }
 
