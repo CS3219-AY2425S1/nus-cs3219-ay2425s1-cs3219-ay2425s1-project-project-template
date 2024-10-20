@@ -4,6 +4,7 @@ import { Observable } from "rxjs"
 
 const userJson = sessionStorage.getItem("userData")
 const token = userJson !== null ? JSON.parse(userJson).data.accessToken : ""
+
 const headers = new HttpHeaders({
   Authorization: `Bearer ${token}`
 })
@@ -40,4 +41,5 @@ export class UserService {
   getUser(id: string): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${id}`, { headers });
   }
+
 }

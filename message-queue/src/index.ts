@@ -24,7 +24,7 @@ const connectRabbitMQ = async () => {
     console.log(amqpServer)
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
-    await channel.assertExchange(EXCHANGE, "topic", { durable: false })
+    await channel.assertExchange(EXCHANGE, "topic", { durable: true })
     console.log("Connected to RabbitMQ")
   } catch (err) {
     console.error(err)
@@ -358,6 +358,7 @@ app.post("/match", async (req: Request, res: Response) => {
     }
 
     console.log("SUCCESSFUL MATCH: " + response.matchedUsers)
+    console.log("TIMEOUT: " + response.timeout)
 
     // Timeout, cannot find match; assumes matchedUsers.length != 2
     res.json(response)
