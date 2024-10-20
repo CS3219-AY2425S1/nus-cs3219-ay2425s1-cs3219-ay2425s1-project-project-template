@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import userRoutes from "./api/routes/userRoutes";
 import questionRoutes from "./api/routes/questionRoutes";
+import matchingRoutes from "./api/routes/matchingRoutes";
 import { authenticateToken } from "./utility/jwtHelper";
 import initializeSocketHandler from "./api/routes/socketRoutes";
 import http from "http";
@@ -38,6 +39,7 @@ app.use(logRequestTimestamp);
 app.use("/auth", userRoutes);
 app.use(authenticateToken);
 app.use("/api/questions", questionRoutes);
+app.use("/", matchingRoutes);
 
 // Basic route for testing
 app.get("/", (req, res) => {

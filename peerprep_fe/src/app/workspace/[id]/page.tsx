@@ -9,7 +9,12 @@ import Chat from "@/components/workspace/chat";
 import Problem from "@/components/workspace/problem";
 import CodeEditor from "@/components/workspace/code-editor";
 
-type WorkspaceProps = {};
+type WorkspaceProps = {
+  params: {
+    id: string;
+    // Other properties
+  };
+};
 
 const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
   const router = useRouter();

@@ -14,6 +14,7 @@ import {
 } from "peerprep-shared-types";
 import mongoose from "mongoose";
 import { sendMessage } from "./utility/socketHelper";
+import { RoomModel } from "./models/Room";
 
 dotenv.config();
 
@@ -40,6 +41,19 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Matching Service is running!");
+});
+
+// Get a room by ID
+app.get("/room/:id", async (req, res) => {
+  try {
+    const room = await RoomModel.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    res.json(room);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching question", error });
+  }
 });
 
 server.listen(port, () => {
