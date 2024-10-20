@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Modal,
   PasswordInput,
@@ -9,6 +10,8 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { isEmail, isNotEmpty, matchesField, useForm } from '@mantine/form';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { useState } from 'react';
 
 interface SignUpModalProps {
   isSignUpModalOpened: boolean;
@@ -21,6 +24,8 @@ function SignUpModal({
   closeSignUpModal,
   openLoginModal,
 }: SignUpModalProps) {
+  const [signUpError, setSignUpError] = useState<string | null>(null);
+
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
@@ -35,15 +40,21 @@ function SignUpModal({
     },
   });
 
-  const handleLogInClick = () => {
+  const handleCloseSignUpModal = () => {
+    form.reset();
+    setSignUpError(null);
     closeSignUpModal();
+  };
+
+  const handleLogInClick = () => {
+    handleCloseSignUpModal();
     openLoginModal();
   };
 
   return (
     <Modal
       opened={isSignUpModalOpened}
-      onClose={closeSignUpModal}
+      onClose={handleCloseSignUpModal}
       withCloseButton={false}
       centered
       overlayProps={{
@@ -70,6 +81,14 @@ function SignUpModal({
             key={form.key('passwordConfirmation')}
             placeholder="Confirm password"
           />
+          {signUpError && (
+            <Alert
+              variant="light"
+              title={signUpError}
+              color="red"
+              icon={<IconAlertCircle />}
+            />
+          )}
           <Button type="submit">Sign up</Button>
           <Text ta="center">
             Already have an account?{' '}
