@@ -43,6 +43,8 @@ services:
     image: node:18-alpine
     container_name: 'rabbitmq'
     working_dir: /app
+    environment:
+      - AMQP_SERVER=amqps://lguugvwb:UtQY1D0zOoX8s0ZvR4GunuRDk0xv8UuI@octopus.rmq3.cloudamqp.com/lguugvwb
     env_file:
       - ./message-queue/.env
     volumes:
