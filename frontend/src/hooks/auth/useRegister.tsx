@@ -2,6 +2,9 @@ import { BACKEND_URL_USERS } from '@/lib/common';
 import { RegisterUser } from '@/types/auth';
 import { useMutation } from '@tanstack/react-query';
 
+export class RegisterUsernameAlreadyTakenError extends Error {}
+export class RegisterEmailAlreadyExistsError extends Error {}
+
 /**
  * Register a new user
  */
@@ -23,6 +26,13 @@ export function useRegister() {
       });
 
       if (!response.ok) {
+        const errorMessage = await response.text();
+        if (errorMessage.toLowerCase().includes('username already exists')) {
+          throw new RegisterUsernameAlreadyTakenError();
+        }
+        if (errorMessage.toLowerCase().includes('email already exists')) {
+          throw new RegisterEmailAlreadyExistsError();
+        }
         throw new Error('Failed to register user');
       }
 

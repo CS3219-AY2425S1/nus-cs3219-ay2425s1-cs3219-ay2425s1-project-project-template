@@ -8,7 +8,7 @@ export const RegisterUserSchema = z
       .min(8)
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/,
-        'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character'
+        'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character. Special characters include @ $ ! % * ? &'
       ),
     confirmPassword: z.string().min(8),
     username: z.string(),

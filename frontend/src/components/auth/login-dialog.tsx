@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UnverifiedAccountError, useLogin } from '@/hooks/auth/useLogin';
-import { useRegister } from '@/hooks/auth/useRegister';
+import { RegisterEmailAlreadyExistsError, RegisterUsernameAlreadyTakenError, useRegister } from '@/hooks/auth/useRegister';
 import {
   useResendVerificationCode,
   useVerifySignup,
@@ -62,8 +62,14 @@ export default function LoginDialog() {
       setIsAwaitingEmailVerification(data.email);
       setInitialCodeSentAt(Date.now());
     } catch (error) {
-      console.error('Signup failed:', error);
-      toast.error('Signup failed');
+      if (error instanceof RegisterUsernameAlreadyTakenError) {
+        toast.error('Username already taken');
+      } else if (error instanceof RegisterEmailAlreadyExistsError) {
+        toast.error('Email already exists');
+      } else {
+        console.error('Signup failed:', error);
+        toast.error('Signup failed');
+      }
     }
   };
 
