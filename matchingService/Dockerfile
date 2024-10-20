@@ -13,8 +13,8 @@ RUN npm install -g typescript
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
-# Install dependencies.
-RUN npm ci --omit=dev
+# Install all dependencies, including dev dependencies.
+RUN npm ci
 
 # Copy the rest of the source files into the image.
 COPY . .
