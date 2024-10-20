@@ -5,7 +5,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_USER_API_URL;
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await axios.post(`${BASE_URL}/auth/login`, { email, password });
-    return response.data; // accessToken + user data
+    return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error message:", error.message);
@@ -33,7 +33,7 @@ export const verifyToken = async (token: string) => {
     const response = await axios.get(`${BASE_URL}/auth/verify-token`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data; // returns the user info
+    return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error message:", error.message);
@@ -42,3 +42,13 @@ export const verifyToken = async (token: string) => {
     }
   }
 };
+
+
+export const updateUser = async (userId: string, token: string, data: { username: string, email: string }) => {
+  const response = await axios.patch(`http://localhost:3001/users/${userId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response
+}
