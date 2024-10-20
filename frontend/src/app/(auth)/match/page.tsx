@@ -226,6 +226,15 @@ const FindPeer = () => {
       return;
     }
 
+    if (!CURRENT_USER) {
+      Swal.fire(
+        "Error",
+        "What did you do... Why did you delete the cookie??",
+        "error"
+      );
+      return;
+    }
+
     client.publish({
       destination: "/app/matchRequest",
       body: JSON.stringify(userMatchRequest),
