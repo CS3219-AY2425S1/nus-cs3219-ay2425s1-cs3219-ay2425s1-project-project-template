@@ -24,7 +24,7 @@ export async function addUserToQueue(userData, socket) {
         userNumber: 0,
       },
       {
-        attempts: 6,
+        attempts: 7,
         backoff: {
           type: "fixed",
           delay: 10000,

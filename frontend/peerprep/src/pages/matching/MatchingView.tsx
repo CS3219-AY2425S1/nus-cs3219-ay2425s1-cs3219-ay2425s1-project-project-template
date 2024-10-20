@@ -6,13 +6,13 @@ import { io, Socket } from "socket.io-client";
 import { useUserContext } from "../../context/UserContext";
 
 const MatchingView: React.FC = () => {
-
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); 
-  const [isMatched, setIsMatched] = useState<boolean>(false); 
-  const [isTimeout, setIsTimeout] = useState<boolean>(false); 
+  const [queueStatus, setQueueStatus] = useState<string>("loading"); // loading, matched, timeout
+  // const [isMatched, setIsMatched] = useState<boolean>(false);
+  // const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const [elapsedTime, setElapsedTime] = useState<number>(0); // Track elapsed time
+  const [status, setStatus] = useState<string>("");
 
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic");
@@ -23,24 +23,36 @@ const MatchingView: React.FC = () => {
   const timerRef = useRef<number | null>(null);
 
   // Timeout handler
-  const handleTimeout = (timeTaken: number) => {
-    setElapsedTime(timeTaken); // Capture the elapsed time
-    setIsLoading(false);
-    setIsTimeout(true); // Trigger timeout logic when time runs out
-  };
+  // const handleTimeout = (timeTaken: number) => {
+  //   setElapsedTime(timeTaken); // Capture the elapsed time
+  //   setIsLoading(false);
+  //   // setIsTimeout(true); // Trigger timeout logic when time runs out
+  // };
 
   // Success handler for match found
   const handleMatchFound = (room: string) => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current); // Stop the timer if a match is found
-    }
-    setIsLoading(false);
-    setIsMatched(true); // Set match status
+    setQueueStatus("matched");
+    // setIsMatched(true); // Set match status
     setTimeout(() => {
       // Redirect to the collaboration room
-      navigate(`/collaboration?topic=${topic}&difficulty=${difficulty}&room=${room}`);
-
+      navigate(
+        `/collaboration?topic=${topic}&difficulty=${difficulty}&room=${room}`
+      );
     }, 1000);
+  };
+
+  const handleStartTimer = () => {
+    timerRef.current = window.setInterval(() => {
+      setElapsedTime((prevTime) => prevTime + 1);
+    }, 1000);
+  };
+
+  const handleStopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    setElapsedTime(0);
   };
 
   useEffect(() => {
@@ -48,6 +60,8 @@ const MatchingView: React.FC = () => {
       navigate("/dashboard");
       return;
     }
+
+    setStatus("Starting Ccnnection...");
 
     // Initialize the WebSocket connection
     socketRef.current = io("http://localhost:3000/");
@@ -58,7 +72,6 @@ const MatchingView: React.FC = () => {
     }
 
     // Start the loading and matching process
-    setIsLoading(true);
 
     // Start a timer that increments every second
     // timerRef.current = window.setInterval(() => {
@@ -67,8 +80,8 @@ const MatchingView: React.FC = () => {
 
     // Join the queue when connected
     socket.on("connect", () => {
-      console.log(user)
-      console.log("Socket connected:", socket.id);
+      setStatus("Connected to the server, joining queue...");
+
       socket.emit("joinQueue", {
         username: user.username,
         topic: topic,
@@ -76,19 +89,35 @@ const MatchingView: React.FC = () => {
       });
     });
 
+    // Listen for a queueEntered event from the server
+    socket.on("queueEntered", (data: { message: string }) => {
+      console.log("queue entered", data);
+      setStatus(data.message);
+      // set timer
+      handleStartTimer();
+    });
+
     // Listen for a match success from the server
-    socket.on("matched", (data: { room: string }) => {
+    socket.on("matched", (data: { message: string; room: string }) => {
       console.log("Matched and assigned to room:", data.room);
+      setStatus(data.message);
+
+      handleStopTimer();
       handleMatchFound(data.room); // Handle match found with the room name
     });
 
     // Listen for a match failure from the server
     socket.on("matchFailed", (data: { error: string }) => {
       console.log("Match failed:", data.error);
-      if (timerRef.current) {
-        clearInterval(timerRef.current); // Stop the timer on failure
-        handleTimeout(elapsedTime); // Call handleTimeout with the elapsed time
-      }
+      setStatus(data.error);
+      setQueueStatus("timeout");
+
+      handleStopTimer();
+
+      // if (timerRef.current) {
+      //   clearInterval(timerRef.current); // Stop the timer on failure
+      //   handleTimeout(elapsedTime); // Call handleTimeout with the elapsed time
+      // }
     });
 
     return () => {
@@ -99,7 +128,7 @@ const MatchingView: React.FC = () => {
         clearInterval(timerRef.current); // Clean up the timer
       }
     };
-  }, [topic, difficulty, user, navigate, elapsedTime]); // Add elapsedTime to dependencies
+  }, []); // Add elapsedTime to dependencies
 
   return (
     <Box
@@ -119,33 +148,51 @@ const MatchingView: React.FC = () => {
         Selected Difficulty: {difficulty}
       </Text>
 
-      <Timer
-        timeLimit={60}
-        onTimeout={handleTimeout}
-        onMatchFound={() => {}}
-        isMatched={isMatched}
-      />
+      <Timer elapsedTime={elapsedTime} />
 
-      {isLoading && (
+      {queueStatus === "loading" && (
         <Box textAlign="center" mt={4}>
           <Spinner size="xl" color="purple.600" />
-          <Text fontSize="lg" mt={2}>Matching in progress...</Text>
-          <Button mt={4} colorScheme="red" onClick={() => navigate("/dashboard")}>
+          <Text fontSize="lg" mt={2}>
+            Matching in progress... Do not refresh page!
+          </Text>
+          <Text fontSize="lg" mt={2}>
+            Status: {status}
+          </Text>
+          <Button
+            mt={4}
+            colorScheme="red"
+            onClick={() => navigate("/dashboard")}
+          >
             Cancel
           </Button>
         </Box>
       )}
 
-      {isMatched && (
-        <Box textAlign="center" mt={4} bg="green.600" p={4} borderRadius="md" color="white">
+      {queueStatus === "matched" && (
+        <Box
+          textAlign="center"
+          mt={4}
+          bg="green.600"
+          p={4}
+          borderRadius="md"
+          color="white"
+        >
           <Text fontSize="lg" fontWeight="bold">
             Successfully matched! Redirecting...
           </Text>
         </Box>
       )}
 
-      {isTimeout && !isMatched && (
-        <Box textAlign="center" mt={4} bg="red.600" p={4} borderRadius="md" color="white">
+      {queueStatus === "timeout" && (
+        <Box
+          textAlign="center"
+          mt={4}
+          bg="red.600"
+          p={4}
+          borderRadius="md"
+          color="white"
+        >
           <Text fontSize="lg" fontWeight="bold">
             Failed to find a match in {elapsedTime} seconds!
           </Text>
