@@ -30,10 +30,11 @@ services:
         environment:
             - NODE_ENV=development
             - PORT=3006
-            - DB_URL=mongodb://user-db:27017/user-service
+            - DB_URL=mongodb://matching-db:27017/matching-service
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
             - RMQ_HOST=${RMQ_HOST}
