@@ -20,7 +20,7 @@ const LoginPage = () => {
     try {
       const res = await loginUser(email, password);
       localStorage.setItem("token", res.data.accessToken); 
-      router.push("./questions");
+      router.push("./sessions");
     } catch (error: any) {
       toast.error(error.message || "Unable to login. Please check your credentials.");
     } finally {

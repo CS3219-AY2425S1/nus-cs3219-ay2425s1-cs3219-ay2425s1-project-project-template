@@ -35,7 +35,6 @@ export default function QuestionList({ questionsPromise}: QuestionListProps) {
       const fetchUserData = async () => {
         const token = localStorage.getItem('token')
         if (!token) {
-          toast.error('Unauthorized access, please login!')
           router.push('/login')
           return
         }
