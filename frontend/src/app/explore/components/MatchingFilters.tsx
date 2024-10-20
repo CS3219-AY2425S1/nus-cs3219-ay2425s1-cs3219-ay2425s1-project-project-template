@@ -19,7 +19,7 @@ import { io, Socket } from 'socket.io-client';
 const MatchingFilters = () => {
     const socketRef = useRef<Socket | null>(null);
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
-    const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
+    const [selectedDifficulty, setSelectedDifficulty] = useState<string>();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -158,7 +158,7 @@ const MatchingFilters = () => {
                 </div> */}
                 <div className='w-1/3'>
                     <Label>Difficulty</Label>
-                    <Select>
+                    <Select onValueChange={(value:string) => setSelectedDifficulty(value)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a difficulty" />
                         </SelectTrigger>
