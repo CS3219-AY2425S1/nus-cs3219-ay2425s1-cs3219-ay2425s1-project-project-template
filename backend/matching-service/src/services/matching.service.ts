@@ -69,12 +69,17 @@ export class MatchingService implements OnModuleInit {
     // Consume message loop
     await this.consumeMessages();
 
-    this.intervalId = setInterval(() => {
+    this.intervalId = setInterval(async () => {
       const currentTime = Date.now();
-      // console.log(`Cleaning request queue for timeout at ${currentTime}`);
       // only keep expiry more than currentTime
-      this.requestQueue.clean((userEntry) => userEntry.expiryTime > currentTime);
+      var cleanedEntry = await this.requestQueue.clean((userEntry) => userEntry.expiryTime <= currentTime);
       console.log(`Current queue size is: ${this.requestQueue.size()}`)
+      for (let entry of cleanedEntry) {
+        if (this.userPool[entry.userId] === entry) {
+          this.removeFromUserPool(entry.userId);
+        }
+        // else might be updated already
+      }
     }, this.CLEAN_TIMEOUT);
   }
 
@@ -234,11 +239,10 @@ export class MatchingService implements OnModuleInit {
         return this.matchTopics(userInQueue.topic, kafkaTopic)
           && userInQueue.status == MatchStatus.PENDING // Ensure the user is waiting for a match
           && userInQueue.userId !== requesterUserId
+          && userInQueue.expiryTime >= currTime // give some leeway
       })
-      var existingMatch: string | undefined = undefined;
-      if (matchingUser) {
-        existingMatch = matchingUser.userId;
-      }
+
+      var existingMatch: string | undefined = matchingUser ? matchingUser.userId : undefined;
 
       if (existingMatch) {
         // Pair the users if match is found
@@ -272,6 +276,7 @@ export class MatchingService implements OnModuleInit {
           expiryTime: matchRequest.expiryTime,
         }
         await this.requestQueue.enqueue(userEntry)
+        // No need to insert first?
         this.userPool[requesterUserId] = userEntry
       }
   }
@@ -290,8 +295,8 @@ export class MatchingService implements OnModuleInit {
       console.log(`Cannot cancel. Match already found for ${requesterUserId}`);
       return;
     } else {
-      // removes from queue if exists
-      this.requestQueue.retrieve((userEntry: UserEntry) =>  userEntry.userId === requesterUserId);
+      // removes all instances (though only 1 should exist)
+      this.requestQueue.clean((userEntry: UserEntry) =>  userEntry.userId === requesterUserId);
       this.removeFromUserPool(requesterUserId);
       console.log(`Match request cancelled for ${requesterUserId} in topic: ${topic}`);
     }

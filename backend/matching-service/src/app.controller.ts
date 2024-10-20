@@ -58,13 +58,10 @@ export class AppController {
       // Once a successful match request is found, remove the user from the pool
       this.matchService.removeFromUserPool(userId);
       return res.status(200).json(match);
-    } else if (match && match.status === MatchStatus.CANCELLED) {
-      // Once a match request is cancelled, remove the user from the pool
-      this.matchService.removeFromUserPool(userId);
-      return res.status(202).json(match);
     } else if (match) {
       return res.status(202).json(match);
     } else {
+      // If cancelled or not found will end up here
       return res.status(404).json({ status: "NONE", message: 'No match requests found for this user.' });
     }
   }

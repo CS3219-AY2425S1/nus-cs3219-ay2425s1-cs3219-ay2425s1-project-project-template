@@ -4,11 +4,13 @@ export class Queue<T> {
     private items: T[] = [];
     private mutex: Mutex = new Mutex();
 
-    async clean(predicate: (item: T) => boolean): Promise<void> {
+    async clean(predicate: (item: T) => boolean): Promise<T[]> {
         // higher priority
         const release = await this.mutex.acquire(1);
         try {
-            this.items = this.items.filter(obj => predicate(obj));
+            var filtered = this.items.filter(obj => predicate(obj));
+            this.items = this.items.filter(obj => !predicate(obj));
+            return filtered;
         } finally {
             release();
         } 
