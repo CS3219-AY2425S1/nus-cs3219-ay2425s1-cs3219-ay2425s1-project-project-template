@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"matching-service/handlers"
@@ -10,7 +9,6 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -19,15 +17,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("err loading: %v", err)
 	}
-	
+
 	// Setup redis client
 	processes.SetupRedisClient()
 
 	// Run a goroutine that matches users
-	
+
 	// Routes
 	http.HandleFunc("/match", handlers.HandleWebSocketConnections)
-	
+
 	// Start the server
 	port := os.Getenv("PORT")
 	log.Println(fmt.Sprintf("Server starting on :%s", port))
