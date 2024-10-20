@@ -15,18 +15,8 @@ export const cancelMatchRequestController = async (req: Request, res: Response) 
     }
 
     // Check pending status using only userId
-    const exists = await redisClient.exists(`match:${userId}`);
-
-    if (exists) {
-      console.log(`Redis key for user ${userId} exists.`);
-    } else {
-      console.error(`Redis key for user ${userId} does NOT exist!`);
-    }
-
     const pendingStatus = await redisClient.hGet(`match:${userId}`, 'pending');
-    console.log('this is pendingStatus ${pendingStatus}');
-    const data = await redisClient.hGetAll(`match:${userId}`);
-    console.log(`Data stored in Redis for user ${userId}:`, data);
+    console.log(pendingStatus);
 
     if (pendingStatus === 'true') {
       // Allow cancellation and remove from queue based on userId
