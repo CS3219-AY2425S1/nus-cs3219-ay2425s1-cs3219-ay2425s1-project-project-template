@@ -11,8 +11,8 @@ export async function connectToDB() {
   await connect(mongoDBUri);
 }
 
-export async function createUser(username, email, password) {
-  return new UserModel({ username, email, password }).save();
+export async function createUser(firstName, lastName, username, email, password) {
+  return new UserModel({ firstName, lastName, username, email, password }).save();
 }
 
 export async function findUserByEmail(email) {
@@ -45,6 +45,8 @@ export async function updateUserById(userId, username, email, password) {
     userId,
     {
       $set: {
+        firstName,
+        lastName,
         username,
         email,
         password,

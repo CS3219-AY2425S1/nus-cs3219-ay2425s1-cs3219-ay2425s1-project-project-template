@@ -1,8 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
-import userRoutes from './routes/user-routes.js';
-import authRoutes from './routes/auth-routes.js';
+import matchRoutes from './routes/match-routes.js';
 
 const app = express();
 
@@ -30,13 +29,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/users', userRoutes);
-app.use('/auth', authRoutes);
+app.use('/match', matchRoutes);
 
 app.get('/', (req, res, next) => {
   console.log('Sending Greetings!');
   res.json({
-    message: 'Hello World from user-service',
+    message: 'Hello World from matching-service',
   });
 });
 
