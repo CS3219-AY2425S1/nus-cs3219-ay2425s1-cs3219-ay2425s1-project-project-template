@@ -44,3 +44,30 @@ export type IChildProcessMessage = {
   event: IMatchEvent;
   message?: unknown;
 };
+export type IMatchType = 'difficulty' | 'topic' | 'exact match' | undefined;
+
+export interface IServiceResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: { message: string };
+}
+
+export interface IQuestion {
+  id: number;
+  title: string;
+  description: string;
+  difficulty: string;
+  topic: string[];
+}
+
+export interface IGetRandomQuestionPayload {
+  attemptedQuestions: number[];
+  difficulty?: string;
+  topic?: string;
+}
+
+export interface IMatchItemsResponse {
+  roomName: string;
+  questionId: number;
+  question: IQuestion;
+}

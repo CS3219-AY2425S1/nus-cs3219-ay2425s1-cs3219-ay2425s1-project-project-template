@@ -2,6 +2,7 @@ import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
+import { IMatchType } from '@/types';
 import { MATCHING_EVENT } from '@/ws/events';
 
 import { connectClient, sendNotif } from './common';
@@ -41,7 +42,9 @@ async function processMatch(
   redisClient: typeof client,
   { requestorUserId, requestorStreamId, requestorSocketPort }: RequestorParams,
   matches: Awaited<ReturnType<(typeof client)['ft']['search']>>,
-  searchIdentifier?: string
+  searchIdentifier?: IMatchType,
+  topic?: string,
+  difficulty?: string
 ) {
   if (matches.total > 0) {
     for (const matched of matches.documents) {
@@ -70,10 +73,17 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = getMatchItems({ userId1: requestorUserId, userId2: matchedUserId });
+      const { ...matchItems } = await getMatchItems(
+        searchIdentifier,
+        topic,
+        difficulty,
+        requestorUserId,
+        matchedUserId
+      );
+      logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
 
-      sendNotif([matchedSocketPort, requestorSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
-      sendNotif([matchedSocketPort, requestorSocketPort], MATCHING_EVENT.DISCONNECT);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.DISCONNECT);
 
       await logQueueStatus(logger, redisClient, `Queue Status After Matching: <PLACEHOLDER>`);
       return true;
@@ -86,6 +96,7 @@ async function processMatch(
 
 async function match() {
   const redisClient = await connectClient(client);
+
   const stream = await redisClient.xReadGroup(
     STREAM_GROUP,
     STREAM_WORKER,
@@ -143,7 +154,9 @@ async function match() {
         redisClient,
         requestorParams,
         exactMatches,
-        'exact match'
+        'exact match',
+        topic,
+        difficulty
       );
 
       if (exactMatchFound || !topic || !difficulty) {
@@ -161,7 +174,9 @@ async function match() {
         redisClient,
         requestorParams,
         topicMatches,
-        'topic'
+        'topic',
+        topic,
+        difficulty
       );
 
       if (topicMatchFound) {
@@ -178,7 +193,9 @@ async function match() {
         redisClient,
         requestorParams,
         difficultyMatches,
-        'difficulty'
+        'difficulty',
+        topic,
+        difficulty
       );
 
       if (!hasDifficultyMatch) {
