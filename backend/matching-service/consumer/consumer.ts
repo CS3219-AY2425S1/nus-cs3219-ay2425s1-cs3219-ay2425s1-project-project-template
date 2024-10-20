@@ -6,8 +6,11 @@ import logger from '../utils/logger'
 import { sendMatchResult } from './sendMatchResults'
 
 const requestQueue: TimedMatchRequest[] = []
-const MATCH_TIMEOUT = 15000 // 15 seconds
+const MATCH_TIMEOUT = 300000 // 5 minutes
 let isMatching: boolean = false
+
+// track timeouts for each userId
+const timeoutMap: Map<string, NodeJS.Timeout> = new Map()
 
 const startConsumer = async (
     io: Server,
@@ -65,21 +68,31 @@ const startConsumer = async (
                     { service: 'matching-service', timestamp: new Date().toISOString() }
                 )
                 requestQueue.push(request)
-                logger.info(`Request Queue: ${JSON.stringify(requestQueue, null, 2)}`, { service: 'matching-service', timestamp: new Date().toISOString() })
 
-                setTimeout(() => {
+                // Set a timeout for matchmaking
+                const timeout = setTimeout(() => {
                     processMatching(request, io, connectedClients)
                 }, MATCH_TIMEOUT)
+                timeoutMap.set(userId, timeout)
             }
         },
         { noAck: true },
     )
 
+    // Function to remove a user's request from the queue and clear timeout
     const removeRequest = (userId: string) => {
         const index = requestQueue.findIndex((x) => x.userId === userId)
         if (index !== -1) {
             requestQueue.splice(index, 1)
             logger.info(`User ${userId} has been removed from the queue via cancellation`, { service: 'matching-service', timestamp: new Date().toISOString() })
+
+            // Clear the matchmaking timeout
+            const timeout = timeoutMap.get(userId)
+            if (timeout) {
+                clearTimeout(timeout)
+                timeoutMap.delete(userId)
+                logger.info(`Cleared matchmaking timeout for user ${userId}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+            }
         } else {
             logger.info(`User ${userId} not found in the queue during cancellation`, { service: 'matching-service', timestamp: new Date().toISOString() })
         }
@@ -118,6 +131,13 @@ const processMatching = async (
         if (reqIndex !== -1) {
             requestQueue.splice(reqIndex, 1)
             logger.info(`${req.userId} has been removed from the queue`, { service: 'matching-service', timestamp: new Date().toISOString() })
+
+            const timeout = timeoutMap.get(req.userId)
+            if (timeout) {
+                clearTimeout(timeout)
+                timeoutMap.delete(req.userId)
+                logger.info(`Cleared matchmaking timeout for user ${req.userId}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+            }
         }
 
         if (matchPartner) {
@@ -128,6 +148,13 @@ const processMatching = async (
             if (partnerIndex !== -1) {
                 requestQueue.splice(partnerIndex, 1)
                 logger.info(`${matchPartner.userId} has been removed from the queue`, { service: 'matching-service', timestamp: new Date().toISOString() })
+
+                const partnerTimeout = timeoutMap.get(matchPartner.userId)
+                if (partnerTimeout) {
+                    clearTimeout(partnerTimeout)
+                    timeoutMap.delete(matchPartner.userId)
+                    logger.info(`Cleared matchmaking timeout for user ${matchPartner.userId}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+                }
             }
             return
         } else {
@@ -143,7 +170,6 @@ const processMatching = async (
         logger.error(`Error during matching process: ${error.message}`, { service: 'matching-service', timestamp: new Date().toISOString() })
     } finally {
         isMatching = false
-        logger.info(`Request Queue: ${JSON.stringify(requestQueue, null, 2)}`, { service: 'matching-service', timestamp: new Date().toISOString() })
     }
 }
 

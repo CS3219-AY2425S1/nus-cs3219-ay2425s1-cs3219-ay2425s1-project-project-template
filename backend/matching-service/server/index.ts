@@ -18,6 +18,8 @@ const io = new Server({
     const { removeRequest } = await startConsumer(io, connectedClients)
 
     io.on('connection', (socket) => {
+        logger.info(`New client connected: ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+
         socket.on('login', (name: string) => {
             connectedClients.set(name, socket.id)
             logger.info(`User ${name} logged in with socket ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
@@ -43,6 +45,7 @@ const io = new Server({
                     break
                 }
             }
+            logger.info(`Client disconnected: ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
         })
     })
 
