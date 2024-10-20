@@ -12,7 +12,7 @@ import { User } from "@/types/user";
 const LoginPage = () => {
   const router = useRouter();
   const { setUser } = useUser();
-  const { mutate: login, status, error } = useLogin();
+  const { mutate: login, isPending } = useLogin();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const handleLogin = (email: string, password: string) => {
@@ -52,9 +52,6 @@ const LoginPage = () => {
     router.push("/forget-password");
   };
 
-  // Log the mutation status for debugging
-  console.log("Login mutation status: ", status);
-
   return (
     <DefaultLayout isLoggedIn={false}>
       <div className="flex items-start justify-center pt-[25vh]">
@@ -65,15 +62,8 @@ const LoginPage = () => {
 
           <LoginForm onSubmit={handleLogin} />
 
-          {/* Show loading state while the login is pending */}
-          {status === "pending" && (
-            <p className="text-gray-400 mt-4">Logging in...</p>
-          )}
-
-          {/* Show error message when login fails */}
-          {status === "error" && (
-            <p className="text-red-500 mt-4">{errorMessage}</p>
-          )}
+          {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+          {isPending && <p className="text-gray-400 mt-4">Logging in...</p>}
 
           <div className="mt-6 text-center">
             <h3>Don&apos;t have an account?</h3>
