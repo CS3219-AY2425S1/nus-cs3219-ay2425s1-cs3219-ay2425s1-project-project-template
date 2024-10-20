@@ -28,7 +28,17 @@ services:
       - peerprep-network
     env_file:
       - ./user-service.env
-  
+
+  notification-service:
+    build: ./backend/notification-service
+    image: peerprep-notification-service
+    ports:
+      - 5000:5000
+    networks:
+      - peerprep-network
+    env_file:
+      - ./notification-service.env
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -41,16 +51,15 @@ services:
     networks:
       - peerprep-network
 
-  queue-service:
-    build: ./backend/queue-service
+  matching-service:
+    build: ./backend/matching-service
     ports:
       - "5001:5001"
-    environment:
-      - PORT=5001
     depends_on:
       - rabbitmq
+      - notification-service
     env_file:
-      - ./queue-service.env
+      - ./matching-service.env
     networks:
       - peerprep-network
 

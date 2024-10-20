@@ -22,25 +22,24 @@ def handle_connect():
 
 @socketio.on("match_found")
 def handle_match_found(data):
-    user1_id = data.get("user1Id")
-    user2_id = data.get("user2Id")
-
-    user1_socket_id = connected_users.get(user1_id)
-    user2_socket_id = connected_users.get(user2_id)
+    user1_id, user2_id = data.get("user1Id"), data.get("user2Id")
+    user1_name, user2_name = data.get("user1Name"), data.get("user2Name")
+    match_message = data.get("message")
+    user1_socket_id, user2_socket_id = connected_users.get(user1_id), connected_users.get(user2_id)
 
     # Notify user 1 if connected
     if user1_socket_id:
-        emit("notification", {"data": data['user2Name']}, room=user1_socket_id)
-        print(f"Notification sent to user {user1_id} about user {data['user2Name']}")
+        emit("notification", {"match": user2_name, "match_message": match_message}, room=user1_socket_id)
+        print(f"Notification sent to user {user1_name} about user {user2_name}")
     else:
-        print(f"User {user1_id} is not connected")
+        print(f"User {user1_name} is not connected")
 
     # Notify user 2 if connected
     if user2_socket_id:
-        emit("notification", {"data": data['user1Name']}, room=user2_socket_id)
-        print(f"Notification sent to user {user2_id} about user {data['user1Name']}")
+        emit("notification", {"match": user1_name, "match_message": match_message}, room=user2_socket_id)
+        print(f"Notification sent to user {user2_name} about user {user1_name}")
     else:
-        print(f"User {user2_id} is not connected")
+        print(f"User {user2_name} is not connected")
 
 
 @socketio.on("disconnect")
