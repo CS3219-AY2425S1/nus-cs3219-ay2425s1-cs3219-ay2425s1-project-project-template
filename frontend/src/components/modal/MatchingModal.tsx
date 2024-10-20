@@ -48,7 +48,7 @@ function MatchingModal({
 
     setIsConnecting(true);
 
-    socketRef.current = io('http://match-notification-service:4001', {
+    socketRef.current = io('http://localhost:4001', {
       transports: ['websocket'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -79,7 +79,8 @@ function MatchingModal({
         message: 'We found a perfect match for you!',
         color: 'green',
       });
-      navigate('../../select/');
+      socketRef.current?.close();
+      closeMatchingModal();
     });
 
     socketRef.current.on('disconnect', () => {
@@ -98,7 +99,7 @@ function MatchingModal({
         socketRef.current = null;
       }
     };
-  }, [isMatchingModalOpened, connectSocket]);
+  }, [isMatchingModalOpened]);
 
   useEffect(() => {
     let interval: number;
