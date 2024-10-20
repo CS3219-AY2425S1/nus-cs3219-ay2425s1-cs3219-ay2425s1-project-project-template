@@ -1,4 +1,5 @@
 import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
+import { cors } from "cors"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
@@ -18,6 +19,7 @@ const app: Express = express()
 dotenv.config()
 
 app.use(express.json())
+app.use(cors())
 
 let users: UserData[] = []
 
@@ -112,7 +114,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
         matchedUsers,
         timeout: true
       })
-      return;
+      return
     }
     matchedUsers.push(firstUser)
 
@@ -180,7 +182,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
             matchedUsers: [], // don't allow 2 same user to match
             timeout: true
           })
-          return;
+          return
         }
         matchedUsers.push(nextUser)
         res.json({
@@ -303,7 +305,7 @@ app.get("/match", async (req: Request, res: Response, next) => {
           matchedUsers: [], // don't allow 2 same user to match
           timeout: false
         })
-        return;
+        return
       }
 
       matchedUsers.push(nextUser)
