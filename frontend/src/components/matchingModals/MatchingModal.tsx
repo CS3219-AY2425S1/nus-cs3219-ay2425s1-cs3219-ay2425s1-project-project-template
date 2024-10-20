@@ -25,13 +25,16 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
 
   const [isMatchFound, setIsMatchFound] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
+  const [showCancelButton, setShowCancelButton] = useState(false);
   const [cancelAlert, setCancelAlert] = useState<boolean>(false);
+  // const [matchFoundAlert, setMatchFoundAlert] = useState<boolean>(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
     try {
       setCancelAlert(false);
+      setShowCancelButton(true);
       setShowTimer(true);
       socket.connect();
       socket.on("connect", () => {
@@ -103,12 +106,14 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     if (matchId) {
       handleCancelMatchRequest();
       setShowTimer(false);
+      setShowCancelButton(false);
     }
   }
 
   const handleMatchNotFound = () => {
     handleCancelMatchRequest();
     setCancelAlert(true);
+    setShowCancelButton(false);
   }
 
   return (
@@ -125,14 +130,11 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
             ? <Alert key="warning" variant="warning">No match was found! Please try again later</Alert> 
             : <></>
         }
-        <div className="text-lg font-semibold text-center">
-          Found Match?:{" "}
-          {isMatchFound ? (
-            <div className="text-green-500">Found!</div>
-          ) : (
-            <div className="text-red-500">Not found yet</div>
-          )}
-        </div>
+        {isMatchFound ? (
+          <Alert key="success" variant="success">Found a new match! </Alert> 
+        ) : (
+          <></>
+        )}
         <div className="flex flex-col space-y-4">
           {showTimer ? (
             <Timer showTimer={showTimer} cancelMatchRequest={handleMatchNotFound} setShowTimer={setShowTimer}/>
@@ -144,14 +146,20 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
             />
           )}
         </div>
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={handleCancel}
-            className="px-6 py-2 text-white bg-yellow rounded hover:bg-brown"
-          >
-            Cancel match request
-          </button>
-        </div>
+        {
+          showCancelButton
+            ? (
+            <div className="flex justify-center mt-4">
+            <button
+              onClick={handleCancel}
+              className="px-6 py-2 text-white bg-yellow rounded hover:bg-brown"
+            >
+              Cancel match request
+            </button>
+          </div>
+            )
+          : <></>
+        }
       </div>
     </div>
   );
