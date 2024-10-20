@@ -24,7 +24,7 @@ export const cancelMatchRequestController = async (req: Request, res: Response) 
     }
 
     const pendingStatus = await redisClient.hGet(`match:${userId}`, 'pending');
-    console.log(pendingStatus);
+    console.log('this is pendingStatus ${pendingStatus}');
     const data = await redisClient.hGetAll(`match:${userId}`);
     console.log(`Data stored in Redis for user ${userId}:`, data);
 

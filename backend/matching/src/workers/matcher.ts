@@ -210,6 +210,13 @@ async function match() {
       if (!hasDifficultyMatch) {
         // To allow cancellation
         sendNotif([requestorSocketPort], MATCHING_EVENT.PENDING);
+
+        const setPendingToTrue = async (userId: string) => {
+          await redisClient.hSet(`match:${userId}`, 'pending', 'true');
+          console.log(`User ${userId} is now in PENDING state, pending set to true.`);
+        };
+
+        await setPendingToTrue(requestorUserId);
       }
     }
   }
