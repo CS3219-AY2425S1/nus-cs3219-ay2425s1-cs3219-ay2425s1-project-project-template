@@ -256,9 +256,6 @@ export default function DiscussRoute() {
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // TODO: Include userId as a query parameter
-    // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a random user ID
-    // const userId = 'user-123'; // Use a fixed user ID for testing
     ws.current = new WebSocket(
       `ws://localhost:8082/ws/matching?userId=${userId}`
     );
@@ -307,10 +304,6 @@ export default function DiscussRoute() {
     selectedDifficulty: string
   ) => {
     setMatchStatus(MATCH_WAITING_STATUS);
-
-    // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a random user ID
-    // const userId = 'user-123'; // Use a fixed user ID for testing
-
     try {
       const response = await fetch('http://localhost:8082/api/match', {
         method: 'POST',
@@ -357,9 +350,6 @@ export default function DiscussRoute() {
       ws.current.close();
     }
 
-    // Open a new WebSocket connection
-    // const userId = 'user-' + Math.random().toString().split('.')[1]; // Generate a new random user ID
-    // const userId = 'user-123'; // Use a fixed user ID for testing
     ws.current = new WebSocket(
       `ws://localhost:8082/ws/matching?userId=${userId}`
     );
