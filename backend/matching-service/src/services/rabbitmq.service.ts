@@ -137,6 +137,7 @@ class RabbitMQConnection {
                 headers: {
                     sentAt: Date.now(),
                     websocketId: message.websocketId,
+                    userId: message.userId,
                 },
             })
 
@@ -281,8 +282,9 @@ class RabbitMQConnection {
                     categories: [content.topic],
                     complexity: content.complexity,
                 }
-                this.currentUsers.delete(content.userId)
                 await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
+                this.currentUsers.delete(content.userId)
+                this.currentUsers.delete(matchedUserContent.userId)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {
@@ -324,6 +326,7 @@ class RabbitMQConnection {
             await this.channel.consume(DLX_QUEUE, (msg) => {
                 if (msg) {
                     const socketId = msg.properties?.headers?.websocketId
+                    const userId = msg.properties?.headers?.userId
                     const queue = msg.properties?.headers['x-first-death-queue']
                     logger.info(
                         `[DeadLetter-Queue] Received dead letter message from ${queue}, with socketId ${socketId}`
@@ -331,6 +334,7 @@ class RabbitMQConnection {
                     wsConnection.closeConnectionOnTimeout(socketId)
                     this.channel.ack(msg)
                     this.currentUsers.delete(userId)
+                    this.cancelledUsers.delete(socketId)
                 }
             })
         } catch (error) {
