@@ -71,7 +71,7 @@ const insertDefaultData = async () => {
         email: "test@gmail.com",
         username: 'test_user',
         password: userHashedPassword,
-        isAdmin: true,
+        isAdmin: false,
       });
 
       await user.save();
