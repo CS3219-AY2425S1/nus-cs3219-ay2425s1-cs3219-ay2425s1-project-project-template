@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly eventEmitter: EventEmitter2) {}
+  constructor(private readonly eventEmitter: EventEmitter2) { }
   private readonly matchBuffer: Record<string, any[]> = {};
   private readonly connectedUsers: Set<string> = new Set();
   private readonly queueName = 'matching_queue';
@@ -14,6 +14,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private connection: amqp.Connection;
   private channel: amqp.Channel;
   private unmatchedRequests: Record<string, any> = {};
+  private timeouts: { [email: string]: NodeJS.Timeout } = {};
 
   async onModuleInit() {
     await this.connect();
@@ -75,6 +76,11 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     );
     console.log('User sent to queue:', enterQueueDto);
 
+    if (this.timeouts[email]) {
+      clearTimeout(this.timeouts[email]);
+      console.log(`Old timeout cleared for user ${email}.`);
+    }
+
     const timeoutId = setTimeout(() => {
       const keyToRemove = Object.keys(this.unmatchedRequests).find(
         (key) => this.unmatchedRequests[key].email === email,
@@ -86,9 +92,15 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
         console.log(
           `User ${email} removed from queue after 30 seconds of no match.`,
         );
-      }
-    }, 3000);
 
+        delete this.timeouts[email]; // Also remove the timeout
+        console.log(
+          `User ${email} timeout had been cleard after 30 seconds of no match.`,
+        );
+      }
+    }, 30000);
+
+    this.timeouts[email] = timeoutId;
     // timeoutId
     // this.unmatchedRequests[`${enterQueueDto.categories}-${enterQueueDto.complexity}-${enterQueueDto.language}`] = {
     //   ...enterQueueDto,
@@ -139,6 +151,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       const partialMatchingKey = `${matchedUser.categories}-${matchedUser.complexity}-${matchedUser.language}`;
       delete this.unmatchedRequests[partialMatchingKey];
       this.notifyMatchFound(email, matchedUser.email);
+
     } else if (
       Object.values(this.unmatchedRequests).find(
         (req) => req.complexity === complexity,
@@ -204,7 +217,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   createSSEStream(userEmail: string): Observable<any> {
     return new Observable((subscriber) => {
       this.connectedUsers.add(userEmail);
-      console.log(this.connectedUsers);
+      // console.log(this.connectedUsers);
 
       if (this.matchBuffer[userEmail]) {
         console.log(
@@ -229,7 +242,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       return () => {
         this.eventEmitter.off('match.found', handleMatchFound);
         this.connectedUsers.delete(userEmail);
-        console.log('after cleanup ', this.connectedUsers);
+        // console.log('after cleanup ', this.connectedUsers);
       };
     });
   }

@@ -22,7 +22,7 @@ export class RabbitMQController {
 
   @Sse(':userEmail')
   sse(@Param('userEmail') userEmail: string): Observable<any> {
-    console.log("sse called by ", userEmail)
+    // console.log("sse called by ", userEmail)
     return this.rabbitMQService.createSSEStream(userEmail);
   }
 }
