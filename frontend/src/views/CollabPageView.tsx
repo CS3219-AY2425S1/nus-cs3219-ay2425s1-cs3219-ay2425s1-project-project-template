@@ -14,7 +14,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { LANGUAGE_VERSIONS } from "../services/CodeEditorService";
+import {
+	LANGUAGE_VERSIONS,
+	CODE_SNIPPETS,
+} from "../services/CodeEditorService";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -97,8 +100,19 @@ function CollabPageView() {
 		editor.focus();
 	};
 
-	const languages = Object.entries(LANGUAGE_VERSIONS);
-	const [selectedLang, setSelectedLang] = useState(languages[0][0]);
+	const languages = Object.entries(LANGUAGE_VERSIONS); // get languages_version JSON
+	const [selectedLang, setSelectedLang] = useState(languages[0][0]); // default to 'typescript'
+
+	// function for separating language from version for neater display
+	const getLangOnly = (langVer: string) => {
+		const [language] = langVer.split(/(\d+)/);
+		return language.trim();
+	};
+
+	const onSelect = (language: string) => {
+		setSelectedLang(language);
+		setCode(CODE_SNIPPETS[language]);
+	};
 
 	return (
 		<main
@@ -252,15 +266,20 @@ function CollabPageView() {
 						</h2>
 
 						{/* coding language selector */}
-						<Select value={selectedLang} onValueChange={setSelectedLang}>
+						<Select value={selectedLang} onValueChange={onSelect}>
 							<SelectTrigger className="w-[160px]">
-								<SelectValue />
+								<SelectValue>
+									<span>{getLangOnly(selectedLang)}</span>
+								</SelectValue>
 							</SelectTrigger>
 							<SelectContent>
 								<SelectGroup>
-									{languages.map(([language]) => (
+									{languages.map(([language, version]) => (
 										<SelectItem key={language} value={language}>
 											{language}
+											<span style={{ color: "gray" }}>
+												&nbsp;{String(version)}
+											</span>
 										</SelectItem>
 									))}
 								</SelectGroup>
@@ -271,9 +290,9 @@ function CollabPageView() {
 					{/* monaco code editor */}
 					<Editor
 						height="100%"
-						defaultLanguage="javascript"
-						defaultValue="// some comment"
+						defaultValue={CODE_SNIPPETS[selectedLang]}
 						value={code}
+						language={selectedLang}
 						onChange={(value) => handleCodeChange(value)}
 						onMount={onMount} // Focus the editor when it mounts
 					/>

@@ -10,3 +10,13 @@ export const LANGUAGE_VERSIONS = {
 	csharp: "6.12.0",
 	python: "3.10.0",
 };
+
+export const CODE_SNIPPETS = {
+  typescript: "const greeting = \"Hello World\"\nconsole.log(greeting)",
+	javascript: "const greeting = \"Hello World\"\nconsole.log(greeting);",
+	c: "#include <stdio.h>\n\nint main() {\n\tprintf(\"Hello World\");\n\n\treturn 0;\n}",
+	"c++": "#include <iostream>\n\nint main() {\n\tstd::cout << \"Hello World\";\n\n\treturn 0;\n}",
+	java: "class HelloWorld {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println(\"Hello World\");\n\t}\n}",
+	csharp: "using System;\n\npublic class HelloWorld\n{\n\tpublic static void Main(string[] args)\n\t{\n\t\tConsole.WriteLine(\"Hello World\");\n\t}\n}",
+	python: "print(\"Hello World\")",
+}
