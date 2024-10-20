@@ -7,6 +7,7 @@ import { removeUserFromKey } from "../model/userModel";
 class WebSocketService {
   private wss: WebSocket.Server;
   private clients: Map<string, CustomWebSocket> = new Map();
+  // need a pending notif map as new users will not be connected before the notifyMatch() function is called
   private pendingNotifications: Map<string, any> = new Map();
 
   constructor(server: http.Server) {
@@ -105,6 +106,7 @@ class WebSocketService {
       }
     };
 
+    // notify both users
     await notifyUser(user1Id);
     await notifyUser(user2Id);
   }

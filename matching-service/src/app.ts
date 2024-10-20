@@ -25,7 +25,6 @@ app.use(cors({ origin: true, credentials: true }));
 // Mainly to check health or state of service
 app.use(`${apiVersion}/`, messageRoutes);
 
-// Modify the notifyMatch function to use the WebSocketService
 export const notifyMatch = async (
   user1Id: string,
   user2Id: string,

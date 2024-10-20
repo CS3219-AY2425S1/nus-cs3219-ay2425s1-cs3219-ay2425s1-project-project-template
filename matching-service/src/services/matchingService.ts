@@ -7,7 +7,7 @@ import {
 } from "../model/userModel";
 import { User } from "../types";
 import { sendToQueue } from "./rabbitMqService";
-import { notifyMatch } from "../app"; // Add this import at the top of the file
+import { notifyMatch } from "../app";
 
 /**
  * Check match in queue, if there is a match, we will remove that user from the queue, and return
