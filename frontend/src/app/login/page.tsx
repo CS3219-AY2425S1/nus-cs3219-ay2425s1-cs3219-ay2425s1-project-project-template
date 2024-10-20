@@ -20,7 +20,7 @@ const LoginPage = () => {
     try {
       const res = await loginUser(email, password);
       localStorage.setItem("token", res.data.accessToken); 
-      router.push("/profile");
+      router.push("./questions");
     } catch (error: any) {
       setError(error.message || "An error occurred during login");
     } finally {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { User, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import {
@@ -17,7 +18,18 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 
 const AppHeader: React.FC = () => {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
+  const handleProfileClick = () => {
+    router.push("/profile");
+  };
+
   return (
     <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
       <div className="flex">
@@ -31,64 +43,62 @@ const AppHeader: React.FC = () => {
         </nav>
       </div>
       <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-8 h-8 p-0 hover:bg-gray-700 rounded-full">
-              <User className="h-6 w-6 text-white" />
-              <span className="sr-only">Open user menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <Link href="./profile">
-                Profile
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-    <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Settings</DialogTitle>
-      </DialogHeader>
-      <Tabs defaultValue="theme">
-        <TabsList className="grid grid-cols-1">
-          <TabsTrigger value="password">Password</TabsTrigger>
-        </TabsList>
-        <TabsContent value="password">
-          <Card>
-            <CardHeader>
-              <CardTitle>Change Password</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="space-y-1">
-                <Label htmlFor="current">Current Password</Label>
-                <Input id="current" type="password" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="new">New Password</Label>
-                <Input id="new" type="password" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="confirm">Confirm New Password</Label>
-                <Input id="confirm" type="password" />
-              </div>
-              <Button>Change Password</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </DialogContent>
-  </Dialog>
-</header>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="w-8 h-8 p-0 hover:bg-gray-700 rounded-full">
+            <User className="h-6 w-6 text-white" />
+            <span className="sr-only">Open user menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={handleProfileClick}>
+            <User className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logout</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+          </DialogHeader>
+          <Tabs defaultValue="theme">
+            <TabsList className="grid grid-cols-1">
+              <TabsTrigger value="password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent value="password">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Change Password</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="current">Current Password</Label>
+                    <Input id="current" type="password" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="new">New Password</Label>
+                    <Input id="new" type="password" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="confirm">Confirm New Password</Label>
+                    <Input id="confirm" type="password" />
+                  </div>
+                  <Button>Change Password</Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+    </header>
   );
 };
 

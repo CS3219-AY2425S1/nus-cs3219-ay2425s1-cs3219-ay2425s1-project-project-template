@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader} from "@/components/ui/card"
+import { Loader2 } from 'lucide-react'
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
@@ -31,7 +32,7 @@ export default function ProfilePage() {
         setLoading(false)
       } catch (error) {
         console.error('Token verification failed:', error)
-        router.push('/login') // Redirect to login if verification fails
+        router.push('/login')
       }
     }
 
@@ -39,7 +40,9 @@ export default function ProfilePage() {
   }, [router])
 
   if (loading) {
-    return <div>Loading...</div> // Show loading state while fetching user data
+    return <div className="w-screen h-screen flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin" />
+      </div>
   }
 
   const handleEdit = () => {
@@ -64,7 +67,6 @@ export default function ProfilePage() {
         <Card className="max-w-2xl mx-auto">
             <CardHeader className="text-center">
             <Avatar className="w-24 h-24 mx-auto">
-              <AvatarImage src="/placeholder.svg?height=96&width=96" alt={`@${userData.username}`} />
               <AvatarFallback className='text-4xl'>{userData.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
           </CardHeader>
