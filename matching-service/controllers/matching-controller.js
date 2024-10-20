@@ -59,7 +59,7 @@ exports.processMatchRequest = (channel) => {
     }
 }
 
-exports.cancelMatchRequest = (channel) => {
+exports.processCancelRequest = (channel) => {
     return (data) => {
         if (data) {
             const {socketId, id} = JSON.parse(data.content)
@@ -72,13 +72,13 @@ exports.cancelMatchRequest = (channel) => {
                     delete waitingRequests[uuid]
                     console.log(`Deleted request: ${JSON.stringify(request)}`)
                     // TODO: success, send message
-                    
+                    sendCancelResult(channel, Buffer.from(JSON.stringify({socketId, id, success: "success"})));
                 }
             });
             if (len == Object.keys(waitingRequests).length) {
                 console.log('No matching requests to cancel.')
                 // TODO: no matching requests, send message
-
+                sendCancelResult(channel, Buffer.from(JSON.stringify({socketId, id, success: "success"})));
             }
         }
     }
@@ -111,39 +111,23 @@ function findMatch(complexity, category) {
     return null
 }
 
-            console.log("working??", data)
-            const message = data.content.toString()
-            const parsedData = JSON.parse(message)
 
-            const user1Id = parsedData["id"]
-            const user2Id = "temp id"
-            const user1SocketId = parsedData["socketId"]
-            const user2SocketId = "temp socket id"
+// exports.processCancelRequest = (channel) => {
+//     return (data) => {
+//         console.log('Matching service received: ', data)
+//         if (data) {
+//             console.log("cancel working??", data)
+//             const message = data.content.toString()
+//             console.log('stringify buffer: ', message)
+
+//             const parsedData = JSON.parse(message)
+
+//             const user1Id = parsedData["id"]
+//             const user1SocketId = parsedData["socketId"]
             
-            const payload = { user1Id, user2Id, user1SocketId, user2SocketId }
-            console.log("json parsed in matching: ", JSON.parse(message))
-            // sendMatchResult(channel, Buffer.from(JSON.stringify(payload)));
-        }
-    }
-}
-
-
-exports.processCancelRequest = (channel) => {
-    return (data) => {
-        console.log('Matching service received: ', data)
-        if (data) {
-            console.log("cancel working??", data)
-            const message = data.content.toString()
-            console.log('stringify buffer: ', message)
-
-            const parsedData = JSON.parse(message)
-
-            const user1Id = parsedData["id"]
-            const user1SocketId = parsedData["socketId"]
+//             const payload = { success: "successful", user1Id, user1SocketId }
+//             console.log("json parsed in cancelling: ", JSON.parse(message))
             
-            const payload = { success: "successful", user1Id, user1SocketId }
-            console.log("json parsed in cancelling: ", JSON.parse(message))
-            sendCancelResult(channel, Buffer.from(JSON.stringify(payload)));
-        }
-    }
-}
+//         }
+//     }
+// }

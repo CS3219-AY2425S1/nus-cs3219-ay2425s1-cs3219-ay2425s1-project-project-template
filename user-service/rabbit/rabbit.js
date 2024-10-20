@@ -60,18 +60,16 @@ export const receiveMatchResult = async (channel, io) => {
             if (data) {
                 const message = data.content.toString()
                 channel.ack(data)
-
+                
                 // Emit socket.io event when a match is found
                 const matchData = JSON.parse(message);
-
+                console.log("matchdata: ", matchData)
                 console.log('User 1 Socket ID:', matchData.user1SocketId);
-                console.log('Connected sockets:', io.sockets.sockets); 
 
                 const user1Socket = io.sockets.sockets.get(matchData.user1SocketId); // User 1's socket
-                // const user2Socket = io.sockets.sockets[matchData.user2SocketId]; // User 2's socket
+                const user2Socket = io.sockets.sockets.get(matchData.user2SocketId); // User 2's socket
 
-                // if (user1Socket && user2Socket) {
-                if (user1Socket) {
+                if (user1Socket && user2Socket) {
                     // Notify User 1
                     user1Socket.emit('match_found', {
                         success: true,
@@ -79,10 +77,10 @@ export const receiveMatchResult = async (channel, io) => {
                     });
 
                     // Notify User 2
-                    // user2Socket.emit('match_found', {
-                    //     success: true,
-                    //     matchedUser: { id: matchData.user1Id },
-                    // });
+                    user2Socket.emit('match_found', {
+                        success: true,
+                        matchedUser: { id: matchData.user1Id },
+                    });
                 }
             }
         })
