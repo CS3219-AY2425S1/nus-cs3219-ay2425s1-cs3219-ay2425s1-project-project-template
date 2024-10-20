@@ -12,7 +12,11 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UnverifiedAccountError, useLogin } from '@/hooks/auth/useLogin';
-import { RegisterEmailAlreadyExistsError, RegisterUsernameAlreadyTakenError, useRegister } from '@/hooks/auth/useRegister';
+import {
+  RegisterEmailAlreadyExistsError,
+  RegisterUsernameAlreadyTakenError,
+  useRegister,
+} from '@/hooks/auth/useRegister';
 import {
   useResendVerificationCode,
   useVerifySignup,
@@ -29,8 +33,9 @@ export default function LoginDialog() {
   const loginMutation = useLogin();
   const registerMutation = useRegister();
 
-  const [isAwaitingEmailVerification, setIsAwaitingEmailVerification] =
-    useState<string | null>(null);
+  const [isUserAwaitingEmailVerification, setIsUserAwaitingEmailVerification] =
+    useState<LoginUser | null>(null);
+
   const verifySignupMutation = useVerifySignup();
   const resendVerificationCodeMutation = useResendVerificationCode();
   const [initialCodeSentAt, setInitialCodeSentAt] = useState<number | null>(
@@ -46,7 +51,10 @@ export default function LoginDialog() {
       window.location.reload();
     } catch (error) {
       if (error instanceof UnverifiedAccountError) {
-        setIsAwaitingEmailVerification(data.email);
+        setIsUserAwaitingEmailVerification({
+          email: data.email,
+          password: data.password,
+        });
         setInitialCodeSentAt(Date.now());
       } else {
         console.error('Login failed:', error);
@@ -59,7 +67,10 @@ export default function LoginDialog() {
     try {
       await registerMutation.mutateAsync(data);
       toast.success('Signup successful');
-      setIsAwaitingEmailVerification(data.email);
+      setIsUserAwaitingEmailVerification({
+        email: data.email,
+        password: data.password,
+      });
       setInitialCodeSentAt(Date.now());
     } catch (error) {
       if (error instanceof RegisterUsernameAlreadyTakenError) {
@@ -74,16 +85,18 @@ export default function LoginDialog() {
   };
 
   const handleVerifySignup = async (data: VerifyUserCode) => {
-    if (!isAwaitingEmailVerification) return;
+    if (!isUserAwaitingEmailVerification) return;
 
     try {
       await verifySignupMutation.mutateAsync({
-        email: isAwaitingEmailVerification,
+        email: isUserAwaitingEmailVerification.email,
         verificationCode: data.verificationCode,
       });
       toast.success('Email verified.');
-      // Refresh the page after successful signup
-      window.location.reload();
+      handleLogin({
+        email: isUserAwaitingEmailVerification.email,
+        password: isUserAwaitingEmailVerification.password,
+      });
     } catch (error) {
       if (error instanceof VerificationCodeInvalidError) {
         toast.error('Invalid verification code');
@@ -97,11 +110,11 @@ export default function LoginDialog() {
   };
 
   const handleResendVerificationCode = async () => {
-    if (!isAwaitingEmailVerification) return;
+    if (!isUserAwaitingEmailVerification) return;
 
     try {
       await resendVerificationCodeMutation.mutateAsync(
-        isAwaitingEmailVerification
+        isUserAwaitingEmailVerification.email
       );
       setInitialCodeSentAt(Date.now());
       toast.success('Verification code resent');
@@ -120,12 +133,12 @@ export default function LoginDialog() {
         <DialogHeader>
           <DialogTitle>Account</DialogTitle>
           <DialogDescription>
-            {isAwaitingEmailVerification
+            {isUserAwaitingEmailVerification
               ? `Enter the verification code sent to your email.`
               : 'Login or create a new account to get started.'}
           </DialogDescription>
         </DialogHeader>
-        {isAwaitingEmailVerification ? (
+        {isUserAwaitingEmailVerification ? (
           <AuthVerifyRegisterForm
             onSubmit={handleVerifySignup}
             onResendVerificationCode={handleResendVerificationCode}
