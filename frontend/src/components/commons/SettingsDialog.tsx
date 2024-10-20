@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updatePassword } from '@/lib/api-user';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,25 +24,25 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
   const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation do not match");
+      toast.error("New password and confirmation do not match!");
       return;
     }
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error('You must be logged in to change your password.');
+      toast.error('You must be logged in to change your password!');
       router.push('/login');
       return;
     }
-
     try {
       setLoading(true);
       const res = await verifyToken(token);
       const userId = res.data.id;
       await updatePassword(userId, token, newPassword);
-      toast.success("Password updated successfully!");
-      onClose();
+      toast.success("Password updated successfully! Please login again.");
+      localStorage.removeItem('token');
+      router.push('/login');
     } catch (error) {
-      toast.error(error.message || "Failed to update password");
+      toast.error(error.message || "Failed to update password!");
     } finally {
       setLoading(false);
     }

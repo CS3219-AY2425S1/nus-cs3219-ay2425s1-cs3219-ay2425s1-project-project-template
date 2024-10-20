@@ -25,6 +25,7 @@ export default function ProfilePage() {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token')
       if (!token) {
+        toast.error('Unauthorized access, please login!')
         router.push('/login')
         return
       }
@@ -33,7 +34,7 @@ export default function ProfilePage() {
         setUserData({ id: res.data.id, username: res.data.username, email: res.data.email })
         setLoading(false)
       } catch (error) {
-        console.error('Token verification failed:', error)
+        toast.error('User verification failed, please login again!')
         router.push('/login')
       }
     }
@@ -62,7 +63,9 @@ export default function ProfilePage() {
 
       const res = await updateUser(userData.id, token, userData)
       if (res.status === 200) {
-        toast.success('Profile updated successfully!')
+        toast.success('Profile updated successfully, please login again!')
+        localStorage.removeItem('token')
+        router.push('/login')
       } else {
         toast.error('Failed to update profile')
       }

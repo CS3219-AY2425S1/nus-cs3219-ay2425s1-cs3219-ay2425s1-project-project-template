@@ -6,10 +6,10 @@ import { loginUser } from "@/lib/api-user";
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
   const router = useRouter();
-  const [error, setError] = useState("");
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ const LoginPage = () => {
       localStorage.setItem("token", res.data.accessToken); 
       router.push("./questions");
     } catch (error: any) {
-      setError(error.message || "An error occurred during login");
+      toast.error("Unable to login. Please check your credentials.");
     } finally {
       setLoading(false);
     }

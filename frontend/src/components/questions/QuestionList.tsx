@@ -11,6 +11,7 @@ import { CategoryBadge, ComplexityBadge } from './Badges'
 import { Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { verifyToken } from '@/lib/api-user'
+import { useRouter } from 'next/navigation'
 
 interface QuestionListProps {
   questionsPromise: Promise<Question[]>
@@ -24,6 +25,7 @@ export default function QuestionList({ questionsPromise}: QuestionListProps) {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const router = useRouter()
 
   React.useEffect(() => {
     questionsPromise.then(setQuestions)
@@ -33,14 +35,16 @@ export default function QuestionList({ questionsPromise}: QuestionListProps) {
       const fetchUserData = async () => {
         const token = localStorage.getItem('token')
         if (!token) {
-          console.error('Token verification failed:')
+          toast.error('Unauthorized access, please login!')
+          router.push('/login')
           return
         }
         try {
           const res = await verifyToken(token)
           setIsAdmin(res.data.isAdmin)
         } catch (error) {
-          console.error('Token verification failed:', error)
+          toast.error('User verification failed, please login again!')
+          router.push('/login')
         }
       }
       fetchUserData()
