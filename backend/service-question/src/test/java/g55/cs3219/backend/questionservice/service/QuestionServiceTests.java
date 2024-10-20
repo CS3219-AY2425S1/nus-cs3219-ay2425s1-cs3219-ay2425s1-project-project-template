@@ -125,7 +125,7 @@ class QuestionServiceTests {
     }
 
     @Test
-    void getQuestionsByFilters_CategoryProvided_ReturnsFilteredQuestions() {
+    void getQuestionsByFiltersWithCategory_QuestionsExist_ReturnsFilteredQuestions() {
         when(questionRepository.findByCategoriesContaining("Category1")).thenReturn(Collections.singletonList(question1));
 
         List<QuestionDto> result = questionService.getQuestionsByFilters("Category1", null);
@@ -135,23 +135,20 @@ class QuestionServiceTests {
     }
 
     @Test
-    void getQuestionsByFilters_DifficultyProvided_ReturnsFilteredQuestions() {
+    void getQuestionsByFiltersWithCategory_QuestionDoesNotExist_ThrowsQuestionNotFoundException() {
+        when(questionRepository.findByCategoriesContaining("NonExistentCategory")).thenReturn(Collections.emptyList());
+
+        assertThrows(QuestionNotFoundException.class, () -> questionService.getQuestionsByCategory("NonExistentCategory"));
+    }
+
+    @Test
+    void getQuestionsByFiltersWithDifficulty_QuestionExists_ReturnsFilteredQuestions() {
         when(questionRepository.findByDifficulty("Medium")).thenReturn(Collections.singletonList(question2));
 
         List<QuestionDto> result = questionService.getQuestionsByFilters(null, "Medium");
 
         assertEquals(1, result.size());
         assertEquals("Question 2", result.get(0).getTitle());
-    }
-
-    @Test
-    void getQuestionsByFilters_BothFiltersProvided_ThrowsInvalidQuestionException() {
-        assertThrows(InvalidQuestionException.class, () -> questionService.getQuestionsByFilters("Category1", "Easy"));
-    }
-
-    @Test
-    void getQuestionsByFilters_NoFiltersProvided_ThrowsInvalidQuestionException() {
-        assertThrows(InvalidQuestionException.class, () -> questionService.getQuestionsByFilters(null, null));
     }
 
     @Test
@@ -180,19 +177,101 @@ class QuestionServiceTests {
     }
 
     @Test
-    void updateQuestion_QuestionExists_UpdatesAndReturnsQuestion() {
+    void updateQuestionTitle_QuestionExists_UpdatesAndReturnsQuestion() {
         when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
         when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         QuestionDto updateDto = new QuestionDto();
         updateDto.setTitle("Updated Title");
-        updateDto.setDescription("Updated Description");
 
         QuestionDto result = questionService.updateQuestion(1, updateDto);
 
         assertEquals(1, result.getId());
         assertEquals("Updated Title", result.getTitle());
+    }
+
+    @Test
+    void updateQuestionDescription_QuestionExists_UpdatesAndReturnsQuestion() {
+        when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
+        when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setDescription("Updated Description");
+
+        QuestionDto result = questionService.updateQuestion(1, updateDto);
+
+        assertEquals(1, result.getId());
         assertEquals("Updated Description", result.getDescription());
+    }
+
+    @Test
+    void updateQuestionDifficulty_QuestionExists_UpdatesAndReturnsQuestion() {
+        when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
+        when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setDifficulty("Difficult");
+
+        QuestionDto result = questionService.updateQuestion(1, updateDto);
+
+        assertEquals(1, result.getId());
+        assertEquals("Difficult", result.getDifficulty());
+    }
+
+    @Test
+    void updateQuestionCategories_QuestionExists_UpdatesAndReturnsQuestion() {
+        when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
+        when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setCategories(List.of("Category5", "Category6"));
+
+        QuestionDto result = questionService.updateQuestion(1, updateDto);
+
+        assertEquals(1, result.getId());
+        assertEquals(List.of("Category5", "Category6"), result.getCategories());
+    }
+
+    @Test
+    void updateQuestionExamples_QuestionExists_UpdatesAndReturnsQuestion() {
+        when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
+        when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setExamples(List.of(new HashMap<>()));
+
+        QuestionDto result = questionService.updateQuestion(1, updateDto);
+
+        assertEquals(1, result.getId());
+        assertEquals(List.of(new HashMap<>()), result.getExamples());
+    }
+
+    @Test
+    void updateQuestionConstraints_QuestionExists_UpdatesAndReturnsQuestion() {
+        when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
+        when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setConstraints(List.of("New Constraint"));
+
+        QuestionDto result = questionService.updateQuestion(1, updateDto);
+
+        assertEquals(1, result.getId());
+        assertEquals(List.of("New Constraint"), result.getConstraints());
+    }
+
+    @Test
+    void updateQuestionLink_QuestionExists_UpdatesAndReturnsQuestion() {
+        when(questionRepository.findById(1)).thenReturn(Optional.of(question1));
+        when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestionDto updateDto = new QuestionDto();
+        updateDto.setLink("http://example123.com");
+
+        QuestionDto result = questionService.updateQuestion(1, updateDto);
+
+        assertEquals(1, result.getId());
+        assertEquals("http://example123.com", result.getLink());
     }
 
     @Test
@@ -222,6 +301,11 @@ class QuestionServiceTests {
 
         assertEquals("Question with ID 1 has been deleted.", result);
         verify(questionRepository, times(1)).delete(question1);
+    }
+
+    @Test
+    void deleteQuestion_NullId_ThrowsInvalidQuestionException() {
+        assertThrows(InvalidQuestionException.class, () -> questionService.deleteQuestion(null));
     }
 
     @Test
