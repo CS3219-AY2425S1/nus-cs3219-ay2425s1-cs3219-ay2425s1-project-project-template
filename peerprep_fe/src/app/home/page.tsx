@@ -46,6 +46,8 @@ export default function Home() {
         isOpen={isAddModalOpen}
         title="Add Question"
         width="4xl"
+        height="3xl"
+        isScrollable={true}
         onClose={() => setIsAddModalOpen(false)}
       >
         <QuestionForm
@@ -67,6 +69,8 @@ export default function Home() {
         isOpen={currentEditQuestion ? true : false}
         title="Edit Question"
         width="4xl"
+        height="3xl"
+        isScrollable={true}
         onClose={() => setCurrentEditQuestion(null)}
       >
         <QuestionForm

@@ -4,6 +4,7 @@ import Button from "@/components/common/button";
 import { useAuth } from "@/contexts/auth-context";
 import { QuestionDto, DifficultyLevel } from "peerprep-shared-types";
 import { addQuestion, editQuestion } from "@/app/actions/questions";
+import { v4 as uuidv4 } from "uuid";
 
 export enum FormType {
   EDIT = "Edit",
@@ -23,8 +24,13 @@ export interface QuestionForm {
   description: string;
   difficultyLevel: DifficultyLevel;
   topic: string;
-  examples: string;
-  constraints: string;
+  examples: string[];
+  constraints: string[];
+}
+
+interface DynamicField {
+  id: string;
+  value: string;
 }
 
 export function QuestionForm({
@@ -40,16 +46,23 @@ export function QuestionForm({
     description: initialQuestion?.description || "",
     difficultyLevel: initialQuestion?.difficultyLevel || DifficultyLevel.Easy,
     topic: initialQuestion?.topic ? initialQuestion.topic.join(", ") : "",
-    examples: initialQuestion?.examples
-      ? initialQuestion.examples
-          .map((ex) => `${ex.input}|${ex.output}|${ex.explanation || ""}`)
-          .join("; ")
-      : "",
-    constraints: initialQuestion?.constraints
-      ? initialQuestion.constraints.join("; ")
-      : "",
+    examples: [],
+    constraints: [],
   });
   const [error, setError] = useState<string>("");
+  const [examples, setExamples] = useState<DynamicField[]>(
+    initialQuestion?.examples.map((ex) => {
+      return {
+        value: `${ex.input}|${ex.output}|${ex.explanation || ""}`,
+        id: uuidv4(),
+      };
+    }) ?? [{ value: "", id: uuidv4() }]
+  );
+  const [constraints, setConstraints] = useState<DynamicField[]>(
+    initialQuestion?.constraints.map((con) => {
+      return { value: con, id: uuidv4() };
+    }) ?? [{ value: "", id: uuidv4() }]
+  );
 
   // Usage in form submission
 
@@ -59,6 +72,9 @@ export function QuestionForm({
 
     setLoading(true);
     setError("");
+
+    formData.examples = examples.map((ex) => ex.value);
+    formData.constraints = constraints.map((con) => con.value);
 
     try {
       let response = null;
@@ -101,10 +117,47 @@ export function QuestionForm({
     }
   };
 
+  const onAddExample = () => {
+    setExamples((prev) => {
+      return [...prev, { value: "", id: uuidv4() }];
+    });
+  };
+
+  const onRemoveExample = (index: number) => {
+    const newExamples = examples.filter((_, i) => i !== index);
+    setExamples(newExamples);
+  };
+
+  const onAddConstraint = () => {
+    setConstraints((prev) => {
+      return [...prev, { value: "", id: uuidv4() }];
+    });
+  };
+
+  const onRemoveConstraint = (index: number) => {
+    const newConstraints = constraints.filter((_, i) => i !== index);
+    setConstraints(newConstraints);
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
+    e.preventDefault();
+    const { name, value, id } = e.target;
+    if (name === "examples") {
+      setExamples((prev) => {
+        prev[Number(id)].value = value;
+        return prev;
+      });
+      return;
+    }
+    if (name === "constraints") {
+      setConstraints((prev) => {
+        prev[Number(id)].value = value;
+        return prev;
+      });
+      return;
+    }
     setFormData((prev) => {
       return { ...prev, [name]: value };
     });
@@ -149,22 +202,66 @@ export function QuestionForm({
           onChange={handleChange}
           required
         />
-        <LargeTextfield
-          name="examples"
-          secure={false}
-          placeholder_text="Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)"
-          text={formData.examples}
-          onChange={handleChange}
-          required
-        />
-        <LargeTextfield
-          name="constraints"
-          secure={false}
-          placeholder_text='Constraints (semicolon-separated, e.g., "2 <= nums.length <= 10^4; -10^9 <= nums[i] <= 10^9")'
-          text={formData.constraints}
-          onChange={handleChange}
-          required
-        />
+        <div className="text-xl text-gray-500 dark:text-gray-400 flex justify-between">
+          Examples
+          <button onClick={onAddExample}>
+            <span className="material-symbols-outlined">add</span>
+          </button>
+        </div>
+        {examples.map((example, index) => {
+          return (
+            <div className="flex space-x-5" key={example.id}>
+              <LargeTextfield
+                id={index.toString()}
+                name="examples"
+                secure={false}
+                placeholder_text="input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9"
+                text={example.value}
+                onChange={handleChange}
+                required
+              />
+              <button
+                hidden={examples.length === 1}
+                type="button"
+                onClick={() => {
+                  onRemoveExample(index);
+                }}
+              >
+                <span className="material-symbols-outlined warning">close</span>
+              </button>
+            </div>
+          );
+        })}
+        <div className="text-xl text-gray-500 dark:text-gray-400 flex justify-between">
+          Constraints
+          <button onClick={onAddConstraint}>
+            <span className="material-symbols-outlined">add</span>
+          </button>
+        </div>
+        {constraints.map((constraint, index) => {
+          return (
+            <div className="flex space-x-5" key={constraint.id}>
+              <LargeTextfield
+                id={index.toString()}
+                name="constraints"
+                secure={false}
+                placeholder_text="e.g 2 <= nums.length <= 10^4"
+                text={constraint.value}
+                onChange={handleChange}
+                required
+              />
+              <button
+                hidden={constraints.length === 1}
+                type="button"
+                onClick={() => {
+                  onRemoveConstraint(index);
+                }}
+              >
+                <span className="material-symbols-outlined warning">close</span>
+              </button>
+            </div>
+          );
+        })}
         {error && <p className="error">{error}</p>}
         {<Button type="submit" text={`${type} Question`} loading={loading} />}
       </form>

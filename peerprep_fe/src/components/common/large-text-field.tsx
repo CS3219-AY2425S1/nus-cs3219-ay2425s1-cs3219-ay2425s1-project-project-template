@@ -1,4 +1,5 @@
 export default function LargeTextfield({
+  id,
   name,
   secure = false,
   placeholder_text = "Enter your text",
@@ -6,6 +7,7 @@ export default function LargeTextfield({
   text,
   onChange,
 }: {
+  id?: string;
   name?: string;
   secure?: boolean;
   placeholder_text?: string;
@@ -15,6 +17,7 @@ export default function LargeTextfield({
 }) {
   return (
     <input
+      id={id}
       required={required}
       name={name}
       type={secure ? "password" : "text"}

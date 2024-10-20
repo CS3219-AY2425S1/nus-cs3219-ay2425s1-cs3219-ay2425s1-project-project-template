@@ -1,51 +1,61 @@
-export function parseFormData(formData: FormData) {
-  var status = true;
-  var message = "";
+import { QuestionForm } from "@/components/questions/question-form";
+import { QuestionDto } from "peerprep-shared-types";
 
-  const getStringValue = (value: FormDataEntryValue | null): string => {
-    return typeof value === "string" ? value : "";
-  };
+const prepareFormDataForSubmission = (
+  formData: QuestionForm
+): Omit<QuestionDto, "_id"> | { error: string } => {
+  // Validate title and description
+  if (!formData.title.trim() || !formData.description.trim()) {
+    return { error: "Title and description are required." };
+  }
 
-  // Parse form data into the correct format
-  const topics = getStringValue(formData.get("topic"))
-    ?.split(",")
-    ?.map((item) => item.trim());
+  // Validate and process topic
+  const topics = formData.topic
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t !== "");
+  if (topics.length === 0) {
+    return { error: "At least one topic is required." };
+  }
 
-  const examples = getStringValue(formData.get("examples"))
-    ?.split(";")
-    ?.map((item) => {
-      const [input, output, explanation] = item?.split("|");
+  // Validate and process examples
+  const exampleEntries = formData.examples.filter((ex) => ex.trim() !== "");
 
-      if (!(input && output && explanation)) {
-        status = false;
-        message =
-          "Please format the examples as input|output|explanation with each entry separated by a semicolon";
-      }
+  const processedExamples: {
+    input: string;
+    output: string;
+    explanation?: string;
+  }[] = [];
 
+  for (const ex of exampleEntries) {
+    const parts = ex.split("|").map((part) => part.trim());
+    if (parts.length < 2 || parts.length > 3) {
       return {
-        input: input?.trim(),
-        output: output?.trim(),
-        explanation: explanation ? explanation?.trim() : undefined,
+        error: `Invalid example format: ${ex}. Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)`,
       };
+    }
+    processedExamples.push({
+      input: parts[0],
+      output: parts[1],
+      explanation: parts[2],
     });
+  }
 
-  const constraints = getStringValue(formData.get("constraints"))
-    ?.split(";")
-    ?.map((item) => item.trim());
+  // Validate and process constraints
+  const constraints = formData.constraints;
 
-  // Prepare the data to be sent
-  const data = {
-    title: getStringValue(formData.get("title")),
-    description: getStringValue(formData.get("description")),
-    difficultyLevel: getStringValue(formData.get("difficultyLevel")), // Should be validated on the frontend to be one of "Easy", "Medium", or "Hard"
-    topic: topics,
-    examples: examples,
-    constraints: constraints,
-  };
+  try {
+    return {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      difficultyLevel: formData.difficultyLevel,
+      topic: topics,
+      examples: processedExamples,
+      constraints: constraints,
+    };
+  } catch (error) {
+    return { error: (error as Error).message };
+  }
+};
 
-  return {
-    questionData: data,
-    status: status,
-    message: message,
-  };
-}
+export default prepareFormDataForSubmission;
