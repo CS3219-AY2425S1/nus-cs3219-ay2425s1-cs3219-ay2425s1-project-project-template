@@ -105,7 +105,6 @@ export const sendToQueue = async (
 
     await channel.assertQueue(queue, {
       durable: true,
-      expires: 300000, //expire after 5 minutes of idle
     });
 
     await channel.sendToQueue(queue, Buffer.from(JSON.stringify(payload)));
