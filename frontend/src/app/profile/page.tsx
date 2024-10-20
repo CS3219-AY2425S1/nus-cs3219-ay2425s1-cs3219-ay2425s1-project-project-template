@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Loader2 } from 'lucide-react'
+import { Loader2, User } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 export default function ProfilePage() {
@@ -88,7 +88,7 @@ export default function ProfilePage() {
         <Card className="max-w-2xl mx-auto">
           <CardHeader className="text-center">
             <Avatar className="w-24 h-24 mx-auto">
-              <AvatarFallback className='text-4xl'>{userData.username[0].toUpperCase()}</AvatarFallback>
+              <AvatarFallback><User className="w-1/2 h-1/2" strokeWidth={1} /></AvatarFallback>
             </Avatar>
           </CardHeader>
           <CardContent className="pt-4">
