@@ -7,6 +7,14 @@ export function useWebSocket(url: string) {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<Message | null>(null);
 
+  const disconnect = useCallback(() => {
+    if (ws) {
+      ws.close();
+      setWs(null);
+      setIsConnected(false);
+    }
+  }, [ws]);
+
   useEffect(() => {
     const websocket = new WebSocket(url);
     setWs(websocket);
@@ -29,5 +37,5 @@ export function useWebSocket(url: string) {
     [ws, isConnected],
   );
 
-  return { isConnected, lastMessage, sendMessage };
+  return { isConnected, lastMessage, sendMessage, disconnect };
 }

@@ -15,7 +15,7 @@ export default function LoadingPage() {
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const router = useRouter();
   const { user } = useAuthStore();
-  const { isConnected, lastMessage, sendMessage } = useWebSocket(
+  const { isConnected, lastMessage, sendMessage, disconnect } = useWebSocket(
     process.env.NEXT_PUBLIC_MATCHING_SERVICE_WS_URL || 'ws://localhost:5001/ws',
   );
 
@@ -73,6 +73,10 @@ export default function LoadingPage() {
 
   const handleCancel = () => {
     console.log('Matching cancelled');
+    if (isConnected) {
+      sendMessage({ type: 'cancel', userId: user?.id });
+      disconnect();
+    }
     router.push('/');
   };
 
