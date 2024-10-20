@@ -4,7 +4,7 @@ import MatchingRequestForm from "./MatchingRequestForm";
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
 import Timer from "./Timer.tsx";
 import { useUser } from "../../context/UserContext.tsx";
-import IsConnected from "../IsConnected";
+import Alert from 'react-bootstrap/Alert';
 
 interface MatchingModalProps {
   closeMatchingModal: () => void;
@@ -15,7 +15,6 @@ const MATCH_WEBSOCKET_URL: string = "ws://localhost:8082";
 const MatchingModal: React.FC<MatchingModalProps> = ({
   closeMatchingModal,
 }) => {
-  // --- Declare your states ----
   const [matchId, setMatchId] = useState("");
   const [formData, setFormData] = useState<MatchingRequestFormState>({
     topic: "",
@@ -26,13 +25,14 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
 
   const [isMatchFound, setIsMatchFound] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
+  const [cancelAlert, setCancelAlert] = useState<boolean>(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
     try {
+      setCancelAlert(false);
       setShowTimer(true);
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
       socket.connect();
       socket.on("connect", () => {
         console.log("Connected to server", socket.id);
@@ -65,8 +65,6 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
       socket.on("receiveMatchResponse", (responseData, ack) => {
         console.log("Received match response:", responseData);
         ack(true);
-        // --- Successfully matched!!! ---
-        // Change in some state here
         socket.emit("broadcast", `hi from ${user?.username}`);
         setShowTimer(false);
         setIsMatchFound(true);
@@ -108,6 +106,11 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     }
   }
 
+  const handleMatchNotFound = () => {
+    handleCancelMatchRequest();
+    setCancelAlert(true);
+  }
+
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 bg-gray-900 bg-opacity-60">
       <div className="relative p-6 bg-white rounded-lg shadow-lg space-y-6"> {/* Consistent spacing inside modal */}
@@ -117,6 +120,11 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         >
           X
         </button>
+        {
+          cancelAlert 
+            ? <Alert key="warning" variant="warning">No match was found! Please try again later</Alert> 
+            : <></>
+        }
         <div className="text-lg font-semibold text-center">
           Found Match?:{" "}
           {isMatchFound ? (
@@ -127,7 +135,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         </div>
         <div className="flex flex-col space-y-4">
           {showTimer ? (
-            <Timer showTimer={showTimer} cancelMatchRequest={handleCancelMatchRequest} setShowTimer={setShowTimer}/>
+            <Timer showTimer={showTimer} cancelMatchRequest={handleMatchNotFound} setShowTimer={setShowTimer}/>
           ) : (
             <MatchingRequestForm
               handleSubmit={() => handleFindMatchRequest(formData)}
