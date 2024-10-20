@@ -1,4 +1,4 @@
-import { QuestionComplexity } from "../../../../question-service/src/questions/types/question.types";
+import { QuestionComplexity } from "../types/question.types";
 
 export class MatchedPairDto {
   matchId: string;

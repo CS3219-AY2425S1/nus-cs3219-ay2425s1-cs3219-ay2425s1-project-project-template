@@ -20,7 +20,6 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   afterInit(server: Server) {
     this.logger.log('Match WebSocket Gateway initialized');
-    // Make the server instance available globally for the MatchService
     global.io = server;
   }
 
@@ -36,12 +35,11 @@ export class MatchGateway implements OnGatewayDisconnect {
     try {
       this.logger.log(`Match request received from user ${matchRequest.userId}`);
       this.validateMatchRequest(matchRequest);
-      await this.matchService.handleMatchRequest(matchRequest, client);
-      // Acknowledge receipt of request
       client.emit('requestAcknowledged', {
         message: 'Match request received and being processed',
         timestamp: new Date().toISOString(),
       });
+      await this.matchService.handleMatchRequest(matchRequest, client);
     } catch (error) {
       this.logger.error(`Error handling match request from user ${matchRequest.userId}:`, error);      
       client.emit('matchError', {
@@ -59,20 +57,11 @@ export class MatchGateway implements OnGatewayDisconnect {
     try {
       this.logger.log(`Cancel match request received from user ${data.userId}`);
       
-      // Validate the cancel request
       if (!data.userId) {
         throw new WsException('UserId is required to cancel match');
       }
 
-      // Process the cancellation
       await this.matchService.cancelMatch(data.userId, client.id);
-      
-      // Acknowledge cancellation
-      client.emit('cancelAcknowledged', {
-        message: 'Match request cancelled successfully',
-        timestamp: new Date().toISOString(),
-      });
-
     } catch (error) {
       this.logger.error(`Error cancelling match for user ${data.userId}:`, error);
       

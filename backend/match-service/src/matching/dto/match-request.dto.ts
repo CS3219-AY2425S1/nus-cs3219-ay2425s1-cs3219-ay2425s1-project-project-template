@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsEnum, IsNumber, Min, IsOptional } from 'class-validator';
-import { QuestionComplexity, QuestionCategory } from '../../../../question-service/src/questions/types/question.types'
+import { QuestionCategory, QuestionComplexity } from '../types/question.types';
 
 export class MatchRequestDto {
   @IsNotEmpty()
