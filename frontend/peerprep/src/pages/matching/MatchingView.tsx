@@ -194,12 +194,12 @@ const MatchingView: React.FC = () => {
           color="white"
         >
           <Text fontSize="lg" fontWeight="bold">
-            Failed to find a match in {elapsedTime} seconds!
+            Failed to find a match!
           </Text>
           <Button
             mt={4}
             colorScheme="purple"
-            onClick={() => navigate("/matching")}
+            onClick={() => window.location.reload()}
           >
             Try Again
           </Button>
