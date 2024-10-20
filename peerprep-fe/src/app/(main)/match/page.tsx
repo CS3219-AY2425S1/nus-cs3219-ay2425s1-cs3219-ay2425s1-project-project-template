@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
 import { consumeMessageFromQueue } from '@/lib/rabbitmq';
 
@@ -10,7 +10,25 @@ export default function LoadingPage() {
   const [usersWaiting, setUsersWaiting] = useState(4);
   const router = useRouter();
 
+  const startConsumingMessages = async () => {
+    try {
+      await consumeMessageFromQueue().then((message) => {
+        // This function is called when a message is consumed
+        if (message.status == 'matched') {
+          console.log('Match found, your partner is');
+          router.push('/');
+        } else {
+          console.log('Match failed');
+          router.push('/');
+        }
+      });
+    } catch (error) {
+      console.error('Error consuming message:', error);
+    }
+  };
+
   useEffect(() => {
+    startConsumingMessages();
     const timer = setInterval(() => {
       setElapsedTime((prevTime) => prevTime + 1);
     }, 1000);
@@ -25,28 +43,6 @@ export default function LoadingPage() {
       router.push('/');
     }
   }, [elapsedTime]);
-
-  useEffect(() => {
-    // Start consuming messages from the queue when the component mounts
-    const startConsumingMessages = async () => {
-      try {
-        await consumeMessageFromQueue().then((message) => {
-          // This function is called when a message is consumed
-          if (message.status == 'matched') {
-            console.log('Match found, your partner is');
-            router.push('/');
-          } else {
-            console.log('Match failed');
-            router.push('/');
-          }
-        });
-      } catch (error) {
-        console.error('Error consuming message:', error);
-      }
-    };
-
-    startConsumingMessages();
-  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#1a1f2e] text-gray-300">
