@@ -30,7 +30,6 @@ const updateAll = async () => {
     if (fs.existsSync(path.join(dir, "package.json"))) {
       try {
         if (dir !== "peerprep-shared-types") {
-          console.log(dir);
           await updatePackage(dir);
         }
       } catch (error) {
