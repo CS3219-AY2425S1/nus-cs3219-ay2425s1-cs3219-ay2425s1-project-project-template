@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly eventEmitter: EventEmitter2) { }
+  constructor(private readonly eventEmitter: EventEmitter2) {}
   private readonly matchBuffer: Record<string, any[]> = {};
   private readonly connectedUsers: Set<string> = new Set();
   private readonly queueName = 'matching_queue';
@@ -147,21 +147,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       );
       console.log(
         `Partial match found between ${email} and ${matchedUser.email} based on categories.`,
-      );
-      const partialMatchingKey = `${matchedUser.categories}-${matchedUser.complexity}-${matchedUser.language}`;
-      delete this.unmatchedRequests[partialMatchingKey];
-      this.notifyMatchFound(email, matchedUser.email);
-
-    } else if (
-      Object.values(this.unmatchedRequests).find(
-        (req) => req.complexity === complexity,
-      )
-    ) {
-      const matchedUser = Object.values(this.unmatchedRequests).find(
-        (req) => req.complexity === complexity,
-      );
-      console.log(
-        `Partial match found between ${email} and ${matchedUser.email} based on comlexity.`,
       );
       const partialMatchingKey = `${matchedUser.categories}-${matchedUser.complexity}-${matchedUser.language}`;
       delete this.unmatchedRequests[partialMatchingKey];
