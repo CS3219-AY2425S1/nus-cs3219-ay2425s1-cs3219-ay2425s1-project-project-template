@@ -38,6 +38,7 @@ export const NewSession = () => {
         isMatchmaking: false,
         isMatchFound: false,
         isMatchmakingFailed: false,
+        isDuplicate: false,
         matchID: '',
     })
 
@@ -120,6 +121,14 @@ export const NewSession = () => {
                             }
                         })
                         break
+                    case WebSocketMessageType.DUPLICATE:
+                        setModalData((modalData) => {
+                            return {
+                                ...modalData,
+                                isDuplicate: true,
+                            }
+                        })
+                        break
                     default:
                         console.error('Unexpected message type received')
                 }
@@ -144,6 +153,11 @@ export const NewSession = () => {
     const handleCancelMatchmaking = async () => {
         const cancelMessage = { type: WebSocketMessageType.CANCEL }
         socketRef.current?.send(JSON.stringify(cancelMessage))
+        setModalData((modalData) => ({
+            ...modalData,
+            isOpen: false,
+            isMatchmaking: false,
+        }))
     }
 
     const handleMatchFound = async () => {
@@ -237,6 +251,13 @@ export const NewSession = () => {
                         {modalData.isMatchFound && (
                             <h2 className="text-xl font-bold text-center">
                                 Match found! Please wait while we redirect you to the coding session...
+                                {modalData.matchID}
+                            </h2>
+                        )}
+                        {modalData.isDuplicate && (
+                            <h2 className="text-xl font-bold text-center">
+                                You are already in the queue for matchmaking. Please wait while we redirect you to the
+                                coding session...
                                 {modalData.matchID}
                             </h2>
                         )}
