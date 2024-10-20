@@ -1,4 +1,4 @@
-import { AuthType, questionServiceUri } from "@/lib/api-uri";
+import { AuthType, questionServiceUri } from "@/lib/api/api-uri";
 import { Question } from "@/lib/schemas/question-schema";
 
 export const updateQuestion = async (jwtToken: string, question: Question) => {

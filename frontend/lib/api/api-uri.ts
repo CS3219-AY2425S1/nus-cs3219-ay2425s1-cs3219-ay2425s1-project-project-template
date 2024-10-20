@@ -26,3 +26,10 @@ export const matchingServiceUri: (
   authType: AuthType
 ) => string = (baseUri, authType) =>
   constructUri(baseUri, authType, "matching-service");
+
+const constructWebSockUri = (baseUri: string) =>
+  `ws://${process.env.NEXT_PUBLIC_BASE_URI || baseUri}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}`;
+
+export const matchingServiceWebSockUri: (baseUri: string) => string = (
+  baseUri
+) => constructWebSockUri(baseUri);

@@ -24,7 +24,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
-import { AuthType, userServiceUri } from "@/lib/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 import { isPasswordComplex } from "@/lib/password";
 
 const fetcher = async (url: string): Promise<User> => {

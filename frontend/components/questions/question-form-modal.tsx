@@ -1,6 +1,12 @@
 "use client";
 
-import { Question } from "@/lib/schemas/question-schema";
+import {
+  CategoryEnum,
+  CategoryEnumArray,
+  ComplexityEnum,
+  ComplexityEnumArray,
+  Question,
+} from "@/lib/schemas/question-schema";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +25,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 interface QuestionFormModalProps {
   showModal: boolean;
@@ -33,8 +40,8 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
   const initialQuestionState: Question = {
     id: "",
     title: "",
-    category: "",
-    complexity: "easy",
+    categories: [],
+    complexity: "Easy",
     description: "",
   };
 
@@ -52,7 +59,11 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
     e.preventDefault();
 
     props.handleSubmit(question);
-    setQuestion(initialQuestionState);
+    if (props.initialData) {
+      setQuestion(props.initialData);
+    } else {
+      setQuestion(initialQuestionState);
+    }
   };
 
   const handleExit = () => {
@@ -85,15 +96,19 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
               </DialogHeader>
               <div>
                 <Label>Category</Label>
-                <Input
-                  id="category"
-                  value={question.category}
+                <MultiSelect
                   className="mt-2"
-                  onChange={(e) =>
-                    setQuestion({ ...question, category: e.target.value })
+                  defaultValue={question.categories as string[]}
+                  options={CategoryEnumArray.map((category) => ({
+                    label: category,
+                    value: category,
+                  }))}
+                  onValueChange={(v) =>
+                    setQuestion({
+                      ...question,
+                      categories: v as CategoryEnum[],
+                    })
                   }
-                  disabled={!props.isAdmin}
-                  required
                 />
               </div>
 
@@ -103,7 +118,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                   {props.isAdmin ? (
                     <Select
                       value={question.complexity}
-                      onValueChange={(e) =>
+                      onValueChange={(e: ComplexityEnum) =>
                         setQuestion({ ...question, complexity: e })
                       }
                       disabled={!props.isAdmin}
@@ -112,19 +127,18 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                         <SelectValue placeholder="Select complexity" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="easy">Easy</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="hard">Hard</SelectItem>
+                        {ComplexityEnumArray.map((complexity) => (
+                          <SelectItem key={complexity} value={complexity}>
+                            {complexity}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   ) : (
                     <Input
                       id="complexity"
                       value={question.complexity}
-                      onChange={(e) =>
-                        setQuestion({ ...question, complexity: e.target.value })
-                      }
-                      disabled={!props.isAdmin}
+                      disabled
                     />
                   )}
                 </div>
