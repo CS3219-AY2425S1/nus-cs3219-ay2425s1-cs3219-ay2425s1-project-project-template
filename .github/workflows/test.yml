@@ -73,6 +73,12 @@ jobs:
       - name: Wait for services to be ready
         run: sleep 30
 
+      - name: Install websocat
+        run: |
+          sudo wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/latest/download/websocat.x86_64-unknown-linux-musl
+          sudo chmod a+x /usr/local/bin/websocat
+          websocat --version
+
       - name: Run Tests
         env:
           FRONTEND_URL: ${{ vars.FRONTEND_URL }}
@@ -87,6 +93,11 @@ jobs:
           echo "Testing Frontend..."
           curl -fsSL -o /dev/null $FRONTEND_URL && echo "Frontend is up"
           echo "Testing Matching Service..."
+          if ! (echo "Hello" | websocat $MATCHING_SERVICE_URL); then
+            echo "WebSocket for Matching Service is not live"
+          else
+            echo "WebSocket for Matching Service is live"
+          fi
           # Add in test for matching service in the future
 
           # We can add more tests here
