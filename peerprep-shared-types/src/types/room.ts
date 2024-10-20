@@ -1,6 +1,6 @@
 import { DifficultyLevel, QuestionDto } from "./question";
 
-interface RoomDto {
+export interface RoomDto {
   _id: string;
   users: string[];
   question: QuestionDto;
