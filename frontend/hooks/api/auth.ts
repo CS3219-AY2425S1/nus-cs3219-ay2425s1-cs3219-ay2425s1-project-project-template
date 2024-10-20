@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { jwtDecode } from "jwt-decode";
 
@@ -10,6 +10,7 @@ import {
   RegisterCredentials,
   LogoutResponse,
 } from "@/types/auth";
+import { User } from "@/types/user";
 
 // Login: Send credentials to the server and return the response
 const login = async (credentials: Credentials): Promise<LoginResponse> => {
@@ -175,5 +176,18 @@ export const useLogout = () => {
     onError: () => {
       console.error("Logout failed!");
     },
+  });
+};
+
+const verifyToken = async () => {
+  const response = await axios.get(`/user-service/auth/verify-token`);
+
+  return response.data.data;
+};
+
+export const useVerifyToken = () => {
+  return useQuery<User, AxiosError>({
+    queryKey: ["verifyToken"],
+    queryFn: () => verifyToken(),
   });
 };
