@@ -8,6 +8,6 @@ RUN ./mvnw dependency:go-offline
 
 COPY src/ ./src/
 
-EXPOSE 3002
+EXPOSE 3005
 
 CMD ["./mvnw", "spring-boot:run"]
