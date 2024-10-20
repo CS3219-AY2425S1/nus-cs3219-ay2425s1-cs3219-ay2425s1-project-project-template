@@ -88,3 +88,36 @@ func HandleMessages() {
 		}
 	}
 }
+
+// EmitToUsers sends the match result to both users
+func EmitToUsers(socketID1 string, socketID2 string, roomID string) {
+	// Notify the first user
+	if conn, ok := clients[socketID1]; ok {
+		err := conn.WriteJSON(map[string]string{
+			"roomId": roomID,
+			"state":  "Matched",
+		})
+		if err != nil {
+			log.Printf("Error sending WebSocket message to user %s: %v", socketID1, err)
+			conn.Close()
+			delete(clients, socketID1)
+		}
+	} else {
+		log.Printf("No WebSocket connection found for user %s", socketID1)
+	}
+
+	// Notify the second user
+	if conn, ok := clients[socketID2]; ok {
+		err := conn.WriteJSON(map[string]string{
+			"roomId": roomID,
+			"state":  "Matched",
+		})
+		if err != nil {
+			log.Printf("Error sending WebSocket message to user %s: %v", socketID2, err)
+			conn.Close()
+			delete(clients, socketID2)
+		}
+	} else {
+		log.Printf("No WebSocket connection found for user %s", socketID2)
+	}
+}
