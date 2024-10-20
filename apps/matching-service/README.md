@@ -127,18 +127,22 @@ Before running the following commands, ensure that the URL for the Redis server 
 
 To run the application via Docker, run the following command:
 
+1. Set up the Go Docker container for the matching service
 ```bash
 docker build -f Dockerfile -t match-go-app .
 ```
 
+2. Create the Docker network for Redis and Go
 ```bash
 docker network create redis-go-network
 ```
 
+3. Start a new Redis container in detached mode using the Redis image from Docker Hub
 ```bash
 docker run -d --name redis-container --network redis-go-network redis
 ```
 
+4. Run the Go Docker container for the matching-service
 ```bash
 docker run -d -p 8081:8081 --name go-app-container --network redis-go-network match-go-app
 ```
