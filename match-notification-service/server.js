@@ -74,7 +74,7 @@ io.on('connection', (socket) => {
   // Register the userId with the socket and send search request to RabbitMQ
   socket.on('register', (userId, difficulty, topics) => {
     if (connectedClients[userId]) {
-      socket.disconnect(true);  // Force disconnect the existing socket
+      io.to(socket.id).emit('existing_search', 'User is already searching in another matching service.');
       console.log(`User ${userId} is already searching in matching service.`);
     } else {
       // Register the new connection
