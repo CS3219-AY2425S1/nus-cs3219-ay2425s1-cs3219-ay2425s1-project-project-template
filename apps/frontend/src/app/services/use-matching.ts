@@ -46,6 +46,7 @@ export default function useMatching(): MatchState {
     const [isSocket, setIsSocket] = useState<boolean>(false);
     const [ste, setSte] = useState<MatchState>({
         state: "closed",
+        info: null,
         start,
     });
 
@@ -67,7 +68,14 @@ export default function useMatching(): MatchState {
                 setSte({
                     state: "found",
                     info: info,
-                    ok: cancel
+                    ok: () => {
+                        setIsSocket(false);
+                        setSte({
+                            state: "closed",
+                            info: info,
+                            start,
+                        });
+                    }
                 })
                 return;
             }
@@ -97,6 +105,7 @@ export default function useMatching(): MatchState {
         setIsSocket(false)
         setSte({
             state: "closed",
+            info: null,
             start,
         })
     }
@@ -110,7 +119,7 @@ export default function useMatching(): MatchState {
     switch (socketState) {
         case ReadyState.CLOSED:
         case ReadyState.UNINSTANTIATED:
-            matchState = {state: "closed", start}
+            matchState = {state: "closed", info: null, start}
             break;
         case ReadyState.OPEN:
             matchState = {state: "matching", cancel, timeout}
