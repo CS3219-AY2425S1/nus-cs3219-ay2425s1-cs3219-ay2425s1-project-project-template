@@ -66,13 +66,13 @@ export class LandingPageComponent {
 
   findMatch() {
     // const selectedTopic = this.question_categories.filter(topic => topic.selected).map(topic => topic.name);
-    const queueName = this.getQueueName();
     const userData = {
       difficulty: this.selectedDifficulty || '',
       topic: this.selectedCategory || '',
       user_id: this.userService.getCurrUserId() || '', // not sure if it'l work
       // user_id: '1',
     };
+    const queueName = this.getQueueName();
 
     this.matchService.sendMatchRequest(userData, queueName).subscribe(
       (error) => {
@@ -94,10 +94,12 @@ export class LandingPageComponent {
   }
 
   getQueueName(): string {
-    switch(this.selectedDifficulty) {
-      case DIFFICULTY.EASY: return QUEUE_NAMES.EASY;
-      case DIFFICULTY.MEDIUM: return QUEUE_NAMES.MEDIUM;
-      case DIFFICULTY.HARD: return QUEUE_NAMES.HARD;
+    // change to same case
+    const difficulty = this.selectedDifficulty?.toUpperCase();
+    switch(difficulty) {
+      case DIFFICULTY.EASY.toUpperCase(): return QUEUE_NAMES.EASY;
+      case DIFFICULTY.MEDIUM.toUpperCase(): return QUEUE_NAMES.MEDIUM;
+      case DIFFICULTY.HARD.toUpperCase(): return QUEUE_NAMES.HARD;
       default: return '';
     }
   }
@@ -115,7 +117,7 @@ export class LandingPageComponent {
 
   rotation: string = '0deg';
 
-  showImage(difficulty: string) {
+  handleDifficulty(difficulty: string) {
     if (difficulty === DIFFICULTY.EASY) {
         this.rotation = '-50.39deg'; 
         this.xPosition = '140px'; // Initial X position
@@ -165,12 +167,10 @@ export class LandingPageComponent {
     const hasSelectedDifficulty = this.selectedDifficulty !== null;
     // const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
     const hasSelectedTopics = this.selectedCategory !== null;
-    
     this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
-    
   }
 
-  isMatchButtonActive() {
+  handleFindMatch() {
     this.errorMessage = null;
     const hasSelectedDifficulty = this.selectedDifficulty !== null;
     // const hasSelectedTopics = this.question_categories.some(topic => topic.selected);

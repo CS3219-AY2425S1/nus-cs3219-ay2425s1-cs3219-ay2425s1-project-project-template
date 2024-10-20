@@ -8,9 +8,9 @@
 </div>
 
 <div class="categories">
-    <button (click)="showImage('EASY')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'EASY'}">EASY</button>
-    <button (click)="showImage('MEDIUM')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'MEDIUM'}">MEDIUM</button>
-    <button (click)="showImage('HARD')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'HARD'}">HARD</button>
+    <button (click)="handleDifficulty('EASY')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'EASY'}">EASY</button>
+    <button (click)="handleDifficulty('MEDIUM')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'MEDIUM'}">MEDIUM</button>
+    <button (click)="handleDifficulty('HARD')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'HARD'}">HARD</button>
 </div>
 
 <hr style="width: 50%; margin: 0 auto; border: 1px solid #ccc;">
@@ -43,7 +43,7 @@
 
 <div>
     <button class="match-button"  
-            (click)="isMatchButtonActive()" 
+            (click)="handleFindMatch()" 
             [ngClass]="{'active': matchButtonActive}">  
     FIND MATCH 
   </button>
