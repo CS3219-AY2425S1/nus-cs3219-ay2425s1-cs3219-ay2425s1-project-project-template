@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/contexts/theme-context";
 import React, { useEffect, useState } from "react";
 
 type TimerProps = {
@@ -49,10 +50,10 @@ const Timer: React.FC<TimerProps> = ({ onClose }) => {
           {" "}
           {/* Increased size of SVG */}
           <circle
+            className="stroke-gray-300 dark:stroke-white"
             cx="100"
             cy="100"
             r={radius}
-            stroke="white"
             strokeWidth="5"
             fill="none"
           />
