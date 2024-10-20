@@ -1,4 +1,4 @@
-import { matchingServiceWebSockUri } from "@/lib/api-uri";
+import { matchingServiceWebSockUri } from "@/lib/api/api-uri";
 
 export const subscribeMatch = async (
   userId: string,
