@@ -60,13 +60,24 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
       resetCountdown();
       isMatching.value = false;
       const status = message.status;
+      console.log('status:', status);
       if (status === 'cancelled') {
+        console.log('Match was cancelled by the other user');
         toast({
           description: 'The match was canceled by the other user. Please try again.',
           variant: 'destructive',
         });
         console.log('Match was cancelled by the other user');
-      } else {
+      } else if (status === 'no_question') {
+        console.log('No question found for the category:', message.status);
+        toast({
+          description: `No question found for the category: ${message.category}. Please try again.`,
+          variant: 'destructive',
+        });
+      }
+      else {
+
+        const formattedStatus = message.status[0].toUpperCase() + status.slice(1);
         if (is_user1) {
 
           const ack = {
@@ -75,16 +86,22 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
           }
           send(JSON.stringify(ack));
           console.log('sending ack:', ack);
-        }
-        const status = message.status[0].toUpperCase() + message.status.slice(1);
-        updateCollaborationInfo(message, status);
-        if (collaborationStore.isCollaborating) {
-          await navigateTo(`/collaboration`);
           toast({
-            description: `${status} found! Redirecting to the collaboration room...`,
+            description: `${formattedStatus} found! Matched with user ${message.user2_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
           });
-          matchFound.value = true;
+        } else {
+          toast({
+            description: `${formattedStatus} found! Matched with user ${message.user1_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
+          });
         }
+        updateCollaborationInfo(message, status);
+        // if (collaborationStore.isCollaborating) {
+        //   await navigateTo(`/collaboration`);
+        //   toast({
+        //     description: `${status} found! Redirecting to the collaboration room...`,
+        //   });
+        //   matchFound.value = true;
+        // }
       }
     } catch (error) {
       console.error("Failed to process received message:", error);
@@ -227,7 +244,6 @@ onMounted(() => {
 );
 
 onBeforeUnmount(() => {
-  // Remove the listener before the component is fully unmounted
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 
@@ -278,16 +294,23 @@ onUnmounted(() => {
                 Cancel Matching
               </Button>
             </div>
-
+            <!--
             <Button v-else class="w-3/4 mt-3"
               :disabled="isProcessing || matchFound || collaborationStore.isCollaborating">
               Match
             </Button>
+            -->
+
+            <Button v-else class="w-3/4 mt-3" :disabled="isProcessing">
+              Match
+            </Button>
           </div>
         </form>
+        <!--
         <Button @click="collaborationStore.clearCollaborationInfo" class="w-full">
           Clear
         </Button>
+        -->
       </CardContent>
     </Card>
   </div>

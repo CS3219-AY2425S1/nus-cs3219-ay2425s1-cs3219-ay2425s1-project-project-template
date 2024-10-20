@@ -11,7 +11,11 @@ COMPLETE_MATCHING_PATTERN = "c_matching:*:*"
 PARTIAL_MATCHING_PATTERN = "p_matching:*"
 
 
-def get_available_matching_requests(is_complete, redis_client, logger):
+def get_available_matching_requests(is_before, redis_client, logger, is_complete=True):
+    if is_before:
+        logger.info("Queue before matching:")
+    else:
+        logger.info("Queue after matching:")
     if is_complete:
         pattern = COMPLETE_MATCHING_PATTERN
         part_count = 3
@@ -52,12 +56,7 @@ def get_available_matching_requests(is_complete, redis_client, logger):
             )
 
     sorted_requests = sorted(all_requests, key=lambda x: x["req_time"])
-    title = (
-        "Available Matching Requests"
-        if is_complete
-        else "Available partial matching Requests"
-    )
-    logger.info(f"{title}: {len(sorted_requests)}")
+
     logger.info(sorted_requests)
 
 

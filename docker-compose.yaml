@@ -12,8 +12,8 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     healthcheck:
       test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server kafka:9092 --list"]
-      interval: 5s
-      timeout: 10s
+      interval: 3s
+      timeout: 3s
       retries: 5
     volumes:
       - kafka_data:/bitnami/kafka
@@ -24,7 +24,8 @@ services:
     image: bitnami/kafka:3
 
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     entrypoint: [ '/bin/sh', '-c' ]
     networks:
       - backend_network
@@ -41,17 +42,6 @@ services:
       echo -e 'Successfully created the following topics:'
       kafka-topics.sh --bootstrap-server kafka:9092 --list
       "
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest  
-    environment:
-      - KAFKA_CLUSTERS_0_NAME=local 
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092  
-    ports:
-      - "8080:8080"  
-    depends_on:
-      - init-kafka
-    networks:
-      - backend_network  
 
   redis:
     image: redis:alpine
@@ -61,19 +51,12 @@ services:
       - redis_data:/data
     networks:
       - backend_network
-  redisinsight:
-    image: redislabs/redisinsight:latest
-    ports:
-      - "5540:5540"
-    networks:
-      - backend_network
 
   ui:
     container_name: ui
-    
     build:
       context: ./frontend/Peerprep
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     volumes:
       - ./frontend/Peerprep:/src
     ports:
@@ -98,7 +81,8 @@ services:
       - "8000:8000"
       - "8001:8001"
     depends_on:
-      - init-kafka
+      kafka:
+        condition: service_healthy
     volumes:
       - ./backend/matching_service:/app
     networks:
@@ -111,10 +95,11 @@ services:
     build:
       context: ./backend/question_service
       dockerfile: Dockerfile
-    depends_on:
-      - init-kafka
     networks:
       - backend_network
+    depends_on:
+      kafka:
+        condition: service_healthy
     ports:
       - "5000:5000"
 
@@ -128,8 +113,6 @@ services:
       - backend_network
     ports:
       - "5001:5001"
-  
-
 
 volumes:
   redis_data:

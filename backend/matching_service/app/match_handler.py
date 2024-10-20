@@ -18,6 +18,7 @@ CONSUMER_CONFIG = {
     "bootstrap.servers": "kafka:9092",
     "group.id": "match-handler-group",
     "auto.offset.reset": "earliest",
+    "group.instance.id": "match-handler-instance",
 }
 
 PRODUCER_CONFIG = {
@@ -47,13 +48,13 @@ def main():
     consumer = Consumer(CONSUMER_CONFIG)
     producer = get_kafka_producer(logger)
     get_local_redis_client()
-    logger.info("Starting match handler...")
+
     try:
         consumer.subscribe(["match_requests"])
-        print("Subscribed to match_requests topic")
+        logger.info("Successfully subscribed to match_requests topic")
+
         while True:
             msg = consumer.poll(1.0)
-
             if msg is None:
                 continue
             if msg.error():
@@ -68,8 +69,8 @@ def main():
             except Exception as e:
                 logger.error(f"Error processing message: {e}")
 
-    except KeyboardInterrupt:
-        logger.info("Shutting down consumer...")
+    except Exception as e:
+        logger.error(f"Error processing message: {e}")
     finally:
         consumer.close()
 
@@ -117,11 +118,9 @@ def process_message(message, producer):
                 if res:
                     return
 
-            logger.info("No match found, adding user to the matching queue...")
             add_user_to_matching_queue(
                 pipe, user_id, key, category_key, expiration_time
             )
-            log_redis_state(redis_client, key, category_key, user_id)
             return
 
         except redis.WatchError:
@@ -150,25 +149,20 @@ def find_and_handle_match(
         key if match_type == "complete" else category_key, current_time, "+inf"
     )
     get_available_matching_requests(
-        is_complete=True, redis_client=redis_client, logger=logger
+        is_before=True, redis_client=redis_client, logger=logger
     )
-    # logger.info(f"Found matches: {matches} for {match_type} matching.")
 
     for match in matches:
         match = match.decode("utf-8")
-        logger.info(f"Attempting {match_type} match with {match}")
         can_continue, cancelled_users = can_proceed(
             redis_client, user_id, match, logger
         )
 
         if can_continue:
-            logger.info(
-                f"{match_type} match found: user_id={user_id} and match={match}"
-            )
             remove_and_execute(pipe, key, category_key, match)
 
             get_available_matching_requests(
-                is_complete=True, redis_client=redis_client, logger=logger
+                is_before=False, redis_client=redis_client, logger=logger
             )
             push_to_kafka(match_type, user_id, match, category, difficulty, producer)
 
@@ -186,21 +180,17 @@ def find_and_handle_match(
 
 
 def remove_expired_entries(redis_client, min_timestamp):
-    logger.info(f"Removing expired entries from Redis with timestamp: {min_timestamp}")
 
     for pattern in [COMPLETE_MATCHING_PATTERN, PARTIAL_MATCHING_PATTERN]:
-        logger.info(f"Checking expired entries for pattern {pattern}...")
         cursor = 0
         while True:
             cursor, keys = redis_client.scan(cursor=cursor, match=pattern)
             if not keys:
                 break
 
-            logger.info(f"Found keys: {keys} matching {pattern}")
             pipeline = redis_client.pipeline()
 
             for key in keys:
-                logger.info(f"Removing entries from {key} older than {min_timestamp}")
                 pipeline.zremrangebyscore(key, "-inf", min_timestamp)
 
             try:

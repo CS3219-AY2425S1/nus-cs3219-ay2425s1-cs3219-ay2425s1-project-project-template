@@ -18,7 +18,6 @@ KAFKA_FLUSH_TIMEOUT = 10
 def get_kafka_producer(logger):
     """Create and return a Kafka producer instance"""
     producer = Producer({"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS})
-    logger.info("Kafka producer initialized")
     return producer
 
 

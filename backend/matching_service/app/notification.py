@@ -33,7 +33,7 @@ def get_local_redis_client():
 
 def set_user_state(redis_client, user_id, state):
     redis_client.hset(f"user:{user_id}", "state", state)
-    logger.info(f"Set user {user_id} to state: {state}")
+    # logger.info(f"Set user {user_id} to state: {state}")
 
 
 async def kafka_consumer():
@@ -70,58 +70,39 @@ async def kafka_consumer():
                 continue
 
             message_value = msg.value().decode("utf-8")
-            topic = msg.topic()
             message = json.loads(message_value)
 
-            # if topic == "match_requests":
-            #     logger.info(f"Received message from match_requests: {message_value}")
-            #     user_id = message.get("user_id")
-            #     state = redis_client.hget(f"user:{user_id}", "state")
-            #     if state and state.decode("utf-8") == "cancelled":
-            #         redis_client.hset(f"user:{user_id}", "state", "matching")
-            #         redis_client.hset(
-            #             f"user:{user_id}", "request_time", message.get("request_time")
-            #         )
-            #         logger.info(f"Set user {user_id} to state: matching")
-            # elif topic == "match_results":
-            #     logger.info(f"Received message from match_results: {message_value}")
-            #     yield message
-            if topic == "question_results":
-                logger.info(f"Received message from question_results: {message_value}")
-                user1_id = message.get("user1_id")
-                user2_id = message.get("user2_id")
-                user1_state = redis_client.hget(f"user:{user1_id}", "state").decode(
-                    "utf-8"
-                )
-                user2_state = redis_client.hget(f"user:{user2_id}", "state").decode(
-                    "utf-8"
-                )
+            logger.info(f"Received message from question_results: {message_value}")
+            user1_id = message.get("user1_id")
+            user2_id = message.get("user2_id")
+            user1_state = redis_client.hget(f"user:{user1_id}", "state").decode("utf-8")
+            user2_state = redis_client.hget(f"user:{user2_id}", "state").decode("utf-8")
 
-                if user1_state == "matching" and user2_state == "matching":
-                    set_user_state(redis_client, user1_id, "completed")
-                    set_user_state(redis_client, user2_id, "completed")
-                    redis_client.hset(
-                        message.get("uid"),
-                        mapping={
-                            "user1_id": user1_id,
-                            "user2_id": user2_id,
-                            "question_id": message.get("question_id"),
-                            "status": message.get("status"),
-                        },
-                    )
-                    redis_client.expire(message.get("uid"), 60)
-                    yield message
+            if user1_state == "matching" and user2_state == "matching":
+                set_user_state(redis_client, user1_id, "completed")
+                set_user_state(redis_client, user2_id, "completed")
 
-                elif user1_state == "matching":
-                    cancelled_message = generate_cancelled_message(
-                        redis_client, user1_id
-                    )
-                    yield cancelled_message
-                elif user2_state == "matching":
-                    cancelled_message = generate_cancelled_message(
-                        redis_client, user2_id
-                    )
-                    yield cancelled_message
+                redis_client.hset(
+                    message.get("uid"),
+                    mapping={
+                        "user1_id": user1_id,
+                        "user2_id": user2_id,
+                        "question_id": message.get("question_id"),
+                        "question_title": message.get("question_title"),
+                        "status": message.get("status"),
+                        "category": message.get("category"),
+                        "difficulty": message.get("difficulty"),
+                    },
+                )
+                redis_client.expire(message.get("uid"), 60)
+                yield message
+
+            elif user1_state == "matching":
+                cancelled_message = generate_cancelled_message(redis_client, user1_id)
+                yield cancelled_message
+            elif user2_state == "matching":
+                cancelled_message = generate_cancelled_message(redis_client, user2_id)
+                yield cancelled_message
 
             consumer.commit(msg)
         except Exception as e:
@@ -152,7 +133,7 @@ async def send_with_retries(user_id, message, max_retries=4):
             if user_id in connected_clients:
                 websocket = connected_clients[user_id]
                 await websocket.send(json.dumps(message))
-                logger.info(f"Sent message to user {user_id}: {message}")
+                # logger.info(f"Sent message to user {user_id}: {message}")
                 return True
         except Exception as e:
             logger.error(
@@ -168,10 +149,13 @@ async def send_with_retries(user_id, message, max_retries=4):
 async def match_result_dispatcher():
     async for match_result in kafka_consumer():
         status = match_result.get("status")
-        logger.info(f"Currently connected clients: {list(connected_clients.keys())}")
+        # logger.info(f"Currently connected clients: {list(connected_clients.keys())}")
         if status == "cancelled":
             user_id = match_result.get("user_id")
             await send_with_retries(user_id, match_result)
+        elif status == "no_question":
+            await send_with_retries(match_result.get("user1_id"), match_result)
+            await send_with_retries(match_result.get("user2_id"), match_result)
         else:
             user1_id = match_result.get("user1_id")
             user2_id = match_result.get("user2_id")
@@ -212,7 +196,7 @@ async def websocket_handler(websocket, path):
             data = json.loads(message)
             status = data.get("status")
             if status == "success" or status == "error":
-                logger.info(f"Received ACK from user1 {user_id}: {message}")
+                # logger.info(f"Received ACK from user1 {user_id}: {message}")
                 await handle_ack(user_id, status, data)
             else:
                 logger.info(f"Received message from user {user_id}: {message}")
