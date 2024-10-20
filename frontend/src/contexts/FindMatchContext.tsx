@@ -1,175 +1,288 @@
 "use client";
 
-import { PropsWithChildren, createContext, useState, useContext } from "react";
-import { io, Socket } from "socket.io-client";
+import {
+  PropsWithChildren,
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
+import { io } from "socket.io-client";
 import { Difficulty, DifficultyEnum } from "@/types/Question";
 import { Category } from "@/types/Category";
+import { MatchRequest } from "@/types/Match";
+import { useToast } from "@/hooks/use-toast";
+
+import { useInterval } from "usehooks-ts";
 
 interface FindMatchContextProps {
   isConnected: boolean;
-  match?: string;
+  matchId?: string;
+  matchUsername?: string;
   findingMatch: boolean;
   matchFound: boolean;
   isAwaitingConfirmation: boolean;
   showConfigurationPanel: boolean;
-  difficulties: Difficulty[];
+  showContinueDialog: boolean;
+  timer: number;
+  difficulties: Difficulty;
   topics: Category[];
   handleFindMatch: () => void;
-  handleCancelFindingMatch: () => void;
-  handleConfirmMatch: () => void;
   handleCancelMatch: () => void;
+  handleAcceptMatch: () => void;
+  handleDeclineMatch: () => void;
   setShowConfigurationPanel: (show: boolean) => void;
-  setDifficulty: (difficulty: Difficulty[]) => void;
+  setShowContinueDialog: (show: boolean) => void;
+  setDifficulty: (difficulty: Difficulty) => void;
   setTopics: (topics: Category[]) => void;
-  simulateMatchFound: () => void;
-  simulateMatchCancelled: () => void;
-  simulateMatchConfirmed: () => void;
+}
+
+interface FindMatchProviderProps {
+  socketUrl: string;
+  userId: string;
 }
 
 const MatchContext = createContext<FindMatchContextProps | undefined>(
   undefined
 );
 
-export function FindMatchProvider({ children }: PropsWithChildren) {
-  const [difficulty, setDifficulty] = useState<Difficulty[]>([
-    DifficultyEnum.enum.Medium,
-  ]);
+export function FindMatchProvider({
+  socketUrl,
+  userId,
+  children,
+}: PropsWithChildren<FindMatchProviderProps>) {
+  const { toast } = useToast();
+
+  const [difficulty, setDifficulty] = useState<Difficulty>(
+    DifficultyEnum.enum.Medium
+  );
+
+  const [topics, setTopics] = useState<Category[]>(["Array"]);
 
   const [showConfigurationPanel, setShowConfigurationPanel] = useState(false);
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
 
-  const [topics, setTopics] = useState<Category[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-
   const [findingMatch, setFindingMatch] = useState(false);
   const [matchFound, setMatchFound] = useState(false);
   const [isAwaitingConfirmation, setIsAwaitingConfirmation] = useState(false);
 
-  const [match, setMatch] = useState<string | undefined>();
-  const [socket, setSocket] = useState<Socket | undefined>();
+  const [timer, setTimer] = useState(0);
 
-  function onConnect() {
-    setIsConnected(true);
-  }
+  useInterval(
+    () => {
+      setTimer(timer + 1);
+    },
+    findingMatch ? 1000 : null
+  );
 
-  function onDisconnect() {
-    setIsConnected(false);
-  }
+  const [matchId, setMatchId] = useState<string | undefined>();
 
-  function onMatchFound({ matchInfo }: { matchInfo: string }) {
-    setMatch(matchInfo);
+  const [matchUsername, setMatchUsername] = useState<string | undefined>();
+
+  const matchRequest: MatchRequest = useMemo(() => {
+    return {
+      userId: userId,
+      selectedDifficulty: difficulty,
+      selectedTopic: topics,
+    };
+  }, [userId, difficulty, topics]);
+
+  const socket = useMemo(() => {
+    return io(socketUrl, {
+      autoConnect: false,
+      reconnection: false,
+      query: {
+        userId: userId,
+      },
+    });
+  }, [socketUrl, userId]);
+
+  const handleFindMatch = useCallback(() => {
+    socket.connect();
+    socket.once("connected", () => {
+      socket.emit("findMatch", matchRequest);
+      socket.once("matchRequested", () => {
+        setFindingMatch(true);
+      });
+    });
+  }, [socket, matchRequest]);
+
+  const handleCancelMatch = useCallback(() => {
+    if (!socket.connected) {
+      return;
+    }
+
     setFindingMatch(false);
-    setMatchFound(true);
-    setIsAwaitingConfirmation(false);
-  }
+    setTimer(0);
 
-  function onMatchConfirmed({ matchInfo }: { matchInfo: string }) {
-    // Redirect to match session
-    console.log("Redirect to:", matchInfo);
+    socket.emit("cancelMatch", { userId });
+    socket.once("matchCancelled", () => {
+      socket.disconnect();
+    });
     reset();
-  }
+  }, [socket, userId]);
 
-  function onMatchCancelled() {
-    setMatchFound(false);
-    setFindingMatch(true);
-  }
+  const handleAcceptMatch = useCallback(() => {
+    if (!socket.connected) {
+      return;
+    }
 
-  function handleFindMatch() {
-    connectToSocket();
-    setFindingMatch(true);
-  }
-
-  function handleCancelFindingMatch() {
-    if (!socket) return;
-    socket.emit("cancelFindingMatch");
-    disconnectFromSocket();
-    reset();
-  }
-
-  function handleConfirmMatch() {
-    if (!socket) return;
-    socket.emit("confirmMatch");
+    setTimeout(() => {
+      socket.emit("acceptMatch", { userId, matchId });
+    }, 500);
     setIsAwaitingConfirmation(true);
-    setTimeout(() => {
-      simulateMatchConfirmed();
-    }, 2000);
-  }
+  }, [socket, userId, matchId]);
 
-  function handleCancelMatch() {
-    if (!socket) return;
-    socket.emit("cancelMatch");
-    disconnectFromSocket();
-    reset();
-  }
+  const handleDeclineMatch = useCallback(() => {
+    if (!socket.connected) {
+      return;
+    }
 
-  function connectToSocket() {
-    const newSocket = io("http://localhost:4000/match");
+    socket.emit("declineMatch", { userId, matchId });
 
-    newSocket.on("connect", onConnect);
-    newSocket.on("disconnect", onDisconnect);
-    newSocket.on("matchFound", onMatchFound);
-    newSocket.on("matchCancelled", onMatchCancelled);
-    newSocket.on("matchConfirmed", onMatchConfirmed);
+    socket.once("matchDeclined", () => {
+      socket.disconnect();
+      reset();
+    });
+  }, [socket, userId, matchId]);
 
-    setSocket(newSocket);
-  }
+  const onMatchFound = useCallback(
+    ({
+      matchId,
+      matchUsername,
+    }: {
+      matchId: string;
+      matchUsername: string;
+    }) => {
+      setMatchId(matchId);
+      setMatchUsername(matchUsername);
+      setFindingMatch(false);
+      setMatchFound(true);
+      setIsAwaitingConfirmation(false);
+      setTimer(0);
+    },
+    []
+  );
 
-  function disconnectFromSocket() {
-    if (!socket) return;
+  const onMatchDeclined = useCallback(
+    ({ message }: { message: string }) => {
+      if (!socket || !socket.connected) {
+        return;
+      }
 
-    socket.off("connect", onConnect);
-    socket.off("matchFound", onMatchFound);
-    socket.off("matchCancelled", onMatchCancelled);
-    socket.off("matchConfirmed", onMatchConfirmed);
-    socket.off("disconnect", onDisconnect);
-    socket.disconnect();
+      // Return user back to the pool
+      if (message.substring(0, 3) == "The") {
+        toast({
+          title: "Match Declined",
+          description:
+            "You will be returned to the pool to find another match.",
+        });
+        setMatchId(undefined);
+        setMatchFound(false);
+        setFindingMatch(true);
+        socket.emit("findMatch", matchRequest);
+      }
+    },
+    [socket, matchRequest, toast]
+  );
 
-    setSocket(undefined);
-  }
+  const onMatchConfirmed = useCallback(
+    ({ message, sessionId }: { message: string; sessionId: string }) => {
+      toast({
+        title: "Match Confirmed",
+        description: `You should be redirected to /${sessionId}`,
+      });
+      console.log("Redirect to:", sessionId, message);
+      reset();
+    },
+    [toast]
+  );
 
+  const handleError = useCallback(
+    (error: string) => {
+      toast({
+        title: "Error",
+        description: error,
+      });
+      socket.disconnect();
+    },
+    [socket, toast]
+  );
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      setIsConnected(true);
+    });
+
+    socket.on("matchFound", onMatchFound);
+    socket.on("matchDeclined", onMatchDeclined);
+    socket.on("matchConfirmed", onMatchConfirmed);
+
+    socket.on("matchError", handleError);
+    socket.on("exception", handleError);
+
+    socket.on("disconnect", () => {
+      setIsConnected(false);
+      reset();
+    });
+    return () => {
+      socket.removeAllListeners();
+      socket.disconnect();
+    };
+  }, [
+    socket,
+    onMatchFound,
+    onMatchDeclined,
+    onMatchConfirmed,
+    handleError,
+    toast,
+  ]);
+
+  useEffect(() => {
+    if (findingMatch) {
+      const timer = setTimeout(() => {
+        handleCancelMatch();
+        setShowContinueDialog(true);
+      }, 30000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [findingMatch, handleCancelMatch]);
+
+  // Reset state
   function reset() {
-    setMatch(undefined);
+    setMatchId(undefined);
     setFindingMatch(false);
     setMatchFound(false);
     setIsAwaitingConfirmation(false);
-  }
-
-  /**
-   * To be removed once the socket is implemented
-   */
-  function simulateMatchFound() {
-    onMatchFound({ matchInfo: "Matched user" });
-    setTimeout(() => {
-      simulateMatchCancelled();
-    }, 8000);
-  }
-
-  function simulateMatchCancelled() {
-    onMatchCancelled();
-  }
-
-  function simulateMatchConfirmed() {
-    onMatchConfirmed({ matchInfo: "id" });
+    setTimer(0);
   }
 
   const providerValue: FindMatchContextProps = {
     isConnected,
-    match,
+    matchId,
+    matchUsername,
     findingMatch,
     matchFound,
     isAwaitingConfirmation,
     showConfigurationPanel,
+    showContinueDialog,
+    timer,
     difficulties: difficulty,
     topics,
     handleFindMatch,
-    handleCancelFindingMatch,
-    handleConfirmMatch,
     handleCancelMatch,
+    handleAcceptMatch,
+    handleDeclineMatch,
     setShowConfigurationPanel,
+    setShowContinueDialog,
     setDifficulty,
     setTopics,
-    simulateMatchFound,
-    simulateMatchCancelled,
-    simulateMatchConfirmed,
   };
 
   return (

@@ -21,6 +21,8 @@ import { Category } from "@/types/Category";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { CaretDownIcon } from "@radix-ui/react-icons";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface MatchConfigurationPanelProps {
   difficulties: Difficulty[];
@@ -44,14 +46,6 @@ export default function ConfigurationPanel({
     handleFindMatch,
   } = useFindMatchContext();
 
-  const handleDifficultyCheckboxChange = (text: Difficulty) => {
-    if (difficulties.includes(text)) {
-      setDifficulty(difficulties.filter((item) => item !== text));
-    } else {
-      setDifficulty([...difficulties, text]);
-    }
-  };
-
   const handleTopicCheckboxChange = (text: Category) => {
     if (topics.includes(text)) {
       setTopics(topics.filter((item) => item !== text));
@@ -60,7 +54,7 @@ export default function ConfigurationPanel({
     }
   };
 
-  const [collapseDifficulties, setCollapseDifficulties] = useState(true);
+  const [collapseDifficulties, setCollapseDifficulties] = useState(false);
 
   const [collapseTopics, setCollapseTopics] = useState(false);
 
@@ -83,13 +77,23 @@ export default function ConfigurationPanel({
         <div className="flex flex-col gap-4">
           <Button
             onClick={() => setCollapseDifficulties(!collapseDifficulties)}
+            variant={collapseDifficulties ? "soft" : "outline"}
           >
-            Select difficulties
+            <div className="flex flex-row justify-between w-full">
+              <span>Select difficulty</span>
+              <CaretDownIcon
+                className={cn(
+                  "w-6 h-6",
+                  "transition-all duration-300",
+                  collapseDifficulties && "transform rotate-180"
+                )}
+              />
+            </div>
           </Button>
           <div
             ref={difficultyRef}
             className={cn(
-              "grid grid-cols-2 gap-4 z-0 opacity-100 transition-all duration-500",
+              "z-0 opacity-100 transition-all duration-500",
               collapseDifficulties && `-z-10 opacity-0`
             )}
             style={{
@@ -98,43 +102,53 @@ export default function ConfigurationPanel({
               }px`,
             }}
           >
-            <div className="flex items-center col-span-2 space-x-2">
-              <Checkbox
-                id="All"
-                checked={difficulties.length === difficultyOptions.length}
-                onCheckedChange={() =>
-                  difficulties.length !== difficultyOptions.length
-                    ? setDifficulty([...difficultyOptions])
-                    : setDifficulty([])
-                }
-              />
-              <label
-                htmlFor="All"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Select All
-              </label>
-            </div>
-            {difficultyOptions.map((difficulty, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Checkbox
-                  id={difficulty}
-                  checked={difficulties.includes(difficulty)}
-                  onCheckedChange={() =>
-                    handleDifficultyCheckboxChange(difficulty)
-                  }
-                />
-                <label
-                  htmlFor={difficulty}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {difficulty}
-                </label>
+            <RadioGroup
+              value={difficulties}
+              onValueChange={(selectedValue: Difficulty) =>
+                setDifficulty(selectedValue)
+              }
+              className="flex w-full"
+            >
+              <div className="flex flex-row justify-start w-full gap-12">
+                {difficultyOptions.map((difficultyOption) => (
+                  <div
+                    key={difficultyOption}
+                    className="flex flex-row items-center gap-2"
+                  >
+                    <RadioGroupItem
+                      value={difficultyOption}
+                      id={difficultyOption}
+                      className="flex items-center space-x-2"
+                    >
+                      <span className="text-sm font-medium leading-none">
+                        {difficultyOption}
+                      </span>
+                    </RadioGroupItem>
+                    <label
+                      htmlFor={difficultyOption}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {difficultyOption}
+                    </label>
+                  </div>
+                ))}
               </div>
-            ))}
+            </RadioGroup>
           </div>
-          <Button onClick={() => setCollapseTopics(!collapseTopics)}>
-            Select topics
+          <Button
+            onClick={() => setCollapseTopics(!collapseTopics)}
+            variant={collapseTopics ? "soft" : "outline"}
+          >
+            <div className="flex flex-row items-center justify-between w-full">
+              <span>Select topics</span>
+              <CaretDownIcon
+                className={cn(
+                  "w-6 h-6",
+                  "transition-all duration-300",
+                  collapseTopics && "transform rotate-180"
+                )}
+              />
+            </div>
           </Button>
           <div
             ref={topicsRef}

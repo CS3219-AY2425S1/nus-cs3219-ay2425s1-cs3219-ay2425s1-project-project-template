@@ -88,14 +88,13 @@ export default function SignupForm() {
         });
         return;
       }
-
       const accessTokenResponse = await signup(data);
       if (accessTokenResponse.statusCode === 200 && accessTokenResponse.data) {
-        localStorage.setItem(
-          "access_token",
-          accessTokenResponse.data.access_token
-        );
-        router.replace("/dashboard");
+        toast({
+          title: "Success!",
+          description: "You should be redirected to /onboard",
+        });
+        router.push("/onboard");
       } else {
         toast({
           title: "Error!",

@@ -70,10 +70,6 @@ export default function SigninForm() {
       if (formState.isSubmitting || isSSORedirecting) return;
       const accessTokenResponse = await login(data);
       if (accessTokenResponse.statusCode === 200 && accessTokenResponse.data) {
-        localStorage.setItem(
-          "access_token",
-          accessTokenResponse.data.access_token
-        );
         toast({
           title: "Successfully Logged in!",
           description: "You should be redirect to /dashboard",
@@ -124,7 +120,7 @@ export default function SigninForm() {
 
               {/* Forgot password link */}
               <div className="pt-2 pb-2 text-right">
-                <Link href="#" className="text-sm text-primary hover:underline">
+                <Link href="/forgotpassword/sendmail" className="text-sm text-primary hover:underline">
                   {" "}
                   Forgot password?{" "}
                 </Link>
