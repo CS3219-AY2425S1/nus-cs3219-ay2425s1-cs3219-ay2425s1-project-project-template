@@ -61,7 +61,7 @@ async function initRedis() {
   await redisClient.connect();
 }
 
-async function showUserQueue() {
+async function showUserQueue(status) {
   const keys = await redisClient.keys('*');
 
   const filteredKeys = keys.filter(
@@ -75,13 +75,13 @@ async function showUserQueue() {
     }),
   );
 
-  console.log(values);
+  console.log(status + ": " + JSON.stringify(values, null, 2)); 
 }
 
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  await showUserQueue();
+  await showUserQueue("Before queue");
 
   if (userId == null) return; 
 
@@ -130,7 +130,10 @@ async function matchUsers(searchRequest) {
     );
     redisClient.del(matchMessage.matchUserId);
     const keys = await redisClient.keys('*');
-    keys.forEach((key) => {
+    const filteredKeys = keys.filter(
+      (key) => key.startsWith('difficulty:') || key.startsWith('topics:'),
+    );
+    filteredKeys.forEach((key) => {
       redisClient.SREM(key, userId);
     });
   } else {
@@ -144,7 +147,7 @@ async function matchUsers(searchRequest) {
     });
   }
 
-  await showUserQueue();
+  await showUserQueue("After queue");
 }
 
 async function findMatchByTopics(topics) {
@@ -182,7 +185,10 @@ async function findMatchByDifficulty(difficulty) {
 async function handleDisconnection(userId) {
   redisClient.del(userId);
   const keys = await redisClient.keys('*');
-  keys.forEach((key) => {
+  const filteredKeys = keys.filter(
+    (key) => key.startsWith('difficulty:') || key.startsWith('topics:'),
+  );
+  filteredKeys.forEach((key) => {
     redisClient.SREM(key, userId);
   });
   console.log(`User ID: ${userId} has been removed from active searches.`);
