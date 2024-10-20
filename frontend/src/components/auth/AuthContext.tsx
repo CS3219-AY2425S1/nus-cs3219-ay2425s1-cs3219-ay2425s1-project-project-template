@@ -1,40 +1,39 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { getBaseUserData, login, logout } from "@/api/user";
+
+export enum AuthStatus {
+  UNAUTHENTICATED = "UNAUTHENTICATED",
+  AUTHENTICATED = "AUTHENTICATED",
+  ADMIN = "ADMIN",
+}
 
 interface AuthContextType {
-  token: string;
-  login: (response: { access_token: string }) => void;
+  authStatus: AuthStatus;
+  username: string;
+  id: string;
+  login: (email: string, password: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string>("");
-
-  const login = (response: { access_token: string }) => {
-    const access_token = response.access_token;
-
-    // store user data for 1 hour
-    Cookies.set("access_token", access_token, { expires: 1 / 24 });
-    setToken(access_token);
-  };
-
-  const logout = () => {
-    setToken("");
-    Cookies.remove("access_token");
-  };
+  const [authStatus, setAuthStatus] = useState(AuthStatus.UNAUTHENTICATED);
+  const [username, setUsername] = useState("");
+  const [id, setId] = useState("");
 
   useEffect(() => {
-    const access_token = Cookies.get("access_token");
-    if (access_token) {
-      setToken(access_token);
-    }
+    const { username, id, isAdmin } = getBaseUserData();
+    if (username) setUsername(username);
+    if (id) setId(id);
+    if (!username) setAuthStatus(AuthStatus.UNAUTHENTICATED);
+    else if (isAdmin) setAuthStatus(AuthStatus.ADMIN);
+    else setAuthStatus(AuthStatus.AUTHENTICATED);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ username, id, authStatus, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

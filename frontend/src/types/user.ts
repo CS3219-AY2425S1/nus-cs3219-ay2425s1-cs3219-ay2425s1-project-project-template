@@ -11,3 +11,12 @@ export interface User {
   linkedin?: string;
   github?: string;
 }
+
+export interface UserLogin {
+  accessToken: string;
+  id: string;
+  username: string;
+  email: string;
+  isAdmin: string;
+  createdAt: string;
+}

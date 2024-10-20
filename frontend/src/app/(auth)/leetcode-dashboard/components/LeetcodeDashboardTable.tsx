@@ -29,7 +29,7 @@ import {
 } from "@/api/leetcode-dashboard";
 import { QuestionDifficulty, QuestionMinified } from "@/types/find-match";
 import MoonLoader from "react-spinners/MoonLoader";
-import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/EditQuestionDialog";
+import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/components/EditQuestionDialog";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
 import Swal from "sweetalert2";

@@ -1,11 +1,10 @@
 "use client";
 
-import { useAuth } from "@/components/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { setGetProfile } from "@/api/user";
+import { getToken, getUser, updateUser } from "@/api/user";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
@@ -15,6 +14,10 @@ import Swal from "sweetalert2";
 const formSchema = z.object({
   username: z.string()
     .min(5, "Username must be at least 5 characters"),
+  email: z.string()
+    .email("Invalid email"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters"),
   bio: z.string(),
   linkedin: z.string()
     .refine((val) => val.length == 0 || val.includes("linkedin.com/in/"),
@@ -25,13 +28,15 @@ const formSchema = z.object({
 });
 
 const ProfilePage = () => {
-  const { token } = useAuth();
+  const token = getToken();
   const [user, setUser] = useState<User>({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
+      email: "",
+      password: "",
       bio: "",
       linkedin: "",
       github: "",
@@ -39,39 +44,26 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    setGetProfile(token, {}).then((data) => {
-      setUser(data);
-      form.reset(data);
-    }).catch((error) => {
-      console.error("Profile Fetch Failed:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Profile Fetch Failed",
-        text: "Please try again later",
-      });
+    getUser().then((res) => {
+      setUser(res.data);
+      form.reset(res.data);
     });
-  }, [token, form]);
+  }, [form]);
+
+  useEffect(() => {
+    if (!token) window.location.href = "/login";
+  }, [token]); 
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    setGetProfile(token, data).then((data) => {
-      setUser(data);
-      form.reset(data);
+    updateUser(data).then(() => {
       Swal.fire({
         icon: "success",
-        title: "Profile Updated",
-        text: "Your profile has been updated successfully",
+        title: "Profile updated successfully",
       });
-    }).catch((error) => {
-      console.error("Profile Update Failed:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Profile Update Failed",
-        text: "Please try again later",
-      })
     });
   };
 
-  return (
+  return !!token && (
     <div className="mx-auto max-w-xl my-10 p-4">
       <h1 className="text-white font-extrabold text-h1">Welcome, {user?.username}!</h1>
 
@@ -85,6 +77,34 @@ const ProfilePage = () => {
                 <FormLabel className="text-yellow-500 text-lg">USERNAME</FormLabel>
                 <FormControl>
                   <Input placeholder="username" {...field} className="focus:border-yellow-500 text-white"/>
+                </FormControl>
+                {/* <FormDescription>This is your public display name.</FormDescription> */}
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-yellow-500 text-lg">EMAIL</FormLabel>
+                <FormControl>
+                  <Input placeholder="email" {...field} className="focus:border-yellow-500 text-white"/>
+                </FormControl>
+                {/* <FormDescription>This is your public display name.</FormDescription> */}
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-yellow-500 text-lg">NEW PASSWORD</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="password" {...field} className="focus:border-yellow-500 text-white"/>
                 </FormControl>
                 {/* <FormDescription>This is your public display name.</FormDescription> */}
                 <FormMessage/>
@@ -136,7 +156,6 @@ const ProfilePage = () => {
           <Button type="submit" className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black">Save Changes</Button>
         </form>
       </Form>
-
     </div>
   );
 }
