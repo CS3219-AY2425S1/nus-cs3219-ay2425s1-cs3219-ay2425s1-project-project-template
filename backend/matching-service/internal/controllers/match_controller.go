@@ -159,8 +159,12 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				log.Printf("Error publishing match result to RabbitMQ: %v", err)
 			}
 
-			// Notify both users of the match result using socket.emit and socket.to
-			socket.EmitToUsers(matchingInfo.SocketID, matchedUser.SocketID, roomID)
+			// Send match result to WebSocket clients
+			socket.BroadcastMatch(socket.MatchMessage{
+				User1: matchingInfo.SocketID,
+				User2: matchedUser.SocketID,
+				State: "Matched",
+			})
 
 			log.Printf("User %s and User %s have been matched and published to RabbitMQ", matchingInfo.UserID, matchedUser.UserID)
 
