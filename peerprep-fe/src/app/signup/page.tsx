@@ -5,7 +5,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { GithubIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { axiosAuthClient } from '@/network/axiosClient';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/state/useAuthStore';
 import Link from 'next/link';
 
 export default function SignUpPage() {
@@ -16,34 +18,32 @@ export default function SignUpPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const apiEndpoint = 'http://localhost:3001/users';
-    // const type = 'user';
+
     if (password !== confirmPassword) {
       router.push('/signup');
       setError('Passwords do not match');
       return;
     }
-    const result = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: name,
-        email: email,
-        password: password,
-      }),
+    const result = await axiosAuthClient.post('/users', {
+      username: name,
+      email: email,
+      password: password,
     });
 
-    const data = await result.json();
-
-    if (result.ok) {
-      const token = data.token;
-      localStorage.setItem('token', token);
+    if (result.request.status === 201) {
+      //Auto login after accoutn creation
+      const loginResult = await axiosAuthClient.post('/auth/login', {
+        email: email,
+        password: password,
+      });
+      const data = loginResult.data.data;
+      const token = data.accessToken;
+      setAuth(true, token, data);
       router.push('/');
     } else {
       setError('Username or Email already exists');

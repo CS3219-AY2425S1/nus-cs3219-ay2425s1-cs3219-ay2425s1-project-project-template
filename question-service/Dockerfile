@@ -15,6 +15,7 @@ RUN pnpm install
 # Development stage
 FROM base AS development
 
+COPY pnpm-lock.yaml ./
 COPY src ./src
 COPY tsconfig.json ./
 
@@ -28,6 +29,7 @@ FROM base AS production
 ENV NODE_ENV=production
 ENV PORT=4001
 
+COPY pnpm-lock.yaml ./
 COPY src ./src
 COPY tsconfig.json ./
 
