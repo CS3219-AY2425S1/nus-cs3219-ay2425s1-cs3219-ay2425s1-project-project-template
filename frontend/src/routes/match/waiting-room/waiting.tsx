@@ -174,7 +174,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
       <div className='flex flex-col items-center justify-center'>
         {uiState.icon}
         {uiState.description.startsWith('RoomId') ? (
-          <p className='flex flex-col gap-1'>
+          <div className='flex flex-col gap-1'>
             <div className='flex flex-col gap-0'>
               <label className='text-lg'>Room Id:</label>
               <span className='text-md max-w-[400px] truncate text-balance font-mono'>
@@ -187,7 +187,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
                 {uiState.description.split('\nQuestionId: ')[1]}
               </span>
             </div>
-          </p>
+          </div>
         ) : (
           <p className='mt-4 whitespace-pre-wrap text-lg'>{uiState.description}</p>
         )}
