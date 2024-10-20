@@ -16,11 +16,10 @@ const COMPLEXITIES_MAPPING = {
 
 exports.processMatchRequest = (channel) => {
     return (data) => {
-        console.log('Matching service received: ', data)
         if (data) {
             const {socketId, id, complexity, category} = JSON.parse(data.content)
             const uuid = v4()
-            console.log(`Received request: ${JSON.stringify(JSON.parse(data.content))}`)
+            console.log(`Received match request: ${JSON.stringify(JSON.parse(data.content))}`)
             const request = {socketId: socketId, id: id, complexity: complexity, category: category}
             // Perfect match
             const perfectMatch = findPerfectMatch(complexity, category)
@@ -39,7 +38,7 @@ exports.processMatchRequest = (channel) => {
                 setTimeout(async () => {
                     console.log(`Request ${uuid} finished waiting`)
                     if (!waitingRequests[uuid]) {
-                        console.log(`Request ${uuid} already matched`)
+                        console.log(`Request ${uuid} already matched/cancelled`)
                         return
                     }
                     delete waitingRequests[uuid]
@@ -53,6 +52,33 @@ exports.processMatchRequest = (channel) => {
                         send(channel, ROUTING_KEY, Buffer.from(`User ${id} did not match`))
                     }
                 }, 30 * 1000)
+            }
+            // data.content = Buffer.from(JSON.stringify({id: 0, socketId: 0}))
+            // this.cancelMatchRequest(channel)(data)
+        }
+    }
+}
+
+exports.cancelMatchRequest = (channel) => {
+    return (data) => {
+        if (data) {
+            const {socketId, id} = JSON.parse(data.content)
+            console.log(`Received cancel match request: ${JSON.stringify(JSON.parse(data.content))}`)
+            const len = Object.keys(waitingRequests).length
+            Object.entries(waitingRequests).forEach(element => {
+                const [uuid, {id2, socketId2}] = element
+                if (id2 == id, socketId2 == socketId) {
+                    const request = waitingRequests[uuid]
+                    delete waitingRequests[uuid]
+                    console.log(`Deleted request: ${JSON.stringify(request)}`)
+                    // TODO: success, send message
+                    
+                }
+            });
+            if (len == Object.keys(waitingRequests).length) {
+                console.log('No matching requests to cancel.')
+                // TODO: no matching requests, send message
+
             }
         }
     }
