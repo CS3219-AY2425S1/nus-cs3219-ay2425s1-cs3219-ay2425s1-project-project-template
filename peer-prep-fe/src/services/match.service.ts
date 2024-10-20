@@ -2,9 +2,9 @@ import { CategoryService } from '../services/category.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable} from '@angular/core';
 import {MatchRequest, MatchResponse} from '../app/models/match.model';
-import { UserData } from '../../../message-queue/src/types';
+import { UserData } from '../../../message-queue/src/types/index';
 import { lastValueFrom, Observable } from 'rxjs';
- 
+
 @Injectable({
   providedIn: 'root'
 })
