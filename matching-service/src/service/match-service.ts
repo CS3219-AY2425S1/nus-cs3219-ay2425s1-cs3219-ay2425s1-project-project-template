@@ -93,8 +93,10 @@ async function findMatch(request: MatchRequest): Promise<MatchRequest | null> {
   const { userName, topic, difficulty } = request;
   const exactMatchKey = `match_queue:topic:${topic}:difficulty:${difficulty}`;
 
-  await redis.srem(exactMatchKey, userName);
+  const queueBeforeMatch = await redis.smembers(exactMatchKey);
+  console.log(`Queue before matching for ${topic}:${difficulty} ->`, queueBeforeMatch);
 
+  await redis.srem(exactMatchKey, userName);
   let matchUserName = await redis.spop(exactMatchKey);
 
   while (matchUserName) {
@@ -102,6 +104,9 @@ async function findMatch(request: MatchRequest): Promise<MatchRequest | null> {
       const matchData = await redis.get(`match_request:${matchUserName}`);
       if (matchData) {
         const matchRequest: MatchRequest = JSON.parse(matchData);
+        const queueAfterMatch = await redis.smembers(exactMatchKey);
+        console.log(`Queue after matching (Match Found) for ${topic}:${difficulty} ->`, queueAfterMatch);
+
         return matchRequest;
       }
     }
@@ -129,6 +134,8 @@ async function findMatch(request: MatchRequest): Promise<MatchRequest | null> {
 
   await redis.sadd(topicMatchKey, userName);
   await redis.expire(topicMatchKey, 31); 
+  const queueAfterNoMatch = await redis.smembers(exactMatchKey);
+  console.log(`Queue after matching (No Match Found) for ${topic}:${difficulty} ->`, queueAfterNoMatch);
   
   return null;
 }
