@@ -3,7 +3,7 @@ const express = require('express');
 const redis = require('redis');
 
 const app = express();
-const PORT = process.env.MATCHING_PORT || 4000;
+const PORT = 4000;
 
 const redisClient = redis.createClient({
   socket: {
@@ -26,7 +26,6 @@ app.use(express.json());
 
 let connection;
 let channel;
-const activeSearches = {};
 
 async function initRabbitMQ() {
   connection = await amqp.connect(process.env.RABBITMQ_URL);
@@ -42,7 +41,6 @@ async function initRabbitMQ() {
     if (msg) {
       const searchRequest = JSON.parse(msg.content.toString());
       console.log(`Received search request:`, searchRequest);
-      activeSearches[searchRequest.userId] = searchRequest;
       matchUsers(searchRequest);
       channel.ack(msg);
     }
@@ -84,6 +82,8 @@ async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
   await showUserQueue();
+
+  if (userId == null) return; 
 
   const userExists = (await redisClient.get(userId)) !== null;
   if (userExists) {
@@ -129,8 +129,10 @@ async function matchUsers(searchRequest) {
       `Match found: User ID ${userId} matched with ${matchMessage.matchUserId}`,
     );
     redisClient.del(matchMessage.matchUserId);
-    delete activeSearches[userId];
-    delete activeSearches[matchedUser.userId];
+    const keys = await redisClient.keys('*');
+    keys.forEach((key) => {
+      redisClient.SREM(key, userId);
+    });
   } else {
     console.log(`No match found for User ID: ${userId}`);
     redisClient.set(userId, Date.now());
@@ -177,12 +179,13 @@ async function findMatchByDifficulty(difficulty) {
   return keys;
 }
 
-function handleDisconnection(userId) {
-  if (activeSearches[userId]) {
-    redisClient.del(userId);
-    delete activeSearches[userId];
-    console.log(`User ID: ${userId} has been removed from active searches.`);
-  }
+async function handleDisconnection(userId) {
+  redisClient.del(userId);
+  const keys = await redisClient.keys('*');
+  keys.forEach((key) => {
+    redisClient.SREM(key, userId);
+  });
+  console.log(`User ID: ${userId} has been removed from active searches.`);
 }
 
 initRabbitMQ();
