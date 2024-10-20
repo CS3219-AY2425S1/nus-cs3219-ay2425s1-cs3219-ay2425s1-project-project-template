@@ -251,8 +251,10 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       };
 
       const handleMatchDeclined = (data) => {
-        subscriber.next(JSON.stringify(data));
-        console.log('Notifying match declined', data);
+        if (userEmail === data.userEmail) {
+          subscriber.next(JSON.stringify(data));
+          console.log('Notifying match declined to ', userEmail, data);
+        }
       };
 
       this.eventEmitter.on('match.found', handleMatchFound);

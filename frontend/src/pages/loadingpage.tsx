@@ -51,8 +51,10 @@ const LoadingPage: React.FC = () => {
           console.log(decodedToken?.email);
         }
       } else if (data.event === "Decline") {
-        setMatchDeclined(true)
-        clearInterval(timer);
+        if (data.userEmail === decodedToken?.email) {
+          setMatchDeclined(true)
+          clearInterval(timer);
+        }
       }
     };
 
@@ -102,6 +104,7 @@ const LoadingPage: React.FC = () => {
       .catch((error) => {
         console.error("Error during decline post:", error);
       });
+    setMatchDeclined(true)
   }
 
   const conditionalRender = () => {
