@@ -26,7 +26,6 @@ app.use(express.json());
 
 let connection;
 let channel;
-const activeSearches = {};
 
 async function initRabbitMQ() {
   connection = await amqp.connect(process.env.RABBITMQ_URL);
@@ -42,7 +41,6 @@ async function initRabbitMQ() {
     if (msg) {
       const searchRequest = JSON.parse(msg.content.toString());
       console.log(`Received search request:`, searchRequest);
-      activeSearches[searchRequest.userId] = searchRequest;
       matchUsers(searchRequest);
       channel.ack(msg);
     }
@@ -131,8 +129,6 @@ async function matchUsers(searchRequest) {
       `Match found: User ID ${userId} matched with ${matchMessage.matchUserId}`,
     );
     redisClient.del(matchMessage.matchUserId);
-    delete activeSearches[userId];
-    delete activeSearches[matchedUser.userId];
   } else {
     console.log(`No match found for User ID: ${userId}`);
     redisClient.set(userId, Date.now());
@@ -180,11 +176,8 @@ async function findMatchByDifficulty(difficulty) {
 }
 
 function handleDisconnection(userId) {
-  if (activeSearches[userId]) {
-    redisClient.del(userId);
-    delete activeSearches[userId];
-    console.log(`User ID: ${userId} has been removed from active searches.`);
-  }
+  redisClient.del(userId);
+  console.log(`User ID: ${userId} has been removed from active searches.`);
 }
 
 initRabbitMQ();
