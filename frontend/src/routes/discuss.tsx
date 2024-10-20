@@ -110,9 +110,10 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
 
 interface WaitingViewProps {
   queuePosition: number;
+  onCancel: () => void;
 }
 
-const WaitingView: React.FC<WaitingViewProps> = ({ queuePosition }) => {
+const WaitingView: React.FC<WaitingViewProps> = ({ queuePosition, onCancel }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -153,6 +154,9 @@ const WaitingView: React.FC<WaitingViewProps> = ({ queuePosition }) => {
             Please wait while we find a coding partner for you. This may take up
             to 30 seconds.
           </p>
+          <Button onClick={onCancel} variant="outline" className="w-full">
+            Cancel Matching
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -339,6 +343,23 @@ export default function DiscussRoute() {
     }
   };
 
+  const cancelMatching = async () => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/match/${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel matching');
+      }
+
+      setMatchStatus(MATCH_IDLE_STATUS);
+    } catch (error) {
+      console.error('Error cancelling match:', error);
+      setMatchStatus(MATCH_ERROR_STATUS);
+    }
+  };
+
   // TODO: Implement retry logic for different match status
   const resetState = () => {
     setMatchStatus(MATCH_IDLE_STATUS);
@@ -383,7 +404,7 @@ export default function DiscussRoute() {
         <IdleView onStartMatching={startMatching} />
       )}
       {matchStatus === MATCH_WAITING_STATUS && (
-        <WaitingView queuePosition={queuePosition} />
+        <WaitingView queuePosition={queuePosition} onCancel={cancelMatching} />
       )}
       {matchStatus === MATCH_FOUND_STATUS && (
         <MatchedView roomId={roomId} onNewMatch={resetState} />
