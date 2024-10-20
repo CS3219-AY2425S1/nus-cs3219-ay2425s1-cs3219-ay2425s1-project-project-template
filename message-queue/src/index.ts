@@ -372,6 +372,16 @@ app.post("/match", async (req: Request, res: Response) => {
   }
 })
 
+app.post("/match/delete", (req: Request, res: Response) => {
+  users = users.filter((user) => {
+    return user.user_id != req.body.user_id
+  })
+
+  res.json({
+    "message": "User removed from the queue"
+  })
+})
+
 app.use((req: Request, res: Response, next) => {
   const error: Error = new Error("Route Not Found")
   next(error)
