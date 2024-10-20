@@ -1,4 +1,5 @@
 var amqp = require('amqplib');
+const dotenv = require('dotenv').config();
 
 const SENDING_EXCHANGE_NAME = 'MATCH-FOUND-EXCHANGE'
 const RECEIVING_EXCHANGE_NAME = 'MATCH-REQUEST-EXCHANGE'
@@ -7,7 +8,7 @@ const QUEUE_NAME = 'MATCH-REQUEST-QUEUE'
 
 exports.createChannel = async () => {
     try {
-        const connection = await amqp.connect('amqp://rabbitmq:5672')
+        const connection = await amqp.connect(process.env.RABBIT_URI ? process.env.RABBIT_URI :'amqp://rabbitmq:5672')
         const channel = await connection.createChannel()
         await channel.assertExchange(SENDING_EXCHANGE_NAME, 'direct')
         await channel.assertExchange(RECEIVING_EXCHANGE_NAME, 'direct')
