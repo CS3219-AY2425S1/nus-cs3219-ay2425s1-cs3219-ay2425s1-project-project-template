@@ -36,4 +36,25 @@ describe('session related tests', () => {
                 done(err);
             });
     });
+
+    test('user should be able to join room', (done) => {
+        fetch(`http://localhost:${PORT}/api/session`, {
+            method: 'POST',
+            
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sessionId: 'some-session-id',
+                userId: 'user1'
+            })
+        })
+            .then(res => {
+                expect(res.status).toBe(200);
+                done();
+            })
+            .catch(err => {
+                done(err);
+            });
+    });
 });

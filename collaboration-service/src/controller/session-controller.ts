@@ -10,6 +10,12 @@ export const sessionController = {
             code, // retrieval of code from question #TODO change this out
         } = req.body;
 
+        // Check if participants are already in another active session
+        const existingSession = await Session.findOne({ participants });
+        if (existingSession && existingSession.active) {
+            return res.status(400).json({ message: 'At least one participant is already in another session' });
+        }
+
         const sessionId = uuidv4(); // Use UUID for unique session ID
         const session = new Session({
             session_id: sessionId, // session_id, 
@@ -28,13 +34,13 @@ export const sessionController = {
         }
     },
     joinSession: async (req: Request, res: Response) => {
-        const { sessionId, userId } = req.body
+        const { userId } = req.body
 
         try {
-            // Find a session that the user is a participant of
+            // Find an active session that the user is a participant of
             const session = await Session.findOne({ participants: userId });
 
-            if (!session) {
+            if (!session || session.active === false) {
                 return res.status(404).json({ message: 'Session not found' });
             }
 
@@ -49,11 +55,12 @@ export const sessionController = {
         try {
             const session = await Session.findOne({ session_id: sessionId });
 
-            if (!session) {
+            if (!session || session.active === false) {
                 return res.status(404).json({ message: 'Session not found' });
             }
 
-            await Session.deleteOne({ session_id: sessionId });
+            // Set active to false instead of deleting the session
+            session.active = false;
 
             res.status(200).json({ message: 'Session terminated successfully' });
         } catch (err) {
