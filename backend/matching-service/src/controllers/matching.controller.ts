@@ -10,6 +10,12 @@ import { MatchDto } from '../types/MatchDto'
 import { createMatch, isUserInMatch } from '../models/matching.repository'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
+    if (mqConnection.userCurrentlyConnected(request.user.id)) {
+        response.status(400).send({ error: 'User already connected' })
+        return
+    }
+    mqConnection.addUserConnected(request.user.id)
+
     const websocketID = randomUUID()
     response.status(200).send({ websocketID: websocketID })
 }

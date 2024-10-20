@@ -158,6 +158,7 @@ export const NewSession = () => {
             isOpen: false,
             isMatchmaking: false,
             isDuplicate: false,
+            isMatchmakingFailed: false,
         }))
     }
 

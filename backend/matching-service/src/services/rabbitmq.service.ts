@@ -12,6 +12,15 @@ class RabbitMQConnection {
     channel!: Channel
     private connected!: boolean
     private cancelledUsers: Set<string>
+    private currentUsers: Set<string>
+
+    public userCurrentlyConnected(userId: string) {
+        return this.currentUsers.has(userId)
+    }
+
+    public addUserConnected(userId: string) {
+        this.currentUsers.add(userId)
+    }
 
     async connect() {
         if (this.connected && this.channel) return
@@ -32,6 +41,7 @@ class RabbitMQConnection {
             this.channel = await this.connection.createChannel()
 
             this.cancelledUsers = new Set<string>()
+            this.currentUsers = new Set<string>()
 
             logger.info(`[Init] Created RabbitMQ Channel successfully`)
         } catch (error) {
@@ -46,6 +56,12 @@ class RabbitMQConnection {
             if (!this.channel) {
                 await this.connect()
             }
+
+            if (this.currentUsers.has(message.userId)) {
+                logger.info(`[Entry-Queue] User ${message.userId} is already finding a match`)
+                return
+            }
+            this.currentUsers.add(message.userId)
 
             if (this.cancelledUsers.has(message.websocketId)) {
                 logger.info(`[Entry-Queue] Blacklisted user ${message.userId} tried to enter queue`)
