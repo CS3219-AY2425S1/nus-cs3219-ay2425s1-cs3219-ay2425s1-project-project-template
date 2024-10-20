@@ -57,12 +57,6 @@ class RabbitMQConnection {
                 await this.connect()
             }
 
-            if (this.currentUsers.has(message.userId)) {
-                logger.info(`[Entry-Queue] User ${message.userId} is already finding a match`)
-                return
-            }
-            this.currentUsers.add(message.userId)
-
             if (this.cancelledUsers.has(message.websocketId)) {
                 logger.info(`[Entry-Queue] Blacklisted user ${message.userId} tried to enter queue`)
                 return

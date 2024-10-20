@@ -39,6 +39,7 @@ export const NewSession = () => {
         isMatchFound: false,
         isMatchmakingFailed: false,
         isDuplicate: false,
+        isUserInMatchmaking: false,
         matchID: '',
     })
 
@@ -66,6 +67,7 @@ export const NewSession = () => {
             isMatchFound: false,
             isMatchmakingFailed: false,
             isDuplicate: false,
+            isUserInMatchmaking: false,
         }))
 
         //TODO: Modify this response to match the response from the API
@@ -75,7 +77,7 @@ export const NewSession = () => {
             const r = await addUserToMatchmaking()
             websocketId = r?.websocketID ?? ''
         } catch {
-            await handleFailedMatchmaking()
+            await handleUserInMatchmaking()
         }
 
         if (!websocketId) {
@@ -139,6 +141,16 @@ export const NewSession = () => {
         socketRef.current.onerror = (error: Event) => {
             console.error('WebSocket Error:', error)
         }
+    }
+
+    const handleUserInMatchmaking = () => {
+        setModalData((modalData) => ({
+            ...modalData,
+            isMatchmaking: false,
+            isMatchmakingFailed: false,
+            isDuplicate: false,
+            isUserInMatchmaking: true,
+        }))
     }
 
     const handleFailedMatchmaking = async () => {
@@ -232,6 +244,14 @@ export const NewSession = () => {
                                 </h2>
                                 <Button variant={'primary'} size={'lg'} onClick={handleCancelMatchmaking}>
                                     Cancel matchmaking
+                                </Button>
+                            </>
+                        )}
+                        {modalData.isUserInMatchmaking && (
+                            <>
+                                <h2 className="text-xl font-bold text-center">User already in queue.</h2>
+                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleCancelMatchmaking}>
+                                    Cancel
                                 </Button>
                             </>
                         )}
