@@ -1,4 +1,3 @@
-// backend/matching-service/consumer/consumer.ts
 import { connect, Connection, Channel } from 'amqplib'
 import { Server } from 'socket.io'
 import { performMatching } from './matching'

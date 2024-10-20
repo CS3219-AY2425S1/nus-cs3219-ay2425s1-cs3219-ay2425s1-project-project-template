@@ -1,4 +1,3 @@
-// backend/matching-service/server/index.ts
 import dotenv from 'dotenv'
 import { Server } from 'socket.io'
 import { sendMatchingRequest } from '../producer/producer'
