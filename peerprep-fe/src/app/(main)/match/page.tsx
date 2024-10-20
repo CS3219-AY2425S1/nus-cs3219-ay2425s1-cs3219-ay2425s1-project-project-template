@@ -21,16 +21,16 @@ export default function LoadingPage() {
           console.log('Match found, your partner is', message.partner);
           setMatchStatus('matched');
 
-          setTimeout(() => {
-            router.push(`/collaboration`);
-          }, 2000);
+          // setTimeout(() => {
+          //   router.push(`/collaboration`);
+          // }, 2000);
         } else {
           console.log('Match failed');
           setMatchStatus('failed');
 
-          setTimeout(() => {
-            router.push(`/`);
-          }, 2000);
+          // setTimeout(() => {
+          //   router.push(`/`);
+          // }, 4500);
         }
       });
     } catch (error) {
