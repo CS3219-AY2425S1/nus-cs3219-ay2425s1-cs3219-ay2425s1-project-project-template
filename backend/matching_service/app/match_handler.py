@@ -99,7 +99,16 @@ def process_message(message, producer):
             redis_client.watch(key, category_key)
             pipe = redis_client.pipeline()
             pipe.multi()
-
+            get_available_matching_requests(
+                is_before=True,
+                redis_client=redis_client,
+                logger=logger,
+                is_complete=True,
+                req_user_id=user_id,
+                req_user_difficulty=difficulty,
+                req_user_category=category,
+                req_user_request_time=request_time,
+            )
             for match_type in ["complete", "partial"]:
                 res = find_and_handle_match(
                     redis_client,
@@ -117,10 +126,17 @@ def process_message(message, producer):
                 if res is False:
                     return
                 if res:
+                    get_available_matching_requests(
+                        is_before=False, redis_client=redis_client, logger=logger
+                    )
                     return
 
             add_user_to_matching_queue(
                 pipe, user_id, key, category_key, expiration_time
+            )
+
+            get_available_matching_requests(
+                is_before=False, redis_client=redis_client, logger=logger
             )
             return
 
@@ -150,15 +166,6 @@ def find_and_handle_match(
     matches = redis_client.zrangebyscore(
         key if match_type == "complete" else category_key, current_time, "+inf"
     )
-    get_available_matching_requests(
-        is_before=True,
-        redis_client=redis_client,
-        logger=logger,
-        req_user_id=user_id,
-        req_user_difficulty=difficulty,
-        req_user_category=category,
-        req_user_request_time=request_time,
-    )
 
     for match in matches:
         match = match.decode("utf-8")
@@ -168,10 +175,6 @@ def find_and_handle_match(
 
         if can_continue:
             remove_and_execute(pipe, key, category_key, match)
-
-            get_available_matching_requests(
-                is_before=False, redis_client=redis_client, logger=logger
-            )
             push_to_kafka(match_type, user_id, match, category, difficulty, producer)
 
             return True

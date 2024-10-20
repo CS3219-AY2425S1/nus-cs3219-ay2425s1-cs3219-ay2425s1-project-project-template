@@ -63,18 +63,18 @@ def get_available_matching_requests(
                     "req_time": readable_time,
                 }
             )
-        if is_before:
-            readable_time = datetime.fromtimestamp(
-                req_user_request_time, tz=timezone(timedelta(hours=8))
-            ).strftime("%Y-%m-%d %H:%M:%S")
-            all_requests.append(
-                {
-                    "user_id": req_user_id,
-                    "category": req_user_category,
-                    "difficulty": req_user_difficulty,
-                    "req_time": readable_time,
-                }
-            )
+    if is_before:
+        readable_time = datetime.fromtimestamp(
+            req_user_request_time, tz=timezone(timedelta(hours=8))
+        ).strftime("%Y-%m-%d %H:%M:%S")
+        all_requests.append(
+            {
+                "user_id": req_user_id,
+                "category": req_user_category,
+                "difficulty": req_user_difficulty,
+                "req_time": readable_time,
+            }
+        )
 
     sorted_requests = sorted(all_requests, key=lambda x: x["req_time"])
 
