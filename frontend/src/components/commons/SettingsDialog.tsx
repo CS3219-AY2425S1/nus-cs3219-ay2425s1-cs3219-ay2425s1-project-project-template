@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { verifyToken } from '@/lib/api-user';
 
@@ -55,11 +55,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
           <DialogTitle>Change Password</DialogTitle>
         </DialogHeader>
         <Card>
-          <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-1">
+          <CardContent className="space-y-4 p-4">
+            <div className="space-y-2">
               <Label htmlFor="current">Current Password</Label>
               <Input
                 id="current"
@@ -69,7 +66,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                 disabled={loading}
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="new">New Password</Label>
               <Input
                 id="new"
@@ -79,7 +76,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                 disabled={loading}
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="confirm">Confirm New Password</Label>
               <Input
                 id="confirm"
@@ -89,13 +86,14 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                 disabled={loading}
               />
             </div>
-            <Button
-              className="mt-2"
-              onClick={handlePasswordChange}
-              disabled={loading}
-            >
-              {loading ? "Updating..." : "Change Password"}
-            </Button>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={onClose} disabled={loading}>
+                Cancel
+              </Button>
+              <Button onClick={handlePasswordChange} disabled={loading}>
+                {loading ? "Updating..." : "Change Password"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </DialogContent>
