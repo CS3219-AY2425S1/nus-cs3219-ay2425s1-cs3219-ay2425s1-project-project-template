@@ -37,17 +37,23 @@ const performMatching = async (
             {
                 params: {
                     categories: commonCategories.join(','),
-                    difficulty: bestMatch.difficulty,
+                    difficulty: bestMatch.difficulty
                 },
+                validateStatus: (status: number) => status >= 200 && status < 500
             },
         )
+
+        if (res.status !== 200) {
+            logger.error('Error occurred when fetching question for match')
+            return null
+        }
 
         const matchPartner: MatchPartner = {
             name: bestMatch.name,
             questionId: res.data.questionId,
             title: res.data.title,
             difficulty: bestMatch.difficulty,
-            categories: res.data.categories,
+            categories: res.data.categories
         }
 
         logger.info(`Matched ${req.name} with ${bestMatch.name}`)

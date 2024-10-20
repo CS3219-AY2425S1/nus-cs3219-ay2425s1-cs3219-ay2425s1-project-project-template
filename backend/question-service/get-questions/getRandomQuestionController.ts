@@ -12,7 +12,7 @@ const getRandomQuestion = async (req: Request, res: Response) => {
                 typeof categories === 'string'
                     ? categories.split(',')
                     : categories
-            filter.categories = { $in: categoryArray }
+            filter.categories = { $all: categoryArray }
         }
 
         if (difficulty) {
@@ -26,7 +26,6 @@ const getRandomQuestion = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'No questions found' })
         }
 
-        console.log(retrievedQuestions)
         const n = retrievedQuestions.length
         const randomIndex = Math.floor(Math.random() * n)
         const randomQuestion = retrievedQuestions[randomIndex]
