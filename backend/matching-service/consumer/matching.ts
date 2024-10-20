@@ -12,6 +12,8 @@ const performMatching = async (
     let bestMatch: TimedMatchRequest | null = null
     let maxCommonCategories = 0
 
+    logger.info(`Attempting to match user ${req.userId} with active requests: ${activeRequests.map(r => r.userId).join(', ')}`)
+
     for (const curr of activeRequests) {
         if (curr.userId === req.userId) continue
 
@@ -28,6 +30,7 @@ const performMatching = async (
     }
 
     if (bestMatch) {
+        logger.info(`Best match for user ${req.userId} is user ${bestMatch.userId} with ${maxCommonCategories} common categories`)
         const commonCategories = req.categories.filter((category) =>
             bestMatch!.categories.includes(category),
         )
@@ -44,7 +47,7 @@ const performMatching = async (
         )
 
         if (res.status !== 200) {
-            logger.error('Error occurred when fetching question for match')
+            logger.error(`Error occurred when fetching question for match for user ${req.userId}`)
             return null
         }
 
@@ -60,6 +63,7 @@ const performMatching = async (
         logger.info(`Matched ${req.userName} with ${bestMatch.userName}`)
         return matchPartner
     }
+    logger.info(`No match found for user ${req.userId}`)
     return null
 }
 

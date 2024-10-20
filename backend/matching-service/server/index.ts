@@ -20,9 +20,9 @@ const io = new Server({
     io.on('connection', (socket) => {
         logger.info(`New client connected: ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
 
-        socket.on('login', (name: string) => {
-            connectedClients.set(name, socket.id)
-            logger.info(`User ${name} logged in with socket ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+        socket.on('login', (userId: string) => {
+            connectedClients.set(userId, socket.id)
+            logger.info(`User ${userId} logged in with socket ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
         })
 
         socket.on('requestMatch', async (data: any) => {
@@ -38,10 +38,10 @@ const io = new Server({
         })
 
         socket.on('disconnect', () => {
-            for (const [name, id] of connectedClients.entries()) {
+            for (const [userId, id] of connectedClients.entries()) {
                 if (id === socket.id) {
-                    connectedClients.delete(name)
-                    logger.info(`User ${name} disconnected`, { service: 'matching-service', timestamp: new Date().toISOString() })
+                    connectedClients.delete(userId)
+                    logger.info(`User ${userId} disconnected`, { service: 'matching-service', timestamp: new Date().toISOString() })
                     break
                 }
             }

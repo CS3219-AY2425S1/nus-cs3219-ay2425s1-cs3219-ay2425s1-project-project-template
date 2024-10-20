@@ -6,7 +6,7 @@ import logger from '../utils/logger'
 import { sendMatchResult } from './sendMatchResults'
 
 const requestQueue: TimedMatchRequest[] = []
-const MATCH_TIMEOUT = 300000 // 5 minutes
+const MATCH_TIMEOUT = 15000 // 5 minutes
 let isMatching: boolean = false
 
 // track timeouts for each userId
@@ -69,24 +69,25 @@ const startConsumer = async (
                 )
                 requestQueue.push(request)
 
-                // Set a timeout for matchmaking
-                const timeout = setTimeout(() => {
-                    processMatching(request, io, connectedClients)
-                }, MATCH_TIMEOUT)
-                timeoutMap.set(userId, timeout)
+                attemptImmediateMatch(request, io, connectedClients)
+
+                if (!timeoutMap.has(userId)) {
+                    const timeout = setTimeout(() => {
+                        processMatching(request, io, connectedClients)
+                    }, MATCH_TIMEOUT)
+                    timeoutMap.set(userId, timeout)
+                }
             }
         },
         { noAck: true },
     )
 
-    // Function to remove a user's request from the queue and clear timeout
     const removeRequest = (userId: string) => {
         const index = requestQueue.findIndex((x) => x.userId === userId)
         if (index !== -1) {
             requestQueue.splice(index, 1)
             logger.info(`User ${userId} has been removed from the queue via cancellation`, { service: 'matching-service', timestamp: new Date().toISOString() })
 
-            // Clear the matchmaking timeout
             const timeout = timeoutMap.get(userId)
             if (timeout) {
                 clearTimeout(timeout)
@@ -95,6 +96,48 @@ const startConsumer = async (
             }
         } else {
             logger.info(`User ${userId} not found in the queue during cancellation`, { service: 'matching-service', timestamp: new Date().toISOString() })
+        }
+    }
+
+    const attemptImmediateMatch = async (
+        newRequest: TimedMatchRequest,
+        io: Server,
+        connectedClients: Map<string, string>,
+    ) => {
+        if (isMatching) {
+            logger.info(`Currently matching. Skipping immediate match for user ${newRequest.userId}`)
+            return
+        }
+
+        const activeRequests = requestQueue.filter(
+            (r) => r.userId !== newRequest.userId && r.difficulty === newRequest.difficulty && r.categories.some(category => newRequest.categories.includes(category))
+        )
+
+        logger.info(`Attempting immediate match for user ${newRequest.userId}. Active requests: ${activeRequests.map(r => r.userId).join(', ')}`)
+
+        if (activeRequests.length > 0) {
+            const bestMatch = await performMatching(newRequest, activeRequests)
+
+            if (bestMatch) {
+                requestQueue.splice(requestQueue.findIndex(x => x.userId === newRequest.userId), 1)
+                requestQueue.splice(requestQueue.findIndex(x => x.userId === bestMatch.userId), 1)
+                logger.info(`Matched user ${newRequest.userId} with user ${bestMatch.userId}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+
+                // clear timeouts
+                const timeout1 = timeoutMap.get(newRequest.userId)
+                if (timeout1) {
+                    clearTimeout(timeout1)
+                    timeoutMap.delete(newRequest.userId)
+                }
+
+                const timeout2 = timeoutMap.get(bestMatch.userId)
+                if (timeout2) {
+                    clearTimeout(timeout2)
+                    timeoutMap.delete(bestMatch.userId)
+                }
+
+                sendMatchResult(newRequest, bestMatch, io, connectedClients)
+            }
         }
     }
 
