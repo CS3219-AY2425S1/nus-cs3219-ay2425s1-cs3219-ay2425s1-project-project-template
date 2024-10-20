@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Loader, Button, Header, Container } from "semantic-ui-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import "semantic-ui-css/semantic.min.css";
+import { timeStamp } from "console";
 
 interface CustomJwtPayload extends JwtPayload {
   email?: string;
@@ -15,6 +16,8 @@ const LoadingPage: React.FC = () => {
   const [matchFound, setMatchFound] = useState(false);
   const [matchData, setMatchData] = useState<any>(null);
   const [matchDeclined, setMatchDeclined] = useState(false);
+  const location = useLocation();
+  const requestData = location.state;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -68,14 +71,17 @@ const LoadingPage: React.FC = () => {
     setCountdown(30);
     setMatchFound(false);
     setMatchDeclined(false);
+    const retryData = {
+      ...requestData,
+      timeStamp: new Date().toISOString(),
+    };
     if (matchData) {
-      const updatedData = { ...matchData, timestamp: new Date().toISOString() };
       fetch("http://localhost:3009/rabbitmq/enter", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(retryData),
       })
         .then((response) => response.json())
         .then((result) => {
