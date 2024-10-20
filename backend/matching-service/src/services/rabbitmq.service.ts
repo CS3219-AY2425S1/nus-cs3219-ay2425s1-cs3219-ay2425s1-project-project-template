@@ -330,7 +330,6 @@ class RabbitMQConnection {
         return {
             'x-dead-letter-exchange': 'dlx',
             'x-dead-letter-routing-key': 'dlx-key',
-            'x-message-ttl': 180000,
         }
     }
 }
