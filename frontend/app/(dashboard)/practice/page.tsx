@@ -43,6 +43,7 @@ export default function CreateQuestionPage() {
     undefined
   );
   const [matchedTopic, setMatchedTopic] = useState<string>("");
+  const [roomId, setRoomId] = useState<string>("");
 
   const [checkMatchInterval, setCheckMatchInterval] =
     useState<NodeJS.Timeout | null>(null);
@@ -118,7 +119,8 @@ export default function CreateQuestionPage() {
               // Handle match found logic here
               setIsMatched(true);
               setMatchedWithUser(res.matchedWithUserId);
-              setMatchedTopic(res.topic);
+              setMatchedTopic(res.matchedTopic);
+              setRoomId(res.matchedRoom);
             } else {
               loopCounter++;
               setCountdown((prevCountdown) => prevCountdown - 1);
@@ -307,6 +309,16 @@ export default function CreateQuestionPage() {
                 <GridItem>
                   <Text fontSize="lg" color="teal.500">
                     {matchedTopic.split("-")[1]}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="black">
+                    Room ID:
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="teal.500">
+                    {roomId}
                   </Text>
                 </GridItem>
               </Grid>
