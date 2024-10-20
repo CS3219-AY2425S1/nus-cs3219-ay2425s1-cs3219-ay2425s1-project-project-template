@@ -137,4 +137,42 @@ describe('session related tests', () => {
             });
     });
 
+    test('should not find a session', (done) => {
+        fetch(`http://localhost:${PORT}/api/session`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sessionId: 'some-session-id',
+                userId: 'user1'
+            })
+        })
+            .then(res => {
+                expect(res.status).toBe(404);
+                done();
+            })
+            .catch(err => {
+                done(err);
+            });
+    });
+
+    test('should not find a session to terminate', (done) => {
+        fetch(`http://localhost:${PORT}/api/session`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: 'user1'
+            })
+        })
+            .then(res => {
+                expect(res.status).toBe(404);
+                done();
+            })
+            .catch(err => {
+                done(err);
+            });
+    });
 });
