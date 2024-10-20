@@ -14,10 +14,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	LANGUAGE_VERSIONS,
-	CODE_SNIPPETS,
-} from "../lib/CodeEditorUtil";
+import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -146,12 +143,17 @@ function CollabPageView() {
 				<Button variant="link">Quit Session</Button>
 			</div>
 
-			{/* left side question box */}
-			<div style={{ display: "flex", flex: 1 }}>
+			{/* main page content */}
+			<div
+				style={{
+					display: "flex", // Create a horizontal layout
+					height: "100vh", // Full height of the viewport
+				}}
+			>
+				{/* left side question box */}
 				<div
 					style={{
 						flex: 1, // Takes up equal space as the textarea
-						display: "flex",
 						flexDirection: "column", // Stacks the title and description vertically
 						alignItems: "flex-start", // Aligns the title and description to the left
 						padding: "20px",
@@ -229,73 +231,103 @@ function CollabPageView() {
 					</div>
 				</div>
 
-				{/* right side code editor */}
+				{/* right side */}
 				<div
 					style={{
-						flex: 1, // Takes up equal space as the question section
-						display: "flex",
-						flexDirection: "column", // Stacks the label and textarea vertically
-						justifyContent: "center", // Centers the textarea horizontally within its section
-						alignItems: "center", // Centers the textarea vertically within its section
-						border: "2px solid lightgrey", // Adds a border
-						padding: "20px",
-						borderRadius: "10px", // Rounds the corners
-						margin: "15px 15px 15px 7.5px", // top right bottom left (clockwise)
+						flex: 1, // Take up 50% of the width
+						display: "flex", // Create a vertical layout inside the right half
+						flexDirection: "column", // Stack the top and bottom halves vertically
 					}}
 				>
-					{/* div to horizontally align <h2 Code/> and <Select coding language /> */}
+					{/* top-right side code editor */}
 					<div
 						style={{
+							flex: 7, // Takes up 70% vertically of the right side
 							display: "flex",
-							flexDirection: "row", // align items horizontally
-							justifyContent: "flex-start",
-							alignItems: "center", // vertically center them
-							width: "100%",
-							marginBottom: "20px",
+							flexDirection: "column", // Stacks the label and textarea vertically
+							justifyContent: "center", // Centers the textarea horizontally within its section
+							alignItems: "center", // Centers the textarea vertically within its section
+							border: "2px solid lightgrey", // Adds a border
+							padding: "20px",
+							borderRadius: "10px", // Rounds the corners
+							margin: "15px 15px 15px 7.5px", // top right bottom left (clockwise)
 						}}
 					>
-						<h2
+						{/* div to horizontally align <h2 Code/> and <Select coding language /> */}
+						<div
 							style={{
-								fontSize: "1.25rem",
-								fontWeight: "bold",
-								alignSelf: "flex-start",
-								margin: "0 25px 0 5px",
+								display: "flex",
+								flexDirection: "row", // align items horizontally
+								justifyContent: "flex-start",
+								alignItems: "center", // vertically center them
+								width: "100%",
+								marginBottom: "20px",
 							}}
 						>
-							Code
-						</h2>
+							<h2
+								style={{
+									fontSize: "1.25rem",
+									fontWeight: "bold",
+									alignSelf: "flex-start",
+									margin: "0 25px 0 5px",
+								}}
+							>
+								Code
+							</h2>
 
-						{/* coding language selector */}
-						<Select value={selectedLang} onValueChange={onSelect}>
-							<SelectTrigger className="w-[160px]">
-								<SelectValue>
-									<span>{getLangOnly(selectedLang)}</span>
-								</SelectValue>
-							</SelectTrigger>
-							<SelectContent>
-								<SelectGroup>
-									{languages.map(([language, version]) => (
-										<SelectItem key={language} value={language}>
-											{language}
-											<span style={{ color: "gray" }}>
-												&nbsp;{String(version)}
-											</span>
-										</SelectItem>
-									))}
-								</SelectGroup>
-							</SelectContent>
-						</Select>
+							{/* coding language selector */}
+							<Select value={selectedLang} onValueChange={onSelect}>
+								<SelectTrigger className="w-[160px]">
+									<SelectValue>
+										<span>{getLangOnly(selectedLang)}</span>
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									<SelectGroup>
+										{languages.map(([language, version]) => (
+											<SelectItem key={language} value={language}>
+												{language}
+												<span style={{ color: "gray" }}>
+													&nbsp;{String(version)}
+												</span>
+											</SelectItem>
+										))}
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* monaco code editor */}
+						<Editor
+							height="100%"
+							defaultValue={CODE_SNIPPETS[selectedLang]}
+							value={code}
+							language={selectedLang}
+							onChange={(value) => handleCodeChange(value)}
+							onMount={onMount} // Focus the editor when it mounts
+						/>
 					</div>
 
-					{/* monaco code editor */}
-					<Editor
-						height="100%"
-						defaultValue={CODE_SNIPPETS[selectedLang]}
-						value={code}
-						language={selectedLang}
-						onChange={(value) => handleCodeChange(value)}
-						onMount={onMount} // Focus the editor when it mounts
-					/>
+					{/* right-bottom side output terminal */}
+					<div
+						style={{
+							flex: 3, // takes up 30% vertically of the right side
+							border: "2px solid lightgrey", // Add a border around the right bottom half
+							padding: "15px",
+							borderRadius: "10px", // Rounds the corners
+							margin: "0px 15px 15px 7.5px", // top right bottom left (clockwise)
+						}}
+					>
+						<h2 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
+							Output Terminal
+						</h2>
+						<Textarea
+							style={{
+								marginTop: "10px",
+							}}
+							placeholder="test"
+						/>
+					</div>
 				</div>
 			</div>
 		</main>
