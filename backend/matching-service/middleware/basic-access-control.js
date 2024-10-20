@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import "dotenv/config";
 
 // Middleware to verify JWT token
 export const verifyAccessToken = (socket, next) => {
