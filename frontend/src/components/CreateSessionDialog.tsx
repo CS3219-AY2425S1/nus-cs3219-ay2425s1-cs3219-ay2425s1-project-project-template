@@ -10,6 +10,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Socket, io } from "socket.io-client";
 import { verifyToken } from "@/lib/api-user";
+import { Session } from "@/app/sessions/page";
 
 interface FormData {
   difficulty: string;
@@ -30,9 +31,14 @@ interface MatchResult {
   difficulty?: string;
 }
 
+interface CreateSessionDialogProps {
+  sessions: Session[]
+}
+
+
 type Status = 'idle' | 'loading' | 'error' | 'success';
 
-export default function CreateSessionDialog(): JSX.Element {
+export default function CreateSessionDialog({ sessions }: CreateSessionDialogProps): JSX.Element {
   const router = useRouter();
   const { control, handleSubmit, watch, reset } = useForm<FormData>({
     defaultValues: {
@@ -48,7 +54,6 @@ export default function CreateSessionDialog(): JSX.Element {
   const [timer, setTimer] = useState<number | null>(null);
   const [redirectTimer, setRedirectTimer] = useState<number | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  // const [userId, setUserId] = useState<string>('');
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [matchedUser, setMatchedUser] = useState<string>('');
   const [difficultyMatched, setDifficultyMatched] = useState<string>('');
@@ -71,7 +76,7 @@ export default function CreateSessionDialog(): JSX.Element {
         setLoading(false)
       } catch (error) {
         console.error('Token verification failed:', error)
-        router.push('/login') // Redirect to login if verification fails
+        router.push('/login') 
       }
     }
 
@@ -79,8 +84,6 @@ export default function CreateSessionDialog(): JSX.Element {
   }, [router])
 
   useEffect(() => {
-    // setUserId(`user_${Math.random().toString(36).substr(2, 9)}`);
-
     const newSocket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
 
     setSocket(newSocket);
@@ -100,6 +103,17 @@ export default function CreateSessionDialog(): JSX.Element {
         setRedirectTimer(5);
         setMatchedUser(data.peerUserId);
         setDifficultyMatched(data.difficulty)
+        const date = new Date();
+        const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        sessions.push({
+          id: sessions.length + 1,
+          date: formattedDate,
+          title: 'Coding Session',
+          participants: [userData.username, data.peerUserId],
+          duration: '-',
+          questions: 0,
+          solved: 0
+        })
       } else if (!data.success) {
         console.log('here')
         setStatus('error');
@@ -113,7 +127,7 @@ export default function CreateSessionDialog(): JSX.Element {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [userData]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
