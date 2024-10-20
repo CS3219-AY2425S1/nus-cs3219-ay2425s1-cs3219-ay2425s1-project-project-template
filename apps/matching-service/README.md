@@ -123,7 +123,7 @@ You can open one instance of the HTML file in multiple tabs to simulate multiple
 
 ## Running the Application via Docker
 
-Before running the following commands, ensure that the URL for the Redis server in `.env` file has been changed to `redis-container:6379`
+Before running the following commands, ensure that the URL for the Redis server in `.env` file has been changed to `REDIS_URL=redis-container:6379`
 
 To run the application via Docker, run the following command:
 
