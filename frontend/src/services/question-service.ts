@@ -35,7 +35,6 @@ export async function fetchQuestions(pageNum: number = 0): Promise<IGetQuestions
   return questionApiClient
     .get(QUESTION_SERVICE_ROUTES.GET_QUESTIONS + `?${params}`)
     .then((res) => {
-      console.log(res.data);
       return res.data as IGetQuestionsResponse;
     })
     .catch((err) => {
