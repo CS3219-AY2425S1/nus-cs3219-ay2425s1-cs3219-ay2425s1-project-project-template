@@ -101,7 +101,7 @@ export default function CreateSessionDialog(): JSX.Element {
     if (timer !== null && timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTimer) => (prevTimer !== null ? prevTimer - 1 : null));
-      }, 1000);
+      }, 975);
     } else if (timer === 0) {
       setStatus('error');
     }
