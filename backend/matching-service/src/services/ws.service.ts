@@ -22,14 +22,14 @@ export class WebSocketConnection {
 
             this.clients.set(websocketId, ws)
 
-            // Close connection after 2 minutes automatically
-            const closeAfterTimeout = setTimeout(() => {
-                ws.close(1000, 'Connection closed by server after 2 minutes')
-            }, 120000)
+            // // Close connection after 2 minutes automatically
+            // const closeAfterTimeout = setTimeout(() => {
+            //     ws.close(1000, 'Connection closed by server after 2 minutes')
+            // }, 120000)
 
             ws.on('message', (message: string) => this.handleMessage(message, websocketId))
             ws.on('close', () => {
-                clearTimeout(closeAfterTimeout)
+                // clearTimeout(closeAfterTimeout)
                 this.handleClose(websocketId)
             })
         })
