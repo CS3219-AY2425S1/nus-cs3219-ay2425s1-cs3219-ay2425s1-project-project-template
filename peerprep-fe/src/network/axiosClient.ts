@@ -1,6 +1,16 @@
 import { getCookie } from '@/lib/utils';
 import axios from 'axios';
 
+const API_GATEWAY_URL =
+  process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8001';
+
+const axiosClient = axios.create({
+  baseURL: API_GATEWAY_URL + '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 const axiosQuestionClient = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL ||
@@ -73,4 +83,9 @@ axoisMatchingClient.interceptors.request.use(
 //   },
 // );
 
-export { axiosQuestionClient, axiosAuthClient, axoisMatchingClient };
+export {
+  axiosClient,
+  axiosQuestionClient,
+  axiosAuthClient,
+  axoisMatchingClient,
+};
