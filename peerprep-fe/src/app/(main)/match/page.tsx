@@ -5,26 +5,32 @@ import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
 import { consumeMessageFromQueue } from '@/lib/rabbitmq';
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/state/useAuthStore';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [usersWaiting, setUsersWaiting] = useState(4);
   const [matchStatus, setMatchStatus] = useState('searching');
   const router = useRouter();
+  const { user } = useAuthStore();
 
   const startConsumingMessages = async () => {
     try {
-      await consumeMessageFromQueue().then((message) => {
+      await consumeMessageFromQueue(user?.id!).then((message) => {
         if (message.status === 'matched') {
           console.log('Match found, your partner is', message.partner);
           setMatchStatus('matched');
-          // Redirect to the collaboration page after a short delay
+
           setTimeout(() => {
-            router.push(`/collaboration/${message.roomId}`);
+            router.push(`/collaboration`);
           }, 2000);
         } else {
           console.log('Match failed');
           setMatchStatus('failed');
+
+          setTimeout(() => {
+            router.push(`/`);
+          }, 2000);
         }
       });
     } catch (error) {

@@ -2,6 +2,7 @@
 'use server';
 
 import { connect } from 'amqplib';
+import { redirect } from 'next/navigation';
 
 export const sendMessageToQueue = async (message: Record<string, any>) => {
   try {
@@ -36,14 +37,14 @@ export const sendMessageToQueue = async (message: Record<string, any>) => {
   }
 };
 
-export const consumeMessageFromQueue = async () => {
+export const consumeMessageFromQueue = async (queue: string) => {
   return new Promise<any>((resolve, reject) => {
     (async () => {
       try {
         // Connect to RabbitMQ server
         const connection = await connect(process.env.RABBITMQ_URL!);
         const channel = await connection.createChannel();
-        const queue = process.env.MATCHING_SERVICE_QUEUE!;
+        // const queue = process.env.MATCHING_SERVICE_QUEUE!;
 
         // Ensure the queue exists
         await channel.assertQueue(queue, { durable: true });

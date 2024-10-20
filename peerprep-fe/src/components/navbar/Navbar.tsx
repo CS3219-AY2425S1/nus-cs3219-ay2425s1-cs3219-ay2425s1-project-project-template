@@ -26,26 +26,6 @@ export default function Navbar() {
     }
   };
 
-  // const getProfileDetails = async () => {
-  //   const result = await axiosAuthClient.get('/auth/verify-token');
-  //   return result.data.data;
-  // };
-
-  // const handleMatchClick = async () => {
-  //   try {
-  //     const profileDetails = await getProfileDetails();
-  //     const message = {
-  //       _id: profileDetails.id,
-  //       name: profileDetails.username,
-  //       topic: 'TO BE ADDED',
-  //       difficulty: 'TO BE ADDED',
-  //     };
-  //     await sendMessageToQueue(message);
-  //   } catch (err) {
-  //     console.error('Error in handleMatchClick:', err);
-  //   }
-  // };
-
   return (
     <nav className="fixed top-0 z-10 w-full bg-gray-800 p-4">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
