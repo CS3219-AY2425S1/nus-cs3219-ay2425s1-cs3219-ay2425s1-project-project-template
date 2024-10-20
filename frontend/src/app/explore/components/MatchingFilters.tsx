@@ -15,9 +15,11 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { io, Socket } from 'socket.io-client';
+import { useAuth } from '@/context/authContext';
 
 const MatchingFilters = () => {
     const socketRef = useRef<Socket | null>(null);
+    const { user, isAuthenticated } = useAuth();
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -112,12 +114,11 @@ const MatchingFilters = () => {
         if (!isSearching) {
             // Sample match request
             const matchRequest = {
-                name: "John Doe",
-                difficulty: "Easy",
-                categories: ["Bitmap", "Recursion"],
+                name: user?.id,
+                difficulty: selectedDifficulty,
+                categories: selectedCategories,
             }
-
-            socket.emit('requestMatch', matchRequest);
+            socketRef.current?.emit('requestMatch', matchRequest);
             console.log('Sent match request', matchRequest);
         }
     }

@@ -16,8 +16,8 @@ const performMatching = async (
         if (curr.name === req.name) continue
 
         if (curr.difficulty === req.difficulty) {
-            const commonCategories = req.category.filter((category) =>
-                curr.category.includes(category),
+            const commonCategories = req.categories.filter((category) =>
+                curr.categories.includes(category),
             )
 
             if (commonCategories.length > maxCommonCategories) {
@@ -28,8 +28,8 @@ const performMatching = async (
     }
 
     if (bestMatch) {
-        const commonCategories = req.category.filter((category) =>
-            bestMatch!.category.includes(category),
+        const commonCategories = req.categories.filter((category) =>
+            bestMatch!.categories.includes(category),
         )
 
         const res = await axios.get(
@@ -47,7 +47,7 @@ const performMatching = async (
             questionId: res.data.questionId,
             title: res.data.title,
             difficulty: bestMatch.difficulty,
-            category: res.data.categories,
+            categories: res.data.categories,
         }
 
         logger.info(`Matched ${req.name} with ${bestMatch.name}`)

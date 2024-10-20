@@ -49,13 +49,13 @@ const startConsumer = async (
         'matching_requests',
         (msg: { content: { toString: () => string } }) => {
             if (msg) {
-                const { name, difficulty, category } = JSON.parse(
+                const { name, difficulty, categories } = JSON.parse(
                     msg.content.toString(),
                 )
                 const request: TimedMatchRequest = {
                     name,
                     difficulty,
-                    category,
+                    categories,
                     timestamp: Date.now(),
                 }
                 logger.info(

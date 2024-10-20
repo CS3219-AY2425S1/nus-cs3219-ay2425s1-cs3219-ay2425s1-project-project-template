@@ -21,7 +21,7 @@ const sendMatchResult = async (
             questionId: partner.questionId,  
             title: partner.title, 
             difficulty: req.difficulty,
-            category: partner.category
+            categories: partner.categories
         }
 
         io.to(partnerSockId).emit('matchFound', requester)
