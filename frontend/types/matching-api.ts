@@ -5,5 +5,5 @@ export interface IPostMatching {
     proficiency: Proficiency
     complexity: Complexity
     topic: Category
-    timestamp: string
+    websocketId: string
 }

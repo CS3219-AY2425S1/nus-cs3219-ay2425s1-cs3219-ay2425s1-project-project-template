@@ -6,5 +6,4 @@ export interface IUserQueueMessage {
     complexity: Complexity
     topic: Category
     userId: string
-    timestamp: string
 }
