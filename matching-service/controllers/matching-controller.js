@@ -66,7 +66,7 @@ exports.processCancelRequest = (channel) => {
             console.log(`Received cancel match request: ${JSON.stringify(JSON.parse(data.content))}`)
             const len = Object.keys(waitingRequests).length
             Object.entries(waitingRequests).forEach(element => {
-                const [uuid, {id2, socketId2}] = element
+                const [uuid, {id: id2, socketId: socketId2}] = element
                 if (id2 == id, socketId2 == socketId) {
                     const request = waitingRequests[uuid]
                     delete waitingRequests[uuid]

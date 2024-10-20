@@ -60,7 +60,6 @@ export const receiveMatchResult = async (channel, io) => {
             if (data) {
                 const message = data.content.toString()
                 channel.ack(data)
-                
                 // Emit socket.io event when a match is found
                 const matchData = JSON.parse(message);
                 console.log("matchdata: ", matchData)
