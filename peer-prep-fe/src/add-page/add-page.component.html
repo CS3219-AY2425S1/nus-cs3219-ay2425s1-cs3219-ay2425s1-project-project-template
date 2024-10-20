@@ -1,6 +1,6 @@
 <div class="add-question-container">
   <div class="header">
-    <h1>ADD QUESTION</h1>
+    ADD QUESTION
     <button class="back-button" (click)="navigateBack()">&#10005;</button>
   </div>
 
@@ -72,21 +72,21 @@
           type="button"
           [ngClass]="{ selected: question_complexity === 'Easy' }"
           (click)="setDifficulty('Easy')">
-          Easy
+          EASY
         </button>
         <button
           class="diff-butt"
           type="button"
           [ngClass]="{ selected: question_complexity === 'Medium' }"
           (click)="setDifficulty('Medium')">
-          Medium
+          MEDIUM
         </button>
         <button
           class="diff-butt"
           type="button"
           [ngClass]="{ selected: question_complexity === 'Hard' }"
           (click)="setDifficulty('Hard')">
-          Hard
+          HARD
         </button>
       </div>
     </div>
