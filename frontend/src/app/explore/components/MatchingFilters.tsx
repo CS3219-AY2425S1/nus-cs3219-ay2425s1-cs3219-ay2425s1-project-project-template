@@ -114,7 +114,8 @@ const MatchingFilters = () => {
         if (!isSearching) {
             // Sample match request
             const matchRequest = {
-                name: user?.id,
+                userId: user?.id,
+                userName: user?.name,
                 difficulty: selectedDifficulty,
                 categories: selectedCategories,
             }
@@ -144,7 +145,7 @@ const MatchingFilters = () => {
 
     return (
         <div className="flex flex-col p-8 gap-4">
-            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={sampleMatch} onOpenChange={setIsMatchFound} handleAccept={() => { }} />}
+            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={() => { }} />}
             <h1 className="text-2xl font-bold self-start text-transparent bg-clip-text bg-gradient-to-r from-[var(--gradient-text-first)] via-[var(--gradient-text-second)] to-[var(--gradient-text-third)]">Look for peers to code now!</h1>
             <div className='flex gap-6'>
                 {/* <div className='w-1/3'>
