@@ -1,5 +1,5 @@
 <script setup>
-import { useCollaborationStore } from '~/store/collaborationStore';
+import { useCollaborationStore } from '~/stores/collaborationStore';
 const collaborationStore = useCollaborationStore()
 console.log(collaborationStore.getCollaborationInfo)
 </script>

@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     public: {
       matchingRequestUrl: "http://localhost:8000",
       webSocketUrl: "ws://localhost:8010",
+      cancelRequestUrl: "http://localhost:8010",
     },
   },
   shadcn: {

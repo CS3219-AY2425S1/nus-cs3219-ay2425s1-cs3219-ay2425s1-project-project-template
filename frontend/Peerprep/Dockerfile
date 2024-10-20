@@ -1,7 +1,7 @@
 ARG NODE_VERSION=20.17.0
 
 # Build stage
-FROM node:${NODE_VERSION}-slim as build
+FROM node:${NODE_VERSION}-slim AS build
 
 WORKDIR /src
 
