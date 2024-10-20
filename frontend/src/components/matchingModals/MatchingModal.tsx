@@ -4,7 +4,7 @@ import MatchingRequestForm from "./MatchingRequestForm";
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
 import Timer from "./Timer.tsx";
 import { useUser } from "../../context/UserContext.tsx";
-import IsConnected from "../IsConnected";
+import Alert from 'react-bootstrap/Alert';
 
 interface MatchingModalProps {
   closeMatchingModal: () => void;
@@ -15,7 +15,6 @@ const MATCH_WEBSOCKET_URL: string = "ws://localhost:8082";
 const MatchingModal: React.FC<MatchingModalProps> = ({
   closeMatchingModal,
 }) => {
-  // --- Declare your states ----
   const [matchId, setMatchId] = useState("");
   const [formData, setFormData] = useState<MatchingRequestFormState>({
     topic: "",
@@ -26,18 +25,25 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
 
   const [isMatchFound, setIsMatchFound] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
+  const [showCancelButton, setShowCancelButton] = useState(false);
+  const [cancelAlert, setCancelAlert] = useState<boolean>(false);
 
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
     try {
+      setCancelAlert(false);
+      setShowCancelButton(true);
       setShowTimer(true);
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
       socket.connect();
       socket.on("connect", () => {
         console.log("Connected to server", socket.id);
       });
-
+      console.log("Sent match request: ", {
+        name: user?.username, // set up with user context later
+        topic: formData.topic,
+        difficulty: formData.difficulty,
+      })
       const res = await fetch("http://localhost:3000/match/findMatch", {
         mode: "cors",
         method: "POST",
@@ -65,10 +71,9 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
       socket.on("receiveMatchResponse", (responseData, ack) => {
         console.log("Received match response:", responseData);
         ack(true);
-        // --- Successfully matched!!! ---
-        // Change in some state here
         socket.emit("broadcast", `hi from ${user?.username}`);
         setShowTimer(false);
+        setShowCancelButton(false);
         setIsMatchFound(true);
       });
       console.log(`Listening to room: ${data.matchId}`);
@@ -105,7 +110,15 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     if (matchId) {
       handleCancelMatchRequest();
       setShowTimer(false);
+      setShowCancelButton(false);
     }
+  }
+
+  const handleMatchNotFound = (): Promise<void> => {
+    handleCancelMatchRequest();
+    setCancelAlert(true);
+    setShowCancelButton(false);
+    return Promise.resolve();
   }
 
   return (
@@ -117,17 +130,19 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         >
           X
         </button>
-        <div className="text-lg font-semibold text-center">
-          Found Match?:{" "}
-          {isMatchFound ? (
-            <div className="text-green-500">Found!</div>
-          ) : (
-            <div className="text-red-500">Not found yet</div>
-          )}
-        </div>
+        {
+          cancelAlert 
+            ? <Alert key="warning" variant="warning">No match was found! Please try again later</Alert> 
+            : <></>
+        }
+        {isMatchFound ? (
+          <Alert key="success" variant="success">Found a new match! </Alert> 
+        ) : (
+          <></>
+        )}
         <div className="flex flex-col space-y-4">
           {showTimer ? (
-            <Timer showTimer={showTimer} cancelMatchRequest={handleCancelMatchRequest} setShowTimer={setShowTimer}/>
+            <Timer showTimer={showTimer} cancelMatchRequest={handleMatchNotFound} setShowTimer={setShowTimer}/>
           ) : (
             <MatchingRequestForm
               handleSubmit={() => handleFindMatchRequest(formData)}
@@ -136,14 +151,20 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
             />
           )}
         </div>
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={handleCancel}
-            className="px-6 py-2 text-white bg-yellow rounded hover:bg-brown"
-          >
-            Cancel match request
-          </button>
-        </div>
+        {
+          showCancelButton
+            ? (
+            <div className="flex justify-center mt-4">
+            <button
+              onClick={handleCancel}
+              className="px-6 py-2 text-white bg-yellow rounded hover:bg-brown"
+            >
+              Cancel match request
+            </button>
+          </div>
+            )
+          : <></>
+        }
       </div>
     </div>
   );

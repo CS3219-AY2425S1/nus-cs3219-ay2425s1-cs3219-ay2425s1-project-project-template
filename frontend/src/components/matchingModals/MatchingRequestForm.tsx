@@ -29,6 +29,9 @@ const MatchingRequestForm: React.FC<MatchingRequestFormProps> = ({
       }}
       className="flex flex-col space-y-6" // Use consistent spacing for form fields
     >
+      <div className="text-center text-gray-600">
+        Please fill out the form to find a suitable match.
+      </div>
       {/* Topic input */}
       <div className="flex items-center space-x-4">
         <label htmlFor="topic" className="w-1/3 text-right">Topic:</label>
