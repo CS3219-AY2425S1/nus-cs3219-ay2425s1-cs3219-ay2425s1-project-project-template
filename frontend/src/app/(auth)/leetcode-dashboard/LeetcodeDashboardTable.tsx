@@ -40,6 +40,8 @@ import { MultiSelect } from "@/components/ui/multiselect";
 import { capitalizeWords } from "@/utils/string_utils";
 import { topicsList } from "@/utils/constants";
 
+const SEARCH_DEBOUNCE_TIMEOUT = 300;
+
 const Cell = ({
   className,
   children,
@@ -154,6 +156,16 @@ const ActionsCell: React.FC<ActionCellProps> = ({
   );
 };
 
+function debounce<T extends (...args: any[]) => void>(func: T, timeout = 300) {
+  let timer: NodeJS.Timeout | undefined;
+  return (...args: Parameters<T>) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, timeout);
+  };
+}
+
 export function LeetcodeDashboardTable({
   refreshKey,
   setRefreshKey,
@@ -216,6 +228,10 @@ export function LeetcodeDashboardTable({
   const [isFilterOpen, setIsFilterOpen] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
+  const debouncedSetSearchTitle = debounce((title: string) => {
+    setSearchTitle(title);
+  }, SEARCH_DEBOUNCE_TIMEOUT);
+
   const questionDifficulty = Object.values(QuestionDifficulty).map((q1) => {
     return {
       label: capitalizeWords(q1),
@@ -265,7 +281,6 @@ export function LeetcodeDashboardTable({
   ];
 
   useEffect(() => {
-    setIsLoading(true);
     getLeetcodeDashboardData(
       pagination.pageIndex + 1,
       pagination.pageSize,
@@ -327,7 +342,9 @@ export function LeetcodeDashboardTable({
                       <Input
                         className="w-[16rem] pl-10 !placeholder-primary-400"
                         placeholder="Search Question Name"
-                        onChange={(e) => setSearchTitle(e.target.value)}
+                        onChange={(e) => {
+                          debouncedSetSearchTitle(e.target.value);
+                        }}
                       />
                     </div>
                     <div className="relative">
@@ -390,7 +407,7 @@ export function LeetcodeDashboardTable({
             ))}
           </TableHeader>
           <TableBody className="bg-primary-900 text-primary-300 text-xs">
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows?.length && !isLoading ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
