@@ -6,6 +6,7 @@ import { io, Socket } from "socket.io-client";
 import { UserContext } from "../../context/UserContext";
 
 const MatchingPage: React.FC = () => {
+
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true); 
@@ -39,6 +40,7 @@ const MatchingPage: React.FC = () => {
     setTimeout(() => {
       // Redirect to the collaboration room
       navigate(`/collaboration?topic=${topic}&difficulty=${difficulty}&room=${room}`);
+
     }, 1000);
   };
 
@@ -56,10 +58,13 @@ const MatchingPage: React.FC = () => {
       return;
     }
 
+    // Start the loading and matching process
+    setIsLoading(true);
+
     // Start a timer that increments every second
-    timerRef.current = window.setInterval(() => {
-      setElapsedTime((prevTime) => prevTime + 1);
-    }, 1000);
+    // timerRef.current = window.setInterval(() => {
+    //   setElapsedTime((prevTime) => prevTime + 1);
+    // }, 1000);
 
     // Join the queue when connected
     socket.on("connect", () => {
@@ -97,26 +102,40 @@ const MatchingPage: React.FC = () => {
   }, [topic, difficulty, user, navigate, elapsedTime]); // Add elapsedTime to dependencies
 
   return (
-    <div className="matching-page">
-      <h1>Finding a Match...</h1>
-      
-      {/* Timer component that counts up to 60 seconds */}
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      flexDirection="column"
+      height="100vh"
+      bgGradient="linear(to-br, #1D004E, #141A67)"
+      color="white"
+      p={4}
+    >
+      <Text fontSize="2xl" fontWeight="bold">
+        Selected Topic: {topic}
+      </Text>
+      <Text fontSize="2xl" fontWeight="bold" mb={4}>
+        Selected Difficulty: {difficulty}
+      </Text>
+
       <Timer
         timeLimit={60}
         onTimeout={handleTimeout}
-        onMatchFound={() => {}} // No need for UI-driven match found, WebSocket will handle it
+        onMatchFound={() => {}}
         isMatched={isMatched}
       />
 
-      {/* Display loading spinner if matching is still in progress */}
       {isLoading && (
         <Box textAlign="center" mt={4}>
           <Spinner size="xl" color="purple.600" />
           <Text fontSize="lg" mt={2}>Matching in progress...</Text>
+          <Button mt={4} colorScheme="red" onClick={() => navigate("/dashboard")}>
+            Cancel
+          </Button>
         </Box>
       )}
 
-      {/* If a match is found, show success UI */}
       {isMatched && (
         <Box textAlign="center" mt={4} bg="green.600" p={4} borderRadius="md" color="white">
           <Text fontSize="lg" fontWeight="bold">
@@ -125,7 +144,6 @@ const MatchingPage: React.FC = () => {
         </Box>
       )}
 
-      {/* If time runs out and no match is found, show failure UI */}
       {isTimeout && !isMatched && (
         <Box textAlign="center" mt={4} bg="red.600" p={4} borderRadius="md" color="white">
           <Text fontSize="lg" fontWeight="bold">
@@ -140,9 +158,8 @@ const MatchingPage: React.FC = () => {
           </Button>
         </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
 export default MatchingPage;
-
