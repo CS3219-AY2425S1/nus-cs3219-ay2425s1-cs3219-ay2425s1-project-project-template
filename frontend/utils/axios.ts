@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
 // Create an Axios instance
 const instance = axios.create({
