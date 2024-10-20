@@ -1,14 +1,53 @@
 import { matchingQueue } from "../queue/matching-queue.js";
 
-export async function addUserToQueue(req, res) {
+export async function addUserToQueue(userData, socket) {
   try {
-    const { username, topic, difficulty, questionId } = req.body;
+    // Check if the matching queue has socket id
+    const queue = await matchingQueue.getJobs(["active", "waiting", "delayed"]);
+
+    for (const job of queue) {
+      if (job.data.username === userData.username) {
+        return { message: "User already in queue" };
+      }
+    }
+
     await matchingQueue.add(
       {
-        username,
-        topic,
-        difficulty,
-        questionId,
+        username: userData.username,
+        topic: userData.topic,
+        difficulty: userData.difficulty,
+        // questionId: userData.questionId,
+        socketId: socket.id,
+        matched: false,
+        matchedUser: "",
+        matchedUserId: "",
+        userNumber: 0,
+      },
+      {
+        attempts: 7,
+        backoff: {
+          type: "fixed",
+          delay: 10000,
+        },
+      }
+    );
+
+    return { message: "Sucessfully been added to queue" };
+  } catch (err) {
+    console.error("Error adding to queue:", err);
+    throw new Error("Failed to add to queue");
+  }
+}
+
+export async function addUserToQueueReq(req, res) {
+  try {
+    const userData = req.body;
+    await matchingQueue.add(
+      {
+        username: userData.username,
+        topic: userData.topic,
+        difficulty: userData.difficulty,
+        questionId: userData.questionId,
         matched: false,
         matchedUser: "",
       },

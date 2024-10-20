@@ -1,5 +1,4 @@
 import { createContext, useContext } from "react";
-import { useToast } from "@chakra-ui/react";
 import axios, { AxiosInstance } from "axios";
 import { useNavigate } from "react-router-dom";
 import { useQuery, QueryObserverResult } from "@tanstack/react-query";
@@ -80,8 +79,6 @@ export const UserProvider = ({
     status: userStatus,
     refetch: refetchUserData,
   };
-
-  console.log("userData", userData);
 
   return (
     <UserContext.Provider value={userContext}>{children}</UserContext.Provider>

@@ -44,5 +44,5 @@ func DBinstance() *mongo.Client {
 // Client Database instance
 var client *mongo.Client = DBinstance()
 
-var Coll *mongo.Collection = client.Database("test_db").Collection("questions") 
+var Coll *mongo.Collection = client.Database("question_db").Collection("questions") 
 
