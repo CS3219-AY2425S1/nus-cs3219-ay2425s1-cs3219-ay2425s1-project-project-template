@@ -233,11 +233,13 @@ export default function CreateQuestionPage() {
             isDisabled={isLoading}
           >
             <option value="" disabled>
-              Select complexity
+              Select a complexity
             </option>
-            <option value={QuestionComplexity.EASY}>Easy</option>
-            <option value={QuestionComplexity.MEDIUM}>Medium</option>
-            <option value={QuestionComplexity.HARD}>Hard</option>
+            {Object.values(QuestionComplexity).map((complexity) => (
+              <option key={complexity} value={complexity}>
+                {complexity}
+              </option>
+            ))}
           </Select>
         </FormControl>
 
