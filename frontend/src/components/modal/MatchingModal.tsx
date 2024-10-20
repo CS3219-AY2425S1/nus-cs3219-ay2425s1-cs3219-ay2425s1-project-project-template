@@ -82,7 +82,7 @@ function MatchingModal({
         color: 'green',
       });
       socketRef.current?.close();
-      closeMatchingModal();
+      handleCancel();
     });
 
     socketRef.current.on('disconnect', () => {
