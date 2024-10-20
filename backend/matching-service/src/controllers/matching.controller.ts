@@ -15,6 +15,10 @@ export async function generateWS(request: ITypedBodyRequest<void>, response: Res
 }
 
 export async function addUserToMatchmaking(data: UserQueueRequest): Promise<void> {
+    const isAnyUserInMatch = await isUserInMatch(data.userId)
+    if (isAnyUserInMatch) {
+        throw new Error('User is already in a match')
+    }
     const createDto = UserQueueRequestDto.fromJSON(data)
     const errors = await createDto.validate()
     if (errors.length) {
@@ -39,5 +43,10 @@ export async function handleCreateMatch(data: IMatch): Promise<IMatch> {
     if (errors.length) {
         throw new Error('Invalid match data')
     }
+    const clients = wsConnection.getClientsWebsockets()
+    const wsClientOne = clients[data.user1Id]
+    const wsClientTwo = clients[data.user2Id]
+    wsConnection.sendMessageToUser(wsClientOne, JSON.stringify({ type: WebSocketMessageType.SUCCESS }))
+    wsConnection.sendMessageToUser(wsClientTwo, JSON.stringify({ type: WebSocketMessageType.SUCCESS }))
     return createMatch(createDto)
 }
