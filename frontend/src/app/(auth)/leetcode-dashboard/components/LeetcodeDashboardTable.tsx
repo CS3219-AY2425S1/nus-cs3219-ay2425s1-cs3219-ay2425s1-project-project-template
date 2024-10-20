@@ -330,7 +330,7 @@ export function LeetcodeDashboardTable({
   return (
     <div className="w-full test">
       <div>
-        <Table className="font-light min-h-[280px]">
+        <Table className="font-light min-h-[360px]">
           <TableHeader className="w-full">
             <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
               <TableCell colSpan={5} className="pl-10">
