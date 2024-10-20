@@ -70,6 +70,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         ack(true);
         socket.emit("broadcast", `hi from ${user?.username}`);
         setShowTimer(false);
+        setShowCancelButton(false);
         setIsMatchFound(true);
       });
       console.log(`Listening to room: ${data.matchId}`);
@@ -110,10 +111,11 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
     }
   }
 
-  const handleMatchNotFound = () => {
+  const handleMatchNotFound = (): Promise<void> => {
     handleCancelMatchRequest();
     setCancelAlert(true);
     setShowCancelButton(false);
+    return Promise.resolve();
   }
 
   return (
