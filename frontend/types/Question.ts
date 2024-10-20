@@ -1,10 +1,12 @@
 export enum QuestionComplexity {
+  ANY = 'any',
   EASY = "easy",
   MEDIUM = "medium",
   HARD = "hard",
 }
 
 export enum QuestionTopic {
+  ANY = 'any',
   ARRAY = "array",
   BINARY = "binary",
   BINARY_SEARCH = "binary_search",

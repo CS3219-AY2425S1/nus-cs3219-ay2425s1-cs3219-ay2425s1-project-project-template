@@ -42,9 +42,8 @@ export default function CreateQuestionPage() {
   const [matchedWithUser, setMatchedWithUser] = useState<string | undefined>(
     undefined
   );
-  const [matchedTopic, setMatchedTopic] = useState<string | undefined>(
-    undefined
-  );
+  const [matchedTopic, setMatchedTopic] = useState<string>("");
+  const [roomId, setRoomId] = useState<string>("");
 
   const [checkMatchInterval, setCheckMatchInterval] =
     useState<NodeJS.Timeout | null>(null);
@@ -120,7 +119,8 @@ export default function CreateQuestionPage() {
               // Handle match found logic here
               setIsMatched(true);
               setMatchedWithUser(res.matchedWithUserId);
-              setMatchedTopic(res.topic);
+              setMatchedTopic(res.matchedTopic);
+              setRoomId(res.matchedRoom);
             } else {
               loopCounter++;
               setCountdown((prevCountdown) => prevCountdown - 1);
@@ -233,11 +233,13 @@ export default function CreateQuestionPage() {
             isDisabled={isLoading}
           >
             <option value="" disabled>
-              Select complexity
+              Select a complexity
             </option>
-            <option value={QuestionComplexity.EASY}>Easy</option>
-            <option value={QuestionComplexity.MEDIUM}>Medium</option>
-            <option value={QuestionComplexity.HARD}>Hard</option>
+            {Object.values(QuestionComplexity).map((complexity) => (
+              <option key={complexity} value={complexity}>
+                {complexity}
+              </option>
+            ))}
           </Select>
         </FormControl>
 
@@ -291,12 +293,32 @@ export default function CreateQuestionPage() {
                 </GridItem>
                 <GridItem>
                   <Text fontSize="lg" color="black">
+                    Difficulty:
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="teal.500">
+                    {matchedTopic.split("-")[0]}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="black">
                     Topic:
                   </Text>
                 </GridItem>
                 <GridItem>
                   <Text fontSize="lg" color="teal.500">
-                    {matchedTopic}
+                    {matchedTopic.split("-")[1]}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="black">
+                    Room ID:
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" color="teal.500">
+                    {roomId}
                   </Text>
                 </GridItem>
               </Grid>

@@ -18,9 +18,14 @@ export type MatchStatus = "PENDING" | "MATCHED" | "CANCELLED" | "NONE";
 //TODO: request to standarise the responses to be sent by the backend
 
 export type CheckMatchResponse = {
+  userId: string;
   status: MatchStatus;
+  topic: string;
   matchedWithUserId: string;
-  topic: string; //TODO: Change to QuestionTopic and QuestionComplexity from backend
+  matchedTopic: string;
+  matchedRoom: string;
+  createTime: number;
+  expiryTime: number;
 };
 
 export type CheckMatchResponseError = {

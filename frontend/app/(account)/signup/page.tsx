@@ -53,7 +53,19 @@ export default function SignupPage() {
         position: "top",
       });
       router.push('/login');
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response.status === 409) {
+        toast.closeAll();
+        toast({
+          title: 'Error',
+          description: 'Username or email may already exists',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top'
+        });
+        return;
+      }
       toast.closeAll();
       toast({
         title: 'Error',
