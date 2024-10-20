@@ -11,10 +11,12 @@ const publicRoutes = [
   "/reset-password",
 ];
 
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
+
 const validateToken = async (accessToken: string | undefined): Promise<any> => {
   try {
     const response = await fetch(
-      "http://localhost/api/user-service/auth/verify-token",
+      `${baseURL}/api/user-service/auth/verify-token`,
       {
         method: "GET",
         headers: {
