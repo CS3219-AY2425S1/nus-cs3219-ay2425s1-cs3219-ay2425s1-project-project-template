@@ -21,8 +21,17 @@ export class WebSocketConnection {
             }
 
             this.clients.set(websocketId, ws)
+
+            // Close connection after 2 minutes automatically
+            const closeAfterTimeout = setTimeout(() => {
+                ws.close(1000, 'Connection closed by server after 2 minutes')
+            }, 120000)
+
             ws.on('message', (message: string) => this.handleMessage(message, websocketId))
-            ws.on('close', () => this.handleClose(websocketId))
+            ws.on('close', () => {
+                clearTimeout(closeAfterTimeout)
+                this.handleClose(websocketId)
+            })
         })
     }
 
@@ -64,6 +73,13 @@ export class WebSocketConnection {
             client.send(message)
         } else {
             loggerUtil.info(`User ${websocketId} is not connected`)
+        }
+    }
+
+    public closeConnectionOnTimeout(websocketId: string): void {
+        const client = this.clients.get(websocketId)
+        if (client && client.readyState === WebSocket.OPEN) {
+            client.close(1001, JSON.stringify({ type: WebSocketMessageType.FAILURE }))
         }
     }
 }

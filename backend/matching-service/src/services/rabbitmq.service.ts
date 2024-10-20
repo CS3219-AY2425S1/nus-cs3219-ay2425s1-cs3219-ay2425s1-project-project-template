@@ -6,6 +6,7 @@ import logger from '../common/logger.util'
 import { Proficiency } from '@repo/user-types'
 import { IMatch } from '../types/IMatch'
 import { handleCreateMatch } from '../controllers/matching.controller'
+import wsConnection from '../services/ws.service'
 
 class RabbitMQConnection {
     connection!: Connection
@@ -135,7 +136,7 @@ class RabbitMQConnection {
                 expiration: ttl,
                 headers: {
                     sentAt: Date.now(),
-                    userId: message.userId,
+                    websocketId: message.websocketId,
                 },
             })
 
@@ -311,20 +312,23 @@ class RabbitMQConnection {
                 await this.connect()
             }
 
-            // DeadLetter-Queue setup parameters
+            const dlxArgs = this.getDlxArgs()
             const DLX_QUEUE = 'deadletter-queue'
-            const DLX_EXCHANGE = 'dlx'
-            const DLX_ROUTING_KEY = 'dlx-key'
+            const DLX_EXCHANGE = dlxArgs['x-dead-letter-exchange']
+            const DLX_ROUTING_KEY = dlxArgs['x-dead-letter-routing-key']
+
             await this.channel.assertExchange(DLX_EXCHANGE, 'direct', { durable: false })
             await this.channel.assertQueue(DLX_QUEUE, { durable: false })
             await this.channel.bindQueue(DLX_QUEUE, DLX_EXCHANGE, DLX_ROUTING_KEY)
 
-            // Consume messages
             await this.channel.consume(DLX_QUEUE, (msg) => {
                 if (msg) {
-                    const userId = msg.properties.headers.userId
-                    const queue = msg.properties.headers['x-first-death-queue']
-                    logger.info(`[DeadLetter-Queue] Received dead letter message from user ${userId} from ${queue}`)
+                    const socketId = msg.properties?.headers?.websocketId
+                    const queue = msg.properties?.headers['x-first-death-queue']
+                    logger.info(
+                        `[DeadLetter-Queue] Received dead letter message from ${queue}, with socketId ${socketId}`
+                    )
+                    wsConnection.closeConnectionOnTimeout(socketId)
                     this.channel.ack(msg)
                     this.currentUsers.delete(userId)
                 }
@@ -338,7 +342,6 @@ class RabbitMQConnection {
         return {
             'x-dead-letter-exchange': 'dlx',
             'x-dead-letter-routing-key': 'dlx-key',
-            'x-message-ttl': 180000,
         }
     }
 }
