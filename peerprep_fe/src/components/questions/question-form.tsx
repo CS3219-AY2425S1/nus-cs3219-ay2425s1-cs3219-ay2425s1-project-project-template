@@ -239,32 +239,39 @@ export function QuestionForm({
           const example = field.value;
           return (
             <div className="flex space-x-5" key={field.id}>
-              <LargeTextfield
-                id={index.toString()}
-                name="examples-input"
-                secure={false}
-                placeholder_text="Input"
-                text={example.input}
-                onChange={handleChangeExample}
-                required
-              />
-              <LargeTextfield
-                id={index.toString()}
-                name="examples-output"
-                secure={false}
-                placeholder_text="Output"
-                text={example.output}
-                onChange={handleChangeExample}
-                required
-              />
-              <LargeTextfield
-                id={index.toString()}
-                name="examples-explanation"
-                secure={false}
-                placeholder_text="Explanation"
-                text={example.explanation}
-                onChange={handleChangeExample}
-              />
+              <div className="w-1/3">
+                <LargeTextfield
+                  id={index.toString()}
+                  name="examples-input"
+                  secure={false}
+                  placeholder_text="Input"
+                  text={example.input}
+                  onChange={handleChangeExample}
+                  required
+                />
+              </div>
+              <div className="w-1/3">
+                <LargeTextfield
+                  id={index.toString()}
+                  name="examples-output"
+                  secure={false}
+                  placeholder_text="Output"
+                  text={example.output}
+                  onChange={handleChangeExample}
+                  required
+                />
+              </div>
+              <div className="w-1/3">
+                <LargeTextfield
+                  id={index.toString()}
+                  name="examples-explanation"
+                  secure={false}
+                  placeholder_text="Explanation"
+                  text={example.explanation}
+                  onChange={handleChangeExample}
+                />
+              </div>
+
               <button
                 hidden={examples.length === 1}
                 type="button"
@@ -287,15 +294,17 @@ export function QuestionForm({
           const constraint = field.value;
           return (
             <div className="flex space-x-5" key={field.id}>
-              <LargeTextfield
-                id={index.toString()}
-                name="constraints"
-                secure={false}
-                placeholder_text="e.g 2 <= nums.length <= 10^4"
-                text={constraint}
-                onChange={handleChange}
-                required
-              />
+              <div className="w-full">
+                <LargeTextfield
+                  id={index.toString()}
+                  name="constraints"
+                  secure={false}
+                  placeholder_text="e.g 2 <= nums.length <= 10^4"
+                  text={constraint}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
               <button
                 hidden={constraints.length === 1}
                 type="button"
@@ -308,6 +317,7 @@ export function QuestionForm({
             </div>
           );
         })}
+
         {error && <p className="error">{error}</p>}
         {<Button type="submit" text={`${type} Question`} loading={loading} />}
       </form>
