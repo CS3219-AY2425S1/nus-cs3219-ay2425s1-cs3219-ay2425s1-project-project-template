@@ -11,7 +11,7 @@ interface CustomJwtPayload extends JwtPayload {
 
 const LoadingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(30);
   const [matchFound, setMatchFound] = useState(false);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const LoadingPage: React.FC = () => {
   }, [countdown, matchFound]);
 
   const resetTimer = () => {
-    setCountdown(3);
+    setCountdown(30);
     setMatchFound(false);
   };
 
