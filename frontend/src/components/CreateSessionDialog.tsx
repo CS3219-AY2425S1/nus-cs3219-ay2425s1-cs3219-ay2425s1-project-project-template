@@ -272,7 +272,7 @@ export default function CreateSessionDialog(): JSX.Element {
                   Matched with: <span className="font-semibold">{matchedUser}</span>
                 </p>
                 <p className="">
-                  Difficulty: <span className="font-semibold">{capitalizeFirstLetter(difficulty)}</span>
+                  Difficulty: <span className="font-semibold">{capitalizeFirstLetter(difficultyMatched)}</span>
                 </p>
                 <p className="">
                   Topic: <span className="font-semibold">{capitalizeFirstLetter(topic.replace('-', ' '))}</span>
