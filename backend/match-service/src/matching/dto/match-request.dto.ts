@@ -1,15 +1,23 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsNumber, Min, IsOptional } from 'class-validator';
+import { QuestionComplexity, QuestionCategory } from '../../../../question-service/src/questions/types/question.types'
 
-export class MatchRequestDTO {
+export class MatchRequestDto {
   @IsNotEmpty()
   @IsString()
-  topic: string;
+  userId: string;
 
-  @IsNotEmpty()
-  @IsString()
-  difficulty: string;
+  @IsEnum(QuestionCategory)
+  topic: QuestionCategory;
 
-  @IsNotEmpty()
+  @IsEnum(QuestionComplexity)
+  difficulty: QuestionComplexity;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  timestamp?: number;
+
   @IsString()
-  clientId: string;
+  @IsOptional()
+  socketId?: string;
 }
