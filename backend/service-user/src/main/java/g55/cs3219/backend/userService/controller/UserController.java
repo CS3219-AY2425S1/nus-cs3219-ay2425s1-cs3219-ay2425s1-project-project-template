@@ -86,7 +86,7 @@ public class UserController {
             } else if (e.getMessage().contains("User not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the user information.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the user information: " + e.getMessage());
         }
     }
 
@@ -103,9 +103,6 @@ public class UserController {
             }
             // Handle other server errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        } catch (Exception e) {
-            // Handle generic errors (e.g., missing fields)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input: " + e.getMessage());
         }
     }
 
