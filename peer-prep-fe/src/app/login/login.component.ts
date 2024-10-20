@@ -26,7 +26,6 @@ const MODULES: any[] = [
   styleUrl: "./login.component.scss"
 })
 export class LoginComponent {
-  //private authService = inject(AuthGoogleService);
   constructor(
     private router: Router,
     private authService: authService
@@ -39,10 +38,6 @@ export class LoginComponent {
       Validators.minLength(6)
     ])
   })
-
-  // signInWithGoogle() {
-  //   this.authService.login();
-  // }
 
   loginAccount() {
     let apiUrl: string = "http://localhost:3001/auth/login"
@@ -71,7 +66,7 @@ export class LoginComponent {
       })
       .then((data) => {
         this.authService.login(data)
-        this.router.navigate(["/"]) // Redirect to homepage when succesfully created account.
+        //this.router.navigate(["/landing"]) // Redirect to homepage when succesfully created account
         console.log(data) // Handle the response data
       })
       .catch((error) => {

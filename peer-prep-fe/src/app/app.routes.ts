@@ -10,16 +10,18 @@ import { HomeComponent } from "./home/home.component"
 import { LoginComponent } from "./login/login.component"
 import { LandingPageComponent } from "../landing-page/landing-page.component"
 import {MatchModalComponent} from "../loading-screen/match-modal/match-modal.component";
+import { authGuard } from "./authService/auth.guard"
+import { adminGuard } from "./authService/admin.guard"
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
   { path: "login", component: LoginComponent },
   { path: "create-account", component: CreateAccountComponent },
-  { path: "admin-controls", component: AdminComponent },
+  { path: "admin-controls", component: AdminComponent, canActivate: [adminGuard] },
   { path: "add-question", component: AddPageComponent },
   { path: "edit-question", component: EditPageComponent },
   { path: "question-list", component: QuestionListComponent },
   { path: "loading-screen", component: MatchModalComponent },
   { path: "question-list", component: QuestionListComponent },
-  { path: "landing", component: LandingPageComponent }
+  { path: "landing", component: LandingPageComponent, canActivate: [authGuard]}
 ]

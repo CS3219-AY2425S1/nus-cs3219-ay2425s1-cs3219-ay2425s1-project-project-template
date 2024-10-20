@@ -25,7 +25,7 @@ export class authService {
     this.currentUserSubject.next(userData)
     this.currentUser = userData
     console.log(this.currentUser)
-    this.router.navigate(["/"])
+    this.router.navigate(["/landing"])
   }
 
   logout(): void {
