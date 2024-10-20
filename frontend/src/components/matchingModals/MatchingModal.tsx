@@ -39,7 +39,11 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
       socket.on("connect", () => {
         console.log("Connected to server", socket.id);
       });
-
+      console.log("Sent match request: ", {
+        name: user?.username, // set up with user context later
+        topic: formData.topic,
+        difficulty: formData.difficulty,
+      })
       const res = await fetch("http://localhost:3000/match/findMatch", {
         mode: "cors",
         method: "POST",
