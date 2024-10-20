@@ -11,6 +11,7 @@ services:
     environment:
       USER_SERVICE_ADDR: user-service:3001
       QUESTION_SERVICE_ADDR: question-service:8000
+      MATCH_NOTIFICATION_SERVICE_ADDR: match-notification-service:4001
     ports:
       - "80:80"
       - "443:443"
@@ -18,6 +19,8 @@ services:
       - frontend
       - user-service
       - question-service
+      - matching-service
+      - match-notification-service
     healthcheck:
       test:
         [
@@ -81,7 +84,9 @@ services:
     container_name: matching-service
     depends_on:
       rabbitmq:
-        condition: service_healthy  # Ensure matching service waits for RabbitMQ to be healthy
+        condition: service_healthy
+      matching-service-redis:
+        condition: service_healthy
     env_file:
       - .env/.matching_env
 
@@ -94,8 +99,20 @@ services:
         condition: service_healthy  # Ensure notification service waits for RabbitMQ to be healthy
     env_file:
       - .env/.notification_env
+
+  matching-service-redis:
+    container_name: matching-service-redis
+    image: redis:latest
+    volumes:
+      - redis-data:/data/db
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  # Adjust based on how long it takes for RabbitMQ to be ready
       
 volumes:
   mongo-data:
   react-build:
   rabbitmq_data:
+  redis-data:
