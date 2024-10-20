@@ -9,6 +9,7 @@ import { CheckCircle2, PlusIcon, Timer, XCircle } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Socket, io } from "socket.io-client";
+import { verifyToken } from "@/lib/api-user";
 
 interface FormData {
   difficulty: string;
@@ -47,13 +48,38 @@ export default function CreateSessionDialog(): JSX.Element {
   const [timer, setTimer] = useState<number | null>(null);
   const [redirectTimer, setRedirectTimer] = useState<number | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [userId, setUserId] = useState<string>('');
+  // const [userId, setUserId] = useState<string>('');
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [matchedUser, setMatchedUser] = useState<string>('');
   const [difficultyMatched, setDifficultyMatched] = useState<string>('');
+  const [userData, setUserData] = useState({
+    username: "",
+    email: "",
+  });
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setUserId(`user_${Math.random().toString(36).substr(2, 9)}`);
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        router.push('/login')
+        return
+      }
+      try {
+        const res = await verifyToken(token)
+        setUserData({ username: res.data.username, email: res.data.email })
+        setLoading(false)
+      } catch (error) {
+        console.error('Token verification failed:', error)
+        router.push('/login') // Redirect to login if verification fails
+      }
+    }
+
+    fetchUserData()
+  }, [router])
+
+  useEffect(() => {
+    // setUserId(`user_${Math.random().toString(36).substr(2, 9)}`);
 
     const newSocket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
 
@@ -135,7 +161,7 @@ export default function CreateSessionDialog(): JSX.Element {
     setStatus('loading');
     setTimer(30);
     const matchRequest: MatchRequest = {
-      userId: userId,
+      userId: userData.username,
       topic: data.topic,
       difficulty: data.difficulty,
       timestamp: Date.now()
@@ -149,7 +175,7 @@ export default function CreateSessionDialog(): JSX.Element {
 
   const handleCancel = () => {
     if (status === 'loading') {
-      socket?.emit('cancelMatch', { userId: userId });
+      socket?.emit('cancelMatch', { userId: userData.username });
     }
     resetState();
   };
