@@ -22,6 +22,23 @@ const redisClient = redis.createClient({
   },
 });
 
+const redisClient = redis.createClient({
+  socket: {
+    host: 'matching-service-redis',
+    port: 6379,
+    reconnectStrategy: function (retries) {
+      if (retries > 20) {
+        console.log(
+          'Too many attempts to reconnect. Redis connection was terminated',
+        );
+        return new Error('Too many retries.');
+      } else {
+        return retries * 500;
+      }
+    },
+  },
+});
+
 app.use(express.json());
 
 let connection;
@@ -65,6 +82,12 @@ async function initRedis() {
 
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
+
+  const userExists = (await redisClient.get(userId)) !== null;
+  if (userExists) {
+    console.log("Duplicate user:", userId);
+    return; 
+  }
 
   const matchedByTopics = await findMatchByTopics(topics);
   const matchedByDifficulty = await findMatchByDifficulty(difficulty);

@@ -24,16 +24,12 @@ services:
       - matching-service
       - match-notification-service
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl --silent --fail --insecure https://localhost/health-check || exit 1",
-        ]
+      test: [ "CMD-SHELL", "curl --silent --fail --insecure https://localhost/health-check || exit 1" ]
       interval: 10s
       timeout: 10s
       retries: 3
     command: /app/start.sh
-    
+
   frontend:
     build:
       context: ./frontend
@@ -44,7 +40,7 @@ services:
       - react-build:/app/dist
     networks:
       - my-network
-    entrypoint: ["sh", "-c", "npm run build && exit 0"]
+    entrypoint: [ "sh", "-c", "npm run build && exit 0" ]
 
   user-service:
     build:
@@ -85,10 +81,10 @@ services:
     networks:
       - my-network
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 10s
       timeout: 5s
-      retries: 5  # Adjust based on how long it takes for RabbitMQ to be ready
+      retries: 5 # Adjust based on how long it takes for RabbitMQ to be ready
     env_file:
       - .env/.rabbitmq_env
 
@@ -116,7 +112,7 @@ services:
       - my-network
     depends_on:
       rabbitmq:
-        condition: service_healthy  # Ensure notification service waits for RabbitMQ to be healthy
+        condition: service_healthy # Ensure notification service waits for RabbitMQ to be healthy
     env_file:
       - .env/.notification_env
 
@@ -128,16 +124,17 @@ services:
     networks:
       - my-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
-      retries: 5  # Adjust based on how long it takes for RabbitMQ to be ready
-      
+      retries: 5 # Adjust based on how long it takes for RabbitMQ to be ready
+
 volumes:
   mongo-data:
   react-build:
   rabbitmq_data:
   redis-data:
+
 
 networks:
   my-network:
