@@ -5,9 +5,9 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { PlusIcon, XCircle } from "lucide-react";
+import { CheckCircle2, PlusIcon, Timer, XCircle } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import StartSessionDialog from "./StartSessionDialog";
+import { useRouter } from "next/navigation";
 import { Socket, io } from "socket.io-client";
 
 interface FormData {
@@ -26,11 +26,13 @@ interface MatchResult {
   success: boolean;
   message: string;
   peerUserId?: string;
+  difficulty?: string;
 }
 
 type Status = 'idle' | 'loading' | 'error' | 'success';
 
 export default function CreateSessionDialog(): JSX.Element {
+  const router = useRouter();
   const { control, handleSubmit, watch, reset } = useForm<FormData>({
     defaultValues: {
       difficulty: '',
@@ -43,10 +45,12 @@ export default function CreateSessionDialog(): JSX.Element {
   const isFormValid = !!difficulty && !!topic;
   const [status, setStatus] = useState<Status>('idle');
   const [timer, setTimer] = useState<number | null>(null);
-  const [showMatchDialog, setShowMatchDialog] = useState<boolean>(false);
-  const [matchedUsers, setMatchedUsers] = useState<string[]>([]);
+  const [redirectTimer, setRedirectTimer] = useState<number | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [userId, setUserId] = useState<string>('');
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [matchedUser, setMatchedUser] = useState<string>('');
+  const [difficultyMatched, setDifficultyMatched] = useState<string>('');
 
   useEffect(() => {
     setUserId(`user_${Math.random().toString(36).substr(2, 9)}`);
@@ -75,10 +79,11 @@ export default function CreateSessionDialog(): JSX.Element {
 
     newSocket.on('matchResult', (data: MatchResult) => {
       console.log('Match result:', data);
-      if (data.success && data.peerUserId) {
-        setMatchedUsers([data.peerUserId]);
-        setShowMatchDialog(true);
-        resetState();
+      if (data.success && data.peerUserId && data.difficulty) {
+        setStatus('success');
+        setRedirectTimer(5);
+        setMatchedUser(data.peerUserId);
+        setDifficultyMatched(data.difficulty)
       } else {
         setStatus('error');
         setTimer(null);
@@ -102,9 +107,34 @@ export default function CreateSessionDialog(): JSX.Element {
     return () => clearInterval(interval);
   }, [timer]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (redirectTimer !== null && redirectTimer >= 0) {
+      interval = setInterval(() => {
+        setRedirectTimer((prevTimer) => {
+          if (prevTimer === null) return null;
+          if (prevTimer <= 0) {
+            setShouldRedirect(true);
+            return null;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [redirectTimer]);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/collaboration');
+    }
+  }, [shouldRedirect, router]);
+
   const resetState = () => {
     setStatus('idle');
     setTimer(null);
+    setRedirectTimer(null);
+    setShouldRedirect(false);
     reset({
       difficulty: '',
       topic: ''
@@ -123,6 +153,10 @@ export default function CreateSessionDialog(): JSX.Element {
     socket?.emit('requestMatch', matchRequest);
   };
 
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   const handleCancel = () => {
     if (status === 'loading') {
       socket?.emit('cancelMatch', { userId: userId });
@@ -132,7 +166,7 @@ export default function CreateSessionDialog(): JSX.Element {
 
   return (
     <>
-      <Dialog>
+      <Dialog onOpenChange={resetState}>
         <DialogTrigger asChild>
           <Button>
             <PlusIcon className="w-4 h-4 mr-2" />
@@ -145,7 +179,7 @@ export default function CreateSessionDialog(): JSX.Element {
             <DialogDescription>Find a partner to practice coding interviews with.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(handleCreateSession)}>
-            <div className="grid gap-4 p-4">
+            <div className="grid gap-4 p-4 pb-2">
               <div className="grid gap-2">
                 <Label htmlFor="difficulty">Question Difficulty</Label>
                 <Controller
@@ -207,7 +241,7 @@ export default function CreateSessionDialog(): JSX.Element {
               type="submit" 
               className="flex-1 px-4 py-2" 
               onClick={handleSubmit(handleCreateSession)} 
-              disabled={status === 'loading' || !isFormValid}
+              disabled={status === 'loading' || !isFormValid || status === 'success'}
             >
               {status === 'loading' ? (
                 <>
@@ -226,18 +260,31 @@ export default function CreateSessionDialog(): JSX.Element {
               Failed to find a match. Please try again.
             </div>
           )}
+          {status === 'success' && (
+            <div className="mt-2 p-4 rounded-lg border border-black">
+              <div className="flex items-center justify-center mb-2">
+                <CheckCircle2 className="w-4 h-4 mr-1" />
+                <span className="font-medium">Match Found!</span>
+              </div>
+              <div className="text-center space-y-1">
+                <p className="">
+                  Matched with: <span className="font-semibold">{matchedUser}</span>
+                </p>
+                <p className="">
+                  Difficulty: <span className="font-semibold">{capitalizeFirstLetter(difficulty)}</span>
+                </p>
+                <p className="">
+                  Topic: <span className="font-semibold">{capitalizeFirstLetter(topic.replace('-', ' '))}</span>
+                </p>
+                <div className="flex items-center justify-center mt-2">
+                  <Timer className="w-4 h-4 mr-1" />
+                  <span>Starting session in {redirectTimer} seconds...</span>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
-      {showMatchDialog && (
-        <StartSessionDialog
-          isOpen={showMatchDialog}
-          onClose={() => {
-            setShowMatchDialog(false);
-            resetState();
-          }}
-          matchedUsers={matchedUsers}
-        />
-      )}
     </>
   );
 }
