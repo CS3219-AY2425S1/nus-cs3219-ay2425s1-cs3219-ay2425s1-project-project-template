@@ -19,17 +19,30 @@ interface QuestionFormProps {
   questions: QuestionDto[];
 }
 
+export interface Example {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface QuestionForm {
   title: string;
   description: string;
   difficultyLevel: DifficultyLevel;
   topic: string;
-  examples: string[];
+  examples: Example[];
   constraints: string[];
 }
 
 interface DynamicField {
   id: string;
+}
+
+interface ExampleFields extends DynamicField {
+  value: Example;
+}
+
+interface ConstraintFields extends DynamicField {
   value: string;
 }
 
@@ -50,15 +63,15 @@ export function QuestionForm({
     constraints: [],
   });
   const [error, setError] = useState<string>("");
-  const [examples, setExamples] = useState<DynamicField[]>(
+  const [examples, setExamples] = useState<ExampleFields[]>(
     initialQuestion?.examples.map((ex) => {
       return {
-        value: `${ex.input}|${ex.output}|${ex.explanation || ""}`,
+        value: ex,
         id: uuidv4(),
       };
-    }) ?? [{ value: "", id: uuidv4() }]
+    }) ?? [{ value: { input: "", output: "" }, id: uuidv4() }]
   );
-  const [constraints, setConstraints] = useState<DynamicField[]>(
+  const [constraints, setConstraints] = useState<ConstraintFields[]>(
     initialQuestion?.constraints.map((con) => {
       return { value: con, id: uuidv4() };
     }) ?? [{ value: "", id: uuidv4() }]
@@ -73,8 +86,8 @@ export function QuestionForm({
     setLoading(true);
     setError("");
 
-    formData.examples = examples.map((ex) => ex.value);
-    formData.constraints = constraints.map((con) => con.value);
+    formData.examples = examples.map((ex) => ex.value as Example);
+    formData.constraints = constraints.map((con) => con.value as string);
 
     try {
       let response = null;
@@ -119,7 +132,7 @@ export function QuestionForm({
 
   const onAddExample = () => {
     setExamples((prev) => {
-      return [...prev, { value: "", id: uuidv4() }];
+      return [...prev, { value: { input: "", output: "" }, id: uuidv4() }];
     });
   };
 
@@ -144,13 +157,6 @@ export function QuestionForm({
   ) => {
     e.preventDefault();
     const { name, value, id } = e.target;
-    if (name === "examples") {
-      setExamples((prev) => {
-        prev[Number(id)].value = value;
-        return prev;
-      });
-      return;
-    }
     if (name === "constraints") {
       setConstraints((prev) => {
         prev[Number(id)].value = value;
@@ -160,6 +166,27 @@ export function QuestionForm({
     }
     setFormData((prev) => {
       return { ...prev, [name]: value };
+    });
+  };
+
+  const handleChangeExample = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const { name, value, id } = e.target;
+    const [, type] = name.split("-");
+    setExamples((prev) => {
+      const updatedExamples = prev.map((ex, index) => {
+        if (index.toString() === id) {
+          if (type === "input") {
+            ex.value.input = value;
+          } else if (type === "output") {
+            ex.value.output = value;
+          } else {
+            ex.value.explanation = value;
+          }
+        }
+        return ex;
+      });
+      return updatedExamples;
     });
   };
 
@@ -208,17 +235,35 @@ export function QuestionForm({
             <span className="material-symbols-outlined">add</span>
           </button>
         </div>
-        {examples.map((example, index) => {
+        {examples.map((field, index) => {
+          const example = field.value;
           return (
-            <div className="flex space-x-5" key={example.id}>
+            <div className="flex space-x-5" key={field.id}>
               <LargeTextfield
                 id={index.toString()}
-                name="examples"
+                name="examples-input"
                 secure={false}
-                placeholder_text="input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9"
-                text={example.value}
-                onChange={handleChange}
+                placeholder_text="Input"
+                text={example.input}
+                onChange={handleChangeExample}
                 required
+              />
+              <LargeTextfield
+                id={index.toString()}
+                name="examples-output"
+                secure={false}
+                placeholder_text="Output"
+                text={example.output}
+                onChange={handleChangeExample}
+                required
+              />
+              <LargeTextfield
+                id={index.toString()}
+                name="examples-explanation"
+                secure={false}
+                placeholder_text="Explanation"
+                text={example.explanation}
+                onChange={handleChangeExample}
               />
               <button
                 hidden={examples.length === 1}
@@ -238,15 +283,16 @@ export function QuestionForm({
             <span className="material-symbols-outlined">add</span>
           </button>
         </div>
-        {constraints.map((constraint, index) => {
+        {constraints.map((field, index) => {
+          const constraint = field.value;
           return (
-            <div className="flex space-x-5" key={constraint.id}>
+            <div className="flex space-x-5" key={field.id}>
               <LargeTextfield
                 id={index.toString()}
                 name="constraints"
                 secure={false}
                 placeholder_text="e.g 2 <= nums.length <= 10^4"
-                text={constraint.value}
+                text={constraint}
                 onChange={handleChange}
                 required
               />

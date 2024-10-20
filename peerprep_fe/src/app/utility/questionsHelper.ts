@@ -1,4 +1,4 @@
-import { QuestionForm } from "@/components/questions/question-form";
+import { Example, QuestionForm } from "@/components/questions/question-form";
 import { QuestionDto } from "peerprep-shared-types";
 
 const prepareFormDataForSubmission = (
@@ -19,26 +19,20 @@ const prepareFormDataForSubmission = (
   }
 
   // Validate and process examples
-  const exampleEntries = formData.examples.filter((ex) => ex.trim() !== "");
+  const processedExamples: Example[] = [];
 
-  const processedExamples: {
-    input: string;
-    output: string;
-    explanation?: string;
-  }[] = [];
-
-  for (const ex of exampleEntries) {
-    const parts = ex.split("|").map((part) => part.trim());
-    if (parts.length < 2 || parts.length > 3) {
+  for (const ex of formData.examples) {
+    if (ex.input.trim() === "") {
       return {
-        error: `Invalid example format: ${ex}. Examples (input|output|explanation; e.g., nums=[2,7,11,15], target=9|[0,1]|Because nums[0] + nums[1] == 9)`,
+        error: "Example input is required.",
       };
     }
-    processedExamples.push({
-      input: parts[0],
-      output: parts[1],
-      explanation: parts[2],
-    });
+    if (ex.output.trim() === "") {
+      return {
+        error: "Example output is required.",
+      };
+    }
+    processedExamples.push(ex);
   }
 
   // Validate and process constraints
