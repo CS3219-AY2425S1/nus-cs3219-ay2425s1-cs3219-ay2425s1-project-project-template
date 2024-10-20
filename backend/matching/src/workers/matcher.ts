@@ -3,7 +3,7 @@ import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/c
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
 import { IMatchType } from '@/types';
-import { MATCH_SVC_EVENT } from '@/ws';
+import { MATCHING_EVENT } from '@/ws/events';
 
 import { connectClient, sendNotif } from './common';
 
@@ -12,7 +12,7 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-const sleepTime = 5000;
+const sleepTime = 500;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -59,7 +59,7 @@ async function processMatch(
       }
 
       // To block cancellation
-      sendNotif([matchedSocketPort], MATCH_SVC_EVENT.MATCHING);
+      sendNotif([matchedSocketPort], MATCHING_EVENT.MATCHING);
 
       const matchedStreamId = getStreamId(timestamp);
 
@@ -82,8 +82,8 @@ async function processMatch(
       );
       logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
 
-      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
-      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.DISCONNECT);
 
       await logQueueStatus(logger, redisClient, `Queue Status After Matching: <PLACEHOLDER>`);
       return true;
@@ -131,7 +131,7 @@ async function match() {
       } = decodePoolTicket(matchRequest);
 
       // To Block Cancellation
-      sendNotif([requestorSocketPort], MATCH_SVC_EVENT.MATCHING);
+      sendNotif([requestorSocketPort], MATCHING_EVENT.MATCHING);
 
       const clause = [`-@userId:(${requestorUserId})`];
 
@@ -200,7 +200,7 @@ async function match() {
 
       if (!hasDifficultyMatch) {
         // To allow cancellation
-        sendNotif([requestorSocketPort], MATCH_SVC_EVENT.PENDING);
+        sendNotif([requestorSocketPort], MATCHING_EVENT.PENDING);
       }
     }
   }
