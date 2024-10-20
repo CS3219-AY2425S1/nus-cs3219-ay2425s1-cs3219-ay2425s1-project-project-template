@@ -11,8 +11,6 @@ describe("Connect DB", () => {
 
   test("GET - /api/", async () => {
     const res = await request.get("/api/").send();
-    const body = res.body;
-    const message = body.message;
     expect(res.statusCode).toBe(200);
     expect(res.text).toBe("Hello from question service!");
   });
@@ -247,8 +245,8 @@ describe("Test Question API", () => {
 // Test /api/all
 describe("Test Get All", () => {
   // Get all with questions
-  test("GET /api/all - should retrieve all questions", async () => {
-    const res = await request.get("/api/all").send();
+  test("POST /api/all - should retrieve all questions", async () => {
+    const res = await request.post("/api/all").send();
     const sampleQuestion = res.body.questions[0];
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.questions)).toBe(true);
@@ -263,6 +261,218 @@ describe("Test Get All", () => {
     );
     expect(sampleQuestion).toHaveProperty("category", ["General"]);
     expect(sampleQuestion).toHaveProperty("complexity", "Easy");
+  });
+
+  test("POST /api/all - filter questions", async () => {
+    const searchQuestionTitle = {
+      title: "Sample Question",
+    };
+
+    const searchQuestionComplexity = {
+      complexity: ["Hard"],
+    };
+
+    const searchQuestionCategory = {
+      category: ["Dynamic Programming"],
+    };
+
+    const newQuestion = {
+      title: "Another Question",
+      description: "This is another sample question",
+      category: ["Dynamic Programming"],
+      complexity: "Hard",
+    };
+    await request.post("/api/create").send(newQuestion);
+    const res = await request.post("/api/all").send(searchQuestionTitle);
+    const sampleQuestion = res.body.questions[0];
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body.questions)).toBe(true);
+    expect(res.body.questions.length).toBe(1);
+    expect(res.body.currentPage).toBe(1);
+    expect(res.body.totalPages).toBe(1);
+    expect(res.body.totalQuestions).toBe(1);
+    expect(sampleQuestion).toHaveProperty("title", "Sample Question");
+    expect(sampleQuestion).toHaveProperty(
+      "description",
+      "This is a sample question"
+    );
+    expect(sampleQuestion).toHaveProperty("category", ["General"]);
+    expect(sampleQuestion).toHaveProperty("complexity", "Easy");
+
+    const res2 = await request.post("/api/all").send(searchQuestionComplexity);
+    const sampleQuestion2 = res2.body.questions[0];
+    expect(res2.statusCode).toBe(200);
+    expect(Array.isArray(res2.body.questions)).toBe(true);
+    expect(res2.body.questions.length).toBe(1);
+    expect(res2.body.currentPage).toBe(1);
+    expect(res2.body.totalPages).toBe(1);
+    expect(res2.body.totalQuestions).toBe(1);
+    expect(sampleQuestion2).toHaveProperty("title", "Another Question");
+    expect(sampleQuestion2).toHaveProperty(
+      "description",
+      "This is another sample question"
+    );
+    expect(sampleQuestion2).toHaveProperty("category", ["Dynamic Programming"]);
+    expect(sampleQuestion2).toHaveProperty("complexity", "Hard");
+
+    const res3 = await request.post("/api/all").send(searchQuestionCategory);
+    const sampleQuestion3 = res3.body.questions[0];
+    expect(res3.statusCode).toBe(200);
+    expect(Array.isArray(res3.body.questions)).toBe(true);
+    expect(res3.body.questions.length).toBe(1);
+    expect(res3.body.currentPage).toBe(1);
+    expect(res3.body.totalPages).toBe(1);
+    expect(res3.body.totalQuestions).toBe(1);
+    expect(sampleQuestion3).toHaveProperty("title", "Another Question");
+    expect(sampleQuestion3).toHaveProperty(
+      "description",
+      "This is another sample question"
+    );
+    expect(sampleQuestion3).toHaveProperty("category", ["Dynamic Programming"]);
+    expect(sampleQuestion3).toHaveProperty("complexity", "Hard");
+  });
+
+  test("POST /api/all - No questions found", async () => {
+    const searchQuestionTitle = {
+      title: "Sample Question that doesn't exist",
+    };
+
+    const searchQuestionComplexity = {
+      complexity: ["Do not exist"],
+    };
+
+    const searchQuestionCategory = {
+      category: ["Do not exist"],
+    };
+
+    const res = await request.post("/api/all").send(searchQuestionTitle);
+    const res2 = await request.post("/api/all").send(searchQuestionComplexity);
+    const res3 = await request.post("/api/all").send(searchQuestionCategory);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.questions.length).toBe(0);
+    expect(res.body.totalPages).toBe(0);
+    expect(res.body.totalQuestions).toBe(0);
+
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.questions.length).toBe(0);
+    expect(res2.body.totalPages).toBe(0);
+    expect(res2.body.totalQuestions).toBe(0);
+
+    expect(res3.statusCode).toBe(200);
+    expect(res3.body.questions.length).toBe(0);
+    expect(res3.body.totalPages).toBe(0);
+    expect(res3.body.totalQuestions).toBe(0);
+  });
+});
+
+// Test /api/pick-question
+describe("Test pick question", () => {
+  // Valid pick question
+  test("POST - pick question", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Hard"],
+      category: ["Dynamic Programming"],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    const sampleQuestion = res.body;
+    expect(res.statusCode).toBe(200);
+    expect(sampleQuestion).toHaveProperty("title", "Another Question");
+    expect(sampleQuestion).toHaveProperty(
+      "description",
+      "This is another sample question"
+    );
+    expect(sampleQuestion).toHaveProperty("category", ["Dynamic Programming"]);
+    expect(sampleQuestion).toHaveProperty("complexity", "Hard");
+  });
+
+  test("POST - pick another question", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Easy"],
+      category: ["General"],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    const sampleQuestion = res.body;
+    expect(res.statusCode).toBe(200);
+    expect(sampleQuestion).toHaveProperty("title", "Sample Question");
+    expect(sampleQuestion).toHaveProperty(
+      "description",
+      "This is a sample question"
+    );
+    expect(sampleQuestion).toHaveProperty("category", ["General"]);
+    expect(sampleQuestion).toHaveProperty("complexity", "Easy");
+  });
+
+  // No question exists
+  test("POST - pick question that doesn't exist", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Medium"],
+      category: ["General"],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe("No questions found");
+  });
+
+  // Empty complexity
+  test("POST - empty complexity", async () => {
+    const pickQuestionFilter = {
+      complexity: [],
+      category: ["General"],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Complexity must be a non-empty array");
+  });
+
+  // Invalid complexity
+  test("POST - invalid complexity", async () => {
+    const pickQuestionFilter = {
+      complexity: [""],
+      category: ["General"],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe(
+      "Complexity must contain only non-empty strings"
+    );
+  });
+
+  // Empty category
+  test("POST - empty category", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Easy"],
+      category: [],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe("Category must be a non-empty array");
+  });
+
+  // Invalid category
+  test("POST - invalid category", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Easy"],
+      category: [""],
+    };
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors[0].msg).toBe(
+      "Category must contain only non-empty strings"
+    );
   });
 });
 
@@ -407,7 +617,7 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(404);
-    expect(res.body).toBe("Document not found");
+    expect(res.body.message).toBe("Question not found");
   });
 
   // Non-existent id
@@ -423,7 +633,7 @@ describe("Test Update", () => {
       .post(`/api/${questionId}/update`)
       .send(updateQuestion);
     expect(res.statusCode).toBe(404);
-    expect(res.body).toBe("Document not found");
+    expect(res.body.message).toBe("Question not found");
   });
 
   // Duplicate question
@@ -475,5 +685,5 @@ describe("Test Delete", () => {
 afterAll(async () => {
   await db.clearDatabase();
   await db.closeDatabase();
-  await server.close();
+  server.close();
 });

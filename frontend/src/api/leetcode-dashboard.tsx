@@ -1,12 +1,8 @@
-import {
-  QuestionMinified,
-  QuestionFull,
-  NewQuestionData,
-} from "@/types/find-match";
+import { QuestionAll, QuestionFull, NewQuestionData } from "@/types/find-match";
 
 const QUESTION_SERVICE =
   process.env.NEXT_PUBLIC_QUESTION_SERVICE ||
-  "https://question-service-598285527681.us-central1.run.app/api";
+  "https://question-service-2-598285527681.us-central1.run.app/api";
 
 export const createSingleLeetcodeQuestion = async (
   data: NewQuestionData
@@ -30,11 +26,27 @@ export const createSingleLeetcodeQuestion = async (
   return result;
 };
 
-export const getLeetcodeDashboardData = async (): Promise<
-  QuestionMinified[]
-> => {
+export const getLeetcodeDashboardData = async (
+  pagination: number,
+  pageSize: number,
+  title: string,
+  complexity: string[],
+  category: string[]
+): Promise<QuestionAll> => {
   const url = `${QUESTION_SERVICE}/all`;
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      pagination: pagination,
+      pageSize: pageSize,
+      title: title,
+      complexity: complexity,
+      category: category,
+    }),
+  });
   const data = await response.json();
   return data;
 };

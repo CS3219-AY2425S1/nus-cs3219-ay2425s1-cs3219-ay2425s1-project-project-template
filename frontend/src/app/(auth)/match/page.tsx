@@ -1,16 +1,16 @@
 "use client";
 
+import { getBaseUserData, getToken } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multiselect";
 import MoonLoader from "react-spinners/MoonLoader";
-import { QuestionDifficulty, QuestionLanguages } from "@/types/find-match";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Client as StompClient } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useRef, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import FindPeerHeader from "@/app/(auth)/components/match/FindPeerHeader";
 import {
   preferredLanguagesList,
@@ -72,7 +72,7 @@ const SOCKET_URL =
   process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
   "http://localhost:3005/matching-websocket";
 
-const CURRENT_USER = uuidv4(); // TODO: Replace after merging Hafeez' new authentication PR
+const CURRENT_USER = getBaseUserData().username; // Username is unique
 
 const TIMEOUT_TIMER = 500000; // in seconds
 
@@ -220,11 +220,16 @@ const FindPeer = () => {
       );
     }
   };
+  const token = getToken();
+
+  useEffect(() => {
+    if (!token) window.location.href = "/login";
+  }, [token]);
 
   const form = useForm({
     defaultValues: {
-      questionDifficulties: [QuestionDifficulty.MEDIUM.valueOf()],
-      preferredLanguages: [QuestionLanguages.PYTHON.valueOf()],
+      questionDifficulties: [],
+      preferredLanguages: [],
       questionTopics: [""],
     },
   });
@@ -234,75 +239,77 @@ const FindPeer = () => {
   };
 
   return (
-    <Container>
-      <FindPeerHeader />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-[1fr_8fr] grid-rows-3 mt-5 mb-14 gap-y-10">
-            <span className="text-sm text-primary-400 self-center">
-              Difficulty
-            </span>
-            <FormField
-              control={form.control}
-              name="questionDifficulties"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <MultiSelect
-                      options={questionDifficulties}
-                      onValueChange={field.onChange}
-                      placeholder="Select options"
-                      variant="inverted"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+    !!token && (
+      <Container>
+        <FindPeerHeader />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-[1fr_8fr] grid-rows-3 mt-5 mb-14 gap-y-10">
+              <span className="text-sm text-primary-400 self-center">
+                Difficulty
+              </span>
+              <FormField
+                control={form.control}
+                name="questionDifficulties"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelect
+                        options={questionDifficulties}
+                        onValueChange={field.onChange}
+                        placeholder="Select options"
+                        variant="inverted"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
-            <span className="text-sm text-primary-400">
-              Preferred Languages
-            </span>
-            <FormField
-              control={form.control}
-              name="preferredLanguages"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <MultiSelect
-                      options={preferredLanguagesList}
-                      onValueChange={field.onChange}
-                      placeholder="Select options"
-                      variant="inverted"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+              <span className="text-sm text-primary-400">
+                Preferred Languages
+              </span>
+              <FormField
+                control={form.control}
+                name="preferredLanguages"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelect
+                        options={preferredLanguagesList}
+                        onValueChange={field.onChange}
+                        placeholder="Select options"
+                        variant="inverted"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
-            <span className="text-sm text-primary-400">Topics</span>
-            <FormField
-              control={form.control}
-              name="questionTopics"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <MultiSelect
-                      options={topicsList}
-                      onValueChange={field.onChange}
-                      placeholder="Select options"
-                      variant="inverted"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-          <Button type="submit" className="pl-10 pr-10">
-            Find Interview Peer
-          </Button>
-        </form>
-      </Form>
-    </Container>
+              <span className="text-sm text-primary-400">Topics</span>
+              <FormField
+                control={form.control}
+                name="questionTopics"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelect
+                        options={topicsList}
+                        onValueChange={field.onChange}
+                        placeholder="Select options"
+                        variant="inverted"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button type="submit" className="pl-10 pr-10">
+              Find Interview Peer
+            </Button>
+          </form>
+        </Form>
+      </Container>
+    )
   );
 };
 
