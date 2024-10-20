@@ -15,7 +15,7 @@ import { ROUTES } from '@/lib/routes';
 import { useLoginForm } from './logic';
 
 export const LoginForm = () => {
-  const { form, onSubmit, isPending } = useLoginForm();
+  const { form, onSubmit, isPending, errorMessage } = useLoginForm();
 
   return (
     <Card className='bg-primary-foreground border-border mx-auto flex size-full max-w-sm flex-col justify-center md:ml-auto md:mr-8 md:max-h-[600px]'>
@@ -61,6 +61,7 @@ export const LoginForm = () => {
                 </FormItem>
               )}
             />
+            {errorMessage && <p className='mt text-center text-sm text-red-500'>{errorMessage}</p>}
             <Button className='w-full' type='submit'>
               Login
             </Button>
