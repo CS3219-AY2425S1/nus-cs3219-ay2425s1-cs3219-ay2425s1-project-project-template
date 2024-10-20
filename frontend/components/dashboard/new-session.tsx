@@ -127,6 +127,7 @@ export const NewSession = () => {
                         setModalData((modalData) => {
                             return {
                                 ...modalData,
+                                isMatchmaking: false,
                                 isDuplicate: true,
                             }
                         })
@@ -260,8 +261,7 @@ export const NewSession = () => {
                         )}
                         {modalData.isDuplicate && (
                             <h2 className="text-xl font-bold text-center">
-                                You are already in the queue for matchmaking. Please wait while we redirect you to the
-                                coding session...
+                                You already have a match! Please wait while we redirect you to the coding session...
                                 {modalData.matchID}
                             </h2>
                         )}

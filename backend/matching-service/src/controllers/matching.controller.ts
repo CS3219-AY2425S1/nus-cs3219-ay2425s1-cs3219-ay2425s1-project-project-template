@@ -17,7 +17,7 @@ export async function generateWS(request: ITypedBodyRequest<void>, response: Res
 export async function addUserToMatchmaking(data: UserQueueRequest): Promise<void> {
     const isAnyUserInMatch = await isUserInMatch(data.userId)
     if (isAnyUserInMatch) {
-        wsConnection.sendMessageToUser(data.userId, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
+        wsConnection.sendMessageToUser(data.websocketId, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         return
     }
     const createDto = UserQueueRequestDto.fromJSON(data)
