@@ -36,16 +36,6 @@ const SidebarMenuItem = ({
 
 const sidebarItems: SidebarMenuItemProps[] = [
   {
-    menuLabel: "Home",
-    menuIcon: MdHomeFilled,
-    linksTo: "/",
-  },
-  {
-    menuLabel: "Profile",
-    menuIcon: CgProfile,
-    linksTo: "/profile",
-  },
-  {
     menuLabel: "Find Match",
     menuIcon: IoMdSearch,
     linksTo: "/match",
@@ -54,6 +44,11 @@ const sidebarItems: SidebarMenuItemProps[] = [
     menuLabel: "LeetCode Dashboard",
     menuIcon: FaCode,
     linksTo: "/leetcode-dashboard",
+  },
+  {
+    menuLabel: "Profile",
+    menuIcon: CgProfile,
+    linksTo: "/profile",
   },
 ];
 
