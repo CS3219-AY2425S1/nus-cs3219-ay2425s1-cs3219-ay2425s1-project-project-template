@@ -55,7 +55,9 @@ const showLoadingSpinner = (onCancel: () => void) => {
       Swal.showLoading();
       const timer = Swal.getPopup()!.querySelector("#timer");
       setInterval(() => {
-        timer!.textContent = `${Math.floor(Swal.getTimerLeft() / 1000)}`;
+        timer!.textContent = `${
+          TIMEOUT_TIMER - Math.ceil(Swal.getTimerLeft() / 1000)
+        }`;
       }, 100);
     },
   }).then((result) => {
