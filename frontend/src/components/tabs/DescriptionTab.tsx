@@ -1,4 +1,10 @@
-import { Badge, Group, Stack, Title } from '@mantine/core';
+import {
+  Badge,
+  Group,
+  Stack,
+  Title,
+  TypographyStylesProvider,
+} from '@mantine/core';
 import '@mantine/core/styles.css';
 
 import DifficultyBadge from '../badge/DifficultyBadge';
@@ -27,7 +33,9 @@ function DescriptionTab({
           </Badge>
         ))}
       </Group>
-      {description}
+      <TypographyStylesProvider>
+        <div dangerouslySetInnerHTML={{ __html: description }} />
+      </TypographyStylesProvider>
     </Stack>
   );
 }
