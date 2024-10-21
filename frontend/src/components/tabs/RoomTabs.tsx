@@ -18,7 +18,7 @@ function RoomTabs() {
         <Tabs.Tab value="output">Output</Tabs.Tab>
       </Tabs.List>
 
-      <Tabs.Panel value="description">
+      <Tabs.Panel value="description" h="calc(100% - 36px)">
         <DescriptionTab
           title="Two Sum"
           difficulty="Easy"
@@ -50,10 +50,10 @@ function RoomTabs() {
           "
         />
       </Tabs.Panel>
-      <Tabs.Panel value="notes">
+      <Tabs.Panel value="notes" h="calc(100% - 36px)">
         <Container p="16px">Notes</Container>
       </Tabs.Panel>
-      <Tabs.Panel value="output">
+      <Tabs.Panel value="output" h="calc(100% - 36px)">
         <Container p="16px">Output</Container>
       </Tabs.Panel>
     </Tabs>

@@ -1,6 +1,7 @@
 import {
   Badge,
   Group,
+  ScrollArea,
   Stack,
   Title,
   TypographyStylesProvider,
@@ -23,20 +24,22 @@ function DescriptionTab({
   description,
 }: DescriptionTabProps) {
   return (
-    <Stack p="16px" gap="16px">
-      <Title order={2}>{title}</Title>
-      <Group gap="10px">
-        <DifficultyBadge difficulty={difficulty} />
-        {topics.map((topic, i) => (
-          <Badge key={i} variant="light" color="gray">
-            {topic}
-          </Badge>
-        ))}
-      </Group>
-      <TypographyStylesProvider>
-        <div dangerouslySetInnerHTML={{ __html: description }} />
-      </TypographyStylesProvider>
-    </Stack>
+    <ScrollArea h="100%" offsetScrollbars>
+      <Stack p="16px" gap="16px">
+        <Title order={2}>{title}</Title>
+        <Group gap="10px">
+          <DifficultyBadge difficulty={difficulty} />
+          {topics.map((topic, i) => (
+            <Badge key={i} variant="light" color="gray">
+              {topic}
+            </Badge>
+          ))}
+        </Group>
+        <TypographyStylesProvider>
+          <div dangerouslySetInnerHTML={{ __html: description }} />
+        </TypographyStylesProvider>
+      </Stack>
+    </ScrollArea>
   );
 }
 
