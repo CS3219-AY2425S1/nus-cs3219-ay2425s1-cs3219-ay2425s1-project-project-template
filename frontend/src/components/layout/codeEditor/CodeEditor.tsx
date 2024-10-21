@@ -5,9 +5,13 @@ import { useState } from 'react';
 
 import classes from './CodeEditor.module.css';
 
+interface CodeEditorProps {
+  openLeaveSessionModal: () => void;
+}
+
 const languages = ['Python 3', 'Java', 'TypeScript'];
 
-function CodeEditor() {
+function CodeEditor({ openLeaveSessionModal }: CodeEditorProps) {
   const [language, setLanguage] = useState<string | null>('Python 3');
 
   return (
@@ -46,7 +50,7 @@ function CodeEditor() {
           Run Code
         </Button>
         <Space style={{ flexGrow: 1 }} />
-        <Button variant="light" color="red">
+        <Button variant="light" color="red" onClick={openLeaveSessionModal}>
           End Session
         </Button>
       </Group>
