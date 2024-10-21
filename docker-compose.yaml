@@ -64,6 +64,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development  # production
+      - CHOKIDAR_USEPOLLING=true  # For Windows machines, so file changes are detected by nuxt
     networks:
       - backend_network
     depends_on:
