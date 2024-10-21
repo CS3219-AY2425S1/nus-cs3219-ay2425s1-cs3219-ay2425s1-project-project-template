@@ -48,6 +48,7 @@ export const sendMatchRequest = (channel, payload) => {
 
 export const sendCancelRequest = (channel, payload) => {
     try {
+        console.log("sendCancelRequesting : ", JSON.stringify(payload))
         channel.publish(REQUEST_EXCHANGE, CANCEL_REQUEST_ROUTING, Buffer.from(JSON.stringify(payload)))
     } catch (e) {
         console.log(e)

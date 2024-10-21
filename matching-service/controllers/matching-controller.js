@@ -48,9 +48,11 @@ exports.processMatchRequest = (channel) => {
                         const waitingRequest = waitingRequests[match]
                         delete waitingRequests[match]
                         sendMatchResult(channel, Buffer.from(JSON.stringify(createSuccessPayload(request, waitingRequest))))
-                    } else {
-                        sendMatchResult(channel, Buffer.from(`User ${id} did not match`))
-                    }
+                    } 
+                    // else {
+                    //     console.log("User not matched!")
+                    //     sendMatchResult(channel, Buffer.from(`User ${id} did not match`))
+                    // }
                 }, 30 * 1000)
             }
             // data.content = Buffer.from(JSON.stringify({id: 0, socketId: 0}))
