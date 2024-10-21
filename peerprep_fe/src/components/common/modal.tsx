@@ -1,3 +1,6 @@
+"use client";
+import { useEffect, useState } from "react";
+
 export interface ModalProps {
   isOpen: boolean;
   title?: string;
@@ -57,19 +60,28 @@ function getHeight(
 
 export default function Modal(props: ModalProps) {
   const isCloseable = props.isCloseable ?? true;
-  const onClose = props.onClose ?? (() => {});
   const width = getWidth(props.width || "2xl");
   const height =
     props.height || props.isScrollable ? getHeight(props.height ?? "2xl") : "";
 
-  if (!props.isOpen) return null;
+  if (!props.isOpen) {
+    return null;
+  }
+
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-zinc-900 bg-opacity-80 flex justify-center items-center z-50">
-      <div className={`bg-white dark:bg-black w-screen ${width} rounded-lg`}>
+    <div
+      className={`${props.isOpen ? "animate-fade-in" : "animate-fade-out pointer-events-none"}
+                  fixed top-0 left-0 w-full h-full bg-zinc-900 bg-opacity-80 flex
+                  z-50 justify-center items-center`}
+    >
+      <div
+        className={`bg-white dark:bg-black w-screen ${width} rounded-lg
+        ${props.isOpen ? "animate-slide-in" : "animate-slide-out"} `}
+      >
         <div className="flex justify-between items-center pt-5 px-5">
           <h3 className="text-2xl font-bold">{props.title}</h3>
           {isCloseable && (
-            <button onClick={onClose}>
+            <button onClick={props.onClose} type="button">
               <span className="material-symbols-outlined">close</span>
             </button>
           )}

@@ -36,6 +36,46 @@ const config: Config = {
         "5xl": "64rem",
         "6xl": "72rem",
       },
+      keyframes: {
+        fadeIn: {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
+        fadeOut: {
+          "0%": {
+            opacity: "1",
+          },
+          "100%": {
+            opacity: "0",
+          },
+        },
+        slideIn: {
+          "0%": {
+            transform: "translateY(-3%)",
+          },
+          "100%": {
+            transform: "translateY(0)",
+          },
+        },
+        slideOut: {
+          "0%": {
+            transform: "translateY(0)",
+          },
+          "100%": {
+            transform: "translateY(-3%)",
+          },
+        },
+      },
+      animation: {
+        "fade-in": "fadeIn 0.2s ease-in",
+        "fade-out": "fadeOut 0.2s ease-in",
+        "slide-in": "slideIn 0.2s ease-in",
+        "slide-out": "slideOut 0.2s ease-in",
+      },
     },
   },
   plugins: [],
