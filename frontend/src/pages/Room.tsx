@@ -1,6 +1,7 @@
-import { Box, Group, Skeleton, Stack } from '@mantine/core';
+import { Group, Skeleton, Stack } from '@mantine/core';
 import '@mantine/core/styles.css';
 
+import CodeEditor from '../components/layout/codeEditor/CodeEditor';
 import RoomTabs from '../components/tabs/RoomTabs';
 
 function Room() {
@@ -14,9 +15,7 @@ function Room() {
         <RoomTabs />
       </Stack>
 
-      <Box h="100%" w="calc(100% - 510px)">
-        <Skeleton h="100%" />
-      </Box>
+      <CodeEditor />
     </Group>
   );
 }
