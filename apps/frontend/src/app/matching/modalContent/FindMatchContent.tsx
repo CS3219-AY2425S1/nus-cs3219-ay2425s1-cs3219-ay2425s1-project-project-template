@@ -62,6 +62,14 @@ const FindMatchContent: React.FC<Props> = ({ beginMatch }) => {
             </div>
             <button className="find-match-button"
                 onClick={async () => {
+                    async function ValidateUser() {
+                        return {
+                            data: {
+                                email:"asdasd@asd.com",
+                                username:"asdasd",
+                            }
+                        }
+                    }
                     setIsLoading(true);
                     const user = await ValidateUser();
                     beginMatch({

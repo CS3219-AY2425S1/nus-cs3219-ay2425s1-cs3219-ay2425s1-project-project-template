@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+    Button,
     Modal,
  } from 'antd';
 import 'typeface-montserrat';
@@ -11,17 +12,37 @@ import JoinedMatchContent from './modalContent/JoinedMatchContent';
 import MatchNotFoundContent from './modalContent/MatchNotFoundContent';
 import MatchCancelledContent from './modalContent/MatchCancelledContent';
 import useMatching from '../services/use-matching';
+import { useTimer } from 'react-timer-hook';
 
 interface MatchingModalProps {
     isOpen: boolean;
     close: () => void;
 }
 
+const MATCH_TIMEOUT = 30;
+const JOIN_TIMEOUT = 5;
+
 const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) => {
     const matchingState = useMatching();
     const [closedType, setClosedType] = useState<"finding" | "cancelled" | "joined">("finding");
-    const [timeoutAfter, setTimeoutAfter] = useState<number>(9999);
     const isClosable = ["timeout", "closed"].includes(matchingState.state);
+    const { totalSeconds, pause: pauseTimer, restart: restartTimer } = useTimer({
+        expiryTimestamp: new Date(Date.now() + MATCH_TIMEOUT * 1000),
+        autoStart: false,
+        onExpire() {
+            if (matchingState.state === "matching") {
+                matchingState.timeout();
+                return;
+            }
+            if (matchingState.state === "found") {
+                matchingState.ok();
+                setClosedType("joined");
+                return;
+            }
+            console.warn(`matching is in ${matchingState.state}`)
+        },
+    });
+    const passed = MATCH_TIMEOUT - totalSeconds;
 
     function close() {
         // clean up matching and closedType State
@@ -32,43 +53,57 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
         _close();
     }
 
+    useEffect(() => {
+        if (matchingState.state === "cancelling" || matchingState.state === "timeout") {
+            pauseTimer();
+            return;
+        }
+        if (matchingState.state === "found") {
+            restartTimer(
+                new Date(Date.now() + JOIN_TIMEOUT * 1000),
+            )
+        }
+    }, [matchingState])
+
     const renderModalContent = () => {
         switch (matchingState.state) {
             case 'closed':
                 switch (closedType) {
                     case "finding":
-                        return <FindMatchContent beginMatch={matchingState.start}/>;
+                        return <FindMatchContent beginMatch={params => {
+                            restartTimer(
+                                new Date(Date.now() + MATCH_TIMEOUT * 1000),
+                            );
+                            matchingState.start(params);
+                        }}/>;
                     case "cancelled":
                         return <MatchCancelledContent
                             reselect={() => {
                                 setClosedType("finding");
                             }}
                             retry={() => {}}
-                            canceledIn={timeoutAfter}
+                            canceledIn={passed}
                         />;
                     case "joined":
                         return <JoinedMatchContent 
-                        cancel={() => {
-                            setClosedType("cancelled");
-                        }}
-                            name1={matchingState.info?.myName || ""}
-                            name2={matchingState.info?.partnerName || ""}
+                            cancel={() => {
+                                setClosedType("cancelled");
+                            }}
+                            name1={matchingState.info?.myName ?? ""}
+                            name2={matchingState.info?.partnerName ??""}
                         />;
                 }
             case 'matching':
                 return <MatchingInProgressContent 
-                    cancelMatch={(timeoutAfter: number) => {
+                    cancelMatch={() => {
                         setClosedType("cancelled");
-                        setTimeoutAfter(timeoutAfter);
                         matchingState.cancel();
+                        pauseTimer();
                     }}
-                    timeout={(timeoutAfter: number) => {
-                        matchingState.timeout()
-                        setTimeoutAfter(timeoutAfter);
-                    }}
+                    timePassed={passed}
                 />;
             case 'cancelling':
-                return <MatchingInProgressContent cancelMatch={() => {}} timeout={() => {}}/>;
+                return <MatchingInProgressContent cancelMatch={() => {}} timePassed={passed}/>;
             case 'starting':
                 return <FindMatchContent beginMatch={() => {}}/>
             case 'found':
@@ -83,9 +118,10 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                     }}
                     name1={matchingState.info.myName}
                     name2={matchingState.info.partnerName}
-                />
+                    joiningIn={totalSeconds}
+                    />
             case 'timeout':
-                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={10}/>;
+                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={passed}/>;
             default:
                 throw new Error('Invalid matching state.');
         }
