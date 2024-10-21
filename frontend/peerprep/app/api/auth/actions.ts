@@ -16,14 +16,23 @@ export const getSession = async () => {
   return session;
 };
 
-export const login = async (
-    formData: FormData
-  ) => {
+export const getAccessToken = async () => {
     const session = await getSession();
+    return session.accessToken;
+}
 
-    const formIdentifier = formData.get("identifier") as string;
-    const formPassword = formData.get("password") as string;
+export const isSessionLoggedIn = async () => {
+  const session = await getSession();
+  return session.isLoggedIn;
+};
 
+export const login = async (formData: FormData) => {
+  const session = await getSession();
+
+  const formIdentifier = formData.get("identifier") as string;
+  const formPassword = formData.get("password") as string;
+
+  try {
     // Make the login request to your API
     const response = await fetch(`${USER_SERVICE_URL}/auth/login`, {
       method: "POST",
@@ -52,25 +61,24 @@ export const login = async (
       const errorData = await response.json();
       return { status: "error", message: errorData.message || "Login failed." }; // Return error status
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    return { status: "error", message: "Unable to reach the user service. Please try again later." };
+  }
+};
 
+export const logout = async () => {
+  const session = await getSession();
+  session.destroy();
+  return { status: "success", message: "Logged out successfully." }; // Return success status
+};
 
+export const signUp = async (formData: FormData) => {
+  const formUsername = formData.get("username") as string;
+  const formEmail = formData.get("email") as string;
+  const formPassword = formData.get("password") as string;
 
-  export const logout = async () => {
-    const session = await getSession();
-    session.destroy();
-    return { status: "success", message: "Logged out successfully." }; // Return success status
-  };
-
-
-  export const signUp = async (
-    formData: FormData
-  ) => {
-
-    const formUsername = formData.get("username") as string;
-    const formEmail = formData.get("email") as string;
-    const formPassword = formData.get("password") as string;
-
+  try {
     // Make the signup request to your API
     const response = await fetch(`${USER_SERVICE_URL}/users`, {
       method: "POST",
@@ -91,5 +99,8 @@ export const login = async (
       const errorData = await response.json();
       return { status: "error", message: errorData.message || "Sign up failed." }; // Return error status
     }
-  };
-
+  } catch (error) {
+    console.error("Sign up error:", error);
+    return { status: "error", message: "Unable to reach the user service. Please try again later." };
+  }
+};
