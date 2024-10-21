@@ -1,10 +1,8 @@
 'use client';
-
+import React from 'react';
 import Link from 'next/link';
 import { logout } from '@/lib/auth';
-import { sendMessageToQueue } from '@/lib/rabbitmq';
 import { Button } from '@/components/ui/button';
-import { axiosClient } from '@/network/axiosClient';
 import { LogOut, UserCircle } from 'lucide-react';
 import {
   DropdownMenu,
@@ -14,35 +12,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/state/useAuthStore';
 import Avatar, { genConfig } from 'react-nice-avatar';
+import { useQuestionStore } from '@/state/useQuestionStore';
+import { PreMatch } from '@/components/dialogs/PreMatch';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
+  const { toggleDialogOpen } = useQuestionStore();
+  const path = usePathname();
 
   const handleLogout = async () => {
     const res = await logout();
     if (res) {
       clearAuth();
       return;
-    }
-  };
-
-  const getProfileDetails = async () => {
-    const result = await axiosClient.get('/auth/verify-token');
-    return result.data.data;
-  };
-
-  const handleMatchClick = async () => {
-    try {
-      const profileDetails = await getProfileDetails();
-      const message = {
-        _id: profileDetails.id,
-        name: profileDetails.username,
-        topic: 'TO BE ADDED',
-        difficulty: 'TO BE ADDED',
-      };
-      await sendMessageToQueue(message);
-    } catch (err) {
-      console.error('Error in handleMatchClick:', err);
     }
   };
 
@@ -64,24 +47,16 @@ export default function Navbar() {
             Questions
           </Link>
           {/* Admin users should be able to add questions instead of match */}
-          {!user?.isAdmin ? (
-            // TODO: Change this such that it will pop up a toast for users to select topic and difficulty, the subsequent button will
-            //       then call "handleMatchClick"
-            <Link
-              href="/match"
-              className="text-gray-300 hover:text-white"
-              onClick={() => handleMatchClick()}
-            >
-              Match
-            </Link>
-          ) : (
-            <Link
-              href="/add-question"
+          {path === '/admin' ? (
+            <Button
+              onClick={toggleDialogOpen}
               className="text-gray-300 hover:text-white"
             >
               Add Question
-            </Link>
-          )}
+            </Button>
+          ) : path !== '/match' ? (
+            <PreMatch />
+          ) : null}
           {isAuth ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
