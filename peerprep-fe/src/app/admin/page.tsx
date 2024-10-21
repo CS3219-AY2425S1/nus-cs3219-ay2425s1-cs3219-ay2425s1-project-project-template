@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import FilterBar from '../(main)/components/filter/FilterBar';
 import ProblemTable from '../../components/problems/ProblemTable';
@@ -8,9 +8,15 @@ import { Problem } from '@/types/types';
 import { isAxiosError } from 'axios';
 import ProblemInputDialog from '@/components/problems/ProblemInputDialog';
 import InformationDialog from '@/components/dialogs/InformationDialog';
+import { useQuestionStore } from '@/state/useQuestionStore';
 
 function AdminPage() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const dialogOpen = useQuestionStore((state) => state.dialogOpen);
+  const setDialog = useQuestionStore((state) => state.setDialog);
+  useEffect(() => {
+    console.log('Dialog open is: ', dialogOpen);
+  }, [dialogOpen]);
+
   const [informationDialog, setInformationDialog] = useState('');
   const {
     problems,
@@ -87,7 +93,7 @@ function AdminPage() {
       });
 
       refetchFilter();
-      setIsAddDialogOpen(false);
+      setDialog(false);
       return res;
     } catch (e: unknown) {
       if (isAxiosError(e)) {
@@ -127,8 +133,8 @@ function AdminPage() {
         />
       </div>
       <ProblemInputDialog
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
+        isOpen={dialogOpen}
+        onClose={() => setDialog(false)}
         requestCallback={handleAdd}
         requestTitle="Add"
       />

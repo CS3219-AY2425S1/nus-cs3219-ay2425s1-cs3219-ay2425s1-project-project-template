@@ -1,5 +1,5 @@
 'use client';
-
+import React from 'react';
 import Link from 'next/link';
 import { logout } from '@/lib/auth';
 // import { sendMessageToQueue } from '@/lib/rabbitmq';
@@ -13,10 +13,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/state/useAuthStore';
+import { useQuestionStore } from '@/state/useQuestionStore';
 import { PreMatch } from '@/components/dialogs/PreMatch';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
+  const setDialog = useQuestionStore((state) => state.setDialog);
 
   const handleLogout = async () => {
     const res = await logout();
@@ -45,12 +47,15 @@ export default function Navbar() {
           {!user?.isAdmin ? (
             <PreMatch />
           ) : (
-            <Link
-              href="/add-question"
+            <Button
+              onClick={() => {
+                setDialog(true);
+                console.log('Button pressed');
+              }}
               className="text-gray-300 hover:text-white"
             >
               Add Question
-            </Link>
+            </Button>
           )}
           {isAuth ? (
             <DropdownMenu>
