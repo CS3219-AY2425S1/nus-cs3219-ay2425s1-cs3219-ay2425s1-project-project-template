@@ -1,12 +1,10 @@
-import axios from 'axios';
+import type { IGetRandomQuestionPayload, IQuestion, IServiceResponse } from '@/types';
 
-import { PEERPREP_QUESTION_HOST } from '@/config';
-
-import { IGetRandomQuestionPayload, IQuestion, IServiceResponse } from '../types/index';
+import { questionServiceClient, routes } from './_hosts';
 
 export async function getRandomQuestion(payload: IGetRandomQuestionPayload): Promise<IQuestion> {
-  const response = await axios.post<IServiceResponse<{ question: IQuestion }>>(
-    `${PEERPREP_QUESTION_HOST}/questions/random`,
+  const response = await questionServiceClient.post<IServiceResponse<{ question: IQuestion }>>(
+    routes.QUESTION_SERVICE.GET_RANDOM_QN.path,
     payload
   );
 
@@ -14,5 +12,5 @@ export async function getRandomQuestion(payload: IGetRandomQuestionPayload): Pro
     throw new Error(response.data.error?.message || 'Failed to get a random question');
   }
 
-  return response.data.data.question;
+  return response?.data?.data?.question ?? undefined;
 }

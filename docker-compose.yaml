@@ -42,6 +42,27 @@ services:
       start_period: 30s
       timeout: 10s
 
+  collab-db:
+    hostname: "collab-db"
+    image: postgres:16.4
+    container_name: "collab-db"
+    build:
+      context: ./backend/collaboration/src/lib/db
+    env_file:
+      - ./backend/collaboration/.env.local
+    volumes:
+      - "collab-db-docker:${COLLAB_PGDATA}"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - collab-db-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
   match-db:
     hostname: 'match-db'
     # To enable Admin UI for cluster ↙️
@@ -121,6 +142,37 @@ services:
       retries: 5       
       start_period: 5s
 
+  collab-service:
+    image: 'collab-express'
+    container_name: '${COLLAB_SERVICE_NAME}'
+    build:
+      context: ./backend/collaboration
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${COLLAB_EXPRESS_PORT}
+    env_file:
+      - ./backend/collaboration/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - EXPRESS_DB_HOST=collab-db
+      - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      collab-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - collab-db-network
+      - collab-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${COLLAB_EXPRESS_PORT}/health || exit 1
+      interval: 30s 
+      timeout: 10s   
+      retries: 5       
+      start_period: 5s
+
   matching-service:
     image: 'match-express'
     container_name: '${MATCHING_SERVICE_NAME}'
@@ -140,6 +192,7 @@ services:
       - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
       - PEERPREP_USER_HOST=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
       - PEERPREP_QUESTION_HOST=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - PEERPREP_COLLAB_HOST=http://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
     depends_on:
       - match-db
       - user-service
@@ -149,6 +202,7 @@ services:
       - match-api-network
       - user-api-network
       - question-api-network
+      - collab-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${MATCHING_EXPRESS_PORT}/health || exit 1
       interval: 30s 
@@ -189,6 +243,7 @@ services:
       - user-api-network
       - question-api-network
       - match-api-network
+      - collab-api-network
 
 volumes:
   # Persistent Volumes for Databases
@@ -196,6 +251,9 @@ volumes:
     external: true
   question-db-docker:
     external: true 
+  # Persistent Room Server
+  collab-db-docker:
+    external: true
   # Redis Match server
   match-db-docker:
     external: true
@@ -206,6 +264,8 @@ networks:
     driver: bridge
   question-db-network:
     driver: bridge
+  collab-db-network:
+    driver: bridge
   match-db-network:
     driver: bridge
 
@@ -213,6 +273,8 @@ networks:
   user-api-network:
     driver: bridge
   question-api-network:
+    driver: bridge
+  collab-api-network:
     driver: bridge
   match-api-network:
     driver: bridge

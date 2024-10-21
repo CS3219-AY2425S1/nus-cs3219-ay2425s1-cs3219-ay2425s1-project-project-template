@@ -1,3 +1,4 @@
+import { WORKER_SLEEP_TIME_IN_MILLIS } from '@/config';
 import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
@@ -12,7 +13,6 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-const sleepTime = 500;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -60,9 +60,9 @@ async function processMatch(
 
       // To block cancellation
       sendNotif([matchedSocketPort], MATCHING_EVENT.MATCHING);
+      await redisClient.hSet(getPoolKey(matchedUserId), 'pending', 'false');
 
       const matchedStreamId = getStreamId(timestamp);
-
       logger.info(`Found match: ${JSON.stringify(matched)}`);
 
       await Promise.all([
@@ -81,7 +81,6 @@ async function processMatch(
         matchedUserId
       );
       logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
-
       sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.DISCONNECT);
 
@@ -112,7 +111,7 @@ async function match() {
 
   if (!stream || stream.length === 0) {
     await new Promise((resolve, _reject) => {
-      timeout = setTimeout(() => resolve('Next Loop'), sleepTime);
+      timeout = setTimeout(() => resolve('Next Loop'), WORKER_SLEEP_TIME_IN_MILLIS);
     });
     return;
   }
@@ -132,8 +131,9 @@ async function match() {
 
       // To Block Cancellation
       sendNotif([requestorSocketPort], MATCHING_EVENT.MATCHING);
+      await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'false');
 
-      const clause = [`-@userId:(${requestorUserId})`];
+      const clause = [`-@userId:(${requestorUserId}) @pending:(true)`];
 
       if (difficulty) {
         clause.push(`@difficulty:{${difficulty}}`);
@@ -167,7 +167,7 @@ async function match() {
       // Match on Topic
       const topicMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@topic:{${topic}} -@userId:(${requestorUserId})`,
+        clause.filter((v) => !v.startsWith('@difficulty')).join(' '),
         searchParams
       );
       const topicMatchFound = await processMatch(
@@ -186,7 +186,7 @@ async function match() {
       // Match on Difficulty
       const difficultyMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
+        clause.filter((v) => !v.startsWith('@topic')).join(' '),
         searchParams
       );
       const hasDifficultyMatch = await processMatch(
@@ -200,7 +200,9 @@ async function match() {
 
       if (!hasDifficultyMatch) {
         // To allow cancellation
+        await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'true');
         sendNotif([requestorSocketPort], MATCHING_EVENT.PENDING);
+        logger.info(`${requestorUserId} is now in mode ${MATCHING_EVENT.PENDING}`);
       }
     }
   }
