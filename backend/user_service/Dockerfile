@@ -17,7 +17,6 @@ EXPOSE 5001
 
 # Set environment variables
 ENV FLASK_APP=run.py
-ENV FLASK_ENV=development
 ENV PYTHONUNBUFFERED=1
 
 # Command to run your Flask app

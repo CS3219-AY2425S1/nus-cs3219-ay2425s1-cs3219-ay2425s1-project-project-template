@@ -56,13 +56,14 @@ services:
     container_name: ui
     build:
       context: ./frontend/Peerprep
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     volumes:
       - ./frontend/Peerprep:/src
+      - node_modules:/src/node_modules
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=development  # production
     networks:
       - backend_network
     depends_on:
@@ -109,6 +110,8 @@ services:
     build:
       context: ./backend/user_service
       dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=development
     networks:
       - backend_network
     ports:
@@ -117,6 +120,7 @@ services:
 volumes:
   redis_data:
   kafka_data:
+  node_modules:  # For ui dev mode
 
 networks:
   backend_network: 
