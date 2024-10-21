@@ -2,7 +2,6 @@
 'use server';
 
 import { connect } from 'amqplib';
-import { redirect } from 'next/navigation';
 
 export const sendMessageToQueue = async (message: Record<string, any>) => {
   try {
@@ -37,38 +36,37 @@ export const sendMessageToQueue = async (message: Record<string, any>) => {
   }
 };
 
-export const consumeMessageFromQueue = async (queue: string) => {
-  return new Promise<any>((resolve, reject) => {
-    (async () => {
-      try {
-        // Connect to RabbitMQ server
-        const connection = await connect(process.env.RABBITMQ_URL!);
-        const channel = await connection.createChannel();
-        // const queue = process.env.MATCHING_SERVICE_QUEUE!;
+export const consumeMessageFromQueue = async (
+  queue: string,
+  onMessage: (message: any) => void,
+) => {
+  try {
+    const connection = await connect(process.env.RABBITMQ_URL!);
+    const channel = await connection.createChannel();
 
-        // Ensure the queue exists
-        await channel.assertQueue(queue, { durable: true });
+    await channel.assertQueue(queue, { durable: true });
 
-        // Consume messages from the queue
-        console.log(`Waiting for messages in ${queue}...`);
-        channel.consume(
-          queue,
-          (msg: any) => {
-            if (msg !== null) {
-              const messageContent = JSON.parse(msg.content.toString());
-              console.log(`Received:`, messageContent);
-              channel.ack(msg);
-              resolve(messageContent); // Resolve the Promise with the message content
-            }
-          },
-          {
-            noAck: false,
-          },
-        );
-      } catch (error) {
-        console.error('Error in consuming messages:', error);
-        reject(error); // Reject the Promise on error
-      }
-    })();
-  });
+    console.log(`Waiting for messages in ${queue}...`);
+
+    channel.consume(
+      queue,
+      (msg) => {
+        if (msg !== null) {
+          const messageContent = JSON.parse(msg.content.toString());
+          console.log(`Received:`, messageContent);
+          channel.ack(msg);
+          onMessage(messageContent);
+        }
+      },
+      { noAck: false },
+    );
+
+    return () => {
+      channel.close();
+      connection.close();
+    };
+  } catch (error) {
+    console.error('Error in consuming messages:', error);
+    throw error;
+  }
 };

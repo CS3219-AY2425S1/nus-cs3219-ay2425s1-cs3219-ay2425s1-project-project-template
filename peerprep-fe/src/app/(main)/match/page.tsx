@@ -3,48 +3,46 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
-import { consumeMessageFromQueue } from '@/lib/rabbitmq';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { WebSocketMessage, MatchData } from '@/types/types';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [usersWaiting, setUsersWaiting] = useState(4);
+  const [usersWaiting] = useState(4);
   const [matchStatus, setMatchStatus] = useState('searching');
+  const [matchData, setMatchData] = useState<MatchData | null>(null);
   const router = useRouter();
   const { user } = useAuthStore();
-
-  const startConsumingMessages = async () => {
-    try {
-      await consumeMessageFromQueue(user?.id!).then((message) => {
-        if (message.status === 'matched') {
-          console.log('Match found, your partner is', message.partner);
-          setMatchStatus('matched');
-
-          // setTimeout(() => {
-          //   router.push(`/collaboration`);
-          // }, 2000);
-        } else {
-          console.log('Match failed');
-          setMatchStatus('failed');
-
-          // setTimeout(() => {
-          //   router.push(`/`);
-          // }, 4500);
-        }
-      });
-    } catch (error) {
-      console.error('Error consuming message:', error);
-      setMatchStatus('error');
-    }
-  };
+  const { isConnected, lastMessage, sendMessage, disconnect } = useWebSocket(
+    process.env.NEXT_PUBLIC_MATCHING_SERVICE_WS_URL || 'ws://localhost:5001/ws',
+  );
 
   useEffect(() => {
-    startConsumingMessages();
+    if (isConnected && user?.id) {
+      console.log(`WebSocket connected for user: ${user.id}`);
+      sendMessage({ type: 'register', userId: user.id });
+    }
+  }, [isConnected, user?.id, sendMessage]);
+
+  useEffect(() => {
+    if (lastMessage) {
+      console.log('Received WebSocket message:', lastMessage);
+      const message = lastMessage as unknown as WebSocketMessage;
+      if (message.type === 'match') {
+        console.log('Match found, your partner is', message.data);
+        setMatchStatus('matched');
+        setMatchData(message.data);
+      }
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTime((prevTime) => prevTime + 1);
     }, 1000);
-    setUsersWaiting(5);
+
     return () => clearInterval(timer);
   }, []);
 
@@ -55,9 +53,30 @@ export default function LoadingPage() {
     }
   }, [elapsedTime, matchStatus]);
 
+  useEffect(() => {
+    if (matchStatus === 'matched' && matchData) {
+      console.log('Match found, redirecting to collaboration page', matchData);
+
+      // TODO: link to collab page afterwards
+      // setTimeout(() => {
+      //   router.push(`/collaboration/${matchData._id}`);
+      // }, 2000);
+    } else if (matchStatus === 'failed') {
+      console.log('Match failed');
+
+      // TODO: link to home page afterwards
+      // setTimeout(() => {
+      //   router.push('/');
+      // }, 4500);
+    }
+  }, [matchStatus, matchData, router]);
+
   const handleCancel = () => {
-    // Implement logic to cancel the matching process
     console.log('Matching cancelled');
+    if (isConnected) {
+      sendMessage({ type: 'cancel', userId: user?.id });
+      disconnect();
+    }
     router.push('/');
   };
 
