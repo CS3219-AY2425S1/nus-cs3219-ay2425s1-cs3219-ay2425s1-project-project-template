@@ -4,7 +4,7 @@ import Link from "next/link";
 const Header = () => {
   const iconSize = 180;
   return (
-    <div className="w-full">
+    <div style={{ width: `${iconSize}px` }}>
       <Link href="/">
         <Image
           alt="PeerPrep Header Icon"

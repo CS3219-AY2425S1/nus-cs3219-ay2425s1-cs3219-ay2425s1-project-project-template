@@ -1,7 +1,7 @@
 "use client";
 
-import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/AddQuestionDialog";
-import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/LeetcodeDashboardTable";
+import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/components/AddQuestionDialog";
+import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/components/LeetcodeDashboardTable";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { PlusIcon } from "lucide-react";
@@ -26,6 +26,7 @@ const LeetcodeDashboardHeader = () => {
 
 const LeetcodeDashboard = () => {
   const [modalIsOpen, setIsOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-fetch
 
   function openModal() {
     setIsOpen(true);
@@ -72,11 +73,17 @@ const LeetcodeDashboard = () => {
             variants={modalAnimation}
             transition={{ duration: 0.3 }}
           >
-            <AddQuestionDialog handleClose={closeModal} />
+            <AddQuestionDialog
+              handleClose={closeModal}
+              setRefreshKey={setRefreshKey}
+            />
           </motion.div>
         </Modal>
       </div>
-      <LeetcodeDashboardTable />
+      <LeetcodeDashboardTable
+        refreshKey={refreshKey}
+        setRefreshKey={setRefreshKey}
+      />
     </Container>
   );
 };

@@ -11,6 +11,7 @@ export type TQuestion = {
   description: string;
   category: [string];
   complexity: string;
+  deleted: boolean;
 };
 
 // Document provides an id field
@@ -32,6 +33,10 @@ const questionSchema: Schema = new Schema(
     },
     complexity: {
       type: String,
+      required: true,
+    },
+    deleted: {
+      type: Boolean,
       required: true,
     },
   },
