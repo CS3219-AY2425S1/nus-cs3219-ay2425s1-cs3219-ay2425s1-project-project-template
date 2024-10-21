@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 export interface ModalProps {
   isOpen: boolean;
   title?: string;
@@ -7,6 +9,7 @@ export interface ModalProps {
   isScrollable?: boolean;
   height?: "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";
   width?: "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";
+  animated?: boolean;
 }
 
 function getWidth(
@@ -61,11 +64,21 @@ export default function Modal(props: ModalProps) {
   const width = getWidth(props.width || "2xl");
   const height =
     props.height || props.isScrollable ? getHeight(props.height ?? "2xl") : "";
+  const animated = props.animated ?? true;
 
-  if (!props.isOpen) return null;
+  if (!props.isOpen) {
+    return null;
+  }
+
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-zinc-900 bg-opacity-80 flex justify-center items-center z-50">
-      <div className={`bg-white dark:bg-black w-screen ${width} rounded-lg`}>
+    <div
+      className={`${animated ? "animate-fade-in" : ""}  ${props.isOpen ? "opacity-100" : "opacity-0 pointer-events-none"} fixed top-0
+                  left-0 w-full h-full bg-zinc-900 bg-opacity-80 flex z-50
+                  justify-center items-center`}
+    >
+      <div
+        className={`bg-white dark:bg-black w-screen ${width} rounded-lg ${animated ? "animate-slide-in" : ""} `}
+      >
         <div className="flex justify-between items-center pt-5 px-5">
           <h3 className="text-2xl font-bold">{props.title}</h3>
           {isCloseable && (
