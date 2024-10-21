@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
@@ -17,7 +18,6 @@ type IWaitingRoomProps = {
 
 type IWaitingRoomUIState = {
   connected: boolean;
-  isCancelling: boolean;
   canCancel: boolean;
   uiState: (typeof UI_STATUS)[keyof typeof UI_STATUS];
 };
@@ -25,14 +25,19 @@ type IWaitingRoomUIState = {
 export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) => {
   const navigate = useNavigate();
   const { values } = useMatchRequest();
-
-  const [{ connected, isCancelling, canCancel, uiState }, setUIState] =
-    useState<IWaitingRoomUIState>({
-      connected: false,
-      isCancelling: false,
-      canCancel: false,
-      uiState: UI_STATUS.WAITING_STATUS,
-    });
+  const [{ connected, canCancel, uiState }, setUIState] = useState<IWaitingRoomUIState>({
+    connected: false,
+    canCancel: false,
+    uiState: UI_STATUS.WAITING_STATUS,
+  });
+  const { mutate: sendCancelRequest, isPending: isCancelling } = useMutation({
+    mutationFn: cancelMatch,
+    onSuccess: () => {
+      // TODO: Add toaster notif or cancel success UI
+      setIsModalOpen(false);
+    },
+    onError: () => {},
+  });
 
   const countdownRef = useRef(31);
   const timerRef = useRef<number | null>(null);
@@ -52,7 +57,6 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
       clearInterval(timerRef.current!);
       setUIState((state) => ({
         ...state,
-        isCancelling: true,
         canCancel: false,
       }));
     } else if (connected) {
@@ -154,18 +158,12 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
   }, [socketPort, navigate, setIsModalOpen]);
 
   const handleCancel = async () => {
-    try {
-      setUIState((prevState) => ({
-        ...prevState,
-        isCancelling: true,
-        uiState: UI_STATUS.CANCELLING_STATUS,
-      }));
-      countdownRef.current = 0;
-      await cancelMatch();
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Failed to cancel match:', error);
-    }
+    setUIState((prevState) => ({
+      ...prevState,
+      uiState: UI_STATUS.CANCELLING_STATUS,
+    }));
+    countdownRef.current = 0;
+    sendCancelRequest();
   };
 
   return (

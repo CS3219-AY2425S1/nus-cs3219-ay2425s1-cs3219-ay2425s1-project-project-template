@@ -1,3 +1,4 @@
+import { WORKER_SLEEP_TIME_IN_MILLIS } from '@/config';
 import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
@@ -12,7 +13,6 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-const sleepTime = 500;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -111,7 +111,7 @@ async function match() {
 
   if (!stream || stream.length === 0) {
     await new Promise((resolve, _reject) => {
-      timeout = setTimeout(() => resolve('Next Loop'), sleepTime);
+      timeout = setTimeout(() => resolve('Next Loop'), WORKER_SLEEP_TIME_IN_MILLIS);
     });
     return;
   }

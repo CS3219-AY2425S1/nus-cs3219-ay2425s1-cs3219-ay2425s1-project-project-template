@@ -53,7 +53,6 @@ export async function getMatchItems(
     return {
       roomId,
       questionId: question.id,
-      // question,
     };
   } catch (error) {
     logger.error('Error in getMatchItems:', error);

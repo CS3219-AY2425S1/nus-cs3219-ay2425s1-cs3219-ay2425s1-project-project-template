@@ -1,6 +1,7 @@
 import { IRequestMatchResponse } from '@/types/match-types';
 
 import { matchApiClient } from './api-clients';
+import { getUserId } from './user-service';
 
 const MATCHING_SERVICE_ROUTES = {
   REQUEST_MATCH: '/match/request',
@@ -33,6 +34,5 @@ export const requestMatch = (
 };
 
 export const cancelMatch = () => {
-  return true;
-  //return matchApiClient.post(MATCHING_SERVICE_ROUTES.CANCEL_MATCH);
+  return matchApiClient.post(MATCHING_SERVICE_ROUTES.CANCEL_MATCH, { userId: getUserId() });
 };

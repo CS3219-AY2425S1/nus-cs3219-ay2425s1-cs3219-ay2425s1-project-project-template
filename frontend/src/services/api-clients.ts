@@ -23,17 +23,13 @@ export const userApiClient = axios.create({
 export const userApiGetClient = axios.create(getApiClientBaseConfig(USER_SERVICE));
 
 export const questionApiClient = axios.create({
-  baseURL: QUESTION_SERVICE,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  ...getApiClientBaseConfig(QUESTION_SERVICE),
+  ...basePostHeaders,
 });
 
 export const matchApiClient = axios.create({
-  baseURL: MATCHING_SERVICE,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  ...getApiClientBaseConfig(MATCHING_SERVICE),
+  ...basePostHeaders,
 });
 
 // define more api clients for other microservices
