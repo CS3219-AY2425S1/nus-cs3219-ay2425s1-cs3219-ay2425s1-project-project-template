@@ -8,9 +8,11 @@ import { Problem } from '@/types/types';
 import { isAxiosError } from 'axios';
 import ProblemInputDialog from '@/components/problems/ProblemInputDialog';
 import InformationDialog from '@/components/dialogs/InformationDialog';
+import { useQuestionStore } from '@/state/useQuestionStore';
 
 function AdminPage() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { dialogOpen, toggleDialogOpen } = useQuestionStore();
+
   const [informationDialog, setInformationDialog] = useState('');
   const {
     problems,
@@ -87,7 +89,7 @@ function AdminPage() {
       });
 
       refetchFilter();
-      setIsAddDialogOpen(false);
+      toggleDialogOpen();
       return res;
     } catch (e: unknown) {
       if (isAxiosError(e)) {
@@ -127,8 +129,8 @@ function AdminPage() {
         />
       </div>
       <ProblemInputDialog
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
+        isOpen={dialogOpen}
+        onClose={toggleDialogOpen}
         requestCallback={handleAdd}
         requestTitle="Add"
       />
