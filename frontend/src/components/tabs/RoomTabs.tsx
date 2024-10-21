@@ -1,4 +1,4 @@
-import { Container, Tabs } from '@mantine/core';
+import { Tabs } from '@mantine/core';
 import '@mantine/core/styles.css';
 
 import DescriptionTab from './DescriptionTab';
@@ -14,8 +14,8 @@ function RoomTabs() {
     >
       <Tabs.List>
         <Tabs.Tab value="description">Description</Tabs.Tab>
-        <Tabs.Tab value="notes">Notes</Tabs.Tab>
-        <Tabs.Tab value="output">Output</Tabs.Tab>
+        {/* <Tabs.Tab value="notes">Notes</Tabs.Tab>
+        <Tabs.Tab value="output">Output</Tabs.Tab> */}
       </Tabs.List>
 
       <Tabs.Panel value="description" h="calc(100% - 36px)">
@@ -50,12 +50,12 @@ function RoomTabs() {
           "
         />
       </Tabs.Panel>
-      <Tabs.Panel value="notes" h="calc(100% - 36px)">
+      {/* <Tabs.Panel value="notes" h="calc(100% - 36px)">
         <Container p="16px">Notes</Container>
       </Tabs.Panel>
       <Tabs.Panel value="output" h="calc(100% - 36px)">
         <Container p="16px">Output</Container>
-      </Tabs.Panel>
+      </Tabs.Panel> */}
     </Tabs>
   );
 }
