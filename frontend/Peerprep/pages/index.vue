@@ -85,23 +85,15 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
             uid: message.uid
           }
           send(JSON.stringify(ack));
-          console.log('sending ack:', ack);
-          toast({
-            description: `${formattedStatus} found! Matched with user ${message.user2_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
-          });
-        } else {
-          toast({
-            description: `${formattedStatus} found! Matched with user ${message.user1_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
-          });
         }
         updateCollaborationInfo(message, status);
-        // if (collaborationStore.isCollaborating) {
-        //   await navigateTo(`/collaboration`);
-        //   toast({
-        //     description: `${status} found! Redirecting to the collaboration room...`,
-        //   });
-        //   matchFound.value = true;
-        // }
+        if (collaborationStore.isCollaborating) {
+          await navigateTo(`/collaboration`);
+          toast({
+            description: `${formattedStatus} found! Redirecting to the collaboration room...`,
+          });
+          matchFound.value = true;
+        }
       }
     } catch (error) {
       console.error("Failed to process received message:", error);
@@ -294,23 +286,15 @@ onUnmounted(() => {
                 Cancel Matching
               </Button>
             </div>
-            <!--
+
             <Button v-else class="w-3/4 mt-3"
               :disabled="isProcessing || matchFound || collaborationStore.isCollaborating">
               Match
             </Button>
-            -->
 
-            <Button v-else class="w-3/4 mt-3" :disabled="isProcessing">
-              Match
-            </Button>
+
           </div>
         </form>
-        <!--
-        <Button @click="collaborationStore.clearCollaborationInfo" class="w-full">
-          Clear
-        </Button>
-        -->
       </CardContent>
     </Card>
   </div>

@@ -9,7 +9,9 @@ export type TCollaborationInfo = {
 export const useCollaborationStore = defineStore({
   id: "collaboration",
   state: () => ({
-    collaborationInfo: null as TCollaborationInfo | null,
+    collaborationInfo: JSON.parse(
+      localStorage.getItem("collaborationInfo") as string
+    ) as TCollaborationInfo | null,
   }),
   getters: {
     isCollaborating: (state) => state.collaborationInfo !== null,
@@ -25,6 +27,10 @@ export const useCollaborationStore = defineStore({
   actions: {
     setCollaborationInfo(collaborationInfo: TCollaborationInfo) {
       this.collaborationInfo = collaborationInfo;
+      localStorage.setItem(
+        "collaborationInfo",
+        JSON.stringify(collaborationInfo)
+      );
     },
     clearCollaborationInfo() {
       this.collaborationInfo = null;
