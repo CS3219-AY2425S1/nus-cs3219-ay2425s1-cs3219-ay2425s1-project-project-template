@@ -13,5 +13,5 @@ export default {
     auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
     matching: process.env.MATCHING_SERVICE_URL || 'http://localhost:5001',
   },
-  jwtSecret: process.env.JWT_SECRET || 'your-secret-key',
+  jwtSecret: process.env.JWT_SECRET || '',
 };

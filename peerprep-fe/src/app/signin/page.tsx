@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { GithubIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { axiosAuthClient } from '@/network/axiosClient';
+import { axiosAuthClient, axiosClient } from '@/network/axiosClient';
 import { login } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
@@ -22,6 +22,10 @@ export default function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    // const result = await axiosAuthClient.post('/auth/login', {
+    //   email: email,
+    //   password: password,
+    // });
 
     const result = await axiosAuthClient.post('/auth/login', {
       email: email,

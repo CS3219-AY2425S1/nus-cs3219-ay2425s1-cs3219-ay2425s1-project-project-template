@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { axiosQuestionClient, axiosClient } from '@/network/axiosClient';
+import { axiosClient } from '@/network/axiosClient';
 import {
   Popover,
   PopoverContent,
@@ -29,7 +29,6 @@ export function TopicsPopover({
     const fetchTopics = async () => {
       try {
         const response = await axiosClient.get('/questions/tags');
-        // const response = await axiosQuestionClient.get('/questions/tags');
         setTopics(response.data);
       } catch (error) {
         console.error('Error fetching topics:', error);

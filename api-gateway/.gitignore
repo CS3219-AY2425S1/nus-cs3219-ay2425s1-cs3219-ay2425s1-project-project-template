@@ -1,0 +1,6 @@
+/node_modules
+.env.dev
+.env.production
+/dist
+combined.log
+error.log
