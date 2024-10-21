@@ -24,7 +24,7 @@ const connectRabbitMQ = async () => {
     console.log(amqpServer)
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
-    await channel.assertExchange(EXCHANGE, "topic", { durable: false })
+    await channel.assertExchange(EXCHANGE, "topic", { durable: true })
     console.log("Connected to RabbitMQ")
   } catch (err) {
     console.error(err)
