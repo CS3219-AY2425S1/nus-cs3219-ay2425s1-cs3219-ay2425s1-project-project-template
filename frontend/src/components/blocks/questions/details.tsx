@@ -4,10 +4,10 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
 import { Badge } from '@/components/ui/badge';
-import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { CardContent,CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import type { IGetQuestionDetailsResponse } from '@/services/question-service';
+import type { IGetQuestionDetailsResponse } from '@/types/question-types';
 
 export const QuestionDetails = ({
   questionDetails,

@@ -9,6 +9,7 @@
     "dev:question": "npm run dev -w question",
     "dev:collab": "npm run dev -w collaboration",
     "dev:match": "npm run dev -w matching",
+    "build": "npm run build --workspaces --if-present",
     "fmt": "prettier --config .prettierrc \"./**/*.{ts,tsx}\" --write",
     "lint": "eslint --config .eslintrc.json \"./**/*.{ts,tsx}\" --fix",
     "prepare": "husky"
