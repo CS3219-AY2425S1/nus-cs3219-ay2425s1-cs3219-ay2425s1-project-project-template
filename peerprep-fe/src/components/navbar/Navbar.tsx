@@ -46,7 +46,7 @@ export default function Navbar() {
             Questions
           </Link>
           {/* Admin users should be able to add questions instead of match */}
-          {path == '/' ? (
+          {path != '/admin' ? (
             <PreMatch />
           ) : (
             <Button
