@@ -29,6 +29,7 @@ const handleUpdateProfile = async () => {
 const handleUpdatePassword = async () => {
     // TODO: Finish up this function https://firebase.google.com/docs/reference/js/v8/firebase.User#updatepassword
     // TODO: Add checks to make sure password is valid, use registration page
+    // TODO: Do another check to make sure account is not Google account
     isUpdatingPassword.value = true;
     try {
         await user.value.updatePassword(currentPass.value, newPass.value, confirmNewPass.value);
@@ -104,7 +105,7 @@ onMounted(() => {
                 <Button type="submit" :disabled="isGoogleLogin || isisUpdatingPassword">
                     {{ isUpdatingPassword ? "Updating..." : "Update Password" }}
                 </Button>
-                <div class="text-sm">You are logged in with Google. Your password cannot be
+                <div v-if="isGoogleLogin" class="text-sm">You are logged in with Google. Your password cannot be
                     changed.</div>
             </form>
         </div>
