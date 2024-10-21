@@ -15,6 +15,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
+import { relative } from "path";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -148,18 +149,21 @@ function CollabPageView() {
 				style={{
 					display: "flex", // Create a horizontal layout
 					height: "100vh", // Full height of the viewport
+					overflow: "auto", // Add scrollbars when content overflows
 				}}
 			>
 				{/* left side question box */}
 				<div
 					style={{
-						flex: 1, // Takes up equal space as the textarea
+						flexBasis: "50%", // Takes up 50% of the width
 						flexDirection: "column", // Stacks the title and description vertically
 						alignItems: "flex-start", // Aligns the title and description to the left
 						padding: "20px",
 						border: "2px solid lightgrey", // Adds a border
 						borderRadius: "10px", // Rounds the corners
 						margin: "15px 7.5px 15px 15px", // top right bottom left (clockwise)
+						width: "50%",
+						overflow: "auto", // Add scrollbars when content overflows
 					}}
 				>
 					{/* id & title */}
@@ -234,15 +238,17 @@ function CollabPageView() {
 				{/* right side */}
 				<div
 					style={{
-						flex: 1, // Take up 50% of the width
+						flexBasis: "50%", // Takes up 50% of the width
 						display: "flex", // Create a vertical layout inside the right half
 						flexDirection: "column", // Stack the top and bottom halves vertically
+						marginLeft: "7.5px",
+						width: "50%",
 					}}
 				>
 					{/* top-right side code editor */}
 					<div
 						style={{
-							flex: 7, // Takes up 70% vertically of the right side
+							flex: 6, // Takes up 60% vertically of the right side
 							display: "flex",
 							flexDirection: "column", // Stacks the label and textarea vertically
 							justifyContent: "center", // Centers the textarea horizontally within its section
@@ -250,7 +256,7 @@ function CollabPageView() {
 							border: "2px solid lightgrey", // Adds a border
 							padding: "20px",
 							borderRadius: "10px", // Rounds the corners
-							margin: "15px 15px 15px 7.5px", // top right bottom left (clockwise)
+							margin: "15px 15px 15px 0px", // top right bottom left (clockwise)
 						}}
 					>
 						{/* div to horizontally align <h2 Code/> and <Select coding language /> */}
@@ -308,14 +314,15 @@ function CollabPageView() {
 						/>
 					</div>
 
-					{/* right-bottom side output terminal */}
+					{/* bottom-right side output terminal */}
 					<div
 						style={{
-							flex: 3, // takes up 30% vertically of the right side
+							flex: 4, // takes up 40% vertically of the right side
 							border: "2px solid lightgrey", // Add a border around the right bottom half
 							padding: "15px",
 							borderRadius: "10px", // Rounds the corners
-							margin: "0px 15px 15px 7.5px", // top right bottom left (clockwise)
+							margin: "0px 15px 15px 0px", // top right bottom left (clockwise)
+							position: "relative",
 						}}
 					>
 						<h2 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
@@ -324,9 +331,20 @@ function CollabPageView() {
 						<Textarea
 							style={{
 								marginTop: "10px",
+								height: "60%",
 							}}
 							placeholder="test"
 						/>
+
+						<Button
+							style={{
+								position: "absolute", // Position the Button absolutely inside the parent
+								bottom: "5%", // 5% from the bottom
+								right: "2%", // 2% from the right
+							}}
+						>
+							Run Code
+						</Button>
 					</div>
 				</div>
 			</div>
