@@ -16,7 +16,6 @@ export default function Home() {
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
-    setIsSignUpModalOpen(false);
   };
 
   const closeLoginModal = () => {
@@ -25,7 +24,6 @@ export default function Home() {
 
   const openSignUpModal = () => {
     setIsSignUpModalOpen(true);
-    setIsLoginModalOpen(false);
   };
 
   const closeSignUpModal = () => {
