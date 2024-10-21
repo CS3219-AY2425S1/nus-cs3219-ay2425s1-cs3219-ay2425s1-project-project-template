@@ -6,6 +6,7 @@ import { PublicEnvScript } from "next-runtime-env";
 import { Providers } from "./providers";
 
 import { fontSans } from "@/config/fonts";
+import { getSession } from "./api/auth/actions";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -14,7 +15,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   application,
   landing,
   children,
@@ -23,7 +24,8 @@ export default function RootLayout({
   landing: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const isLoggedIn = true;
+  const session = await getSession();
+  const isLoggedIn = session.isLoggedIn;
 
   return (
     <html suppressHydrationWarning lang="en">

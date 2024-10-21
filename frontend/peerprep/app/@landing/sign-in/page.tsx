@@ -9,7 +9,7 @@ import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun, fontLogo } from "@/config/fonts";
-import { loginUser } from "@/app/api/services/userService";
+import { login } from "@/app/api/auth/actions";
 import Toast from "@/components/toast"; // Import Toast component
 
 export default function SignInPage() {
@@ -24,17 +24,19 @@ export default function SignInPage() {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleContinue = async () => {
-    const response = await loginUser(id, password);
-    const data = await response.json();
+    const signInFormData = new FormData();
+    signInFormData.append("email", id);
+    signInFormData.append("password", password);
 
-    if (response.ok) {
+    const response = await login(signInFormData);
+
+    if (response.status == "success") {
       setToast({ message: "Login successful!", type: "success" });
       setId("");
       setPassword("");
-      localStorage.setItem("accessToken", data.data.accessToken);
-      setTimeout(() => router.push("/home"), 1000);
+      setTimeout(() => router.push("/"), 1000);
     } else {
-      setToast({ message: data.message || "Login failed", type: "error" });
+      setToast({ message: response.message || "Login failed", type: "error" });
     }
   };
 

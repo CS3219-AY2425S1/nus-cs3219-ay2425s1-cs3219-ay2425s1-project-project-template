@@ -26,11 +26,13 @@ export const Sidebar = () => {
               <BoxIcon
                 name={item.icon}
                 color={
-                  currentPath.startsWith(item.href)
+                  item.href === "/" && currentPath === "/"
                     ? "#3B82F6"
-                    : theme === "dark"
-                      ? "#d1d5db"
-                      : "#4b5563"
+                    : currentPath.startsWith(item.href) && item.href !== "/"
+                      ? "#3B82F6"
+                      : theme === "dark"
+                        ? "#d1d5db"
+                        : "#4b5563"
                 }
               />
             }
@@ -39,9 +41,11 @@ export const Sidebar = () => {
           >
             <span
               className={
-                currentPath.startsWith(item.href)
+                item.href === "/" && currentPath === "/"
                   ? "text-primary font-bold"
-                  : "text-gray-600 dark:text-gray-300"
+                  : currentPath.startsWith(item.href) && item.href !== "/"
+                    ? "text-primary font-bold"
+                    : "text-gray-600 dark:text-gray-300"
               }
             >
               {item.label}
