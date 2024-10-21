@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Select, SelectItem, Spinner } from "@nextui-org/react";
 import {
   Modal,
@@ -10,7 +10,7 @@ import {
 
 import BoxIcon from "../boxicons";
 
-import { useUniqueCategoriesFetcher } from "@/services/questionService";
+import { useUniqueCategoriesFetcher } from "@/app/api/services/questionService";
 import { capitalize } from "@/utils/utils";
 
 interface StartSessionProps {
@@ -46,7 +46,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
 
   //TODO: Load difficulty and topic from the question-service
   const [selectedDifficultyKeys, setSelectedDifficultyKeys] = useState(
-    new Set<string>()
+    new Set<string>(),
   );
   const [selectedTopicKeys, setSelectedTopicKeys] = useState(new Set<string>());
 

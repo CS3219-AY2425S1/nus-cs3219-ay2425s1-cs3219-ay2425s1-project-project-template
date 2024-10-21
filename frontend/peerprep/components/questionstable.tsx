@@ -31,12 +31,12 @@ import {
   Question,
   RenderCell,
   complexityOptions,
-} from "@/app/(default)/questions-management/columns";
+} from "@/app/@application/questions-management/columns";
 import {
   deleteQuestion,
   useQuestionsFetcher,
   useUniqueCategoriesFetcher,
-} from "@/services/questionService";
+} from "@/app/api/services/questionService";
 
 export default function QuestionsTable() {
   const [errorMessage, setErrorMessage] = useState<string>("");
