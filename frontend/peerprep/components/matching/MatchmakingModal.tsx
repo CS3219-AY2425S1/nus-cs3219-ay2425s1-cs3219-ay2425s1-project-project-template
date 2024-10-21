@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Select, SelectItem, Spinner } from "@nextui-org/react";
 import {
   Modal,
@@ -46,7 +46,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
 
   //TODO: Load difficulty and topic from the question-service
   const [selectedDifficultyKeys, setSelectedDifficultyKeys] = useState(
-    new Set<string>()
+    new Set<string>(),
   );
   const [selectedTopicKeys, setSelectedTopicKeys] = useState(new Set<string>());
 

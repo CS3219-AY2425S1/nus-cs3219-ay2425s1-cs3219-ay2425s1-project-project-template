@@ -1,12 +1,12 @@
 import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
+import { Viewport } from "next";
 import clsx from "clsx";
 import { PublicEnvScript } from "next-runtime-env";
 
 import { Providers } from "./providers";
+import { isSessionLoggedIn } from "./api/auth/actions";
 
 import { fontSans } from "@/config/fonts";
-import { getSession, isSessionLoggedIn } from "./api/auth/actions";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -18,11 +18,9 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   application,
   landing,
-  children,
 }: {
   application: React.ReactNode;
   landing: React.ReactNode;
-  children: React.ReactNode;
 }) {
   const isLoggedIn = await isSessionLoggedIn();
 
@@ -38,7 +36,7 @@ export default async function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>

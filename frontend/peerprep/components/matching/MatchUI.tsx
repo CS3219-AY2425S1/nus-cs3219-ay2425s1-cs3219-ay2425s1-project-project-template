@@ -61,7 +61,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleMatchingContinue = async (
     selectedDifficultyKeys: Set<string>,
-    selectedTopicKeys: Set<string>
+    selectedTopicKeys: Set<string>,
   ) => {
     // Set timer for matchmaking
     let time = 1;
@@ -96,7 +96,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleRegisterForMatching = async (
     difficulty: Set<string>,
-    topic: Set<string>
+    topic: Set<string>,
   ) => {
     const userParams = {
       difficulty: Array.from(difficulty),
@@ -108,7 +108,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
       handleMatchFound,
       () => console.log("Registration successful!"), // Handle success
       handleMatchingTimeout,
-      handleMatchingError
+      handleMatchingError,
     );
   };
 

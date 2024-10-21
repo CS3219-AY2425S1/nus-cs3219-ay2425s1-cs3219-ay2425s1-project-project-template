@@ -18,13 +18,14 @@ export default function SignInPage() {
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleContinue = async () => {
     const signInFormData = new FormData();
+
     signInFormData.append("identifier", id);
     signInFormData.append("password", password);
 

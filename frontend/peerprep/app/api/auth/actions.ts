@@ -1,9 +1,10 @@
 "use server";
 
-import { sessionOptions, SessionData, defaultSession } from "./lib";
 import { getIronSession } from "iron-session";
 import { env } from "next-runtime-env";
 import { cookies } from "next/headers";
+
+import { sessionOptions, SessionData, defaultSession } from "./lib";
 
 const USER_SERVICE_URL = env("NEXT_PUBLIC_USER_SERVICE_URL");
 
@@ -13,16 +14,18 @@ export const getSession = async () => {
   if (!session.isLoggedIn) {
     session.isLoggedIn = defaultSession.isLoggedIn;
   }
+
   return session;
 };
 
 export const getAccessToken = async () => {
-    const session = await getSession();
-    return session.accessToken;
-}
+  const session = await getSession();
+  return session.accessToken;
+};
 
 export const isSessionLoggedIn = async () => {
   const session = await getSession();
+
   return session.isLoggedIn;
 };
 
@@ -55,21 +58,29 @@ export const login = async (formData: FormData) => {
       session.accessToken = data.data.accessToken; // Store the access token in the session
 
       await session.save();
+
       return { status: "success", message: "Login successful." }; // Return success status
     } else {
       // Handle error response (e.g., show error message)
       const errorData = await response.json();
+
       return { status: "error", message: errorData.message || "Login failed." }; // Return error status
     }
   } catch (error) {
     console.error("Login error:", error);
-    return { status: "error", message: "Unable to reach the user service. Please try again later." };
+
+    return {
+      status: "error",
+      message: "Unable to reach the user service. Please try again later.",
+    };
   }
 };
 
 export const logout = async () => {
   const session = await getSession();
+
   session.destroy();
+
   return { status: "success", message: "Logged out successfully." }; // Return success status
 };
 
@@ -97,10 +108,18 @@ export const signUp = async (formData: FormData) => {
     } else {
       // Handle error response (e.g., show error message)
       const errorData = await response.json();
-      return { status: "error", message: errorData.message || "Sign up failed." }; // Return error status
+
+      return {
+        status: "error",
+        message: errorData.message || "Sign up failed.",
+      }; // Return error status
     }
   } catch (error) {
     console.error("Sign up error:", error);
-    return { status: "error", message: "Unable to reach the user service. Please try again later." };
+
+    return {
+      status: "error",
+      message: "Unable to reach the user service. Please try again later.",
+    };
   }
 };

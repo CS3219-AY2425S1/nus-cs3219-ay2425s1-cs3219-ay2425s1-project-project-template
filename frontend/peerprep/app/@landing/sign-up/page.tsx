@@ -18,7 +18,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState<string>("");
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
 
   // Validations
@@ -49,6 +49,7 @@ export default function SignUpPage() {
       validatePassword(password)
     ) {
       const signUpFormData = new FormData();
+
       signUpFormData.append("email", email);
       signUpFormData.append("username", username);
       signUpFormData.append("password", password);
@@ -60,6 +61,7 @@ export default function SignUpPage() {
         setToast({ message: "User registered successfully!", type: "success" });
 
         const loginFormData = new FormData();
+
         loginFormData.append("identifier", username);
         loginFormData.append("password", password);
 

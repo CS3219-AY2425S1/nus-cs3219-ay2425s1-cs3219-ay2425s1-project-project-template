@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { env } from "next-runtime-env";
+
 import { getAccessToken } from "../auth/actions";
 
 const MATCHING_SERVICE_URL = env("NEXT_PUBLIC_MATCHING_SERVICE_URL");
@@ -42,10 +43,11 @@ const createSocketConnection = (token: string): Socket => {
 
 // Function to initialize and connect the socket
 export const initializeSocket = async () => {
-
   const token = await getAccessToken();
+
   if (!token) {
     console.error("Access token not found");
+
     return;
   }
   socket = createSocketConnection(token);
