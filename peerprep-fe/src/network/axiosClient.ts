@@ -23,24 +23,4 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-const axoisMatchingClient = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_MATCHING_SERVICE_URL ||
-    'http://localhost:5001/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-axoisMatchingClient.interceptors.request.use(
-  (config) => {
-    const token = getCookie('access-token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-export { axiosClient, axoisMatchingClient };
+export { axiosClient };
