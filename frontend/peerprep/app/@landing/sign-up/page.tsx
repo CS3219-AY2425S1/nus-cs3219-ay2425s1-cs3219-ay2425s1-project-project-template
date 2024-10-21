@@ -8,7 +8,7 @@ import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun } from "@/config/fonts";
-import { createUser, loginUser } from "@/services/userService";
+import { signUp, login } from "@/app/api/auth/actions"; // Import new server functions
 import Toast from "@/components/toast"; // Import the Toast component
 
 export default function SignUpPage() {
@@ -48,39 +48,36 @@ export default function SignUpPage() {
       validateUsername(username) &&
       validatePassword(password)
     ) {
-      const userCreationResponse = await createUser(username, email, password);
+      const signUpFormData = new FormData();
 
-      if (userCreationResponse.ok) {
+      signUpFormData.append("email", email);
+      signUpFormData.append("username", username);
+      signUpFormData.append("password", password);
+
+      const signUpResponse = await signUp(signUpFormData);
+
+      if (signUpResponse.status === "success") {
         // Show success toast and attempt login
-        setToast({ message: "User created successfully!", type: "success" });
+        setToast({ message: "User registered successfully!", type: "success" });
 
-        try {
-          const loginResponse = await loginUser(username, password);
-          const loginData = await loginResponse.json();
+        const loginFormData = new FormData();
 
-          if (loginResponse.ok) {
-            console.log("User logged in successfully");
+        loginFormData.append("identifier", username);
+        loginFormData.append("password", password);
 
-            // Store access token in localStorage
-            localStorage.setItem("accessToken", loginData.data.accessToken);
+        const loginResponse = await login(loginFormData);
 
-            // Redirect to home page or dashboard
-            window.location.href = "/home";
-          } else {
-            setToast({ message: loginData.message, type: "error" });
-          }
-        } catch (error) {
-          console.error("Login failed:", error);
-          setToast({
-            message: "Login failed. Please try again.",
-            type: "error",
-          });
+        if (loginResponse.status === "success") {
+          console.log("User logged in successfully");
+
+          // Redirect to home page or dashboard
+          window.location.href = "/";
+        } else {
+          setToast({ message: loginResponse.message, type: "error" });
         }
       } else {
-        const errorMessage = await userCreationResponse.json();
-
         setToast({
-          message: errorMessage.message || "User creation failed",
+          message: signUpResponse.message,
           type: "error",
         });
       }
@@ -127,7 +124,7 @@ export default function SignUpPage() {
             value={username}
             onValueChange={setUsername}
             isInvalid={isFormSubmitted && !validateUsername(username)}
-            errorMessage="Username must be 2-32, alphanumaric with _ or -"
+            errorMessage="Username must be 2-32 characters, alphanumeric with _ or -"
             variant="faded"
             radius="sm"
             size="md"

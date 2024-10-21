@@ -24,14 +24,14 @@ import { capitalize, languages } from "@/utils/utils";
 import {
   complexityColorMap,
   Question,
-} from "@/app/(default)/questions-management/columns";
+} from "@/app/@application/questions-management/columns";
 import {
   deleteQuestion,
   editQuestion,
   useQuestionDataFetcher,
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,
-} from "@/services/questionService";
+} from "@/app/api/services/questionService";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
