@@ -1,5 +1,6 @@
-import { Box, Group, Select, Stack } from '@mantine/core';
+import { Box, Button, Group, Select, Space, Stack } from '@mantine/core';
 import '@mantine/core/styles.css';
+import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useState } from 'react';
 
 import classes from './CodeEditor.module.css';
@@ -12,6 +13,7 @@ function CodeEditor() {
   return (
     <Stack h="100%" w="calc(100% - 510px)" gap={0} bg="slate.9" p="10px">
       <Group
+        pb="10px"
         style={{
           borderTopLeftRadius: '4px',
           borderTopRightRadius: '4px',
@@ -37,6 +39,16 @@ function CodeEditor() {
             option: classes.option,
           }}
         />
+        <Button
+          variant="light"
+          leftSection={<IconPlayerPlayFilled size={14} />}
+        >
+          Run Code
+        </Button>
+        <Space style={{ flexGrow: 1 }} />
+        <Button variant="light" color="red">
+          End Session
+        </Button>
       </Group>
 
       {/* TODO: Replace with code editor */}
