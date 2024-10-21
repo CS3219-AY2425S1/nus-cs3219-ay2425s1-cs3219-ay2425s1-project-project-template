@@ -46,16 +46,16 @@ export default function Navbar() {
             Questions
           </Link>
           {/* Admin users should be able to add questions instead of match */}
-          {path != '/admin' ? (
-            <PreMatch />
-          ) : (
+          {path === '/admin' ? (
             <Button
               onClick={toggleDialogOpen}
               className="text-gray-300 hover:text-white"
             >
               Add Question
             </Button>
-          )}
+          ) : path !== '/match' ? (
+            <PreMatch />
+          ) : null}
           {isAuth ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
