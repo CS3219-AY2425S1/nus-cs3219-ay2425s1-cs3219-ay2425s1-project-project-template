@@ -10,7 +10,7 @@ function RoomTabs() {
       h="calc(100% - 160px)"
       bg="slate.9"
       p="10px"
-      style={{ borderRadius: '10px' }}
+      style={{ borderRadius: '4px' }}
     >
       <Tabs.List>
         <Tabs.Tab value="description">Description</Tabs.Tab>
