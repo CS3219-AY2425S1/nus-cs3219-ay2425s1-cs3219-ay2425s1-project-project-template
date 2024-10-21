@@ -58,21 +58,11 @@ async function processMatch(
         continue;
       }
 
-      const setPendingToFalse = async (userId: string) => {
-        await redisClient.hSet(`match:${userId}`, 'pending', 'false');
-        console.log(`User ${userId} is now in MATCHING state, pending set to false.`);
-      };
-
-      await Promise.all([
-        setPendingToFalse(requestorUserId), // Set pending to false for requester
-        setPendingToFalse(matchedUserId), // Set pending to false for matched user
-      ]);
-
       // To block cancellation
       sendNotif([matchedSocketPort], MATCHING_EVENT.MATCHING);
+      await redisClient.hSet(getPoolKey(matchedUserId), 'pending', 'false');
 
       const matchedStreamId = getStreamId(timestamp);
-
       logger.info(`Found match: ${JSON.stringify(matched)}`);
 
       await Promise.all([
@@ -141,8 +131,9 @@ async function match() {
 
       // To Block Cancellation
       sendNotif([requestorSocketPort], MATCHING_EVENT.MATCHING);
+      await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'false');
 
-      const clause = [`-@userId:(${requestorUserId})`];
+      const clause = [`-@userId:(${requestorUserId}) @pending:(true)`];
 
       if (difficulty) {
         clause.push(`@difficulty:{${difficulty}}`);
@@ -176,7 +167,7 @@ async function match() {
       // Match on Topic
       const topicMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@topic:{${topic}} -@userId:(${requestorUserId})`,
+        clause.filter((v) => !v.startsWith('@difficulty')).join(' '),
         searchParams
       );
       const topicMatchFound = await processMatch(
@@ -195,7 +186,7 @@ async function match() {
       // Match on Difficulty
       const difficultyMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
+        clause.filter((v) => !v.startsWith('@topic')).join(' '),
         searchParams
       );
       const hasDifficultyMatch = await processMatch(
@@ -209,14 +200,9 @@ async function match() {
 
       if (!hasDifficultyMatch) {
         // To allow cancellation
+        await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'true');
         sendNotif([requestorSocketPort], MATCHING_EVENT.PENDING);
-
-        const setPendingToTrue = async (userId: string) => {
-          await redisClient.hSet(`match:${userId}`, 'pending', 'true');
-          console.log(`User ${userId} is now in PENDING state, pending set to true.`);
-        };
-
-        await setPendingToTrue(requestorUserId);
+        logger.info(`${requestorUserId} is now in mode ${MATCHING_EVENT.PENDING}`);
       }
     }
   }

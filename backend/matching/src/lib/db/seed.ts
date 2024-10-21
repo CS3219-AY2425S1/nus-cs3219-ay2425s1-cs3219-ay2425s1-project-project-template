@@ -49,6 +49,9 @@ const main = async () => {
       difficulty: {
         type: SchemaFieldTypes.TAG,
       },
+      pending: {
+        type: SchemaFieldTypes.TEXT,
+      },
       timestamp: {
         type: SchemaFieldTypes.NUMERIC,
         SORTABLE: true,
