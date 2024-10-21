@@ -1,7 +1,6 @@
 import { Difficulty, Question, Topic } from "@/models/Question";
 import { useRef, useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
@@ -14,10 +13,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	LANGUAGE_VERSIONS,
-	CODE_SNIPPETS,
-} from "../lib/CodeEditorUtil";
+import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
+import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
 
 const customQuestion: Question = {
 	id: "q123",
@@ -56,7 +53,7 @@ const customQuestion: Question = {
 function CollabPageView() {
 	const [code, setCode] = useState("");
 	const [socket, setSocket] = useState<Socket | null>(null);
-	const editorRef = useRef();
+	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
 	useEffect(() => {
 		// Initialize the WebSocket connection when the component mounts
@@ -95,7 +92,7 @@ function CollabPageView() {
 	};
 
 	// Callback function to mount editor to auto-focus when page loads
-	const onMount = (editor) => {
+	const onMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
 		editorRef.current = editor;
 		editor.focus();
 	};
