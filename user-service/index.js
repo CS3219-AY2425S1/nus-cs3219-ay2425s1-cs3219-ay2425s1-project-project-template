@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import logger from './utils/logging.js'; // Import the logger
 
 import userRoutes from './routes/user-routes.js';
 import authRoutes from './routes/auth-routes.js';
@@ -16,7 +15,6 @@ app.options('*', cors());
 
 // Log incoming requests
 app.use((req, res, next) => {
-  logger.info(`Incoming request: ${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -44,7 +42,6 @@ app.use(`${apiVersion}/auth`, authRoutes);
 
 // Getting status of the service
 app.use(`${apiVersion}/ping`, (req, res, next) => {
-  logger.info('Ping request received');
   res.json({
     message: 'Hello World from user-service',
   });
@@ -58,7 +55,6 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
-  logger.error(`Error occurred: ${error.message} ${req.originalUrl}`);
   res.status(error.status || 500);
   res.json({
     error: {
