@@ -62,6 +62,7 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
     email: "",
   });
   const [loading, setLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -93,8 +94,9 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
     });
 
     newSocket.on('matchError', (data: { message: string; timestamp: string }) => {
-      setStatus('error');
       setTimer(null);
+      setErrorMessage(data.message);
+      setStatus('error');
     });
 
     newSocket.on('matchResult', (data: MatchResult) => {
@@ -115,9 +117,9 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
           solved: 0
         })
       } else if (!data.success) {
-        console.log('here')
-        setStatus('error');
         setTimer(null);
+        setErrorMessage(data.message);
+        setStatus('error');
       } else {
         setStatus('idle');
         setTimer(null);
@@ -291,7 +293,7 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
           </DialogFooter>
           {status === 'error' && (
             <div className="p-2 text-center text-red-500">
-              Failed to find a match. Please try again.
+              {errorMessage || "Failed to find a match. Please try again."}
             </div>
           )}
           {status === 'success' && (
