@@ -15,7 +15,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
-import { relative } from "path";
+import { run } from "node:test";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -110,6 +110,30 @@ function CollabPageView() {
 	const onSelect = (language: string) => {
 		setSelectedLang(language);
 		setCode(CODE_SNIPPETS[language]);
+	};
+
+	const runCode = async () => {
+		const sourceCode = editorRef.current.getValue();
+		if (!sourceCode) return; // do nothing
+
+		try {
+			const executeCodeURL = "http://localhost:5004/execute-code";
+
+			const response = await fetch(executeCodeURL, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json", // Send content type to JSON
+				},
+				body: JSON.stringify({
+					language: selectedLang,
+					code: sourceCode,
+					langVer: LANGUAGE_VERSIONS,
+				}),
+			});
+
+			const jsonData = await response.json();
+			console.log(jsonData);
+		} catch (error) {}
 	};
 
 	return (
@@ -342,6 +366,7 @@ function CollabPageView() {
 								bottom: "5%", // 5% from the bottom
 								right: "2%", // 2% from the right
 							}}
+							onClick={runCode}
 						>
 							Run Code
 						</Button>
