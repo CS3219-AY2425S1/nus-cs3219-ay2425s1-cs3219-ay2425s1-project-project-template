@@ -31,7 +31,7 @@ const main = async () => {
     const { timeStamp, value } = isSeeded;
 
     if (value === 'true') {
-      logger.info('Seeded at: ' + new Date(timeStamp).toLocaleString());
+      logger.info('Seeded at: ' + new Date(Number.parseInt(timeStamp)).toLocaleString());
       return;
     }
   }
