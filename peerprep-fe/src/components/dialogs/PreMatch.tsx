@@ -48,7 +48,10 @@ export function PreMatch() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-gray-300 hover:text-white">
+        <Button
+          variant="ghost"
+          className="text-gray-300 hover:bg-black hover:text-white"
+        >
           Match
         </Button>
       </DialogTrigger>

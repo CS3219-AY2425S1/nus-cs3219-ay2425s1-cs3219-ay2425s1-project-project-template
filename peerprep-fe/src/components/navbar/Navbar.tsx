@@ -15,10 +15,12 @@ import {
 import { useAuthStore } from '@/state/useAuthStore';
 import { useQuestionStore } from '@/state/useQuestionStore';
 import { PreMatch } from '@/components/dialogs/PreMatch';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
-  const { dialogOpen, toggleDialogOpen } = useQuestionStore();
+  const { toggleDialogOpen } = useQuestionStore();
+  const path = usePathname();
 
   const handleLogout = async () => {
     const res = await logout();
@@ -44,7 +46,7 @@ export default function Navbar() {
             Questions
           </Link>
           {/* Admin users should be able to add questions instead of match */}
-          {!user?.isAdmin ? (
+          {path == '/' ? (
             <PreMatch />
           ) : (
             <Button
