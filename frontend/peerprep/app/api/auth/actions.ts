@@ -15,6 +15,10 @@ export const getSession = async () => {
     session.isLoggedIn = defaultSession.isLoggedIn;
   }
 
+  if (!session.isAdmin) {
+    session.isAdmin = defaultSession.isAdmin;
+  }
+
   return session;
 };
 
@@ -25,8 +29,18 @@ export const getAccessToken = async () => {
 
 export const isSessionLoggedIn = async () => {
   const session = await getSession();
-
   return session.isLoggedIn;
+};
+
+export const isSessionAdmin = async () =>  {
+    const session = await getSession();
+
+    console.log ("isSessionAdmin: ", session.isAdmin);
+    if (!session.isAdmin) {
+        return false;
+    } else {
+        return session.isAdmin;
+    }
 };
 
 export const login = async (formData: FormData) => {
@@ -56,6 +70,7 @@ export const login = async (formData: FormData) => {
       session.username = data.data.username; // Get username from the response
       session.isLoggedIn = true;
       session.accessToken = data.data.accessToken; // Store the access token in the session
+      session.isAdmin = data.data.isAdmin; // Check if the user is an admin
 
       await session.save();
 

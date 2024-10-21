@@ -7,13 +7,14 @@ const SECRET_KEY =
 export interface SessionData {
   userId?: string;
   username?: string;
-  isAdmin?: boolean;
+  isAdmin: boolean;
   accessToken?: string;
   isLoggedIn: boolean;
 }
 
 export const defaultSession: SessionData = {
   isLoggedIn: false,
+  isAdmin: false,
 };
 
 export const sessionOptions: SessionOptions = {

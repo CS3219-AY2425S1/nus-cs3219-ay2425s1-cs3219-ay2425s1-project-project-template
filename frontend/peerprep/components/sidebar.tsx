@@ -9,10 +9,13 @@ import BoxIcon from "./boxicons";
 import { siteConfig } from "@/config/site";
 import { logout } from "@/app/api/auth/actions";
 
-export const Sidebar = () => {
+interface SidebarProps {
+  isAdmin: boolean;
+}
+
+export const Sidebar = ({ isAdmin }: SidebarProps) => {
   const { theme } = useTheme();
   const currentPath = usePathname();
-
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -27,39 +30,41 @@ export const Sidebar = () => {
         aria-label="Listbox menu with sections"
         className="w-fit "
       >
-        {siteConfig.navItems.map((item) => (
-          <ListboxItem
-            key={item.label}
-            startContent={
-              <BoxIcon
-                name={item.icon}
-                color={
-                  item.href === "/" && currentPath === "/"
-                    ? "#3B82F6"
-                    : currentPath.startsWith(item.href) && item.href !== "/"
+        {siteConfig.navItems
+          .concat(isAdmin ? siteConfig.adminNavItems : [])
+          .map((item: any) => (
+            <ListboxItem
+              key={item.label}
+              startContent={
+                <BoxIcon
+                  name={item.icon}
+                  color={
+                    item.href === "/" && currentPath === "/"
                       ? "#3B82F6"
-                      : theme === "dark"
-                        ? "#d1d5db"
-                        : "#4b5563"
-                }
-              />
-            }
-            className="py-3 my-1"
-            href={item.href}
-          >
-            <span
-              className={
-                item.href === "/" && currentPath === "/"
-                  ? "text-primary font-bold"
-                  : currentPath.startsWith(item.href) && item.href !== "/"
-                    ? "text-primary font-bold"
-                    : "text-gray-600 dark:text-gray-300"
+                      : currentPath.startsWith(item.href) && item.href !== "/"
+                        ? "#3B82F6"
+                        : theme === "dark"
+                          ? "#d1d5db"
+                          : "#4b5563"
+                  }
+                />
               }
+              className="py-3 my-1"
+              href={item.href}
             >
-              {item.label}
-            </span>
-          </ListboxItem>
-        ))}
+              <span
+                className={
+                  item.href === "/" && currentPath === "/"
+                    ? "text-primary font-bold"
+                    : currentPath.startsWith(item.href) && item.href !== "/"
+                      ? "text-primary font-bold"
+                      : "text-gray-600 dark:text-gray-300"
+                }
+              >
+                {item.label}
+              </span>
+            </ListboxItem>
+          ))}
       </Listbox>
       <Button
         className="fixed bottom-5 left-10 flex items-center justify-center bg-transparent text-danger"

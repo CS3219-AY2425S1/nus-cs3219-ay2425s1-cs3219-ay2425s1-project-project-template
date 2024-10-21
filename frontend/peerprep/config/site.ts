@@ -9,6 +9,8 @@ export const siteConfig = {
       href: "/",
       icon: "bxs-home",
     },
+  ],
+  adminNavItems: [
     {
       label: "Question Management",
       href: "/questions-management",
