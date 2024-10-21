@@ -7,25 +7,20 @@ import { authMiddleware } from '../middleware/authMiddleware';
 const router = express.Router();
 
 const matchingServiceProxy = createProxyMiddleware({
-  target: config.services.matching, // same endpoint / microservice as auth
+  target: config.services.matching, // Matching Service URL
   changeOrigin: true,
+  ws: true, // Enable WebSocket proxying
   pathRewrite: {
-    '^/(.*)': '/api/v1/matching/$1',
+    '^/api/matching/ws': '/ws', // Adjust the path as needed for WebSocket
+    '^/api/matching': '/api/v1/matching', // HTTP API path rewrite
   },
   on: {
     proxyReq: fixRequestBody,
   },
 });
 
-// Log incoming requests to the Users route
-// router.use((req, res, next) => {
-//   logger.info(
-//     `Matching route accessed: ${req.method} ${req.originalUrl} ${req.path}`,
-//   );
-//   next();
-// });
+// Apply the proxy middleware to all HTTP routes under /api/matching
+router.use('/matching', matchingServiceProxy);
 
-// Apply the proxy middleware to all routes handled by usersRoute
-router.use('/', matchingServiceProxy);
-
+export { matchingServiceProxy };
 export default router;
