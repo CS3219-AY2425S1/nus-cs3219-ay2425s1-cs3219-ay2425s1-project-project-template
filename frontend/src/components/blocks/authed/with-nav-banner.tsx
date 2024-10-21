@@ -1,4 +1,4 @@
-import { Fragment, type FC, type PropsWithChildren } from 'react';
+import { type FC, Fragment, type PropsWithChildren } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
@@ -8,8 +8,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { cn } from '@/lib/utils';
 import type { BreadCrumb } from '@/lib/routes';
+import { cn } from '@/lib/utils';
 
 type IBreadCrumbBannerProps = {
   crumbs: Array<BreadCrumb>;

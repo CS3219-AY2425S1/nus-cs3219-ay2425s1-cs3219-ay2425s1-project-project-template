@@ -10,5 +10,5 @@ export const getRedisPayload = (payload: IPoolTicket) => {
       ? { topic: topic.join(',') }
       : { topic }
     : {};
-  return { ...rest, ...topicField, ...difficultyField };
+  return { ...rest, ...topicField, ...difficultyField, pending: 'true' };
 };

@@ -1,9 +1,11 @@
 import { exit } from 'process';
 
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { sql } from 'drizzle-orm';
 import express, { json } from 'express';
 import helmet from 'helmet';
+import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
 
 import { dbConfig, UI_HOST } from '@/config';
@@ -11,8 +13,7 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import authRoutes from '@/routes/auth';
 import authCheckRoutes from '@/routes/auth-check';
-import cookieParser from 'cookie-parser';
-import { StatusCodes } from 'http-status-codes';
+import userRoutes from '@/routes/user';
 
 const app = express();
 app.use(pino());
@@ -28,6 +29,7 @@ app.use(
 
 app.use('/auth', authRoutes);
 app.use('/auth-check', authCheckRoutes);
+app.use('/user', userRoutes);
 
 // Health Check for Docker
 app.get('/health', (_req, res) => res.status(StatusCodes.OK).send('OK'));
@@ -40,6 +42,7 @@ export const dbHealthCheck = async (exitApp: boolean = true) => {
     const { message } = error as Error;
     logger.error('Cannot connect to DB: ' + message);
     logger.error(`DB Config: ${JSON.stringify(dbConfig)}`);
+
     if (exitApp) {
       exit(1);
     }

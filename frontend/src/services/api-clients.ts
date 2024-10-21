@@ -4,6 +4,8 @@ export const USER_SERVICE = '/user-service';
 export const QUESTION_SERVICE = '/question-service';
 export const COLLAB_SERVICE = '/collaboration-service';
 export const COLLAB_WS = '/collab-ws';
+export const MATCHING_SERVICE = '/matching-service';
+export const MATCHING_SOCKET = '/matching-socket';
 
 const getApiClientBaseConfig = (service: string) => ({
   baseURL: service,
@@ -24,10 +26,13 @@ export const userApiClient = axios.create({
 export const userApiGetClient = axios.create(getApiClientBaseConfig(USER_SERVICE));
 
 export const questionApiClient = axios.create({
-  baseURL: '/question-service',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  ...getApiClientBaseConfig(QUESTION_SERVICE),
+  ...basePostHeaders,
+});
+
+export const matchApiClient = axios.create({
+  ...getApiClientBaseConfig(MATCHING_SERVICE),
+  ...basePostHeaders,
 });
 
 // define more api clients for other microservices

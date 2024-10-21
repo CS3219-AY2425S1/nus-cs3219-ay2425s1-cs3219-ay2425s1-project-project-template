@@ -10,6 +10,7 @@ router.post('/logout', logout);
 router.post('/register', register);
 router.post('/username-valid', checkUsernameValid);
 router.post('/email-valid', checkEmailValid);
+
 router.use(limiter);
 
 export default router;

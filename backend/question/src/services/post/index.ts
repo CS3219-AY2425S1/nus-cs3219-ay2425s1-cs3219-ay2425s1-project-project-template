@@ -1,7 +1,9 @@
-import { db } from '../../lib/db/index';
 import { eq } from 'drizzle-orm';
-import { questions } from '../../lib/db/schema';
-import { ICreateQuestionPayload, IUpdateQuestionPayload, IDeleteQuestionPayload } from './types';
+
+import { db } from '@/lib/db/index';
+import { questions } from '@/lib/db/schema';
+
+import { ICreateQuestionPayload, IDeleteQuestionPayload, IUpdateQuestionPayload } from './types';
 
 export const createQuestionService = async (payload: ICreateQuestionPayload) => {
   try {
@@ -24,14 +26,17 @@ export const createQuestionService = async (payload: ICreateQuestionPayload) => 
 
 export const updateQuestionService = async (payload: IUpdateQuestionPayload) => {
   try {
+    const updateSet: Partial<typeof questions.$inferInsert> = {};
+
+    if (payload.title !== undefined) updateSet.title = payload.title;
+    if (payload.description !== undefined) updateSet.description = payload.description;
+    if (payload.difficulty !== undefined) updateSet.difficulty = payload.difficulty;
+    if (payload.topics !== undefined && Array.isArray(payload.topics))
+      updateSet.topic = payload.topics.map(String);
+
     const [updatedQuestion] = await db
       .update(questions)
-      .set({
-        title: payload.title,
-        description: payload.description,
-        difficulty: payload.difficulty,
-        topic: payload.topics.map(String),
-      })
+      .set(updateSet)
       .where(eq(questions.id, Number(payload.id)))
       .returning();
 

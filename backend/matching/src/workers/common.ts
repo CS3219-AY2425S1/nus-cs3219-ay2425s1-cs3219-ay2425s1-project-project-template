@@ -2,7 +2,7 @@
 
 import { client } from '@/lib/db';
 import { logger } from '@/lib/utils';
-import type { IChildProcessMessage, IMatchEvent } from '@/ws';
+import type { IChildProcessMessage, IMatchEvent } from '@/types';
 
 export const sendNotif = (roomIds: Array<string>, event: IMatchEvent, message?: unknown) => {
   if (process.send) {
@@ -17,6 +17,7 @@ export const sendNotif = (roomIds: Array<string>, event: IMatchEvent, message?: 
 
 export const connectClient = async (importedClient: typeof client) => {
   let redisClient: typeof client;
+
   try {
     redisClient =
       importedClient.isOpen || importedClient.isReady
@@ -29,5 +30,6 @@ export const connectClient = async (importedClient: typeof client) => {
     );
     process.exit(1);
   }
+
   return redisClient;
 };

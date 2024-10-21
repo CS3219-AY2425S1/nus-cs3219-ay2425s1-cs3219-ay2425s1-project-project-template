@@ -1,13 +1,12 @@
-import { QueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { QueryClient,useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
+import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
-
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
-import { QuestionDetails } from '@/components/blocks/questions/details';
 import { questionDetailsQuery } from '@/lib/queries/question-details';
 
 export const loader =

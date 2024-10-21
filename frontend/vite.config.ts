@@ -1,6 +1,7 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+
 import react from '@vitejs/plugin-react-swc';
+import { defineConfig, loadEnv } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -44,10 +45,24 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
+        '/matching-service': {
+          target: env.VITE_MATCHING_SERVICE,
+          rewrite: (path) => path.replace(/^\/matching-service/, ''),
+          changeOrigin: true,
+          cookiePathRewrite: {
+            '*': '/',
+          },
+        },
         '/collab-ws': {
           target: `${env.VITE_COLLAB_SERVICE.replace('http', 'ws')}`,
           rewrite: (path) => path.replace(/\/collab-ws/, ''),
           ws: true,
+        },
+        '/matching-socket/': {
+          target: env.VITE_MATCHING_SERVICE,
+          ws: true,
+          secure: false,
+          changeOrigin: true,
         },
       },
     },

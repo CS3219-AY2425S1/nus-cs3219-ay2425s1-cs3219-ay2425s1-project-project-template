@@ -24,6 +24,14 @@ export type IGetQuestionsResponse = IServiceResponse<{
   totalQuestions: number; // total number of questions matching the query
 }>;
 
+export type IGetTopicsResponse = IServiceResponse<{
+  topics: Array<string>;
+}>;
+
+export type IGetDifficultiesResponse = IServiceResponse<{
+  difficulties: Array<string>;
+}>;
+
 //=============================================================================
 // /details
 //=============================================================================
@@ -51,6 +59,7 @@ export type IGetRandomQuestionPayload = {
 
 export type IGetRandomQuestionResponse = IServiceResponse<{
   question: {
+    id: number; // question's unique identifier or number
     title: string; // name or title of the question
     description: string; // question description
     difficulty: string; // difficulty level (e.g., 'easy', 'medium', 'hard')

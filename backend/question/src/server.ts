@@ -7,10 +7,10 @@ import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
 
+import { UI_HOST } from '@/config';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import questionsRouter from '@/routes/question';
-import { UI_HOST } from '@/config';
 
 const app = express();
 app.use(pino());

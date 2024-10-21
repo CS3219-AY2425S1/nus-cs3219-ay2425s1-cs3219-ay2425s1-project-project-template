@@ -7,7 +7,6 @@ import { MobileThemeSwitch } from '@/components/common/mobile-theme-switch';
 import { ThemeSwitch } from '@/components/common/theme-switch';
 import { UserDropdown } from '@/components/common/user-dropdown';
 import { Button } from '@/components/ui/button';
-
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
 
@@ -21,7 +20,9 @@ const NavBar = observer(() => {
         <Logo className='text-md' />
         {!isUnauthedRoute && (
           <>
-            <Button variant='ghost'>Start</Button>
+            <Button variant='ghost' asChild>
+              <Link to={ROUTES.MATCH}>Start</Link>
+            </Button>
             <Button variant='ghost' asChild>
               <Link to={ROUTES.QUESTIONS}>Questions</Link>
             </Button>

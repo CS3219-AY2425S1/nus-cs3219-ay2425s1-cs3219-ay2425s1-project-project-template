@@ -1,8 +1,11 @@
-import { client } from '@/lib/db';
+import { WORKER_SLEEP_TIME_IN_MILLIS } from '@/config';
+import { client, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
-import { MATCH_SVC_EVENT } from '@/ws';
+import { IMatchType } from '@/types';
+import { MATCHING_EVENT } from '@/ws/events';
+
 import { connectClient, sendNotif } from './common';
 
 const logger = {
@@ -10,13 +13,14 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-const sleepTime = 5000;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
+
 const cancel = () => {
   stopSignal = true;
   clearTimeout(timeout);
 };
+
 const shutdown = () => {
   cancel();
   client.disconnect().then(() => {
@@ -38,7 +42,9 @@ async function processMatch(
   redisClient: typeof client,
   { requestorUserId, requestorStreamId, requestorSocketPort }: RequestorParams,
   matches: Awaited<ReturnType<(typeof client)['ft']['search']>>,
-  searchIdentifier?: string
+  searchIdentifier?: IMatchType,
+  topic?: string,
+  difficulty?: string
 ) {
   if (matches.total > 0) {
     for (const matched of matches.documents) {
@@ -47,15 +53,16 @@ async function processMatch(
         timestamp, // We use timestamp as the Stream ID
         socketPort: matchedSocketPort,
       } = decodePoolTicket(matched);
+
       if (matchedUserId === requestorUserId) {
         continue;
       }
 
       // To block cancellation
-      sendNotif([matchedSocketPort], MATCH_SVC_EVENT.MATCHING);
+      sendNotif([matchedSocketPort], MATCHING_EVENT.MATCHING);
+      await redisClient.hSet(getPoolKey(matchedUserId), 'pending', 'false');
 
       const matchedStreamId = getStreamId(timestamp);
-
       logger.info(`Found match: ${JSON.stringify(matched)}`);
 
       await Promise.all([
@@ -66,9 +73,18 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = getMatchItems();
-      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
-      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
+      const { ...matchItems } = await getMatchItems(
+        searchIdentifier,
+        topic,
+        difficulty,
+        requestorUserId,
+        matchedUserId
+      );
+      logger.info(`Generated Match - ${JSON.stringify(matchItems)}`);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.SUCCESS, matchItems);
+      sendNotif([requestorSocketPort, matchedSocketPort], MATCHING_EVENT.DISCONNECT);
+
+      await logQueueStatus(logger, redisClient, `Queue Status After Matching: <PLACEHOLDER>`);
       return true;
     }
   }
@@ -79,6 +95,7 @@ async function processMatch(
 
 async function match() {
   const redisClient = await connectClient(client);
+
   const stream = await redisClient.xReadGroup(
     STREAM_GROUP,
     STREAM_WORKER,
@@ -91,12 +108,14 @@ async function match() {
       BLOCK: 2000,
     }
   );
+
   if (!stream || stream.length === 0) {
     await new Promise((resolve, _reject) => {
-      timeout = setTimeout(() => resolve('Next Loop'), sleepTime);
+      timeout = setTimeout(() => resolve('Next Loop'), WORKER_SLEEP_TIME_IN_MILLIS);
     });
     return;
   }
+
   for (const group of stream) {
     // Perform matching
     for (const matchRequest of group.messages) {
@@ -111,12 +130,15 @@ async function match() {
       } = decodePoolTicket(matchRequest);
 
       // To Block Cancellation
-      sendNotif([requestorSocketPort], MATCH_SVC_EVENT.MATCHING);
+      sendNotif([requestorSocketPort], MATCHING_EVENT.MATCHING);
+      await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'false');
 
-      const clause = [`-@userId:(${requestorUserId})`];
+      const clause = [`-@userId:(${requestorUserId}) @pending:(true)`];
+
       if (difficulty) {
         clause.push(`@difficulty:{${difficulty}}`);
       }
+
       if (topic) {
         clause.push(`@topic:{${topic}}`);
       }
@@ -132,8 +154,11 @@ async function match() {
         redisClient,
         requestorParams,
         exactMatches,
-        'exact match'
+        'exact match',
+        topic,
+        difficulty
       );
+
       if (exactMatchFound || !topic || !difficulty) {
         // Match found, or Partial search completed
         continue;
@@ -142,15 +167,18 @@ async function match() {
       // Match on Topic
       const topicMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@topic:{${topic}} -@userId:(${requestorUserId})`,
+        clause.filter((v) => !v.startsWith('@difficulty')).join(' '),
         searchParams
       );
       const topicMatchFound = await processMatch(
         redisClient,
         requestorParams,
         topicMatches,
-        'topic'
+        'topic',
+        topic,
+        difficulty
       );
+
       if (topicMatchFound) {
         continue;
       }
@@ -158,25 +186,30 @@ async function match() {
       // Match on Difficulty
       const difficultyMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
+        clause.filter((v) => !v.startsWith('@topic')).join(' '),
         searchParams
       );
       const hasDifficultyMatch = await processMatch(
         redisClient,
         requestorParams,
         difficultyMatches,
-        'difficulty'
+        'difficulty',
+        topic,
+        difficulty
       );
 
       if (!hasDifficultyMatch) {
         // To allow cancellation
-        sendNotif([requestorSocketPort], MATCH_SVC_EVENT.PENDING);
+        await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'true');
+        sendNotif([requestorSocketPort], MATCHING_EVENT.PENDING);
+        logger.info(`${requestorUserId} is now in mode ${MATCHING_EVENT.PENDING}`);
       }
     }
   }
 }
 
 logger.info('Process Healthy');
+
 (function loop() {
   if (stopSignal) {
     return;

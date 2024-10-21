@@ -14,7 +14,7 @@ import { ROUTES } from '@/lib/routes';
 import { useSignupForm } from './logic';
 
 export const SignUpForm = () => {
-  const { form, onSubmit, isPending: isDisabled } = useSignupForm();
+  const { form, onSubmit, isPending: isDisabled, errorMessage } = useSignupForm();
   return (
     <Card className='bg-primary-foreground border-border flex  max-w-sm flex-col justify-center border'>
       <CardHeader className='flex items-center'>
@@ -118,6 +118,9 @@ export const SignUpForm = () => {
                 </FormItem>
               )}
             />
+            {errorMessage && (
+              <p className='mt-2 text-center text-sm text-red-500'>{errorMessage}</p>
+            )}
             <Button type='submit' disabled={isDisabled} className='mt-4 w-full'>
               Sign Up
             </Button>

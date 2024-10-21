@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -49,6 +51,7 @@ type ISignupFormSchema = z.infer<typeof signUpSchema>;
 
 export const useSignupForm = () => {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<ISignupFormSchema>({
     resolver: zodResolver(signUpSchema),
@@ -71,22 +74,40 @@ export const useSignupForm = () => {
     mutationFn: signUp,
     onSuccess: (_response, _params, _context) => {
       form.reset();
+      setErrorMessage(null);
+      const userID = _response?.data?.id;
+
+      if (userID) {
+        // TODO: Revalidate with is-authed User Svc EP and put as user
+        // details provider on each route request
+        localStorage.setItem('cachedUserID', userID);
+      }
+
       // TODO: Add email validation page OR sign user in
       navigate('/');
+    },
+    onError: (error: AxiosError) => {
+      if (error.response?.status === 409) {
+        setErrorMessage('User with this username or email already exists.');
+      } else {
+        setErrorMessage('An error occurred. Please try again later.');
+      }
     },
   });
 
   const onSubmit = (formData: ISignupFormSchema) => {
     const parseResult = signUpSchema.safeParse(formData);
+
     if (parseResult.error || !parseResult.data) {
       // TODO: Add toast notification
       // eslint-disable-next-line no-console
       console.error('An error occurred: ' + JSON.stringify(formData));
       return;
     }
+
     const { confirmPassword: _, ...payload } = parseResult.data;
     sendSignUpRequest(payload);
   };
 
-  return { form, onSubmit: form.handleSubmit(onSubmit), status, isPending };
+  return { form, onSubmit: form.handleSubmit(onSubmit), status, isPending, errorMessage };
 };

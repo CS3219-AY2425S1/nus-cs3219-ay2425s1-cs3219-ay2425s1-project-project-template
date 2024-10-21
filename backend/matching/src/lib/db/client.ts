@@ -1,13 +1,18 @@
 import { createClient } from 'redis';
 
-import { DB_URL } from '@/config';
+import { DB_HOSTNAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from '@/config';
 import { logger } from '@/lib/utils';
 
 class RedisClient {
   client: ReturnType<typeof createClient>;
   constructor() {
     this.client = createClient({
-      url: DB_URL,
+      username: DB_USERNAME,
+      password: DB_PASSWORD,
+      socket: {
+        host: DB_HOSTNAME,
+        port: DB_PORT,
+      },
     }).on('error', (err) => {
       logger.error(`Redis Client error: ${err}`);
     });

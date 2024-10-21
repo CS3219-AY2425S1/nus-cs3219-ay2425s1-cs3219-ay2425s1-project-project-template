@@ -1,4 +1,5 @@
 import { SchemaFieldTypes } from 'redis';
+
 import { client } from './client';
 import {
   MATCH_PREFIX,
@@ -18,18 +19,23 @@ const logger = {
 
 const main = async () => {
   const redisClient = await client.connect();
+
   if (!redisClient) {
     return;
   }
+
   logger.info('Connected');
   const isSeeded = await redisClient.hGetAll(SEED_KEY);
+
   if (Object.keys(isSeeded).length > 0) {
     const { timeStamp, value } = isSeeded;
+
     if (value === 'true') {
-      logger.info('Seeded at: ' + new Date(timeStamp).toLocaleString());
+      logger.info('Seeded at: ' + new Date(Number.parseInt(timeStamp)).toLocaleString());
       return;
     }
   }
+
   // Set Search Index
   await redisClient.ft.create(
     POOL_INDEX,
@@ -42,6 +48,9 @@ const main = async () => {
       },
       difficulty: {
         type: SchemaFieldTypes.TAG,
+      },
+      pending: {
+        type: SchemaFieldTypes.TEXT,
       },
       timestamp: {
         type: SchemaFieldTypes.NUMERIC,
