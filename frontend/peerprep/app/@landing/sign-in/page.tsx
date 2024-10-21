@@ -25,7 +25,7 @@ export default function SignInPage() {
 
   const handleContinue = async () => {
     const signInFormData = new FormData();
-    signInFormData.append("email", id);
+    signInFormData.append("identifier", id);
     signInFormData.append("password", password);
 
     const response = await login(signInFormData);

@@ -2,15 +2,23 @@
 import { useTheme } from "next-themes";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { Button } from "@nextui-org/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import BoxIcon from "./boxicons";
 
 import { siteConfig } from "@/config/site";
+import { logout } from "@/app/api/auth/actions";
 
 export const Sidebar = () => {
   const { theme } = useTheme();
   const currentPath = usePathname();
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   return (
     <div className="h-fit flex flex-col fixed w-fit pr-4 relative">
@@ -56,6 +64,7 @@ export const Sidebar = () => {
       <Button
         className="fixed bottom-5 left-10 flex items-center justify-center bg-transparent text-danger"
         startContent={<BoxIcon name="bx-log-out" color="danger" />}
+        onClick={handleLogout}
       >
         Sign out
       </Button>

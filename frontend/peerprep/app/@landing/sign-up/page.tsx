@@ -60,7 +60,7 @@ export default function SignUpPage() {
         setToast({ message: "User registered successfully!", type: "success" });
 
         const loginFormData = new FormData();
-        loginFormData.append("email", email);
+        loginFormData.append("identifier", username);
         loginFormData.append("password", password);
 
         const loginResponse = await login(loginFormData);

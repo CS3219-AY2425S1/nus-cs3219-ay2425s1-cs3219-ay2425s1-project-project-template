@@ -21,7 +21,7 @@ export const login = async (
   ) => {
     const session = await getSession();
 
-    const formEmail = formData.get("email") as string;
+    const formIdentifier = formData.get("identifier") as string;
     const formPassword = formData.get("password") as string;
 
     // Make the login request to your API
@@ -31,7 +31,7 @@ export const login = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: formEmail,
+        identifier: formIdentifier,
         password: formPassword,
       }),
     });
