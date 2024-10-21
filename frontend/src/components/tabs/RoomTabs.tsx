@@ -1,6 +1,8 @@
 import { Container, Tabs } from '@mantine/core';
 import '@mantine/core/styles.css';
 
+import DescriptionTab from './DescriptionTab';
+
 function RoomTabs() {
   return (
     <Tabs
@@ -16,7 +18,12 @@ function RoomTabs() {
       </Tabs.List>
 
       <Tabs.Panel value="description">
-        <Container p="16px">description</Container>
+        <DescriptionTab
+          title="Two Sum"
+          difficulty="Easy"
+          topics={['Array']}
+          description="test"
+        />
       </Tabs.Panel>
       <Tabs.Panel value="notes">
         <Container p="16px">Notes</Container>
