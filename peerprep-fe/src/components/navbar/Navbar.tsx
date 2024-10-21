@@ -18,7 +18,7 @@ import { PreMatch } from '@/components/dialogs/PreMatch';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
-  const setDialog = useQuestionStore((state) => state.setDialog);
+  const { dialogOpen, toggleDialogOpen } = useQuestionStore();
 
   const handleLogout = async () => {
     const res = await logout();
@@ -48,10 +48,7 @@ export default function Navbar() {
             <PreMatch />
           ) : (
             <Button
-              onClick={() => {
-                setDialog(true);
-                console.log('Button pressed');
-              }}
+              onClick={toggleDialogOpen}
               className="text-gray-300 hover:text-white"
             >
               Add Question

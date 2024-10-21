@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import FilterBar from '../(main)/components/filter/FilterBar';
 import ProblemTable from '../../components/problems/ProblemTable';
@@ -11,11 +11,7 @@ import InformationDialog from '@/components/dialogs/InformationDialog';
 import { useQuestionStore } from '@/state/useQuestionStore';
 
 function AdminPage() {
-  const dialogOpen = useQuestionStore((state) => state.dialogOpen);
-  const setDialog = useQuestionStore((state) => state.setDialog);
-  useEffect(() => {
-    console.log('Dialog open is: ', dialogOpen);
-  }, [dialogOpen]);
+  const { dialogOpen, toggleDialogOpen } = useQuestionStore();
 
   const [informationDialog, setInformationDialog] = useState('');
   const {
@@ -93,7 +89,7 @@ function AdminPage() {
       });
 
       refetchFilter();
-      setDialog(false);
+      toggleDialogOpen();
       return res;
     } catch (e: unknown) {
       if (isAxiosError(e)) {
@@ -134,7 +130,7 @@ function AdminPage() {
       </div>
       <ProblemInputDialog
         isOpen={dialogOpen}
-        onClose={() => setDialog(false)}
+        onClose={toggleDialogOpen}
         requestCallback={handleAdd}
         requestTitle="Add"
       />
