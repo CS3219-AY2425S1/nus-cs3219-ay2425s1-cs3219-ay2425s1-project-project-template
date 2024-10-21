@@ -12,7 +12,7 @@ import { MultiSelect } from "@/components/ui/multi-select"
 import { Trash2 } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { questionSchema, QuestionFormData } from '../types/forms/questionSchema'
+import { questionSchema, QuestionFormData } from '../../types/forms/questionSchema'
 
 interface EditQuestionDialogProps {
   question: Question | null

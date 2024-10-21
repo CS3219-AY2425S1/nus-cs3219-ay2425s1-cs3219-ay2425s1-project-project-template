@@ -4,7 +4,7 @@ export async function GET(
   request: Request,
   { params }: { params: { questionId: string } }
 ) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${params.questionId}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_QUESTION_API_URL}/questions/${params.questionId}`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -21,7 +21,7 @@ export async function PATCH(
 ) {
   const body = await request.json()
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${params.questionId}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_QUESTION_API_URL}/questions/${params.questionId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: { questionId: string } }
 ) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions/${params.questionId}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_QUESTION_API_URL}/questions/${params.questionId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
