@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import config from '../config';
 import { authMiddleware } from '../middleware/authMiddleware';
 import logger from '../utils/logger';
@@ -15,6 +15,9 @@ const questionServiceProxy = createProxyMiddleware({
    */
   pathRewrite: {
     '^/(.*)': '/api/v1/questions/$1', // Dynamic path rewriting, e.g., /tags -> /api/v1/questions/tags
+  },
+  on: {
+    proxyReq: fixRequestBody, // need to fix the request body before forwarding
   },
 });
 
