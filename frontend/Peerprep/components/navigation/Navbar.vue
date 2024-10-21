@@ -1,6 +1,7 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth';
 import NavLink from '~/components/navigation/NavLink.vue';
+import DropdownMenuItem from '../ui/dropdown-menu/DropdownMenuItem.vue';
 
 const authStore = useAuthStore();
 const { user, isAdmin } = storeToRefs(authStore);
@@ -42,8 +43,11 @@ watch(user, (newUser) => {  // TODO: Check if can remove this
 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent class="w-fit" align="end">
-                        <DropdownMenuItem>
-                            <NuxtLink to="/users/settings">Settings</NuxtLink>
+                        <DropdownMenuItem as-child>
+                            <NuxtLink to="/profile">Profile</NuxtLink>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem as-child>
+                            <NuxtLink to="/profile/settings">Settings</NuxtLink>
                         </DropdownMenuItem>
                         <DropdownMenuItem @click="handleSignOut">Sign out</DropdownMenuItem>
                     </DropdownMenuContent>
