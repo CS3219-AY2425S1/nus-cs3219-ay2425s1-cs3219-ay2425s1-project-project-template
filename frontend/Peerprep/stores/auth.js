@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
-import { signOut, onAuthStateChanged } from "firebase/auth";
+import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 
 export const useAuthStore = defineStore('auth', () => {
     const auth = useFirebaseAuth();
     const user = ref(null);
     const isAdmin = ref(false);  // Assume User is not admin by default
+    const isGoogleLogin = ref(false);
 
     async function refreshUser() {
         const currentUser = await getCurrentUser();
@@ -16,6 +17,10 @@ export const useAuthStore = defineStore('auth', () => {
             const tokenResult = await currentUser.getIdTokenResult();
             const adminResult = tokenResult.claims.admin === true;
             isAdmin.value = adminResult;
+
+            // Check If Login with Google
+            const googleProvider = user.value?.providerData[0].providerId === 'google.com';
+            isGoogleLogin.value = googleProvider;
         } else {
             user.value = null;
             isAdmin.value = false;
@@ -29,6 +34,25 @@ export const useAuthStore = defineStore('auth', () => {
         isAdmin.value = false;
     }
 
+    async function updateDisplayName(newDisplayName) {
+        refreshUser();
+
+        if (user.value) {
+            try {
+                await updateProfile(user.value, {
+                    displayName: newDisplayName
+                });
+                return true;
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                return false;
+            }
+        } else {
+            console.log('No user is logged in');
+            return false;
+        }
+    }
+
     // Update user when auth changes
     onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
@@ -39,7 +63,9 @@ export const useAuthStore = defineStore('auth', () => {
     return {
         user,
         isAdmin,
-        refreshUser,
-        authSignOut
+        isGoogleLogin,
+        authSignOut,
+        updateDisplayName,
+        refreshUser
     };
 })

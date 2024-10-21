@@ -47,7 +47,7 @@ onMounted(() => {
                 <router-link to="/profile/settings">
                     <Button class="btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
                         @click="goToSettings">
-                        Edit Profile
+                        Account Settings
                     </Button>
                 </router-link>
             </div>
