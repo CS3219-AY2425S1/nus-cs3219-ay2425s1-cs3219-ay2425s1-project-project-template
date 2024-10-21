@@ -6,7 +6,7 @@ import {
   registerUser,
   deregisterUser,
   isSocketConnected,
-} from "../../services/matchingSocketService";
+} from "../../app/api/services/matchingSocketService";
 
 import MatchFoundModal from "./MatchFoundModal";
 import MatchmakingModal from "./MatchmakingModal";

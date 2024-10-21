@@ -9,7 +9,7 @@ import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun, fontLogo } from "@/config/fonts";
-import { loginUser } from "@/services/userService";
+import { loginUser } from "@/app/api/services/userService";
 import Toast from "@/components/toast"; // Import Toast component
 
 export default function SignInPage() {
@@ -18,7 +18,7 @@ export default function SignInPage() {
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null,
+    null
   );
 
   const toggleVisibility = () => setIsVisible(!isVisible);

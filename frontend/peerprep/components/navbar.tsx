@@ -11,7 +11,7 @@ import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { fontFun } from "@/config/fonts";
 
-export const NavbarLoggedIn = () => {
+export const Navbar = () => {
   return (
     <NextUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full gap-10" justify="start">

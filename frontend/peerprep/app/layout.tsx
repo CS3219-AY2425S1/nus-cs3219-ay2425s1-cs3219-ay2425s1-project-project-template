@@ -3,21 +3,9 @@ import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { PublicEnvScript } from "next-runtime-env";
 
-import { Providers } from "../providers";
+import { Providers } from "./providers";
 
-import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
 
 export const viewport: Viewport = {
   themeColor: [
@@ -27,10 +15,16 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({
+  application,
+  landing,
   children,
 }: {
+  application: React.ReactNode;
+  landing: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const isLoggedIn = true;
+
   return (
     <html suppressHydrationWarning lang="en">
       <head>
@@ -43,21 +37,14 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
+          fontSans.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <div className="relative flex flex-col h-screen">
-            <div className="flex flex-grow mx-6 z-10">
-              <main className="flex-grow max-w-screen">{children}</main>
-            </div>
-          </div>
-          <div
-            className="fixed z-0 inset-0 w-full h-full bg-gradient-to-t from-fuchsia-400 to-violet-500 dark:from-teal-200 dark:to-violet-500 p-10 opacity-90"
-            style={{
-              clipPath: "polygon(100% 10%, 100% 0%, 100% 100%, 0% 100%)",
-            }}
-          />
+          <main className="flex-grow max-w-screen">
+            {isLoggedIn && application}
+            {!isLoggedIn && landing}
+          </main>
         </Providers>
       </body>
     </html>

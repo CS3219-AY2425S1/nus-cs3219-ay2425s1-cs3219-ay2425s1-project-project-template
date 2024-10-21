@@ -8,7 +8,7 @@ import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun } from "@/config/fonts";
-import { createUser, loginUser } from "@/services/userService";
+import { createUser, loginUser } from "@/app/api/services/userService";
 import Toast from "@/components/toast"; // Import the Toast component
 
 export default function SignUpPage() {
@@ -18,7 +18,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState<string>("");
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null,
+    null
   );
 
   // Validations
