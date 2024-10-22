@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
@@ -77,12 +78,13 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 			return nil
 		}, keys...)
 		if err != nil {
-			// transaction failed, so will retry
-			// Handle error (like retry logic could be added here)
-			// return fmt.Errorf("transaction execution failed: %v", err)
+			// return
 			if errors.Is(err, models.ExistingUserError) {
 				errorChan <- err
 				break
+			} else {
+				// transaction failed, so will retry
+				println(fmt.Errorf("transaction execution failed: %v", err))
 			}
 		}
 		if err == nil {
