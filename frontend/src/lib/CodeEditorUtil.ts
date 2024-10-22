@@ -1,7 +1,9 @@
 // latest list of language_versions taken from https://emkc.org/api/v2/piston/runtimes
 // version needs to match the version on piston for the code to execute
 
-export const LANGUAGE_VERSIONS = {
+import { IDictionary } from "./utils";
+
+export const LANGUAGE_VERSIONS: IDictionary<string> = {
 	typescript: "5.0.3",
 	javascript: "18.15.0",
 	c: "10.2.0",
@@ -11,7 +13,7 @@ export const LANGUAGE_VERSIONS = {
 	python: "3.10.0",
 };
 
-export const CODE_SNIPPETS = {
+export const CODE_SNIPPETS: IDictionary<string> = {
 	typescript: 'const greeting = "Hello World"\nconsole.log(greeting)',
 	javascript: 'const greeting = "Hello World"\nconsole.log(greeting);',
 	c: '#include <stdio.h>\n\nint main() {\n\tprintf("Hello World");\n\n\treturn 0;\n}',
