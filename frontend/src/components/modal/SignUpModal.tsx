@@ -19,6 +19,9 @@ import {
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
 
+import { register } from '../../apis/AuthApi';
+import { useAuth } from '../../hooks/AuthProvider';
+
 interface SignUpModalProps {
   isSignUpModalOpened: boolean;
   closeSignUpModal: () => void;
@@ -31,6 +34,7 @@ function SignUpModal({
   openLoginModal,
 }: SignUpModalProps) {
   const [signUpError, setSignUpError] = useState<string | null>(null);
+  const auth = useAuth();
 
   const form = useForm({
     mode: 'uncontrolled',
@@ -57,6 +61,18 @@ function SignUpModal({
     closeSignUpModal();
   };
 
+  const handleSignUpClick = (values: typeof form.values) => {
+    const { email, password } = values;
+    register(values).then(
+      () => {
+        auth.loginAction({ email, password }, setSignUpError);
+      },
+      (error: any) => {
+        setSignUpError(error);
+      },
+    );
+  };
+
   const handleLogInClick = () => {
     handleCloseSignUpModal();
     openLoginModal();
@@ -72,7 +88,7 @@ function SignUpModal({
         blur: 4,
       }}
     >
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <form onSubmit={form.onSubmit(handleSignUpClick)}>
         <Stack p="16px">
           <Title order={3} ta="center">
             Sign up now
