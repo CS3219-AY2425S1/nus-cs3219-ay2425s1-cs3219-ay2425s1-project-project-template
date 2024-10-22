@@ -1,10 +1,20 @@
 import { Difficulty, Question, Topic } from "@/models/Question";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import Editor from "@monaco-editor/react";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
+import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
 
 const customQuestion: Question = {
 	id: "q123",
@@ -43,6 +53,7 @@ const customQuestion: Question = {
 function CollabPageView() {
 	const [code, setCode] = useState("");
 	const [socket, setSocket] = useState<Socket | null>(null);
+	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
 	useEffect(() => {
 		// Initialize the WebSocket connection when the component mounts
@@ -65,8 +76,9 @@ function CollabPageView() {
 		};
 	}, []);
 
-	const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		const newCode = e.target.value;
+	const handleCodeChange = (newCode: string | undefined) => {
+		if (newCode === undefined) return; // if not code, do nothing
+
 		setCode(newCode); // Update the local state
 
 		// Emit the code update to the WebSocket server
@@ -77,6 +89,26 @@ function CollabPageView() {
 				code: newCode,
 			});
 		}
+	};
+
+	// Callback function to mount editor to auto-focus when page loads
+	const onMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
+		editorRef.current = editor;
+		editor.focus();
+	};
+
+	const languages = Object.entries(LANGUAGE_VERSIONS); // get languages_version JSON
+	const [selectedLang, setSelectedLang] = useState(languages[0][0]); // default to 'typescript'
+
+	// function for separating language from version for neater display
+	const getLangOnly = (langVer: string) => {
+		const [language] = langVer.split(/(\d+)/);
+		return language.trim();
+	};
+
+	const onSelect = (language: string) => {
+		setSelectedLang(language);
+		setCode(CODE_SNIPPETS[language]);
 	};
 
 	return (
@@ -194,7 +226,7 @@ function CollabPageView() {
 					</div>
 				</div>
 
-				{/* right side textarea */}
+				{/* right side code editor */}
 				<div
 					style={{
 						flex: 1, // Takes up equal space as the question section
@@ -208,26 +240,58 @@ function CollabPageView() {
 						margin: "15px 15px 15px 7.5px", // top right bottom left (clockwise)
 					}}
 				>
-					<h2
+					{/* div to horizontally align <h2 Code/> and <Select coding language /> */}
+					<div
 						style={{
-							fontSize: "1.25rem",
-							fontWeight: "bold",
-							alignSelf: "flex-start",
-							marginBottom: "10px",
+							display: "flex",
+							flexDirection: "row", // align items horizontally
+							justifyContent: "flex-start",
+							alignItems: "center", // vertically center them
+							width: "100%",
+							marginBottom: "20px",
 						}}
 					>
-						Code
-					</h2>
-					<Textarea
-						style={{ height: "100%" }}
-						placeholder="class Solution {
-    public int[] main(int param1, int param2) {
-        
-    }
-}"
-						id="message"
+						<h2
+							style={{
+								fontSize: "1.25rem",
+								fontWeight: "bold",
+								alignSelf: "flex-start",
+								margin: "0 25px 0 5px",
+							}}
+						>
+							Code
+						</h2>
+
+						{/* coding language selector */}
+						<Select value={selectedLang} onValueChange={onSelect}>
+							<SelectTrigger className="w-[160px]">
+								<SelectValue>
+									<span>{getLangOnly(selectedLang)}</span>
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectGroup>
+									{languages.map(([language, version]) => (
+										<SelectItem key={language} value={language}>
+											{language}
+											<span style={{ color: "gray" }}>
+												&nbsp;{String(version)}
+											</span>
+										</SelectItem>
+									))}
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+					</div>
+
+					{/* monaco code editor */}
+					<Editor
+						height="100%"
+						defaultValue={CODE_SNIPPETS[selectedLang]}
 						value={code}
-						onChange={handleCodeChange}
+						language={selectedLang}
+						onChange={(value) => handleCodeChange(value)}
+						onMount={onMount} // Focus the editor when it mounts
 					/>
 				</div>
 			</div>
