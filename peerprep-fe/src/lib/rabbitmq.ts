@@ -1,74 +1,86 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use server';
+import { Client, IFrame, IMessage } from '@stomp/stompjs';
 
-import { connect } from 'amqplib';
-import { redirect } from 'next/navigation';
-
-export const sendMessageToQueue = async (message: Record<string, any>) => {
+const sendMessageToQueue = async (message: Record<string, any>) => {
+  const uri = process.env.NEXT_PUBLIC_RABBITMQ_URL;
+  const user = process.env.NEXT_PUBLIC_RABBITMQ_USER;
+  const pass = process.env.NEXT_PUBLIC_RABBITMQ_PW;
   try {
-    // 1. Connect to RabbitMQ server
-    const connection = await connect(process.env.RABBITMQ_URL!);
-
-    // 2. Create a channel
-    const channel = await connection.createChannel();
-
-    // 3. Ensure the queue exists
-    const queue = process.env.MATCHING_SERVICE_QUEUE;
-    await channel.assertQueue(queue!, {
-      durable: true,
+    const client = new Client({
+      brokerURL: uri, // WebSocket URL for RabbitMQ
+      connectHeaders: {
+        login: user!,
+        passcode: pass!,
+      },
+      reconnectDelay: 5000, // auto-reconnect after 5 seconds if connection fails
     });
 
-    // 4. Send a message to the queue
-    const messageBuffer = Buffer.from(JSON.stringify(message));
-    channel.sendToQueue(queue!, messageBuffer, {
-      persistent: true,
-    });
+    client.onConnect = () => {
+      const queue = process.env.NEXT_PUBLIC_QUEUE;
+      const messageStr = JSON.stringify(message);
 
-    console.log(`Message sent to queue "${queue}":`, message);
+      client.publish({
+        destination: queue!,
+        body: messageStr,
+        headers: { persistent: 'true' },
+      });
 
-    // 5. Close the channel and connection
-    setTimeout(() => {
-      channel.close();
-      connection.close();
-    }, 500);
+      console.log(`Message sent to queue "${queue}":`, message);
+    };
+
+    client.onStompError = (error: IFrame) => {
+      console.error('STOMP Error:', error);
+      throw new Error('Error connecting to RabbitMQ via STOMP');
+    };
+
+    client.activate();
   } catch (err) {
     console.error('Error sending message to RabbitMQ:', err);
     throw err;
   }
 };
 
-export const consumeMessageFromQueue = async (queue: string) => {
-  return new Promise<any>((resolve, reject) => {
-    (async () => {
-      try {
-        // Connect to RabbitMQ server
-        const connection = await connect(process.env.RABBITMQ_URL!);
-        const channel = await connection.createChannel();
-        // const queue = process.env.MATCHING_SERVICE_QUEUE!;
+const consumeMessageFromQueue = async (
+  queue: string,
+  onMessage: (message: any) => void,
+) => {
+  const uri = process.env.NEXT_PUBLIC_RABBITMQ_URL;
+  const user = process.env.NEXT_PUBLIC_RABBITMQ_USER;
+  const pass = process.env.NEXT_PUBLIC_RABBITMQ_PW;
+  try {
+    const client = new Client({
+      brokerURL: uri, // WebSocket URL for RabbitMQ
+      connectHeaders: {
+        login: user!,
+        passcode: pass!,
+      },
+      reconnectDelay: 5000,
+    });
 
-        // Ensure the queue exists
-        await channel.assertQueue(queue, { durable: true });
+    client.onConnect = () => {
+      client.subscribe(queue, (msg: IMessage) => {
+        const messageContent = JSON.parse(msg.body);
+        console.log(`Received:`, messageContent);
+        onMessage(messageContent);
+      });
 
-        // Consume messages from the queue
-        console.log(`Waiting for messages in ${queue}...`);
-        channel.consume(
-          queue,
-          (msg: any) => {
-            if (msg !== null) {
-              const messageContent = JSON.parse(msg.content.toString());
-              console.log(`Received:`, messageContent);
-              channel.ack(msg);
-              resolve(messageContent); // Resolve the Promise with the message content
-            }
-          },
-          {
-            noAck: false,
-          },
-        );
-      } catch (error) {
-        console.error('Error in consuming messages:', error);
-        reject(error); // Reject the Promise on error
-      }
-    })();
-  });
+      console.log(`Waiting for messages in ${queue}...`);
+    };
+
+    client.onStompError = (error: IFrame) => {
+      console.log('STOMP Error:', error);
+      throw new Error('Error connecting to RabbitMQ via STOMP: ' + error.headers['message']);
+    };
+
+    client.activate();
+
+    return () => {
+      client.deactivate();
+    };
+  } catch (error) {
+    console.error('Error in consuming messages:', error);
+    throw error;
+  }
 };
+
+export { sendMessageToQueue, consumeMessageFromQueue };

@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
-import { consumeMessageFromQueue } from '@/lib/rabbitmq';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
+import { consumeMessageFromQueue } from '@/lib/rabbitmq';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -14,38 +14,38 @@ export default function LoadingPage() {
   const router = useRouter();
   const { user } = useAuthStore();
 
-  const startConsumingMessages = async () => {
-    try {
-      await consumeMessageFromQueue(user?.id!).then((message) => {
-        if (message.status === 'matched') {
-          console.log('Match found, your partner is', message.partner);
-          setMatchStatus('matched');
-
-          // setTimeout(() => {
-          //   router.push(`/collaboration`);
-          // }, 2000);
-        } else {
-          console.log('Match failed');
-          setMatchStatus('failed');
-
-          // setTimeout(() => {
-          //   router.push(`/`);
-          // }, 4500);
-        }
-      });
-    } catch (error) {
-      console.error('Error consuming message:', error);
-      setMatchStatus('error');
-    }
+  // Function to consume messages from the RabbitMQ queue
+  const handleStartListening = () => {
+    const onMessageReceived = (message: any) => {
+      if (message.status == "matched") {
+        console.log('Match found, your partner is', message.match?.user);
+        setMatchStatus('matched');
+      } else {
+        console.log('Match failed');
+        setMatchStatus('failed');
+      }
+    };
+    return consumeMessageFromQueue(user?.id!, onMessageReceived);
   };
 
   useEffect(() => {
-    startConsumingMessages();
+    let cleanup: (() => void) | undefined;
+  
+    // IIFE to handle the async operation
+    (async () => {
+      cleanup = await handleStartListening();
+    })();
     const timer = setInterval(() => {
       setElapsedTime((prevTime) => prevTime + 1);
     }, 1000);
     setUsersWaiting(5);
-    return () => clearInterval(timer);
+    return () => {
+      sessionStorage.clear();
+      clearInterval(timer);
+      if (cleanup) {
+        cleanup();
+      }
+    };
   }, []);
 
   useEffect(() => {
