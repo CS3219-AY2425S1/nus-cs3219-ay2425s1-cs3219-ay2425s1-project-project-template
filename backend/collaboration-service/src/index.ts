@@ -7,7 +7,6 @@ import mongoose from 'mongoose'
 import passport from 'passport'
 import defaultErrorHandler from './middlewares/errorHandler.middleware'
 import './middlewares/passportJwt.middleware'
-import './middlewares/passportLocal.middleware'
 import collabRouter from './routes/collab.routes'
 
 const app: Express = express()
