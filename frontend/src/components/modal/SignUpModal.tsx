@@ -30,11 +30,13 @@ function SignUpModal({
     mode: 'uncontrolled',
     initialValues: {
       email: '',
+      username: '',
       password: '',
       passwordConfirmation: '',
     },
     validate: {
       email: isEmail('Invalid email'),
+      username: isNotEmpty('Username cannot be empty'),
       password: isNotEmpty('Password cannot be empty'),
       passwordConfirmation: matchesField('password', 'Password does not match'),
     },
@@ -70,6 +72,11 @@ function SignUpModal({
             {...form.getInputProps('email')}
             key={form.key('email')}
             placeholder="Email"
+          />
+          <TextInput
+            {...form.getInputProps('username')}
+            key={form.key('username')}
+            placeholder="Username"
           />
           <PasswordInput
             {...form.getInputProps('password')}
