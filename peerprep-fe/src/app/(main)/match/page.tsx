@@ -9,10 +9,11 @@ import { consumeMessageFromQueue, sendMessageToQueue } from '@/lib/rabbitmq';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [usersWaiting] = useState(4);
+  const [usersWaiting, setUsersWaiting] = useState(0);
   const [matchStatus, setMatchStatus] = useState('searching');
   const router = useRouter();
   const { user } = useAuthStore();
+  
 
   // Function to consume messages from the RabbitMQ queue
   const handleStartListening = () => {
@@ -29,24 +30,19 @@ export default function LoadingPage() {
   };
 
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
-  
-    // IIFE to handle the async operation
-    (async () => {
-      cleanup = await handleStartListening();
-    })();
-    const timer = setInterval(() => {
+    console.log("I am called");
+    setUsersWaiting(usersWaiting + 1);
+    setElapsedTime(0);
+    setMatchStatus('searching');
+    
+    handleStartListening();
+    setInterval(() => {
       setElapsedTime((prevTime) => prevTime + 1);
     }, 1000);
-    return () => {
-      clearInterval(timer);
-      if (cleanup) {
-        cleanup();
-      }
-    };
   }, []);
 
   useEffect(() => {
+    console.log(usersWaiting);
     if (elapsedTime >= 60 && matchStatus === 'searching') {
       console.log('Elapsed time reached 60 seconds. Match timed out.');
       setMatchStatus('timeout');
