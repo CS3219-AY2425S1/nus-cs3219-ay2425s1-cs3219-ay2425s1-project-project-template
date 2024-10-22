@@ -10,6 +10,7 @@ COPY ./app ./app
 COPY run.py ./
 COPY .env ./
 COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
 COPY firebase-cred.json ./firebase-cred.json
 
 # Expose port 5001 for Flask
