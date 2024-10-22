@@ -11,8 +11,7 @@ const matchingServiceProxy = createProxyMiddleware({
   changeOrigin: true,
   ws: true, // Enable WebSocket proxying
   pathRewrite: {
-    '^/api/matching/ws': '/ws', // Adjust the path as needed for WebSocket
-    '^/api/matching': '/api/v1/matching', // HTTP API path rewrite
+    '^/(.*)': '/$1', // front end connects to matching service via /ws only
   },
   on: {
     proxyReq: fixRequestBody,

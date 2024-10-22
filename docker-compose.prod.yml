@@ -60,6 +60,18 @@ services:
       - peerprep-network
     env_file:
       - ./matching-service/.env.production
+  # api-gateway:
+  #   image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/api-gateway:latest
+  #   build:
+  #     context: ./api-gateway
+  #     dockerfile: Dockerfile
+  #     target: production
+  #   ports:
+  #     - "8001:8001"
+  #   networks:
+  #     - peerprep-network
+  #   env_file:
+  #     - ./api-gateway/.env.production
 networks:
   peerprep-network:
     driver: bridge

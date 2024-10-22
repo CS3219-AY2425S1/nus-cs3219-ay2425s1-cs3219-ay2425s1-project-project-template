@@ -24,7 +24,6 @@ export function PreMatch() {
 
   const handleConfirm = async () => {
     try {
-      console.log('Sending message to queue');
       const profileDetails = await getProfileDetails();
       const message = {
         _id: profileDetails.id,
@@ -34,7 +33,6 @@ export function PreMatch() {
         difficulty: difficulty,
       };
       await sendMessageToQueue(message);
-      console.log('Message sent to queue');
       setOpen(false);
       router.push('/match');
     } catch (err) {
