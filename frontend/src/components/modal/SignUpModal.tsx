@@ -9,7 +9,13 @@ import {
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import { isEmail, isNotEmpty, matchesField, useForm } from '@mantine/form';
+import {
+  hasLength,
+  isEmail,
+  isNotEmpty,
+  matchesField,
+  useForm,
+} from '@mantine/form';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
 
@@ -37,7 +43,10 @@ function SignUpModal({
     validate: {
       email: isEmail('Invalid email'),
       username: isNotEmpty('Username cannot be empty'),
-      password: isNotEmpty('Password cannot be empty'),
+      password: hasLength(
+        { min: 5 },
+        'Password must have 5 or more characters',
+      ),
       passwordConfirmation: matchesField('password', 'Password does not match'),
     },
   });
