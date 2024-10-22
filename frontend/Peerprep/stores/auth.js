@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
+import { EmailAuthProvider, reauthenticateWithCredential, signOut, onAuthStateChanged, updateProfile, updatePassword } from "firebase/auth";
 
 export const useAuthStore = defineStore('auth', () => {
     const auth = useFirebaseAuth();
@@ -53,6 +53,35 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function reauthenticateWithPassword(password) {
+        try {
+            await refreshUser();
+            if (user.value && password) {
+                const credential = EmailAuthProvider.credential(
+                    user.value.email,
+                    password
+                );
+
+                await reauthenticateWithCredential(user.value, credential);
+                console.log("User reauthenticated successfully");
+            }
+        } catch (error) {
+            console.error("Error reauthenticating user in store:", error.message);
+            throw error;
+        }
+    }
+
+    async function updatePassword(newPassword) {
+        try {
+            if (user.value && newPassword) {
+                await updatePassword(user.value, newPassword);
+            }
+        } catch (error) {
+            console.error("Error updating password in store:", error.message);
+            throw(error);
+        }
+    }
+
     // Update user when auth changes
     onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
@@ -66,6 +95,8 @@ export const useAuthStore = defineStore('auth', () => {
         isGoogleLogin,
         authSignOut,
         updateDisplayName,
+        updatePassword,
+        reauthenticateWithPassword,
         refreshUser
     };
 })
