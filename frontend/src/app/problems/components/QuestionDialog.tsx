@@ -32,7 +32,7 @@ const QuestionDialog = ({ question }: QuestionProps) => {
                             <Badge variant={stringToDifficulty(question.difficulty)}>{question.difficulty}</Badge>
                         </div>
                         <Separator orientation='vertical' />
-                        <div className='flex gap-2'>
+                        <div className='flex flex-wrap gap-2'>
                             Categories:
                             {question.categories.map((c: string) => (
                                 c && <Badge variant="category" key={c}>{c}</Badge>
