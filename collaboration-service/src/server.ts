@@ -5,9 +5,10 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { validateSocketJWT } from './middleware/jwt-validation';
-import { handleEditorChanges } from './utils/editor-handler';
 import './utils/cron-jobs';
 import router from './routes/session-routes';
+import { initialize } from './controller/editor-controller';
+import { registerEventHandlers } from './routes/editor-routes';
 
 dotenv.config();
 
@@ -30,16 +31,19 @@ const io = new Server(server, {
     }
 });
 
-//io.use(validateSocketJWT);
-
-handleEditorChanges(io);
+io.use(validateSocketJWT);
+io.on('connection', (socket) => {
+    console.log(`User ${socket.data.userId} connected via socket ${socket.id}`);
+    initialize(socket, io);
+    registerEventHandlers(socket, io);
+});
 
 export { server };
 
 if (require.main === module) {
     dotenv.config();
-    const PORT = 8001;
-    server.listen(PORT, () => {
+    const PORT = 8010;
+    server.listen(PORT, '0.0.0.0', () => {
         console.log(`Server listening on port ${PORT}`);
     });
 

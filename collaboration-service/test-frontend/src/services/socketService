@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:8001');
+const socket = io('http://192.168.1.193:8010');
 
 export const changeLanguage = (language, setLanguage) => {
     socket.emit('changeLanguage', language);

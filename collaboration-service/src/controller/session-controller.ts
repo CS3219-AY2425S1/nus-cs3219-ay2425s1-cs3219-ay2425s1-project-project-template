@@ -1,14 +1,35 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Session from '../model/session-model';
+import * as Y from 'yjs';
 
 export const sessionController = {
     createSession: async (req: Request, res: Response) => {
         const {
             participants, // pair of strings
-            question,
-            code, // retrieval of code from question #TODO change this out
+            questionId,
         } = req.body;
+
+        // Retrieve question info from question service
+        let questionData;
+
+        try {
+            const response = await fetch(process.env.QUESTION_SERVICE_URL + `/api/questions/${questionId}`);
+            questionData = await response.json();
+        } catch (err) {
+            return res.status(500).json({ message: "Unable to retrieve question data" });
+        }
+
+
+        const questionTemplateCode: string = questionData.question.templateCode
+        const yDoc = new Y.Doc();
+        const yText = yDoc.getText('code');
+        yText.insert(0, questionTemplateCode);
+
+        const questionDescription: string = questionData.question.description
+        const questionTestcases: string[] = questionData.question.testcases
+
+        const yDocBuffer = Buffer.from(Y.encodeStateAsUpdate(yDoc));
 
         // Check if participants are already in another active session
         const existingSession = await Session.findOne({
@@ -22,12 +43,14 @@ export const sessionController = {
 
         const sessionId = uuidv4(); // Use UUID for unique session ID
         const session = new Session({
-            session_id: sessionId, // session_id, 
+            session_id: sessionId, // session_id,
             date_created: new Date(),
             participants,
-            question,
-            code,
-            active: true
+            questionDescription,
+            questionTemplateCode,
+            questionTestcases,
+            active: true,
+            yDoc: yDocBuffer
         });
 
         try {

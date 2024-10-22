@@ -4,12 +4,17 @@ import { Editor } from "@monaco-editor/react"
 import { CODE_SNIPPETS } from "../constants.js"
 import LanguageSelector from "./LanguageSelector.jsx"
 import  Output  from "./Output.jsx"
+import * as Y from 'yjs';
+import { MonacoBinding } from 'y-monaco';
 
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:8001');
+
+const socket = io('http://192.168.1.193:8010');
 
 const CodeEditor = () => {
+    const doc = new Y.Doc();
+    const yText = doc.getText('code');
     const editorRef = useRef();
     const [value, setValue] = useState("");
     const [language, setLanguage] = useState("javascript");
@@ -17,8 +22,15 @@ const CodeEditor = () => {
 
     const onMount = (editor) => {
         editorRef.current = editor;
-        editor.focus();
-        //editorRef.current.onDidChangeModelContent(() => { handleEdit(); });
+        const binding = new MonacoBinding(yText, editorRef.current.getModel(), new Set([editorRef.current]));
+        // due to the binding above, on update of editor, yText updates, and the doc is also updated
+        // so we can listen to changes in doc and emit them to the server
+        doc.on('update', (update) => {
+            // Edits are handled here
+            console.log("update", update);
+            socket.emit('update', update)
+        });
+
     };
 
     const onSelect = (language) => {
@@ -33,27 +45,10 @@ const CodeEditor = () => {
         socket.emit('edit', CODE_SNIPPETS[language]);
     };
 
-    const handleEdit = () => {
-        const updatedContent = editorRef.current.getValue();
-        setValue(updatedContent); 
-
-        // Only emit changes if the change was initiated by the user
-        if (userChangeRef.current) {
-            console.log("content updated");
-            socket.emit('edit', updatedContent);
-        }
-        userChangeRef.current = true; // Reset flag to true for user-initiated changes
-    };
-
     useEffect(() => {
         socket.on('updateContent',
-            (updatedContent) => {
-                if (editorRef.current.getValue() === updatedContent) {
-                    return;
-                }
-                userChangeRef.current = false; // Set flag to false for server-initiated changes
-                setValue(updatedContent);
-                // editorRef.current.setValue(updatedContent); // causes cursor to move to front of editor when typing too fast
+            (update) => {
+                Y.applyUpdate(doc, update);
             });
 
         socket.on('updateLanguage',
@@ -67,18 +62,18 @@ const CodeEditor = () => {
         };
     });
 
-    
+
 
     return (
         <Box>
             <HStack spacing={4}>
                 <Box w="50%">
                     <LanguageSelector language={language} onSelect={onSelect}/>
-                    <Editor 
-                        height="75vh" 
+                    <Editor
+                        height="75vh"
                         width={"100%"}
                         theme="vs-dark"
-                        language={language} 
+                        language={language}
                         defaultValue={CODE_SNIPPETS[language]}
                         onMount={onMount}
                         value={value}
