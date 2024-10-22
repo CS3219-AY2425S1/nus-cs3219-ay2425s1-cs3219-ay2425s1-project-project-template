@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./app ./app
 COPY run.py ./
 COPY .env ./
-COPY entrypoint.sh ./
-RUN chmod +x ./entrypoint.sh
+COPY entrypoint.sh /app
+RUN chmod +x /app/entrypoint.sh
 COPY firebase-cred.json ./firebase-cred.json
 
 # Expose port 5001 for Flask
@@ -21,5 +21,5 @@ ENV FLASK_APP=run.py
 ENV PYTHONUNBUFFERED=1
 
 # Command to run your Flask app
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 # CMD ["waitress-serve", "--port=5001", "run:app"]
