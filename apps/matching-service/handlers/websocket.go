@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
@@ -50,8 +51,6 @@ func HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Checks if user is already an existing websocket connection
-
 	// Subscribes to a channel that returns a message if a match is found
 	matchFoundPubsub := rdb.Subscribe(ctx, matchRequest.Username)
 	defer matchFoundPubsub.Close()
@@ -59,6 +58,9 @@ func HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
 	// Create a context for user cancellation
 	userCtx, userCancel := context.WithCancel(ctx)
 	defer userCancel() // Ensure cancel is called to release resources
+
+	// Create channel for handling errors
+	errorChan := make(chan error)
 
 	// Create a context for matching timeout
 	timeoutCtx, timeoutCancel, err := utils.CreateTimeoutContext()
@@ -70,10 +72,10 @@ func HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
 
 	// Start goroutines for handling messages and performing matching.
 	go processes.ReadMessages(ws, userCancel)
-	go processes.PerformMatching(matchRequest, ctx) // Perform matching
+	go processes.PerformMatching(rdb, matchRequest, ctx, errorChan)
 
 	// Wait for a match, timeout, or cancellation.
-	waitForResult(ws, userCtx, timeoutCtx, matchFoundPubsub, matchRequest.Username)
+	waitForResult(ws, userCtx, timeoutCtx, matchFoundPubsub, errorChan, matchRequest.Username)
 }
 
 // readMatchRequest reads the initial match request from the WebSocket connection.
@@ -105,7 +107,7 @@ func cleanUpUser(username string) {
 }
 
 // waitForResult waits for a match result, timeout, or cancellation.
-func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matchFoundPubsub *redis.PubSub, username string) {
+func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matchFoundPubsub *redis.PubSub, errorChan chan error, username string) {
 	select {
 	case <-userCtx.Done():
 		log.Printf("Matching cancelled for port %v", utils.ExtractWebsocketPort(ws))
@@ -116,10 +118,18 @@ func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matc
 		sendTimeoutResponse(ws)
 		cleanUpUser(username)
 		return
+	case err, ok := <-errorChan:
+		if !ok {
+			return
+		}
+		if errors.Is(err, models.ExistingUserError) {
+			sendRejectionResponse(ws)
+		} else {
+			cleanUpUser(username)
+		}
+		return
 	case msg, ok := <-matchFoundPubsub.Channel():
 		if !ok {
-			// Channel closed without a match, possibly due to context cancellation
-			log.Println("Match found channel closed without finding a match")
 			return
 		}
 		var result models.MatchFound

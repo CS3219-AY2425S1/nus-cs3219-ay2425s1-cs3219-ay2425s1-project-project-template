@@ -3,6 +3,7 @@ package processes
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
@@ -13,60 +14,55 @@ import (
 
 // Performs the matching algorithm at most once starting from the front of the queue of users,
 // until a match is found or no match and the user is enqueued to the queue.
-func PerformMatching(matchRequest models.MatchRequest, ctx context.Context) {
-	redisClient := databases.GetRedisClient()
-
-	err := redisClient.Watch(ctx, func(tx *redis.Tx) error {
+func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx context.Context, errorChan chan error) {
+	err := rdb.Watch(ctx, func(tx *redis.Tx) error {
 		// Log queue before and after matchmaking
 		databases.PrintMatchingQueue(tx, "Before Matchmaking", ctx)
 		defer databases.PrintMatchingQueue(tx, "After Matchmaking", ctx)
 
-		// Iterate through the users in the queue from the front of the queue
+		currentUsername := matchRequest.Username
 		queuedUsernames, err := databases.GetAllQueuedUsers(tx, ctx)
 		if err != nil {
 			return err
 		}
 
-		currentUsername := matchRequest.Username
+		// Check that user is not part of the existing queue
+		for _, username := range queuedUsernames {
+			if username == currentUsername {
+				return models.ExistingUserError
+			}
+		}
+
 		databases.AddUser(tx, matchRequest, ctx)
 
-		for _, username := range queuedUsernames {
-			// Skip same user
-			if username == currentUsername {
-				// WARN: same user should not appear, since user is added after the queue users is accessed
-				// so this means that the user has another active websocket connection
-				continue
-			}
+		// Find a matching user if any
+		matchFound, err := databases.FindMatchingUser(tx, currentUsername, ctx)
+		if err != nil {
+			log.Println("Error finding matching user:", err)
+			return err
+		}
 
-			// Find a matching user if any
-			matchFound, err := databases.FindMatchingUser(tx, currentUsername, ctx)
+		if matchFound != nil {
+			matchedUsername := matchFound.MatchedUser
+			matchedTopic := matchFound.Topic
+			matchedDifficulty := matchFound.Difficulty
+
+			// Generate a random match ID
+			matchId, err := utils.GenerateMatchID()
 			if err != nil {
-				log.Println("Error finding matching user:", err)
-				return err
+				log.Println("Unable to randomly generate matchID")
 			}
 
-			if matchFound != nil {
-				matchedUsername := matchFound.MatchedUser
-				matchedTopic := matchFound.Topic
-				matchedDifficulty := matchFound.Difficulty
+			// Log down which users got matched
+			matchFound.MatchID = matchId
+			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", currentUsername, matchedUsername, matchedTopic, matchedDifficulty)
 
-				// Generate a random match ID
-				matchId, err := utils.GenerateMatchID()
-				if err != nil {
-					log.Println("Unable to randomly generate matchID")
-				}
+			// Clean up redis for this match
+			databases.CleanUpUser(tx, currentUsername, ctx)
+			databases.CleanUpUser(tx, matchedUsername, ctx)
 
-				// Log down which users got matched
-				matchFound.MatchID = matchId
-				log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", currentUsername, matchedUsername, matchedTopic, matchedDifficulty)
-
-				// Clean up redis for this match
-				databases.CleanUpUser(tx, currentUsername, ctx)
-				databases.CleanUpUser(tx, matchedUsername, ctx)
-
-				publishMatch(tx, ctx, currentUsername, matchedUsername, matchFound)
-				publishMatch(tx, ctx, matchedUsername, currentUsername, matchFound)
-			}
+			publishMatch(tx, ctx, currentUsername, matchedUsername, matchFound)
+			publishMatch(tx, ctx, matchedUsername, currentUsername, matchFound)
 		}
 
 		return nil
@@ -74,7 +70,9 @@ func PerformMatching(matchRequest models.MatchRequest, ctx context.Context) {
 	if err != nil {
 		// Handle error (like retry logic could be added here)
 		// return fmt.Errorf("transaction execution failed: %v", err)
-		return
+		if errors.Is(err, models.ExistingUserError) {
+			errorChan <- err
+		}
 	}
 }
 
