@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import Session from '../model/session-model';
+import * as Y from 'yjs';
 
 //socket user mapping
 const socketUserMap: { [key: string]: string } = {};
@@ -70,11 +71,18 @@ export function handleUpdateContent(socket: Socket, io: Server) {
         const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
         socket.to(roomId).emit('updateContent', yDocUpdate);
 
-        // Update the yDoc in the database
-        // THIS LIKELY DOES NOT WORK BUT IT CAN BE FIXED LATER IF WE WANT TO SAVE THE DOC
-        Session.findOneAndUpdate({ session_id: roomId }, { yDoc: Buffer.from(yDocUpdate) }, (err: any, doc: any) => {
+        // Retrieve ydoc from the database and apply the update
+        // NOT SURE IF THIS WORKS - REQUIRES TESTING
+        Session.findOne({ session_id: roomId }, (err: any, doc: any) => {
             if (err) {
-                console.error('Error updating yDoc:', err);
+                console.error('Error finding session:', err);
+            } else {
+                doc.yDoc = Y.applyUpdate(doc.yDoc, yDocUpdate);
+                doc.save((err: any) => {
+                    if (err) {
+                        console.error('Error saving session:', err);
+                    }
+                });
             }
         });
     });
