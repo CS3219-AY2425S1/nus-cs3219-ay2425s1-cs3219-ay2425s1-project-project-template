@@ -1,4 +1,4 @@
-package processes
+package databases
 
 import (
 	"context"
@@ -7,6 +7,10 @@ import (
 
 	"github.com/redis/go-redis/v9"
 )
+
+const matchmakingQueueRedisKey = "matchmaking_queue"
+
+var redisClient *redis.Client
 
 // SetupRedisClient sets-up the Redis client, and assigns it to a global variable
 func SetupRedisClient() {
