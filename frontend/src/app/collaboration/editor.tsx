@@ -10,12 +10,9 @@ function Collaboration() {
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
-        // Initialize YJS
-        const doc = new Y.Doc(); // a collection of shared objects -> Text
-        // Connect to peers (or start connection) with WebRTC
-        const provider = new WebrtcProvider("test-room", doc); // room1, room2
-        const type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
-        // Bind YJS to Monaco 
+        const doc = new Y.Doc(); // a collection of shared objects
+        const provider = new WebrtcProvider("test-room", doc);
+        const type = doc.getText("monaco");
         const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
         console.log(provider.awareness);
     }
