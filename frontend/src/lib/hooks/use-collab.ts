@@ -7,6 +7,7 @@ import * as Y from 'yjs';
 
 import { extensions as baseExtensions, getLanguage } from '@/lib/editor/extensions';
 import { COLLAB_WS } from '@/services/api-clients';
+import { getUserId } from '@/services/user-service';
 
 // credit: https://github.com/yjs/y-websocket
 const usercolors = [
@@ -28,6 +29,7 @@ type IYjsUserState = { user: { name: string; userId: string; color: string; colo
 
 // TODO: Test if collab logic works
 export const useCollab = (roomId: string) => {
+  const [userId] = useState(getUserId());
   const [code, setCode] = useState('');
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [extensions, setExtensions] = useState<Array<Extension>>(baseExtensions);
@@ -44,6 +46,7 @@ export const useCollab = (roomId: string) => {
     if (editorRef.current) {
       const doc = new Y.Doc();
       let provider = null;
+
       try {
         provider = new WebsocketProvider(COLLAB_WS, roomId, doc);
         provider.connect();
@@ -54,6 +57,7 @@ export const useCollab = (roomId: string) => {
         );
         return;
       }
+
       const ytext = doc.getText('codemirror');
       const undoManager = new Y.UndoManager(ytext);
       const awareness = provider.awareness;
@@ -72,7 +76,7 @@ export const useCollab = (roomId: string) => {
       // TODO: Get user name, ID
       const userState: IYjsUserState['user'] = {
         name: `Anon`,
-        userId: '',
+        userId: userId ?? 'null',
         color,
         colorLight: light,
       };
@@ -81,12 +85,14 @@ export const useCollab = (roomId: string) => {
       const collabExt = yCollab(ytext, awareness, { undoManager });
       setCode(ytext.toString());
       setExtensions([...extensions, collabExt]);
+
       return () => {
         doc.destroy();
-        provider.disconnect();
+        provider.destroy();
       };
     }
   }, [editorRef, roomId]);
+
   return {
     editorRef,
     extensions: [...extensions, langExtension],

@@ -1,8 +1,10 @@
+import { ChevronLeftIcon } from '@radix-ui/react-icons';
 import { useWindowSize } from '@uidotdev/usehooks';
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
 import { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -13,8 +15,6 @@ import {
 } from '@/components/ui/select';
 import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
 import { useCollab } from '@/lib/hooks/use-collab';
-import { Button } from '@/components/ui/button';
-import { ChevronLeftIcon } from '@radix-ui/react-icons';
 
 const EXTENSION_HEIGHT = 250;
 const MIN_EDITOR_HEIGHT = 350;
@@ -77,7 +77,7 @@ export const Editor = ({ room }: EditorProps) => {
                 }}
                 key={index}
               >
-                <span className='translate-x-[calc(-50%+12px)]'>{member.name}</span>
+                <span className='translate-x-[calc(-50%+12px)]'>{member.userId}</span>
               </div>
             ))}
           </div>
