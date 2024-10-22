@@ -132,27 +132,29 @@ const handleUpdatePassword = async () => {
 const handleDeleteAccount = async () => {
     isDeletingAccount.value = true;
 
-    // Reauthenticate User (check if current password is correct)
-    try {
-        await authStore.reauthenticateWithPassword(currentPass.value);
-    } catch (error) {
-        let errorCode = error.code;
-        if (errorCode == 'auth/invalid-credential') {
-            console.log("Current Password Incorrect");
-            showInvalidOldPasswordError.value = true;
-        } else {
-            console.log("Unknown Error while Reauthenticating User: " + error.message);
-        }
-        toast({
-            description: 'Failed to change password.',
-            variant: 'destructive',
-        });
-        isUpdatingPassword.value = false;
-        return;
-    }
+    // Create two different dialogs, one to reauthenticate with Password and another to reauthenticate using Google
+    // Then create a final "YES DELETE MY ACCOUNT" dialog
+    // Use the logic here to decide which component to create
 
-    isDeletingAccount.value = false;
-    // TODO: Check that password is correct, then pop up a toast to double confirm that you want to remove your account with RED LETTERS
+    // // Reauthenticate User (check if current password is correct)
+    // try {
+    //     await authStore.reauthenticateWithPassword(currentPass.value);
+    // } catch (error) {
+    //     let errorCode = error.code;
+    //     if (errorCode == 'auth/invalid-credential') {
+    //         console.log("Current Password Incorrect");
+    //         showInvalidDeleteAccPassError.value = true;
+    //     } else {
+    //         console.log("Unknown Error while Reauthenticating User: " + error.message);
+    //     }
+    //     toast({
+    //         description: 'Current password incorrect.',
+    //         variant: 'destructive',
+    //     });
+    //     isDeletingAccount.value = false;
+    //     return;
+    // }
+    
 }
 
 onMounted(() => {
@@ -228,18 +230,11 @@ onMounted(() => {
         <div>
             <h2 class="text-2xl font-bold tracking-tight">Delete Your Account</h2>
             <p class="text-muted-foreground text-sm mt-1">This action is irreversible!</p>
-        </div>
-        <div>
-            <form @submit.prevent="handleDeleteAccount" class="space-y-4">
-                <div class="grid gap-2">
-                    <Label for="deleteAccCurrentPass">Current Password</Label>
-                    <Input id="deleteAccCurrentPass" name="deleteAccCurrentPass" v-model="deleteAccCurrentPass" type="password"
-                        placeholder="Enter Current Password" />
-                </div>
-                <Button type="submit" :disabled="isDeletingAccount">Delete My Account</Button>
+            <div class="space-y-2">
+                <Button @click="handleDeleteAccount" type="submit" :disabled="isDeletingAccount">Delete My Account</Button>
                 <Button type="submit" :disabled="isDeletingAccount"
                     class="bg-red-500 hover:bg-red-600 text-white">DELETE MY ACCOUNT</Button>
-            </form>
+            </div>
         </div>
     </div>
 </template>

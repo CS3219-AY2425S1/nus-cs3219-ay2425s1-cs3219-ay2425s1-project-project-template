@@ -95,6 +95,10 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function deleteAccountAndSignOut() {
+        
+    }
+
     // Update user when auth changes
     onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
