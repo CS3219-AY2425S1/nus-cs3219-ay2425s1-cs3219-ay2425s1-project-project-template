@@ -3,6 +3,6 @@ import type { QuestionAttempt } from "./QuestionAttempt";
 export type UserProfile = {
     displayName?: string;
     email?: string;
-    photoUrl?: string;
+    photoURL?: string;
     attemptHistory?: QuestionAttempt[];
 }

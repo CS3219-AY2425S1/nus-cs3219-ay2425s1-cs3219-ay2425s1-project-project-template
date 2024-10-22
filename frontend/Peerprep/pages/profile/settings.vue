@@ -23,7 +23,7 @@ const { toast } = useToast();
 
 const displayNameLengthNotValid = () => {
     const displayNameValue = displayName.value || '';
-    const displayNameLengthCheck = displayNameValue.length >=2 && displayNameValue.length <= 50;
+    const displayNameLengthCheck = displayNameValue.length >= 2 && displayNameValue.length <= 50;
     console.log(displayNameValue.length);
     return !displayNameLengthCheck
 };
@@ -38,7 +38,7 @@ const handleUpdateProfile = async () => {
     isUpdatingProfile.value = true;
     showInvalidDisplayNameContentsError.value = false;
     showInvalidDisplayNameLengthError.value = false;
-    
+
     if (displayNameLengthNotValid()) {
         showInvalidDisplayNameLengthError.value = true;
         isUpdatingProfile.value = false;
@@ -62,7 +62,7 @@ const handleUpdateProfile = async () => {
         });
     }
     isUpdatingProfile.value = false;
-    showInvalidDisplayNameContentsError.value  = false;
+    showInvalidDisplayNameContentsError.value = false;
     showInvalidDisplayNameLengthError.value = false;
 }
 
@@ -106,7 +106,7 @@ const handleUpdatePassword = async () => {
         isUpdatingPassword.value = false;
         return;
     }
-   
+
     try {
         await authStore.changePassword(newPass.value);
     } catch (error) {
@@ -122,40 +122,12 @@ const handleUpdatePassword = async () => {
     isUpdatingPassword.value = false;
     // Password Change successful
     toast({
-            description: 'Successfully changed password.',
+        description: 'Successfully changed password.',
     })
     currentPass.value = "";
     newPass.value = "";
     confirmNewPass.value = "";
 };
-
-const handleDeleteAccount = async () => {
-    isDeletingAccount.value = true;
-
-    // Create two different dialogs, one to reauthenticate with Password and another to reauthenticate using Google
-    // Then create a final "YES DELETE MY ACCOUNT" dialog
-    // Use the logic here to decide which component to create
-
-    // // Reauthenticate User (check if current password is correct)
-    // try {
-    //     await authStore.reauthenticateWithPassword(currentPass.value);
-    // } catch (error) {
-    //     let errorCode = error.code;
-    //     if (errorCode == 'auth/invalid-credential') {
-    //         console.log("Current Password Incorrect");
-    //         showInvalidDeleteAccPassError.value = true;
-    //     } else {
-    //         console.log("Unknown Error while Reauthenticating User: " + error.message);
-    //     }
-    //     toast({
-    //         description: 'Current password incorrect.',
-    //         variant: 'destructive',
-    //     });
-    //     isDeletingAccount.value = false;
-    //     return;
-    // }
-    
-}
 
 onMounted(() => {
     if (user.value) {
@@ -187,9 +159,11 @@ onMounted(() => {
                     <Input id="email" name="email" v-model="email" type="email" disabled="disabled" readonly="readonly"
                         placeholder="<EMAIL>" />
                 </div>
-                <div>
-                    <p v-if="showInvalidDisplayNameLengthError" class="text-red-500 text-sm">Display Name Length should be between 2 and 50 characters.</p>
-                    <p v-if="showInvalidDisplayNameContentsError" class="text-red-500 text-sm">Display Name contents are not valid.</p>
+                <div v-if="showInvalidDisplayNameLengthError || showInvalidDisplayNameContentsError">
+                    <p v-if="showInvalidDisplayNameLengthError" class="text-red-500 text-sm">Display Name Length should
+                        be between 2 and 50 characters.</p>
+                    <p v-if="showInvalidDisplayNameContentsError" class="text-red-500 text-sm">Display Name contents are
+                        not valid.</p>
                 </div>
                 <Button type="submit" :disabled="isUpdatingProfile">
                     {{ isUpdatingProfile ? "Updating..." : "Update Profile" }}
@@ -206,13 +180,15 @@ onMounted(() => {
                     <Label for="currentPass">Current Password</Label>
                     <Input id="currentPass" name="currentPass" v-model="currentPass" type="password"
                         placeholder="Enter Current Password" :disabled="isGoogleLogin" />
-                    <p v-if="showInvalidOldPasswordError" class="text-red-500 text-sm">Current password is incorrect.</p>
+                    <p v-if="showInvalidOldPasswordError" class="text-red-500 text-sm">Current password is incorrect.
+                    </p>
                 </div>
                 <div class="grid gap-2">
                     <Label for="newPass">New Password</Label>
                     <Input id="newPass" name="newPass" v-model="newPass" type="password"
                         placeholder="Enter New Password" :disabled="isGoogleLogin" />
-                    <p v-if="passwordRequirementNotMet" class="text-red-500 text-sm">New password should be at least 6 characters long.</p>
+                    <p v-if="passwordRequirementNotMet" class="text-red-500 text-sm">New password should be at least 6
+                        characters long.</p>
                 </div>
                 <div class="grid gap-2">
                     <Label for="confirmNewPass">Confirm New Password</Label>
@@ -226,15 +202,6 @@ onMounted(() => {
                 <div v-if="isGoogleLogin" class="text-sm">You are logged in with Google. Your password cannot be
                     changed.</div>
             </form>
-        </div>
-        <div>
-            <h2 class="text-2xl font-bold tracking-tight">Delete Your Account</h2>
-            <p class="text-muted-foreground text-sm mt-1">This action is irreversible!</p>
-            <div class="space-y-2">
-                <Button @click="handleDeleteAccount" type="submit" :disabled="isDeletingAccount">Delete My Account</Button>
-                <Button type="submit" :disabled="isDeletingAccount"
-                    class="bg-red-500 hover:bg-red-600 text-white">DELETE MY ACCOUNT</Button>
-            </div>
         </div>
     </div>
 </template>
