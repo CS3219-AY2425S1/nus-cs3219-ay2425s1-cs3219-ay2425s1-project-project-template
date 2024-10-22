@@ -21,10 +21,12 @@ const questionServiceProxy = createProxyMiddleware({
   },
 });
 
-// router.use((req, res, next) => {
-//   logger.info(`Question route accessed with remaining path: ${req.url}`);
-//   next();
-// });
+router.use((req, res, next) => {
+  logger.info(
+    `Question route accessed with remaining path: ${req.url}, ${config.services.question}`,
+  );
+  next();
+});
 
 // Uncomment and apply the authentication middleware if needed
 // router.use(authMiddleware);
