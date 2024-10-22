@@ -48,6 +48,7 @@ const CodeEditor = () => {
     useEffect(() => {
         socket.on('updateContent',
             (update) => {
+                update = new Uint8Array(update);
                 Y.applyUpdate(doc, update);
             });
 
