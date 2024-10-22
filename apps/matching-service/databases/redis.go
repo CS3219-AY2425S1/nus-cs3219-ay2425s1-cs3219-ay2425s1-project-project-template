@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const matchmakingQueueRedisKey = "matchmaking_queue"
+const MatchmakingQueueRedisKey = "matchmaking_queue"
 
 var redisClient *redis.Client
 
