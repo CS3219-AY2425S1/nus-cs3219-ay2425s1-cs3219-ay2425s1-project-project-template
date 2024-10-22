@@ -111,27 +111,25 @@ router.post(
 
     const updateSession: Partial<TSession> = {};
 
-    if (req.body.users) {
-      updateSession.users = req.body.users;
-    }
-    if (req.body.difficulty) {
-      updateSession.difficulty = req.body.difficulty;
-    }
-    if (req.body.language) {
-      updateSession.language = req.body.language;
-    }
-    if (req.body.topic) {
-      updateSession.topic = req.body.topic;
-    }
-    if (req.body.question_title) {
-      updateSession.question_title = req.body.question_title;
-    }
-    if (req.body.question_description) {
-      updateSession.question_description = req.body.question_description;
-    }
-    if (req.body.code) {
-      updateSession.code = req.body.code;
-    }
+    // if (req.body.users) {
+    //   updateSession.users = req.body.users;
+    // }
+    // if (req.body.difficulty) {
+    //   updateSession.difficulty = req.body.difficulty;
+    // }
+    // if (req.body.language) {
+    //   updateSession.language = req.body.language;
+    // }
+    // if (req.body.topic) {
+    //   updateSession.topic = req.body.topic;
+    // }
+    // if (req.body.question_title) {
+    //   updateSession.question_title = req.body.question_title;
+    // }
+    // if (req.body.question_description) {
+    //   updateSession.question_description = req.body.question_description;
+    // }
+    updateSession.code = req.body.code;
 
     try {
       const session = await Session.findOne({ collabid: id }).exec();
