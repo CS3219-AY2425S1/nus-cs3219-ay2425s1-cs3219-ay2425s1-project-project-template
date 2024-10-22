@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
 import { useCollab } from '@/lib/hooks/use-collab';
 
@@ -26,67 +27,81 @@ type EditorProps = {
 export const Editor = ({ room }: EditorProps) => {
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
-  const { editorRef, extensions, language, setLanguage, code, setCode, members } = useCollab(room);
+  const { editorRef, extensions, language, setLanguage, code, setCode, members, isLoading } =
+    useCollab(room);
   const themePreset = useMemo(() => {
     return getTheme(theme);
   }, [theme]);
 
   return (
     <div className='flex flex-col gap-4 p-4'>
-      <div className='flex w-full justify-between gap-4'>
-        <div className='flex gap-4'>
-          <div className='flex flex-col gap-2'>
-            <Label>Language</Label>
-            <Select value={language} onValueChange={(val) => setLanguage(val as LanguageName)}>
-              <SelectTrigger className='max-w-[150px]'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang, idx) => (
-                  <SelectItem value={lang} key={idx}>
-                    {lang}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {isLoading ? (
+        <div className='flex h-16 w-full flex-row justify-between pt-4'>
+          <div className='flex h-10 flex-row gap-4'>
+            <Skeleton className='h-10 w-16' />
+            <Skeleton className='h-10 w-32' />
           </div>
-          <div className='flex flex-col gap-2'>
-            <Label>Theme</Label>
-            <Select value={theme} onValueChange={(val) => setTheme(val as IEditorTheme)}>
-              <SelectTrigger className='max-w-[150px]'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {themeOptions.map((theme, idx) => (
-                  <SelectItem value={theme} key={idx}>
-                    {theme}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className='flex flex-row items-center gap-2'>
+            <Skeleton className='size-10 rounded-full' />
+            <Skeleton className='h-8 w-24' />
           </div>
         </div>
-        <div className='flex items-center gap-2'>
-          <div className='flex gap-1 font-mono text-xs'>
-            {/* TODO: Get user avatar and display */}
-            {members.map((member, index) => (
-              <div
-                className='grid size-8 place-items-center !overflow-clip rounded-full border p-1 text-xs'
-                style={{
-                  borderColor: member.color,
-                }}
-                key={index}
-              >
-                <span className='translate-x-[calc(-50%+12px)]'>{member.userId}</span>
-              </div>
-            ))}
+      ) : (
+        <div className='flex w-full justify-between gap-4'>
+          <div className='flex gap-4'>
+            <div className='flex flex-col gap-2'>
+              <Label>Language</Label>
+              <Select value={language} onValueChange={(val) => setLanguage(val as LanguageName)}>
+                <SelectTrigger className='max-w-[150px]'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((lang, idx) => (
+                    <SelectItem value={lang} key={idx}>
+                      {lang}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Label>Theme</Label>
+              <Select value={theme} onValueChange={(val) => setTheme(val as IEditorTheme)}>
+                <SelectTrigger className='max-w-[150px]'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {themeOptions.map((theme, idx) => (
+                    <SelectItem value={theme} key={idx}>
+                      {theme}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <Button variant='destructive' size='sm' className='group flex items-center !px-2 !py-1'>
-            <ChevronLeftIcon className='transition-transform duration-200 ease-in-out group-hover:-translate-x-px' />
-            <span>Disconnect</span>
-          </Button>
+          <div className='flex items-center gap-2'>
+            <div className='flex gap-1 font-mono text-xs'>
+              {/* TODO: Get user avatar and display */}
+              {members.map((member, index) => (
+                <div
+                  className='grid size-8 place-items-center !overflow-clip rounded-full border p-1 text-xs'
+                  style={{
+                    borderColor: member.color,
+                  }}
+                  key={index}
+                >
+                  <span className='translate-x-[calc(-50%+12px)]'>{member.userId}</span>
+                </div>
+              ))}
+            </div>
+            <Button variant='destructive' size='sm' className='group flex items-center !px-2 !py-1'>
+              <ChevronLeftIcon className='transition-transform duration-200 ease-in-out group-hover:-translate-x-px' />
+              <span>Disconnect</span>
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
       <div className='border-border w-full !overflow-clip rounded-lg border shadow-sm'>
         <CodeMirror
           ref={editorRef}

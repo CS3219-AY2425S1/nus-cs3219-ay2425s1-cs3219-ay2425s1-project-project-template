@@ -30,13 +30,23 @@ type IYjsUserState = { user: { name: string; userId: string; color: string; colo
 // TODO: Test if collab logic works
 export const useCollab = (roomId: string) => {
   const [userId] = useState(getUserId());
-  const [code, setCode] = useState('');
   const editorRef = useRef<ReactCodeMirrorRef>(null);
+  const [sharedDocRef, setSharedDocRef] = useState<Y.Map<unknown>>();
   const [extensions, setExtensions] = useState<Array<Extension>>(baseExtensions);
-  const [language, setLanguage] = useState<LanguageName>('python');
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [code, setCode] = useState('');
+  const [language, _setLanguage] = useState<LanguageName>('python');
   const [members, _setMembers] = useState<Array<IYjsUserState['user']>>([]);
   const setMembers = useCallback(_setMembers, [members]);
+  const setLanguage = useCallback(
+    (lang: LanguageName) => {
+      _setLanguage(lang);
+      // Get language from room
+      sharedDocRef?.set('language', lang);
+    },
+    [sharedDocRef]
+  );
 
   const langExtension = useMemo(() => {
     return getLanguage(language);
@@ -58,8 +68,8 @@ export const useCollab = (roomId: string) => {
         return;
       }
 
-      const ytext = doc.getText('codemirror');
-      const undoManager = new Y.UndoManager(ytext);
+      const yText = doc.getText('codemirror');
+      const undoManager = new Y.UndoManager(yText);
       const awareness = provider.awareness;
 
       provider.on('status', (event: unknown) => {
@@ -82,13 +92,28 @@ export const useCollab = (roomId: string) => {
       };
       awareness.setLocalStateField('user', userState);
 
-      const collabExt = yCollab(ytext, awareness, { undoManager });
-      setCode(ytext.toString());
+      const collabExt = yCollab(yText, awareness, { undoManager });
+      setCode(yText.toString());
       setExtensions([...extensions, collabExt]);
+
+      // Initialise room preferences
+      const yState = doc.getMap('state');
+      yState.observe((event, _transaction) => {
+        if (event.keysChanged.has('language')) {
+          // TODO: Add toast notif for toast language updates!
+          const lang = yState.get('language') as LanguageName;
+          _setLanguage(lang);
+          console.log('Language changed to: ' + lang);
+        }
+      });
+      _setLanguage((yState.get('language') as LanguageName) ?? 'python');
+      setSharedDocRef(yState);
+      setTimeout(() => setIsLoading(false), 100); // Flush to next render
 
       return () => {
         doc.destroy();
         provider.destroy();
+        setSharedDocRef(undefined);
       };
     }
   }, [editorRef, roomId]);
@@ -101,5 +126,6 @@ export const useCollab = (roomId: string) => {
     code,
     setCode,
     members,
+    isLoading,
   };
 };
