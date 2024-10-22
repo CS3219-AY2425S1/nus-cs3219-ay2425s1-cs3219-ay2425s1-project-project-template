@@ -1,5 +1,5 @@
 'use client';
-
+import React from 'react';
 import Link from 'next/link';
 import { logout } from '@/lib/auth';
 // import { sendMessageToQueue } from '@/lib/rabbitmq';
@@ -13,10 +13,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/state/useAuthStore';
+import { useQuestionStore } from '@/state/useQuestionStore';
 import { PreMatch } from '@/components/dialogs/PreMatch';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
+  const { toggleDialogOpen } = useQuestionStore();
+  const path = usePathname();
 
   const handleLogout = async () => {
     const res = await logout();
@@ -42,16 +46,16 @@ export default function Navbar() {
             Questions
           </Link>
           {/* Admin users should be able to add questions instead of match */}
-          {!user?.isAdmin ? (
-            <PreMatch />
-          ) : (
-            <Link
-              href="/add-question"
+          {path === '/admin' ? (
+            <Button
+              onClick={toggleDialogOpen}
               className="text-gray-300 hover:text-white"
             >
               Add Question
-            </Link>
-          )}
+            </Button>
+          ) : path !== '/match' ? (
+            <PreMatch />
+          ) : null}
           {isAuth ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

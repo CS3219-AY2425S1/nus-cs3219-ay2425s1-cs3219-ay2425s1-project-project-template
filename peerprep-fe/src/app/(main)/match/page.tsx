@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
-import { consumeMessageFromQueue } from '@/lib/rabbitmq';
+import { consumeMessageFromQueue, sendMessageToQueue } from '@/lib/rabbitmq';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [usersWaiting, setUsersWaiting] = useState(4);
+  const [usersWaiting] = useState(4);
   const [matchStatus, setMatchStatus] = useState('searching');
   const router = useRouter();
   const { user } = useAuthStore();
@@ -38,9 +38,7 @@ export default function LoadingPage() {
     const timer = setInterval(() => {
       setElapsedTime((prevTime) => prevTime + 1);
     }, 1000);
-    setUsersWaiting(5);
     return () => {
-      sessionStorage.clear();
       clearInterval(timer);
       if (cleanup) {
         cleanup();
@@ -56,8 +54,12 @@ export default function LoadingPage() {
   }, [elapsedTime, matchStatus]);
 
   const handleCancel = () => {
-    // Implement logic to cancel the matching process
     console.log('Matching cancelled');
+    const message = {
+      _id: user?.id,
+      type: "cancel",
+    };
+    sendMessageToQueue(message);
     router.push('/');
   };
 

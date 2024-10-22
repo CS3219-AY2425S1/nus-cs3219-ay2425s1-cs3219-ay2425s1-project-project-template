@@ -4,10 +4,10 @@ import {
   transferToTopicQueue,
   removeUserFromKey,
   transferToDifficultyQueue,
+  removeUserFromQueues,
 } from "../model/userModel";
 import { User } from "../types";
 import { sendToQueue } from "./rabbitMqService";
-
 /**
  * Check match in queue, if there is a match, we will remove that user from the queue, and return
  * a response to rabbit.
@@ -62,6 +62,7 @@ export const processOldUsers = async (): Promise<void> => {
           status: "matched",
           match: match,
         });
+
         continue;
       }
 
@@ -92,22 +93,29 @@ export const processOldUsers = async (): Promise<void> => {
 };
 
 // Process a new user and attempt matching
-export const processNewUser = async (user: User): Promise<void> => {
-  const match = await checkMatch(`topic:${user.topic}`);
+export const processNewMessage = async (user: User): Promise<void> => {
+  if (user.type == "match") {
+    const match = await checkMatch(`topic:${user.topic}`);
 
-  // match found
-  if (match) {
-    await sendToQueue(match._id, {
-      status: "matched",
-      match: user,
-    });
-    await sendToQueue(user._id, {
-      status: "matched",
-      match: match,
-    });
-  } else {
-    // Add to the topic queue if no match
-    await transferToTopicQueue(user);
+    // match found
+    if (match) {
+      await sendToQueue(match._id, {
+        status: "matched",
+        match: user,
+      });
+      await sendToQueue(user._id, {
+        status: "matched",
+        match: match,
+      });
+    } else {
+      // Add to the topic queue if no match
+      await transferToTopicQueue(user);
+    }
+  } else if (user.type == "cancel") {
+    //handle cancel request
+    console.log(`Cancellation request received for user: ${user._id}`);
+    // Remove the user from topic and difficulty queues
+    await removeUserFromQueues(user._id);
   }
 };
 

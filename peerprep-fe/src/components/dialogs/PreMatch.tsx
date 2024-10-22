@@ -31,6 +31,7 @@ export function PreMatch() {
         topic: selectedTopics[0] || '', // TODO: change to list, but current backend only accepts 1
         // topic: selectedTopics.join(','),
         difficulty: difficulty,
+        type: "match",
       };
       await sendMessageToQueue(message);
       setOpen(false);
@@ -48,7 +49,10 @@ export function PreMatch() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-gray-300 hover:text-white">
+        <Button
+          variant="ghost"
+          className="text-gray-300 hover:bg-black hover:text-white"
+        >
           Match
         </Button>
       </DialogTrigger>
