@@ -13,4 +13,5 @@ func QuestionRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.PUT("/questions", controller.UpdateQuestion)
 	incomingRoutes.DELETE("/questions", controller.DeleteQuestion)
 	incomingRoutes.POST("/questions", controller.AddQuestionToDb())
+	incomingRoutes.POST("/questions/leetcode", controller.AddLeetCodeQuestionToDb())
 }

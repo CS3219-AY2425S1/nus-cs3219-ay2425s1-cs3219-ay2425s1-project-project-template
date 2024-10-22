@@ -11,7 +11,7 @@ const matchingQueue = new Queue("matching", {
       process.env.ENV == "PROD"
         ? process.env.REDIS_URL
         : process.env.REDIS_HOST,
-    port: 6379,
+    port: process.env.REDIS_PORT,
     password: process.env.ENV == "PROD" && process.env.REDIS_PASSWORD,
   },
 });

@@ -22,7 +22,7 @@ services:
     container_name: matching_service
     build: ./MatchingService
     ports:
-      - "3000:3000"
+      - "8080:8080"
     depends_on:
       - redis
 
@@ -34,6 +34,13 @@ services:
     depends_on:
       - mongo_db
 
+  alfa_leetcode_api:
+    container_name: alfa_leetcode_api
+    image: alfaarghya/alfa-leetcode-api:2.0.1
+    ports:
+      - "3000:3000"
+    restart: always
+
   question_service:
     container_name: question_service
     build: ./QuestionService
@@ -41,6 +48,7 @@ services:
       - "3002:3002"
     depends_on:
       - mongo_db
+      - alfa_leetcode_api 
 
   frontend:
     container_name: frontend_service

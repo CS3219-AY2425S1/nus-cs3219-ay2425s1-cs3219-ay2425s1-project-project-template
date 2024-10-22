@@ -5,7 +5,7 @@ import { IoMdSettings } from "react-icons/io";
 
 export const COMPLEXITIES = [
   { id: "EASY", color: "green.400" },
-  { id: "MED", color: "yellow.400" },
+  { id: "MEDIUM", color: "yellow.400" },
   { id: "HARD", color: "red.400" },
 ];
 

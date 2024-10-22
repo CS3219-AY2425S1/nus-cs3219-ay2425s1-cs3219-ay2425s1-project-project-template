@@ -21,3 +21,7 @@ type QuestionRequest struct {
 	Complexity  string   `json:"complexity"`
 	Link        string   `json:"link"`
 }
+
+type LeetCodeAPIRequest struct {
+	Title string `json:"title"`
+}

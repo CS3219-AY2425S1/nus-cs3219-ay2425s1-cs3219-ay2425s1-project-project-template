@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { QueryObserverResult } from "@tanstack/react-query";
 
-import { Question, QuestionRequest } from "./questionService";
+import { LeetCOdeQuestionRequest, Question, QuestionRequest } from "./questionService";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
 import { useQuesApiContext } from "../../context/ApiContext";
 import {
@@ -11,22 +11,18 @@ import {
   Button,
   Icon,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   ButtonGroup,
   IconButton,
+  HStack,
 } from "@chakra-ui/react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import MenuDrawer from "../../components/layout/MenuDrawer";
 import Filters from "../../components/Filter";
 import { COMPLEXITIES, CATEGORIES } from "../../constants/data";
 import DataTable from "../../components/DataTable";
 import QuestionModal from "../../components/QuestionModal";
 import { toast } from "react-toastify";
+import { LeetCodeModal } from "../../components/LeetCodeModal";
+import QuestionDescriptionModal from "../../components/QuestionDescriptionModal";
 
 type QuestionViewProps = {
   questions: Question[];
@@ -57,7 +53,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onOpen: onQuestionModalOpen,
     onClose: onQuestionModalClose,
   } = useDisclosure();
-
+  const { 
+    isOpen: isLeetCodeModalOpen, 
+    onOpen: onLeetCodeModalOpen, 
+    onClose: onLeetCodeModalClose } = useDisclosure();
   const api =  useQuesApiContext();
 
   // Handle Add Function
@@ -100,6 +99,42 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
     await refetchQuestions();
     onQuestionModalClose(); // Close the modal after adding
+  };
+
+  // Handle Add Function
+  const handleLeetCodeAdd = async (newQuestion: {
+    title: string;
+  }) => {
+    // Create the new question object with incremented ID
+    const newQuestionWithTitle: LeetCOdeQuestionRequest = {
+      Title: newQuestion.title,
+    };
+
+    try {
+      const response = await api.post("/questions/leetcode", newQuestionWithTitle);
+      if (response.status === 200) {
+        toast.success("Question added successfully");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        // Backend-specific error handling for 400 Bad Request
+        toast.error(
+          `Failed to Add Question: ${
+            error.response.data.error || "Invalid data provided"
+          }`
+        );
+      } else if (error.response && error.response.status === 409) {
+        // Backend-specific error handling for 400 Bad Request
+          toast.error("A question with this title already exists.");
+      } else {
+        // General error handling
+        toast.error("Failed to Add Question.");
+      }
+      console.error("Error adding question:", error);
+    }
+
+    await refetchQuestions();
+    onLeetCodeModalClose();
   };
 
   const handleEdit = async (updatedQuestion: {
@@ -239,24 +274,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         },
       },
       {
-        header: "Link",
-        accessorKey: "Link",
-        cell: ({ getValue }) => {
-          const link = getValue<string>();
-          return (
-            <Button
-              as="a"
-              href={link}
-              target="_blank"
-              colorScheme="blue"
-              variant="link"
-            >
-              Go To Link
-            </Button>
-          );
-        },
-      },
-      {
         header: "Actions",
         cell: ({ row }) => (
           <ButtonGroup size="sm" isAttached>
@@ -291,35 +308,36 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
       p={4}
     >
-      {/* Drawer for menu */}
-      {/* <MenuDrawer
-        isOpen={isMenuOpen}
-        onClose={() => {
-          onMenuClose();
-          onModalClose(); // Ensure modal closes if menu closes
-        }}
-        setAuth={se}
-      /> */}
-
+      <h2 className="flex justify-center text-white text-3xl font-semibold">
+          Questions
+      </h2>
       <Box className="flex-col justify-center items-center p-2">
         {/* Search Filter Input */}
-        <h2 className="flex justify-center text-white text-3xl font-semibold">
-          Questions
-        </h2>
+        
         <Box className="flex justify-between">
           <Filters
             columnFilters={columnFilters}
             setColumnFilters={setColumnFilter}
           />
-          <Button
-            colorScheme="purple"
-            onClick={() => {
-              setSelectedQuestion(null);
-              onQuestionModalOpen();
-            }}
-          >
-            Add Question
-          </Button>
+          <HStack mb={6} spacing={4} align="center">
+            <Button
+              colorScheme="purple"
+              onClick={() => {
+                onLeetCodeModalOpen();
+              }}
+            >
+              Add LeetCode Question
+            </Button>
+            <Button
+              colorScheme="purple"
+              onClick={() => {
+                setSelectedQuestion(null);
+                onQuestionModalOpen();
+              }}
+            >
+              Add Question
+            </Button>
+          </HStack>
         </Box>
         {/* Table Display */}
         <DataTable
@@ -330,27 +348,19 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         />
 
         {/* Modal for Question Details */}
-        <Modal
+        <QuestionDescriptionModal
           isOpen={isModalOpen}
           onClose={() => {
             onModalClose(); // Close modal
             onMenuClose(); // Ensure menu closes if modal closes
           }}
-          isCentered
-        >
-          <ModalOverlay />
-          <ModalContent bg="#371F76">
-            <ModalHeader color="white">{selectedQuestion?.Title}</ModalHeader>{" "}
-            {/* Set text color to white */}
-            <ModalCloseButton />
-            <ModalBody>
-              <Text color="white">{selectedQuestion?.Description}</Text>{" "}
-              {/* Set text color to white */}
-              <br /> {/* Add a line break for spacing */}
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-
+          question={selectedQuestion}
+        />
+        <LeetCodeModal
+          isOpen={isLeetCodeModalOpen}
+          onClose={onLeetCodeModalClose}
+          onSave={handleLeetCodeAdd}
+        />
         {/* Single Question Modal for both Add and Edit */}
         <QuestionModal
           isOpen={isQuestionModalOpen}

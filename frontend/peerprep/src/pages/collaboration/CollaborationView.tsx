@@ -32,7 +32,7 @@ const Collaboration: React.FC = () => {
       return;
     }
 
-    socketRef.current = io("http://localhost:3000/");
+    socketRef.current = io("http://localhost:8080/");
     const socket = socketRef.current;
 
     if (socket === null) {
