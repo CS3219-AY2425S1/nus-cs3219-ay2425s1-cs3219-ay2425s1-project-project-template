@@ -15,7 +15,7 @@ const isUpdatingPassword = ref(false);
 const isDeletingAccount = ref(false);
 const showInvalidDisplayNameLengthError = ref(false);
 const showInvalidDisplayNameContentsError = ref(false);
-const showInvalidNewPasswordError = ref(false);
+const showInvalidOldPasswordError = ref(false);
 
 const authStore = useAuthStore();
 const { isGoogleLogin, user } = storeToRefs(authStore);
@@ -81,20 +81,12 @@ const newPasswordFieldsNotValid = computed(() => {
     let valuesNotValid = (passwordRequirementNotMet.value || passwordMismatch.value);
     let valuesEmpty = (newPass.value == "") || (confirmNewPass.value == "") || (currentPass.value == "");
 
-    return valuesNotValid || valuesEmpty || isUpdatingPassword;
+    return valuesNotValid || valuesEmpty || isUpdatingPassword.value;
 });
 
 const handleUpdatePassword = async () => {
-    // TODO: Add checks to make sure password is valid, use registration page
-    // TODO: Do another check to make sure account is not Google account
     isUpdatingPassword.value = true;
-    showInvalidNewPasswordError.value = false;
-
-    // Check that new password is valid
-    // if (passwordRequirementNotMet) {
-    //     showInvalidNewPasswordError.value = true;
-    //     return;
-    // }
+    showInvalidOldPasswordError.value = false;
 
     // Reauthenticate User (check if current password is correct)
     try {
@@ -102,30 +94,63 @@ const handleUpdatePassword = async () => {
     } catch (error) {
         let errorCode = error.code;
         if (errorCode == 'auth/invalid-credential') {
-            console.log("Current Password Incorrect"); // TODO:Show label
+            console.log("Current Password Incorrect");
+            showInvalidOldPasswordError.value = true;
         } else {
             console.log("Unknown Error while Reauthenticating User: " + error.message);
         }
+        toast({
+            description: 'Failed to change password.',
+            variant: 'destructive',
+        });
         isUpdatingPassword.value = false;
         return;
     }
    
     try {
-        await authStore.updatePassword(newPass.value);
+        await authStore.changePassword(newPass.value);
     } catch (error) {
-        let errorCode = error.code;
-        if (errorCode == 'auth/invalid-credential') {
-            console.log("Current Password Incorrect"); // TODO:Show label
-        } else {
-            console.log("Unknown Error: " + error.message);
-        }
-    } finally {
+        console.log("Unknown Error while changing password: " + error.message);
+        toast({
+            description: 'Failed to change password.',
+            variant: 'destructive',
+        });
         isUpdatingPassword.value = false;
+        return;
     }
+
+    isUpdatingPassword.value = false;
+    // Password Change successful
+    toast({
+            description: 'Successfully changed password.',
+    })
+    currentPass.value = "";
+    newPass.value = "";
+    confirmNewPass.value = "";
 };
 
 const handleDeleteAccount = async () => {
     isDeletingAccount.value = true;
+
+    // Reauthenticate User (check if current password is correct)
+    try {
+        await authStore.reauthenticateWithPassword(currentPass.value);
+    } catch (error) {
+        let errorCode = error.code;
+        if (errorCode == 'auth/invalid-credential') {
+            console.log("Current Password Incorrect");
+            showInvalidOldPasswordError.value = true;
+        } else {
+            console.log("Unknown Error while Reauthenticating User: " + error.message);
+        }
+        toast({
+            description: 'Failed to change password.',
+            variant: 'destructive',
+        });
+        isUpdatingPassword.value = false;
+        return;
+    }
+
     isDeletingAccount.value = false;
     // TODO: Check that password is correct, then pop up a toast to double confirm that you want to remove your account with RED LETTERS
 }
@@ -179,18 +204,21 @@ onMounted(() => {
                     <Label for="currentPass">Current Password</Label>
                     <Input id="currentPass" name="currentPass" v-model="currentPass" type="password"
                         placeholder="Enter Current Password" :disabled="isGoogleLogin" />
+                    <p v-if="showInvalidOldPasswordError" class="text-red-500 text-sm">Current password is incorrect.</p>
                 </div>
                 <div class="grid gap-2">
                     <Label for="newPass">New Password</Label>
                     <Input id="newPass" name="newPass" v-model="newPass" type="password"
                         placeholder="Enter New Password" :disabled="isGoogleLogin" />
+                    <p v-if="passwordRequirementNotMet" class="text-red-500 text-sm">New password should be at least 6 characters long.</p>
                 </div>
                 <div class="grid gap-2">
                     <Label for="confirmNewPass">Confirm New Password</Label>
                     <Input id="confirmNewPass" name="confirmNewPass" v-model="confirmNewPass" type="password"
                         placeholder="Re-Enter Password" :disabled="isGoogleLogin" />
+                    <p v-if="passwordMismatch" class="text-red-500 text-sm">Passwords do not match.</p>
                 </div>
-                <Button type="submit" :disabled="isGoogleLogin || isUpdatingPassword">
+                <Button type="submit" :disabled="isGoogleLogin || newPasswordFieldsNotValid">
                     {{ isUpdatingPassword ? "Updating..." : "Update Password" }}
                 </Button>
                 <div v-if="isGoogleLogin" class="text-sm">You are logged in with Google. Your password cannot be

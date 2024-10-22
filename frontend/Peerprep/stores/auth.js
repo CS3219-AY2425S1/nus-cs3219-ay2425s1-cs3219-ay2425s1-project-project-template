@@ -54,6 +54,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function reauthenticateWithPassword(password) {
+        // Sanity check to make sure Account is not signed in with Google
+        if (isGoogleLogin.value === true) {
+            console.log('Cannot re-authenticate with Google account using password');
+            return false;
+        }
+
         try {
             await refreshUser();
             if (user.value && password) {
@@ -71,10 +77,17 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function updatePassword(newPassword) {
+    async function changePassword(newPassword) {
+        // Sanity check to make sure Account is not signed in with Google
+        if (isGoogleLogin.value === true) {
+            console.log('Cannot change password with account signed in with Google');
+            return false;
+        }
+
         try {
             if (user.value && newPassword) {
                 await updatePassword(user.value, newPassword);
+                console.log("Password change successful");
             }
         } catch (error) {
             console.error("Error updating password in store:", error.message);
@@ -94,8 +107,8 @@ export const useAuthStore = defineStore('auth', () => {
         isAdmin,
         isGoogleLogin,
         authSignOut,
+        changePassword,
         updateDisplayName,
-        updatePassword,
         reauthenticateWithPassword,
         refreshUser
     };

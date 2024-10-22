@@ -126,7 +126,7 @@ const handleFirebaseUpdateProfileErrors = (error) => {
                         <Input id="password" name="password" v-model="password" type="password" required
                             autocomplete="new-password" />
                         <p v-if="passwordRequirementNotMet" class="text-red-500 text-sm">Password should be at least 6
-                            characters</p>
+                            characters long.</p>
                     </div>
 
                     <!-- Repeat Password Field -->
@@ -134,7 +134,7 @@ const handleFirebaseUpdateProfileErrors = (error) => {
                         <Label for="repeat-password">Repeat Password</Label>
                         <Input id="repeat-password" name="repeat-password" v-model="repeatPassword" type="password"
                             required autocomplete="new-password" />
-                        <p v-if="passwordMismatch" class="text-red-500 text-sm">Passwords do not match</p>
+                        <p v-if="passwordMismatch" class="text-red-500 text-sm">Passwords do not match.</p>
                     </div>
 
                     <!-- Error Message -->
