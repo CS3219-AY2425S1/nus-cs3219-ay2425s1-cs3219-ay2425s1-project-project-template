@@ -55,7 +55,7 @@ export function PreMatch() {
           Match
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-black sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Choose Match Preferences</DialogTitle>
         </DialogHeader>
