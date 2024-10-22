@@ -95,6 +95,18 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function deleteAccountAndSignOut() {
+        try {
+            if (user.value) {
+                await user.value.delete();
+                await authSignOut();
+            }
+        } catch (error) {
+            console.error("Error deleting account in store:", error);
+            throw error;
+        }
+    }
+
     // Update user when auth changes
     onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
@@ -108,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
         isGoogleLogin,
         authSignOut,
         changePassword,
+        deleteAccountAndSignOut,
         updateDisplayName,
         reauthenticateWithPassword,
         refreshUser
