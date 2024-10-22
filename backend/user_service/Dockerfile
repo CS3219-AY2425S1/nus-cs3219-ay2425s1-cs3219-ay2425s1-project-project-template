@@ -2,15 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app and important files to container
+# Copy application code and other necessary files
 COPY ./app ./app
 COPY run.py ./
 COPY .env ./
-COPY entrypoint.sh /app
-RUN chmod +x /app/entrypoint.sh
 COPY firebase-cred.json ./firebase-cred.json
 
 # Expose port 5001 for Flask
@@ -20,6 +19,5 @@ EXPOSE 5001
 ENV FLASK_APP=run.py
 ENV PYTHONUNBUFFERED=1
 
-# Command to run your Flask app
-ENTRYPOINT ["/app/entrypoint.sh"]
-# CMD ["waitress-serve", "--port=5001", "run:app"]
+# Command to run the application with conditional logic for development vs production
+CMD ["bash", "-c", "if [ \"$FLASK_ENV\" = \"development\" ]; then exec python run.py; else exec waitress-serve --port=5001 run:app; fi"]
