@@ -2,7 +2,7 @@ import { useState } from "react";
 import io from "socket.io-client";
 import MatchingRequestForm from "./MatchingRequestForm";
 import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
-import Timer from "./Timer.tsx";
+import Timer from "./Timerr.tsx";
 import { useUser } from "../../context/UserContext.tsx";
 import Alert from 'react-bootstrap/Alert';
 
