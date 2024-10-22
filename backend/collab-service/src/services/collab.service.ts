@@ -5,7 +5,7 @@ import { Room } from '../interfaces/room.interface';
 @Injectable()
 export class CollabService {
   private rooms: Map<string, Room> = new Map(); // roomId -> Room
-  private clientRooms: Map<string, string> = new Map(); // userId -> roomId
+  private userRooms: Map<string, string> = new Map(); // userId -> roomId
 
   constructor() {}
 
@@ -16,7 +16,7 @@ export class CollabService {
 
     const room: Room = {
       id: roomId,
-      clients: new Set(),
+      users: new Set(),
       doc: new Y.Doc()
     };
 
@@ -24,31 +24,31 @@ export class CollabService {
     return room;
   }
 
-  joinRoom(roomId: string, clientId: string): Room | null {
+  joinRoom(roomId: string, userId: string): Room | null {
     const room = this.rooms.get(roomId);
     
-    if (!room || room.clients.size >= 2) {
+    if (!room || room.users.size >= 2) {
       return null;
     }
 
-    room.clients.add(clientId);
-    this.clientRooms.set(clientId, roomId);
+    room.users.add(userId);
+    this.userRooms.set(userId, roomId);
 
     return room;
   }
 
-  leaveRoom(clientId: string): Room | null {
-    const roomId = this.clientRooms.get(clientId);
+  leaveRoom(userId: string): Room | null {
+    const roomId = this.userRooms.get(userId);
     if (!roomId) return null;
 
     const room = this.rooms.get(roomId);
     if (!room) return null;
 
-    room.clients.delete(clientId);
-    this.clientRooms.delete(clientId);
+    room.users.delete(userId);
+    this.userRooms.delete(userId);
 
     // Clean up empty rooms
-    if (room.clients.size === 0) {
+    if (room.users.size === 0) {
       this.rooms.delete(roomId);
     }
 
@@ -61,10 +61,10 @@ export class CollabService {
 
   getAvailableRooms() {
     return Array.from(this.rooms.values())
-      .filter(room => room.clients.size < 2)
+      .filter(room => room.users.size < 2)
       .map(room => ({
         id: room.id,
-        participantCount: room.clients.size
+        participantCount: room.users.size
       }));
   }
 
@@ -72,8 +72,8 @@ export class CollabService {
     return this.rooms.get(roomId) || null;
   }
 
-  getRoomByClient(clientId: string): Room | null {
-    const roomId = this.clientRooms.get(clientId);
+  getRoomByClient(userId: string): Room | null {
+    const roomId = this.userRooms.get(userId);
     return roomId ? this.rooms.get(roomId) : null;
   }
 
