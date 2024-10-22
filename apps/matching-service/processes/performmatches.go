@@ -77,7 +77,7 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 			return nil
 		}, keys...)
 		if err != nil {
-			// transaction failed
+			// transaction failed, so will retry
 			println(err)
 			// Handle error (like retry logic could be added here)
 			// return fmt.Errorf("transaction execution failed: %v", err)
