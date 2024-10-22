@@ -15,7 +15,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
-import { run } from "node:test";
+const collabServiceBackendURL =
+	import.meta.env.COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+import { Loader2 } from "lucide-react";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -112,12 +114,20 @@ function CollabPageView() {
 		setCode(CODE_SNIPPETS[language]);
 	};
 
+	const [codeOutput, setCodeOutput] = useState(null);
+	const [isLoading, setIsLoading] = useState(false); // while executing code, show loading spinner animation
+	const [isError, setIsError] = useState(false); // highlight output in red if code has an error
+	const CODE_EXECUTED_SUCCESSFULLY = 0;
+
 	const runCode = async () => {
 		const sourceCode = editorRef.current.getValue();
 		if (!sourceCode) return; // do nothing
 
 		try {
-			const executeCodeURL = "http://localhost:5004/execute-code";
+			setIsLoading(true);
+
+			const executeFunctionName = "execute-code";
+			const executeCodeURL = `${collabServiceBackendURL}/${executeFunctionName}`;
 
 			const response = await fetch(executeCodeURL, {
 				method: "POST",
@@ -132,8 +142,13 @@ function CollabPageView() {
 			});
 
 			const jsonData = await response.json();
-			console.log(jsonData);
-		} catch (error) {}
+			setCodeOutput(jsonData.run.output);
+			jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY ? setIsError(true) : setIsError(false);
+		} catch (error) {
+			alert(error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -356,8 +371,15 @@ function CollabPageView() {
 							style={{
 								marginTop: "10px",
 								height: "60%",
+								border: isError ? "1px solid red" : "",
+								color: isError ? "red" : "",
 							}}
-							placeholder="test"
+							value={
+								codeOutput
+									? codeOutput
+									: 'Click "Run Code" to see the output here'
+							}
+							readOnly
 						/>
 
 						<Button
@@ -367,7 +389,9 @@ function CollabPageView() {
 								right: "2%", // 2% from the right
 							}}
 							onClick={runCode}
+							disabled={isLoading}
 						>
+							{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 							Run Code
 						</Button>
 					</div>
