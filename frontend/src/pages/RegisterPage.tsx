@@ -81,7 +81,7 @@ const RegisterPage: React.FC = () => {
   }, [success]);
 
   return (
-    <div className="w-screen h-screen flex flex-col">
+    <div className="w-screen h-screen flex flex-col overflow-y-auto">
       <AuthNavBar />
       <div className="flex flex-col items-center justify-start flex-grow">
         <WelcomeMessage />
@@ -125,7 +125,7 @@ const RegisterPage: React.FC = () => {
           Register
         </button>
 
-        <div className="flex flex-row w-2/5 mt-3">
+        <div className="flex flex-row w-2/5 mt-3 mb-4">
           <p className="text-gray-600">Have an existing account?</p>
           <Link to="/login" replace={true}>
             <button className="mx-1 text-blue-600 hover:opacity-60">

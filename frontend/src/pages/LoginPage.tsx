@@ -52,7 +52,7 @@ const LoginPage: React.FC = () => {
   }, [success]);
 
   return (
-    <div className="w-screen h-screen flex flex-col">
+    <div className="w-screen h-screen flex flex-col overflow-y-auto">
       <AuthNavBar />
       <div className="flex flex-col items-center justify-start flex-grow">
         <WelcomeMessage />
