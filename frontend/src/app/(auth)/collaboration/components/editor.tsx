@@ -4,7 +4,7 @@ import { MonacoBinding } from "y-monaco";
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 
-function Collaboration() {
+function Collaboration({ room }) {
     const editorRef = useRef(null); // create a ref to the editor
     const docRef = useRef(null); // store the YJS document reference
 
@@ -16,7 +16,7 @@ function Collaboration() {
         const signalingServer = ['ws://localhost:4444'];
         docRef.current = doc; // Store the document reference
 
-        const provider = new WebrtcProvider("test-room", doc, { signaling: signalingServer });
+        const provider = new WebrtcProvider(room, doc, { signaling: signalingServer });
         const type = doc.getText("monaco");
 
         // Bind YJS text to Monaco editor
