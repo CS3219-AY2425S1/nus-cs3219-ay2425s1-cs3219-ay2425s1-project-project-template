@@ -29,8 +29,6 @@ const handleDeleteAccount = async () => {
     isDeletingAccount.value = true;
     showInvalidCurrentPasswordError.value = false;
 
-    let verifyPassCheck = false;
-
     if (verifyPhrase.value !== "delete my account") {
         console.log("Verify Phrase failed to validate")
         return;

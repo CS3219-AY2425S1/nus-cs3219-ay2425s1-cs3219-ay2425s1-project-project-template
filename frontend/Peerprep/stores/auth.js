@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { EmailAuthProvider, reauthenticateWithCredential, signOut, onAuthStateChanged, updateProfile, updatePassword } from "firebase/auth";
+import { EmailAuthProvider, GoogleAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, signOut, 
+    onAuthStateChanged, updateProfile, updatePassword } from "firebase/auth";
 
 export const useAuthStore = defineStore('auth', () => {
-    const auth = useFirebaseAuth();
+    const firebaseAuth = useFirebaseAuth();
     const user = ref(null);
     const isAdmin = ref(false);  // Assume User is not admin by default
     const isGoogleLogin = ref(false);
@@ -29,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Handle sign out
     async function authSignOut() {
-        await signOut(auth);
+        await signOut(firebaseAuth);
         user.value = null;
         isAdmin.value = false;
     }
@@ -77,6 +78,26 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function reauthenticateWithGoogle() {
+        if (isGoogleLogin === false) {
+            return;
+        }
+        const provider = new GoogleAuthProvider();
+
+        try {
+            // Sign in with a popup to get Google cred
+            await refreshUser();
+            const result = await reauthenticateWithPopup(user.value, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            
+            await reauthenticateWithCredential(user.value, credential);
+            console.log("User reauthenticated with Google.")
+        } catch (error) {
+            console.error("Error authenticating with Google in the store:", error.message);
+            throw (error);
+        }
+    }
+
     async function changePassword(newPassword) {
         // Sanity check to make sure Account is not signed in with Google
         if (isGoogleLogin.value === true) {
@@ -108,7 +129,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     // Update user when auth changes
-    onAuthStateChanged(auth, async (currentUser) => {
+    onAuthStateChanged(firebaseAuth, async (currentUser) => {
         if (currentUser) {
             await refreshUser();
         }
@@ -122,6 +143,7 @@ export const useAuthStore = defineStore('auth', () => {
         changePassword,
         deleteAccountAndSignOut,
         updateDisplayName,
+        reauthenticateWithGoogle,
         reauthenticateWithPassword,
         refreshUser
     };
