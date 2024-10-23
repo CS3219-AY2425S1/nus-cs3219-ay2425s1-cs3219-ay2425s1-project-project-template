@@ -5,6 +5,11 @@ export type MatchRequest = {
     timestamp: number;
 };
 
+export type MatchResponse = {
+    message: string;
+    error?: string;
+};
+
 export enum QuestionTopic {
     ANY = 'any',
     ARRAY = "array",

@@ -1,11 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsString,
-    IsNumber,
-    IsNotEmpty,
-    IsEnum,
-} from 'class-validator';
-
 // Copied from question-service
 export enum QuestionTopic {
     ANY = 'any',
@@ -36,32 +28,3 @@ export enum QuestionComplexity {
     MEDIUM = 'medium',
     HARD = 'hard',
 }
-
-export class MatchResponse {
-    message: string;
-    error?: string;
-}
-
-export class MatchRequestDto {
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    readonly userId: string;
-
-    @ApiProperty()
-    @IsEnum(QuestionTopic)
-    @IsNotEmpty()
-    readonly topic: QuestionTopic;
-
-    @ApiProperty()
-    @IsEnum(QuestionComplexity)
-    @IsNotEmpty()
-    readonly difficulty: QuestionComplexity;
-
-    @ApiProperty()
-    @IsNumber() // can be string if we want
-    @IsNotEmpty()
-    readonly timestamp: number;
-}
-
-

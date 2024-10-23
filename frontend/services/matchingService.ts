@@ -29,9 +29,12 @@ export const makeMatchRequest = async (
   matchRequest: MatchRequest
 ): Promise<MatchResponse> => {
   try {
-    const socket = io(`ws://localhost:${process.env.MATCHING_WEBSOCKET_SERVICE_PORT ?? 8008}`);
+    const socket = io(`ws://localhost:${process.env.MATCHING_WEBSOCKET_SERVICE_PORT ?? 8008}`, {
+      reconnection: false,
+      timeout: 3000,
+    });
     const responsePromise = new Promise<MatchResponse>((resolve) => {
-      socket.on("matchRequestResponse", (response: MatchResponse) => {
+      socket.once("matchRequestResponse", (response: MatchResponse) => {
         resolve(response);
       });
     });
