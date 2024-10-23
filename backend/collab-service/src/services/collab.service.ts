@@ -111,14 +111,14 @@ export class CollabService {
     return null;
   }
 
-    private cleanUpEmptyRooms() {
-        setInterval(() => {
-            this.rooms.forEach((room, roomId) => {
-                if (room.users.size === 0) {
-                    console.log(`Cleaning up room ${roomId}`);
-                    this.rooms.delete(roomId);
-                }
-            });
-        }, 5 * 60 * 1000); // 5 minutes in milliseconds
-    }
+  private cleanUpEmptyRooms() {
+    setInterval(() => {
+      this.rooms.forEach((room, roomId) => {
+        if (room.users.size === 0) {
+          console.log(`Cleaning up room ${roomId}`);
+          this.rooms.delete(roomId);
+        }
+      });
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+  }
 }
