@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = currentUser;
 
             // Check If Admin
-            const tokenResult = await currentUser.getIdTokenResult();
+            const tokenResult = await currentUser.getIdTokenResult(true);
             const adminResult = tokenResult.claims.admin === true;
             isAdmin.value = adminResult;
 
