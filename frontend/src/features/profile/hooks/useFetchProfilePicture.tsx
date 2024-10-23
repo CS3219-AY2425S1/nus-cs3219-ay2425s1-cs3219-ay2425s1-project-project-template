@@ -11,11 +11,11 @@ const useFetchProfilePicture = async (
   }
   try {
     const response = await fetch(
-      `${apiConfig.profilePictureServiceUserUrl}/${user.id}/profile-picture`,
+      `${apiConfig.profilePictureServiceBaseUrl}/users/${user.id}/profile-picture`,
       {
         mode: "cors",
         headers: {
-          "Access-Control-Allow-Origin": `${apiConfig.profilePictureServiceUserUrl}`,
+          "Access-Control-Allow-Origin": `${apiConfig.profilePictureServiceBaseUrl}`,
         },
       }
     );

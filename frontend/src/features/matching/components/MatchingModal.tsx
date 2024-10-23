@@ -5,12 +5,13 @@ import { MatchingRequestFormState } from "../types/MatchingRequestFormState";
 import Timer from "./Timer.tsx";
 import { useUser } from "../../../context/UserContext.tsx";
 import Alert from "react-bootstrap/Alert";
+import apiConfig from "../../../config/config.ts";
 
 interface MatchingModalProps {
   closeMatchingModal: () => void;
 }
 
-const MATCH_WEBSOCKET_URL: string = "ws://localhost:8082";
+const MATCH_WEBSOCKET_URL: string = apiConfig.matchWebsocketUrl;
 
 const MatchingModal: React.FC<MatchingModalProps> = ({
   closeMatchingModal,
@@ -28,6 +29,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
   const [showCancelButton, setShowCancelButton] = useState(false);
   const [cancelAlert, setCancelAlert] = useState<boolean>(false);
 
+  console.log("MATCH_WEBSOCKET_URL: ", MATCH_WEBSOCKET_URL);
   const socket = io(MATCH_WEBSOCKET_URL, { autoConnect: false });
 
   async function handleFindMatchRequest(formData: MatchingRequestFormState) {
@@ -44,18 +46,21 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         topic: formData.topic,
         difficulty: formData.difficulty,
       });
-      const res = await fetch("http://localhost:3000/match/findMatch", {
-        mode: "cors",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: user?.username, // set up with user context later
-          topic: formData.topic,
-          difficulty: formData.difficulty,
-        }),
-      });
+      const res = await fetch(
+        `${apiConfig.matchExpressJsUrl}/match/findMatch`,
+        {
+          mode: "cors",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: user?.username, // set up with user context later
+            topic: formData.topic,
+            difficulty: formData.difficulty,
+          }),
+        }
+      );
       const data = await res.json();
 
       if (!data.matchId) {
@@ -97,7 +102,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
   async function handleCancelMatchRequest() {
     console.log(`Cancelling request of matchId: ${matchId}`);
     await fetch(
-      `http://localhost:3000/match/cancelMatch?matchId=${matchId}&topic=${formData.topic}&difficulty=${formData.difficulty}`,
+      `${apiConfig.matchExpressJsUrl}/match/cancelMatch?matchId=${matchId}&topic=${formData.topic}&difficulty=${formData.difficulty}`,
       {
         mode: "cors",
         method: "DELETE",

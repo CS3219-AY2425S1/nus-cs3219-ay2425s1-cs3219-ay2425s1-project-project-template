@@ -11,7 +11,7 @@ const useAuthenticateUser = () => {
     try {
       console.log("user access token sent for verification : ", user);
       const response = await fetch(
-        `${apiConfig.userServiceAuthUrl}/verify-token`,
+        `${apiConfig.userServiceBaseUrl}/auth/verify-token`,
         {
           mode: "cors",
           headers: {

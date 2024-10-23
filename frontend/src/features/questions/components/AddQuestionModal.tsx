@@ -1,6 +1,7 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
 import DescriptionInput from "./DescriptionInput";
+import apiConfig from "../../../config/config";
 
 interface AddQuestionModalProps {
   fetchData: () => Promise<void>;
@@ -25,7 +26,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       .map((item) => item.trim())
       .filter((item) => item !== "");
     setCategoryList(categoryList);
-  }
+  };
 
   /* POST request to API to add question */
   const addQuestion = async (
@@ -35,20 +36,23 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     descriptionValue: string
   ) => {
     try {
-      const response = await fetch("http://localhost:8080/questions", {
-        mode: "cors",
-        method: "POST",
-        headers: {
-          "Access-Control-Allow-Origin": "http://localhost:8080",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: titleValue,
-          description: descriptionValue,
-          categories: categoryList,
-          complexity: complexityValue,
-        }),
-      });
+      const response = await fetch(
+        `${apiConfig.questionbankServiceBaseUrl}/questions`,
+        {
+          mode: "cors",
+          method: "POST",
+          headers: {
+            "Access-Control-Allow-Origin": `${apiConfig.questionbankServiceBaseUrl}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: titleValue,
+            description: descriptionValue,
+            categories: categoryList,
+            complexity: complexityValue,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) {
@@ -80,8 +84,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       return;
     }
     /* API call to add question */
-    await addQuestion(complexityValue, categoryList, titleValue, descriptionValue);
-  }
+    await addQuestion(
+      complexityValue,
+      categoryList,
+      titleValue,
+      descriptionValue
+    );
+  };
 
   return (
     <>
@@ -109,10 +118,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
           <div className="mt-3"></div>
           {/* Complexity */}
-          <ComplexityDropDown 
-            currComplexity="" 
-            setComplexityValue={setComplexityValue} 
-            isDisabled={false} 
+          <ComplexityDropDown
+            currComplexity=""
+            setComplexityValue={setComplexityValue}
+            isDisabled={false}
           />
 
           {/* Category */}
@@ -140,13 +149,15 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 type="text"
                 id="title"
                 className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
-                onChange={(event) => {setTitleValue(event.target.value)}}
+                onChange={(event) => {
+                  setTitleValue(event.target.value);
+                }}
               ></input>
             </div>
           </div>
 
           {/* Question Description */}
-          <DescriptionInput 
+          <DescriptionInput
             currDescription={descriptionValue}
             setDescriptionValue={setDescriptionValue}
             isDisabled={false}

@@ -15,7 +15,7 @@ const useUpdateUser = (user: User | undefined, key: string) => {
 
     try {
       const response = await fetch(
-        `${apiConfig.userServiceUserUrl}/${user?.id}`,
+        `${apiConfig.userServiceBaseUrl}/users/${user?.id}`,
         {
           method: "PATCH",
           headers: {

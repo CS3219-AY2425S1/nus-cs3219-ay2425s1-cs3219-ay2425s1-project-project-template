@@ -15,7 +15,7 @@ const useUpdatePassword = (userId: string) => {
 
     try {
       const response = await fetch(
-        `${apiConfig.userServiceUserUrl}/${userId}`,
+        `${apiConfig.userServiceBaseUrl}/users/${userId}`,
         {
           method: "PATCH",
           headers: {
