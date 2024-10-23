@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Button, Text, useToast }  from '@chakra-ui/react';
 import { executeCode } from '../api';
-
-import io from 'socket.io-client';
-
-const socket = io('http://192.168.1.193:8010');
+import { socket } from '../services/socketService.js';
 
 const Output = ({editorRef, language}) => {
     const toast = useToast();

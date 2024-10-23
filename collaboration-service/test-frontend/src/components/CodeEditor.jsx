@@ -8,9 +8,8 @@ import * as Y from 'yjs';
 import { MonacoBinding } from 'y-monaco';
 
 import io from 'socket.io-client';
+import { socket } from '../services/socketService.js';
 
-
-const socket = io('http://192.168.1.193:8010', { auth: { token: localStorage.getItem('jwtToken') } });
 
 const CodeEditor = () => {
     const doc = new Y.Doc();
@@ -56,6 +55,7 @@ const CodeEditor = () => {
                 partnerJoined
             } = sessionData;
 
+            // After Uint8Array is sent through a socker, it reverts to a buffer
             Y.applyUpdate(doc, new Uint8Array(yDocUpdate));
 
         });
