@@ -16,13 +16,11 @@ import {
 import { useState } from "react";
 import { QuestionComplexity, QuestionTopic } from "@/types/Question";
 import {
-  testSend,
-  checkMatch,
   cancelMatchRequest,
   makeMatchRequest,
 } from "@/services/matchingService";
-import { MatchStatus } from "@/types/Match";
 import useAuth from "@/hooks/useAuth";
+import { MatchFoundResponse } from '@/types/Match';
 
 export default function CreateQuestionPage() {
   const toast = useToast();
@@ -78,90 +76,53 @@ export default function CreateQuestionPage() {
       topic: topic,
       difficulty: complexity,
       timestamp: Date.now(),
-    })
-      .then((res) => {
-        console.log("Match request sent:", res);
-      })
-      .catch((err) => {
-        console.error("Error sending match request:", err);
-        setIsLoading(false);
-        toast.closeAll();
-        toast({
-          title: "Error",
-          description: "Failed to send match request. Please try again.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "top",
-        });
+    }, (res) => {
+      console.log("Match request sent:", res);
+    }, () => {
+      // On match timeout
+      setIsLoading(false);
+      toast.closeAll();
+      toast({
+        title: "Match Not Found",
+        description: "Please try again.",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      setIsMatched(false);
+      setMatchedWithUser(undefined);
+    }).then((res: MatchFoundResponse) => {
+      // On match found
+      setIsLoading(false);
+      toast.closeAll();
+      toast({
+        title: "Match Found",
+        description: "You have been matched!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
       });
 
-    const pollForMatch = () => {
-      let loopCounter = 0;
-
-      const intervalId = setInterval(() => {
-        console.log("Polling for match...");
-        checkMatch(username)
-          .then((res) => {
-            if (res.status === "MATCHED") {
-              clearInterval(intervalId);
-              setIsLoading(false);
-              toast.closeAll();
-              toast({
-                title: "Match Found",
-                description: "You have been matched!",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-                position: "top",
-              });
-
-              // Handle match found logic here
-              setIsMatched(true);
-              setMatchedWithUser(res.matchedWithUserId);
-              setMatchedTopic(res.matchedTopic);
-              setRoomId(res.matchedRoom);
-            } else {
-              loopCounter++;
-              setCountdown((prevCountdown) => prevCountdown - 1);
-              if (loopCounter >= MATCH_DURATION) {
-                clearInterval(intervalId);
-                setIsLoading(false);
-                toast.closeAll();
-                toast({
-                  title: "Match Not Found",
-                  description: "Please try again.",
-                  status: "info",
-                  duration: 3000,
-                  isClosable: true,
-                  position: "top",
-                });
-                cancelMatchOnBackend(); // Cancel match request if match not found
-                setIsMatched(false);
-                setMatchedWithUser(undefined);
-              }
-            }
-          })
-          .catch((err) => {
-            console.error("Error checking match status:", err);
-            clearInterval(intervalId);
-            setIsLoading(false);
-            toast.closeAll();
-            toast({
-              title: "Error",
-              description: "Failed to check match status. Please try again.",
-              status: "error",
-              duration: 3000,
-              isClosable: true,
-              position: "top",
-            });
-          });
-      }, 1000);
-
-      setCheckMatchInterval(intervalId);
-    };
-
-    pollForMatch();
+      // Handle match found logic here
+      setIsMatched(true);
+      setMatchedWithUser(res.matchedWithUserId);
+      setMatchedTopic(res.matchedTopic);
+      setRoomId(res.matchedRoom);
+    }).catch((err) => {
+      console.error("Error sending match request:", err);
+      setIsLoading(false);
+      toast.closeAll();
+      toast({
+        title: "Error",
+        description: "Failed to send match request. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    });
   };
 
   const onCancelMatch = () => {

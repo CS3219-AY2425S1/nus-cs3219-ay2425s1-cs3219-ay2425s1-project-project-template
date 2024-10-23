@@ -3,9 +3,8 @@ import { io } from "socket.io-client";
 import {
   MatchRequest,
   MatchResponse,
-  CheckMatchResponse,
-  CheckMatchResponseError,
-} from "../types/Match";
+  MatchFoundResponse,
+} from '../types/Match';
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:8002",
@@ -26,21 +25,30 @@ export const testSend = async () => {
 };
 
 export const makeMatchRequest = async (
-  matchRequest: MatchRequest
-): Promise<MatchResponse> => {
+  matchRequest: MatchRequest,
+  onRequestMade: (response: MatchResponse) => void,
+  onNoMatchFound: () => void,
+): Promise<MatchFoundResponse> => {
   try {
     const socket = io(`ws://localhost:${process.env.MATCHING_WEBSOCKET_SERVICE_PORT ?? 8008}`, {
       reconnection: false,
       timeout: 3000,
     });
-    const responsePromise = new Promise<MatchResponse>((resolve) => {
-      socket.once("matchRequestResponse", (response: MatchResponse) => {
-        resolve(response);
+    socket.once("matchRequestResponse", (response: MatchResponse) => {
+      onRequestMade(response);
+    });
+    socket.once("noMatchFound", () => {
+      onNoMatchFound();
+      socket.disconnect();
+    });
+    const matchFoundResponse = new Promise<MatchFoundResponse>((resolve) => {
+      socket.once("matchFound", (res: MatchFoundResponse) => {
+        resolve(res);
       });
     });
     socket.emit("matchRequest", matchRequest);
     console.log("Sent match request:", matchRequest);
-    return responsePromise;
+    return matchFoundResponse;
   } catch (error) {
     console.error("Error sending match request:", error);
     throw error;
@@ -55,19 +63,6 @@ export const cancelMatchRequest = async (
     return response.data as MatchResponse;
   } catch (error) {
     console.error("Error sending cancel match request:", error);
-    throw error;
-  }
-};
-
-export const checkMatch = async (
-  userId: string
-): Promise<CheckMatchResponse | CheckMatchResponseError> => {
-  try {
-    const response = await axiosInstance.get(`/check-match?userId=${userId}`);
-
-    return response.data as CheckMatchResponse | CheckMatchResponseError;
-  } catch (error) {
-    console.error("Error checking match:", error);
     throw error;
   }
 };

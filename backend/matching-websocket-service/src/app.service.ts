@@ -1,7 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Consumer, Kafka, Producer } from 'kafkajs';
-import { MatchRequest, MatchResponse } from './dto/request.dto';
+import {
+  MatchFoundResponse,
+  MatchRequest,
+  MatchResponse,
+} from './dto/request.dto';
 
 enum MessageAction {
   REQUEST_MATCH = 'REQUEST_MATCH',
@@ -13,6 +17,11 @@ type MatchMessage = {
   userId2: string;
   matchedTopic: string;
   matchedRoom: string;
+}
+
+type MatchTimeoutMessage = {
+  userId: string;
+  timestamp: number;
 }
 
 @Injectable()
@@ -29,6 +38,14 @@ export class MatchingWebSocketService implements OnModuleInit {
       kafkaTopic: string;
       userId: string;
       timestamp: number
+    }
+  } = {};
+
+  private readonly userSocketMap: {
+    [userId: string]: {
+      socketId: string,
+      onMatch: (matchFound: MatchFoundResponse) => void,
+      onMatchTimeout: () => void,
     }
   } = {};
 
@@ -54,22 +71,63 @@ export class MatchingWebSocketService implements OnModuleInit {
   }
 
   private async subscribeToTopics() {
-    await this.consumer.subscribe({ topic: 'matches' });
+    await this.consumer.subscribe({ topics: ['matches', 'match-timeouts'] });
   }
 
   private consumeMessages() {
     this.consumer.run({
       eachMessage: async ({ topic, message }) => {
         const messageString = message.value.toString();
-        const messageBody: MatchMessage = JSON.parse(messageString);
+        const messageBody = JSON.parse(messageString);
 
         console.log(`Received message from topic ${topic}:`, messageBody);
-        // TODO Notify both users of match using userID to socket mapping
+
+        if (topic === 'match-timeouts') {
+          this.handleMatchTimeoutMessage(messageBody);
+        } else if (topic === 'matches') {
+          this.handleMatchMessage(messageBody);
+        }
       },
     })
   }
 
-  async addMatchRequest(req: MatchRequest): Promise<MatchResponse> {
+  private handleMatchTimeoutMessage(messageBody: MatchTimeoutMessage) {
+    // Notify user of timeout
+    if (messageBody.userId in this.userSocketMap) {
+      const entry = this.userSocketMap[messageBody.userId];
+      delete this.userSocketMap[messageBody.userId];
+      delete this.socketIdReqMap[entry.socketId];
+      entry.onMatchTimeout();
+    }
+  }
+
+  private handleMatchMessage(messageBody: MatchMessage) {
+    // Notify both users of match using userID to socket mapping
+    if (messageBody.userId1 in this.userSocketMap) {
+      const res = this.userSocketMap[messageBody.userId1];
+      delete this.userSocketMap[messageBody.userId1];
+      delete this.socketIdReqMap[res.socketId];
+      res.onMatch({
+        matchedWithUserId: messageBody.userId2,
+        matchedTopic: messageBody.matchedTopic,
+        matchedRoom: messageBody.matchedRoom
+      });
+    }
+    if (messageBody.userId2 in this.userSocketMap) {
+      const res = this.userSocketMap[messageBody.userId2];
+      delete this.userSocketMap[messageBody.userId2];
+      delete this.socketIdReqMap[res.socketId];
+      res.onMatch({
+        matchedWithUserId: messageBody.userId1,
+        matchedTopic: messageBody.matchedTopic,
+        matchedRoom: messageBody.matchedRoom
+      });
+    }
+  }
+
+  async addMatchRequest(socketId: string, req: MatchRequest,
+                        onMatch: (matchFound: MatchFoundResponse) => void,
+                        onMatchTimeout: () => void): Promise<MatchResponse> {
     // TODO Perform atomic set on Redis to see if user is already in the pool
     // If an existing entry exists for the user, return an error
 
@@ -85,13 +143,34 @@ export class MatchingWebSocketService implements OnModuleInit {
           expiryTime: expiryTime
         })}]
     });
+
+    this.socketIdReqMap[socketId] = {
+      kafkaTopic: kafkaTopic,
+      userId: req.userId,
+      timestamp: currentTime
+    }
+    this.userSocketMap[req.userId] = {
+      socketId: socketId,
+      onMatch: onMatch,
+      onMatchTimeout: onMatchTimeout,
+    };
+
     return {
       message: `Match Request received for ${req.userId} at ${currentTime}`,
     }
   }
 
-  async cancelMatchRequest(socketId: string) {
+  async cancelMatchRequest(socketId: string): Promise<MatchResponse> {
+    if (!(socketId in this.socketIdReqMap)) {
+      return {
+        message: 'Failed to cancel match',
+        error: 'No existing match request found for the user'
+      }
+    }
+
     const req = this.socketIdReqMap[socketId];
+    delete this.socketIdReqMap[socketId];
+    delete this.userSocketMap[req.userId];
     await this.producer.send({
       topic: req.kafkaTopic,
       messages: [{value: JSON.stringify({
@@ -100,6 +179,10 @@ export class MatchingWebSocketService implements OnModuleInit {
           timestamp: req.timestamp
         })}]
     });
+
+    return {
+      message: `Match Request cancelled for ${req.userId} at ${req.timestamp}`,
+    }
   }
 
   private getKafkaBrokerUri(): string {

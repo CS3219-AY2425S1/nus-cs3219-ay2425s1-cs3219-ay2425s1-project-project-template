@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Server } from 'http';
 import { Server as WebSocketServer, Socket } from 'socket.io';
 import { MatchingWebSocketService } from './app.service';
-import { MatchRequest } from './dto/request.dto';
+import { MatchFoundResponse, MatchRequest } from './dto/request.dto';
 
 @Injectable()
 export class MatchingWebSocketGateway {
@@ -16,16 +16,32 @@ export class MatchingWebSocketGateway {
       }
     });
     io.on('connection', (client) => this.onConnect(client));
-    io.on('disconnect', (client) => this.onDisconnect(client));
   }
 
   private onConnect(client: Socket) {
     const onMatchRequest = async (matchRequest: MatchRequest) => {
-      await this.matchingWebSocketService.addMatchRequest(matchRequest)
+      await this.matchingWebSocketService.addMatchRequest(client.id, matchRequest,
+        (matchFound: MatchFoundResponse) => {
+          client.emit('matchFound', matchFound);
+          client.disconnect();
+        },
+        () => {
+          client.emit('noMatchFound');
+          client.disconnect();
+        }
+      )
       client.emit('matchRequestResponse', { message: 'Match request received' });
     }
 
+    const onMatchCancel = async () => {
+      await this.matchingWebSocketService.cancelMatchRequest(client.id)
+      client.emit('matchCancelResponse', { message: 'Match request cancelled' });
+      client.disconnect();
+    }
+
     console.log('Client connected to Matching WebSocket');
+    client.on('disconnect', () => this.onDisconnect(client));
+    client.on('matchCancel', onMatchCancel);
     client.once('matchRequest', onMatchRequest);
   }
 

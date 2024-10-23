@@ -65,12 +65,24 @@ export class MatchingService implements OnModuleInit {
     await this.consumer.connect();
     await this.subscribeToTopics();
     // Consume message loop
-    await this.consumeMessages();
+    this.consumeMessages();
 
     this.intervalId = setInterval(async () => {
       const currentTime = Date.now();
       // only keep expiry more than currentTime
-      await this.requestQueue.clean((userEntry) => userEntry.expiryTime <= currentTime);
+      const toRemove = await this.requestQueue.clean((userEntry) => userEntry.expiryTime <= currentTime);
+      // Send cancel messages to Kafka
+      this.producer.send({
+        topic: "match-timeouts",
+        messages: toRemove.map((entry) => {
+          return {
+            value: JSON.stringify({
+              userId: entry.userId,
+              timestamp: currentTime,
+            })
+          }
+        }),
+      });
     }, this.CLEAN_TIMEOUT);
   }
 

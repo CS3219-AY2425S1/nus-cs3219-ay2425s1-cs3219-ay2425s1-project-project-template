@@ -10,6 +10,12 @@ export type MatchResponse = {
     error?: string;
 };
 
+export type MatchFoundResponse = {
+    matchedWithUserId: string;
+    matchedTopic: string;
+    matchedRoom: string;
+}
+
 export enum QuestionTopic {
     ANY = 'any',
     ARRAY = "array",
