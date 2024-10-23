@@ -100,9 +100,7 @@ const CollabPageView: React.FC = () => {
 				console.log("Socket disconnected due to session termination.");
 			}
 		
-			setTimeout(() => {
-				navigate("/questions"); // Redirect to questions page
-			}, 2000);
+			navigate("/questions");
 	
 		});
 	
