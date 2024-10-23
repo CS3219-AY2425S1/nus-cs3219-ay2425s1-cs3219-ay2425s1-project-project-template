@@ -2,7 +2,7 @@ import { type QueryClient, queryOptions, useInfiniteQuery } from '@tanstack/reac
 import { Suspense, useEffect, useMemo } from 'react';
 import { Await, defer, type LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
-import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
+import { WithNavBanner } from '@/components/blocks/authed';
 import { Loading } from '@/components/blocks/loading';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';

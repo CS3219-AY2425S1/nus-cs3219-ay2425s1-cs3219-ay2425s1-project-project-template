@@ -6,8 +6,9 @@ export const ROUTES = {
   HOME: '/',
   QUESTIONS: '/questions',
   QUESTION_DETAILS: '/questions/:questionId',
+
   MATCH: '/match',
-  COLLAB: '/collab/:roomId',
+  INTERVIEW: '/interview/:roomId',
 };
 
 const TOP_LEVEL_AUTHED_ROUTES = {
@@ -23,10 +24,10 @@ const TOP_LEVEL_AUTHED_ROUTES = {
       title: 'Start Match',
     },
   ],
-  [ROUTES.COLLAB]: [
+  [ROUTES.INTERVIEW.replace(':roomId', '')]: [
     {
-      path: ROUTES.COLLAB,
-      title: 'Collab',
+      path: ROUTES.INTERVIEW,
+      title: 'Interview',
     },
   ],
 };
@@ -61,7 +62,7 @@ const TITLES: Record<string, string> = {
   [ROUTES.HOME]: 'Peerprep',
   [ROUTES.QUESTIONS]: 'Browse Questions',
   [ROUTES.MATCH]: 'Match With A Partner',
-  [ROUTES.COLLAB]: 'Collaborate',
+  [ROUTES.INTERVIEW]: 'Interview',
 };
 
 export const getPageTitle = (path: string) => {
