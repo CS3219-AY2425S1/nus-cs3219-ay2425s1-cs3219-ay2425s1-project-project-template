@@ -46,8 +46,23 @@ const CodeEditor = () => {
     };
 
     useEffect(() => {
+        socket.on('initialData', (data) => {
+            const { sessionData } = data;
+            const  {
+                questionDescription,
+                questionTemplateCode,
+                questionTestcases,
+                yDocUpdate,
+                partnerJoined
+            } = sessionData;
+
+            Y.applyUpdate(doc, new Uint8Array(yDocUpdate));
+
+        });
+
         socket.on('updateContent',
             (update) => {
+                console.log("updateContent", update);
                 update = new Uint8Array(update);
                 Y.applyUpdate(doc, update);
             });
@@ -78,7 +93,6 @@ const CodeEditor = () => {
                         defaultValue={CODE_SNIPPETS[language]}
                         onMount={onMount}
                         value={value}
-                        onChange={handleEdit}
                     />
                 </Box>
                 <Output editorRef={editorRef} language={language}/>

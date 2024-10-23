@@ -1,5 +1,6 @@
 import { Box, Input, Button } from '@chakra-ui/react';
 import CodeEditor from './components/CodeEditor';
+import { useState } from 'react';
 
 function App() {
 

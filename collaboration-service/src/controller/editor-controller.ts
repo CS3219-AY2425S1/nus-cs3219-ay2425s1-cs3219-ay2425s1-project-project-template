@@ -44,6 +44,8 @@ export async function initialize(socket: Socket, io: Server) {
         // Join the socket to the room
         socket.join(roomId);
 
+        console.log(`User ${userId} joined session ${roomId}`);
+
         // Emit initial data to the user after they join the room
         socket.emit('initialData', {
             message: 'You have joined the session!',
@@ -51,9 +53,9 @@ export async function initialize(socket: Socket, io: Server) {
                 questionDescription,
                 questionTemplateCode,
                 questionTestcases,
-                yDocUpdate
+                yDocUpdate,
+                partnerJoined: numOfUsersInRoom > 1
             },
-            partnerJoined: numOfUsersInRoom > 1
         });
 
         // Notify others in the room
@@ -67,40 +69,74 @@ export async function initialize(socket: Socket, io: Server) {
 
 export function handleUpdateContent(socket: Socket, io: Server) {
     socket.on('update', (update) => {
+        // console.log('Received update:', update);
         const yDocUpdate = update;
-        const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
-        socket.to(roomId).emit('updateContent', yDocUpdate);
+        const rooms = socket.rooms;
+        let roomId = '';
+        const roomArray = Array.from(rooms);
+
+        // Find the room ID
+        for (let i = 0; i < roomArray.length; i++) {
+            if (roomArray[i] !== socket.id) {
+                roomId = roomArray[i];
+                break;
+            }
+        }
+
+        io.to(roomId).emit('updateContent', yDocUpdate);
 
         // Retrieve ydoc from the database and apply the update
         // NOT SURE IF THIS WORKS - REQUIRES TESTING
-        Session.findOne({ session_id: roomId }, (err: any, doc: any) => {
-            if (err) {
-                console.error('Error finding session:', err);
+        Session.findOne({ session_id: roomId })
+        .then(doc => {
+            if (doc) {
+                doc.yDoc = Buffer.from(Y.mergeUpdates([new Uint8Array(doc.yDoc), new Uint8Array(yDocUpdate)]));
+                return doc.save();
             } else {
-                doc.yDoc = Y.applyUpdate(doc.yDoc, yDocUpdate);
-                doc.save((err: any) => {
-                    if (err) {
-                        console.error('Error saving session:', err);
-                    }
-                });
+                console.error('Session not found');
             }
+        })
+        .catch(err => {
+            console.error('Error:', err);
         });
     });
 }
 
 export function handleSelectLanguage(socket: Socket, io: Server) {
     socket.on('selectLanguage', (language) => {
-        const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
+        let roomId = '';
+        const rooms = socket.rooms;
+        const roomArray = Array.from(rooms);
+
+        for (let i = 0; i < roomArray.length; i++) {
+            if (roomArray[i] !== socket.id) {
+                roomId = roomArray[i];
+                break;
+            }
+        }
+
         socket.to(roomId).emit('updateLanguage', language);
+
     });
 }
 
 export function handleCodeExecution(socket: Socket, io: Server) {
     socket.on('codeExecution', (result) => {
-        const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
-        socket.to(roomId).emit('updateOutput', result);
+        let roomId = '';
+        const rooms = socket.rooms;
+        const roomArray = Array.from(rooms);
+
+        for (let i = 0; i < roomArray.length; i++) {
+            if (roomArray[i] !== socket.id) {
+                roomId = roomArray[i];
+                break;
+            }
+        }
+
+        io.to(roomId).emit('executionResult', result);
     });
 }
+
 
 export function handleDisconnect(socket: Socket, io: Server) {
     socket.on('disconnect', () => {
