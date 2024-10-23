@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useTable, Column, Row } from "react-table"; // Import the 'Column' type
 import { COLUMNS } from "./columns";
-import EditQuestionModal from "../QuestionModals/EditQuestionModal";
+import { EditQuestionModal } from "../../questions";
 import { useLocation } from "react-router-dom";
-import { Question, emptyQuestion } from "../../types/Question";
+import { Question, emptyQuestion } from "../../questions";
 
 // You can replace `any` with the actual type of questionList
 interface DashboardProps {
@@ -42,11 +42,9 @@ const Dashboard: React.FC<DashboardProps> = ({ questions, fetchData }) => {
         title: row.values.title,
         description: row.values.description,
         categories: row.values.categories,
-        complexity: row.values.complexity
-      }
-      openEditModal(
-        questionClicked
-      );
+        complexity: row.values.complexity,
+      };
+      openEditModal(questionClicked);
     } else if (location.pathname === "/dashboardForUsers") {
       window.location.href = `/question/${row.original.id}`;
     }

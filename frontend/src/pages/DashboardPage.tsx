@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import AdminNavBar from "../components/AdminNavBar.tsx";
-import Dashboard from "../components/Dashboard/Dashboard.tsx";
-import useQuestionList from "../hooks/useQuestionList.tsx";
+import { Dashboard } from "../features/dashboard";
+import { useQuestionList } from "../features/questions";
 
 const DashboardPage: React.FC = () => {
   const { questions, fetchData } = useQuestionList();

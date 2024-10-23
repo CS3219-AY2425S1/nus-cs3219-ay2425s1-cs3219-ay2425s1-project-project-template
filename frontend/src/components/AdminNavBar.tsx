@@ -1,8 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import ProfileButton from "./ProfileButton.tsx";
-import AddQuestionModal from "./QuestionModals/AddQuestionModal.tsx";
+import ProfileButton from "../features/profile/components/ProfileButton.tsx";
+import AddQuestionModal from "../features/questions/components/AddQuestionModal.tsx";
 import { useUser } from "../context/UserContext.tsx";
 
 interface AdminNavBarProps {
@@ -43,7 +43,7 @@ const AdminNavBar: React.FC<AdminNavBarProps> = ({ fetchData }) => {
       {/* Profile button */}
       <div className="flex-none">
         <Link to="/profile">
-          <ProfileButton currUser={user}/>
+          <ProfileButton currUser={user} />
         </Link>
       </div>
     </nav>

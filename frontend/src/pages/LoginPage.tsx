@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthNavBar from "../components/AuthNavBar.tsx";
-import WelcomeMessage from "../components/UserAuth/WelcomeMessage.tsx";
-import InputBoxLabel from "../components/UserAuth/InputBoxLabel.tsx";
+import { AuthNavBar } from "../features/authentication";
+import { WelcomeMessage } from "../features/authentication";
+import { InputBoxLabel } from "../features/authentication";
 import InputTextBox from "../components/InputTextBox.tsx";
-import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.tsx";
+import { PasswordInputTextBox } from "../features/authentication";
 import useLoginUser from "../hooks/useLoginUser.tsx";
 import { useUser } from "../context/UserContext.tsx";
-import useAuthenticateUser from "../hooks/useAuthenticateUser.tsx";
+import { useAuthenticateUser } from "../features/authentication";
 
 const LoginPage: React.FC = () => {
   const [emailValue, setEmailValue] = useState("");
@@ -36,27 +36,25 @@ const LoginPage: React.FC = () => {
       setShowErrorMessage
     ); // Call the custom hook function
     console.log(newUser);
-    
   };
 
   useEffect(() => {
     if (user) {
       authenticateUser(setSuccess);
     }
-  }, [user])
+  }, [user]);
 
   const navigate = useNavigate();
   useEffect(() => {
     if (success) {
       // if (loggedInUser?.isAdmin) {
       if (user?.isAdmin) {
-        navigate('/dashboard', { replace: true}); // Replace: true to clear back history
+        navigate("/dashboard", { replace: true }); // Replace: true to clear back history
       } else {
         navigate("/dashboardForUsers", { replace: true }); // Replace: true to clear back history
       }
     }
   }, [success]);
-
 
   return (
     <div className="w-screen h-screen flex flex-col">

@@ -1,6 +1,6 @@
 import React from "react";
 import ComplexityDropDown from "./ComplexityDropDown";
-import { Question } from "../../types/Question";
+import { Question } from "../types/Question";
 import DescriptionInput from "./DescriptionInput";
 
 interface DeleteQuestionModalProps {
@@ -10,12 +10,11 @@ interface DeleteQuestionModalProps {
   fetchData: () => Promise<void>;
 }
 
-const DeleteQuestionModal: React.FC<
-  DeleteQuestionModalProps> = ({
-    oldQuestion,
-    onClose,
-    onDelete,
-    fetchData,
+const DeleteQuestionModal: React.FC<DeleteQuestionModalProps> = ({
+  oldQuestion,
+  onClose,
+  onDelete,
+  fetchData,
 }) => {
   const deleteQuestion = async (questionID: string) => {
     try {
@@ -71,10 +70,10 @@ const DeleteQuestionModal: React.FC<
 
           <div className="mt-3"></div>
           {/* Complexity */}
-          <ComplexityDropDown 
-            currComplexity={oldQuestion.complexity} 
-            setComplexityValue={() => {}} 
-            isDisabled={true} 
+          <ComplexityDropDown
+            currComplexity={oldQuestion.complexity}
+            setComplexityValue={() => {}}
+            isDisabled={true}
           />
 
           {/* Category */}

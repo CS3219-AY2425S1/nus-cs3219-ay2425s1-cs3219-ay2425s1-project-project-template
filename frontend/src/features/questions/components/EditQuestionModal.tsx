@@ -3,7 +3,7 @@ import { useState } from "react";
 import DeleteQuestionModal from "./DeleteQuestionModal";
 import EditConfirmationModal from "./EditConfirmationModal";
 import ComplexityDropDown from "./ComplexityDropDown";
-import { Question } from "../../types/Question";
+import { Question } from "../types/Question";
 import DescriptionInput from "./DescriptionInput";
 
 interface EditQuestionModalProps {
@@ -12,13 +12,11 @@ interface EditQuestionModalProps {
   fetchData: () => Promise<void>;
 }
 
-const EditQuestionModal: React.FC<
-  EditQuestionModalProps> = ({
-    oldQuestion,
-    onClose,
-    fetchData,
+const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
+  oldQuestion,
+  onClose,
+  fetchData,
 }) => {
-
   /* PUT request to API to edit question */
   const editQuestion = async (
     questionID: string,
@@ -71,10 +69,16 @@ const EditQuestionModal: React.FC<
   const openEditConfirmationModal = () => setEditConfirmationModalOpen(true);
   const closeEditConfirmationModal = () => setEditConfirmationModalOpen(false);
 
-  const [newComplexityValue, setNewComplexityValue] = useState(oldQuestion.complexity);
-  const [newCategoryList, setNewCategoryList] = useState(oldQuestion.categories);
+  const [newComplexityValue, setNewComplexityValue] = useState(
+    oldQuestion.complexity
+  );
+  const [newCategoryList, setNewCategoryList] = useState(
+    oldQuestion.categories
+  );
   const [newTitleValue, setNewTitleValue] = useState(oldQuestion.title);
-  const [newDescriptionValue, setNewDescriptionValue] = useState(oldQuestion.description);
+  const [newDescriptionValue, setNewDescriptionValue] = useState(
+    oldQuestion.description
+  );
   const [newQuestion, setNewQuestion] = useState(oldQuestion);
   const [isMissingWarningVisible, setIsMissingWarningVisible] = useState(false);
 
@@ -85,12 +89,12 @@ const EditQuestionModal: React.FC<
       .map((item) => item.trim())
       .filter((item) => item !== "");
     setNewCategoryList(categoryList);
-  }
+  };
 
   const onDeleteConfirm = () => {
     closeDeleteModal();
     onClose();
-  }
+  };
 
   const onEditConfirm = async () => {
     await editQuestion(
@@ -100,7 +104,7 @@ const EditQuestionModal: React.FC<
       newTitleValue,
       newDescriptionValue
     );
-  }
+  };
 
   const onEditSubmit = () => {
     /* Check if all fields are filled */
@@ -121,8 +125,8 @@ const EditQuestionModal: React.FC<
         complexity: newComplexityValue,
         categories: newCategoryList,
         title: newTitleValue,
-        description: newDescriptionValue
-      }
+        description: newDescriptionValue,
+      };
       setNewQuestion(newQuestion);
       openEditConfirmationModal();
     }
@@ -154,10 +158,10 @@ const EditQuestionModal: React.FC<
 
         <div className="mt-3"></div>
         {/* Complexity */}
-        <ComplexityDropDown 
-          currComplexity={oldQuestion.complexity} 
-          setComplexityValue={setNewComplexityValue} 
-          isDisabled={false} 
+        <ComplexityDropDown
+          currComplexity={oldQuestion.complexity}
+          setComplexityValue={setNewComplexityValue}
+          isDisabled={false}
         />
 
         {/* Category */}
@@ -186,7 +190,9 @@ const EditQuestionModal: React.FC<
               type="text"
               id="title"
               defaultValue={oldQuestion.title}
-              onChange={(event) => {setNewTitleValue(event.target.value);}}
+              onChange={(event) => {
+                setNewTitleValue(event.target.value);
+              }}
               className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-800 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-opacity-50 focus:ring-black sm:text-sm sm:leading-6"
             ></input>
           </div>
@@ -194,9 +200,9 @@ const EditQuestionModal: React.FC<
 
         {/* Question description */}
         <DescriptionInput
-            currDescription={oldQuestion.description}
-            setDescriptionValue={setNewDescriptionValue}
-            isDisabled={false}
+          currDescription={oldQuestion.description}
+          setDescriptionValue={setNewDescriptionValue}
+          isDisabled={false}
         />
 
         {/* Action buttons */}

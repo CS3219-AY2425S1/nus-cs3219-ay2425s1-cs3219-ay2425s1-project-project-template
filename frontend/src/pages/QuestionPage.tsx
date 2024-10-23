@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar.tsx";
 import { useParams } from "react-router-dom";
-import useRetrieveQuestion from "../hooks/useRetrieveQuestion.tsx";
-import QuestionDisplay from "../components/QuestionDisplay.tsx";
-import { Question } from "../types/Question.tsx";
+import { useRetrieveQuestion } from "../features/questions";
+import { QuestionDisplay } from "../features/questions";
+import { Question } from "../features/questions";
 
 const QuestionPage: React.FC = () => {
   const { title } = useParams<{ title: string }>();

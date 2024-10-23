@@ -1,9 +1,9 @@
 import { useLocation, Link } from "react-router-dom";
-import MatchButton from "./matchingModals/MatchButton";
-import ProfileButton from "./ProfileButton";
+import MatchButton from "../features/matching/components/MatchButton";
+import ProfileButton from "../features/profile/components/ProfileButton";
 import { useUser } from "../context/UserContext";
 import { useState } from "react";
-import MatchingModal from "./matchingModals/MatchingModal";
+import MatchingModal from "../features/matching/components/MatchingModal";
 
 const NavBar = () => {
   const location = useLocation();

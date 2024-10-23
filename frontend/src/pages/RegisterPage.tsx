@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthNavBar from "../components/AuthNavBar.tsx";
-import WelcomeMessage from "../components/UserAuth/WelcomeMessage.tsx";
-import InputBoxLabel from "../components/UserAuth/InputBoxLabel.tsx";
+import { AuthNavBar } from "../features/authentication";
+import { WelcomeMessage } from "../features/authentication";
+import { InputBoxLabel } from "../features/authentication";
 import InputTextBox from "../components/InputTextBox.tsx";
 import useRegisterUser from "../hooks/useRegisterUser.tsx";
 import { User } from "../types/User.tsx";
-import PasswordInputTextBox from "../components/UserAuth/PasswordInputTextBox.tsx";
+import { PasswordInputTextBox } from "../features/authentication";
 import { useUser } from "../context/UserContext.tsx";
 
 const RegisterPage: React.FC = () => {

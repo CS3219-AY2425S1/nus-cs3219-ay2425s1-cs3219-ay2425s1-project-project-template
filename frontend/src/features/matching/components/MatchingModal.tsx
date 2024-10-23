@@ -1,10 +1,10 @@
 import { useState } from "react";
 import io from "socket.io-client";
 import MatchingRequestForm from "./MatchingRequestForm";
-import { MatchingRequestFormState } from "../../types/MatchingRequestFormState";
-import Timer from "./Timerr.tsx";
-import { useUser } from "../../context/UserContext.tsx";
-import Alert from 'react-bootstrap/Alert';
+import { MatchingRequestFormState } from "../types/MatchingRequestFormState";
+import Timer from "./Timer.tsx";
+import { useUser } from "../../../context/UserContext.tsx";
+import Alert from "react-bootstrap/Alert";
 
 interface MatchingModalProps {
   closeMatchingModal: () => void;
@@ -43,7 +43,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         name: user?.username, // set up with user context later
         topic: formData.topic,
         difficulty: formData.difficulty,
-      })
+      });
       const res = await fetch("http://localhost:3000/match/findMatch", {
         mode: "cors",
         method: "POST",
@@ -62,7 +62,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
         console.error("No match ID received");
         return;
       }
-      
+
       setMatchId(data.matchId);
 
       // Execute socket logic after returning the response object
@@ -80,7 +80,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
 
       socket.on("broadcast", (message) => {
         console.log("Received broadcast message:", message);
-      }); 
+      });
 
       socket.on("disconnect", () => {
         socket.off();
@@ -112,37 +112,47 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
       setShowTimer(false);
       setShowCancelButton(false);
     }
-  }
+  };
 
   const handleMatchNotFound = (): Promise<void> => {
     handleCancelMatchRequest();
     setCancelAlert(true);
     setShowCancelButton(false);
     return Promise.resolve();
-  }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 bg-gray-900 bg-opacity-60">
-      <div className="relative p-6 bg-white rounded-lg shadow-lg space-y-6"> {/* Consistent spacing inside modal */}
+      <div className="relative p-6 bg-white rounded-lg shadow-lg space-y-6">
+        {" "}
+        {/* Consistent spacing inside modal */}
         <button
           onClick={closeMatchingModal}
           className="absolute top-2 right-2 px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-full"
         >
           X
         </button>
-        {
-          cancelAlert 
-            ? <Alert key="warning" variant="warning">No match was found! Please try again later</Alert> 
-            : <></>
-        }
+        {cancelAlert ? (
+          <Alert key="warning" variant="warning">
+            No match was found! Please try again later
+          </Alert>
+        ) : (
+          <></>
+        )}
         {isMatchFound ? (
-          <Alert key="success" variant="success">Found a new match! </Alert> 
+          <Alert key="success" variant="success">
+            Found a new match!{" "}
+          </Alert>
         ) : (
           <></>
         )}
         <div className="flex flex-col space-y-4">
           {showTimer ? (
-            <Timer showTimer={showTimer} cancelMatchRequest={handleMatchNotFound} setShowTimer={setShowTimer}/>
+            <Timer
+              showTimer={showTimer}
+              cancelMatchRequest={handleMatchNotFound}
+              setShowTimer={setShowTimer}
+            />
           ) : (
             <MatchingRequestForm
               handleSubmit={() => handleFindMatchRequest(formData)}
@@ -151,10 +161,8 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
             />
           )}
         </div>
-        {
-          showCancelButton
-            ? (
-            <div className="flex justify-center mt-4">
+        {showCancelButton ? (
+          <div className="flex justify-center mt-4">
             <button
               onClick={handleCancel}
               className="px-6 py-2 text-white bg-yellow rounded hover:bg-brown"
@@ -162,9 +170,9 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
               Cancel match request
             </button>
           </div>
-            )
-          : <></>
-        }
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
