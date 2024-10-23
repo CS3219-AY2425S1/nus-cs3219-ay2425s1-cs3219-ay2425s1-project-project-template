@@ -36,14 +36,14 @@ export const Editor = ({ room }: EditorProps) => {
   return (
     <div className='flex flex-col gap-4 p-4'>
       {isLoading ? (
-        <div className='flex h-16 w-full flex-row justify-between pt-4'>
+        <div className='flex h-[60px] w-full flex-row justify-between pt-3'>
           <div className='flex h-10 flex-row gap-4'>
             <Skeleton className='h-10 w-16' />
             <Skeleton className='h-10 w-32' />
           </div>
           <div className='flex flex-row items-center gap-2'>
             <Skeleton className='size-10 rounded-full' />
-            <Skeleton className='h-8 w-24' />
+            <Skeleton className='h-8 w-24 rounded-sm' />
           </div>
         </div>
       ) : (
@@ -52,10 +52,10 @@ export const Editor = ({ room }: EditorProps) => {
             <div className='flex flex-col gap-2'>
               <Label>Language</Label>
               <Select value={language} onValueChange={(val) => setLanguage(val as LanguageName)}>
-                <SelectTrigger className='max-w-[150px]'>
+                <SelectTrigger className='focus-visible:ring-secondary-foreground/60 max-w-[150px]'>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='border-secondary-foreground/30'>
                   {languages.map((lang, idx) => (
                     <SelectItem value={lang} key={idx}>
                       {lang}
@@ -67,10 +67,10 @@ export const Editor = ({ room }: EditorProps) => {
             <div className='flex flex-col gap-2'>
               <Label>Theme</Label>
               <Select value={theme} onValueChange={(val) => setTheme(val as IEditorTheme)}>
-                <SelectTrigger className='max-w-[150px]'>
+                <SelectTrigger className='focus-visible:ring-secondary-foreground/60 max-w-[150px]'>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='border-secondary-foreground/30'>
                   {themeOptions.map((theme, idx) => (
                     <SelectItem value={theme} key={idx}>
                       {theme}
@@ -85,7 +85,7 @@ export const Editor = ({ room }: EditorProps) => {
               {/* TODO: Get user avatar and display */}
               {members.map((member, index) => (
                 <div
-                  className='grid size-8 place-items-center !overflow-clip rounded-full border p-1 text-xs'
+                  className='grid size-8 place-items-center !overflow-clip rounded-full border-2 p-1 text-xs'
                   style={{
                     borderColor: member.color,
                   }}

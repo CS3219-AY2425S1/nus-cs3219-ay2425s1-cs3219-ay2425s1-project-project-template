@@ -66,29 +66,29 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                 render={({ field }) => (
                   <FormItem className='md:w-[350px]'>
                     <FormLabel>Topics</FormLabel>
-                    <MultiSelector
-                      values={field.value}
-                      onValuesChange={field.onChange}
-                      className='whitespace-nowrap'
-                    >
-                      <FormControl>
-                        <MultiSelectorTrigger className='bg-popover max-h-24 overflow-y-auto'>
+                    <FormControl>
+                      <MultiSelector
+                        values={field.value}
+                        onValuesChange={field.onChange}
+                        className='whitespace-nowrap'
+                      >
+                        <MultiSelectorTrigger className='bg-popover focus-within:ring-secondary-foreground/50 max-h-24 overflow-y-auto'>
                           <MultiSelectorInput placeholder='Select topic(s)' />
                         </MultiSelectorTrigger>
-                      </FormControl>
-                      <MultiSelectorContent>
-                        <MultiSelectorList>
-                          {topics.map((topic) => {
-                            return (
-                              <MultiSelectorItem value={topic} key={topic}>
-                                {topic}
-                              </MultiSelectorItem>
-                            );
-                          })}
-                        </MultiSelectorList>
-                      </MultiSelectorContent>
-                      <FormMessage />
-                    </MultiSelector>
+                        <MultiSelectorContent>
+                          <MultiSelectorList className='border-secondary-foreground/40 border'>
+                            {topics.map((topic) => {
+                              return (
+                                <MultiSelectorItem value={topic} key={topic}>
+                                  {topic}
+                                </MultiSelectorItem>
+                              );
+                            })}
+                          </MultiSelectorList>
+                        </MultiSelectorContent>
+                      </MultiSelector>
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -100,20 +100,20 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                 render={({ field }) => (
                   <FormItem className='mt-2'>
                     <FormLabel>Difficulty</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className='bg-popover'>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className='bg-popover focus:ring-secondary-foreground/50'>
                           <SelectValue placeholder='Select difficulty' />
                         </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {DIFFICULTIES.map((value, index) => (
-                          <SelectItem key={index} value={value}>
-                            {value}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectContent className='border-secondary-foreground/40'>
+                          {DIFFICULTIES.map((value, index) => (
+                            <SelectItem key={index} value={value}>
+                              {value}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

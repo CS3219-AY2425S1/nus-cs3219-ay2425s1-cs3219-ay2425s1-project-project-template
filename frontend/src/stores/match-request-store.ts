@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
-import { IRequestMatchFormSchema } from '@/routes/match/logic';
+import type { IRequestMatchFormSchema } from '@/routes/match/logic';
 
 const matchRequestContext = createContext<{ form?: UseFormReturn<IRequestMatchFormSchema> }>({});
 

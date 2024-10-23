@@ -1,8 +1,8 @@
-import { QueryClient,useSuspenseQuery } from '@tanstack/react-query';
+import { QueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
-import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
+import { WithNavBanner } from '@/components/blocks/authed';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';

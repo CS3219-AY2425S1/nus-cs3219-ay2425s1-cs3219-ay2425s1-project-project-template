@@ -108,7 +108,7 @@ export const useCollab = (roomId: string) => {
       });
       _setLanguage((yState.get('language') as LanguageName) ?? 'python');
       setSharedDocRef(yState);
-      setTimeout(() => setIsLoading(false), 100); // Flush to next render
+      setTimeout(() => setIsLoading(false), 300);
 
       return () => {
         doc.destroy();
