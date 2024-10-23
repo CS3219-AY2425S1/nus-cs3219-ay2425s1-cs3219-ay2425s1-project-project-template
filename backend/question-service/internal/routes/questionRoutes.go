@@ -2,7 +2,7 @@ package routes
 
 import (
 	"net/http"
-	
+
 	"question-service/internal/controllers"
 	"question-service/internal/middleware"
 
@@ -13,6 +13,10 @@ import (
 func RegisterQuestionRoutes(router *mux.Router) {
 	// Public routes (GET requests) - Require authentication
 	router.Handle("/questions", middleware.VerifyAccessToken(http.HandlerFunc(controllers.GetAllQuestions))).Methods("GET")
+
+	// Route for collaboration service to get a matching question based on complexity and category
+	router.Handle("/questions/get-question", middleware.VerifyAccessToken(http.HandlerFunc(controllers.GetQuestion))).Methods("GET")
+
 	router.Handle("/questions/{id}", middleware.VerifyAccessToken(http.HandlerFunc(controllers.GetQuestionByID))).Methods("GET")
 
 	// Admin-only routes (POST, PUT, DELETE requests) - Require both authentication and admin privileges

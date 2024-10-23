@@ -12,6 +12,7 @@ services:
       - user-service
       - question-service
       - matching-service
+      - collaboration-service
     networks:
       - app-network
 
@@ -51,6 +52,16 @@ services:
     networks:
       - app-network
 
+  collaboration-service:
+      build:
+        context: ./backend/collaboration-service
+      ports:
+        - "8080:8080" 
+      environment:
+        - NODE_ENV=production
+      networks:
+        - app-network
+        
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -77,6 +88,7 @@ services:
       - user-service
       - question-service
       - matching-service
+      - collaboration-service
     networks:
       - app-network
 
