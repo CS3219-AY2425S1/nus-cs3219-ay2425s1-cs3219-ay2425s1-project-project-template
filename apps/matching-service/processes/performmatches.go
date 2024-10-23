@@ -25,10 +25,6 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 	for true {
 
 		err := rdb.Watch(ctx, func(tx *redis.Tx) error {
-			// Log queue before and after matchmaking
-			databases.PrintMatchingQueue(tx, "Before Matchmaking", ctx)
-			defer databases.PrintMatchingQueue(tx, "After Matchmaking", ctx)
-
 			queuedUsernames, err := databases.GetAllQueuedUsers(tx, ctx)
 			if err != nil {
 				return err
@@ -42,6 +38,10 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 			}
 
 			databases.AddUser(tx, matchRequest, ctx)
+
+			// Log queue before and after matchmaking
+			databases.PrintMatchingQueue(tx, "Before Matchmaking", ctx)
+			defer databases.PrintMatchingQueue(tx, "After Matchmaking", ctx)
 
 			// Find a matching user if any
 			matchFound, err := databases.FindMatchingUser(tx, currentUsername, ctx)
