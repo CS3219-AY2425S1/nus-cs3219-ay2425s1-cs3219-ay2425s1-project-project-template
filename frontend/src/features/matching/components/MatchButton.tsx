@@ -1,18 +1,8 @@
 import React from "react";
+import GreenButton from "../../../components/GreenButton";
 
-interface MatchButtonProps {
-    onClick: () => void;
-}
-
-const MatchButton: React.FC<MatchButtonProps> = ({ onClick }) => {
-    return (
-        <button
-            onClick={() => onClick()}
-            className="bg-green rounded-[25px] p-4 text-2xl hover:bg-emerald-700"
-        >
-            Find Match!
-        </button>
-    );
-}
+const MatchButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  return <GreenButton onClick={onClick} label="Find Match!" />;
+};
 
 export default MatchButton;

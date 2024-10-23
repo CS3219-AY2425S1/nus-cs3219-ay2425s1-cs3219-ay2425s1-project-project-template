@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/NavBar.tsx";
+import ProfileNavBar from "../components/ProfileNavBar.tsx";
 import { EditUsernameModal } from "../features/profile";
 import { EditEmailModal } from "../features/profile";
 import { EditPasswordModal } from "../features/profile";
@@ -67,7 +67,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="bg-white w-screen h-screen">
-      <Navbar />
+      <ProfileNavBar />
 
       <div className="justify-center p-4 grid">
         <div className="py-16 justify-center grid">

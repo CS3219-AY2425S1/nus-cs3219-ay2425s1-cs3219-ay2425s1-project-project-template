@@ -3,12 +3,12 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
-import DashboardPageForUsers from "./pages/DashBoardForUsersPage";
+import DashboardPageForUsers from "./pages/DashboardForUsersPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import { UserProvider } from "./context/UserContext";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const App: React.FC = () => {
   return (

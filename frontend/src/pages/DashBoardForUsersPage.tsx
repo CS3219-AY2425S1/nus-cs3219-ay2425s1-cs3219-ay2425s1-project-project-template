@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import NavBar from "../components/NavBar.tsx";
-import { Dashboard } from "../features/dashboard";
-import { useQuestionList } from "../features/questions";
+import UserNavBar from "../components/UserNavBar.tsx";
+import { Dashboard } from "../features/dashboard/index.ts";
+import { useQuestionList } from "../features/questions/index.ts";
 
 const DashboardForUsersPage: React.FC = () => {
   const { questions, fetchData } = useQuestionList();
@@ -12,7 +12,7 @@ const DashboardForUsersPage: React.FC = () => {
 
   return (
     <div className="w-screen h-screen flex flex-col">
-      <NavBar />
+      <UserNavBar />
       <Dashboard questions={questions} fetchData={fetchData} />
     </div>
   );

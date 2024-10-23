@@ -1,11 +1,11 @@
 import React from "react";
-import Navbar from "../components/NavBar.tsx";
+import LandingNavBar from "../components/LandingNavBar.tsx";
 import { Link } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
   return (
     <div className="bg-gradient-to-tr from-[#E0EFEF] via-[#8E9AA1] to-[#3D4553] w-screen h-screen flex flex-col">
-      <Navbar />
+      <LandingNavBar />
       <div className="flex flex-col items-center justify-center text-off-white flex-grow">
         <h1 className="text-8xl font-bold">
           Tech <br />

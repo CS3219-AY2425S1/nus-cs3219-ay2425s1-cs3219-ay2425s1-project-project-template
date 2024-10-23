@@ -4,7 +4,7 @@ import { useLocation, Link } from "react-router-dom";
 import ProfileButton from "../features/profile/components/ProfileButton.tsx";
 import AddQuestionModal from "../features/questions/components/AddQuestionModal.tsx";
 import { useUser } from "../context/UserContext.tsx";
-
+import PeerPrepLogo from "./PeerPrepLogo.tsx";
 interface AdminNavBarProps {
   fetchData: () => Promise<void>;
 }
@@ -19,11 +19,7 @@ const AdminNavBar: React.FC<AdminNavBarProps> = ({ fetchData }) => {
     <nav className="bg-off-white w-full p-4 flex items-center justify-between">
       {/* Logo or Brand */}
       <div className="container flex justify-start">
-        <img
-          src="/src/assets/logo.svg"
-          alt="PeerPrep logo"
-          className="h-16 w-64"
-        />
+        <PeerPrepLogo />
       </div>
       {/* Conditionally render extra div based on location */}
       {location.pathname == "/question" ||

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../components/NavBar.tsx";
+import UserNavBar from "../components/UserNavBar.tsx";
 import { useParams } from "react-router-dom";
 import { useRetrieveQuestion } from "../features/questions";
 import { QuestionDisplay } from "../features/questions";
@@ -16,7 +16,7 @@ const QuestionPage: React.FC = () => {
 
   return (
     <div className="w-screen h-screen flex flex-col">
-      <NavBar />
+      <UserNavBar />
       <div className="grid grid-cols-2 gap-4 flex-grow">
         <div className="flex flex-col flex-grow">
           <QuestionDisplay question={question} />
