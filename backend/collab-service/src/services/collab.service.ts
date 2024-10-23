@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Y from 'yjs';
 import { Room, RoomResponse } from '../interfaces/room.interface';
+import axios from 'axios';
 
 @Injectable()
 export class CollabService {
@@ -121,4 +122,21 @@ export class CollabService {
       });
     }, 5 * 60 * 1000); // 5 minutes in milliseconds
   }
+
+  async getQuestion(topic: string, difficulty: string) {
+    let queryTopic: string, queryDifficulty: string;
+    if (topic != 'any') {
+        queryTopic = topic;
+    }
+    if (difficulty != 'any') {
+        queryDifficulty = difficulty;
+    }
+    // const questionServiceUrl = this.configService.get('QUESTION_SERVICE_DOMAIN');
+    const questionServiceUrl = 'http://localhost:8001';
+    const response = await axios.get(`${questionServiceUrl}/question/random`, {
+      params: { topic: queryTopic, difficulty: queryDifficulty }
+    });
+    return response.data;
+  }
+
 }

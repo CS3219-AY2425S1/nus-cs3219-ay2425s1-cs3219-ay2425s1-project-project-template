@@ -21,5 +21,10 @@ export class CollabController {
         return this.collabService.getRoom(id);
     }
 
+    @Get('question')
+    async getRandomQuestion(@Param('topic') topic: string, @Param('difficulty') difficulty: string) {    
+        return this.collabService.getQuestion(topic, difficulty);
+    }
+
 }
 
