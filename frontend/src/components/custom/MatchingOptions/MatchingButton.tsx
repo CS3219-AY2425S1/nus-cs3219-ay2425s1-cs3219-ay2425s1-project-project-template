@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client"; // WebSocket client for Socket.IO
 import { Button } from "@/components/ui/button";
 import { useStopwatch } from "react-timer-hook";
+import { useNavigate } from "react-router-dom";
+
 
 interface MatchingButtonProps {
   selectedTopic: string[];
@@ -15,6 +17,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
   const [isMatching, setIsMatching] = useState(false);
   const [matchFound, setMatchFound] = useState(false);
   const socketRef = useRef<any>(null);
+  const navigate = useNavigate();
 
   const { seconds, minutes, start, reset } = useStopwatch({ autoStart: false });
 
@@ -25,14 +28,26 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         "ws://localhost:5003/matching";
       const token = sessionStorage.getItem("authToken");
       const uid = sessionStorage.getItem("uid");
+      const otherUid = sessionStorage.getItem("otherUid");
+
+      console.log("Session Storage:", sessionStorage);
 
       // Initialize WebSocket connection
       socketRef.current = io(matchingServiceBackendUrl, {
         auth: {
           token: token,
           uid: uid,
+          otherUid: otherUid,
         },
         withCredentials: true,
+      });
+
+      socketRef.current.on("connect", () => {
+        console.log("Socket connected.");
+      });
+
+      socketRef.current.on("disconnect", () => {
+        console.log("Socket disconnected.");
       });
 
       // Listen for events from backend
@@ -41,6 +56,10 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         setMatchFound(true);
         console.log("Match found: ", data);
         socketRef.current.emit("joinRoom", data.sessionData.uid, data.roomId);
+      });
+
+      socketRef.current.on("navigateToCollab", (data: any) => {
+        navigateToCollabPage(data); // Now we navigate to the collaboration page
       });
 
       socketRef.current.on("matchmakingTimedOut", (timedOutMessage: any) => {
@@ -106,12 +125,46 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
     setIsMatching(true);
   };
 
+  const clearSocketSession = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect(); // Clear the socket session
+    }
+  };
+
   const handleCancelMatchmaking = () => {
     reset();
     setIsMatching(false);
     socketRef.current.emit("cancelMatching", sessionStorage.getItem("uid"));
   };
 
+  const navigateToCollabPage = (data: any) => {
+    if (!data) {
+      console.error("No data received for navigation.");
+      return;
+    }
+    const { sessionId } = data; // Extract sessionId from the data object
+    console.log("Extracted sessionId:", sessionId);
+    if (!sessionId) {
+        console.error("sessionId is missing.");
+        return;
+    }
+    if (socketRef.current && socketRef.current.connected) {
+      const collabPageUrl = `/collab/${sessionId}`;
+      console.log("Navigating to URL:", collabPageUrl);
+
+      const uid = sessionStorage.getItem("uid");
+      console.log("User ID (uid):", uid);
+      
+      clearSocketSession();
+
+      setTimeout(() => {
+        navigate(collabPageUrl);
+      }, 5000); // 1000 milliseconds = 1 second
+    } else {
+      console.warn("Socket is not connected when trying to navigate to the collaboration page.");
+    }
+  };
+  
   return (
     <div>
       {isMatching && !matchFound ? (

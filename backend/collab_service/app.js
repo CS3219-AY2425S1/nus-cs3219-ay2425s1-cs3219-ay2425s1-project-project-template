@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const collabRoutes = require('./routes/collabRoutes');
 const firebaseConfig = require("./config/firebaseConfig"); // Ensure Firebase is initialized
+const authenticateToken = require('./middleware/authenticateToken');
 const app = express();
 
 // Allow requests from http://localhost:3000 (production frontend) and http://localhost:5173 (development frontend) with credentials
@@ -14,7 +15,7 @@ app.use(cors({
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Handle URL-encoded data
-
+app.use(authenticateToken);
 // Routes
 app.use('/', collabRoutes);
 

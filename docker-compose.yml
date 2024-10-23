@@ -55,6 +55,7 @@ services:
       args:
         USER_SERVICE_BACKEND_URL: ${USER_SERVICE_BACKEND_URL}
         QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL: ${QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL}
+        COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL: ${COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL}
         REDIS_URL: ${REDIS_URL}
         RABBITMQ_URL: ${RABBITMQ_URL}
     ports:
@@ -70,6 +71,20 @@ services:
         condition: service_started
       question_service:
         condition: service_started
+      collab_service:
+        condition: service_started
+      
+  collab_service:
+    build: 
+      context: ./backend/collab_service # Path to the directory containing the Dockerfile for building the question service image.
+      args:
+        USER_SERVICE_BACKEND_URL: ${USER_SERVICE_BACKEND_URL}
+    ports:
+      - 5004:5004 # Maps port 5004 on the host to port 5004 in the container, making the app accessible on the host.
+    networks:
+      - app-network 
+    depends_on:
+      - user_service
 
   frontend:
     build:
@@ -77,6 +92,8 @@ services:
       args:
         VITE_QUESTION_SERVICE_BACKEND_URL: ${VITE_QUESTION_SERVICE_BACKEND_URL}
         VITE_MATCHING_SERVICE_BACKEND_URL: ${VITE_MATCHING_SERVICE_BACKEND_URL}
+        VITE_COLLAB_SERVICE_BACKEND_URL: ${VITE_COLLAB_SERVICE_BACKEND_URL}
+
     ports:
       - 3000:80
     networks:

@@ -14,8 +14,6 @@ class SocketController {
       this.handleStartMatching(socket, data)
     );
 
-    socket.on("joinRoom", (uid, room) => this.handleJoinRoom(socket, uid, room));
-
     socket.on("cancelMatching", (uid) => this.handleCancelMatching(uid));
 
     socket.on("disconnect", () => this.handleDisconnect(socket));
@@ -67,10 +65,16 @@ class SocketController {
   }
 
   async handleMatching(currUserSocket, sessionData, difficulty, topic) {
+    console.log("this.io:", this.io);
     const { prevUserSessionData, currUserSessionData } = sessionData;
     const token = currUserSocket.handshake.auth.token;
 
     const prevUserSocketId = prevUserSessionData.socketId;
+    const prevUserSocket = this.io.sockets.get(prevUserSocketId);
+
+    const createsession =
+    process.env.COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL ||
+    "http://localhost:5004/create-session";
 
     try {
       const questions = await this.getAllQuestionsOfTopicAndDifficulty(
@@ -88,7 +92,8 @@ class SocketController {
         currUserSocket.emit(
           "noQuestionsFound",
           "No questions available for the selected topic and difficulty. Please choose another."
-        );
+        );  
+
         this.removeExistingConnection(prevUserSessionData.uid);
         this.removeExistingConnection(currUserSessionData.uid);
         return; // Exit the function if no questions are found
@@ -114,6 +119,46 @@ class SocketController {
 
       // Logic for collab service: collabService(this.io, roomId) etc
       // this.io.to(roomId).emit(...)
+      console.log("Creating session...");
+      const sessionId = roomId
+
+      const requestBody = {
+        sessionId: sessionId, // ID of the session
+        sessionData: sessionData, // Data related to the session (user info, etc.)
+        questionData: randomQuestion, // Random question to be included in the session
+      };
+      
+      // Log the request body
+      console.log('Request Body:', JSON.stringify(requestBody));
+      
+      const response = await fetch(createsession, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`, // If using JWT or similar
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+    
+      if (response.ok) {
+          const result = await response.json();
+          console.log('Session created:', result);
+      } else {
+          const error = await response.json();
+          console.error('Error creating session:', error);
+      }
+        console.log("Emitting navigateToCollab to both users with session ID:", sessionId);
+        console.log("Session Data:", JSON.stringify(sessionData, null, 2));
+
+        this.emitNavigateToCollab(prevUserSocket, currUserSocket, sessionId, prevUserSessionData, currUserSessionData, randomQuestion);
+
+        await this.removeExistingConnection(prevUserSessionData.uid);
+        await this.removeExistingConnection(currUserSessionData.uid);
+
+        // Disconnect both users' sockets
+        prevUserSocket.disconnect();
+        currUserSocket.disconnect();
+
     } catch (error) {
       console.error(error);
       this.io.to(prevUserSocketId).emit(
@@ -126,15 +171,7 @@ class SocketController {
       );
     } finally {
       // Remove existing connections
-      // this.removeExistingConnection(prevUserSessionData.uid);
-      // this.removeExistingConnection(currUserSessionData.uid);
     }
-  }
-
-  handleJoinRoom(socket, uid, room) {
-    socket.join(room);
-    console.log(`User ${uid} joined room: ${room}`);
-    this.removeExistingConnection(uid); // To be removed when collab service is in place
   }
 
   handleCancelMatching(uid) {
@@ -153,9 +190,30 @@ class SocketController {
     }
   }
 
-  async handleDisconnect(socket) {
-    await this.removeExistingConnection(socket.handshake.auth.uid); // uid is passed in socket auth from frontend
+  emitNavigateToCollab(prevUserSocket, currUserSocket, sessionId, prevUserSessionData, currUserSessionData, questionData) {
+    console.log("Emitting navigateToCollab with params:", {
+      sessionId,
+      prevUserSessionData,
+      currUserSessionData,
+      questionData
+    });
+    // Navigate to collab and pass session info
+    prevUserSocket.emit("navigateToCollab", { sessionId, sessionData: prevUserSessionData, questionData });
+    currUserSocket.emit("navigateToCollab", { sessionId, sessionData: currUserSessionData, questionData });
+    console.log("Event 'navigateToCollab' emitted to both sockets.");
   }
+  
+  async handleDisconnect(socket) {
+    console.log('Disconnecting user with socket:', socket);
+
+    const uid = socket.handshake.auth.uid; // Current user UID
+    const otherUid = socket.handshake.auth.otherUid; // Other user UID
+
+    await this.removeExistingConnection(uid); // Remove current user's connection
+    if (otherUid) {
+      await this.removeExistingConnection(otherUid); // Remove other user's connection if it exists
+    }
+}
 
   async emitIfDoubleMatchingRequest(uid) {
     const socketId = await this.pubClient.get(uid); // Retrieve data from Redis
