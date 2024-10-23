@@ -5,6 +5,7 @@ import EditConfirmationModal from "./EditConfirmationModal";
 import ComplexityDropDown from "./ComplexityDropDown";
 import { Question } from "../types/Question";
 import DescriptionInput from "./DescriptionInput";
+import apiConfig from "../../../config/config";
 
 interface EditQuestionModalProps {
   oldQuestion: Question;
@@ -25,21 +26,24 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     titleValue: string,
     descriptionValue: string
   ) => {
-    await fetch(`http://localhost:8080/questions/${questionID}`, {
-      mode: "cors",
-      method: "PUT",
-      headers: {
-        "Access-Control-Allow-Origin": "http://localhost:8080",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: questionID,
-        title: titleValue,
-        description: descriptionValue,
-        categories: categoryValue,
-        complexity: complexityValue,
-      }),
-    })
+    await fetch(
+      `${apiConfig.questionbankServiceBaseUrl}/questions/${questionID}`,
+      {
+        mode: "cors",
+        method: "PUT",
+        headers: {
+          "Access-Control-Allow-Origin": `${apiConfig.questionbankServiceBaseUrl}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: questionID,
+          title: titleValue,
+          description: descriptionValue,
+          categories: categoryValue,
+          complexity: complexityValue,
+        }),
+      }
+    )
       .then((response) => {
         if (!response.ok) {
           console.log(response);
