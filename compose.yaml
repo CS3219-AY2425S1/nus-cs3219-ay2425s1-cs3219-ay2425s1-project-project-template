@@ -23,6 +23,7 @@ services:
       - question-service
       - matching-service
       - match-notification-service
+      - history-service
     healthcheck:
       test: [ "CMD-SHELL", "curl --silent --fail --insecure https://localhost/health-check || exit 1" ]
       interval: 10s
@@ -137,6 +138,15 @@ services:
     #   - "8004:8004" # for testing
     env_file:
       - .env/.collaboration_env
+
+  history-service:
+    build:
+      context: ./history-service
+    container_name: history-service
+    networks:
+      - my-network
+    env_file:
+      - .env/.history_env
 
 volumes:
   mongo-data:
