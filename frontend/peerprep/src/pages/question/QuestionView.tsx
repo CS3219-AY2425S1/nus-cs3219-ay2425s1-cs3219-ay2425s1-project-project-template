@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { QueryObserverResult } from "@tanstack/react-query";
 
-import { LeetCOdeQuestionRequest, Question, QuestionRequest } from "./questionService";
+import { LeetCodeQuestionRequest, Question, QuestionRequest } from "./questionService";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
 import { useQuesApiContext } from "../../context/ApiContext";
 import {
@@ -106,7 +106,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     title: string;
   }) => {
     // Create the new question object with incremented ID
-    const newQuestionWithTitle: LeetCOdeQuestionRequest = {
+    const newQuestionWithTitle: LeetCodeQuestionRequest = {
       Title: newQuestion.title,
     };
 

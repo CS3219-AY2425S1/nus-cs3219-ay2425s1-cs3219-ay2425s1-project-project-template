@@ -247,10 +247,10 @@ func AddLeetCodeQuestionToDb() gin.HandlerFunc {
         }
 
         // Check for duplicate title
-        // if helper.HasDuplicateTitle(&question, database.Coll, ctx) {
-        //     c.JSON(http.StatusConflict, gin.H{"error": "Question with the same title already exists"})
-        //     return
-        // }
+        if !helper.HasDuplicateTitle(&question, database.Coll, ctx) {
+			c.JSON(http.StatusConflict, gin.H{"error": "Question with the same title already exists"})
+			return
+		}
 
         // Parse question before inserting into the database
         helper.ParseQuestionForDb(&question)

@@ -43,6 +43,8 @@ const QuestionController: React.FC = () => {
     return <div>Fetching...</div>;
   }
 
+  
+
   return (
     <QuestionView questions={questions} refetchQuestions={refetchQuestions} />
   );

@@ -15,7 +15,7 @@ export type QuestionRequest = {
   Link: string;
 };
 
-export type LeetCOdeQuestionRequest = {
+export type LeetCodeQuestionRequest = {
   Title: string;
 };
 
