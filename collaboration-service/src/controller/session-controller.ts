@@ -10,16 +10,22 @@ export const sessionController = {
             questionId,
         } = req.body;
 
+        if (!participants || !questionId) {
+            return res.status(400).json({ message: 'Participants and question ID are required' });
+        }
+
         // Retrieve question info from question service
         let questionData;
 
         try {
             const response = await fetch(process.env.QUESTION_SERVICE_URL + `/api/questions/${questionId}`);
             questionData = await response.json();
+            if (response.status !== 200) {
+                return res.status(response.status).json({ message: "Unable to retrieve question data" });
+            }
         } catch (err) {
             return res.status(500).json({ message: "Unable to retrieve question data" });
         }
-
 
         const questionTemplateCode: string = questionData.question.templateCode
         const yDoc = new Y.Doc();
