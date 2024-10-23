@@ -204,7 +204,8 @@ onMounted(() => {
             <h2 class="text-2xl font-bold tracking-tight">Delete Your Account</h2>
             <p class="text-muted-foreground text-sm mt-1">This action is irreversible!</p>
             <div class="mt-2">
-                <DeleteAccountConfirmPasswordDialog></DeleteAccountConfirmPasswordDialog>
+                <DeleteAccountConfirmPasswordDialog v-if="!isGoogleLogin"></DeleteAccountConfirmPasswordDialog>
+                <DeleteAccountConfirmGoogleDialog v-if="isGoogleLogin"></DeleteAccountConfirmGoogleDialog>
             </div>
         </div>
         

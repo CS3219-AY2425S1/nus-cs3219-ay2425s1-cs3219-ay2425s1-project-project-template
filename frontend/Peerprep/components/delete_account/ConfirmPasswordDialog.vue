@@ -21,8 +21,20 @@ const deleteButtonDisabled = computed(() => {
 
 
 const handleDeleteAccount = async () => {
+    // Ensure that the function doesn't execute if the button is disabled
+    if (deleteButtonDisabled.value || isDeletingAccount.value) {
+        return;
+    }
+
     isDeletingAccount.value = true;
     showInvalidCurrentPasswordError.value = false;
+
+    let verifyPassCheck = false;
+
+    if (verifyPhrase.value !== "delete my account") {
+        console.log("Verify Phrase failed to validate")
+        return;
+    }
 
     // Reauthenticate User (check if current password is correct)
     try {
@@ -46,7 +58,7 @@ const handleDeleteAccount = async () => {
     try {
         await authStore.deleteAccountAndSignOut();
         toast({
-        description: 'Successfully deleted account.',
+            description: 'Successfully deleted account.',
         });
         router.replace('/users/login');
     } catch (error) {
@@ -59,6 +71,13 @@ const handleDeleteAccount = async () => {
         return;
     }
 };
+
+const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+        handleDeleteAccount();
+        event.preventDefault();  // Prevent default form behaviour like closing the dialog
+    }
+}
 
 const cancel = () => {
     open.value = false;
@@ -83,9 +102,8 @@ const cancel = () => {
             <div>
                 Enter your current password to confirm.
             </div>
-            <form @submit.prevent="handleDeleteAccount" class="space-y-2">
+            <form @keydown="handleKeyDown" @submit.prevent="handleDeleteAccount" class="space-y-2">
                 <div class="grid gap-2">
-
                     <div>
                         <Label for="verifyPass">Confirm Your Password</Label>
                         <Input id="verifyPass" name="verifyPass" v-model="verifyPass" type="password"
@@ -100,14 +118,12 @@ const cancel = () => {
                             placeholder="Enter the Phrase" />
                     </div>
                 </div>
-
                 <DialogFooter>
                     <Button @click="cancel" class="bg-gray-200 hover:bg-gray-400 text-gray-700">Cancel</Button>
                     <Button @click="handleDeleteAccount" :disabled="deleteButtonDisabled || isDeletingAccount"
                         type="submit" class="bg-red-500 hover:bg-red-600 text-white">
                         {{ isDeletingAccount ? "Deleting..." : "DELETE MY ACCOUNT" }}
                     </Button>
-
                 </DialogFooter>
             </form>
         </DialogContent>
