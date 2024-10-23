@@ -59,7 +59,7 @@ export default function SignupPage() {
     <div className="py-12 flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
       <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />
       <form className="flex w-3/5 flex-col gap-y-8" onSubmit={handleSubmit(onSubmit)}>
-      <div className="relative flex flex-col">
+        <div className="relative flex flex-col">
           <input className={textBoxStyle} type="text" placeholder="Enter username"
             {...register("userName", {
               required: { value: true, message: "Username is required" },

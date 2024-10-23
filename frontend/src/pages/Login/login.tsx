@@ -10,7 +10,7 @@ import { useContext } from "react";
 import { AuthContext, authState } from "../../hooks/AuthContext";
 
 export default function LoginPage() {
-  const {user, setUser, setIsAuthenticated} = useContext(AuthContext);
+  const { user, setUser, setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({

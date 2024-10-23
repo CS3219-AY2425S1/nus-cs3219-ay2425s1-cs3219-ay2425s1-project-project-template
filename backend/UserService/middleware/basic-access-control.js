@@ -2,12 +2,11 @@ import jwt from "jsonwebtoken";
 import { findUserById as _findUserById } from "../model/repository.js";
 
 export function verifyAccessToken(req, res, next) {
-
   const token = req.cookies["token"];
   if (!token) {
     return res.status(401).json({ message: "Authentication failed" });
   }
-  
+
   jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
     if (err) {
       return res.status(401).json({ message: "Authentication failed" });
@@ -19,7 +18,12 @@ export function verifyAccessToken(req, res, next) {
       return res.status(401).json({ message: "Authentication failed" });
     }
 
-    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdmin };
+    req.user = {
+      id: dbUser.id,
+      username: dbUser.username,
+      email: dbUser.email,
+      isAdmin: dbUser.isAdmin,
+    };
     next();
   });
 }
@@ -28,7 +32,9 @@ export function verifyIsAdmin(req, res, next) {
   if (req.user.isAdmin) {
     next();
   } else {
-    return res.status(403).json({ message: "Not authorized to access this resource" });
+    return res
+      .status(403)
+      .json({ message: "Not authorized to access this resource" });
   }
 }
 
@@ -43,5 +49,7 @@ export function verifyIsOwnerOrAdmin(req, res, next) {
     return next();
   }
 
-  return res.status(403).json({ message: "Not authorized to access this resource" });
+  return res
+    .status(403)
+    .json({ message: "Not authorized to access this resource" });
 }

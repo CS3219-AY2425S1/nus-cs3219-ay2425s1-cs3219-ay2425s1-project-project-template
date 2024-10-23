@@ -19,7 +19,7 @@ function defaultUser() {
     };
 }
 
-export enum authState{
+export enum authState {
     LOADING,
     FALSE,
     TRUE
@@ -27,7 +27,7 @@ export enum authState{
 
 export interface AuthContextInterface {
     user: User,
-    isAuthenticated : authState,
+    isAuthenticated: authState,
     setUser: Dispatch<SetStateAction<User>>,
     setIsAuthenticated: Dispatch<SetStateAction<authState>>
 };
@@ -35,8 +35,8 @@ export interface AuthContextInterface {
 const defaultState = {
     user: defaultUser(),
     isAuthenticated: authState.LOADING,
-    setUser: (user : User) => {},
-    setIsAuthenticated: (isAuth: authState) => {}
+    setUser: (user: User) => { },
+    setIsAuthenticated: (isAuth: authState) => { }
 } as AuthContextInterface;
 
 export const AuthContext = createContext(defaultState);
@@ -45,26 +45,26 @@ type ContextProviderNode = {
     children: ReactNode
 };
 
-export default function AuthContextProvider({children} : ContextProviderNode) {
+export default function AuthContextProvider({ children }: ContextProviderNode) {
     const [user, setUser] = useState<User>(defaultUser());
     const [isAuthenticated, setIsAuthenticated] = useState(authState.LOADING)
 
     useEffect(() => {
         axios.get(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/verify-token`, {
-            withCredentials: true   
+            withCredentials: true
         })
-        .then((response) => {
-            setIsAuthenticated(authState.TRUE);
-            setUser(response.data.data);
-        })
-        .catch((error) => {
-            setIsAuthenticated(authState.FALSE);
-            setUser(defaultUser());
-        });
+            .then((response) => {
+                setIsAuthenticated(authState.TRUE);
+                setUser(response.data.data);
+            })
+            .catch((error) => {
+                setIsAuthenticated(authState.FALSE);
+                setUser(defaultUser());
+            });
     }, [])
 
-    return (    
-        <AuthContext.Provider value={{user, isAuthenticated, setUser, setIsAuthenticated}}>
+    return (
+        <AuthContext.Provider value={{ user, isAuthenticated, setUser, setIsAuthenticated }}>
             {children}
         </AuthContext.Provider>
     )
