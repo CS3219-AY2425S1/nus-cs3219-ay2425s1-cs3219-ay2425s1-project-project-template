@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Y from 'yjs';
-import { Room } from '../interfaces/room.interface';
+import { Room, RoomResponse } from '../interfaces/room.interface';
 
 @Injectable()
 export class CollabService {
@@ -10,7 +10,7 @@ export class CollabService {
 
   constructor(private configService: ConfigService) {}
 
-  createRoom(roomId: string): Room | null {
+  createRoom(roomId: string): RoomResponse | null {
     if (this.rooms.has(roomId)) {
       return null;
     }
@@ -22,10 +22,14 @@ export class CollabService {
     };
 
     this.rooms.set(roomId, room);
-    return room;
+    return {
+        id: room.id,
+        users: Array.from(room.users),
+        doc: room.doc.guid
+    };
   }
 
-  joinRoom(roomId: string, userId: string): Room | null {
+  joinRoom(roomId: string, userId: string): RoomResponse | null {
     const room = this.rooms.get(roomId);
     
     if (!room || room.users.size >= 2) {
@@ -33,12 +37,16 @@ export class CollabService {
     }
 
     room.users.add(userId);
+    this.rooms.set(roomId, room);
     this.userRooms.set(userId, roomId);
-
-    return room;
+    return {
+        id: room.id,
+        users: Array.from(room.users),
+        doc: room.doc.guid
+    };
   }
 
-  leaveRoom(userId: string): Room | null {
+  leaveRoom(userId: string): RoomResponse | null {
     const roomId = this.userRooms.get(userId);
     if (!roomId) return null;
 
@@ -53,11 +61,19 @@ export class CollabService {
       this.rooms.delete(roomId);
     }
 
-    return room;
+    return {
+        id: room.id,
+        users: Array.from(room.users),
+        doc: room.doc.guid
+    };
   }
 
-  getAllRooms() {
-    return Array.from(this.rooms.values());
+  getAllRooms(): RoomResponse[] {
+    return Array.from(this.rooms.values()).map(room => ({
+        id: room.id,
+        users: Array.from(room.users),
+        doc: room.doc.guid
+    }));
   }
 
   getAvailableRooms() {
@@ -65,17 +81,33 @@ export class CollabService {
       .filter(room => room.users.size < 2)
       .map(room => ({
         id: room.id,
-        participantCount: room.users.size
+        users: Array.from(room.users),
+        doc: room.doc.guid
       }));
   }
 
-  getRoom(roomId: string): Room | null {
-    return this.rooms.get(roomId) || null;
+  getRoom(roomId: string): RoomResponse | null {
+    const room = this.rooms.get(roomId);
+    console.log("room:", room);
+    return room ? 
+        {
+            id: room.id,
+            users: Array.from(room.users),
+            doc: room.doc.guid
+        } : null;
   }
 
-  getRoomByClient(userId: string): Room | null {
+  getRoomByClient(userId: string): RoomResponse | null {
     const roomId = this.userRooms.get(userId);
-    return roomId ? this.rooms.get(roomId) : null;
+    if (roomId) {
+        const room = this.rooms.get(roomId);
+        return {
+            id: room.id,
+            users: Array.from(room.users),
+            doc: room.doc.guid
+        };
+    }
+    return null;
   }
 
 }
