@@ -55,7 +55,7 @@ services:
       context: ./backend/collab-service
       dockerfile: Dockerfile.dev
     environment:
-      - QUESTION_SERVICE_DOMAIN: ${QUESTION_SERVICE_DOMAIN}
+      QUESTION_SERVICE_DOMAIN: ${QUESTION_SERVICE_DOMAIN}
     depends_on:
       - question-app
     ports:
