@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LucideProps } from "lucide-react";
 import { ComponentType, HTMLAttributes, ReactNode, RefAttributes } from "react";
@@ -51,6 +51,7 @@ function TabOptions({ options }: TabOptionsProps) {
     <TabsList className="flex items-center justify-start bg-transparent">
       {options.map((option) => (
         <TabButton
+          key={option.value}
           value={option.value}
           label={option.label}
           Icon={option.Icon}

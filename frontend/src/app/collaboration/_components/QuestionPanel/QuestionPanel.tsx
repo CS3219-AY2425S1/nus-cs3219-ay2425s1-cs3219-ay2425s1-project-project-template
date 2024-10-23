@@ -1,6 +1,8 @@
-import { ClipboardList, Square, SquareCheck } from "lucide-react";
+import { ClipboardList, SquareCheck } from "lucide-react";
 import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
 import { ResizablePanel } from "@/components/ui/resizable";
+import SolutionTabContent from "./SolutionTabContent";
+import DescriptionTabContent from "./DescriptionTabContent";
 
 export default function QuestionPanel() {
   const tabs: Tab[] = [
@@ -8,23 +10,13 @@ export default function QuestionPanel() {
       value: "description",
       label: "Description",
       Icon: ClipboardList,
-      content: (
-        <>
-          <h2>Coin Change</h2>
-          <p>Test problem</p>
-        </>
-      ),
+      content: <DescriptionTabContent />,
     },
     {
       value: "solution",
       label: "Solution",
       Icon: SquareCheck,
-      content: (
-        <>
-          <h2>Solution</h2>
-          <p>Here is how you solve the problem....</p>
-        </>
-      ),
+      content: <SolutionTabContent />,
     },
   ];
 

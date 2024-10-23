@@ -1,6 +1,8 @@
 import { FlaskConical, Play } from "lucide-react";
 import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
 import { ResizablePanel } from "@/components/ui/resizable";
+import TestCasesTabContent from "./TestCasesTabContent";
+import TestResultTabContent from "./TestResultTabContent";
 
 export default function TestResultPanel() {
   const tabs: Tab[] = [
@@ -8,21 +10,13 @@ export default function TestResultPanel() {
       value: "test-cases",
       label: "Test cases",
       Icon: FlaskConical,
-      content: (
-        <>
-          <h2>Test case</h2>
-        </>
-      ),
+      content: <TestCasesTabContent />,
     },
     {
       value: "test-result",
       label: "Test result",
       Icon: Play,
-      content: (
-        <>
-          <h2>Test Result</h2>
-        </>
-      ),
+      content: <TestResultTabContent />,
     },
   ];
 
