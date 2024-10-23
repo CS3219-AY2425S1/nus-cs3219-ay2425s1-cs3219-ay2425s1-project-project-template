@@ -8,7 +8,11 @@ export class CollabService {
   private rooms: Map<string, Room> = new Map(); // roomId -> Room
   private userRooms: Map<string, string> = new Map(); // userId -> roomId
 
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) {
+    this.cleanUpEmptyRooms();
+    // Create a default room for testing
+    this.createRoom('default');
+  }
 
   createRoom(roomId: string): RoomResponse | null {
     if (this.rooms.has(roomId)) {
@@ -22,6 +26,7 @@ export class CollabService {
     };
 
     this.rooms.set(roomId, room);
+    console.log("Room created: ", room.id);
     return {
         id: room.id,
         users: Array.from(room.users),
@@ -56,11 +61,6 @@ export class CollabService {
     room.users.delete(userId);
     this.rooms.set(roomId, room);
     this.userRooms.delete(userId);
-
-    // Clean up empty rooms
-    if (room.users.size === 0) {
-      this.rooms.delete(roomId);
-    }
 
     return {
         id: room.id,
@@ -111,4 +111,14 @@ export class CollabService {
     return null;
   }
 
+    private cleanUpEmptyRooms() {
+        setInterval(() => {
+            this.rooms.forEach((room, roomId) => {
+                if (room.users.size === 0) {
+                    console.log(`Cleaning up room ${roomId}`);
+                    this.rooms.delete(roomId);
+                }
+            });
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    }
 }

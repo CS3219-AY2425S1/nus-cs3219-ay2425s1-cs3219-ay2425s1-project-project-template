@@ -1,52 +1,70 @@
-import { ConnectedSocket, WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Request } from 'express';
-import { Server, WebSocket } from 'ws';
+import { Server } from 'http';
+import * as WebSocket from 'ws';
 import { CollabService } from './services/collab.service';
 const ywsUtils = require('y-websocket/bin/utils');
 const setupWSConnection = ywsUtils.setupWSConnection;
 
-@WebSocketGateway({ path: '/code', cors: { origin: '*' } })
-export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer()
-  server: Server;
+@Injectable()
+export class CollabGateway implements OnModuleInit {
 
-  constructor(
-    private readonly collabService: CollabService
-  ) {}
+  private server: Server;
 
-  // For testing standalone websocket connection
-  @SubscribeMessage('health')
-  healthCheck() {
-    return 'Health check ok';
+  constructor(private readonly collabService: CollabService) {}
+
+  onModuleInit() {
+      this.initCollabServer();
   }
 
-  async handleConnection(@ConnectedSocket() client: WebSocket, request: Request) {
-    const urlParams = new URLSearchParams(request.url.split('?')[1]);
-    const roomId = urlParams.get('roomId');
-    const userId = urlParams.get('userId');
-    // If roomId or userId is not provided, disconnect the client
+  initCollabServer() {
+    const wss = new WebSocket.Server({ server: this.server });
+    wss.on('connection', (ws: WebSocket, req: Request) => {
+      this.handleConnection(ws, req);
+    });
+  }
+
+  handleConnection(ws: WebSocket, req: Request) {
+    const { roomId, userId } = this.extractInfoFromUrl(req.url);
     if (!roomId || !userId) {
-      client.close();
+      ws.close();
       return;
     }
-    console.log(`Client connected with userId: ${userId} and roomId: ${roomId}`);
 
-    // Try to join the room
+    // Join the room
     const room = this.collabService.joinRoom(roomId, userId);
     if (!room) {
-      client.send(JSON.stringify({ type: 'error', message: 'Failed to join the room' }));
+      ws.send(JSON.stringify({ type: 'error', message: 'Room not found or full' }));
       return;
     }
+    console.log(`User ${userId} joined room ${roomId}`);
 
-    // Leave the room when the client disconnects
-    client.on('close', () => this.collabService.leaveRoom(userId));
+    ws.on('close', () => {
+      console.log(`User ${userId} left room ${roomId}`);
+      this.collabService.leaveRoom(userId);
+    })
 
-    // Setup Yjs websocket connection
-    const doc = room.doc;
-    await setupWSConnection(client, doc);
+    // Setup Yjs websocket
+    const ydoc = room.doc;
+    if (!ydoc) {
+      ws.send(JSON.stringify({ type: 'error', message: 'Room not found' }));
+      return;
+    }
+    setupWSConnection(ws, req, ydoc, { room: roomId });
   }
 
-  handleDisconnect(client: WebSocket) {
-    console.log('Client disconnected');
+  setServer(server: Server) {
+    this.server = server;
   }
+
+  private extractInfoFromUrl(url: string): { roomId: string, userId: string } {
+    const match = url.match(/\/code\/(.*)$/);
+    if (!match) {
+      return { roomId: null , userId: null };
+    }
+    const [roomId, userIdParam] = match[1].split('?');
+    const userId = userIdParam.split('=')[1];
+    return { roomId, userId };
+  }
+
 }

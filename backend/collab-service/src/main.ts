@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { WsAdapter } from '@nestjs/platform-ws';
+import { CollabGateway } from './collab.gateway';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  app.useWebSocketAdapter(new WsAdapter(app));
+  const server = app.getHttpServer();
+  const collabGateway = app.get(CollabGateway);
+  collabGateway.setServer(server);
   await app.listen(8007);
 }
 bootstrap();
