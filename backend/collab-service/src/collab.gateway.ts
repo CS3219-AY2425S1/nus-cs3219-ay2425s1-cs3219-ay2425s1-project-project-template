@@ -34,10 +34,12 @@ export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Try to join the room
     const room = this.collabService.joinRoom(roomId, userId);
     if (!room) {
-      client.send(JSON.stringify({ type: 'error', message: 'Room is full or does not exist' }));
-      client.close();
+      client.send(JSON.stringify({ type: 'error', message: 'Failed to join the room' }));
       return;
     }
+
+    // Leave the room when the client disconnects
+    client.on('close', () => this.collabService.leaveRoom(userId));
 
     // Setup Yjs websocket connection
     const doc = room.doc;

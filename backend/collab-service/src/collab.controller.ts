@@ -8,8 +8,7 @@ export class CollabController {
 
     @Post('create-room')
     async createRoom(@Body() body: { roomId: string }) {
-        const room = this.collabService.createRoom(body.roomId);
-        return room;
+        return this.collabService.createRoom(body.roomId);
     }
 
     @Get('rooms')

@@ -54,6 +54,7 @@ export class CollabService {
     if (!room) return null;
 
     room.users.delete(userId);
+    this.rooms.set(roomId, room);
     this.userRooms.delete(userId);
 
     // Clean up empty rooms
