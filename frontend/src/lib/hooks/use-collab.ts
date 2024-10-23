@@ -1,3 +1,4 @@
+import { EditorView } from '@codemirror/view';
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import type { Extension, ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -38,6 +39,7 @@ export const useCollab = (roomId: string) => {
   const [code, setCode] = useState('');
   const [language, _setLanguage] = useState<LanguageName>('python');
   const [members, _setMembers] = useState<Array<IYjsUserState['user']>>([]);
+  const [cursorPosition, setCursorPosition] = useState({ lineNum: 1, colNum: 0 });
   const setMembers = useCallback(_setMembers, [members]);
   const setLanguage = useCallback(
     (lang: LanguageName) => {
@@ -92,9 +94,19 @@ export const useCollab = (roomId: string) => {
       };
       awareness.setLocalStateField('user', userState);
 
+      const lNumExt = EditorView.updateListener.of((up) => {
+        if (up.selectionSet) {
+          const { head } = up.state.selection.main;
+          const curline = up.state.doc.lineAt(head);
+          const lineNum = Math.max(curline.number, 1);
+          const colNum = head - curline.from;
+          setCursorPosition({ lineNum, colNum });
+        }
+      });
+
       const collabExt = yCollab(yText, awareness, { undoManager });
       setCode(yText.toString());
-      setExtensions([...extensions, collabExt]);
+      setExtensions([...extensions, collabExt, lNumExt]);
 
       // Initialise room preferences
       const yState = doc.getMap('state');
@@ -127,5 +139,6 @@ export const useCollab = (roomId: string) => {
     setCode,
     members,
     isLoading,
+    cursorPosition,
   };
 };

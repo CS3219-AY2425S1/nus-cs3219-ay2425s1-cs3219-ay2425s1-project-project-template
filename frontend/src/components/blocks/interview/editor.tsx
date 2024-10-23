@@ -27,8 +27,17 @@ type EditorProps = {
 export const Editor = ({ room }: EditorProps) => {
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
-  const { editorRef, extensions, language, setLanguage, code, setCode, members, isLoading } =
-    useCollab(room);
+  const {
+    editorRef,
+    extensions,
+    language,
+    setLanguage,
+    code,
+    setCode,
+    cursorPosition,
+    members,
+    isLoading,
+  } = useCollab(room);
   const themePreset = useMemo(() => {
     return getTheme(theme);
   }, [theme]);
@@ -122,6 +131,11 @@ export const Editor = ({ room }: EditorProps) => {
           readOnly={isLoading}
           extensions={extensions}
         />
+        <div className='bg-secondary text-secondary-foreground z-10 flex w-full translate-y-[-0.5px] border-none py-1 text-xs'>
+          <span className='ml-auto mr-2'>
+            Ln {cursorPosition.lineNum}, Col {cursorPosition.colNum}
+          </span>
+        </div>
       </div>
     </div>
   );
