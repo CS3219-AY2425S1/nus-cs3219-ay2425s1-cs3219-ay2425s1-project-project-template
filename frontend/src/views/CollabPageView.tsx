@@ -94,8 +94,16 @@ const CollabPageView: React.FC = () => {
 
 		newSocket.on('sessionTerminated', ({ userId }) => {
 			console.log(`Session terminated by user with ID: ${userId}`);
-			alert(`Session has been terminated by user ${userId}`);
-			navigate("/questions"); // Redirect to questions page
+
+			if (newSocket.connected) {
+				newSocket.disconnect();
+				console.log("Socket disconnected due to session termination.");
+			}
+		
+			setTimeout(() => {
+				navigate("/questions"); // Redirect to questions page
+			}, 2000);
+	
 		});
 	
 

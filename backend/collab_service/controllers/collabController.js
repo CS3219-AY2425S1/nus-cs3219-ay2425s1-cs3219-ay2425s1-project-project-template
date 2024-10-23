@@ -2,28 +2,51 @@ const { db } = require('../config/firebaseConfig');
 const socketSessions = {};
 
 class CollabController {
-  /*joinSession = async (req, res) => {
-    const { sessionId } = req.body;
-    const userId = req.socket.id;
 
-    try {
-      const sessionRef = db.collection('sessions').doc(sessionId);
-      const sessionSnapshot = await sessionRef.get();
+  handleSocketEvents = (io, socket) => {
+    socket.on('sessionJoined', (sessionId) => {
+      console.log(`Received sessionId:`, sessionId);
+      console.log('Current socketSessions:', socketSessions);
+      console.log(`User ${socket.id} is trying to join session ${sessionId}`); 
+      if (socketSessions && socketSessions[sessionId]) {
+        socket.join(sessionId);
+        console.log(`User ${socket.id} joined session ${sessionId}`);
 
-      if (!sessionSnapshot.exists) {
-        await sessionRef.set({ code: '', users: [userId], messages: [] });
-      } else {
-        await sessionRef.update({
-          users: admin.firestore.FieldValue.arrayUnion(userId),
+        const sessionData = socketSessions[sessionId];
+        console.log(`Emitting session data for session ${sessionId}:`, JSON.stringify(sessionData, null, 2));
+
+        io.to(sessionId).emit('sessionData', {
+          sessionIdObj: sessionId,  // Renamed sessionId to sessionIdObj for consistency
+          socketId: socket.id, 
+          questionData: sessionData.questionData,  // Include questionData
         });
+    
+        console.log(`Session data emitted for socket ${socket.id}`);
+      } else {
+        console.error('No session data found for session ID:', sessionId);
       }
+    });
 
-      res.status(200).json({ message: 'Joined session successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to join session' });
-    }
-  }
-  */
+    socket.on('codeUpdate', (data) => {
+      const { sessionIdObj, code } = data;
+      console.log(`Received code update request for session: ${sessionIdObj}`);
+      socket.to(sessionIdObj).emit('codeUpdated', { code });
+      console.log(`Code updated in session ${sessionIdObj}: ${code}`);
+    });
+
+    socket.on('sendMessage', (data) => {
+      const { sessionId, message } = data;
+      io.to(sessionId).emit('messageReceived', {
+        username: socket.id,
+        message,
+      });
+    });
+
+    socket.on('terminateSession', (sessionId) => {
+      io.to(sessionId).emit('sessionTerminated', { userId: socket.id });
+    });
+  };
+
 
   handleSessionCreated = async (req, res) => {
       // Debugging: Log incoming request data
