@@ -2,7 +2,7 @@
 import { useAuthStore } from '~/stores/auth';
 import { ref } from 'vue';
 import type { UserProfile } from '~/types/UserProfile';
-import type { QuestionAttempt } from '~/types/QuestionAttempt';
+import type { QuestionAttempt, QuestionAttemptNet } from '~/types/QuestionAttempt';
 import AvatarFallback from '~/components/ui/avatar/AvatarFallback.vue';
 
 const attemptList = ref<QuestionAttempt[]>([]);
@@ -24,10 +24,38 @@ const getInitials = () => {
     return initials;
 }
 
+const getQuestionInfo = async (question_id: string) => {
+    const { data, error } = await useFetch(`http://localhost:5000/questions/${question_id}`)
+
+    if (error.value) {
+        throw new Error(error.value.message);
+    }
+
+    if (data.value !== undefined) {
+        return data.value;
+    }
+
+    throw new Error("Received undefined value from Question Service");
+}
+
+const getUserDisplayName = async (user_id: string) => {  // This function might be a security risk, consider moving it to user service
+    const { data, error } = await useFetch(`http://localhost:5001/users/${user_id}`);
+
+    if (error.value) {
+        throw new Error(error.value.message);
+    }
+
+    if (data.value !== undefined) {
+        return data.value.user.displayName;
+    }
+
+    throw new Error("Received undefined value from User Service")
+}
+
 const fetchAttemptList = async () => {
     try {
+        isLoading.value = true;
         const { data, error: fetchError } = await useFetch(`http://localhost:5001/users/${user.value.uid}/history`);
-        console.log(data.value);  // TODO: REMOVE THIS
 
         if (fetchError.value) {
             throw new Error(fetchError.value.message);
@@ -37,16 +65,22 @@ const fetchAttemptList = async () => {
             const listOfAttempts = data.value;
 
             const attemptsWithQuestionInfo = await Promise.all(
-                listOfAttempts.map(async (attempt) => {
-                    // const questionInfo = 
+                listOfAttempts.map(async (attempt: QuestionAttemptNet, index: number) => {
+                    const questionInfo = await getQuestionInfo(attempt.question_id);
+                    const questionTitle = questionInfo.title;
+                    const questionDifficulty = questionInfo.difficulty;
+                    const questionCategory = questionInfo.category.toString();
+
+                    const matchedUser = await getUserDisplayName(attempt.matched_user);
 
                     return {
+                        index: index + 1,
                         sessionId: attempt.session_id,
                         dateTime: attempt.timestamp,  // Transform this from EPOCH to datetime string
-                        matchedUser: attempt.matched_user,  // Request from User Service User Display Name
-                        questionTitle: attempt.question_id,  // For now
-                        questionDifficulty: attempt.question_id,
-                        questionCategory: attempt.question_id,
+                        matchedUser: matchedUser,  // Request from User Service User Display Name
+                        questionTitle: questionTitle,  // For now
+                        questionDifficulty: questionDifficulty,
+                        questionCategory: questionCategory,
                     }
                 })
             )
@@ -55,6 +89,8 @@ const fetchAttemptList = async () => {
         }
     } catch (e) {
         console.error("Error while fetching attempt history:", e);
+    } finally {
+        isLoading.value = false;
     }
 }
 

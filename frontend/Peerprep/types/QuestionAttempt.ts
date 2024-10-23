@@ -1,9 +1,16 @@
 export type QuestionAttempt = {
     sessionId: string;
-    dateTime: string;
+    timeDate: string;
     matchedUser: string;
     questionId: string;
     questionTitle: string;
     questionDifficulty: string;  // Match this with actual_difficulty
     questionCategory: string;
+};
+
+export type QuestionAttemptNet = {
+    session_id: string;
+    timestamp: string;
+    matched_user: string;
+    question_id: string;
 };
