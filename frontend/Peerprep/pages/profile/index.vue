@@ -2,10 +2,13 @@
 import { useAuthStore } from '~/stores/auth';
 import { ref } from 'vue';
 import type { UserProfile } from '~/types/UserProfile';
+import type { QuestionAttempt } from '~/types/QuestionAttempt';
 import AvatarFallback from '~/components/ui/avatar/AvatarFallback.vue';
 
-const authStore = useAuthStore();
+const attemptList = ref<QuestionAttempt[]>([]);
 const isLoading = ref(true);
+
+const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
 const userProfile = ref<UserProfile>({
@@ -21,6 +24,40 @@ const getInitials = () => {
     return initials;
 }
 
+const fetchAttemptList = async () => {
+    try {
+        const { data, error: fetchError } = await useFetch(`http://localhost:5001/users/${user.value.uid}/history`);
+        console.log(data.value);  // TODO: REMOVE THIS
+
+        if (fetchError.value) {
+            throw new Error(fetchError.value.message);
+        }
+
+        if (data.value) {
+            const listOfAttempts = data.value;
+
+            const attemptsWithQuestionInfo = await Promise.all(
+                listOfAttempts.map(async (attempt) => {
+                    // const questionInfo = 
+
+                    return {
+                        sessionId: attempt.session_id,
+                        dateTime: attempt.timestamp,  // Transform this from EPOCH to datetime string
+                        matchedUser: attempt.matched_user,  // Request from User Service User Display Name
+                        questionTitle: attempt.question_id,  // For now
+                        questionDifficulty: attempt.question_id,
+                        questionCategory: attempt.question_id,
+                    }
+                })
+            )
+
+            attemptList.value = attemptsWithQuestionInfo;
+        }
+    } catch (e) {
+        console.error("Error while fetching attempt history:", e);
+    }
+}
+
 onMounted(() => {
     if (user.value) {
         userProfile.value.displayName = user.value.displayName;
@@ -28,7 +65,8 @@ onMounted(() => {
         userProfile.value.email = user.value.email;
     }
     isLoading.value = false;
-    console.log(userProfile.value.photoURL);
+    
+    fetchAttemptList();
 });
 </script>
 
@@ -40,7 +78,7 @@ onMounted(() => {
             <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
                 <Avatar size="s" class="flex items-center justify-center">
                     <AvatarImage :src="userProfile.photoURL || ''" alt="{{ getInitials() }}" />
-                    <AvatarFallback class="bg-gray-200 text-2xl font-bold">{{  getInitials() }}</AvatarFallback>
+                    <AvatarFallback class="bg-gray-200 text-2xl font-bold">{{ getInitials() }}</AvatarFallback>
                 </Avatar>
             </div>
 
@@ -67,10 +105,11 @@ onMounted(() => {
         <!-- Match History Section -->
         <div class="mt-4">
             <div v-if="isLoading" class="text-gray-500">Loading History...</div>
-            <div v-else class="text-gray-500"> <!-- Empty State for No Attempts History -->
-                No attempts found.
-            </div>
-            <!-- <AttemptHistoryTable></AttemptHistoryTable> -->
+            <AttemptHistoryListTable
+                v-else
+                :data="attemptList"
+                :key="attemptList.length"
+            />
         </div>
     </div>
 </template>

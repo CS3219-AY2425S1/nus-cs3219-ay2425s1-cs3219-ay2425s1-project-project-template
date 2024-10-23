@@ -63,6 +63,11 @@ def get_user_history(uid):
     attempt_history = []
     for attempt in attempts:
         attempt_data = attempt.to_dict()
-        attempt_history.append(attempt_data)
+        attempt_history.append({
+            "session_id": attempt.id,
+            "matched_user": attempt_data.get("matched_user"),
+            "question_id": attempt_data.get("question_id"),
+            "timestamp": attempt_data.get("timestamp")
+        })
         
     return jsonify(attempt_history), 200
