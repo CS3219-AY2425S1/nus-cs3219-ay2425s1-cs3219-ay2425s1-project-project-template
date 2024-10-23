@@ -155,10 +155,6 @@ class SocketController {
         await this.removeExistingConnection(prevUserSessionData.uid);
         await this.removeExistingConnection(currUserSessionData.uid);
 
-        // Disconnect both users' sockets
-        prevUserSocket.disconnect();
-        currUserSocket.disconnect();
-
     } catch (error) {
       console.error(error);
       this.io.to(prevUserSocketId).emit(
@@ -207,12 +203,8 @@ class SocketController {
     console.log('Disconnecting user with socket:', socket);
 
     const uid = socket.handshake.auth.uid; // Current user UID
-    const otherUid = socket.handshake.auth.otherUid; // Other user UID
 
     await this.removeExistingConnection(uid); // Remove current user's connection
-    if (otherUid) {
-      await this.removeExistingConnection(otherUid); // Remove other user's connection if it exists
-    }
 }
 
   async emitIfDoubleMatchingRequest(uid) {

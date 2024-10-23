@@ -32,6 +32,8 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
 
       console.log("Session Storage:", sessionStorage);
 
+      console.log("Session Storage:", sessionStorage);
+
       // Initialize WebSocket connection
       socketRef.current = io(matchingServiceBackendUrl, {
         auth: {
