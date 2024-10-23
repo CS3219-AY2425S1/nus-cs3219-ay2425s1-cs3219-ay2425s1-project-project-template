@@ -1,4 +1,3 @@
-import React from 'react'
 import NavBar from './NavBar/navbar'
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace'
 

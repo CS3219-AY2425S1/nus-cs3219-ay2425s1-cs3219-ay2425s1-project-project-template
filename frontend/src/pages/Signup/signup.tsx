@@ -33,13 +33,10 @@ export default function SignupPage() {
       navigate("/login", { replace: true });
     },
     onError: (error: AxiosError) => {
-      let message: string;
-      if (error.status === 409) {
-        message = "Email already exists"
-      } else {
-        message = "Unknown error occurred"
+      const data: any = error.response?.data;
+      if (data) {
+        toast.error(data.message);
       }
-      toast.error(message)
     }
   });
 
