@@ -119,6 +119,7 @@ export const Editor = ({ room }: EditorProps) => {
             tabSize: language === 'python' ? 4 : 2,
             indentOnInput: true,
           }}
+          readOnly={isLoading}
           extensions={extensions}
         />
       </div>
