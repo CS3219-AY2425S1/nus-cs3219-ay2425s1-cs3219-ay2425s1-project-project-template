@@ -1,7 +1,7 @@
 import { Group, Skeleton, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
-import CodeEditor from '../components/layout/codeEditor/CodeEditor';
+import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
 import LeaveSessionModal from '../components/modal/LeaveSessionModal';
 import RoomTabs from '../components/tabs/RoomTabs';
 
@@ -22,7 +22,7 @@ function Room() {
           <RoomTabs />
         </Stack>
 
-        <CodeEditor openLeaveSessionModal={openLeaveSessionModal} />
+        <CodeEditorLayout openLeaveSessionModal={openLeaveSessionModal} />
       </Group>
 
       <LeaveSessionModal
