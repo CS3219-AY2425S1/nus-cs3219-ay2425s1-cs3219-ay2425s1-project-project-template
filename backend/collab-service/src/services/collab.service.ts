@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as Y from 'yjs';
 import { Room } from '../interfaces/room.interface';
 
@@ -7,7 +8,7 @@ export class CollabService {
   private rooms: Map<string, Room> = new Map(); // roomId -> Room
   private userRooms: Map<string, string> = new Map(); // userId -> roomId
 
-  constructor() {}
+  constructor(private configService: ConfigService) {}
 
   createRoom(roomId: string): Room | null {
     if (this.rooms.has(roomId)) {
