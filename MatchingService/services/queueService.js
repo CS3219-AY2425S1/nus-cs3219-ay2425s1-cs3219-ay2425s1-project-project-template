@@ -8,4 +8,28 @@ async function publishMatchRequest(message) {
     console.log('Published message:', message);
 }
 
-module.exports = { publishMatchRequest };
+async function consumeMatchRequests(onMessage) {
+    try {
+        const { channel } = await createRabbitMQConnection();
+        await channel.assertQueue(QUEUE_NAME, { durable: false });
+
+        channel.consume(QUEUE_NAME, async (msg) => {
+            if (msg !== null) {
+                const message = JSON.parse(msg.content.toString());
+                console.log('Consumed message:', message);
+
+                try {
+                    await onMessage(message);
+                    channel.ack(msg);
+                } catch (error) {
+                    console.error('Error processing message:', error);
+                    channel.nack(msg);
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error consuming messages:', error);
+    }
+}
+
+module.exports = { publishMatchRequest, consumeMatchRequests };
