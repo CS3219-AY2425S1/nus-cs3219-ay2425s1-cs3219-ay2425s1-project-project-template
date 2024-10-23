@@ -1,5 +1,4 @@
 import { Badge } from '@mantine/core';
-import '@mantine/core/styles.css';
 
 interface DescriptionTabProps {
   difficulty: string;

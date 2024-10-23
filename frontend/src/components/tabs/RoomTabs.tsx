@@ -1,5 +1,4 @@
 import { Tabs } from '@mantine/core';
-import '@mantine/core/styles.css';
 
 import DescriptionTab from './DescriptionTab';
 

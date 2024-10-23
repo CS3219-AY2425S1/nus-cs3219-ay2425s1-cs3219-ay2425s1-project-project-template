@@ -1,5 +1,4 @@
 import { Box, Button, Group, Select, Space, Stack } from '@mantine/core';
-import '@mantine/core/styles.css';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useState } from 'react';
 

@@ -6,7 +6,6 @@ import {
   Title,
   TypographyStylesProvider,
 } from '@mantine/core';
-import '@mantine/core/styles.css';
 
 import DifficultyBadge from '../badge/DifficultyBadge';
 

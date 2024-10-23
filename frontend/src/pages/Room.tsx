@@ -1,5 +1,4 @@
 import { Group, Skeleton, Stack } from '@mantine/core';
-import '@mantine/core/styles.css';
 import { useDisclosure } from '@mantine/hooks';
 
 import CodeEditor from '../components/layout/codeEditor/CodeEditor';

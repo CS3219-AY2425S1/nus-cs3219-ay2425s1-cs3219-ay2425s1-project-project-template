@@ -7,7 +7,6 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import '@mantine/core/styles.css';
 import { useDisclosure } from '@mantine/hooks';
 
 import LoginModal from '../components/modal/LoginModal';
