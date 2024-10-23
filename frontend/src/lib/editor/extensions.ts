@@ -1,8 +1,8 @@
+import { EditorView, keymap } from '@codemirror/view';
+import { vscodeKeymap } from '@replit/codemirror-vscode-keymap';
 import { langs, LanguageName, loadLanguage } from '@uiw/codemirror-extensions-langs';
 import * as themes from '@uiw/codemirror-themes-all';
 import { Extension } from '@uiw/react-codemirror';
-import { EditorView, keymap } from '@codemirror/view';
-import { vscodeKeymap } from '@replit/codemirror-vscode-keymap';
 
 export const languages = [
   'c',
@@ -19,10 +19,15 @@ export const languages = [
   'tsx',
 ] as LanguageName[];
 
-languages.forEach(loadLanguage);
-
+const loaded: Record<string, boolean> = {};
 const langExtensions = Object.fromEntries(languages.map((v) => [v, langs[v]()]));
+
 export const getLanguage = (language: (typeof languages)[number]) => {
+  if (!loaded[language]) {
+    loadLanguage(language);
+    loaded[language] = true;
+  }
+
   return langExtensions[language];
 };
 
