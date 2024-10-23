@@ -39,7 +39,7 @@ export default function CodeEditorTabContent() {
 
   const handleEditorOnMount = useCallback((e: editor.IStandaloneCodeEditor) => {
     setEditorRef(e);
-  }, [editorRef]);
+  }, []);
 
   return (
     <div className="h-full overflow-scroll">
