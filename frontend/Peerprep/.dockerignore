@@ -2,6 +2,8 @@
 /.nuxt
 /.output
 /node_modules
-
+node_modules
+.nuxt
+npm-debug.log
 .gitignore
 README.md
