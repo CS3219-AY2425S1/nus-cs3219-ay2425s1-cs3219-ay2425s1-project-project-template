@@ -52,6 +52,12 @@ const getUserDisplayName = async (user_id: string) => {  // This function might 
     throw new Error("Received undefined value from User Service")
 }
 
+const convertEpochToDateTime = (epochTime: number) => {
+    let date = new Date(epochTime * 1000);
+    let dateString = date.toLocaleString();
+    return dateString;
+}
+
 const fetchAttemptList = async () => {
     try {
         isLoading.value = true;
@@ -76,7 +82,7 @@ const fetchAttemptList = async () => {
                     return {
                         index: index + 1,
                         sessionId: attempt.session_id,
-                        dateTime: attempt.timestamp,  // Transform this from EPOCH to datetime string
+                        dateTime: convertEpochToDateTime(attempt.timestamp),
                         matchedUser: matchedUser,  // Request from User Service User Display Name
                         questionTitle: questionTitle,  // For now
                         questionDifficulty: questionDifficulty,

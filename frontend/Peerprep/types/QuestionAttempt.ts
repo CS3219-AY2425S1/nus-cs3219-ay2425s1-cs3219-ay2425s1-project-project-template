@@ -10,7 +10,7 @@ export type QuestionAttempt = {
 
 export type QuestionAttemptNet = {
     session_id: string;
-    timestamp: string;
+    timestamp: number;
     matched_user: string;
     question_id: string;
 };
