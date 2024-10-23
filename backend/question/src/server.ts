@@ -13,7 +13,21 @@ import { logger } from '@/lib/utils';
 import questionsRouter from '@/routes/question';
 
 const app = express();
-app.use(pino());
+app.use(
+  pino({
+    serializers: {
+      req: ({ id, method, url, headers: { host, referer }, query, params }) => ({
+        id,
+        method,
+        url,
+        headers: { host, referer },
+        query,
+        params,
+      }),
+      res: ({ statusCode }) => ({ statusCode }),
+    },
+  })
+);
 app.use(json());
 app.use(helmet());
 app.use(

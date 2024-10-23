@@ -11,7 +11,21 @@ import { UI_HOST } from './config';
 import { createWs } from './ws';
 
 const app = express();
-app.use(pino());
+app.use(
+  pino({
+    serializers: {
+      req: ({ id, method, url, headers: { host, referer }, query, params }) => ({
+        id,
+        method,
+        url,
+        headers: { host, referer },
+        query,
+        params,
+      }),
+      res: ({ statusCode }) => ({ statusCode }),
+    },
+  })
+);
 app.use(json());
 app.use(
   cors({
