@@ -146,8 +146,6 @@ func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matc
 			return
 		}
 
-		log.Println("Match found for user: " + username)
-
 		// Notify the user about the match
 		sendMatchFoundResponse(ws, result.User, result)
 		return
