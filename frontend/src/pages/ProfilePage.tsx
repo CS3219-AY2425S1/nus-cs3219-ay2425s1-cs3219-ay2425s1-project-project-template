@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ProfileNavBar from "../components/ProfileNavBar.tsx";
+import ProfileNavBar from "../components/navbars/ProfileNavBar.tsx";
 import { EditUsernameModal } from "../features/profile";
 import { EditEmailModal } from "../features/profile";
 import { EditPasswordModal } from "../features/profile";

@@ -1,5 +1,5 @@
 import React from "react";
-import LandingNavBar from "../components/LandingNavBar.tsx";
+import LandingNavBar from "../components/navbars/LandingNavBar.tsx";
 import { Link } from "react-router-dom";
 
 const LandingPage: React.FC = () => {

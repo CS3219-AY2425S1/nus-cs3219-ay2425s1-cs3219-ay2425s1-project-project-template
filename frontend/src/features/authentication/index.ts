@@ -2,7 +2,6 @@
 // all components, hooks and services of this feature.
 
 // Export components
-export { default as AuthNavBar } from "./components/AuthNavBar";
 export { default as InputBoxLabel } from "./components/InputBoxLabel";
 export { default as PasswordInputTextBox } from "./components/PasswordInputTextBox";
 export { default as WelcomeMessage } from "./components/WelcomeMessage";

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import PeerPrepLogo from "./PeerPrepLogo";
+import PeerPrepLogo from "../PeerPrepLogo";
+import StandardBigButton from "../StandardBigButton";
 
 const LandingNavBar = () => {
   return (
@@ -12,14 +13,10 @@ const LandingNavBar = () => {
       {/* Register and Login buttons for unauthenticated users */}
       <div className="flex space-x-8 text-2xl">
         <Link to="/register">
-          <button className="bg-black text-off-white rounded-[25px] p-4 whitespace-nowrap">
-            Register
-          </button>
+          <StandardBigButton label="Register" color="black" />
         </Link>
         <Link to="/login">
-          <button className="bg-yellow text-black rounded-[25px] p-4 whitespace-nowrap">
-            Login
-          </button>
+          <StandardBigButton label="Login" color="yellow" />
         </Link>
       </div>
     </nav>

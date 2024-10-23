@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthNavBar } from "../features/authentication";
+import AuthNavBar from "../components/navbars/AuthNavBar.tsx";
 import { WelcomeMessage } from "../features/authentication";
 import { InputBoxLabel } from "../features/authentication";
 import InputTextBox from "../components/InputTextBox.tsx";
@@ -76,7 +76,7 @@ const RegisterPage: React.FC = () => {
     if (success) {
       updateUser(registeredUser);
       /* All new users are 'User' by default */
-      navigate("/dashboardForUsers", { replace: true }); // Replace: true to clear back history
+      navigate("/dashboard", { replace: true }); // Replace: true to clear back history
     }
   }, [success]);
 

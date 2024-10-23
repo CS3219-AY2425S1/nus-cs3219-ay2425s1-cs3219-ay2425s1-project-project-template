@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import ProfileButton from "../features/profile/components/ProfileButton";
-import { useUser } from "../context/UserContext";
-import PeerPrepLogo from "./PeerPrepLogo";
+import ProfileButton from "../../features/profile/components/ProfileButton";
+import { useUser } from "../../context/UserContext";
+import PeerPrepLogo from "../PeerPrepLogo";
 
 const ProfileNavBar = () => {
   const { user } = useUser();

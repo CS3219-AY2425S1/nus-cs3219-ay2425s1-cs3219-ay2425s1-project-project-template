@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthNavBar } from "../features/authentication";
+import AuthNavBar from "../components/navbars/AuthNavBar.tsx";
 import { WelcomeMessage } from "../features/authentication";
 import { InputBoxLabel } from "../features/authentication";
 import InputTextBox from "../components/InputTextBox.tsx";
@@ -47,12 +47,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (success) {
-      // if (loggedInUser?.isAdmin) {
-      if (user?.isAdmin) {
-        navigate("/dashboard", { replace: true }); // Replace: true to clear back history
-      } else {
-        navigate("/dashboardForUsers", { replace: true }); // Replace: true to clear back history
-      }
+      navigate("/dashboard", { replace: true }); // Replace: true to clear back history
     }
   }, [success]);
 
@@ -88,7 +83,7 @@ const LoginPage: React.FC = () => {
           )}
         </div>
 
-        <Link to="/dashboardForUsers">
+        <Link to="/dashboard">
           <button className="mt-2 py-2 text-gray-700 hover:opacity-60">
             Forget Password?
           </button>

@@ -1,8 +1,10 @@
 import React from "react";
-import GreenButton from "../../../components/GreenButton";
+import StandardBigButton from "../../../components/StandardBigButton";
 
 const MatchButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
-  return <GreenButton onClick={onClick} label="Find Match!" />;
+  return (
+    <StandardBigButton onClick={onClick} label="Find Match!" color="green" />
+  );
 };
 
 export default MatchButton;

@@ -10,11 +10,7 @@ const PeerPrepLogo: React.FC = () => {
   const handleLogoClick = () => {
     if (user) {
       // If authenticated, navigate to the dashboard
-      if (user?.isAdmin) {
-        navigate("/dashboard");
-      } else {
-        navigate("/dashboardForUsers");
-      }
+      navigate("/dashboard");
     } else {
       // If not authenticated, navigate to the landing page
       navigate("/");
