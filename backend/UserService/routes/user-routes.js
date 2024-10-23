@@ -3,6 +3,7 @@ import express from "express";
 import {
   createUser,
   deleteUser,
+  forgetPassword,
   getAllUsers,
   getUser,
   updateUser,
@@ -34,5 +35,7 @@ router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
+
+router.get("/forgotpassword/:email", forgetPassword);
 
 export default router;

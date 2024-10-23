@@ -11,6 +11,7 @@ import {
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
+import { sendEmail } from "../utils/mailer.js";
 
 export async function createUser(req, res) {
   try {
@@ -194,6 +195,26 @@ export async function deleteUser(req, res) {
     return res
       .status(500)
       .json({ message: "Unknown error when deleting user!" });
+  }
+}
+
+export async function forgetPassword(req, res) {
+  try {
+    const userEmail = req.params.email;
+    const user = await _findUserByEmail(userEmail);
+
+    if (user) {
+      await sendEmail(userEmail, user._id);
+    }
+
+    return res.status(200).json({
+      message: `Reset password link will be send to ${userEmail} if exist`,
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when sending forget password!" });
   }
 }
 
