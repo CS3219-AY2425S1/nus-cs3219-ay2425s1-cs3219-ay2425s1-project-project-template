@@ -58,9 +58,15 @@ const convertEpochToDateTime = (epochTime: number) => {
     return dateString;
 }
 
+const capitalizeFirstLetter = (inputString: string) => {
+    return inputString.charAt(0).toUpperCase() + inputString.slice(1);
+};
+
 const fetchAttemptList = async () => {
     try {
         isLoading.value = true;
+
+        // TODO: SEND AUTHORIZATION TOKEN HERE TO VERIFY
         const { data, error: fetchError } = await useFetch(`http://localhost:5001/users/${user.value.uid}/history`);
 
         if (fetchError.value) {
@@ -74,7 +80,7 @@ const fetchAttemptList = async () => {
                 listOfAttempts.map(async (attempt: QuestionAttemptNet, index: number) => {
                     const questionInfo = await getQuestionInfo(attempt.question_id);
                     const questionTitle = questionInfo.title;
-                    const questionDifficulty = questionInfo.difficulty;
+                    const questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
                     const questionCategory = questionInfo.category.toString();
 
                     const matchedUser = await getUserDisplayName(attempt.matched_user);
