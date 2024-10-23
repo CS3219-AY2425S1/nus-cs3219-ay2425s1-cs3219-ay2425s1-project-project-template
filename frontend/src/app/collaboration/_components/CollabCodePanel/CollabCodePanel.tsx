@@ -1,6 +1,7 @@
 import { Code } from "lucide-react";
 import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
 import { ResizablePanel } from "@/components/ui/resizable";
+import CodeEditorTabContent from "./CodeEditorTabContent";
 
 export function CollabCodePanel() {
   const tabs: Tab[] = [
@@ -8,11 +9,7 @@ export function CollabCodePanel() {
       value: "code",
       label: "Code",
       Icon: Code,
-      content: (
-        <>
-          <h2>TODO CODE IDE</h2>
-        </>
-      ),
+      content: <CodeEditorTabContent />,
     },
   ];
 

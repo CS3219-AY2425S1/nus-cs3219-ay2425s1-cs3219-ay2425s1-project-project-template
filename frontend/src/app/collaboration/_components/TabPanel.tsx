@@ -24,8 +24,8 @@ export default function TabPanel({
 }: TabPanelProps) {
   return (
     <Card className="h-full p-0" {...props}>
-      <Tabs defaultValue={defaultValue}>
-        <CardHeader className="p-0 overflow-x-hidden rounded-t-lg bg-background-200">
+      <Tabs defaultValue={defaultValue} className="flex flex-col h-full">
+        <CardHeader className="flex-shrink-0 p-0 overflow-x-hidden rounded-t-lg bg-background-200">
           <TabOptions
             options={tabs.map((tab) => {
               return { value: tab.value, label: tab.label, Icon: tab.Icon };
@@ -33,8 +33,8 @@ export default function TabPanel({
           />
         </CardHeader>
         {tabs.map((tab) => (
-          <TabsContent value={tab.value} key={tab.value}>
-            <CardContent>{tab.content}</CardContent>
+          <TabsContent className="data-[state=active]:flex-1 m-0" value={tab.value} key={tab.value}>
+            {tab.content}
           </TabsContent>
         ))}
       </Tabs>
@@ -72,7 +72,7 @@ function TabButton({ value, label, Icon, ...props }: TabButtonProps) {
       <Button
         variant="ghost"
         className="h-auto p-0 hover:bg-transparent hover:text-primary text-card-foreground-100 data-[state=active]:text-foreground"
-        // {...props}
+        {...props}
       >
         {Icon && <Icon size={15} className="mr-1" />}
         {label}
