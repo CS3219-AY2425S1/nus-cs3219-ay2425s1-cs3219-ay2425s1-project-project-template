@@ -9,7 +9,6 @@ import (
 	"matching-service/databases"
 	"matching-service/models"
 	"matching-service/utils"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -73,8 +72,6 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 			publishMatch(tx, ctx, currentUsername, matchedUsername, matchFound)
 			publishMatch(tx, ctx, matchedUsername, currentUsername, matchFound)
 		}
-
-		time.Sleep(time.Duration(time.Second * 1))
 
 		return nil
 	}); err != nil {

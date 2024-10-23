@@ -50,8 +50,8 @@ func GetRedisLock() *redislock.Client {
 }
 
 func ObtainRedisLock(ctx context.Context) (*redislock.Lock, error) {
-	// Retry every 100ms, for up-to 10x
-	backoff := redislock.LimitRetry(redislock.LinearBackoff(100*time.Millisecond), 10)
+	// Retry every 100ms, for up-to 100x
+	backoff := redislock.LimitRetry(redislock.LinearBackoff(100*time.Millisecond), 100)
 
 	// Obtain lock with retry
 	lock, err := redisLock.Obtain(ctx, matchmakingRedisLock, time.Second, &redislock.Options{
