@@ -96,12 +96,18 @@ func cleanUpUser(username string) {
 	redisClient := databases.GetRedisClient()
 	ctx := context.Background()
 
-	err := redisClient.Watch(ctx, func(tx *redis.Tx) error {
+	// Obtain lock with retry
+	lock, err := databases.ObtainRedisLock(ctx)
+	if err != nil {
+		return
+	}
+	defer lock.Release(ctx)
+
+	if err := redisClient.Watch(ctx, func(tx *redis.Tx) error {
 		// Cleanup Redis
 		databases.CleanUpUser(tx, username, ctx)
 		return nil
-	})
-	if err != nil {
+	}); err != nil {
 		return
 	}
 }

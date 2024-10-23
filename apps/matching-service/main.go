@@ -13,7 +13,8 @@ import (
 
 func main() {
 	setUpEnvironment()
-	databases.SetupRedisClient()
+	client := databases.SetupRedisClient()
+	defer client.Close()
 	setupRoutes()
 	startServer()
 }
