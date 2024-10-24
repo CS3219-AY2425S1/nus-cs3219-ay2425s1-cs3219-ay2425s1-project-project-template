@@ -13,7 +13,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import parse from 'html-react-parser';
-import { Question } from '../pages/question/questionService';
+import { Question } from '../pages/question/questionModel';
 import { FaLink } from 'react-icons/fa';
 
 interface QuestionDescriptionModalProps {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   HStack,
   Icon,
@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { ColumnFilter } from "@tanstack/react-table";
 import { FaSearch } from "react-icons/fa";
-import { COMPLEXITIES, CATEGORIES } from "../constants/data"; // Assuming data exists for both
+import { COMPLEXITIES, CATEGORIES as INITIAL_CATEGORIES} from "../constants/data"; // Assuming data exists for both
 import DropdownFilter from "./DropdownFilter";
 
 interface FiltersProps {
@@ -22,6 +22,7 @@ const Filters: React.FC<FiltersProps> = ({
   columnFilters,
   setColumnFilters,
 }) => {
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const questions = columnFilters.find((f) => f.id === "title")?.value || "";
 
   const onFilterChange = (id: string, value: string) =>
@@ -33,6 +34,10 @@ const Filters: React.FC<FiltersProps> = ({
           value,
         })
     );
+
+  useEffect(() => {
+      setCategories(INITIAL_CATEGORIES);
+    }, [INITIAL_CATEGORIES]);
 
   return (
     <HStack mb={6} spacing={4} align="center">
@@ -78,7 +83,7 @@ const Filters: React.FC<FiltersProps> = ({
       </Text>
       <DropdownFilter
         label="Topics"
-        filters={CATEGORIES}
+        filters={categories}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
         filterKey="Categories"

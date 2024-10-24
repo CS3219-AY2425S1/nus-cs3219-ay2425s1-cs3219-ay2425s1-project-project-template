@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { QueryObserverResult } from "@tanstack/react-query";
 
-import { LeetCodeQuestionRequest, Question, QuestionRequest } from "./questionService";
+import { Question } from "./questionModel";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
 import { useQuesApiContext } from "../../context/ApiContext";
 import {
@@ -20,19 +20,41 @@ import Filters from "../../components/Filter";
 import { COMPLEXITIES, CATEGORIES } from "../../constants/data";
 import DataTable from "../../components/DataTable";
 import QuestionModal from "../../components/QuestionModal";
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"; // Import toast for notifications
 import { LeetCodeModal } from "../../components/LeetCodeModal";
 import QuestionDescriptionModal from "../../components/QuestionDescriptionModal";
+import { color } from "framer-motion";
 
 type QuestionViewProps = {
   questions: Question[];
   refetchQuestions: () => Promise<QueryObserverResult<Question[], Error>>;
-  // onDeleteQuestion: (title: string) => void;
+  onAddQuestion: (newQuestion: {
+    title: string;
+    description: string;
+    categories: string;
+    complexity: string;
+    link: string;
+  }) => Promise<void>;
+  onAddLeetCodeQuestion: (newQuestion: {
+    title: string;
+  }) => Promise<void>;
+  onEditQuestion: (newQuestion: {
+    title: string;
+    description: string;
+    categories: string;
+    complexity: string;
+    link: string;
+  }, id: string) => Promise<void>;
+  onDeleteQuestion: (id: string) => Promise<void>;
 };
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   questions,
   refetchQuestions,
+  onAddQuestion,
+  onAddLeetCodeQuestion,
+  onEditQuestion,
+  onDeleteQuestion,
 }) => {
   const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
   const {
@@ -45,21 +67,31 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
-  ); // State for the selected question
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const {
     isOpen: isQuestionModalOpen,
     onOpen: onQuestionModalOpen,
     onClose: onQuestionModalClose,
   } = useDisclosure();
-  const { 
-    isOpen: isLeetCodeModalOpen, 
-    onOpen: onLeetCodeModalOpen, 
-    onClose: onLeetCodeModalClose } = useDisclosure();
-  const api =  useQuesApiContext();
+  const {
+    isOpen: isLeetCodeModalOpen,
+    onOpen: onLeetCodeModalOpen,
+    onClose: onLeetCodeModalClose,
+  } = useDisclosure();
+  const api = useQuesApiContext();
 
-  // Handle Add Function
+  // Handle Add LeetCode Question
+  const handleLeetCodeAdd = async (newQuestion: { title: string }) => {
+    try {
+      await onAddLeetCodeQuestion(newQuestion);
+      toast.success("LeetCode Question added successfully!");
+    } catch (error) {
+      toast.error("Failed to add LeetCode Question.");
+    }
+    onLeetCodeModalClose();
+  };
+
+  // Handle Add Custom Question
   const handleAdd = async (newQuestion: {
     title: string;
     description: string;
@@ -67,76 +99,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     complexity: string;
     link: string;
   }) => {
-    // Create the new question object with incremented ID
-    const newQuestionWithId: QuestionRequest = {
-      // ID: lastQuestionId + 1,
-      Title: newQuestion.title,
-      Description: newQuestion.description,
-      Categories: newQuestion.categories,
-      Complexity: newQuestion.complexity,
-      Link: newQuestion.link,
-    };
-
     try {
-      const response = await api.post("/questions", newQuestionWithId);
-      if (response.status === 200) {
-        toast.success("Question added successfully");
+      await onAddQuestion(newQuestion);
+      toast.success("Question added successfully!");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
       }
-    } catch (error: any) {
-      if (error.response && error.response.status === 400) {
-        // Backend-specific error handling for 400 Bad Request
-        toast.error(
-          `Failed to add question: ${
-            error.response.data.error || "Invalid data provided"
-          }`
-        );
-      } else {
-        // General error handling
-        toast.error("Failed to add question.");
-      }
-      console.error("Error adding question:", error);
     }
-
-    await refetchQuestions();
-    onQuestionModalClose(); // Close the modal after adding
+    onQuestionModalClose();
   };
 
-  // Handle Add Function
-  const handleLeetCodeAdd = async (newQuestion: {
-    title: string;
-  }) => {
-    // Create the new question object with incremented ID
-    const newQuestionWithTitle: LeetCodeQuestionRequest = {
-      Title: newQuestion.title,
-    };
-
-    try {
-      const response = await api.post("/questions/leetcode", newQuestionWithTitle);
-      if (response.status === 200) {
-        toast.success("Question added successfully");
-      }
-    } catch (error: any) {
-      if (error.response && error.response.status === 400) {
-        // Backend-specific error handling for 400 Bad Request
-        toast.error(
-          `Failed to Add Question: ${
-            error.response.data.error || "Invalid data provided"
-          }`
-        );
-      } else if (error.response && error.response.status === 409) {
-        // Backend-specific error handling for 400 Bad Request
-          toast.error("A question with this title already exists.");
-      } else {
-        // General error handling
-        toast.error("Failed to Add Question.");
-      }
-      console.error("Error adding question:", error);
-    }
-
-    await refetchQuestions();
-    onLeetCodeModalClose();
-  };
-
+  // Handle Edit Question
   const handleEdit = async (updatedQuestion: {
     title: string;
     description: string;
@@ -145,79 +119,70 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     link: string;
   }) => {
     if (selectedQuestion) {
-      const newQuestionWithId: Question = {
-        ID: selectedQuestion.ID,
-        Title: updatedQuestion.title,
-        Description: updatedQuestion.description,
-        Categories: updatedQuestion.categories,
-        Complexity: updatedQuestion.complexity,
-        Link: updatedQuestion.link,
-      };
-      // Logic to save the edited question
       try {
-        const response = await api.put("/questions", newQuestionWithId);
-        if (response.status === 200) {
-          toast.success("Question updated successfully");
+        console.log(selectedQuestion.ID);
+        await onEditQuestion(updatedQuestion, selectedQuestion.ID);
+        toast.success("Question updated successfully!");
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
         }
-      } catch (error: any) {
-        if (error.response && error.response.status === 400) {
-          // Backend-specific error handling for 400 Bad Request
-          toast.error(
-            `Failed to add question: ${
-              error.response.data.error || "Invalid data provided"
-            }`
-          );
-        } else {
-          // General error handling
-          toast.error("Failed to add question.");
-        }
-        console.error("Error adding question:", error);
       }
-      await refetchQuestions();
-      setSelectedQuestion(null);
-      onQuestionModalClose();
     }
+    setSelectedQuestion(null);
+    onQuestionModalClose();
   };
 
+  // Handle Delete Question
   const handleDelete = async (id: string) => {
     try {
-      const response = await api.delete(`/questions?id=${id}`);
-      if (response.status === 200) {
-        toast.success("Question deleted successfully");
-      }
-    } catch (error: any) {
-      if (error.response && error.response.status === 400) {
-        // Backend-specific error handling for 400 Bad Request
-        toast.error(
-          `Failed to delete question: ${
-            error.response.data.error || "Invalid data provided"
-          }`
-        );
-      } else {
-        // General error handling
-        toast.error("Failed to delete question.");
+      await onDeleteQuestion(id);
+      toast.success("Question deleted successfully!");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
       }
     }
-
-    await refetchQuestions();
   };
 
+  // Function to get the color for complexity
   const getComplexityColor = (complexity: string) => {
-    if (!complexity) return "white"; // Default color for undefined complexity
+    if (!complexity) return "grey";
     const found = COMPLEXITIES.find(
       (c) => c.id.toLowerCase() === complexity.toLowerCase()
     );
     return found ? found.color : "white";
   };
 
-  const getCategoryColor = (category: string) => {
-    if (!category) return "white"; // Default color for undefined category
-    const found = CATEGORIES.find(
-      (c) => c.id.toLowerCase() === category.toLowerCase()
-    );
-    return found ? found.color : "white";
+  // Utility function to generate random colors
+  const generateRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
   };
 
+  // Function to get the color for a category
+  const getCategoryColor = (category: string) => {
+    if (!category) return "white";
+
+    // Find the category in the predefined list
+    let found = CATEGORIES.find(
+      (c) => c.id.toLowerCase() === category.toLowerCase()
+    );
+
+    // If the category is new (not found), generate a random color and add it to CATEGORIES
+    if (!found) {
+      const newColor = generateRandomColor();
+      found = { id: category, color: newColor };
+      CATEGORIES.push(found); // Add new category with color to CATEGORIES list
+    }
+    return found.color;
+  };
+
+  // Define the table columns
   const columns: ColumnDef<Question>[] = useMemo(
     () => [
       {
@@ -231,12 +196,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         header: "Topic",
         accessorKey: "Categories",
         cell: ({ getValue }) => {
-          const category = getValue<string>();
-          const color = getCategoryColor(category);
+          const categories = getValue<string>().split(",").map(cat => cat.trim());
           return (
-            <Text color={color} fontWeight="bold" mb={1}>
-              {category}
-            </Text>
+            <HStack spacing={1}>
+              {categories.map((category) => {
+                const color = getCategoryColor(category);
+                return (
+                  <Badge key={category} borderRadius="lg" px="4" py="2" bg={color} color="white">
+                    {category}
+                  </Badge>
+                );
+              })}
+            </HStack>
           );
         },
       },
@@ -252,7 +223,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             </Badge>
           );
         },
-        enableSorting: true, // Enable sorting on this column
+        enableSorting: true,
       },
       {
         header: "Question",
@@ -261,9 +232,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           return (
             <Button
               onClick={() => {
-                setSelectedQuestion(row.original); // Set the selected question data
-                onModalOpen(); // Open the modal
-                onMenuClose(); // Close the menu if it is open
+                setSelectedQuestion(row.original);
+                onModalOpen();
+                onMenuClose();
               }}
               colorScheme="blue"
               variant="link"
@@ -294,7 +265,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               colorScheme="red"
               onClick={() => {
                 handleDelete(row.original.ID);
-                // onDeleteQuestion(row.original.Title); // Call the delete handler
               }}
             />
           </ButtonGroup>
@@ -303,17 +273,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     ],
     [onModalOpen, onMenuClose]
   );
+
   return (
-    <Box
-      className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
-      p={4}
-    >
+    <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
       <h2 className="flex justify-center text-white text-3xl font-semibold">
-          Questions
+        Questions
       </h2>
       <Box className="flex-col justify-center items-center p-2">
         {/* Search Filter Input */}
-        
         <Box className="flex justify-between">
           <Filters
             columnFilters={columnFilters}
@@ -322,9 +289,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <HStack mb={6} spacing={4} align="center">
             <Button
               colorScheme="purple"
-              onClick={() => {
-                onLeetCodeModalOpen();
-              }}
+              onClick={onLeetCodeModalOpen}
             >
               Add LeetCode Question
             </Button>
@@ -351,22 +316,23 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         <QuestionDescriptionModal
           isOpen={isModalOpen}
           onClose={() => {
-            onModalClose(); // Close modal
-            onMenuClose(); // Ensure menu closes if modal closes
+            onModalClose();
+            onMenuClose();
           }}
           question={selectedQuestion}
         />
-        <LeetCodeModal
-          isOpen={isLeetCodeModalOpen}
-          onClose={onLeetCodeModalClose}
-          onSave={handleLeetCodeAdd}
-        />
-        {/* Single Question Modal for both Add and Edit */}
+        {/* Modal for Question Edit */}
         <QuestionModal
           isOpen={isQuestionModalOpen}
           onClose={onQuestionModalClose}
           onSave={selectedQuestion ? handleEdit : handleAdd}
           initialQuestion={selectedQuestion}
+        />
+        {/* Modal for LeetCode Question */}
+        <LeetCodeModal
+          isOpen={isLeetCodeModalOpen}
+          onClose={onLeetCodeModalClose}
+          onSave={handleLeetCodeAdd}
         />
       </Box>
     </Box>

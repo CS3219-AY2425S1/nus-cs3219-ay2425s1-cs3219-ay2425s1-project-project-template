@@ -1,4 +1,3 @@
-import { color } from "framer-motion";
 import { FaHome, FaHistory } from "react-icons/fa";
 import { HiOutlineDesktopComputer } from "react-icons/hi";
 import { IoMdSettings } from "react-icons/io";
@@ -10,6 +9,7 @@ export const COMPLEXITIES = [
 ];
 
 export const CATEGORIES = [
+  // default catergories
   { id: "Strings", color: "blue.300" },
   { id: "Data Structures", color: "green.300" },
   { id: "Algorithms", color: "orange.300" },
@@ -17,7 +17,7 @@ export const CATEGORIES = [
   { id: "Recursion", color: "yellow.300" },
   { id: "Databases", color: "pink.300" },
   { id: "Arrays", color: "cyan.300" },
-  { id: "Brain Teasers", color: "red.300" },
+  { id: "Brainteaser", color: "red.300" },
 ];
 
 export const menuItems = [
@@ -39,9 +39,4 @@ export const menuItems = [
     color: "white",
     route: "/profile",
   },
-  // {
-  //     label: 'History',
-  //     icon: FaHistory,
-  //     color: 'white',
-  // },
 ];
