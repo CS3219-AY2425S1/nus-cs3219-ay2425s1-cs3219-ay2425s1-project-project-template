@@ -126,10 +126,11 @@ export class WebSocketHandler {
         break;
 
       case "CODE_CHANGED":
-        console.log("Code changed:", event.change);
+        console.log("Broadcasting code change:", event);
         this.io.to(event.roomId).emit("codeChanged", {
-          change: event.change,
           userId: event.userId,
+          change: event.change,
+          roomState: event.roomState, // Include room state
         });
         break;
 
