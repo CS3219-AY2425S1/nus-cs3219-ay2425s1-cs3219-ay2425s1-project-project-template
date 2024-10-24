@@ -121,7 +121,8 @@ function CollabPageView() {
 	const CODE_EXECUTED_SUCCESSFULLY = 0;
 
 	const runCode = async () => {
-		const sourceCode = editorRef.current.getValue();
+		const sourceCode = editorRef.current?.getValue() || "";
+
 		if (!sourceCode) return; // do nothing
 
 		try {
