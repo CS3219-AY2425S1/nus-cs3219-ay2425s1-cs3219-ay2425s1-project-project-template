@@ -52,8 +52,8 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 
 		if matchFound != nil {
 			matchedUsername := matchFound.MatchedUser
-			matchedTopic := matchFound.Topic
-			matchedDifficulty := matchFound.Difficulty
+			matchedTopics := matchFound.MatchedTopics
+			matchedDifficulties := matchFound.MatchedDifficulties
 
 			// Generate a random match ID
 			matchId, err := utils.GenerateMatchID()
@@ -63,7 +63,7 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 
 			// Log down which users got matched
 			matchFound.MatchID = matchId
-			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", currentUsername, matchedUsername, matchedTopic, matchedDifficulty)
+			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", currentUsername, matchedUsername, matchedTopics, matchedDifficulties)
 
 			// Clean up redis for this match
 			databases.CleanUpUser(tx, currentUsername, ctx)

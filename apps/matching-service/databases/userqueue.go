@@ -174,10 +174,10 @@ func FindMatchingUser(tx *redis.Tx, username string, ctx context.Context) (*mode
 			commonDifficulty := models.GetCommonDifficulty(user.Difficulties, matchedUser.Difficulties)
 
 			matchFound := models.MatchFound{
-				Type:        "match_found",
-				MatchedUser: potentialMatch,
-				Topic:       topic,
-				Difficulty:  commonDifficulty,
+				Type:                "match_found",
+				MatchedUser:         potentialMatch,
+				MatchedTopics:       topic,
+				MatchedDifficulties: commonDifficulty,
 			}
 
 			return &matchFound, nil
