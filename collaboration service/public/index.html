@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shared Code Editor</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
     #editor {
       width: 100%;
       height: 50vh;
@@ -12,6 +16,13 @@
       font-size: 16px;
       border: 1px solid #ccc;
       padding: 10px;
+      margin-top: 10px;
+    }
+    .notification {
+      color: green;
+    }
+    .error {
+      color: red;
     }
   </style>
 </head>
@@ -22,8 +33,23 @@
   <div>
     <label for="session-id">Enter Session ID:</label>
     <input type="text" id="session-id" placeholder="Enter session ID" />
-    <button id="join-session">Join Session</button>
   </div>
+
+  <!-- Input for userId -->
+  <div>
+    <label for="user-id">Enter User ID:</label>
+    <input type="text" id="user-id" placeholder="Enter user ID" />
+  </div>
+
+  <!-- Input for matchedUserId -->
+  <div>
+    <label for="matched-user-id">Enter Matched User ID:</label>
+    <input type="text" id="matched-user-id" placeholder="Enter matched user ID" />
+  </div>
+
+  <button id="join-session">Join Session</button>
+
+  <div id="messages"></div> <!-- For feedback messages -->
 
   <!-- The code editor area -->
   <textarea id="editor" disabled></textarea>
@@ -34,14 +60,25 @@
 
     const editor = document.getElementById('editor');
     const sessionIdInput = document.getElementById('session-id');
+    const userIdInput = document.getElementById('user-id');
+    const matchedUserIdInput = document.getElementById('matched-user-id');
     const joinSessionButton = document.getElementById('join-session');
+    const messages = document.getElementById('messages');
 
     // Handle the session joining logic
     joinSessionButton.addEventListener('click', () => {
       const sessionId = sessionIdInput.value.trim();
+      const userId = userIdInput.value.trim();
+      const matchedUserId = matchedUserIdInput.value.trim();
 
-      if (sessionId) {
-        socket.emit('join-session', sessionId);
+      if (sessionId && userId && matchedUserId) {
+        socket.emit('join-session', {
+          sessionId: sessionId,
+          userId: userId,
+          matchedUserId: matchedUserId
+        });
+
+        messages.textContent = `Joining session ${sessionId}...`;
 
         // Enable the editor once joined
         editor.disabled = false;
@@ -49,6 +86,7 @@
         // Listen for the current code state from the server
         socket.on('load-code', (code) => {
           editor.value = code;
+          messages.textContent = `Joined session ${sessionId}`;
         });
 
         // Listen for code updates from others in the session
@@ -60,6 +98,13 @@
         editor.addEventListener('input', () => {
           socket.emit('edit-code', editor.value);
         });
+
+        // Handle errors
+        socket.on('error', (errorMessage) => {
+          messages.innerHTML += `<div class="error">${errorMessage}</div>`;
+        });
+      } else {
+        messages.innerHTML += '<div class="error">All fields are required.</div>';
       }
     });
   </script>
