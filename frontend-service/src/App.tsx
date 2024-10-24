@@ -70,7 +70,15 @@ function App() {
           {/* Only allow login/signup routes if the user is not authenticated */}
           {!isAuthenticated ? (
             <>
-              <Route path="/login" element={<Login updateAuthStatus={setIsAuthenticated} />} />
+              <Route
+                path="/login"
+                element={
+                  <Login
+                    updateAuthStatus={setIsAuthenticated}
+                    updateUserData={setUserData}
+                  />
+                }
+              />
               <Route path="/signup" element={<Signup />} />
             </>
           ) : (

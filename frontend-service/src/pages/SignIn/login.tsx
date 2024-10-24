@@ -4,11 +4,19 @@ import "./login.css";
 import signupGraphic from "../../assets/images/signup_graphic.png";
 import { useToast } from "@chakra-ui/react";
 
-interface LoginProps {
-  updateAuthStatus: React.Dispatch<React.SetStateAction<boolean>>;
+interface UserData {
+  id: string
+  username: string
+  email: string
+  isAdmin: boolean
 }
 
-const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
+interface LoginProps {
+  updateAuthStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  updateUserData: React.Dispatch<React.SetStateAction<UserData>>;
+}
+
+const Login: React.FC<LoginProps> = ({ updateAuthStatus, updateUserData }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -30,6 +38,12 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
       if (response.ok) {
         localStorage.setItem("token", data.data.accessToken);
         updateAuthStatus(true);
+        updateUserData({
+          id: data.data.id,
+          username: data.data.username,
+          email: data.data.email,
+          isAdmin: data.data.isAdmin
+        })
         navigate("/questions");
       } else {
         toast({
