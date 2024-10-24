@@ -13,7 +13,7 @@ type MatchFound struct {
 	User                string   `json:"user"`
 	MatchedUser         string   `json:"matched_user"`
 	MatchedTopics       []string `json:"matched_topics"`
-	MatchedDifficulties []string `json:"question_topics"`
+	MatchedDifficulties []string `json:"matched_difficulties"`
 }
 
 type MatchQuestionFound struct {
