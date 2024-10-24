@@ -94,6 +94,15 @@ services:
         condition: service_healthy  # Ensure notification service waits for RabbitMQ to be healthy
     env_file:
       - .env/.notification_env
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+    container_name: collaboration-service
+    depends_on:
+      - user-service
+    env_file:
+      - .env/.collaboration_env
       
 volumes:
   mongo-data:
