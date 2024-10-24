@@ -51,7 +51,8 @@ function MatchingModal({
 
     setIsConnecting(true);
 
-    socketRef.current = io('http://localhost:4001', {
+    socketRef.current = io('http://localhost', {
+      path: '/api/matching-notification/socket.io',
       transports: ['websocket'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

@@ -22,6 +22,7 @@ const io = new Server(server, {
     origin: "*",  // Allow all origins
     methods: ['GET', 'POST'],
   },
+  path: '/api/matching-notification/socket.io',
   pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
   pingInterval: 25000,  // Interval between ping packets
 });

@@ -106,8 +106,6 @@ services:
     build:
       context: ./match-notification-service
     container_name: match-notification-service
-    ports:
-      - "4001:4001"
     networks:
       - my-network
     depends_on:
