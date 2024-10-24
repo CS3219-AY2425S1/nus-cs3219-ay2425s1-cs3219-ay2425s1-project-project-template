@@ -4,7 +4,7 @@ import { Consumer, Kafka, Producer } from 'kafkajs';
 import {
   MatchFoundResponse,
   MatchRequest,
-  MatchResponse,
+  MatchRequestResponse,
 } from './dto/request.dto';
 
 enum MessageAction {
@@ -127,7 +127,7 @@ export class MatchingWebSocketService implements OnModuleInit {
 
   async addMatchRequest(socketId: string, req: MatchRequest,
                         onMatch: (matchFound: MatchFoundResponse) => void,
-                        onMatchTimeout: () => void): Promise<MatchResponse> {
+                        onMatchTimeout: () => void): Promise<MatchRequestResponse> {
     // TODO Perform atomic set on Redis to see if user is already in the pool
     // If an existing entry exists for the user, return an error
 
@@ -157,10 +157,11 @@ export class MatchingWebSocketService implements OnModuleInit {
 
     return {
       message: `Match Request received for ${req.userId} at ${currentTime}`,
+      expiry: expiryTime,
     }
   }
 
-  async cancelMatchRequest(socketId: string): Promise<MatchResponse> {
+  async cancelMatchRequest(socketId: string): Promise<MatchRequestResponse> {
     if (!(socketId in this.socketIdReqMap)) {
       return {
         message: 'Failed to cancel match',

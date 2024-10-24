@@ -5,9 +5,10 @@ export type MatchRequest = {
     timestamp: number;
 };
 
-export type MatchResponse = {
+export type MatchRequestResponse = {
     message: string;
     error?: string;
+    expiry?: number;
 };
 
 export type MatchFoundResponse = {

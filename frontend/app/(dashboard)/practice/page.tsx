@@ -20,7 +20,10 @@ import {
   makeMatchRequest,
 } from "@/services/matchingService";
 import useAuth from "@/hooks/useAuth";
-import { MatchFoundResponse } from '@/types/Match';
+import {
+  MatchRequestResponse,
+  MatchResult,
+} from '@/types/Match';
 
 export default function CreateQuestionPage() {
   const toast = useToast();
@@ -76,23 +79,68 @@ export default function CreateQuestionPage() {
       topic: topic,
       difficulty: complexity,
       timestamp: Date.now(),
-    }, (res) => {
+    }, (res: MatchRequestResponse) => {
       console.log("Match request sent:", res);
-    }, () => {
-      // On match timeout
-      setIsLoading(false);
-      toast.closeAll();
-      toast({
-        title: "Match Not Found",
-        description: "Please try again.",
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
-      setIsMatched(false);
-      setMatchedWithUser(undefined);
-    }).then((res: MatchFoundResponse) => {
+
+      if (res.error || !res.expiry) return;
+
+      // Start countdown timer
+      let initialCountdown = Math.ceil((res.expiry - Date.now()) / 1000);
+      setCountdown(initialCountdown);
+      const interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 0) {
+            clearInterval(interval);
+            setCheckMatchInterval(null);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      setCheckMatchInterval(interval);
+    }).then((res: MatchResult) => {
+      if (checkMatchInterval) {
+        clearInterval(checkMatchInterval);
+        setCheckMatchInterval(null);
+      }
+
+      if (res.result === 'timeout') {
+        // On match timeout
+        setIsLoading(false);
+        toast.closeAll();
+        toast({
+          title: "Match Not Found",
+          description: "Please try again.",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+        setIsMatched(false);
+        setMatchedWithUser(undefined);
+
+        return;
+      }
+
+      if (res.result === 'error' || !res.matchFound) {
+        setIsLoading(false);
+        toast.closeAll();
+        toast({
+          title: "Match Failed",
+          description: res.error,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+        setIsMatched(false);
+        setMatchedWithUser(undefined);
+
+        return;
+      }
+
+      const matchFound = res.matchFound;
+
       // On match found
       setIsLoading(false);
       toast.closeAll();
@@ -107,9 +155,9 @@ export default function CreateQuestionPage() {
 
       // Handle match found logic here
       setIsMatched(true);
-      setMatchedWithUser(res.matchedWithUserId);
-      setMatchedTopic(res.matchedTopic);
-      setRoomId(res.matchedRoom);
+      setMatchedWithUser(matchFound.matchedWithUserId);
+      setMatchedTopic(matchFound.matchedTopic);
+      setRoomId(matchFound.matchedRoom);
     }).catch((err) => {
       console.error("Error sending match request:", err);
       setIsLoading(false);

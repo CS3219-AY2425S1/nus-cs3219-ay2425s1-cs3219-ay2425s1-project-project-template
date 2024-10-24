@@ -2,8 +2,8 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import {
   MatchRequest,
-  MatchResponse,
-  MatchFoundResponse,
+  MatchRequestResponse,
+  MatchFoundResponse, MatchResult,
 } from '../types/Match';
 
 const axiosInstance = axios.create({
@@ -26,24 +26,25 @@ export const testSend = async () => {
 
 export const makeMatchRequest = async (
   matchRequest: MatchRequest,
-  onRequestMade: (response: MatchResponse) => void,
-  onNoMatchFound: () => void,
-): Promise<MatchFoundResponse> => {
+  onRequestMade: (response: MatchRequestResponse) => void,
+): Promise<MatchResult> => {
   try {
     const socket = io(`ws://localhost:${process.env.MATCHING_WEBSOCKET_SERVICE_PORT ?? 8008}`, {
       reconnection: false,
       timeout: 3000,
     });
-    socket.once("matchRequestResponse", (response: MatchResponse) => {
-      onRequestMade(response);
-    });
-    socket.once("noMatchFound", () => {
-      onNoMatchFound();
-      socket.disconnect();
-    });
-    const matchFoundResponse = new Promise<MatchFoundResponse>((resolve) => {
+    const matchFoundResponse = new Promise<MatchResult>((resolve) => {
+      socket.once("matchRequestResponse", (response: MatchRequestResponse) => {
+        onRequestMade(response);
+        if (response.error) {
+          resolve({ result: 'error', error: response.error });
+        }
+      });
+      socket.once("noMatchFound", () => {
+        resolve({ result: 'timeout' });
+      });
       socket.once("matchFound", (res: MatchFoundResponse) => {
-        resolve(res);
+        resolve({ result: 'success', matchFound: res });
       });
     });
     socket.emit("matchRequest", matchRequest);
@@ -57,10 +58,10 @@ export const makeMatchRequest = async (
 
 export const cancelMatchRequest = async (
   matchRequest: MatchRequest
-): Promise<MatchResponse> => {
+): Promise<MatchRequestResponse> => {
   try {
     const response = await axiosInstance.post("/cancel-match", matchRequest);
-    return response.data as MatchResponse;
+    return response.data as MatchRequestResponse;
   } catch (error) {
     console.error("Error sending cancel match request:", error);
     throw error;

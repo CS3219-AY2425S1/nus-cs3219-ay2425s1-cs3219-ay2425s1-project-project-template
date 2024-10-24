@@ -8,9 +8,10 @@ export type MatchRequest = {
   timestamp: number;
 };
 
-export type MatchResponse = {
+export type MatchRequestResponse = {
   message: string;
   error?: string;
+  expiry?: number;
 };
 
 export type MatchFoundResponse = {
@@ -18,3 +19,9 @@ export type MatchFoundResponse = {
   matchedTopic: string;
   matchedRoom: string;
 };
+
+export type MatchResult = {
+  result: 'success' | 'timeout' | 'error';
+  error?: string;
+  matchFound?: MatchFoundResponse;
+}

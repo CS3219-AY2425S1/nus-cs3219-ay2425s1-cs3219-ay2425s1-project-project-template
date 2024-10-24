@@ -20,7 +20,7 @@ export class MatchingWebSocketGateway {
 
   private onConnect(client: Socket) {
     const onMatchRequest = async (matchRequest: MatchRequest) => {
-      await this.matchingWebSocketService.addMatchRequest(client.id, matchRequest,
+      const matchResponse = await this.matchingWebSocketService.addMatchRequest(client.id, matchRequest,
         (matchFound: MatchFoundResponse) => {
           client.emit('matchFound', matchFound);
           client.disconnect();
@@ -30,7 +30,10 @@ export class MatchingWebSocketGateway {
           client.disconnect();
         }
       )
-      client.emit('matchRequestResponse', { message: 'Match request received' });
+      client.emit('matchRequestResponse', matchResponse);
+      if (matchResponse.error) {
+        client.disconnect();
+      }
     }
 
     const onMatchCancel = async () => {
