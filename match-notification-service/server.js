@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const cors = require('cors');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -6,8 +7,25 @@ const { Server } = require('socket.io');
 const app = express();
 const PORT = process.env.MATCHING_NOTIFICATION_PORT || 4001;
 
+// Apply CORS middleware
+app.use(cors());
+app.options("*", cors());
+
+// Add a route handler for the root path
+app.get('/', (req, res) => {
+  res.send('Match Notification Service is running');
+});
+
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",  // Allow all origins
+    methods: ['GET', 'POST'],
+  },
+  path: '/api/matching-notification/socket.io',
+  pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
+  pingInterval: 25000,  // Interval between ping packets
+});
 
 // Store connected clients
 let connectedClients = {};  // Mapping of userId to socketId
@@ -56,13 +74,19 @@ io.on('connection', (socket) => {
 
   // Register the userId with the socket and send search request to RabbitMQ
   socket.on('register', (userId, difficulty, topics) => {
-    connectedClients[userId] = socket.id;
-    console.log(`User ${userId} registered with socket ${socket.id}`);
+    if (connectedClients[userId]) {
+      io.to(socket.id).emit('existing_search', 'User is already searching in another matching service.');
+      console.log(`User ${userId} is already searching in matching service.`);
+    } else {
+      // Register the new connection
+      connectedClients[userId] = socket.id;
+      console.log(`User ${userId} registered with socket ${socket.id}`);
 
-    // Send search request to RabbitMQ
-    const searchRequest = { userId, difficulty, topics };
-    channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
-    console.log(`Search request sent for user ${userId}`);
+      // Send search request to RabbitMQ
+      const searchRequest = { userId, difficulty, topics };
+      channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
+      console.log(`Search request sent for user ${userId}`);
+    }
   });
 
   // Handle user disconnect

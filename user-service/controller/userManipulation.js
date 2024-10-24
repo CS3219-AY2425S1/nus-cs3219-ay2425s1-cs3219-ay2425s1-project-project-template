@@ -63,6 +63,30 @@ const insertDefaultData = async () => {
 
       await adminUser.save();
       console.log('Default admin user created.');
+
+
+      // Create a default user 1
+      const userHashedPassword = await bcrypt.hash("password", 10);
+      const user = new User({
+        email: "test@gmail.com",
+        username: 'test_user',
+        password: userHashedPassword,
+        isAdmin: false,
+      });
+
+      await user.save();
+      console.log('Default user created.');
+
+      // Create a default user 2
+      const user2 = new User({
+        email: "test2@gmail.com",
+        username: 'test_user_2',
+        password: userHashedPassword,
+        isAdmin: false,
+      });
+
+      await user2.save();
+      console.log('Default user 2 created.');
     } else {
       console.log('Users already exist, skipping default data insertion.');
     }

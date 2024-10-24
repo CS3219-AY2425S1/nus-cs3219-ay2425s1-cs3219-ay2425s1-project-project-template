@@ -1,9 +1,13 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { RouterProvider } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import './App.css';
-import router from './router';
+import AuthProvider from './hooks/AuthProvider';
+import Admin from './pages/Admin';
+import FilterSelection from './pages/FilterSelection';
+import Landing from './pages/Landing';
+import Room from './pages/Room';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -27,7 +31,16 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
-      <RouterProvider router={router} />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/select" element={<FilterSelection />} />
+            <Route path="/room" element={<Room />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </MantineProvider>
   );
 }
