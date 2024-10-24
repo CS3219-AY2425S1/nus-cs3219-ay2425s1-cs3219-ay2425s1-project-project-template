@@ -16,14 +16,15 @@ import {
 import { useState } from "react";
 import { QuestionComplexity, QuestionTopic } from "@/types/Question";
 import {
-  cancelMatchRequest,
+  cancelMatchRequest, getMatchSocket,
   makeMatchRequest,
-} from "@/services/matchingService";
+} from '@/services/matchingService';
 import useAuth from "@/hooks/useAuth";
 import {
   MatchRequestResponse,
   MatchResult,
 } from '@/types/Match';
+import { Socket } from 'socket.io-client';
 
 export default function CreateQuestionPage() {
   const toast = useToast();
@@ -46,6 +47,7 @@ export default function CreateQuestionPage() {
   const [matchedTopic, setMatchedTopic] = useState<string>("");
   const [roomId, setRoomId] = useState<string>("");
 
+  const [checkMatchSocket, setCheckMatchSocket] = useState<Socket | null>(null);
   const [checkMatchInterval, setCheckMatchInterval] =
     useState<NodeJS.Timeout | null>(null);
 
@@ -74,7 +76,9 @@ export default function CreateQuestionPage() {
     setMatchedWithUser(undefined);
 
     console.log("Sending match request...");
-    makeMatchRequest({
+    const socket = getMatchSocket();
+    setCheckMatchSocket(socket);
+    makeMatchRequest(socket, {
       userId: username,
       topic: topic,
       difficulty: complexity,
@@ -103,6 +107,8 @@ export default function CreateQuestionPage() {
         clearInterval(checkMatchInterval);
         setCheckMatchInterval(null);
       }
+
+      setCheckMatchSocket(null);
 
       if (res.result === 'timeout') {
         // On match timeout
@@ -188,27 +194,9 @@ export default function CreateQuestionPage() {
   };
 
   const cancelMatchOnBackend = () => {
-    cancelMatchRequest({
-      userId: username,
-      topic: topic!,
-      difficulty: complexity!,
-      timestamp: Date.now(),
-    })
-      .then((res) => {
-        console.log("Match request cancelled:", res);
-      })
-      .catch((err) => {
-        console.error("Error cancelling match request:", err);
-        toast.closeAll();
-        toast({
-          title: "Error",
-          description: "Failed to cancel match request. Please try again.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "top",
-        });
-      });
+    if (!checkMatchSocket) return;
+
+    cancelMatchRequest(checkMatchSocket);
   };
 
   return (

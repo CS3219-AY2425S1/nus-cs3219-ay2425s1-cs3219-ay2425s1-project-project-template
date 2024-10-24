@@ -1,5 +1,5 @@
 import axios from "axios";
-import { io } from "socket.io-client";
+import { io, Socket } from 'socket.io-client';
 import {
   MatchRequest,
   MatchRequestResponse,
@@ -24,15 +24,19 @@ export const testSend = async () => {
   }
 };
 
+export const getMatchSocket = () => {
+  return io(`ws://localhost:${process.env.MATCHING_WEBSOCKET_SERVICE_PORT ?? 8008}`, {
+    reconnection: false,
+    timeout: 3000,
+  });
+}
+
 export const makeMatchRequest = async (
+  socket: Socket,
   matchRequest: MatchRequest,
   onRequestMade: (response: MatchRequestResponse) => void,
 ): Promise<MatchResult> => {
   try {
-    const socket = io(`ws://localhost:${process.env.MATCHING_WEBSOCKET_SERVICE_PORT ?? 8008}`, {
-      reconnection: false,
-      timeout: 3000,
-    });
     const matchFoundResponse = new Promise<MatchResult>((resolve) => {
       socket.once("matchRequestResponse", (response: MatchRequestResponse) => {
         onRequestMade(response);
@@ -56,14 +60,9 @@ export const makeMatchRequest = async (
   }
 };
 
-export const cancelMatchRequest = async (
-  matchRequest: MatchRequest
-): Promise<MatchRequestResponse> => {
-  try {
-    const response = await axiosInstance.post("/cancel-match", matchRequest);
-    return response.data as MatchRequestResponse;
-  } catch (error) {
-    console.error("Error sending cancel match request:", error);
-    throw error;
-  }
+export const cancelMatchRequest = (
+  socket: Socket
+) => {
+  socket.disconnect();
+  console.log("Cancelled match request");
 };
