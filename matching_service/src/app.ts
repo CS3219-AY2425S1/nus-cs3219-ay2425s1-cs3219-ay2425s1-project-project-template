@@ -82,6 +82,23 @@ const run = async () => {
       console.log("Value:", message.value?.toString());
       console.log("Timestamp:", message.timestamp);
       console.log("==================\n");
+
+      try {
+        const messageValue = JSON.parse(message.value?.toString() || "");
+        console.log("Message Type:", messageValue.type); // This will print "JOIN_ROOM"
+
+        // Now you can switch on the message type
+        switch (messageValue.type) {
+          case ClientSocketEvents.JOIN_ROOM:
+            console.log("Room ID:", messageValue.roomId);
+            console.log("Socket ID:", messageValue.socketId);
+            break;
+          // Add other cases as needed
+        }
+      } catch (error) {
+        console.error("Error parsing message:", error);
+        console.error("Raw message value:", message.value?.toString());
+      }
     },
   });
 };
