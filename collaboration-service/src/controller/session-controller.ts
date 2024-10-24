@@ -2,11 +2,12 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Session from '../model/session-model';
 import * as Y from 'yjs';
+import { roomDocumentMap } from './editor-controller';
 
 export const sessionController = {
     createSession: async (req: Request, res: Response) => {
         const {
-            participants, // pair of strings
+            participants, // pair of userIds
             questionId,
         } = req.body;
 
@@ -27,16 +28,6 @@ export const sessionController = {
             return res.status(500).json({ message: "Unable to retrieve question data" });
         }
 
-        const questionTemplateCode: string = questionData.question.templateCode
-        const yDoc = new Y.Doc();
-        const yText = yDoc.getText('code');
-        yText.insert(0, questionTemplateCode);
-
-        const questionDescription: string = questionData.question.description
-        const questionTestcases: string[] = questionData.question.testcases
-
-        const yDocBuffer = Buffer.from(Y.encodeStateAsUpdate(yDoc));
-
         // Check if participants are already in another active session
         const existingSession = await Session.findOne({
             participants: { $elemMatch: { $in: participants } },
@@ -47,7 +38,20 @@ export const sessionController = {
             return res.status(400).json({ message: 'At least one participant is already in another session' });
         }
 
+        const questionTemplateCode: string = questionData.question.templateCode
+        const yDoc = new Y.Doc();
+        const yText = yDoc.getText('code');
+        yText.insert(0, questionTemplateCode);
+
+        const questionDescription: string = questionData.question.description
+        const questionTestcases: string[] = questionData.question.testcases
+
+        const yDocBuffer = Buffer.from(Y.encodeStateAsUpdate(yDoc));
+
         const sessionId = uuidv4(); // Use UUID for unique session ID
+
+        roomDocumentMap[sessionId] = yDoc;
+
         const session = new Session({
             session_id: sessionId, // session_id,
             date_created: new Date(),
