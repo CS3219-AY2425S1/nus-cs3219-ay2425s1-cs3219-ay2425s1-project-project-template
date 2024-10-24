@@ -130,7 +130,7 @@ services:
   collaboration-service:
     build:
       context: ./collaboration-service
-    container_name: collaboration-service
+    container_name: collaboration-service-backend
     depends_on:
       - user-service
     ports:
