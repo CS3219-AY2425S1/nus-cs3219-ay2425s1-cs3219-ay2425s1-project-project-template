@@ -7,10 +7,11 @@ import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/common/button";
 import Chat from "@/components/workspace/chat";
 import Problem from "@/components/workspace/problem";
-import CodeEditor from "@/components/workspace/code-editor";
+import CodeEditor, { Language } from "@/components/workspace/code-editor";
 import { getQuestion } from "@/app/actions/questions";
 import { getRoomById } from "@/app/actions/room";
-import { RoomDto } from "peerprep-shared-types";
+import { ClientSocketEvents, RoomDto } from "peerprep-shared-types";
+import { useSocket } from "@/app/actions/socket";
 
 type WorkspaceProps = {
   params: {
@@ -21,7 +22,28 @@ type WorkspaceProps = {
 
 const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
   const router = useRouter();
-  const { token, deleteToken } = useAuth();
+  const { token, deleteToken, username } = useAuth();
+  const { socket } = useSocket();
+
+  const handleCodeChange = (newContent: string) => {
+    setSharedCode(newContent);
+    if (!socket) return;
+    console.log("Emitting code change");
+
+    socket.emit(ClientSocketEvents.CODE_CHANGE, {
+      message: {
+        sharedCode: sharedCode,
+      },
+      event: ClientSocketEvents.CODE_CHANGE,
+    });
+  };
+
+  const [isConnected, setIsConnected] = useState(false);
+  const [userCount, setUserCount] = useState(0);
+
+  const [activeUsers, setActiveUsers] = useState<string[]>([]);
+  const [sharedCode, setSharedCode] = useState<string>("");
+  const [language, setLanguage] = useState<Language>(Language.javascript);
 
   useEffect(() => {
     console.log(params.id);
@@ -36,6 +58,43 @@ const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
       });
     }
   }, [token]);
+
+  useEffect(() => {
+    if (!socket || !room?._id) return;
+
+    console.log("Joining room", room?._id);
+    // Join room using existing socket
+    socket.emit(ClientSocketEvents.JOIN_ROOM, {
+      roomId: room?._id,
+      event: ClientSocketEvents.JOIN_ROOM,
+    });
+    socket.on(ClientSocketEvents.EDITOR_STATE, ({ content, activeUsers }) => {
+      setSharedCode(content);
+      setActiveUsers(activeUsers);
+      setIsConnected(true);
+    });
+
+    socket.on(
+      ClientSocketEvents.CODE_CHANGE,
+      ({ username: remoteUser, content: newContent }) => {
+        if (remoteUser !== username) {
+          setSharedCode(newContent);
+        }
+      }
+    );
+
+    socket.on(ClientSocketEvents.USER_JOINED, ({ username, activeUsers }) => {
+      setActiveUsers(activeUsers);
+    });
+
+    socket.on(ClientSocketEvents.USER_LEFT, ({ username, activeUsers }) => {
+      setActiveUsers(activeUsers);
+    });
+
+    socket.on("disconnect", () => {
+      setIsConnected(false);
+    });
+  }, [socket, room]);
 
   return (
     <div className="h-screen w-[80%] flex flex-col  mx-auto py-10 overscroll-contain">
@@ -59,13 +118,13 @@ const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
         <div className="w-max flex items-center justify-start mr-5">
           <h3 className="text-xl font-semibold text-gray-300 mr-4">User 1</h3>
           <div className="bg-gray-700 px-4 py-2 rounded-md text-gray-100 min-w-[50px] text-center">
-            {room?.users[0] || "Waiting..."}
+            {(room?.users?.length && room.users[0]) || "Waiting..."}
           </div>
         </div>
         <div className="w-max flex items-center justify-start">
           <h3 className="text-xl font-semibold text-gray-300 mr-4">User 2</h3>
           <div className="bg-gray-700 px-4 py-2 rounded-md text-gray-100 min-w-[50px] text-center">
-            {room?.users[1] || "Waiting..."}
+            {(room?.users?.length && room.users[1]) || "Waiting..."}
           </div>
         </div>
       </div>
@@ -78,7 +137,12 @@ const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
         <div className="flex-1 min-w-[50px]">
           <div className="flex flex-col h-screen">
             <div className="flex-1 border-b border-gray-300 p-4">
-              <CodeEditor />
+              <CodeEditor
+                language={language}
+                sharedCode={sharedCode}
+                handleCodeChange={handleCodeChange}
+                setLanguage={setLanguage}
+              />
             </div>
             <div className="flex-1 p-4">
               <Chat />
