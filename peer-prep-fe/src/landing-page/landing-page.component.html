@@ -33,7 +33,7 @@
     <div class="category-line">
       <button *ngFor="let category of line" 
           (click)="selectCategory(category.name)" 
-          [ngClass]="{'category-selected': selectedCategory === category}"
+          [ngClass]="{'category-selected': category.selected}"
           class="cat-buttons">
       {{ category.name.toUpperCase() }}
       </button>

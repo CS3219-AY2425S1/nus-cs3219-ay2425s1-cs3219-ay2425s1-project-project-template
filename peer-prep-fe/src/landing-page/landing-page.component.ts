@@ -155,8 +155,12 @@ export class LandingPageComponent {
   }
 
   // only one category can be selected, click on another means give up current
-  selectCategory(category: any) {
-    this.selectedCategory = category;
+  selectCategory(categoryName: string) {
+    this.question_categories.forEach(category => {
+      category.selected = category.name === categoryName;
+    });
+  
+    this.selectedCategory = categoryName;
     this.checkSelections();
   }
 
