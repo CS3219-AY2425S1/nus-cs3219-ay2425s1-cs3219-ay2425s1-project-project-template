@@ -14,7 +14,7 @@ app.use(express.static('public'));
 app.use('/api/collab', sessionRoutes(io));
 
 // Start the server
-const PORT = 3000;
+const PORT = 8004;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
