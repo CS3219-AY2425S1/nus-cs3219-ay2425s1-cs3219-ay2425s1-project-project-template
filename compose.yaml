@@ -101,8 +101,8 @@ services:
     container_name: collaboration-service
     depends_on:
       - user-service
-    env_file:
-      - .env/.collaboration_env
+    # env_file:
+    #   - .env/.collaboration_env
       
 volumes:
   mongo-data:
