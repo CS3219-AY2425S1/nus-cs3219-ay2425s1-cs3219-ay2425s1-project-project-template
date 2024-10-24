@@ -49,10 +49,10 @@ const questionSchema: Schema = new Schema({
   testCases: [{ type: [String], required: false }], // Adding test cases
   language: {
     type: String,
-    required: true,
+    required: false,
     uppercase: true, // Automatically convert to uppercase
     enum: [
-      "SCRIPT",
+      "TYPESCRIPT",
       "JAVASCRIPT",
       "CSS",
       "LESS",

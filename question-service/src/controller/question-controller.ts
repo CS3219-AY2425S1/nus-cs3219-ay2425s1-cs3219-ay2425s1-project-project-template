@@ -44,7 +44,7 @@ export const questionController = {
     // Convert language to uppercase and validate
     const languageUpperCase = language.toUpperCase();
     const validLanguages = [
-      "SCRIPT",
+      "TYPESCRIPT",
       "JAVASCRIPT",
       "CSS",
       "LESS",
@@ -365,7 +365,7 @@ export const questionController = {
     // Convert language to uppercase and validate
     const languageUpperCase = language.toUpperCase();
     const validLanguages = [
-      "SCRIPT",
+      "TYPESCRIPT",
       "JAVASCRIPT",
       "CSS",
       "LESS",
@@ -443,7 +443,7 @@ export const questionController = {
       question.complexity = complexity.toUpperCase() || question.complexity;
       question.templateCode = templateCode || question.templateCode;
       question.testCases = testCases || question.testCases;
-      question.language = languageUpperCase || question.language;
+      question.language = languageUpperCase /*|| question.language*/;
 
       await question.save();
       res.status(200).json(question);
