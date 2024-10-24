@@ -79,7 +79,7 @@ function DeleteModal({
   );
 }
 
-export default function Home() {
+export default function QuestionListPage() {
   // State of Deletion
   const [deletionStage, setDeletionStage] = useState<DeletionStage>({});
 

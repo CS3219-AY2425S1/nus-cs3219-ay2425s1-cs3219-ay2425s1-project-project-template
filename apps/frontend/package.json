@@ -12,13 +12,15 @@
     "@ant-design/icons": "^5.5.1",
     "@ant-design/nextjs-registry": "^1.0.1",
     "antd": "^5.20.6",
+    "codemirror": "^6.0.1",
     "next": "14.2.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-timer-hook": "^3.0.7",
     "react-use-websocket": "^4.9.0",
     "sass": "^1.79.2",
-    "typeface-montserrat": "^1.1.13"
+    "typeface-montserrat": "^1.1.13",
+    "y-codemirror.next": "^0.3.5"
   },
   "devDependencies": {
     "@types/node": "^20",
