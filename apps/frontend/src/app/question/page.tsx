@@ -287,7 +287,7 @@ export default function Home() {
               query: { data: question.docRefId }, // the data
             }}
           >
-            <Button type="link">{text}</Button>
+            {text}
           </Link>
         ),
       },
@@ -458,7 +458,7 @@ export default function Home() {
               query: { data: question.docRefId }, // the data
             }}
           >
-            <Button type="link">{text}</Button>
+            {text}
           </Link>
         ),
       },
