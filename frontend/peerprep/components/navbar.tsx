@@ -10,7 +10,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { fontFun } from "@/config/fonts";
-import { getSession, getUsername } from "@/app/api/auth/actions";
+import { getSession, getUsername } from "@/auth/actions";
 import { GreetingMessageHeader } from "./greetingmessageheader";
 
 export const Navbar = async () => {

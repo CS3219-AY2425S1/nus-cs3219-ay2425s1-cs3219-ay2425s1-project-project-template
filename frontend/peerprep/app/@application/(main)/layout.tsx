@@ -4,7 +4,7 @@ import { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
-import { isSessionAdmin } from "../../api/auth/actions";
+import { isSessionAdmin } from "../../auth/actions";
 
 export const metadata: Metadata = {
   title: {

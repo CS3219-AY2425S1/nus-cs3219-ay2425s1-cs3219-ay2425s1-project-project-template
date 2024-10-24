@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { PublicEnvScript } from "next-runtime-env";
 
 import { Providers } from "./providers";
-import { isSessionLoggedIn } from "./api/auth/actions";
+import { isSessionLoggedIn } from "../auth/actions";
 
 import { fontSans } from "@/config/fonts";
 
