@@ -26,16 +26,8 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 	defer lock.Release(ctx)
 
 	if err := rdb.Watch(ctx, func(tx *redis.Tx) error {
-		queuedUsernames, err := databases.GetAllQueuedUsers(tx, ctx)
-		if err != nil {
+		if err := databases.ValidateNotDuplicateUser(tx, ctx, currentUsername); err != nil {
 			return err
-		}
-
-		// Check that user is not part of the existing queue
-		for _, username := range queuedUsernames {
-			if username == currentUsername {
-				return models.ExistingUserError
-			}
 		}
 
 		databases.AddUser(tx, matchRequest, ctx)

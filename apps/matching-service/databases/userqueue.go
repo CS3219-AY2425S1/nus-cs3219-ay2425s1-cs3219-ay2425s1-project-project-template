@@ -76,6 +76,21 @@ func GetAllQueuedUsers(tx *redis.Tx, ctx context.Context) ([]string, error) {
 	return users, nil
 }
 
+func ValidateNotDuplicateUser(tx *redis.Tx, ctx context.Context, currentUsername string) error {
+	queuedUsernames, err := GetAllQueuedUsers(tx, ctx)
+	if err != nil {
+		return err
+	}
+
+	// Check that user is not part of the existing queue
+	for _, username := range queuedUsernames {
+		if username == currentUsername {
+			return models.ExistingUserError
+		}
+	}
+	return nil
+}
+
 // Add user details into hashset in Redis
 func StoreUserDetails(tx *redis.Tx, request models.MatchRequest, ctx context.Context) {
 	topicsJSON, err := json.Marshal(request.Topics)
@@ -171,12 +186,12 @@ func FindMatchingUser(tx *redis.Tx, username string, ctx context.Context) (*mode
 				return nil, err
 			}
 
-			commonDifficulty := models.GetCommonDifficulty(user.Difficulties, matchedUser.Difficulties)
+			commonDifficulty := models.GetCommonDifficulties(user.Difficulties, matchedUser.Difficulties)
 
 			matchFound := models.MatchFound{
 				Type:                "match_found",
 				MatchedUser:         potentialMatch,
-				MatchedTopics:       topic,
+				MatchedTopics:       topics,
 				MatchedDifficulties: commonDifficulty,
 			}
 
