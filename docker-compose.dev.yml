@@ -25,18 +25,28 @@ services:
       - ./gateway_service:/app
       - /app/node_modules
     environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MATCHING_SERVICE_PORT=${MATCHING_SERVICE_PORT}
       - API_GATEWAY_PORT=${API_GATEWAY_PORT}
       - USER_SERVICE_PORT=${USER_SERVICE_PORT}
       - QUESTION_SERVICE_PORT=${QUESTION_SERVICE_PORT}
-      - MATCHING_SERVICE_PORT=${MATCHING_SERVICE_PORT}
+      - KAFKA_BROKER_PORT=${KAFKA_BROKER_PORT}
+      - KAFKA_CONTROLLER_PORT=${KAFKA_CONTROLLER_PORT}
       - JWT_SECRET=${JWT_SECRET}
+      - GATEWAY_SERVICE_ROUTE=gateway-service
       - USER_SERVICE_ROUTE=user-service
       - QUESTION_SERVICE_ROUTE=question-service
+      - KAFKA_BROKER_ROUTE=kafka-service
+      - KAFKA_CONTROLLER_ROUTE=kafka-service
       - MATCHING_SERVICE_ROUTE=matching-service
     ports:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+
     depends_on:
-      - matching-service
+      kafka-init:
+        condition: service_completed_successfully
+      kafka-service:
+        condition: service_healthy
 
   user-service:
     build:
@@ -120,3 +130,24 @@ services:
       timeout: 20s
       retries: 3
       start_period: 30s
+
+  kafka-init:
+    image: apache/kafka:latest
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    command: >
+      bash -c '
+        echo "Waiting for Kafka to be ready..." &&
+        sleep 10 &&
+        /opt/kafka/bin/kafka-topics.sh \
+          --create \
+          --if-not-exists \
+          --bootstrap-server kafka-service:${KAFKA_BROKER_PORT} \
+          --topic collaboration-events \
+          --partitions ${KAFKA_NUM_PARTITIONS:-1} \
+          --replication-factor 1
+      '
+    environment:
+      KAFKA_BROKER_PORT: ${KAFKA_BROKER_PORT}
+      KAFKA_NUM_PARTITIONS: ${KAFKA_NUM_PARTITIONS:-1}
