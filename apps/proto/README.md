@@ -36,8 +36,7 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 Now use the protoc compiler to generate the Go code for the service and messages.
 
 ```bash
-protoc --go_out=../matching-service --go-grpc_out=../matching-service ./questionmatching.proto
-protoc --go_out=../question-service --go-grpc_out=../question-service ./questionmatching.proto
+protoc --go_out=. --go-grpc_out=. ./questionmatching.proto
 ```
 
 This command will generate two files:

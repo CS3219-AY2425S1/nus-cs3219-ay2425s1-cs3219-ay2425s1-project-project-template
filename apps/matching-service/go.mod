@@ -2,6 +2,10 @@ module matching-service
 
 go 1.23.1
 
+require proto v0.0.0
+
+replace proto => ../proto
+
 require (
 	github.com/bsm/redislock v0.9.4
 	github.com/gorilla/websocket v1.5.3

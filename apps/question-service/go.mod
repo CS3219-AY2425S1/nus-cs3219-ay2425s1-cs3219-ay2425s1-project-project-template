@@ -1,5 +1,9 @@
 module question-service
 
+require proto v0.0.0
+
+replace proto => ../proto
+
 go 1.23.1
 
 require (

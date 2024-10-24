@@ -4,7 +4,7 @@
 // - protoc             v3.21.12
 // source: questionmatching.proto
 
-package proto
+package questionmatching
 
 import (
 	context "context"
