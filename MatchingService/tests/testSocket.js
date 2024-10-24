@@ -12,10 +12,10 @@ socket.on('connect', () => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            userId: '12345',
-            topic: 'Algorithms',
+            userId: '2',
+            topic: 'Arrays',
             difficulty: 'Medium',
-            socketId: socket.id, // Use the connected socket ID
+            socketId: socket.id
         }),
     }).then(response => response.json())
       .then(data => console.log(data))
