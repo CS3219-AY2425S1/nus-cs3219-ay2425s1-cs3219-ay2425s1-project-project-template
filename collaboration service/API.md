@@ -1,0 +1,67 @@
+# Documentation for Collaboration Service
+
+## Base URL
+
+All API endpoints are prefixed with `/api/collab`.
+
+## API Endpoints
+
+### GET `/check-session/:userId`
+
+Checks if a user is part of an active session.
+
+- **Parameters**:
+
+  - `userId` (string): The ID of the user.
+
+- **Response**:
+
+  - **200 OK**: Returns session details.
+
+  ```json
+  {
+    "sessionId": "sessionId456",
+    "matchedUserId": "matchedUserId789"
+  }
+  ```
+
+  - **400 Bad Request**: Returns an error if the user ID is not provided.
+
+- **Example Request**:
+  GET /api/collab/check-session/userId123
+
+## Socket.IO Events
+
+### `join-session`
+
+Triggered when a user attempts to join a session.
+
+- **Payload**:
+- `sessionId` (string): The ID of the session.
+- `userId` (string): The ID of the user.
+- `matchedUserId` (string): The ID of the matched user.
+
+- **Responses**:
+- `error`: Emitted if there is an error.
+- `load-code`: Sent to the user with the initial code state after joining.
+- `code-updated`: Sent to all users in the session when the code is edited.
+- `user-joined`: Notifies other users that a new user has joined.
+- `user-left`: Notifies other users when a user disconnects.
+
+---
+
+### Example Usage of Socket.IO Events
+
+```javascript
+// Example of joining a session
+socket.emit('join-session', {
+  sessionId: 'abc123',
+  userId: 'user1',
+  matchedUserId: 'user2',
+});
+
+// Listening for updated code
+socket.on('code-updated', (newCode) => {
+  console.log('Code has been updated:', newCode);
+});
+```
