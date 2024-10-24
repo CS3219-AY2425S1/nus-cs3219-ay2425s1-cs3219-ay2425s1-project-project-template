@@ -159,6 +159,13 @@ services:
           --bootstrap-server kafka-service:${KAFKA_BROKER_PORT} \
           --topic collaboration-events \
           --partitions ${KAFKA_NUM_PARTITIONS:-1} \
+          --replication-factor 1 &&
+        /opt/kafka/bin/kafka-topics.sh \
+          --create \
+          --if-not-exists \
+          --bootstrap-server kafka-service:${KAFKA_BROKER_PORT} \
+          --topic gateway-events \
+          --partitions ${KAFKA_NUM_PARTITIONS:-1} \
           --replication-factor 1
       '
     environment:
