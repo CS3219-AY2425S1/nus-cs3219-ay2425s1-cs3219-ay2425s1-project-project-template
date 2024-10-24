@@ -7,20 +7,19 @@ const sessionsForUser = {};
 // Handle user joining a session
 const joinSession = (socket, io) => {
   socket.on('join-session', (details) => {
-    const { sessionId, userId, matchedUserId } = details;
+    const { sessionId, matchedUserId } = details;
+    const userId = socket.data.userProfile._id;
 
+    // Input validation
     if (!sessionId) {
       return socket.emit('error', 'Session ID is required.');
     }
-
     if (!userId) {
       return socket.emit('error', 'User ID is required.');
     }
-
     if (!matchedUserId) {
       return socket.emit('error', 'Matched User ID is required.');
     }
-
     if (userId == matchedUserId) {
       return socket.emit('error', 'User cannot be matched to him/herself.');
     }

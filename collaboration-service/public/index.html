@@ -35,12 +35,6 @@
     <input type="text" id="session-id" placeholder="Enter session ID" />
   </div>
 
-  <!-- Input for userId -->
-  <div>
-    <label for="user-id">Enter User ID:</label>
-    <input type="text" id="user-id" placeholder="Enter user ID" />
-  </div>
-
   <!-- Input for matchedUserId -->
   <div>
     <label for="matched-user-id">Enter Matched User ID:</label>
@@ -54,13 +48,20 @@
   <!-- The code editor area -->
   <textarea id="editor" disabled></textarea>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Load the socket.io.js script from a CDN -->
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  
   <script>
-    const socket = io();
+    // Create a custom socket connection with an authorization header
+    const socket = io({
+      path: '/api/collab/socket.io',
+      extraHeaders: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzE1MjdiN2ZkZTlkZDQxODhiZThiYWIiLCJpYXQiOjE3Mjk3OTk1ODksImV4cCI6MTc2MTM1NzE4OX0.oxvr7EqgzW9hv1V4BPARvt5YtfuGAhpsORzhtgSjFcc'
+      }
+    });
 
     const editor = document.getElementById('editor');
     const sessionIdInput = document.getElementById('session-id');
-    const userIdInput = document.getElementById('user-id');
     const matchedUserIdInput = document.getElementById('matched-user-id');
     const joinSessionButton = document.getElementById('join-session');
     const messages = document.getElementById('messages');
@@ -68,13 +69,11 @@
     // Handle the session joining logic
     joinSessionButton.addEventListener('click', () => {
       const sessionId = sessionIdInput.value.trim();
-      const userId = userIdInput.value.trim();
       const matchedUserId = matchedUserIdInput.value.trim();
 
-      if (sessionId && userId && matchedUserId) {
+      if (sessionId && matchedUserId) {
         socket.emit('join-session', {
           sessionId: sessionId,
-          userId: userId,
           matchedUserId: matchedUserId
         });
 
