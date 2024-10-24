@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { MatchRequestDto } from './dto/match-request.dto';
-import { MatchJob } from './interfaces/match-job.interface';
+import { MatchRequestDto } from '../dto/match-request.dto';
+import { MatchJob } from '../interfaces/match-job.interface';
 import { config } from 'src/configs';
-import { MatchDetails, MatchResponse } from './interfaces';
+import { MatchDetails, MatchResponse } from '../interfaces';
 
 @Injectable()
 export class RedisService {
@@ -126,7 +126,7 @@ export class RedisService {
     return users.map((user) => JSON.parse(user));
   }
 
-   async storeMatch(matchId: string, matchData: MatchDetails, ttl: number = 1000): Promise<void> {
+  async storeMatch(matchId: string, matchData: MatchDetails, ttl: number = 1000): Promise<void> {
     await this.redisPublisher.set(matchId, JSON.stringify(matchData), 'EX', ttl);
   }
 

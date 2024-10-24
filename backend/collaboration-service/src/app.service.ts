@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { RedisService } from './redis.service';
+import { RedisService } from './services/redis.service';
 import { CodeChangeEvent } from './interfaces';
 import {
   appendCodeChangeEvent,
   checkRoomExists,
   initialiseRoom,
   readEventsForRoom,
-} from './event-handler';
+} from './services/event-handler.service';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CollabSession } from './schema/collab-session.schema';
 import { CodeChangeDto, CreateSessionDto } from './dto';
-import { OTEngineService } from './ot-engine.service';
+import { OTEngineService } from './services/ot-engine.service';
 import { CollabEventSnapshot } from './schema/collab-event.schema';
 import { RpcException } from '@nestjs/microservices';
 
@@ -114,7 +114,9 @@ export class AppService {
 
   async getSessionDetails(sessionId: string): Promise<CollabSession> {
     try {
-      const session = await this.sessionModel.findOne({ _id: sessionId }).exec();
+      const session = await this.sessionModel
+        .findOne({ _id: sessionId })
+        .exec();
       if (!session) {
         throw new RpcException('Session not found');
       }
@@ -130,7 +132,7 @@ export class AppService {
         userIds: data.userIds,
         difficultyPreference: data.difficulty,
         topicPreference: data.topics,
-        questionId: data.question
+        questionId: data.question,
       });
       await newSession.save();
       return newSession;

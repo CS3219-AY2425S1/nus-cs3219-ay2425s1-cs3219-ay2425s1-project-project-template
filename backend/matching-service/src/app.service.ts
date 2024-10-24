@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { MatchRequestDto } from './dto/match-request.dto';
-import { RedisService } from './redis.service';
+import { RedisService } from './services/redis.service';
 import { MatchDetails, MatchResponse } from './interfaces';
 
 @Injectable()
 export class AppService {
-  constructor(
-    private redisService: RedisService,
-  ) {}
+  constructor(private redisService: RedisService) {}
 
   // Add user to the Redis pool
   async requestMatch(data: MatchRequestDto): Promise<MatchResponse> {
