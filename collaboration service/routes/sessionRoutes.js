@@ -22,7 +22,7 @@ module.exports = (io) => {
     }
 
     const sessionDetails = sessionController.checkSessionForUser(userId);
-    return res.json(sessionDetails);
+    return restatus(200).json(sessionDetails);
   });
 
   return router;
