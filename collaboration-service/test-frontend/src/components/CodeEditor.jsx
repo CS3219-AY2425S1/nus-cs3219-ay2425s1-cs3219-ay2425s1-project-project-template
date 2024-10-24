@@ -10,7 +10,7 @@ import { MonacoBinding } from 'y-monaco';
 import io from 'socket.io-client';
 
 
-const socket = io('http://192.168.1.193:8010', { auth: { token: localStorage.getItem('jwtToken') } });
+const socket = io('http://localhost:8010', { auth: { token: localStorage.getItem('jwtToken') } });
 
 const CodeEditor = () => {
     const doc = new Y.Doc();

@@ -43,7 +43,7 @@ export { server };
 if (require.main === module) {
     dotenv.config();
     const PORT = 8010;
-    server.listen(PORT, '0.0.0.0', () => {
+    server.listen(PORT, () => {
         console.log(`Server listening on port ${PORT}`);
     });
 
