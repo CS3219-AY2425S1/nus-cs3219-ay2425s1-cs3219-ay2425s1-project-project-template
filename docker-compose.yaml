@@ -59,6 +59,9 @@ services:
         - "8080:8080" 
       environment:
         - NODE_ENV=production
+      depends_on:
+        rabbitmq:
+          condition: service_healthy
       networks:
         - app-network
         

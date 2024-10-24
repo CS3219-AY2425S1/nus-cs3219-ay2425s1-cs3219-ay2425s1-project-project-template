@@ -4,6 +4,7 @@ import (
 	"collaboration-service/internal/config"
 	"collaboration-service/internal/controllers"
 	"collaboration-service/internal/views"
+	"collaboration-service/internal/messaging"
 	"log"
 	"net/http"
 )
@@ -33,12 +34,16 @@ func main() {
 	// Initialize MongoDB connection
 	log.Println("### Initializing MongoDB ###")
 	config.ConnectDB()
-
+	log.Println("### Starting RabbitMQ consumer ###")
+	messaging.StartRabbitMQ()
+	
 	// Set up routes with CORS middleware
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/create-room", controllers.CreateRoomHandler)    // Room creation route
 	mux.HandleFunc("/start-p2p", controllers.StartP2PServiceHandler) // Start P2P voice chat route
+	mux.HandleFunc("/authorise-user", controllers.AuthorisedUserHandler)
+	mux.HandleFunc("/get-question", controllers.GetQuestionHandler)
 	mux.HandleFunc("/ws", views.WebSocketHandler)                    // WebSocket signaling route
 
 	// Apply CORS middleware
