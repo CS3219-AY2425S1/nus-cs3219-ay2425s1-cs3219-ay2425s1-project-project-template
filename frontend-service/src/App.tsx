@@ -10,8 +10,17 @@ import Signup from "./pages/SignUp/signup";
 import MatchingPage from "./pages/MatchingPage";
 import { useEffect, useState } from "react";
 
+interface UserData {
+  id: string
+  username: string
+  email: string
+  isAdmin: boolean
+}
+
 function App() {
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<UserData>();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -26,25 +35,29 @@ function App() {
         .then((response) => response.json())
         .then((data) => {
           if (data.message == "Token verified") {
-            setIsAuthenticated(true);
+            setIsAuthenticated(true);  // Token sent and verified.
+            setUserData(data.data);
           } else {
             localStorage.removeItem("token");
-            setIsAuthenticated(false);
+            setIsAuthenticated(false);  // Token sent, but is invalid.
           }
         })
         .catch((error) => {
           console.error("Error verifying token:", error);
           localStorage.removeItem("token");
-          setIsAuthenticated(false);
+          setIsAuthenticated(false);  // Problem while trying to verify token.
       });
     } else {
-      setIsAuthenticated(false);
+      setIsAuthenticated(false);  // No token in localStorage found.
     }
   }, []);
 
   return (
     <Box className="app" fontFamily="Poppins, sans-serif">
-      <HomeNavBar isAuthenticated={isAuthenticated} />
+      <HomeNavBar
+        isAuthenticated={isAuthenticated}
+        username={userData ? userData.username : 'John Doe'}
+      />
       <Box pt="80px">
         <Routes>
           {/* Only allow login/signup routes if the user is not authenticated */}

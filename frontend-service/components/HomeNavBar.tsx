@@ -8,8 +8,15 @@ import {
   Container,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import AccountButton from "../components/user/AccountButton"
 
-export default function HomeNavBar({ isAuthenticated }) {
+interface HomeNavBarProps {
+  isAuthenticated: boolean
+  username: string
+}
+
+export default function HomeNavBar({ isAuthenticated, username }: HomeNavBarProps) {
+
   return (
     <Box as="nav" position="fixed" top="0" left="0" right="0" zIndex="1000">
       <Box
@@ -48,6 +55,8 @@ export default function HomeNavBar({ isAuthenticated }) {
                   About Us
                 </Button>
               </Link>
+
+              {/* Only display login tab if user is not already authenticated */}
               { !isAuthenticated &&
               <>
                 <Link to="/login">
@@ -57,22 +66,10 @@ export default function HomeNavBar({ isAuthenticated }) {
                 </Link>
               </>
               }
+
+              {/* Only display account tab if user is not already authenticated */}
               { isAuthenticated &&
-                <Button
-                  as={Link}
-                  to="/my-account"
-                  display={{ base: "none", md: "inline-flex" }}
-                  fontSize={"sm"}
-                  fontWeight={600}
-                  color={"white"}
-                  bg={"blue.300"}
-                  _hover={{
-                    bg: "blue.300",
-                  }}
-                  ml={4}
-                >
-                  My Account
-                </Button>
+                <AccountButton username={username}/>
               }
 
             </Flex>
