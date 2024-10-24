@@ -27,6 +27,11 @@ export const getAccessToken = async () => {
   return session.accessToken;
 };
 
+export const getUsername = async () => {
+  const session= await getSession();
+  return session.username;
+}
+
 export const isSessionLoggedIn = async () => {
   const session = await getSession();
   return session.isLoggedIn;
