@@ -135,8 +135,8 @@ services:
       - user-service
     ports:
       - "8004:8004" # for testing
-    # env_file:
-    #   - .env/.collaboration_env
+    env_file:
+      - .env/.collaboration_env
 
 volumes:
   mongo-data:
