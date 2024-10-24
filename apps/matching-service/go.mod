@@ -2,8 +2,6 @@ module matching-service
 
 go 1.23.1
 
-require proto v0.0.0
-
 replace proto => ../proto
 
 require (
