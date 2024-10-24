@@ -1,13 +1,16 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import './App.css';
+import PrivateRoute from './components/PrivateRoute';
 import AuthProvider from './hooks/AuthProvider';
-import Admin from './pages/Admin';
-import FilterSelection from './pages/FilterSelection';
-import Landing from './pages/Landing';
-import Room from './pages/Room';
+
+const Admin = lazy(() => import('./pages/Admin'));
+const FilterSelection = lazy(() => import('./pages/FilterSelection'));
+const Landing = lazy(() => import('./pages/Landing'));
+const Room = lazy(() => import('./pages/Room'));
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -33,12 +36,16 @@ function App() {
     <MantineProvider theme={theme} defaultColorScheme="dark">
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/select" element={<FilterSelection />} />
-            <Route path="/room" element={<Room />} />
-          </Routes>
+          <Suspense fallback={<></>}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/select" element={<FilterSelection />} />
+                <Route path="/room" element={<Room />} />
+              </Route>
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </MantineProvider>
