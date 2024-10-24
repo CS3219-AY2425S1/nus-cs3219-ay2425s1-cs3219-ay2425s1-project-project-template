@@ -33,6 +33,7 @@ const CodeEditor = () => {
     };
 
     const onSelect = (language) => {
+        console.log("language", language);
         setLanguage(language);
 
         // Set the editor value to the code snippet for the selected language
