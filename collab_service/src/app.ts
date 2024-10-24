@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
-import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
+import roomRoutes from "./routes/roomRoutes";
 
 // Load environment variables
 dotenv.config();
@@ -25,30 +25,15 @@ mongoose
 
 app.use(express.json());
 
-const io = new Server(server, {
-  path: "/socket.io",
-  cors: {
-    origin: "*", // In production, replace with your frontend's URL
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+// Routes
+app.use("/room", roomRoutes);
 
 // Basic route for testing
 app.get("/", (req, res) => {
-  res.send("Collab Service is running!");
+  res.send("Collab Service API is running!");
 });
 
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
-});
-
-io.on("connection", (socket) => {
-  console.log("Connected to collab service");
-
-  socket.on("disconnect", () => {
-    console.log("Disconnected from API Gateway");
-    socket.disconnect(true);
-  });
 });
