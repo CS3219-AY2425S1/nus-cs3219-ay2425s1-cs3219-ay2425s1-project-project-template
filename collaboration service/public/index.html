@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shared Code Editor with Chat</title>
+  <title>Shared Code Editor</title>
   <style>
     #editor {
       width: 100%;
@@ -13,24 +13,10 @@
       border: 1px solid #ccc;
       padding: 10px;
     }
-    #chat-box {
-      width: 100%;
-      height: 30vh;
-      overflow-y: scroll;
-      border: 1px solid #ccc;
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #f9f9f9;
-    }
-    #chat-input {
-      width: calc(100% - 20px);
-      padding: 10px;
-      font-size: 16px;
-    }
   </style>
 </head>
 <body>
-  <h1>Shared Code Editor with Chat</h1>
+  <h1>Shared Code Editor</h1>
 
   <!-- Input to enter the session ID -->
   <div>
@@ -42,10 +28,6 @@
   <!-- The code editor area -->
   <textarea id="editor" disabled></textarea>
 
-  <!-- Chat box -->
-  <div id="chat-box"></div>
-  <input type="text" id="chat-input" placeholder="Type a message..." disabled />
-
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
@@ -53,8 +35,6 @@
     const editor = document.getElementById('editor');
     const sessionIdInput = document.getElementById('session-id');
     const joinSessionButton = document.getElementById('join-session');
-    const chatBox = document.getElementById('chat-box');
-    const chatInput = document.getElementById('chat-input');
 
     // Handle the session joining logic
     joinSessionButton.addEventListener('click', () => {
@@ -63,20 +43,12 @@
       if (sessionId) {
         socket.emit('join-session', sessionId);
 
-        // Enable the editor and chat input once joined
+        // Enable the editor once joined
         editor.disabled = false;
-        chatInput.disabled = false;
 
-        // Listen for the current code state and chat history from the server
+        // Listen for the current code state from the server
         socket.on('load-code', (code) => {
           editor.value = code;
-        });
-
-        socket.on('load-chat', (chatHistory) => {
-          chatBox.innerHTML = ''; // Clear existing messages
-          chatHistory.forEach((msg) => {
-            chatBox.innerHTML += `<p><strong>${msg.user}:</strong> ${msg.text}</p>`;
-          });
         });
 
         // Listen for code updates from others in the session
@@ -84,23 +56,9 @@
           editor.value = newCode;
         });
 
-        // Listen for new chat messages
-        socket.on('new-message', (message) => {
-          chatBox.innerHTML += `<p><strong>${message.user}:</strong> ${message.text}</p>`;
-          chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
-        });
-
         // Send code changes to the server
         editor.addEventListener('input', () => {
           socket.emit('edit-code', editor.value);
-        });
-
-        // Send chat messages to the server
-        chatInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-            socket.emit('send-message', chatInput.value);
-            chatInput.value = ''; // Clear input after sending
-          }
         });
       }
     });
