@@ -9,6 +9,8 @@ import './utils/cron-jobs';
 import router from './routes/session-routes';
 import { initialize } from './controller/editor-controller';
 import { registerEventHandlers } from './routes/editor-routes';
+import { pubClient, subClient } from './utils/redis-helper';
+import { createAdapter } from '@socket.io/redis-adapter';
 
 dotenv.config();
 
@@ -28,7 +30,8 @@ const io = new Server(server, {
         origin: '*',
         methods: ['GET', 'PUT', 'POST', 'DELETE'],
         credentials: true
-    }
+    },
+    adapter: createAdapter(pubClient, subClient)
 });
 
 io.use(validateSocketJWT);

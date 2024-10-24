@@ -1,11 +1,11 @@
 import { Server, Socket } from "socket.io";
 import Session from '../model/session-model';
 import * as Y from 'yjs';
+import { addUpdateToYDocInRedis, deleteYDocFromRedis, getLanguageFromRedis, getYDocFromRedis, setLanguageInRedis } from "../utils/redis-helper";
 
 //socket user mapping
 const socketUserMap: { [key: string]: string } = {};
 const userRoomMap: { [key: string]: string } = {};
-export const roomDocumentMap: { [key: string]: Y.Doc } = {};
 
 // Code execution results should show on both ends
 // Store ydoc in memory instead of db
@@ -14,6 +14,8 @@ export const roomDocumentMap: { [key: string]: Y.Doc } = {};
 
 export async function initialize(socket: Socket, io: Server) {
 
+    // TODO THIS NEEDS TO BE UPDATED FOR COMPATIBILITY WITH REDIS
+    // ---------------------------------------------------
     const { userId } = socket.data;
     if (userId in socketUserMap) {
         console.log('User already connected:', userId);
@@ -23,6 +25,7 @@ export async function initialize(socket: Socket, io: Server) {
     }
 
     socketUserMap[userId] = socket.id;
+    // ---------------------------------------------------
 
     try {
         // Find the session that the user is part of
@@ -44,19 +47,28 @@ export async function initialize(socket: Socket, io: Server) {
         const questionTemplateCode = session.questionTemplateCode;
         const questionTestcases = session.questionTestcases;
 
-        if (!roomDocumentMap[session.session_id]) {
-            console.warn(`YDoc not found for session ${session.session_id}. Did a crash happen? Creating new YDoc with template code`);
-            const yDoc = new Y.Doc();
-            Y.applyUpdate(yDoc, new Uint8Array(session.yDoc));
-            roomDocumentMap[session.session_id] = yDoc;
+        // Check if partner is already in the room
+        const roomSockets = await io.sockets.adapter.rooms.get(session.session_id);
+        const numOfUsersInRoom = roomSockets ? roomSockets.size : 0;
+
+
+        const yDoc = await getYDocFromRedis(session.session_id);
+
+        let yDocUpdate: Uint8Array;
+
+        if (!yDoc) {
+            console.warn(`YDoc not found for session ${session.session_id}. Creating new YDoc with template code`);
+            const newYDoc = new Y.Doc();
+            Y.applyUpdate(newYDoc, new Uint8Array(session.yDoc));
+            addUpdateToYDocInRedis(session.session_id, Y.encodeStateAsUpdate(newYDoc));
+            yDocUpdate = Y.encodeStateAsUpdate(newYDoc);
+        } else {
+            yDocUpdate = Y.encodeStateAsUpdate(yDoc);
         }
 
-        const yDocUpdate = Y.encodeStateAsUpdate(roomDocumentMap[session.session_id]);
+        const selectedLanguage = await getLanguageFromRedis(session.session_id);
 
         const roomId = session.session_id; // Use session ID as room ID
-
-        const roomSockets = await io.sockets.adapter.rooms.get(roomId);
-        const numOfUsersInRoom = roomSockets ? roomSockets.size : 0;
 
         // Join the socket to the room
         socket.join(roomId);
@@ -71,6 +83,7 @@ export async function initialize(socket: Socket, io: Server) {
                 questionTemplateCode,
                 questionTestcases,
                 yDocUpdate,
+                selectedLanguage,
                 partnerJoined: numOfUsersInRoom > 1
             },
         });
@@ -93,10 +106,8 @@ export function handleUpdateContent(socket: Socket, io: Server) {
 
         io.to(roomId).emit('updateContent', yDocUpdate);
 
-        // Apply the update to the Y.Doc in local memory
-        if (roomDocumentMap[roomId]) {
-            Y.applyUpdate(roomDocumentMap[roomId], yDocUpdate);
-        }
+        // Add Update to YDoc in Redis
+        addUpdateToYDocInRedis(roomId, yDocUpdate);
     });
 }
 
@@ -104,7 +115,8 @@ export function handleSelectLanguage(socket: Socket, io: Server) {
     socket.on('selectLanguage', (language) => {
         const roomId = userRoomMap[socket.data.userId];
         socket.to(roomId).emit('updateLanguage', language);
-
+        // Store language in Redis
+        setLanguageInRedis(roomId, language);
     });
 }
 
@@ -117,8 +129,8 @@ export function handleCodeExecution(socket: Socket, io: Server) {
 }
 
 
-export function handleDisconnect(socket: Socket, io: Server) {
-    socket.on('disconnect', () => {
+export async function handleDisconnect(socket: Socket, io: Server) {
+    socket.on('disconnect', async () => {
 
         console.log('user disconnected');
         const roomId = userRoomMap[socket.data.userId];
@@ -127,20 +139,30 @@ export function handleDisconnect(socket: Socket, io: Server) {
             if (!roomSockets || roomSockets.size === 0) {
                 // If no sockets left, mark the session as inactive
                 console.log(`Room ${roomId} is empty. Marking session as inactive`);
-                Session.findOneAndUpdate(
-                    { session_id: roomId },
-                    { active: false, yDoc: Buffer.from(Y.encodeStateAsUpdate(roomDocumentMap[roomId])) }
-                )
-                    .then((doc) => {
-                        if (!doc) {
-                            console.error('No session found with that id.');
-                        }
-                    })
-                    .catch((err) => {
-                        console.error('Error updating session:', err);
-                    });
 
-                    delete roomDocumentMap[roomId];
+                // Get the YDoc from redis
+                const yDoc = await getYDocFromRedis(roomId);
+
+                if (yDoc) {
+                    Session.findOneAndUpdate(
+                        { session_id: roomId },
+                        { active: false, yDoc: Buffer.from(Y.encodeStateAsUpdate(yDoc)) }
+                    )
+                        .then((doc) => {
+                            if (!doc) {
+                                console.error('No session found with that id.');
+                            }
+                        })
+                        .catch((err) => {
+                            console.error('Error updating session:', err);
+                        });
+                } else {
+                    console.error(`YDoc not found for session ${roomId}. Cannot update session.`);
+                }
+
+                // Delete the YDoc from Redis
+                deleteYDocFromRedis(roomId);
+
             } else {
                 // Notify others in the room that the user has left
                 socket.to(roomId).emit('userLeft', { userId: socket.data.userId, message: 'User has left the session' });
