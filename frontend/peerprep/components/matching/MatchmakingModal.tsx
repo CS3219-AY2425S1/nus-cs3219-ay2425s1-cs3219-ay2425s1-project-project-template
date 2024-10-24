@@ -10,7 +10,7 @@ import {
 
 import BoxIcon from "../boxicons";
 
-import { useUniqueCategoriesFetcher } from "@/app/api/services/questionService";
+import { useUniqueCategoriesFetcher } from "@/services/questionService";
 import { capitalize } from "@/utils/utils";
 
 interface StartSessionProps {
