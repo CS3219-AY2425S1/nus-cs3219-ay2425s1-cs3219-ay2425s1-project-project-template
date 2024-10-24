@@ -38,7 +38,9 @@
     align-items: center;
     gap: 20px; 
     background-color: transparent; 
-}
+    position: relative;
+    width: 100%;
+  }
 
 .categories button {
     padding: 10px 20px; 

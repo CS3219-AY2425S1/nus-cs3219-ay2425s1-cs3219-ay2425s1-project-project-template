@@ -137,17 +137,17 @@ export class LandingPageComponent {
 
   handleDifficulty(difficulty: string) {
     if (difficulty === DIFFICULTY.EASY) {
-        this.rotation = '-50.39deg'; 
-        this.xPosition = '140px'; // Initial X position
-        this.yPosition = '-80px';
+        this.rotation = '10deg'; 
+        this.xPosition = '16%'; // Initial X position
+        this.yPosition = '-5%';
     } else if (difficulty === DIFFICULTY.MEDIUM) {
         this.rotation = '-20deg'; 
-        this.xPosition = '360px'; // Initial X position
-        this.yPosition = '-80px';
+        this.xPosition = '22%'; // Initial X position
+        this.yPosition = '-4%';
     } else if (difficulty === DIFFICULTY.HARD){
-        this.rotation = '10.39deg'; 
-        this.xPosition = '570px'; // Initial X position
-        this.yPosition = '-80px';
+        this.rotation = '-50deg'; 
+        this.xPosition = '30%'; // Initial X position
+        this.yPosition = '-5%';
     }
     this.selectedDifficulty = difficulty; // Update the selected difficulty
     this.checkSelections();
