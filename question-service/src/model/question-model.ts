@@ -24,6 +24,7 @@ interface QuestionDocument extends Document {
   templateCode: string; // New field for the template code
   // testCases: TestCase[]; // New field for test cases (array of test cases)
   testCases: string[]; // New field for test cases (array of test cases)
+  language: string; // New field for programming language
 }
 
 const TestCaseSchema = new Schema<TestCase>({
@@ -46,6 +47,41 @@ const questionSchema: Schema = new Schema({
   complexity: { type: String, required: true },
   templateCode: { type: String, required: true }, // Adding template code
   testCases: [{ type: [String], required: false }], // Adding test cases
+  language: {
+    type: String,
+    required: true,
+    uppercase: true, // Automatically convert to uppercase
+    enum: [
+      "SCRIPT",
+      "JAVASCRIPT",
+      "CSS",
+      "LESS",
+      "SCSS",
+      "JSON",
+      "HTML",
+      "XML",
+      "PHP",
+      "CSHARP",
+      "CPP",
+      "RAZOR",
+      "MARKDOWN",
+      "DIFF",
+      "JAVA",
+      "VB",
+      "COFFEESCRIPT",
+      "HANDLEBARS",
+      "BATCH",
+      "PUG",
+      "FSHARP",
+      "LUA",
+      "POWERSHELL",
+      "PYTHON",
+      "RUBY",
+      "SASS",
+      "R",
+      "OBJECTIVE-C",
+    ], // Define allowed values
+  },
 });
 
 // Middleware to auto-increment the question_id before saving
