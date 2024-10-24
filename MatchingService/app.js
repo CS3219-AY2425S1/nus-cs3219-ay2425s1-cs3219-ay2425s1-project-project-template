@@ -28,7 +28,7 @@ app.use(json());
 app.use('/matcher', matchRoutes);
 
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server listening on port ${port}`);
     matchController.initializeQueueProcessing(io);
 });
