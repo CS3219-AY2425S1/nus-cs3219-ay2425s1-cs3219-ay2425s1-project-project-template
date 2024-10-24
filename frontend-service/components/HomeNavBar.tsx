@@ -13,9 +13,10 @@ import AccountButton from "../components/user/AccountButton"
 interface HomeNavBarProps {
   isAuthenticated: boolean
   username: string
+  onLogout: () => void
 }
 
-export default function HomeNavBar({ isAuthenticated, username }: HomeNavBarProps) {
+export default function HomeNavBar({ isAuthenticated, username, onLogout }: HomeNavBarProps) {
 
   return (
     <Box as="nav" position="fixed" top="0" left="0" right="0" zIndex="1000">
@@ -69,7 +70,7 @@ export default function HomeNavBar({ isAuthenticated, username }: HomeNavBarProp
 
               {/* Only display account tab if user is not already authenticated */}
               { isAuthenticated &&
-                <AccountButton username={username}/>
+                <AccountButton username={username} onLogout={onLogout} />
               }
 
             </Flex>

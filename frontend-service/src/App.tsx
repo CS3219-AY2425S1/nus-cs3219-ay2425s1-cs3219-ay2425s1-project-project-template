@@ -20,7 +20,7 @@ interface UserData {
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<UserData>();
+  const [userData, setUserData] = useState<UserData|undefined>();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,11 +52,18 @@ function App() {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    setUserData(undefined);
+  };
+
   return (
     <Box className="app" fontFamily="Poppins, sans-serif">
       <HomeNavBar
         isAuthenticated={isAuthenticated}
         username={userData ? userData.username : 'John Doe'}
+        onLogout={handleLogout}
       />
       <Box pt="80px">
         <Routes>
