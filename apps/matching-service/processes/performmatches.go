@@ -8,7 +8,6 @@ import (
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
-	"matching-service/utils"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -35,27 +34,19 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 		// Log queue before and after matchmaking
 		databases.PrintMatchingQueue(tx, "Before Matchmaking", ctx)
 		defer databases.PrintMatchingQueue(tx, "After Matchmaking", ctx)
+
 		// Find a matching user if any
-		matchFound, err := databases.FindMatchingUser(tx, currentUsername, ctx)
+		matchFound, err := findMatchingUsers(tx, currentUsername, ctx)
 		if err != nil {
 			log.Println("Error finding matching user:", err)
 			return err
-		}
-
-		if matchFound != nil {
+		} else if matchFound != nil {
 			matchedUsername := matchFound.MatchedUser
 			matchedTopics := matchFound.MatchedTopics
 			matchedDifficulties := matchFound.MatchedDifficulties
 
-			// Generate a random match ID
-			matchId, err := utils.GenerateMatchID()
-			if err != nil {
-				log.Println("Unable to randomly generate matchID")
-			}
-
 			// Log down which users got matched
-			matchFound.MatchID = matchId
-			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", currentUsername, matchedUsername, matchedTopics, matchedDifficulties)
+			log.Printf("Users %s and %s matched on the topics: %v with difficulties: %v", currentUsername, matchedUsername, matchedTopics, matchedDifficulties)
 
 			// Clean up redis for this match
 			databases.CleanUpUser(tx, currentUsername, ctx)
@@ -72,12 +63,12 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 			errorChan <- err
 		} else {
 			// transaction failed, no retry
-			println(fmt.Errorf("transaction execution failed: %v", err))
+			println(fmt.Errorf("Transaction execution failed: %v", err))
 		}
 	}
 }
 
-// publish a match to the target user's pubsub channel
+// Publish a match to the target user's pub/sub channel
 func publishMatch(tx *redis.Tx, ctx context.Context, targetUser string, otherMatchedUser string, matchFound *models.MatchFound) error {
 	matchFound.User = targetUser
 	matchFound.MatchedUser = otherMatchedUser

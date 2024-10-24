@@ -67,6 +67,7 @@ func GetFirstUser(tx *redis.Tx, ctx context.Context) (string, error) {
 	return username, nil
 }
 
+// Return the usernames of all the queued users.
 func GetAllQueuedUsers(tx *redis.Tx, ctx context.Context) ([]string, error) {
 	users, err := tx.LRange(ctx, MatchmakingQueueRedisKey, 0, -1).Result()
 	if err != nil {
@@ -160,46 +161,6 @@ func RemoveUserDetails(tx *redis.Tx, username string, ctx context.Context) {
 	if err != nil {
 		log.Println("Error removing user details:", err)
 	}
-}
-
-// Find the first matching user based on topics
-// TODO: match based on available questions
-func FindMatchingUser(tx *redis.Tx, username string, ctx context.Context) (*models.MatchFound, error) {
-	user, err := GetUserDetails(tx, username, ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, topic := range user.Topics {
-		users, err := tx.SMembers(ctx, strings.ToLower(topic)).Result()
-		if err != nil {
-			return nil, err
-		}
-
-		for _, potentialMatch := range users {
-			if potentialMatch == username {
-				continue
-			}
-
-			matchedUser, err := GetUserDetails(tx, potentialMatch, ctx)
-			if err != nil {
-				return nil, err
-			}
-
-			commonDifficulty := models.GetCommonDifficulties(user.Difficulties, matchedUser.Difficulties)
-
-			matchFound := models.MatchFound{
-				Type:                "match_found",
-				MatchedUser:         potentialMatch,
-				MatchedTopics:       topics,
-				MatchedDifficulties: commonDifficulty,
-			}
-
-			return &matchFound, nil
-		}
-	}
-
-	return nil, nil
 }
 
 func PopAndInsertUser(tx *redis.Tx, username string, ctx context.Context) {
