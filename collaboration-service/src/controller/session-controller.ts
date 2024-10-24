@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Session from '../model/session-model';
 import * as Y from 'yjs';
-import { roomDocumentMap } from './editor-controller';
+import { addUpdateToYDocInRedis, setLanguageInRedis } from '../utils/redis-helper';
 
 export const sessionController = {
     createSession: async (req: Request, res: Response) => {
@@ -50,7 +50,8 @@ export const sessionController = {
 
         const sessionId = uuidv4(); // Use UUID for unique session ID
 
-        roomDocumentMap[sessionId] = yDoc;
+        addUpdateToYDocInRedis(sessionId, yDocBuffer);
+        setLanguageInRedis(sessionId, 'javascript');
 
         const session = new Session({
             session_id: sessionId, // session_id,
