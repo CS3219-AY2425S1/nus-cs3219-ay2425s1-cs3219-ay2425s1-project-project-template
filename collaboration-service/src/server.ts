@@ -1,33 +1,49 @@
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import { validateSocketJWT } from './middleware/jwt-validation';
-import { handleEdits } from './routes/socket-routes';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { validateSocketJWT } from './middleware/jwt-validation';
+import './utils/cron-jobs';
+import router from './routes/session-routes';
+import { initialize } from './controller/editor-controller';
+import { registerEventHandlers } from './routes/editor-routes';
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+app.use("/api/session", router)
+
+mongoose
+    .connect(process.env.MONGODB_URI as string, {})
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.log('Error connecting to MongoDB', err));
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'PUT', 'POST', 'DELETE'],
         credentials: true
     }
 });
 
-//io.use(validateSocketJWT);
-
-handleEdits(io);
+io.use(validateSocketJWT);
+io.on('connection', (socket) => {
+    console.log(`User ${socket.data.userId} connected via socket ${socket.id}`);
+    initialize(socket, io);
+    registerEventHandlers(socket, io);
+});
 
 export { server };
 
 if (require.main === module) {
     dotenv.config();
-    const PORT = 8001;
-    server.listen(PORT, () => {
+    const PORT = 8010;
+    server.listen(PORT, '0.0.0.0', () => {
         console.log(`Server listening on port ${PORT}`);
     });
 

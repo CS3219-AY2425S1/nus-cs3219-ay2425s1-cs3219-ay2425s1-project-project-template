@@ -1,9 +1,9 @@
 import {Server, Socket} from 'socket.io';
 
-export function handleEditorChanges(io: Server) {
+export function handleSocketConnection(io: Server) {
     io.on('connection', (socket: Socket) => {
         console.log('a user connected');
-        
+
         socket.on('edit', (content) => {
             io.emit('updateContent', content);
         });
@@ -15,9 +15,10 @@ export function handleEditorChanges(io: Server) {
         socket.on('codeExecution', (result) => {
             io.emit('updateOutput', result);
         });
-        
+
         socket.on('disconnect', () => {
             console.log('user disconnected');
         });
     });
+
 };
