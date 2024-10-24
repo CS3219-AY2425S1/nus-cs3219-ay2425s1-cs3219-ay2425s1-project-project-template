@@ -1,12 +1,17 @@
-// services/MatchService.js
-import { addRequest, removeRequest, getQueue } from '../models/queue-model';
-import { publishMatchRequest, consumeMatchRequests } from './queueService';
+import QueueModel from '../models/queue-model.js';
+import queueService from './queueService.js';
+
+const { addRequest, removeRequest, getQueue } = QueueModel;
+const { publishMatchRequest, consumeMatchRequests } = queueService;
 
 async function addMatchRequest(userId, topic, difficulty) {
     const requestData = { topic, difficulty };
 
     try {
         await addRequest(userId, requestData);
+        const currentQueue = await getQueue();
+        console.log("Enqueue Redis: ", currentQueue);
+        
         await publishMatchRequest({ userId, topic, difficulty });
     } catch (error) {
         console.log(error.message);
@@ -15,6 +20,9 @@ async function addMatchRequest(userId, topic, difficulty) {
 
 async function cancelMatchRequest(userId) {
     await removeRequest(userId);
+
+    const currentQueue = await getQueue();
+    console.log("Dequeue Redis (cancel request) : ", currentQueue);
 }
 
 async function processMatchQueue() {
@@ -26,7 +34,10 @@ async function processMatchQueue() {
         if (match) {
             await removeRequest(userId);
             await removeRequest(match.userId);
+
+            const queue = await getQueue();
             console.log(`Matched ${userId} with ${match.userId}`);
+            console.log("Redis Queue (matched) : ", queue);
         }
     });
 }

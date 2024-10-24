@@ -1,25 +1,37 @@
-const createRabbitMQConnection = require('../config/rabbitmq');
+import connectRabbitMQ from '../config/rabbitmq.js';
+import QueueModel from '../models/queue-model.js';
+
 const QUEUE_NAME = 'match_requests';
 
 async function publishMatchRequest(message) {
-    const { channel } = await createRabbitMQConnection();
+    const { channel } = await connectRabbitMQ();
     await channel.assertQueue(QUEUE_NAME, { durable: false });
     channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(message)));
-    console.log('Published message:', message);
+
+    console.log('Published message to RabbitMQ:', message);
 }
 
-async function consumeMatchRequests(onMessage) {
+async function consumeMatchRequests(processMessage) {
     try {
-        const { channel } = await createRabbitMQConnection();
+        const { channel } = await connectRabbitMQ();
         await channel.assertQueue(QUEUE_NAME, { durable: false });
 
         channel.consume(QUEUE_NAME, async (msg) => {
             if (msg !== null) {
                 const message = JSON.parse(msg.content.toString());
-                console.log('Consumed message:', message);
+
+                const { userId } = message;
+
+                // Check if the user is still in the Redis queue
+                const isUserInQueue = await QueueModel.isUserInQueue(userId);
+
+                console.log('Consumed message from RabbitMQ:', message);
 
                 try {
-                    await onMessage(message);
+                    // If not in Redis queue means that the user either cancelled or timeout, skip processing
+                    if (isUserInQueue) {
+                        await processMessage(message);
+                    }
                     channel.ack(msg);
                 } catch (error) {
                     console.error('Error processing message:', error);
@@ -32,4 +44,4 @@ async function consumeMatchRequests(onMessage) {
     }
 }
 
-module.exports = { publishMatchRequest, consumeMatchRequests };
+export default { publishMatchRequest, consumeMatchRequests };

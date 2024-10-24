@@ -1,17 +1,16 @@
-const amqp = require('amqplib/callback_api');
+import amqp from 'amqplib';
 const RABBITMQ_URL = 'amqp://localhost';
 
-function connectRabbitMQ() {
-    amqp.connect(RABBITMQ_URL, function(error0, connection) {
-        if (error0) {
-          throw error0;
-        }
-        connection.createChannel(function(error1, channel) {
-          if (error1) {
-            throw error1;
-          }
-        });
-      });
+async function connectRabbitMQ() {
+    try {
+        const connection = await amqp.connect(RABBITMQ_URL);
+        const channel = await connection.createChannel();
+        console.log('Succesfully connected to RabbitMQ.');
+        return { connection, channel };
+    } catch (error) {
+        console.error('Error connecting to RabbitMQ:', error);
+        return null;
+    }
 }
 
-module.exports = { connectRabbitMQ };
+export default connectRabbitMQ;

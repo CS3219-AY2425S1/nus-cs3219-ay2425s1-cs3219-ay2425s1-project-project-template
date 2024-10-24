@@ -1,7 +1,13 @@
-const redis = require('redis');
-const client = redis.createClient();
+import { createClient } from 'redis';
+const client = createClient();
 
-client.connect();
+try {
+    client.connect();
+    console.log("Successfully connected to Redis");
+} catch (error) {
+    console.log("Error connecting to Redis ", error);
+}
+
 
 const queueKey = 'match_requests';
 const usersSetKey = 'current_users';
@@ -51,7 +57,7 @@ async function isUserInQueue(userId) {
     return await client.sIsMember(usersSetKey, userId);
 }
 
-module.exports = {
+export default {
     addRequest,
     removeRequest,
     getQueue,
