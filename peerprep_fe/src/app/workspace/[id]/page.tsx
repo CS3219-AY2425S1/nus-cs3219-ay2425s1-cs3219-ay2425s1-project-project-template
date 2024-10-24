@@ -32,9 +32,11 @@ const Workspace: React.FC<WorkspaceProps> = ({ params }) => {
 
     socket.emit(ClientSocketEvents.CODE_CHANGE, {
       message: {
-        sharedCode: sharedCode,
+        sharedCode: newContent,
       },
       event: ClientSocketEvents.CODE_CHANGE,
+      roomId: params.id,
+      username: username,
     });
   };
 

@@ -1,6 +1,7 @@
 import { Kafka, Producer } from "kafkajs";
 import { EditorManager } from "./editor";
 import { RoomModel } from "../models/Room";
+import { ClientSocketEvents } from "peerprep-shared-types";
 
 export class KafkaHandler {
   private producer: Producer;
@@ -24,7 +25,7 @@ export class KafkaHandler {
           await this.handleJoinRoom(roomId, username, socketId);
           break;
 
-        case "CODE_CHANGE":
+        case ClientSocketEvents.CODE_CHANGE:
           await this.handleCodeChange(roomId, username, content);
           break;
 
@@ -63,11 +64,6 @@ export class KafkaHandler {
       state: editorState,
       timestamp: Date.now(),
     });
-
-    // Update room in database if needed
-    await RoomModel.findByIdAndUpdate(roomId, {
-      $addToSet: { activeUsers: username },
-    });
   }
 
   private async handleCodeChange(
@@ -76,6 +72,7 @@ export class KafkaHandler {
     content: string
   ) {
     // Update editor state
+    console.log("Updating code:", roomId, username);
     const newState = this.editorManager.updateCode(roomId, username, content);
 
     if (newState) {

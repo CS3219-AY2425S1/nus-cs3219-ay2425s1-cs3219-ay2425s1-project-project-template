@@ -49,6 +49,7 @@ export class WebSocketHandler {
     await this.consumer.run({
       eachMessage: async ({ topic, partition, message }: any) => {
         const event = JSON.parse(message.value.toString());
+        console.log("Received gateway event:", event.type);
         this.handleCollaborationEvent(event);
       },
     });
@@ -92,17 +93,27 @@ export class WebSocketHandler {
         });
       });
 
-      socket.on("codeChange", async (data) => {
-        console.log("Code change:", data);
+      socket.on(ClientSocketEvents.CODE_CHANGE, async (data) => {
+        const { roomId, username, message } = data;
+
+        socket.to(roomId).emit(ClientSocketEvents.CODE_CHANGE, {
+          username,
+          roomId,
+          content: message.sharedCode,
+          timestamp: Date.now(),
+        });
+
         await this.producer.send({
           topic: "collaboration-events",
           messages: [
             {
               key: data.roomId,
               value: JSON.stringify({
-                type: "CODE_CHANGE",
+                type: ClientSocketEvents.CODE_CHANGE,
                 socketId: socket.id,
-                ...data,
+                content: data.message.sharedCode,
+                roomId: data.roomId,
+                username: data.username,
               }),
             },
           ],
@@ -126,7 +137,7 @@ export class WebSocketHandler {
         break;
 
       case "CODE_CHANGED":
-        console.log("Broadcasting code change:", event);
+        console.log("Broadcasting code change:");
         this.io.to(event.roomId).emit("codeChanged", {
           userId: event.userId,
           change: event.change,

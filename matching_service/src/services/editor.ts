@@ -39,10 +39,14 @@ export class EditorManager {
 
   updateCode(roomId: string, username: string, code: string) {
     const state = this.roomEditorStates.get(roomId);
+    console.log("Updating code for", username, "in room", roomId);
+    console.log(state, "state");
+    console.log(this.roomEditorStates, "roomEditorStates");
     if (state) {
       state.content[username] = code;
       return state;
     }
+    console.log(state);
     return null;
   }
 

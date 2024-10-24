@@ -120,7 +120,7 @@ export class ConsumerFactory {
     await this.consumer
       .subscribe({
         topic: this.topic,
-        fromBeginning: true,
+        fromBeginning: false,
       })
       .then(() => console.log(`Subscribed to topic ${this.topic}`));
     await this.consumer.run({

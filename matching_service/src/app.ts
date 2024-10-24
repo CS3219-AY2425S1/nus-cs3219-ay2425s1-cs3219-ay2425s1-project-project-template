@@ -3,6 +3,7 @@ import { Kafka } from "kafkajs";
 import { KafkaHandler } from "./services/kafkaHandler";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { RoomModel } from "./models/Room";
 
 dotenv.config();
 
@@ -52,6 +53,19 @@ const initialize = async () => {
   await kafkaHandler.initialize();
   await setupKafkaConsumer();
 };
+
+// Get a room by ID
+app.get("/room/:id", async (req, res) => {
+  try {
+    const room = await RoomModel.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    res.json(room);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching question", error });
+  }
+});
 
 // Start server
 app.listen(port, () => {
