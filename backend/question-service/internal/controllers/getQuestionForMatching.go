@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // GetQuestion retrieves a random question based on complexity and category (topics)
@@ -31,8 +32,8 @@ func GetQuestion(w http.ResponseWriter, r *http.Request) {
 
 	// Create filter for MongoDB based on complexity and categories
 	filter := bson.M{
-		"complexity": complexity,                // Match the complexity (difficulty level)
-		"category":   bson.M{"$in": categories}, // Match at least one of the provided categories (topics)
+		"complexity": primitive.Regex{Pattern: complexity, Options: "i"},
+		"category":   bson.M{"$in": regexArray(categories)},             
 	}
 
 	// Log the filter being used for MongoDB
@@ -60,9 +61,38 @@ func GetQuestion(w http.ResponseWriter, r *http.Request) {
 
 	// If no questions are found, return a 404 response
 	if len(questions) == 0 {
-		http.Error(w, "No suitable questions found", http.StatusNotFound)
+		log.Println("No suitable questions found, fetching a random question.")
+
+		// Fetch all questions without any filters
+		randomCursor, err := questionCollection.Aggregate(context.TODO(), bson.A{bson.M{"$sample": bson.M{"size": 1}}})
+		if err != nil {
+			log.Printf("Error finding random question: %v", err)
+			http.Error(w, "Error retrieving random question", http.StatusInternalServerError)
+			return
+		}
+		defer randomCursor.Close(context.TODO())
+
+		var randomQuestions []models.Question
+		for randomCursor.Next(context.TODO()) {
+			var question models.Question
+			if err := randomCursor.Decode(&question); err != nil {
+				log.Printf("Error decoding random question: %v", err)
+				continue
+			}
+			randomQuestions = append(randomQuestions, question)
+		}
+
+		// If no random question is found (highly unlikely), return a 404
+		if len(randomQuestions) == 0 {
+			http.Error(w, "No questions found", http.StatusNotFound)
+			return
+		}
+
+		// Return the random question
+		json.NewEncoder(w).Encode(randomQuestions[0])
 		return
 	}
+
 
 	// Create a new random number generator with a source based on the current time
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -72,4 +102,12 @@ func GetQuestion(w http.ResponseWriter, r *http.Request) {
 
 	// Send the selected question as a JSON response
 	json.NewEncoder(w).Encode(selectedQuestion)
+}
+
+func regexArray(arr []string) []primitive.Regex {
+	regexes := make([]primitive.Regex, len(arr))
+	for i, item := range arr {
+		regexes[i] = primitive.Regex{Pattern: item, Options: "i"}
+	}
+	return regexes
 }
