@@ -9,8 +9,9 @@ module.exports = (io) => {
     sessionController.joinSession(socket, io);
   });
 
-  router.get('/test', (req, res) => {
-    return res.send('hello');
+  // test
+  router.get('/', (req, res) => {
+    return res.send('hello world');
   })
 
   // Handle session check for a specific user
