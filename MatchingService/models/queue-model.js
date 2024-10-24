@@ -1,14 +1,6 @@
-import { createClient } from 'redis';
-const client = createClient();
+import createRedisConnection from '../config/redis.js';
 
-try {
-    client.connect();
-    console.log("Successfully connected to Redis");
-} catch (error) {
-    console.log("Error connecting to Redis ", error);
-}
-
-
+const client = createRedisConnection();
 const queueKey = 'match_requests';
 const usersSetKey = 'current_users';
 
