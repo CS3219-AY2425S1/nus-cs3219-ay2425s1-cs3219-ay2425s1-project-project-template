@@ -1,24 +1,22 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Box, VStack, HStack } from "@chakra-ui/react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import LanguageSelector from "./LanguageSelector";
 import Output from "./Output";
 import * as Y from 'yjs';
-import { MonacoBinding } from 'y-monaco';
-import { socket } from '../../app/api/services/sessionSocketService';
+// import { MonacoBinding } from 'y-monaco';
+import { socket } from '../../services/sessionSocketService';
 import { SupportedLanguages } from "../../utils/utils";
 import { useTheme } from "next-themes";
 
 
 
 
-const { theme } = useTheme();
 
-interface CodeEditorProps {}
 
-const CodeEditor: React.FC<CodeEditorProps> = () => {
+export default function CodeEditor() {
+    const { theme } = useTheme();
     const doc = new Y.Doc();
     const yText = doc.getText('code');
     const editorRef = useRef<any>(null);
@@ -33,7 +31,7 @@ const CodeEditor: React.FC<CodeEditorProps> = () => {
         editorRef.current = editor;
         const model = editor.getModel();
         if (model) {
-            const binding = new MonacoBinding(yText, model, new Set([editor]));
+            // const binding = new MonacoBinding(yText, model, new Set([editor]));
         }
         // due to the binding above, on update of editor, yText updates, and the doc is also updated
         // so we can listen to changes in doc and emit them to the server
@@ -85,22 +83,20 @@ const CodeEditor: React.FC<CodeEditorProps> = () => {
     }, []); // Add an empty dependency array to ensure this effect runs only once
 
     return (
-        <Box>
-            <div className="flex gap-4">
-                <Box w="50%">
-                    <LanguageSelector language={language} onSelect={onSelect} />
-                    <Editor
-                        className="min-h-[250px] w-fulll"
-                        theme={theme === "dark" ? "vs-dark" : "vs-light"}
-                        language={language}
-                        onMount={onMount}
-                        value={value}
-                    />
-                </Box>
-                <Output editorRef={editorRef} language={language} />
+        <div className="flex h-full w-full gap-4">
+            <div className="flex width-1/2 h-full">
+                <LanguageSelector language={language} onSelect={onSelect} />
+                <Editor
+                    className="flex min-h-[250px] w-full"
+                    theme={theme === "dark" ? "vs-dark" : "vs-light"}
+                    language={language}
+                    onMount={onMount}
+                    value={value}
+                />
             </div>
-        </Box>
+            <Output editorRef={editorRef} language={language} />
+        </div>
     );
 };
 
-export default CodeEditor;
+

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Text, useToast } from '@chakra-ui/react';
-import { executeCode } from '../../app/api/services/sessionOutputService';
-import { socket } from '../../app/api/services/sessionSocketService';
+import { Button, Card } from '@nextui-org/react';
+import { executeCode } from '../../services/sessionOutputService';
+import { socket } from '../../services/sessionSocketService';
 
 type SupportedLanguages = 'javascript' | 'typescript' | 'python' | 'java' | 'csharp' | 'php';
 
@@ -11,7 +11,6 @@ interface OutputProps {
 }
 
 const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
-    const toast = useToast();
     const [output, setOutput] = useState<string[] | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
@@ -55,44 +54,31 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         } catch (error: any) {
             // would only occur if api is down
             console.log(error);
-            toast({
-                title: 'An error occurred.',
-                description: error.message || 'Unable to run code',
-                status: 'error',
-                duration: 6000,
-            });
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <Box w="50%">
-            <Text mb={2} fontSize="lg">Output</Text>
+        <div className='flex'>
+            <p className="">Output</p>
             <Button
-                variant='outline'
-                colorScheme='green'
-                mb={4}
-                isLoading={isLoading}
+                className=""
+                variant='flat'
+                color="success"
+                disabled={isLoading}
                 onClick={runCode}
             >
-                Run Code
+                {isLoading ? 'Running' : 'Run Code'}
             </Button>
-            <Box
-                height="75vh"
-                p={2}
-                color={isError ? 'red.400' : ''}
-                border="1px solid"
-                borderRadius={4}
-                borderColor={isError ? 'red.500' : '#333'}
-            >
+            <Card className="flex-1 bg-gradient-to-br from-[#FE9977] to-[#6F0AD4]">
                 {
                     output
-                        ? output.map((line, index) => <Text key={index}>{line}</Text>)
+                        ? output.map((line, index) => <p key={index}>{line}</p>)
                         : 'Click "Run Code" to see output here'
                 }
-            </Box>
-        </Box>
+            </Card>
+        </div>
     );
 };
 

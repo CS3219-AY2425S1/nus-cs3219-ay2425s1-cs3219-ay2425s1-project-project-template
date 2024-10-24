@@ -1,16 +1,8 @@
-import { 
-    Box, 
-    Button,
-    Menu, 
-    MenuButton,
-    MenuItem, 
-    MenuList,
-    Text,
-} from '@chakra-ui/react';
+import { Dropdown, Button, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
 import { LANGUAGE_VERSIONS, SupportedLanguages } from '../../utils/utils';
 
 const languages = Object.entries(LANGUAGE_VERSIONS);
-const ACTIVE_COLOR = "blue.400";
+const ACTIVE_COLOR = "blue";
 
 interface LanguageSelectorProps {
     language: SupportedLanguages;
@@ -19,36 +11,34 @@ interface LanguageSelectorProps {
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onSelect }) => {
     return (
-        <Box ml={2} mb={4}>
-            <Text mb={2} fontSize='lg'>
-                Language: 
-            </Text>
-            <Menu isLazy>
-                <MenuButton as={Button}>{language}</MenuButton>
-                <MenuList bg="#110c1b">
+        <div className='flex'>
+            <p className='flex'>
+                Language:
+            </p>
+            <Dropdown>
+                <DropdownTrigger>
+                    <Button
+                        variant="bordered"
+                    >
+                        {language}    
+                    </Button>
+                </DropdownTrigger>
+
+
+                <DropdownMenu aria-label="Language selection">
                     {languages.map(([lang, version]) => (
-                        <MenuItem key={lang}
-                        color={
-                            lang === language ? ACTIVE_COLOR : ""
-                        }
-                        bg={
-                            lang === language ? "gray.900" : "transparent"
-                        }
-                        _hover={{
-                            color: ACTIVE_COLOR,
-                            bg: "gray.900",
-                        }}
-                        onClick={() => onSelect(lang as SupportedLanguages)}>
+                        <DropdownItem key={lang}
+                            onClick={() => onSelect(lang as SupportedLanguages)}>
                             {lang}
                             &nbsp;
-                            <Text as="span" color="gray.600" fontSize="sm">
+                            <p className="text-tiny text-black/40 uppercase font-bold">
                                 ({version})
-                            </Text>
-                        </MenuItem>
+                            </p>
+                        </DropdownItem>
                     ))}
-                </MenuList>
-            </Menu>
-        </Box>
+                </DropdownMenu> 
+            </Dropdown>
+        </div>
     );
 }
 
