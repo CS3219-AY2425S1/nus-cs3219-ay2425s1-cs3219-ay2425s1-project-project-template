@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { USER_SERVICE_API } = require('../config');
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -12,15 +13,18 @@ const authMiddleware = async (req, res, next) => {
     if (error.response && (error.response.status === 401 || error.response.status === 500)) {
       res.status(401).json({ message: 'Unauthorized' }); // Send a 401 response if unauthorized
     } else {
-      console.error('Error fetching user profile:', error);
-      res.status(500).json({ message: 'Internal Server Error' }); // Handle other errors
+      console.error('Error fetching user profile:', error.message);
+      res.status(500).json({ message: 'User Service Server Error' }); // Handle other errors
     }
   }
 };
 
 const viewUserProfile = async (authHeader) => {
   try {
-    const response = await axios.get('http://localhost/api/user/profile', {
+    const response = await axios({
+      baseURL: USER_SERVICE_API,
+      url: 'profile',
+      method: 'GET',
       headers: {
         'Authorization': authHeader, // Set the Authorization header
       },
