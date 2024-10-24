@@ -47,6 +47,11 @@ export default function CollaborationPage(props: CollaborationProps) {
   );
   const [matchedUser, setMatchedUser] = useState<string | undefined>(undefined);
 
+  // Chat states
+  const [messageToSend, setMessageToSend] = useState<string | undefined>(
+    undefined
+  );
+
   // Manual test case states
   const [manualTestCase, setManualTestCase] = useState<string | undefined>(
     undefined
@@ -82,12 +87,16 @@ export default function CollaborationPage(props: CollaborationProps) {
     {
       key: "1",
       label: "Case 1",
-      children: "Insert Test Case 1", // TODO: Setup test-cases in db for each qn and pull/paste here
+      children: (
+        <Input.TextArea disabled placeholder="Insert Test Case 1" rows={6} />
+      ), // TODO: Setup test-cases in db for each qn and pull/paste here
     },
     {
       key: "2",
       label: "Case 2",
-      children: "Insert Test Case 2",
+      children: (
+        <Input.TextArea disabled placeholder="Insert Test Case 2" rows={6} />
+      ),
     },
     {
       key: "3",
@@ -96,6 +105,7 @@ export default function CollaborationPage(props: CollaborationProps) {
         <Input.TextArea
           onChange={(e) => setManualTestCase(e.target.value)}
           placeholder="Input Manual Test Case"
+          rows={6}
         />
       ),
     },
@@ -207,6 +217,21 @@ export default function CollaborationPage(props: CollaborationProps) {
                 <div className="chat-title">
                   <MessageOutlined className="title-icons" />
                   Chat
+                </div>
+
+                <div className="chat-message-box">
+                  <div className="chat-header-message">
+                    Matched with {matchedUser}
+                  </div>
+                  {/* TODO: Map and input the history of messages sent here */}
+                  <div></div>
+                </div>
+                <div className="chat-typing-box">
+                  <Input.TextArea
+                    onChange={(e) => setMessageToSend(e.target.value)}
+                    placeholder="Send Message Here"
+                    rows={4}
+                  />
                 </div>
               </div>
             </Row>
