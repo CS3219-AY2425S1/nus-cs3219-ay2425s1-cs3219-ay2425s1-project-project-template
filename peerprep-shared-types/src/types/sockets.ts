@@ -5,6 +5,11 @@ export enum ClientSocketEvents {
   CANCEL_MATCH = "CANCEL_MATCH",
   JOIN_ROOM = "JOIN_ROOM",
   LEAVE_ROOM = "LEAVE_ROOM",
+  EDITOR_STATE = "editor_state",
+  CODE_CHANGE = "code_change",
+  USER_JOINED = "user_joined",
+  USER_LEFT = "user_left",
+  LANGUAGE_CHANGE = "language_change",
 }
 
 export enum ServerSocketEvents {
