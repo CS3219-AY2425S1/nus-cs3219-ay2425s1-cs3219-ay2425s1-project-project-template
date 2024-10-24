@@ -4,6 +4,9 @@ import Redis from 'ioredis';
 // Initialize Redis client
 const redisClient = new Redis(process.env.COLLAB_REDIS_URL || 'redis://localhost:6379');
 
+export const pubClient = redisClient.duplicate();
+export const subClient = redisClient.duplicate();
+
 // check if redis client is connected
 redisClient.on('connect', () => {
     console.log('Connected to Redis');

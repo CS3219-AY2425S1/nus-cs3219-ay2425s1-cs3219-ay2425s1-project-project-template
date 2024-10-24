@@ -14,6 +14,8 @@ const userRoomMap: { [key: string]: string } = {};
 
 export async function initialize(socket: Socket, io: Server) {
 
+    // TODO THIS NEEDS TO BE UPDATED FOR COMPATIBILITY WITH REDIS
+    // ---------------------------------------------------
     const { userId } = socket.data;
     if (userId in socketUserMap) {
         console.log('User already connected:', userId);
@@ -23,6 +25,7 @@ export async function initialize(socket: Socket, io: Server) {
     }
 
     socketUserMap[userId] = socket.id;
+    // ---------------------------------------------------
 
     try {
         // Find the session that the user is part of
