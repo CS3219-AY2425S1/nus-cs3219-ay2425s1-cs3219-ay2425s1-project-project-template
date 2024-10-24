@@ -1,5 +1,9 @@
 package models
 
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 type MatchStatusEnum string
 
 const (
@@ -43,8 +47,27 @@ type MatchingInfo struct {
 	RoomID               string                    `json:"room_id" bson:"room_id"`
 }
 
+type Question struct {
+	QuestionID  string    `json:"questionId" bson:"questionId"`
+	Title       string    `json:"title" bson:"title"`
+	Description string    `json:"description" bson:"description"`
+	Constraints string    `json:"constraints" bson:"constraints"`
+	Examples    string    `json:"examples" bson:"examples"`
+	Category    []string  `json:"category" bson:"category"`
+	Complexity  string    `json:"complexity" bson:"complexity"`
+	ImageURL    string    `json:"imageUrl" bson:"imageUrl"`
+	CreatedAt   primitive.DateTime `json:"createdAt" bson:"createdAt"`
+	UpdatedAt   primitive.DateTime `json:"updatedAt" bson:"updatedAt"`
+}
+
 type MatchResult struct {
 	UserOneSocketID string `json:"user_one_socket_id"`
 	UserTwoSocketID string `json:"user_two_socket_id"`
-	RoomID          string `json:"room_id"`
+	UserOne     string                  `bson:"userOne"`
+	UserTwo     string                  `bson:"userTwo"`
+	RoomID      string                 `bson:"room_id"`
+	Complexity  []QuestionComplexityEnum `bson:"complexity"`
+	Categories  []string               `bson:"categories"`
+	Question    Question             `bson:"question"` 
 }
+
