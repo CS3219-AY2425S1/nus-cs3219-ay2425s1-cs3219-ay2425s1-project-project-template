@@ -62,6 +62,8 @@ func main() {
 		return
 	}
 
+	go initGrpcServer()
+
 	// Set up chi router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
