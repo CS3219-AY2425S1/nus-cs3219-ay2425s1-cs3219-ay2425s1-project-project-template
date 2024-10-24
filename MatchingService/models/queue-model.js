@@ -8,7 +8,7 @@ async function addRequest(userId, data) {
     // Check if the user is already in the queue
     const isInQueue = await client.sIsMember(usersSetKey, userId);
     if (isInQueue) {
-        throw new Error(`User ${userId} is already in the queue`);
+        throw new Error(`User ${userId} is already in the queue, unable to publish to rabbitMQ`);
     }
 
     // Add user to the queue

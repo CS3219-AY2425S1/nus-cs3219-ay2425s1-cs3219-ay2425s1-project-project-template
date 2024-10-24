@@ -34,13 +34,13 @@ async function consumeMatchRequests(processMessage) {
                     }
                     channel.ack(msg);
                 } catch (error) {
-                    console.error('Error processing message:', error);
+                    throw new Error('Error processing message:');
                     channel.nack(msg);
                 }
             }
         });
     } catch (error) {
-        console.error('Error consuming messages:', error);
+        throw new Error('Error consuming message:');
     }
 }
 

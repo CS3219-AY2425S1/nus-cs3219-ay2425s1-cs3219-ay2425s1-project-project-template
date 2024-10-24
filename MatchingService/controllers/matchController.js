@@ -2,15 +2,14 @@ import matchService from '../services/matchService.js';
 const { addMatchRequest, cancelMatchRequest, processMatchQueue } = matchService;
 
 async function handleMatchRequest(req, res) {
-    const { userId, topic, difficulty } = req.body;
+    const { userId, topic, difficulty, socketId } = req.body;
 
     try {
-        console.log(userId);
-        await addMatchRequest(userId, topic, difficulty);
+        await addMatchRequest(userId, topic, difficulty, socketId);
         res.status(200).json({ message: "Match request sent", userId });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to send match request" });
+        console.log(err);
+        res.status(500).json({ error: err.message });
     }
 }
 
@@ -22,12 +21,12 @@ async function cancelRequest(req, res) {
         res.status(200).json({ message: "Match request cancelled", userId });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Failed to cancel match request" });
+        res.status(500).json({ error: err.message });
     }
 }
 
-function initializeQueueProcessing() {
-    processMatchQueue();
+function initializeQueueProcessing(io) {
+    processMatchQueue(io);
 }
 
 export default {
