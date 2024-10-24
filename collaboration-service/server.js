@@ -1,3 +1,4 @@
+require('dotenv/config');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -14,7 +15,7 @@ app.use(express.static('public'));
 app.use('/api/collab', sessionRoutes(io));
 
 // Start the server
-const PORT = 8004;
+const PORT = process.env.COLLAB_PORT || 8004;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
