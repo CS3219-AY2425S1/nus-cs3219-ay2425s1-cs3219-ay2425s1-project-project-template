@@ -10,8 +10,8 @@ const io = new Server(server);
 // Serve static files
 app.use(express.static('public'));
 
-// Use the session routes (passing `io` for socket handling)
-sessionRoutes(io);
+// Use the session routes at the '/api/collab' path (passing `io` for socket handling)
+app.use('/api/collab', sessionRoutes(io));
 
 // Start the server
 const PORT = 3000;
