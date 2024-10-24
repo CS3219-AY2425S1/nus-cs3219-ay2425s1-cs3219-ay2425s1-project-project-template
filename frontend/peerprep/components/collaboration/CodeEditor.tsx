@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState, useEffect } from "react";
 import { Box, VStack, HStack } from "@chakra-ui/react";
 import { Editor, OnMount } from "@monaco-editor/react";
@@ -7,6 +9,12 @@ import * as Y from 'yjs';
 import { MonacoBinding } from 'y-monaco';
 import { socket } from '../../app/api/services/sessionSocketService';
 import { SupportedLanguages } from "../../utils/utils";
+import { useTheme } from "next-themes";
+
+
+
+
+const { theme } = useTheme();
 
 interface CodeEditorProps {}
 
@@ -78,20 +86,19 @@ const CodeEditor: React.FC<CodeEditorProps> = () => {
 
     return (
         <Box>
-            <HStack spacing={4}>
+            <div className="flex gap-4">
                 <Box w="50%">
                     <LanguageSelector language={language} onSelect={onSelect} />
                     <Editor
-                        height="75vh"
-                        width={"100%"}
-                        theme="vs-dark"
+                        className="min-h-[250px] w-fulll"
+                        theme={theme === "dark" ? "vs-dark" : "vs-light"}
                         language={language}
                         onMount={onMount}
                         value={value}
                     />
                 </Box>
                 <Output editorRef={editorRef} language={language} />
-            </HStack>
+            </div>
         </Box>
     );
 };

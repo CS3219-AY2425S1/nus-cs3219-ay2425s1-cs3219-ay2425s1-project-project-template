@@ -3,7 +3,6 @@ import { Metadata, Viewport } from "next";
 
 import { siteConfig } from "@/config/site";
 import { Navbar } from "@/components/navbar";
-import { isSessionAdmin } from "../../api/auth/actions";
 
 export const metadata: Metadata = {
   title: {
@@ -28,7 +27,6 @@ export default async function ApplicationLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const isAdmin = await isSessionAdmin();
 
   return (
     <section>
