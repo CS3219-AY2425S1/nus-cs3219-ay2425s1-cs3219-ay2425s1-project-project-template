@@ -4,15 +4,19 @@
 
 All API endpoints are prefixed with `/api/collab`.
 
+## Authentication 
+
+All API endpoints require a valid JWT token attained from our user service.
+
+This should be done under the headers['authorization'] in the form "Bearer userJWT".
+
+This applies for the initial 'connection' event for our socket.io as well.
+
 ## API Endpoints
 
-### GET `/check-session/:userId`
+### GET `/check-session/`
 
 Checks if a user is part of an active session.
-
-- **Parameters**:
-
-  - `userId` (string): The ID of the user.
 
 - **Response**:
 
@@ -32,13 +36,14 @@ Checks if a user is part of an active session.
 
 ## Socket.IO Events
 
+The socket path is '/api/collab/socket.io'.
+
 ### `join-session`
 
 Triggered when a user attempts to join a session.
 
 - **Payload**:
 - `sessionId` (string): The ID of the session.
-- `userId` (string): The ID of the user.
 - `matchedUserId` (string): The ID of the matched user.
 
 - **Responses**:
