@@ -24,7 +24,7 @@ import { capitalize, languages } from "@/utils/utils";
 import {
   complexityColorMap,
   Question,
-} from "@/app/@application/questions-management/columns";
+} from "@/app/@application/(main)/questions-management/columns";
 import {
   deleteQuestion,
   editQuestion,

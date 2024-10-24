@@ -93,8 +93,7 @@ export function handleUpdateContent(socket: Socket, io: Server) {
 
         io.to(roomId).emit('updateContent', yDocUpdate);
 
-        // Retrieve ydoc from the database and apply the update
-        // NOT SURE IF THIS WORKS
+        // Apply the update to the Y.Doc in local memory
         if (roomDocumentMap[roomId]) {
             Y.applyUpdate(roomDocumentMap[roomId], yDocUpdate);
         }

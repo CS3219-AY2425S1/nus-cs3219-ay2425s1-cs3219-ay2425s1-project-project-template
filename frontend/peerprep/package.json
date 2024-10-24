@@ -45,7 +45,9 @@
     "react-quill": "^2.0.0",
     "react-simple-code-editor": "^0.14.1",
     "socket.io-client": "^4.8.0",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "y-monaco": "^0.1.6",
+    "yjs": "^13.6.20"
   },
   "devDependencies": {
     "@types/node": "20.5.7",
