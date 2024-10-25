@@ -17,6 +17,7 @@ const router = Router();
 // Route to create a question
 router.post(
   "/",
+  authMiddleware,
   //  upload.array("images", 5),
   questionController.createQuestion
 );
@@ -30,17 +31,13 @@ router.get("/:id", questionController.getQuestionById);
 // Route to update a question
 router.put(
   "/:id",
-  //   authMiddleware,
+  authMiddleware,
   //   upload.array("images", 5),
   questionController.updateQuestion
 );
 
 // Route to delete a question
-router.delete(
-  "/:id",
-  // authMiddleware,
-  questionController.deleteQuestion
-);
+router.delete("/:id", authMiddleware, questionController.deleteQuestion);
 
 router.get("/categories/unique", questionController.getAllUniqueCategories);
 router.get(
