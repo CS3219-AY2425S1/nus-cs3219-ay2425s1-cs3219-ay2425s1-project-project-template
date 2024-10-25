@@ -41,7 +41,7 @@ const FindMatchContent: React.FC<Props> = ({ beginMatch }) => {
                 </Form.Item>
             </div>
             <button className="find-match-button" type="submit">
-                FIND
+                FIND MATCH
             </button>
         </div>
     )
