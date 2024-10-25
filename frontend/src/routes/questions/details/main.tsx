@@ -5,6 +5,7 @@ import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import { WithNavBanner } from '@/components/blocks/authed';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
+import FloatingChatButton from '@/components/ui/chat-sidebar';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { questionDetailsQuery } from '@/lib/queries/question-details';
@@ -37,6 +38,7 @@ export const QuestionDetailsPage = () => {
         </Card>
         <div className='flex flex-1 flex-col' />
       </div>
+      <FloatingChatButton />
     </WithNavBanner>
   );
 };
