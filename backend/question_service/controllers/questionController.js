@@ -74,11 +74,7 @@ const createQuestion = async (req, res) => {
     }
 
     // Query to check for the same description
-    const descriptionQuery = questionsRef.where(
-      "description",
-      "==",
-      description
-    );
+    const descriptionQuery = questionsRef.where("description", "==", description);
     const descriptionSnapshot = await descriptionQuery.get();
     if (!descriptionSnapshot.empty) {
       return res
@@ -108,6 +104,67 @@ const createQuestion = async (req, res) => {
   }
 };
 
+const editQuestion = async (req, res) => {
+  try {
+    const { id, title, description, topics, difficulty } = req.body;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Question id not passed to backend properly"
+        });
+    }
+
+    if (!title || !description || !difficulty || !topics) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "All of title, description, difficulty and topics are required",
+        });
+    }
+
+    // Check for duplicates (we define duplicates as either having same title or same description)
+    const questionsRef = db.collection("questions");
+
+    // Query to check for the same title, but exclude check for the question being edited
+    const titleQuery = questionsRef.where("title", "==", title);
+    const titleSnapshot = await titleQuery.get();
+    const titleDocuments = titleSnapshot.docs.filter(doc => doc.id !== id);
+    if (titleDocuments.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "A question with this title already exists" });
+    }
+
+    // Query to check for the same description, but exclude check for the question being edited
+    const descriptionQuery = questionsRef.where("description", "==", description);
+    const descriptionSnapshot = await descriptionQuery.get();
+    const descriptionDocuments = descriptionSnapshot.docs.filter(doc => doc.id !== id);
+    if (descriptionDocuments.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "A question with this description already exists" });
+    }
+
+    const questionRef = db
+      .collection("questions")
+      .doc(id);
+
+    await questionRef.update({ 
+      title: title, 
+      description: description, 
+      topics: topics, 
+      difficulty: difficulty 
+    });
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 const deleteQuestion = async (req, res) => {
   try {
     const { id } = req.body;
@@ -128,5 +185,6 @@ module.exports = {
   getAllQuestions,
   getQuestionsOfTopicAndDifficulty,
   createQuestion,
+  editQuestion,
   deleteQuestion,
 };
