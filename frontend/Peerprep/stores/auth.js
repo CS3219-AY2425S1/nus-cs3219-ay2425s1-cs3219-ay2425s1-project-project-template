@@ -88,7 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function reauthenticateWithGoogle() {
-        if (isGoogleLogin === false) {
+        if (isGoogleLogin.value === false) {
             return;
         }
         const provider = new GoogleAuthProvider();
@@ -137,6 +137,25 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function deleteUsingUserService() {
+        await refreshUser();
+        const token = await getToken();
+        const response = await fetch('http://localhost:5001/users/myself', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error("Error deleting user");
+            return false;
+        }
+        
+        await authSignOut();
+        return true;
+    }
+
     // Update user when auth changes
     onAuthStateChanged(firebaseAuth, async (currentUser) => {
         if (currentUser) {
@@ -151,6 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
         authSignOut,
         changePassword,
         deleteAccountAndSignOut,
+        deleteUsingUserService,
         getToken,
         updateDisplayName,
         reauthenticateWithGoogle,

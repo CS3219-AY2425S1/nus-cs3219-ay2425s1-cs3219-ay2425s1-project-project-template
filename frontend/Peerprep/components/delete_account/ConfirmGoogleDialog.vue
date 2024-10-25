@@ -43,7 +43,7 @@ const handleDeleteAccount = async () => {
     }
 
     try {
-        await authStore.deleteAccountAndSignOut();
+        await authStore.deleteUsingUserService();
         toast({
             description: 'Successfully deleted account.',
         });

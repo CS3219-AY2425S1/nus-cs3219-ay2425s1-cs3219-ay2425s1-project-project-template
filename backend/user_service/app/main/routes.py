@@ -2,6 +2,7 @@ from . import main
 from flask import jsonify, request
 from firebase_admin import auth
 from datetime import datetime, timedelta
+from app.auth_api.helper import verify_token
 
 # Import the attempt history blueprint
 from .history_routes import history
@@ -113,3 +114,20 @@ def patch_user(uid):
 
     except Exception as e:
         return jsonify({"error": "Failed to update user", "details": str(e)}), 500
+
+@main.route("/myself", methods=["DELETE"])
+def delete_current_user():  # Deletes the user that owns the token, probably not the best way to do this
+    decoded_token, error, status_code = verify_token()
+    
+    if error:
+        return jsonify({"error": error}), status_code
+    
+    if decoded_token["user_id"]:
+        uid = decoded_token["user_id"]
+        try:
+            delete_user(uid)
+            return jsonify({"message": f"Successfully deleted {uid}"}), 200
+        except Exception as e:
+            return jsonify({"error": "Failed to delete user", "details": str(e)}), 500
+        
+    return jsonify({"error": "UID not provided in token"}), 500
