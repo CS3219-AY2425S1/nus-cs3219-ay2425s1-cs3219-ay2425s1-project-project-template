@@ -8,7 +8,7 @@ import (
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
-	pb "proto/questionmatching"
+	pb "matching-service/proto"
 
 	"matching-service/servers"
 

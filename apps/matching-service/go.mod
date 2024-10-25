@@ -2,8 +2,6 @@ module matching-service
 
 go 1.23.1
 
-replace proto => ../proto
-
 require (
 	github.com/bsm/redislock v0.9.4
 	github.com/gorilla/websocket v1.5.3
@@ -11,7 +9,6 @@ require (
 	github.com/redis/go-redis/v9 v9.6.2
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
-	proto v0.0.0-00010101000000-000000000000
 )
 
 require (

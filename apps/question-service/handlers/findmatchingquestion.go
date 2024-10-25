@@ -5,8 +5,8 @@ import (
 	"errors"
 	"log"
 	"math/rand"
-	pb "proto/questionmatching"
 	"question-service/models"
+	pb "question-service/proto"
 
 	"cloud.google.com/go/firestore"
 )

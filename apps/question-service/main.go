@@ -8,9 +8,9 @@ import (
 	"net"
 	"net/http"
 	"os"
-	pb "proto/questionmatching"
 	"question-service/handlers"
 	mymiddleware "question-service/middleware"
+	pb "question-service/proto"
 	"question-service/utils"
 	"time"
 

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	pb "proto/questionmatching"
+	pb "question-service/proto"
 
 	"cloud.google.com/go/firestore"
 )
