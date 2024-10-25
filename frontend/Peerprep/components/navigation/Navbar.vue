@@ -19,13 +19,6 @@ const getInitials = () => {
     }
     return "";
 }
-
-
-watch(user, (newUser) => {  // TODO: Check if can remove this
-    if (newUser) {
-        authStore.refreshUser();
-    }
-});
 </script>
 
 <template>
