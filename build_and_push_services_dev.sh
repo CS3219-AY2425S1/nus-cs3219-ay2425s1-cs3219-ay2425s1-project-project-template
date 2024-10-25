@@ -26,6 +26,7 @@ declare -A services=(
     ["question-service"]="question-service"
     ["user-service"]="user-service"
     ["frontend-peerprep"]="frontend/peerprep"
+    ["collaboration-service"]="collaboration-service"
 )
 
 # Iterate over each service in the list
