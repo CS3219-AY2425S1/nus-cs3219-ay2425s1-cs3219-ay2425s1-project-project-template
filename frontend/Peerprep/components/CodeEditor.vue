@@ -15,6 +15,7 @@ const session_info = collaborationStore.getCollaborationInfo;
 
 const editor = ref(null);  // Store CodeMirror instance
 const editorContainer = ref(null); // Ref for editor textarea container
+let isEditorUpdating = false;
 
 onMounted(() => {
     // Initialise CodeMirror
@@ -53,28 +54,37 @@ onMounted(() => {
 
     // Listen for real-time updates from Firestore
     onSnapshot(docRef, (snapshot) => {
-        const data = snapshot.data();
-        if (data && data.code) {
-            // Update CodeMirror content when changes are received from Firestore
-            if (editor.value.getValue() !== data.code) {
-                editor.value.setValue(data.code);
+        if (!isEditorUpdating) {
+            const data = snapshot.data();
+            if (data && data.code !== undefined && data.code !== null) {
+                // Update CodeMirror content when changes are received from Firestore
+                if (editor.value.getValue() !== data.code) {
+                    isEditorUpdating = true;
+                    editor.value.setValue(data.code);
+                    isEditorUpdating = false;
+                }
             }
         }
+        
     });
 
     // Listen for changes in CodeMirror and update Firestore
     editor.value.on('change', () => {
-        const currentCode = editor.value.getValue(); // Get the current code from CodeMirror
-        console.log('CodeMirror content changed:', currentCode);
-    
-        // Update Firestore document with the new code
-        updateDoc(docRef, { code: currentCode })
-            .then(() => {
-                console.log("Firestore document updated successfully.");
-            })
-            .catch((error) => {
-                console.error('Error updating Firestore:', error);
-            });  
+        if (!isEditorUpdating) {
+            isEditorUpdating = true;
+            const currentCode = editor.value.getValue(); // Get the current code from CodeMirror
+            console.log('CodeMirror content changed:', currentCode);
+
+            // Update Firestore document with the new code
+            updateDoc(docRef, { code: currentCode })
+                .then(() => {
+                    console.log("Firestore document updated successfully.");
+                })
+                .catch((error) => {
+                    console.error('Error updating Firestore:', error);
+                });
+            isEditorUpdating = false;
+        } 
     });
     
 });
@@ -92,8 +102,5 @@ onBeforeUnmount(() => {
 .editor-container {
   width: 90%;
   height: 100%;
-  border: 1px solid #000000;
-  border-radius: 4px;
-  background-color: #cdcdcd;
 }
 </style>
