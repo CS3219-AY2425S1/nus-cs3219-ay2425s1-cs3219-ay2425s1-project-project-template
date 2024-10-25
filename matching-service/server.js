@@ -1,3 +1,4 @@
+const uuid = require('uuid');
 const amqp = require('amqplib');
 const express = require('express');
 const redis = require('redis');
@@ -75,32 +76,20 @@ async function showUserQueue(status) {
     }),
   );
 
-  console.log(status + ": " + JSON.stringify(values, null, 2)); 
+  console.log(status + ': ' + JSON.stringify(values, null, 2));
 }
-
-function generateRandomString(length = 20) {
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters[randomIndex];
-  }
-  return result;
-}
-
 
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  await showUserQueue("Before queue");
+  await showUserQueue('Before queue');
 
-  if (userId == null) return; 
+  if (userId == null) return;
 
   const userExists = (await redisClient.get(userId)) !== null;
   if (userExists) {
-    console.log("Duplicate user:", userId);
-    return; 
+    console.log('Duplicate user:', userId);
+    return;
   }
 
   const matchedByTopics = await findMatchByTopics(topics);
@@ -131,7 +120,7 @@ async function matchUsers(searchRequest) {
     const matchMessage = {
       userId,
       matchUserId: matchedUser,
-      roomId: generateRandomString(),
+      roomId: uuid.v7(),
     };
 
     channel.sendToQueue(
@@ -160,7 +149,7 @@ async function matchUsers(searchRequest) {
     });
   }
 
-  await showUserQueue("After queue");
+  await showUserQueue('After queue');
 }
 
 async function findMatchByTopics(topics) {
@@ -168,12 +157,11 @@ async function findMatchByTopics(topics) {
 
   topics.forEach((tag) => multi.sMembers(`topics:${tag}`));
 
-  const replies = await
-    multi.exec((err, replies) => {
-      if (err) return reject(err);
-      console.log('Replies from Redis:', replies); // Log replies
-      resolve(replies);
-    });
+  const replies = await multi.exec((err, replies) => {
+    if (err) return reject(err);
+    console.log('Replies from Redis:', replies); // Log replies
+    resolve(replies);
+  });
 
   const keys = [...new Set(replies.flat())];
   return keys;
@@ -184,12 +172,11 @@ async function findMatchByDifficulty(difficulty) {
 
   difficulty.forEach((tag) => multi.sMembers(`difficulty:${tag}`));
 
-  const replies = await
-    multi.exec((err, replies) => {
-      if (err) return reject(err);
-      console.log('Replies from Redis:', replies); // Log replies
-      resolve(replies);
-    });
+  const replies = await multi.exec((err, replies) => {
+    if (err) return reject(err);
+    console.log('Replies from Redis:', replies); // Log replies
+    resolve(replies);
+  });
 
   const keys = [...new Set(replies.flat())];
   return keys;
