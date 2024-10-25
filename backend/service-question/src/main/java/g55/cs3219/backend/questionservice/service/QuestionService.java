@@ -86,7 +86,7 @@ public class QuestionService {
 
         // Check if the question already exists in the database
         List<Question> existingQuestions = questionRepository.findByTitle(questionDto.getTitle());
-        
+
         if (!existingQuestions.isEmpty()) {
             throw new InvalidQuestionException("Duplicate question found with title: " + questionDto.getTitle());
         }
@@ -119,9 +119,15 @@ public class QuestionService {
         Question existingQuestion = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException("Question with ID " + id + " not found."));
 
+        // Check if the new title already exists in the database
         if (updatedQuestionDto.getTitle() != null) {
+            List<Question> questionsWithTitle = questionRepository.findByTitle(updatedQuestionDto.getTitle());
+            if (!questionsWithTitle.isEmpty() && !questionsWithTitle.get(0).getId().equals(id)) {
+                throw new InvalidQuestionException("Duplicate question found with title: " + updatedQuestionDto.getTitle());
+            }
             existingQuestion.setTitle(updatedQuestionDto.getTitle());
         }
+
         if (updatedQuestionDto.getDescription() != null) {
             existingQuestion.setDescription(updatedQuestionDto.getDescription());
         }
