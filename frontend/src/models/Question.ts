@@ -21,6 +21,7 @@ export enum Topic {
   BitManipulation = "Bit Manipulation",
   Math = "Math",
   Algorithms = "Algorithms",
+  DataBases = "Databases",
 }
 
 export type QuestionExample = {

@@ -21,6 +21,7 @@ const Topic = Object.freeze({
   Math: "Math",
   Algorithms: "Algorithms",
   DataStructures: "Data Structures",
+  DataBases: "Databases",
 });
 
 module.exports = { Difficulty, Topic };
