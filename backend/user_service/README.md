@@ -120,7 +120,7 @@ python run.py
 
 ### Additional Notes
 
-- Ensure `FLASK_APP=main` is set in your environment if `flask --app main` doesn't work directly.
+- Ensure `FLASK_APP=run.py` is set in your environment if `flask --app main` doesn't work directly.
 - If `flask` commands aren't recognized, ensure that Flask is properly installed and included in your `requirements.txt`.
 - On macOS/Linux, you may need to give execution permissions to scripts:
   ```bash

@@ -1,6 +1,7 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth';
 import NavLink from '~/components/navigation/NavLink.vue';
+import DropdownMenuItem from '../ui/dropdown-menu/DropdownMenuItem.vue';
 
 const authStore = useAuthStore();
 const { user, isAdmin } = storeToRefs(authStore);
@@ -8,6 +9,14 @@ const { user, isAdmin } = storeToRefs(authStore);
 function handleSignOut() {
     authStore.authSignOut();
 };
+
+const getInitials = () => {
+    const name = user.value?.displayName || '';
+    const words = name.split(' ');
+    const initials = words[0][0].toUpperCase() + (words[1] ? words[1][0].toUpperCase() : '');
+    return initials;
+}
+
 
 watch(user, (newUser) => {  // TODO: Check if can remove this
     if (newUser) {
@@ -37,13 +46,16 @@ watch(user, (newUser) => {  // TODO: Check if can remove this
                         <Avatar size="xs"
                             class="hover:shadow-xl hover:bg-gray-300  transition-all duration-300 cursor-pointer">
                             <AvatarImage :src="user.photoURL || ''" alt="User Avatar" />
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarFallback>{{ getInitials() }}</AvatarFallback>
                         </Avatar>
 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent class="w-fit" align="end">
-                        <DropdownMenuItem>
-                            <NuxtLink to="/users/settings">Settings</NuxtLink>
+                        <DropdownMenuItem as-child>
+                            <NuxtLink to="/profile">Profile</NuxtLink>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem as-child>
+                            <NuxtLink to="/profile/settings">Settings</NuxtLink>
                         </DropdownMenuItem>
                         <DropdownMenuItem @click="handleSignOut">Sign out</DropdownMenuItem>
                     </DropdownMenuContent>

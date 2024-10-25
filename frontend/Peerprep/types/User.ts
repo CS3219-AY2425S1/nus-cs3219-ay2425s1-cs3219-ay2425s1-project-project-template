@@ -1,5 +1,5 @@
 export type User = {
-    display_name?: string;
+    displayName?: string;
     email?: string;
     uid?: string;
     admin?: boolean;
