@@ -12,4 +12,5 @@ type Service struct {
 
 type GrpcServer struct {
 	pb.UnimplementedQuestionMatchingServiceServer // Embed the unimplemented service
+	Client                                        *firestore.Client
 }

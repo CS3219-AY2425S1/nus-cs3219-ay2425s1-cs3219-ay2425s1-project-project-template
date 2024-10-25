@@ -49,7 +49,7 @@ func main() {
 		return
 	}
 
-	go initGrpcServer()
+	go initGrpcServer(service)
 
 	r := initChiRouter(service)
 	initRestServer(r)
@@ -121,13 +121,15 @@ func initRestServer(r *chi.Mux) {
 	}
 }
 
-func initGrpcServer() {
+func initGrpcServer(service *handlers.Service) {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterQuestionMatchingServiceServer(s, &handlers.GrpcServer{})
+	pb.RegisterQuestionMatchingServiceServer(s, &handlers.GrpcServer{
+		Client: service.Client,
+	})
 
 	log.Printf("gRPC Server is listening on port 50051...")
 	if err := s.Serve(lis); err != nil {
