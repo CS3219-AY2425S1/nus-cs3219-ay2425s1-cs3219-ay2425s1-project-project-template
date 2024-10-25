@@ -18,12 +18,6 @@ const difficultySort = (rowA: Row<Question>, rowB: Row<Question>) => {
   return difficultyLevels[diffA] - difficultyLevels[diffB];
 };
 
-const dateSort = (rowA: Row<Question>, rowB: Row<Question>) => {
-  const dateA: string = rowA.getValue("dateCreated");
-  const dateB: string = rowB.getValue("dateCreated");
-  return new Date(dateA).getTime() - new Date(dateB).getTime();
-};
-
 const getDifficultyClass = (difficulty: string) => {
   switch (difficulty) {
     case "Easy":
@@ -73,7 +67,6 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
         {String(cell.getValue())}
       </div>
     ),
-    sortingFn: dateSort,
     size: 20,
   },
   {

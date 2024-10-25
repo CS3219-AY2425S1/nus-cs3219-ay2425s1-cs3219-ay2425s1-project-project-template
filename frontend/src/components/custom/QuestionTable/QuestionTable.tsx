@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { columns } from "./columns";
 import { getAllQuestions } from "@/services/QuestionFunctions";
 import { DataTable } from "./data-table";
+import moment from "moment";
 
 function QuestionTable() {
   const [data, setData] = useState<Question[]>([]);
@@ -51,9 +52,10 @@ async function getData(): Promise<Question[]> {
   const questions: Question[] = res.data;
 
   questions.sort((a, b) => {
-    const aDate = new Date(a.dateCreated).getTime();
-    const bDate = new Date(b.dateCreated).getTime();
-    return aDate - bDate;
+    const aDate = moment(a.dateCreated);
+    const bDate = moment(b.dateCreated);
+
+    return aDate.isBefore(bDate) ? -1 : 1;
   });
 
   return questions;
