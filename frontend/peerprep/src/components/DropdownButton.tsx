@@ -6,7 +6,7 @@ type DropdownButtonProps = {
   menuButtonProps: {
     w: string;
     h: string;
-    defaultValue: string;
+    topic: string;
   };
   menuListProps: {
     options: string[];
@@ -30,7 +30,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
         _hover={{ bg: "purple.600" }} // Set hover color for the button
         _active={{ bg: "purple.700" }} // Set active/pressed color
       >
-        {menuButtonProps.defaultValue}
+        {menuButtonProps.topic}
       </MenuButton>
       
       <MenuList bg="purple.500" color="white"> {/* Set background and text color for dropdown */}

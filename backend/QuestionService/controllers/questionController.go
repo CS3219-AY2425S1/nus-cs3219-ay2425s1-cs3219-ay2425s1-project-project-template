@@ -320,12 +320,24 @@ func GetTopics(c *gin.Context) {
 		return
 	}
 
-	// Convert interface{} to string slice if needed
-	var stringTopics []string
+	// Create a set to hold unique individual topics
+	topicSet := make(map[string]struct{})
 	for _, topic := range topics {
 		if str, ok := topic.(string); ok {
-			stringTopics = append(stringTopics, str)
+			// Split by commas and trim each topic, then add to the set
+			for _, individualTopic := range strings.Split(str, ",") {
+				trimmedTopic := strings.TrimSpace(individualTopic)
+				if trimmedTopic != "" {
+					topicSet[trimmedTopic] = struct{}{}
+				}
+			}
 		}
+	}
+
+	// Convert the set to a slice for JSON response
+	var stringTopics []string
+	for topic := range topicSet {
+		stringTopics = append(stringTopics, topic)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Topics retrieved successfully", "topics": stringTopics})

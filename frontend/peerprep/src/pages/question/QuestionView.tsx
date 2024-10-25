@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { QueryObserverResult } from "@tanstack/react-query";
 
-import { Question } from "./questionModel";
+import { Question, Topic } from "./questionModel";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
 import { useQuesApiContext } from "../../context/ApiContext";
 import {
@@ -17,20 +17,16 @@ import {
 } from "@chakra-ui/react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Filters from "../../components/Filter";
-import { COMPLEXITIES, CATEGORIES } from "../../constants/data";
+import { COMPLEXITIES } from "../../constants/data";
 import DataTable from "../../components/DataTable";
 import QuestionModal from "../../components/QuestionModal";
 import { toast } from "react-toastify"; // Import toast for notifications
 import { LeetCodeModal } from "../../components/LeetCodeModal";
 import QuestionDescriptionModal from "../../components/QuestionDescriptionModal";
-import { color } from "framer-motion";
 
 type QuestionViewProps = {
   questions: Question[];
-  topics: { 
-    id: string; 
-    color: string;
-  }[];
+  topics: Topic[];
   onAddQuestion: (newQuestion: {
     title: string;
     description: string;
@@ -53,6 +49,7 @@ type QuestionViewProps = {
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   questions,
+  topics,
   onAddQuestion,
   onAddLeetCodeQuestion,
   onEditQuestion,
@@ -80,7 +77,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onOpen: onLeetCodeModalOpen,
     onClose: onLeetCodeModalClose,
   } = useDisclosure();
-  const api = useQuesApiContext();
 
   // Handle Add LeetCode Question
   const handleLeetCodeAdd = async (newQuestion: { title: string }) => {
@@ -160,7 +156,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const getCategoryColor = (category: string) => {
     if (!category) return "white";
     // Find the category in the predefined list
-    let found = CATEGORIES.find(
+    let found = topics.find(
       (c) => c.id.toLowerCase() === category.toLowerCase()
     );
     return found ? found.color : "white";
@@ -269,6 +265,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <Filters
             columnFilters={columnFilters}
             setColumnFilters={setColumnFilter}
+            topics={topics}
+
           />
           <HStack mb={6} spacing={4} align="center">
             <Button
