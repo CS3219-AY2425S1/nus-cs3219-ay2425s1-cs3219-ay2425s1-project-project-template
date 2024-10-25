@@ -26,11 +26,14 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
             }
         };
 
-        socket.on('updateOutput', handleUpdateOutput);
+        (async () => {
+            const resolvedSocket = await socket;
+            resolvedSocket?.on('updateOutput', handleUpdateOutput);
 
-        return () => {
-            socket.off('updateOutput', handleUpdateOutput);
-        };
+            return () => {
+                resolvedSocket?.off('updateOutput', handleUpdateOutput);
+            };
+        })();
     }, []);
 
     const runCode = async () => {
@@ -50,7 +53,8 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
             }
 
             // Emit the result to the server
-            socket.emit('codeExecution', result);
+            const resolvedSocket = await socket;
+            resolvedSocket?.emit('codeExecution', result);
         } catch (error: any) {
             // would only occur if api is down
             console.log(error);

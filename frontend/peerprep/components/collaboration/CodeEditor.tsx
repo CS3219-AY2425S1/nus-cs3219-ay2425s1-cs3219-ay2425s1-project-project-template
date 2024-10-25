@@ -31,36 +31,47 @@ export default function CodeEditor() {
       const binding = new MonacoBinding(yText, model, new Set([editor]));
     }
 
-    doc.on("update", (update: Uint8Array) => {
-      socket.emit("update", update);
+    doc.on("update", async (update: Uint8Array) => {
+      const resolvedSocket = await socket;
+      resolvedSocket?.emit("update", update);
       console.log("update", update);
     });
   };
 
   const onSelect = (language: SupportedLanguages) => {
     setLanguage(language);
-    socket.emit("selectLanguage", language);
+    (async () => {
+      const resolvedSocket = await socket;
+      resolvedSocket?.emit("selectLanguage", language);
+    })();
   };
 
   useEffect(() => {
-    socket.on("initialData", (data: any) => {
-      const { sessionData } = data;
-      const { yDocUpdate } = sessionData;
-      Y.applyUpdate(doc, new Uint8Array(yDocUpdate));
-    });
+    (async () => {
+      const resolvedSocket = await socket;
 
-    socket.on("updateContent", (update: any) => {
-      update = new Uint8Array(update);
-      Y.applyUpdate(doc, update);
-    });
+      resolvedSocket?.on("initialData", (data: any) => {
+        const { sessionData } = data;
+        const { yDocUpdate } = sessionData;
+        Y.applyUpdate(doc, new Uint8Array(yDocUpdate));
+      });
 
-    socket.on("updateLanguage", (updatedLanguage: string) => {
-      setLanguage(updatedLanguage as SupportedLanguages);
-    });
+      resolvedSocket?.on("updateContent", (update: any) => {
+        update = new Uint8Array(update);
+        Y.applyUpdate(doc, update);
+      });
+
+      resolvedSocket?.on("updateLanguage", (updatedLanguage: string) => {
+        setLanguage(updatedLanguage as SupportedLanguages);
+      });
+    })();
 
     return () => {
-      socket.off("updateContent");
-      socket.off("updateLanguage");
+      (async () => {
+        const resolvedSocket = await socket;
+        resolvedSocket?.off("updateContent");
+        resolvedSocket?.off("updateLanguage");
+      })();
     };
   }, []);
 
