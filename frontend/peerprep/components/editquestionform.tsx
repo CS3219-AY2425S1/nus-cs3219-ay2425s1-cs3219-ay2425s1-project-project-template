@@ -31,7 +31,7 @@ import {
   useQuestionDataFetcher,
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,
-} from "@/app/api/services/questionService";
+} from "@/services/questionService";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
@@ -50,8 +50,8 @@ export default function EditQuestionForm({
   initialCategories = [],
   initialTemplateCode = "",
   initialTestCases = [{ input: "", output: "" }],
-  // initialLanguage = "javascript", // Default language
-}: EditQuestionFormProps) {
+}: // initialLanguage = "javascript", // Default language
+EditQuestionFormProps) {
   const params = useParams();
   const router = useRouter();
   const [language, setLanguage] = useState("javascript"); // Default language

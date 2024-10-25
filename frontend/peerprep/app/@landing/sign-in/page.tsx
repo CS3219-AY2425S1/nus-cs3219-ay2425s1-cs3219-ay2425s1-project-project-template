@@ -9,7 +9,7 @@ import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun, fontLogo } from "@/config/fonts";
-import { login } from "@/app/api/auth/actions";
+import { login } from "@/auth/actions";
 import Toast from "@/components/toast"; // Import Toast component
 import { CircularProgress } from "@nextui-org/react"; // Import CircularProgress from NextUI
 

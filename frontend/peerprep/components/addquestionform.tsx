@@ -24,7 +24,7 @@ import {
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,
   submitQuestion,
-} from "@/app/api/services/questionService";
+} from "@/services/questionService";
 
 interface AddQuestionFormProps {
   initialTitle?: string;
@@ -84,6 +84,7 @@ export default function AddQuestionForm({
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
       prevCategories.filter((cat) => cat !== category)
+      prevCategories.filter((cat) => cat !== category)
     );
   };
 
@@ -112,6 +113,7 @@ export default function AddQuestionForm({
   // Handle input change for test case
   const handleInputChange = (
     index: number,
+    event: React.ChangeEvent<HTMLInputElement>
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
