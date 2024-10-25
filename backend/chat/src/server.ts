@@ -1,11 +1,14 @@
+import http from 'http';
 import { config, exit } from 'process';
 
 import { sql } from 'drizzle-orm';
 import express, { json } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
 
 import { chatMessages, db } from './lib/db';
 import { logger } from './lib/utils/logger';
+import { createWs } from './ws';
 
 const app = express();
 app.use(pino());
@@ -16,6 +19,9 @@ app.get('/', async (_req, res) => {
     message: 'OK',
   });
 });
+
+// Health Check for Docker
+app.get('/health', (_req, res) => res.status(StatusCodes.OK).send('OK'));
 
 // Ensure DB service is up before running.
 app.get('/test-db', async (_req, res) => {
@@ -35,4 +41,8 @@ export const dbHealthCheck = async () => {
   }
 };
 
-export default app;
+const server = http.createServer(app);
+
+export const io = createWs(server);
+
+export default server;
