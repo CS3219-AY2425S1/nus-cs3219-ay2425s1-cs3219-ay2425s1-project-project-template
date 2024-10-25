@@ -26,6 +26,7 @@ export type MatchState = SocketState | {
 } | {
     state: "timeout";
     ok(): void;
+    start(req: MatchRequestParams): void;
 };
 
 export const WebSocketContext = createContext<MatchState | null>(null);

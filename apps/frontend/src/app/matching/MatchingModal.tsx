@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+    Form,
     Modal,
  } from 'antd';
 import 'typeface-montserrat';
@@ -11,10 +12,16 @@ import JoinedMatchContent from './modalContent/JoinedMatchContent';
 import MatchNotFoundContent from './modalContent/MatchNotFoundContent';
 import MatchCancelledContent from './modalContent/MatchCancelledContent';
 import useMatching from '../services/use-matching';
+import { ValidateUser } from '../services/user';
 
 interface MatchingModalProps {
     isOpen: boolean;
     close: () => void;
+}
+
+export interface MatchParams {
+    topics: string[],
+    difficulties: string[],
 }
 
 const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) => {
@@ -32,6 +39,16 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
         _close();
     }
 
+    const startMatch = matchingState.state == "closed" || matchingState.state == "timeout" ? async (params: MatchParams): Promise<void> => {
+        const user = await ValidateUser();
+        matchingState.start({
+            email: user.data.email,
+            username: user.data.username,
+            type: "match_request",
+            ...params
+        });
+    } : undefined;
+    
     const renderModalContent = () => {
         switch (matchingState.state) {
             case 'closed':
@@ -43,7 +60,6 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                             reselect={() => {
                                 setClosedType("finding");
                             }}
-                            retry={() => {}}
                             canceledIn={timeoutAfter}
                         />;
                     case "joined":
@@ -72,7 +88,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
             case 'starting':
                 return <FindMatchContent beginMatch={() => {}}/>
             case 'found':
-                return <MatchFoundContent 
+                return <MatchFoundContent
                     cancel={() => {
                         matchingState.ok();
                         setClosedType("cancelled");
@@ -85,7 +101,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                     name2={matchingState.info.partnerName}
                 />
             case 'timeout':
-                return <MatchNotFoundContent reselect={matchingState.ok} retry={() => {}}  timedOutIn={10}/>;
+                return <MatchNotFoundContent reselect={matchingState.ok} timedOutIn={10}/>;
             default:
                 throw new Error('Invalid matching state.');
         }
@@ -99,7 +115,15 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
             maskClosable={false}
             className="modal"
         >
-            {renderModalContent()}
+            <Form<MatchParams> 
+                name="match"
+                onFinish={startMatch}
+                initialValues={{
+                    topics: [],
+                    difficulties: [],
+                }}>
+                {renderModalContent()}
+            </Form>
             {isClosable && (
                 <button className="close-button" onClick={close}>Close</button>
             )}

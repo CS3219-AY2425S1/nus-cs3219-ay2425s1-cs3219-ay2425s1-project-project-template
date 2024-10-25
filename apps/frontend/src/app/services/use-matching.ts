@@ -98,6 +98,7 @@ export default function useMatching(): MatchState {
         setSte({
             state: "timeout",
             ok: cancel,
+            start
         });
     }
 
