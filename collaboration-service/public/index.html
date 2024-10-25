@@ -41,6 +41,12 @@
     <input type="text" id="matched-user-id" placeholder="Enter matched user ID" />
   </div>
 
+    <!-- Input for auth-token -->
+    <div>
+      <label for="token">Enter auth token:</label>
+      <input type="text" id="token" placeholder="Enter token" />
+    </div>
+
   <button id="join-session">Join Session</button>
 
   <div id="messages"></div> <!-- For feedback messages -->
@@ -56,7 +62,7 @@
     const socket = io({
       path: '/api/collab/socket.io',
       extraHeaders: {
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzE1MjdiN2ZkZTlkZDQxODhiZThiYWIiLCJpYXQiOjE3Mjk3OTk1ODksImV4cCI6MTc2MTM1NzE4OX0.oxvr7EqgzW9hv1V4BPARvt5YtfuGAhpsORzhtgSjFcc'
+        Authorization: `Bearer ${token}`
       }
     });
 
