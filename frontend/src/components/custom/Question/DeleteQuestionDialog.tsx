@@ -37,8 +37,6 @@ const DeleteQuestionDialog: React.FC<DeleteQuestionCardProps> = ({
       { id: question.id }
     );
 
-    console.log(result);
-
     if (!result.success) {
       alert(result.error);
     }
