@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +10,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowRightIcon, Send } from "lucide-react";
+import { ArrowRightIcon, MessageSquareText, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Chatbox() {
@@ -71,13 +71,9 @@ export default function Chatbox() {
               onClick={() => {
                 setCollapse(!collapse);
               }}
-              className={cn(
-                "mr-2",
-                "transition-all duration-300",
-                collapse && "rotate-180"
-              )}
+              className={cn("mr-2", "transition-all duration-300")}
             >
-              <ArrowRightIcon />
+              {collapse ? <MessageSquareText /> : <ArrowRightIcon />}
             </Button>
             <Avatar className={cn(collapse && "w-8 h-8")}>
               <AvatarFallback>A</AvatarFallback>
