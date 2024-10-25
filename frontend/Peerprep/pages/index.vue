@@ -292,9 +292,11 @@ onUnmounted(() => {
               :disabled="isProcessing || matchFound || collaborationStore.isCollaborating">
               Match
             </Button>
-            <Button type="button" @click="collaborationStore.clearCollaborationInfo">Clear</Button>
+          </div>
 
-
+          <!-- testing purposes. -->
+          <div class="flex justify-center w-full">
+            <Button type="button" class="w-3/4" @click="collaborationStore.clearCollaborationInfo">Clear</Button>
           </div>
         </form>
       </CardContent>
