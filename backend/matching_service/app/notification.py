@@ -74,7 +74,6 @@ async def kafka_consumer():
             message = json.loads(message_value)
 
             logger.info(f"Received message from question_results: {message_value}")
-            requests.post("http://user_service:5001/users/history", json=message)
             user1_id = message.get("user1_id")
             user2_id = message.get("user2_id")
             user1_state = redis_client.hget(f"user:{user1_id}", "state").decode("utf-8")
@@ -92,8 +91,11 @@ async def kafka_consumer():
                         "question_id": message.get("question_id"),
                         "question_title": message.get("question_title"),
                         "status": message.get("status"),
+                        "timestamp": message.get("timestamp"),
                         "category": message.get("category"),
                         "difficulty": message.get("difficulty"),
+                        "match_difficulty": message.get("match_difficulty"),
+                        "actual_difficulty": message.get("actual_difficulty"),
                     },
                 )
                 redis_client.expire(message.get("uid"), 60)
@@ -181,6 +183,10 @@ async def handle_ack(user1_id, status, data):
             k.decode("utf-8"): v.decode("utf-8") for k, v in hash_values.items()
         }
         match_info["uid"] = uid
+        if "timestamp" in match_info:
+            match_info["timestamp"] = float(match_info["timestamp"])
+
+        requests.post("http://user_service:5001/users/history", json=match_info)
         await send_with_retries(user2_id, match_info)
     else:
         logger.error(f"Received error ACK from user1 {user1_id}")
