@@ -40,16 +40,16 @@ const SignUp = () => {
     }
     try {
       const response = await axios.post(
-        "http://localhost:3001/users/",
+        "http://localhost:3001/users/signup/get-otp",
         {
           ...inputValue,
         },
         { withCredentials: true }
       );
-      if (response.status === 201) {
-        handleSuccess(response.data.message);
+      if (response.status === 200) {
+        handleSuccess("OTP has been sent to your email.");
         setTimeout(() => {
-          navigate("/login");
+          navigate("/signup/otp", { state: { email } });
         }, 1000);
       } else {
         handleError(response.data.message);
