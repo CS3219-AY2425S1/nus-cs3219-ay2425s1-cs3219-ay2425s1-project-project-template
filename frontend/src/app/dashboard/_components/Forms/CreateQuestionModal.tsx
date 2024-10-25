@@ -46,12 +46,21 @@ export function CreateQuestionModal({ children }: PropsWithChildren) {
 
   const onSubmit = useCallback(
     async (data: z.infer<typeof FormSchema>) => {
-      await createQuestion(data);
-      setIsOpen(false);
-      toast({
-        title: "Question added!",
-        description: "The question has been added to the repository.",
-      });
+      const question = await createQuestion(data);
+      if (question.statusCode === 200) {
+        setIsOpen(false);
+        toast({
+          title: "Question added!",
+          description: "The question has been added to the repository.",
+        });
+      } else {
+        const message =
+          question.message || "There was an error adding the question.";
+        toast({
+          title: "Error",
+          description: message,
+        });
+      }
     },
     [toast]
   );
