@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(null);
     const isAdmin = ref(false);  // Assume User is not admin by default
     const isGoogleLogin = ref(false);
+    const token = ref()
 
     async function refreshUser() {
         const currentUser = await getCurrentUser();
@@ -26,6 +27,14 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = null;
             isAdmin.value = false;
         }
+    }
+
+    async function getToken() {
+        if (user.value) {
+            const tokenResult = await user.value.getIdTokenResult();
+            return tokenResult.token;
+        }
+        return null;
     }
 
     // Handle sign out
@@ -142,6 +151,7 @@ export const useAuthStore = defineStore('auth', () => {
         authSignOut,
         changePassword,
         deleteAccountAndSignOut,
+        getToken,
         updateDisplayName,
         reauthenticateWithGoogle,
         reauthenticateWithPassword,

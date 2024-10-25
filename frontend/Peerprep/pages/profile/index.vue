@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth';
-import { ref } from 'vue';
 import type { UserProfile } from '~/types/UserProfile';
 import type { QuestionAttempt, QuestionAttemptNet } from '~/types/QuestionAttempt';
 import AvatarFallback from '~/components/ui/avatar/AvatarFallback.vue';
@@ -59,8 +58,8 @@ const getUserDisplayName = async (user_id: string) => {  // This function might 
         if (data && data.user && data.user.displayName) {
             return data.user.displayName;
         }
-    } catch (error) {
-        console.error(`Error fetching user data: ${response.status} ${response.statusText}`);
+    } catch (e) {
+        console.error("Error fetching user data:", e);
         return "Unknown User";
     }
     return "Unknown User";
@@ -80,53 +79,62 @@ const fetchAttemptList = async () => {
     try {
         isLoading.value = true;
 
-        // TODO: SEND AUTHORIZATION TOKEN HERE TO VERIFY
-        const { data, error: fetchError } = await useFetch(`http://localhost:5001/users/${user.value.uid}/history`);
+        const token = await authStore.getToken();
+        const response = await fetch(`http://localhost:5001/users/${user.value.uid}/history`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+        });
 
-        if (fetchError.value) {
-            throw new Error(fetchError.value.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(`Error getting attempt list: ${response.status} ${response.statusText}`);
         }
 
-        if (data.value) {
-            const listOfAttempts = data.value;
-
-            const attemptsWithQuestionInfo = await Promise.all(
-                listOfAttempts.sort((a: QuestionAttemptNet, b: QuestionAttemptNet) => b.timestamp - a.timestamp)
-                    .map(async (attempt: QuestionAttemptNet, index: number) => {
-                        const questionInfo = await getQuestionInfo(attempt.question_id);
-                        let questionTitle = "";
-                        let questionDifficulty = "";
-                        let questionCategory = "";
-                        if (questionInfo) {
-                            questionTitle = questionInfo.title;
-                            questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
-                            questionCategory = questionInfo.category.toString();
-                        } else {
-                            questionTitle = "Unknown Question";
-                            questionDifficulty = "Unknown Question";
-                            questionCategory = "Unknown Question";
-                        }
-
-                        const matchedUser = await getUserDisplayName(attempt.matched_user);
-                        return {
-                            index: index + 1,
-                            sessionId: attempt.session_id,
-                            dateTime: convertEpochToDateTime(attempt.timestamp),
-                            matchedUser: matchedUser,  // Request from User Service User Display Name
-                            questionTitle: questionTitle,  // For now
-                            questionDifficulty: questionDifficulty,
-                            questionCategory: questionCategory,
-                        }
-                    })
-            )
-
-            attemptList.value = attemptsWithQuestionInfo;
+        if (data) {
+            updateAttemptList(data);
         }
     } catch (e) {
         console.error("Error while fetching attempt history:", e);
     } finally {
         isLoading.value = false;
     }
+}
+
+const updateAttemptList = async (listOfAttempts: QuestionAttemptNet[]) => {
+    const attemptsWithQuestionInfo = await Promise.all(
+        listOfAttempts.sort((a: QuestionAttemptNet, b: QuestionAttemptNet) => b.timestamp - a.timestamp)
+            .map(async (attempt: QuestionAttemptNet, index: number) => {
+                const questionInfo = await getQuestionInfo(attempt.question_id);
+                let questionTitle = "";
+                let questionDifficulty = "";
+                let questionCategory = "";
+                if (questionInfo) {
+                    questionTitle = questionInfo.title;
+                    questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
+                    questionCategory = questionInfo.category.toString();
+                } else {
+                    questionTitle = "Unknown Question";
+                    questionDifficulty = "Unknown Question";
+                    questionCategory = "Unknown Question";
+                }
+
+                const matchedUser = await getUserDisplayName(attempt.matched_user);
+                return {
+                    index: index + 1,
+                    sessionId: attempt.session_id,
+                    dateTime: convertEpochToDateTime(attempt.timestamp),
+                    matchedUser: matchedUser,
+                    questionTitle: questionTitle,
+                    questionDifficulty: questionDifficulty,
+                    questionCategory: questionCategory,
+                }
+            })
+    )
+
+    attemptList.value = attemptsWithQuestionInfo;
 }
 
 onMounted(() => {

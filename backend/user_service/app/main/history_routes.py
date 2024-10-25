@@ -44,15 +44,15 @@ def record_attempt():
 
 @history.route("/<uid>/history", methods=["GET"])
 def get_user_history(uid):
-    # decoded_token, error, status_code = verify_token()
+    decoded_token, error, status_code = verify_token()
 
-    # if error:
-    #     return jsonify({"error": error}), status_code
+    if error:
+        return jsonify({"error": error}), status_code
     
-    # if decoded_token["user_id"] != uid:
-    #     return jsonify({
-    #         "error": "You are not authorized to view this user's history"
-    #         }), 403
+    if decoded_token["user_id"] != uid:
+        return jsonify({
+            "error": "You are not authorized to view this user's history"
+            }), 403
     
     # Fetch User's History
     user_history_ref = firebase_db.collection('attempt_history').document(uid).collection('attempts')
