@@ -32,8 +32,6 @@ Checks if a user is part of an active session.
 
   - **400 Bad Request**: Returns an error if the user ID is not provided.
 
-- **Example Request**:
-  GET /api/collab/check-session/userId123
 
 ## Socket.IO Events
 
