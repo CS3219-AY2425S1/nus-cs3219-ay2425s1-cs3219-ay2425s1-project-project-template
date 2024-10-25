@@ -16,9 +16,18 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 
 	var docs []*firestore.DocumentSnapshot
 
+	matchedDifficulties := make([]models.ComplexityType, len(req.MatchedDifficulties))
+	for i := range req.MatchedDifficulties {
+		d, err := models.ParseComplexity(req.MatchedDifficulties[i])
+		if err != nil {
+			return nil, err
+		}
+		matchedDifficulties[i] = d
+	}
+
 	// 1. Match by both topic and difficulty
 	if len(docs) == 0 {
-		d, err := queryTopicAndDifficultyQuestion(s.Client, ctx, req.MatchedTopics)
+		d, err := queryTopicAndDifficultyQuestion(s.Client, ctx, req.MatchedTopics, matchedDifficulties)
 		if err != nil {
 			return nil, err
 		}
@@ -36,7 +45,7 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 
 	// 3. Match by difficulty
 	if len(docs) == 0 {
-		d, err := queryDifficultyQuestion(s.Client, ctx)
+		d, err := queryDifficultyQuestion(s.Client, ctx, matchedDifficulties)
 		if err != nil {
 			return nil, err
 		}
@@ -78,16 +87,16 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 	}, nil
 }
 
-func queryTopicAndDifficultyQuestion(client *firestore.Client, ctx context.Context, topics []string, difficulties []string) ([]*firestore.DocumentSnapshot, error) {
-	return client.Collection("questions").Where("categories", "in", topics).Documents(ctx).GetAll()
+func queryTopicAndDifficultyQuestion(client *firestore.Client, ctx context.Context, topics []string, difficulties []models.ComplexityType) ([]*firestore.DocumentSnapshot, error) {
+	return client.Collection("questions").Where("complexity", "in", difficulties).Where("categories", "array-contains-any", topics).Documents(ctx).GetAll()
 }
 
 func queryTopicQuestion(client *firestore.Client, ctx context.Context, topics []string) ([]*firestore.DocumentSnapshot, error) {
 	return client.Collection("questions").Where("categories", "array-contains-any", topics).Documents(ctx).GetAll()
 }
 
-func queryDifficultyQuestion(client *firestore.Client, ctx context.Context, difficulties []string) ([]*firestore.DocumentSnapshot, error) {
-	return client.Collection("questions").Where("categories", "in", difficulties).Documents(ctx).GetAll()
+func queryDifficultyQuestion(client *firestore.Client, ctx context.Context, difficulties []models.ComplexityType) ([]*firestore.DocumentSnapshot, error) {
+	return client.Collection("questions").Where("complexity", "in", difficulties).Documents(ctx).GetAll()
 
 }
 
