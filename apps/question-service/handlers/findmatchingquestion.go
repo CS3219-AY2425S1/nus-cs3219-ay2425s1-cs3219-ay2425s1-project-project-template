@@ -26,7 +26,7 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 	}
 
 	// 1. Match by both topic and difficulty
-	if len(docs) == 0 {
+	if len(docs) == 0 && len(req.MatchedTopics) > 0 && len(matchedDifficulties) > 0 {
 		d, err := queryTopicAndDifficultyQuestion(s.Client, ctx, req.MatchedTopics, matchedDifficulties)
 		if err != nil {
 			return nil, err
@@ -35,7 +35,7 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 	}
 
 	// 2. Match by just topic
-	if len(docs) == 0 {
+	if len(docs) == 0 && len(req.MatchedTopics) > 0 {
 		d, err := queryTopicQuestion(s.Client, ctx, req.MatchedTopics)
 		if err != nil {
 			return nil, err
@@ -44,7 +44,7 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 	}
 
 	// 3. Match by difficulty
-	if len(docs) == 0 {
+	if len(docs) == 0 && len(matchedDifficulties) > 0 {
 		d, err := queryDifficultyQuestion(s.Client, ctx, matchedDifficulties)
 		if err != nil {
 			return nil, err
@@ -81,7 +81,6 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 }
 
 // Retrieve the document at the random offset
-
 func retrieveRandomQuestion(docs []*firestore.DocumentSnapshot) (*models.Question, error) {
 	// Generate a random offset
 	randomOffset := rand.Intn(len(docs))
