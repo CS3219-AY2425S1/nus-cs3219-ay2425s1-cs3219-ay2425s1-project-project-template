@@ -53,7 +53,8 @@ const getUserDisplayName = async (user_id: string) => {  // This function might 
             console.error(`Error fetching user data: ${response.status} ${response.statusText}`)
             return "Unknown User";
         }
-        const data = await response.json;
+        const data = await response.json();
+        console.log(data);
 
         if (data && data.user && data.user.displayName) {
             return data.user.displayName;
@@ -62,6 +63,7 @@ const getUserDisplayName = async (user_id: string) => {  // This function might 
         console.error(`Error fetching user data: ${response.status} ${response.statusText}`);
         return "Unknown User";
     }
+    return "Unknown User";
 }
 
 const convertEpochToDateTime = (epochTime: number) => {
