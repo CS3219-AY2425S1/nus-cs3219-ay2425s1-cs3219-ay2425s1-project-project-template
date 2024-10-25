@@ -20,9 +20,5 @@ export default function TestResultPanel() {
     },
   ];
 
-  return (
-    <ResizablePanel className="p-1" defaultSize={30}>
-      <TabPanel tabs={tabs} defaultValue="test-cases" />
-    </ResizablePanel>
-  );
+  return <TabPanel tabs={tabs} defaultValue="test-cases" />;
 }

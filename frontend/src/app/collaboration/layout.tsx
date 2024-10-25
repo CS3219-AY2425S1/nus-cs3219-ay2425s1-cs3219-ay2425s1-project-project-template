@@ -20,9 +20,9 @@ export default function Layout({ children }: PropsWithChildren) {
   // User languageSet -> Update language
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex flex-col flex-1 p-4">{children}</main>
+    <div className="flex flex-col w-full h-screen max-h-screen overflow-hidden">
+      <Navbar className="fixed top-0 left-0 w-full" />
+      <main className="flex w-full h-full p-2 pt-16">{children}</main>
     </div>
   );
 }

@@ -1,10 +1,9 @@
 import { ClipboardList, SquareCheck } from "lucide-react";
 import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
-import { ResizablePanel } from "@/components/ui/resizable";
 import SolutionTabContent from "./SolutionTabContent";
 import DescriptionTabContent from "./DescriptionTabContent";
 
-export default function QuestionPanel() {
+export default function QuestionTabPanel() {
   const tabs: Tab[] = [
     {
       value: "description",
@@ -20,9 +19,5 @@ export default function QuestionPanel() {
     },
   ];
 
-  return (
-    <ResizablePanel className="p-1" defaultSize={50}>
-      <TabPanel tabs={tabs} defaultValue="description" />
-    </ResizablePanel>
-  );
+  return <TabPanel tabs={tabs} defaultValue="description" />;
 }
