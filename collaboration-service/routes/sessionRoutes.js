@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sessionController = require('../controllers/sessionController');
-const { viewUserProfile } = require('../middleware/authMiddleware');
+const { authMiddlewareSocket } = require('../middleware/authMiddleware');
 
 // This route serves the socket connection for session handling
 module.exports = (io) => {
@@ -13,29 +13,29 @@ module.exports = (io) => {
 
   // Handle session check for a specific user
   router.get('/check-session/', (req, res) => {
-    const userId = req.userProfile._id;
+    try {
+      const userId = req.user.userId;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+
+      const sessionDetails = sessionController.checkSessionForUser(userId);
+      return res.status(200).json(sessionDetails);
+    } catch (error) {
+      return res.status(500).json({ error: "Uknown error" });
     }
-
-    const sessionDetails = sessionController.checkSessionForUser(userId);
-    return res.status(200).json(sessionDetails);
   });
 
   io.on('connection', async (socket) => {
     // Delegate session handling to the controller
     try {
       const authHeader = socket.handshake.headers['authorization'];
-      const userProfile = await viewUserProfile(authHeader);
-      socket.data.userProfile = userProfile;
+      const user = await authMiddlewareSocket(authHeader);
+      socket.data.user = user;
       sessionController.joinSession(socket, io);
     } catch (error) {
-      if (error.response && (error.response.status === 401 || error.response.status === 500)) {
-        socket.emit('error', { message: "Unauthorised socket connection." })
-      } else {
-        socket.emit('error', { message: "Error with authentication." })
-      }
+      socket.emit('error', { message: "Unauthorised socket connection." })
       socket.disconnect(true);
     }
   });

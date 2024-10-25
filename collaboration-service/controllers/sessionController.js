@@ -8,7 +8,7 @@ const sessionsForUser = {};
 const joinSession = (socket, io) => {
   socket.on('join-session', (details) => {
     const { sessionId, matchedUserId, questionId } = details;
-    const userId = socket.data.userProfile._id;
+    const userId = socket.data.user.userId;
 
     // Input validation
     if (!sessionId) {
