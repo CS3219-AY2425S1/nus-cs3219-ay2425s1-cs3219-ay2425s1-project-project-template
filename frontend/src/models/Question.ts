@@ -15,6 +15,7 @@ export enum Topic {
   Heaps = "Heaps",
   Graphs = "Graphs",
   DynamicProgramming = "Dynamic Programming",
+  DataStructures = "Data Structures",
   Recursion = "Recursion",
   Greedy = "Greedy",
   BitManipulation = "Bit Manipulation",

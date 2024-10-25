@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-const questionServiceBackendUrl = import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
+const questionServiceBackendUrl =
+  import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -38,36 +39,26 @@ export async function callFunction(
   method: string = "GET",
   body?: any
 ): Promise<SuccessObject> {
-  try {
-    const url = `${questionServiceBackendUrl}/${functionName}`;
-    const token = sessionStorage.getItem("authToken");
-    console.log(token);
+  const url = `${questionServiceBackendUrl}/${functionName}`;
+  const token = sessionStorage.getItem("authToken");
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
+  const response = await fetch(url, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
 
-    // Check for empty response
-    const data = await response.text();
+  console.log(response);
 
-    if (!data) {
-      return { success: true };
-    }
+  // Check for empty response
+  const data = await response.json().catch(() => ({ success: true }));
 
-    // Parse the JSON data
-    const result = JSON.parse(data);
-
-    return { success: true, data: result };
-  } catch (error: any) {
-    console.error("Fetch error:", error);
-    return { success: false, error }; // Handle the error (could also throw or handle differently)
+  if (!response.ok) {
+    return { success: false, error: data.message };
   }
+
+  return { success: true, data: data };
 }

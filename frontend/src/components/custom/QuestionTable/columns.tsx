@@ -4,6 +4,7 @@ import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-h
 import { Question, Difficulty } from "@/models/Question";
 import QuestionDialog from "../Question/QuestionDialog";
 import DeleteQuestionButton from "../Question/DeleteQuestionButton";
+import EditQuestionButton from "../Question/EditQuestionButton";
 
 const difficultyLevels: IDictionary<number> = {
   Easy: 1,
@@ -17,12 +18,6 @@ const difficultySort = (rowA: Row<Question>, rowB: Row<Question>) => {
   return difficultyLevels[diffA] - difficultyLevels[diffB];
 };
 
-const dateSort = (rowA: Row<Question>, rowB: Row<Question>) => {
-  const dateA: string = rowA.getValue("dateCreated");
-  const dateB: string = rowB.getValue("dateCreated");
-  return new Date(dateA).getTime() - new Date(dateB).getTime();
-};
-
 const getDifficultyClass = (difficulty: string) => {
   switch (difficulty) {
     case "Easy":
@@ -34,14 +29,14 @@ const getDifficultyClass = (difficulty: string) => {
   }
 };
 
-export const columns: ColumnDef<Question>[] = [
+export const columns = (refetch: () => void): ColumnDef<Question>[] => [
   {
-    id: "actions",
+    id: "delete",
     size: 10,
     maxSize: 10,
     cell: ({ row }) => {
       const question = row.original;
-      return <DeleteQuestionButton question={question} />;
+      return <DeleteQuestionButton question={question} onDelete={refetch} />;
     },
   },
   {
@@ -72,8 +67,7 @@ export const columns: ColumnDef<Question>[] = [
         {String(cell.getValue())}
       </div>
     ),
-    sortingFn: dateSort,
-    size: 25,
+    size: 20,
   },
   {
     header: ({ column }) => (
@@ -106,5 +100,14 @@ export const columns: ColumnDef<Question>[] = [
       );
     },
     size: 25,
+  },
+  {
+    id: "edit",
+    size: 10,
+    maxSize: 10,
+    cell: ({ row }) => {
+      const question = row.original;
+      return <EditQuestionButton question={question} onEdit={refetch} />;
+    },
   },
 ];

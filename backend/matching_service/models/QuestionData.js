@@ -20,6 +20,7 @@ const Topic = Object.freeze({
   BitManipulation: "Bit Manipulation",
   Math: "Math",
   Algorithms: "Algorithms",
+  DataStructures: "Data Structures",
 });
 
 module.exports = { Difficulty, Topic };

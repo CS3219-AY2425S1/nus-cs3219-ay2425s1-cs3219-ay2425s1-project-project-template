@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { useState } from "react";
-import DeleteQuestionDialog from "./DeleteQuestionDialog";
+import EditQuestionDialog from "./EditQuestionDialog";
 import { Question } from "@/models/Question";
 
-interface DeleteQuestionButtonProps {
+interface EditQuestionButtonProps {
+  onEdit: () => void;
   question: Question;
-  onDelete: () => void;
 }
 
-const DeleteQuestionButton: React.FC<DeleteQuestionButtonProps> = ({
+const EditQuestionButton: React.FC<EditQuestionButtonProps> = ({
+  onEdit,
   question,
-  onDelete,
 }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
@@ -23,19 +23,19 @@ const DeleteQuestionButton: React.FC<DeleteQuestionButtonProps> = ({
     <>
       <Button
         onClick={handleOpenDialog}
-        className="bg-red-400 hover:bg-red-500"
+        className="bg-green-400 hover:bg-green-500"
         size="sm"
       >
-        <X size={20} />
+        <RefreshCcw />
       </Button>
-      <DeleteQuestionDialog
+      <EditQuestionDialog
         open={openDialog}
         setOpen={setOpenDialog}
+        onEdit={onEdit}
         question={question}
-        onDelete={onDelete}
       />
     </>
   );
 };
 
-export default DeleteQuestionButton;
+export default EditQuestionButton;

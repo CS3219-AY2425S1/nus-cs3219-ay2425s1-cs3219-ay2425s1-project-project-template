@@ -15,12 +15,14 @@ interface DeleteQuestionCardProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   question: Question;
+  onDelete: () => void;
 }
 
 const DeleteQuestionDialog: React.FC<DeleteQuestionCardProps> = ({
   open,
   setOpen,
   question,
+  onDelete,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -35,13 +37,13 @@ const DeleteQuestionDialog: React.FC<DeleteQuestionCardProps> = ({
       { id: question.id }
     );
 
-    if (result.success) {
-      alert("Question deleted successfully! Refresh Page to see changes.");
-    } else {
-      alert("Failed to delete question. Please try again.");
+    if (!result.success) {
+      alert(result.error);
     }
+
     setIsLoading(false);
     handleCloseDialog();
+    onDelete();
   };
 
   return (
