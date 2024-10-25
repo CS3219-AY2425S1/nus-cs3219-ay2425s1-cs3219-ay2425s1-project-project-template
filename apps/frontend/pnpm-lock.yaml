@@ -11,6 +11,15 @@ dependencies:
   '@ant-design/nextjs-registry':
     specifier: ^1.0.1
     version: 1.0.1(@ant-design/cssinjs@1.21.1)(antd@5.20.6)(next@14.2.13)(react-dom@18.2.0)(react@18.2.0)
+  '@codemirror/lang-cpp':
+    specifier: ^6.0.2
+    version: 6.0.2
+  '@codemirror/lang-go':
+    specifier: ^6.0.1
+    version: 6.0.1(@codemirror/view@6.34.1)
+  '@codemirror/lang-java':
+    specifier: ^6.0.1
+    version: 6.0.1
   '@codemirror/lang-javascript':
     specifier: ^6.2.2
     version: 6.2.2
@@ -204,6 +213,32 @@ packages:
       '@lezer/common': 1.2.3
     dev: false
 
+  /@codemirror/lang-cpp@6.0.2:
+    resolution: {integrity: sha512-6oYEYUKHvrnacXxWxYa6t4puTlbN3dgV662BDfSH8+MfjQjVmP697/KYTDOqpxgerkvoNm7q5wlFMBeX8ZMocg==}
+    dependencies:
+      '@codemirror/language': 6.10.3
+      '@lezer/cpp': 1.1.2
+    dev: false
+
+  /@codemirror/lang-go@6.0.1(@codemirror/view@6.34.1):
+    resolution: {integrity: sha512-7fNvbyNylvqCphW9HD6WFnRpcDjr+KXX/FgqXy5H5ZS0eC5edDljukm/yNgYkwTsgp2busdod50AOTIy6Jikfg==}
+    dependencies:
+      '@codemirror/autocomplete': 6.18.1(@codemirror/language@6.10.3)(@codemirror/state@6.4.1)(@codemirror/view@6.34.1)(@lezer/common@1.2.3)
+      '@codemirror/language': 6.10.3
+      '@codemirror/state': 6.4.1
+      '@lezer/common': 1.2.3
+      '@lezer/go': 1.0.0
+    transitivePeerDependencies:
+      - '@codemirror/view'
+    dev: false
+
+  /@codemirror/lang-java@6.0.1:
+    resolution: {integrity: sha512-OOnmhH67h97jHzCuFaIEspbmsT98fNdhVhmA3zCxW0cn7l8rChDhZtwiwJ/JOKXgfm4J+ELxQihxaI7bj7mJRg==}
+    dependencies:
+      '@codemirror/language': 6.10.3
+      '@lezer/java': 1.1.3
+    dev: false
+
   /@codemirror/lang-javascript@6.2.2:
     resolution: {integrity: sha512-VGQfY+FCc285AhWuwjYxQyUQcYurWlxdKYT4bqwr3Twnd5wP5WSeu52t4tvvuWmljT4EmgEgZCqSieokhtY8hg==}
     dependencies:
@@ -345,10 +380,34 @@ packages:
     resolution: {integrity: sha512-w7ojc8ejBqr2REPsWxJjrMFsA/ysDCFICn8zEOR9mrqzOu2amhITYuLD8ag6XZf0CFXDrhKqw7+tW8cX66NaDA==}
     dev: false
 
+  /@lezer/cpp@1.1.2:
+    resolution: {integrity: sha512-macwKtyeUO0EW86r3xWQCzOV9/CF8imJLpJlPv3sDY57cPGeUZ8gXWOWNlJr52TVByMV3PayFQCA5SHEERDmVQ==}
+    dependencies:
+      '@lezer/common': 1.2.3
+      '@lezer/highlight': 1.2.1
+      '@lezer/lr': 1.4.2
+    dev: false
+
+  /@lezer/go@1.0.0:
+    resolution: {integrity: sha512-co9JfT3QqX1YkrMmourYw2Z8meGC50Ko4d54QEcQbEYpvdUvN4yb0NBZdn/9ertgvjsySxHsKzH3lbm3vqJ4Jw==}
+    dependencies:
+      '@lezer/common': 1.2.3
+      '@lezer/highlight': 1.2.1
+      '@lezer/lr': 1.4.2
+    dev: false
+
   /@lezer/highlight@1.2.1:
     resolution: {integrity: sha512-Z5duk4RN/3zuVO7Jq0pGLJ3qynpxUVsh7IbUbGj88+uV2ApSAn6kWg2au3iJb+0Zi7kKtqffIESgNcRXWZWmSA==}
     dependencies:
       '@lezer/common': 1.2.3
+    dev: false
+
+  /@lezer/java@1.1.3:
+    resolution: {integrity: sha512-yHquUfujwg6Yu4Fd1GNHCvidIvJwi/1Xu2DaKl/pfWIA2c1oXkVvawH3NyXhCaFx4OdlYBVX5wvz2f7Aoa/4Xw==}
+    dependencies:
+      '@lezer/common': 1.2.3
+      '@lezer/highlight': 1.2.1
+      '@lezer/lr': 1.4.2
     dev: false
 
   /@lezer/javascript@1.4.19:

@@ -5,8 +5,11 @@ import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
 import { EditorView, basicSetup } from "codemirror";
 import { EditorState, Compartment } from "@codemirror/state";
-import { javascript } from "@codemirror/lang-javascript";
+import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 import { python, pythonLanguage } from "@codemirror/lang-python";
+import { javaLanguage, java } from "@codemirror/lang-java";
+import { cppLanguage, cpp } from "@codemirror/lang-cpp";
+import { goLanguage, go } from "@codemirror/lang-go";
 import "./styles.scss";
 import { message, Select } from "antd";
 import { language } from "@codemirror/language";
@@ -36,26 +39,56 @@ export const userColor =
 const CollaborativeEditor = (props: CollaborativeEditorProps) => {
   const editorRef = useRef(null);
   // const viewRef = useRef<EditorView | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useState("JavaScript");
   const [trigger, setTrigger] = useState(false);
 
   const languageConf = new Compartment();
 
   const autoLanguage = EditorState.transactionExtender.of((tr) => {
     if (!tr.docChanged) return null;
-    const docIsPython = /^\s*def\s|\s*class\s/.test(
-      tr.newDoc.sliceString(0, 100)
-    );
-    const stateIsPython = tr.startState.facet(language) === pythonLanguage;
-    if (docIsPython === stateIsPython) return null;
 
-    const newLanguage = docIsPython ? "python" : "javascript";
-    setSelectedLanguage(newLanguage);
+    const snippet = tr.newDoc.sliceString(0, 100);
+    // Test for various language
+    const docIsPython = /^\s*(def|class)\s/.test(snippet);
+    const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
+      snippet
+    ); // Java has some problems
+    const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
+    const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
+
+    let newLanguage;
+    let languageType;
+    let languageLabel;
+
+    if (docIsPython) {
+      newLanguage = python();
+      languageLabel = "Python";
+      languageType = pythonLanguage;
+    } else if (docIsJava) {
+      newLanguage = java();
+      languageLabel = "Java";
+      languageType = javaLanguage;
+    } else if (docIsGo) {
+      newLanguage = go();
+      languageLabel = "Go";
+      languageType = goLanguage;
+    } else if (docIsCpp) {
+      newLanguage = cpp();
+      languageLabel = "C++";
+      languageType = cppLanguage;
+    } else {
+      newLanguage = javascript(); // Default to JavaScript
+      languageLabel = "JavaScript";
+      languageType = javascriptLanguage;
+    }
+
+    const stateLanguage = tr.startState.facet(language);
+    if (languageType == stateLanguage) return null;
+
+    setSelectedLanguage(languageLabel);
 
     return {
-      effects: languageConf.reconfigure(
-        newLanguage === "python" ? python() : javascript()
-      ),
+      effects: languageConf.reconfigure(newLanguage),
     };
   });
 
@@ -164,6 +197,7 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
           defaultValue={selectedLanguage}
           options={ProgrammingLanguageOptions}
           onSelect={(val) => setSelectedLanguage(val)}
+          disabled
         />
       </div>
       <div
@@ -171,12 +205,7 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
         style={{ height: "400px", border: "1px solid #ddd" }}
       />
       <div className="language-detected">
-        <strong>Current Language Detected: </strong>{" "}
-        {
-          ProgrammingLanguageOptions.find(
-            (language) => language.value === selectedLanguage
-          )?.label
-        }
+        <strong>Current Language Detected: </strong> {selectedLanguage}
       </div>
     </>
   );
