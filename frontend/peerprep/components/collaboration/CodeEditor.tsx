@@ -1,4 +1,5 @@
 "use client";
+
 import { useRef, useState, useEffect } from "react";
 import LanguageSelector from "./LanguageSelector";
 import Output from "./Output";
@@ -68,6 +69,7 @@ export default function CodeEditor() {
     return () => {
       (async () => {
         const resolvedSocket = await socket;
+        resolvedSocket?.off("initialData");
         resolvedSocket?.off("updateContent");
         resolvedSocket?.off("updateLanguage");
       })();
