@@ -303,6 +303,34 @@ func UpdateQuestion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Question updated successfully"})
 }
 
+func GetTopics(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// Perform a distinct query to get unique categories
+	topics, err := database.Coll.Distinct(ctx, "categories", bson.M{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch topics", "details": err.Error()})
+		return
+	}
+
+	// Check if topics list is empty
+	if len(topics) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "No topics found", "topics": []string{}})
+		return
+	}
+
+	// Convert interface{} to string slice if needed
+	var stringTopics []string
+	for _, topic := range topics {
+		if str, ok := topic.(string); ok {
+			stringTopics = append(stringTopics, str)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Topics retrieved successfully", "topics": stringTopics})
+}
+
 func DeleteQuestion(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()

@@ -1,9 +1,26 @@
 import React from "react";
 import QuestionView from "./QuestionView";
-import { LeetCodeQuestionRequest, Question, QuestionRequest } from "./questionModel";
+import { LeetCodeQuestionRequest, Question, QuestionRequest, Topics } from "./questionModel";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+
+const generateRandomColor = (): string => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+// Function to assign random colors to each topic
+const assignRandomColorsToTopics = (topics: string[]): Topics[] => {
+  return topics.map((topic) => ({
+    id: topic,
+    color: generateRandomColor(), // Assign random color to each topic
+  }));
+};
 
 const QuestionController: React.FC = () => {
   const api = useQuesApiContext();
@@ -35,6 +52,30 @@ const QuestionController: React.FC = () => {
     return <div>Fetching...</div>;
   }
 
+  const fetchTopics = async (): Promise<string[]> => {
+    try {
+      const response = await api.get<string[]>("/questions/topics");
+      return assignRandomColorsToTopics(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error: ", error.response?.data || error.message);
+        throw new Error(
+          error.response?.data?.message || "An error occurred while fetching topics"
+        );
+      } else {
+        console.error("Unknown error: ", error);
+        throw new Error("An unexpected error occurred");
+      }
+    }
+  };
+
+  const { data: topics, refetch: refetchTopics } = useQuery({
+    queryKey: ["topics"],
+    queryFn: fetchTopics,
+    placeholderData: keepPreviousData,
+  });
+
+
   // Add question
   const handleAdd = async (newQuestion: {
     title: string;
@@ -54,6 +95,7 @@ const QuestionController: React.FC = () => {
     try {
       await api.post("/questions", newQuestionWithId);
       await refetchQuestions();
+      await refetchTopics();
     } catch (error: any) {
       if (error.response?.status === 400) {
         throw new Error(`Failed to add question: ${error.response.data.error || "Invalid data provided"}`);
@@ -70,6 +112,7 @@ const QuestionController: React.FC = () => {
     try {
       await api.post("/questions/leetcode", newQuestionWithTitle);
       await refetchQuestions();
+      await refetchTopics();
     } catch (error: any) {
       if (error.response?.status === 400) {
         throw new Error(`Failed to add LeetCode question: ${error.response.data.error || "Invalid data provided"}`);
@@ -104,6 +147,7 @@ const QuestionController: React.FC = () => {
     try {
       await api.put(`/questions`, newQuestionWithId);
       await refetchQuestions();
+      await refetchTopics();
     } catch (error: any) {
       if (error.response?.status === 400) {
         throw new Error(`Failed to edit question: ${error.response.data.error || "Invalid data provided"}`);
@@ -118,6 +162,7 @@ const QuestionController: React.FC = () => {
     try {
       await api.delete(`/questions?id=${id}`);
       await refetchQuestions();
+      await refetchTopics();
     } catch (error: any) {
       if (error.response?.status === 400) {
         throw new Error(`Failed to delete question: ${error.response.data.error || "Invalid data provided"}`);
@@ -130,7 +175,7 @@ const QuestionController: React.FC = () => {
   return (
     <QuestionView
       questions={questions}
-      refetchQuestions={refetchQuestions}
+      topics={topics}
       onAddQuestion={handleAdd}
       onAddLeetCodeQuestion={handleLeetCodeAdd}
       onDeleteQuestion={handleDelete}

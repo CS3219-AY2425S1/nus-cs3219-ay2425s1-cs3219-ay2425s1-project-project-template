@@ -27,7 +27,10 @@ import { color } from "framer-motion";
 
 type QuestionViewProps = {
   questions: Question[];
-  refetchQuestions: () => Promise<QueryObserverResult<Question[], Error>>;
+  topics: { 
+    id: string; 
+    color: string;
+  }[];
   onAddQuestion: (newQuestion: {
     title: string;
     description: string;
@@ -50,7 +53,6 @@ type QuestionViewProps = {
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   questions,
-  refetchQuestions,
   onAddQuestion,
   onAddLeetCodeQuestion,
   onEditQuestion,
@@ -154,32 +156,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     return found ? found.color : "white";
   };
 
-  // Utility function to generate random colors
-  const generateRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
   // Function to get the color for a category
   const getCategoryColor = (category: string) => {
     if (!category) return "white";
-
     // Find the category in the predefined list
     let found = CATEGORIES.find(
       (c) => c.id.toLowerCase() === category.toLowerCase()
     );
-
-    // If the category is new (not found), generate a random color and add it to CATEGORIES
-    if (!found) {
-      const newColor = generateRandomColor();
-      found = { id: category, color: newColor };
-      CATEGORIES.push(found); // Add new category with color to CATEGORIES list
-    }
-    return found.color;
+    return found ? found.color : "white";
   };
 
   // Define the table columns
