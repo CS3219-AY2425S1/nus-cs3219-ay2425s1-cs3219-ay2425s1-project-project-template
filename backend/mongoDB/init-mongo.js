@@ -182,7 +182,7 @@ const seedQuestions = [
           'Person table:\n+----------+----------+-----------+\n| person_id | lastName | firstName |\n+----------+----------+-----------+\n| 1        | Wang     | Allen     |\n| 2        | Alice    | Bob       |\n+----------+----------+-----------+\nAddress table:\n+-----------+----------+---------------+------------+\n| address_id | person_id | city          | state      |\n+-----------+----------+---------------+------------+\n| 1         | 2        | New York City | New York   |\n| 2         | 3        | Leetcode      | California |\n+-----------+----------+---------------+------------+',
       },
     ],
-    constraints: null,
+    constraints: [],
     link: 'https://leetcode.com/problems/combine-two-tables/',
     _id: 7,
   },
