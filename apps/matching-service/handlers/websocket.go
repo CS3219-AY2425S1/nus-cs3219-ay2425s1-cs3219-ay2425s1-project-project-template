@@ -8,6 +8,7 @@ import (
 	"matching-service/databases"
 	"matching-service/models"
 	"matching-service/processes"
+	"matching-service/servers"
 	"matching-service/utils"
 	"net/http"
 
@@ -26,7 +27,7 @@ var (
 
 // handleConnections manages WebSocket connections and matching logic.
 func HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
-	rdb := databases.GetRedisClient()
+	rdb := servers.GetRedisClient()
 	ctx := context.Background()
 
 	// TODO: Parse the authorization header to validate the JWT token and get the user ID claim.
@@ -93,11 +94,11 @@ func readMatchRequest(ws *websocket.Conn) (models.MatchRequest, error) {
 // If user is already removed, then nothing happens.
 // This function is unaffected by the external context.
 func cleanUpUser(username string) {
-	redisClient := databases.GetRedisClient()
+	redisClient := servers.GetRedisClient()
 	ctx := context.Background()
 
 	// Obtain lock with retry
-	lock, err := databases.ObtainRedisLock(ctx)
+	lock, err := servers.ObtainRedisLock(ctx)
 	if err != nil {
 		return
 	}

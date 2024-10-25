@@ -129,6 +129,7 @@ func initGrpcServer() {
 }
 
 func (s *server) FindMatchingQuestion(ctx context.Context, req *pb.MatchQuestionRequest) (*pb.QuestionFound, error) {
+	// STUB
 	return &pb.QuestionFound{
 		QuestionId:         1,
 		QuestionName:       "abc",

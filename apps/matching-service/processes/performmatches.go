@@ -8,6 +8,9 @@ import (
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
+	pb "matching-service/proto"
+	"matching-service/servers"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -18,7 +21,7 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 	currentUsername := matchRequest.Username
 
 	// Obtain lock with retry
-	lock, err := databases.ObtainRedisLock(ctx)
+	lock, err := servers.ObtainRedisLock(ctx)
 	if err != nil {
 		return
 	}
@@ -38,27 +41,53 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 		// Find a matching user if any
 		matchFound, err := findMatchingUsers(tx, currentUsername, ctx)
 		if err != nil {
+			if errors.Is(err, models.NoMatchFound) {
+				return nil
+			}
 			log.Println("Error finding matching user:", err)
 			return err
-		} else if matchFound != nil {
+		} else if matchFound != nil && err != models.NoMatchFound {
 			matchedUsername := matchFound.MatchedUser
 			matchedTopics := matchFound.MatchedTopics
 			matchedDifficulties := matchFound.MatchedDifficulties
 
 			// Log down which users got matched
-			log.Printf("Users %s and %s matched on the topics: %v with difficulties: %v", currentUsername, matchedUsername, matchedTopics, matchedDifficulties)
+			log.Printf("Users %s and %s matched on the topics: %v; with difficulties: %v", currentUsername, matchedUsername, matchedTopics, matchedDifficulties)
 
 			// Clean up redis for this match
 			databases.CleanUpUser(tx, currentUsername, ctx)
 			databases.CleanUpUser(tx, matchedUsername, ctx)
 
-			publishMatch(tx, ctx, currentUsername, matchedUsername, matchFound)
-			publishMatch(tx, ctx, matchedUsername, currentUsername, matchFound)
+			// Query question service to find a question for the match
+			ctx2, cancel := context.WithTimeout(ctx, time.Second)
+			defer cancel()
+
+			question, err := servers.GetGrpcClient().FindMatchingQuestion(ctx2, &pb.MatchQuestionRequest{
+				MatchedTopics:       matchedTopics,
+				MatchedDifficulties: matchedDifficulties,
+			})
+			if err != nil {
+				log.Fatalf("Could not retrieve question from question-service: %v", err)
+			}
+
+			matchQuestionFound := models.MatchQuestionFound{
+				Type:               "match_found",
+				MatchID:            matchFound.MatchID,
+				User:               matchFound.User,
+				MatchedUser:        matchFound.MatchedUser,
+				MatchedTopics:      matchedTopics,
+				QuestionID:         question.QuestionId,
+				QuestionName:       question.QuestionName,
+				QuestionDifficulty: question.QuestionDifficulty,
+				QuestionTopics:     question.QuestionTopics,
+			}
+
+			publishMatch(tx, ctx, currentUsername, matchedUsername, &matchQuestionFound)
+			publishMatch(tx, ctx, matchedUsername, currentUsername, &matchQuestionFound)
 		}
 
 		return nil
 	}); err != nil {
-		// return
 		if errors.Is(err, models.ExistingUserError) {
 			errorChan <- err
 		} else {
@@ -69,7 +98,7 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 }
 
 // Publish a match to the target user's pub/sub channel
-func publishMatch(tx *redis.Tx, ctx context.Context, targetUser string, otherMatchedUser string, matchFound *models.MatchFound) error {
+func publishMatch(tx *redis.Tx, ctx context.Context, targetUser string, otherMatchedUser string, matchFound *models.MatchQuestionFound) error {
 	matchFound.User = targetUser
 	matchFound.MatchedUser = otherMatchedUser
 	msg, err := json.Marshal(matchFound)

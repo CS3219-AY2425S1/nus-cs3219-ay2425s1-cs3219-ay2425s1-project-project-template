@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"matching-service/models"
+	"matching-service/servers"
 	"strings"
 
 	"github.com/redis/go-redis/v9"
@@ -30,7 +31,7 @@ func PrintMatchingQueue(tx *redis.Tx, status string, ctx context.Context) {
 }
 
 func IsQueueEmpty(tx *redis.Tx, ctx context.Context) (bool, error) {
-	queueLength, err := tx.LLen(ctx, MatchmakingQueueRedisKey).Result()
+	queueLength, err := tx.LLen(ctx, servers.MatchmakingQueueRedisKey).Result()
 	if err != nil {
 		log.Println("Error checking queue length:", err)
 		return false, err
@@ -41,7 +42,7 @@ func IsQueueEmpty(tx *redis.Tx, ctx context.Context) (bool, error) {
 
 // Enqueue a user into the matchmaking queue
 func EnqueueUser(tx *redis.Tx, username string, ctx context.Context) {
-	err := tx.LPush(ctx, MatchmakingQueueRedisKey, username).Err()
+	err := tx.LPush(ctx, servers.MatchmakingQueueRedisKey, username).Err()
 	if err != nil {
 		log.Println("Error enqueuing user:", err)
 	}
@@ -49,7 +50,7 @@ func EnqueueUser(tx *redis.Tx, username string, ctx context.Context) {
 
 // Remove user from the matchmaking queue
 func DequeueUser(tx *redis.Tx, username string, ctx context.Context) {
-	err := tx.LRem(ctx, MatchmakingQueueRedisKey, 1, username).Err()
+	err := tx.LRem(ctx, servers.MatchmakingQueueRedisKey, 1, username).Err()
 	if err != nil {
 		log.Println("Error dequeuing user:", err)
 		return
@@ -59,7 +60,7 @@ func DequeueUser(tx *redis.Tx, username string, ctx context.Context) {
 // Returns the first user's username from the queue.
 func GetFirstUser(tx *redis.Tx, ctx context.Context) (string, error) {
 	// Peek at the user queue
-	username, err := tx.LIndex(ctx, MatchmakingQueueRedisKey, 0).Result()
+	username, err := tx.LIndex(ctx, servers.MatchmakingQueueRedisKey, 0).Result()
 	if err != nil {
 		log.Println("Error peeking user from queue:", err)
 		return "", err
@@ -69,7 +70,7 @@ func GetFirstUser(tx *redis.Tx, ctx context.Context) (string, error) {
 
 // Return the usernames of all the queued users.
 func GetAllQueuedUsers(tx *redis.Tx, ctx context.Context) ([]string, error) {
-	users, err := tx.LRange(ctx, MatchmakingQueueRedisKey, 0, -1).Result()
+	users, err := tx.LRange(ctx, servers.MatchmakingQueueRedisKey, 0, -1).Result()
 	if err != nil {
 		log.Println("Error retrieving users from queue:", err)
 		return nil, err
@@ -165,13 +166,13 @@ func RemoveUserDetails(tx *redis.Tx, username string, ctx context.Context) {
 
 func PopAndInsertUser(tx *redis.Tx, username string, ctx context.Context) {
 	// Pop user
-	username, err := tx.LPop(ctx, MatchmakingQueueRedisKey).Result()
+	username, err := tx.LPop(ctx, servers.MatchmakingQueueRedisKey).Result()
 	if err != nil {
 		log.Println("Error popping user from queue:", err)
 	}
 
 	// Insert back in queue
-	err = tx.LPush(ctx, MatchmakingQueueRedisKey, username).Err()
+	err = tx.LPush(ctx, servers.MatchmakingQueueRedisKey, username).Err()
 	if err != nil {
 		log.Println("Error enqueuing user:", err)
 	}
