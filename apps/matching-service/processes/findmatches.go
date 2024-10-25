@@ -12,7 +12,7 @@ import (
 )
 
 // Find the first matching user from the front on the queue, based on topics, then difficulty.
-func findMatchingUsers(tx *redis.Tx, currentUsername string, ctx context.Context) (*models.MatchFound, error) {
+func findMatchingUser(tx *redis.Tx, currentUsername string, ctx context.Context) (*models.MatchFound, error) {
 	currentUser, err := databases.GetUserDetails(tx, currentUsername, ctx)
 	if err != nil {
 		return nil, err
@@ -153,14 +153,23 @@ func doTopicMatching(tx *redis.Tx, ctx context.Context, currentUser *models.Matc
 
 	// Iterate through the queue to find a match, so a user in the queue the longest is more likely to be matched.
 	var foundUsers []string
-	for _, otherUser := range potentialMatches {
-		if otherUser == currentUser.Username {
+	for _, otherUsername := range potentialMatches {
+		if otherUsername == currentUser.Username {
 			continue
 		}
 
+		// Include users without any difficulty selected
+		otherUser, err := databases.GetUserDetails(tx, otherUsername, ctx)
+		if err != nil {
+			return nil, err
+		}
+		if len(otherUser.Topics) == 0 {
+			foundUsers = append(foundUsers, otherUsername)
+		}
+
 		// other user has matching topic
-		if _, ok := sameTopicUsers[otherUser]; ok {
-			foundUsers = append(foundUsers, otherUser)
+		if _, ok := sameTopicUsers[otherUsername]; ok {
+			foundUsers = append(foundUsers, otherUsername)
 			break
 		}
 	}
@@ -181,14 +190,23 @@ func doDifficultyMatching(tx *redis.Tx, ctx context.Context, currentUser *models
 
 	// Iterate through the queue to find a match, so a user in the queue the longest is more likely to be matched.
 	var foundUsers []string
-	for _, otherUser := range potentialMatches {
-		if otherUser == currentUser.Username {
+	for _, otherUsername := range potentialMatches {
+		if otherUsername == currentUser.Username {
 			continue
 		}
 
-		// other user has matching difficulty
-		if _, ok := sameDifficultyUsers[otherUser]; ok {
-			foundUsers = append(foundUsers, otherUser)
+		// Include users without any difficulty selected
+		otherUser, err := databases.GetUserDetails(tx, otherUsername, ctx)
+		if err != nil {
+			return nil, err
+		}
+		if len(otherUser.Topics) == 0 {
+			foundUsers = append(foundUsers, otherUsername)
+		}
+
+		// other user has matching difficulty or has no difficulty
+		if _, ok := sameDifficultyUsers[otherUsername]; ok {
+			foundUsers = append(foundUsers, otherUsername)
 			break
 		}
 	}

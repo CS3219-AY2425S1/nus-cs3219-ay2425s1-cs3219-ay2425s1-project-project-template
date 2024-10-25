@@ -11,6 +11,7 @@ require (
 	github.com/redis/go-redis/v9 v9.6.2
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
+	proto v0.0.0-00010101000000-000000000000
 )
 
 require (

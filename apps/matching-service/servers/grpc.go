@@ -2,7 +2,7 @@ package servers
 
 import (
 	"log"
-	pb "matching-service/proto"
+	pb "proto/questionmatching"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

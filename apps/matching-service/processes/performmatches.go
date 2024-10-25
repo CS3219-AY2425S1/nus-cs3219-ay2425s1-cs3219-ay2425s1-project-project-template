@@ -8,7 +8,8 @@ import (
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
-	pb "matching-service/proto"
+	pb "proto/questionmatching"
+
 	"matching-service/servers"
 
 	"github.com/redis/go-redis/v9"
@@ -39,7 +40,7 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 		defer databases.PrintMatchingQueue(tx, "After Matchmaking", ctx)
 
 		// Find a matching user if any
-		matchFound, err = findMatchingUsers(tx, currentUsername, ctx)
+		matchFound, err = findMatchingUser(tx, currentUsername, ctx)
 		if err != nil {
 			if errors.Is(err, models.NoMatchFound) {
 				return nil
@@ -119,7 +120,7 @@ func queryQuestionService(ctx context.Context, matchFound *models.MatchFound) *m
 		User:               matchFound.User,
 		MatchedUser:        matchFound.MatchedUser,
 		MatchedTopics:      matchFound.MatchedTopics,
-		QuestionDocRefID:   question.QuestionName,
+		QuestionDocRefID:   question.QuestionDocRefId,
 		QuestionName:       question.QuestionName,
 		QuestionDifficulty: question.QuestionDifficulty,
 		QuestionTopics:     question.QuestionTopics,
