@@ -56,11 +56,6 @@ const JoinedMatchContent: React.FC<Props> = ({cancel, name1: me, name2: you}) =>
             >
                 Joined
             </button>
-            <button className="cancel-match-button"
-                onClick={cancel}
-            >
-                Cancel
-            </button>
         </div>
     )
 }
