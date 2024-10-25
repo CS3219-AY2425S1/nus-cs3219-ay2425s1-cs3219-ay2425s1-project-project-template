@@ -51,6 +51,7 @@ const MatchingPage = () => {
             setSelectedFindingMatch(true);
             const res = await enqueueUser(selectedTopic, selectedDifficulty);
             setSelectedFindingMatch(false);
+            localStorage.setItem('timerStarted', 'true');
         }
 
         console.log("Finding match with:", selectedDifficulty, selectedTopic);
@@ -60,6 +61,8 @@ const MatchingPage = () => {
         console.log('handleCancelMatch is called');
         deleteUserFromQueue();
         setSelectedFindingMatch(false);
+        localStorage.removeItem('timerStarted');
+        localStorage.setItem('requestCanceled', 'true');
     };
 
     const handleTimeout = () => {
@@ -77,6 +80,41 @@ const MatchingPage = () => {
             setStatusMessage("Search failed, please try again!");
         }
     }, [isMatchSuccessful]);
+
+    // Effect to handle browser refresh
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (localStorage.getItem('timerStarted') === 'true') {
+                handleCancelMatch();
+                localStorage.setItem('requestCanceled', 'true');
+                event.preventDefault();
+                event.returnValue = ''; 
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        // Cleanup event listener on component unmount
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
+    // Restore state on component mount if user refreshes
+    useEffect(() => {
+        const timerStarted = localStorage.getItem('timerStarted');
+        const requestCanceled = localStorage.getItem('requestCanceled');
+
+        if (requestCanceled === 'true') {
+            alert("Your previous match request was cancelled due to a page refresh. Please try again");
+            localStorage.removeItem('requestCanceled');
+        }
+
+        if (timerStarted === 'true') {
+            setTimerStart(false);
+            setSelectedFindingMatch(false);
+        }
+    }, []);
 
     return (
         <div className={styles.matchingPage}>
