@@ -34,6 +34,7 @@ export const useCollaborationStore = defineStore({
     },
     clearCollaborationInfo() {
       this.collaborationInfo = null;
+      localStorage.removeItem("collaborationInfo");
     },
   },
 });
