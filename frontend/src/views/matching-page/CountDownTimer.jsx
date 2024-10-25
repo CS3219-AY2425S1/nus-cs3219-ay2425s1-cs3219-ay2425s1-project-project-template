@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CountDownTimer.module.css';
 
-const CountdownTimer = ({ initialSeconds, start }) => {
+const CountdownTimer = ({ initialSeconds, start, onTimeout }) => {
     const [seconds, setSeconds] = useState(initialSeconds);
     const [step, setStep] = useState(0);
     const icons = ['', '🖥️', '🖥️⏱️', '🖥️⏱️🕒'];
@@ -10,7 +10,14 @@ const CountdownTimer = ({ initialSeconds, start }) => {
         if (!start || seconds <= 0) return;
 
         const intervalId = setInterval(() => {
-            setSeconds((prevSeconds) => prevSeconds - 1);
+            setSeconds((prevSeconds) => {
+                const newSeconds = prevSeconds - 1;
+                if (newSeconds <= 0) {
+                    clearInterval(intervalId);
+                    if (onTimeout) onTimeout();
+                }
+                return newSeconds;
+            });
         }, 1000);
 
         const iconIntervalId = setInterval(() => {
@@ -21,7 +28,7 @@ const CountdownTimer = ({ initialSeconds, start }) => {
             clearInterval(intervalId);
             clearInterval(iconIntervalId);
         };
-    }, [start]);
+    }, [start, onTimeout]);
 
     const animation = icons[step];
 

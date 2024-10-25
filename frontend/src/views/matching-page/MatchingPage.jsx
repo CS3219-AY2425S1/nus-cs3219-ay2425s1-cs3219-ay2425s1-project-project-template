@@ -9,7 +9,7 @@ const MatchingPage = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState('');
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [selectedFindingMatch, setSelectedFindingMatch] = useState(false);
-    const [statusMessage, setStatusMessage] = useState("Start a new session now!"); // used for the right display
+    const [statusMessage, setStatusMessage] = useState("Start a new session now!");
 
     const TIMEOUT = 60;
     const {
@@ -51,19 +51,22 @@ const MatchingPage = () => {
             setSelectedFindingMatch(true);
             const res = await enqueueUser(selectedTopic, selectedDifficulty);
             setSelectedFindingMatch(false);
-            
         }
 
         console.log("Finding match with:", selectedDifficulty, selectedTopic);
     };
 
-    // Should be called when cancel button is pressed 
     const handleCancelMatch = () => {
         console.log('handleCancelMatch is called');
-        deleteUserFromQueue(selectedTopic, selectedDifficulty);
-        setSelectedFindingMatch(false); // stop finding a match
-        setStatusMessage('You cancelled the matching. Please try again!')
-    }
+        deleteUserFromQueue();
+        setSelectedFindingMatch(false);
+    };
+
+    const handleTimeout = () => {
+        console.log('Timeout occurred');
+        handleCancelMatch();
+        setStatusMessage("Time's up! Match could not be found.");
+    };
 
     useEffect(() => {
         console.log(`isMatchSuccessful: ${isMatchSuccessful}`);
@@ -135,7 +138,11 @@ const MatchingPage = () => {
             <div className={styles.rightSection}>
                 {timerStart ? (
                     <>
-                        <CountdownTimer initialSeconds={TIMEOUT} start={timerStart} />
+                        <CountdownTimer
+                            initialSeconds={TIMEOUT}
+                            start={timerStart}
+                            onTimeout={handleTimeout}
+                        />
                         <button
                             className={`${styles.findMatchButton}`}
                             disabled={!timerStart}
