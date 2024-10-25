@@ -10,6 +10,7 @@ import Chatbox from "./_components/Chat/Chatbox";
 
 export default function Page() {
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
+
   return (
     <div className="flex flex-row w-full h-full overflow-hidden">
       <ResizablePanelGroup

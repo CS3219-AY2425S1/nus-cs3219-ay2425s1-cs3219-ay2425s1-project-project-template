@@ -51,21 +51,27 @@ export default function InjectableCursorStyles({
     return () => {
       awareness.off("change", updateAwarenessUsers);
     };
-  }, [yProvider]);
+  }, [yProvider, cursorName, cursorColor]);
 
   const styleSheet = useMemo(() => {
     let cursorStyles = "";
 
     awarenessUsers.forEach((client) => {
+      const clientId = client[0] || 0;
+      const clientData = client[1] || {
+        name: "Unknown",
+        color: "#0096C7",
+      };
+
       console.log(client, client[0], client[1]);
       cursorStyles += `
-          .yRemoteSelection-${client[0]},
-          .yRemoteSelectionHead-${client[0]}  {
-            --user-color: ${client[1].color};
+          .yRemoteSelection-${clientId},
+          .yRemoteSelectionHead-${clientId}  {
+            --user-color: ${clientData.color};
           }
 
-          .yRemoteSelectionHead-${client[0]}::after {
-            content: "${client[1].name}";
+          .yRemoteSelectionHead-${clientId}::after {
+            content: "${clientData.name}";
           }
         `;
     });

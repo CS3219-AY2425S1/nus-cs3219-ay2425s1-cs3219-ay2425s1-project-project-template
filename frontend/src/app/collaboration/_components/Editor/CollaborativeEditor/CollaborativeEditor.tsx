@@ -32,7 +32,7 @@ export default function CollaborativeEditor({
     const yDoc = new Y.Doc();
     const yText = yDoc.getText("monaco");
     const yProvider = new WebsocketProvider(
-      `${location.protocol === "http:" ? "ws:" : "wss:"}//localhost:1234`,
+      `ws://localhost:1234/yjs?sessionId=${sessionId}`,
       sessionId,
       yDoc
     );
