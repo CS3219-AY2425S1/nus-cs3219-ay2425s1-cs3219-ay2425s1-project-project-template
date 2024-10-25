@@ -82,11 +82,11 @@ public class QuestionService {
     }
 
     public QuestionDto createQuestion(QuestionDto questionDto) {
+        trimWhitespace(questionDto);
         validateQuestion(questionDto);
 
-        // Check if the question already exists in the database
         List<Question> existingQuestions = questionRepository.findByTitle(questionDto.getTitle());
-
+    
         if (!existingQuestions.isEmpty()) {
             throw new InvalidQuestionException("Duplicate question found with title: " + questionDto.getTitle());
         }
@@ -115,6 +115,13 @@ public class QuestionService {
         }
     }
 
+    private void trimWhitespace(QuestionDto questionDto) {
+        questionDto.setTitle(questionDto.getTitle().trim());
+        questionDto.setDescription(questionDto.getDescription().trim());
+        questionDto.setDifficulty(questionDto.getDifficulty().trim());
+        questionDto.setCategories(questionDto.getCategories().stream().map(String::trim).collect(Collectors.toList()));
+    }
+    
     public QuestionDto updateQuestion(Integer id, QuestionDto updatedQuestionDto) {
         Question existingQuestion = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException("Question with ID " + id + " not found."));
@@ -125,11 +132,11 @@ public class QuestionService {
             if (!questionsWithTitle.isEmpty() && !questionsWithTitle.get(0).getId().equals(id)) {
                 throw new InvalidQuestionException("Duplicate question found with title: " + updatedQuestionDto.getTitle());
             }
-            existingQuestion.setTitle(updatedQuestionDto.getTitle());
+            existingQuestion.setTitle(updatedQuestionDto.getTitle().trim());
         }
 
         if (updatedQuestionDto.getDescription() != null) {
-            existingQuestion.setDescription(updatedQuestionDto.getDescription());
+            existingQuestion.setDescription(updatedQuestionDto.getDescription().trim());
         }
         if (updatedQuestionDto.getDifficulty() != null) {
             existingQuestion.setDifficulty(updatedQuestionDto.getDifficulty());
@@ -144,7 +151,7 @@ public class QuestionService {
             existingQuestion.setConstraints(updatedQuestionDto.getConstraints());
         }
         if (updatedQuestionDto.getLink() != null) {
-            existingQuestion.setLink(updatedQuestionDto.getLink());
+            existingQuestion.setLink(updatedQuestionDto.getLink().trim());
         }
 
         Question updatedQuestion = questionRepository.save(existingQuestion);
