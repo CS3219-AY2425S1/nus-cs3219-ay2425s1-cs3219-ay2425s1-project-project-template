@@ -1,6 +1,5 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
-import dynamic from "next/dynamic"; // Import Next.js dynamic import
 import LanguageSelector from "./LanguageSelector";
 import Output from "./Output";
 import * as Y from "yjs";
@@ -9,25 +8,23 @@ import { SupportedLanguages } from "../../utils/utils";
 import { useTheme } from "next-themes";
 import { Editor } from "@monaco-editor/react";
 
-// Dynamically load Monaco Editor only on client-side
-
 export default function CodeEditor() {
   const { theme } = useTheme();
   const doc = new Y.Doc();
   const yText = doc.getText("code");
   const editorRef = useRef<any>(null);
   const [value, setValue] = useState<string>("");
-
   const [language, setLanguage] = useState<SupportedLanguages>(
     "javascript" as SupportedLanguages
   );
+
   const userChangeRef = useRef<boolean>(false);
 
   const onMount = async (editor: any) => {
     editorRef.current = editor;
     const model = editor.getModel();
     if (model) {
-      const MonacoBinding = (await import("y-monaco")).MonacoBinding;
+      const MonacoBinding = (await import("y-monaco")).MonacoBinding; // not dynamically importing this causes an error
       const binding = new MonacoBinding(yText, model, new Set([editor]));
     }
 
