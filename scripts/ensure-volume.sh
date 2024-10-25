@@ -14,7 +14,7 @@ check_or_create_docker_volume() {
   fi
 }
 
-volume_names=("user-db" "question-db" "match-db" "collab-db")
+volume_names=("user-db" "question-db" "match-db" "collab-db" "chat-db")
 
 for volume in "${volume_names[@]}"; do
   check_or_create_docker_volume "$volume-docker"

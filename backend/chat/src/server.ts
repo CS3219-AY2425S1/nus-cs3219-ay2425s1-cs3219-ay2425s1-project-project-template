@@ -4,7 +4,7 @@ import { sql } from 'drizzle-orm';
 import express, { json } from 'express';
 import pino from 'pino-http';
 
-import { db, tableName } from './lib/db';
+import { chatMessages, db } from './lib/db';
 import { logger } from './lib/utils/logger';
 
 const app = express();
@@ -19,7 +19,7 @@ app.get('/', async (_req, res) => {
 
 // Ensure DB service is up before running.
 app.get('/test-db', async (_req, res) => {
-  await db.select().from(tableName);
+  await db.select().from(chatMessages);
   res.json({ message: 'OK ' });
 });
 

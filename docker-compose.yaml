@@ -43,21 +43,42 @@ services:
       timeout: 10s
 
   collab-db:
-    hostname: "collab-db"
+    hostname: 'collab-db'
     image: postgres:16.4
-    container_name: "collab-db"
+    container_name: 'collab-db'
     build:
       context: ./backend/collaboration/src/lib/db
     env_file:
       - ./backend/collaboration/.env.local
     volumes:
-      - "collab-db-docker:${COLLAB_PGDATA}"
+      - 'collab-db-docker:${COLLAB_PGDATA}'
       #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     networks:
       - collab-db-network
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  chat-db:
+    hostname: 'chat-db'
+    image: postgres:16.4
+    container_name: 'chat-db'
+    build:
+      context: ./backend/chat/src/lib/db
+    env_file:
+      - ./backend/chat/.env.local
+    volumes:
+      - 'chat-db-docker:${CHAT_PGDATA}'
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - chat-db-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-chat-express -d chat']
       interval: 10s
       retries: 5
       start_period: 30s
@@ -137,9 +158,9 @@ services:
       - question-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${QUESTION_EXPRESS_PORT}/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
+      interval: 30s
+      timeout: 10s
+      retries: 5
       start_period: 5s
 
   collab-service:
@@ -168,9 +189,9 @@ services:
       - collab-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${COLLAB_EXPRESS_PORT}/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
+      interval: 30s
+      timeout: 10s
+      retries: 5
       start_period: 5s
 
   matching-service:
@@ -180,7 +201,7 @@ services:
       context: ./backend/matching
       dockerfile: express.Dockerfile
       target: production
-      args: 
+      args:
         # For building with the correct env vars
         - port=${MATCHING_EXPRESS_PORT}
     env_file:
@@ -205,9 +226,40 @@ services:
       - collab-api-network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:${MATCHING_EXPRESS_PORT}/health || exit 1
-      interval: 30s 
-      timeout: 10s   
-      retries: 5       
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  chat-service:
+    image: 'chat-express'
+    container_name: '${CHAT_SERVICE_NAME}'
+    build:
+      context: ./backend/chat
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${CHAT_EXPRESS_PORT}
+    env_file:
+      - ./backend/chat/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - EXPRESS_DB_HOST=chat-db
+      - EXPRESS_DB_PORT=5435
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      chat-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - chat-db-network
+      - chat-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${CHAT_EXPRESS_PORT}/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
       start_period: 5s
 
   # Frontend
@@ -252,12 +304,14 @@ volumes:
   user-db-docker:
     external: true
   question-db-docker:
-    external: true 
+    external: true
   # Persistent Room Server
   collab-db-docker:
     external: true
   # Redis Match server
   match-db-docker:
+    external: true
+  chat-db-docker:
     external: true
 
 networks:
@@ -270,6 +324,8 @@ networks:
     driver: bridge
   match-db-network:
     driver: bridge
+  chat-db-network:
+    driver: bridge
 
   # View-Controller Networks
   user-api-network:
@@ -279,4 +335,6 @@ networks:
   collab-api-network:
     driver: bridge
   match-api-network:
+    driver: bridge
+  chat-api-network:
     driver: bridge

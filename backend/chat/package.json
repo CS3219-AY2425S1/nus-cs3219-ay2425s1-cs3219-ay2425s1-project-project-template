@@ -1,5 +1,5 @@
 {
-  "name": "template",
+  "name": "chat",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -8,6 +8,10 @@
     "start": "node dist/index.js",
     "build:local": "env-cmd -f .env.local tsc && tsc-alias",
     "start:local": "env-cmd -f .env.local node dist/index.js",
+    "db:generate": "env-cmd -f .env.local drizzle-kit generate",
+    "db:migrate": "env-cmd -f .env.local tsx ./src/lib/db/migrate.ts",
+    "db:prod:migrate": "tsx ./src/lib/db/migrate.ts",
+    "db:prod:seed": "tsx ./src/lib/db/seed.ts",
     "db:seed": "env-cmd -f .env.local tsx src/lib/db/seed.ts",
     "db:seed:prod": "tsx src/lib/db/seed.ts",
     "fmt": "prettier --config .prettierrc src --write",
