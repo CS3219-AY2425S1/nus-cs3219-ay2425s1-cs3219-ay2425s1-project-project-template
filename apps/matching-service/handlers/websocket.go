@@ -139,7 +139,7 @@ func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matc
 		if !ok {
 			return
 		}
-		var result models.MatchFound
+		var result models.MatchQuestionFound
 		// Unmarshal the JSON message into the struct
 		err := json.Unmarshal([]byte(msg.Payload), &result)
 		if err != nil {

@@ -85,7 +85,7 @@ func foundMatch(tx *redis.Tx, ctx context.Context, currentUser *models.MatchRequ
 	for _, topic := range currentUser.Difficulties {
 		for _, otherTopic := range matchedUser.Difficulties {
 			if topic == otherTopic {
-				matchedTopics = append(matchedTopics, topic)
+				matchedDifficulties = append(matchedDifficulties, topic)
 			}
 		}
 	}

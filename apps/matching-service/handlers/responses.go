@@ -28,7 +28,7 @@ func sendRejectionResponse(ws *websocket.Conn) {
 }
 
 // Send message to matched user
-func sendMatchFoundResponse(ws *websocket.Conn, username string, result models.MatchFound) {
+func sendMatchFoundResponse(ws *websocket.Conn, username string, result models.MatchQuestionFound) {
 	if err := ws.WriteJSON(result); err != nil {
 		log.Printf("Error sending message to user %s: %v\n", username, err)
 	}

@@ -24,21 +24,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-// initFirestore initializes the Firestore client
-func initFirestore(ctx context.Context, credentialsPath string) (*firestore.Client, error) {
-	opt := option.WithCredentialsFile(credentialsPath)
-	app, err := firebase.NewApp(ctx, nil, opt)
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Firebase App: %v", err)
-	}
-
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Firestore client: %v", err)
-	}
-	return client, nil
-}
-
 func main() {
 	// Load .env file
 	err := godotenv.Load()
@@ -67,7 +52,26 @@ func main() {
 
 	go initGrpcServer()
 
-	// Set up chi router
+	r := initChiRouter(service)
+	initRestServer(r)
+}
+
+// initFirestore initializes the Firestore client
+func initFirestore(ctx context.Context, credentialsPath string) (*firestore.Client, error) {
+	opt := option.WithCredentialsFile(credentialsPath)
+	app, err := firebase.NewApp(ctx, nil, opt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize Firebase App: %v", err)
+	}
+
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Firestore client: %v", err)
+	}
+	return client, nil
+}
+
+func initChiRouter(service *handlers.Service) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Timeout(60 * time.Second))
@@ -84,7 +88,12 @@ func main() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	// Register routes
+	registerRoutes(r, service)
+
+	return r
+}
+
+func registerRoutes(r *chi.Mux, service *handlers.Service) {
 	r.Route("/questions", func(r chi.Router) {
 		r.Get("/", service.ListQuestions)
 		r.Post("/", service.CreateQuestion)
@@ -95,7 +104,9 @@ func main() {
 			r.Delete("/", service.DeleteQuestion)
 		})
 	})
+}
 
+func initRestServer(r *chi.Mux) {
 	// Serve on port 8080
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -104,14 +115,10 @@ func main() {
 
 	// Start the server
 	log.Printf("Starting REST server on http://localhost:%s", port)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), r)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
-}
-
-type server struct {
-	pb.UnimplementedQuestionMatchingServiceServer // Embed the unimplemented service
 }
 
 func initGrpcServer() {
@@ -120,20 +127,10 @@ func initGrpcServer() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterQuestionMatchingServiceServer(s, &server{})
+	pb.RegisterQuestionMatchingServiceServer(s, &handlers.GrpcServer{})
 
 	log.Printf("gRPC Server is listening on port 50051...")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-}
-
-func (s *server) FindMatchingQuestion(ctx context.Context, req *pb.MatchQuestionRequest) (*pb.QuestionFound, error) {
-	// STUB
-	return &pb.QuestionFound{
-		QuestionId:         1,
-		QuestionName:       "abc",
-		QuestionDifficulty: "Easy",
-		QuestionTopics:     []string{"Algorithms", "Arrays"},
-	}, nil
 }
