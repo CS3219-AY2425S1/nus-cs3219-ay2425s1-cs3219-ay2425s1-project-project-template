@@ -94,7 +94,7 @@ func readMatchRequest(ws *websocket.Conn) (models.MatchRequest, error) {
 // If user is already removed, then nothing happens.
 // This function is unaffected by the external context.
 func cleanUpUser(username string) {
-	redisClient := servers.GetRedisClient()
+	rdb := servers.GetRedisClient()
 	ctx := context.Background()
 
 	// Obtain lock with retry
@@ -104,13 +104,8 @@ func cleanUpUser(username string) {
 	}
 	defer lock.Release(ctx)
 
-	if err := redisClient.Watch(ctx, func(tx *redis.Tx) error {
-		// Cleanup Redis
-		databases.CleanUpUser(tx, username, ctx)
-		return nil
-	}); err != nil {
-		return
-	}
+	// Cleanup Redis
+	databases.CleanUpUser((*redis.Tx)(rdb.Conn()), username, ctx)
 }
 
 // waitForResult waits for a match result, timeout, or cancellation.

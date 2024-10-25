@@ -33,8 +33,7 @@ func main() {
 
 	// Initialize Firestore client
 	ctx := context.Background()
-	firebaseCredentialPath := os.Getenv("FIREBASE_CREDENTIAL_PATH")
-	client, err := initFirestore(ctx, firebaseCredentialPath)
+	client, err := initFirestore(ctx)
 	if err != nil {
 		log.Fatalf("Failed to initialize Firestore client: %v", err)
 	}
@@ -57,7 +56,8 @@ func main() {
 }
 
 // initFirestore initializes the Firestore client
-func initFirestore(ctx context.Context, credentialsPath string) (*firestore.Client, error) {
+func initFirestore(ctx context.Context) (*firestore.Client, error) {
+	credentialsPath := os.Getenv("FIREBASE_CREDENTIAL_PATH")
 	opt := option.WithCredentialsFile(credentialsPath)
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {

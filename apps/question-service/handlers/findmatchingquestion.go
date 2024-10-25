@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"context"
+	"log"
 	pb "proto/questionmatching"
 )
 
 func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQuestionRequest) (*pb.QuestionFound, error) {
-	// STUB
+	log.Printf("Received find matching question request: %v", req)
 	return &pb.QuestionFound{
 		QuestionId:         1,
 		QuestionName:       "abc",

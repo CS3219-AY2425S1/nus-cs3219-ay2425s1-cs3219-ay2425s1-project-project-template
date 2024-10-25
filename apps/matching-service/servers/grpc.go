@@ -17,6 +17,8 @@ func InitGrpcServer() *grpc.ClientConn {
 	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)
+	} else {
+		log.Println("Connected to Grpc server at :50051")
 	}
 
 	// Create a new client for the ExampleService
