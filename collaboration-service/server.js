@@ -17,9 +17,6 @@ const io = new Server(server, {
   pingInterval: 25000,  // Interval between ping packets
 });
 
-// Serve static files
-app.use(express.static('public'));
-
 // Use the session routes at the '/api/collab' path (passing `io` for socket handling)
 // Note that socket bypasses authMiddleware here
 app.use('/api/collab', authMiddleware, sessionRoutes(io));
