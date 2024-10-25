@@ -14,76 +14,50 @@ import (
 func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQuestionRequest) (*pb.QuestionFound, error) {
 	log.Printf("Received matching question request: %v", req)
 
-	var question *models.Question
+	var docs []*firestore.DocumentSnapshot
 
 	// 1. Match by both topic and difficulty
-	if question == nil {
-		difficultyQuestion, err := queryTopicAndDifficultyQuestion(s.Client, ctx)
+	if len(docs) == 0 {
+		d, err := queryTopicAndDifficultyQuestion(s.Client, ctx, req.MatchedTopics)
 		if err != nil {
 			return nil, err
 		}
-		question = difficultyQuestion
+		docs = d
 	}
 
 	// 2. Match by just topic
-	if question == nil {
-		difficultyQuestion, err := queryTopicQuestion(s.Client, ctx)
+	if len(docs) == 0 {
+		d, err := queryTopicQuestion(s.Client, ctx, req.MatchedTopics)
 		if err != nil {
 			return nil, err
 		}
-		question = difficultyQuestion
+		docs = d
 	}
 
 	// 3. Match by difficulty
-	if question == nil {
-		difficultyQuestion, err := queryDifficultyQuestion(s.Client, ctx)
+	if len(docs) == 0 {
+		d, err := queryDifficultyQuestion(s.Client, ctx)
 		if err != nil {
 			return nil, err
 		}
-		question = difficultyQuestion
+		docs = d
 	}
 
 	// 4. No matches, so return random question
-	if question == nil {
-		randomQuestion, err := queryRandomQuestion(s.Client, ctx)
+	if len(docs) == 0 {
+		d, err := queryAllQuestions(s.Client, ctx)
 		if err != nil {
 			return nil, err
 		}
-		question = randomQuestion
+		docs = d
 	}
 
-	// 5. No matches, return error
-	if question == nil {
+	// 5a. No matches, return error
+	if len(docs) == 0 {
 		return nil, errors.New("No questions found")
 	}
 
-	return &pb.QuestionFound{
-		QuestionId:         question.ID,
-		QuestionName:       question.Title,
-		QuestionDifficulty: question.Complexity.String(),
-		QuestionTopics:     question.Categories,
-	}, nil
-}
-
-func queryTopicAndDifficultyQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
-	return nil, nil
-}
-
-func queryTopicQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
-	return nil, nil
-}
-
-func queryDifficultyQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
-	return nil, nil
-}
-
-func queryRandomQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
-	// Count documents
-	docs, err := client.Collection("questions").Documents(ctx).GetAll()
-	if err != nil || len(docs) == 0 {
-		log.Fatalf("No documents found: %v", err)
-	}
-
+	// 5b. Retrieve random question from potential questions
 	// Generate a random offset
 	randomOffset := rand.Intn(len(docs))
 
@@ -96,5 +70,27 @@ func queryRandomQuestion(client *firestore.Client, ctx context.Context) (*models
 	}
 	question.DocRefID = doc.Ref.ID
 
-	return &question, nil
+	return &pb.QuestionFound{
+		QuestionId:         question.ID,
+		QuestionName:       question.Title,
+		QuestionDifficulty: question.Complexity.String(),
+		QuestionTopics:     question.Categories,
+	}, nil
+}
+
+func queryTopicAndDifficultyQuestion(client *firestore.Client, ctx context.Context, topics []string, difficulties []string) ([]*firestore.DocumentSnapshot, error) {
+	return client.Collection("questions").Where("categories", "in", topics).Documents(ctx).GetAll()
+}
+
+func queryTopicQuestion(client *firestore.Client, ctx context.Context, topics []string) ([]*firestore.DocumentSnapshot, error) {
+	return client.Collection("questions").Where("categories", "array-contains-any", topics).Documents(ctx).GetAll()
+}
+
+func queryDifficultyQuestion(client *firestore.Client, ctx context.Context, difficulties []string) ([]*firestore.DocumentSnapshot, error) {
+	return client.Collection("questions").Where("categories", "in", difficulties).Documents(ctx).GetAll()
+
+}
+
+func queryAllQuestions(client *firestore.Client, ctx context.Context) ([]*firestore.DocumentSnapshot, error) {
+	return client.Collection("questions").Documents(ctx).GetAll()
 }
