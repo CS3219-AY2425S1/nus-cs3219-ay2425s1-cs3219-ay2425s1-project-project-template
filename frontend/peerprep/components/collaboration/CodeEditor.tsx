@@ -5,8 +5,10 @@ import Output from "./Output";
 import * as Y from "yjs";
 import { socket } from "../../services/sessionSocketService";
 import { SupportedLanguages } from "../../utils/utils";
-import { useTheme } from "next-themes";
 import { Editor } from "@monaco-editor/react";
+import { useTheme } from "next-themes";
+import { Card } from '@nextui-org/react';
+
 
 export default function CodeEditor() {
   const { theme } = useTheme();
@@ -74,17 +76,24 @@ export default function CodeEditor() {
 
   return (
     <div className="flex h-full w-full gap-4">
-      {/* <div className="flex width-1/2 h-full"> */}
-      {/* <LanguageSelector language={language} onSelect={onSelect} /> */}
-      <Editor
-        className="flex min-h-[250px] w-full"
-        theme={theme === "dark" ? "vs-dark" : "vs-light"}
-        language={language}
-        onMount={onMount}
-        value={value}
-      />
-      {/* </div> */}
-      {/* <Output editorRef={editorRef} language={language} /> */}
+      <div className="flex flex-col w-1/2 gap-4">
+        <div className="px-4 sm:px-0">
+          <LanguageSelector language={language} onSelect={onSelect} />
+        </div>
+        <div className="flex-1 flex">
+        <Editor
+          className="flex-1 rounded-lg"
+          theme={theme === "dark" ? "vs-dark" : "vs-light"}
+          language={language}
+          onMount={onMount}
+          value={value}
+          options={{ fontSize: 14 }}
+        />
+        </div>
+      </div>
+      <div className="flex w-1/2 h-full">
+        <Output editorRef={editorRef} language={language} />
+      </div>
     </div>
   );
 }

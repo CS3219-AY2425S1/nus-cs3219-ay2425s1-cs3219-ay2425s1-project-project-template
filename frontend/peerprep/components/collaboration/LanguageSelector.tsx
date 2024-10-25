@@ -1,5 +1,6 @@
 import { Dropdown, Button, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
 import { LANGUAGE_VERSIONS, SupportedLanguages } from '../../utils/utils';
+import { useTheme } from "next-themes";
 
 const languages = Object.entries(LANGUAGE_VERSIONS);
 const ACTIVE_COLOR = "blue";
@@ -10,30 +11,31 @@ interface LanguageSelectorProps {
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onSelect }) => {
+  const { theme } = useTheme();
   return (
-    <div className='flex'>
-      <p className='flex'>
+    <div className='flex items-center'>
+      <p className='mr-2'>
         Language:
       </p>
       <Dropdown>
         <DropdownTrigger>
           <Button
-            variant="bordered"
+            variant="flat"
+            className="text-sm"
           >
             {language}
           </Button>
         </DropdownTrigger>
-
-
-        <DropdownMenu aria-label="Language selection">
+        <DropdownMenu aria-label="Language selection" className="bg-white dark:bg-gray-800">
           {languages.map(([lang, version]) => (
             <DropdownItem key={lang}
-              onClick={() => onSelect(lang as SupportedLanguages)}>
-              {lang}
-              &nbsp;
-              <p className="text-tiny text-black/40 uppercase font-bold">
+              onClick={() => onSelect(lang as SupportedLanguages)}
+              className="flex items-center justify-between"
+            >
+              <span>{lang}</span>
+              <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                 ({version})
-              </p>
+              </span>
             </DropdownItem>
           ))}
         </DropdownMenu>
