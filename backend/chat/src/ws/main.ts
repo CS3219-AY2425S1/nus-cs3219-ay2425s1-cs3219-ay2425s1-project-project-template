@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 import { UI_HOST } from '@/config';
 import { logger } from '@/lib/utils';
 
-import { WS_EVENT } from './events';
+import { WS_CLIENT_EVENT } from './events';
 import { joinRoomHandler, leaveRoomHandler, sendMessageHandler } from './handlers';
 
 export const createWs = (server: ReturnType<typeof createServer>) => {
@@ -20,10 +20,10 @@ export const createWs = (server: ReturnType<typeof createServer>) => {
   io.on('connection', (socket) => {
     logger.info(`Socket ${socket.id} connected`);
 
-    socket.on(WS_EVENT.JOIN_ROOM, joinRoomHandler(socket));
-    socket.on(WS_EVENT.LEAVE_ROOM, leaveRoomHandler(socket));
-    socket.on(WS_EVENT.SEND_MESSAGE, sendMessageHandler(io, socket));
-    socket.on(WS_EVENT.DISCONNECT, () => {
+    socket.on(WS_CLIENT_EVENT.JOIN_ROOM, joinRoomHandler(socket));
+    socket.on(WS_CLIENT_EVENT.LEAVE_ROOM, leaveRoomHandler(socket));
+    socket.on(WS_CLIENT_EVENT.SEND_MESSAGE, sendMessageHandler(io, socket));
+    socket.on(WS_CLIENT_EVENT.DISCONNECT, () => {
       logger.info(`Client disconnected: ${socket.id}`);
       socket.disconnect();
     });

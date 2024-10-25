@@ -5,6 +5,8 @@ import { chatMessages } from '@/lib/db/schema';
 import { logger } from '@/lib/utils';
 import type { IChatMessage } from '@/types';
 
+import { WS_CLIENT_EVENT, WS_SERVER_EVENT } from './events';
+
 type ISocketIOServer<T> = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, T>;
 type ISocketIOSocket<T> = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, T>;
 
@@ -12,13 +14,13 @@ export const joinRoomHandler =
   <T>(socket: ISocketIOSocket<T>) =>
   (roomId?: string) => {
     if (!roomId) {
-      logger.warn('joinRoom event received without a roomId');
+      logger.warn(`${WS_CLIENT_EVENT.JOIN_ROOM} event received without a roomId`);
       return;
     }
 
     socket.join(roomId);
     logger.info(`Socket ${socket.id} joined room: ${roomId}`);
-    socket.emit('joinedRoom', roomId); // Notify client that they joined the room
+    socket.emit(WS_SERVER_EVENT.JOINED_ROOM, roomId); // Notify client that they joined the room
   };
 
 export const leaveRoomHandler =
@@ -27,9 +29,9 @@ export const leaveRoomHandler =
     if (roomId) {
       socket.leave(roomId);
       logger.info(`Socket ${socket.id} left room: ${roomId}`);
-      socket.emit('leftRoom', roomId); // Notify client that they left the room
+      socket.emit(WS_SERVER_EVENT.LEFT_ROOM, roomId); // Notify client that they left the room
     } else {
-      logger.warn('leaveRoom event received without a roomId');
+      logger.warn(`${WS_CLIENT_EVENT.LEAVE_ROOM} event received without a roomId`);
     }
   };
 
@@ -39,7 +41,7 @@ export const sendMessageHandler =
     const { roomId, senderId, message } = payload;
 
     if (!roomId || !senderId || !message) {
-      const errorMessage = 'sendMessage event received with incomplete data';
+      const errorMessage = `${WS_CLIENT_EVENT.SEND_MESSAGE} event received with incomplete data`;
       logger.warn(errorMessage);
       socket.emit('error', errorMessage);
       return;
@@ -59,7 +61,7 @@ export const sendMessageHandler =
         message,
         createdAt: new Date().toISOString(),
       };
-      io.to(roomId).emit('newMessage', messageData);
+      io.to(roomId).emit(WS_SERVER_EVENT.NEW_MESSAGE, messageData);
       logger.info(`Message from ${senderId} in room ${roomId}: ${message}`);
     } catch (error) {
       logger.error('Failed to save message:', error);

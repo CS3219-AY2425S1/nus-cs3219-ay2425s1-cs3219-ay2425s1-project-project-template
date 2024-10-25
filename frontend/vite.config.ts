@@ -64,6 +64,12 @@ export default defineConfig(({ mode }) => {
           secure: false,
           changeOrigin: true,
         },
+        '/chat-socket/': {
+          target: env.VITE_CHAT_SERVICE,
+          ws: true,
+          secure: false,
+          changeOrigin: true,
+        },
       },
     },
   };
