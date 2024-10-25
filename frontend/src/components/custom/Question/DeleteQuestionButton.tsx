@@ -6,10 +6,12 @@ import { Question } from "@/models/Question";
 
 interface DeleteQuestionButtonProps {
   question: Question;
+  onDelete: () => void;
 }
 
 const DeleteQuestionButton: React.FC<DeleteQuestionButtonProps> = ({
   question,
+  onDelete,
 }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
@@ -30,6 +32,7 @@ const DeleteQuestionButton: React.FC<DeleteQuestionButtonProps> = ({
         open={openDialog}
         setOpen={setOpenDialog}
         question={question}
+        onDelete={onDelete}
       />
     </>
   );

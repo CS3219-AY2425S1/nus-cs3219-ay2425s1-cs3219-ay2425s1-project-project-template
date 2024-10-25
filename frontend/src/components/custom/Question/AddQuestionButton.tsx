@@ -3,7 +3,11 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import AddQuestionDialog from "./AddQuestionDialog";
 
-function AddQuestionButton() {
+interface AddQuestionButtonProps {
+  onCreate: () => void;
+}
+
+const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({ onCreate }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   const handleOpenDialog = () => {
@@ -18,9 +22,13 @@ function AddQuestionButton() {
       >
         <Plus />
       </Button>
-      <AddQuestionDialog open={openDialog} setOpen={setOpenDialog} />
+      <AddQuestionDialog
+        open={openDialog}
+        setOpen={setOpenDialog}
+        onCreate={onCreate}
+      />
     </>
   );
-}
+};
 
 export default AddQuestionButton;

@@ -8,14 +8,24 @@ function QuestionTable() {
   const [data, setData] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true); // To show a loading state
 
+  // Define a refetch function to reload the questions
+  const refetch = async () => {
+    setLoading(true);
+    const questions = await getData();
+
+    questions.sort((a, b) => {
+      return (
+        new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime()
+      );
+    });
+
+    setData(questions);
+    setLoading(false);
+  };
+
   // Fetch data asynchronously on component mount
   useEffect(() => {
-    async function fetchData() {
-      const result = await getData();
-      setData(result);
-      setLoading(false); // Once data is fetched, stop loading
-    }
-    fetchData();
+    refetch();
   }, []);
 
   // Return a loading indicator or the table once data is available
@@ -25,7 +35,11 @@ function QuestionTable() {
         <p>Loading...</p> // Show loading text or spinner
       ) : (
         <div className="font-bold">
-          <DataTable columns={columns} data={data || []} />
+          <DataTable
+            columns={columns(refetch)}
+            data={data || []}
+            refetch={refetch}
+          />
         </div>
       )}
     </div>

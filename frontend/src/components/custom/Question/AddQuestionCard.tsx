@@ -27,10 +27,10 @@ interface QuestionData {
 }
 
 interface AddQuestionCardProps {
-  onSubmit: () => void;
+  onCreate: () => void;
 }
 
-const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onSubmit }) => {
+const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [questionData, setQuestionData] = useState<QuestionData>({
     title: "",
@@ -82,13 +82,12 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onSubmit }) => {
       question
     );
 
-    if (result.success) {
-      alert("Question added successfully! Refresh Page to see changes.");
-    } else {
-      alert("Failed to add question. Please try again.");
+    if (!result.success) {
+      alert(result.error);
     }
+
     setIsLoading(false);
-    onSubmit();
+    onCreate();
   };
 
   return (

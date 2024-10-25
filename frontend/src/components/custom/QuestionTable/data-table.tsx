@@ -29,11 +29,13 @@ import AddQuestionButton from "../Question/AddQuestionButton";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  refetch: () => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  refetch,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState([]);
@@ -84,7 +86,7 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
 
-        <AddQuestionButton />
+        <AddQuestionButton onCreate={refetch} />
       </div>
       <div className="rounded-md border">
         <Table>

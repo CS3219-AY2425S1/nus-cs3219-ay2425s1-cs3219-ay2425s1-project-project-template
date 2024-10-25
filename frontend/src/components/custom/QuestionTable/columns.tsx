@@ -34,14 +34,14 @@ const getDifficultyClass = (difficulty: string) => {
   }
 };
 
-export const columns: ColumnDef<Question>[] = [
+export const columns = (refetch: () => void): ColumnDef<Question>[] => [
   {
     id: "actions",
     size: 10,
     maxSize: 10,
     cell: ({ row }) => {
       const question = row.original;
-      return <DeleteQuestionButton question={question} />;
+      return <DeleteQuestionButton question={question} onDelete={refetch} />;
     },
   },
   {
