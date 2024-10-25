@@ -25,10 +25,19 @@ module.exports = (io) => {
 
   io.on('connection', async (socket) => {
     // Delegate session handling to the controller
-    const authHeader = socket.handshake.headers['authorization'];
-    const userProfile = await viewUserProfile(authHeader);
-    socket.data.userProfile = userProfile;
-    sessionController.joinSession(socket, io);
+    try {
+      const authHeader = socket.handshake.headers['authorization'];
+      const userProfile = await viewUserProfile(authHeader);
+      socket.data.userProfile = userProfile;
+      sessionController.joinSession(socket, io);
+    } catch (error) {
+      if (error.response && (error.response.status === 401 || error.response.status === 500)) {
+        socket.emit('error', { message: "Unauthorised socket connection." })
+      } else {
+        socket.emit('error', { message: "Error with authentication." })
+      }
+      socket.disconnect(true);
+    }
   });
 
   return router;
