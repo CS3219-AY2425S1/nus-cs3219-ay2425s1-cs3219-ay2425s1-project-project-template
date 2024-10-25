@@ -2,7 +2,12 @@ import { createClient } from 'redis';
 
 function createRedisConnection() {
     try {
-        const client = createClient();
+        const client = createClient({
+            socket: {
+                host: 'redis',
+                port: 6379
+            }
+        });
         client.connect();
         console.log("Successfully connected to Redis");
         return client;

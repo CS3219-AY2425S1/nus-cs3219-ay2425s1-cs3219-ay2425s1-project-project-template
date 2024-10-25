@@ -14,7 +14,7 @@ socket.on('connect', () => {
         body: JSON.stringify({
             userId: '2',
             topic: 'Arrays',
-            difficulty: 'Medium',
+            difficulty: 'Easy',
             socketId: socket.id
         }),
     }).then(response => response.json())
