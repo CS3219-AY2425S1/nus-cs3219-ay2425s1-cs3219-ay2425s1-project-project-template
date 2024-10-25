@@ -84,6 +84,13 @@ public class QuestionService {
     public QuestionDto createQuestion(QuestionDto questionDto) {
         validateQuestion(questionDto);
 
+        // Check if the question already exists in the database
+        List<Question> existingQuestions = questionRepository.findByTitle(questionDto.getTitle());
+        
+        if (!existingQuestions.isEmpty()) {
+            throw new InvalidQuestionException("Duplicate question found with title: " + questionDto.getTitle());
+        }
+
         Question newQuestion = convertToDocument(questionDto);
         newQuestion.setId(generateSequence(Question.SEQUENCE_NAME));
 
