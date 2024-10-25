@@ -1,17 +1,21 @@
 // Referenced from example in https://www.npmjs.com/package/y-codemirror.next
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
 import { EditorView, basicSetup } from "codemirror";
-import { EditorState } from "@codemirror/state";
+import { EditorState, Compartment } from "@codemirror/state";
 import { javascript } from "@codemirror/lang-javascript";
+import { python, pythonLanguage } from "@codemirror/lang-python";
 import "./styles.scss";
-import { message } from "antd";
+import { message, Select } from "antd";
+import { language } from "@codemirror/language";
+import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 
 interface CollaborativeEditorProps {
   user: string;
   collaborationId: string;
+  language: string;
 }
 
 export const usercolors = [
@@ -31,6 +35,29 @@ export const userColor =
 
 const CollaborativeEditor = (props: CollaborativeEditorProps) => {
   const editorRef = useRef(null);
+  // const viewRef = useRef<EditorView | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [trigger, setTrigger] = useState(false);
+
+  const languageConf = new Compartment();
+
+  const autoLanguage = EditorState.transactionExtender.of((tr) => {
+    if (!tr.docChanged) return null;
+    const docIsPython = /^\s*def\s|\s*class\s/.test(
+      tr.newDoc.sliceString(0, 100)
+    );
+    const stateIsPython = tr.startState.facet(language) === pythonLanguage;
+    if (docIsPython === stateIsPython) return null;
+
+    const newLanguage = docIsPython ? "python" : "javascript";
+    setSelectedLanguage(newLanguage);
+
+    return {
+      effects: languageConf.reconfigure(
+        newLanguage === "python" ? python() : javascript()
+      ),
+    };
+  });
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -55,6 +82,29 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
     });
   };
 
+  // const handleLanguageChange = (val: any) => {
+  //   console.log("came in here");
+  //   console.log(val);
+  //   setSelectedLanguage(val);
+
+  //   let languageExtension;
+  //   switch (val) {
+  //     case "python":
+  //       languageExtension = python();
+  //       break;
+  //     default:
+  //       languageExtension = javascript();
+  //   }
+
+  //   // Update the language configuration
+  //   if (viewRef.current) {
+  //     console.log("insude here");
+  //     viewRef.current.dispatch({
+  //       effects: languageConf.reconfigure(languageExtension),
+  //     });
+  //   }
+  // };
+
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL === undefined) {
       error("Missing Signalling Service Url");
@@ -78,7 +128,8 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
       doc: ytext.toString(),
       extensions: [
         basicSetup,
-        javascript(),
+        languageConf.of(javascript()),
+        autoLanguage,
         yCollab(ytext, provider.awareness, { undoManager }),
       ],
     });
@@ -88,9 +139,16 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
       parent: editorRef.current || undefined,
     });
 
+    // viewRef.current = new EditorView({
+    //   state: state,
+    //   parent: editorRef.current || undefined,
+    // });
+
     return () => {
       // Cleanup on component unmount
+      console.log("unmounting collaboration editor"); // TODO: remove
       view.destroy();
+      // viewRef.current?.destroy();
       provider.disconnect();
       ydoc.destroy();
     };
@@ -99,7 +157,27 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
   return (
     <>
       {contextHolder}
-      <div ref={editorRef} id="editor" className="code-editor-yjs" />
+      <div className="code-second-container">
+        <div className="code-language">Select Language:</div>
+        <Select
+          className="language-select"
+          defaultValue={selectedLanguage}
+          options={ProgrammingLanguageOptions}
+          onSelect={(val) => setSelectedLanguage(val)}
+        />
+      </div>
+      <div
+        ref={editorRef}
+        style={{ height: "400px", border: "1px solid #ddd" }}
+      />
+      <div className="language-detected">
+        <strong>Current Language Detected: </strong>{" "}
+        {
+          ProgrammingLanguageOptions.find(
+            (language) => language.value === selectedLanguage
+          )?.label
+        }
+      </div>
     </>
   );
 };

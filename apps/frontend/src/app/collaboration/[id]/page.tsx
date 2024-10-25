@@ -31,6 +31,8 @@ import CollaborativeEditor from "@/components/CollaborativeEditor/CollaborativeE
 interface CollaborationProps {}
 
 export default function CollaborationPage(props: CollaborationProps) {
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Code Editor States
@@ -115,6 +117,17 @@ export default function CollaborationPage(props: CollaborationProps) {
     },
   ];
 
+  const handleCloseCollaboration = () => {
+    // Remove localstorage variables for collaboration
+    localStorage.removeItem("user");
+    localStorage.removeItem("matchedUser");
+    localStorage.removeItem("collaId");
+    localStorage.removeItem("docRefId");
+
+    // Redirect back to matching page
+    router.push("/matching");
+  };
+
   return (
     <Layout className="collaboration-layout">
       <Header selectedKey={undefined} />
@@ -180,7 +193,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     Submit
                   </Button>
                 </div>
-                <div className="code-second-container">
+                {/* <div className="code-second-container">
                   <div className="code-language">Select Language:</div>
                   <Select
                     className="language-select"
@@ -188,11 +201,12 @@ export default function CollaborationPage(props: CollaborationProps) {
                     options={ProgrammingLanguageOptions}
                     onSelect={(val) => setSelectedLanguage(val)}
                   />
-                </div>
-                {collaborationId && currentUser && (
+                </div> */}
+                {collaborationId && currentUser && selectedLanguage && (
                   <CollaborativeEditor
                     user={currentUser}
                     collaborationId={collaborationId}
+                    language={selectedLanguage}
                   />
                 )}
               </div>
@@ -206,7 +220,10 @@ export default function CollaborationPage(props: CollaborationProps) {
                     <ClockCircleOutlined className="title-icons" />
                     Session Details
                   </div>
-                  <Button danger>End</Button>
+                  {/* TODO: End the collaboration session, cleanup the localstorage variables */}
+                  <Button danger onClick={handleCloseCollaboration}>
+                    End
+                  </Button>
                 </div>
 
                 <div className="session-duration">
