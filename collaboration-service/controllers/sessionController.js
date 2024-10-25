@@ -7,7 +7,7 @@ const sessionsForUser = {};
 // Handle user joining a session
 const joinSession = (socket, io) => {
   socket.on('join-session', (details) => {
-    const { sessionId, matchedUserId } = details;
+    const { sessionId, matchedUserId, questionId } = details;
     const userId = socket.data.userProfile._id;
 
     // Input validation
@@ -23,29 +23,36 @@ const joinSession = (socket, io) => {
     if (userId == matchedUserId) {
       return socket.emit('error', 'User cannot be matched to him/herself.');
     }
+    if (!questionId) {
+      return socket.emit('error', 'Question ID is required.');
+    }
 
     if (!codeSessions[sessionId]) {
       // Initialize session
       codeSessions[sessionId] = {
         code: '',
         users: new Set([userId, matchedUserId]),
-        active_connections: 0,
+        activeConnections: 0,
+        questionId: questionId
       };
     } else if (
       !codeSessions[sessionId].users.has(userId) ||
       !codeSessions[sessionId].users.has(matchedUserId)
     ) {
       return socket.emit('error', 'Invalid user/match Id for this session ID.');
+    } else if (codeSessions[sessionId].questionId != questionId) {
+      return socket.emit('error', 'Invalid question Id for this session ID.');
     }
 
     socket.join(sessionId);
 
-    codeSessions[sessionId].active_connections += 1;
+    codeSessions[sessionId].activeConnections += 1;
     delete codeSessions[sessionId].timeoutStart;
 
     sessionsForUser[userId] = {
       sessionId: sessionId,
       matchedUserId: matchedUserId,
+      questionId: questionId
     };
 
     console.log(`User ${userId} joined session ${sessionId}`);
@@ -71,10 +78,10 @@ const joinSession = (socket, io) => {
 
       socket.to(sessionId).emit('user-left', userId);
 
-      codeSession.active_connections -= 1;
+      codeSession.activeConnections -= 1;
       console.log(`User ${userId} disconnected from session ${sessionId}`);
 
-      if (codeSession.active_connections <= 0) {
+      if (codeSession.activeConnections <= 0) {
         const timeoutStart = Date.now();
 
         codeSession.timeoutStart = timeoutStart;
@@ -108,6 +115,7 @@ const checkSessionForUser = (userId) => {
     return {
       sessionId: null,
       matchedUserId: null,
+      questionId: null
     };
   } else {
     return sessionForUser;
