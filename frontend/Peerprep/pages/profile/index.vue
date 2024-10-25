@@ -77,24 +77,25 @@ const fetchAttemptList = async () => {
             const listOfAttempts = data.value;
 
             const attemptsWithQuestionInfo = await Promise.all(
-                listOfAttempts.map(async (attempt: QuestionAttemptNet, index: number) => {
-                    const questionInfo = await getQuestionInfo(attempt.question_id);
-                    const questionTitle = questionInfo.title;
-                    const questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
-                    const questionCategory = questionInfo.category.toString();
+                listOfAttempts.sort((a: QuestionAttemptNet, b: QuestionAttemptNet) => b.timestamp - a.timestamp)
+                    .map(async (attempt: QuestionAttemptNet, index: number) => {
+                        const questionInfo = await getQuestionInfo(attempt.question_id);
+                        const questionTitle = questionInfo.title;
+                        const questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
+                        const questionCategory = questionInfo.category.toString();
 
-                    const matchedUser = await getUserDisplayName(attempt.matched_user);
+                        const matchedUser = await getUserDisplayName(attempt.matched_user);
 
-                    return {
-                        index: index + 1,
-                        sessionId: attempt.session_id,
-                        dateTime: convertEpochToDateTime(attempt.timestamp),
-                        matchedUser: matchedUser,  // Request from User Service User Display Name
-                        questionTitle: questionTitle,  // For now
-                        questionDifficulty: questionDifficulty,
-                        questionCategory: questionCategory,
-                    }
-                })
+                        return {
+                            index: index + 1,
+                            sessionId: attempt.session_id,
+                            dateTime: convertEpochToDateTime(attempt.timestamp),
+                            matchedUser: matchedUser,  // Request from User Service User Display Name
+                            questionTitle: questionTitle,  // For now
+                            questionDifficulty: questionDifficulty,
+                            questionCategory: questionCategory,
+                        }
+                    })
             )
 
             attemptList.value = attemptsWithQuestionInfo;
