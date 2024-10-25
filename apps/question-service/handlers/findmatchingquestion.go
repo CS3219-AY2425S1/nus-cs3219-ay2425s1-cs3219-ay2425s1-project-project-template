@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"log"
 	"math/rand"
 	pb "proto/questionmatching"
@@ -15,19 +16,45 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 
 	var question *models.Question
 
-	// Match by both topic and difficulty
-
-	// Match by just topic
-
-	// Match by difficulty
-
-	// No matches, so return random question
+	// 1. Match by both topic and difficulty
 	if question == nil {
-		randomQuestion, err := retrieveRandomQuestion(s.Client, ctx)
+		difficultyQuestion, err := queryTopicAndDifficultyQuestion(s.Client, ctx)
+		if err != nil {
+			return nil, err
+		}
+		question = difficultyQuestion
+	}
+
+	// 2. Match by just topic
+	if question == nil {
+		difficultyQuestion, err := queryTopicQuestion(s.Client, ctx)
+		if err != nil {
+			return nil, err
+		}
+		question = difficultyQuestion
+	}
+
+	// 3. Match by difficulty
+	if question == nil {
+		difficultyQuestion, err := queryDifficultyQuestion(s.Client, ctx)
+		if err != nil {
+			return nil, err
+		}
+		question = difficultyQuestion
+	}
+
+	// 4. No matches, so return random question
+	if question == nil {
+		randomQuestion, err := queryRandomQuestion(s.Client, ctx)
 		if err != nil {
 			return nil, err
 		}
 		question = randomQuestion
+	}
+
+	// 5. No matches, return error
+	if question == nil {
+		return nil, errors.New("No questions found")
 	}
 
 	return &pb.QuestionFound{
@@ -38,7 +65,19 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 	}, nil
 }
 
-func retrieveRandomQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
+func queryTopicAndDifficultyQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
+	return nil, nil
+}
+
+func queryTopicQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
+	return nil, nil
+}
+
+func queryDifficultyQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
+	return nil, nil
+}
+
+func queryRandomQuestion(client *firestore.Client, ctx context.Context) (*models.Question, error) {
 	// Count documents
 	docs, err := client.Collection("questions").Documents(ctx).GetAll()
 	if err != nil || len(docs) == 0 {
