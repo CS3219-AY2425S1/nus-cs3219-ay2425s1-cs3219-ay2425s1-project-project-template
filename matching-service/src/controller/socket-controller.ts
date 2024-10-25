@@ -73,10 +73,12 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                         delete userTimeouts[socketId2];
                     }
 
-                    io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId }); //INSERT SESSION ID HERE
-                    io.to(socketId2).emit('matchFound', { matchedWith: status[0].userId }); //INSERT SESSION ID HERE
+                    io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId });
+                    io.to(socketId2).emit('matchFound', { matchedWith: status[0].userId });
 
                     writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
+
+                    await initializeMatch(status[0], status[1], socket1, socket2);
 
                     //Disconnect both users
                     socket1.disconnect(true);
@@ -135,3 +137,78 @@ export function handleDisconnect(socket: Socket) {
 
     });
 }
+
+async function initializeMatch(user1Data: any, user2Data: any, socket1: Socket, socket2: Socket) {
+    // Initialize match
+
+    // Get question for criteria
+    const overlappingCriteria = getOverlappingCriteria(user1Data.criteria, user2Data.criteria);
+    const selectedQuestionId = selectQuestion(overlappingCriteria);
+
+    // Initialise match on session service
+    const sessionId = await initializeMatchOnSessionService(user1Data.userId, user2Data.userId, selectedQuestionId);
+
+    // Add match to user data
+    addMatchToUserData(user1Data.userId, user2Data.userId, selectedQuestionId, sessionId);
+
+    // redirect users to session page
+    socket1.emit('redirectToSession', { matchedWith: user2Data.userId, question: selectedQuestionId });
+    socket2.emit('redirectToSession', { matchedWith: user1Data.userId, question: selectedQuestionId });
+
+    writeLogToFile(`Match initialized between ${user1Data.userId} and ${user2Data.userId}`);
+}
+
+function getOverlappingCriteria(criteria1: any, criteria2: any) {
+    const user1diff = criteria1.difficulty;
+    const user1topic = criteria1.topic;
+    const user2diff = criteria2.difficulty;
+    const user2topic = criteria2.topic;
+
+    const overlappingDiff = user1diff.filter((value: string) => user2diff.includes(value));
+    const overlappingTopic = user1topic.filter((value: string) => user2topic.includes(value));
+
+    return { difficulty: overlappingDiff, category: overlappingTopic };
+}
+
+function selectQuestion(criteria: any) {
+    // Select question based on criteria
+    // For now, we just return a random questionId
+    // TODO : wait for joshua to implement endpoint on question service side
+    return 1;
+}
+
+function addMatchToUserData(userId1: string, userId2: string, questionId: number, sessionId: string) {
+    // Add match to user data
+    // TODO: modify user service first
+}
+
+async function initializeMatchOnSessionService(userId1: string, userId2: string, questionId: number): Promise<string> {
+    // Initialize match on session service
+    const sessionServiceUrl = process.env.SESSION_SERVICE_URL;
+
+    try {
+        const response = await fetch(`${sessionServiceUrl}/api/session/create`, {
+            method: 'POST', // Using POST method to create a session
+            headers: {
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+            body: JSON.stringify({
+                participants: [userId1, userId2], // Include user IDs in the request body
+                questionId: questionId // Include the question ID
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`); // Handle non-2xx responses
+        }
+
+        const sessionData = await response.json(); // Parse the JSON response
+        const sessionId = sessionData.session_id; // Extract the session_id
+
+        return sessionId; // Return the session ID
+    } catch (error) {
+        console.error('Failed to initialize match on session service:', error);
+        throw error; // Rethrow the error for further handling if needed
+    }
+}
+
