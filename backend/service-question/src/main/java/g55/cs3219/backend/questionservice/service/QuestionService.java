@@ -85,7 +85,7 @@ public class QuestionService {
         trimWhitespace(questionDto);
         validateQuestion(questionDto);
 
-        List<Question> existingQuestions = questionRepository.findByTitle(questionDto.getTitle());
+        List<Question> existingQuestions = questionRepository.findByTitleIgnoreCase(questionDto.getTitle());
     
         if (!existingQuestions.isEmpty()) {
             throw new InvalidQuestionException("Duplicate question found with title: " + questionDto.getTitle());
@@ -128,7 +128,7 @@ public class QuestionService {
 
         // Check if the new title already exists in the database
         if (updatedQuestionDto.getTitle() != null) {
-            List<Question> questionsWithTitle = questionRepository.findByTitle(updatedQuestionDto.getTitle());
+            List<Question> questionsWithTitle = questionRepository.findByTitleIgnoreCase(updatedQuestionDto.getTitle());
             if (!questionsWithTitle.isEmpty() && !questionsWithTitle.get(0).getId().equals(id)) {
                 throw new InvalidQuestionException("Duplicate question found with title: " + updatedQuestionDto.getTitle());
             }
