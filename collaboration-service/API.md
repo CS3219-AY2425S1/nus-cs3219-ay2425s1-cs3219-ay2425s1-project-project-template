@@ -25,7 +25,8 @@ Checks if a user is part of an active session.
   ```json
   {
     "sessionId": "sessionId456",
-    "matchedUserId": "matchedUserId789"
+    "matchedUserId": "matchedUserId789",
+    "questionId": "questionId123"
   }
   ```
 
@@ -45,6 +46,7 @@ Triggered when a user attempts to join a session.
 - **Payload**:
 - `sessionId` (string): The ID of the session.
 - `matchedUserId` (string): The ID of the matched user.
+- `questionId` (string): The ID of the question for the session.
 
 - **Responses**:
 - `error`: Emitted if there is an error.
