@@ -11,6 +11,8 @@ import { useDisclosure } from '@mantine/hooks';
 
 import LoginModal from '../components/modal/LoginModal';
 import SignUpModal from '../components/modal/SignUpModal';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 function Landing() {
   const [isLoginModalOpened, { open: openLoginModal, close: closeLoginModal }] =
@@ -19,6 +21,14 @@ function Landing() {
     isSignUpModalOpened,
     { open: openSignUpModal, close: closeSignUpModal },
   ] = useDisclosure(false);
+
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get("login") === "true") {
+      openLoginModal();
+    }
+  })
 
   return (
     <>
