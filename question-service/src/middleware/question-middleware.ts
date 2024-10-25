@@ -43,7 +43,9 @@ const authMiddleware = async (
     });
 
     const userData = response.data; // Assume user data contains 'isAdmin' field
-    if (!userData.isAdmin) {
+    console.log('User data:', userData); // Debugging log
+    console.log('User is admin:', userData.data.isAdmin); // Debugging log
+    if (!userData.data.isAdmin) {
       return res.status(403).json({ message: 'Access Denied. Admins only.' });
     }
 
