@@ -94,8 +94,8 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({ selectedDifficu
                 <Tag.CheckableTag
                     className={`difficulty-tag ${difficultyOption.value}-tag`}
                     key={difficultyOption.value}
-                    checked={selectedDifficulties.includes(difficultyOption.label)}
-                    onChange={() => handleChange(difficultyOption.label)}
+                    checked={selectedDifficulties.includes(difficultyOption.value)}
+                    onChange={() => handleChange(difficultyOption.value)}
                 >
                     {difficultyOption.label}
                 </Tag.CheckableTag>

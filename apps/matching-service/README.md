@@ -75,7 +75,7 @@ Client sends matching parameters:
 {
   "type": "match_request",
   "topics": ["Algorithms", "Arrays"],
-  "difficulties": ["Easy", "Medium"],
+  "difficulties": ["easy", "medium"],
   "username": "1f0myn"
 }
 ```
@@ -153,3 +153,5 @@ docker run -d --name redis-container --network redis-go-network redis
 ```bash
 docker run -d -p 8081:8081 --name go-app-container --network redis-go-network match-go-app
 ```
+
+**NOTE:** As there is a dependency on the question-service to return the found questions, the matching-service does not work fully unless the question-service is present.

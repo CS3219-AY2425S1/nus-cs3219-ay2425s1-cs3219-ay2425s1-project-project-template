@@ -3,6 +3,7 @@ package servers
 import (
 	"log"
 	pb "matching-service/proto"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -13,12 +14,13 @@ var (
 )
 
 func InitGrpcServer() *grpc.ClientConn {
+	questionServiceAddr := os.Getenv("QUESTION_SERVICE_GRPC_URL")
 	// Dial the server
-	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(questionServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Did not connect: %v", err)
+		log.Fatalf("Did not connect to %v: %v", questionServiceAddr, err)
 	} else {
-		log.Println("Connected to Grpc server at :50051")
+		log.Println("Connected to Grpc server at %v", questionServiceAddr)
 	}
 
 	// Create a new client for the ExampleService
