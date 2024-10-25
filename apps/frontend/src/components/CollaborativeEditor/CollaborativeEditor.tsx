@@ -44,6 +44,7 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
 
   const languageConf = new Compartment();
 
+  // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
   const autoLanguage = EditorState.transactionExtender.of((tr) => {
     if (!tr.docChanged) return null;
 
