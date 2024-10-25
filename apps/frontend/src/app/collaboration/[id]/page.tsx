@@ -26,6 +26,7 @@ import {
   SendOutlined,
 } from "@ant-design/icons";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
+import CollaborativeEditor from "@/components/CollaborativeEditor/CollaborativeEditor";
 
 interface CollaborationProps {}
 
@@ -45,6 +46,7 @@ export default function CollaborationPage(props: CollaborationProps) {
   const [collaborationId, setCollaborationId] = useState<string | undefined>(
     undefined
   );
+  const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
   const [matchedUser, setMatchedUser] = useState<string | undefined>(undefined);
 
   // Chat states
@@ -70,10 +72,12 @@ export default function CollaborationPage(props: CollaborationProps) {
     const docRefId: string = localStorage.getItem("docRefId") ?? "";
     const collabId: string = localStorage.getItem("collabId") ?? "";
     const matchedUser: string = localStorage.getItem("matchedUser") ?? "";
+    const currentUser: string = localStorage.getItem("user") ?? "";
 
     // Set states from localstorage
     setCollaborationId(collabId);
     setMatchedUser(matchedUser);
+    setCurrentUser(currentUser);
 
     GetSingleQuestion(docRefId).then((data: Question) => {
       setQuestionTitle(`${data.id}. ${data.title}`);
@@ -185,6 +189,12 @@ export default function CollaborationPage(props: CollaborationProps) {
                     onSelect={(val) => setSelectedLanguage(val)}
                   />
                 </div>
+                {collaborationId && currentUser && (
+                  <CollaborativeEditor
+                    user={currentUser}
+                    collaborationId={collaborationId}
+                  />
+                )}
               </div>
             </Row>
           </Col>
