@@ -9,7 +9,7 @@ const MatchingPage = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState('');
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [selectedFindingMatch, setSelectedFindingMatch] = useState(false);
-    const [statusMessage, setStatusMessage] = useState("Start a new session now!"); // used for the right display
+    const [statusMessage, setStatusMessage] = useState("Start a new session now!");
 
     const TIMEOUT = 60;
     const {
@@ -51,19 +51,25 @@ const MatchingPage = () => {
             setSelectedFindingMatch(true);
             const res = await enqueueUser(selectedTopic, selectedDifficulty);
             setSelectedFindingMatch(false);
-            
+            localStorage.setItem('timerStarted', 'true');
         }
 
         console.log("Finding match with:", selectedDifficulty, selectedTopic);
     };
 
-    // Should be called when cancel button is pressed 
     const handleCancelMatch = () => {
         console.log('handleCancelMatch is called');
-        deleteUserFromQueue(selectedTopic, selectedDifficulty);
-        setSelectedFindingMatch(false); // stop finding a match
-        setStatusMessage('You cancelled the matching. Please try again!')
-    }
+        deleteUserFromQueue();
+        setSelectedFindingMatch(false);
+        localStorage.removeItem('timerStarted');
+        localStorage.setItem('requestCanceled', 'true');
+    };
+
+    const handleTimeout = () => {
+        console.log('Timeout occurred');
+        handleCancelMatch();
+        setStatusMessage("Time's up! Match could not be found.");
+    };
 
     useEffect(() => {
         console.log(`isMatchSuccessful: ${isMatchSuccessful}`);
@@ -74,6 +80,41 @@ const MatchingPage = () => {
             setStatusMessage("Search failed, please try again!");
         }
     }, [isMatchSuccessful]);
+
+    // Effect to handle browser refresh
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (localStorage.getItem('timerStarted') === 'true') {
+                handleCancelMatch();
+                localStorage.setItem('requestCanceled', 'true');
+                event.preventDefault();
+                event.returnValue = ''; 
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        // Cleanup event listener on component unmount
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
+    // Restore state on component mount if user refreshes
+    useEffect(() => {
+        const timerStarted = localStorage.getItem('timerStarted');
+        const requestCanceled = localStorage.getItem('requestCanceled');
+
+        if (requestCanceled === 'true') {
+            alert("Your previous match request was cancelled due to a page refresh. Please try again");
+            localStorage.removeItem('requestCanceled');
+        }
+
+        if (timerStarted === 'true') {
+            setTimerStart(false);
+            setSelectedFindingMatch(false);
+        }
+    }, []);
 
     return (
         <div className={styles.matchingPage}>
@@ -135,7 +176,11 @@ const MatchingPage = () => {
             <div className={styles.rightSection}>
                 {timerStart ? (
                     <>
-                        <CountdownTimer initialSeconds={TIMEOUT} start={timerStart} />
+                        <CountdownTimer
+                            initialSeconds={TIMEOUT}
+                            start={timerStart}
+                            onTimeout={handleTimeout}
+                        />
                         <button
                             className={`${styles.findMatchButton}`}
                             disabled={!timerStart}
