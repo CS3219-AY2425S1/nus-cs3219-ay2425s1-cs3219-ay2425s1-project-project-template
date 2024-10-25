@@ -22,8 +22,8 @@ export async function validateApiJWT(req: Request, res: Response, next: NextFunc
                 Authorization: `Bearer ${token}`
             }
         });
-
-        req.body.userId = response.data.id; // Assuming userId is returned in the response
+        console.log(`User ${response.data.data.id} validated`);
+        req.body.userId = response.data.data.id; // Assuming userId is returned in the response
         next();
     } catch (err) {
         if (axios.isAxiosError(err)) {
@@ -40,7 +40,7 @@ export async function validateApiJWT(req: Request, res: Response, next: NextFunc
 
 // Function to validate JWT in socket connections
 export async function validateSocketJWT(socket: Socket, next: (err?: Error) => void) {
-    const token = socket.handshake.auth.token;
+    const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1]; // Extract Bearer token
 
     if (!token) {
         return next(new Error('Authentication error: No token provided.'));
@@ -56,6 +56,7 @@ export async function validateSocketJWT(socket: Socket, next: (err?: Error) => v
         });
         console.log(`User ${response.data.data.id} validated`);
         socket.data.userId = response.data.data.id; // Assuming userId is returned in the response
+        socket.data.username = response.data.data.username; // Assuming username is returned in the response
         next();
     } catch (err) {
         if (axios.isAxiosError(err)) {
