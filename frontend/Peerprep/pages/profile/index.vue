@@ -25,31 +25,43 @@ const getInitials = () => {
 }
 
 const getQuestionInfo = async (question_id: string) => {
-    const { data, error } = await useFetch(`http://localhost:5000/questions/${question_id}`)
+    try {
+        const response = await fetch(`http://localhost:5000/questions/${question_id}`);
 
-    if (error.value) {
-        throw new Error(error.value.message);
+        if (!response.ok) {
+            console.error(`Error fetching question info: ${response.status} ${response.statusText}`);
+            return undefined;
+        }
+
+        const data = await response.json();
+
+        if (data) {
+            return data;
+        }
+    } catch (error) {
+        console.error("Error fetching question info:", error);
+        return undefined;
     }
-
-    if (data.value !== undefined) {
-        return data.value;
-    }
-
-    throw new Error("Received undefined value from Question Service");
+    return undefined;
 }
 
 const getUserDisplayName = async (user_id: string) => {  // This function might be a security risk, consider moving it to user service
-    const { data, error } = await useFetch(`http://localhost:5001/users/${user_id}`);
+    try {
+        const response = await fetch(`http://localhost:5001/users/${user_id}`);
 
-    if (error.value) {
-        throw new Error(error.value.message);
+        if (!response.ok) {
+            console.error(`Error fetching user data: ${response.status} ${response.statusText}`)
+            return "Unknown User";
+        }
+        const data = await response.json;
+
+        if (data && data.user && data.user.displayName) {
+            return data.user.displayName;
+        }
+    } catch (error) {
+        console.error(`Error fetching user data: ${response.status} ${response.statusText}`);
+        return "Unknown User";
     }
-
-    if (data.value !== undefined) {
-        return data.value.user.displayName;
-    }
-
-    throw new Error("Received undefined value from User Service")
 }
 
 const convertEpochToDateTime = (epochTime: number) => {
@@ -80,12 +92,20 @@ const fetchAttemptList = async () => {
                 listOfAttempts.sort((a: QuestionAttemptNet, b: QuestionAttemptNet) => b.timestamp - a.timestamp)
                     .map(async (attempt: QuestionAttemptNet, index: number) => {
                         const questionInfo = await getQuestionInfo(attempt.question_id);
-                        const questionTitle = questionInfo.title;
-                        const questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
-                        const questionCategory = questionInfo.category.toString();
+                        let questionTitle = "";
+                        let questionDifficulty = "";
+                        let questionCategory = "";
+                        if (questionInfo) {
+                            questionTitle = questionInfo.title;
+                            questionDifficulty = capitalizeFirstLetter(questionInfo.difficulty);
+                            questionCategory = questionInfo.category.toString();
+                        } else {
+                            questionTitle = "Unknown Question";
+                            questionDifficulty = "Unknown Question";
+                            questionCategory = "Unknown Question";
+                        }
 
                         const matchedUser = await getUserDisplayName(attempt.matched_user);
-
                         return {
                             index: index + 1,
                             sessionId: attempt.session_id,
@@ -114,7 +134,7 @@ onMounted(() => {
         userProfile.value.email = user.value.email;
     }
     isLoading.value = false;
-    
+
     fetchAttemptList();
 });
 </script>
@@ -154,11 +174,7 @@ onMounted(() => {
         <!-- Match History Section -->
         <div class="mt-4">
             <div v-if="isLoading" class="text-gray-500">Loading History...</div>
-            <AttemptHistoryListTable
-                v-else
-                :data="attemptList"
-                :key="attemptList.length"
-            />
+            <AttemptHistoryListTable v-else :data="attemptList" :key="attemptList.length" />
         </div>
     </div>
 </template>
