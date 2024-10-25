@@ -67,10 +67,25 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 	}
 
 	// 5b. Retrieve random question from potential questions
+	question, err := retrieveRandomQuestion(docs)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.QuestionFound{
+		QuestionDocRefId:   question.DocRefID,
+		QuestionName:       question.Title,
+		QuestionDifficulty: question.Complexity.String(),
+		QuestionTopics:     question.Categories,
+	}, nil
+}
+
+// Retrieve the document at the random offset
+
+func retrieveRandomQuestion(docs []*firestore.DocumentSnapshot) (*models.Question, error) {
 	// Generate a random offset
 	randomOffset := rand.Intn(len(docs))
 
-	// Retrieve the document at the random offset
 	doc := docs[randomOffset]
 	var question models.Question
 	if err := doc.DataTo(&question); err != nil {
@@ -78,13 +93,7 @@ func (s *GrpcServer) FindMatchingQuestion(ctx context.Context, req *pb.MatchQues
 
 	}
 	question.DocRefID = doc.Ref.ID
-
-	return &pb.QuestionFound{
-		QuestionId:         question.ID,
-		QuestionName:       question.Title,
-		QuestionDifficulty: question.Complexity.String(),
-		QuestionTopics:     question.Categories,
-	}, nil
+	return &question, nil
 }
 
 func queryTopicAndDifficultyQuestion(client *firestore.Client, ctx context.Context, topics []string, difficulties []models.ComplexityType) ([]*firestore.DocumentSnapshot, error) {

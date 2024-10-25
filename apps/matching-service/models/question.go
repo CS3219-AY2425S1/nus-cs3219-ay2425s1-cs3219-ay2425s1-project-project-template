@@ -6,7 +6,7 @@ type MatchQuestionRequest struct {
 }
 
 type QuestionFound struct {
-	QuestionID         int64    `json:"question_id"`
+	QuestionDocRefID   string   `json:"question_doc_ref_id"`
 	QuestionName       string   `json:"question_name"`
 	QuestionDifficulty string   `json:"question_difficulty"`
 	QuestionTopics     []string `json:"question_topics"`

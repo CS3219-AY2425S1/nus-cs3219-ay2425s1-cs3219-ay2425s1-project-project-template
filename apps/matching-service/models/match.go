@@ -22,7 +22,7 @@ type MatchQuestionFound struct {
 	User               string   `json:"user"`
 	MatchedUser        string   `json:"matched_user"`
 	MatchedTopics      []string `json:"matched_topics"`
-	QuestionID         int64    `json:"question_id"`
+	QuestionDocRefID   string   `json:"question_doc_ref_id"`
 	QuestionName       string   `json:"question_name"`
 	QuestionDifficulty string   `json:"question_difficulty"`
 	QuestionTopics     []string `json:"question_topics"`

@@ -10,7 +10,7 @@ message MatchQuestionRequest {
 }
 
 message QuestionFound {
-    int64 question_id = 1;
+    string question_doc_ref_id = 1;
     string question_name = 2;
     string question_difficulty = 3;
     repeated string question_topics = 4;

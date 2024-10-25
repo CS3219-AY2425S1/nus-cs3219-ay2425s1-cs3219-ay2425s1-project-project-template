@@ -77,7 +77,7 @@ func completeMatch(tx *redis.Tx, ctx context.Context, matchFound *models.MatchFo
 	matchQuestionFound := queryQuestionService(ctx, matchFound)
 
 	log.Printf("Match %v: Question %v found with topics: %v and difficulty %v",
-		matchFound.MatchID, matchQuestionFound.QuestionID,
+		matchFound.MatchID, matchQuestionFound.QuestionDocRefID,
 		matchQuestionFound.QuestionTopics, matchQuestionFound.QuestionDifficulty)
 
 	currentUsername := matchFound.User
@@ -119,7 +119,7 @@ func queryQuestionService(ctx context.Context, matchFound *models.MatchFound) *m
 		User:               matchFound.User,
 		MatchedUser:        matchFound.MatchedUser,
 		MatchedTopics:      matchFound.MatchedTopics,
-		QuestionID:         question.QuestionId,
+		QuestionDocRefID:   question.QuestionName,
 		QuestionName:       question.QuestionName,
 		QuestionDifficulty: question.QuestionDifficulty,
 		QuestionTopics:     question.QuestionTopics,
