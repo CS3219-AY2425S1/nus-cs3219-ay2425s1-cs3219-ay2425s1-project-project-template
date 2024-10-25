@@ -61,6 +61,11 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
 
     const startMatch = matchingState.state == "closed" || matchingState.state == "timeout" ? async (params: MatchParams): Promise<void> => {
         const user = await ValidateUser();
+        
+        restartTimer(
+            new Date(Date.now() + MATCH_TIMEOUT * 1000),
+        );
+    
         matchingState.start({
             email: user.data.email,
             username: user.data.username,
@@ -86,12 +91,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
             case 'closed':
                 switch (closedType) {
                     case "finding":
-                        return <FindMatchContent beginMatch={params => {
-                            restartTimer(
-                                new Date(Date.now() + MATCH_TIMEOUT * 1000),
-                            );
-                            matchingState.start(params);
-                        }}/>;
+                        return <FindMatchContent beginMatch={params => {}}/>;
                     case "cancelled":
                         return <MatchCancelledContent
                             reselect={() => {
