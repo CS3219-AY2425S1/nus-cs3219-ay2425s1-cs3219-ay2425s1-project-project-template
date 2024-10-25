@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { USER_SERVICE_API, USER_JWT_SECRET } = require('../config');
+const { USER_JWT_SECRET } = require('../config');
 
 const authMiddleware = async (req, res, next) => {
   try {
