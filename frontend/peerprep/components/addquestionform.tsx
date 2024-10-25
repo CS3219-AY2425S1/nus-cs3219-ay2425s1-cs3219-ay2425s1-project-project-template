@@ -24,7 +24,7 @@ import {
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,
   submitQuestion,
-} from "@/app/api/services/questionService";
+} from "@/services/questionService";
 
 interface AddQuestionFormProps {
   initialTitle?: string;
@@ -83,7 +83,8 @@ export default function AddQuestionForm({
   // Handle removing a category
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category),
+      prevCategories.filter((cat) => cat !== category)
+      prevCategories.filter((cat) => cat !== category)
     );
   };
 
@@ -112,7 +113,8 @@ export default function AddQuestionForm({
   // Handle input change for test case
   const handleInputChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
 
@@ -155,10 +157,11 @@ export default function AddQuestionForm({
         category,
         templateCode,
         testCases,
+        language
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting.",
+        "Please fill in all the required fields before submitting."
       );
       setErrorModalOpen(true); // Show error modal with the validation message
 
@@ -176,6 +179,7 @@ export default function AddQuestionForm({
         selectedTab,
         templateCode,
         testCases,
+        language // Include language in submission
       );
 
       if (response.ok) {
@@ -187,14 +191,14 @@ export default function AddQuestionForm({
         const errorData = await response.json();
 
         setErrorMessage(
-          errorData.error || "Failed to submit the question. Please try again.",
+          errorData.error || "Failed to submit the question. Please try again."
         );
         setErrorModalOpen(true);
       }
     } catch (error) {
       // Show error modal with generic error message
       setErrorMessage(
-        "An error occurred while submitting the question. Please try again later",
+        "An error occurred while submitting the question. Please try again later"
       );
       setErrorModalOpen(true);
     }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from './app/api/auth/actions';
+import { getSession } from './auth/actions';
 
 export async function middleware(req:any) {
   const url = req.nextUrl.clone(); // Clone the URL

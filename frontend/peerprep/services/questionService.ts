@@ -4,7 +4,7 @@ import { env } from "next-runtime-env";
 import useSWR from "swr";
 
 const NEXT_PUBLIC_QUESTION_SERVICE_URL = env(
-  "NEXT_PUBLIC_QUESTION_SERVICE_URL",
+  "NEXT_PUBLIC_QUESTION_SERVICE_URL"
 );
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -12,7 +12,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export const useUniqueCategoriesFetcher = () => {
   const { data, error, isLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/categories/unique`,
-    fetcher,
+    fetcher
   );
 
   return {
@@ -25,7 +25,7 @@ export const useUniqueCategoriesFetcher = () => {
 export const useQuestionDataFetcher = (questionId: string) => {
   const { data, error, isLoading } = useSWR(
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${questionId}`,
-    fetcher,
+    fetcher
   );
 
   return {
@@ -40,7 +40,7 @@ export const useQuestionsFetcher = (
   complexityFilter?: string | null,
   categoryFilter?: string | SharedSelection,
   sortDescriptor?: SortDescriptor, // Specify the structure for sortDescriptor
-  page?: number,
+  page?: number
 ) => {
   // Create an array to hold the query parameters
   const queryParams: string[] = [];
@@ -99,15 +99,17 @@ export const isValidQuestionSubmission = (
   category: string[],
   templateCode: string,
   testCases: any[],
+  language: string // New field
 ) => {
   return !(
     !title.trim() ||
     !description.trim() ||
+    !language.trim() || // Language must not be empty
     !category.length ||
     !templateCode.trim() ||
     !testCases.every(
       (testCase) =>
-        testCase.input.trim() !== "" && testCase.output.trim() !== "",
+        testCase.input.trim() !== "" && testCase.output.trim() !== ""
     )
   );
 };
@@ -120,6 +122,7 @@ export const submitQuestion = async (
   complexity: string,
   templateCode: string,
   testCases: any[],
+  language: string // New field
 ) => {
   const formData = {
     title,
@@ -128,8 +131,9 @@ export const submitQuestion = async (
     complexity,
     templateCode,
     testCases: testCases.map(
-      (testCase) => `${testCase.input} -> ${testCase.output}`,
+      (testCase) => `${testCase.input} -> ${testCase.output}`
     ),
+    language, // New field
   };
 
   const response = await fetch(
@@ -140,7 +144,7 @@ export const submitQuestion = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
-    },
+    }
   );
 
   return response;
@@ -154,6 +158,7 @@ export const editQuestion = async (
   complexity: string,
   templateCode: string,
   testCases: any[],
+  language: string // New field
 ) => {
   const formData = {
     title,
@@ -162,8 +167,9 @@ export const editQuestion = async (
     complexity,
     templateCode,
     testCases: testCases.map(
-      (testCase) => `${testCase.input} -> ${testCase.output}`,
+      (testCase) => `${testCase.input} -> ${testCase.output}`
     ),
+    language, // Include the language field
   };
 
   const response = await fetch(
@@ -174,7 +180,7 @@ export const editQuestion = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
-    },
+    }
   );
 
   return response;
@@ -185,7 +191,7 @@ export const deleteQuestion = async (questionId: string) => {
     `${NEXT_PUBLIC_QUESTION_SERVICE_URL}/api/questions/${questionId}`,
     {
       method: "DELETE",
-    },
+    }
   );
 
   return response;

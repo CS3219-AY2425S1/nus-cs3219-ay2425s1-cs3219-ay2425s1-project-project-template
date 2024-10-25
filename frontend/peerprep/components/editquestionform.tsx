@@ -31,7 +31,7 @@ import {
   useQuestionDataFetcher,
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,
-} from "@/app/api/services/questionService";
+} from "@/services/questionService";
 
 interface EditQuestionFormProps {
   initialTitle?: string;
@@ -40,6 +40,7 @@ interface EditQuestionFormProps {
   initialCategories?: string[];
   initialTemplateCode?: string;
   initialTestCases?: { input: string; output: string }[];
+  // initialLanguage?: string; // NEW FIELD
 }
 
 export default function EditQuestionForm({
@@ -49,10 +50,11 @@ export default function EditQuestionForm({
   initialCategories = [],
   initialTemplateCode = "",
   initialTestCases = [{ input: "", output: "" }],
-}: EditQuestionFormProps) {
+}: // initialLanguage = "javascript", // Default language
+EditQuestionFormProps) {
   const params = useParams();
   const router = useRouter();
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState("javascript"); // Default language
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { theme } = useTheme();
 
@@ -72,7 +74,7 @@ export default function EditQuestionForm({
   const [testCases, setTestCases] =
     useState<{ input: string; output: string }[]>(initialTestCases);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
-    null,
+    null
   );
   const [question, setQuestion] = useState<Question | null>(null);
 
@@ -86,6 +88,7 @@ export default function EditQuestionForm({
       setTitle(questionData?.question.title);
       setSelectedComplexity(questionData?.question.complexity);
       setCategories(questionData?.question.category);
+      setLanguage(questionData?.question.language);
       setDescription(questionData?.question.description);
       setTemplateCode(questionData?.question.templateCode);
       setTestCases(
@@ -96,8 +99,8 @@ export default function EditQuestionForm({
               .map((str) => str.trim());
 
             return { input, output };
-          }),
-        ) || [],
+          })
+        ) || []
       );
       setQuestion(questionData?.question);
     }
@@ -141,7 +144,7 @@ export default function EditQuestionForm({
   // Handle removing a category
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category),
+      prevCategories.filter((cat) => cat !== category)
     );
   };
 
@@ -170,7 +173,7 @@ export default function EditQuestionForm({
   // Handle input change for test case
   const handleInputChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
     const { name, value } = event.target;
@@ -216,10 +219,11 @@ export default function EditQuestionForm({
         categories,
         templateCode,
         testCases,
+        language // New field
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting.",
+        "Please fill in all the required fields before submitting."
       );
       setErrorModalOpen(true); // Show error modal with the validation message
 
@@ -235,6 +239,7 @@ export default function EditQuestionForm({
         selectedTab,
         templateCode,
         testCases,
+        language // New field
       );
 
       if (response.ok) {
@@ -244,7 +249,7 @@ export default function EditQuestionForm({
         const errorData = await response.json();
 
         setErrorMessage(
-          errorData.error || "Failed to update the question. Please try again.",
+          errorData.error || "Failed to update the question. Please try again."
         );
         setErrorModalOpen(true);
       }
