@@ -40,6 +40,7 @@ interface EditQuestionFormProps {
   initialCategories?: string[];
   initialTemplateCode?: string;
   initialTestCases?: { input: string; output: string }[];
+  // initialLanguage?: string; // NEW FIELD
 }
 
 export default function EditQuestionForm({
@@ -49,10 +50,11 @@ export default function EditQuestionForm({
   initialCategories = [],
   initialTemplateCode = "",
   initialTestCases = [{ input: "", output: "" }],
-}: EditQuestionFormProps) {
+}: // initialLanguage = "javascript", // Default language
+EditQuestionFormProps) {
   const params = useParams();
   const router = useRouter();
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState("javascript"); // Default language
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { theme } = useTheme();
 
@@ -86,6 +88,7 @@ export default function EditQuestionForm({
       setTitle(questionData?.question.title);
       setSelectedComplexity(questionData?.question.complexity);
       setCategories(questionData?.question.category);
+      setLanguage(questionData?.question.language);
       setDescription(questionData?.question.description);
       setTemplateCode(questionData?.question.templateCode);
       setTestCases(
@@ -215,7 +218,8 @@ export default function EditQuestionForm({
         description,
         categories,
         templateCode,
-        testCases
+        testCases,
+        language // New field
       )
     ) {
       setErrorMessage(
@@ -234,7 +238,8 @@ export default function EditQuestionForm({
         categories,
         selectedTab,
         templateCode,
-        testCases
+        testCases,
+        language // New field
       );
 
       if (response.ok) {

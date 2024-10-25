@@ -20,10 +20,11 @@ export const questionController = {
       complexity,
       templateCode,
       testCases,
+      language,
     } = req.body;
 
     // Check if all fields are provided
-    if (!title || !description || !category || !complexity) {
+    if (!title || !description || !category || !complexity || !language) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -38,6 +39,47 @@ export const questionController = {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
+    }
+
+    // Convert language to uppercase and validate
+    const languageUpperCase = language.toUpperCase();
+    const validLanguages = [
+      "TYPESCRIPT",
+      "JAVASCRIPT",
+      "CSS",
+      "LESS",
+      "SCSS",
+      "JSON",
+      "HTML",
+      "XML",
+      "PHP",
+      "CSHARP",
+      "CPP",
+      "RAZOR",
+      "MARKDOWN",
+      "DIFF",
+      "JAVA",
+      "VB",
+      "COFFEESCRIPT",
+      "HANDLEBARS",
+      "BATCH",
+      "PUG",
+      "FSHARP",
+      "LUA",
+      "POWERSHELL",
+      "PYTHON",
+      "RUBY",
+      "SASS",
+      "R",
+      "OBJECTIVE-C",
+    ];
+
+    if (!validLanguages.includes(languageUpperCase)) {
+      return res.status(400).json({
+        error: `Invalid language. Allowed languages: ${validLanguages.join(
+          ", "
+        )}.`,
+      });
     }
 
     try {
@@ -76,6 +118,7 @@ export const questionController = {
         complexity: complexity.toUpperCase(),
         templateCode: templateCode,
         testCases: req.body.testCases,
+        language: languageUpperCase,
       });
 
       const savedQuestion = await question.save();
@@ -298,10 +341,11 @@ export const questionController = {
       complexity,
       templateCode,
       testCases,
+      language,
     } = req.body;
 
     // Check if all fields are provided
-    if (!title || !description || !category || !complexity) {
+    if (!title || !description || !category || !complexity || !language) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -316,6 +360,47 @@ export const questionController = {
       return res
         .status(400)
         .json({ error: "Invalid input for template code or test cases" });
+    }
+
+    // Convert language to uppercase and validate
+    const languageUpperCase = language.toUpperCase();
+    const validLanguages = [
+      "TYPESCRIPT",
+      "JAVASCRIPT",
+      "CSS",
+      "LESS",
+      "SCSS",
+      "JSON",
+      "HTML",
+      "XML",
+      "PHP",
+      "CSHARP",
+      "CPP",
+      "RAZOR",
+      "MARKDOWN",
+      "DIFF",
+      "JAVA",
+      "VB",
+      "COFFEESCRIPT",
+      "HANDLEBARS",
+      "BATCH",
+      "PUG",
+      "FSHARP",
+      "LUA",
+      "POWERSHELL",
+      "PYTHON",
+      "RUBY",
+      "SASS",
+      "R",
+      "OBJECTIVE-C",
+    ];
+
+    if (!validLanguages.includes(languageUpperCase)) {
+      return res.status(400).json({
+        error: `Invalid language. Allowed languages: ${validLanguages.join(
+          ", "
+        )}.`,
+      });
     }
 
     try {
@@ -358,6 +443,7 @@ export const questionController = {
       question.complexity = complexity.toUpperCase() || question.complexity;
       question.templateCode = templateCode || question.templateCode;
       question.testCases = testCases || question.testCases;
+      question.language = languageUpperCase /*|| question.language*/;
 
       await question.save();
       res.status(200).json(question);

@@ -84,6 +84,7 @@ export default function AddQuestionForm({
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
       prevCategories.filter((cat) => cat !== category)
+      prevCategories.filter((cat) => cat !== category)
     );
   };
 
@@ -112,6 +113,7 @@ export default function AddQuestionForm({
   // Handle input change for test case
   const handleInputChange = (
     index: number,
+    event: React.ChangeEvent<HTMLInputElement>
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
@@ -154,7 +156,8 @@ export default function AddQuestionForm({
         description,
         category,
         templateCode,
-        testCases
+        testCases,
+        language
       )
     ) {
       setErrorMessage(
@@ -175,7 +178,8 @@ export default function AddQuestionForm({
         category,
         selectedTab,
         templateCode,
-        testCases
+        testCases,
+        language // Include language in submission
       );
 
       if (response.ok) {
