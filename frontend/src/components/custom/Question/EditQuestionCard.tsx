@@ -85,7 +85,7 @@ const EditQuestionCard: React.FC<EditQuestionCardProps> = ({
 
     const result: SuccessObject = await callFunction(
       "edit-question",
-      "POST",
+      "PUT",
       question
     );
 

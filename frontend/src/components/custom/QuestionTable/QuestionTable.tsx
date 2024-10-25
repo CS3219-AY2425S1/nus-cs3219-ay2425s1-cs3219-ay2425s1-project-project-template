@@ -12,13 +12,6 @@ function QuestionTable() {
   const refetch = async () => {
     setLoading(true);
     const questions = await getData();
-
-    questions.sort((a, b) => {
-      return (
-        new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime()
-      );
-    });
-
     setData(questions);
     setLoading(false);
   };
