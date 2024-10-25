@@ -75,25 +75,27 @@ export default function CodeEditor() {
   }, []);
 
   return (
-    <div className="flex h-full w-full gap-4">
-      <div className="flex flex-col w-1/2 gap-4">
-        <div className="px-4 sm:px-0">
-          <LanguageSelector language={language} onSelect={onSelect} />
+    <div className="flex justify-center items-center h-full w-full">
+      <Card className="flex flex-row h-full w-full p-4 gap-4 bg-gray-200 dark:bg-gray-800">
+        <div className="flex flex-col w-1/2 gap-4">
+          <div className="px-4 sm:px-0">
+            <LanguageSelector language={language} onSelect={onSelect} />
+          </div>
+          <div className="flex-1 flex">
+          <Editor
+            className="flex-1 rounded-lg"
+            theme={theme === "dark" ? "vs-dark" : "vs-light"}
+            language={language}
+            onMount={onMount}
+            value={value}
+            options={{ fontSize: 14 }}
+          />
+          </div>
         </div>
-        <div className="flex-1 flex">
-        <Editor
-          className="flex-1 rounded-lg"
-          theme={theme === "dark" ? "vs-dark" : "vs-light"}
-          language={language}
-          onMount={onMount}
-          value={value}
-          options={{ fontSize: 14 }}
-        />
+        <div className="flex w-1/2 h-full">
+          <Output editorRef={editorRef} language={language} />
         </div>
-      </div>
-      <div className="flex w-1/2 h-full">
-        <Output editorRef={editorRef} language={language} />
-      </div>
+      </Card>
     </div>
   );
 }
