@@ -46,7 +46,6 @@ async def kafka_consumer():
             logger.info("Attempting to connect to Kafka")
             consumer = Consumer(consumer_config)
             logger.info("Connected to Kafka successfully")
-            # consumer.subscribe(["match_requests", "match_results", "question_results"])
             consumer.subscribe(["question_results"])
             break
         except Exception as e:

@@ -109,7 +109,10 @@ def process_message(message, producer):
                 req_user_category=category,
                 req_user_request_time=request_time,
             )
+
             for match_type in ["complete", "partial"]:
+                is_complete = match_type == "complete"
+                logger.info(f"Attempting to find {match_type} matches...")
                 res = find_and_handle_match(
                     redis_client,
                     pipe,
@@ -127,17 +130,16 @@ def process_message(message, producer):
                     return
                 if res:
                     get_available_matching_requests(
-                        is_before=False, redis_client=redis_client, logger=logger
+                        is_before=False,
+                        redis_client=redis_client,
+                        logger=logger,
+                        is_complete=is_complete,
                     )
                     return
-
             add_user_to_matching_queue(
-                pipe, user_id, key, category_key, expiration_time
+                pipe, user_id, key, category_key, difficulty, expiration_time
             )
 
-            get_available_matching_requests(
-                is_before=False, redis_client=redis_client, logger=logger
-            )
             return
 
         except redis.WatchError:
@@ -169,12 +171,25 @@ def find_and_handle_match(
 
     for match in matches:
         match = match.decode("utf-8")
+        complete_match_key = key
+        parital_match_entry = f"{match}:{difficulty}"
+        if match_type == "partial":
+            parital_match_entry = match
+            match_difficulty = match.split(":")[1]
+            match = match.split(":")[0]
+            complete_match_key = f"c_matching:{category}:{match_difficulty}"
         can_continue, cancelled_users = can_proceed(
             redis_client, user_id, match, logger
         )
+        logger.info(
+            f"can_proceed result for user {user_id} and match {match}: can_continue={can_continue}, cancelled_users={cancelled_users}"
+        )
 
         if can_continue:
-            remove_and_execute(pipe, key, category_key, match)
+            remove_and_execute(
+                pipe, complete_match_key, category_key, match, parital_match_entry
+            )
+
             push_to_kafka(match_type, user_id, match, category, difficulty, producer)
 
             return True
@@ -184,14 +199,16 @@ def find_and_handle_match(
                 f"User {user_id} has cancelled its match request. Stop matching"
             )
             return False
-        remove_and_execute(pipe, key, category_key, match)
+
+        remove_and_execute(
+            pipe, complete_match_key, category_key, match, parital_match_entry
+        )
 
     logger.info(f"No {match_type} matches found for user_id={user_id}.")
     return None
 
 
 def remove_expired_entries(redis_client, min_timestamp):
-
     for pattern in [COMPLETE_MATCHING_PATTERN, PARTIAL_MATCHING_PATTERN]:
         cursor = 0
         while True:
@@ -207,31 +224,34 @@ def remove_expired_entries(redis_client, min_timestamp):
             try:
                 pipeline.execute()
             except redis.exceptions.RedisError as e:
-                logger.error(f"Error executing Redis pipeline: {e}")
+                logger.error(
+                    f"Error executing Redis pipeline during expiration cleanup: {e}"
+                )
 
             if cursor == 0:
                 break
 
 
-def remove_and_execute(pipe, key, category_key, match):
-    pipe.zrem(key, match)
-    pipe.zrem(category_key, match)
-    pipe.execute()
+def remove_and_execute(pipe, key, category_key, match, partial_match_entry):
+
+    try:
+        pipe.zrem(key, match)
+        pipe.zrem(category_key, partial_match_entry)
+        pipe.execute()
+        # logger.info(
+        #    f"successfully removed match: {match} from {key} and partial match: {partial_match_entry}  from {category_key}"
+        # )
+    except redis.exceptions.RedisError as e:
+        logger.error(f"Error executing Redis pipeline for removal: {e}")
 
 
-def add_user_to_matching_queue(pipe, user_id, key, category_key, expiration_time):
+def add_user_to_matching_queue(
+    pipe, user_id, key, category_key, difficulty, expiration_time
+):
+
     pipe.zadd(key, {str(user_id): expiration_time})
-    pipe.zadd(category_key, {str(user_id): expiration_time})
+    pipe.zadd(category_key, {f"{user_id}:{difficulty}": expiration_time})
     pipe.execute()
-
-
-def log_redis_state(redis_client, key, category_key, user_id):
-    logger.info(
-        f"Redis set '{key}' after adding user {user_id}: {redis_client.zrange(key, 0, -1, withscores=True)}"
-    )
-    logger.info(
-        f"Redis set '{category_key}' after adding user {user_id}: {redis_client.zrange(category_key, 0, -1, withscores=True)}"
-    )
 
 
 def push_to_kafka(match_type, user_id, match, category, difficulty, producer):

@@ -55,8 +55,8 @@ def cancel_request(user_id):
     difficulty = redis_client.hget(f"user:{user_id}", "difficulty").decode("utf-8")
     complete_key = f"c_matching:{category}:{difficulty}"
     category_key = f"p_matching:{category}"
-    for key in [complete_key, category_key]:
-        redis_client.zrem(key, user_id)
+    redis_client.zrem(complete_key, user_id)
+    redis_client.zrem(category_key, f"{user_id}:{difficulty}")
     redis_client.hset(f"user:{user_id}", "state", "cancelled")
     logger.info(f"Matching request for user {user_id} cancelled")
     return jsonify({"message": "Matching request cancelled"}), 200

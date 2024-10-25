@@ -78,8 +78,9 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
       else {
 
         const formattedStatus = message.status[0].toUpperCase() + status.slice(1);
+        let matched_user = message.user1_id;
         if (is_user1) {
-
+          matched_user = message.user2_id;
           const ack = {
             status: "success",
             uid: message.uid
@@ -88,10 +89,10 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
         }
         updateCollaborationInfo(message, status);
         if (collaborationStore.isCollaborating) {
-          await navigateTo(`/collaboration`);
           toast({
-            description: `${formattedStatus} found! Redirecting to the collaboration room...`,
+            description: `${formattedStatus} found! Matched with user: ${matched_user}. Question ID: ${message.question_id}.  Category: ${message.category}. Difficulty: ${message.difficulty}. Redirecting to the collaboration room...`,
           });
+          await navigateTo(`/collaboration`);
           matchFound.value = true;
         }
       }
@@ -291,6 +292,7 @@ onUnmounted(() => {
               :disabled="isProcessing || matchFound || collaborationStore.isCollaborating">
               Match
             </Button>
+            <Button type="button" @click="collaborationStore.clearCollaborationInfo">Clear</Button>
 
 
           </div>
