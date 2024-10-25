@@ -2,21 +2,22 @@
 
 ## Running with Docker (Standalone)
 
-1. Run this command to build:
+1. Enter your OPEN AI Api Key in the .env.docker file.
+2. Run this command to build:
    ```sh
    docker build \
       --build-arg FRONTEND_PORT=3000 \
       -t frontend-app -f frontend.Dockerfile .
    ```
-2. Run this command, from the root folder:
+3. Run this command, from the root folder:
 
    ```sh
    make db-up
    ```
 
-3. Run the necessary migrate and seed commands, if you haven't yet.
+4. Run the necessary migrate and seed commands, if you haven't yet.
 
-4. Run this command to expose the container:
+5. Run this command to expose the container:
    ```sh
    docker run -p 3000:3000 --env-file ./.env.docker frontend-app
    ```
