@@ -24,7 +24,7 @@
 
       .container {
         width: 100%;
-        max-width: 800px;
+        max-width: 1000px;
         padding: 20px;
         background-color: #ffffff;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -174,6 +174,13 @@
         <label for="userCount">Number of Users:</label>
         <input type="number" id="userCount" value="2" min="1" max="20" />
         <button onclick="initializeUsers()">Initialize Users</button>
+        <button onclick="simulateUserRequestsWithDelay()">
+          Simulate User Requests
+        </button>
+      </div>
+      <div id="summaryContainer" style="margin-top: 20px; margin-bottom: 20px">
+        <h3>Summary of User Match Requests</h3>
+        <div id="summary"></div>
       </div>
       <div id="userContainer"></div>
     </div>
@@ -227,17 +234,44 @@
       }
 
       function openWebSocket(userId) {
-        if (sockets[`user${userId}`]) return;
-
+        if (sockets[`user${userId}`]) return; // Do not open if already open
         const socket = new WebSocket("ws://localhost:8081/match");
         sockets[`user${userId}`] = socket;
-        clearResponse(userId);
+        document.getElementById(`response${userId}`).innerText = "";
 
-        socket.onopen = () => handleSocketOpen(socket, userId);
-        socket.onmessage = (event) => handleSocketMessage(event, userId);
-        socket.onerror = (error) =>
-          console.log(`WebSocket error for User ${userId}:`, error);
-        socket.onclose = () => handleSocketClose(userId);
+        socket.onopen = function () {
+          console.log(`WebSocket for User ${userId} is open now.`);
+          const { username, topics, difficulties } =
+            userSettings[`user${userId}`];
+
+          socket.send(
+            JSON.stringify({
+              type: "match_request",
+              username: username,
+              topics: topics,
+              difficulties: difficulties,
+            })
+          );
+
+          document.getElementById(
+            `status${userId}`
+          ).innerText = `Status: matching in progress...`;
+          updateSummary(); // Refresh summary after opening
+        };
+
+        socket.onmessage = function (event) {
+          handleSocketMessage(event, userId);
+          updateSummary(); // Refresh summary on message
+        };
+
+        socket.onerror = function (error) {
+          console.log(`WebSocket error for User ${userId}: ` + error);
+        };
+
+        socket.onclose = function () {
+          console.log(`WebSocket for User ${userId} is closed now.`);
+          sockets[`user${userId}`] = null;
+        };
       }
 
       function closeConnection(userId) {
@@ -358,6 +392,8 @@
           )}</pre>`;
           updateStatus(userId, "Status: unexpected response", "error");
         }
+
+        updateSummary(); // Refresh summary
       }
 
       function handleSocketClose(userId) {
@@ -382,6 +418,96 @@
 
       function getRandomDifficulties() {
         return difficultiesList.filter(() => Math.random() < 0.4);
+      }
+
+      let isSimulating = false;
+
+      async function simulateUserRequestsWithDelay() {
+        if (isSimulating) {
+          alert(
+            "Simulation already in progress. Please wait until it finishes."
+          );
+          return;
+        }
+        isSimulating = true;
+
+        const maxUserCount = parseInt(
+          document.getElementById("userCount").value,
+          10
+        );
+        initializeUsers(); // Clear existing users
+        for (let i = 1; i <= maxUserCount; i++) {
+          // Initialize and open WebSocket for each user
+          randomizeDetails(i);
+          openWebSocket(i);
+
+          updateSummary(); // Update summary after each addition
+
+          // Wait for the delay before adding the next user
+          await delay(1000); // 1 second delay between each user request
+        }
+
+        isSimulating = false;
+      }
+      function updateSummary() {
+        const summaryContainer = document.getElementById("summary");
+        summaryContainer.innerHTML = ""; // Clear previous summary
+
+        // Create table structure
+        const summaryTable = document.createElement("table");
+        summaryTable.style.width = "100%";
+        summaryTable.style.borderCollapse = "collapse";
+
+        // Header row
+        summaryTable.innerHTML = `
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Username</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Topics</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Difficulty</th>
+        </tr>
+    `;
+
+        // Add each user's details to the table
+        Object.keys(userSettings).forEach((userId, index) => {
+          const user = userSettings[userId];
+          const statusElement = document.getElementById(`status${index + 1}`);
+          const statusText = statusElement
+            ? statusElement.innerText
+            : "unknown";
+
+          // Apply color coding to status
+          let statusColor = "black";
+          if (statusText.includes("matching in progress")) {
+            statusColor = "blue";
+          } else if (statusText.includes("match found")) {
+            statusColor = "green";
+          } else if (statusText.includes("timed out")) {
+            statusColor = "red";
+          }
+
+          // Create row for each user
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td style="padding: 8px; border: 1px solid #ddd;">${
+              user.username
+            }</td>
+            <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor};">${statusText}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">${user.topics.join(
+              ", "
+            )}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">${user.difficulties.join(
+              ", "
+            )}</td>
+        `;
+          summaryTable.appendChild(row);
+        });
+
+        summaryContainer.appendChild(summaryTable); // Append the summary table to the container
+      }
+
+      function delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
       }
     </script>
   </body>
