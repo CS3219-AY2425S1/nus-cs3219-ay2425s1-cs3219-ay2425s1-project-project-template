@@ -27,7 +27,7 @@ const loginUser = async (req, res) => {
     user.lastLogin = new Date();
     await updateUserById(user._id, { lastLogin: user.lastLogin });
 
-    const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, process.env.USER_JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin, username: user.username }, process.env.USER_JWT_SECRET, {
       expiresIn: '1y',
     });
     res.json({ token: token, userId: user._id.toString() });
