@@ -58,6 +58,7 @@ export const initializeSocket = async () => {
 export const registerUser = (
   userParams: { difficulty: string[]; topic: string[] },
   onMatchFound: (matchData: any) => void,
+  onRedirectToSession: () => void,
   onRegistrationSuccess: () => void,
   onMatchingTimeout: () => void,
   onError: (error: any) => void,
@@ -75,6 +76,7 @@ export const registerUser = (
 
   socket.on("redirectToSession", (body) => {
     console.log("Redirecting to session:", body);
+    onRedirectToSession();
   });
 
   socket.on("registrationSuccess", () => {
