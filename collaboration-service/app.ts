@@ -16,7 +16,7 @@ app.use(express.json());
 // Allow URL-encoded data in the request body to be parsed
 app.use(express.urlencoded({ extended: false }));
 
-// Use the question router to handle requests at http://localhost:5000/questions
+// Use the collaboration router to handle requests at http://localhost:5000/room
 app.use('/room', collaborationRoutes);
 
 // Set the server to listen on a specific port

@@ -3,22 +3,27 @@ import { Request, Response } from 'express';
 import database from '../config/firebaseConfig';
 import { ref, get, set, update } from 'firebase/database';
 import { Room } from "../models/room-model";
-import { JoinRequest } from '../models/join-request';
 
 export const joinRoom = async (req: Request, res: Response) => {
   try {
-    const { roomId, userId } = req.body as JoinRequest;
-
-    if (!roomId || typeof roomId !== 'string') {
-      return res.status(400).json({ message: "Invalid or missing roomId." });
-    }
+    const { userId } = req.body as { userId: string };
 
     if (!userId || typeof userId !== 'string') {
       return res.status(400).json({ message: "Invalid or missing userId." });
     }
 
+    const userRoomRef = ref(database, `userRooms/${userId}`);
+    const userRoomSnapshot = await get(userRoomRef);
+
+    if (!userRoomSnapshot.exists()) {
+      return res.status(404).json({ message: "User is not in a room." });
+    }
+
+    const roomId = userRoomSnapshot.val() as string;
+
     const roomRef = ref(database, `rooms/${roomId}`);
     const roomSnapshot = await get(roomRef);
+
     if (!roomSnapshot.exists()) {
       return res.status(404).json({ message: "Room does not exist." });
     }
@@ -29,6 +34,7 @@ export const joinRoom = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Room is not active." });
     }
 
+    // authentication checks without jwt, can remove after implementing jwt
     if (!(userId in roomData.users)) {
       return res.status(403).json({ message: "User is not allowed to join this room." });
     }
@@ -74,6 +80,12 @@ export const createRoom = async (req: Request, res: Response) => {
 
     await set(roomRef, newRoom);
 
+    const userRoomsRef1 = ref(database, `userRooms/${userId1}`);
+    await set(userRoomsRef1, roomId);
+
+    const userRoomsRef2 = ref(database, `userRooms/${userId2}`);
+    await set(userRoomsRef2, roomId);
+
     res.status(201).json({ message: "Room created successfully", roomId });
   } catch (error) {
     console.error("Error creating room:", error);
@@ -81,17 +93,26 @@ export const createRoom = async (req: Request, res: Response) => {
   }
 };
 
+// function to retrieve room data based on user's current active room
 export const getRoomData = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.body as { userId: string };
 
-    if (!id || typeof id !== 'string') {
-      return res.status(400).json({ message: "Invalid room ID" });
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({ message: "Invalid userId." });
     }
 
-    const roomRef = ref(database, `rooms/${id}`);
+    const userRoomRef = ref(database, `userRooms/${userId}`);
+    const userRoomSnapshot = await get(userRoomRef);
 
+    if (!userRoomSnapshot.exists()) {
+      return res.status(404).json({ message: "User is not in a room."});
+    }
+    const id = userRoomSnapshot.val() as string;
+
+    const roomRef = ref(database, `rooms/${id}`);
     const roomSnapshot = await get(roomRef);
+
     if (!roomSnapshot.exists()) {
       return res.status(404).json({ message: "Room not found" });
     }
@@ -103,6 +124,7 @@ export const getRoomData = async (req: Request, res: Response) => {
   }
 };
 
+// not in use for now
 export const setRoomInactive = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.body;
@@ -132,3 +154,27 @@ export const setRoomInactive = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to set room status due to server error." });
   }
 };
+
+// function to get roomId associated with the current user
+export const getRoomId = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.body as { userId: string };
+
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({ message: "Invalid userId." });
+    }
+
+    const userRoomRef = ref(database, `userRooms/${userId}`);
+    const userRoomSnapshot = await get(userRoomRef);
+
+    if (!userRoomSnapshot.exists()) {
+      return res.status(404).json({ message: "User is not in a room."});
+    }
+
+    const roomId = userRoomSnapshot.val() as string;
+    res.status(200).json({ roomId });
+  } catch (error) {
+    console.error("Error fetching current room id:", error);
+    res.status(500).json({ message: "Failed to fetch the current room." });
+  }
+}
