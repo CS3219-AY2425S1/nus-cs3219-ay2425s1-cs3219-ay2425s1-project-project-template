@@ -1,4 +1,5 @@
 import requests
+
 ENDPOINT = "http://user-service:3001/"
 
 def login(email: str, password: str) -> requests.Response:
@@ -10,6 +11,7 @@ def login(email: str, password: str) -> requests.Response:
     resp = requests.post(endpoint, json=payload)
     return resp
 
+
 def test_create_user():
     endpoint = f"{ENDPOINT}users"
     payload = {
@@ -19,26 +21,28 @@ def test_create_user():
     }
     resp = requests.post(endpoint, json=payload)
     assert resp.status_code == 201
-    # if resp.status_code != 201:
-    #     print(resp.json())
-    #     return False
-    # return True
-    
+
+
+def test_create_user_same_email_and_username():
+    endpoint = f"{ENDPOINT}users"
+    payload = {
+      "username": "SampleUserName",
+      "email": "sample@gmail.com",
+      "password": "SecurePassword"
+    }
+    resp = requests.post(endpoint, json=payload)
+    assert resp.status_code == 409
+
+
 def test_login_user_valid():
     resp = login("sample@gmail.com", "SecurePassword")
     assert resp.status_code == 200
-    # if resp.status_code != 200:
-    #     print(resp.json())
-    #     return False
-    # return True
+
 
 def test_login_user_invalid():
     resp = login("sample@gmail.com", "WrongPassword")
     assert resp.status_code == 401
-    # if resp.status_code != 401:
-    #     print(resp.json())
-    #     return False
-    # return True
+
 
 def test_verify_token_valid():
     resp = login("sample@gmail.com", "SecurePassword")
@@ -49,19 +53,13 @@ def test_verify_token_valid():
     }
     resp = requests.get(endpoint, headers=headers)
     assert resp.status_code == 200
-    # if resp.status_code != 200:
-    #     print(resp.json())
-    #     return False
-    # return True
+
 
 def test_verify_token_no_token():
     endpoint = f"{ENDPOINT}auth/verify-token"
     resp = requests.get(endpoint)
     assert resp.status_code == 401
-    # if resp.status_code != 401:
-    #     print(resp.json())
-    #     return False
-    # return True
+
 
 def test_verify_token_invalid():
     endpoint = f"{ENDPOINT}auth/verify-token"
@@ -70,7 +68,11 @@ def test_verify_token_invalid():
     }
     resp = requests.get(endpoint, headers=headers)
     assert resp.status_code == 401
-    # if resp.status_code != 401:
-    #     print(resp.json())
-    #     return False
-    # return True
+
+
+def test_delete_user():
+    login_resp = login("sample@gmail.com", "SecurePassword")
+    token = login_resp.json()["data"]["accessToken"]
+    user_id = login_resp.json()["data"]["id"]
+    resp = requests.delete(f"{ENDPOINT}users/{user_id}", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
