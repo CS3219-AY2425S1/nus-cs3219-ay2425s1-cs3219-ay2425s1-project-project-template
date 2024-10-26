@@ -78,7 +78,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/room/:id",
-        element: <Room />,
+        element: <CollaborationService />,
         errorElement: <ErrorPage />,
       },
     ],
