@@ -68,7 +68,7 @@ export default function MatchingTimer({
       />
       <div className="flex justify-between">
         <h2>{`${formatTime(timeRemaining)} / ${formatTime(seconds)}`}</h2>
-        <Button color="danger" variant="ghost" onPress={onCancel}>
+        <Button color="danger" variant="solid" onPress={onCancel}>
           Cancel
         </Button>
       </div>
