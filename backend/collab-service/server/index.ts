@@ -2,8 +2,9 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
 import { createServer } from 'http'
-import { Server, Socket } from 'socket.io'
 import logger from '../utils/logger'
+import * as Y from 'yjs'
+import { WebsocketProvider } from 'y-websocket'
 import { router as submitCodeRouter } from '../submit-code/submitCodeRouter'
 
 dotenv.config({ path: './.env' })
@@ -15,13 +16,10 @@ app.use(express.json())
 app.use(submitCodeRouter)
 
 const server = createServer(app)
-const io: Server = new Server(server)
+const yDocMap = new Map()
 
-io.on('connection', (socket: Socket) => {
-    logger.info(`New client connected: ${socket.id}`, { service: 'collab-service', timestamp: new Date().toISOString() })
-})
+const PORT = process.env.PORT
 
-const port = process.env.PORT
-server.listen(port, () => {
-    logger.info(`Server running on port ${port}`)
+server.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`)
 })
