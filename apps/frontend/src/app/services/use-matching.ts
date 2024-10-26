@@ -138,5 +138,6 @@ function parseInfoFromResponse(responseJson: MatchFoundResponse): MatchInfo {
         matchId: responseJson.match_id?.toString() ?? "unknown",
         partnerName: responseJson.matched_user ?? "unknown",
         myName: responseJson.user ?? "unknown",
+        docRefId: responseJson.question_doc_ref_id ?? "unknown",
     };
 }

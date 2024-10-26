@@ -103,8 +103,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
                 matchingState.info.partnerName
               );
               localStorage.setItem("collabId", matchingState.info.matchId);
-              localStorage.setItem("docRefId", "CV480GUbjk15eWOrWrA0"); // TODO: remove temporary placeholder for quesiton testing
-              //   localStorage.setItem("docRefId", matchingState.info.docRefId); // TODO: Update the response from backend when match_found
+              localStorage.setItem("docRefId", matchingState.info.docRefId);
 
               // Redirect to collaboration page
               router.push(`/collaboration/${matchingState.info.matchId}`);
