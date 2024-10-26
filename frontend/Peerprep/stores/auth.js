@@ -1,11 +1,13 @@
 import { defineStore } from "pinia";
-import { EmailAuthProvider, reauthenticateWithCredential, signOut, onAuthStateChanged, updateProfile, updatePassword } from "firebase/auth";
+import { EmailAuthProvider, GoogleAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, signOut, 
+    onAuthStateChanged, updateProfile, updatePassword } from "firebase/auth";
 
 export const useAuthStore = defineStore('auth', () => {
-    const auth = useFirebaseAuth();
+    const firebaseAuth = useFirebaseAuth();
     const user = ref(null);
     const isAdmin = ref(false);  // Assume User is not admin by default
     const isGoogleLogin = ref(false);
+    const token = ref()
 
     async function refreshUser() {
         const currentUser = await getCurrentUser();
@@ -14,7 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = currentUser;
 
             // Check If Admin
-            const tokenResult = await currentUser.getIdTokenResult();
+            const tokenResult = await currentUser.getIdTokenResult(true);
             const adminResult = tokenResult.claims.admin === true;
             isAdmin.value = adminResult;
 
@@ -27,9 +29,17 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function getToken() {
+        if (user.value) {
+            const tokenResult = await user.value.getIdTokenResult();
+            return tokenResult.token;
+        }
+        return null;
+    }
+
     // Handle sign out
     async function authSignOut() {
-        await signOut(auth);
+        await signOut(firebaseAuth);
         user.value = null;
         isAdmin.value = false;
     }
@@ -77,6 +87,26 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function reauthenticateWithGoogle() {
+        if (isGoogleLogin.value === false) {
+            return;
+        }
+        const provider = new GoogleAuthProvider();
+
+        try {
+            // Sign in with a popup to get Google cred
+            await refreshUser();
+            const result = await reauthenticateWithPopup(user.value, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            
+            await reauthenticateWithCredential(user.value, credential);
+            console.log("User reauthenticated with Google.")
+        } catch (error) {
+            console.error("Error authenticating with Google in the store:", error.message);
+            throw (error);
+        }
+    }
+
     async function changePassword(newPassword) {
         // Sanity check to make sure Account is not signed in with Google
         if (isGoogleLogin.value === true) {
@@ -95,8 +125,39 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function deleteAccountAndSignOut() {
+        try {
+            if (user.value) {
+                await user.value.delete();
+                await authSignOut();
+            }
+        } catch (error) {
+            console.error("Error deleting account in store:", error);
+            throw error;
+        }
+    }
+
+    async function deleteUsingUserService() {
+        await refreshUser();
+        const token = await getToken();
+        const response = await fetch('http://localhost:5001/users/myself', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error("Error deleting user");
+            return false;
+        }
+        
+        await authSignOut();
+        return true;
+    }
+
     // Update user when auth changes
-    onAuthStateChanged(auth, async (currentUser) => {
+    onAuthStateChanged(firebaseAuth, async (currentUser) => {
         if (currentUser) {
             await refreshUser();
         }
@@ -108,7 +169,11 @@ export const useAuthStore = defineStore('auth', () => {
         isGoogleLogin,
         authSignOut,
         changePassword,
+        deleteAccountAndSignOut,
+        deleteUsingUserService,
+        getToken,
         updateDisplayName,
+        reauthenticateWithGoogle,
         reauthenticateWithPassword,
         refreshUser
     };

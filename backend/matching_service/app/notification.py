@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 import logging
+import requests
 from confluent_kafka import Consumer, KafkaError
 from redis_client import get_redis_client
 import time
@@ -90,8 +91,11 @@ async def kafka_consumer():
                         "question_id": message.get("question_id"),
                         "question_title": message.get("question_title"),
                         "status": message.get("status"),
+                        "timestamp": message.get("timestamp"),
                         "category": message.get("category"),
                         "difficulty": message.get("difficulty"),
+                        "match_difficulty": message.get("match_difficulty"),
+                        "actual_difficulty": message.get("actual_difficulty"),
                     },
                 )
                 redis_client.expire(message.get("uid"), 60)
@@ -179,6 +183,10 @@ async def handle_ack(user1_id, status, data):
             k.decode("utf-8"): v.decode("utf-8") for k, v in hash_values.items()
         }
         match_info["uid"] = uid
+        if "timestamp" in match_info:
+            match_info["timestamp"] = float(match_info["timestamp"])
+
+        requests.post("http://user_service:5001/users/history", json=match_info)
         await send_with_retries(user2_id, match_info)
     else:
         logger.error(f"Received error ACK from user1 {user1_id}")
