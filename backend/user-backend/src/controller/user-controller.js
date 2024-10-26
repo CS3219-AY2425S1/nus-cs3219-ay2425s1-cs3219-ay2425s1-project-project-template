@@ -237,12 +237,9 @@ export async function formatPartialUserResponse(user) {
 }
 
 export async function formatFullUserResponse(user) {
+  const { password, ...rest } = user;
   return {
-    id: user.id,
-    username: user.username,
-    email: user.email,
+    ...rest,
     profileImage: await getImageSignedUrl(user),
-    isAdmin: user.isAdmin,
-    createdAt: user.createdAt,
   };
 }
