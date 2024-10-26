@@ -26,6 +26,24 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  friends: {
+    type: [String], // Array of strings for friend IDs
+    default: [],
+  },
+  friendRequests: {
+    type: [String], // Array of strings for friend request IDs
+    default: [],
+  },
+  matchHistory: {
+    type: [
+      {
+        sessionId: { type: String, required: true },
+        questionId: { type: String, required: true },
+        partnerId: { type: String, required: true },
+      },
+    ],
+    default: [], // Default to an empty array
+  },
 });
 
 export default mongoose.model("UserModel", UserModelSchema);

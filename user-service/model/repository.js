@@ -66,3 +66,56 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
 }
+
+export async function addMatchToUserById(userId, sessionId, questionId, partnerId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $push: {
+        matchHistory: { sessionId, questionId, partnerId },
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function sendFriendRequestById(userId, friendId) {
+  return UserModel.findByIdAndUpdate(
+    friendId,
+    {
+      $push: {
+        friendRequests: userId,
+      },
+    },
+    { new: true },  // return the updated user
+  )
+}
+
+export async function acceptFriendRequestById(userId, friendId) {
+
+  await UserModel.findByIdAndUpdate(
+    friendId,
+    {
+      $push: {
+        friends: userId,
+      },
+      $pull: {
+        friendRequests: userId,
+      }
+    },
+    { new: true },  // return the updated user
+  )
+
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $push: {
+        friends: friendId,
+      },
+      $pull: {
+        friendRequests: friendId,
+      },
+    },
+    { new: true },  // return the updated user
+  )
+}

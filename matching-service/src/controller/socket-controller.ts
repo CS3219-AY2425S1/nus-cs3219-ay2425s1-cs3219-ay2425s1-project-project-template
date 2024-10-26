@@ -73,10 +73,12 @@ export function handleRegisterForMatching(socket: Socket, io: Server) {
                         delete userTimeouts[socketId2];
                     }
 
-                    io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId }); //INSERT SESSION ID HERE
-                    io.to(socketId2).emit('matchFound', { matchedWith: status[0].userId }); //INSERT SESSION ID HERE
+                    io.to(socketId1).emit('matchFound', { matchedWith: status[1].userId });
+                    io.to(socketId2).emit('matchFound', { matchedWith: status[0].userId });
 
                     writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus()));
+
+                    await initializeMatch(status[0], status[1], socket1, socket2);
 
                     //Disconnect both users
                     socket1.disconnect(true);
@@ -135,3 +137,126 @@ export function handleDisconnect(socket: Socket) {
 
     });
 }
+
+async function initializeMatch(user1Data: any, user2Data: any, socket1: Socket, socket2: Socket) {
+    // Initialize match
+
+    // Get question for criteria
+    const overlappingCriteria = getOverlappingCriteria(user1Data.criteria, user2Data.criteria);
+    const selectedQuestionId = await selectQuestion(overlappingCriteria);
+
+    // Initialise match on session service
+    const sessionId = await initializeMatchOnSessionService(user1Data.userId, user2Data.userId, selectedQuestionId);
+
+    console.log(`Selected question for match ${sessionId} : ${selectedQuestionId}`);
+
+    // Add match to user data
+    await addMatchToUserData(user1Data.userId, user2Data.userId, selectedQuestionId, sessionId);
+    await addMatchToUserData(user2Data.userId, user1Data.userId, selectedQuestionId, sessionId);
+
+    // redirect users to session page
+    socket1.emit('redirectToSession', { matchedWith: user2Data.userId, question: selectedQuestionId });
+    socket2.emit('redirectToSession', { matchedWith: user1Data.userId, question: selectedQuestionId });
+
+    writeLogToFile(`Match initialized between ${user1Data.userId} and ${user2Data.userId}`);
+}
+
+function getOverlappingCriteria(criteria1: any, criteria2: any) {
+    const user1diff = criteria1.difficulty;
+    const user1topic = criteria1.topic;
+    const user2diff = criteria2.difficulty;
+    const user2topic = criteria2.topic;
+
+    const overlappingDiff = user1diff.filter((value: string) => user2diff.includes(value));
+    const overlappingTopic = user1topic.filter((value: string) => user2topic.includes(value));
+
+    return { difficulty: overlappingDiff, category: overlappingTopic };
+}
+
+async function selectQuestion(criteria: any) {
+
+    const questionServiceUrl = process.env.QUESTION_SERVICE_URL;
+
+    try {
+        // Select question based on criteria
+        const response = await fetch(`${questionServiceUrl}/api/questions/question/by-criteria`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(criteria)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const questionData = await response.json();
+        return questionData.question_id;
+
+    } catch (error) {
+        console.error('Failed to select question:', error);
+        throw error;
+    }
+}
+
+async function addMatchToUserData(userId: string, partnerId: string, questionId: number, sessionId: string) {
+    // Add match to user data
+    // TODO: modify user service first
+    try {
+        const response = await fetch(`${process.env.USER_SERVICE_URL}/users/${userId}/addMatch`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                partnerId: partnerId,
+                questionId: questionId,
+                sessionId: sessionId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        console.log(`Match added to user data for user ${userId}`);
+
+    } catch (error) {
+        console.error('Failed to add match to user data:', error);
+        throw error;
+    }
+}
+
+async function initializeMatchOnSessionService(userId1: string, userId2: string, questionId: number): Promise<string> {
+    // Initialize match on session service
+    const sessionServiceUrl = process.env.COLLAB_SERVICE_URL;
+
+    try {
+        const response = await fetch(`${sessionServiceUrl}/api/session/create`, {
+            method: 'POST', // Using POST method to create a session
+            headers: {
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+            body: JSON.stringify({
+                participants: [userId1, userId2], // Include user IDs in the request body
+                questionId: questionId // Include the question ID
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`); // Handle non-2xx responses
+        }
+
+        const sessionData = await response.json(); // Parse the JSON response
+        const sessionId = sessionData.session_id; // Extract the session_id
+
+        console.log(`Match initialized on session service with session ID: ${sessionId}`);
+
+        return sessionId; // Return the session ID
+    } catch (error) {
+        console.error('Failed to initialize match on session service:', error);
+        throw error; // Rethrow the error for further handling if needed
+    }
+}
+

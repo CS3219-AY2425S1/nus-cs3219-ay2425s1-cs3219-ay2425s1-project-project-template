@@ -10,6 +10,9 @@ import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  sendFriendRequestById as _sendFriendRequestById,
+  acceptFriendRequestById as _acceptFriendRequestById,
+  addMatchToUserById as _addMatchToUserById,
 } from "../model/repository.js";
 
 const isValidEmail = (email) =>
@@ -192,6 +195,132 @@ export async function deleteUser(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when deleting user!" });
+  }
+}
+
+export async function getFriends(req, res) {
+  try {
+    const userId = req.params.id;
+    if (!isValidObjectId(userId)) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    if (user.friends.length === 0) {
+      return res.status(200).json({ message: `No friends for user ${userId}` });
+    }
+
+    const friends = await Promise.all(user.friends.map(_findUserById));
+    return res.status(200).json({ message: `Found friends for user ${userId}`, data: friends.map(formatUserResponse) });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when getting friends!" });
+  }
+}
+
+export async function getFriendRequests(req, res) {
+  try {
+    const userId = req.params.id;
+    if (!isValidObjectId(userId)) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    if (user.friendRequests.length === 0) {
+      return res.status(200).json({ message: `No friend requests for user ${userId}` });
+    }
+
+    const friendRequests = await Promise.all(user.friendRequests.map(_findUserById));
+    return res.status(200).json({ message: `Found friend requests for user ${userId}`, data: friendRequests.map(formatUserResponse) });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when getting friend requests!" });
+  }
+}
+
+export async function sendFriendRequest(req, res) {
+  try {
+    const userId = req.params.id;
+    const friendId = req.body.friendId;
+    if (!isValidObjectId(userId) || !isValidObjectId(friendId)) {
+      return res.status(404).json({ message: `User ${userId} or friend ${friendId} not found` });
+    }
+    const user = await _findUserById(userId);
+    const friend = await _findUserById(friendId);
+    if (!user || !friend) {
+      return res.status(404).json({ message: `User ${userId} or friend ${friendId} not found` });
+    }
+
+    if (user.friends.includes(friendId)) {
+      return res.status(409).json({ message: `User ${userId} is already friends with ${friendId}` });
+    }
+
+    if (friend.friendRequests.includes(userId)) {
+      return res.status(409).json({ message: `User ${userId} already sent friend request to ${friendId}` });
+    }
+
+    await _sendFriendRequestById(userId, friendId);
+
+    return res.status(200).json({ message: `Sent friend request from user ${userId} to friend ${friendId}` });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when adding friend!" });
+  }
+}
+
+export async function acceptFriendRequest(req, res) {
+  try {
+    const userId = req.params.id;
+    const friendId = req.body.friendId;
+    if (!isValidObjectId(userId) || !isValidObjectId(friendId)) {
+      return res.status(404).json({ message: `User ${userId} or friend ${friendId} not found` });
+    }
+    const user = await _findUserById(userId);
+    const friend = await _findUserById(friendId);
+    if (!user || !friend) {
+      return res.status(404).json({ message: `User ${userId} or friend ${friendId} not found` });
+    }
+
+    if (!user.friendRequests.includes(friendId)) {
+      return res.status(409).json({ message: `User ${userId} has no friend request from ${friendId}` });
+    }
+
+    await _acceptFriendRequestById(userId, friendId);
+
+    return res.status(200).json({ message: `Accepted friend request from ${friendId} to user ${userId}` });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when accepting friend request!" });
+  }
+}
+
+export async function addMatchToUser(req, res) {
+  try {
+    const userId = req.params.id;
+    const { sessionId, questionId, partnerId } = req.body;
+    if (!isValidObjectId(userId) || !isValidObjectId(partnerId)) {
+      return res.status(404).json({ message: `User ${userId} or partner ${partnerId} not found` });
+    }
+    const user = await _findUserById(userId);
+    const partner = await _findUserById(partnerId);
+    if (!user || !partner) {
+      return res.status(404).json({ message: `User ${userId} or partner ${partnerId} not found` });
+    }
+
+    await _addMatchToUserById(userId, sessionId, questionId, partnerId);
+
+    return res.status(200).json({ message: `Added match to user ${userId}` });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when adding match!" });
   }
 }
 
