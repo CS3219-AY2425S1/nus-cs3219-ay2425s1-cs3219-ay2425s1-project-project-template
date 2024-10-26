@@ -9,11 +9,16 @@ module.exports = (io) => {
 
     // Listen for the 'joinRoom' event
     socket.on('joinRoom', (roomId) => {
+
+      if (!roomId) {
+        return socket.emit('error', 'Room ID is required.');
+      }
+
       const room = io.sockets.adapter.rooms.get(roomId);
 
       // Check if the room already has two users
       if (room && room.size === 2) {
-        socket.emit('roomFull', `Room ${roomId} is full.`);
+        socket.emit('error', `Room ${roomId} is full.`);
       } else {
         socket.join(roomId);
         socket.emit('roomJoined', roomId);
@@ -21,11 +26,6 @@ module.exports = (io) => {
 
         // Notify other clients in the room that a user has joined
         socket.to(roomId).emit('user-joined', socket.id);
-
-        // If the room has two clients, start the session
-        if (room && room.size === 2) {
-          io.in(roomId).emit('roomReady', `Room ${roomId} is now full.`);
-        }
 
         // Room-specific event listeners
         socket.on('offer', (offer) => {

@@ -30,6 +30,11 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
   alert("getUserMedia is not supported on this browser. Please use the latest version of Chrome or Firefox.");
 }
 
+socket.on('error', (error) => {
+  alert(`Socket error: ${error}`);
+  console.error('Socket error:', error);
+});
+
 // Join room
 joinRoomBtn.addEventListener('click', () => {
   roomId = roomIdInput.value.trim();

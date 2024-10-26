@@ -13,5 +13,10 @@ module.exports = (httpsServer) => {
     pingInterval: 25000,
   });
 
+  // Listen for errors at the server level
+  io.on('error', (error) => {
+    console.error('Socket.IO error:', error);
+  });
+
   socketController(io);  // Attach the controller
 };
