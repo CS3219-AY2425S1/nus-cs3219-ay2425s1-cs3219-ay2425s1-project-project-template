@@ -18,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { ChangeEventHandler, FormEvent, useState } from "react";
 
 interface QuestionData {
+  id: string;
   title: string;
   description: string;
   difficulty: Difficulty[];
@@ -26,19 +27,24 @@ interface QuestionData {
   constraints: string[];
 }
 
-interface AddQuestionCardProps {
-  onCreate: () => void;
+interface EditQuestionCardProps {
+  onEdit: () => void;
+  question: Question;
 }
 
-const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
+const EditQuestionCard: React.FC<EditQuestionCardProps> = ({
+  onEdit,
+  question,
+}) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [questionData, setQuestionData] = useState<QuestionData>({
-    title: "",
-    description: "",
-    difficulty: [],
-    topics: [],
-    examples: [],
-    constraints: [],
+    id: question.id,
+    title: question.title,
+    description: question.description,
+    difficulty: [question.difficulty],
+    topics: question.topics,
+    examples: question.examples,
+    constraints: question.constraints,
   });
 
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -63,11 +69,12 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
     });
   };
 
-  const handleAddQuestion = async (event: FormEvent<HTMLFormElement>) => {
+  const handleEditQuestion = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
 
     const question: Partial<Question> = {
+      id: questionData.id,
       title: questionData.title,
       description: questionData.description,
       topics: questionData.topics,
@@ -77,8 +84,8 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
     };
 
     const result: SuccessObject = await callFunction(
-      "create-question",
-      "POST",
+      "edit-question",
+      "PUT",
       question
     );
 
@@ -87,22 +94,23 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
     }
 
     setIsLoading(false);
-    onCreate();
+    onEdit();
   };
 
   return (
     <Card variant="ghost" className="w-full h-full">
       <CardHeader>
-        <CardTitle>Add New Question</CardTitle>
+        <CardTitle>Edit Question</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleAddQuestion}>
+        <form onSubmit={handleEditQuestion}>
           <div className="grid w-full gap-1.5 my-4">
             <Label>Question Title</Label>
             <Input
               name="title"
               type="text"
               placeholder="Type your question title here."
+              value={questionData.title}
               required
               onChange={handleInputChange}
             />
@@ -113,6 +121,7 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
             <Textarea
               name="description"
               placeholder="Type your question description here."
+              value={questionData.description}
               className="resize-none"
               required
               onChange={
@@ -146,7 +155,7 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
           </div>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            Add Question
+            Edit Question
           </Button>
         </form>
       </CardContent>
@@ -154,4 +163,4 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
   );
 };
 
-export default AddQuestionCard;
+export default EditQuestionCard;

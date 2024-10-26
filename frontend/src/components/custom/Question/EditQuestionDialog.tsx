@@ -1,29 +1,32 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import AddQuestionCard from "./AddQuestionCard";
+import EditQuestionCard from "./EditQuestionCard";
+import { Question } from "@/models/Question";
 
-interface AddQuestionDialogProps {
+interface EditQuestionDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onCreate: () => void;
+  onEdit: () => void;
+  question: Question;
 }
 
-const AddQuestionDialog: React.FC<AddQuestionDialogProps> = ({
+const EditQuestionDialog: React.FC<EditQuestionDialogProps> = ({
   open,
   setOpen,
-  onCreate,
+  onEdit,
+  question,
 }) => {
   const handleCloseDialog = () => {
     setOpen(false);
-    onCreate();
+    onEdit();
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="flex justify-center">
-        <AddQuestionCard onCreate={handleCloseDialog} />
+        <EditQuestionCard onEdit={handleCloseDialog} question={question} />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default AddQuestionDialog;
+export default EditQuestionDialog;

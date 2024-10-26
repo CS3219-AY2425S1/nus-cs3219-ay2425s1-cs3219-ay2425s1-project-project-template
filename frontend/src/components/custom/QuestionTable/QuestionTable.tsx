@@ -3,19 +3,23 @@ import { useEffect, useState } from "react";
 import { columns } from "./columns";
 import { getAllQuestions } from "@/services/QuestionFunctions";
 import { DataTable } from "./data-table";
+import moment from "moment";
 
 function QuestionTable() {
   const [data, setData] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true); // To show a loading state
 
+  // Define a refetch function to reload the questions
+  const refetch = async () => {
+    setLoading(true);
+    const questions = await getData();
+    setData(questions);
+    setLoading(false);
+  };
+
   // Fetch data asynchronously on component mount
   useEffect(() => {
-    async function fetchData() {
-      const result = await getData();
-      setData(result);
-      setLoading(false); // Once data is fetched, stop loading
-    }
-    fetchData();
+    refetch();
   }, []);
 
   // Return a loading indicator or the table once data is available
@@ -25,7 +29,11 @@ function QuestionTable() {
         <p>Loading...</p> // Show loading text or spinner
       ) : (
         <div className="font-bold">
-          <DataTable columns={columns} data={data || []} />
+          <DataTable
+            columns={columns(refetch)}
+            data={data || []}
+            refetch={refetch}
+          />
         </div>
       )}
     </div>
@@ -44,9 +52,10 @@ async function getData(): Promise<Question[]> {
   const questions: Question[] = res.data;
 
   questions.sort((a, b) => {
-    const aDate = new Date(a.dateCreated).getTime();
-    const bDate = new Date(b.dateCreated).getTime();
-    return aDate - bDate;
+    const aDate = moment(a.dateCreated);
+    const bDate = moment(b.dateCreated);
+
+    return aDate.isBefore(bDate) ? -1 : 1;
   });
 
   return questions;

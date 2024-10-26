@@ -15,11 +15,13 @@ export enum Topic {
   Heaps = "Heaps",
   Graphs = "Graphs",
   DynamicProgramming = "Dynamic Programming",
+  DataStructures = "Data Structures",
   Recursion = "Recursion",
   Greedy = "Greedy",
   BitManipulation = "Bit Manipulation",
   Math = "Math",
   Algorithms = "Algorithms",
+  DataBases = "Databases",
 }
 
 export type QuestionExample = {
