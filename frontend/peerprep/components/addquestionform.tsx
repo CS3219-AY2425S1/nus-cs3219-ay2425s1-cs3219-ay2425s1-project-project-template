@@ -8,18 +8,18 @@ import {
   Autocomplete,
   AutocompleteItem,
   ScrollShadow,
-} from '@nextui-org/react';
-import Editor from '@monaco-editor/react';
-import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
+} from "@nextui-org/react";
+import Editor from "@monaco-editor/react";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
-import { SuccessModal } from './succesmodal';
-import { ErrorModal } from './errormodal';
-import { WysiMarkEditor } from './wysimarkeditor';
-import BoxIcon from './boxicons';
+import { SuccessModal } from "./succesmodal";
+import { ErrorModal } from "./errormodal";
+import { WysiMarkEditor } from "./wysimarkeditor";
+import BoxIcon from "./boxicons";
 
-import { capitalize, languages } from '@/utils/utils';
-import { complexityColorMap } from '@/app/@application/questions-management/columns';
+import { capitalize, languages } from "@/utils/utils";
+import { complexityColorMap } from "@/app/@application/(main)/questions-management/columns";
 import {
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,

@@ -9,7 +9,10 @@
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
   },
   "dependencies": {
-    "@monaco-editor/react": "^4.6.0",
+    "@chakra-ui/react": "^3.0.0",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@monaco-editor/react": "^4.5.1",
     "@nextui-org/button": "2.0.38",
     "@nextui-org/code": "2.0.33",
     "@nextui-org/input": "2.2.5",
@@ -33,8 +36,12 @@
     "clsx": "2.1.1",
     "dotenv": "^16.4.5",
     "framer-motion": "~11.1.1",
+    "import": "^0.0.6",
     "intl-messageformat": "^10.5.0",
     "iron-session": "^8.0.3",
+    "markdown-table": "^3.0.4",
+    "micromark-util-symbol": "^2.0.0",
+    "monaco-editor": "^0.41.0",
     "next": "14.2.4",
     "next-remove-imports": "^1.0.12",
     "next-runtime-env": "^3.2.2",
@@ -42,10 +49,16 @@
     "prismjs": "^1.29.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-markdown": "^9.0.1",
     "react-quill": "^2.0.0",
     "react-simple-code-editor": "^0.14.1",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.0",
     "socket.io-client": "^4.8.0",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "y-monaco": "^0.1.4",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.7"
   },
   "devDependencies": {
     "@types/node": "20.5.7",
