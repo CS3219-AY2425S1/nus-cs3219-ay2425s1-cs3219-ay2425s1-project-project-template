@@ -10,7 +10,7 @@ export class WebSocketConnection {
     private clients: Map<string, WebSocket> = new Map()
 
     constructor(server: Server) {
-        this.wss = new WebSocketServer(server)
+        this.wss = new WebSocketServer({ server })
         this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
             const query = url.parse(req.url, true).query
             const websocketId = query.id as string
