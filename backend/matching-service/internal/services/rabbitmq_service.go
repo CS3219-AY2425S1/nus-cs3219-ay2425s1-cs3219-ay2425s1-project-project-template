@@ -7,7 +7,6 @@ import (
 	"matching-service/internal/models"
 	"os"
 
-	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 )
@@ -84,89 +83,4 @@ func CloseRabbitMQ() {
 		RabbitMQConn.Close()
 	}
 	log.Println("RabbitMQ connection closed")
-}
-
-func notifyUsersOfMatch(matchResult models.MatchResult) {
-	// Send a message to User 1
-	if conn, ok := clients[matchResult.UserOneSocketID]; ok {
-		err := conn.WriteJSON(map[string]string{
-			"message":      "You have been matched!",
-			"matched_user": matchResult.UserTwoSocketID,
-			"room_id":      matchResult.RoomID,
-		})
-		if err != nil {
-			log.Printf("Error sending WebSocket message to user %s: %v", matchResult.UserOneSocketID, err)
-		}
-	} else {
-		log.Printf("No active WebSocket connection for user %s", matchResult.UserOneSocketID)
-	}
-
-	// Send a message to User 2
-	if conn, ok := clients[matchResult.UserTwoSocketID]; ok {
-		err := conn.WriteJSON(map[string]string{
-			"message":      "You have been matched!",
-			"matched_user": matchResult.UserOneSocketID,
-			"room_id":      matchResult.RoomID,
-		})
-		if err != nil {
-			log.Printf("Error sending WebSocket message to user %s: %v", matchResult.UserTwoSocketID, err)
-		}
-	} else {
-		log.Printf("No active WebSocket connection for user %s", matchResult.UserOneSocketID)
-	}
-}
-
-var clients = make(map[string]*websocket.Conn) // Connected clients mapped by socket_id
-
-// StartRabbitMQConsumer listens for messages from the "match_queue" RabbitMQ queue
-func StartRabbitMQConsumer() {
-	// Make sure RabbitMQ connection and channel are set up
-	if RabbitMQChannel == nil {
-		log.Fatalf("RabbitMQ Channel is not initialized")
-		return
-	}
-
-	// Declare the queue
-	queue, err := RabbitMQChannel.QueueDeclare(
-		"match_queue", // queue name
-		true,          // durable
-		false,         // delete when unused
-		false,         // exclusive
-		false,         // no-wait
-		nil,           // arguments
-	)
-	if err != nil {
-		log.Fatalf("Failed to declare RabbitMQ queue: %v", err)
-	}
-
-	// Start consuming messages from the queue
-	msgs, err := RabbitMQChannel.Consume(
-		queue.Name, // queue
-		"",         // consumer
-		true,       // auto-ack
-		false,      // exclusive
-		false,      // no-local
-		false,      // no-wait
-		nil,        // args
-	)
-	if err != nil {
-		log.Fatalf("Failed to start consuming RabbitMQ messages: %v", err)
-	}
-
-	// Listen for incoming messages and handle them
-	go func() {
-		for d := range msgs {
-			var matchResult models.MatchResult
-			err := json.Unmarshal(d.Body, &matchResult)
-			if err != nil {
-				log.Printf("Error unmarshalling message: %v", err)
-				continue
-			}
-
-			log.Printf("Consumed match result: %v", matchResult)
-
-			// Notify both users of the match via WebSocket
-			notifyUsersOfMatch(matchResult)
-		}
-	}()
 }
