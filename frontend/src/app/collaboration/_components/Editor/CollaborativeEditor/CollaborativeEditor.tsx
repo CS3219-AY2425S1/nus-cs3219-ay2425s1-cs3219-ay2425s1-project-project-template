@@ -13,6 +13,7 @@ import { UserProfile } from "@/types/User";
 interface CollaborativeEditorProps {
   sessionId: string;
   currentUser: UserProfile;
+  socketUrl?: string;
   language?: string;
   themeName?: string;
 }
@@ -20,6 +21,7 @@ interface CollaborativeEditorProps {
 export default function CollaborativeEditor({
   sessionId,
   currentUser,
+  socketUrl = "ws://localhost:1234",
   language = "typescript",
   themeName = "dracula",
 }: CollaborativeEditorProps) {
@@ -32,7 +34,7 @@ export default function CollaborativeEditor({
     const yDoc = new Y.Doc();
     const yText = yDoc.getText("monaco");
     const yProvider = new WebsocketProvider(
-      `ws://localhost:1234/yjs?sessionId=${sessionId}`,
+      `${socketUrl}/yjs?sessionId=${sessionId}`,
       sessionId,
       yDoc
     );
