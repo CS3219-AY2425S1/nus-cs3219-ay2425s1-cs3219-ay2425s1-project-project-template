@@ -67,6 +67,46 @@ func matchProgrammingLanguages(user1Languages, user2Languages []models.Programmi
 	}
 	return false // No common language
 }
+// findIntersection returns the intersection of two slices of strings
+func findIntersection(a, b []string) []string {
+	set := make(map[string]bool)
+	intersection := []string{}
+
+	// Add all elements of the first slice to the set
+	for _, item := range a {
+		set[item] = true
+	}
+
+	// Check elements of the second slice for intersection
+	for _, item := range b {
+		if set[item] {
+			intersection = append(intersection, item)
+		}
+	}
+
+	return intersection
+}
+
+// findComplexityIntersection returns the intersection of two slices of QuestionComplexityEnum
+func findComplexityIntersection(a, b []models.QuestionComplexityEnum) []models.QuestionComplexityEnum {
+	set := make(map[models.QuestionComplexityEnum]bool)
+	intersection := []models.QuestionComplexityEnum{}
+
+	// Add all elements of the first slice to the set
+	for _, item := range a {
+		set[item] = true
+	}
+
+	// Check elements of the second slice for intersection
+	for _, item := range b {
+		if set[item] {
+			intersection = append(intersection, item)
+		}
+	}
+
+	return intersection
+}
+
 
 // startMatchingProcess starts the matching logic with a timeout
 func startMatchingProcess(matchingInfo models.MatchingInfo) {
@@ -84,7 +124,6 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 		if !matchingInfo.GeneralizeLanguages {
 			// Check if programming languages match
 			if !matchProgrammingLanguages(matchingInfo.ProgrammingLanguages, result.ProgrammingLanguages, matchingInfo.GeneralizeLanguages) {
-				// If programming languages do not match and generalization is not allowed, discard the match
 				log.Printf("No match for user_id: %s due to language mismatch", matchingInfo.UserID)
 				matchChan <- nil
 				return
@@ -100,7 +139,6 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 	select {
 	case matchedUser := <-matchChan:
 		if matchedUser != nil {
-			// A match was found, proceed with the match
 			log.Printf("Found a match for user_id: %s", matchingInfo.UserID)
 
 			// Check if both users are still Pending before proceeding
@@ -146,11 +184,19 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				log.Printf("Error updating status for user_id: %s", matchedUser.UserID)
 			}
 
+			// Find the intersection of complexities and categories
+			complexityIntersection := findComplexityIntersection(matchingInfo.DifficultyLevel, matchedUser.DifficultyLevel)
+			categoriesIntersection := findIntersection(matchingInfo.Categories, matchedUser.Categories)
 			// Prepare the match result
 			matchResult := models.MatchResult{
 				UserOneSocketID: matchingInfo.SocketID,
 				UserTwoSocketID: matchedUser.SocketID,
-				RoomID:          roomID, // Use the roomID generated for this match
+				UserOne:         matchingInfo.UserID,        // Set UserOne as the ID of the first user
+				UserTwo:         matchedUser.UserID,         // Set UserTwo as the ID of the matched user
+				RoomID:          roomID,                     // Use the roomID generated for this match
+				Complexity:      complexityIntersection,     // Pass the intersection of complexities
+				Categories:      categoriesIntersection,     // Pass the intersection of categories
+				Question:        models.Question{},                         // Initially, Question will be empty
 			}
 
 			// Publish the match result to RabbitMQ
