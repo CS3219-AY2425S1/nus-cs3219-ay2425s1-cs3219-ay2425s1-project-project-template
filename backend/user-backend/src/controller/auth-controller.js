@@ -104,7 +104,7 @@ export async function handleResendVerification(req, res) {
   }
   
   try {
-    await sendVerificationEmail(user);
+    sendVerificationEmail(user);
     return res.status(200).json({ message: "Verification link sent to email"});
   } catch (error) {
     console.log(error);

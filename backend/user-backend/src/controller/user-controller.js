@@ -17,6 +17,7 @@ import {
   findUserByUsername as _findUserByUsername,
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
+  updateUserImageById as _updateUserImageById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
 
@@ -43,7 +44,7 @@ export async function createUser(req, res) {
       const hashedPassword = hashPassword(password);
       const createdUser = await _createUser(username, email, hashedPassword);
 
-      await sendVerificationEmail(createdUser);
+      sendVerificationEmail(createdUser);
 
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
@@ -132,7 +133,9 @@ export async function updateUser(req, res) {
 
       const hashedPassword = hashPassword(password);
 
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword);
+      const updatedUser = await _updateUserById(userId, {
+        username, email, password: hashedPassword
+      });
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: await formatFullUserResponse(updatedUser),
@@ -168,7 +171,7 @@ export async function updateUserProfileImage(req, res) {
     const newImage = toDefault
       ? await replaceProfileImage(user, DEFAULT_IMAGE)
       : await replaceProfileImage(user, profileImage);
-    const updatedUser = await _updateUserById(userId, undefined, undefined, undefined, newImage);
+    const updatedUser = await _updateUserImageById(userId, newImage);
 
     return res.status(200).json({
       message: `Updated data for user ${userId}`,
@@ -237,9 +240,12 @@ export async function formatPartialUserResponse(user) {
 }
 
 export async function formatFullUserResponse(user) {
-  const { password, ...rest } = user;
   return {
-    ...rest,
+    username: user.username,
+    email: user.email,
     profileImage: await getImageSignedUrl(user),
+    isAdmin: user.isAdmin,
+    isVerified: user.isVerified,
+    createdAt: user.createdAt,
   };
 }

@@ -73,7 +73,7 @@ export function validatePassword(password) {
 }
 
 export async function sendVerificationEmail(user) {
-  const token = generateVerificationToken(user.id);
+  const token = generateVerificationToken(user.id, user.email);
 
   const verification_path = `/verify-email?token=${token}`;
   const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
@@ -101,8 +101,11 @@ export async function sendVerificationEmail(user) {
   await sender.sendMail(options);
 }
 
-function generateVerificationToken(userId) {
-  const payload = { id: userId };
+function generateVerificationToken(userId, userEmail) {
+  const payload = {
+    id: userId,
+    email: userEmail,
+  };
 
   return jwt.sign(
     payload,
