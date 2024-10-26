@@ -8,13 +8,20 @@ services:
             - MATCHING_SERVICE_URL=http://matching-service:3006
             - RMQ_URL=http://rabbitmq:15672
             - DOMAIN_NAME=${DOMAIN_NAME}
+            - VPS_SSL_CERT_FILE=${VPS_SSL_CERT_FILE}
+            - VPS_SSL_KEY_FILE=${VPS_SSL_KEY_FILE}
+            - VPS_SSL_CONFIG_FILE=${VPS_SSL_CONFIG_FILE}
+            - VPS_SSL_DHPARAMS_FILE=${VPS_SSL_DHPARAMS_FILE}
         image: nginx:1.27.2-alpine
         ports:
             - 443:443
         restart: always
         volumes:
             - ./nginx/templates:/etc/nginx/templates
-            - ./certbot/www/:/var/www/certbot/:ro
+            - ${VPS_SSL_CERT_FILE}:/etc/nginx/ssl/server.crt
+            - ${VPS_SSL_KEY_FILE}:/etc/nginx/ssl/server.key
+            - ${VPS_SSL_CONFIG_FILE}:/etc/nginx/ssl/options-ssl-nginx.conf
+            - ${VPS_SSL_DHPARAMS_FILE}:/etc/nginx/ssl/server-dhparams.pem
         networks:
             - backend-network
         depends_on:
@@ -22,12 +29,6 @@ services:
             - question-service
             - matching-service
         command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
-
-    certbot:
-        image: certbot/certbot:v2.11.0
-        volumes:
-            - ./certbot/www/:/var/www/certbot/:rw
-            - ./certbot/conf/:/etc/letsencrypt/:rw
 
     matching-service:
         container_name: matching-service
