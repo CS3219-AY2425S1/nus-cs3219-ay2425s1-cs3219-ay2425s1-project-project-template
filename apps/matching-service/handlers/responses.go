@@ -18,10 +18,19 @@ func sendTimeoutResponse(ws *websocket.Conn) {
 	}
 }
 
-func sendRejectionResponse(ws *websocket.Conn) {
+func sendDuplicateUserRejectionResponse(ws *websocket.Conn) {
 	if err := ws.WriteJSON(models.MatchRejected{
 		Type:    "match_rejected",
 		Message: "You are already in a matchmaking queue. Please disconnect before reconnecting.",
+	}); err != nil {
+		log.Printf("write error: %v", err)
+	}
+}
+
+func sendDefaultRejectionResponse(ws *websocket.Conn) {
+	if err := ws.WriteJSON(models.MatchRejected{
+		Type:    "match_rejected",
+		Message: "An unexpected error occurred. Please try again later.",
 	}); err != nil {
 		log.Printf("write error: %v", err)
 	}

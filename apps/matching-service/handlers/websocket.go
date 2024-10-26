@@ -124,9 +124,11 @@ func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matc
 		if !ok {
 			return
 		}
+		log.Printf("Error occured performing matching: %v", err)
 		if errors.Is(err, models.ExistingUserError) {
-			sendRejectionResponse(ws)
+			sendDuplicateUserRejectionResponse(ws)
 		} else {
+			sendDefaultRejectionResponse(ws)
 			cleanUpUser(username)
 		}
 		return

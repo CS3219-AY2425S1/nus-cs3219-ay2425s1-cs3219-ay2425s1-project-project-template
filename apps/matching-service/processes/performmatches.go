@@ -24,6 +24,7 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 	// Obtain lock with retry
 	lock, err := servers.ObtainRedisLock(ctx)
 	if err != nil {
+		errorChan <- err
 		return
 	}
 	defer lock.Release(ctx)
