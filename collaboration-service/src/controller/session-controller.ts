@@ -44,7 +44,9 @@ export const sessionController = {
         yText.insert(0, questionTemplateCode);
 
         const questionDescription: string = questionData.question.description
-        const questionTestcases: string[] = questionData.question.testcases
+        const questionTestcases: string[] = questionData.question.testCases[0]
+
+        console.log('questionTestcases:', questionTestcases);
 
         const yDocBuffer = Buffer.from(Y.encodeStateAsUpdate(yDoc));
 

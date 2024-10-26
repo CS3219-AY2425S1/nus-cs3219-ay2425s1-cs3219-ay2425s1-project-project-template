@@ -88,14 +88,14 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         </Button>
       </div>
       <Card className={`flex-1 p-4 overflow-auto 
-        ${isError ? (theme === 'dark' ? 'bg-gradient-to-br from-[#751A1A] to-[#8F3B9D]' : 'bg-gradient-to-br from-[#FFA6A6] to-[#FFD4D4]')
-        : (theme === 'dark' ? 'bg-gradient-to-br from-[#2055A6] to-[#6F0AD4]' : 'bg-gradient-to-br from-[#A6C8FF] to-[#D4A6FF]')}`}>
-        <div className="text-sm"> {/* Set font size for the output card */}
-        {
-          output
-            ? output.map((line, index) => <p key={index}>{line}</p>)
-            : 'Click "Run Code" to see output here'
-        }
+        ${isError ? (theme === 'dark' ? 'bg-gradient-to-br from-[#751A1A] to-[#331638]' : 'bg-gradient-to-br from-[#FFA6A6] to-[#FFD4D4]')
+          : (theme === 'dark' ? 'bg-gradient-to-br from-[#2055A6] to-[#6F0AD4]' : 'bg-gradient-to-br from-[#A6C8FF] to-[#D4A6FF]')}`}>
+        <div className="text-sm overflow-y-auto h-full"> {/* Set font size for the output card */}
+          {
+            output
+              ? output.map((line, index) => <p key={index}>{line}</p>)
+              : 'Click "Run Code" to see output here'
+          }
         </div>
       </Card>
     </div>

@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 
 import { siteConfig } from "@/config/site";
-import { Navbar } from "@/components/navbar";
+import { CollabNavbar } from "@/components/collaboration/CollabNavbar";
 
 export const metadata: Metadata = {
   title: {
@@ -31,7 +31,7 @@ export default async function ApplicationLayout({
   return (
     <section>
       <div className="relative flex flex-col h-screen">
-        <Navbar />
+        <CollabNavbar />
         <div className="flex flex-grow mx-6">
           <main className="flex-grow max-w-screen">{children}</main>
         </div>

@@ -7,8 +7,8 @@ services:
     volumes:
       - ./collab-redis-data:/data
     # expose ports when testing
-    # ports:
-    #   - "6379:6379"
+    ports:
+      - "6369:6379"
 
   collab-mongodb:
     image: mongo:latest

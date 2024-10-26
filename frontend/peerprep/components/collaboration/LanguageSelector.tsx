@@ -13,10 +13,7 @@ interface LanguageSelectorProps {
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onSelect }) => {
   const { theme } = useTheme();
   return (
-    <div className='flex items-center'>
-      <p className='mr-2'>
-        Language:
-      </p>
+    <div className='flex items-center space-x-2'>
       <Dropdown>
         <DropdownTrigger>
           <Button
