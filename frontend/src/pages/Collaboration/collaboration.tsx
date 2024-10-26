@@ -6,6 +6,7 @@ import { useCollaboration } from '../../hooks/CollaborationHooks';
 
 const CollaborationPage: FC = () => {
   const location = useLocation();
+  const { roomId, userId, question } = location.state;
 
   const {
     isConnected,
@@ -14,14 +15,15 @@ const CollaborationPage: FC = () => {
     changeLanguage,
     ...collaborationState
   } = useCollaboration({
-    roomId: '123456',
-    userId: 'user-123',
+    roomId,
+    userId,
     onConnectionError: (error) => console.error(error)
   });
 
   return (
     <CollaborationInterface
-      roomId="123456"
+      roomId={roomId}
+      question={question}
       onLeaveRoom={() => {/* handle room exit */}}
       onLanguageChange={changeLanguage}
       onCodeChange={sendCode}

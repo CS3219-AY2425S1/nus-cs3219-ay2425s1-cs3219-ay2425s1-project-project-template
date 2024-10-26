@@ -27,6 +27,7 @@ export interface ConsoleOutput {
 
 interface CollaborationInterfaceProps {
   roomId: string;
+  question: Question;
   onLeaveRoom: () => void;
   onLanguageChange: (language: ProgrammingLanguage) => void;
   onCodeChange: (code: string) => void;
@@ -35,6 +36,7 @@ interface CollaborationInterfaceProps {
 
 const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
   roomId,
+  question,
   onLeaveRoom,
   onLanguageChange,
   onCodeChange,
@@ -43,18 +45,6 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
   const [selectedLanguage, setSelectedLanguage] = useState<ProgrammingLanguage>('C++');
   const [code, setCode] = useState<string>('');
   const [chatMessage, setChatMessage] = useState<string>('');
-
-  const questionData: Question = {
-    qid: 1,
-    title: '1. Two Sum',
-    complexity: 'Easy',
-    description: `Given an array of integers nums and an integer target, 
-    return indices of the two numbers such that they add up to target.
-    You may assume that each input would have exactly one solution,
-    and you may not use the same element twice.
-    You can return the answer in any order.`,
-    categories: ['Arrays', 'Hash Table']
-  };
 
   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newLanguage = e.target.value as ProgrammingLanguage;
@@ -125,13 +115,13 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
           <Card className="border-gray-700 text-white flex flex-col h-full">
             <CardContent className="p-6 bg-gray-800 flex-grow">
               <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-xl font-bold text-white">{questionData.title}</h2>
+                <h2 className="text-xl font-bold text-white">{question.title}</h2>
                 <span className="px-2 py-1 bg-green-600 rounded text-sm">
-                  {questionData.complexity}
+                  {question.complexity}
                 </span>
               </div>
               <p className="mb-4 text-gray-300 whitespace-pre-line text-left">
-                {questionData.description}
+                {question.description}
               </p>
             </CardContent>
           </Card>

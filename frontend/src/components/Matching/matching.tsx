@@ -16,6 +16,7 @@ import { io, Socket } from "socket.io-client";
 import { useContext } from "react";
 import { AuthContext } from "../../hooks/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const complexities = ["Easy", "Medium", "Hard"];
 const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
@@ -67,12 +68,21 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
         }, 250);
       });
       
-      socket.current.on("match-found", (match) => {
+      socket.current.on("match-found", async (match) => {
         console.log(match);
         toast.success(`Matched with ${match.matchedUsername}!`);
         setIsMatching(false);
         // TODO: Add RoomID
-        navigate(`/collaboration/${match.userId}`, { state: { roomId: match.userId, userId: user.id } });
+        // Fetch random question from the question API
+        try {
+          const response = await axios.get(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/random/${match.match.difficultyLevel}/${match.match.category}`);
+          console.log('API response:', response);
+          const question = response.data;
+          navigate(`/collaboration/${match.userId}`, { state: { roomId: match.userId, userId: user.id, question } });
+        } catch (error) {
+          toast.error("Failed to create room (Unable to fetch question)");
+          console.error(error);
+        }
       });
       
       socket.current.on("match-timeout", () => {
