@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { findUserByUsernameOrEmail as _findUserByUsernameOrEmail } from "../model/repository.js";
+import {
+  findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
+  findUserById as _findUserById,
+  updateUserVerifyStatusById as _updateUserVerifyStatusById,
+} from "../model/repository.js";
 import { formatFullUserResponse } from "./user-controller.js";
 
 export async function handleLogin(req, res) {
@@ -21,6 +25,10 @@ export async function handleLogin(req, res) {
     const match = await bcrypt.compare(password, user.password);
     if (!match) { // check if password matches account password
       return res.status(401).json({ message: "Wrong username/email or password" });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({ message: "Account is not yet verified. Please check your email for verification link."})
     }
 
     const accessToken = jwt.sign({
@@ -44,5 +52,38 @@ export async function handleVerifyToken(req, res) {
     return res.status(200).json({ message: "Token verified", data: verifiedUser });
   } catch (err) {
     return res.status(500).json({ message: err.message });
+  }
+}
+
+export async function handleVerifyAccountToken(req, res) {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ message: "'token' field missing"});
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_VERIFICATION);
+  } catch (err) {
+    return err.name === 'TokenExpiredError'
+      ? res.status(401).json({ message: `Expired token`})
+      : res.status(403).json({ message: `Invalid token`});
+  }
+
+  try {
+    const user = await _findUserById(decoded.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist"});
+    }
+
+    await _updateUserVerifyStatusById(user.id, true);
+    return res.status(200).json({
+      message: "Successfully verified.",
+      username: user.username,
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message});
   }
 }

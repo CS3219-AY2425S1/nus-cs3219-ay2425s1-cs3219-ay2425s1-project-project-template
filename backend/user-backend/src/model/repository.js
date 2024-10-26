@@ -67,6 +67,18 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
   );
 }
 
+export async function updateUserVerifyStatusById(userId, isVerified) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        isVerified,
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
 }

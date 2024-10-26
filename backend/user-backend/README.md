@@ -291,3 +291,29 @@
     | 200 (OK)                    | Token verified, authenticated user's data returned |
     | 401 (Unauthorized)          | Missing/invalid/expired JWT                        |
     | 500 (Internal Server Error) | Database or server error                           |
+
+### Verify Account
+
+- This endpoint allows one to verify a JWT token to activate the user's account
+associated with the token.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/verify-account
+- Body
+  - Required: one `jwt verification token` (string)
+
+    ```json
+    {
+      "token": "abcdefghijk..."
+    }
+    ```
+ 
+- Responses:
+
+    | Response Code               | Explanation                             |
+    |-----------------------------|-----------------------------------------|
+    | 200 (OK)                    | Token verified, account activated       |
+    | 400 (Bad Request)           | Missing field for token                 |
+    | 401 (Unauthorized)          | Expired JWT token                       |
+    | 403 (Unauthorized)          | Invalid JWT token                       |
+    | 404 (Account not found)     | Account associated with token not found |
+    | 500 (Internal Server Error) | Database or server error                |

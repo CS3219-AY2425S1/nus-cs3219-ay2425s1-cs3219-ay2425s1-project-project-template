@@ -1,4 +1,6 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 import "dotenv/config";
 import { Storage } from "@google-cloud/storage";
 import { DEFAULT_IMAGE } from "../model/user-model.js";
@@ -68,4 +70,46 @@ export function validateEmail(email) {
 export function validatePassword(password) {
   const re = /^(?=.*[a-zA-Z])(?=.*[0-9])[\w@$!%*#?&.+-=]{8,20}$/;
   return re.test(password);
+}
+
+export async function sendVerificationEmail(user) {
+  const token = generateVerificationToken(user);
+
+  const verification_path = `/verify-email?token=${token}`;
+  const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
+
+  const sender = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.PEERPREP_EMAIL,
+      pass: process.env.PEERPREP_PASSWORD
+    }
+  });
+
+  const options = {
+    from: process.env.PEERPREP_EMAIL,
+    to: user.email,
+    subject: '[PeerPrep] Email verification',
+    html: `
+      <p>
+        Click on this <a href=${verification_link}>link</a> to verify your email address.
+        The link will expire in 24 hours.
+      </p>
+    `
+  };
+
+  await sender.sendMail(options);
+}
+
+function generateVerificationToken(user) {
+  const payload = {
+    id: user.id,
+    email: user.email
+  };
+
+  return jwt.sign(
+    payload,
+    process.env.JWT_VERIFICATION,
+    { expiresIn: '1d'}
+  );
 }

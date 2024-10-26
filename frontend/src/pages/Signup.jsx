@@ -42,12 +42,10 @@ const SignUp = () => {
       () => validateEmail(email),
       () => validatePassword(password, confirmPassword),
     ];
-    for (const check of validationChecks) {
-      const res = check();
-      if (res) {
-        handleError(res);
-        return;
-      }
+    const res = validationChecks.reduce((prev, check) => prev || check() , "");
+    if (res) {
+      handleError(res);
+      return;
     }
 
     try {
@@ -59,10 +57,13 @@ const SignUp = () => {
         { withCredentials: true }
       );
       if (response.status === 201) {
-        handleSuccess(response.data.message);
+        handleSuccess(`
+          ${response.data.message}
+          Check your email for account verification link.
+        `);
         setTimeout(() => {
           navigate("/login");
-        }, 1000);
+        }, 3000);
       } else {
         handleError(response.data.message);
       }
