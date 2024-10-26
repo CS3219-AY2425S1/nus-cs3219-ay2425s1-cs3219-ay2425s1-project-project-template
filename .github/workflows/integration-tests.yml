@@ -16,5 +16,6 @@ jobs:
           compose-file: "./docker-compose-tests.yaml"
           up-flags: "--build"
           down-flags: "--volumes"
-          test-container: "test"
+          test-container: "tests"
+          test-command: "pytest"
           

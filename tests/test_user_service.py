@@ -18,24 +18,27 @@ def test_create_user():
       "password": "SecurePassword"
     }
     resp = requests.post(endpoint, json=payload)
-    if resp.status_code != 201:
-        print(resp.json())
-        return False
-    return True
+    assert resp.status_code == 201
+    # if resp.status_code != 201:
+    #     print(resp.json())
+    #     return False
+    # return True
     
 def test_login_user_valid():
     resp = login("sample@gmail.com", "SecurePassword")
-    if resp.status_code != 200:
-        print(resp.json())
-        return False
-    return True
+    assert resp.status_code == 200
+    # if resp.status_code != 200:
+    #     print(resp.json())
+    #     return False
+    # return True
 
 def test_login_user_invalid():
     resp = login("sample@gmail.com", "WrongPassword")
-    if resp.status_code != 401:
-        print(resp.json())
-        return False
-    return True
+    assert resp.status_code == 401
+    # if resp.status_code != 401:
+    #     print(resp.json())
+    #     return False
+    # return True
 
 def test_verify_token_valid():
     resp = login("sample@gmail.com", "SecurePassword")
@@ -45,18 +48,20 @@ def test_verify_token_valid():
       "Authorization": f"Bearer {token}"
     }
     resp = requests.get(endpoint, headers=headers)
-    if resp.status_code != 200:
-        print(resp.json())
-        return False
-    return True
+    assert resp.status_code == 200
+    # if resp.status_code != 200:
+    #     print(resp.json())
+    #     return False
+    # return True
 
 def test_verify_token_no_token():
     endpoint = f"{ENDPOINT}auth/verify-token"
     resp = requests.get(endpoint)
-    if resp.status_code != 401:
-        print(resp.json())
-        return False
-    return True
+    assert resp.status_code == 401
+    # if resp.status_code != 401:
+    #     print(resp.json())
+    #     return False
+    # return True
 
 def test_verify_token_invalid():
     endpoint = f"{ENDPOINT}auth/verify-token"
@@ -64,7 +69,8 @@ def test_verify_token_invalid():
       "Authorization": f"Bearer wrongToken"
     }
     resp = requests.get(endpoint, headers=headers)
-    if resp.status_code != 401:
-        print(resp.json())
-        return False
-    return True
+    assert resp.status_code == 401
+    # if resp.status_code != 401:
+    #     print(resp.json())
+    #     return False
+    # return True
