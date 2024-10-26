@@ -1,14 +1,6 @@
 "use client";
 import Header from "@/components/Header/header";
-import {
-  Button,
-  Col,
-  Layout,
-  message,
-  Row,
-  Tag,
-  Select,
-} from "antd";
+import { Button, Col, Layout, message, Row, Tag, Select } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
   PlusCircleOutlined,
@@ -26,13 +18,10 @@ import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
-import {
-  ValidateUser,
-  VerifyTokenResponseType,
-} from "../../services/user";
-import { useRouter } from 'next/navigation';
+import { ValidateUser, VerifyTokenResponseType } from "../../services/user";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function QuestionPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Message States
@@ -45,10 +34,11 @@ export default function Home() {
     });
   };
 
+  const router = useRouter();
+
   // Retrieve the docRefId from query params during page navigation
   const searchParams = useSearchParams();
   const docRefId: string = searchParams?.get("data") ?? "";
-
   // Code Editor States
   const [questionTitle, setQuestionTitle] = useState<string | undefined>(
     undefined
@@ -65,24 +55,24 @@ export default function Home() {
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
-  const router = useRouter();
-  
   useLayoutEffect(() => {
     var isAuth = false;
 
-    ValidateUser().then((data: VerifyTokenResponseType) => {
-      setUserId(data.data.id);
-      setEmail(data.data.email);
-      setUsername(data.data.username);
-      setIsAdmin(data.data.isAdmin);
-      isAuth = true;
-    }).finally(() => {
-      if(!isAuth){
-        // cannot verify
-        router.push('/login'); // Client-side redirect using router.push
-      }
-    });
-  }, [router])
+    ValidateUser()
+      .then((data: VerifyTokenResponseType) => {
+        setUserId(data.data.id);
+        setEmail(data.data.email);
+        setUsername(data.data.username);
+        setIsAdmin(data.data.isAdmin);
+        isAuth = true;
+      })
+      .finally(() => {
+        if (!isAuth) {
+          // cannot verify
+          router.push("/login"); // Client-side redirect using router.push
+        }
+      });
+  }, [router]);
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
