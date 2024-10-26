@@ -21,3 +21,8 @@ down:
 	docker compose --env-file .env.local down
 	echo 'y' | docker volume prune
 
+k8s-up:
+	./scripts/k8s-up.sh
+
+k8s-down:
+	./scripts/k8s-down.sh
