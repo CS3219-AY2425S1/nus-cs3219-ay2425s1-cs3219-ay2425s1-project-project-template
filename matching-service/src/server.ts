@@ -40,7 +40,7 @@ async function startServer() {
             registerEventHandlers(socket, io);
         });
 
-        const PORT = process.env.PORT || 8002;
+        const PORT = process.env.MATCHING_SERVICE_PORT || 8002;
         server.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
