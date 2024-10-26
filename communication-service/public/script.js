@@ -4,12 +4,12 @@ const remoteVideo = document.getElementById('remoteVideo');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 const messages = document.getElementById('messages');
+const muteMicBtn = document.getElementById('muteMicBtn'); // Mute Button
 
 let localStream;
 let peerConnection;
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-// Check for media device support
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((stream) => {
@@ -18,25 +18,12 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       initWebRTC();
     })
     .catch((error) => {
-      let errorMessage;
-
-      if (error.name === 'OverconstrainedError') {
-        errorMessage = 'Unable to access media devices: Invalid constraints specified.';
-      } else if (error.name === 'NotAllowedError') {
-        errorMessage = 'Permission denied: Please allow access to your camera and microphone.';
-      } else if (error.name === 'NotFoundError') {
-        errorMessage = 'No media devices found: Please check if your camera and microphone are connected.';
-      } else {
-        errorMessage = 'Error accessing media devices: ' + error.message;
-      }
-  
-      alert(errorMessage);
+      alert(`Error accessing media devices: ${error.message}`);
     });
 } else {
   alert("getUserMedia is not supported on this browser. Please use the latest version of Chrome or Firefox.");
 }
 
-// Initialize WebRTC and Socket.IO signaling
 function initWebRTC() {
   socket.on('offer', async (data) => {
     if (!peerConnection) createPeerConnection();
@@ -59,7 +46,6 @@ function initWebRTC() {
   createPeerConnection();
 }
 
-// Create a new RTCPeerConnection
 function createPeerConnection() {
   peerConnection = new RTCPeerConnection(config);
 
@@ -78,7 +64,6 @@ function createPeerConnection() {
   });
 }
 
-// Start a new call by creating an offer
 async function startCall() {
   if (!peerConnection) createPeerConnection();
   const offer = await peerConnection.createOffer();
@@ -86,7 +71,6 @@ async function startCall() {
   socket.emit('offer', offer);
 }
 
-// Chat functionality
 sendBtn.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', (event) => {
   if (event.key === 'Enter') {
@@ -97,24 +81,28 @@ chatInput.addEventListener('keypress', (event) => {
 function sendMessage() {
   const msg = chatInput.value;
   if (msg.trim()) {
-    // Emit message to server
-    socket.emit('chatMessage', { msg: msg, id: socket.id });
-    // Display your own message locally
+    socket.emit('chatMessage', msg);
     chatInput.value = '';
+    displayMessage(`You: ${msg}`);
   }
 }
 
-// Display received messages only from the peer
-socket.on('chatMessage', ({ msg: msg, id: id}) => {
-  displayMessage(`${id}: ${msg}`);
+socket.on('chatMessage', (msg) => {
+  displayMessage(`Peer: ${msg}`);
 });
 
-// Display chat messages in the UI
 function displayMessage(message) {
   const msgElem = document.createElement('div');
   msgElem.textContent = message;
   messages.appendChild(msgElem);
 }
 
-// Automatically start the call when the page loads
+// Toggle Mute Functionality
+let isMuted = false;
+muteMicBtn.addEventListener('click', () => {
+  isMuted = !isMuted;
+  localStream.getAudioTracks()[0].enabled = !isMuted;
+  muteMicBtn.textContent = isMuted ? 'Unmute Mic' : 'Mute Mic';
+});
+
 document.getElementById('startCallBtn').addEventListener('click', startCall);
