@@ -8,7 +8,7 @@ http {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name ${NGINX_SERVER_NAME};
+    server_name ${DOMAIN_NAME};
 
     ssl_certificate /etc/nginx/ssl/server.crt;
     ssl_certificate_key /etc/nginx/ssl/server.key;
@@ -54,6 +54,22 @@ http {
     error_page 502 /502.json;
     location /502.json {
         return 502 '{"error":{"code":502,"message":"Bad Gateway"}}';
+    }
+  }
+
+  server {
+    listen 80;
+    listen [::]:80;
+
+    server_name ${DOMAIN_NAME} www.{DOMAIN_NAME};
+    server_tokens off;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://{DOMAIN_NAME}${D}request_uri;
     }
   }
 }
