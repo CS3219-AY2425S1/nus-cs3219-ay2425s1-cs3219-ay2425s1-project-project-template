@@ -49,7 +49,8 @@ jobs:
     - name: output-job-matrix
       id: set-matrix
       run: |
-        is_main=${{ contains(github.ref, 'main') || github.ref_name == 'feat/k8s' }}
+        is_main=true
+        # is_main=${{ contains(github.ref, 'main') }}
         matrix=()
         if [[ "${{ steps.filter.outputs.user }}" == "true" || "$is_main" == "true" ]]; then
           config=$(jq -n \
