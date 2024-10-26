@@ -12,7 +12,7 @@ export default function ChatBox({ messages, sendMessage }) {
 
   return (
     <div className="mb-8">
-      <div className="text-L font-bold text-[#bcfe4d] mb-4">CHAT</div>
+      <div className="text-L font-bold text-[#bcfe4d] mb-2">CHAT</div>
       <div className="bg-[#1e1e1e] rounded p-4 h-[300px] flex flex-col">
         <div className="flex-1 overflow-auto mb-4">
           {messages.map((msg, index) => (

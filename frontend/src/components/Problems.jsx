@@ -3,7 +3,7 @@ import React from "react";
 export default function Problems({ problem }) {
   return (
     <div className="mb-8">
-      <div className="text-L font-bold text-[#bcfe4d] mb-4">PROBLEM</div>
+      <div className="text-L font-bold text-[#bcfe4d] mb-2">PROBLEM</div>
       <div className="bg-[#1e1e1e] rounded p-4">
         <h2 className="text-xl font-bold mb-4 text-white">{problem.title}</h2>
         <div className="flex gap-2 mb-4">

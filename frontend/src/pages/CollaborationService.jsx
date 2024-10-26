@@ -36,16 +36,22 @@ export default function CollaborationService() {
 
   return (
     <PeerPrep>
-      <main className="flex-1 overflow-auto p-4">
-        <div className="flex gap-6"> {/* Updated to make the div a flex container and add gap */}
-          <Problems problem={problem} />
-          <CodeEditor
-            code={code}
-            setCode={setCode}
-            language={language}
-            setLanguage={setLanguage}
-          />
-          <ChatBox messages={messages} sendMessage={sendMessage} />
+      <main className="flex-1 overflow-auto">
+        <div className="flex gap-4"> 
+          <div className="flex-1">
+            <Problems problem={problem} />
+          </div>
+          <div className="flex-[1.5]">
+            <CodeEditor
+              code={code}
+              setCode={setCode}
+              language={language}
+              setLanguage={setLanguage}
+            />
+          </div>
+          <div className="flex-[0.5]">
+            <ChatBox messages={messages} sendMessage={sendMessage} />
+          </div>
         </div>
         
       </main>
