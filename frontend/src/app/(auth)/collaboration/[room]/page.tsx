@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react';
+import Question from '../components/question';
 
 
 // Disable SSR for this component
@@ -17,7 +18,8 @@ export default function CollaborationPage() {
     }, [room]);
     
     return (
-        <div>
+        <div className="grid grid-cols-2">
+            <Question questionId='234'/>
             <Collaboration room={room}/>
         </div>
     )
