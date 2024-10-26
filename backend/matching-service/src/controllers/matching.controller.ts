@@ -1,13 +1,13 @@
 import { ITypedBodyRequest } from '@repo/request-types'
-import { Response } from 'express'
-import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
-import mqConnection from '../services/rabbitmq.service'
-import { randomUUID } from 'crypto'
 import { WebSocketMessageType } from '@repo/ws-types'
-import wsConnection from '../services/ws.service'
+import { randomUUID } from 'crypto'
+import { Response } from 'express'
+import { createMatch, isUserInMatch } from '../models/matching.repository'
+import { wsConnection } from '../server'
+import mqConnection from '../services/rabbitmq.service'
 import { IMatch } from '../types/IMatch'
 import { MatchDto } from '../types/MatchDto'
-import { createMatch, isUserInMatch } from '../models/matching.repository'
+import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
