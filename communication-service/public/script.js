@@ -1,4 +1,4 @@
-const socket = io('https://192.168.1.248:8443', {
+const socket = io('https://192.168.1.9:8443', {
   path: '/api/comm/socket.io'
 });
 
@@ -7,18 +7,21 @@ const remoteVideo = document.getElementById('remoteVideo');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 const messages = document.getElementById('messages');
-const muteMicBtn = document.getElementById('muteMicBtn'); // Mute Button
+const muteMicBtn = document.getElementById('muteMicBtn');
+const joinRoomBtn = document.getElementById('joinRoomBtn');
+const roomIdInput = document.getElementById('roomId');
 
 let localStream;
 let peerConnection;
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+let roomId;
 
+// Get user media
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((stream) => {
       localStream = stream;
       localVideo.srcObject = stream;
-      initWebRTC();
     })
     .catch((error) => {
       alert(`Error accessing media devices: ${error.message}`);
@@ -27,34 +30,47 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
   alert("getUserMedia is not supported on this browser. Please use the latest version of Chrome or Firefox.");
 }
 
+// Join room
+joinRoomBtn.addEventListener('click', () => {
+  roomId = roomIdInput.value.trim();
+  if (roomId) {
+    socket.emit('joinRoom', roomId);
+  }
+});
+
+// Initialize WebRTC after joining a room
+socket.on('roomJoined', (roomId) => {
+  console.log(`Joined room: ${roomId}`);
+  initWebRTC();
+});
+
+// Initialize WebRTC and set up event listeners
 function initWebRTC() {
-  socket.on('offer', async (data) => {
-    if (!peerConnection) createPeerConnection();
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
+  createPeerConnection(); // Create the peer connection once the room is joined
+
+  socket.on('offer', async (offer) => {
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
-    socket.emit('answer', answer);
+    socket.emit('answer', { answer, roomId }); // Send answer to specific room
   });
 
-  socket.on('answer', (data) => {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(data));
+  socket.on('answer', (answer) => {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
   });
 
-  socket.on('candidate', (data) => {
-    if (peerConnection) {
-      peerConnection.addIceCandidate(new RTCIceCandidate(data));
-    }
+  socket.on('candidate', (candidate) => {
+    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
   });
-
-  createPeerConnection();
 }
 
+// Create Peer Connection
 function createPeerConnection() {
   peerConnection = new RTCPeerConnection(config);
 
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
-      socket.emit('candidate', event.candidate);
+      socket.emit('candidate', { candidate: event.candidate, roomId });
     }
   };
 
@@ -67,13 +83,14 @@ function createPeerConnection() {
   });
 }
 
+// Start Call
 async function startCall() {
-  if (!peerConnection) createPeerConnection();
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  socket.emit('offer', offer);
+  socket.emit('offer', { offer, roomId }); // Send offer to specific room
 }
 
+// Chat and messaging functions
 sendBtn.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', (event) => {
   if (event.key === 'Enter') {
@@ -82,12 +99,12 @@ chatInput.addEventListener('keypress', (event) => {
 });
 
 function sendMessage() {
-  const body = chatInput.value;
-  if (body.trim()) {
+  const body = chatInput.value.trim();
+  if (body) {
     const msg = {
       body,
-      username: socket.id
-    }
+      username: socket.id,
+    };
     socket.emit('chatMessage', msg);
     chatInput.value = '';
   }
@@ -111,4 +128,5 @@ muteMicBtn.addEventListener('click', () => {
   muteMicBtn.textContent = isMuted ? 'Unmute Mic' : 'Mute Mic';
 });
 
+// Start call on button click
 document.getElementById('startCallBtn').addEventListener('click', startCall);

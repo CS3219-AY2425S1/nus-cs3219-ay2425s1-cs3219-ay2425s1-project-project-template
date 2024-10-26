@@ -10,7 +10,7 @@ const initializeSocketRoutes = require('./routes/socketRoutes');
 const app = express();
 app.use(cors());
 
-const MY_NETWORK_IP = '192.168.1.248';
+const MY_NETWORK_IP = '192.168.1.9';
 const PORT = 8443;
 
 // SSL certificates
