@@ -1,4 +1,7 @@
-const socket = io();
+const socket = io('https://192.168.1.248:8443', {
+  path: '/api/comm/socket.io'
+});
+
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const chatInput = document.getElementById('chatInput');

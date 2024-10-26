@@ -41,7 +41,7 @@ const io = new Server(httpsServer, {
     origin: "*",  // Allow all origins
     methods: ['GET', 'POST'],
   },
-  // path: '/api/comm/socket.io',
+  path: '/api/comm/socket.io',
   pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
   pingInterval: 25000,  // Interval between ping packets
 });
