@@ -245,6 +245,30 @@
     | 404 (Not Found)             | User with the specified ID not found                    |
     | 500 (Internal Server Error) | Database or server error                                |
 
+
+### Resend email verification
+
+- This endpoint allows one to resend an email with a JWT token to activate the user's account.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/resend-verification
+- Body
+  - Required: one `email` (string)
+
+    ```json
+    {
+      "email": "example@gmail.com"
+    }
+    ```
+ 
+- Responses:
+
+    | Response Code               | Explanation                             |
+    |-----------------------------|-----------------------------------------|
+    | 200 (OK)                    | Email successfully sent, or account already registered |
+    | 400 (Bad Request)           | Missing field for email                 |
+    | 404 (Account not found)     | Account associated with email not found |
+    | 500 (Internal Server Error) | Database or server error                |
+
 ### Login
 
 - This endpoint allows a user to authenticate with an email and password and returns a JWT access token. The token is valid for 1 day and can be used subsequently to access protected resources. For example usage, refer to the [Authorization header section in the Get User endpoint](#auth-header).
@@ -314,6 +338,6 @@ associated with the token.
     | 200 (OK)                    | Token verified, account activated       |
     | 400 (Bad Request)           | Missing field for token                 |
     | 401 (Unauthorized)          | Expired JWT token                       |
-    | 403 (Unauthorized)          | Invalid JWT token                       |
+    | 403 (Forbidden)             | Invalid JWT token                       |
     | 404 (Account not found)     | Account associated with token not found |
     | 500 (Internal Server Error) | Database or server error                |

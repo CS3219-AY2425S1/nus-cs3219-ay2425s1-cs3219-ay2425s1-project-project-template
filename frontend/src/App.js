@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import './styles/App.css';
-import { Home, Login, Profile, Questions, Signup, VerifyEmail } from './pages';
+import { Home, Login, Profile, Questions, Signup, VerifyEmail, SendVerification } from './pages';
 
 function App() {
   return (
@@ -11,6 +11,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/send-verification" element={<SendVerification />} />
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/questions" element={<Questions />} />

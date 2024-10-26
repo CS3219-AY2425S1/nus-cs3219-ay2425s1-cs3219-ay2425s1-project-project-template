@@ -3,9 +3,11 @@ import jwt from "jsonwebtoken";
 import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   findUserById as _findUserById,
+  findUserByEmail as _findUserByEmail,
   updateUserVerifyStatusById as _updateUserVerifyStatusById,
 } from "../model/repository.js";
 import { formatFullUserResponse } from "./user-controller.js";
+import { sendVerificationEmail } from "./user-controller-utils.js";
 
 export async function handleLogin(req, res) {
   const { username, email, password } = req.body;
@@ -85,5 +87,27 @@ export async function handleVerifyAccountToken(req, res) {
 
   } catch (err) {
     return res.status(500).json({ message: err.message});
+  }
+}
+
+export async function handleResendVerification(req, res) {
+  const {email} = req.body;
+  if (!email) {
+    return res.status(400).json({ message: `Email is missing`});
+  }
+
+  const user = await _findUserByEmail(email);
+  if (!user) {
+    return res.status(404).json({ message: `User with '${email}' not found` });
+  } else if (user.isVerified) {
+    return res.status(200).json({ message: "User is already verified"});
+  }
+  
+  try {
+    await sendVerificationEmail(user);
+    return res.status(200).json({ message: "Verification link sent to email"});
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Unknown error when sending email!"});
   }
 }
