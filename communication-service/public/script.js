@@ -18,7 +18,19 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       initWebRTC();
     })
     .catch((error) => {
-      console.error('Error accessing media devices:', error);
+      let errorMessage;
+
+      if (error.name === 'OverconstrainedError') {
+        errorMessage = 'Unable to access media devices: Invalid constraints specified.';
+      } else if (error.name === 'NotAllowedError') {
+        errorMessage = 'Permission denied: Please allow access to your camera and microphone.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'No media devices found: Please check if your camera and microphone are connected.';
+      } else {
+        errorMessage = 'Error accessing media devices: ' + error.message;
+      }
+  
+      alert(errorMessage);
     });
 } else {
   alert("getUserMedia is not supported on this browser. Please use the latest version of Chrome or Firefox.");
