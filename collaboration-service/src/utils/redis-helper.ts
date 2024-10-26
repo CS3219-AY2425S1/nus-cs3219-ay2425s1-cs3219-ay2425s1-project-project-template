@@ -44,6 +44,21 @@ export async function getLanguageFromRedis(sessionId: string): Promise<string | 
     }
 }
 
+// Function to delete document language from Redis
+export async function deleteLanguageFromRedis(sessionId: string) {
+    try {
+        if (!redisClient) {
+            console.error('Redis client is not initialized');
+            return;
+        }
+
+        await redisClient.del(`language:${sessionId}`);
+        console.log(`Deleted language for session ${sessionId} from Redis`);
+    } catch (err) {
+        console.error(`Error deleting language from Redis for session ${sessionId}:`, err);
+    }
+}
+
 // Function to retrieve the Yjs document from Redis
 export async function getYDocFromRedis(sessionId: string): Promise<Y.Doc | null> {
     try {
@@ -96,5 +111,45 @@ export async function addUpdateToYDocInRedis(sessionId: string, yDocUpdate: Uint
         console.log(`Added update to YDoc in Redis for session ${sessionId}`);
     } catch (err) {
         console.error(`Error updating YDoc in Redis for session ${sessionId}:`, err);
+    }
+}
+
+export async function addConnectedUser(userId: string) {
+    try {
+        if (!redisClient) {
+            console.error('Redis client is not initialized');
+            return null;
+        }
+        await redisClient.sadd('connectedUsers', userId);
+        console.log(`Added user ${userId} to connected users in Redis`);
+    } catch (err) {
+        console.error(`Error adding user ${userId} to connected users in Redis:`, err);
+    }
+}
+
+export async function removeConnectedUser(userId: string) {
+    try {
+        if (!redisClient) {
+            console.error('Redis client is not initialized');
+            return null;
+        }
+        await redisClient.srem('connectedUsers', userId);
+        console.log(`Removed user ${userId} from connected users in Redis`);
+    } catch (err) {
+        console.error(`Error removing user ${userId} from connected users in Redis:`, err);
+    }
+}
+
+export async function isUserConnected(userId: string) {
+    try {
+        if (!redisClient) {
+            console.error('Redis client is not initialized');
+            return false;
+        }
+        const result = await redisClient.sismember('connectedUsers', userId);
+        return result === 1;
+    } catch (err) {
+        console.error(`Error checking if user ${userId} is connected in Redis:`, err);
+        return false;
     }
 }

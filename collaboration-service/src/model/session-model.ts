@@ -8,6 +8,7 @@ interface Session {
     questionTemplateCode : string,
     questionTestcases : string[],
     active: boolean
+    activeUsers: string[],
     yDoc: Buffer
 }
 
@@ -25,6 +26,7 @@ const sessionSchema: Schema = new Schema({
     questionTemplateCode: { type: String, required: true },
     questionTestcases: { type: [String], required: true },
     active: { type: Boolean, default: true },
+    activeUsers: { type: [String], default: [] },
     yDoc: { type: Buffer, required: true }
 });
 
