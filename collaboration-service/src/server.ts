@@ -20,7 +20,7 @@ app.use(express.json());
 app.use("/api/session", router)
 
 mongoose
-    .connect(process.env.MONGODB_URI as string, {})
+    .connect(process.env.COLLAB_MONGODB_URI as string, {})
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.log('Error connecting to MongoDB', err));
 
@@ -45,8 +45,8 @@ export { server };
 
 if (require.main === module) {
     dotenv.config();
-    const PORT = 8010;
-    server.listen(PORT, () => {
+    const PORT = Number(process.env.COLLABORATION_SERVICE_PORT) || 8010;
+    server.listen(PORT, '0.0.0.0', () => {
         console.log(`Server listening on port ${PORT}`);
     });
 

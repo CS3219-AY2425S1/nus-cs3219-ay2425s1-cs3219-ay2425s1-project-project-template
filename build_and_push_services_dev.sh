@@ -23,9 +23,10 @@ get_latest_version() {
 # List of services with their respective directories
 declare -A services=(
     ["matching-service"]="matching-service"
-    ["question-service"]="question-service"
-    ["user-service"]="user-service"
-    ["frontend-peerprep"]="frontend/peerprep"
+    # ["question-service"]="question-service"
+    # ["user-service"]="user-service"
+    # ["frontend-peerprep"]="frontend/peerprep"
+    ["collaboration-service"]="collaboration-service"
 )
 
 # Iterate over each service in the list

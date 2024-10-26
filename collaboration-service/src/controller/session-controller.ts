@@ -30,7 +30,7 @@ export const sessionController = {
 
         // Check if participants are already in another active session
         const existingSession = await Session.findOne({
-            participants: { $elemMatch: { $in: participants } },
+            activeUsers: { $elemMatch: { $in: participants } },
             active: true
         });
 
@@ -61,6 +61,7 @@ export const sessionController = {
             questionTemplateCode,
             questionTestcases,
             active: true,
+            activeUsers: participants,
             yDoc: yDocBuffer
         });
 
@@ -77,13 +78,34 @@ export const sessionController = {
 
         try {
             // Find an active session that the user is a participant of
-            const session = await Session.findOne({ participants: userId, active: true });
+            const session = await Session.findOne({ activeUsers: userId, active: true });
 
             if (!session) {
-                return res.status(404).json({ message: 'Session not found' });
+                // No active session found
+                return res.status(204).end();
             }
 
-            res.status(200).json(session);
+            res.status(200).json({ message: 'Active session found', sessionId: session.session_id });
+        } catch (err) {
+            res.status(500).json({ message: (err as Error).message });
+        }
+    },
+    leaveSession: async (req: Request, res: Response) => {
+        const { userId } = req.body;
+
+        try {
+            // Find the session with the user in the activeUsers array and active status
+            const session = await Session.findOneAndUpdate(
+                { activeUsers: userId, active: true },   // Find a session where userId is in activeUsers and active is true
+                { $pull: { activeUsers: userId } },       // Remove userId from the activeUsers array
+                { new: true }                             // Return the updated document
+            );
+
+            if (!session) {
+                return res.status(404).json({ message: 'User not in session' });
+            }
+
+            res.status(200).json({ message: 'User removed from session', sessionId: session.session_id });
         } catch (err) {
             res.status(500).json({ message: (err as Error).message });
         }

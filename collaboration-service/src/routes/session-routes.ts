@@ -5,16 +5,15 @@ import { sessionController } from "../controller/session-controller";
 const router = Router();
 
 // Test route
-router.get('/', (req, res) => {res.send('Hello from session service!')}); 
+router.get('/', (req, res) => {res.send('Hello from session service!')});
 
 // Create a new session
 router.post("/create", sessionController.createSession);
 
-// Join a session
-router.post("/", /* validateApiJWT,*/ sessionController.checkSessionStatus);
+// Check if user is in a session
+router.post("/check", validateApiJWT, sessionController.checkSessionStatus);
 
-// Terminate a session
-router.delete("/", /* validateApiJWT,*/ sessionController.terminateSession);
-
+// Remove user from session
+router.post("/leave", validateApiJWT, sessionController.leaveSession);
 
 export default router;

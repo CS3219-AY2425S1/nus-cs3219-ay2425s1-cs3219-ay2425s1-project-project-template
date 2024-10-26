@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Input,
   Button,
@@ -24,7 +24,7 @@ import {
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,
   submitQuestion,
-} from "@/services/questionService";
+} from '@/services/questionService';
 
 interface AddQuestionFormProps {
   initialTitle?: string;
@@ -36,27 +36,27 @@ interface AddQuestionFormProps {
 }
 
 export default function AddQuestionForm({
-  initialTitle = "",
-  initialDescription = "# Question description \n Write your question description here! \n You can also insert images!",
-  initialComplexity = "Easy",
+  initialTitle = '',
+  initialDescription = '# Question description \n Write your question description here! \n You can also insert images!',
+  initialComplexity = 'Easy',
   initialCategories = [],
-  initialTemplateCode = "/** PUT YOUR TEMPLATE CODE HERE **/",
-  initialTestCases = [{ input: "", output: "" }],
+  initialTemplateCode = '/** PUT YOUR TEMPLATE CODE HERE **/',
+  initialTestCases = [{ input: '', output: '' }],
 }: AddQuestionFormProps) {
   const router = useRouter();
   const { theme } = useTheme();
 
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
   const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState('javascript');
   const [selectedTab, setSelectedComplexity] =
     useState<string>(initialComplexity);
   const [category, setCategories] = useState<string[]>(initialCategories);
-  const [currentCategory, setCurrentCategory] = useState<string>("");
-  const [warnMessage, setWarnMessage] = useState<string>("");
+  const [currentCategory, setCurrentCategory] = useState<string>('');
+  const [warnMessage, setWarnMessage] = useState<string>('');
   const [title, setTitle] = useState<string>(initialTitle);
   const [description, setDescription] = useState<string>(initialDescription);
   const [templateCode, setTemplateCode] = useState<string>(initialTemplateCode);
@@ -77,21 +77,22 @@ export default function AddQuestionForm({
       // console.log(caps, category);
       setCategories((prevCategories) => [...prevCategories, caps]);
     }
-    setCurrentCategory(""); // Clear the input after adding
+    setCurrentCategory(''); // Clear the input after adding
   };
 
   // Handle removing a category
   const removeCategory = (category: string) => {
-    setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category)
+    setCategories(
+      (prevCategories) => prevCategories.filter((cat) => cat !== category)
+      // prevCategories.filter((cat) => cat !== category)
     );
   };
 
   useEffect(() => {
     if (category.length >= 3) {
-      setWarnMessage("You can only add up to 3 categories.");
+      setWarnMessage('You can only add up to 3 categories.');
     } else {
-      setWarnMessage(""); // Clear the message when less than 3 categories
+      setWarnMessage(''); // Clear the message when less than 3 categories
     }
   }, [category]);
 
@@ -99,7 +100,7 @@ export default function AddQuestionForm({
 
   // Handle adding a new test case
   const addTestCase = () => {
-    setTestCases([...testCases, { input: "", output: "" }]);
+    setTestCases([...testCases, { input: '', output: '' }]);
   };
 
   // Remove a test case by index
@@ -113,24 +114,25 @@ export default function AddQuestionForm({
   const handleInputChange = (
     index: number,
     event: React.ChangeEvent<HTMLInputElement>
+    // event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const updatedTestCases = [...testCases];
 
     const { name, value } = event.target;
 
-    if (name === "input" || name === "output") {
+    if (name === 'input' || name === 'output') {
       updatedTestCases[index][name] = value;
     }
     setTestCases(updatedTestCases);
   };
 
   function handleEditorChange(value?: string) {
-    setTemplateCode(value || "/** PUT YOUR TEMPLATE CODE HERE **/");
+    setTemplateCode(value || '/** PUT YOUR TEMPLATE CODE HERE **/');
   }
 
   useEffect(() => {
-    if (language === "") {
-      setLanguage("javascript");
+    if (language === '') {
+      setLanguage('javascript');
     }
   }, [language]);
 
@@ -138,9 +140,9 @@ export default function AddQuestionForm({
     // Check if the input value is a valid language in the list
     if (languages.includes(value)) {
       setLanguage(value);
-    } else if (value === "") {
+    } else if (value === '') {
       // Set to empty if input is cleared
-      setLanguage("");
+      setLanguage('');
     } else {
       // Do nothing or handle invalid input case if needed
     }
@@ -154,11 +156,12 @@ export default function AddQuestionForm({
         description,
         category,
         templateCode,
-        testCases
+        testCases,
+        language
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting."
+        'Please fill in all the required fields before submitting.'
       );
       setErrorModalOpen(true); // Show error modal with the validation message
 
@@ -175,33 +178,34 @@ export default function AddQuestionForm({
         category,
         selectedTab,
         templateCode,
-        testCases
+        testCases,
+        language // Include language in submission
       );
 
       if (response.ok) {
         // Show success modal
-        setSuccessMessage("Question successfully submitted!");
+        setSuccessMessage('Question successfully submitted!');
         setSuccessModalOpen(true);
       } else {
         // Show error modal with error response message
         const errorData = await response.json();
 
         setErrorMessage(
-          errorData.error || "Failed to submit the question. Please try again."
+          errorData.error || 'Failed to submit the question. Please try again.'
         );
         setErrorModalOpen(true);
       }
     } catch (error) {
       // Show error modal with generic error message
       setErrorMessage(
-        "An error occurred while submitting the question. Please try again later"
+        'An error occurred while submitting the question. Please try again later'
       );
       setErrorModalOpen(true);
     }
   };
 
   const handleCancel = () => {
-    router.push("/questions-management");
+    router.push('/questions-management');
   };
 
   return (
@@ -338,7 +342,7 @@ export default function AddQuestionForm({
               },
               contextmenu: false,
             }}
-            theme={theme === "dark" ? "vs-dark" : "vs-light"}
+            theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
             onChange={handleEditorChange}
           />
         </div>
@@ -407,11 +411,11 @@ export default function AddQuestionForm({
         message={successMessage}
         onConfirm={() => {
           setSuccessModalOpen(false);
-          router.push("/questions-management");
+          router.push('/questions-management');
         }}
         onOpenChange={() => {
           setSuccessModalOpen;
-          router.push("/questions-management");
+          router.push('/questions-management');
         }}
       />
       <ErrorModal
