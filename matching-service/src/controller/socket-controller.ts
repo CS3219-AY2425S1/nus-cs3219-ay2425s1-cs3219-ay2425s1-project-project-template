@@ -143,13 +143,16 @@ async function initializeMatch(user1Data: any, user2Data: any, socket1: Socket, 
 
     // Get question for criteria
     const overlappingCriteria = getOverlappingCriteria(user1Data.criteria, user2Data.criteria);
-    const selectedQuestionId = selectQuestion(overlappingCriteria);
+    const selectedQuestionId = await selectQuestion(overlappingCriteria);
 
     // Initialise match on session service
     const sessionId = await initializeMatchOnSessionService(user1Data.userId, user2Data.userId, selectedQuestionId);
 
+    console.log(`Selected question for match ${sessionId} : ${selectedQuestionId}`);
+
     // Add match to user data
-    addMatchToUserData(user1Data.userId, user2Data.userId, selectedQuestionId, sessionId);
+    await addMatchToUserData(user1Data.userId, user2Data.userId, selectedQuestionId, sessionId);
+    await addMatchToUserData(user2Data.userId, user1Data.userId, selectedQuestionId, sessionId);
 
     // redirect users to session page
     socket1.emit('redirectToSession', { matchedWith: user2Data.userId, question: selectedQuestionId });
@@ -170,21 +173,64 @@ function getOverlappingCriteria(criteria1: any, criteria2: any) {
     return { difficulty: overlappingDiff, category: overlappingTopic };
 }
 
-function selectQuestion(criteria: any) {
-    // Select question based on criteria
-    // For now, we just return a random questionId
-    // TODO : wait for joshua to implement endpoint on question service side
-    return 1;
+async function selectQuestion(criteria: any) {
+
+    const questionServiceUrl = process.env.QUESTION_SERVICE_URL;
+
+    try {
+        // Select question based on criteria
+        const response = await fetch(`${questionServiceUrl}/api/questions/question/by-criteria`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(criteria)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const questionData = await response.json();
+        return questionData.question_id;
+
+    } catch (error) {
+        console.error('Failed to select question:', error);
+        throw error;
+    }
 }
 
-function addMatchToUserData(userId1: string, userId2: string, questionId: number, sessionId: string) {
+async function addMatchToUserData(userId: string, partnerId: string, questionId: number, sessionId: string) {
     // Add match to user data
     // TODO: modify user service first
+    try {
+        const response = await fetch(`${process.env.USER_SERVICE_URL}/users/${userId}/addMatch`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                partnerId: partnerId,
+                questionId: questionId,
+                sessionId: sessionId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        console.log(`Match added to user data for user ${userId}`);
+
+    } catch (error) {
+        console.error('Failed to add match to user data:', error);
+        throw error;
+    }
 }
 
 async function initializeMatchOnSessionService(userId1: string, userId2: string, questionId: number): Promise<string> {
     // Initialize match on session service
-    const sessionServiceUrl = process.env.SESSION_SERVICE_URL;
+    const sessionServiceUrl = process.env.COLLAB_SERVICE_URL;
 
     try {
         const response = await fetch(`${sessionServiceUrl}/api/session/create`, {
@@ -204,6 +250,8 @@ async function initializeMatchOnSessionService(userId1: string, userId2: string,
 
         const sessionData = await response.json(); // Parse the JSON response
         const sessionId = sessionData.session_id; // Extract the session_id
+
+        console.log(`Match initialized on session service with session ID: ${sessionId}`);
 
         return sessionId; // Return the session ID
     } catch (error) {
