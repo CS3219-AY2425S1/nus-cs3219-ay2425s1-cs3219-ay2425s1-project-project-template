@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import './styles/App.css';
-import { Home, Login, Profile, Questions, Signup } from './pages';
+import { Home, Login, Profile, Questions, Signup, Collab } from './pages';
 
 function App() {
   return (
@@ -13,6 +13,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/questions" element={<Questions />} />
+        <Route path="/collab" element={<Collab />} />
       </Routes>
     </div>
   );
