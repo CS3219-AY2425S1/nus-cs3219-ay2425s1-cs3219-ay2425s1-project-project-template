@@ -1,106 +1,81 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
+import { createClient } from "@liveblocks/client";
+import { LiveblocksYjsProvider } from "@liveblocks/yjs";
+import * as Y from "yjs";
+import { yCollab } from "y-codemirror.next";
+import { EditorView, basicSetup } from "codemirror";
+import { EditorState } from "@codemirror/state";
+import { javascript } from "@codemirror/lang-javascript";
 import { useCollaborationStore } from '~/stores/collaborationStore'; // Store for real-time sync
 import { useFirebaseApp, useFirestore } from 'vuefire';
-import { doc, onSnapshot, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import CodeMirror from 'codemirror';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/dracula.css';
-import 'codemirror/mode/javascript/javascript.js';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+const parent = ref(null);
+const leave = ref(null);
+const view = ref(null);
 
 const firebaseApp = useFirebaseApp();
 const db = useFirestore(firebaseApp);
 const collaborationStore = useCollaborationStore();
 const session_info = collaborationStore.getCollaborationInfo;
 
-const editor = ref(null);  // Store CodeMirror instance
-const editorContainer = ref(null); // Ref for editor textarea container
-let isEditorUpdating = false;
-
-onMounted(() => {
-    // Initialise CodeMirror
-    editor.value = CodeMirror.fromTextArea(editorContainer.value, {
-        mode: 'javascript',
-        lineNumbers: true,
-        theme: 'dracula',
-    });
-
-    // Sync editor content with Firebase Firestore
-    const docRef = doc(db, 'collaborations', session_info.uid);
-
-    // Check if the document exists in Firestore
-    getDoc(docRef)
-        .then((docSnap) => {
-        if (docSnap.exists()) {
-            // Document exists, load the content into CodeMirror
-            const data = docSnap.data();
-            if (data && data.code) {
-                editor.value.setValue(data.code);
-            }
-        } else {
-            // Document doesn't exist, create a new one with default content
-            setDoc(docRef, { code: '' })
-            .then(() => {
-                console.log('New document created successfully!');
-            })
-            .catch((error) => {
-                console.error('Error creating document:', error);
-            });
-        }
-        })
-        .catch((error) => {
-        console.error('Error getting document:', error);
-        });
-
-    // Listen for real-time updates from Firestore
-    onSnapshot(docRef, (snapshot) => {
-        if (!isEditorUpdating) {
-            const data = snapshot.data();
-            if (data && data.code !== undefined && data.code !== null) {
-                // Update CodeMirror content when changes are received from Firestore
-                if (editor.value.getValue() !== data.code) {
-                    isEditorUpdating = true;
-                    editor.value.setValue(data.code);
-                    isEditorUpdating = false;
-                }
-            }
-        }
-        
-    });
-
-    // Listen for changes in CodeMirror and update Firestore
-    editor.value.on('change', () => {
-        if (!isEditorUpdating) {
-            isEditorUpdating = true;
-            const currentCode = editor.value.getValue(); // Get the current code from CodeMirror
-            console.log('CodeMirror content changed:', currentCode);
-
-            // Update Firestore document with the new code
-            updateDoc(docRef, { code: currentCode })
-                .then(() => {
-                    console.log("Firestore document updated successfully.");
-                })
-                .catch((error) => {
-                    console.error('Error updating Firestore:', error);
-                });
-            isEditorUpdating = false;
-        } 
-    });
-    
+// Set up Liveblocks client
+const client = createClient({
+  publicApiKey: "pk_prod_jyhlDWr3kQrHYfKbpGbZeIh4Fb_YB1rCfBYzi4Yi-AAkUMPOXWBhsMWV5XHPe6wD",
 });
 
-onBeforeUnmount(() => {
-  // Clean up listeners
+// Enter a multiplayer room
+const info = client.enterRoom(session_info.uid);
+const room = info.room;
+leave.value = info.leave;
+
+// Set up Yjs document, shared text, and Liveblocks Yjs provider
+const yDoc = new Y.Doc();
+const yText = yDoc.getText("codemirror");
+const yProvider = new LiveblocksYjsProvider(room, yDoc);
+
+onMounted(async () => {
+    // Create the Firestore document reference
+    const docRef = doc(db, 'collaborations', session_info.uid);
+
+    // Check if the document exists, otherwise create it with initial content
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+        await setDoc(docRef, { code: '' });
+    }
+
+    // Set up CodeMirror and extensions
+    const state = EditorState.create({
+        doc: yText.toString(),
+        extensions: [
+        basicSetup,
+        javascript(),
+        yCollab(yText, yProvider.awareness),
+        ],
+    });
+
+    // Attach CodeMirror to element
+    view.current = new EditorView({
+        state,
+        parent: parent.value,
+    });
+    
+    // Save to Firestore when the document changes
+    yText.observe(() => {
+        const currentCode = yText.toString();
+        setDoc(docRef, { code: currentCode }, { merge: true })
+        .then(() => console.log("Code saved to Firestore successfully"))
+        .catch(error => console.error("Error saving to Firestore:", error));
+    });
+
+});
+
+onUnmounted(() => {
+    // Clean up Listeners
 });
 </script>
 
 <template>
-  <textarea ref="editorContainer" class="editor-container w-full h-full"></textarea>
+    <div ref="parent"></div>
 </template>
-
-<style scoped>
-.editor-container {
-  width: 90%;
-  height: 100%;
-}
-</style>

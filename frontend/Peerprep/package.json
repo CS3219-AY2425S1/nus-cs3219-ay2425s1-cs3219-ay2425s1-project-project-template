@@ -11,14 +11,18 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@codemirror/basic-setup": "^0.20.0",
+    "@codemirror/collab": "^6.1.1",
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@liveblocks/client": "^2.10.0",
+    "@liveblocks/yjs": "^2.10.0",
     "@pinia/nuxt": "^0.5.5",
     "@tanstack/vue-table": "^8.20.5",
     "@vee-validate/zod": "^4.13.2",
     "@vueuse/core": "^11.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "codemirror": "^5.65.18",
-    "firebase": "^10.13.1",
+    "codemirror": "^6.0.1",
     "lucide-vue-next": "^0.441.0",
     "nuxt": "^3.13.0",
     "nuxt-vuefire": "^1.0.4",
@@ -30,10 +34,14 @@
     "vee-validate": "^4.13.2",
     "vue": "latest",
     "vue-router": "latest",
+    "y-codemirror.next": "^0.3.5",
+    "yjs": "^13.6.20",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@lucafabbian/firepad": "^1.5.20",
     "@nuxtjs/tailwindcss": "^6.12.1",
+    "firebase": "^9.23.0",
     "typescript": "^5.6.2"
   },
   "overrides": {
