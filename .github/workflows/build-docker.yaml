@@ -49,8 +49,7 @@ jobs:
     - name: output-job-matrix
       id: set-matrix
       run: |
-        is_main=true
-        # is_main=${{ contains(github.ref, 'main') }}
+        is_main=${{ contains(github.ref, 'main') }}
         matrix=()
         if [[ "${{ steps.filter.outputs.user }}" == "true" || "$is_main" == "true" ]]; then
           config=$(jq -n \
@@ -172,8 +171,8 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha
 
       - name: Build and push Docker images for PeerPrep Services
         uses: docker/build-push-action@v6
