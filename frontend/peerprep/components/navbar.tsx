@@ -10,28 +10,22 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { fontFun } from "@/config/fonts";
+import { getSession, getUsername } from "@/auth/actions";
+import { GreetingMessageHeader } from "./greetingmessageheader";
 
-export const Navbar = () => {
+export const Navbar = async () => {
+  const user = await getUsername();
+
   return (
     <NextUINavbar maxWidth="full" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full gap-10" justify="start">
+      <NavbarContent className="basis-4/5 sm:basis-full gap-10" justify="start">
         <NavbarBrand className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center" href="/">
             <Logo />
           </NextLink>
         </NavbarBrand>
-        <div
-          className={`${fontFun.variable} text-black dark:text-white flex items-center`}
-          style={{
-            fontFamily: "var(--font-fun)",
-            fontSize: "20px",
-            margin: "10px",
-          }}
-        >
-          Hello user 👋🏻,
-        </div>
+        <GreetingMessageHeader user={user || "User"} />
       </NavbarContent>
-
       <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="flex items-center justify-center gap-5">
           <div className="hidden sm:flex">
@@ -44,3 +38,5 @@ export const Navbar = () => {
     </NextUINavbar>
   );
 };
+
+const HeaderText = async () => {};

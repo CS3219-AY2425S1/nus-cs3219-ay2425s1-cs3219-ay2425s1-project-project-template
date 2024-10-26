@@ -17,34 +17,40 @@ export default function Home() {
     <>
       <div>{isMatchUIVisible && <MatchUI onClose={handleClose} />}</div>
       <div className="flex flex-col items-center p-8">
-        <h1 className="text-3xl font-bold text-center">
-          Hey there! Ready for some coding challenges? 🧑‍💻
-        </h1>
-        <div className="flex justify-center gap-8 w-full mt-8">
+        <p className="text-md text-left w-full font-semibold">My Activities</p>
+        <div className="flex justify-center gap-8 w-full mt-4">
           <div className="w-3/4">
             <div className="flex gap-4">
-              <Card className="flex-1">
+              <Card className="flex-1 bg-gradient-to-br from-[#FE9977] to-[#6F0AD4]">
                 <CardBody>
-                  <h3 className="text-lg font-semibold mb-2 p-3">
+                  <p className="text-tiny text-black/40 uppercase font-bold">
                     Are you ready?
-                  </h3>
+                  </p>
+                  <h4 className="text-white font-medium text-large">
+                    Start a new session
+                  </h4>
                 </CardBody>
                 <CardFooter className="flex justify-end p-5">
                   <Button
-                    color="primary"
                     onClick={() => setIsMatchUIVisible(true)}
+                    radius="lg"
+                    variant="flat"
+                    size="md"
+                    className=""
                   >
-                    Start a new session
+                    <span className="text-white">Start</span>
                   </Button>
                 </CardFooter>
               </Card>
             </div>
           </div>
 
-          <div className="w-1/4">
-            <Card>
+          <div className="w-1/4 hidden md:flex">
+            <Card className="w-full">
               <CardBody>
-                <h3 className="text-lg font-semibold mb-2 p-3">Friends</h3>
+                <h3 className="text-lg font-semibold mb-2 p-3 text-nowrap">
+                  Friends
+                </h3>
                 <ul className="space-y-4 min-h-40" />
               </CardBody>
             </Card>

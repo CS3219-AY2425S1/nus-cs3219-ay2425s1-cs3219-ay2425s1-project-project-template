@@ -9,21 +9,24 @@ import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun, fontLogo } from "@/config/fonts";
-import { login } from "@/app/api/auth/actions";
+import { login } from "@/auth/actions";
 import Toast from "@/components/toast"; // Import Toast component
+import { CircularProgress } from "@nextui-org/react"; // Import CircularProgress from NextUI
 
 export default function SignInPage() {
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state for button
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null,
+    null
   );
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleContinue = async () => {
+    setIsLoading(true); // Start loading when button is pressed
     const signInFormData = new FormData();
 
     signInFormData.append("identifier", id);
@@ -31,11 +34,12 @@ export default function SignInPage() {
 
     const response = await login(signInFormData);
 
+    setIsLoading(false); // Stop loading after API response
+
     if (response.status == "success") {
-      setToast({ message: "Login successful!", type: "success" });
       setId("");
       setPassword("");
-      setTimeout(() => router.push("/"), 1000);
+      router.push("/");
     } else {
       setToast({ message: response.message || "Login failed", type: "error" });
     }
@@ -132,6 +136,7 @@ export default function SignInPage() {
         <button
           className="transition ease-in-out bg-violet-600 dark:bg-gray-800 hover:-translate-y-0.5 hover:scale-[1.02] active:scale-100 dark:active:bg-gray-900 active:bg-violet-700 duration-300 rounded-md p-1.5 text-sm text-gray-200 mb-8"
           onClick={handleContinue}
+          disabled={isLoading} // Disable button when loading
         >
           <div className="flex flex-row gap-2 items-center justify-center">
             <div
@@ -140,7 +145,11 @@ export default function SignInPage() {
             >
               Continue
             </div>
-            <BoxIcon name="bxs-right-arrow" size="10px" color="#e5e7eb" />
+            {isLoading ? ( // Display loader when loading
+              <CircularProgress size="sm" />
+            ) : (
+              <BoxIcon name="bxs-right-arrow" size="10px" color="#e5e7eb" />
+            )}
           </div>
         </button>
       </div>

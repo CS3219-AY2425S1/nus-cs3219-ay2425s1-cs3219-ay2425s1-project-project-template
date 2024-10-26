@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Button, Text, useToast }  from '@chakra-ui/react';
 import { executeCode } from '../api';
-
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:8001');
+import { socket } from '../services/socketService.js';
 
 const Output = ({editorRef, language}) => {
     const toast = useToast();
@@ -40,9 +37,9 @@ const Output = ({editorRef, language}) => {
                 setIsError(false);
                 setOutput(result.stdout.split("\n"));
             }
-            
+
             // Emit the result to the server
-            socket.emit('codeExecution', result); 
+            socket.emit('codeExecution', result);
         } catch (error) {
             // would only occur if api is down
             console.log(error);
@@ -83,7 +80,7 @@ const Output = ({editorRef, language}) => {
                 }
             >
                 {
-                    output 
+                    output
                         ? output.map((line, index) => <Text key={index}>{line}</Text>)
                         : 'Click "Run Code" to see output here'
                 }

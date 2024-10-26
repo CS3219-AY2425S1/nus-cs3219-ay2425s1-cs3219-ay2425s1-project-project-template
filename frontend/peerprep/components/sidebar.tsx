@@ -3,11 +3,14 @@ import { useTheme } from "next-themes";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { Button } from "@nextui-org/react";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 import BoxIcon from "./boxicons";
+import Toast from "./toast";
+import { SignOutConfirmationModal } from "./signoutconfirmationmodal"; // Import the modal
 
 import { siteConfig } from "@/config/site";
-import { logout } from "@/app/api/auth/actions";
+import { logout } from "@/auth/actions";
 
 interface SidebarProps {
   isAdmin: boolean;
@@ -17,18 +20,40 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
   const { theme } = useTheme();
   const currentPath = usePathname();
   const router = useRouter();
+  const [toast, setToast] = useState<{ message: string; type: string } | null>(
+    null
+  );
+  const [isModalOpen, setModalOpen] = useState(false); // Track modal open state
 
   const handleLogout = async () => {
-    await logout();
+    setTimeout(async () => await logout(), 1000);
     router.push("/");
   };
 
+  const handleSignOutClick = () => {
+    setModalOpen(true); // Open the modal when sign out button is clicked
+  };
+
   return (
-    <div className="h-fit flex flex-col fixed w-fit pr-4 relative">
+    <div className="h-fit flex flex-col fixed pt-4 relative w-1/5 max-w-52 min-w-36">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type as "success" | "error"}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      <SignOutConfirmationModal
+        isOpen={isModalOpen}
+        onOpenChange={setModalOpen}
+        onConfirm={handleLogout} // Perform logout on confirmation
+      />
+
       <Listbox
         variant="flat"
         aria-label="Listbox menu with sections"
-        className="w-fit "
+        className="w-full"
       >
         {siteConfig.navItems
           .concat(isAdmin ? siteConfig.adminNavItems : [])
@@ -40,12 +65,12 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
                   name={item.icon}
                   color={
                     item.href === "/" && currentPath === "/"
-                      ? "#3B82F6"
+                      ? "#7828C8"
                       : currentPath.startsWith(item.href) && item.href !== "/"
-                        ? "#3B82F6"
-                        : theme === "dark"
-                          ? "#d1d5db"
-                          : "#4b5563"
+                      ? "#7828C8"
+                      : theme === "dark"
+                      ? "#d1d5db"
+                      : "#4b5563"
                   }
                 />
               }
@@ -55,10 +80,10 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
               <span
                 className={
                   item.href === "/" && currentPath === "/"
-                    ? "text-primary font-bold"
+                    ? "text-secondary"
                     : currentPath.startsWith(item.href) && item.href !== "/"
-                      ? "text-primary font-bold"
-                      : "text-gray-600 dark:text-gray-300"
+                    ? "text-secondary"
+                    : "text-gray-600 dark:text-gray-300"
                 }
               >
                 {item.label}
@@ -66,10 +91,11 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
             </ListboxItem>
           ))}
       </Listbox>
+
       <Button
         className="fixed bottom-5 left-10 flex items-center justify-center bg-transparent text-danger"
         startContent={<BoxIcon name="bx-log-out" color="danger" />}
-        onClick={handleLogout}
+        onClick={handleSignOutClick} // Trigger the modal on button click
       >
         Sign out
       </Button>
