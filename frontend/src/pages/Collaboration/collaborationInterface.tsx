@@ -10,6 +10,7 @@ import PeopleIcon from "@mui/icons-material/People";
 
 import { Question } from "../Question/question";
 import LeaveRoomModal from "./leaveRoomModal";
+import QuestionSelectModal from "./questionSelectModal";
 
 export type ProgrammingLanguage =
   | "C++"
@@ -53,7 +54,12 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
   const [code, setCode] = useState<string>("");
   const [chatMessage, setChatMessage] = useState<string>("");
   const [isLeaveRoomModalOpen, setIsLeaveRoomModalOpen] =
-    useState<boolean>(false); // State for modal
+    useState<boolean>(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    question
+  );
+  const [isChangeQuestionModalOpen, setIsChangeQuestionModalOpen] =
+    useState(false);
 
   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newLanguage = e.target.value as ProgrammingLanguage;
@@ -97,6 +103,14 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
     onLeaveRoom();
   };
 
+  const handleQuestionChangeClick = () => setIsChangeQuestionModalOpen(true);
+  const handleChangeQuestionModalClose = () =>
+    setIsChangeQuestionModalOpen(false);
+  const handleQuestionSelect = (question: Question) => {
+    setSelectedQuestion(question);
+    setIsChangeQuestionModalOpen(false); // Close the modal after selection
+  };
+
   return (
     <div className="min-h-screen text-white">
       {/* Header */}
@@ -116,7 +130,7 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
               <Box sx={{ flexGrow: 1 }} />
               <Button
                 variant="contained"
-                onClick={() => null}
+                onClick={handleQuestionChangeClick}
                 startIcon={<PeopleIcon />}
                 sx={{ mx: 3 }}
                 className="px-4 py-2 rounded hover:bg-gray-700 transition-colors"
@@ -141,6 +155,13 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
         onClose={handleCloseLeaveRoomModal}
         onConfirm={handleLeaveRoom} // Confirm action
       />
+
+      <QuestionSelectModal
+        open={isChangeQuestionModalOpen}
+        onClose={handleChangeQuestionModalClose}
+        onQuestionSelect={handleQuestionSelect}
+      />
+
       <div className="grid grid-cols-2 gap-4 p-4 h-[calc(100vh-80px)]">
         {/* Left Panel - Question and Chat */}
         <div className="flex flex-col gap-4">
