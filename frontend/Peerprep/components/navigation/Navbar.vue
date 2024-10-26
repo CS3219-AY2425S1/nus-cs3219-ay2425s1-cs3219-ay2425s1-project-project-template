@@ -11,18 +11,14 @@ function handleSignOut() {
 };
 
 const getInitials = () => {
-    const name = user.value?.displayName || '';
-    const words = name.split(' ');
-    const initials = words[0][0].toUpperCase() + (words[1] ? words[1][0].toUpperCase() : '');
-    return initials;
-}
-
-
-watch(user, (newUser) => {  // TODO: Check if can remove this
-    if (newUser) {
-        authStore.refreshUser();
+    if (user.value) {
+        const name = user.value?.displayName || '';
+        const words = name.split(' ');
+        const initials = words[0][0].toUpperCase() + (words[1] ? words[1][0].toUpperCase() : '');
+        return initials;
     }
-});
+    return "";
+}
 </script>
 
 <template>
@@ -45,7 +41,7 @@ watch(user, (newUser) => {  // TODO: Check if can remove this
                     <DropdownMenuTrigger as-child>
                         <Avatar size="xs"
                             class="hover:shadow-xl hover:bg-gray-300  transition-all duration-300 cursor-pointer">
-                            <AvatarImage :src="user.photoURL || ''" alt="User Avatar" />
+                            <AvatarImage :src="user?.photoURL || ''" alt="User Avatar" />
                             <AvatarFallback>{{ getInitials() }}</AvatarFallback>
                         </Avatar>
 
