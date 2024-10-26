@@ -4,6 +4,7 @@ import { NavBar } from '@/components/layout/navbar'
 import React from 'react'
 import { inter } from '@/styles/fonts'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
 
 export default function RootLayout({
     children,
@@ -11,17 +12,29 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     const { data: session } = useSession()
+    const router = useRouter()
+
+    // Routes that should hide navbar
+    const navBlacklist = [
+        {
+            name: 'code',
+            route: '/code',
+        },
+    ]
+
+    const isHideNavbar = navBlacklist.some((item) => item.route === router.pathname)
+    const topMargin = isHideNavbar ? 'mt-5' : 'mt-[4rem]'
 
     return (
-        <>
+        <div>
             {session ? (
-                <>
-                    <NavBar />
-                    <div className={`${inter.className} mx-10 my-6`}>{children}</div>
-                </>
+                <div className="initial">
+                    {!isHideNavbar && <NavBar className="z-[99999] fixed w-full top-0 bg-white" />}
+                    <div className={`${topMargin} mx-10 ${inter.className}`}>{children}</div>
+                </div>
             ) : (
                 children
             )}
-        </>
+        </div>
     )
 }
