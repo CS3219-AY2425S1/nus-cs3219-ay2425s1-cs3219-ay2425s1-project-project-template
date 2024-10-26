@@ -4,13 +4,13 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 const cors = require('cors');
-const { Server } = require('socket.io');
 const { SSL_CERT, SSL_KEY } = require('./config');
+const initializeSocketRoutes = require('./routes/socketRoutes');
 
 const app = express();
 app.use(cors());
 
-const MY_NETWORK_IP = '192.168.1.248'; // Network IP
+const MY_NETWORK_IP = '192.168.1.248';
 const PORT = 8443;
 
 // SSL certificates
@@ -27,45 +27,14 @@ const httpServer = http.createServer((req, res) => {
 
 httpServer.listen(8080, MY_NETWORK_IP);
 
-// Create HTTPS server on the specified network IP
+// Create HTTPS server
 const httpsServer = https.createServer(options, app);
-
 httpsServer.listen(PORT, MY_NETWORK_IP, () => {
   console.log(`Server is running on https://${MY_NETWORK_IP}:${PORT}`);
 });
 
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-const io = new Server(httpsServer, {
-  cors: {
-    origin: "*",  // Allow all origins
-    methods: ['GET', 'POST'],
-  },
-  path: '/api/comm/socket.io',
-  pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
-  pingInterval: 25000,  // Interval between ping packets
-});
-
-io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
-
-  socket.on('offer', (data) => {
-    socket.broadcast.emit('offer', data);
-  });
-
-  socket.on('answer', (data) => {
-    socket.broadcast.emit('answer', data);
-  });
-
-  socket.on('candidate', (data) => {
-    socket.broadcast.emit('candidate', data);
-  });
-
-  socket.on('chatMessage', (msg) => {
-    io.emit('chatMessage', msg);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
+// Initialize socket routes with HTTPS server
+initializeSocketRoutes(httpsServer);
