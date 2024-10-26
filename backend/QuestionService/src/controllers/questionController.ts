@@ -79,3 +79,21 @@ export const updateQuestion = async (req: Request, res: Response, next : NextFun
         next(err);
     }
 }
+
+export const getRandomQuestion = async (req: Request, res: Response, next: NextFunction) => {
+    const { difficulty, topic } = req.params;
+    try {
+        const questions = await Question.aggregate([
+            { $match: { complexity: difficulty, categories: topic } },
+            { $sample: { size: 1 } },
+            { $project: { _id: 0, __v: 0 } }
+        ]);
+        if (questions.length === 0) {
+            return res.status(404).send({ msg: `No question found for difficulty ${difficulty} and topic ${topic}.` });
+        }
+        res.status(200).json(questions[0]);
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+}

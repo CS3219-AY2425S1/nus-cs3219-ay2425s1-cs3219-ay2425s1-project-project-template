@@ -1,5 +1,5 @@
 import express from "express";
-import {getAllQuestions, getOneQuestion, addQuestion, deleteQuestion, updateQuestion} from "../controllers/questionController"
+import {getAllQuestions, getOneQuestion, addQuestion, deleteQuestion, updateQuestion, getRandomQuestion } from "../controllers/questionController"
 import { ValidateBodyForCreate, ValidateBodyForPatch } from "../utils/validation";
 
 const router = express.Router();
@@ -13,5 +13,7 @@ router.post("/", ValidateBodyForCreate(), addQuestion); // parenthesis for valid
 router.delete("/:qid", deleteQuestion);
 
 router.patch("/:qid", ValidateBodyForPatch(), updateQuestion);
+
+router.get("/random/:difficulty/:topic", getRandomQuestion);
 
 export default router;
