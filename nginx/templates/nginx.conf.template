@@ -12,8 +12,8 @@ http {
 
     ssl_certificate /etc/nginx/ssl/server.crt;
     ssl_certificate_key /etc/nginx/ssl/server.key;
-    include /etc/nginx/ssl/options-ssl-nginx.conf
-    ssl_dhparam /etc/nginx/ssl/server-dhparams.pem
+    include /etc/nginx/ssl/options-ssl-nginx.conf;
+    ssl_dhparam /etc/nginx/ssl/server-dhparams.pem;
 
     limit_req zone=rate_limit_zone burst=20 nodelay;
 
