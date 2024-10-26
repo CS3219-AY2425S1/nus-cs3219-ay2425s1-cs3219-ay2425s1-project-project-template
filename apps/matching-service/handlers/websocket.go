@@ -8,6 +8,7 @@ import (
 	"matching-service/databases"
 	"matching-service/models"
 	"matching-service/processes"
+	"matching-service/servers"
 	"matching-service/utils"
 	"net/http"
 
@@ -26,7 +27,7 @@ var (
 
 // handleConnections manages WebSocket connections and matching logic.
 func HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
-	rdb := databases.GetRedisClient()
+	rdb := servers.GetRedisClient()
 	ctx := context.Background()
 
 	// TODO: Parse the authorization header to validate the JWT token and get the user ID claim.
@@ -93,23 +94,18 @@ func readMatchRequest(ws *websocket.Conn) (models.MatchRequest, error) {
 // If user is already removed, then nothing happens.
 // This function is unaffected by the external context.
 func cleanUpUser(username string) {
-	redisClient := databases.GetRedisClient()
+	rdb := servers.GetRedisClient()
 	ctx := context.Background()
 
 	// Obtain lock with retry
-	lock, err := databases.ObtainRedisLock(ctx)
+	lock, err := servers.ObtainRedisLock(ctx)
 	if err != nil {
 		return
 	}
 	defer lock.Release(ctx)
 
-	if err := redisClient.Watch(ctx, func(tx *redis.Tx) error {
-		// Cleanup Redis
-		databases.CleanUpUser(tx, username, ctx)
-		return nil
-	}); err != nil {
-		return
-	}
+	// Cleanup Redis
+	databases.CleanUpUser((*redis.Tx)(rdb.Conn()), username, ctx)
 }
 
 // waitForResult waits for a match result, timeout, or cancellation.
@@ -128,9 +124,11 @@ func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matc
 		if !ok {
 			return
 		}
+		log.Printf("Error occured performing matching: %v", err)
 		if errors.Is(err, models.ExistingUserError) {
-			sendRejectionResponse(ws)
+			sendDuplicateUserRejectionResponse(ws)
 		} else {
+			sendDefaultRejectionResponse(ws)
 			cleanUpUser(username)
 		}
 		return
@@ -138,7 +136,7 @@ func waitForResult(ws *websocket.Conn, userCtx, timeoutCtx context.Context, matc
 		if !ok {
 			return
 		}
-		var result models.MatchFound
+		var result models.MatchQuestionFound
 		// Unmarshal the JSON message into the struct
 		err := json.Unmarshal([]byte(msg.Payload), &result)
 		if err != nil {

@@ -8,7 +8,9 @@ import (
 	"log"
 	"matching-service/databases"
 	"matching-service/models"
-	"matching-service/utils"
+	pb "matching-service/proto"
+
+	"matching-service/servers"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -17,25 +19,19 @@ import (
 // until a match is found or no match and the user is enqueued to the queue.
 func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx context.Context, errorChan chan error) {
 	currentUsername := matchRequest.Username
+	var matchFound *models.MatchFound
 
 	// Obtain lock with retry
-	lock, err := databases.ObtainRedisLock(ctx)
+	lock, err := servers.ObtainRedisLock(ctx)
 	if err != nil {
+		errorChan <- err
 		return
 	}
 	defer lock.Release(ctx)
 
 	if err := rdb.Watch(ctx, func(tx *redis.Tx) error {
-		queuedUsernames, err := databases.GetAllQueuedUsers(tx, ctx)
-		if err != nil {
+		if err := databases.ValidateNotDuplicateUser(tx, ctx, currentUsername); err != nil {
 			return err
-		}
-
-		// Check that user is not part of the existing queue
-		for _, username := range queuedUsernames {
-			if username == currentUsername {
-				return models.ExistingUserError
-			}
 		}
 
 		databases.AddUser(tx, matchRequest, ctx)
@@ -43,57 +39,91 @@ func PerformMatching(rdb *redis.Client, matchRequest models.MatchRequest, ctx co
 		// Log queue before and after matchmaking
 		databases.PrintMatchingQueue(tx, "Before Matchmaking", ctx)
 		defer databases.PrintMatchingQueue(tx, "After Matchmaking", ctx)
+
 		// Find a matching user if any
-		matchFound, err := databases.FindMatchingUser(tx, currentUsername, ctx)
+		matchFound, err = findMatchingUser(tx, currentUsername, ctx)
 		if err != nil {
+			if errors.Is(err, models.NoMatchFound) {
+				return nil
+			}
 			log.Println("Error finding matching user:", err)
 			return err
-		}
-
-		if matchFound != nil {
+		} else if matchFound != nil && err != models.NoMatchFound {
 			matchedUsername := matchFound.MatchedUser
-			matchedTopic := matchFound.Topic
-			matchedDifficulty := matchFound.Difficulty
-
-			// Generate a random match ID
-			matchId, err := utils.GenerateMatchID()
-			if err != nil {
-				log.Println("Unable to randomly generate matchID")
-			}
 
 			// Log down which users got matched
-			matchFound.MatchID = matchId
-			log.Printf("Users %s and %s matched on the topic: %s with difficulty: %s", currentUsername, matchedUsername, matchedTopic, matchedDifficulty)
+			log.Printf("Match %v: Users %s and %s matched on the topics: %v; with difficulties: %v",
+				matchFound.MatchID, currentUsername, matchedUsername,
+				matchFound.MatchedTopics, matchFound.MatchedDifficulties)
 
 			// Clean up redis for this match
 			databases.CleanUpUser(tx, currentUsername, ctx)
 			databases.CleanUpUser(tx, matchedUsername, ctx)
-
-			publishMatch(tx, ctx, currentUsername, matchedUsername, matchFound)
-			publishMatch(tx, ctx, matchedUsername, currentUsername, matchFound)
 		}
 
 		return nil
 	}); err != nil {
-		// return
 		if errors.Is(err, models.ExistingUserError) {
 			errorChan <- err
 		} else {
 			// transaction failed, no retry
-			println(fmt.Errorf("transaction execution failed: %v", err))
+			println(fmt.Errorf("Transaction execution failed: %v", err))
 		}
+	} else if matchFound != nil {
+		completeMatch((*redis.Tx)(rdb.Conn()), ctx, matchFound)
 	}
 }
 
-// publish a match to the target user's pubsub channel
-func publishMatch(tx *redis.Tx, ctx context.Context, targetUser string, otherMatchedUser string, matchFound *models.MatchFound) error {
+// Finds the question and publishes it to complete the matching process.
+func completeMatch(tx *redis.Tx, ctx context.Context, matchFound *models.MatchFound) {
+	matchQuestionFound := queryQuestionService(ctx, matchFound)
+
+	log.Printf("Match %v: Question %v found with topics: %v and difficulty %v",
+		matchFound.MatchID, matchQuestionFound.QuestionDocRefID,
+		matchQuestionFound.QuestionTopics, matchQuestionFound.QuestionDifficulty)
+
+	currentUsername := matchFound.User
+	matchedUsername := matchFound.MatchedUser
+
+	publishMatch(tx, ctx, currentUsername, matchedUsername, matchQuestionFound)
+	publishMatch(tx, ctx, matchedUsername, currentUsername, matchQuestionFound)
+}
+
+// Publish a match to the target user's pub/sub channel
+func publishMatch(tx *redis.Tx, ctx context.Context, targetUser string, otherMatchedUser string, matchFound *models.MatchQuestionFound) error {
 	matchFound.User = targetUser
 	matchFound.MatchedUser = otherMatchedUser
+
 	msg, err := json.Marshal(matchFound)
 	if err != nil {
 		log.Fatalf("Could not marshal message: %v", err)
 		return err
 	}
+
 	tx.Publish(ctx, targetUser, msg)
+
 	return nil
+}
+
+// Query question service to find a question for the match
+func queryQuestionService(ctx context.Context, matchFound *models.MatchFound) *models.MatchQuestionFound {
+	question, err := servers.GetGrpcClient().FindMatchingQuestion(ctx, &pb.MatchQuestionRequest{
+		MatchedTopics:       matchFound.MatchedTopics,
+		MatchedDifficulties: matchFound.MatchedDifficulties,
+	})
+	if err != nil {
+		log.Fatalf("Could not retrieve question from question-service: %v", err)
+	}
+
+	return &models.MatchQuestionFound{
+		Type:               "match_question_found",
+		MatchID:            matchFound.MatchID,
+		User:               matchFound.User,
+		MatchedUser:        matchFound.MatchedUser,
+		MatchedTopics:      matchFound.MatchedTopics,
+		QuestionDocRefID:   question.QuestionDocRefId,
+		QuestionName:       question.QuestionName,
+		QuestionDifficulty: question.QuestionDifficulty,
+		QuestionTopics:     question.QuestionTopics,
+	}
 }

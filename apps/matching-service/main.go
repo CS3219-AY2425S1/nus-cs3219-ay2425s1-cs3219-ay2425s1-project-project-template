@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"matching-service/databases"
 	"matching-service/handlers"
+	"matching-service/servers"
 	"net/http"
 	"os"
 
@@ -13,8 +13,10 @@ import (
 
 func main() {
 	setUpEnvironment()
-	client := databases.SetupRedisClient()
+	client := servers.SetupRedisClient()
 	defer client.Close()
+	grpcClient := servers.InitGrpcServer()
+	defer grpcClient.Close()
 	setupRoutes()
 	startServer()
 }

@@ -15,7 +15,6 @@ export type SocketState = {
 };
 export type MatchInfo = {
     matchId: string;
-    partnerId: string;
     myName: string;
     partnerName: string;
 }
