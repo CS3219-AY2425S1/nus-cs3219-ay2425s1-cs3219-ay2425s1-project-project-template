@@ -1,5 +1,3 @@
-"use server";
-
 import { io, Socket } from "socket.io-client";
 import { env } from "next-runtime-env";
 
@@ -73,6 +71,10 @@ export const registerUser = (
   // Register event listener for matchFound and registrationSuccess
   socket.on("matchFound", (matchData) => {
     onMatchFound(matchData);
+  });
+
+  socket.on("redirectToSession", (body) => {
+    console.log("Redirecting to session:", body);
   });
 
   socket.on("registrationSuccess", () => {

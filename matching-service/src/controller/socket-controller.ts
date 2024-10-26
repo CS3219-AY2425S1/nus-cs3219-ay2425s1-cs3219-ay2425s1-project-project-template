@@ -3,12 +3,16 @@ import { createAdapter } from "@socket.io/redis-adapter";
 import { addUserToSearchPool, getSearchPoolStatus, getSocketIdForUser, isUserInSearchPool, matchOrAddUserToSearchPool, removeUserFromSearchPool } from "../model/matching-model";
 import { getRedisClient } from '../utils/redis-client';
 import { formatSearchPoolStatus, writeLogToFile } from "../utils/logger";
+import dotenv from 'dotenv';
 
 // IMPT NOTE: LOGGING OF QUEUE STATUS IS FOR DEMONSTRATION PURPOSES ONLY. IT LAGS THE SERVER AND SHOULD BE REMOVED IN PRODUCTION
 // Search for writeLogToFile(formatSearchPoolStatus(await getSearchPoolStatus())); to remove
 
 // if matching timeout is not valid use 30 seconds
 // need to convert env variable to int. if conversion fails, use 30000
+
+dotenv.config();
+
 const MATCHING_TIMEOUT = (() => {
     const timeout = parseInt(process.env.MATCHING_TIMEOUT || '30000');
     // If the result is NaN, we use the default 30000 (30 seconds)
@@ -151,8 +155,8 @@ async function initializeMatch(user1Data: any, user2Data: any, socket1: Socket, 
     console.log(`Selected question for match ${sessionId} : ${selectedQuestionId}`);
 
     // Add match to user data
-    await addMatchToUserData(user1Data.userId, user2Data.userId, selectedQuestionId, sessionId);
-    await addMatchToUserData(user2Data.userId, user1Data.userId, selectedQuestionId, sessionId);
+    await addMatchToUserData(user1Data.userId, socket1.handshake.auth.token, user2Data.userId, selectedQuestionId, sessionId);
+    await addMatchToUserData(user2Data.userId, socket2.handshake.auth.token, user1Data.userId, selectedQuestionId, sessionId);
 
     // redirect users to session page
     socket1.emit('redirectToSession', { matchedWith: user2Data.userId, question: selectedQuestionId });
@@ -192,7 +196,7 @@ async function selectQuestion(criteria: any) {
         }
 
         const questionData = await response.json();
-        return questionData.question_id;
+        return questionData.question.question_id;
 
     } catch (error) {
         console.error('Failed to select question:', error);
@@ -200,7 +204,7 @@ async function selectQuestion(criteria: any) {
     }
 }
 
-async function addMatchToUserData(userId: string, partnerId: string, questionId: number, sessionId: string) {
+async function addMatchToUserData(userId: string, userToken: string, partnerId: string, questionId: number, sessionId: string) {
     // Add match to user data
     // TODO: modify user service first
     try {
@@ -208,6 +212,7 @@ async function addMatchToUserData(userId: string, partnerId: string, questionId:
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${userToken}`
             },
             body: JSON.stringify({
                 partnerId: partnerId,
@@ -232,6 +237,8 @@ async function initializeMatchOnSessionService(userId1: string, userId2: string,
     // Initialize match on session service
     const sessionServiceUrl = process.env.COLLAB_SERVICE_URL;
 
+    console.log(`Initializing match on session service with users ${userId1} and ${userId2} for question ${questionId}`);
+
     try {
         const response = await fetch(`${sessionServiceUrl}/api/session/create`, {
             method: 'POST', // Using POST method to create a session
@@ -254,8 +261,8 @@ async function initializeMatchOnSessionService(userId1: string, userId2: string,
         console.log(`Match initialized on session service with session ID: ${sessionId}`);
 
         return sessionId; // Return the session ID
-    } catch (error) {
-        console.error('Failed to initialize match on session service:', error);
+    } catch (error: any) {
+        console.error('Failed to initialize match on session service:', error, error.message);
         throw error; // Rethrow the error for further handling if needed
     }
 }
