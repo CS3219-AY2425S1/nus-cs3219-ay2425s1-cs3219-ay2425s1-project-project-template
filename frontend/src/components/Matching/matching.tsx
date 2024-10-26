@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import { io, Socket } from "socket.io-client";
 import { useContext } from "react";
 import { AuthContext } from "../../hooks/AuthContext";
+import { useNavigate } from 'react-router-dom';
 
 const complexities = ["Easy", "Medium", "Hard"];
 const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
@@ -30,6 +31,8 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
   const intervalReference = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const startTime = useRef(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isMatching) {
@@ -68,6 +71,8 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
         console.log(match);
         toast.success(`Matched with ${match.matchedUsername}!`);
         setIsMatching(false);
+        // TODO: Add RoomID
+        navigate(`/collaboration/${match.userId}`, { state: { roomId: match.userId, userId: user.id } });
       });
       
       socket.current.on("match-timeout", () => {
