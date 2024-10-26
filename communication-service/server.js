@@ -1,48 +1,44 @@
 // server.js
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
 const https = require('https');
+const path = require('path');
+const { Server } = require('socket.io');
 const { SSL_CERT, SSL_KEY } = require('./config');
 
 const app = express();
-const server = http.createServer(app);
 
-const MY_NETWORK_IP = '192.168.1.248'; // for testing
-const LOCALHOST = 'localhost';
+const MY_NETWORK_IP = '192.168.1.248'; // Network IP
+const PORT = 8443;
 
-// set to run on localhost or network ip here
-const addr = LOCALHOST;
-
-// ssl certs
+// SSL certificates
 const options = {
   key: SSL_KEY,
-  cert: SSL_CERT
-}
+  cert: SSL_CERT,
+};
 
-const httpsServer = https.createServer(options, app);
-
+// Redirect HTTP to HTTPS
 const httpServer = http.createServer((req, res) => {
   res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
   res.end();
 });
 
-httpServer.listen(80);
-httpsServer.listen(443);
+httpServer.listen(8080, MY_NETWORK_IP);
 
-// server.listen(PORT, addr, () => {
-//   console.log(`Server is running on http://${addr}:${PORT}`);
-// });
+// Create HTTPS server on the specified network IP
+const httpsServer = https.createServer(options, app);
 
-const io = new Server(https);
+httpsServer.listen(PORT, MY_NETWORK_IP, () => {
+  console.log(`Server is running on https://${MY_NETWORK_IP}:${PORT}`);
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+const io = new Server(httpsServer);
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  // Relay signals for WebRTC setup
   socket.on('offer', (data) => {
     socket.broadcast.emit('offer', data);
   });
@@ -55,7 +51,6 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('candidate', data);
   });
 
-  // Handle chat messages
   socket.on('chatMessage', (details) => {
     io.emit('chatMessage', details);
   });
@@ -64,5 +59,3 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.id);
   });
 });
-
-
