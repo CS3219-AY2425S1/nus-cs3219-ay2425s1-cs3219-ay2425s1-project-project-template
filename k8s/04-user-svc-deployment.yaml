@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: user-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: user-service
+        peerprep.network.user-api: "true"
+        peerprep.network.user-db: "true"
+    spec:
+      containers:
+        - name: user-express
+          image: ay2425s1cs3219g16/user-express:main
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - secretRef: 
+              name: user-secret
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - wget --no-verbose --tries=1 --spider http://localhost:9001/health || exit 1
+            periodSeconds: 30
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 5
+          ports:
+            - name: user-svc-9001
+              containerPort: 9001
+                
