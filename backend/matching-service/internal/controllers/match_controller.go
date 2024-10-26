@@ -209,6 +209,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			socket.BroadcastMatch(socket.MatchMessage{
 				User1: matchingInfo.SocketID,
 				User2: matchedUser.SocketID,
+				RoomId: matchResult.RoomID,
 				State: "Matched",
 			})
 

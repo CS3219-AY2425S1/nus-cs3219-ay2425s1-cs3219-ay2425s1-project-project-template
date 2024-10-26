@@ -15,6 +15,7 @@ var broadcast = make(chan MatchMessage)        // Channel for broadcasting messa
 type MatchMessage struct {
 	User1 string `json:"user1"`
 	User2 string `json:"user2"`
+	RoomId string `json:"roomId"`
 	State string `json:"state"`
 }
 
