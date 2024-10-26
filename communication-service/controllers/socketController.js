@@ -16,6 +16,7 @@ module.exports = (io) => {
         socket.emit('roomFull', `Room ${roomId} is full.`);
       } else {
         socket.join(roomId);
+        socket.emit('roomJoined', roomId);
         console.log(`User ${socket.id} joined room ${roomId}`);
 
         // Notify other clients in the room that a user has joined

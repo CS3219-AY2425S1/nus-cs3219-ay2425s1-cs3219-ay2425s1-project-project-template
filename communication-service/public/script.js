@@ -46,13 +46,15 @@ socket.on('roomJoined', (roomId) => {
 
 // Initialize WebRTC and set up event listeners
 function initWebRTC() {
-  createPeerConnection(); // Create the peer connection once the room is joined
+  if(!peerConnection) {
+    createPeerConnection();
+  }
 
   socket.on('offer', async (offer) => {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
-    socket.emit('answer', { answer, roomId }); // Send answer to specific room
+    socket.emit('answer', answer); // Send answer to specific room
   });
 
   socket.on('answer', (answer) => {
@@ -70,7 +72,7 @@ function createPeerConnection() {
 
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
-      socket.emit('candidate', { candidate: event.candidate, roomId });
+      socket.emit('candidate', event.candidate);
     }
   };
 
@@ -85,9 +87,12 @@ function createPeerConnection() {
 
 // Start Call
 async function startCall() {
+  if (!peerConnection) {
+    createPeerConnection();
+  }
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  socket.emit('offer', { offer, roomId }); // Send offer to specific room
+  socket.emit('offer', offer); // Send offer to specific room
 }
 
 // Chat and messaging functions
