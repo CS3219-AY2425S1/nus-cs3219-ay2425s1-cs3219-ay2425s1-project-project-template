@@ -3,10 +3,12 @@ const express = require('express');
 const http = require('http');
 const https = require('https');
 const path = require('path');
+const cors = require('cors');
 const { Server } = require('socket.io');
 const { SSL_CERT, SSL_KEY } = require('./config');
 
 const app = express();
+app.use(cors());
 
 const MY_NETWORK_IP = '192.168.1.248'; // Network IP
 const PORT = 8443;
@@ -34,7 +36,15 @@ httpsServer.listen(PORT, MY_NETWORK_IP, () => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const io = new Server(httpsServer);
+const io = new Server(httpsServer, {
+  cors: {
+    origin: "*",  // Allow all origins
+    methods: ['GET', 'POST'],
+  },
+  // path: '/api/comm/socket.io',
+  pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
+  pingInterval: 25000,  // Interval between ping packets
+});
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -51,8 +61,8 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('candidate', data);
   });
 
-  socket.on('chatMessage', (details) => {
-    io.emit('chatMessage', details);
+  socket.on('chatMessage', (msg) => {
+    io.emit('chatMessage', msg);
   });
 
   socket.on('disconnect', () => {

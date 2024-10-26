@@ -79,16 +79,19 @@ chatInput.addEventListener('keypress', (event) => {
 });
 
 function sendMessage() {
-  const msg = chatInput.value;
-  if (msg.trim()) {
+  const body = chatInput.value;
+  if (body.trim()) {
+    const msg = {
+      body,
+      username: socket.id
+    }
     socket.emit('chatMessage', msg);
     chatInput.value = '';
-    displayMessage(`You: ${msg}`);
   }
 }
 
 socket.on('chatMessage', (msg) => {
-  displayMessage(`Peer: ${msg}`);
+  displayMessage(`${msg.username}: ${msg.body}`);
 });
 
 function displayMessage(message) {
