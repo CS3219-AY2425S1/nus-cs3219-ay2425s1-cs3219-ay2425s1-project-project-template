@@ -105,7 +105,7 @@ const Login = () => {
           <div className="extra-links">
             <span>Don't have an account? <Link to="/signup">Sign up here</Link></span>
             <br/>
-            <span>Need another verification link? <Link to="/send-verification">Click here</Link></span>
+            <span>Need a new verification link? <Link to="/send-verification">Click here</Link></span>
           </div>
         </form>
     </AuthLayout>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import VerifiyingLogo from '../assets/Verifiying.gif';
@@ -49,6 +49,9 @@ const VerifyEmail = () => {
       src={result === undefined ? VerifiyingLogo : (result ? VerifiedCheckgLogo : VerifiedFailLogo)}
     />
     <h2>{statusMessage}</h2>
+    <div className="extra-links">
+      <span>Need a new verification link? <Link to="/login">Click here</Link></span>
+    </div>
   </AuthLayout>;
 }
 
