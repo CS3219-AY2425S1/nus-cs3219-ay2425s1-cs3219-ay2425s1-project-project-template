@@ -18,7 +18,6 @@ FROM base AS development
 
 COPY src ./src
 COPY tsconfig.json ./
-COPY .env.dev ./
 
 # Note: Don't expose ports here, Compose will handle that for us
 

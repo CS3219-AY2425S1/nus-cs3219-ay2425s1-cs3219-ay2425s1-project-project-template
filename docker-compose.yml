@@ -87,7 +87,7 @@ services:
     networks:
       - peerprep-network
     env_file:
-      - ./api-gateway/.env.dev
+      - ./api-gateway/.env.production
 
 networks:
   peerprep-network:

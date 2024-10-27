@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api', routes);
+app.use('/api/v1', routes);
 
 // Error handling
 app.use(errorHandler);
