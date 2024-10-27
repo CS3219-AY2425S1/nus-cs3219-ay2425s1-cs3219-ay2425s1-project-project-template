@@ -4,6 +4,8 @@ import io, { Socket } from "socket.io-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import Editor from "@monaco-editor/react";
 import {
@@ -16,9 +18,8 @@ import {
 } from "@/components/ui/select";
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
 import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
-const collabServiceBackendURL =
-	import.meta.env.COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
 import { Loader2 } from "lucide-react";
+import { collabServiceCallFunction } from "@/lib/utils";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -54,9 +55,17 @@ const customQuestion: Question = {
 	],
 };
 
-function CollabPageView() {
+const CollabPageView: React.FC = () => {
 	const [code, setCode] = useState("");
 	const [socket, setSocket] = useState<Socket | null>(null);
+	const [message, setMessage] = useState(""); // For new message input
+	const [messages, setMessages] = useState<
+		{ username: string; message: string }[]
+	>([]);
+	const [userId, setUserId] = useState<string>("");
+	const navigate = useNavigate();
+	const [questionData, setQuestionData] = useState<Question>(customQuestion);
+	const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
 	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
 	useEffect(() => {
@@ -66,13 +75,41 @@ function CollabPageView() {
 
 		newSocket.on("connect", () => {
 			console.log("WebSocket connected");
-			newSocket.emit("joinSession", "session123");
+			console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
+			newSocket.emit("sessionJoined", sessionIdObj);
 		});
+
+		newSocket.on("sessionData", ({ sessionIdObj, socketId, questionData }) => {
+			sessionIdObj = sessionIdObj;
+			// Set state with the received data
+			setUserId(socketId);
+			setQuestionData(questionData);
+		});
+
+		console.log("Current user ID:", userId);
 
 		// Listen for code updates from the server
 		newSocket.on("codeUpdated", (data) => {
 			console.log("Code update received from server:", data);
 			setCode(data.code);
+		});
+
+		newSocket.on("sessionTerminated", ({ userId }) => {
+			console.log(`Session terminated by user with ID: ${userId}`);
+
+			if (newSocket.connected) {
+				newSocket.disconnect();
+				console.log("Socket disconnected due to session termination.");
+			}
+
+			navigate("/questions");
+		});
+
+		newSocket.on("messageReceived", (data) => {
+			setMessages((prevMessages) => [
+				...prevMessages,
+				{ username: data.username, message: data.message },
+			]);
 		});
 
 		return () => {
@@ -89,10 +126,29 @@ function CollabPageView() {
 		if (socket) {
 			console.log("Emitting code update:", newCode);
 			socket.emit("codeUpdate", {
-				sessionId: "session123", // Example session ID
+				sessionIdObj, // Example session ID
 				code: newCode,
 			});
 		}
+	};
+
+	const handleMessageSend = () => {
+		if (message.trim() && socket) {
+			socket.emit("sendMessage", {
+				sessionId: sessionIdObj,
+				message: message.trim(),
+				username: userId,
+			});
+			setMessage(""); // Clear the input field
+		}
+	};
+
+	// Handle Quit Session button click
+	const handleQuitSession = () => {
+		if (socket) {
+			socket.emit("terminateSession", sessionIdObj);
+		}
+		navigate("/questions");
 	};
 
 	// Callback function to mount editor to auto-focus when page loads
@@ -128,24 +184,17 @@ function CollabPageView() {
 		try {
 			setIsLoading(true);
 
-			const executeFunctionName = "execute-code";
-			const executeCodeURL = `${collabServiceBackendURL}/${executeFunctionName}`;
-
-			const response = await fetch(executeCodeURL, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json", // Send content type to JSON
-				},
-				body: JSON.stringify({
-					language: selectedLang,
-					code: sourceCode,
-					langVer: LANGUAGE_VERSIONS,
-				}),
+			const response = await collabServiceCallFunction("execute-code", "POST", {
+				language: selectedLang,
+				code: sourceCode,
+				langVer: LANGUAGE_VERSIONS,
 			});
 
-			const jsonData = await response.json();
+			const jsonData = await response.data;
 			setCodeOutput(jsonData.run.output);
-			jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY ? setIsError(true) : setIsError(false);
+			jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
+				? setIsError(true)
+				: setIsError(false);
 		} catch (error) {
 			alert(error);
 		} finally {
@@ -182,7 +231,9 @@ function CollabPageView() {
 						margin: "0 10px",
 					}}
 				/>
-				<Button variant="link">Quit Session</Button>
+				<Button variant="link" onClick={handleQuitSession}>
+					Quit Session
+				</Button>
 			</div>
 
 			{/* main page content */}
@@ -209,7 +260,7 @@ function CollabPageView() {
 				>
 					{/* id & title */}
 					<h2 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-						{customQuestion.title}
+						{questionData.title}
 					</h2>
 
 					{/* tags (difficulty & topics) */}
@@ -222,8 +273,8 @@ function CollabPageView() {
 							gap: "10px",
 						}}
 					>
-						<Badge>{customQuestion.difficulty}</Badge>
-						{customQuestion.topics.map((topic, index) => (
+						<Badge>{questionData.difficulty}</Badge>
+						{questionData.topics.map((topic, index) => (
 							<Badge key={index} variant="outline">
 								{topic}
 							</Badge>
@@ -231,11 +282,11 @@ function CollabPageView() {
 					</div>
 
 					{/* description */}
-					<p>{customQuestion.description}</p>
+					<p>{questionData.description}</p>
 
 					{/* examples */}
 					<div style={{ marginTop: "35px" }}>
-						{customQuestion.examples.map((example, index) => (
+						{questionData.examples.map((example, index) => (
 							<div key={index} style={{ marginBottom: "20px" }}>
 								<p style={{ marginBottom: "10px" }}>
 									<strong>Example {index + 1}:</strong>
@@ -268,10 +319,48 @@ function CollabPageView() {
 						<div style={{ marginTop: "35px" }}>
 							<strong>Constraints:</strong>
 							<ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
-								{customQuestion.constraints.map((constraint, index) => (
+								{questionData.constraints.map((constraint, index) => (
 									<li key={index}>{constraint}</li>
 								))}
 							</ul>
+						</div>
+					</div>
+					{/* Chatbox */}
+					<div
+						style={{
+							marginTop: "25px",
+							width: "100%",
+							border: "2px solid lightgrey",
+							borderRadius: "10px",
+							padding: "10px",
+						}}
+					>
+						<h3 style={{ marginBottom: "10px", fontWeight: "bold" }}>Chat</h3>
+						<div
+							style={{
+								height: "200px",
+								overflowY: "scroll",
+								border: "1px solid #d0d7de",
+								borderRadius: "5px",
+								padding: "10px",
+								marginBottom: "10px",
+								backgroundColor: "#f9f9f9",
+							}}
+						>
+							{messages.map((msg, index) => (
+								<p key={index} style={{ margin: "5px 0" }}>
+									<strong>User {msg.username}:</strong> {msg.message}
+								</p>
+							))}
+						</div>
+						<div style={{ display: "flex", gap: "10px" }}>
+							<Textarea
+								style={{ flex: 1 }}
+								value={message}
+								onChange={(e) => setMessage(e.target.value)}
+								placeholder="Type your message here..."
+							/>
+							<Button onClick={handleMessageSend}>Send</Button>
 						</div>
 					</div>
 				</div>
@@ -401,6 +490,6 @@ function CollabPageView() {
 			</div>
 		</main>
 	);
-}
+};
 
 export default CollabPageView;

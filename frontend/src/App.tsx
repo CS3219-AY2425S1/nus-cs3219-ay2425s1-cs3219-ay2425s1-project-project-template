@@ -27,7 +27,7 @@ const App: React.FC = () => {
           element={<CreateAccountPageView />} 
         />
         <Route 
-          path="/collab" 
+          path="/collab/:sessionId"
           element={
             <ProtectedRoute>
               <CollabPageView />
