@@ -1,7 +1,6 @@
 import { Difficulty, Question, Topic } from "@/models/Question";
 import { useRef, useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
@@ -22,7 +21,6 @@ import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStand
 const collabServiceBackendURL =
 	import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
 import { Loader2 } from "lucide-react";
-
 
 const customQuestion: Question = {
 	id: "q123",
@@ -60,27 +58,29 @@ const customQuestion: Question = {
 
 const CollabPageView: React.FC = () => {
 	const [code, setCode] = useState("");
-   	const [socket, setSocket] = useState<Socket | null>(null);
-   	const [message, setMessage] = useState(""); // For new message input
-   	const [messages, setMessages] = useState<{ username: string; message: string }[]>([]);
-   	const [userId, setUserId] = useState<string>("");
-   	const navigate = useNavigate();
-   	const [questionData, setQuestionData] = useState<Question>(customQuestion);
-   	const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
+	const [socket, setSocket] = useState<Socket | null>(null);
+	const [message, setMessage] = useState(""); // For new message input
+	const [messages, setMessages] = useState<
+		{ username: string; message: string }[]
+	>([]);
+	const [userId, setUserId] = useState<string>("");
+	const navigate = useNavigate();
+	const [questionData, setQuestionData] = useState<Question>(customQuestion);
+	const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
 	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
 	useEffect(() => {
 		// Initialize the WebSocket connection when the component mounts
 		const newSocket = io("http://localhost:5004"); // Backend WebSocket server URL
 		setSocket(newSocket);
- 
+
 		newSocket.on("connect", () => {
 			console.log("WebSocket connected");
 			console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
-			newSocket.emit("sessionJoined", sessionIdObj );
+			newSocket.emit("sessionJoined", sessionIdObj);
 		});
- 
-		newSocket.on('sessionData', ({ sessionIdObj, socketId, questionData }) => {
+
+		newSocket.on("sessionData", ({ sessionIdObj, socketId, questionData }) => {
 			sessionIdObj = sessionIdObj;
 			// Set state with the received data
 			setUserId(socketId);
@@ -88,29 +88,29 @@ const CollabPageView: React.FC = () => {
 		});
 
 		console.log("Current user ID:", userId);
- 
- 
+
 		// Listen for code updates from the server
 		newSocket.on("codeUpdated", (data) => {
 			console.log("Code update received from server:", data);
 			setCode(data.code);
-		}); 
+		});
 
-		newSocket.on('sessionTerminated', ({ userId }) => {
+		newSocket.on("sessionTerminated", ({ userId }) => {
 			console.log(`Session terminated by user with ID: ${userId}`);
 
 			if (newSocket.connected) {
 				newSocket.disconnect();
 				console.log("Socket disconnected due to session termination.");
 			}
-		
+
 			navigate("/questions");
-	
 		});
-	
 
 		newSocket.on("messageReceived", (data) => {
-			setMessages((prevMessages) => [...prevMessages, { username: data.username, message: data.message },]);
+			setMessages((prevMessages) => [
+				...prevMessages,
+				{ username: data.username, message: data.message },
+			]);
 		});
 
 		return () => {
@@ -122,8 +122,7 @@ const CollabPageView: React.FC = () => {
 		if (newCode === undefined) return; // if not code, do nothing
 
 		setCode(newCode); // Update the local state
- 
- 
+
 		// Emit the code update to the WebSocket server
 		if (socket) {
 			console.log("Emitting code update:", newCode);
@@ -149,9 +148,9 @@ const CollabPageView: React.FC = () => {
 	const handleQuitSession = () => {
 		if (socket) {
 			socket.emit("terminateSession", sessionIdObj);
-		  }
+		}
 		navigate("/questions");
-	}
+	};
 
 	// Callback function to mount editor to auto-focus when page loads
 	const onMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
@@ -203,7 +202,9 @@ const CollabPageView: React.FC = () => {
 
 			const jsonData = await response.json();
 			setCodeOutput(jsonData.run.output);
-			jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY ? setIsError(true) : setIsError(false);
+			jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
+				? setIsError(true)
+				: setIsError(false);
 		} catch (error) {
 			alert(error);
 		} finally {
@@ -499,6 +500,6 @@ const CollabPageView: React.FC = () => {
 			</div>
 		</main>
 	);
-}
+};
 
 export default CollabPageView;
