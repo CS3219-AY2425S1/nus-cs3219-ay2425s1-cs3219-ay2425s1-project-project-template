@@ -4,14 +4,13 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 const cors = require('cors');
-const { SSL_CERT, SSL_KEY } = require('./config');
+const { SSL_CERT, SSL_KEY, PORT } = require('./config');
 const initializeSocketRoutes = require('./routes/socketRoutes');
 
 const app = express();
 app.use(cors());
 
 const MY_NETWORK_IP = '192.168.1.9';
-const PORT = 8443;
 
 // SSL certificates
 const options = {
