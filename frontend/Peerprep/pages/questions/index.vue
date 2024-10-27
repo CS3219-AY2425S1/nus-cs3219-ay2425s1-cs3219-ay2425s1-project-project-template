@@ -7,12 +7,13 @@ import Toaster from '@/components/ui/toast/Toaster.vue';
 const questions = ref<Question[]>([]);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
+const runtimeConfig = useRuntimeConfig();
 
 const fetchQuestions = async () => {
   try {
     isLoading.value = true;
     error.value = null;
-    const { data, error: fetchError } = await useFetch('http://localhost:5000/questions')
+    const { data, error: fetchError } = await useFetch(`${runtimeConfig.public.questionService}/questions`)
     if (fetchError.value) {
       throw new Error(fetchError.value.message);
     }
@@ -58,12 +59,7 @@ const refreshData = () => {
   <div class="container py-10 mx-auto">
     <div v-if="isLoading && questions.length === 0">Loading...</div>
     <div v-else-if="error">An error occurred: {{ error }}</div>
-    <QuestionTable 
-      v-else 
-      :data="questions" 
-      :refresh-data="refreshData" 
-      :key="questions.length"
-    />
+    <QuestionTable v-else :data="questions" :refresh-data="refreshData" :key="questions.length" />
   </div>
   <Toaster />
 </template>

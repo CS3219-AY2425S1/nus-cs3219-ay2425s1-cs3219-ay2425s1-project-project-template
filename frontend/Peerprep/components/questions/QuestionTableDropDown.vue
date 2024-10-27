@@ -5,19 +5,19 @@ import EditQuestionDialog from './EditQuestionDialog.vue';
 import { useToast } from '@/components/ui/toast/use-toast';
 
 const props = defineProps<{
-    question: Question
+  question: Question
 }>()
 
 const { toast } = useToast();
-
+const runtimeConfig = useRuntimeConfig();
 const emit = defineEmits(['refresh']);
 
 const deleteQuestion = async () => {
   try {
-    const { error } = await useFetch(`http://localhost:5000/questions/${props.question.id}`, {
+    const { error } = await useFetch(`${runtimeConfig.public.questionService}/questions/${props.question.id}`, {
       method: 'DELETE',
     });
-    
+
     if (error.value) {
       console.error('Error deleting question:', error.value);
     } else {
@@ -46,26 +46,22 @@ const refreshData = () => {
 </script>
 
 <template>
-    <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-            <Button variant="ghost" class="w-8 h-8 p-0">
-                <span class="sr-only">Open menu</span>
-                <MoreHorizontal class="w-4 h-4" />
-            </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem @click="openEditDialog">Edit</DropdownMenuItem>
-            <DropdownMenuItem @click="deleteQuestion">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-    </DropdownMenu>
+  <DropdownMenu>
+    <DropdownMenuTrigger as-child>
+      <Button variant="ghost" class="w-8 h-8 p-0">
+        <span class="sr-only">Open menu</span>
+        <MoreHorizontal class="w-4 h-4" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end">
+      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+      <DropdownMenuItem @click="openEditDialog">Edit</DropdownMenuItem>
+      <DropdownMenuItem @click="deleteQuestion">Delete</DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
 
-    <Dialog :open="isEditDialogOpen" @update:open="closeEditDialog">
-        <EditQuestionDialog 
-            :question="question"
-            :refreshData="refreshData"
-            :isOpen="isEditDialogOpen"
-            @update:isOpen="isEditDialogOpen = $event"
-        />
-    </Dialog>
+  <Dialog :open="isEditDialogOpen" @update:open="closeEditDialog">
+    <EditQuestionDialog :question="question" :refreshData="refreshData" :isOpen="isEditDialogOpen"
+      @update:isOpen="isEditDialogOpen = $event" />
+  </Dialog>
 </template>

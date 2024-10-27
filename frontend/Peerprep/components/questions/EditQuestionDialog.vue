@@ -10,6 +10,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:isOpen']);
+const runtimeConfig = useRuntimeConfig();
 
 const { toast } = useToast();
 
@@ -31,8 +32,8 @@ watch(() => props.isOpen, (newValue) => {
     // Reset the form when the dialog opens
     editedQuestion.title = props.question.title;
     editedQuestion.description = props.question.description;
-    editedQuestion.category = Array.isArray(props.question.category) 
-      ? props.question.category.join(', ') 
+    editedQuestion.category = Array.isArray(props.question.category)
+      ? props.question.category.join(', ')
       : props.question.category;
     editedQuestion.difficulty = props.question.difficulty;
   }
@@ -43,11 +44,11 @@ const validateForm = () => {
   errors.title = !editedQuestion.title.trim();
   errors.description = !editedQuestion.description.trim();
   errors.category = !editedQuestion.category.trim();
-  
+
   if (errors.title || errors.description || errors.category) {
     isValid = false;
   }
-  
+
   return isValid;
 };
 
@@ -64,7 +65,7 @@ const updateQuestion = async () => {
   try {
     const category_arr = editedQuestion.category.split(',').map(cat => cat.trim());
 
-    const { data, error } = await useFetch(`http://localhost:5000/questions/${props.question.id}`, {
+    const { data, error } = await useFetch(`${runtimeConfig.public.questionService}/questions/${props.question.id}`, {
       method: 'PUT',
       body: JSON.stringify({
         title: editedQuestion.title,
@@ -74,7 +75,7 @@ const updateQuestion = async () => {
       }),
       headers: { 'Content-Type': 'application/json' }
     });
-    
+
     if (error.value) {
       const errorMessage = await error.value?.data;
       toast({
@@ -111,7 +112,8 @@ const updateQuestion = async () => {
       <div class="grid grid-cols-4 items-center gap-4">
         <Label for="title">Title</Label>
         <div class="col-span-3">
-          <Input id="title" v-model="editedQuestion.title" placeholder="Enter question title" :class="{ 'border-red-500': errors.title }" />
+          <Input id="title" v-model="editedQuestion.title" placeholder="Enter question title"
+            :class="{ 'border-red-500': errors.title }" />
           <p v-if="errors.title" class="text-red-500 text-sm mt-1">Title is required</p>
         </div>
       </div>

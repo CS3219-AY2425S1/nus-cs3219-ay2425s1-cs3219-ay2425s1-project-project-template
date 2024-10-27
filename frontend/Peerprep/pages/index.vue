@@ -8,7 +8,7 @@ const user = useCurrentUser();
 const runtimeConfig = useRuntimeConfig()
 const collaborationStore = useCollaborationStore()
 const { toast } = useToast()
-const { status, data, send, open, close } = useWebSocket(`ws://localhost:8001/ws/${user?.value?.uid}`, {
+const { status, data, send, open, close } = useWebSocket(`${runtimeConfig.public.webSocketUrl}/ws/${user?.value?.uid}`, {
   autoReconnect: true,
   onConnected: () => {
     console.log('Connected to WebSocket server')
@@ -30,7 +30,7 @@ let countdownInterval: number | null = null
 
 const fetchTopics = async () => {
   try {
-    const { data, error } = await useFetch('http://localhost:5000/questions/categories')
+    const { data, error } = await useFetch(`${runtimeConfig.public.questionService}/questions/categories`)
     if (error.value) {
       throw new Error('Failed to fetch topics');
     }
@@ -124,7 +124,7 @@ async function handleCancel() {
 
   const token = await user.value?.getIdToken();
   try {
-    const response = await $fetch(`${runtimeConfig.public.matchingRequestUrl}/cancel/${user.value?.uid}`, {
+    const response = await $fetch(`${runtimeConfig.public.matchingService}/cancel/${user.value?.uid}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ async function handleSubmit() {
   })
 
   try {
-    const response: MatchResponse = await $fetch(`${runtimeConfig.public.matchingRequestUrl}/matching`, {
+    const response: MatchResponse = await $fetch(`${runtimeConfig.public.matchingService}/matching`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

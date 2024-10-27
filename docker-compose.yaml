@@ -52,6 +52,13 @@ services:
     networks:
       - backend_network
 
+  # redisinsight:
+  #   image: redislabs/redisinsight:latest
+  #   ports:
+  #     - "5540:5540"
+  #   networks:
+  #     - backend_network
+
   ui:
     container_name: ui
     build:
@@ -112,7 +119,7 @@ services:
       context: ./backend/user_service
       dockerfile: Dockerfile
     environment:
-      - FLASK_ENV=development  # development
+      - FLASK_ENV=production
     networks:
       - backend_network
     ports:

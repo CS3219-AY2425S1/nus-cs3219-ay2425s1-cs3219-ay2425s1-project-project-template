@@ -16,9 +16,10 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      matchingRequestUrl: "http://localhost:8000",
-      webSocketUrl: "ws://localhost:8010",
-      cancelRequestUrl: "http://localhost:8010",
+      matchingService: `http://${process.env.HOST_ADDRESS}:8000`,
+      webSocketUrl: `ws://${process.env.HOST_ADDRESS}:8001`,
+      questionService: `http://${process.env.HOST_ADDRESS}:5000`,
+      userService: `http://${process.env.HOST_ADDRESS}:5001`,
     },
   },
   shadcn: {
