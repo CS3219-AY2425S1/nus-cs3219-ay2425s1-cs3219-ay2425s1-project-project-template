@@ -5,7 +5,7 @@ http {
   limit_req_status 429;
 
   server {
-      if ($host = peerprep.glemenneo.com) {
+      if (${D}host = ${DOMAIN_NAME}) {
         return 301 https://${D}host${D}request_uri;
       }
 
