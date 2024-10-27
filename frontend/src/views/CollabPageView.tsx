@@ -68,21 +68,24 @@ const CollabPageView: React.FC = () => {
 	const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
 	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
+	const collabServiceBackendUrl = import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+
 	useEffect(() => {
 		// Initialize the WebSocket connection when the component mounts
-		const newSocket = io("http://localhost:5004"); // Backend WebSocket server URL
+		const newSocket = io(collabServiceBackendUrl); // Backend WebSocket server URL
 		setSocket(newSocket);
 
 		newSocket.on("connect", () => {
 			console.log("WebSocket connected");
 			console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
-			newSocket.emit("sessionJoined", sessionIdObj);
+			const uid = sessionStorage.getItem("uid");
+			newSocket.emit("sessionJoined", sessionIdObj, uid);
 		});
 
-		newSocket.on("sessionData", ({ sessionIdObj, socketId, questionData }) => {
+		newSocket.on("sessionData", ({ sessionIdObj, uid, questionData }) => {
 			sessionIdObj = sessionIdObj;
 			// Set state with the received data
-			setUserId(socketId);
+			setUserId(uid);
 			setQuestionData(questionData);
 		});
 
