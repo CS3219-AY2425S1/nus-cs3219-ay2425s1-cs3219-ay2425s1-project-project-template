@@ -4,12 +4,16 @@ import EmailIcon from '@mui/icons-material/Email';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PersonIcon from '@mui/icons-material/Person'
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
     defaultValues: {
@@ -79,16 +83,19 @@ export default function SignupPage() {
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.email?.message}</span>
         </div>
         <div className="relative flex flex-col">
-          <input className={textBoxStyle} type="password" placeholder="Enter password"
+          <input className={textBoxStyle} type={showPassword ? "text" : "password"} placeholder="Enter password"
             {...register("password", {
               required: { value: true, message: "Password is required." },
               minLength: { value: 6, message: "Password must be at least 6 characters." },
             })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
+          {showPassword
+            ? <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)}/>
+            : <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)}/>}
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.password?.message}</span>
         </div>
         <div className="relative flex flex-col">
-          <input className={textBoxStyle} type="password" placeholder="Enter password again"
+          <input className={textBoxStyle} type={showPassword ? "text" : "password"} placeholder="Enter password again"
             {...register("cfmPassword",
               {
                 required: { value: true, message: "Please enter password again." },
@@ -99,6 +106,9 @@ export default function SignupPage() {
                 }
               })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
+          {showPassword
+            ? <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)}/>
+            : <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)}/>}
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.cfmPassword?.message}</span>
         </div>
         <div className="flex justify-center items-center">

@@ -3,15 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import EmailIcon from '@mui/icons-material/Email';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext, authState } from "../../hooks/AuthContext";
 
 export default function LoginPage() {
   const {user, setUser, setIsAuthenticated} = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
@@ -64,9 +67,12 @@ export default function LoginPage() {
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.email?.message}</span>
         </div>
         <div className="relative flex flex-col">
-          <input className={textBoxStyle} type="password" placeholder="Password"
+          <input className={textBoxStyle} type={showPassword ? "text" : "password"} placeholder="Password"
             {...register("password", { required: { value: true, message: "Password is required." } })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
+          {showPassword
+            ? <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)}/>
+            : <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)}/>}
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.password?.message}</span>
         </div>
         <div className="flex justify-between items-center">
