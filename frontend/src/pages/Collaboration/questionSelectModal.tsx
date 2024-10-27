@@ -5,8 +5,9 @@ import {
   DialogTitle,
   Button,
 } from "@mui/material";
-import DataTable from "../Question/data-table"; // Make sure to import the updated DataTable component
+
 import { Question } from "../Question/question";
+import DataTable from "./dataTable";
 
 interface QuestionSelectModalProps {
   open: boolean;
@@ -22,7 +23,9 @@ const QuestionSelectModal: React.FC<QuestionSelectModalProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>Select a Question</DialogTitle>
-      <DialogContent>Add table here</DialogContent>
+      <DialogContent>
+        <DataTable onSelectQuestion={onQuestionSelect} />
+      </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">
           Cancel
