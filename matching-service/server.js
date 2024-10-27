@@ -5,6 +5,7 @@ const redis = require('redis');
 
 const app = express();
 const PORT = 4000;
+const QUESTION_API_BASE_URL = 'http://nginx/api/questions';
 
 const redisClient = redis.createClient({
   socket: {
@@ -92,6 +93,23 @@ async function matchUsers(searchRequest) {
     return;
   }
 
+  const response = await fetch(`${QUESTION_API_BASE_URL}/filter-one`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ difficulty, topics }),
+  });
+
+  if (!response.ok) {
+    const message = `An error occurred: ${response.statusText}`;
+    console.error(message);
+    return;
+  }
+  const question = await response.json();
+
+  console.log('Question:', question);
+
   const matchedByTopics = await findMatchByTopics(topics);
   const matchedByDifficulty = await findMatchByDifficulty(difficulty);
 
@@ -121,6 +139,7 @@ async function matchUsers(searchRequest) {
       userId,
       matchUserId: matchedUser,
       roomId: uuid.v7(),
+      questionId: question.id,
     };
 
     channel.sendToQueue(

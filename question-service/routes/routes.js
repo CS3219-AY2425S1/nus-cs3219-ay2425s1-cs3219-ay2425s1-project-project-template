@@ -1,9 +1,19 @@
 import { Router } from 'express';
-import { getAllQuestions, getQuestionById, getQuestionByDifficulty, getQuestionByTopic, getNextAvailId, getQuestionByFilter, getAllTopics } from '../controller/read.js';
+
 import { createNewQuestion } from '../controller/create.js';
-import { updateQuestion } from '../controller/update.js';
 import { deleteQuestion } from '../controller/delete.js';
-import { getImage, uploadImage } from "../controller/imageController.js";
+import { getImage, uploadImage } from '../controller/imageController.js';
+import {
+  getAllQuestions,
+  getAllTopics,
+  getNextAvailId,
+  getOneQuestionByFilter,
+  getQuestionByDifficulty,
+  getQuestionByFilter,
+  getQuestionById,
+  getQuestionByTopic,
+} from '../controller/read.js';
+import { updateQuestion } from '../controller/update.js';
 
 const router = Router();
 
@@ -27,10 +37,11 @@ router.get('/topic/:topic', getQuestionByTopic);
 
 router.post('/filter', getQuestionByFilter);
 
+router.post('/filter-one', getOneQuestionByFilter);
+
 router.get('/nextid', getNextAvailId);
 
 router.get('/topics', getAllTopics);
-
 
 /**
  * UPDATE
