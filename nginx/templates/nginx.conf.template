@@ -5,6 +5,19 @@ http {
   limit_req_status 429;
 
   server {
+      if ($host = peerprep.glemenneo.com) {
+        return 301 https://${D}host${D}request_uri;
+      }
+
+      listen 80;
+      listen [::]:80;
+
+      server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
+
+      return 404;
+  }
+
+  server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
