@@ -12,7 +12,6 @@ import {
   Box,
   Button,
   createTheme,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -21,7 +20,6 @@ import {
   ThemeProvider,
   Tooltip,
   TextField,
-  styled,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import {
@@ -36,32 +34,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../hooks/AuthContext";
+import Markdown from "react-markdown";
 
 import { type Question, categories, complexities, validateQuestion } from "./question";
-
-// Styled components for the dialog
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialog-paper": {
-    borderRadius: "16px",
-    border: "1px solid",
-    borderColor: theme.palette.divider,
-  },
-}));
-
-const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
-  padding: theme.spacing(2),
-}));
-
-const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
-  borderTop: "1px solid",
-  borderBottom: "1px solid",
-  borderColor: theme.palette.divider,
-  padding: theme.spacing(3),
-}));
-
-const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
-  padding: theme.spacing(2),
-}));
 
 const Table = () => {
   const { user } = useContext(AuthContext);
@@ -70,9 +45,6 @@ const Table = () => {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string | undefined>
   >({});
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
-  );
 
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
@@ -93,6 +65,7 @@ const Table = () => {
             });
           },
         },
+        muiFilterTextFieldProps: { placeholder: "Id" },
       },
       {
         accessorKey: "title",
@@ -109,6 +82,7 @@ const Table = () => {
             });
           },
         },
+        muiFilterTextFieldProps: { placeholder: "Title" },
       },
       {
         accessorKey: "complexity",
@@ -156,6 +130,7 @@ const Table = () => {
             }
           },
         },
+        muiFilterTextFieldProps: { placeholder: "Complexity" },
       },
       {
         accessorKey: "categories",
@@ -201,6 +176,7 @@ const Table = () => {
             </TextField>
           );
         },
+        muiFilterTextFieldProps: { placeholder: "Categories" },
       },
       {
         accessorKey: "description",
@@ -296,21 +272,20 @@ const Table = () => {
     }
   };
 
-  // Row click action
-  const handleRowClick = (row: MRT_Row<Question>) => {
-    setSelectedQuestion(row.original);
-  };
-
-  const closeInfoDialog = () => {
-    setIsCrudError(false);
-    setSelectedQuestion(null);
-  };
-
   const table = useMaterialReactTable({
     columns,
     data: fetchedQuestions,
     createDisplayMode: "modal",
     editDisplayMode: "modal",
+    enableExpandAll: false,
+    enableExpanding: true,
+    renderDetailPanel: ({ row }) => {
+      return row.original.description ? <Markdown className="prose prose-markdown">{row.original.description}</Markdown> : null;
+    },
+    muiExpandButtonProps: ({ row, table }) => ({
+      onClick: () => table.setExpanded({ [row.id]: !row.getIsExpanded() }),
+    }),
+    localization: { expand: "Description" },
     enableRowActions: user.isAdmin,
     initialState: { columnVisibility: { description: false } },
     enableDensityToggle: false,
@@ -322,10 +297,6 @@ const Table = () => {
           children: "Error loading data",
         }
       : undefined,
-    muiTableBodyRowProps: ({ row }: { row: MRT_Row<Question> }) => ({
-      onClick: () => handleRowClick(row),
-      style: { cursor: "pointer" },
-    }),
     muiTableContainerProps: {
       sx: {
         minHeight: "500px",
@@ -437,61 +408,7 @@ const Table = () => {
         mode: "dark",
       }
     })}>
-      <MaterialReactTable table={table} />
-      <StyledDialog
-        open={!!selectedQuestion}
-        onClose={closeInfoDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        {selectedQuestion && <>
-          <StyledDialogTitle>
-            {selectedQuestion.title}
-          </StyledDialogTitle>
-          <StyledDialogContent>
-            <TextField
-              label="ID"
-              value={selectedQuestion.qid}
-              fullWidth
-              margin="normal"
-              InputProps={{ readOnly: true }}
-            />
-            <TextField
-              label="Complexity"
-              value={selectedQuestion.complexity}
-              fullWidth
-              margin="normal"
-              InputProps={{ readOnly: true }}
-            />
-            <TextField
-              label="Categories"
-              value={
-                Array.isArray(selectedQuestion.categories)
-                  ? selectedQuestion.categories.join(", ")
-                  : selectedQuestion.categories
-              }
-              fullWidth
-              margin="normal"
-              InputProps={{ readOnly: true }}
-            />
-            <TextField
-              label="Description"
-              value={selectedQuestion.description}
-              fullWidth
-              multiline
-              minRows={4}
-              maxRows={10}
-              margin="normal"
-              InputProps={{ readOnly: true }}
-            />
-          </StyledDialogContent>
-        </>}
-        <StyledDialogActions>
-          <Button onClick={closeInfoDialog}>
-            Close
-          </Button>
-        </StyledDialogActions>
-      </StyledDialog>
+      <MaterialReactTable table={ table }/>
     </ThemeProvider>
   );
 };
@@ -581,7 +498,7 @@ function useDeleteQuestion() {
 const queryClient = new QueryClient();
 
 const DataTable = () => (
-  <Box sx={{ margin: "50px", width: "90vw", "maxWidth": "1027px" }}>
+  <Box sx={{ margin: "50px", width: "90vw", "maxWidth": "1067px" }}>
     <QueryClientProvider client={queryClient}>
       <Table />
     </QueryClientProvider>
