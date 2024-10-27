@@ -1,6 +1,5 @@
 import { FlaskConical, Play } from "lucide-react";
 import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
-import { ResizablePanel } from "@/components/ui/resizable";
 import TestCasesTabContent from "./TestCasesTabContent";
 import TestResultTabContent from "./TestResultTabContent";
 

@@ -14,7 +14,13 @@ export default async function CollaborativeEditorTab() {
 
   const userProfile = UserProfileSchema.parse(userProfileResponse.data);
 
+  const socketUrl = process.env.PUBLIC_Y_WEBSOCKET_URL || "ws://localhost:1234";
+
   return (
-    <CollaborativeEditor sessionId={getSession} currentUser={userProfile} />
+    <CollaborativeEditor
+      sessionId={getSession}
+      currentUser={userProfile}
+      socketUrl={socketUrl}
+    />
   );
 }

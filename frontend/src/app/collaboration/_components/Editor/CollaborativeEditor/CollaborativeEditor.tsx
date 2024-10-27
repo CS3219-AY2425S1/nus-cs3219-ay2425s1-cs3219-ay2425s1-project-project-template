@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import draculaTheme from "monaco-themes/themes/Dracula.json";
 import Editor, { Monaco } from "@monaco-editor/react";
 import * as Y from "yjs";
@@ -9,10 +9,12 @@ import { MonacoBinding } from "y-monaco";
 import { editor } from "monaco-editor";
 import InjectableCursorStyles from "./InjectableCursorStyles";
 import { UserProfile } from "@/types/User";
+import { getRandomColor } from "@/lib/cursorColors";
 
 interface CollaborativeEditorProps {
   sessionId: string;
   currentUser: UserProfile;
+  socketUrl?: string;
   language?: string;
   themeName?: string;
 }
@@ -20,11 +22,14 @@ interface CollaborativeEditorProps {
 export default function CollaborativeEditor({
   sessionId,
   currentUser,
+  socketUrl = "ws://localhost:1234",
   language = "typescript",
   themeName = "dracula",
 }: CollaborativeEditorProps) {
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
+
+  const colorRef = useRef<string>(getRandomColor());
 
   useEffect(() => {
     if (!editorRef) return;
@@ -32,7 +37,7 @@ export default function CollaborativeEditor({
     const yDoc = new Y.Doc();
     const yText = yDoc.getText("monaco");
     const yProvider = new WebsocketProvider(
-      `ws://localhost:1234/yjs?sessionId=${sessionId}`,
+      `${socketUrl}/yjs?sessionId=${sessionId}`,
       sessionId,
       yDoc
     );
@@ -68,7 +73,7 @@ export default function CollaborativeEditor({
         <InjectableCursorStyles
           yProvider={provider}
           cursorName={currentUser.username}
-          cursorColor={"#0096C7"}
+          cursorColor={colorRef.current}
         />
       )}
       <Editor
