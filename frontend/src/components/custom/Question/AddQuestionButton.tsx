@@ -5,10 +5,16 @@ import AddQuestionDialog from "./AddQuestionDialog";
 
 interface AddQuestionButtonProps {
   onCreate: () => void;
+  isAdmin: Boolean;
 }
 
-const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({ onCreate }) => {
+const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({ onCreate, isAdmin }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+    // Don't render anything if not an admin
+    if (!isAdmin) {
+      return null; // Return null to render nothing
+    }
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
