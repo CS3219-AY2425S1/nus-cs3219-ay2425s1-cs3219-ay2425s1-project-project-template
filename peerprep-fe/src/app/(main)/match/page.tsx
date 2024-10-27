@@ -6,7 +6,7 @@ import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
 import { consumeMessageFromQueue, sendMessageToQueue } from '@/lib/rabbitmq';
-import { UserMatchingResponse } from '@/types/types';
+import { UserMatchingRequest, UserMatchingResponse } from '@/types/types';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -61,12 +61,16 @@ export default function LoadingPage() {
 
   const handleCancel = () => {
     console.log('Matching cancelled');
-    const message = {
-      _id: user?.id,
-      type: 'cancel',
-    };
-    sendMessageToQueue(message);
-    router.push('/');
+    if (user?.id) {
+      const message: UserMatchingRequest = {
+        _id: user?.id,
+        type: 'cancel',
+      };
+      sendMessageToQueue(message);
+      router.push('/');
+    } else {
+      console.warn('User ID is undefined. This is not supposed to happen.');
+    }
   };
 
   return (
