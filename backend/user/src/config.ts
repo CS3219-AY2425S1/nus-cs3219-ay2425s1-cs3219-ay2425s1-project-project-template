@@ -14,4 +14,4 @@ export const dbConfig = {
   password: process.env.POSTGRES_PASSWORD,
 };
 
-export const LOAD_TEST_POD = process.env.LOAD_TEST_POD!;
+export const LOAD_TEST_POD = process.env.LOAD_TEST_POD || 'http://user-service-load-test';
