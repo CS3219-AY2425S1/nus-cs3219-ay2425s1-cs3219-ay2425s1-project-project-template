@@ -1,6 +1,6 @@
 import { AppShell, Center, Group, Stack } from '@mantine/core';
 
-import Header from '../components/Header';
+import Header from '../components/header/Header';
 import FavoriteTopicsLayout from '../components/layout/dashboardLayout/FavoriteTopicsLayout';
 import PracticeLayout from '../components/layout/dashboardLayout/PracticeNowLayout';
 import ProgressLayout from '../components/layout/dashboardLayout/ProgressLayout';
