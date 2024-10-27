@@ -5,8 +5,8 @@ http {
   limit_req_status 429;
 
   server {
-    listen 80;
-    listen [::]:80;
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
     server_name ${DOMAIN_NAME} www.${DOMAIN_NAME}
     if ($http_x_forwarded_proto = "http") {
