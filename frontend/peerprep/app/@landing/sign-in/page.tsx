@@ -12,6 +12,7 @@ import { fontFun, fontLogo } from "@/config/fonts";
 import { login } from "@/auth/actions";
 import Toast from "@/components/toast"; // Import Toast component
 import { CircularProgress } from "@nextui-org/react"; // Import CircularProgress from NextUI
+import { delay } from "@/utils/utils";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -26,19 +27,19 @@ export default function SignInPage() {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleContinue = async () => {
-    setIsLoading(true); // Start loading when button is pressed
-    const signInFormData = new FormData();
+    setIsLoading(true); // Start loading and disable inputs
 
+    const signInFormData = new FormData();
     signInFormData.append("identifier", id);
     signInFormData.append("password", password);
 
+    await delay(500);
+
     const response = await login(signInFormData);
 
-    setIsLoading(false); // Stop loading after API response
+    setIsLoading(false); // Stop loading and enable inputs
 
-    if (response.status == "success") {
-      setId("");
-      setPassword("");
+    if (response.status === "success") {
       router.push("/");
     } else {
       setToast({ message: response.message || "Login failed", type: "error" });
@@ -102,6 +103,7 @@ export default function SignInPage() {
             className="w-md"
             onValueChange={setId}
             onKeyDown={handleKeyDown}
+            isDisabled={isLoading} // Disable input when loading
           />
           <Input
             value={password}
@@ -124,12 +126,14 @@ export default function SignInPage() {
                 size="sm"
                 onClick={toggleVisibility}
                 aria-label="toggle password visibility"
+                isDisabled={isLoading} // Disable button when loading
               >
                 {isVisible ? <EyeFilledIcon /> : <EyeSlashFilledIcon />}
               </Button>
             }
             type={isVisible ? "text" : "password"}
             onKeyDown={handleKeyDown}
+            isDisabled={isLoading} // Disable input when loading
           />
         </div>
 

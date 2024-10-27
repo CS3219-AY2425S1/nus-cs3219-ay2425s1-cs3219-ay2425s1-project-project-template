@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { findUserByEmail as _findUserByEmail,
-  findUserByUsername as _findUserByUsername
+  findUserByUsername as _findUserByUsername,
+  confirmUserById as _confirmUserById,
 } from "../model/repository.js";
 import { formatUserResponse } from "./user-controller.js";
 
@@ -31,6 +32,10 @@ export async function handleLogin(req, res) {
       return res.status(401).json({ message: "Wrong username/email and/or password" });
     }
 
+    if (!user.isConfirm) {
+      return res.status(403).json({message: "You have not verified your account"});
+    }
+
     // Generate JWT access token
     const accessToken = jwt.sign(
       { id: user.id },
@@ -55,6 +60,30 @@ export async function handleVerifyToken(req, res) {
   try {
     const verifiedUser = req.user;
     return res.status(200).json({ message: "Token verified", data: verifiedUser });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+}
+
+export async function confirmUser(req, res) {
+  try {
+    const verifiedUser = req.user;
+    const updatedUser = await _confirmUserById(verifiedUser.id, true);
+
+    // Generate JWT access token
+    const accessToken = jwt.sign(
+      { id: updatedUser.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    return res.status(200).json({
+      message: `${updatedUser.id} registered and logged in!`,
+      data: {
+        accessToken,
+        ...formatUserResponse(updatedUser),
+      },
+    });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }

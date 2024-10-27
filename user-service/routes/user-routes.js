@@ -1,19 +1,21 @@
 import express from "express";
 
 import {
-  createUser,
+  createUserRequest,
   deleteUser,
   getAllUsers,
   getUser,
   updateUser,
   updateUserPrivilege,
+  deleteUserRequest,
+  refreshEmailToken,
   getFriendRequests,
   getFriends,
   sendFriendRequest,
   acceptFriendRequest,
   addMatchToUser
 } from "../controller/user-controller.js";
-import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
+import { verifyAccessToken, verifyEmailToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
@@ -31,7 +33,11 @@ router.post("/:id/addMatch", verifyAccessToken, verifyIsOwnerOrAdmin, addMatchTo
 
 router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivilege);
 
-router.post("/", createUser);
+router.post("/", createUserRequest);
+
+router.patch("/:id/resend-request", verifyEmailToken, refreshEmailToken);
+
+router.delete("/:email", deleteUserRequest);
 
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 

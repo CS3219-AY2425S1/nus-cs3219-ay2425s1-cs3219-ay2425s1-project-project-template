@@ -25,6 +25,35 @@ export function verifyAccessToken(req, res, next) {
   });
 }
 
+export function verifyEmailToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res.status(401).json({ message: "Authentication failed" });
+  }
+
+  // request auth header: `Authorization: Bearer + <access_token>`
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    if (user.id !== req.params.id) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    // load latest user info from DB
+    const dbUser = await _findUserById(user.id);
+    if (!dbUser) {
+      return res.status(401).json({ message: "Authentication failed" });
+    } else if (dbUser.isConfirm) {
+      return res.status(401).json({message: "Invalid request"});
+    }
+    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdminm, isConfirm: dbUser.isConfirm};
+    next();
+  });
+}
+
 export function verifyIsAdmin(req, res, next) {
   if (req.user.isAdmin) {
     next();

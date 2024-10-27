@@ -26,6 +26,11 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  isConfirm: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
   friends: {
     type: [String], // Array of strings for friend IDs
     default: [],

@@ -12,6 +12,12 @@ export interface SessionData {
   isLoggedIn: boolean;
 }
 
+export interface CreateUserSessionData {
+  emailToken?: string;
+  isPending: boolean;
+  ttl?: string;
+}
+
 export const defaultSession: SessionData = {
   isLoggedIn: false,
   isAdmin: false,
@@ -23,5 +29,16 @@ export const sessionOptions: SessionOptions = {
   cookieOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    maxAge: 24 * 60 * 60,
+  },
+};
+
+export const createUserOptions: SessionOptions = {
+  password: SECRET_KEY,
+  cookieName: "user-creation-session",
+  cookieOptions: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 3 * 60
   },
 };

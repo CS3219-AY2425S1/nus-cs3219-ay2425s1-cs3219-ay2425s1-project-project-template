@@ -8,8 +8,8 @@ export async function connectToDB() {
   await connect(mongoDBUri);
 }
 
-export async function createUser(username, email, password) {
-  return new UserModel({ username, email, password }).save();
+export async function createTempUser(username, email, password, isConfirm=false) {
+  return new UserModel({ username, email, password, isConfirm}).save();
 }
 
 export async function findUserByEmail(email) {
@@ -45,6 +45,30 @@ export async function updateUserById(userId, username, email, password) {
         username,
         email,
         password,
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function updateUserAccountCreationTime(userId, createdAt) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        createdAt
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function confirmUserById(userId, isConfirm) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        isConfirm,
       },
     },
     { new: true },  // return the updated user
