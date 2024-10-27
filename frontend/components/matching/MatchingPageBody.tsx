@@ -30,9 +30,11 @@ export default function MatchingPageBody() {
     }
     setUserMatchInfo(undefined);
   };
+
   const { isError: isCancelError, mutate } =
     useCancelUserMatch(onCancelSuccess);
-  //   start of webSocket Handlers
+
+  // start of webSocket Handlers
   const onWebSocketMessage = (event: MessageEvent) => {
     console.log("Message recevied from server:", event);
     try {
@@ -133,11 +135,14 @@ export default function MatchingPageBody() {
       className: "z-50 bg-success-100",
       autoClose: 2000,
     });
+    console.log(responseData);
     setUserMatchInfo(responseData);
   };
+
   const onCancelMatch = () => {
     router.push("/questions");
   };
+
   //   end of addMatch handlers
   //   start of cancel Match
   const onCancelTimer = () => {
