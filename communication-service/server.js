@@ -40,11 +40,12 @@ if (HTTP_OR_HTTPS === 'https') {
 
   server = httpsServer;
 } else {
-  const httpServer = https.createServer(options, app);
-  httpServer.listen(PORT, MY_NETWORK_IP, () => {
-    console.log(`HTTP Server is running on https://${MY_NETWORK_IP}:${PORT}`);
+  const port = 8080;
+  const httpServer = http.createServer(app);
+  httpServer.listen(port, MY_NETWORK_IP, () => {
+    console.log(`HTTP Server is running on http://${MY_NETWORK_IP}:${port}`);
   });
-  
+  app.use(express.static(path.join(__dirname, 'public')));
   server = httpServer;
 }
 
