@@ -4,38 +4,26 @@ import { javascript } from '@codemirror/lang-javascript'
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
 import { basicSetup } from 'codemirror'
-import { useRouter } from 'next/router'
 import { yCollab, yUndoManagerKeymap } from 'y-codemirror.next'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import { useSession } from 'next-auth/react'
 import { languages } from '@codemirror/language-data'
+import { useRouter } from 'next/router'
+import { userColor } from '@/util/cursor-colors'
+import { CodeMirrorEditorProps } from '@/types/editor'
 
-const usercolors = [
-    { color: '#30bced', light: '#30bced33' },
-    { color: '#6eeb83', light: '#6eeb8333' },
-    { color: '#ffbc42', light: '#ffbc4233' },
-    { color: '#ecd444', light: '#ecd44433' },
-    { color: '#ee6352', light: '#ee635233' },
-    { color: '#9ac2c9', light: '#9ac2c933' },
-    { color: '#8acb88', light: '#8acb8833' },
-    { color: '#1be7ff', light: '#1be7ff33' },
-]
-const userColor = usercolors[Math.floor(Math.random() * usercolors.length)]
-interface CodeMirrorEditorProps {
-    roomId: string
-    language: string
-}
 const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language }) => {
     const editorContainerRef = useRef<HTMLDivElement>(null)
     // eslint-disable-next-line no-unused-vars
     const [provider, setProvider] = useState<WebsocketProvider | null>(null)
     const [ydoc] = useState(() => new Y.Doc())
     const [ytext] = useState(() => ydoc.getText('codemirror'))
-    const { data: session, status } = useSession()
+    const { data: session } = useSession()
     const [editorView, setEditorView] = useState<EditorView | null>(null)
-    const router = useRouter()
     const compartment = useMemo(() => new Compartment(), [])
+    const router = useRouter()
+
     useEffect(() => {
         console.log('Change in language', language, editorView)
         if (!editorView) return
@@ -66,8 +54,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
         })
         if (wsProvider.ws) {
             wsProvider.ws.onclose = () => {
-                console.log('GET THE FUCKOUT')
-                // router.push('/');
+                router.push('/')
             }
         }
         setProvider(wsProvider)
@@ -95,8 +82,10 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
         }
         return undefined
     }, [editorContainerRef, ydoc, ytext, session])
+
     return (
         <div ref={editorContainerRef} style={{ height: '400px', overflow: 'scroll', border: '1px solid lightgray' }} />
     )
 }
+
 export default CodeMirrorEditor
