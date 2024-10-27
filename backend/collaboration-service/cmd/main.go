@@ -27,6 +27,7 @@ func enableCORS(next http.Handler) http.Handler {
 			return
 		}
 
+		// Proceed with the next handler
 		next.ServeHTTP(w, r)
 	})
 }
