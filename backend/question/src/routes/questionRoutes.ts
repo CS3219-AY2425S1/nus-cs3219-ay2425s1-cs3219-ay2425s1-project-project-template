@@ -132,7 +132,7 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
 
 // Retrieve the number of questions by complexity and category
 router.post(
-  "/check-question",
+  "/count-question",
   [...pickQuestionValidators],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -148,7 +148,7 @@ router.post(
     try {
       const questionCount = await Question.countDocuments(query).exec();
 
-      return res.json(questionCount);
+      return res.json({ count: questionCount });
     } catch (error) {
       return res.status(500).send("Internal server error");
     }
