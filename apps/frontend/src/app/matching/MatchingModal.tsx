@@ -59,8 +59,8 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
                 cancel={() => {
                   setClosedType("cancelled");
                 }}
-                name1={matchingState.info?.myName || ""}
-                name2={matchingState.info?.partnerName || ""}
+                name1={matchingState.info?.user || ""}
+                name2={matchingState.info?.matchedUser || ""}
               />
             );
         }
@@ -97,19 +97,20 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
             join={() => {
               matchingState.ok();
               setClosedType("joined");
-              localStorage.setItem("user", matchingState.info.myName);
+              localStorage.setItem("user", matchingState.info.user);
               localStorage.setItem(
                 "matchedUser",
-                matchingState.info.partnerName
+                matchingState.info.matchedUser
               );
               localStorage.setItem("collabId", matchingState.info.matchId);
-              localStorage.setItem("docRefId", matchingState.info.docRefId);
+              localStorage.setItem("questionDocRefId", matchingState.info.questionDocRefId);
+              localStorage.setItem("matchedTopics", matchingState.info.matchedTopics.join(","));
 
               // Redirect to collaboration page
               router.push(`/collaboration/${matchingState.info.matchId}`);
             }}
-            name1={matchingState.info.myName}
-            name2={matchingState.info.partnerName}
+            name1={matchingState.info.user}
+            name2={matchingState.info.matchedUser}
           />
         );
       case "timeout":

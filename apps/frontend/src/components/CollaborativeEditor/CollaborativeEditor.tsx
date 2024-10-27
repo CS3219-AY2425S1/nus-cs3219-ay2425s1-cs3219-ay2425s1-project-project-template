@@ -19,6 +19,7 @@ interface CollaborativeEditorProps {
   user: string;
   collaborationId: string;
   language: string;
+  onCodeChange: (code: string) => void;
 }
 
 export const usercolors = [
@@ -49,6 +50,10 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
     if (!tr.docChanged) return null;
 
     const snippet = tr.newDoc.sliceString(0, 100);
+
+    // Handle code change
+    props.onCodeChange(tr.newDoc.toString());
+
     // Test for various language
     const docIsPython = /^\s*(def|class)\s/.test(snippet);
     const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
@@ -150,6 +155,8 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
       signaling: [process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL],
     });
     const ytext = ydoc.getText("codemirror");
+    const statusMap = ydoc.getMap("status");
+    console.log("testing y text", ytext); // TODO: remove
     const undoManager = new Y.UndoManager(ytext);
 
     provider.awareness.setLocalStateField("user", {
@@ -171,6 +178,11 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
     const view = new EditorView({
       state,
       parent: editorRef.current || undefined,
+    });
+
+    statusMap.observe((event) => {
+      const newStatus = statusMap.get("submissionStatus");
+      if (newStatus) success(newStatus);
     });
 
     // viewRef.current = new EditorView({

@@ -136,8 +136,9 @@ export default function useMatching(): MatchState {
 function parseInfoFromResponse(responseJson: MatchFoundResponse): MatchInfo {
     return {
         matchId: responseJson.match_id?.toString() ?? "unknown",
-        partnerName: responseJson.matched_user ?? "unknown",
-        myName: responseJson.user ?? "unknown",
-        docRefId: responseJson.question_doc_ref_id ?? "unknown",
+        matchedUser: responseJson.matched_user ?? "unknown",
+        user: responseJson.user ?? "unknown",
+        questionDocRefId: responseJson.question_doc_ref_id ?? "unknown",
+        matchedTopics: responseJson.matched_topics ?? [],
     };
 }
