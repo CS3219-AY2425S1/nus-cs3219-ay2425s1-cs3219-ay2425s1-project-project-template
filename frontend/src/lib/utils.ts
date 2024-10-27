@@ -5,6 +5,8 @@ const questionServiceBackendUrl =
 	import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
 const collabServiceBackendUrl =
 	import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+const userServiceBackendUrl =
+  import.meta.env.VITE_USER_SERVICE_BACKEND_URL || "http://localhost:5001";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -93,4 +95,48 @@ export async function collabServiceCallFunction(
 	}
 
 	return { success: true, data: data };
+}
+
+export async function callUserFunction(
+  functionName: string,
+  method: string = "GET",
+  body?: any,
+  customHeaders?: Record<string, string>
+): Promise<SuccessObject> {
+  try {
+    const url = `${userServiceBackendUrl}/${functionName}`;
+    const token = localStorage.getItem("authToken");
+
+    // Create default headers
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...customHeaders, // Merge custom headers if any
+    };
+
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: method !== "GET" ? JSON.stringify(body) : undefined, // Avoid sending body for GET requests
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    // Check for empty response
+    const data = await response.text();
+
+    if (!data) {
+      return { success: true };
+    }
+
+    // Parse the JSON data
+    const result = JSON.parse(data);
+
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("Fetch error:", error);
+    return { success: false, error }; // Handle the error
+  }
 }
