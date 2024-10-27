@@ -21,7 +21,7 @@ module.exports = (httpsServer) => {
       socket.data.user = user;
     } catch (error) {
       console.log('Error: ', error.message);
-      socket.emit('error', { message: "Unauthorised socket connection." })
+      socket.emit('error', 'Unauthorised socket connection.')
       socket.disconnect(true);
     }
   })
