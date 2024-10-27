@@ -11,7 +11,11 @@ const app = express();
 
 // Allow requests from http://localhost:3000 (production frontend) and http://localhost:5173 (development frontend) with credentials
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  origin: [
+    "https://frontend-1079323726684.asia-southeast1.run.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+  ],
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
 
@@ -32,7 +36,11 @@ app.use((req, res, next) => {
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [
+      "https://frontend-1079323726684.asia-southeast1.run.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -40,13 +48,13 @@ const io = socketIo(server, {
 
 // Move socket event handling to the controller
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
+  console.log('A socket connected:', socket.id);
 
   collabController.handleSocketEvents(io, socket);
 
   // Handle disconnect
   socket.on('disconnect', () => {
-    console.log('A user disconnected:', socket.id);
+    console.log('A socket disconnected:', socket.id);
   });
 });
 

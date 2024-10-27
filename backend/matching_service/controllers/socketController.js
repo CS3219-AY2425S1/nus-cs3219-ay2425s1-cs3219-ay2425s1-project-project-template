@@ -65,12 +65,10 @@ class SocketController {
   }
 
   async handleMatching(currUserSocket, sessionData, difficulty, topic) {
-    console.log("this.io:", this.io);
     const { prevUserSessionData, currUserSessionData } = sessionData;
     const token = currUserSocket.handshake.auth.token;
 
     const prevUserSocketId = prevUserSessionData.socketId;
-    const prevUserSocket = this.io.sockets.get(prevUserSocketId);
 
     const createsession =
     process.env.COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL ||
@@ -117,8 +115,6 @@ class SocketController {
         roomId: roomId,
       });
 
-      // Logic for collab service: collabService(this.io, roomId) etc
-      // this.io.to(roomId).emit(...)
       console.log("Creating session...");
       const sessionId = roomId
 
@@ -128,8 +124,6 @@ class SocketController {
         questionData: randomQuestion, // Random question to be included in the session
       };
       
-      // Log the request body
-      console.log('Request Body:', JSON.stringify(requestBody));
       
       const response = await fetch(createsession, {
         method: "POST",
@@ -142,19 +136,17 @@ class SocketController {
     
       if (response.ok) {
           const result = await response.json();
-          console.log('Session created:', result);
+          console.log(`Session ${sessionId} created`);
       } else {
           const error = await response.json();
           console.error('Error creating session:', error);
       }
         console.log("Emitting navigateToCollab to both users with session ID:", sessionId);
-        console.log("Session Data:", JSON.stringify(sessionData, null, 2));
 
-        this.emitNavigateToCollab(prevUserSocket, currUserSocket, sessionId, prevUserSessionData, currUserSessionData, randomQuestion);
+        this.emitNavigateToCollab(prevUserSocketId, currUserSocket, sessionId, prevUserSessionData, currUserSessionData, randomQuestion);
 
         await this.removeExistingConnection(prevUserSessionData.uid);
         await this.removeExistingConnection(currUserSessionData.uid);
-
     } catch (error) {
       console.error(error);
       this.io.to(prevUserSocketId).emit(
@@ -185,27 +177,14 @@ class SocketController {
       this.removeExistingConnection(uid);
     }
   }
-
-  emitNavigateToCollab(prevUserSocket, currUserSocket, sessionId, prevUserSessionData, currUserSessionData, questionData) {
-    console.log("Emitting navigateToCollab with params:", {
-      sessionId,
-      prevUserSessionData,
-      currUserSessionData,
-      questionData
-    });
-    // Navigate to collab and pass session info
-    prevUserSocket.emit("navigateToCollab", { sessionId, sessionData: prevUserSessionData, questionData });
-    currUserSocket.emit("navigateToCollab", { sessionId, sessionData: currUserSessionData, questionData });
-    console.log("Event 'navigateToCollab' emitted to both sockets.");
-  }
   
   async handleDisconnect(socket) {
-    console.log('Disconnecting user with socket:', socket);
+    console.log('Disconnecting user with socket:', socket.id);
 
     const uid = socket.handshake.auth.uid; // Current user UID
 
     await this.removeExistingConnection(uid); // Remove current user's connection
-}
+  }
 
   async emitIfDoubleMatchingRequest(uid) {
     const socketId = await this.pubClient.get(uid); // Retrieve data from Redis
@@ -227,6 +206,13 @@ class SocketController {
     await this.pubClient.del(uid); // Delete the redis entry for this uid
 
     this.io.to(socketId).emit("DisconnectSocket");
+  }
+
+  emitNavigateToCollab(prevUserSocketId, currUserSocket, sessionId, prevUserSessionData, currUserSessionData, questionData) {
+    // Navigate to collab and pass session info
+    this.io.to(prevUserSocketId).emit("navigateToCollab", { sessionId, sessionData: prevUserSessionData, questionData });
+    currUserSocket.emit("navigateToCollab", { sessionId, sessionData: currUserSessionData, questionData });
+    console.log("Event 'navigateToCollab' emitted to both sockets.");
   }
 
   async getAllQuestionsOfTopicAndDifficulty(token, topic, difficulty) {

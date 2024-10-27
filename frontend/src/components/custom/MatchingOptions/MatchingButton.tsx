@@ -28,7 +28,6 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         "ws://localhost:5003/matching";
       const token = sessionStorage.getItem("authToken");
       const uid = sessionStorage.getItem("uid");
-      const otherUid = sessionStorage.getItem("otherUid");
 
       console.log("Session Storage:", sessionStorage);
 
@@ -39,7 +38,6 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         auth: {
           token: token,
           uid: uid,
-          otherUid: otherUid,
         },
         withCredentials: true,
       });
