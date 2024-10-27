@@ -6,10 +6,10 @@ import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
 import { consumeMessageFromQueue, sendMessageToQueue } from '@/lib/rabbitmq';
+import { UserMatchingResponse } from '@/types/types';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [usersWaiting, setUsersWaiting] = useState(0);
   const [matchStatus, setMatchStatus] = useState('searching');
   const router = useRouter();
   const { user } = useAuthStore();
@@ -17,39 +17,42 @@ export default function LoadingPage() {
   
   // Function to consume messages from the RabbitMQ queue
   const handleStartListening = () => {
-    const onMessageReceived = (message: any) => {
+    const onMessageReceived = (message: UserMatchingResponse) => {
       if (message.status == "matched") {
-        console.log('Match found, your partner is', message.match?.user);
+        console.log('Match found, your partner is', message.match.name);
         setMatchStatus('matched');
       } else {
         console.log('Match failed');
         setMatchStatus('failed');
       }
     };
-    consumeMessageFromQueue(user?.id!, onMessageReceived);
+    if (user?.id) {
+      consumeMessageFromQueue(user.id, onMessageReceived);
+    } else {
+      console.warn("User ID is undefined. This is not supposed to happen.");
+    }
   };
 
   useEffect(() => {
     if (!listenerInitialized.current) {
-      setElapsedTime(0);
-      setMatchStatus('searching');
-      handleStartListening(); // Set up listener only once
-
+      handleStartListening();
       listenerInitialized.current = true; // Mark as initialized
-
-      const interval = setInterval(() => {
-        setElapsedTime((prevTime) => prevTime + 1);
-      }, 1000);
-
-      // Cleanup function
-      return () => {
-        clearInterval(interval); // Clean up interval on unmount
-      };
     }
+
+    setElapsedTime(0);
+    setMatchStatus('searching');
+
+    const interval = setInterval(() => {
+      setElapsedTime((prevTime) => prevTime + 1);
+    }, 1000);
+
+    // Cleanup function
+    return () => {
+      clearInterval(interval); // Clean up interval on unmount
+    };
   }, []);
 
   useEffect(() => {
-    console.log(usersWaiting);
     if (elapsedTime >= 60 && matchStatus === 'searching') {
       console.log('Elapsed time reached 60 seconds. Match timed out.');
       setMatchStatus('timeout');
@@ -94,10 +97,6 @@ export default function LoadingPage() {
               <div className="text-center text-sm">
                 Time elapsed: {elapsedTime} seconds
               </div>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <User className="h-4 w-4" />
-              <span>{usersWaiting} users waiting</span>
             </div>
             <Button
               onClick={handleCancel}

@@ -15,6 +15,7 @@ import { TopicsPopover } from '@/app/(main)/components/filter/TopicsPopover';
 import { sendMessageToQueue } from '@/lib/rabbitmq';
 import { axiosAuthClient } from '@/network/axiosClient';
 import { DIFFICULTY_OPTIONS } from '@/lib/constants';
+import { UserMatchingRequest } from '@/types/types';
 
 export function PreMatch() {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,7 @@ export function PreMatch() {
   const handleConfirm = async () => {
     try {
       const profileDetails = await getProfileDetails();
-      const message = {
+      const message : UserMatchingRequest = {
         _id: profileDetails.id,
         name: profileDetails.username,
         topic: selectedTopics[0] || '', // TODO: change to list, but current backend only accepts 1
