@@ -3,8 +3,8 @@ const { Server } = require('socket.io');
 const socketController = require('../controllers/socketController');
 const { authGetUser } = require('../middleware/authMiddleware');
 
-module.exports = (httpsServer) => {
-  const io = new Server(httpsServer, {
+module.exports = (server) => {
+  const io = new Server(server, {
     cors: {
       origin: "*",  // Allow all origins
       methods: ['GET', 'POST'],

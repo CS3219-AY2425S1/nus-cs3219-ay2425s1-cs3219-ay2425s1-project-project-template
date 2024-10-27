@@ -8,7 +8,7 @@ The main functionality of this service is to provide a chatbox and video call be
 
 ## Security
 
-This is a HTTPS server so clients will have to use the right protocols.
+This server can be ran on HTTPS, where clients will have to use the right protocols.
 
 The client will require a valid JWT created from our user service to connect to our server.
 
