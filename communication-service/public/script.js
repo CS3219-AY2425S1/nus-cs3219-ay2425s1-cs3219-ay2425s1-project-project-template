@@ -1,5 +1,8 @@
 const socket = io('https://192.168.1.9:8443', {
-  path: '/api/comm/socket.io'
+  path: '/api/comm/socket.io',
+  extraHeaders: {
+    Authorization: `Bearer `
+  }
 });
 
 const localVideo = document.getElementById('localVideo');
@@ -31,7 +34,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 }
 
 socket.on('error', (error) => {
-  alert(`Socket error: ${error}`);
+  alert(`Socket error: ${error.message}`);
   console.error('Socket error:', error);
 });
 

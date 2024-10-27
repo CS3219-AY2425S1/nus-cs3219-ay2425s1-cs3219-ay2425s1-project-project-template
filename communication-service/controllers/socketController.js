@@ -1,10 +1,10 @@
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
+    console.log('A user connected:', socket.data.user.userId);
 
     // Handle user disconnection
     socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.id);
+      console.log('User disconnected:', socket.data.user.userId);
     });
 
     // Listen for the 'joinRoom' event
@@ -22,10 +22,10 @@ module.exports = (io) => {
       } else {
         socket.join(roomId);
         socket.emit('roomJoined', roomId);
-        console.log(`User ${socket.id} joined room ${roomId}`);
+        console.log(`User ${socket.data.user.userId} joined room ${roomId}`);
 
         // Notify other clients in the room that a user has joined
-        socket.to(roomId).emit('user-joined', socket.id);
+        socket.to(roomId).emit('user-joined', socket.data.user.userId);
 
         // Room-specific event listeners
         socket.on('offer', (offer) => {
@@ -42,6 +42,10 @@ module.exports = (io) => {
 
         socket.on('chatMessage', (msg) => {
           io.in(roomId).emit('chatMessage', msg);
+        });
+
+        socket.on('disconnect', () => {
+          socket.to(roomId).emit('user-left', socket.data.user.userId);
         });
       }
     });
