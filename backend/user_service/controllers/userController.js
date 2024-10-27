@@ -52,4 +52,4 @@ const checkAdminStatus = async (req, res) => {
     }
 };
 
-module.exports = { addToUserCollection, listAllUsers, checkAdminStatus };
+module.exports = { addToUserCollection, checkAdminStatus };
