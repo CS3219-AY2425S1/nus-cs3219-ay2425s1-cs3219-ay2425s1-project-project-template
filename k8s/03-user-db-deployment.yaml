@@ -52,7 +52,7 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 5
           ports:
-            - name: user-db-5432
+            - name: user-db-ctr
               containerPort: 5432
           volumeMounts:
             - name: user-db-vol

@@ -25,7 +25,9 @@ create_secret() {
   scrt_exist=$(kubectl -n "$ns" get secret | grep "$scrt_name")
   if [[ -z $scrt_exist ]]; then 
     echo "Creating $scrt_name"
-    sed -E 's/="(.+)"/=\1/g' "$envFolder$secretName/.env.compose" | \
+
+    # Remove all double quotes and trailing spaces 
+    sed -E 's/="(.+)"\s*/=\1/g' "$envFolder$secretName/.env.compose" | \
     kubectl -n $ns \
       create secret generic \
       "$scrt_name" \

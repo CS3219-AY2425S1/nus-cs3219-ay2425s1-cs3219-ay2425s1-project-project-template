@@ -12,6 +12,6 @@ spec:
     project: peerprep
     peerprep.service: user-db
   ports:
-    - name: user-db-5432
+    - name: user-db-svc
       port: 5432
-      targetPort: user-db-5432
+      targetPort: user-db-ctr

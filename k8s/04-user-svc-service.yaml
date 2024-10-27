@@ -12,6 +12,6 @@ spec:
     project: peerprep
     peerprep.service: user-service
   ports:
-    - name: user-svc-9001
+    - name: user-svc-prt
       port: 9001
-      targetPort: user-svc-9001
+      targetPort: user-svc-ctr
