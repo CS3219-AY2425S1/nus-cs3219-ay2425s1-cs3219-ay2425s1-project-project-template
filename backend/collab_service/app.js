@@ -5,8 +5,13 @@ const socketIo = require('socket.io');
 const bodyParser = require("body-parser");
 const collabRoutes = require('./routes/collabRoutes');
 const firebaseConfig = require("./config/firebaseConfig"); // Ensure Firebase is initialized
-const authenticateToken = require('./middleware/authenticateToken');
-const { collabController, socketSessions } = require('./controllers/collabController');
+const {
+  authenticateToken,
+  authenticateTokenSocket,
+} = require("./middleware/authenticateToken");
+const { createClient } = require("redis");
+const { createAdapter } = require("@socket.io/redis-adapter");
+const { collabController } = require('./controllers/collabController');
 const app = express();
 
 // Allow requests from http://localhost:3000 (production frontend) and http://localhost:5173 (development frontend) with credentials
@@ -34,28 +39,60 @@ app.use((req, res, next) => {
 
 // Initialize HTTP server and Socket.IO
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: [
-      "https://frontend-1079323726684.asia-southeast1.run.app",
-      "http://localhost:3000",
-      "http://localhost:5173",
-    ],
-    methods: ['GET', 'POST'],
-    credentials: true
+
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+
+// Create Redis client instances (one for publishing, and a duplicate for subscribing)
+const pubClient = createClient({ url: redisUrl });
+const subClient = pubClient.duplicate();
+
+const connectRedis = async () => {
+  try {
+    await Promise.all([
+      pubClient.connect(), 
+      subClient.connect()
+    ]);
+    console.log("Connected to Redis");
+  } catch (error) {
+    console.error("Error connecting to Redis:", error);
   }
-});
+};
 
-// Move socket event handling to the controller
-io.on('connection', (socket) => {
-  console.log('A socket connected:', socket.id);
+// Connect the client instances to Redis
+const initializeServices = async () => {
+  await connectRedis();
+};
 
-  collabController.handleSocketEvents(io, socket);
+const startSocketIOServer = async () => {
+  await initializeServices();
 
-  // Handle disconnect
-  socket.on('disconnect', () => {
-    console.log('A socket disconnected:', socket.id);
+  const io = socketIo(server, {
+    cors: {
+      origin: [
+        "https://frontend-1079323726684.asia-southeast1.run.app",
+        "http://localhost:3000",
+        "http://localhost:5173",
+      ],
+      credentials: true,
+    },
+    adapter: createAdapter(pubClient, subClient),
   });
-});
+
+  io.use(authenticateTokenSocket);
+  
+  // Move socket event handling to the controller
+  io.on("connection", (socket) => {
+    console.log('A socket connected:', socket.id);
+  
+    collabController.handleSocketEvents(io, socket);
+  
+    // Handle disconnect
+    socket.on('disconnect', () => {
+      console.log('A socket disconnected:', socket.id);
+    });
+  });
+}
+
+startSocketIOServer();
 
 module.exports = server;

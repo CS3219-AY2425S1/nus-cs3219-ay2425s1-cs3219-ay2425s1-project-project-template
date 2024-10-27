@@ -46,15 +46,15 @@ class CollabController {
       });
     });
 
-    socket.on('terminateSession', async (sessionId) => {
+    socket.on('terminateSession', async (data) => {
+      const { sessionId, uid } = data;
       try {
         // Delete the session from our database
         await db.collection('sessions').doc(sessionId).delete();
       } catch (error) {
         console.error(`Unable to delete session ${sessionId} from database`);
       }
-
-      io.to(sessionId).emit('sessionTerminated', { userId: socket.id });
+      io.to(sessionId).emit('sessionTerminated', { userId: uid });
     });
   };
 
