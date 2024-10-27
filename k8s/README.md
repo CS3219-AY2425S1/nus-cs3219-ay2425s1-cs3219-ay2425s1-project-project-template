@@ -2,7 +2,8 @@
 
 ## Prerequisites
 
-- Minikube
+- [**Minikube**](https://minikube.sigs.k8s.io/docs/)
+
   To run a local Kubernetes cluster, we
   recommend using Minikube on your local machine.
 
