@@ -1,8 +1,16 @@
-# API Documentation for Socket.IO Communication
+# API Documentation for Communication Service
 
 ## Overview
 
-This API documentation describes the WebSocket-based communication for real-time features in your application, including user authentication, room management, and messaging functionalities using Socket.IO.
+This API documentation describes the WebSocket-based communication service for real-time features in our application, including user authentication, room management, and messaging functionalities using Socket.IO. 
+
+The main functionality of this service is to provide a chatbox and video call between pairs of users.
+
+## Security
+
+This is a HTTPS server so clients will have to use the right protocols.
+
+The client will require a valid JWT created from our user service to connect to our server.
 
 ## Base URL
 
