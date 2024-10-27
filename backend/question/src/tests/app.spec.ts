@@ -529,6 +529,28 @@ describe("Test pick question", () => {
     expect(sampleQuestion).toHaveProperty("complexity", "Hard");
     expect(sampleQuestion).toHaveProperty("deleted", true);
   });
+
+  // Valid pick question - deleted and non-deleted questions exist
+  test("POST - pick question - deleted question", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Hard", "Easy"],
+      category: ["Dynamic Programming", "General"],
+    };
+
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    const sampleQuestion = res.body;
+    expect(res.statusCode).toBe(200);
+    expect(sampleQuestion).toHaveProperty("title", "Sample Question");
+    expect(sampleQuestion).toHaveProperty(
+      "description",
+      "This is a sample question"
+    );
+    expect(sampleQuestion).toHaveProperty("category", ["General"]);
+    expect(sampleQuestion).toHaveProperty("complexity", "Easy");
+    expect(sampleQuestion).toHaveProperty("deleted", false);
+  });
 });
 
 // Test /api/{id}
