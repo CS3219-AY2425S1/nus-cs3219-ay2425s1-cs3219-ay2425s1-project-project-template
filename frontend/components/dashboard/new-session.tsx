@@ -102,7 +102,7 @@ export const NewSession = () => {
                     case WebSocketMessageType.SUCCESS:
                         updateMatchmakingStatus(MatchingStatus.MATCH_FOUND, newMessage.matchId)
                         setTimeout(() => {
-                            router.push('/code')
+                            router.push(`/code/${newMessage.matchId}`)
                         }, 3000)
                         break
                     case WebSocketMessageType.FAILURE:
@@ -261,12 +261,7 @@ export const NewSession = () => {
                                 <Button
                                     variant={'ghostTabLabel'}
                                     size={'lg'}
-                                    onClick={() =>
-                                        void router.push(
-                                            { pathname: '/code', query: { matchId: modalData.matchId } },
-                                            '/code'
-                                        )
-                                    }
+                                    onClick={() => void router.push(`/code/${modalData.matchId}`)}
                                 >
                                     Proceed to coding session
                                 </Button>
