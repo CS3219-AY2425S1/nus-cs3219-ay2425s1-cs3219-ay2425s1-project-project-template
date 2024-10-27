@@ -365,6 +365,37 @@ describe("Test Get All", () => {
   });
 });
 
+// Test /api/count-question
+describe("Test count question", () => {
+  // Valid count question
+  test("POST - count question", async () => {
+    const countQuestionFilter = {
+      complexity: ["Hard"],
+      category: ["Dynamic Programming"],
+    };
+    const res = await request
+      .post(`/api/count-question`)
+      .send(countQuestionFilter);
+    const sampleCount = res.body.count;
+    expect(res.statusCode).toBe(200);
+    expect(sampleCount).toBe(1);
+  });
+
+  // No question exists
+  test("POST - count question - none", async () => {
+    const countQuestionFilter = {
+      complexity: ["Medium"],
+      category: ["Dynamic Programming"],
+    };
+    const res = await request
+      .post(`/api/count-question`)
+      .send(countQuestionFilter);
+    const sampleCount = res.body.count;
+    expect(res.statusCode).toBe(200);
+    expect(sampleCount).toBe(0);
+  });
+});
+
 // Test /api/pick-question
 describe("Test pick question", () => {
   // Valid pick question
@@ -473,6 +504,52 @@ describe("Test pick question", () => {
     expect(res.body.errors[0].msg).toBe(
       "Category must contain only non-empty strings"
     );
+  });
+
+  // Valid pick question - deleted question
+  test("POST - pick question - deleted question", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Hard"],
+      category: ["Dynamic Programming"],
+    };
+    const questionId = 1091; // We start with id 1091
+
+    await request.post(`/api/${questionId}/delete`);
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    const sampleQuestion = res.body;
+    expect(res.statusCode).toBe(200);
+    expect(sampleQuestion).toHaveProperty("title", "Another Question");
+    expect(sampleQuestion).toHaveProperty(
+      "description",
+      "This is another sample question"
+    );
+    expect(sampleQuestion).toHaveProperty("category", ["Dynamic Programming"]);
+    expect(sampleQuestion).toHaveProperty("complexity", "Hard");
+    expect(sampleQuestion).toHaveProperty("deleted", true);
+  });
+
+  // Valid pick question - deleted and non-deleted questions exist
+  test("POST - pick question - deleted question", async () => {
+    const pickQuestionFilter = {
+      complexity: ["Hard", "Easy"],
+      category: ["Dynamic Programming", "General"],
+    };
+
+    const res = await request
+      .post(`/api/pick-question`)
+      .send(pickQuestionFilter);
+    const sampleQuestion = res.body;
+    expect(res.statusCode).toBe(200);
+    expect(sampleQuestion).toHaveProperty("title", "Sample Question");
+    expect(sampleQuestion).toHaveProperty(
+      "description",
+      "This is a sample question"
+    );
+    expect(sampleQuestion).toHaveProperty("category", ["General"]);
+    expect(sampleQuestion).toHaveProperty("complexity", "Easy");
+    expect(sampleQuestion).toHaveProperty("deleted", false);
   });
 });
 
@@ -661,8 +738,9 @@ describe("Test Delete", () => {
     const res = await request.post(`/api/${questionId}/delete`).send();
     expect(res.statusCode).toBe(200);
     const deleteRes = await request.get(`/api/${questionId}`).send();
-    expect(deleteRes.statusCode).toBe(404);
-    expect(deleteRes.body.message).toBe("Question not found");
+    expect(deleteRes.statusCode).toBe(200);
+    const question = deleteRes.body;
+    expect(question.deleted).toBe(true);
   });
 
   // Negative id

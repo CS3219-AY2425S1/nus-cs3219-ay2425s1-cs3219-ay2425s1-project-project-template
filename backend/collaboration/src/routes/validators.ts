@@ -2,10 +2,7 @@ import { check } from "express-validator";
 
 export const createSessionValidators = [
   check("collabid").isString().isLength({ min: 1 }),
-  check("difficulty").isString().isLength({ min: 1 }),
-  check("topic").isString().isLength({ min: 1 }),
-  check("question_title").isString().isLength({ min: 1 }),
-  check("question_description").isString().isLength({ min: 1 }),
+  check("question_id").isInt(),
   //custom validation for users
   check("users").custom((users) => {
     if (!Array.isArray(users) || users.length !== 2) {

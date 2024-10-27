@@ -118,17 +118,40 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
         deleted: 1,
       }
     ).exec();
-    if (!question || question.deleted) {
+    if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    const { deleted, ...responseQuestion } = question.toObject();
-
-    return res.json(responseQuestion);
+    return res.json(question);
   } catch (error) {
     return res.status(500).send("Internal server error");
   }
 });
+
+// Retrieve the number of questions by complexity and category
+router.post(
+  "/count-question",
+  [...pickQuestionValidators],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { complexity, category } = req.body;
+
+    const query: any = { deleted: false };
+    if (complexity) query.complexity = { $in: complexity };
+    if (category) query.category = { $in: category };
+
+    try {
+      const questionCount = await Question.countDocuments(query).exec();
+
+      return res.json({ count: questionCount });
+    } catch (error) {
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
 
 // Retrieve a random question by complexity and category
 router.post(
@@ -146,7 +169,7 @@ router.post(
     if (category) query.category = { $in: category };
 
     try {
-      const randomQuestion = await Question.aggregate([
+      let randomQuestion = await Question.aggregate([
         { $match: query }, // Filter by complexity and category
         { $sample: { size: 1 } }, // Randomly select one document
         {
@@ -156,9 +179,28 @@ router.post(
             description: 1,
             complexity: 1,
             category: 1,
+            deleted: 1,
           },
         },
       ]).exec();
+
+      if (!randomQuestion.length) {
+        query.deleted = true; // Adjust the query to allow deleted questions
+        randomQuestion = await Question.aggregate([
+          { $match: query }, // Filter by complexity, category, and deleted
+          { $sample: { size: 1 } }, // Randomly select one document
+          {
+            $project: {
+              questionid: 1,
+              title: 1,
+              description: 1,
+              complexity: 1,
+              category: 1,
+              deleted: 1,
+            },
+          },
+        ]).exec();
+      }
 
       if (!randomQuestion.length) {
         return res.status(404).json({ message: "No questions found" });

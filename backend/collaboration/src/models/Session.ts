@@ -7,11 +7,8 @@ import mongoose, { Document, Schema } from "mongoose";
 export type TSession = {
   collabid: string;
   users: [string];
-  difficulty: string;
   language: [string];
-  topic: string;
-  question_title: string;
-  question_description: string;
+  question_id: number;
   code: string;
 };
 
@@ -28,24 +25,12 @@ const sessionSchema: Schema = new Schema(
       type: [String],
       required: true,
     },
-    difficulty: {
-      type: String,
-      required: true,
-    },
     language: {
       type: [String],
       required: true,
     },
-    topic: {
-      type: String,
-      required: true,
-    },
-    question_title: {
-      type: String,
-      required: true,
-    },
-    question_description: {
-      type: String,
+    question_id: {
+      type: Number,
       required: true,
     },
     code: {
