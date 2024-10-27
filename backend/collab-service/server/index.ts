@@ -8,6 +8,7 @@ import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 import { WebSocket } from 'ws'
 import { router as submitCodeRouter } from '../submit-code/submitCodeRouter'
+import { connect } from 'mongoose'
 
 dotenv.config({ path: './.env' })
 
@@ -20,6 +21,7 @@ const PORT = process.env.PORT
 const server = createServer(app)
 const wss = new WebSocket.Server({ server })
 const yDocMap = new Map<string, Y.Doc>()
+const clientMap = new Map<string, Set<WebSocket>>()
 
 wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
     const roomName: string = req.url
@@ -30,11 +32,13 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         yDocMap.set(roomName, new Y.Doc())
     }
 
-    if (!yDocMap.has(roomName)) {
-        logger.error(`Code file for room ${roomName} not found`)
+    if (!clientMap.has(roomName)) {
+        clientMap.set(roomName, new Set<WebSocket>())
     }
 
     const sharedDoc = yDocMap.get(roomName) as Y.Doc
+    const connectedClients = clientMap.get(roomName) as Set<WebSocket>
+    connectedClients.add(ws)
 
     const provider = new WebsocketProvider(
         `ws://localhost:${PORT}`,
@@ -42,9 +46,21 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         sharedDoc,
     )
 
-    sharedDoc.on('update', (update) => {})
+    sharedDoc.on('update', (update) => {
+        connectedClients.forEach((client) => {
+            if (client !== ws) {
+                client.send(JSON.stringify(update))
+            }
+        })
+    })
 
     ws.on('close', () => {
+        connectedClients.delete(ws)
+
+        if (connectedClients.size === 0) {
+            clientMap.delete(roomName)
+        }
+
         logger.info(`Connection closed for room ${roomName}`)
         provider.destroy()
     })
