@@ -155,7 +155,6 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
       signaling: [process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL],
     });
     const ytext = ydoc.getText("codemirror");
-    const statusMap = ydoc.getMap("status");
     console.log("testing y text", ytext); // TODO: remove
     const undoManager = new Y.UndoManager(ytext);
 
@@ -178,11 +177,6 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
     const view = new EditorView({
       state,
       parent: editorRef.current || undefined,
-    });
-
-    statusMap.observe((event) => {
-      const newStatus = statusMap.get("submissionStatus");
-      if (newStatus) success(newStatus);
     });
 
     // viewRef.current = new EditorView({

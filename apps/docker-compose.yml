@@ -54,6 +54,19 @@ services:
     depends_on:
       - redis
 
+  history-service:
+    build:
+      context: ./history-service
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    env_file:
+      - ./history-service/.env
+    networks:
+      - apps_network
+    volumes:
+      - ./history-service:/history-service
+
   redis:
     image: redis:latest
     networks:
