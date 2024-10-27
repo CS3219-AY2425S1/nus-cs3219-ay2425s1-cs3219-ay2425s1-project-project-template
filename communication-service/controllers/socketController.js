@@ -41,7 +41,10 @@ module.exports = (io) => {
         });
 
         socket.on('chatMessage', (msg) => {
-          io.in(roomId).emit('chatMessage', msg);
+          io.in(roomId).emit('chatMessage', {
+            body: msg.body,
+            username: socket.data.user.userId
+          });
         });
 
         socket.on('disconnect', () => {
