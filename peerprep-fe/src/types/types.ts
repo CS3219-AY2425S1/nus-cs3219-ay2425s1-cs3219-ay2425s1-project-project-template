@@ -48,10 +48,17 @@ interface User {
   username: string;
 }
 
-interface Match {
-  status: string;
-  match: string;
+interface UserMatchingRequest {
+  _id: string;
+  name?: string;
+  difficulty?: string;
+  topic?: string;
+  type: string;
+}
 
+interface UserMatchingResponse {
+  status: string;
+  match: UserMatchingRequest;
 }
 
 export type {
@@ -61,5 +68,6 @@ export type {
   FilterBadgeProps,
   FilterSelectProps,
   User,
-  Match,
+  UserMatchingResponse,
+  UserMatchingRequest,
 };

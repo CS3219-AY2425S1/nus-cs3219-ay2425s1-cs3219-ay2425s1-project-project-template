@@ -6,7 +6,7 @@ import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
 import { consumeMessageFromQueue, sendMessageToQueue } from '@/lib/rabbitmq';
-import { Match } from '@/types/types';
+import { UserMatchingResponse } from '@/types/types';
 
 export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -17,9 +17,9 @@ export default function LoadingPage() {
   
   // Function to consume messages from the RabbitMQ queue
   const handleStartListening = () => {
-    const onMessageReceived = (message: Match) => {
+    const onMessageReceived = (message: UserMatchingResponse) => {
       if (message.status == "matched") {
-        console.log('Match found, your partner is', message.match);
+        console.log('Match found, your partner is', message.match.name);
         setMatchStatus('matched');
       } else {
         console.log('Match failed');
