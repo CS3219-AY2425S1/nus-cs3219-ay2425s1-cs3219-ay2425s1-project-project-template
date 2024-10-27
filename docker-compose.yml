@@ -14,7 +14,8 @@ services:
             - VPS_SSL_DHPARAMS_FILE=${VPS_SSL_DHPARAMS_FILE}
         image: nginx:1.27.2-alpine
         ports:
-            - 8080:8080
+            - 80:80
+            - 443:443
         restart: always
         volumes:
             - ./nginx/templates:/etc/nginx/templates
