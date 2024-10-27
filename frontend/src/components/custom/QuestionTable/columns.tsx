@@ -5,8 +5,6 @@ import { Question, Difficulty } from "@/models/Question";
 import QuestionDialog from "../Question/QuestionDialog";
 import DeleteQuestionButton from "../Question/DeleteQuestionButton";
 import EditQuestionButton from "../Question/EditQuestionButton";
-// import { fetchAdminStatus } from "@/services/UserFunctions";
-// import { useState, useEffect } from "react";
 
 const difficultyLevels: IDictionary<number> = {
   Easy: 1,

@@ -22,10 +22,8 @@ export async function fetchAdminStatus(): Promise<SuccessObject> {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
-                    const token = await user.getIdToken(true);
-                    const res = await callUserFunction("admin/checkAdminStatus", "GET", undefined, {
-                        Authorization: `Bearer ${token}`,
-                    });
+                    
+                    const res = await callUserFunction("admin/checkAdminStatus", "GET");
                     resolve(res);
                 } catch (error: any) {
                     console.error("Error fetching admin status:", error);

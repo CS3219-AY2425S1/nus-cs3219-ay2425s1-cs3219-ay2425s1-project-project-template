@@ -105,7 +105,7 @@ export async function callUserFunction(
 ): Promise<SuccessObject> {
   try {
     const url = `${userServiceBackendUrl}/${functionName}`;
-    const token = localStorage.getItem("authToken");
+    const token = sessionStorage.getItem("authToken");
 
     // Create default headers
     const headers: Record<string, string> = {
