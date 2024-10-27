@@ -15,16 +15,19 @@ import Avatar, { genConfig } from 'react-nice-avatar';
 import { useQuestionStore } from '@/state/useQuestionStore';
 import { PreMatch } from '@/components/dialogs/PreMatch';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const { isAuth, clearAuth, user } = useAuthStore();
   const { toggleDialogOpen } = useQuestionStore();
   const path = usePathname();
+  const router = useRouter();
 
   const handleLogout = async () => {
     const res = await logout();
     if (res) {
       clearAuth();
+      router.push('/');
       return;
     }
   };

@@ -24,6 +24,7 @@ export default function SignUpPage() {
     e.preventDefault();
     setError('');
 
+    // const type = 'user';
     if (password !== confirmPassword) {
       router.push('/signup');
       setError('Passwords do not match');

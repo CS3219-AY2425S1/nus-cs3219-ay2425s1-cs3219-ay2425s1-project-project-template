@@ -48,17 +48,17 @@ interface User {
   username: string;
 }
 
-interface MatchData {
+interface MatchServiceUser {
   _id: string;
-  name: string;
-  topic: string;
-  difficulty: string;
-  // Add as needed
+  name?: string;
+  difficulty?: string;
+  topic?: string;
+  type: string;
 }
 
-interface WebSocketMessage {
-  type: string;
-  data: MatchData;
+interface MatchMessage {
+  status: string;
+  match: MatchServiceUser;
 }
 
 export type {
@@ -68,6 +68,5 @@ export type {
   FilterBadgeProps,
   FilterSelectProps,
   User,
-  MatchData,
-  WebSocketMessage,
+  MatchMessage,
 };
