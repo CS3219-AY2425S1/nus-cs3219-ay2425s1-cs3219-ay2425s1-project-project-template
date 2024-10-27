@@ -5,9 +5,9 @@ http {
   limit_req_status 429;
 
   server {
-      if (${D}host = ${DOMAIN_NAME}) {
-        return 301 https://${D}host${D}request_uri;
-      }
+    if (${D}http_x_forwarded_proto = "http") {
+        return 301 https://${D}server_name${D}request_uri;
+    }
 
       listen 80;
       listen [::]:80;
