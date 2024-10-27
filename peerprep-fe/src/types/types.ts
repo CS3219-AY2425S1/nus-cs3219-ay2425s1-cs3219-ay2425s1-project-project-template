@@ -48,19 +48,6 @@ interface User {
   username: string;
 }
 
-interface MatchServiceUser {
-  _id: string;
-  name?: string;
-  difficulty?: string;
-  topic?: string;
-  type: string;
-}
-
-interface MatchMessage {
-  status: string;
-  match: MatchServiceUser;
-}
-
 export type {
   Problem,
   ProblemDialogData,
@@ -68,5 +55,4 @@ export type {
   FilterBadgeProps,
   FilterSelectProps,
   User,
-  MatchMessage,
 };

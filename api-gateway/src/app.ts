@@ -32,7 +32,7 @@ const server = http.createServer(app);
 // Handle WebSocket Upgrade
 server.on('upgrade', (req, socket, head) => {
   const { url } = req;
-  if (url && url.startsWith('/api/matching/ws')) {
+  if (url && url.startsWith('/api/v1/matching/ws')) {
     logger.info(`WebSocket upgrade request for: ${url}`);
     matchingServiceProxy.upgrade(req, socket as Socket, head);
   } else {
