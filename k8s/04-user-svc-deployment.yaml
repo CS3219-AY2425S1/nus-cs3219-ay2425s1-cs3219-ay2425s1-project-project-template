@@ -63,7 +63,8 @@ spec:
       
       containers:
         - name: user-express
-          image: ay2425s1cs3219g16/user-express:main
+          # image: ay2425s1cs3219g16/user-express:main
+          image: ay2425s1cs3219g16/user-express:sha-ff94455
           imagePullPolicy: IfNotPresent
           envFrom:
           - secretRef: 
@@ -86,9 +87,9 @@ spec:
               containerPort: 9001
           resources:
             requests:
-              cpu: "250m"
-              memory: "256Mi"
+              cpu: 250m
+              memory: 256Mi
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: 500m
+              memory: 512Mi
                 
