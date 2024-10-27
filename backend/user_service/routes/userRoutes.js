@@ -9,9 +9,6 @@ router.post('/verify-token', authenticateToken, (req, res) => {
   res.status(200).json({ user: req.user });
 });
 
-// Route to list all users (can be used for admin functionality)
-router.get('/admin/users', listAllUsers);
-
 // Route to create a new user
 router.post('/user/addToUserCollection', addToUserCollection); // New route for user creation
 
