@@ -21,9 +21,9 @@ export const addUserToMatchmaking = async (): Promise<any | undefined> => {
 }
 
 // GET /matching
-export const getMatchDetails = async (): Promise<any | undefined> => {
+export const getMatchDetails = async (matchId: string): Promise<any | undefined> => {
     try {
-        return await axiosInstance.get(`/matching`)
+        return await axiosInstance.get(`/matching/${matchId}`)
     } catch (error) {
         if (axios.isAxiosError(error)) {
             throw { message: `Axios error: ${error.message}` }

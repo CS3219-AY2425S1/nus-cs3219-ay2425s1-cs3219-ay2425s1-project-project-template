@@ -17,13 +17,9 @@ export async function isUserInMatch(userId: string): Promise<string | undefined>
     return match?.id
 }
 
-export async function getMatchById(matchId: string): Promise<IMatch> {
-    return matchModel.findById(matchId)
-}
-
-export async function getMatchByUserId(userId: string): Promise<IMatch> {
+export async function getMatchByUserIdandMatchId(userId: string, matchId: string): Promise<IMatch> {
     return matchModel.findOne({
         $or: [{ user1Id: userId }, { user2Id: userId }],
-        $and: [{ isCompleted: false }],
+        $and: [{ isCompleted: false }, { _id: matchId }],
     })
 }

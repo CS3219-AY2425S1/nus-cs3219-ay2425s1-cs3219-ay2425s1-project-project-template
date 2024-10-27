@@ -7,7 +7,7 @@ import { WebSocketMessageType } from '@repo/ws-types'
 import wsConnection from '../services/ws.service'
 import { IMatch } from '@repo/user-types'
 import { MatchDto } from '../types/MatchDto'
-import { createMatch, getMatchByUserId, isUserInMatch } from '../models/matching.repository'
+import { createMatch, getMatchByUserIdandMatchId, isUserInMatch } from '../models/matching.repository'
 import { getRandomQuestion } from '../services/matching.service'
 import { convertComplexityToSortedComplexity } from '@repo/question-types'
 
@@ -73,7 +73,8 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
 
 export async function getMatchDetails(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userId = request.user.id
-    const match = await getMatchByUserId(userId)
+    const matchId = request.params.id
+    const match = await getMatchByUserIdandMatchId(userId, matchId)
 
     if (!match) {
         response.status(404).send('MATCH_NOT_FOUND')

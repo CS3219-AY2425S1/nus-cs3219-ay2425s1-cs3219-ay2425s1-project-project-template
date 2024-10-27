@@ -82,7 +82,8 @@ export default function Code() {
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
 
     const retrieveMatchDetails = async () => {
-        const response = await getMatchDetails().catch((_) => {
+        const matchId = router.query.id as string
+        const response = await getMatchDetails(matchId).catch((_) => {
             router.push('/')
         })
         setMatchData(response)

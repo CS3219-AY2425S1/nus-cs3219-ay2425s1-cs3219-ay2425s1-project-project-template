@@ -7,6 +7,6 @@ const router = Router()
 router.use(passport.authenticate('jwt', { session: false }))
 
 router.post('/', generateWS)
-router.get('/', getMatchDetails)
+router.get('/:id', getMatchDetails)
 
 export default router
