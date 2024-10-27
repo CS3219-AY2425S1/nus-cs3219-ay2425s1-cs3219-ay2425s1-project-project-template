@@ -716,8 +716,9 @@ describe("Test Delete", () => {
     const res = await request.post(`/api/${questionId}/delete`).send();
     expect(res.statusCode).toBe(200);
     const deleteRes = await request.get(`/api/${questionId}`).send();
-    expect(deleteRes.statusCode).toBe(404);
-    expect(deleteRes.body.message).toBe("Question not found");
+    expect(deleteRes.statusCode).toBe(200);
+    const question = deleteRes.body;
+    expect(question.deleted).toBe(true);
   });
 
   // Negative id

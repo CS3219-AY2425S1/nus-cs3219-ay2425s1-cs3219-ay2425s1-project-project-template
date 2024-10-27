@@ -118,13 +118,11 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
         deleted: 1,
       }
     ).exec();
-    if (!question || question.deleted) {
+    if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    const { deleted, ...responseQuestion } = question.toObject();
-
-    return res.json(responseQuestion);
+    return res.json(question);
   } catch (error) {
     return res.status(500).send("Internal server error");
   }
