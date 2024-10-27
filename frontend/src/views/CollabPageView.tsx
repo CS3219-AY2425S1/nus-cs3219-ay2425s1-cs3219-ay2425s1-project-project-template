@@ -18,9 +18,8 @@ import {
 } from "@/components/ui/select";
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
 import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
-const collabServiceBackendURL =
-	import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
 import { Loader2 } from "lucide-react";
+import { collabServiceCallFunction } from "@/lib/utils";
 
 const customQuestion: Question = {
 	id: "q123",
@@ -185,22 +184,13 @@ const CollabPageView: React.FC = () => {
 		try {
 			setIsLoading(true);
 
-			const executeFunctionName = "execute-code";
-			const executeCodeURL = `${collabServiceBackendURL}/${executeFunctionName}`;
-
-			const response = await fetch(executeCodeURL, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json", // Send content type to JSON
-				},
-				body: JSON.stringify({
-					language: selectedLang,
-					code: sourceCode,
-					langVer: LANGUAGE_VERSIONS,
-				}),
+			const response = await collabServiceCallFunction("execute-code", "POST", {
+				language: selectedLang,
+				code: sourceCode,
+				langVer: LANGUAGE_VERSIONS,
 			});
 
-			const jsonData = await response.json();
+			const jsonData = await response.data;
 			setCodeOutput(jsonData.run.output);
 			jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
 				? setIsError(true)
