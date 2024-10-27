@@ -17,7 +17,7 @@ export class AppController {
     return this.appService.cancelMatch(data.userId);
   }
 
-  @MessagePattern({ cmd: 'match-details' })
+  @MessagePattern({ cmd: 'get-match-details' })
   async handleMatchDetails(@Payload() data: { matchId: string }) {
     return this.appService.getMatchDetails(data.matchId);
   }

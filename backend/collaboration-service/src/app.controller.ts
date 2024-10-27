@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { CreateSessionDto } from './dto';
 
 @Controller()
 export class AppController {
@@ -8,8 +9,13 @@ export class AppController {
 
   @MessagePattern({ cmd: 'get-session-details-by-id' })
   async handleGetSessionDetails(@Payload() data: { id: string }) {
-    // Process the get session details using the AppService
     const sessionDetails = await this.appService.getSessionDetails(data.id);
+    return sessionDetails;
+  }
+
+  @MessagePattern({ cmd: 'create-session' })
+  async handleCreateSession(@Payload() data: CreateSessionDto) {
+    const sessionDetails = await this.appService.createSession(data);
     return sessionDetails;
   }
 }
