@@ -151,7 +151,6 @@ const CollabPageView: React.FC = () => {
 		if (socket) {
 			socket.emit("terminateSession", sessionIdObj);
 		}
-		navigate("/questions");
 	};
 
 	// Callback function to mount editor to auto-focus when page loads
