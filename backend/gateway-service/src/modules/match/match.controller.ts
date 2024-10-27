@@ -174,7 +174,7 @@ export class MatchGateway implements OnGatewayInit {
     // Check if both participants have confirmed the match
     if (confirmations.size === 2) {
       const matchDetails = await firstValueFrom(
-        this.matchingClient.send({ cmd: 'match-details' }, { matchId }),
+        this.matchingClient.send({ cmd: 'get-match-details' }, { matchId }),
       );
       const sessionPayload = {
         userIds: Array.from(participants),
@@ -183,7 +183,10 @@ export class MatchGateway implements OnGatewayInit {
         question: matchDetails.selectedQuestionId,
       };
       const newSession = await firstValueFrom(
-        this.collaborationClient.send('create-session', sessionPayload),
+        this.collaborationClient.send(
+          { cmd: 'create-session' },
+          sessionPayload,
+        ),
       );
       const sessionId = newSession._id;
       this.notifyUsersMatchConfirmed(sessionId, [...confirmations]);
