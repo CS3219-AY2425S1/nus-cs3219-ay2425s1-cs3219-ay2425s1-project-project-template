@@ -12,14 +12,13 @@ http {
 
     limit_req zone=rate_limit_zone burst=20 nodelay;
 
-    proxy_set_header X-Forwarded-For ${D}proxy_add_x_forwarded_for;
-    proxy_set_header Host ${D}host;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade ${D}http_upgrade;
-    proxy_set_header Connection "upgrade";
-
-    location / {
-      proxy_pass https://127.0.0.1:443;
+    location /api/ {
+      proxy_set_header X-Forwarded-For ${D}proxy_add_x_forwarded_for;
+      proxy_set_header Host ${D}host;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade ${D}http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass https://127.0.0.1:443/;
     }
   }
 
