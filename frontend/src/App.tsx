@@ -8,10 +8,8 @@ import './App.css';
 import AuthProvider from './hooks/AuthProvider';
 import Admin from './pages/Admin';
 import FilterSelection from './pages/FilterSelection';
-import Loading from './pages/Loading';
-
-const Landing = lazy(() => import('./pages/Landing'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+import Landing from './pages/Landing';
+import Room from './pages/Room';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -35,18 +33,16 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
-      <Suspense fallback={<Loading />}>
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/select" element={<FilterSelection />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </Suspense>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/select" element={<FilterSelection />} />
+            <Route path="/room" element={<Room />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </MantineProvider>
   );
 }

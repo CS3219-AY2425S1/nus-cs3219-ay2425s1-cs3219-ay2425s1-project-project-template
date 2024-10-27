@@ -51,7 +51,8 @@ function MatchingModal({
 
     setIsConnecting(true);
 
-    socketRef.current = io('http://localhost:4001', {
+    socketRef.current = io('http://localhost', {
+      path: '/api/matching-notification/socket.io',
       transports: ['websocket'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -88,7 +89,17 @@ function MatchingModal({
     socketRef.current.on('disconnect', () => {
       console.log('Disconnected from WebSocket server');
     });
-  }, [difficulty, topics, matchFound, isConnecting, navigate]);
+
+    socketRef.current.on('existing_search', () => {
+      notifications.show({
+        title: 'Existing search',
+        message: 'There is already an existing matching session. Please try again later.',
+        color: 'red',
+      });
+      socketRef.current?.close();
+      handleCancel();
+    });
+  }, [difficulty, topics, matchFound, isConnecting, navigate, closeMatchingModal]);
 
   useEffect(() => {
     if (isMatchingModalOpened) {

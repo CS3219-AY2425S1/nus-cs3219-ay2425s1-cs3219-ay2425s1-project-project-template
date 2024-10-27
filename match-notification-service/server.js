@@ -22,6 +22,7 @@ const io = new Server(server, {
     origin: "*",  // Allow all origins
     methods: ['GET', 'POST'],
   },
+  path: '/api/matching-notification/socket.io',
   pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
   pingInterval: 25000,  // Interval between ping packets
 });
@@ -47,7 +48,7 @@ async function initRabbitMQ() {
       const matchFound = JSON.parse(msg.content.toString());
       console.log(`Match found:`, matchFound);
 
-      const { userId, matchUserId } = matchFound;
+      const { userId, matchUserId, roomId } = matchFound;
 
       const userSocketId = connectedClients[userId];
       const matchUserSocketId = connectedClients[matchUserId];
@@ -56,7 +57,7 @@ async function initRabbitMQ() {
         // Emit to both users
         io.to(userSocketId).emit('match_found', matchFound);
         io.to(matchUserSocketId).emit('match_found', matchFound);
-        console.log(`Notified user ${userId} and ${matchUserId} of match`);
+        console.log(`Notified user ${userId} and ${matchUserId} of match at room ${roomId}`);
       }
 
       channel.ack(msg);  // Acknowledge the message
@@ -73,13 +74,19 @@ io.on('connection', (socket) => {
 
   // Register the userId with the socket and send search request to RabbitMQ
   socket.on('register', (userId, difficulty, topics) => {
-    connectedClients[userId] = socket.id;
-    console.log(`User ${userId} registered with socket ${socket.id}`);
+    if (connectedClients[userId]) {
+      io.to(socket.id).emit('existing_search', 'User is already searching in another matching service.');
+      console.log(`User ${userId} is already searching in matching service.`);
+    } else {
+      // Register the new connection
+      connectedClients[userId] = socket.id;
+      console.log(`User ${userId} registered with socket ${socket.id}`);
 
-    // Send search request to RabbitMQ
-    const searchRequest = { userId, difficulty, topics };
-    channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
-    console.log(`Search request sent for user ${userId}`);
+      // Send search request to RabbitMQ
+      const searchRequest = { userId, difficulty, topics };
+      channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
+      console.log(`Search request sent for user ${userId}`);
+    }
   });
 
   // Handle user disconnect
