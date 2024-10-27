@@ -5,6 +5,7 @@ import {
   Col,
   Input,
   Layout,
+  Modal,
   Row,
   Select,
   Tabs,
@@ -65,6 +66,9 @@ export default function CollaborationPage(props: CollaborationProps) {
   const [manualTestCase, setManualTestCase] = useState<string | undefined>(
     undefined
   );
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   // Stops the session duration stopwatch
   const stopStopwatch = () => {
@@ -168,14 +172,14 @@ export default function CollaborationPage(props: CollaborationProps) {
     // Remove localstorage variable for stored session duration
     localStorage.removeItem("session-duration"); // TODO: Remove this after collaboration backend data stored
 
-    // // Remove localstorage variables for collaboration
-    // localStorage.removeItem("user");
-    // localStorage.removeItem("matchedUser");
-    // localStorage.removeItem("collaId");
-    // localStorage.removeItem("docRefId");
+    // Remove localstorage variables for collaboration
+    localStorage.removeItem("user");
+    localStorage.removeItem("matchedUser");
+    localStorage.removeItem("collaId");
+    localStorage.removeItem("docRefId");
 
-    // // Redirect back to matching page
-    // router.push("/matching");
+    // Redirect back to matching page
+    router.push("/matching");
   };
 
   return (
@@ -251,15 +255,6 @@ export default function CollaborationPage(props: CollaborationProps) {
                     Submit
                   </Button>
                 </div>
-                {/* <div className="code-second-container">
-                  <div className="code-language">Select Language:</div>
-                  <Select
-                    className="language-select"
-                    defaultValue={selectedLanguage}
-                    options={ProgrammingLanguageOptions}
-                    onSelect={(val) => setSelectedLanguage(val)}
-                  />
-                </div> */}
                 {collaborationId && currentUser && selectedLanguage && (
                   <CollaborativeEditor
                     user={currentUser}
@@ -278,10 +273,24 @@ export default function CollaborationPage(props: CollaborationProps) {
                     <ClockCircleOutlined className="title-icons" />
                     Session Details
                   </div>
-                  {/* TODO: End the collaboration session, cleanup the localstorage variables */}
+                  <Modal
+                    height={500}
+                    title={"End Session"}
+                    okText={"End"}
+                    okButtonProps={{ danger: true }}
+                    onOk={handleCloseCollaboration}
+                    open={isModalOpen}
+                    onCancel={() => setIsModalOpen(false)}
+                    width={400}
+                  >
+                    <p className="modal-description">
+                      Are you sure you want to quit the existing collaboration
+                      session?
+                    </p>
+                  </Modal>
                   <Button
                     danger
-                    onClick={handleCloseCollaboration}
+                    onClick={() => setIsModalOpen(true)}
                     className="session-end-button"
                   >
                     End
