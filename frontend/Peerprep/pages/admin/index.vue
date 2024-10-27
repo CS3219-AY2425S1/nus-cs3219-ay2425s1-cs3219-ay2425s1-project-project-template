@@ -10,6 +10,7 @@ definePageMeta({
 const users = ref<User[]>([])
 const isLoading = ref(true);
 const error = ref<string | null>(null);
+const runtimeConfig = useRuntimeConfig();
 
 const checkIfUidAdmin = async (uid: string) => {
     const { data, error } = await useFetch<boolean>(`/api/users/${uid}/is_admin`)

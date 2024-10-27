@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 const props = defineProps<{ refreshData: () => void }>();
 
 const { toast } = useToast();
+const runtimeConfig = useRuntimeConfig();
 
 const question = reactive<Question>({
     title: "",
