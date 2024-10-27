@@ -6,22 +6,35 @@ import {
 } from "material-react-table";
 import { Box, ThemeProvider, createTheme } from "@mui/material";
 import { Question } from "../Question/question";
-// import { useGetQuestions } from "./your-fetch-hooks"; // Adjust the import according to your hooks file
 
 interface DataTableProps {
   onSelectQuestion: (question: Question) => void;
 }
 
-// Create a theme similar to the one in your main table
 const theme = createTheme({
   palette: {
-    mode: "dark", // Ensure it matches your existing theme
+    mode: "dark",
   },
 });
 
 const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
-  //   const { data: fetchedQuestions = [] } = useGetQuestions(); // Fetch questions
-
+  // Sample data to populate the table
+  const sampleQuestions: Question[] = [
+    {
+      qid: 1,
+      title: "Sort Array",
+      complexity: "Easy",
+      categories: ["Array"],
+      description: "Sample Description for Sort Array",
+    },
+    {
+      qid: 2,
+      title: "Reverse String",
+      complexity: "Medium",
+      categories: ["Strings"],
+      description: "Sample Description for Reverse String",
+    },
+  ];
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
       {
@@ -75,7 +88,7 @@ const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
     <ThemeProvider theme={theme}>
       <MaterialReactTable
         columns={columns}
-        data={[]} // Use the fetched data here
+        data={sampleQuestions} // Use the fetched data here
         muiTableBodyRowProps={({ row }) => ({
           onClick: () => handleRowClick(row),
           style: { cursor: "pointer" },

@@ -170,14 +170,14 @@ const CollaborationInterface: FC<CollaborationInterfaceProps> = ({
             <CardContent className="p-6 bg-gray-800 flex-grow">
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-xl font-bold text-white">
-                  {question.title}
+                  {selectedQuestion?.title || question.title}{" "}
                 </h2>
                 <span className="px-2 py-1 bg-green-600 rounded text-sm">
-                  {question.complexity}
+                  {selectedQuestion?.complexity || question.complexity}
                 </span>
               </div>
               <p className="mb-4 text-gray-300 whitespace-pre-line text-left">
-                {question.description}
+                {selectedQuestion?.description || question.description}
               </p>
             </CardContent>
           </Card>
