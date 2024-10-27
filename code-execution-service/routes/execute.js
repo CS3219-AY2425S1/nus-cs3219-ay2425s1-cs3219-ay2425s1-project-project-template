@@ -1,13 +1,17 @@
 // routes/execute.js
 const express = require('express');
 const router = express.Router();
-const { runCodeInDocker, runCodeInIsolatedVm } = require('../sandbox');
+const { runCodeInDocker } = require('../sandbox');
 
-// health check
-router.get('/', async (req, res) => {
-  res.status(200).send('hello world');
-})
+// Supported languages
+const SUPPORTED_LANGUAGES = ['python', 'javascript', 'nodejs'];
 
+// Health check
+router.get('/', (req, res) => {
+    res.status(200).send('hello world');
+});
+
+// Execute code endpoint
 router.post('/', async (req, res) => {
     const { code, language } = req.body;
 
@@ -15,15 +19,15 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'No code provided' });
     }
 
-    let result;
-    if (language === 'javascript') {
-        result = runCodeInIsolatedVm(code);
-    } else if (['python', 'nodejs'].includes(language)) {
-        result = await runCodeInDocker(code, language);
-    } else {
+    // Check if language is supported
+    if (!SUPPORTED_LANGUAGES.includes(language)) {
         return res.status(400).json({ error: 'Unsupported language' });
     }
 
+    // Run the code in Docker and handle the result
+    const result = await runCodeInDocker(code, language);
+
+    // Send the response
     if (result.error) {
         res.status(500).json({ error: result.error });
     } else {
