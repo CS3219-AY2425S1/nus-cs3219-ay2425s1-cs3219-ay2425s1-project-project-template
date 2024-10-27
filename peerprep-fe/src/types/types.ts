@@ -48,6 +48,12 @@ interface User {
   username: string;
 }
 
+interface Match {
+  status: string;
+  match: string;
+
+}
+
 export type {
   Problem,
   ProblemDialogData,
@@ -55,4 +61,5 @@ export type {
   FilterBadgeProps,
   FilterSelectProps,
   User,
+  Match,
 };
