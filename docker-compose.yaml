@@ -1,20 +1,21 @@
 version: '3.8'
 services:
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - NODE_ENV=production
-  #     - NEXT_PUBLIC_API_URL=http://nginx
-  #   depends_on:
-  #     - user-service
-  #     - question-service
-  #     - matching-service
-  #     - collaboration-service
-  #   networks:
-  #     - app-network
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://nginx
+    depends_on:
+      - user-service
+      - question-service
+      - matching-service
+      - collaboration-service
+      - voice-service
+    networks:
+      - app-network
 
   user-service:
     build:
@@ -53,18 +54,31 @@ services:
       - app-network
 
   collaboration-service:
-      build:
-        context: ./backend/collaboration-service
-      ports:
-        - "8080:8080" 
-      environment:
-        - NODE_ENV=production
-      depends_on:
-        rabbitmq:
-          condition: service_healthy
-      networks:
-        - app-network
-        
+    build:
+      context: ./backend/collaboration-service
+    ports:
+      - "8080:8080" 
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  voice-service:
+    build:
+      context: ./backend/voice-service
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -92,6 +106,7 @@ services:
       - question-service
       - matching-service
       - collaboration-service
+      - voice-service
     networks:
       - app-network
 
