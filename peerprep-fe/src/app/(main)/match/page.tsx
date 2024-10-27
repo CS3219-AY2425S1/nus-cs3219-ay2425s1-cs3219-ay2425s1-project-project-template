@@ -14,7 +14,7 @@ export default function LoadingPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const listenerInitialized = useRef(false);
-
+  
   // Function to consume messages from the RabbitMQ queue
   const handleStartListening = () => {
     const onMessageReceived = (message: any) => {
@@ -26,6 +26,7 @@ export default function LoadingPage() {
         setMatchStatus('failed');
       }
     };
+    consumeMessageFromQueue(user?.id!, onMessageReceived);
   };
 
   useEffect(() => {
