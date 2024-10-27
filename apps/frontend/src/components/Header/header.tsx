@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import "./styles.scss";
 import DropdownButton from "antd/es/dropdown/dropdown-button";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { deleteToken } from "@/app/services/login-store";
 
 interface HeaderProps {
   selectedKey: string[] | undefined;
@@ -55,7 +56,7 @@ const Header = (props: HeaderProps): JSX.Element => {
       ),
       onClick: () => {
         // Clear away the previously stored jwt token in localstorage
-        localStorage.clear();
+        deleteToken();
         // Redirect user to login page
         push("/login");
       },
