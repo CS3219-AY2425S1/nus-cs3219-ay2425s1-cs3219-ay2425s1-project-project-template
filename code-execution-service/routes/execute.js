@@ -1,7 +1,7 @@
 // routes/execute.js
 const express = require('express');
 const router = express.Router();
-const { runCodeInDocker, runCodeInVm2 } = require('../sandbox');
+const { runCodeInDocker, runCodeInIsolatedVm } = require('../sandbox');
 
 // health check
 router.get('/', async (req, res) => {
@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
 
     let result;
     if (language === 'javascript') {
-        result = runCodeInVm2(code);
+        result = runCodeInIsolatedVm(code);
     } else if (['python', 'nodejs'].includes(language)) {
         result = await runCodeInDocker(code, language);
     } else {
