@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,8 @@ export default function LoadingPage() {
   const [matchStatus, setMatchStatus] = useState('searching');
   const router = useRouter();
   const { user } = useAuthStore();
+  const listenerInitialized = useRef(false);
   
-
   // Function to consume messages from the RabbitMQ queue
   const handleStartListening = () => {
     const onMessageReceived = (message: any) => {
@@ -30,15 +30,22 @@ export default function LoadingPage() {
   };
 
   useEffect(() => {
-    console.log("I am called");
-    setUsersWaiting(usersWaiting + 1);
-    setElapsedTime(0);
-    setMatchStatus('searching');
-    
-    handleStartListening();
-    setInterval(() => {
-      setElapsedTime((prevTime) => prevTime + 1);
-    }, 1000);
+    if (!listenerInitialized.current) {
+      setElapsedTime(0);
+      setMatchStatus('searching');
+      handleStartListening(); // Set up listener only once
+
+      listenerInitialized.current = true; // Mark as initialized
+
+      const interval = setInterval(() => {
+        setElapsedTime((prevTime) => prevTime + 1);
+      }, 1000);
+
+      // Cleanup function
+      return () => {
+        clearInterval(interval); // Clean up interval on unmount
+      };
+    }
   }, []);
 
   useEffect(() => {
