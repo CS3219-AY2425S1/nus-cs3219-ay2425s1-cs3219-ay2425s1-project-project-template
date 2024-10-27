@@ -31,7 +31,8 @@ jobs:
           MATCHING_SERVICE_URL: ${{ vars.MATCHING_SERVICE_URL }}
           HISTORY_SERVICE_URL: ${{ vars.HISTORY_SERVICE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+          QUESTION_FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+          HISTORY_FIREBASE_CREDENTIAL_PATH: ${{ vars.HISTORY_SERVICE_FIREBASE_CREDENTIAL_PATH }}
           DB_CLOUD_URI: ${{ secrets.USER_SERVICE_DB_CLOUD_URI }}
           USER_SERVICE_PORT: ${{ vars.USER_SERVICE_PORT }}
           MATCHING_SERVICE_PORT: ${{ vars.MATCHING_SERVICE_PORT }}
@@ -47,7 +48,7 @@ jobs:
           echo "NEXT_PUBLIC_HISTORY_SERVICE_URL=$HISTORY_SERVICE_URL" >> .env
 
           cd ../question-service
-          echo "FIREBASE_CREDENTIAL_PATH=$FIREBASE_CREDENTIAL_PATH" >> .env
+          echo "FIREBASE_CREDENTIAL_PATH=$QUESTION_FIREBASE_CREDENTIAL_PATH" >> .env
           echo "JWT_SECRET=$JWT_SECRET" >> .env
 
           cd ../user-service
@@ -63,7 +64,7 @@ jobs:
           echo "QUESTION_SERVICE_GRPC_URL=$QUESTION_SERVICE_GRPC_URL" >> .env
 
           cd ../history-service
-          echo "FIREBASE_CREDENTIAL_PATH=$FIREBASE_CREDENTIAL_PATH" >> .env
+          echo "FIREBASE_CREDENTIAL_PATH=$HISTORY_FIREBASE_CREDENTIAL_PATH" >> .env
           echo "PORT=$HISTORY_SERVICE_PORT" >> .env
 
       - name: Create Database Credential Files
