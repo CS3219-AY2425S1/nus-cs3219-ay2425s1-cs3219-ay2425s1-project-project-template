@@ -1,12 +1,12 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import './App.css';
 import './App.css';
 import AuthProvider from './hooks/AuthProvider';
 import Admin from './pages/Admin';
+import Dashboard from './pages/Dashboard';
 import FilterSelection from './pages/FilterSelection';
 import Landing from './pages/Landing';
 import Room from './pages/Room';
@@ -37,6 +37,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/select" element={<FilterSelection />} />
             <Route path="/room" element={<Room />} />
