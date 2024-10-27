@@ -98,15 +98,25 @@ async function matchUsers(searchRequest) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ difficulty, topics }),
+    body: JSON.stringify({ difficulties: difficulty, topics: topics }),
   });
 
   if (!response.ok) {
-    const message = `An error occurred: ${response.statusText}`;
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  let question;
+  try {
+    question = await response.json();
+  } catch (error) {
+    const message = `A question could not be found with the provided criteria.`;
     console.error(message);
+    channel.sendToQueue(
+      'error_queue',
+      Buffer.from(JSON.stringify({ userId, errorTag: 'no_question_error' })),
+    );
     return;
   }
-  const question = await response.json();
 
   console.log('Question:', question);
 

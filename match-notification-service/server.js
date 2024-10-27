@@ -41,6 +41,7 @@ async function initRabbitMQ() {
   await channel.assertQueue('search_queue');
   await channel.assertQueue('disconnect_queue');
   await channel.assertQueue('match_found_queue');
+  await channel.assertQueue('error_queue');
 
   // Listen for matches found
   channel.consume('match_found_queue', (msg) => {
@@ -61,6 +62,24 @@ async function initRabbitMQ() {
       }
 
       channel.ack(msg);  // Acknowledge the message
+    }
+  });
+
+  channel.consume('error_queue', (msg) => {
+    if (msg) {
+      const error = JSON.parse(msg.content.toString());
+      console.log(`Error:`, error);
+
+      const { userId, errorTag } = error;
+
+      const userSocketId = connectedClients[userId];
+
+      if (userSocketId) {
+        io.to(userSocketId).emit(errorTag);
+        console.log(`Notified user ${userId} of error: ${errorTag}`);
+      }
+
+      channel.ack(msg); // Acknowledge the message
     }
   });
 }
