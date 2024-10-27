@@ -11,7 +11,11 @@ const app = express();
 
 // Allow requests from http://localhost:3000 (production frontend) and http://localhost:5173 (development frontend) with credentials
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  origin: [
+    "https://frontend-1079323726684.asia-southeast1.run.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+  ],
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
 
