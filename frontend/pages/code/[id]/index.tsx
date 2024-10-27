@@ -83,6 +83,9 @@ export default function Code() {
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
+        if (!matchId) {
+            return
+        }
         const response = await getMatchDetails(matchId).catch((_) => {
             router.push('/')
         })
