@@ -60,8 +60,6 @@ class CollabController {
 
 
   handleSessionCreated = async (req, res) => {
-      // Debugging: Log incoming request data
-      console.log('Incoming request data:', req.body);
 
       const { sessionId, sessionData, questionData} = req.body; 
 
