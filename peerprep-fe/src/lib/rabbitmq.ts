@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { UserMatchingRequest, UserMatchingResponse } from '@/types/types';
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
 
 let isConnected = false;
 
-const sendMessageToQueue = async (message: Record<string, any>) => {
+const sendMessageToQueue = async (message: UserMatchingRequest) => {
   const uri = process.env.NEXT_PUBLIC_RABBITMQ_URL;
   const user = process.env.NEXT_PUBLIC_RABBITMQ_USER;
   const pass = process.env.NEXT_PUBLIC_RABBITMQ_PW;
@@ -52,7 +53,7 @@ const sendMessageToQueue = async (message: Record<string, any>) => {
 
 const consumeMessageFromQueue = async (
   queue: string,
-  onMessage: (message: any) => void,
+  onMessage: (message: UserMatchingResponse) => void,
 ) => {
   const uri = process.env.NEXT_PUBLIC_RABBITMQ_URL;
   const user = process.env.NEXT_PUBLIC_RABBITMQ_USER;
