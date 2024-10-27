@@ -44,11 +44,6 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "/collaboration-service",
-    element: <CollaborationService />,
-    errorElement: <ErrorPage />,
-  },
-  {
     element: <ProtectedRoute />,
     children: [
       {
