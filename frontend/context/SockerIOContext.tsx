@@ -39,15 +39,37 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         path: process.env.NEXT_PUBLIC_COLLAB_SERVICE_PATH,
         transports: ["websocket"],
       });
-      console.log(socketIOInstance)
+
       setSocket(socketIOInstance);
       console.log("SocketIO instance connected");
-    }
 
-    return () => {
-      socket?.disconnect();
-      console.log("SocketIO instance disconnected");
-    };
+      // Handle socket connection error
+      socketIOInstance.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        toast.error("Socket connection failed", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+        });
+      });
+
+      // Add beforeunload listener to disconnect socket on page unload
+      const handleBeforeUnload = () => {
+        if (socketIOInstance) {
+          socketIOInstance.disconnect();
+          console.log("SocketIO instance disconnected on page unload");
+        }
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      // Cleanup function to disconnect socket
+      return () => {
+        socketIOInstance.disconnect();
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        console.log("SocketIO instance disconnected on component unmount");
+      };
+    }
   }, []);
 
   return (
@@ -57,3 +79,4 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     </SocketContext.Provider>
   );
 };
+

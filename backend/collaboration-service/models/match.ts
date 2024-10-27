@@ -1,11 +1,5 @@
 import { Schema, model } from "mongoose";
 
-// Enum for question complexity
-export enum QuestionComplexityEnum {
-  EASY = "Easy",
-  MEDIUM = "Medium",
-  HARD = "Hard",
-}
 
 // Interface for Question document
 export interface Question {
@@ -15,7 +9,7 @@ export interface Question {
   constraints: string;
   examples: string;
   category: string[];
-  complexity: QuestionComplexityEnum;
+  complexity: string;
   imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
@@ -26,7 +20,7 @@ export interface Match {
   userOne: string;
   userTwo: string;
   room_id: string;
-  complexity: QuestionComplexityEnum[];
+  complexity: string[];
   categories: string[];
   question: Question; // Single Question object
 }
@@ -35,11 +29,11 @@ export interface Match {
 const questionSchema = new Schema<Question>({
   questionId: { type: String, required: true },
   title: { type: String, required: true },
-  description: { type: String, required: true },
-  constraints: { type: String, required: true },
-  examples: { type: String, required: true },
-  category: [{ type: String, required: true }],
-  complexity: { type: String, enum: Object.values(QuestionComplexityEnum), required: true },
+  description: { type: String, required: false },
+  constraints: { type: String, required: false },
+  examples: { type: String, required: false },
+  category: [{ type: String, required: false }],
+  complexity: { type: String, required: false },
   imageUrl: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -50,7 +44,7 @@ const matchSchema = new Schema<Match>({
   userOne: { type: String, required: true },
   userTwo: { type: String, required: true },
   room_id: { type: String, required: true },
-  complexity: { type: [String], enum: Object.values(QuestionComplexityEnum), required: true },
+  complexity: { type: [String], required: true },
   categories: { type: [String], required: true },
   question: { type: questionSchema, required: true }, // Embedded single Question document
 });

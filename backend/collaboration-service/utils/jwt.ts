@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET= process.env.ACCESS_TOKEN_SECRET as string;
+const JWT_SECRET= process.env.JWT_SECRET as string;
 
 export async function authenticateAccessToken(
   accessToken: string,
 ): Promise<Object> {
+    console.log(accessToken)
   return new Promise<Object>((resolve, reject) => {
     jwt.verify(
       accessToken,
