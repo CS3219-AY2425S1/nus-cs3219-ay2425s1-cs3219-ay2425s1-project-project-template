@@ -76,6 +76,7 @@ jobs:
         run: |
           cd ./apps/question-service
           echo "$QUESTION_FIREBASE_JSON" > "./$QUESTION_FIREBASE_CREDENTIAL_PATH"
+
           cd ../history-service
           echo "$HISTORY_FIREBASE_JSON" > "./$HISTORY_FIREBASE_CREDENTIAL_PATH"
 
