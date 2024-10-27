@@ -15,7 +15,7 @@ import {
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion, Question } from "@/app/services/question";
 import {
   ClockCircleOutlined,
@@ -50,6 +50,11 @@ export default function CollaborationPage(props: CollaborationProps) {
   );
   const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
   const [matchedUser, setMatchedUser] = useState<string | undefined>(undefined);
+  const [sessionDuration, setSessionDuration] = useState<number>(() => {
+    const storedTime = localStorage.getItem("session-duration");
+    return storedTime ? parseInt(storedTime) : 0;
+  }); // State for count-up timer (TODO: currently using localstorage to store time, change to db stored time in the future)
+  const stopwatchRef = useRef<NodeJS.Timeout | null>(null);
 
   // Chat states
   const [messageToSend, setMessageToSend] = useState<string | undefined>(
@@ -61,8 +66,42 @@ export default function CollaborationPage(props: CollaborationProps) {
     undefined
   );
 
-  // Retrieve the docRefId from query params during page navigation
-  //   const searchParams = useSearchParams();
+  // Stops the session duration stopwatch
+  const stopStopwatch = () => {
+    if (stopwatchRef.current) {
+      clearInterval(stopwatchRef.current);
+    }
+  };
+
+  // Starts the session duration stopwatch
+  const startStopwatch = () => {
+    if (stopwatchRef.current) {
+      clearInterval(stopwatchRef.current);
+    }
+
+    stopwatchRef.current = setInterval(() => {
+      setSessionDuration((prevTime) => {
+        const newTime = prevTime + 1;
+        localStorage.setItem("session-duration", newTime.toString());
+        return newTime;
+      });
+    }, 1000);
+  };
+
+  // Convert seconds into time of format "hh:mm:ss"
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    return (
+      (hours > 9 ? hours : "0" + hours) +
+      ":" +
+      (minutes > 9 ? minutes : "0" + minutes) +
+      ":" +
+      (secs > 9 ? secs : "0" + secs)
+    );
+  };
 
   // Fetch the question on initialisation
   useEffect(() => {
@@ -81,14 +120,19 @@ export default function CollaborationPage(props: CollaborationProps) {
     setMatchedUser(matchedUser);
     setCurrentUser(currentUser);
 
+    // Fetch question and set question states
     GetSingleQuestion(docRefId).then((data: Question) => {
       setQuestionTitle(`${data.id}. ${data.title}`);
       setComplexity(data.complexity);
       setCategories(data.categories);
       setDescription(data.description);
     });
+
+    // Start stopwatch
+    startStopwatch();
   }, []);
 
+  // Tabs component items for testcases
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -117,15 +161,21 @@ export default function CollaborationPage(props: CollaborationProps) {
     },
   ];
 
+  // Handles the cleaning of localstorage variables, stopping the timer & signalling collab user on webrtc
   const handleCloseCollaboration = () => {
-    // Remove localstorage variables for collaboration
-    localStorage.removeItem("user");
-    localStorage.removeItem("matchedUser");
-    localStorage.removeItem("collaId");
-    localStorage.removeItem("docRefId");
+    // Stop stopwatch
+    stopStopwatch();
+    // Remove localstorage variable for stored session duration
+    localStorage.removeItem("session-duration"); // TODO: Remove this after collaboration backend data stored
 
-    // Redirect back to matching page
-    router.push("/matching");
+    // // Remove localstorage variables for collaboration
+    // localStorage.removeItem("user");
+    // localStorage.removeItem("matchedUser");
+    // localStorage.removeItem("collaId");
+    // localStorage.removeItem("docRefId");
+
+    // // Redirect back to matching page
+    // router.push("/matching");
   };
 
   return (
@@ -170,7 +220,11 @@ export default function CollaborationPage(props: CollaborationProps) {
                     Test Cases
                   </div>
                   {/* TODO: Link to execution service for running code against test-cases */}
-                  <Button icon={<PlayCircleOutlined />} iconPosition="end">
+                  <Button
+                    icon={<PlayCircleOutlined />}
+                    iconPosition="end"
+                    className="test-case-button"
+                  >
                     Run Test Cases
                   </Button>
                 </div>
@@ -189,7 +243,11 @@ export default function CollaborationPage(props: CollaborationProps) {
                     Code
                   </div>
                   {/* TODO: Link to execution service for code submission */}
-                  <Button icon={<SendOutlined />} iconPosition="end">
+                  <Button
+                    icon={<SendOutlined />}
+                    iconPosition="end"
+                    className="code-submit-button"
+                  >
                     Submit
                   </Button>
                 </div>
@@ -221,15 +279,20 @@ export default function CollaborationPage(props: CollaborationProps) {
                     Session Details
                   </div>
                   {/* TODO: End the collaboration session, cleanup the localstorage variables */}
-                  <Button danger onClick={handleCloseCollaboration}>
+                  <Button
+                    danger
+                    onClick={handleCloseCollaboration}
+                    className="session-end-button"
+                  >
                     End
                   </Button>
                 </div>
 
                 <div className="session-duration">
                   Duration:
-                  {/* TODO: Implement a count-up timer for session duration */}
-                  <text className="session-duration-timer">00:00:00</text>
+                  <text className="session-duration-timer">
+                    {formatTime(sessionDuration)}
+                  </text>
                 </div>
                 <div className="session-matched-user-label">
                   Matched User:
