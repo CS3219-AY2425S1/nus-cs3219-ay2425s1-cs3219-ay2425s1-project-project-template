@@ -12,10 +12,10 @@ func (s *Service) DeleteHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	docRefId := chi.URLParam(r, "docRefId")
+	matchId := chi.URLParam(r, "matchId")
 
 	// Reference document
-	docRef := s.Client.Collection("collaboration-history").Doc(docRefId)
+	docRef := s.Client.Collection("collaboration-history").Doc(matchId)
 
 	// Validation
 	// Check if exists

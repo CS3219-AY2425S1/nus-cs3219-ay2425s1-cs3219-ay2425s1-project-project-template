@@ -23,13 +23,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	//ctx := context.Background()
-	//client, err := initFirestore(ctx)
-	//if err != nil {
-	//	log.Fatalf("Failed to initialize Firestore client: %v", err)
-	//}
-	//defer client.Close()
-
 	// Initialize Firestore client
 	ctx := context.Background()
 	client, err := initFirestore(ctx)
@@ -82,21 +75,23 @@ func initChiRouter(service *handlers.Service) *chi.Mux {
 
 func registerRoutes(r *chi.Mux, service *handlers.Service) {
 	r.Route("/histories", func(r chi.Router) {
-		r.Post("/", service.CreateHistory)
+		r.Get("/{username}", service.ListUserHistories)
+		//r.Post("/", service.CreateHistory)
 
-		r.Route("/{docRefId}", func(r chi.Router) {
+		r.Route("/{matchId}", func(r chi.Router) {
+			r.Put("/", service.CreateOrUpdateHistory)
 			r.Get("/", service.ReadHistory)
-			r.Put("/", service.UpdateHistory)
-			r.Delete("/", service.DeleteHistory)
+			//r.Put("/", service.UpdateHistory)
+			//r.Delete("/", service.DeleteHistory)
 		})
 	})
 }
 
 func initRestServer(r *chi.Mux) {
-	// Serve on port 8080
+	// Serve on port 8082 if no port found
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8082"
 	}
 
 	// Start the server

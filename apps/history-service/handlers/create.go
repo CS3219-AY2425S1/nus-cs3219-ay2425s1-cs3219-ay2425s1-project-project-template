@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"cloud.google.com/go/firestore"
 	"encoding/json"
 	"google.golang.org/api/iterator"
 	"history-service/models"
@@ -10,39 +11,35 @@ import (
 
 // Create a new code snippet
 func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
-	println("test1")
 	ctx := r.Context()
 
 	// Parse request
 	var collaborationHistory models.CollaborationHistory
 	if err := utils.DecodeJSONBody(w, r, &collaborationHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		println(err.Error())
 		return
 	}
 
-	println("test2")
+	// Document reference ID in firestore mapped to the match ID in model
+	docRef := s.Client.Collection("collaboration-history").Doc(collaborationHistory.MatchID)
 
-	docRef, _, err := s.Client.Collection("collaboration-history").Add(ctx, map[string]interface{}{
+	_, err := docRef.Set(ctx, map[string]interface{}{
 		"title":              collaborationHistory.Title,
 		"code":               collaborationHistory.Code,
 		"language":           collaborationHistory.Language,
 		"user":               collaborationHistory.User,
 		"matchedUser":        collaborationHistory.MatchedUser,
-		"matchId":            collaborationHistory.MatchID,
 		"matchedTopics":      collaborationHistory.MatchedTopics,
 		"questionDocRefId":   collaborationHistory.QuestionDocRefID,
 		"questionDifficulty": collaborationHistory.QuestionDifficulty,
 		"questionTopics":     collaborationHistory.QuestionTopics,
-		"createdAt":          collaborationHistory.CreatedAt,
-		"updatedAt":          collaborationHistory.UpdatedAt,
+		"createdAt":          firestore.ServerTimestamp,
+		"updatedAt":          firestore.ServerTimestamp,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	println("test3")
 
 	// Get data
 	doc, err := docRef.Get(ctx)
@@ -55,16 +52,12 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	println("test4")
-
 	// Map data
 	if err := doc.DataTo(&collaborationHistory); err != nil {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.DocRefID = doc.Ref.ID
-
-	println(collaborationHistory.Title, "test")
+	collaborationHistory.MatchID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

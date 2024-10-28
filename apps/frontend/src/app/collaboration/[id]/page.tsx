@@ -16,7 +16,7 @@ import {
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion, Question } from "@/app/services/question";
 import {
   ClockCircleOutlined,
@@ -28,13 +28,15 @@ import {
 } from "@ant-design/icons";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import CollaborativeEditor from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { CreateHistory, UpdateHistory } from "@/app/services/history";
+import { CreateOrUpdateHistory } from "@/app/services/history";
 import { Language } from "@codemirror/language";
+import { WebrtcProvider } from "y-webrtc";
 
 interface CollaborationProps {}
 
 export default function CollaborationPage(props: CollaborationProps) {
   const router = useRouter();
+  const providerRef = useRef<WebrtcProvider | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -80,26 +82,18 @@ export default function CollaborationPage(props: CollaborationProps) {
     });
   };
 
-  const handleSubmitCode = async () => {
-    if (!historyDocRefId) {
-      const data = await CreateHistory({
-        title: questionTitle ?? "",
-        code: code,
-        language: selectedLanguage,
-        user: currentUser ?? "",
-        matchedUser: matchedUser ?? "",
-        matchId: collaborationId ?? "",
-        matchedTopics: matchedTopics ?? [],
-        questionDocRefId: questionDocRefId ?? "",
-        questionDifficulty: complexity ?? "",
-        questionTopics: categories,
-      });
-      setHistoryDocRefId(data.docRefId);
-      successMessage("Code submitted successfully!");
-      return;
+  const sendCodeSavedStatusToMatchedUser = () => {
+    if (!providerRef.current) {
+      throw new Error("Provider not initialized");
     }
+    providerRef.current.awareness.setLocalStateField("codeSavedStatus", true);
+  }
 
-    UpdateHistory({
+  const handleSubmitCode = async () => {
+    if (!collaborationId) {
+      throw new Error("Collaboration ID not found");
+    }
+    const data = await CreateOrUpdateHistory({
       title: questionTitle ?? "",
       code: code,
       language: selectedLanguage,
@@ -110,8 +104,9 @@ export default function CollaborationPage(props: CollaborationProps) {
       questionDocRefId: questionDocRefId ?? "",
       questionDifficulty: complexity ?? "",
       questionTopics: categories,
-    }, historyDocRefId!);
-    successMessage("Code updated successfully!");
+    }, collaborationId);
+    successMessage("Code saved successfully!");
+    sendCodeSavedStatusToMatchedUser();
   }
 
   const handleCodeChange = (code: string) => {
@@ -273,7 +268,9 @@ export default function CollaborationPage(props: CollaborationProps) {
                     user={currentUser}
                     collaborationId={collaborationId}
                     language={selectedLanguage}
-                    onCodeChange={handleCodeChange} 
+                    providerRef={providerRef}
+                    matchedUser={matchedUser}
+                    onCodeChange={handleCodeChange}
                   />
                 )}
               </div>

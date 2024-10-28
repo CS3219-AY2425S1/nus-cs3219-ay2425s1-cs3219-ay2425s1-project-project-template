@@ -13,35 +13,14 @@ export interface History {
     questionTopics: string[];
     createdAt?: string;
     updatedAt?: string;
-    docRefId?: string;
 }
 
-export const CreateHistory = async (
-    history: History
-): Promise<History> => {
-    const response = await fetch(`${HISTORY_SERVICE_URL}histories`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(history),
-    });
-
-    if (response.status === 200) {
-        return response.json();
-    } else {
-        throw new Error(
-            `Error creating history: ${response.status} ${response.statusText}`
-        );
-    }
-};
-
-export const UpdateHistory = async (
+export const CreateOrUpdateHistory = async (
     history: History,
-    historyDocRefId: string
+    matchId: string,
 ): Promise<History> => {
     const response = await fetch(
-        `${HISTORY_SERVICE_URL}histories/${historyDocRefId}`,
+        `${HISTORY_SERVICE_URL}histories/${matchId}`,
         {
             method: "PUT",
             headers: {
@@ -55,7 +34,51 @@ export const UpdateHistory = async (
         return response.json();
     } else {
         throw new Error(
-            `Error updating history: ${response.status} ${response.statusText}`
+            `Error saving history: ${response.status} ${response.statusText}`
+        );
+    }
+}
+
+export const GetHistory = async (
+    matchId: string,
+): Promise<History> => {
+    const response = await fetch(
+        `${HISTORY_SERVICE_URL}histories/${matchId}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+
+    if (response.status === 200) {
+        return response.json();
+    } else {
+        throw new Error(
+            `Error reading history: ${response.status} ${response.statusText}`
+        );
+    }
+}
+
+export const GetUserHistories = async (
+    username: string,
+): Promise<History[]> => {
+    const response = await fetch(
+        `${HISTORY_SERVICE_URL}histories/${username}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+
+    if (response.status === 200) {
+        return response.json();
+    } else {
+        throw new Error(
+            `Error reading user histories: ${response.status} ${response.statusText}`
         );
     }
 }

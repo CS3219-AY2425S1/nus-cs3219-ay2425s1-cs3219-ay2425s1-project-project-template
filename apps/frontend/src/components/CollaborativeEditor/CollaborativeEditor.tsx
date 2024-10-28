@@ -1,5 +1,5 @@
 // Referenced from example in https://www.npmjs.com/package/y-codemirror.next
-import React, { useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
@@ -19,7 +19,24 @@ interface CollaborativeEditorProps {
   user: string;
   collaborationId: string;
   language: string;
+  providerRef: MutableRefObject<WebrtcProvider | null>;
+  matchedUser: string | undefined;
   onCodeChange: (code: string) => void;
+}
+
+interface AwarenessUpdate {
+  added: number[];
+  updated: number[];
+  removed: number[];
+}
+
+interface Awareness {
+  user: {
+    name: string;
+    color: string;
+    colorLight: string;
+  };
+  codeSavedStatus: boolean;
 }
 
 export const usercolors = [
@@ -154,14 +171,28 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
     const provider = new WebrtcProvider(props.collaborationId, ydoc, {
       signaling: [process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL],
     });
+    props.providerRef.current = provider;
     const ytext = ydoc.getText("codemirror");
-    console.log("testing y text", ytext); // TODO: remove
     const undoManager = new Y.UndoManager(ytext);
 
     provider.awareness.setLocalStateField("user", {
       name: props.user,
       color: userColor.color,
       colorLight: userColor.light,
+    });
+
+    // Listener for awareness updates to receive status changes from peers
+    provider.awareness.on("update", ({ added, updated } : AwarenessUpdate) => {
+      added.concat(updated).filter(clientId => clientId !== provider.awareness.clientID).forEach((clientID) => {
+        const state = provider.awareness.getStates().get(clientID) as Awareness;
+        if (state && state.codeSavedStatus) {
+          // Display the received status message
+          messageApi.open({
+            type: "success",
+            content: `${props.matchedUser ?? "Peer"} saved code successfully!`,
+          });
+        }
+      });
     });
 
     const state = EditorState.create({

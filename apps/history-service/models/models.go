@@ -17,5 +17,4 @@ type CollaborationHistory struct {
 	// Special DB fields
 	CreatedAt time.Time `json:"createdAt" firestore:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt" firestore:"updatedAt"`
-	DocRefID  string    `json:"docRefId" firestore:"docRefId"`
 }

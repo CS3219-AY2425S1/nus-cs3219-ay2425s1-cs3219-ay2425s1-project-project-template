@@ -12,10 +12,10 @@ import (
 func (s *Service) ReadHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	docRefID := chi.URLParam(r, "docRefId")
+	matchId := chi.URLParam(r, "matchId")
 
 	// Reference document
-	docRef := s.Client.Collection("collaboration-history").Doc(docRefID)
+	docRef := s.Client.Collection("collaboration-history").Doc(matchId)
 
 	// Get data
 	doc, err := docRef.Get(ctx)
@@ -34,7 +34,7 @@ func (s *Service) ReadHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.DocRefID = doc.Ref.ID
+	collaborationHistory.MatchID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"cloud.google.com/go/firestore"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
@@ -9,9 +10,6 @@ import (
 	"history-service/models"
 	"history-service/utils"
 	"net/http"
-	"time"
-
-	"cloud.google.com/go/firestore"
 )
 
 // Update an existing code snippet
@@ -19,7 +17,7 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	docRefId := chi.URLParam(r, "docRefId")
+	matchId := chi.URLParam(r, "matchId")
 	var updatedHistory models.CollaborationHistory
 	if err := utils.DecodeJSONBody(w, r, &updatedHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -27,7 +25,7 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Reference document
-	docRef := s.Client.Collection("collaboration-history").Doc(docRefId)
+	docRef := s.Client.Collection("collaboration-history").Doc(matchId)
 
 	// Validation
 	// Check if exists
@@ -44,7 +42,7 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 	// Prepare the update data.
 	updates := []firestore.Update{
 		{Path: "code", Value: updatedHistory.Code},
-		{Path: "updatedAt", Value: time.Now()},
+		{Path: "updatedAt", Value: firestore.ServerTimestamp},
 	}
 
 	// Update database
@@ -70,7 +68,7 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	updatedHistory.DocRefID = doc.Ref.ID
+	updatedHistory.MatchID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
