@@ -18,3 +18,5 @@ supervisor
 redis
 websockets
 waitress
+pytest
+pytest-mock
