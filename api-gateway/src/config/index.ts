@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config();
+// Load different env files based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.dev';
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 export default {
   port: process.env.PORT || 8001,
@@ -14,4 +17,10 @@ export default {
     matching: process.env.MATCHING_SERVICE_URL || 'http://localhost:5001',
   },
   jwtSecret: process.env.JWT_SECRET || '',
+  rabbitmq: {
+    url: process.env.RABBITMQ_URL || 'ws://localhost:15674/ws',
+    username: process.env.RABBITMQ_USERNAME || 'guest',
+    password: process.env.RABBITMQ_PASSWORD || 'guest',
+    queue: process.env.RABBITMQ_QUEUE || 'matching-service-local',
+  },
 };

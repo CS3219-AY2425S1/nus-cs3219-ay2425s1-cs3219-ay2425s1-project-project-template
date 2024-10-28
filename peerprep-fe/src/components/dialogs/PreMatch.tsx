@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { FilterSelect } from '@/app/(main)/components/filter/FilterSelect';
 import { TopicsPopover } from '@/app/(main)/components/filter/TopicsPopover';
-import { sendMessageToQueue } from '@/lib/rabbitmq';
+// import { sendMessageToQueue } from '@/lib/rabbitmq';
 import { axiosClient } from '@/network/axiosClient';
 import { DIFFICULTY_OPTIONS } from '@/lib/constants';
 import { UserMatchingRequest } from '@/types/types';
@@ -29,12 +29,12 @@ export function PreMatch() {
       const message: UserMatchingRequest = {
         _id: profileDetails.id,
         name: profileDetails.username,
-        topic: selectedTopics[0] || '', // TODO: change to list, but current backend only accepts 1
-        // topic: selectedTopics.join(','),
+        topic: selectedTopics[0] || '',
         difficulty: difficulty,
         type: 'match',
       };
-      await sendMessageToQueue(message);
+      // await sendMessageToQueue(message);
+      await axiosClient.post('/matching/send', message);
       setOpen(false);
       router.push('/match');
     } catch (err) {

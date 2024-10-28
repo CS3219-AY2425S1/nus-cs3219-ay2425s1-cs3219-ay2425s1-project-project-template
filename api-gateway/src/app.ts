@@ -5,6 +5,11 @@ import { errorHandler } from './middleware/errorHandler';
 import config from './config';
 import logger from './utils/logger';
 import http from 'http';
+import { IncomingMessage } from 'http';
+import { Duplex } from 'stream';
+import { wsServer } from './routes/matchingRoutes';
+import { Socket } from 'net';
+import WebSocket from 'ws';
 
 const app = express();
 
@@ -26,6 +31,19 @@ app.use(errorHandler);
 
 // Create HTTP server
 const server = http.createServer(app);
+
+// Handle WebSocket Upgrade
+server.on('upgrade', (req: IncomingMessage, socket: Duplex, head: Buffer) => {
+  const { url } = req;
+  if (url && url.startsWith('/api/v1/matching/ws')) {
+    logger.info(`WebSocket upgrade request for: ${url}`);
+    wsServer.handleUpgrade(req, socket as Socket, head, (ws: WebSocket) => {
+      wsServer.emit('connection', ws, req);
+    });
+  } else {
+    socket.destroy();
+  }
+});
 
 // Start server
 const startServer = () => {

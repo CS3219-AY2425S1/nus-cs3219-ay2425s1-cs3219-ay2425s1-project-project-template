@@ -1,44 +1,42 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
-import { consumeMessageFromQueue, sendMessageToQueue } from '@/lib/rabbitmq';
-import { UserMatchingRequest, UserMatchingResponse } from '@/types/types';
+import { useWebSocket } from '@/hooks/useWebsocket';
+import { axiosClient } from '@/network/axiosClient';
 
 export default function LoadingPage() {
+  const { user } = useAuthStore();
+  // Add connection status handling
+  const { lastMessage, disconnect } = useWebSocket(
+    process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8001',
+    user?.id || '',
+  );
   const [elapsedTime, setElapsedTime] = useState(0);
   const [matchStatus, setMatchStatus] = useState('searching');
   const router = useRouter();
-  const { user } = useAuthStore();
-  const listenerInitialized = useRef(false);
 
-  // Function to consume messages from the RabbitMQ queue
-  const handleStartListening = () => {
-    const onMessageReceived = (message: UserMatchingResponse) => {
-      if (message.status == 'matched') {
-        console.log('Match found, your partner is', message.match.name);
+  // Handle WebSocket messages and connection status
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.status === 'matched') {
+        console.log('Match found, your partner is', lastMessage.match.name);
         setMatchStatus('matched');
+
+        setTimeout(() => {
+          router.push('/collaboration');
+        }, 4000);
       } else {
         console.log('Match failed');
         setMatchStatus('failed');
       }
-    };
-    if (user?.id) {
-      consumeMessageFromQueue(user.id, onMessageReceived);
-    } else {
-      console.warn('User ID is undefined. This is not supposed to happen.');
     }
-  };
+  }, [lastMessage, router]);
 
   useEffect(() => {
-    if (!listenerInitialized.current) {
-      handleStartListening();
-      listenerInitialized.current = true; // Mark as initialized
-    }
-
     setElapsedTime(0);
     setMatchStatus('searching');
 
@@ -48,9 +46,10 @@ export default function LoadingPage() {
 
     // Cleanup function
     return () => {
-      clearInterval(interval); // Clean up interval on unmount
+      clearInterval(interval);
+      disconnect(); // Disconnect WebSocket when component unmounts
     };
-  }, []);
+  }, [disconnect]);
 
   useEffect(() => {
     if (elapsedTime >= 60 && matchStatus === 'searching') {
@@ -59,15 +58,18 @@ export default function LoadingPage() {
     }
   }, [elapsedTime, matchStatus]);
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     console.log('Matching cancelled');
     if (user?.id) {
-      const message: UserMatchingRequest = {
-        _id: user?.id,
-        type: 'cancel',
-      };
-      sendMessageToQueue(message);
-      router.push('/');
+      try {
+        await axiosClient.post('/matching/send', {
+          _id: user.id,
+          type: 'cancel',
+        });
+        router.push('/');
+      } catch (error) {
+        console.error('Error cancelling match:', error);
+      }
     } else {
       console.warn('User ID is undefined. This is not supposed to happen.');
     }
