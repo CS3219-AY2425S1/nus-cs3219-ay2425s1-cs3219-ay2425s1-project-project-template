@@ -13,6 +13,7 @@ import { fontFun } from "@/config/fonts";
 import { getSession, getUsername } from "@/auth/actions";
 import { GreetingMessageHeader } from "../greetingmessageheader";
 import { UsersInRoom } from "./UsersInRoom";
+import TerminateModal from "./TerminateModal";
 
 export const CollabNavbar = async () => {
   const user = await getUsername();
@@ -29,6 +30,9 @@ export const CollabNavbar = async () => {
       </NavbarContent>
       <NavbarContent className="basis-full" justify="center">
         <UsersInRoom /> {/* Add the UsersInRoom component */}
+      </NavbarContent>
+      <NavbarContent className="basis-1/5" justify="center">
+        <TerminateModal /> {/* Add the UsersInRoom component */}
       </NavbarContent>
       <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="flex items-center justify-center gap-5">

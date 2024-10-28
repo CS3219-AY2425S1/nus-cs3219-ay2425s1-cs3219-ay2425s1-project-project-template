@@ -123,6 +123,13 @@ export function handleCodeExecution(socket: Socket, io: Server) {
     });
 }
 
+export function handleTermination(socket: Socket, io: Server) {
+    socket.on('changeModalVisibility', (isVisible) => {
+        console.log('Modal visibility changed:', isVisible);
+        const roomId = socket.data.roomId;
+        socket.to(roomId).emit('modalVisibility', isVisible);
+    });
+}
 
 export async function handleDisconnect(socket: Socket, io: Server) {
     socket.on('disconnect', async () => {
