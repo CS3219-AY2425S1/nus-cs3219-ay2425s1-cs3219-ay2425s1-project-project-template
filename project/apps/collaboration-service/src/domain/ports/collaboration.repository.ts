@@ -49,7 +49,7 @@ export abstract class CollaborationRepository {
    * @param id - The unique identifier of the collaboration entry containing the document to be fetched.
    * @returns A promise that resolves to the document state, or null if not found.
    */
-  abstract fetchDocumentById(id: string): Promise<any>;
+  abstract fetchDocumentById(id: string): Promise<Buffer | null>;
 
   /**
    * Stores a document by its unique identifier. Used by the Hocuspocus server to update the state of a document.

@@ -14,6 +14,12 @@ import { firstValueFrom } from 'rxjs';
 import { type UserAuthRecordDto } from '@repo/dtos/users';
 
 import { CollaborationRepository } from './domain/ports/collaboration.repository';
+import {
+  STORE_DOCUMENT_DEBOUNCE,
+  STORE_DOCUMENT_MAX_DEBOUNCE,
+  WEBSOCKET_TIMEOUT,
+} from './domain/constants/server';
+import { EnvService } from './env/env.service';
 
 @Injectable()
 export class CollaborationGateway implements OnModuleInit {
@@ -21,15 +27,17 @@ export class CollaborationGateway implements OnModuleInit {
   private readonly hpLogger = new Logger('Hocuspocus');
 
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
+    @Inject('AUTH_SERVICE')
+    private readonly authServiceClient: ClientProxy,
+    private readonly envService: EnvService,
     private readonly collaborationRepository: CollaborationRepository,
   ) {}
 
   private readonly hocuspocusServer = HocuspocusServer.configure({
-    port: 1234,
-    timeout: 1000 * 60 * 60,
-    debounce: 1000 * 10,
-    maxDebounce: 1000 * 60,
+    port: this.envService.get('HOCUSPOCUS_PORT'),
+    timeout: WEBSOCKET_TIMEOUT,
+    debounce: STORE_DOCUMENT_DEBOUNCE,
+    maxDebounce: STORE_DOCUMENT_MAX_DEBOUNCE,
     extensions: [
       new HocuspocusDatabase({
         fetch: this.fetchDocument.bind(this),
