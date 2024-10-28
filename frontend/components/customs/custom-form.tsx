@@ -3,6 +3,7 @@ import CustomSelect from './custom-select'
 import { Button } from '../ui/button'
 import Multiselect from './multiple-select'
 import { useState } from 'react'
+import TestcaseForm from '@/pages/questions/testcase-form'
 
 interface CustomFormProps {
     fields: IFormFields[]
@@ -43,8 +44,14 @@ export default function CustomForm({ fields, data, submitHandler }: CustomFormPr
     const validateFields = () => {
         const newErrors: { [key: string]: string } = {}
         fields.forEach((field) => {
-            if (field.required && isFieldEmpty(field.accessKey)) {
-                newErrors[field.accessKey] = 'This field is required!'
+            if (field.required) {
+                if (field.accessKey === 'testCases') console.log(data[field.accessKey])
+                const isEmpty = field.customValidator
+                    ? !field.customValidator(data[field.accessKey])
+                    : isFieldEmpty(field.accessKey)
+                if (isEmpty) {
+                    newErrors[field.accessKey] = 'This field is required!'
+                }
             }
         })
         setErrors(newErrors)
@@ -88,6 +95,14 @@ export default function CustomForm({ fields, data, submitHandler }: CustomFormPr
                                 options={field.selectOptions}
                                 defaultValues={data[field.accessKey]}
                                 onSelectChange={(vals) => handleMultiSelectChange(vals, field.accessKey)}
+                            />
+                        )}
+                        {field.formType === FormType.CUSTOM_TESTCASE && (
+                            <TestcaseForm
+                                data={data[field.accessKey]}
+                                onDataChange={(testcase) => {
+                                    data[field.accessKey] = testcase
+                                }}
                             />
                         )}
                         {errors[field.accessKey] && (
