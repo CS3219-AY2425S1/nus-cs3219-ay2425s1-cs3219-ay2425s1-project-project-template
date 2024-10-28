@@ -25,10 +25,14 @@ export class CreateQuestionDto {
 
     @IsArray()
     @IsString({ each: true })
+    @ArrayNotEmpty()
+    @IsNotEmpty({ each: true })
     testInputs: string[]
 
     @IsArray()
     @IsString({ each: true })
+    @ArrayNotEmpty()
+    @IsNotEmpty({ each: true })
     testOutputs: string[]
 
     constructor(

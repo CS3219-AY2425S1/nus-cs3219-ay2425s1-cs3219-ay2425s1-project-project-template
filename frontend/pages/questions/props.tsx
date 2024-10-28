@@ -124,7 +124,7 @@ const formFields: IFormFields[] = [
         placeholder: 'Enter testcases',
         required: true,
         customValidator: (data: ITestcase[]) => {
-            return data.length > 0 && data.every((t) => t.input !== '' && t.output !== '')
+            return data.length > 0 && data.every((t) => t.input?.trim() !== '' && t.output?.trim() !== '')
         },
     },
 ]

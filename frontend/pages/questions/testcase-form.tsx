@@ -14,7 +14,9 @@ export default function TestcaseForm({ data, onDataChange }: ITestcaseFormProps)
 
     const addTestcase = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault()
-        const isEmptyTestcase = testcases.some((testcase) => testcase.input === '' || testcase.output === '')
+        const isEmptyTestcase = testcases.some(
+            (testcase) => testcase.input?.trim() === '' || testcase.output?.trim() === ''
+        )
         if (isEmptyTestcase) {
             setIsShowError(true)
             return
