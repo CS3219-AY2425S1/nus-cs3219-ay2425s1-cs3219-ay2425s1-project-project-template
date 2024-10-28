@@ -4,7 +4,9 @@ const admin = require('firebase-admin');
 // Function to create a new user and add them to the Firestore collection
 const addToUserCollection = async (req, res) => {
     const { uid, email, displayName, username } = req.body;
-
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+        return res.status(400).json({ success: false, message: "Username must be alphanumeric only." });
+    }
     try {
         console.log("Attempting to add user to Firestore:", uid, email, displayName);
 
