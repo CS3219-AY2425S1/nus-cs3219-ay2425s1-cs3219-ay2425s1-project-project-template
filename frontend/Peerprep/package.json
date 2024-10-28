@@ -11,9 +11,9 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@codemirror/basic-setup": "^0.20.0",
     "@codemirror/collab": "^6.1.1",
     "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/theme-one-dark": "^6.1.2",
     "@liveblocks/client": "^2.10.0",
     "@liveblocks/yjs": "^2.10.0",
     "@pinia/nuxt": "^0.5.5",
@@ -39,7 +39,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@lucafabbian/firepad": "^1.5.20",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "firebase": "^9.23.0",
     "typescript": "^5.6.2"

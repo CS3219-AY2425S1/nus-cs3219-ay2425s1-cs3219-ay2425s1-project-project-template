@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     userService: `http://user_service:5001`,
     public: {
       webSocketUrl: `ws://${process.env.HOST_ADDRESS}:8001`,
+      apiKey: process.env.LB_API_KEY,
     },
   },
   shadcn: {

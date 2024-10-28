@@ -10,6 +10,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { useCollaborationStore } from '~/stores/collaborationStore'; // Store for real-time sync
 import { useFirebaseApp, useFirestore } from 'vuefire';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { oneDark } from "@codemirror/theme-one-dark";
 
 const parent = ref(null);
 const leave = ref(null);
@@ -22,7 +23,7 @@ const session_info = collaborationStore.getCollaborationInfo;
 
 // Set up Liveblocks client
 const client = createClient({
-  publicApiKey: "pk_prod_jyhlDWr3kQrHYfKbpGbZeIh4Fb_YB1rCfBYzi4Yi-AAkUMPOXWBhsMWV5XHPe6wD",
+  publicApiKey: useRuntimeConfig().public.apiKey,
 });
 
 // Enter a multiplayer room
@@ -52,6 +53,7 @@ onMounted(async () => {
         basicSetup,
         javascript(),
         yCollab(yText, yProvider.awareness),
+        oneDark,
         ],
     });
 
@@ -60,7 +62,7 @@ onMounted(async () => {
         state,
         parent: parent.value,
     });
-    
+
     // Save to Firestore when the document changes
     yText.observe(() => {
         const currentCode = yText.toString();
