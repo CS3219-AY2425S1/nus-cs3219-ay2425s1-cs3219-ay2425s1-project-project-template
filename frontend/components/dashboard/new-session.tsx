@@ -79,9 +79,7 @@ export const NewSession = () => {
             return
         }
 
-        const socket = new WebSocket(
-            `${process.env.NEXT_PUBLIC_API_URL?.replace(/http/, 'ws')}/matching/ws/?id=${websocketId}`
-        )
+        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_API_URL}/matching/ws/?id=${websocketId}`)
         socketRef.current = socket
         socketRef.current.onclose = () => {
             updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
