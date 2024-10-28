@@ -9,7 +9,7 @@ import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import { useSession } from 'next-auth/react'
 import { languages } from '@codemirror/language-data'
-import { useRouter } from 'next/router'
+// import { useRouter } from 'next/router'
 import { userColor } from '@/util/cursor-colors'
 import { CodeMirrorEditorProps } from '@/types/editor'
 
@@ -22,7 +22,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
     const { data: session } = useSession()
     const [editorView, setEditorView] = useState<EditorView | null>(null)
     const compartment = useMemo(() => new Compartment(), [])
-    const router = useRouter()
+    // const router = useRouter()
 
     useEffect(() => {
         console.log('Change in language', language, editorView)
@@ -54,7 +54,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
         })
         if (wsProvider.ws) {
             wsProvider.ws.onclose = () => {
-                router.push('/')
+                // router.push('/')
             }
         }
         setProvider(wsProvider)
