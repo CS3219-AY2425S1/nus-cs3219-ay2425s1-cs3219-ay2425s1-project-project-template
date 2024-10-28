@@ -53,8 +53,6 @@ export async function callFunction(
 		body: JSON.stringify(body),
 	});
 
-	console.log(response);
-
 	// Check for empty response
 	const data = await response.json().catch(() => ({ success: true }));
 
