@@ -33,7 +33,7 @@ public class WebSocketController {
         }
 
         myUserPrincipal.setUserEmail(matchRequest.getUserEmail());
-        matchRequest.getMatchCriteriaKey().forEach(key -> {
+        matchRequest.getValidMatchCriteriaKey().forEach(key -> {
             matchRequestProducer.sendMessage("MATCH_REQUESTS", key, userId + "_" + matchRequest.getUserEmail());
         });
     }
