@@ -6,7 +6,6 @@ const authMiddleware = async (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
     const user = jwt.verify(token, USER_JWT_SECRET);
     req.user = user; // Attach user profile to request object
-    console.log(user);
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
       res.status(401).json({ message: 'Unauthorized' }); // Send a 401 response if 
