@@ -13,6 +13,8 @@ import CodeEditor from '../components/collab/CodeEditor';
 import RoomPage from "./pages/RoomPage";
 import ProfilePage from "./pages/ProfilePage";
 import AboutUs from "./pages/AboutUsPage";
+import ChangePasswordPage from "./pages/ChangePassword";
+import AboutUsPage from "./pages/AboutUsPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -67,7 +69,7 @@ function App() {
               <Route path="/aboutus" element={<AboutUs />} />
               <Route path="/signup" element={<Signup updateAuthStatus={function (value: SetStateAction<boolean>): void {
                 throw new Error("Function not implemented.");
-              } } />} />
+              }} />} />
             </>
           ) : (
             <Route path="*" element={<Navigate to="/" replace />} /> // Redirect authenticated users
@@ -82,6 +84,8 @@ function App() {
           <Route path="/editor" element={<CodeEditor />} />
           <Route path="/room" element={<RoomPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/aboutus" element={<AboutUsPage />} />
+          <Route path="/changepassword" element={<ChangePasswordPage />} />
         </Routes>
       </Box>
     </Box>
