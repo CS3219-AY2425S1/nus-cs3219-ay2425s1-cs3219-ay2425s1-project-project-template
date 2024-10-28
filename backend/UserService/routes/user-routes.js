@@ -14,6 +14,7 @@ import {
   verifyIsAdmin,
   verifyIsOwnerOrAdmin,
 } from "../middleware/basic-access-control.js";
+import upload from "../config/multer-config.js";
 
 const router = express.Router();
 
@@ -32,7 +33,13 @@ router.post("/", createUser);
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 
 //Update User password only
-router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
+router.patch(
+  "/:id",
+  verifyAccessToken,
+  verifyIsOwnerOrAdmin,
+  upload.single("avatar"),
+  updateUser
+);
 
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 

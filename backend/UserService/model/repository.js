@@ -37,17 +37,22 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password) {
+export async function updateUserById(
+  userId,
+  username,
+  email,
+  avatar,
+  password
+) {
+  const updateFields = {};
+  if (username) updateFields.username = username;
+  if (email) updateFields.email = email;
+  if (password) updateFields.password = password;
+  if (avatar) updateFields.avatar = avatar;
   return UserModel.findByIdAndUpdate(
     userId,
-    {
-      $set: {
-        username,
-        email,
-        password,
-      },
-    },
-    { new: true } // return the updated user
+    { $set: updateFields },
+    { new: true }
   );
 }
 

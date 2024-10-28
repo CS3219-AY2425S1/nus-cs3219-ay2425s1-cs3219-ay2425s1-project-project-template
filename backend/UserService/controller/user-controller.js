@@ -12,6 +12,8 @@ import {
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
 import { sendEmail } from "../utils/mailer.js";
+import cloudinary from "../config/cloudinary-config.js";
+import { fileRemover } from "../utils/fileRemover.js";
 
 export async function createUser(req, res) {
   try {
@@ -85,9 +87,11 @@ export async function getAllUsers(req, res) {
 export async function updateUser(req, res) {
   try {
     const { username, email, newPassword, oldPassword } = req.body;
+    const { file } = req;
 
-    if (oldPassword && (username || email || newPassword)) {
+    if (oldPassword && (username || email || newPassword || file)) {
       const userId = req.params.id;
+      let newAvatarPath;
       if (!isValidObjectId(userId)) {
         return res.status(404).json({ message: `User ${userId} not found` });
       }
@@ -99,6 +103,22 @@ export async function updateUser(req, res) {
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) {
         return res.status(401).json({ message: "Wrong password" });
+      }
+
+      if (file) {
+        try {
+          const result = await cloudinary.uploader.upload(file.path, {
+            folder: "PeerPrep",
+          });
+
+          newAvatarPath = result.secure_url;
+        } catch (err) {
+          return res.status(500).json({
+            message: "Unknown error when uploading image!",
+          });
+        } finally {
+          fileRemover(file.filename);
+        }
       }
 
       if (username || email) {
@@ -117,10 +137,12 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(newPassword, salt);
       }
+
       const updatedUser = await _updateUserById(
         userId,
         username,
         email,
+        newAvatarPath,
         hashedPassword
       );
       return res.status(200).json({

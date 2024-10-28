@@ -5,7 +5,7 @@ import React, { useContext } from 'react'
 import toast from 'react-hot-toast';
 import { AuthContext } from '../../hooks/AuthContext';
 
-export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, formReset }: { open: boolean, handleDialogCloseFn: () => void, data: Record<string, string>, formReset: () => void }) {
+export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, handleSuccessChange }: { open: boolean, handleDialogCloseFn: () => void, data: Record<string, string>, handleSuccessChange: () => void }) {
 
     const { user } = useContext(AuthContext);
 
@@ -19,11 +19,16 @@ export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, 
 
     const { mutate, isPending } = useMutation({
         mutationFn: async (data: Record<string, string>) => {
-            return axios.patch(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users/${user.id}`, data, { withCredentials: true })
+            return axios.patch(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users/${user.id}`, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true
+            })
         },
         onSuccess: (data) => {
             toast.success("Settings changed successfully!");
-            formReset();
+            handleSuccessChange();
             handleDialogCloseFn();
         },
         onError: (error: AxiosError) => {
@@ -49,6 +54,7 @@ export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, 
                             username: data.username,
                             email: data.email,
                             newPassword: data.newPassword,
+                            avatar: data.file,
                             oldPassword: formJson.oldPassword,
                         }
                         mutate(formData);

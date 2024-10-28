@@ -1,16 +1,61 @@
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import EmailIcon from '@mui/icons-material/Email';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PersonIcon from '@mui/icons-material/Person'
-import { Button, InputAdornment, TextField } from "@mui/material";
+import { Avatar, Button, InputAdornment, styled, TextField } from "@mui/material";
 import { useState } from "react";
-import ConfirmSettingDialog from "../../components/Settings/ConfirmDialog";
 import MainLayout from "../../components/MainLayout";
 import toast from "react-hot-toast";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ConfirmSettingDialog from "../../components/Settings/ConfirmDialog";
+
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
 
 export default function SettingsPage() {
 
     const [confirmSettingDialogOpen, setConfirmSettingDialogOpen] = useState(false);
+    const [file, setFile] = useState<File | undefined>();
+    const [preview, setPreview] = useState("");
+    const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
+        const target = e.target as HTMLInputElement & {
+            files: FileList;
+        }
+        if (target.files.length > 0) {
+            if (target.files[0].size > 5 * 1000000) { // 5MB
+                toast.error("The file is too BIG!");
+            } else {
+                const urlImage = URL.createObjectURL(target.files[0]);
+                setPreview(urlImage);
+                setFile(target.files[0]);
+            }
+        }
+    }
+
+    const handleDeletePhoto = () => {
+        const fileInput = document.getElementById('avatar') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = "";
+            setPreview("");
+            setFile(undefined);
+        }
+    }
+
+    const handleSuccessChange = () => {
+        reset();
+        handleDeletePhoto();
+    }
+
     const [formData, setFormData] = useState({ username: "" });
     const handleDialogOpen = () => {
         setConfirmSettingDialogOpen(true);
@@ -18,7 +63,6 @@ export default function SettingsPage() {
     const handleDialogClose = () => {
         setConfirmSettingDialogOpen(false);
     }
-
 
     const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
         defaultValues: {
@@ -38,8 +82,9 @@ export default function SettingsPage() {
             username: formData.username,
             email: formData.email,
             newPassword: formData.newPassword,
+            file: file,
         }
-        if (data.username || data.email || data.newPassword) {
+        if (data.username || data.email || data.newPassword || data.file) {
             setFormData(data);
             handleDialogOpen();
         } else {
@@ -49,12 +94,32 @@ export default function SettingsPage() {
 
     return <MainLayout>
         <div className="flex flex-col min-h-full min-w-full bg-white">
-            <ConfirmSettingDialog open={confirmSettingDialogOpen} handleDialogCloseFn={handleDialogClose} data={formData} formReset={reset} />
-            <h1 className="font-bold text-3xl py-4">Settings</h1>
+            <ConfirmSettingDialog open={confirmSettingDialogOpen} handleDialogCloseFn={handleDialogClose} data={formData} handleSuccessChange={handleSuccessChange} />
+            <h1 className="font-semibold text-4xl py-8">SETTINGS</h1>
             <div className="flex-1">
                 <div className="flex min-h-full items-center">
-                    <div className="flex-1 justify-center items-center">
-                        PICTURE
+                    <div className="flex-1 flex flex-col justify-center items-center gap-y-10">
+                        <Avatar src={preview} sx={{ width: 300, height: 300 }} />
+                        <div className="flex justify-between gap-x-4">
+                            <Button
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<CloudUploadIcon />}
+                            >
+                                Upload Photo
+                                <VisuallyHiddenInput
+                                    id="avatar"
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    accept="image/png, image/jpg, image/jpeg"
+                                />
+                            </Button>
+                            <Button color="error" variant="outlined" startIcon={<DeleteIcon />} onClick={handleDeletePhoto}>
+                                Remove
+                            </Button>
+                        </div>
                     </div>
                     <div className="flex-1">
                         <form className="flex flex-col gap-y-4 w-4/5">
@@ -114,9 +179,9 @@ export default function SettingsPage() {
                                     variant="contained"
                                     onClick={handleSubmit(onSubmit)}
                                     sx={{ mx: 3, borderRadius: 20 }}
-                                    color="primary"
+                                    color="success"
                                 >
-                                    Change Settings
+                                    Save Changes
                                 </Button>
                             </div>
                         </form>
