@@ -8,7 +8,7 @@ http {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    server_name ${DOMAIN_NAME}};
+    server_name ${DOMAIN_NAME};
 
     limit_req zone=rate_limit_zone burst=20 nodelay;
 
