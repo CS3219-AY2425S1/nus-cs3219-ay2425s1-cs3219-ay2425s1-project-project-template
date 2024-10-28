@@ -1,11 +1,10 @@
-import client, { Connection, Channel, GetMessage, ConsumeMessage } from 'amqplib'
-
+import client, { Channel, Connection, ConsumeMessage, GetMessage } from 'amqplib'
 import config from '../common/config.util'
-import { IUserQueueMessage } from '../types/IUserQueueMessage'
 import logger from '../common/logger.util'
 import { Proficiency, IMatch } from '@repo/user-types'
 import { handleCreateMatch } from '../controllers/matching.controller'
-import wsConnection from '../services/ws.service'
+import { wsConnection } from '../server'
+import { IUserQueueMessage } from '../types/IUserQueueMessage'
 
 class RabbitMQConnection {
     connection!: Connection

@@ -13,7 +13,7 @@ export async function sendMail(to: string, subject: string, text: string, html: 
         },
     })
     await transporter.sendMail({
-        from: process.env.NODEMAILER_EMAIL,
+        from: config.NODEMAILER_EMAIL,
         to,
         subject,
         text,

@@ -1,6 +1,6 @@
-import CredentialsProvider from 'next-auth/providers/credentials'
-import NextAuth from 'next-auth'
 import axios from 'axios'
+import NextAuth from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 
 interface Credentials {
     username: string
@@ -24,7 +24,7 @@ export default NextAuth({
 
                 try {
                     const api = axios.create({
-                        baseURL: 'http://localhost:3002',
+                        baseURL: process.env.NEXT_PUBLIC_API_URL,
                     })
 
                     const response = await api.post('/auth/login', { usernameOrEmail: username, password })
