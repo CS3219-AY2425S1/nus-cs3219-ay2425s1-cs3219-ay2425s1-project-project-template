@@ -1,5 +1,11 @@
 // Referenced from example in https://www.npmjs.com/package/y-codemirror.next
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
@@ -19,6 +25,7 @@ interface CollaborativeEditorProps {
   user: string;
   collaborationId: string;
   language: string;
+  setMatchedUser: Dispatch<SetStateAction<string>>;
 }
 
 export const usercolors = [
@@ -148,6 +155,7 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
     const ydoc = new Y.Doc();
     const provider = new WebrtcProvider(props.collaborationId, ydoc, {
       signaling: [process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL],
+      maxConns: 2,
     });
     const ytext = ydoc.getText("codemirror");
     const undoManager = new Y.UndoManager(ytext);
@@ -156,6 +164,26 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
       name: props.user,
       color: userColor.color,
       colorLight: userColor.light,
+    });
+
+    // Check initial awareness states
+    const states = provider.awareness.getStates();
+    for (const [clientID, state] of Array.from(states)) {
+      if (state.user && state.user.name !== props.user) {
+        props.setMatchedUser(state.user.name);
+        break;
+      }
+    }
+
+    // Listen for awareness changes
+    provider.awareness.on("change", () => {
+      const updatedStates = provider.awareness.getStates();
+      for (const [clientID, state] of Array.from(updatedStates)) {
+        if (state.user && state.user.name !== props.user) {
+          props.setMatchedUser(state.user.name);
+          break;
+        }
+      }
     });
 
     const state = EditorState.create({
@@ -172,11 +200,6 @@ const CollaborativeEditor = (props: CollaborativeEditorProps) => {
       state,
       parent: editorRef.current || undefined,
     });
-
-    // viewRef.current = new EditorView({
-    //   state: state,
-    //   parent: editorRef.current || undefined,
-    // });
 
     return () => {
       // Cleanup on component unmount

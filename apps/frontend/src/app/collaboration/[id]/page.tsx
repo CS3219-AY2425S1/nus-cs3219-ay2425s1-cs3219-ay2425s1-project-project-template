@@ -50,7 +50,7 @@ export default function CollaborationPage(props: CollaborationProps) {
     undefined
   );
   const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
-  const [matchedUser, setMatchedUser] = useState<string | undefined>(undefined);
+  const [matchedUser, setMatchedUser] = useState<string>("Not Connected");
   const [sessionDuration, setSessionDuration] = useState<number>(() => {
     const storedTime = localStorage.getItem("session-duration");
     return storedTime ? parseInt(storedTime) : 0;
@@ -121,7 +121,7 @@ export default function CollaborationPage(props: CollaborationProps) {
 
     // Set states from localstorage
     setCollaborationId(collabId);
-    setMatchedUser(matchedUser);
+    // setMatchedUser(matchedUser); // TODO: remove after being handled in collabeditor
     setCurrentUser(currentUser);
 
     // Fetch question and set question states
@@ -169,13 +169,10 @@ export default function CollaborationPage(props: CollaborationProps) {
   const handleCloseCollaboration = () => {
     // Stop stopwatch
     stopStopwatch();
-    // Remove localstorage variable for stored session duration
-    localStorage.removeItem("session-duration"); // TODO: Remove this after collaboration backend data stored
-
     // Remove localstorage variables for collaboration
+    localStorage.removeItem("session-duration"); // TODO: Remove this after collaboration backend data stored
     localStorage.removeItem("user");
-    localStorage.removeItem("matchedUser");
-    localStorage.removeItem("collaId");
+    localStorage.removeItem("collabId");
     localStorage.removeItem("docRefId");
 
     // Redirect back to matching page
@@ -260,6 +257,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     user={currentUser}
                     collaborationId={collaborationId}
                     language={selectedLanguage}
+                    setMatchedUser={setMatchedUser}
                   />
                 )}
               </div>

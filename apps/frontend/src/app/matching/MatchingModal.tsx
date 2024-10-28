@@ -98,10 +98,6 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
               matchingState.ok();
               setClosedType("joined");
               localStorage.setItem("user", matchingState.info.myName);
-              localStorage.setItem(
-                "matchedUser",
-                matchingState.info.partnerName
-              );
               localStorage.setItem("collabId", matchingState.info.matchId);
               localStorage.setItem("docRefId", matchingState.info.docRefId);
 
