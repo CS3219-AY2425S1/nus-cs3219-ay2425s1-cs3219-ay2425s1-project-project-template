@@ -5,11 +5,10 @@ const { authMiddlewareSocket } = require('../middleware/authMiddleware');
 
 // This route serves the socket connection for session handling
 module.exports = (io) => {
-
   // health check
   router.get('/', (req, res) => {
     return res.send('hello world');
-  })
+  });
 
   // Handle session check for a specific user
   router.get('/check-session/', (req, res) => {
@@ -23,7 +22,7 @@ module.exports = (io) => {
       const sessionDetails = sessionController.checkSessionForUser(userId);
       return res.status(200).json(sessionDetails);
     } catch (error) {
-      return res.status(500).json({ error: "Uknown error" });
+      return res.status(500).json({ error: 'Unknown error' });
     }
   });
 
@@ -31,13 +30,13 @@ module.exports = (io) => {
     // Delegate session handling to the controller
     console.log(`Socket ${socket.id} connected`);
     try {
-      const authHeader = socket.handshake.headers['authorization'];
-      const user = await authMiddlewareSocket(authHeader);
+      const token = socket.handshake.auth.token;
+      const user = await authMiddlewareSocket(token);
       socket.data.user = user;
       sessionController.joinSession(socket, io);
     } catch (error) {
       console.log(error);
-      socket.emit('error', { message: "Unauthorised socket connection." })
+      socket.emit('error', { message: 'Unauthorized socket connection.' });
       socket.disconnect(true);
     }
   });

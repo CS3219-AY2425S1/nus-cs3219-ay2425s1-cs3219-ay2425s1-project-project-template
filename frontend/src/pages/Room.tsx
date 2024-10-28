@@ -2,7 +2,7 @@ import { Group, Skeleton, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
@@ -17,7 +17,7 @@ function Room() {
 
   const [code, setCode] = useState('');
 
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const matchData = location.state;
 
@@ -28,15 +28,11 @@ function Room() {
       return;
     }
 
-    const { roomId, userId, matchUserId } = matchData;
-    connectSocket(roomId, userId, matchUserId);
+    const { roomId, matchUserId } = matchData;
+    connectSocket(roomId, matchUserId);
   }, [matchData]);
 
-  const connectSocket = (
-    sessionId: string,
-    userId: string,
-    matchedUserId: string,
-  ) => {
+  const connectSocket = (sessionId: string, matchedUserId: string) => {
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
@@ -44,10 +40,10 @@ function Room() {
     const token = localStorage.getItem('token');
 
     socketRef.current = io('http://localhost', {
-      extraHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
       path: '/api/collab/socket.io',
+      auth: {
+        token: `Bearer ${token}`,
+      },
       transports: ['websocket'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -56,8 +52,8 @@ function Room() {
     socketRef.current.on('connect', () => {
       socketRef.current?.emit('join-session', {
         sessionId,
-        userId,
         matchedUserId,
+        questionId: 1,
       });
     });
 
@@ -96,7 +92,7 @@ function Room() {
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
-    // navigate('/dashboard');
+    navigate('/dashboard');
   };
 
   return (

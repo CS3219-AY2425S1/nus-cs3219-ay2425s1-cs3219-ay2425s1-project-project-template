@@ -8,21 +8,20 @@ const authMiddleware = async (req, res, next) => {
     req.user = user; // Attach user profile to request object
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
-      res.status(401).json({ message: 'Unauthorized' }); // Send a 401 response if 
+    res.status(401).json({ message: 'Unauthorized' }); // Send a 401 response if
   }
 };
 
-const authMiddlewareSocket = async (authHeader) => {
+const authMiddlewareSocket = async (token) => {
   try {
-    const token = authHeader?.split(' ')[1];
-    const user = jwt.verify(token, USER_JWT_SECRET);
+    const user = jwt.verify(token.split(' ')[1], USER_JWT_SECRET);
     return user;
   } catch (error) {
-    throw error; 
+    throw error;
   }
 };
 
 module.exports = {
   authMiddleware,
-  authMiddlewareSocket
+  authMiddlewareSocket,
 };
