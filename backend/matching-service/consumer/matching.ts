@@ -48,8 +48,6 @@ const performMatching = async (
             return null
         }
 
-        console.log(req.language, bestMatch.language)
-
         const matchPartner: MatchPartner = {
             userId: bestMatch.userId,
             userName: bestMatch.userName,
