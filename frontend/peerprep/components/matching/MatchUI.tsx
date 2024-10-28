@@ -12,6 +12,7 @@ import MatchFoundModal from "./MatchFoundModal";
 import MatchmakingModal from "./MatchmakingModal";
 import MatchTimeoutModal from "./MatchTimeoutModal";
 import MatchErrorModal from "./MatchErrorModal";
+import { useRouter } from "next/navigation";
 
 interface MatchUIProps {
   onClose: () => void;
@@ -32,6 +33,8 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
   const [isMatching, setIsMatching] = useState(false);
   const [matchmakingTime, setMatchmakingTime] = useState<number>(0);
   const [intervalID, setIntervalID] = useState<NodeJS.Timeout | null>(null);
+
+  const router = useRouter();
 
   // Initialize socket on component mount
   useEffect(() => {
@@ -106,6 +109,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
     registerUser(
       userParams,
       handleMatchFound,
+      handleRedirectToSession,
       () => console.log("Registration successful!"), // Handle success
       handleMatchingTimeout,
       handleMatchingError
@@ -127,6 +131,11 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
     setUiState(UIState.MatchFound);
 
     // TODO: Redirect to session page
+  };
+
+  const handleRedirectToSession = () => {
+    console.log("Redirecting to session");
+    router.push("/session");
   };
 
   const closeModal = () => {

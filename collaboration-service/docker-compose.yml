@@ -36,3 +36,4 @@ services:
       - "${COLLAB_SERVICE_PORT}:${COLLAB_SERVICE_PORT}"  # Bind port using env variable
     depends_on:
       - collab-redis
+    network_mode: "host"

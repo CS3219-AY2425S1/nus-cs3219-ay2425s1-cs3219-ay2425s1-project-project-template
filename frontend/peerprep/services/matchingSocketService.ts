@@ -1,5 +1,3 @@
-"use server";
-
 import { io, Socket } from "socket.io-client";
 import { env } from "next-runtime-env";
 
@@ -60,6 +58,7 @@ export const initializeSocket = async () => {
 export const registerUser = (
   userParams: { difficulty: string[]; topic: string[] },
   onMatchFound: (matchData: any) => void,
+  onRedirectToSession: () => void,
   onRegistrationSuccess: () => void,
   onMatchingTimeout: () => void,
   onError: (error: any) => void,
@@ -73,6 +72,11 @@ export const registerUser = (
   // Register event listener for matchFound and registrationSuccess
   socket.on("matchFound", (matchData) => {
     onMatchFound(matchData);
+  });
+
+  socket.on("redirectToSession", (body) => {
+    console.log("Redirecting to session:", body);
+    onRedirectToSession();
   });
 
   socket.on("registrationSuccess", () => {
