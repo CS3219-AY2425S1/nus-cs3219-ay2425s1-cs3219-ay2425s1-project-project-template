@@ -1,4 +1,4 @@
-const { addToUserCollection, listAllUsers, checkAdminStatus } = require('../controllers/userController');
+const { addToUserCollection, checkUsernameExists, checkAdminStatus } = require('../controllers/userController');
 const express = require('express');
 const authenticateToken = require('../middleware/authenticateToken'); // Import the authentication middleware
 const router = express.Router();
@@ -13,5 +13,8 @@ router.post('/verify-token', authenticateToken, (req, res) => {
 router.post('/user/addToUserCollection', addToUserCollection); // New route for user creation
 
 router.get('/admin/checkAdminStatus', checkAdminStatus); // Add the route
+
+// Add the endpoint to check for username existence
+router.get('/check-username', checkUsernameExists);
 
 module.exports = router;

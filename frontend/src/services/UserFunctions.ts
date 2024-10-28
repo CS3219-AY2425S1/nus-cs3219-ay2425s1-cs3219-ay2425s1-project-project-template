@@ -10,7 +10,7 @@ export async function addToUserCollection(userCredential: UserCredential, userna
         displayName: displayName || '', // Use an empty string if displayName is not provided
         username: username,
     };
-    console.log("sending user to collection...")
+    console.log("sending user to collection..." + userData)
     const res = await callUserFunction("user/addToUserCollection", "POST", userData);
 
     return res;
@@ -38,6 +38,18 @@ export async function fetchAdminStatus(): Promise<SuccessObject> {
     });
 }
 
-export async function doesUserExist(): Promise<SuccessObject> {
-    return true
-}
+export const doesUserExist = async (username: string) => {
+    try {
+      const result = await callUserFunction(`check-username?username=${encodeURIComponent(username)}`);
+      
+      console.log(result)
+      if (result.success) {
+        return result.data.exists; // returns true if username is taken
+      } else {
+        throw new Error('Failed to check username');
+      }
+    } catch (error) {
+      console.error("Error checking username:", error);
+      throw error; // rethrow the error for further handling
+    }
+  };

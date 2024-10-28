@@ -133,7 +133,6 @@ export async function callUserFunction(
 
     // Parse the JSON data
     const result = JSON.parse(data);
-
     return { success: true, data: result };
   } catch (error: any) {
     console.error("Fetch error:", error);
