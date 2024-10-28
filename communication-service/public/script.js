@@ -1,7 +1,7 @@
-const socket = io('https://192.168.1.9:8443', {
+const socket = io('http://localhost:8443', {
   path: '/api/comm/socket.io',
   extraHeaders: {
-    Authorization: `Bearer `
+    Authorization: ``
   }
 });
 

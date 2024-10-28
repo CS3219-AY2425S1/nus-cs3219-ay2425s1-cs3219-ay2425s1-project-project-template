@@ -15,7 +15,7 @@ The client will require a valid JWT created from our user service to connect to 
 ## Base URL
 
 ```
-wss://<your-server-address>/api/comm/socket.io
+wss://communication-service-backend/api/comm/socket.io
 ```
 
 ## WebSocket Events
