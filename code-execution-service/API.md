@@ -12,7 +12,7 @@ The client will require a valid JWT created from our user service to use our end
 
 ## Endpoint
 
-### POST /executeCode
+### POST /
 
 Executes code in a specified programming language within a Docker container, optionally with input.
 
