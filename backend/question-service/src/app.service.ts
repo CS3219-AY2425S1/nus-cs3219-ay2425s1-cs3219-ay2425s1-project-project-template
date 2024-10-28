@@ -75,6 +75,17 @@ export class AppService {
     return question;
   }
 
+  async getQuestionById(id: string): Promise<Question> {
+    const question = await this.questionModel
+      .findOne({ _id: new Types.ObjectId(id) })
+      .exec();
+
+    if (!question) {
+      throw new RpcException('Question not found');
+    }
+    return question;
+  }
+
   async createQuestion(data: CreateQuestionDto): Promise<Question> {
     const { title, description, difficulty, categories } = data;
     try {
