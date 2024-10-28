@@ -12,6 +12,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import CodeEditor from '../components/collab/CodeEditor';
 import RoomPage from "./pages/RoomPage";
 import ProfilePage from "./pages/ProfilePage";
+import AboutUs from "./pages/AboutUsPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -63,6 +64,7 @@ function App() {
           {!isAuthenticated ? (
             <>
               <Route path="/login" element={<Login updateAuthStatus={setIsAuthenticated} />} />
+              <Route path="/aboutus" element={<AboutUs />} />
               <Route path="/signup" element={<Signup updateAuthStatus={function (value: SetStateAction<boolean>): void {
                 throw new Error("Function not implemented.");
               } } />} />
