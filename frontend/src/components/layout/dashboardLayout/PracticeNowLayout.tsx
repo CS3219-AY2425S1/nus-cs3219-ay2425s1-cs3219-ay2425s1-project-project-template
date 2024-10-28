@@ -1,7 +1,8 @@
 import { Button, Stack, Text, Title, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { useAuth } from '../../../hooks/AuthProvider';
@@ -23,14 +24,15 @@ function PracticeLayout() {
 
   const [displayTimer, setDisplayTimer] = useState(0);
   const timerRef = useRef(0);
-  const [_, setMatchFound] = useState<any | null>(null);
   const hasTimedOut = useRef(false);
   const socketRef = useRef<Socket | null>(null);
+
   const timeoutTime = 30;
 
   const auth = useAuth();
+  const navigate = useNavigate();
 
-  const handleTimeout = useCallback(() => {
+  const handleTimeout = () => {
     if (!hasTimedOut.current) {
       hasTimedOut.current = true;
       if (socketRef.current) {
@@ -44,7 +46,7 @@ function PracticeLayout() {
       });
       closeMatchingModal();
     }
-  }, []);
+  };
 
   useEffect(() => {
     let interval: number;
@@ -68,7 +70,7 @@ function PracticeLayout() {
       setDisplayTimer(0);
       hasTimedOut.current = false;
     };
-  }, [isMatchingModalOpen, handleTimeout]);
+  }, [isMatchingModalOpen]);
 
   const connectSocket = (difficulties: string[], topics: string[]) => {
     if (socketRef.current) {
@@ -87,14 +89,14 @@ function PracticeLayout() {
     });
 
     socketRef.current.on('match_found', (match) => {
-      setMatchFound(match);
+      console.log(match);
       notifications.show({
         title: 'Match found!',
         message: 'Creating a practice room...',
         color: 'green',
       });
-      console.log(match);
       handleCancelMatching();
+      navigate('/room', { state: match });
     });
 
     socketRef.current.on('disconnect', handleCancelMatching);
