@@ -294,10 +294,7 @@ onUnmounted(() => {
             </Button>
           </div>
 
-          <!-- testing purposes. -->
-          <div class="flex justify-center w-full">
-            <Button type="button" class="w-3/4" @click="collaborationStore.clearCollaborationInfo">Clear</Button>
-          </div>
+
         </form>
       </CardContent>
     </Card>
