@@ -25,25 +25,26 @@ interface SuccessMatchInfoProps {
             difficulty: string;
             categories: string[];
         };
-        isWaiting?: boolean;
     };
     onOpenChange: (isOpen: boolean) => void;
     handleAccept: (matchId: string) => void;
+    matchStatus: 'pending' | 'waiting' | 'accepted' | 'timeout' | 'failed';
+    setMatchStatus: React.Dispatch<React.SetStateAction<'pending' | 'waiting' | 'accepted' | 'timeout' | 'failed'>>;
 }
 
+
 const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
-    const { isOpen, match, onOpenChange, handleAccept } = props;
-    const [timerProgress, setTimerProgress] = useState(0); // Progress from 0 to 100
+    const { isOpen, match, onOpenChange, handleAccept, matchStatus, setMatchStatus } = props;
+    const [timerProgress, setTimerProgress] = useState(0);
     const [isAcceptDisabled, setIsAcceptDisabled] = useState(false);
 
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null;
-        console.log('SuccessMatchInfo match object:', match);
 
-        if (isOpen) {
-            const totalDuration = 15000; // 15 seconds in milliseconds
-            const updateInterval = 100; // Update every 100 milliseconds
-            const increment = (100 / totalDuration) * updateInterval; // Calculate how much to increment each time
+        if (isOpen && (matchStatus === 'pending' || matchStatus === 'waiting')) {
+            const totalDuration = 15000; // 15 seconds
+            const updateInterval = 100; // Every 100 ms
+            const increment = (100 / totalDuration) * updateInterval;
 
             timer = setInterval(() => {
                 setTimerProgress((prev) => {
@@ -51,7 +52,8 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                     if (newProgress >= 100) {
                         if (timer) clearInterval(timer);
                         setTimerProgress(100);
-                        setIsAcceptDisabled(true); // Disable the Accept button
+                        setIsAcceptDisabled(true);
+                        setMatchStatus('timeout');
                         return 100;
                     }
                     return newProgress;
@@ -61,10 +63,17 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
 
         return () => {
             if (timer) clearInterval(timer);
-            setTimerProgress(0); // Reset progress when the component unmounts or dialog closes
+            setTimerProgress(0);
             setIsAcceptDisabled(false);
         };
-    }, [isOpen]);
+    }, [isOpen, matchStatus, setMatchStatus]);
+
+    useEffect(() => {
+        if (matchStatus === 'accepted' || matchStatus === 'failed' || matchStatus === 'timeout') {
+            setIsAcceptDisabled(true);
+            setTimerProgress(100);
+        }
+    }, [matchStatus]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -75,6 +84,7 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                     </DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 p-2">
+                    {/* Partner Info */}
                     <div>
                         <p className="text-sm mb-2">Partner:</p>
                         <div className="flex items-center gap-4">
@@ -86,18 +96,21 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                             </div>
                         </div>
                     </div>
+                    {/* Question Info */}
                     <div>
                         <p className="text-sm mb-2">Question:</p>
                         <div>
                             <h4 className="text-lg font-semibold">{match.question.questionId}. {match.question.title}</h4>
                         </div>
                     </div>
+                    {/* Difficulty */}
                     <div>
                         <h5 className="text-sm mb-2">Difficulty:</h5>
                         <div>
                             <h4 className="text-lg font-semibold">{match.question.difficulty}</h4>
                         </div>
                     </div>
+                    {/* Categories */}
                     <div>
                         <h5 className="text-sm mb-2">Categories:</h5>
                         <div className="flex flex-wrap gap-2">
@@ -108,20 +121,40 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                             ))}
                         </div>
                     </div>
-                    {match.isWaiting && (
+                    {matchStatus === 'waiting' && (
                         <div className="mt-4">
-                            <Label className="text-yellow-500">Waiting for your partner to accept...</Label>
+                            <Label className="text-yellow-500">Thank you! Waiting for your partner to accept...</Label>
+                        </div>
+                    )}
+                    {matchStatus === 'accepted' && (
+                        <div className="mt-4">
+                            <Label className="text-green-500">Both users have accepted the match!</Label>
+                        </div>
+                    )}
+                    {matchStatus === 'timeout' && (
+                        <div className="mt-4">
+                            <Label className="text-red-500">You or your partner did not accept in time.</Label>
+                        </div>
+                    )}
+                    {matchStatus === 'failed' && (
+                        <div className="mt-4">
+                            <Label className="text-red-500">Your partner has canceled the match.</Label>
                         </div>
                     )}
                 </div>
                 <DialogFooter>
-                    <Button onClick={() => handleAccept(match.matchId)} disabled={isAcceptDisabled}>Accept</Button>
+                    <Button
+                        onClick={() => handleAccept(match.matchId)}
+                        disabled={isAcceptDisabled || matchStatus !== 'pending'}
+                    >
+                        Accept
+                    </Button>
                 </DialogFooter>
-                <Progress className='bg-white ' value={timerProgress} />
-                {isAcceptDisabled && <Label>You did not accept the match in time.</Label>}
+                <Progress className='bg-white' value={timerProgress} />
             </DialogContent>
         </Dialog>
     )
 }
 
-export default SuccessMatchInfo
+export default SuccessMatchInfo;
+

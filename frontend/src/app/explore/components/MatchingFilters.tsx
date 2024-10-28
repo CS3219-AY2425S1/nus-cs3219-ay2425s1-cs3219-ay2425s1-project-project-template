@@ -71,7 +71,7 @@ const MatchingFilters = () => {
         { label: "Question 9", value: "Question 9" },
         { label: "Question 10", value: "Question 10" },
     ]
-      
+    const [matchStatus, setMatchStatus] = useState<'pending' | 'waiting' | 'accepted' | 'timeout' | 'failed'>('pending');
 
     // Setup socket connection and event handlers
     useEffect(() => {
@@ -88,6 +88,16 @@ const MatchingFilters = () => {
             setMatchPartner(partner);
             setIsMatchFound(true);
             setIsSearching(false);
+            setMatchStatus('pending');
+        });
+
+        socket.on('waitingForPartner', (data: any) => {
+            console.log(data.message);
+            setMatchStatus('waiting');
+            toast({
+                title: 'Waiting for Partner',
+                description: data.message,
+            });
         });
 
         socket.on('noMatchFound', (data: any) => {
@@ -101,6 +111,7 @@ const MatchingFilters = () => {
 
         socket.on('matchCanceled', (data: any) => {
             console.log(`Match canceled:`, data.message);
+            setMatchStatus('failed');
             toast({
                 title: "Match Canceled",
                 description: data.message,
@@ -110,6 +121,8 @@ const MatchingFilters = () => {
 
         socket.on('matchAccepted', (data: any) => {
             console.log('Both users have accepted the match:', data.matchId);
+            setMatchStatus('accepted');
+            // codespace logic
         });
 
         return () => {
@@ -118,6 +131,7 @@ const MatchingFilters = () => {
             socket.off('noMatchFound');
             socket.off('matchCanceled');
             socket.off('matchAccepted');
+            socket.off('waitingForPartner');
             socket.disconnect();
         }
     }, [user]);
@@ -143,6 +157,7 @@ const MatchingFilters = () => {
 
     const handleAccept = (matchId: string) => {
         socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id });
+        setMatchStatus('waiting');
     };
 
     const formatTime = (seconds: number) => {
@@ -165,7 +180,7 @@ const MatchingFilters = () => {
 
     return (
         <div className="flex flex-col p-8 gap-4">
-            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={handleAccept} />}
+            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={handleAccept} matchStatus={matchStatus} setMatchStatus={setMatchStatus}/>}
             <h1 className="text-2xl font-bold self-start text-transparent bg-clip-text bg-gradient-to-r from-[var(--gradient-text-first)] via-[var(--gradient-text-second)] to-[var(--gradient-text-third)]">Look for peers to code now!</h1>
             <div className='flex gap-6'>
                 {/* <div className='w-1/3'>
