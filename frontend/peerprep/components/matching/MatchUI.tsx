@@ -89,11 +89,25 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleMatchingError = (error: any) => {
     console.error("Error during matchmaking:", error);
-    if (error === "'User is already registered for matching.") {
+
+    if (error === "User is already registered for matching.") {
       setMatchmakingError("You are already registered for matching.");
+    } else if (error === "Failed to select question based on criteria.") {
+      setMatchmakingError(
+        "We couldn't find a suitable question. Please try again."
+      );
+    } else if (error === "Failed to initialize session.") {
+      setMatchmakingError(
+        "An error occurred while setting up the session. Please try again."
+      );
+    } else if (error === "Failed to save match data.") {
+      setMatchmakingError(
+        "An error occurred while saving match data. Please try again."
+      );
     } else {
-      setMatchmakingError("An error occurred during matchmaking.");
+      setMatchmakingError("An unexpected error occurred during matchmaking.");
     }
+
     setUiState(UIState.MatchingError);
   };
 

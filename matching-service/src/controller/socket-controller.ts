@@ -143,27 +143,57 @@ export function handleDisconnect(socket: Socket) {
 }
 
 async function initializeMatch(user1Data: any, user2Data: any, socket1: Socket, socket2: Socket) {
-    // Initialize match
+    try {
+        // Get overlapping criteria for selecting a question
+        const overlappingCriteria = getOverlappingCriteria(user1Data.criteria, user2Data.criteria);
+        let selectedQuestionId;
 
-    // Get question for criteria
-    const overlappingCriteria = getOverlappingCriteria(user1Data.criteria, user2Data.criteria);
-    const selectedQuestionId = await selectQuestion(overlappingCriteria);
+        try {
+            selectedQuestionId = await selectQuestion(overlappingCriteria);
+        } catch (error) {
+            console.error("Failed to select question:", error);
+            socket1.emit('error', { message: "Failed to select question based on criteria." });
+            socket2.emit('error', { message: "Failed to select question based on criteria." });
+            return; // Exit function if question selection fails
+        }
 
-    // Initialise match on session service
-    const sessionId = await initializeMatchOnSessionService(user1Data.userId, user2Data.userId, selectedQuestionId);
+        let sessionId;
+        try {
+            // Initialize match on session service
+            sessionId = await initializeMatchOnSessionService(user1Data.userId, user2Data.userId, selectedQuestionId);
+            console.log(`Selected question for match ${sessionId}: ${selectedQuestionId}`);
+        } catch (error: any) {
+            console.error("Failed to initialize session on session service:", error);
+            console.error("error message", error.message);
+            socket1.emit('error', { message: "Failed to initialize session." });
+            socket2.emit('error', { message: "Failed to initialize session." });
+            return; // Exit function if session initialization fails
+        }
 
-    console.log(`Selected question for match ${sessionId} : ${selectedQuestionId}`);
+        try {
+            // Add match to user data for each user
+            await addMatchToUserData(user1Data.userId, socket1.handshake.auth.token, user2Data.userId, selectedQuestionId, sessionId);
+            await addMatchToUserData(user2Data.userId, socket2.handshake.auth.token, user1Data.userId, selectedQuestionId, sessionId);
+        } catch (error) {
+            console.error("Failed to add match to user data:", error);
+            // TODO: Handle error and revert match initialization?
+            // need to find some way to add match anyway
+            // or maybe should just return error and stop match and revert
+        }
 
-    // Add match to user data
-    await addMatchToUserData(user1Data.userId, socket1.handshake.auth.token, user2Data.userId, selectedQuestionId, sessionId);
-    await addMatchToUserData(user2Data.userId, socket2.handshake.auth.token, user1Data.userId, selectedQuestionId, sessionId);
+        // Redirect users to session page on success
+        socket1.emit('redirectToSession', { matchedWith: user2Data.userId, question: selectedQuestionId });
+        socket2.emit('redirectToSession', { matchedWith: user1Data.userId, question: selectedQuestionId });
 
-    // redirect users to session page
-    socket1.emit('redirectToSession', { matchedWith: user2Data.userId, question: selectedQuestionId });
-    socket2.emit('redirectToSession', { matchedWith: user1Data.userId, question: selectedQuestionId });
-
-    writeLogToFile(`Match initialized between ${user1Data.userId} and ${user2Data.userId}`);
+        writeLogToFile(`Match initialized between ${user1Data.userId} and ${user2Data.userId}`);
+    } catch (error) {
+        // General catch for any unexpected errors
+        console.error("Unexpected error during match initialization:", error);
+        socket1.emit('error', { message: "An unexpected error occurred during match initialization." });
+        socket2.emit('error', { message: "An unexpected error occurred during match initialization." });
+    }
 }
+
 
 function getOverlappingCriteria(criteria1: any, criteria2: any) {
     const user1diff = criteria1.difficulty;

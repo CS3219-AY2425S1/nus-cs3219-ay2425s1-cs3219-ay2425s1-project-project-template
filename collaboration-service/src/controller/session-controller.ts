@@ -11,6 +11,8 @@ export const sessionController = {
             questionId,
         } = req.body;
 
+        console.log('session creation request:', req.body);
+
         if (!participants || !questionId) {
             return res.status(400).json({ message: 'Participants and question ID are required' });
         }
@@ -25,6 +27,7 @@ export const sessionController = {
                 return res.status(response.status).json({ message: "Unable to retrieve question data" });
             }
         } catch (err) {
+            console.error('Error fetching question data:', err);
             return res.status(500).json({ message: "Unable to retrieve question data" });
         }
 
@@ -35,6 +38,7 @@ export const sessionController = {
         });
 
         if (existingSession) {
+            console.log('Participants already in session:', existingSession.activeUsers);
             return res.status(400).json({ message: 'At least one participant is already in another session' });
         }
 
