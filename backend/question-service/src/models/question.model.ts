@@ -65,6 +65,14 @@ const questionSchema = new Schema<IQuestion>(
             required: true,
             unique: true,
         },
+        testInputs: {
+            type: [String],
+            required: true,
+        },
+        testOutputs: {
+            type: [String],
+            required: true,
+        },
     },
     {
         timestamps: true,
