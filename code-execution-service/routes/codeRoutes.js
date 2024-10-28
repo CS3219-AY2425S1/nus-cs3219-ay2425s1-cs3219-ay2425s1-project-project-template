@@ -1,5 +1,6 @@
 const express = require('express');
 const { executeCode } = require('../controllers/codeController');
+const { authMiddleware } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -9,6 +10,6 @@ router.get('/', (req, res) => {
 });
 
 // Route to execute code
-router.post('/', executeCode);
+router.post('/', authMiddleware, executeCode);
 
 module.exports = router;
