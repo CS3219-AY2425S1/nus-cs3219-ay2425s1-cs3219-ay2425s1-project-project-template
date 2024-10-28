@@ -70,6 +70,12 @@ export default function Questions() {
         complexity: Difficulty.Easy,
         status: QuestionStatus.NOT_ATTEMPTED,
         link: '',
+        testCases: [
+            {
+                input: '',
+                output: '',
+            },
+        ],
     })
 
     const load = async (body: IGetQuestions) => {
@@ -124,7 +130,7 @@ export default function Questions() {
         })
     }
 
-    const handleSubmitButton = (data: any) => {
+    const handleSubmitButton = () => {
         const title = capitalizeFirst(`${modificationType} question`)
         setDialogData({
             title: title,
@@ -146,8 +152,8 @@ export default function Questions() {
                 return
             }
         } else if (modificationType === Modification.UPDATE) {
-            // call put api
             try {
+                console.log(questionData)
                 const res = await updateQuestionRequest(questionData)
                 if (res) {
                     toast.success('Question updated successfully')
@@ -158,7 +164,6 @@ export default function Questions() {
                 return
             }
         } else if (modificationType === Modification.DELETE) {
-            // call delete api
             if (!questionData.id) return
             try {
                 const res = await deleteQuestionById(questionData.id)
@@ -186,6 +191,12 @@ export default function Questions() {
             complexity: Difficulty.Easy,
             status: QuestionStatus.NOT_ATTEMPTED,
             link: '',
+            testCases: [
+                {
+                    input: '',
+                    output: '',
+                },
+            ],
         })
     }
 
@@ -196,14 +207,12 @@ export default function Questions() {
             try {
                 const res = await getQuestionbyIDRequest(elemId)
                 if (res) {
-                    console.log('res', res)
                     setQuestionData(res)
                     setModalData({
                         ...modalData,
                         isOpen: true,
                         title: 'Update question',
                     })
-                    setModificationType(Modification.UPDATE)
                 }
             } catch (error) {
                 toast.error('Failed to fetch question' + error)

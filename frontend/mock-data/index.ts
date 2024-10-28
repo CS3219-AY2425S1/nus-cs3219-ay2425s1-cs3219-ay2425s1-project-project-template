@@ -1,6 +1,7 @@
 import { QuestionStatus } from '@/types'
 import { Difficulty } from '@/types/difficulty'
 import { ISession } from '@/types/session'
+import { ITestcase } from '@/types/question'
 
 interface ICollaborator {
     name: string
@@ -12,6 +13,7 @@ interface IQuestion {
     description: string
     complexity: Difficulty
     categories: string[]
+    testCases: ITestcase[]
 }
 
 const mockCollaboratorData: ICollaborator = {
@@ -63,6 +65,16 @@ const mockQuestionData: IQuestion = {
         'Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory. Example 1: Input: s =["h", "e", "l", "l", "o"] Output: ["o", "l", "l", "e", "h"]',
     complexity: Difficulty.Easy,
     categories: ['Array', 'Hash Table'],
+    testCases: [
+        {
+            input: '["h", "e", "l", "l", "o"]',
+            output: '["o", "l", "l", "e", "h"]',
+        },
+        {
+            input: '["H", "a", "n", "n", "a", "h"]',
+            output: '["h", "a", "n", "n", "a", "H"]',
+        },
+    ],
 }
 
 const mockTestCaseData = [

@@ -1,7 +1,8 @@
-import { IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
+import { Difficulty, IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
 
 import axios from 'axios'
 import axiosClient from './axios-middleware'
+import { QuestionDto } from '@/types/question'
 
 const axiosInstance = axiosClient.questionServiceAPI
 
@@ -31,8 +32,17 @@ export const getQuestionsRequest = async (data: IGetQuestions): Promise<IQuestio
 // GET /question/:id
 export const getQuestionbyIDRequest = async (id: string): Promise<IQuestion | undefined> => {
     try {
-        const response: IQuestion = await axiosInstance.get(`/questions/${id}`)
-        return response
+        const response: QuestionDto = await axiosInstance.get(`/questions/${id}`)
+        const data = {
+            ...response,
+            testCases: response.testInputs.map((input, index) => {
+                return {
+                    input: input,
+                    output: response.testOutputs[index],
+                }
+            }),
+        }
+        return data as IQuestion
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
@@ -41,7 +51,7 @@ export const getQuestionbyIDRequest = async (id: string): Promise<IQuestion | un
                 case 404:
                     throw new Error('Error getting questions: No such user!')
                 default:
-                    throw new Error('An unexpected error occurred' + error.message)
+                    throw new Error('An error occurred: ' + error.message)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -61,7 +71,6 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
             testInputs: data.testCases?.map((testCase) => testCase.input),
             testOutputs: data.testCases?.map((testCase) => testCase.output),
         }
-        console.log('Requesting to create question: ', postData)
         const response: IQuestion = await axiosInstance.post(`/questions`, postData)
         return response
     } catch (error) {
@@ -87,9 +96,11 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
 // PUT /question/:id
 export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion | undefined> => {
     try {
-        const body = {
+        const body: QuestionDto = {
             ...data,
-            complexity: data.complexity.toUpperCase(),
+            complexity: data.complexity.toUpperCase() as Difficulty,
+            testInputs: data.testCases?.map((testCase) => testCase.input),
+            testOutputs: data.testCases?.map((testCase) => testCase.output),
         }
         const response: IQuestion = await axiosInstance.put(`/questions/${data.id}`, body)
         return response
