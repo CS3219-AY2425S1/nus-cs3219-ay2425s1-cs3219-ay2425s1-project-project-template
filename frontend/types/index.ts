@@ -30,3 +30,5 @@ export type {
     IGetQuestions,
     IGetQuestionsDto,
 }
+
+export * from './colors'
