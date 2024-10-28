@@ -30,7 +30,16 @@ const CreateAccountPage: React.FC = () => {
 
 	const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevent refresh
-
+		const isValidUsername = (username: string): boolean => /^[a-zA-Z0-9]+$/.test(username);
+		if (!isValidUsername(newUsername)) {
+			// Handle invalid username error
+			setAlertIcon(false);
+			setAlertTitle("Invalid Username");
+			setAlertDescription("Username must be alphanumeric only.");
+			setVisible(true);
+			setTimeout(() => setVisible(false), 3000);
+			return;
+		}
 		// create account on firebase
 		try {
 			const usernameExists = await doesUserExist(newUsername);
