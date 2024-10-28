@@ -9,12 +9,24 @@
     *ngIf="isAdmin()"
     routerLink="/admin-controls"
     routerLinkActive="activebutton"
-    >Admin</a
-  >
+  >Admin
+  </a>
+  <a 
+    class="button" 
+    *ngIf="isLoggedIn()"
+    routerLink="/landing"
+    routerLinkActive="activebutton"
+    >Practice
+  </a>
   <button class="logout-button" *ngIf="isLoggedIn()" (click)="logout()">
     Logout
   </button>
 </nav>
+
+
+
+
+
 <!-- <div id="container"></div>
 <app-question-list></app-question-list> -->
 
