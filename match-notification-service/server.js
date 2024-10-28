@@ -55,8 +55,10 @@ async function initRabbitMQ() {
 
       if (userSocketId && matchUserSocketId) {
         // Emit to both users
-        io.to(userSocketId).emit('match_found', matchFound);
-        io.to(matchUserSocketId).emit('match_found', matchFound);
+        const matchFoundA = { userId: userId, matchUserId: matchUserId, roomId: roomId }
+        io.to(userSocketId).emit('match_found', matchFoundA);
+        const matchFoundB = { userId: matchUserId, matchUserId: userId, roomId: roomId }
+        io.to(matchUserSocketId).emit('match_found', matchFoundB);
         console.log(`Notified user ${userId} and ${matchUserId} of match at room ${roomId}`);
       }
 
