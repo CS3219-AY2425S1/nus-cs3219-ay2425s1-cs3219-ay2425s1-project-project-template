@@ -1,3 +1,4 @@
+import axios from 'axios'
 import dotenv from 'dotenv'
 import { Server } from 'socket.io'
 import { sendMatchingRequest } from '../producer/producer'
@@ -35,6 +36,18 @@ const io = new Server({
             removeRequest(userId)
             logger.info(`User ${userId} has canceled their match request`, { service: 'matching-service', timestamp: new Date().toISOString() })
             socket.emit('matchCanceled', { message: 'Your match request has been canceled.' })
+        })
+
+        socket.on('acceptMatch', async (data: any) => {
+            const { userId, partnerId } = data
+            logger.info(`User ${userId} has accepted the match with user ${partnerId}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+
+            const roomId = await axios.post(`${process.env.COLLAB_SERVICE_URL}/create-room`, {
+                userId1: userId,
+                userId2: partnerId
+            })
+
+            socket.emit('matchAccepted', roomId.data)
         })
 
         socket.on('disconnect', () => {

@@ -2,12 +2,13 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
 import { createServer, IncomingMessage } from 'http'
-import { parse } from 'url'
+import { Room } from '../models/types'
 import logger from '../utils/logger'
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 import { WebSocket } from 'ws'
 import { router as submitCodeRouter } from '../submit-code/submitCodeRouter'
+import { createRoomId } from '../utils/utils'
 import { connect } from 'mongoose'
 
 dotenv.config({ path: './.env' })
@@ -20,48 +21,59 @@ app.use(submitCodeRouter)
 const PORT = process.env.PORT
 const server = createServer(app)
 const wss = new WebSocket.Server({ server })
-const yDocMap = new Map<string, Y.Doc>()
-const clientMap = new Map<string, Set<WebSocket>>()
 
-wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
-    const roomName: string = req.url
-        ? (parse(req.url, true).query.roomName as string)
-        : ''
+const rooms = new Map<string, Room>()
 
-    if (!yDocMap.has(roomName)) {
-        yDocMap.set(roomName, new Y.Doc())
+app.post('/create-room', async (req: any, res: any) => {
+    const { userId1, userId2 } = req.body
+    const roomId = createRoomId(userId1, userId2)
+
+    if (rooms.has(roomId)) {
+        return res.status(400).json({ message: 'Room already exists' })
     }
 
-    if (!clientMap.has(roomName)) {
-        clientMap.set(roomName, new Set<WebSocket>())
+    const yDoc = new Y.Doc()
+    rooms.set(roomId, {
+        roomId,
+        code: yDoc,
+        connectedClients: new Set<WebSocket>(),
+    })
+    
+    return res.status(200).json({ roomId })
+})
+
+wss.on('connection', (ws: WebSocket, req: IncomingMessage) => { 
+    const roomId = 'dummy'
+    const room = rooms.get(roomId)
+
+    if (!room) {
+        ws.close()
+        return
     }
 
-    const sharedDoc = yDocMap.get(roomName) as Y.Doc
-    const connectedClients = clientMap.get(roomName) as Set<WebSocket>
-    connectedClients.add(ws)
+    room.connectedClients.add(ws)
 
     const provider = new WebsocketProvider(
         `ws://localhost:${PORT}`,
-        roomName,
-        sharedDoc,
+        roomId,
+        room.code,
     )
-
-    sharedDoc.on('update', (update) => {
-        connectedClients.forEach((client) => {
+    
+    // broadcast code changes to all connected clients
+    room.code.on('update', (update) => {
+        room.connectedClients.forEach((client) => {
             if (client !== ws) {
-                client.send(JSON.stringify(update))
+                client.send(update)
             }
         })
     })
 
     ws.on('close', () => {
-        connectedClients.delete(ws)
-
-        if (connectedClients.size === 0) {
-            clientMap.delete(roomName)
+        room.connectedClients.delete(ws)
+        if (room.connectedClients.size === 0) {
+            rooms.delete(roomId)
         }
 
-        logger.info(`Connection closed for room ${roomName}`)
         provider.destroy()
     })
 })
