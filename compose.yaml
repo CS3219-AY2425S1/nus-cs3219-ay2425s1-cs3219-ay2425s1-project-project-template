@@ -127,6 +127,30 @@ services:
       timeout: 5s
       retries: 5 # Adjust based on how long it takes for RabbitMQ to be ready
 
+  code-execution-service:
+    build:
+      context: ./code-execution-service
+    container_name: code-execution-service-backend
+    networks:
+      - my-network
+    ports:
+      - "8050:8050" # for testing
+    env_file:
+      - .env/.code_execution_env
+    # depends_on:
+    #   - docker
+    # environment:
+    #   - DOCKER_HOST=tcp://docker:2375
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  # docker:
+  #   image: docker:latest
+  #   privileged: true
+  #   command: dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   mongo-data:
   react-build:
