@@ -19,6 +19,7 @@ export default defineNuxtConfig({
       matchingRequestUrl: "http://localhost:8000",
       webSocketUrl: "ws://localhost:8010",
       cancelRequestUrl: "http://localhost:8010",
+      apiKey: process.env.LB_API_KEY,
     },
   },
   shadcn: {
