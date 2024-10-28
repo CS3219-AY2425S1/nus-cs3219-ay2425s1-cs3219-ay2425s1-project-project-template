@@ -1,14 +1,18 @@
+"use client"
+
 import React from "react";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
+
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 import { useResetPassword } from "@/hooks/api/auth"; // Adjust based on your project
 import DefaultLayout from "@/layouts/default";
 
 const ResetPasswordPage = () => {
   const router = useRouter();
-  const { token } = router.query;
+  const searchParams = useSearchParams();
+  const token = searchParams?.get("token");
   const tokenString: string = (
     Array.isArray(token) ? token[0] : token
   ) as string;
@@ -21,10 +25,11 @@ const ResetPasswordPage = () => {
 
   const handleResetPassword = (
     newPassword: string,
-    confirmPassword: string
+    confirmPassword: string,
   ) => {
     if (!tokenString) {
       console.error("Token is missing from the URL");
+
       return;
     }
 
@@ -39,7 +44,7 @@ const ResetPasswordPage = () => {
         onError: (err) => {
           console.error("Password reset failed:", err);
         },
-      }
+      },
     );
   };
 

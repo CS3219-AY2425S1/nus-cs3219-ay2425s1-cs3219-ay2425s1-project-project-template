@@ -1,6 +1,8 @@
+"use client"
+
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import NavigationColumn from "@/components/users/NavigationColumn";
 import UserProfileForm from "@/components/forms/UserProfileForm";
@@ -9,11 +11,12 @@ import { useUser } from "@/hooks/users";
 import { User, UserProfile } from "@/types/user";
 import { useUpdateUser } from "@/hooks/api/users";
 
-const UserProfilePage = () => {
+const UserProfilePage = ({ params }: { params: { id: string } }) => {
   const { user, setUser } = useUser();
   const { theme } = useTheme();
   const router = useRouter();
-  const { id } = router.query;
+
+  const id = params["id"];
 
   const [userProfileFormData, setUserProfileFormData] = useState<UserProfile>({
     username: "",

@@ -13,7 +13,7 @@ import {
 import { Avatar } from "@nextui-org/avatar";
 import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 import NavLink from "@/components/navLink";
 import { useLogout } from "@/hooks/api/auth";
