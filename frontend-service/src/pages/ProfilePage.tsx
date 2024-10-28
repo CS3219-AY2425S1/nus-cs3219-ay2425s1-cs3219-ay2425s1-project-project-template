@@ -12,8 +12,8 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const userId = sessionStorage.getItem("userId")
-    const email = sessionStorage.getItem("email")
+    const userId = localStorage.getItem("userId")
+    const email = localStorage.getItem("email")
 
     console.log("Retrieved userId:", userId)
     console.log("Retrieved email:", email)

@@ -43,9 +43,9 @@ const Signup: React.FC<SignupProps> = ({ updateAuthStatus }) => {
 
       const data = await response.json();
       if (response.ok) {
-        sessionStorage.setItem("token", data.data.accessToken)
-        sessionStorage.setItem("userId", data.data.userId)
-        sessionStorage.setItem("email", email)
+        localStorage.setItem("token", data.data.accessToken)
+        localStorage.setItem("userId", data.data.userId)
+        localStorage.setItem("email", email)
         updateAuthStatus(true)
         toast({
           title: "Signup successful!",

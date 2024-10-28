@@ -19,15 +19,15 @@ function App() {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    sessionStorage.removeItem("token")
-    sessionStorage.removeItem("userId")
-    sessionStorage.removeItem("email")
+    localStorage.removeItem("token")
+    localStorage.removeItem("userId")
+    localStorage.removeItem("email")
     setIsAuthenticated(false)
     navigate("/login")
   }
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (token) {
       fetch("http://localhost:3001/auth/verify-token", {
         method: "GET",
@@ -41,13 +41,13 @@ function App() {
           if (data.message == "Token verified") {
             setIsAuthenticated(true);
           } else {
-            sessionStorage.removeItem("token");
+            localStorage.removeItem("token");
             setIsAuthenticated(false);
           }
         })
         .catch((error) => {
           console.error("Error verifying token:", error);
-          sessionStorage.removeItem("token");
+          localStorage.removeItem("token");
           setIsAuthenticated(false);
         });
     } else {
