@@ -31,7 +31,7 @@ How to deploy website to public:
   docker push gcr.io/peerprep-g02/question_service
 
   cd ../collab_service
-  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app/verify-token -t collab_service .
+  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app/verify-token --build-arg REDIS_URL=redis://{DEPLOY_REDIS_INSTANCE_ON_GOOGLE_MEMORYSTORE_AND_OBTAIN_IP_ADDR_AND_THEN_PLUG_IT_HERE}:6379 -t collab_service .
   docker tag collab_service gcr.io/peerprep-g02/collab_service
   docker push gcr.io/peerprep-g02/collab_service
 
@@ -59,9 +59,9 @@ How to deploy website to public:
 6. Fill in the details accordingly. For our frontend service example, container image URL should be `gcr.io/peerprep-g02/frontend`. Service name could be anything, like `frontend`. Region choose the region closest to you. Scroll down and remember to configure the container port number to suit the exposed container port as defined by the `Dockerfile` as well.
 ![image](resources/images/deploy-service-1.png)
 ![image](resources/images/deploy-service-2.png)
-Repeat this until all services are hosted (note that **matching** service requires step 7)
+Repeat this until all services are hosted (note that **matching** and **collab** services requires step 7)
 
-7. When deploying/re-deploying **matching** service on Google Cloud Run, configure the networking settings by ticking "Connect to a VPC for outbound traffic" and select "Use Serverless VPC Access connectors" and choose the Serverless VPC access connector which you had just set up (see image below)
+7. When deploying/re-deploying **matching** and **collab** services on Google Cloud Run, configure the networking settings by ticking "Connect to a VPC for outbound traffic" and select "Use Serverless VPC Access connectors" and choose the Serverless VPC access connector which you had just set up (see image below)
 ![image](resources/images/configure-networking-settings.png)
 
 ### Docker compose up locally:

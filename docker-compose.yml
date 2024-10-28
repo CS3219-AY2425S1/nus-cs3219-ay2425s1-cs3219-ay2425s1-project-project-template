@@ -79,12 +79,16 @@ services:
       context: ./backend/collab_service # Path to the directory containing the Dockerfile for building the question service image.
       args:
         USER_SERVICE_BACKEND_URL: ${USER_SERVICE_BACKEND_URL}
+        REDIS_URL: ${REDIS_URL}
     ports:
       - 5004:5004 # Maps port 5004 on the host to port 5004 in the container, making the app accessible on the host.
     networks:
       - app-network 
     depends_on:
-      - user_service
+      redis:
+        condition: service_healthy # Only start collab_service when Redis is up
+      user_service:
+        condition: service_started
 
   frontend:
     build:

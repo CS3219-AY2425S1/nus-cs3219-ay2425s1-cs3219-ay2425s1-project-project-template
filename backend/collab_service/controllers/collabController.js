@@ -46,21 +46,20 @@ class CollabController {
       });
     });
 
-    socket.on('terminateSession', async (sessionId) => {
-      io.to(sessionId).emit('sessionTerminated', { userId: socket.id });
-
-      // Delete the session from our database
+    socket.on('terminateSession', async (data) => {
+      const { sessionId, uid } = data;
       try {
+        // Delete the session from our database
         await db.collection('sessions').doc(sessionId).delete();
       } catch (error) {
         console.error(`Unable to delete session ${sessionId} from database`);
       }
+      io.to(sessionId).emit('sessionTerminated', { userId: uid });
     });
   };
 
 
   handleSessionCreated = async (req, res) => {
-
       const { sessionId, sessionData, questionData} = req.body; 
 
       // Check if sessionId and sessionData are provided

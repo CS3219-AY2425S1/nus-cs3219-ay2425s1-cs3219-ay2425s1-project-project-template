@@ -71,8 +71,17 @@ const CollabPageView: React.FC = () => {
 	const collabServiceBackendUrl = import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
 
 	useEffect(() => {
+		const token = sessionStorage.getItem("authToken");
+        const uid = sessionStorage.getItem("uid");
+
 		// Initialize the WebSocket connection when the component mounts
-		const newSocket = io(collabServiceBackendUrl); // Backend WebSocket server URL
+		const newSocket = io(collabServiceBackendUrl, {
+			auth: {
+			  token: token,
+			  uid: uid,
+			},
+			withCredentials: true,
+		  });
 		setSocket(newSocket);
 
 		newSocket.on("connect", () => {
@@ -149,9 +158,12 @@ const CollabPageView: React.FC = () => {
 	// Handle Quit Session button click
 	const handleQuitSession = () => {
 		if (socket) {
-			socket.emit("terminateSession", sessionIdObj);
+			const uid = sessionStorage.getItem("uid");
+			socket.emit("terminateSession", {
+				sessionId: sessionIdObj,
+				uid: uid,
+			});
 		}
-		navigate("/questions");
 	};
 
 	// Callback function to mount editor to auto-focus when page loads
