@@ -2,6 +2,12 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const path = require('path');
 
+// Ensure 'code/' directory exists
+const codeDir = path.join(__dirname, '../code');
+if (!fs.existsSync(codeDir)) {
+  fs.mkdirSync(codeDir);
+}
+
 // Code execution logic
 const executeCode = (req, res) => {
   try {
@@ -11,29 +17,38 @@ const executeCode = (req, res) => {
       return res.status(400).json({ error: 'Code and language are required.' });
     }
 
-    let dockerCommand;
+    let filename, dockerCommand;
 
-    // Set Docker command based on language
+    // Set filename and Docker command based on language
     switch (language) {
       case 'python':
-        dockerCommand = `echo '${code}' > /tempCode.py && echo '${input}' | python /tempCode.py`;
+        filename = 'tempCode.py';
+        dockerCommand = `echo "${input}" | docker run --rm -i -v "${codeDir}/${filename}:/tempCode.py:ro" python:latest python /tempCode.py`;
         break;
       case 'javascript':
-        dockerCommand = `echo '${code}' > /tempCode.js && echo '${input}' | node /tempCode.js`;
+        filename = 'tempCode.js';
+        dockerCommand = `echo "${input}" | docker run --rm -i -v "${codeDir}/${filename}:/app/tempCode.js:ro" node:latest node /app/tempCode.js`;
         break;
       case 'cpp':
-        dockerCommand = `echo '${code}' > /tempCode.cpp && g++ /tempCode.cpp -o /tempCode && ./tempCode`;
+        filename = 'tempCode.cpp';
+        dockerCommand = `echo "${input}" | docker run --rm -i -v "${codeDir}/${filename}:/tempCode.cpp:ro" gcc:latest sh -c "g++ /tempCode.cpp -o /tempCode && ./tempCode"`;
         break;
       default:
         return res.status(400).json({ error: 'Unsupported language.' });
     }
+    
 
-    // Updated to run in a single shell command
-    const runCommand = `docker run --rm -i ${language === 'python' ? 'python:latest' : language === 'javascript' ? 'node:latest' : 'gcc:latest'} sh -c "${dockerCommand}"`;
+    // Save code to file
+    const filePath = path.join(codeDir, filename);
+    fs.writeFileSync(filePath, code);
 
-    exec(runCommand, (error, stdout, stderr) => {
+    // Execute code in Docker container
+    exec(dockerCommand, (error, stdout, stderr) => {
+      // Clean up the generated file after execution
+      fs.unlinkSync(filePath);
+
       if (error) {
-        return res.status(200).json({ output: stderr || error.message });
+        return res.status(500).json({ error: stderr || error.message });
       }
       res.send({ output: stdout });
     });
