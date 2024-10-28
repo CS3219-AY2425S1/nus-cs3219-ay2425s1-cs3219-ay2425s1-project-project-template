@@ -1,22 +1,25 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-.vscode
+# Dependencies
+node_modules/
 
-# testing
-/coverage
+# Build output
+dist/
+build/
 
-# next.js
-/.next/
-/out/
+# Logs
+*.log
 
-# production
-/build
+# Environment variables
+.env
 
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
 # pnpm stores
 */.pnpm-store
 

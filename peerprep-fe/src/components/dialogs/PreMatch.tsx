@@ -12,8 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { FilterSelect } from '@/app/(main)/components/filter/FilterSelect';
 import { TopicsPopover } from '@/app/(main)/components/filter/TopicsPopover';
-import { sendMessageToQueue } from '@/lib/rabbitmq';
-import { axiosAuthClient } from '@/network/axiosClient';
+// import { sendMessageToQueue } from '@/lib/rabbitmq';
+import { axiosClient } from '@/network/axiosClient';
 import { DIFFICULTY_OPTIONS } from '@/lib/constants';
 import { UserMatchingRequest } from '@/types/types';
 
@@ -26,15 +26,15 @@ export function PreMatch() {
   const handleConfirm = async () => {
     try {
       const profileDetails = await getProfileDetails();
-      const message : UserMatchingRequest = {
+      const message: UserMatchingRequest = {
         _id: profileDetails.id,
         name: profileDetails.username,
-        topic: selectedTopics[0] || '', // TODO: change to list, but current backend only accepts 1
-        // topic: selectedTopics.join(','),
+        topic: selectedTopics[0] || '',
         difficulty: difficulty,
-        type: "match",
+        type: 'match',
       };
-      await sendMessageToQueue(message);
+      // await sendMessageToQueue(message);
+      await axiosClient.post('/matching/send', message);
       setOpen(false);
       router.push('/match');
     } catch (err) {
@@ -43,7 +43,7 @@ export function PreMatch() {
   };
 
   const getProfileDetails = async () => {
-    const result = await axiosAuthClient.get('/auth/verify-token');
+    const result = await axiosClient.get('/auth/verify-token');
     return result.data.data;
   };
 
@@ -57,7 +57,7 @@ export function PreMatch() {
           Match
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-black sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Choose Match Preferences</DialogTitle>
         </DialogHeader>
