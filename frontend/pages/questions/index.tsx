@@ -153,7 +153,6 @@ export default function Questions() {
             }
         } else if (modificationType === Modification.UPDATE) {
             try {
-                console.log(questionData)
                 const res = await updateQuestionRequest(questionData)
                 if (res) {
                     toast.success('Question updated successfully')
