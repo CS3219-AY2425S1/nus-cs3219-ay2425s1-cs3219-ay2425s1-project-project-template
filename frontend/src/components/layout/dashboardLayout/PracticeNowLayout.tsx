@@ -1,6 +1,10 @@
 import { Button, Stack, Text, Title, UnstyledButton } from '@mantine/core';
 
-function PracticeLayout() {
+interface PracticeLayoutProps {
+  openHelpModal: () => void;
+}
+
+function PracticeLayout({ openHelpModal }: PracticeLayoutProps) {
   return (
     <Stack
       justify="space-between"
@@ -14,7 +18,9 @@ function PracticeLayout() {
       <Button>Start Interview</Button>
       <Text ta="center">
         Not sure how this works?{' '}
-        <UnstyledButton fw={700}>Learn now</UnstyledButton>
+        <UnstyledButton fw={700} onClick={openHelpModal}>
+          Learn now
+        </UnstyledButton>
       </Text>
     </Stack>
   );
