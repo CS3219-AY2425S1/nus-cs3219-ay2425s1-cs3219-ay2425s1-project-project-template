@@ -11,7 +11,7 @@ if (!fs.existsSync(codeDir)) {
 // Code execution logic
 const executeCode = (req, res) => {
   try {
-    const { code, language } = req.body;
+    const { code, language, input } = req.body; // Added input field
 
     if (!code || !language) {
       return res.status(400).json({ error: 'Code and language are required.' });
@@ -23,19 +23,20 @@ const executeCode = (req, res) => {
     switch (language) {
       case 'python':
         filename = 'tempCode.py';
-        dockerCommand = `docker run --rm -v "${codeDir}/${filename}:/tempCode.py:ro" python:latest python /tempCode.py`;
+        dockerCommand = `echo "${input}" | docker run --rm -i -v "${codeDir}/${filename}:/tempCode.py:ro" python:latest python /tempCode.py`;
         break;
       case 'javascript':
         filename = 'tempCode.js';
-        dockerCommand = `docker run --rm -v "${codeDir}/${filename}:/app/tempCode.js:ro" node:latest node /app/tempCode.js`;
+        dockerCommand = `echo "${input}" | docker run --rm -i -v "${codeDir}/${filename}:/app/tempCode.js:ro" node:latest node /app/tempCode.js`;
         break;
       case 'cpp':
         filename = 'tempCode.cpp';
-        dockerCommand = `docker run --rm -v "${codeDir}/${filename}:/tempCode.cpp:ro" gcc:latest sh -c "g++ /tempCode.cpp -o /tempCode && /tempCode"`;
+        dockerCommand = `echo "${input}" | docker run --rm -i -v "${codeDir}/${filename}:/tempCode.cpp:ro" gcc:latest sh -c "g++ /tempCode.cpp -o /tempCode && ./tempCode"`;
         break;
       default:
         return res.status(400).json({ error: 'Unsupported language.' });
     }
+    
 
     // Save code to file
     const filePath = path.join(codeDir, filename);
