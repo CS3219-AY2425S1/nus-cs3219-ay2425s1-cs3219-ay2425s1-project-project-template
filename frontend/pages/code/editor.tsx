@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { python } from '@codemirror/lang-python'
-import { javascript } from '@codemirror/lang-javascript'
+// import { python } from '@codemirror/lang-python'
+// import { javascript } from '@codemirror/lang-javascript'
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
 import { basicSetup } from 'codemirror'

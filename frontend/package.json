@@ -12,6 +12,7 @@
     },
     "dependencies": {
         "@codemirror/lang-python": "^6.1.6",
+        "@codemirror/language-data": "^6.5.1",
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
         "@mui/icons-material": "^6.1.1",
