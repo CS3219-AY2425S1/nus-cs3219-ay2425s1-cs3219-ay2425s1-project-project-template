@@ -23,18 +23,36 @@ export class CreateQuestionDto {
     @IsUrl()
     link: string
 
-    constructor(title: string, description: string, categories: Category[], complexity: Complexity, link: string) {
+    @IsArray()
+    @IsString({ each: true })
+    testInputs: string[]
+
+    @IsArray()
+    @IsString({ each: true })
+    testOutputs: string[]
+
+    constructor(
+        title: string,
+        description: string,
+        categories: Category[],
+        complexity: Complexity,
+        link: string,
+        testInputs: string[],
+        testOutputs: string[]
+    ) {
         this.title = title
         this.description = description
         this.categories = categories
         this.complexity = complexity
         this.link = link
+        this.testInputs = testInputs
+        this.testOutputs = testOutputs
     }
 
     static fromRequest({
-        body: { title, description, categories, complexity, link },
+        body: { title, description, categories, complexity, link, testInputs, testOutputs },
     }: ITypedBodyRequest<CreateQuestionDto>): CreateQuestionDto {
-        return new CreateQuestionDto(title, description, categories, complexity, link)
+        return new CreateQuestionDto(title, description, categories, complexity, link, testInputs, testOutputs)
     }
 
     async validate(): Promise<ValidationError[]> {

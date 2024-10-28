@@ -8,6 +8,8 @@ export interface IQuestion {
     categories: Category[]
     complexity: Complexity
     link: string
+    testInputs: string[]
+    testOutputs: string[]
     createdAt: Date
     updatedAt: Date
 }
