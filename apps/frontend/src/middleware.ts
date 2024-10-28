@@ -1,9 +1,5 @@
-import { log } from 'console';
 import { NextURL } from 'next/dist/server/web/next-url';
-import { redirect } from 'next/navigation'
 import { type NextRequest, NextResponse } from 'next/server';
-import { ValidateUser } from './app/services/user';
-import { cookies } from 'next/headers';
 
 const PUBLIC_ROUTES = ["/login", "/register"];
 
@@ -38,7 +34,13 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // matcher: /\/^(?!api\/.*|_next\/static\/.*|_next\/image\/.*|favicon.ico|sitemap.xml|robots.txt)$/,
   matcher: "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|login|register).*)",
+  // matcher: [
+  //   "/matching",
+  //   "/",
+  //   "/profile",
+  //   "/question",
+  //   "/question/.*",
+  // ],
 }
 
