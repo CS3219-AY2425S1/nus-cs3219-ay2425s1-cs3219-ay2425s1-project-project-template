@@ -70,8 +70,8 @@ export const QUESTION_7: CreateQuestionDto = new CreateQuestionDto(
     [Category.DATABASES],
     Complexity.EASY,
     'https://leetcode.com/problems/combine-two-tables/',
-    [],
-    []
+    ['[1 3 4]', '[2 3 5]'],
+    ['[Allen John NULL NULL]', '[Bob NULL NULL NULL]']
 )
 
 export const QUESTION_8: CreateQuestionDto = new CreateQuestionDto(
