@@ -143,7 +143,11 @@ router.post(
     try {
       const countPromises = complexity.map((com: string, index: number) => {
         const cat = category[index];
-        const query: any = { deleted: false, complexity: com, category: cat };
+        const query: any = {
+          deleted: false,
+          complexity: com,
+          category: { $in: [cat] },
+        };
         return Question.countDocuments(query).exec();
       });
 
@@ -169,7 +173,7 @@ router.post(
 
     const query: any = { deleted: false };
     if (complexity) query.complexity = complexity;
-    if (category) query.category = category;
+    if (category) query.category = { $in: [category] };
 
     try {
       let randomQuestion = await Question.aggregate([
