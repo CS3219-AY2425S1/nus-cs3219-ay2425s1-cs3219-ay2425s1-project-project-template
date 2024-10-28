@@ -71,6 +71,7 @@ const MatchingFilters = () => {
         { label: "Question 9", value: "Question 9" },
         { label: "Question 10", value: "Question 10" },
     ]
+      
 
     // Setup socket connection and event handlers
     useEffect(() => {
@@ -107,15 +108,20 @@ const MatchingFilters = () => {
             setIsSearching(false);
         });
 
+        socket.on('matchAccepted', (data: any) => {
+            console.log('Both users have accepted the match:', data.matchId);
+        });
+
         return () => {
             socket.off('connect');
             socket.off('matchFound');
             socket.off('noMatchFound');
             socket.off('matchCanceled');
+            socket.off('matchAccepted');
             socket.disconnect();
         }
     }, [user]);
-
+    
     const onSearchPress = () => {
         if (!isSearching) {
             setIsSearching(true);
@@ -134,6 +140,10 @@ const MatchingFilters = () => {
             console.log('Sent cancel match for user', user?.id);
         }
     }
+
+    const handleAccept = (matchId: string) => {
+        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id });
+    };
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -155,7 +165,7 @@ const MatchingFilters = () => {
 
     return (
         <div className="flex flex-col p-8 gap-4">
-            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={() => { }} />}
+            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={handleAccept} />}
             <h1 className="text-2xl font-bold self-start text-transparent bg-clip-text bg-gradient-to-r from-[var(--gradient-text-first)] via-[var(--gradient-text-second)] to-[var(--gradient-text-third)]">Look for peers to code now!</h1>
             <div className='flex gap-6'>
                 {/* <div className='w-1/3'>

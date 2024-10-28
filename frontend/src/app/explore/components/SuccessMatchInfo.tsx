@@ -2,30 +2,33 @@ import React, { useState, useEffect } from 'react'
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
 import { UserIcon } from 'lucide-react';
 import { Progress } from "@/components/ui/progress"
-import { Label }from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
 
 interface SuccessMatchInfoProps {
     isOpen: boolean;
     match: {
-        userId: string;
-        userName: string;
-        questionId: string;
-        title: string;
-        difficulty: string;
-        categories: string[];
-    },
+        matchId: string;
+        partner: {
+            userId: string;
+            userName: string;
+        };
+        question: {
+            questionId: number;
+            title: string;
+            difficulty: string;
+            categories: string[];
+        };
+        isWaiting?: boolean;
+    };
     onOpenChange: (isOpen: boolean) => void;
-    handleAccept: () => void;
-
+    handleAccept: (matchId: string) => void;
 }
 
 const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
@@ -33,37 +36,35 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
     const [timerProgress, setTimerProgress] = useState(0); // Progress from 0 to 100
     const [isAcceptDisabled, setIsAcceptDisabled] = useState(false);
 
-    console.log(match)
-
     useEffect(() => {
-        let timer: NodeJS.Timeout;
-      
+        let timer: NodeJS.Timeout | null = null;
+        console.log('SuccessMatchInfo match object:', match);
+
         if (isOpen) {
-          const totalDuration = 15000; // 15 seconds in milliseconds
-          const updateInterval = 100; // Update every 100 milliseconds
-          const increment = (100 / totalDuration) * updateInterval; // Calculate how much to increment each time
-      
-          timer = setInterval(() => {
-            setTimerProgress((prev) => {
-              const newProgress = prev + increment;
-              if (newProgress >= 100) {
-                clearInterval(timer);
-                setTimerProgress(100);
-                setIsAcceptDisabled(true); // Disable the Accept button
-                return 100;
-              }
-              return newProgress;
-            });
-          }, updateInterval);
+            const totalDuration = 15000; // 15 seconds in milliseconds
+            const updateInterval = 100; // Update every 100 milliseconds
+            const increment = (100 / totalDuration) * updateInterval; // Calculate how much to increment each time
+
+            timer = setInterval(() => {
+                setTimerProgress((prev) => {
+                    const newProgress = prev + increment;
+                    if (newProgress >= 100) {
+                        if (timer) clearInterval(timer);
+                        setTimerProgress(100);
+                        setIsAcceptDisabled(true); // Disable the Accept button
+                        return 100;
+                    }
+                    return newProgress;
+                });
+            }, updateInterval);
         }
-      
+
         return () => {
-          clearInterval(timer);
-          setTimerProgress(0); // Reset progress when the component unmounts or dialog closes
-          setIsAcceptDisabled(false);
+            if (timer) clearInterval(timer);
+            setTimerProgress(0); // Reset progress when the component unmounts or dialog closes
+            setIsAcceptDisabled(false);
         };
     }, [isOpen]);
-
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -81,35 +82,40 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                                 <UserIcon className="h-8 w-8" />
                             </div>
                             <div>
-                                <h4 className="text-lg font-semibold">{match.userName}</h4>
+                                <h4 className="text-lg font-semibold">{match.partner.userName}</h4>
                             </div>
                         </div>
                     </div>
                     <div>
                         <p className="text-sm mb-2">Question:</p>
                         <div>
-                            <h4 className="text-lg font-semibold">{match.questionId}. {match.title}</h4>
+                            <h4 className="text-lg font-semibold">{match.question.questionId}. {match.question.title}</h4>
                         </div>
                     </div>
                     <div>
                         <h5 className="text-sm mb-2">Difficulty:</h5>
                         <div>
-                            <h4 className="text-lg font-semibold">{match.difficulty}</h4>
+                            <h4 className="text-lg font-semibold">{match.question.difficulty}</h4>
                         </div>
                     </div>
                     <div>
                         <h5 className="text-sm mb-2">Categories:</h5>
                         <div className="flex flex-wrap gap-2">
-                            {match.categories.map((categories, index) => (
+                            {match.question.categories.map((category, index) => (
                                 <span key={index} className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm">
-                                    {categories}
+                                    {category}
                                 </span>
                             ))}
                         </div>
                     </div>
+                    {match.isWaiting && (
+                        <div className="mt-4">
+                            <Label className="text-yellow-500">Waiting for your partner to accept...</Label>
+                        </div>
+                    )}
                 </div>
                 <DialogFooter>
-                    <Button onClick={handleAccept} disabled={isAcceptDisabled}>Accept</Button>
+                    <Button onClick={() => handleAccept(match.matchId)} disabled={isAcceptDisabled}>Accept</Button>
                 </DialogFooter>
                 <Progress className='bg-white ' value={timerProgress} />
                 {isAcceptDisabled && <Label>You did not accept the match in time.</Label>}

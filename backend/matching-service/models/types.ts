@@ -14,3 +14,20 @@ export interface MatchPartner {
     difficulty: string
     categories: string[]
 }
+
+export interface MatchSession {
+    matchId: string;
+    users: {
+        [userId: string]: {
+            userName: string;
+            socketId: string;
+            hasAccepted: boolean;
+        };
+    };
+    question: {
+        questionId: number;
+        title: string;
+        difficulty: string;
+        categories: string[];
+    };
+}

@@ -1,7 +1,7 @@
 import { connect, Connection, Channel } from 'amqplib'
 import { Server } from 'socket.io'
 import { performMatching } from './matching'
-import { TimedMatchRequest, MatchPartner } from '../models/types'
+import { TimedMatchRequest, MatchPartner, MatchSession } from '../models/types'
 import logger from '../utils/logger'
 import { sendMatchResult } from './sendMatchResults'
 
@@ -11,6 +11,7 @@ let isMatching: boolean = false
 
 // track timeouts for each userId
 const timeoutMap: Map<string, NodeJS.Timeout> = new Map()
+const activeMatches: Map<string, MatchSession> = new Map();
 
 const startConsumer = async (
     io: Server,
@@ -136,7 +137,7 @@ const startConsumer = async (
                     timeoutMap.delete(bestMatch.userId)
                 }
 
-                sendMatchResult(newRequest, bestMatch, io, connectedClients)
+                sendMatchResult(newRequest, bestMatch, io, connectedClients, activeMatches)
             }
         }
     }
@@ -184,7 +185,7 @@ const processMatching = async (
         }
 
         if (matchPartner) {
-            sendMatchResult(req, matchPartner, io, connectedClients)
+            sendMatchResult(req, matchPartner, io, connectedClients, activeMatches)
             let partnerIndex = requestQueue.findIndex(
                 (x) => x.userId === matchPartner.userId,
             )
@@ -216,4 +217,4 @@ const processMatching = async (
     }
 }
 
-export { startConsumer }
+export { startConsumer, activeMatches }

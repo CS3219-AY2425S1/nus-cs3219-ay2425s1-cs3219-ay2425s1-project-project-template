@@ -2,7 +2,7 @@ import axios from 'axios'
 import dotenv from 'dotenv'
 import { Server } from 'socket.io'
 import { sendMatchingRequest } from '../producer/producer'
-import { startConsumer } from '../consumer/consumer'
+import { activeMatches, startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
 
 dotenv.config({ path: './.env' })
@@ -38,16 +38,35 @@ const io = new Server({
             socket.emit('matchCanceled', { message: 'Your match request has been canceled.' })
         })
 
-        socket.on('acceptMatch', async (userId: string) => {
-            logger.info(`User ${userId} has accepted the match`, { service: 'matching-service', timestamp: new Date().toISOString() })
+        socket.on('acceptMatch', (data: { matchId: string; userId: string }) => {
+            const { matchId, userId } = data;
+            const matchSession = activeMatches.get(matchId);
 
-            const roomId = await axios.post(`${process.env.COLLAB_SERVICE_URL}/create-room`, {
-                userId1: userId,
-                userId2: 'dummy' // supposed to be partner's userId; need to somehow wait for both to accept to send
-            })
+            logger.info(`User ${userId} has accepted match ${matchId}`)
+    
+            if (matchSession && matchSession.users[userId]) {
+                matchSession.users[userId].hasAccepted = true;
+    
+                const otherUserId = Object.keys(matchSession.users).find((id) => id !== userId);
+                const otherUser = matchSession.users[otherUserId!];
+    
+                if (otherUser.hasAccepted) {
+                    logger.info(`Match partner: ${otherUser.userName} has also accepted match ${matchId}. Sending match accepted messages to both parties.`)
+                    io.to(matchSession.users[userId].socketId).emit('matchAccepted', { matchId });
+                    io.to(otherUser.socketId).emit('matchAccepted', { matchId });
 
-            socket.emit('matchAccepted', roomId.data)
-        })
+                    activeMatches.delete(matchId);
+                } else {
+                    logger.info(`Match partner: ${otherUser.userName} has not accepted match ${matchId}. Sending wait message to user.`)
+                    io.to(matchSession.users[userId].socketId).emit('waitingForPartner', {
+                        message: 'Waiting for your partner to accept the match.',
+                    });
+                }
+            } else {
+                logger.info(`There is an error with match ${matchId}.`)
+                socket.emit('matchError', { message: 'Invalid match or user.' });
+            }
+        });
 
         socket.on('disconnect', () => {
             for (const [userId, id] of connectedClients.entries()) {
@@ -57,6 +76,21 @@ const io = new Server({
                     break
                 }
             }
+
+            activeMatches.forEach((matchSession, matchId) => {
+                const userIds = Object.keys(matchSession.users);
+                userIds.forEach((userId) => {
+                    if (matchSession.users[userId].socketId === socket.id) {
+                        const otherUserId = userIds.find((id) => id !== userId);
+                        const otherUser = matchSession.users[otherUserId!];
+                        io.to(otherUser.socketId).emit('matchCanceled', {
+                            message: 'Your partner has disconnected.',
+                        });
+                        activeMatches.delete(matchId);
+                    }
+                });
+            });
+
             logger.info(`Client disconnected: ${socket.id}`, { service: 'matching-service', timestamp: new Date().toISOString() })
         })
     })
