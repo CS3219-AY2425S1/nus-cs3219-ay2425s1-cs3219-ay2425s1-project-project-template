@@ -8,7 +8,7 @@ export interface Question {
 
 export const complexities = ["Easy", "Medium", "Hard"];
 
-export const categories = ["Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings", "None"];
+export const categories = ["Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
 
 const validateQid = (qid: string | Number) => Number.isInteger(+qid) && +qid > 0;
 const validateTitle = (title: string) => !!title.trim();
