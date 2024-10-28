@@ -383,7 +383,7 @@ const Table = () => {
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button
+      user.isAdmin ? <Button
         variant="contained"
         onClick={() => {
           setIsEditing(false);
@@ -392,7 +392,7 @@ const Table = () => {
         }}
       >
         Create New Question
-      </Button>
+      </Button> : null
     ),
     state: {
       isLoading: isLoadingQuestions,
