@@ -110,8 +110,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./peer-prep-fe
-          file: ./peer-prep-fe/Dockerfile
+          context: ./message-queue
+          file: ./message-queue/Dockerfile
           platforms: linux/arm64, linux/amd64
           push: true
           tags: ${{vars.DOCKER_USERNAME}}/${{github.event.repository.name}}:latest
