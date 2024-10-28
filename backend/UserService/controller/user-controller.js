@@ -10,6 +10,8 @@ import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  findUserByForgotPasswordToken as _findUserByForgotPasswordToken,
+  updateUserPasswordById,
 } from "../model/repository.js";
 import { sendEmail } from "../utils/mailer.js";
 import cloudinary from "../config/cloudinary-config.js";
@@ -237,6 +239,44 @@ export async function forgetPassword(req, res) {
     return res
       .status(500)
       .json({ message: "Unknown error when sending forget password!" });
+  }
+}
+
+export async function resetPassword(req, res) {
+  try {
+    const token = req.params.token;
+
+    const user = await _findUserByForgotPasswordToken(token);
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid Token!",
+      });
+    }
+
+    const { newPassword } = req.body;
+    let hashedPassword;
+    if (newPassword) {
+      const salt = bcrypt.genSaltSync(10);
+      hashedPassword = bcrypt.hashSync(newPassword, salt);
+      const updatedUser = await updateUserPasswordById(
+        user._id,
+        hashedPassword
+      );
+      return res.status(200).json({
+        message: `Updated password for user ${user._id}`,
+        data: formatUserResponse(updatedUser),
+      });
+    } else {
+      return res.status(400).json({
+        message: "Missing password!",
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when reseting password!" });
   }
 }
 

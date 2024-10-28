@@ -11,6 +11,8 @@ import { useContext, useEffect } from "react";
 import { AuthContext } from "./hooks/AuthContext";
 import PublicRoute from "./routes/PublicRoute";
 import SettingsPage from "./pages/Settings/settings";
+import ForgotPasswordPage from "./pages/ForgotPassword/forgotPassword";
+import ResetPasswordPage from "./pages/ResetPassword/ResetPassword";
 
 const queryClient = new QueryClient();
 const TOAST_LIMIT = 3
@@ -37,6 +39,8 @@ function App() {
             <Route element={<PublicRoute />}>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+              <Route path="/resetpassword" element={<ResetPasswordPage />} />
             </Route>
             <Route element={<PrivateRoute />}>
               <Route path="/" element={<QuestionPage />} />

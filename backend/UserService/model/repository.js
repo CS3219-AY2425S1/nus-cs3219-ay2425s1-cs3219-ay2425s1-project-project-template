@@ -27,6 +27,10 @@ export async function findUserByUsername(username) {
   return UserModel.findOne({ username });
 }
 
+export async function findUserByForgotPasswordToken(token) {
+  return UserModel.findOne({ forgotPasswordToken: token });
+}
+
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
     $or: [{ username }, { email }],
@@ -70,6 +74,20 @@ export async function updateUserForgetPasswordTokenById(
       },
     },
     { new: true, runValidators: true } // return the updated user
+  );
+}
+
+export async function updateUserPasswordById(userId, password) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        password: password,
+        forgotPasswordToken: "",
+        forgotPasswordTokenExpiry: "",
+      },
+    },
+    { new: true }
   );
 }
 
