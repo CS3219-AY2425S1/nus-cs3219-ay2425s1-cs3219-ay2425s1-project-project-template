@@ -22,18 +22,24 @@ module.exports = (server) => {
       const authHeader = socket.handshake.headers['authorization'];
       const user = authGetUser(authHeader);
       socket.data.user = user;
-      console.log(user);
+      console.log('A user connected:', socket.data.user?.userId);
     } catch (error) {
       console.log('Error: ', error.message);
       socket.emit('error', 'Unauthorised socket connection.')
       socket.disconnect(true);
     }
+
+    socket.on('disconnect', () => {
+      console.log('User disconnected:', socket.data.user?.userId);
+    });
   })
 
   // Listen for errors at the server level
   io.on('error', (error) => {
     console.error('Socket.IO error:', error);
   });
+
+  
 
   socketController(io);  // Attach the controller
 };

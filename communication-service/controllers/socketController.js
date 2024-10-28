@@ -1,11 +1,5 @@
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log('A user connected:', socket.data.user.userId);
-
-    // Handle user disconnection
-    socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.data.user.userId);
-    });
 
     // Listen for the 'joinRoom' event
     socket.on('joinRoom', (roomId) => {
