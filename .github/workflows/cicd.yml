@@ -46,6 +46,9 @@ jobs:
 
   build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./message-queue/
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
