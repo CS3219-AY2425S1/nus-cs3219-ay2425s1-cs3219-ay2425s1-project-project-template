@@ -4,7 +4,11 @@ import "./signup.css";
 import signupGraphic from "../../assets/images/signup_graphic.png";
 import { useToast } from "@chakra-ui/react";
 
-const Signup: React.FC = () => {
+interface SignupProps {
+  updateAuthStatus: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const Signup: React.FC<SignupProps> = ({ updateAuthStatus }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +43,10 @@ const Signup: React.FC = () => {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.data.accessToken);
+        sessionStorage.setItem("token", data.data.accessToken)
+        sessionStorage.setItem("userId", data.data.userId)
+        sessionStorage.setItem("email", email)
+        updateAuthStatus(true)
         toast({
           title: "Signup successful!",
           description: "Redirecting to login...",
@@ -48,11 +55,7 @@ const Signup: React.FC = () => {
           isClosable: true,
           position: "bottom",
         });
-
-        // Wait for 3 seconds, then redirect to login page
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000); // 3 seconds delay before redirecting
+        navigate("/questions")
       } else {
         toast({
           title: "Error",

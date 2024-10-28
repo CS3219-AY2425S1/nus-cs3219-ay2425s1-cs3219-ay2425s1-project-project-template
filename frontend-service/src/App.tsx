@@ -56,7 +56,7 @@ function App() {
 
   return (
     <Box className="app" fontFamily="Poppins, sans-serif">
-      <HomeNavBar isAuthenticated={isAuthenticated} onLogout={undefined} />
+      <HomeNavBar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <Box pt="80px">
         <Routes>
           {/* Only allow login/signup routes if the user is not authenticated */}
