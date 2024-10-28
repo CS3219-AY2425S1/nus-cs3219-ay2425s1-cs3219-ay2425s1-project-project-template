@@ -81,6 +81,29 @@ class CollabController {
 
       return res.status(200).json({ message: 'Users added to session successfully.', sessionData: sessionData });
   }
+
+  handleVerifySession = async (req, res) => {
+    const { sessionId } = req.body;
+    // Check if sessionId is provided
+    if (!sessionId ) {
+      console.error("Missing sessionId");
+      return res.status(400).json({ success: false, message: "sessionId is required." });
+    }
+
+    try {
+      const sessionRef = db.collection("sessions").doc(sessionId);
+      const doc = await sessionRef.get();
+
+      if (doc.exists) {
+        return res.status(200).json({ success: true, message: "Session found." });
+      } else {
+        return res.status(404).json({ success: false, message: "Session not found." });
+      }
+    } catch (error) {
+      console.error(`Error when getting session ${sessionId} from database`);
+      return res.status(500).json({ success: false, message: `Error when getting session ${sessionId} from database` }); 
+    }
+  }
 }
 
 const collabControllerInstance = new CollabController();
