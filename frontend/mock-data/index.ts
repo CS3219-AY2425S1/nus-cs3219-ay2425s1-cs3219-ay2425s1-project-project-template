@@ -70,13 +70,13 @@ const mockTestCaseData = [
         idx: 1,
         inputVar: 's',
         input: '["h", "e", "l", "l", "o"]',
-        expectedOutput: '["o", "l", "l", "e", "h"]',
+        output: '["o", "l", "l", "e", "h"]',
     },
     {
         idx: 2,
         inputVar: 's',
         input: '["H", "a", "n", "n", "a", "h"]',
-        expectedOutput: '["h", "a", "n", "n", "a", "H"]',
+        output: '["h", "a", "n", "n", "a", "H"]',
     },
 ]
 
