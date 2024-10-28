@@ -221,8 +221,7 @@ export default function CollaborationPage(props: CollaborationProps) {
         >
           <p className="session-modal-description">
             The collaboration session has ended. You will be redirected in{" "}
-            {countDown}
-            seconds
+            {countDown} seconds
           </p>
           <p className="session-modal-question">
             Question:{" "}
