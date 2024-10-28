@@ -6,7 +6,7 @@ import { Room } from "../models/room-model";
 
 export const joinRoom = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body as { userId: string };
+    const userId = req.body.userId;
 
     if (!userId || typeof userId !== 'string') {
       return res.status(400).json({ message: "Invalid or missing userId." });
@@ -49,13 +49,14 @@ export const joinRoom = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Joined room successfully.", roomId });
   } catch (error) {
     console.error("Error joining room:", error);
-    res.status(500).json({ message: "Failed to join room due to server error." });
+    res.status(500).json({ message: "Failed to join room." });
   }
 };
 
 export const createRoom = async (req: Request, res: Response) => {
   try {
-    const {userId1, userId2 } = req.body;
+    const userId1 = req.body.userId; // Authenticated user's ID
+    const { userId2 } = req.body;
 
     const roomId = uuidv4();
 
@@ -65,6 +66,10 @@ export const createRoom = async (req: Request, res: Response) => {
     const roomSnapshot = await get(roomRef);
     if (roomSnapshot.exists()) {
       return res.status(400).json({ message: "Room already exists" });
+    }
+
+    if (userId1 === userId2) {
+      return res.status(400).json({ message: "Nice Try Buddy." });
     }
 
     const newRoom: Room = {
@@ -96,7 +101,7 @@ export const createRoom = async (req: Request, res: Response) => {
 // function to retrieve room data based on user's current active room
 export const getRoomData = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body as { userId: string };
+    const userId = req.body.userId;
 
     if (!userId || typeof userId !== 'string') {
       return res.status(400).json({ message: "Invalid userId." });
@@ -151,14 +156,14 @@ export const setRoomInactive = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Room has been set to inactive.", roomId });
   } catch (error) {
     console.error("Error setting room to inactive:", error);
-    res.status(500).json({ message: "Failed to set room status due to server error." });
+    res.status(500).json({ message: "Failed to set room status." });
   }
 };
 
 // function to get roomId associated with the current user
 export const getRoomId = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body as { userId: string };
+    const userId = req.body.userId;
 
     if (!userId || typeof userId !== 'string') {
       return res.status(400).json({ message: "Invalid userId." });
