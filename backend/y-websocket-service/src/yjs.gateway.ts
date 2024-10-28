@@ -6,7 +6,7 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'ws';
 import * as Y from 'yjs';
-import { yUtils } from 'y-websocket/bin/utils';
+import { setupWSConnection, setPersistence } from 'y-websocket/bin/utils';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -61,7 +61,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.setupPersistence(sessionId);
 
-      yUtils.setupWSConnection(client, request, { docName: sessionId });
+      setupWSConnection(client, request, { docName: sessionId });
 
       client.send(`Connected to y-websocket via session: ${sessionId}`);
     } catch (error) {
@@ -121,7 +121,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       },
     );
 
-    yUtils.setPersistence({
+    setPersistence({
       bindState: async (docName, ydoc) => {
         const persistedYdoc = await mongoPersistence.getYDoc(docName);
         const persistedStateVector = Y.encodeStateVector(persistedYdoc);
