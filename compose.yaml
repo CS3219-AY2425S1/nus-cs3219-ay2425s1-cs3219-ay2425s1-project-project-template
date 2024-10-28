@@ -137,19 +137,8 @@ services:
       - "8050:8050" # for testing
     env_file:
       - .env/.code_execution_env
-    # depends_on:
-    #   - docker
-    # environment:
-    #   - DOCKER_HOST=tcp://docker:2375
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  
-  # docker:
-  #   image: docker:latest
-  #   privileged: true
-  #   command: dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   mongo-data:
