@@ -24,7 +24,9 @@ services:
 
     matching-service:
         container_name: matching-service
-        image: glemenneo/cs3219-ay2425s1-project-g31-matching-service:latest
+        build:
+            context: .
+            dockerfile: ./backend/matching-service/Dockerfile
         environment:
             - NODE_ENV=development
             - PORT=3006
@@ -71,7 +73,9 @@ services:
 
     user-service:
         container_name: user-service
-        image: glemenneo/cs3219-ay2425s1-project-g31-user-service:latest
+        build:
+            context: .
+            dockerfile: ./backend/user-service/Dockerfile
         environment:
             - NODE_ENV=development
             - PORT=3002
@@ -102,7 +106,9 @@ services:
 
     question-service:
         container_name: question-service
-        image: glemenneo/cs3219-ay2425s1-project-g31-question-service:latest
+        build:
+            context: .
+            dockerfile: ./backend/question-service/Dockerfile
         environment:
             - NODE_ENV=development
             - PORT=3004
