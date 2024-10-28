@@ -25,9 +25,10 @@ const ProfilePage: React.FC = () => {
     }
   }, [])
 
-  const handleEditProfile = () => {
-    navigate('/EditProfile')
+  const handleChangePassword = () => {
+    navigate('/changepassword')
   }
+
 
   return (
     <Box width="100%" maxWidth="600px" margin="auto" mt={8} p={4} borderRadius="8px" border="1px solid #e2e8f0" bg="gray.50">
@@ -37,8 +38,8 @@ const ProfilePage: React.FC = () => {
       {userProfile ? (
         <VStack spacing={4} align="start">
           <Text><strong>Email:</strong> {userProfile.email}</Text>
-          <Button colorScheme="blue" onClick={handleEditProfile}>
-            Edit Profile
+          <Button colorScheme="blue" onClick={handleChangePassword}>
+            Change Password
           </Button>
         </VStack>
       ) : (
