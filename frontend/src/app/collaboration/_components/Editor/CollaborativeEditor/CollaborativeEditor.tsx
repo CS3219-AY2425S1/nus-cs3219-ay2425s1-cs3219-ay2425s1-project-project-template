@@ -22,7 +22,7 @@ interface CollaborativeEditorProps {
 export default function CollaborativeEditor({
   sessionId,
   currentUser,
-  socketUrl = "ws://localhost:1234",
+  socketUrl = "ws://localhost:4001",
   language = "typescript",
   themeName = "dracula",
 }: CollaborativeEditorProps) {
@@ -37,8 +37,8 @@ export default function CollaborativeEditor({
     const yDoc = new Y.Doc();
     const yText = yDoc.getText("monaco");
     const yProvider = new WebsocketProvider(
-      `${socketUrl}/yjs?sessionId=${sessionId}`,
-      sessionId,
+      `${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`,
+      `c_${sessionId}`,
       yDoc
     );
     setProvider(yProvider);
@@ -54,7 +54,7 @@ export default function CollaborativeEditor({
       yDoc.destroy();
       binding.destroy();
     };
-  }, [sessionId, editorRef]);
+  }, [sessionId, currentUser, socketUrl, editorRef]);
 
   const handleEditorOnMount = useCallback(
     (e: editor.IStandaloneCodeEditor, monaco: Monaco) => {

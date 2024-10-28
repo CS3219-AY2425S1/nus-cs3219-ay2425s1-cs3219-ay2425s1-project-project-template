@@ -3,7 +3,7 @@ import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
 import CollaborativeEditorTab from "./CollaborativeEditor/CollaborativeEditorTab";
 import CollaborativeWhiteboardTab from "./CollaborativeWhiteboard/CollaborativeWhiteboardTab";
 
-export function CollabCodePanel() {
+export function CollabCodePanel({ sessionId }: { sessionId: string }) {
   const tabs: Tab[] =
     process.env.NEXT_PUBLIC_WHITEBOARD_FEATURE === "true"
       ? [
@@ -11,13 +11,13 @@ export function CollabCodePanel() {
             value: "code",
             label: "Code",
             Icon: Code,
-            content: <CollaborativeEditorTab />,
+            content: <CollaborativeEditorTab sessionId={sessionId} />,
           },
           {
             value: "whiteboard",
             label: "Whiteboard",
             Icon: Pencil,
-            content: <CollaborativeWhiteboardTab />,
+            content: <CollaborativeWhiteboardTab sessionId={sessionId} />,
           },
         ]
       : [
@@ -25,7 +25,7 @@ export function CollabCodePanel() {
             value: "code",
             label: "Code",
             Icon: Code,
-            content: <CollaborativeEditorTab />,
+            content: <CollaborativeEditorTab sessionId={sessionId} />,
           },
         ];
 

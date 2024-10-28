@@ -13,15 +13,14 @@ interface CollaborativeWhiteboardProps {
 
 export default function CollaborativeWhiteboard({
   sessionId,
-  socketUrl = "ws://localhost:1234",
-}: // currentUser,
-CollaborativeWhiteboardProps) {
+  currentUser,
+  socketUrl = "ws://localhost:4001",
+}: CollaborativeWhiteboardProps) {
   const store = useYjsStore({
-    roomId: sessionId,
-    hostUrl: `${socketUrl}/yjs?sessionId=${sessionId}`,
+    roomId: `wb_${sessionId}`,
+    hostUrl: `${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`,
   });
 
-  // TODO: Implement user preferences
   return (
     <div className="w-full h-full">
       <Tldraw store={store} />
