@@ -2,7 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { IPostMatching, MatchingStatus } from '@/types/matching-api'
 import { Category, Complexity, Proficiency } from '@repo/user-types'
+import { WebSocketMessageType } from '@repo/ws-types'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -11,8 +13,6 @@ import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
-import { WebSocketMessageType } from '@repo/ws-types'
-import { IPostMatching, MatchingStatus } from '@/types/matching-api'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -79,7 +79,9 @@ export const NewSession = () => {
             return
         }
 
-        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${websocketId}`)
+        const socket = new WebSocket(
+            `${process.env.NEXT_PUBLIC_API_URL?.replace(/http/, 'ws')}/matching/ws/?id=${websocketId}`
+        )
         socketRef.current = socket
         socketRef.current.onclose = () => {
             updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
