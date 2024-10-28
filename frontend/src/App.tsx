@@ -9,7 +9,6 @@ import './App.css';
 import AuthProvider from './hooks/AuthProvider';
 import Admin from './pages/Admin';
 import Dashboard from './pages/Dashboard';
-import FilterSelection from './pages/FilterSelection';
 import Landing from './pages/Landing';
 import Room from './pages/Room';
 
@@ -42,7 +41,6 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/select" element={<FilterSelection />} />
             <Route path="/room" element={<Room />} />
           </Routes>
         </AuthProvider>

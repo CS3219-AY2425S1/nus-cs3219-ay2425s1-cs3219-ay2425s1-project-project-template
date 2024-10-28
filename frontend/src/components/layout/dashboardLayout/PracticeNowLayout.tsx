@@ -23,7 +23,7 @@ function PracticeLayout() {
 
   const [displayTimer, setDisplayTimer] = useState(0);
   const timerRef = useRef(0);
-  const [matchFound, setMatchFound] = useState<any | null>(null);
+  const [_, setMatchFound] = useState<any | null>(null);
   const hasTimedOut = useRef(false);
   const socketRef = useRef<Socket | null>(null);
   const timeoutTime = 30;
@@ -70,34 +70,36 @@ function PracticeLayout() {
     };
   }, [isMatchingModalOpen, handleTimeout]);
 
-  const connectSocket = useCallback(
-    (difficulties: string[], topics: string[]) => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+  const connectSocket = (difficulties: string[], topics: string[]) => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
 
-      socketRef.current = io('http://localhost', {
-        path: '/api/matching-notification/socket.io',
-        transports: ['websocket'],
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
+    socketRef.current = io('http://localhost', {
+      path: '/api/matching-notification/socket.io',
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    socketRef.current.on('connect', () => {
+      socketRef.current?.emit('register', auth.userId, difficulties, topics);
+    });
+
+    socketRef.current.on('match_found', (match) => {
+      setMatchFound(match);
+      notifications.show({
+        title: 'Match found!',
+        message: 'Creating a practice room...',
+        color: 'green',
       });
+      console.log(match);
+      handleCancelMatching();
+    });
 
-      socketRef.current.on('connect', () => {
-        socketRef.current?.emit('register', auth.userId, difficulties, topics);
-      });
-
-      socketRef.current.on('match_found', (match) => {
-        setMatchFound(match);
-        console.log(match);
-        handleCancelMatching();
-      });
-
-      socketRef.current.on('disconnect', handleCancelMatching);
-      socketRef.current.on('existing_search', handleCancelMatching);
-    },
-    [auth.userId],
-  );
+    socketRef.current.on('disconnect', handleCancelMatching);
+    socketRef.current.on('existing_search', handleCancelMatching);
+  };
 
   const handleCancelMatching = () => {
     if (socketRef.current) {
