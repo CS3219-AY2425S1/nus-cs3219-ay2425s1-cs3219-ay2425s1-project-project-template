@@ -29,6 +29,7 @@ module.exports = (io) => {
 
   io.on('connection', async (socket) => {
     // Delegate session handling to the controller
+    console.log(`Socket ${socket.id} connected`);
     try {
       const authHeader = socket.handshake.headers['authorization'];
       const user = await authMiddlewareSocket(authHeader);
