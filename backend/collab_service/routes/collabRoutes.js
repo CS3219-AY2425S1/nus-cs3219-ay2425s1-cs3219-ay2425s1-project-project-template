@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { collabController, socketSessions } = require('../controllers/collabController');
+const { collabController } = require('../controllers/collabController');
 const ExecuteCodeController = require('../controllers/executeCodeController');
 
 
