@@ -133,8 +133,6 @@ services:
     container_name: collaboration-service-backend
     networks:
       - my-network
-    depends_on:
-      - user-service
     # ports:
     #   - "8004:8004" # for testing
     env_file:
