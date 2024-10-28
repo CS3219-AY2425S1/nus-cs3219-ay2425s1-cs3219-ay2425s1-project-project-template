@@ -2,6 +2,7 @@ export interface TimedMatchRequest {
     userId: string
     userName: string
     difficulty: string
+    language: string
     categories: string[]
     timestamp: number
 }
@@ -12,6 +13,7 @@ export interface MatchPartner {
     questionId: number,
     title: string,
     difficulty: string
+    language: string
     categories: string[]
 }
 
@@ -28,6 +30,7 @@ export interface MatchSession {
         questionId: number;
         title: string;
         difficulty: string;
+        language: string;
         categories: string[];
     };
 }

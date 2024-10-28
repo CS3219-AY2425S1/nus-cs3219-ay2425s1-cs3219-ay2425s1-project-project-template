@@ -34,13 +34,14 @@ const sendMatchResult = async (
                 questionId: partner.questionId,
                 title: partner.title,
                 difficulty: partner.difficulty,
+                language: partner.language,
                 categories: partner.categories,
             },
         };
 
         activeMatches.set(matchId, matchSession);
 
-        // notifuy users
+        // notify users
         io.to(requestSockId).emit('matchFound', {
             matchId,
             partner: {

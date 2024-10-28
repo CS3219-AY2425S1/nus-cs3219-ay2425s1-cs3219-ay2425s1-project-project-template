@@ -54,13 +54,14 @@ const startConsumer = async (
         queueName,
         (msg: any) => {
             if (msg) {
-                const { userId, userName, difficulty, categories } = JSON.parse(
+                const { userId, userName, difficulty, language, categories } = JSON.parse(
                     msg.content.toString(),
                 )
                 const request: TimedMatchRequest = {
                     userId,
                     userName,
                     difficulty,
+                    language,
                     categories,
                     timestamp: Date.now(),
                 }
