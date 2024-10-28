@@ -12,9 +12,10 @@ npm install
 ```
 
 ## Env Variables
+
 - Set up environment varaibles in a `.env` file
   - `FIREBASE_API_KEY` which you can get from the firebase console.
-
+  - `HOST_ADDRESS` = localhost or the static ip.
 
 ## Development Server
 
@@ -26,6 +27,7 @@ npm run dev -- -o
 ```
 
 ## Production Build
+
 1. Make sure you are in `Peerprep` directory.
 2. Follow the steps in the env variables section above.
 3. Run `docker build -t peerprep .`
