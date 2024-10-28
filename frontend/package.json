@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@uiw/react-codemirror": "^4.23.6",
     "axios": "^1.7.7",
     "chart.js": "^4.4.4",
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.24.0",
     "frontend": "file:",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.445.0",
