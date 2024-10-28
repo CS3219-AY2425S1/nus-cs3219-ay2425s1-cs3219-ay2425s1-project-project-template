@@ -43,7 +43,7 @@ const checkAdminStatus = async (req, res) => {
         }
 
         const userData = userDoc.data();
-        const isAdmin = userData.isAdmin || false; // Assuming you have isAdmin field
+        const isAdmin = userData.isAdmin || false;
 
         return res.status(200).json({ success: true, isAdmin });
     } catch (error) {
