@@ -45,7 +45,6 @@ export default function CustomForm({ fields, data, submitHandler }: CustomFormPr
         const newErrors: { [key: string]: string } = {}
         fields.forEach((field) => {
             if (field.required) {
-                if (field.accessKey === 'testCases') console.log(data[field.accessKey])
                 const isEmpty = field.customValidator
                     ? !field.customValidator(data[field.accessKey])
                     : isFieldEmpty(field.accessKey)
