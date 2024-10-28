@@ -5,6 +5,7 @@ import {
   Col,
   Input,
   Layout,
+  message,
   Row,
   Select,
   Tabs,
@@ -15,7 +16,7 @@ import {
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion, Question } from "@/app/services/question";
 import {
   ClockCircleOutlined,
@@ -27,22 +28,31 @@ import {
 } from "@ant-design/icons";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import CollaborativeEditor from "@/components/CollaborativeEditor/CollaborativeEditor";
+import { CreateOrUpdateHistory } from "@/app/services/history";
+import { Language } from "@codemirror/language";
+import { WebrtcProvider } from "y-webrtc";
 
 interface CollaborationProps {}
 
 export default function CollaborationPage(props: CollaborationProps) {
   const router = useRouter();
+  const providerRef = useRef<WebrtcProvider | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Code Editor States
+  const [historyDocRefId, setHistoryDocRefId] = useState<string | undefined>(
+    undefined
+  );
+  const [code, setCode] = useState<string>("");
   const [questionTitle, setQuestionTitle] = useState<string | undefined>(
     undefined
   );
+  const [questionDocRefId, setQuestionDocRefId] = useState<string | undefined>(undefined);
   const [complexity, setComplexity] = useState<string | undefined>(undefined);
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript"); // State to hold the selected language item
+  const [selectedLanguage, setSelectedLanguage] = useState("Javascript"); // State to hold the selected language item
 
   // Session states
   const [collaborationId, setCollaborationId] = useState<string | undefined>(
@@ -50,6 +60,7 @@ export default function CollaborationPage(props: CollaborationProps) {
   );
   const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
   const [matchedUser, setMatchedUser] = useState<string | undefined>(undefined);
+  const [matchedTopics, setMatchedTopics] = useState<string[] | undefined>(undefined);
 
   // Chat states
   const [messageToSend, setMessageToSend] = useState<string | undefined>(
@@ -61,6 +72,47 @@ export default function CollaborationPage(props: CollaborationProps) {
     undefined
   );
 
+  // Message
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const successMessage = (message: string) => {
+    messageApi.open({
+      type: "success",
+      content: message,
+    });
+  };
+
+  const sendCodeSavedStatusToMatchedUser = () => {
+    if (!providerRef.current) {
+      throw new Error("Provider not initialized");
+    }
+    providerRef.current.awareness.setLocalStateField("codeSavedStatus", true);
+  }
+
+  const handleSubmitCode = async () => {
+    if (!collaborationId) {
+      throw new Error("Collaboration ID not found");
+    }
+    const data = await CreateOrUpdateHistory({
+      title: questionTitle ?? "",
+      code: code,
+      language: selectedLanguage,
+      user: currentUser ?? "",
+      matchedUser: matchedUser ?? "",
+      matchId: collaborationId ?? "",
+      matchedTopics: matchedTopics ?? [],
+      questionDocRefId: questionDocRefId ?? "",
+      questionDifficulty: complexity ?? "",
+      questionTopics: categories,
+    }, collaborationId);
+    successMessage("Code saved successfully!");
+    sendCodeSavedStatusToMatchedUser();
+  }
+
+  const handleCodeChange = (code: string) => {
+    setCode(code);
+  }
+
   // Retrieve the docRefId from query params during page navigation
   //   const searchParams = useSearchParams();
 
@@ -71,17 +123,20 @@ export default function CollaborationPage(props: CollaborationProps) {
     }
 
     // Retrieve details from localstorage
-    const docRefId: string = localStorage.getItem("docRefId") ?? "";
+    const questionDocRefId: string = localStorage.getItem("questionDocRefId") ?? "";
     const collabId: string = localStorage.getItem("collabId") ?? "";
     const matchedUser: string = localStorage.getItem("matchedUser") ?? "";
     const currentUser: string = localStorage.getItem("user") ?? "";
+    const matchedTopics: string[] = localStorage.getItem("matchedTopics")?.split(",") ?? [];
 
     // Set states from localstorage
     setCollaborationId(collabId);
     setMatchedUser(matchedUser);
     setCurrentUser(currentUser);
+    setMatchedTopics(matchedTopics);
+    setQuestionDocRefId(questionDocRefId);
 
-    GetSingleQuestion(docRefId).then((data: Question) => {
+    GetSingleQuestion(questionDocRefId).then((data: Question) => {
       setQuestionTitle(`${data.id}. ${data.title}`);
       setComplexity(data.complexity);
       setCategories(data.categories);
@@ -121,8 +176,9 @@ export default function CollaborationPage(props: CollaborationProps) {
     // Remove localstorage variables for collaboration
     localStorage.removeItem("user");
     localStorage.removeItem("matchedUser");
-    localStorage.removeItem("collaId");
-    localStorage.removeItem("docRefId");
+    localStorage.removeItem("collabId");
+    localStorage.removeItem("questionDocRefId");
+    localStorage.removeItem("matchedTopics");
 
     // Redirect back to matching page
     router.push("/matching");
@@ -130,6 +186,7 @@ export default function CollaborationPage(props: CollaborationProps) {
 
   return (
     <Layout className="collaboration-layout">
+      {contextHolder}
       <Header selectedKey={undefined} />
       <Content className="collaboration-content">
         <Row gutter={0} className="collab-row">
@@ -189,7 +246,11 @@ export default function CollaborationPage(props: CollaborationProps) {
                     Code
                   </div>
                   {/* TODO: Link to execution service for code submission */}
-                  <Button icon={<SendOutlined />} iconPosition="end">
+                  <Button 
+                    icon={<SendOutlined />} 
+                    iconPosition="end" 
+                    onClick={() => handleSubmitCode()} 
+                  >
                     Submit
                   </Button>
                 </div>
@@ -207,6 +268,9 @@ export default function CollaborationPage(props: CollaborationProps) {
                     user={currentUser}
                     collaborationId={collaborationId}
                     language={selectedLanguage}
+                    providerRef={providerRef}
+                    matchedUser={matchedUser}
+                    onCodeChange={handleCodeChange}
                   />
                 )}
               </div>
