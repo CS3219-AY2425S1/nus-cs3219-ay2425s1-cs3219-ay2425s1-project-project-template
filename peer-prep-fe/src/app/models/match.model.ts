@@ -1,4 +1,4 @@
-import { UserData } from "../../../../message-queue/src/types/index";
+import { UserData } from "../../types/userdata";
 
 export interface MatchRequest {
     userData: UserData;
