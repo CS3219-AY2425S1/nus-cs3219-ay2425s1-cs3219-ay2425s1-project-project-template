@@ -1,15 +1,23 @@
 # Kubernetes Instructions
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Load Testing](#load-testing)
+- [Exposing the Ingress Controller](#exposing-the-ingress-controller)
+- [Running the Minikube Service without Ingress](#running-the-minikube-service-without-ingress)
+- [GKE Instructions](#gke-instructions)
+
 ## Prerequisites
 
 - [**Minikube**](https://minikube.sigs.k8s.io/docs/)
 
-  To run a local Kubernetes cluster, we
-  recommend using Minikube on your local machine.
+  To run a local Kubernetes cluster, we recommend using Minikube on your local machine.
 
 ## Getting Started
 
-1. Ensure that the Metrics Server add-on is enabled. Else, the autoscaling will not work.
+1. Ensure that the Metrics Server add-on is enabled. Else, the autoscaling and ingress will not work.
 
 2. For Minikube:
 
@@ -85,6 +93,16 @@
     kubectl apply -f ./k8s/ingress/06-nginx-ingress.yaml
     ```
 
+    It should take a couple of minutes. Once done, you should run this command:
+
+    ```sh
+    kubectl -n peerprep get ingress
+
+    # You should see a similar output:
+    # NAME              CLASS   HOSTS                 ADDRESS        PORTS   AGE
+    # peerprep-ingress  nginx   peerprep-g16.net      172.17.0.15    80      38s
+    ```
+
 3. Run the command to expose the ingress controller:
 
     ```sh
@@ -97,7 +115,20 @@
     127.0.0.1 peerprep-g16.net
     ```
 
-5. Visit `http://peerprep-g16.net` in your browser.
+5. If there is already an entry that points to `localhost`, comment it out temporarily.
+
+    ```txt
+    127.0.0.1 localhost # <- Comment this out, it should look like this ↙️
+    
+    # 127.0.0.1 localhost
+    127.0.0.1 peerprep-g16.net
+    ```
+
+6. Visit `http://peerprep-g16.net` in your browser.
+
+7. When done, reset your `/etc/hosts` file to its original state.
+
+8. Run <kbd>Ctrl</kbd>+<kbd>C</kbd> on the **Minikube Tunnel** to stop it.
 
 ## Running the Minikube Service without Ingress
 
@@ -114,3 +145,9 @@
     ```
 
     A browser window should launch, directing you to the application's frontend.
+
+## GKE Instructions
+
+To be added.
+
+<!-- https://cert-manager.io/docs/tutorials/getting-started-with-cert-manager-on-google-kubernetes-engine-using-lets-encrypt-for-ingress-ssl/ -->
