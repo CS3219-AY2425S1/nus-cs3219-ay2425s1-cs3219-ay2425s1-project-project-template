@@ -6,6 +6,7 @@ export type User = {
     username: string,
     email: string,
     isAdmin: boolean
+    avatar: string,
     createdAt: number,
 };
 
@@ -15,6 +16,7 @@ function defaultUser() {
         username: "",
         email: "",
         isAdmin: false,
+        avatar: "",
         createdAt: 0,
     };
 }

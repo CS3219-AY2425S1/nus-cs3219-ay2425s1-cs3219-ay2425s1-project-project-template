@@ -246,6 +246,7 @@ export function formatUserResponse(user) {
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,
+    avatar: user.avatar,
     createdAt: user.createdAt,
   };
 }
