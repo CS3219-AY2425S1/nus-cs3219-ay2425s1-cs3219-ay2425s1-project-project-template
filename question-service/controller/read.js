@@ -18,7 +18,7 @@ export const getQuestionById = async (req, res) => {
     const question = await Question.find({
       id: id
     });
-    return res.status(200).json(question);;
+    return res.status(200).json(question);
   } catch (err) {
     return res.status(500).json({
       message: `Error when finding question with id ${id}!`,
@@ -33,7 +33,7 @@ export const getQuestionByDifficulty = async (req, res) => {
     const questions = await Question.find({
       difficulty: difficulty
     });
-    return res.status(200).json(questions);;
+    return res.status(200).json(questions);
   } catch (err) {
     return res.status(500).json({
       message: `Error when finding question with difficulty "${difficulty}"!`,
@@ -48,7 +48,7 @@ export const getQuestionByTopic = async (req, res) => {
     const questions = await Question.find({
       topics: topic
     });
-    return res.status(200).json(questions);;
+    return res.status(200).json(questions);
   } catch (err) {
     return res.status(500).json({
       message: `Error when finding question with topic "${topic}"!`,
@@ -117,26 +117,26 @@ export const getNextAvailId = async (req, res) => {
   try {
     const result = await getNextAvailIdHelper();
     return res.status(200).json({
-      result: result
-    })
+      result: result,
+    });
   } catch (err) {
     return res.status(500).json({
       message: `Error when finding next available question ID!`,
       error: err
     });
   }
-}
+};
 
 export const getAllTopics = async (req, res) => {
   try {
     const result = await Question.distinct('topics');
     return res.status(200).json({
-      result: result
-    })
+      result: result,
+    });
   } catch (err) {
     return res.status(500).json({
       smessage: `Error when finding all topics!`,
       error: err
     });
   }
-}
+};

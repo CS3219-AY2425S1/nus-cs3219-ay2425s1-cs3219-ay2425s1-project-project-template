@@ -5,6 +5,7 @@ const redis = require('redis');
 
 const app = express();
 const PORT = 4000;
+const QUESTION_API_BASE_URL = 'http://nginx/api/questions';
 
 const redisClient = redis.createClient({
   socket: {
@@ -92,6 +93,33 @@ async function matchUsers(searchRequest) {
     return;
   }
 
+  const response = await fetch(`${QUESTION_API_BASE_URL}/filter-one`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ difficulties: difficulty, topics: topics }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  let question;
+  try {
+    question = await response.json();
+  } catch (error) {
+    const message = `A question could not be found with the provided criteria.`;
+    console.error(message);
+    channel.sendToQueue(
+      'error_queue',
+      Buffer.from(JSON.stringify({ userId, errorTag: 'no_question_error' })),
+    );
+    return;
+  }
+
+  console.log('Question:', question);
+
   const matchedByTopics = await findMatchByTopics(topics);
   const matchedByDifficulty = await findMatchByDifficulty(difficulty);
 
@@ -121,6 +149,7 @@ async function matchUsers(searchRequest) {
       userId,
       matchUserId: matchedUser,
       roomId: uuid.v7(),
+      questionId: question.id,
     };
 
     channel.sendToQueue(
