@@ -16,10 +16,10 @@ module.exports = (io) => {
       } else {
         socket.join(roomId);
         socket.emit('roomJoined', roomId);
-        console.log(`User ${socket.data.user.userId} joined room ${roomId}`);
+        console.log(`User ${socket.data.user.username} joined room ${roomId}`);
 
         // Notify other clients in the room that a user has joined
-        socket.to(roomId).emit('user-joined', socket.data.user.userId);
+        socket.to(roomId).emit('user-joined', socket.data.user.username);
 
         // Room-specific event listeners
         socket.on('offer', (offer) => {
@@ -37,12 +37,12 @@ module.exports = (io) => {
         socket.on('chatMessage', (msg) => {
           io.in(roomId).emit('chatMessage', {
             body: msg.body,
-            username: socket.data.user.userId
+            username: socket.data.user.username
           });
         });
 
         socket.on('disconnect', () => {
-          socket.to(roomId).emit('user-left', socket.data.user.userId);
+          socket.to(roomId).emit('user-left', socket.data.user.username);
         });
       }
     });
