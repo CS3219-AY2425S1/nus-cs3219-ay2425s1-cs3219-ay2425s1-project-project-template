@@ -15,9 +15,10 @@ import {
   Title,
 } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
-import { Notifications, notifications } from '@mantine/notifications';
-import '@mantine/notifications/styles.css';
+import { notifications } from '@mantine/notifications';
 import { useEffect, useMemo, useState } from 'react';
+
+import Header from '../components/header/Header';
 
 interface Question {
   id: string;
@@ -286,14 +287,7 @@ function QuestionEditor() {
 
   return (
     <AppShell withBorder={false} header={{ height: 80 }}>
-      <AppShell.Header px="40px" py="16px" bg="slate.8">
-        <Group justify="space-between">
-          <a href="." className="logo">
-            <Title c="white">PeerPrep</Title>
-          </a>
-          <Button>Log in</Button>
-        </Group>
-      </AppShell.Header>
+      <Header />
 
       <AppShell.Main
         h="calc(100vh - 80px)"
@@ -301,7 +295,6 @@ function QuestionEditor() {
         bg="slate.9"
         style={{ overflowY: 'auto' }}
       >
-        <Notifications position="top-right" zIndex={9000} autoClose={2000} />
         <Container mt="xl" size="90%">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Group justify="apart" mb="md">

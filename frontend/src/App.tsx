@@ -1,5 +1,7 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import './App.css';
@@ -33,6 +35,7 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
+      <Notifications position="top-right" />
       <BrowserRouter>
         <AuthProvider>
           <Routes>
