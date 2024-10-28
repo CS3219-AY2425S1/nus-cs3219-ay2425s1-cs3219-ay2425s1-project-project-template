@@ -6,11 +6,19 @@ This API documentation describes the WebSocket-based communication service for r
 
 The main functionality of this service is to provide a chatbox and video call between pairs of users.
 
-## Security
+### Security
 
 This server can be ran on HTTPS, where clients will have to use the right protocols.
 
 The client will require a valid JWT created from our user service to connect to our server.
+
+### Frontend
+
+In the frontend/ folder you will find *deprecated* code that may serve as a basic guide for writing your frontend client to connect to this service.
+
+The full and correct implementation is left as an exercise for the user.
+
+You may wish to configure the .env file to serve these files.
 
 ## Base URL
 
