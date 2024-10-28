@@ -37,7 +37,7 @@ public class MatchingVerificationRestController {
         CONFLICT_BOTH_INVALID
     }
 
-    private static final String QUESTION_API_URL = System.getenv("QUESTION_API_URL");
+    private static final String QUESTION_API_URL = System.getenv("ENV").equals("DEV") ? System.getenv("DEV_QUESTION_API_URL") : System.getenv("PROD_QUESTION_API_URL");
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -109,7 +109,7 @@ public class MatchingVerificationRestController {
                 HttpEntity<PickQuestionDTO> request = new HttpEntity<>(pickQuestionDTO, headers);
                 
                 ResponseEntity<PickedQuestionResponse> response = restTemplate.exchange(
-                    QUESTION_API_URL,
+                    QUESTION_API_URL + "/pick-question",
                     HttpMethod.POST,
                     request,
                     new ParameterizedTypeReference<PickedQuestionResponse>() {}
@@ -124,7 +124,7 @@ public class MatchingVerificationRestController {
                     System.err.println("Failed to pick a question for the match criteria. Picked question response is missing.");
                 }
 
-                questionId = pickedQuestionResponse.getQuestionId();
+                questionId = pickedQuestionResponse.getQuestionid();
             } catch (RestClientException e) {
                 System.err.println("Error calling question service: " + e.getMessage());
             }  
@@ -141,6 +141,7 @@ public class MatchingVerificationRestController {
                                     + userId2 
                                     + "_" 
                                     + userEmail2;
+            System.out.println("Successful match message: " + successfulMatch);
             matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", successfulMatch, successfulMatch);
         }
 

@@ -24,7 +24,7 @@ public class MatchRequest {
     private String[] programmingLanguages;
     private String[] difficulties;
 
-    private static final String QUESTION_API_URL = System.getenv("QUESTION_API_URL");
+    private static final String QUESTION_API_URL = System.getenv("ENV").equals("DEV") ? System.getenv("DEV_QUESTION_API_URL") : System.getenv("PROD_QUESTION_API_URL");
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -53,7 +53,7 @@ public class MatchRequest {
             HttpEntity<VerifyMatchCriteriaDTO> request = new HttpEntity<>(verifyMatchCriteriaDTO, headers);
             
             ResponseEntity<VerificationResponse> response = restTemplate.exchange(
-                QUESTION_API_URL,
+                QUESTION_API_URL + "/count-question",
                 HttpMethod.POST,
                 request,
                 new ParameterizedTypeReference<VerificationResponse>() {}
@@ -68,16 +68,21 @@ public class MatchRequest {
                 System.err.println("Failed to verify that a question exists for the match criteria. Verification response is missing.");
             }
 
-            int[] questionCounts = verificationResponse.getCount();
+            int[] questionCounts = verificationResponse.getCounts();
             for (int i = 0; i < questionCounts.length; i++) {
+                String matchCriteria = allTopicsInCombinations.get(i) 
+                                        + "_" 
+                                        + allProgrammingLanguagesInCombinations.get(i) 
+                                        + "_" 
+                                        + allDifficutiesInCombinations.get(i);
                 if (questionCounts[i] > 0) {
-                    validMatchCriteriaKey.add(allTopicsInCombinations.get(i) 
-                    + "_" 
-                    + allProgrammingLanguagesInCombinations.get(i) 
-                    + "_" 
-                    + allDifficutiesInCombinations.get(i));
+                    validMatchCriteriaKey.add(matchCriteria);
+                    System.out.println("At least 1 question found for match criteria: " + matchCriteria);
+                } else {
+                    System.out.println("No question found for match criteria: " + matchCriteria);
                 }
             }
+            System.out.println("Valid match criteria (at least 1 question exists): " + validMatchCriteriaKey);
         } catch (RestClientException e) {
             System.err.println("Error calling question service: " + e.getMessage());
         }
