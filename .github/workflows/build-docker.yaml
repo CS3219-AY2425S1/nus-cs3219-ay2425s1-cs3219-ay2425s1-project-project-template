@@ -172,7 +172,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
 
       - name: Build and push Docker images for PeerPrep Services
         uses: docker/build-push-action@v6

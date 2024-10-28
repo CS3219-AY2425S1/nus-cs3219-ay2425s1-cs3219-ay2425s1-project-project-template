@@ -63,7 +63,7 @@ spec:
       
       containers:
         - name: user-express
-          # TODO: Switch back to :latest once we merge to main branch
+          # TODO: change tag to latest
           # image: ay2425s1cs3219g16/user-express:main
           image: ay2425s1cs3219g16/user-express:sha-ff94455
           imagePullPolicy: IfNotPresent

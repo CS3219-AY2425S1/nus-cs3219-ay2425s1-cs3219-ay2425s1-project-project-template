@@ -65,6 +65,7 @@ spec:
       
       containers:
         - name: frontend
+          # TODO: Switch back to :latest once we merge to main branch
           image: ay2425s1cs3219g16/frontend:main
           imagePullPolicy: IfNotPresent
           envFrom:

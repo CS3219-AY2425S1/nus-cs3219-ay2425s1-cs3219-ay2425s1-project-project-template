@@ -76,6 +76,7 @@ spec:
       
       containers:
         - name: match-express
+          # TODO: change tag to latest
           image: ay2425s1cs3219g16/match-express:main
           imagePullPolicy: IfNotPresent
           envFrom:
