@@ -16,6 +16,13 @@ const authGetUser = (authHeader) => {
   try {
     const token = authHeader?.split(' ')[1];
     const user = jwt.verify(token, USER_JWT_SECRET);
+    /**
+     * user should have properties
+     * userId: string
+     * username: string
+     * isAdmin: boolean,
+     * iat and exp
+     *  */ 
     return user;
   } catch (error) {
     throw error; 
