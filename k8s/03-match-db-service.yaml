@@ -14,4 +14,4 @@ spec:
   ports:
     - name: match-db-6379
       port: 6379
-      targetPort: user-db-6379
+      targetPort: match-db-6379

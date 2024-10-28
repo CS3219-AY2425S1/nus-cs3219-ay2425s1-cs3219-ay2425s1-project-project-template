@@ -12,6 +12,6 @@ spec:
     project: peerprep
     peerprep.service: question-service
   ports:
-    - name: question-svc-prt
+    - name: qn-svc-prt
       port: 9002
-      targetPort: question-svc-ctr
+      targetPort: qn-svc-ctr

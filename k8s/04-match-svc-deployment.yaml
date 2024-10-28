@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-service
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: matching-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: matching-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: matching-service
+        peerprep.network.match-api: "true"
+        peerprep.network.match-db: "true"
+    spec:
+      initContainers:
+        - name: wait-for-redis
+          image: redis:alpine
+          env:
+            - name: MATCHING_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: matching-secret
+                  key: MATCHING_DB_PASSWORD
+            - name: MATCHING_DB_PASSWORD
+              valueFrom:
+                secretKeyRef: 
+                  name: matching-secret
+                  key: MATCHING_DB_PASSWORD
+            - name: MATCHING_DB_HOST
+              value: match-db
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # until REDISCLI_AUTH="$MATCHING_DB_PASSWORD" redis-cli -h match-db --user "$MATCHING_DB_USER" ping; do
+              until redis-cli -h match-db ping; do
+                echo "Waiting for Redis to be ready..."
+                sleep 1
+              done
+              echo "Redis is Healthy"
+      
+      containers:
+        - name: match-express
+          image: ay2425s1cs3219g16/match-express:main
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - secretRef: 
+              name: matching-secret
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - wget --no-verbose --tries=1 --spider http://localhost:9004/health || exit 1
+            periodSeconds: 30
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 5
+          ports:
+            - name: match-svc-ctr
+              containerPort: 9004
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+                

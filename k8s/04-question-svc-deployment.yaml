@@ -64,7 +64,6 @@ spec:
       containers:
         - name: question-express
           image: ay2425s1cs3219g16/question-express:main
-          # image: ay2425s1cs3219g16/question-express:sha-ff94455
           imagePullPolicy: IfNotPresent
           envFrom:
           - secretRef: 
@@ -83,7 +82,7 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 5
           ports:
-            - name: question-svc-ctr
+            - name: qn-svc-ctr
               containerPort: 9002
           resources:
             requests:
