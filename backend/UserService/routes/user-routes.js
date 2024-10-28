@@ -3,8 +3,10 @@ import express from "express";
 import {
   createUser,
   deleteUser,
+  forgetPassword,
   getAllUsers,
   getUser,
+  resetPassword,
   updateUser,
   updateUserPrivilege,
 } from "../controller/user-controller.js";
@@ -13,6 +15,7 @@ import {
   verifyIsAdmin,
   verifyIsOwnerOrAdmin,
 } from "../middleware/basic-access-control.js";
+import upload from "../config/multer-config.js";
 
 const router = express.Router();
 
@@ -31,8 +34,17 @@ router.post("/", createUser);
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 
 //Update User password only
-router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
+router.patch(
+  "/:id",
+  verifyAccessToken,
+  verifyIsOwnerOrAdmin,
+  upload.single("avatar"),
+  updateUser
+);
 
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
+
+router.get("/forgotpassword/:email", forgetPassword);
+router.post("/forgotpassword/:token", resetPassword);
 
 export default router;
