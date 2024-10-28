@@ -3,9 +3,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "../",
+    "baseUrl": "./",
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [],
+    // "paths": {
+    //   "@mq/*": ["../message-queue/src/types/index"],
+    //   "test/*": ["app/models/"]
+    // }
   },
   "files": ["src/main.ts"],
   "include": ["src/**/*.d.ts"]
