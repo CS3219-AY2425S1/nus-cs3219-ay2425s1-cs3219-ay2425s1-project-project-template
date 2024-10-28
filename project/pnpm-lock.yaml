@@ -268,6 +268,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.45.4
         version: 2.45.4
+      cookie:
+        specifier: ^1.0.1
+        version: 1.0.1
       reflect-metadata:
         specifier: ^0.2.0
         version: 0.2.2

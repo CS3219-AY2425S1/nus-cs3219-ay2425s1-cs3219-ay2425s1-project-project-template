@@ -87,6 +87,21 @@ export class CollaborationSupabase implements CollaborationRepository {
     return data;
   }
 
+  async verifyCollaborator(id: string, userId: string): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from(this.COLLABORATION_TABLE)
+      .select()
+      .eq('id', id)
+      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return !!data;
+  }
+
   async fetchDocumentById(id: string): Promise<any> {
     const { data, error } = await this.supabase
       .from(this.COLLABORATION_TABLE)
