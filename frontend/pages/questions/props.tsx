@@ -14,11 +14,12 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
         },
         {
             key: 'title',
-            width: '35%',
+            width: '30%',
             offAutoCapitalize: true,
         },
         {
             key: 'categories',
+            width: '40%',
             formatter: (values) => {
                 const c = values.map((v: string) => (
                     <CustomLabel key={v} title={v} textColor="text-theme" bgColor="bg-theme-100" margin="1" />
