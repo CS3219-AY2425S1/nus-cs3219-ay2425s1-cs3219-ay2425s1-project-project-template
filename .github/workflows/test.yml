@@ -69,16 +69,18 @@ jobs:
 
       - name: Create Database Credential Files
         env:
-          FIREBASE_JSON: ${{ secrets.QUESTION_SERVICE_FIREBASE_CREDENTIAL }}
-          FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+          QUESTION_FIREBASE_JSON: ${{ secrets.QUESTION_SERVICE_FIREBASE_CREDENTIAL }}
+          QUESTION_FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
           HISTORY_FIREBASE_JSON: ${{ secrets.HISTORY_SERVICE_FIREBASE_CREDENTIAL }}
           HISTORY_FIREBASE_CREDENTIAL_PATH: ${{ vars.HISTORY_SERVICE_FIREBASE_CREDENTIAL_PATH }}
         run: |
           cd ./apps/question-service
-          echo "$FIREBASE_JSON" > "$FIREBASE_CREDENTIAL_PATH"
+          mkdir -p ./apps/question-service
+          echo "$QUESTION_FIREBASE_JSON" > "./$QUESTION_FIREBASE_CREDENTIAL_PATH"
 
           cd ../history-service
-          echo "$HISTORY_FIREBASE_JSON" > "$HISTORY_FIREBASE_CREDENTIAL_PATH"
+          mkdir -p ./apps/history-service
+          echo "$HISTORY_FIREBASE_JSON" > "./$HISTORY_FIREBASE_CREDENTIAL_PATH"
 
       - name: Build and Run Services
         run: |
