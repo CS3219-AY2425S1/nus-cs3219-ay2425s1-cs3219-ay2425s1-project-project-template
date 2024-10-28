@@ -65,8 +65,9 @@ export class QuestionController {
   @Get(':id')
   @ApiOkResponse({ description: 'Get question by id successfully' })
   @ApiBadRequestResponse({ description: 'Invalid question id' })
-  getQuestionById(@Body() dto: FindQuestionByIdDto ) {
-    return this.questionClient.send({ cmd: 'get-question-by-id' }, dto);
+  getQuestionById(@Param('id') id: string) {
+    const payload: FindQuestionByIdDto = { id: id };
+    return this.questionClient.send({ cmd: 'get-question-by-id' }, payload);
   }
 
   // Create question
