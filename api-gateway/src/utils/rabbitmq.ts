@@ -76,15 +76,12 @@ const consumeMessageFromQueue = async (
   });
 
   client.onConnect = () => {
-    logger.info(`Connected to RabbitMQ for queue: ${queue}`);
     client.subscribe(queue, (msg: IMessage) => {
       const messageContent = JSON.parse(msg.body);
       logger.debug(`Received message from queue ${queue}:`, messageContent);
       onMessage(messageContent);
       // Keep the consumer active for multiple messages
     });
-
-    logger.info(`Waiting for messages in ${queue}...`);
   };
 
   client.onStompError = (error: IFrame) => {

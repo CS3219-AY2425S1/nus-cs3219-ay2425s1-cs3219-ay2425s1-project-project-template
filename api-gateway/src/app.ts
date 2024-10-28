@@ -18,10 +18,10 @@ app.use(cors(config.corsOptions));
 app.use(express.json());
 
 // Logging middleware
-app.use((req, res, next) => {
-  logger.info(`Incoming request: ${req.method} ${req.originalUrl}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   logger.info(`Incoming request: ${req.method} ${req.originalUrl}`);
+//   next();
+// });
 
 // Routes
 app.use('/api/v1', routes);

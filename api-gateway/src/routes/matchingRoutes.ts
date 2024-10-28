@@ -25,8 +25,6 @@ const wsServer = new WebSocket.Server({ noServer: true });
 
 wsServer.on('connection', (ws, request) => {
   try {
-    logger.info('New WebSocket connection established');
-
     // Get userId from query parameters
     const userId = new URL(
       request.url!,
@@ -80,12 +78,10 @@ wsServer.on('connection', (ws, request) => {
     setupConsumer();
 
     ws.on('close', () => {
-      logger.info('WebSocket connection closed');
       // Clean up RabbitMQ consumer
       if (consumerClient) {
         consumerClient.deactivate();
         consumerClient = null;
-        logger.info(`RabbitMQ consumer deactivated for user ${userId}`);
       }
     });
 
