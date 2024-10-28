@@ -20,6 +20,7 @@ import { addToUserCollection } from "@/services/UserFunctions";
 
 const CreateAccountPage: React.FC = () => {
 	const [email, setEmail] = useState<string>("");
+	const [username, setUsername] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [visible, setVisible] = useState<boolean>(false);
 	const [alertIcon, setAlertIcon] = useState<boolean>(false);
@@ -88,6 +89,16 @@ const CreateAccountPage: React.FC = () => {
 						<form onSubmit={handleLogin}>
 							<CardContent>
 								<div className="grid w-full items-center gap-4">
+									<div className="flex flex-col space-y-1.5">
+										<Label htmlFor="username">Username</Label>
+										<Input
+											id="username"
+											type="text"
+											placeholder="Username"
+											onChange={(e) => setUsername(e.target.value)}
+											required
+										/>
+									</div>
 									<div className="flex flex-col space-y-1.5">
 										<Label htmlFor="email">Email</Label>
 										<Input
