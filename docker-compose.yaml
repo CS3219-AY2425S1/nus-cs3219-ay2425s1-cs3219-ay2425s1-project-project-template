@@ -14,15 +14,16 @@ services:
       - app-network
 
   # Seed MongoDB server with sample questions
-  mongo_seed:
-    image: mongo:latest
-    container_name: mongo_seed
-    links:
-      - mongo
+  mongo-seed:
+    build: ./mongo-seed
+    container_name: mongo-seed
     volumes:
       - ./mongo-seed:/mongo-seed
-      - mongo-seed:/seed_set
-    command: /mongo-seed/import.sh
+    depends_on:
+      user-service:
+        condition: service_healthy
+      question-service:
+        condition: service_started
     networks:
       - app-network
 
@@ -39,7 +40,7 @@ services:
     networks:
       - app-network
 
-  # MongoDB Service for UserService 
+  # MongoDB Service for UserService
   mongo_user:
     image: mongo:latest
     container_name: mongo_user
@@ -47,12 +48,12 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     ports:
-      - "27018:27017" 
+      - "27018:27017"
     volumes:
       - mongo-user-data:/data/db
     networks:
       - app-network
-    
+
   # UserService
   user-service:
     build: ./UserService
@@ -67,6 +68,11 @@ services:
       - mongo_user
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # MatchingService
   matching-service:
@@ -79,14 +85,14 @@ services:
       - redis
     networks:
       - app-network
-  
+
   # Messaging Queue for MatchingService
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672" 
-      - "15672:15672" 
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -120,7 +126,6 @@ volumes:
     driver: local
   mongo-user-data:
     driver: local
-  
 
 networks:
   app-network:

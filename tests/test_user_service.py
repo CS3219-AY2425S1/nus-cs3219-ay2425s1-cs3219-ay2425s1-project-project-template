@@ -20,6 +20,7 @@ def test_create_user():
       "password": "SecurePassword"
     }
     resp = requests.post(endpoint, json=payload)
+    print(resp.json())
     assert resp.status_code == 201
 
 

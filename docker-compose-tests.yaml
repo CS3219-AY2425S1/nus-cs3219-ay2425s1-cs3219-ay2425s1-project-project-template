@@ -13,19 +13,6 @@ services:
     networks:
       - app-network
 
-  # Seed MongoDB server with sample questions
-  mongo_seed:
-    image: mongo:latest
-    container_name: mongo_seed
-    links:
-      - mongo
-    volumes:
-      - ./mongo-seed:/mongo-seed
-      - mongo-seed:/seed_set
-    command: /mongo-seed/import.sh
-    networks:
-      - app-network
-
   # QuestionService
   question-service:
     build: ./QuestionService
@@ -65,6 +52,25 @@ services:
       - JWT_SECRET=you-can-replace-this-with-your-own-secret
     depends_on:
       - mongo_user
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Seed MongoDB server with sample questions
+  mongo-seed:
+    build: ./mongo-seed
+    container_name: mongo-seed
+    volumes:
+      - ./mongo-seed:/mongo-seed
+    depends_on:
+      user-service:
+        condition: service_healthy
+      question-service:
+        condition: service_started
     networks:
       - app-network
 
@@ -109,9 +115,12 @@ services:
     build: ./tests
     container_name: tests
     depends_on:
-      - question-service
-      - user-service
-      - matching-service
+      user-service:
+        condition: service_healthy
+      question-service:
+        condition: service_started
+      mongo-seed:
+        condition: service_completed_successfully
     networks:
       - app-network
 
