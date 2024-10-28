@@ -1,6 +1,6 @@
 "use client"
 
-import { socket } from "../../services/sessionSocketService";
+import { socket } from "../../services/sessionService";
 import { useTheme } from "next-themes";
 import { Card } from '@nextui-org/react';
 import { useEffect, useState } from "react";

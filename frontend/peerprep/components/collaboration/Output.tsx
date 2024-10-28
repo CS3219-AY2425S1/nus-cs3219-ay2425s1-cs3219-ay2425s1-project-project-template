@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Card } from '@nextui-org/react';
 import { executeCode } from '../../services/sessionOutputService';
-import { socket } from '../../services/sessionSocketService';
+import { socket } from '../../services/sessionService';
 import { useTheme } from "next-themes";
 
 type SupportedLanguages = 'javascript' | 'typescript' | 'python' | 'java' | 'csharp' | 'php';

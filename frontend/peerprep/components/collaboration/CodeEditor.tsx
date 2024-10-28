@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import LanguageSelector from "./LanguageSelector";
 import Output from "./Output";
 import * as Y from "yjs";
-import { socket } from "../../services/sessionSocketService";
+import { socket } from "../../services/sessionService";
 import { SupportedLanguages } from "../../utils/utils";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";

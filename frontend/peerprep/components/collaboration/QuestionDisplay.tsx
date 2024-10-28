@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react";
-import { socket } from "../../services/sessionSocketService";
+import { socket } from "../../services/sessionService";
 import { useTheme } from "next-themes";
 import { Card } from '@nextui-org/react';
 import ReactMarkdown from "react-markdown";

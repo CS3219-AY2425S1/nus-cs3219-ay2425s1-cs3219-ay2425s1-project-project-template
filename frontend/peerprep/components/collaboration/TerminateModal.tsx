@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { socket } from "../../services/sessionSocketService";
+import { socket } from "../../services/sessionService";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@nextui-org/react';
 import { useRouter } from "next/navigation";
 
 export default function TerminateModal() {
     const [isModalVisible, setModalVisibility] = useState<boolean>(false);
     const [userConfirmed, setUserConfirmed] = useState<boolean>(false);
+    const [isCancelled, setIsCancelled] = useState<boolean>(false);
+    const [isFirstToCancel, setIsFirstToCancel] = useState<boolean>(true);
     const router = useRouter();
 
     const openModal = async () => {
@@ -18,14 +20,17 @@ export default function TerminateModal() {
 
     const closeModal = async () => {
         setModalVisibility(false);
+        setUserConfirmed(false);
         const resolvedSocket = await socket;
         resolvedSocket?.emit("changeModalVisibility", false);
     };
 
     const handleConfirm = async () => {
         setUserConfirmed(true);
-        const resolvedSocket = await socket;
-        resolvedSocket?.emit("userConfirmedTermination");
+        if (isFirstToCancel) {
+            const resolvedSocket = await socket;
+            resolvedSocket?.emit("ConfirmedTermination");
+        }
     };
 
     useEffect(() => {
@@ -35,6 +40,11 @@ export default function TerminateModal() {
             resolvedSocket?.on("modalVisibility", (isVisible: boolean) => {
                 // console.log("Received modal visibility", isVisible);
                 setModalVisibility(isVisible);
+                setIsCancelled(!isVisible);
+            });
+
+            resolvedSocket?.on("terminateOne", () => {
+                setIsFirstToCancel(false);
             });
         })();
 
@@ -45,8 +55,6 @@ export default function TerminateModal() {
             })();
         };
     }, []);
-
-
 
     return (
         <div className="flex justify-center items-center h-full w-full">
@@ -75,16 +83,29 @@ export default function TerminateModal() {
                         <p className="text-center">Both users need to confirm to terminate the session.</p>
                     </ModalBody>
                     <ModalFooter>
-                        <Button
-                            className=""
-                            variant="flat"
-                            color="danger"
-                            onClick={handleConfirm}
-                            disabled={userConfirmed}
-                        >
-                            {userConfirmed ? "Waiting for other user..." : "Confirm Termination"}
-                        </Button>
+                        <div className="flex flex-row justify-center items-center w-full">
+                            <Button
+                                className=""
+                                variant="flat"
+                                color="danger"
+                                onClick={handleConfirm}
+                                disabled={userConfirmed}
+                            >
+                                {userConfirmed ? "Waiting for other user..." : 
+                                    isFirstToCancel ? "Confirm Termination" : "Other user confirmed. Click to confirm."}
+                            </Button>
+                        </div>
                     </ModalFooter>
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isCancelled}
+                onClose={() => setIsCancelled(false)}
+            >
+                <ModalContent>
+                    <ModalHeader className="font-sans flex flex-col">
+                        <p className="text-center">Termination Cancelled.</p>
+                    </ModalHeader>
                 </ModalContent>
             </Modal>
         </div>
