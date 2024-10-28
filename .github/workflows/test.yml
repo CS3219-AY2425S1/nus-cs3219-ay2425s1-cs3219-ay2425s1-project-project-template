@@ -83,6 +83,8 @@ jobs:
           cd ../history-service
           echo "Current directory after cd to history-service: $(pwd)"
           ls -la
+          echo "History Firebase JSON: $HISTORY_FIREBASE_JSON"
+          echo "History Firebase Credential Path: $HISTORY_FIREBASE_CREDENTIAL_PATH"
           echo "$HISTORY_FIREBASE_JSON" > "./$HISTORY_FIREBASE_CREDENTIAL_PATH"
           echo "Created history service credential file at: $HISTORY_FIREBASE_CREDENTIAL_PATH"
           echo "Current directory after cd to history-service: $(pwd)"
