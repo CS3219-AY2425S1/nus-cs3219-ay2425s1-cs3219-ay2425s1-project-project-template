@@ -44,8 +44,12 @@ const joinSession = (socket, io) => {
       return socket.emit('error', 'Invalid question Id for this session ID.');
     }
 
-    socket.join(sessionId);
 
+    if (codeSessions[sessionId].activeConnections >= 2) {
+      return socket.emit('error', 'Room is full.');
+    }
+
+    socket.join(sessionId);
     codeSessions[sessionId].activeConnections += 1;
     delete codeSessions[sessionId].timeoutStart;
 
