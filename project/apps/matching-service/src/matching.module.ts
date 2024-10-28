@@ -67,6 +67,21 @@ import { MatchService } from './matching.service';
         }),
         inject: [EnvService],
       },
+      {
+        imports: [EnvModule],
+        name: 'COLLABORATION_SERVICE',
+        useFactory: async (envService: EnvService) => ({
+          transport: Transport.TCP,
+          options: {
+            host:
+              envService.get('NODE_ENV') === 'development'
+                ? 'localhost'
+                : envService.get('COLLABORATION_SERVICE_HOST'),
+            port: 3005,
+          },
+        }),
+        inject: [EnvService],
+      },
     ]),
   ],
   controllers: [MatchingController],

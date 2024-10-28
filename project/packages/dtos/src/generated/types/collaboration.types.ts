@@ -11,28 +11,34 @@ export type Database = {
     Tables: {
       collaboration: {
         Row: {
+          document: string | null;
           ended_at: string | null;
           id: string;
-          question_id: string | null;
+          match_id: string;
+          question_id: string;
           started_at: string | null;
-          user1_id: string | null;
-          user2_id: string | null;
+          user1_id: string;
+          user2_id: string;
         };
         Insert: {
+          document?: string | null;
           ended_at?: string | null;
           id?: string;
-          question_id?: string | null;
+          match_id: string;
+          question_id: string;
           started_at?: string | null;
-          user1_id?: string | null;
-          user2_id?: string | null;
+          user1_id: string;
+          user2_id: string;
         };
         Update: {
+          document?: string | null;
           ended_at?: string | null;
           id?: string;
-          question_id?: string | null;
+          match_id?: string;
+          question_id?: string;
           started_at?: string | null;
-          user1_id?: string | null;
-          user2_id?: string | null;
+          user1_id?: string;
+          user2_id?: string;
         };
         Relationships: [];
       };
