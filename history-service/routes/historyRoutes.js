@@ -4,6 +4,9 @@ const {
     saveCollaborationHistory,
     deleteAllCollaborationHistory,
 } = require('../controller/historyController');
+const {
+    authMiddleware,
+} = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -14,6 +17,6 @@ router.get('/:userId', viewHistory);
 router.post('/', saveCollaborationHistory);
 
 // Delete all history
-router.delete('/', deleteAllCollaborationHistory);
+router.delete('/', authMiddleware, deleteAllCollaborationHistory);
 
 module.exports = router;
