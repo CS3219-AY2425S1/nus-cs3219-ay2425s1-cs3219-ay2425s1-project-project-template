@@ -34,8 +34,10 @@ module.exports = (io) => {
       const authHeader = socket.handshake.headers['authorization'];
       const user = await authMiddlewareSocket(authHeader);
       socket.data.user = user;
+      console.log(user);
       sessionController.joinSession(socket, io);
     } catch (error) {
+      console.log(error);
       socket.emit('error', { message: "Unauthorised socket connection." })
       socket.disconnect(true);
     }
