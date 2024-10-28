@@ -28,7 +28,7 @@ export const sendEmail = async (email, userId) => {
     const domain =
       process.env.ENV === "PROD"
         ? process.env.WEB_DOMAIN
-        : process.env.LOCAL_DOMAIN + ":" + process.env.FRONTEND_PORT;
+        : "http://localhost:" + process.env.FRONTEND_PORT;
     const messageBody = `<p>Please click <a href="${domain}/resetpassword?token=${hashedToken}">here</a> to Reset your password or copy paste the link below in your browser. The link is only valid for 1 hour.
           <br>${domain}/resetpassword?token=${hashedToken}</br>
       </p>`;
