@@ -1,7 +1,7 @@
 const socket = io('http://localhost:8443', {
   path: '/api/comm/socket.io',
   extraHeaders: {
-    Authorization: ``
+    Authorization: `Bearer `
   }
 });
 

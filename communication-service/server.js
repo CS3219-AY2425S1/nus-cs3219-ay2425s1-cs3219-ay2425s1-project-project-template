@@ -48,7 +48,7 @@ app.get('/api/comm', (req, res) => {
 })
 
 if (SERVE_FE === 'true') {
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, 'frontend')));
 }
 
 initializeSocketRoutes(server);
