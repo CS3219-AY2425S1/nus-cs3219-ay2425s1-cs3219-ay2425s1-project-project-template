@@ -15,11 +15,16 @@ const UserProfilePage = () => {
   const router = useRouter();
   const { id } = router.query;
 
+  const [mounted, setMounted] = useState(false);
   const [userProfileFormData, setUserProfileFormData] = useState<UserProfile>({
     username: "",
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const userProfile = {
@@ -52,14 +57,18 @@ const UserProfilePage = () => {
     );
   };
 
+  if (!mounted) {
+    return null; // Avoid rendering until the component is fully mounted
+  }
+
   return (
     <>
       <DefaultLayout isLoggedIn={true}>
         <div
           className={
             theme === "dark"
-              ? "flex h-full rounded-3xl bg-zinc-800 divide-[#ecedee]/25 divide-x "
-              : "flex h-full rounded-3xl bg-slate-100 divide-[#11181c]/25 divide-x "
+              ? "flex h-full rounded-3xl bg-zinc-800 divide-[#ecedee]/25 divide-x"
+              : "flex h-full rounded-3xl bg-slate-100 divide-[#11181c]/25 divide-x"
           }
         >
           <div className="flex-1">
