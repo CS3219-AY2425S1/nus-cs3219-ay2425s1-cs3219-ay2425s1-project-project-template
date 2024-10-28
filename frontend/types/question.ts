@@ -20,10 +20,10 @@ export interface IQuestion {
     categories: string[]
     status?: QuestionStatus
     link?: string
-    testCases?: ITestcase[]
+    testCases: ITestcase[]
 }
 
-export interface CreateQuestionDto {
+export interface QuestionDto {
     title: string
     description: string
     complexity: Difficulty
