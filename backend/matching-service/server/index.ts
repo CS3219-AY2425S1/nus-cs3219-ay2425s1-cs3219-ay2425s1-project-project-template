@@ -38,13 +38,12 @@ const io = new Server({
             socket.emit('matchCanceled', { message: 'Your match request has been canceled.' })
         })
 
-        socket.on('acceptMatch', async (data: any) => {
-            const { userId, partnerId } = data
-            logger.info(`User ${userId} has accepted the match with user ${partnerId}`, { service: 'matching-service', timestamp: new Date().toISOString() })
+        socket.on('acceptMatch', async (userId: string) => {
+            logger.info(`User ${userId} has accepted the match`, { service: 'matching-service', timestamp: new Date().toISOString() })
 
             const roomId = await axios.post(`${process.env.COLLAB_SERVICE_URL}/create-room`, {
                 userId1: userId,
-                userId2: partnerId
+                userId2: 'dummy' // supposed to be partner's userId; need to somehow wait for both to accept to send
             })
 
             socket.emit('matchAccepted', roomId.data)
