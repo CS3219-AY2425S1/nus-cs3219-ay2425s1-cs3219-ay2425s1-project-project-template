@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export default function TerminateModal() {
     const [isModalVisible, setModalVisibility] = useState<boolean>(false);
     const [userConfirmed, setUserConfirmed] = useState<boolean>(false);
-    const [isCancelled, setIsCancelled] = useState<boolean>(false);
+    const [isCancelled, setIsCancelled] = useState<boolean>(false); // Is termination cancelled
     const [isFirstToCancel, setIsFirstToCancel] = useState<boolean>(true);
     const router = useRouter();
 
@@ -21,6 +21,7 @@ export default function TerminateModal() {
     const closeModal = async () => {
         setModalVisibility(false);
         setUserConfirmed(false);
+        setIsFirstToCancel(true);
         const resolvedSocket = await socket;
         resolvedSocket?.emit("changeModalVisibility", false);
     };
@@ -29,7 +30,13 @@ export default function TerminateModal() {
         setUserConfirmed(true);
         if (isFirstToCancel) {
             const resolvedSocket = await socket;
-            resolvedSocket?.emit("ConfirmedTermination");
+            resolvedSocket?.emit("terminateOne");
+        } else {
+            setModalVisibility(false);
+            const resolvedSocket = await socket;
+            resolvedSocket?.emit("terminateSession");
+            resolvedSocket?.disconnect();
+            router.push("/");
         }
     };
 
@@ -41,10 +48,24 @@ export default function TerminateModal() {
                 // console.log("Received modal visibility", isVisible);
                 setModalVisibility(isVisible);
                 setIsCancelled(!isVisible);
+
+                if (!isVisible) {
+                    setUserConfirmed(false);
+                    setIsFirstToCancel(true);
+                }
             });
 
             resolvedSocket?.on("terminateOne", () => {
+                console.log("Partner confirmed termination");
                 setIsFirstToCancel(false);
+            });
+
+            resolvedSocket?.on('terminateSession', () => {
+                console.log("Session terminated");
+                setModalVisibility(false);
+                console.log("Session terminated");
+                resolvedSocket?.disconnect();
+                router.push("/");
             });
         })();
 
