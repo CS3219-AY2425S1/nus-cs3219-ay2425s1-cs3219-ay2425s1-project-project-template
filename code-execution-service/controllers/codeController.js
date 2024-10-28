@@ -48,7 +48,7 @@ const executeCode = (req, res) => {
       fs.unlinkSync(filePath);
 
       if (error) {
-        return res.status(500).json({ error: stderr || error.message });
+        return res.status(200).json({ output: stderr || error.message });
       }
       res.send({ output: stdout });
     });
