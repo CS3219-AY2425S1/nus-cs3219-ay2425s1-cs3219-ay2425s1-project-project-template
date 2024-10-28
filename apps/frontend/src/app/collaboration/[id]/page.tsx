@@ -22,17 +22,22 @@ import {
   ClockCircleOutlined,
   CodeOutlined,
   FileDoneOutlined,
+  InfoCircleFilled,
   MessageOutlined,
   PlayCircleOutlined,
   SendOutlined,
 } from "@ant-design/icons";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
-import CollaborativeEditor from "@/components/CollaborativeEditor/CollaborativeEditor";
+import CollaborativeEditor, {
+  CollaborativeEditorHandle,
+} from "@/components/CollaborativeEditor/CollaborativeEditor";
 
 interface CollaborationProps {}
 
 export default function CollaborationPage(props: CollaborationProps) {
   const router = useRouter();
+
+  const editorRef = useRef<CollaborativeEditorHandle>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -50,7 +55,7 @@ export default function CollaborationPage(props: CollaborationProps) {
     undefined
   );
   const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
-  const [matchedUser, setMatchedUser] = useState<string>("Not Connected");
+  const [matchedUser, setMatchedUser] = useState<string>("Loading...");
   const [sessionDuration, setSessionDuration] = useState<number>(() => {
     const storedTime = localStorage.getItem("session-duration");
     return storedTime ? parseInt(storedTime) : 0;
@@ -67,8 +72,12 @@ export default function CollaborationPage(props: CollaborationProps) {
     undefined
   );
 
-  // Modal state
+  // End Button Modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // Session End Modal State
+  const [isSessionEndModalOpen, setIsSessionEndModalOpen] =
+    useState<boolean>(false);
+  const [countDown, setCountDown] = useState<number>(5);
 
   // Stops the session duration stopwatch
   const stopStopwatch = () => {
@@ -121,7 +130,7 @@ export default function CollaborationPage(props: CollaborationProps) {
 
     // Set states from localstorage
     setCollaborationId(collabId);
-    // setMatchedUser(matchedUser); // TODO: remove after being handled in collabeditor
+    setMatchedUser(matchedUser);
     setCurrentUser(currentUser);
 
     // Fetch question and set question states
@@ -135,6 +144,19 @@ export default function CollaborationPage(props: CollaborationProps) {
     // Start stopwatch
     startStopwatch();
   }, []);
+
+  // useEffect for timer
+  useEffect(() => {
+    if (isSessionEndModalOpen && countDown > 0) {
+      const timer = setInterval(() => {
+        setCountDown((prevCountDown) => prevCountDown - 1);
+      }, 1000);
+
+      return () => clearInterval(timer); // Clean up on component unmount or when countdown changes
+    } else if (countDown === 0) {
+      router.push("/matching"); // Redirect to matching page
+    }
+  }, [isSessionEndModalOpen, countDown]);
 
   // Tabs component items for testcases
   const items: TabsProps["items"] = [
@@ -166,23 +188,76 @@ export default function CollaborationPage(props: CollaborationProps) {
   ];
 
   // Handles the cleaning of localstorage variables, stopping the timer & signalling collab user on webrtc
-  const handleCloseCollaboration = () => {
+  // type: "initiator" | "peer"
+  const handleCloseCollaboration = (type: string) => {
     // Stop stopwatch
     stopStopwatch();
+    if (editorRef.current && type === "initiator") {
+      editorRef.current.endSession(); // Call the method on the editor
+    }
+
+    // Trigger modal open showing session end details
+    setIsSessionEndModalOpen(true);
+
     // Remove localstorage variables for collaboration
     localStorage.removeItem("session-duration"); // TODO: Remove this after collaboration backend data stored
     localStorage.removeItem("user");
     localStorage.removeItem("collabId");
     localStorage.removeItem("docRefId");
-
-    // Redirect back to matching page
-    router.push("/matching");
+    localStorage.removeItem("matchedUser");
   };
 
   return (
     <Layout className="collaboration-layout">
       <Header selectedKey={undefined} />
       <Content className="collaboration-content">
+        <Modal
+          height={500}
+          title={"Session Ended"}
+          footer={null}
+          open={isSessionEndModalOpen}
+          width={400}
+          closable={false}
+        >
+          <p className="session-modal-description">
+            The collaboration session has ended. You will be redirected in{" "}
+            {countDown}
+            seconds
+          </p>
+          <p className="session-modal-question">
+            Question:{" "}
+            <span className="session-modal-title">{questionTitle}</span>
+          </p>
+          <p className="session-modal-difficulty">
+            Difficulty:{" "}
+            <Tag
+              className="complexity-tag"
+              style={{
+                color:
+                  complexity === "easy"
+                    ? "#2DB55D"
+                    : complexity === "medium"
+                    ? "orange"
+                    : "red",
+              }}
+            >
+              {complexity &&
+                complexity.charAt(0).toUpperCase() + complexity.slice(1)}
+            </Tag>
+          </p>
+          <p className="session-modal-duration">
+            Duration:{" "}
+            <span className="session-modal-time">
+              {formatTime(sessionDuration)}
+            </span>
+          </p>
+          <p className="session-modal-matched-user">
+            Matched User:{" "}
+            <span className="session-modal-matched-user-name">
+              {matchedUser}
+            </span>
+          </p>
+        </Modal>
         <Row gutter={0} className="collab-row">
           <Col span={7} className="first-col">
             <Row className="question-row">
@@ -205,7 +280,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                   </Tag>
                 </div>
                 <div className="question-topic">
-                  <text className="topic-label">Topics: </text>
+                  <span className="topic-label">Topics: </span>
                   {categories.map((category) => (
                     <Tag key={category}>{category}</Tag>
                   ))}
@@ -254,10 +329,12 @@ export default function CollaborationPage(props: CollaborationProps) {
                 </div>
                 {collaborationId && currentUser && selectedLanguage && (
                   <CollaborativeEditor
+                    ref={editorRef}
                     user={currentUser}
                     collaborationId={collaborationId}
                     language={selectedLanguage}
                     setMatchedUser={setMatchedUser}
+                    handleCloseCollaboration={handleCloseCollaboration}
                   />
                 )}
               </div>
@@ -276,14 +353,14 @@ export default function CollaborationPage(props: CollaborationProps) {
                     title={"End Session"}
                     okText={"End"}
                     okButtonProps={{ danger: true }}
-                    onOk={handleCloseCollaboration}
+                    onOk={() => handleCloseCollaboration("initiator")}
                     open={isModalOpen}
                     onCancel={() => setIsModalOpen(false)}
                     width={400}
                   >
                     <p className="modal-description">
                       Are you sure you want to quit the existing collaboration
-                      session?
+                      session? This will end the session for both users!
                     </p>
                   </Modal>
                   <Button
@@ -291,21 +368,21 @@ export default function CollaborationPage(props: CollaborationProps) {
                     onClick={() => setIsModalOpen(true)}
                     className="session-end-button"
                   >
-                    End
+                    End for All
                   </Button>
                 </div>
 
                 <div className="session-duration">
                   Duration:
-                  <text className="session-duration-timer">
+                  <span className="session-duration-timer">
                     {formatTime(sessionDuration)}
-                  </text>
+                  </span>
                 </div>
                 <div className="session-matched-user-label">
                   Matched User:
-                  <text className="session-matched-user-name">
+                  <span className="session-matched-user-name">
                     {matchedUser}
-                  </text>
+                  </span>
                 </div>
               </div>
             </Row>

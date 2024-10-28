@@ -178,3 +178,22 @@
 .modal-description {
   margin-bottom: 2rem;
 }
+
+.session-modal-question,
+.session-modal-difficulty,
+.session-modal-duration,
+.session-modal-matched-user {
+  font-weight: bold;
+}
+
+.session-modal-time,
+.session-modal-title {
+  font-weight: normal;
+}
+.session-modal-matched-user-name {
+  color: #e0afa0;
+}
+
+.info-modal-icon {
+  color: red;
+}
