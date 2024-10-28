@@ -2,7 +2,7 @@ import { Group, Skeleton, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
@@ -17,7 +17,7 @@ function Room() {
 
   const [code, setCode] = useState('');
 
-  const navigate = useNavigate();
+  //   const navigate = useNavigate();
   const location = useLocation();
   const matchData = location.state;
 
@@ -41,7 +41,12 @@ function Room() {
       socketRef.current.disconnect();
     }
 
+    const token = localStorage.getItem('token');
+
     socketRef.current = io('http://localhost', {
+      extraHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
       path: '/api/collab/socket.io',
       transports: ['websocket'],
       reconnectionAttempts: 5,
@@ -83,11 +88,15 @@ function Room() {
     socketRef.current.on('disconnect', handleLeaveSession);
   };
 
+  useEffect(() => {
+    socketRef.current?.emit('edit-code', code);
+  }, [code]);
+
   const handleLeaveSession = () => {
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
-    navigate('/dashboard');
+    // navigate('/dashboard');
   };
 
   return (
