@@ -78,7 +78,6 @@ const Questions = ({ isAdmin }) => {
         )}
       </div>
 
-      {/* Questions List */}
       <div className="h-[18rem] space-y-2 overflow-y-auto">
         {questions.map((item) => (
           <div
