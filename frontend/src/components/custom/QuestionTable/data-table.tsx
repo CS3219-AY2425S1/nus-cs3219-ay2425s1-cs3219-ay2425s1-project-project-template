@@ -89,7 +89,7 @@ export function DataTable<TData, TValue>({
           <AddQuestionButton onCreate={refetch} />
         </div>
       </div>
-      
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
