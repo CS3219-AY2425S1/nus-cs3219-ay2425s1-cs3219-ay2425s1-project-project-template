@@ -38,8 +38,8 @@ const createServiceAPI = (baseURL: string) => {
     return api
 }
 
-const userServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_USER_SERVICE_URL ?? '')
-const questionServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL ?? '')
-const matchingServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_MATCHING_SERVICE_URL ?? '')
+const userServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? '')
+const questionServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? '')
+const matchingServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? '')
 
 export default { userServiceAPI, questionServiceAPI, matchingServiceAPI }

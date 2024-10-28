@@ -24,7 +24,7 @@ export default NextAuth({
 
                 try {
                     const api = axios.create({
-                        baseURL: process.env.NEXT_PUBLIC_USER_SERVICE_URL,
+                        baseURL: process.env.NEXT_PUBLIC_API_URL,
                     })
 
                     const response = await api.post('/auth/login', { usernameOrEmail: username, password })
