@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 const questionServiceBackendUrl =
 	import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
 const collabServiceBackendUrl =
-	import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+	import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "ws://localhost:5004";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

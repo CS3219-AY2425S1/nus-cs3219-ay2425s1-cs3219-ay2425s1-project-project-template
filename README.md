@@ -41,7 +41,7 @@ How to deploy website to public:
   docker push gcr.io/peerprep-g02/matching_service
 
   cd ../../frontend
-  docker build --build-arg VITE_QUESTION_SERVICE_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app --build-arg VITE_MATCHING_SERVICE_BACKEND_URL=wss://matching-service-1079323726684.asia-southeast1.run.app/matching --build-arg VITE_COLLAB_SERVICE_BACKEND_URL=https://collab-service-1079323726684.asia-southeast1.run.app -t frontend .
+  docker build --build-arg VITE_QUESTION_SERVICE_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app --build-arg VITE_MATCHING_SERVICE_BACKEND_URL=wss://matching-service-1079323726684.asia-southeast1.run.app/matching --build-arg VITE_COLLAB_SERVICE_BACKEND_URL=wss://collab-service-1079323726684.asia-southeast1.run.app -t frontend .
   docker tag frontend gcr.io/peerprep-g02/frontend
   docker push gcr.io/peerprep-g02/frontend
   ```

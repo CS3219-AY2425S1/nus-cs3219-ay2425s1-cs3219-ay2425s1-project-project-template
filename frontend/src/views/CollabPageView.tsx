@@ -68,7 +68,7 @@ const CollabPageView: React.FC = () => {
 	const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
 	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-	const collabServiceBackendUrl = import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+	const collabServiceBackendUrl = import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "ws://localhost:5004";
 
 	useEffect(() => {
 		const token = sessionStorage.getItem("authToken");
