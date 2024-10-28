@@ -58,6 +58,8 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
             complexity: data.complexity.toUpperCase(),
             categories: data.categories.map((category) => category.toUpperCase()),
             link: data.link,
+            testInputs: data.testCases?.map((testCase) => testCase.input),
+            testOutputs: data.testCases?.map((testCase) => testCase.output),
         }
         console.log('Requesting to create question: ', postData)
         const response: IQuestion = await axiosInstance.post(`/questions`, postData)
