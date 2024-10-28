@@ -1,16 +1,12 @@
 import { AppShell, Center, Group, Stack } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 
 import Header from '../components/header/Header';
 import FavoriteTopicsLayout from '../components/layout/dashboardLayout/FavoriteTopicsLayout';
 import PracticeLayout from '../components/layout/dashboardLayout/PracticeNowLayout';
 import ProgressLayout from '../components/layout/dashboardLayout/ProgressLayout';
-import HelpModal from '../components/modal/HelpModal';
 import PracticeHistoryTable from '../components/table/PracticeHistoryTable';
 
 function Dashboard() {
-  const [isHelpModalOpened, { open: openHelpModal, close: closeHelpModal }] =
-    useDisclosure(false);
   return (
     <>
       <AppShell withBorder={false} header={{ height: 80 }}>
@@ -22,19 +18,16 @@ function Dashboard() {
               <Group gap="20px" align="stretch">
                 <ProgressLayout />
                 <FavoriteTopicsLayout />
-                <PracticeLayout openHelpModal={openHelpModal} />
+                <PracticeLayout
+                  openHelpModal={() => {}}
+                  openMatchingCriteriaModal={() => {}}
+                />
               </Group>
-
               <PracticeHistoryTable />
             </Stack>
           </Center>
         </AppShell.Main>
       </AppShell>
-
-      <HelpModal
-        isHelpModalOpened={isHelpModalOpened}
-        closeHelpModal={closeHelpModal}
-      />
     </>
   );
 }
