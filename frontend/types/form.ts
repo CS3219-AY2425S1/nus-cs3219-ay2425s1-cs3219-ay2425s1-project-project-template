@@ -4,6 +4,7 @@ enum FormType {
     SELECT = 'select',
     MULTISELECT = 'multiselect',
     HIDDEN = 'hidden',
+    CUSTOM_TESTCASE = 'custom_testcase',
 }
 
 interface IFormFields {
@@ -13,6 +14,7 @@ interface IFormFields {
     placeholder?: string
     required?: boolean
     selectOptions?: string[]
+    customValidator?: (data: any) => boolean // Return true if data is valid
 }
 
 export { FormType }

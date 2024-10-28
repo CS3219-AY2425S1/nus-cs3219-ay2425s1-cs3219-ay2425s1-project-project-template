@@ -29,7 +29,7 @@ export default function RootLayout({
         <div>
             {session ? (
                 <div className="initial">
-                    {!isHideNavbar && <NavBar className="z-[99999] fixed w-full top-0 bg-white" />}
+                    {!isHideNavbar && <NavBar className="z-[995] fixed w-full top-0 bg-white" />}
                     <div className={`${topMargin} mx-10 ${inter.className}`}>{children}</div>
                 </div>
             ) : (

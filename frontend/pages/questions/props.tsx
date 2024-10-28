@@ -4,6 +4,7 @@ import { ExclamationIcon, TickIcon } from '@/assets/icons'
 import { Category } from '@repo/user-types'
 import CustomLabel from '@/components/ui/label'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
+import { ITestcase } from '@/types/question'
 
 const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
     return [
@@ -13,20 +14,22 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
         },
         {
             key: 'title',
-            width: '20%',
+            width: '30%',
             offAutoCapitalize: true,
         },
         {
             key: 'categories',
+            width: '40%',
             formatter: (values) => {
                 const c = values.map((v: string) => (
                     <CustomLabel key={v} title={v} textColor="text-theme" bgColor="bg-theme-100" margin="1" />
                 ))
-                return <div className="flex flex-wrap items-center justify-center">{c}</div>
+                return <div className="flex flex-wrap items-center justify-center gap-3">{c}</div>
             },
         },
         {
             key: 'description',
+            isHidden: true,
             width: '35%',
             offAutoCapitalize: true,
             formatter: (value) => {
@@ -47,6 +50,7 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
         },
         {
             key: 'status',
+            isHidden: true,
             formatter: (value) => {
                 return (
                     <div className="flex items-center justify-center">
@@ -61,6 +65,7 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
         },
         {
             key: 'complexity',
+            width: '10%',
             isSortable: true,
             formatter: (value) => {
                 return <DifficultyLabel complexity={value} />
@@ -111,6 +116,16 @@ const formFields: IFormFields[] = [
         formType: FormType.TEXT,
         placeholder: 'Enter link',
         required: true,
+    },
+    {
+        label: 'Testcases',
+        accessKey: 'testCases',
+        formType: FormType.CUSTOM_TESTCASE,
+        placeholder: 'Enter testcases',
+        required: true,
+        customValidator: (data: ITestcase[]) => {
+            return data.length > 0 && data.every((t) => t.input?.trim() !== '' && t.output?.trim() !== '')
+        },
     },
 ]
 
