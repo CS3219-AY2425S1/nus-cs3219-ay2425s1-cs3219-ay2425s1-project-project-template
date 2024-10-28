@@ -134,18 +134,15 @@ services:
     networks:
       - my-network
     ports:
-      - "8050:8050" # for testing
+      - "8050:8050"  # for testing
     env_file:
       - .env/.code_execution_env
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   mongo-data:
   react-build:
   rabbitmq_data:
   redis-data:
-
 
 networks:
   my-network:
