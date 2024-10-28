@@ -29,7 +29,7 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
 
-    @GetMapping("/questions")
+    @GetMapping()
     public List<QuestionDto> getAllQuestions() {
        return questionService.getAllQuestions();
     }
