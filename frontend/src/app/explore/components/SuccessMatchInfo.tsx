@@ -23,6 +23,7 @@ interface SuccessMatchInfoProps {
             questionId: number;
             title: string;
             difficulty: string;
+            language: string;
             categories: string[];
         };
     };
@@ -108,6 +109,13 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                         <h5 className="text-sm mb-2">Difficulty:</h5>
                         <div>
                             <h4 className="text-lg font-semibold">{match.question.difficulty}</h4>
+                        </div>
+                    </div>
+                    {/* Language */}
+                    <div>
+                        <h5 className="text-sm mb-2">Language:</h5>
+                        <div>
+                            <h4 className="text-lg font-semibold">{match.question.language}</h4>
                         </div>
                     </div>
                     {/* Categories */}

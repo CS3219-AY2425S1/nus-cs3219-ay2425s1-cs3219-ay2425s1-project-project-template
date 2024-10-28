@@ -23,7 +23,7 @@ const MatchingFilters = () => {
     const socketRef = useRef<Socket | null>(null);
     const { user, isAuthenticated } = useAuth();
     const { toast } = useToast()
-    const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+    const [selectedLanguage, setSelectedLanguage] = useState<string[]>();
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
@@ -144,6 +144,7 @@ const MatchingFilters = () => {
                 userName: user?.name,
                 difficulty: selectedDifficulty,
                 categories: selectedCategories,
+                language: selectedLanguage
             }
             socketRef.current?.emit('login', user?.id);
             socketRef.current?.emit('requestMatch', matchRequest);
@@ -194,7 +195,7 @@ const MatchingFilters = () => {
                         disabled={isSearching}
                     />
                 </div> */}
-                <div className='w-1/3'>
+                <div className='w-1/4'>
                     <Label>Difficulty</Label>
                     <Select disabled={isSearching} onValueChange={(value: string) => setSelectedDifficulty(value)}>
                         <SelectTrigger>
@@ -209,7 +210,22 @@ const MatchingFilters = () => {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className='w-2/3'>
+                <div className='w-1/4'>
+                    <Label>Language</Label>
+                    <Select disabled={isSearching} onValueChange={(value: string) => setSelectedLanguage(value)}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {languagesList.map((language) => (
+                                <SelectItem key={language.value} value={language.value}>
+                                    {language.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className='w-2/4'>
                     <Label>Categories</Label>
                     <MultiSelect
                         options={categoriesList}

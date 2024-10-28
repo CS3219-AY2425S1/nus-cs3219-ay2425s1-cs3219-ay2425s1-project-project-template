@@ -27,7 +27,7 @@ const io = new Server({
         })
 
         socket.on('requestMatch', async (data: any) => {
-            const { userId, userName, difficulty, categories } = data
+            const { userId, userName, difficulty, categories, language } = data
             logger.info(`User ${userId} has requested for a match with difficulty ${difficulty} and categories ${categories}`, { service: 'matching-service', timestamp: new Date().toISOString() })
             sendMatchingRequest(data)
         })
