@@ -69,8 +69,11 @@ spec:
           - secretRef: 
               name: question-secret
           env:
+            # When load testing, it exposes port 80 by default.
             - name: LOAD_TEST_POD
               value: http://question-service-load-test
+            - name: PEERPREP_UI_HOST
+              value: http://frontend
           livenessProbe:
             exec:
               command:

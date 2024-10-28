@@ -63,6 +63,7 @@ spec:
       
       containers:
         - name: user-express
+          # TODO: Switch back to :latest once we merge to main branch
           # image: ay2425s1cs3219g16/user-express:main
           image: ay2425s1cs3219g16/user-express:sha-ff94455
           imagePullPolicy: IfNotPresent
@@ -70,8 +71,11 @@ spec:
           - secretRef: 
               name: user-secret
           env:
+            # When load testing, it exposes port 80 by default.
             - name: LOAD_TEST_POD
               value: http://user-service-load-test
+            - name: PEERPREP_UI_HOST
+              value: http://frontend:3000
           livenessProbe:
             exec:
               command:

@@ -42,8 +42,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              # until REDISCLI_AUTH="$MATCHING_DB_PASSWORD" redis-cli -h match-db --user "$MATCHING_DB_USER" ping; do
-              until redis-cli -h match-db ping; do
+              until REDISCLI_AUTH="$MATCHING_DB_PASSWORD" redis-cli -h "$MATCHING_DB_HOST" --user "$MATCHING_DB_USERNAME" ping; do
                 echo "Waiting for Redis to be ready..."
                 sleep 1
               done
@@ -61,6 +60,8 @@ spec:
               value: match-db
             - name: MATCHING_DB_PORT
               value: "6379"
+            - name: PEERPREP_UI_HOST
+              value: http://frontend:3000
           livenessProbe:
             exec:
               command:
