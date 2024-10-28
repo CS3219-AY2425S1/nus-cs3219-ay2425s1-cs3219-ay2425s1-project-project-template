@@ -127,6 +127,17 @@ services:
       timeout: 5s
       retries: 5 # Adjust based on how long it takes for RabbitMQ to be ready
 
+  communication-service:
+     build:
+       context: ./communication-service
+     container_name: communication-service-backend
+     networks:
+       - my-network
+    #  ports:
+    #    - "8443:8443" # for testing
+     env_file:
+       - .env/.communication_env
+
 volumes:
   mongo-data:
   react-build:
