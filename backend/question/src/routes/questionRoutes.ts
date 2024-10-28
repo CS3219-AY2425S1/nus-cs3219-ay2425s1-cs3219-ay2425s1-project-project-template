@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import Question, { TQuestion } from "../models/Question";
 import {
+  countQuestionValidators,
   createQuestionValidators,
   idValidators,
   pickQuestionValidators,
@@ -131,7 +132,7 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
 // Retrieve the number of questions by complexity and category
 router.post(
   "/count-question",
-  [...pickQuestionValidators],
+  [...countQuestionValidators],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -139,14 +140,16 @@ router.post(
     }
     const { complexity, category } = req.body;
 
-    const query: any = { deleted: false };
-    if (complexity) query.complexity = { $in: complexity };
-    if (category) query.category = { $in: category };
-
     try {
-      const questionCount = await Question.countDocuments(query).exec();
+      const countPromises = complexity.map((com: string, index: number) => {
+        const cat = category[index];
+        const query: any = { deleted: false, complexity: com, category: cat };
+        return Question.countDocuments(query).exec();
+      });
 
-      return res.json({ count: questionCount });
+      const counts = await Promise.all(countPromises);
+
+      return res.json({ counts });
     } catch (error) {
       return res.status(500).send("Internal server error");
     }
@@ -165,8 +168,8 @@ router.post(
     const { complexity, category } = req.body;
 
     const query: any = { deleted: false };
-    if (complexity) query.complexity = { $in: complexity };
-    if (category) query.category = { $in: category };
+    if (complexity) query.complexity = complexity;
+    if (category) query.category = category;
 
     try {
       let randomQuestion = await Question.aggregate([
@@ -175,11 +178,6 @@ router.post(
         {
           $project: {
             questionid: 1,
-            title: 1,
-            description: 1,
-            complexity: 1,
-            category: 1,
-            deleted: 1,
           },
         },
       ]).exec();
@@ -192,11 +190,6 @@ router.post(
           {
             $project: {
               questionid: 1,
-              title: 1,
-              description: 1,
-              complexity: 1,
-              category: 1,
-              deleted: 1,
             },
           },
         ]).exec();
