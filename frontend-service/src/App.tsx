@@ -9,6 +9,7 @@ import Home from "./home";
 import Signup from "./pages/SignUp/signup";
 import MatchingPage from "./pages/MatchingPage";
 import { useEffect, useState } from "react";
+import CodeEditor from '../components/collab/CodeEditor';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -36,7 +37,7 @@ function App() {
           console.error("Error verifying token:", error);
           localStorage.removeItem("token");
           setIsAuthenticated(false);
-      });
+        });
     } else {
       setIsAuthenticated(false);
     }
@@ -52,6 +53,7 @@ function App() {
             <>
               <Route path="/login" element={<Login updateAuthStatus={setIsAuthenticated} />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/editor" element={<CodeEditor />} />
             </>
           ) : (
             <Route path="*" element={<Navigate to="/" replace />} /> // Redirect authenticated users
