@@ -40,34 +40,35 @@ export default function TestcaseForm({ data, onDataChange }: ITestcaseFormProps)
 
     return (
         <div className="w-full space-y-3">
-            {testcases.map((testcase, index) => (
-                <div className="flex gap-2" key={index}>
-                    <input
-                        type="text"
-                        placeholder="Enter input"
-                        className="w-full border border-input p-2 rounded-md text-sm hover:border-gray-400 mr-2"
-                        value={testcase.input}
-                        onChange={(e) => handleValueChange('input', e.target.value, index)}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Enter output"
-                        className="w-full border border-input p-2 rounded-md text-sm hover:border-gray-400"
-                        value={testcase.output}
-                        onChange={(e) => handleValueChange('output', e.target.value, index)}
-                    />
-                    <Button
-                        variant="iconNoBorder"
-                        className="px-2"
-                        onClick={(e) => {
-                            e.preventDefault()
-                            handleDeleteTestcase(index)
-                        }}
-                    >
-                        <DeleteIcon />
-                    </Button>
-                </div>
-            ))}
+            {testcases &&
+                testcases.map((testcase, index) => (
+                    <div className="flex gap-2" key={index}>
+                        <input
+                            type="text"
+                            placeholder="Enter input"
+                            className="w-full border border-input p-2 rounded-md text-sm hover:border-gray-400 mr-2"
+                            value={testcase.input}
+                            onChange={(e) => handleValueChange('input', e.target.value, index)}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Enter output"
+                            className="w-full border border-input p-2 rounded-md text-sm hover:border-gray-400"
+                            value={testcase.output}
+                            onChange={(e) => handleValueChange('output', e.target.value, index)}
+                        />
+                        <Button
+                            variant="iconNoBorder"
+                            className="px-2"
+                            onClick={(e) => {
+                                e.preventDefault()
+                                handleDeleteTestcase(index)
+                            }}
+                        >
+                            <DeleteIcon />
+                        </Button>
+                    </div>
+                ))}
             {isShowError && <p className="text-red-400 text-xs mt-2">Please fill in all current testcases first!</p>}
             <button
                 className="bg-gray-200 hover:bg-gray-300 text-gray-400 px-3 py-2 rounded-md w-full text-sm"
