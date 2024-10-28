@@ -13,6 +13,7 @@ import '@mantine/notifications/styles.css';
 import { useState } from 'react';
 
 import MatchingModal from '../components/modal/MatchingModal';
+import { Link } from 'react-router-dom';
 
 const difficulties = ['Easy', 'Medium', 'Hard'];
 const topics = [
@@ -42,7 +43,9 @@ function Filter() {
             <a href="." className="logo">
               <Title c="white">PeerPrep</Title>
             </a>
-            <Button>Log In</Button>
+            <Link to='../profile'>
+              <Button>Log In</Button>
+            </Link>
           </Group>
         </AppShell.Header>
 
