@@ -1,8 +1,6 @@
-"use client";
-
 import DefaultLayout from "@/layouts/default";
 
-const The403Page = () => {
+export default function Page() {
   return (
     <>
       <DefaultLayout isLoggedIn={true}>
@@ -12,6 +10,4 @@ const The403Page = () => {
       </DefaultLayout>
     </>
   );
-};
-
-export default The403Page;
+}

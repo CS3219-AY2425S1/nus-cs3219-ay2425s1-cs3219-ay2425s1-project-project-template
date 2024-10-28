@@ -5,7 +5,6 @@ const JWT_SECRET= process.env.JWT_SECRET as string;
 export async function authenticateAccessToken(
   accessToken: string,
 ): Promise<Object> {
-    console.log(accessToken)
   return new Promise<Object>((resolve, reject) => {
     jwt.verify(
       accessToken,

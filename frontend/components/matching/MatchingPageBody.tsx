@@ -10,6 +10,7 @@ import MatchingTimer from "./MatchingTimer";
 import { SuccessfulMatchResponse, UserMatchResponse } from "@/types/match";
 import createWebSocket from "@/utils/webSocket";
 import { useCancelUserMatch } from "@/hooks/api/matching";
+import { match } from "assert";
 
 export default function MatchingPageBody() {
   const [userMatchInfo, setUserMatchInfo] = useState<
@@ -44,6 +45,7 @@ export default function MatchingPageBody() {
         typeof messageData !== "undefined" &&
         messageData !== "null" &&
         typeof messageData === "object" &&
+        typeof messageData.roomId === "string" &&
         typeof messageData.state === "string" &&
         typeof messageData.user1 === "string" &&
         typeof messageData.user2 === "string"
@@ -62,7 +64,11 @@ export default function MatchingPageBody() {
           className: "z-50 bg-success-100 text-wrap",
           autoClose: 1500,
         });
-        setTimeout(() => router.push("/collaboration"), 2000);
+        console.log(matchedResponse)
+        setTimeout(
+          () => router.push(`/collaboration/${matchedResponse.roomId}`),
+          2000,
+        );
       }
     } catch (error) {
       return;

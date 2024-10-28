@@ -1,4 +1,6 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 import DefaultLayout from "@/layouts/default";
@@ -7,10 +9,10 @@ import { useGetQuestion } from "@/hooks/api/questions";
 import { useUpdateQuestions } from "@/hooks/api/questions";
 import { Question } from "@/types/questions";
 
-const EditQuestionsPage = () => {
+export default function Page() {
   const router = useRouter();
-  // Extract questionId from the query parameters
-  const { id } = router.query;
+  const params = useParams();
+  const id = params?.id;
 
   // Fetch the question using useGetQuestion hook
   const { data: question, isLoading, error } = useGetQuestion(id as string);
@@ -85,6 +87,4 @@ const EditQuestionsPage = () => {
       </div>
     </DefaultLayout>
   );
-};
-
-export default EditQuestionsPage;
+}

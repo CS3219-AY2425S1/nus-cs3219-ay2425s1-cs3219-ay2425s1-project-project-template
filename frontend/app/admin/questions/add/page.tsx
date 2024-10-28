@@ -1,4 +1,6 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
@@ -6,7 +8,7 @@ import QuestionForm from "@/components/forms/QuestionForm";
 import { Question } from "@/types/questions";
 import { useAddQuestions } from "@/hooks/api/questions";
 
-const AddQuestionsPage = () => {
+export default function Page() {
   const router = useRouter();
   const [formData, setFormData] = useState<Question>({
     title: "",
@@ -49,6 +51,4 @@ const AddQuestionsPage = () => {
       </div>
     </DefaultLayout>
   );
-};
-
-export default AddQuestionsPage;
+}

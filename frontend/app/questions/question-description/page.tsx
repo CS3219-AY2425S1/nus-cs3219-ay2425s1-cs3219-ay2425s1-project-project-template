@@ -1,11 +1,13 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { useSearchParams } from "next/navigation";
 
 import { useGetQuestion } from "@/hooks/api/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 
-export default function QuestionDescriptionPage() {
-  const router = useRouter();
-  const { id: questionId } = router.query;
+export default function Page() {
+  const searchParams = useSearchParams();
+  const questionId = searchParams?.get("id");
   const idString: string = (
     Array.isArray(questionId) ? questionId[0] : questionId
   ) as string;

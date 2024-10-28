@@ -6,7 +6,7 @@ import { useQuestions } from "@/hooks/api/questions";
 import QuestionTable from "@/components/questions/QuestionTable";
 import DefaultLayout from "@/layouts/default";
 
-const AdminQuestionsPage = () => {
+export default function Page() {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const { data: questionList, isLoading, isError } = useQuestions(pageNumber);
   const handleOnPageClick = (page: number) => {
@@ -34,6 +34,4 @@ const AdminQuestionsPage = () => {
       </DefaultLayout>
     </>
   );
-};
-
-export default AdminQuestionsPage;
+}

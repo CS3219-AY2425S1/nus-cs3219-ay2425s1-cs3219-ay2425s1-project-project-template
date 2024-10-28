@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -13,7 +15,7 @@ import {
 import { Avatar } from "@nextui-org/avatar";
 import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
+import { useRouter, usePathname } from "next/navigation";
 
 import NavLink from "@/components/navLink";
 import { useLogout } from "@/hooks/api/auth";
@@ -29,6 +31,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { user } = useUser();
 
   const { mutate: logout } = useLogout();
@@ -55,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
         {isLoggedIn && (
           <div className="hidden lg:flex gap-4 justify-start ml-2">
             {siteConfig.navItems.map((item) => {
-              const isActive = router.pathname === item.href;
+              const isActive = pathname === item.href;
 
               return (
                 <NavbarItem key={item.href} isActive={isActive}>

@@ -1,4 +1,3 @@
-import { Head } from "@/layouts/head";
 import { Navbar } from "@/components/navbar";
 
 export default function DefaultLayout({
@@ -10,7 +9,6 @@ export default function DefaultLayout({
 }) {
   return (
     <div className="relative flex flex-col h-screen">
-      <Head />
       <Navbar isLoggedIn={isLoggedIn} />
       <main className="container mx-auto max-w-7xl px-4 flex-grow pt-4">
         {children}

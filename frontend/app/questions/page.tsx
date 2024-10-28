@@ -1,10 +1,12 @@
+"use client";
+
 import { useState } from "react";
 
 import { useQuestions } from "@/hooks/api/questions";
 import QuestionTable from "@/components/questions/QuestionTable";
 import DefaultLayout from "@/layouts/default";
 
-const UserQuestionsPage = () => {
+export default function Page() {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const { data: questionList, isLoading, isError } = useQuestions(pageNumber);
   const handleOnPageClick = (page: number) => {
@@ -32,6 +34,4 @@ const UserQuestionsPage = () => {
       </DefaultLayout>
     </>
   );
-};
-
-export default UserQuestionsPage;
+}
