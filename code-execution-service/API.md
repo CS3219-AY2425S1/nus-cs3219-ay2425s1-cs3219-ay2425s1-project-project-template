@@ -88,13 +88,25 @@ Executes code in a specified programming language within a Docker container, opt
       }
       ```
 
-    - **Description**: Indicates an error during code execution or an unknown server error.
+    - **Description**: Indicates an unknown server error.
 
-#### Example Response
+### Example Response for Erroneous Code
+
+#### Request
 
 ```json
 {
-  "output": "Hello, world!"
+  "code": "num1 = int(input())\nnum2 = int(input())\nsum_result = myMistake + num2\nprint(f'The sum is: {sum_result}')",
+  "language": "python",
+  "input": "20\n30"
+}
+```
+
+#### Response
+
+```json
+{
+    "output": "Traceback (most recent call last):\n  File \"/tempCode.py\", line 3, in <module>\n    sum_result = myMistake + num2\n                 ^^^^^^^^^\nNameError: name 'myMistake' is not defined\n"
 }
 ```
 
