@@ -63,10 +63,7 @@ function CodeEditorLayout({ openLeaveSessionModal }: CodeEditorLayoutProps) {
             option: classes.option,
           }}
         />
-        <Button
-          variant="light"
-          leftSection={<IconPlayerPlayFilled size={14} />}
-        >
+        <Button leftSection={<IconPlayerPlayFilled size={14} />}>
           Run Code
         </Button>
         <Space style={{ flexGrow: 1 }} />
