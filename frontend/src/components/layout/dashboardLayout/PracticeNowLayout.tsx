@@ -5,12 +5,7 @@ import HelpModal from '../../modal/HelpModal';
 import MatchingCriteriaModal from '../../modal/MatchingCriteriaModal';
 import MatchingModal from '../../modal/MatchingModal';
 
-interface PracticeLayoutProps {
-  openHelpModal: () => void;
-  openMatchingCriteriaModal: () => void;
-}
-
-function PracticeLayout({}: PracticeLayoutProps) {
+function PracticeLayout() {
   const [isHelpModalOpened, { open: openHelpModal, close: closeHelpModal }] =
     useDisclosure(false);
   const [

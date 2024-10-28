@@ -18,10 +18,7 @@ function Dashboard() {
               <Group gap="20px" align="stretch">
                 <ProgressLayout />
                 <FavoriteTopicsLayout />
-                <PracticeLayout
-                  openHelpModal={() => {}}
-                  openMatchingCriteriaModal={() => {}}
-                />
+                <PracticeLayout />
               </Group>
               <PracticeHistoryTable />
             </Stack>
