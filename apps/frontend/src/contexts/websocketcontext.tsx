@@ -15,9 +15,9 @@ export type SocketState = {
 };
 export type MatchInfo = {
     matchId: string;
-    partnerId: string;
     myName: string;
     partnerName: string;
+    docRefId: string;
 }
 export type MatchState = SocketState | {
     state: "found";

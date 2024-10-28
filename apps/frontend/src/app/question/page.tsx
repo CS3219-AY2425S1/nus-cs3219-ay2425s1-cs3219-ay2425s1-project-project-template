@@ -78,7 +78,7 @@ function DeleteModal({
   );
 }
 
-export default function Home() {
+export default function QuestionListPage() {
   // State of Deletion
   const [deletionStage, setDeletionStage] = useState<DeletionStage>({});
 
@@ -269,7 +269,7 @@ export default function Home() {
               query: { data: question.docRefId }, // the data
             }}
           >
-            <Button type="link">{text}</Button>
+            {text}
           </Link>
         ),
       },
@@ -440,7 +440,7 @@ export default function Home() {
               query: { data: question.docRefId }, // the data
             }}
           >
-            <Button type="link">{text}</Button>
+            {text}
           </Link>
         ),
       },

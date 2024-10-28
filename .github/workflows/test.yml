@@ -36,6 +36,7 @@ jobs:
           MATCHING_SERVICE_PORT: ${{ vars.MATCHING_SERVICE_PORT }}
           MATCHING_SERVICE_TIMEOUT: ${{ vars.MATCHING_SERVICE_TIMEOUT }}
           REDIS_URL: ${{ vars.REDIS_URL }}
+          QUESTION_SERVICE_GRPC_URL: ${{ vars.QUESTION_SERVICE_GPRC_URL }}
         run: |
           cd ./apps/frontend
           echo "NEXT_PUBLIC_QUESTION_SERVICE_URL=$QUESTION_SERVICE_URL" >> .env
@@ -56,6 +57,7 @@ jobs:
           echo "MATCH_TIMEOUT=$MATCHING_SERVICE_TIMEOUT" >> .env
           echo "JWT_SECRET=$JWT_SECRET" >> .env
           echo "REDIS_URL=$REDIS_URL" >> .env
+          echo "QUESTION_SERVICE_GRPC_URL=$QUESTION_SERVICE_GRPC_URL" >> .env
 
       - name: Create Database Credential Files
         env:
