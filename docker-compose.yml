@@ -18,7 +18,7 @@ services:
             - 443:443
         restart: always
         volumes:
-            - ./nginx/templates:/etc/nginx/templates
+            - ./nginx/templates/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
             - ${VPS_SSL_CERT_FILE}:/etc/nginx/ssl/server.crt
             - ${VPS_SSL_KEY_FILE}:/etc/nginx/ssl/server.key
             - ${VPS_SSL_CONFIG_FILE}:/etc/nginx/ssl/options-ssl-nginx.conf
@@ -135,8 +135,6 @@ services:
             - '27047:27017'
         volumes:
             - 'question_data:/data/db'
-            - ${VPS_SSL_CERT_FILE}:/etc/ssl/certs/mongodb.crt
-            - ${VPS_SSL_KEY_FILE}:/etc/ssl/private/mongodb.key
         networks:
             - backend-network
         command: mongod --quiet --logpath /dev/null --auth
