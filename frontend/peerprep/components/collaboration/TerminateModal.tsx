@@ -61,7 +61,6 @@ export default function TerminateModal() {
             });
 
             resolvedSocket?.on('terminateSession', () => {
-                console.log("Session terminated");
                 setModalVisibility(false);
                 console.log("Session terminated");
                 resolvedSocket?.disconnect();
