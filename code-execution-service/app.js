@@ -1,8 +1,8 @@
 const express = require('express');
 const codeRoutes = require('./routes/codeRoutes');
+const { PORT } = require('./config');
 
 const app = express();
-const PORT = 8000;
 
 app.use(express.json());
 
