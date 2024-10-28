@@ -58,7 +58,7 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
         {String(cell.getValue())}
       </div>
     ),
-    size: 20,
+    size: 30,
   },
   {
     header: ({ column }) => (
@@ -90,7 +90,7 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
         </div>
       );
     },
-    size: 25,
+    size: 35,
   },
   {
     id: "admins",
