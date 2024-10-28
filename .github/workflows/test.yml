@@ -75,10 +75,10 @@ jobs:
           HISTORY_FIREBASE_CREDENTIAL_PATH: ${{ vars.HISTORY_SERVICE_FIREBASE_CREDENTIAL_PATH }}
         run: |
           cd ./apps/question-service
-          echo "$FIREBASE_JSON" > "./$FIREBASE_CREDENTIAL_PATH"
+          echo "$FIREBASE_JSON" > "$FIREBASE_CREDENTIAL_PATH"
 
           cd ../history-service
-          echo "$HISTORY_FIREBASE_JSON" > "./$HISTORY_FIREBASE_CREDENTIAL_PATH"
+          echo "$HISTORY_FIREBASE_JSON" > "$HISTORY_FIREBASE_CREDENTIAL_PATH"
 
       - name: Build and Run Services
         run: |
