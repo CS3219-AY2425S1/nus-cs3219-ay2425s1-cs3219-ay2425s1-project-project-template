@@ -1,5 +1,5 @@
 import { Router } from 'express';
-
+import { getAllQuestions, getQuestionById, getQuestionByDifficulty, getQuestionByTopic, getNextAvailId, getQuestionByFilter, getAllTopics, getOneQuestionByFilter } from '../controller/read.js';
 import { createNewQuestion } from '../controller/create.js';
 import { deleteQuestion } from '../controller/delete.js';
 import { getImage, uploadImage } from '../controller/imageController.js';
