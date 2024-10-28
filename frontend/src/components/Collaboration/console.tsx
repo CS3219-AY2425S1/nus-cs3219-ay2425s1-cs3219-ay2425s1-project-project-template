@@ -37,27 +37,41 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
   };
 
   return (
-    <Box width="100%">
-      <Stack direction='row' alignItems={'center'}>
-        <Text fontSize="lg" color='black' marginRight={2}>
+    <Box height="100%" width="100%">
+      <Stack direction='row' alignItems={'center'} marginBottom={1} marginTop={1}>
+        <Text fontSize="14px" color='white' marginRight={2}>
             Output:
         </Text>
-        <LoadingButton variant="outlined" onClick={runCode} loading={loading}>
+        <LoadingButton
+        variant="contained"
+        onClick={runCode}
+        loading={loading}
+        sx={{
+          fontSize: "13px",
+          color: "white",
+          backgroundColor: "grey.800",
+          '&:hover': {
+              backgroundColor: "grey.700",
+          },
+        }}
+        >
             Run Code
         </LoadingButton>
       </Stack>
       <Box
         bgcolor='black'
-        height="100%"
+        height="80%"
         width="100%"
         p={2}
         color={isError ? "red.400" : "white"}
         border="1px solid"
-        borderColor={isError ? "red.500" : "#333"}
+        borderColor={isError ? "red.400" : "#333"}
+        textAlign={"left"}
+        overflow={"auto"}
       >
-        {output
-          ? output.map((line, i) => <Text key={i}>{line}</Text>)
-          : 'Click "Run Code" to see the output here'}
+        {output.length!=0
+          ? output.map((line, i) => <Text fontFamily={"monospace"} color='white' key={i}>{line}</Text>)
+          : <Text color='white'>Click "Run Code" to see the output here</Text>}
       </Box>
     </Box>
   );

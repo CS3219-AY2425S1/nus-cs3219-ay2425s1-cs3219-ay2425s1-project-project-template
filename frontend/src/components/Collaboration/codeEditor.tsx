@@ -30,11 +30,12 @@ const CodeEditor = () => {
                             enabled: false,
                         },
                         }}
-                    height="70%"
+                    height="100%"
                     width="100%"
                     theme="vs-dark"
-                    defaultLanguage="javascript"
+                    defaultLanguage={language}
                     defaultValue={CODE_SNIPPETS[language]}
+                    language={language}
                     onMount={onMount}
                     value={value}
                     onChange={(value) => {
