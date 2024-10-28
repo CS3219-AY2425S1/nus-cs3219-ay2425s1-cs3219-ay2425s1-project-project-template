@@ -107,7 +107,7 @@ export class CollaborationSupabase implements CollaborationRepository {
     return !!data;
   }
 
-  async fetchDocumentById(id: string): Promise<any> {
+  async fetchDocumentById(id: string): Promise<Buffer | null> {
     const { data, error } = await this.supabase
       .from(this.COLLABORATION_TABLE)
       .select('document')
