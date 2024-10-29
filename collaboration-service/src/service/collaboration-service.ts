@@ -20,3 +20,10 @@ export async function handleCodeUpdates(socket: Socket, { roomId, code }: { room
   await redis.set(`collab:${roomId}:code`, code, "EX", 3600);
   socket.to(roomId).emit("code_update", { code });
 }
+
+export async function handleLeaveRoom(socket: Socket, { roomId, userName }: { roomId: string; userName: string }) {
+  socket.leave(roomId);
+  console.log(`User ${userName} left room ${roomId}`);
+
+  socket.to(roomId).emit("leave_collab_notify", { userName });
+}

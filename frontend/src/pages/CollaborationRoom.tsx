@@ -5,6 +5,7 @@ import { Editor } from "@monaco-editor/react";
 import { Box, Typography, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import { toast } from "react-toastify";
 
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_COLLABORATION_API_URL;
@@ -41,6 +42,14 @@ const CollaborativeEditor: React.FC = () => {
     socketRef.current.on("code_update", ({ code }: { code: string }) => {
       setCode(code);
     });
+
+    socketRef.current.on("leave_collab_notify", ({ userName }: { userName: string }) => {
+      console.log(`User ${userName} left the collaboration room.`);
+      toast.info(`User ${userName} left the collaboration room. Redirecting to match selection in 5s...`);
+
+      setTimeout(async() => navigate(`/matching`), 3000);
+    });
+
 
     return () => {
       socketRef.current?.disconnect();

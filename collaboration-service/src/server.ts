@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
-import { handleCodeUpdates, joinCollaborationRoom } from "./service/collaboration-service";
+import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom } from "./service/collaboration-service";
 
 const PORT = process.env.PORT || 3003;
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
@@ -31,6 +31,10 @@ io.on("connection", (socket) => {
   // Handle code updates
   socket.on("code_change", (data) => {
     handleCodeUpdates(socket, data);
+  });
+
+  socket.on("leave_collab", (data) => {
+    handleLeaveRoom(socket, data);
   });
 
   socket.on("disconnect", () => {

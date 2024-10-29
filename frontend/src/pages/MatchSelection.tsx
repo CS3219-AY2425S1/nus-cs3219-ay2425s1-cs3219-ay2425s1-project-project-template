@@ -20,6 +20,7 @@ const MatchSelection = () => {
   const [isMatching, setIsMatching] = useState<boolean>(false);
   const [matchUserName, setMatchUserName] = useState<string | null>(null);
   const [noMatchFound, setNoMatchFound] = useState<boolean>(false);
+  const [roomId, setRoomId] = useState<string>("");
   const [timer, setTimer] = useState<number>(30);
   const { user, token } = useAuth();
   const socketRef = useRef<any>(null);
@@ -84,8 +85,9 @@ const MatchSelection = () => {
       setMatchUserName(matchData.matchUserName);
       setIsMatching(false);
       setNoMatchFound(false);
+      setRoomId(matchData.roomId);
 
-      setTimeout(async() => navigate(`/collaboration/${matchData.roomId}`), 5000)
+      // setTimeout(async() => navigate(`/collaboration/${matchData.roomId}`), 5000)
       socketRef.current.disconnect();
     });
 
@@ -105,7 +107,7 @@ const MatchSelection = () => {
       console.error("Error joining room for match updates.");
       socketRef.current.disconnect();
     }
-  }, [user, topic, difficulty, token, navigate]);
+  }, [user, topic, difficulty, token]);
 
   const handleCancelMatch = useCallback(async () => {
     setIsMatching(false);
@@ -135,6 +137,7 @@ const MatchSelection = () => {
   
    //Placeholder join room
   const handleJoinRoom = () => {
+    navigate(`/collaboration/${roomId}`);
     console.log("Room Joined");
   };
 
