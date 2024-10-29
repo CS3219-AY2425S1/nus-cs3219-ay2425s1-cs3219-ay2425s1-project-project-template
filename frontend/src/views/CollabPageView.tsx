@@ -22,37 +22,26 @@ import { Loader2 } from "lucide-react";
 import { SERVICE_COLLAB, callFunction } from "@/lib/utils";
 
 const customQuestion: Question = {
-  id: "q123",
-  title: "Find the Longest Palindromic Substring",
-  description:
-    "Given a string `s`, return the longest palindromic substring in `s`. A palindromic substring is a substring that reads the same backward as forward.",
-  topics: [
-    Topic.Strings,
-    Topic.DynamicProgramming,
-    Topic.Algorithms,
-    Topic.Strings,
-    Topic.DynamicProgramming,
-    Topic.Algorithms,
-    Topic.Strings,
-    Topic.DynamicProgramming,
-    Topic.Algorithms,
-  ],
-  difficulty: Difficulty.Medium,
-  dateCreated: "2024-09-16T08:00:00Z",
-  examples: [
-    {
-      input: "babad",
-      output: "bab", // "aba" is also a valid answer
-    },
-    {
-      input: "cbbd",
-      output: "bb",
-    },
-  ],
-  constraints: [
-    "1 <= s.length <= 1000",
-    "s consist of only digits and English letters.",
-  ],
+	id: "Placeholder",
+	title: "Placeholder question title",
+	description:
+		"Placeholder question description.",
+	topics: [
+		Topic.Strings,
+		Topic.DynamicProgramming,
+		Topic.Algorithms,
+	],
+	difficulty: Difficulty.Medium,
+	dateCreated: "2024-09-16T08:00:00Z",
+	examples: [
+		{
+			input: "Placeholder input",
+			output: "Placeholder output",
+		},
+	],
+	constraints: [
+		"Placeholder constraint",
+	],
 };
 
 const CollabPageView: React.FC = () => {
@@ -68,67 +57,98 @@ const CollabPageView: React.FC = () => {
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  const collabServiceBackendUrl =
-    import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+	const collabServiceBackendUrl = import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "ws://localhost:5004";
 
-  useEffect(() => {
-    const token = sessionStorage.getItem("authToken");
-    const uid = sessionStorage.getItem("uid");
+	useEffect(() => {
+		const verifySession = async () => {
+			try {
+				const response = await collabServiceHttpCallFunction("verify-session", "POST", {
+					sessionId: sessionIdObj,
+				});
+				
+				const { success, data } = response
+				if (success) {
+					console.log("Session verified successfully: ", data.message);
+					return true;
+				} else {
+					alert(`Collab session verification failed. \nPlease use the matching service to access the collab page.`)
+					navigate("/questions");
+					return false;
+				}
+			} catch (error) {
+				console.error("Error verifying session:", error);
+				return false;
+			}
+		};
+		
+		const initializeSocket = async () => {
+			const sessionVerified = await verifySession();
+			// Need a guard clause because navigate call is asynchronous, so can't rely on it
+			if (!sessionVerified) {
+				return;
+			}
 
-    // Initialize the WebSocket connection when the component mounts
-    const newSocket = io(collabServiceBackendUrl, {
-      auth: {
-        token: token,
-        uid: uid,
-      },
-      withCredentials: true,
-    });
-    setSocket(newSocket);
+			const token = sessionStorage.getItem("authToken");
+			const uid = sessionStorage.getItem("uid");
 
-    newSocket.on("connect", () => {
-      console.log("WebSocket connected");
-      console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
-      const uid = sessionStorage.getItem("uid");
-      newSocket.emit("sessionJoined", sessionIdObj, uid);
-    });
+			// Initialize the WebSocket connection when the component mounts
+			const newSocket = io(collabServiceBackendUrl, {
+				auth: {
+				token: token,
+				uid: uid,
+				},
+				withCredentials: true,
+			});
+			setSocket(newSocket);
 
-    newSocket.on("sessionData", ({ sessionIdObj, uid, questionData }) => {
-      sessionIdObj = sessionIdObj;
-      // Set state with the received data
-      setUserId(uid);
-      setQuestionData(questionData);
-    });
+			newSocket.on("connect", () => {
+				console.log("WebSocket connected");
+				console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
+				const uid = sessionStorage.getItem("uid");
+				newSocket.emit("sessionJoined", sessionIdObj, uid);
+			});
 
-    console.log("Current user ID:", userId);
+			newSocket.on("sessionData", ({ sessionIdObj, uid, questionData }) => {
+				sessionIdObj = sessionIdObj;
+				// Set state with the received data
+				setUserId(uid);
+				setQuestionData(questionData);
+			});
 
-    // Listen for code updates from the server
-    newSocket.on("codeUpdated", (data) => {
-      console.log("Code update received from server:", data);
-      setCode(data.code);
-    });
+			console.log("Current user ID:", userId);
 
-    newSocket.on("sessionTerminated", ({ userId }) => {
-      console.log(`Session terminated by user with ID: ${userId}`);
+			// Listen for code updates from the server
+			newSocket.on("codeUpdated", (data) => {
+				console.log("Code update received from server:", data);
+				setCode(data.code);
+			});
 
-      if (newSocket.connected) {
-        newSocket.disconnect();
-        console.log("Socket disconnected due to session termination.");
-      }
+			newSocket.on("sessionTerminated", ({ userId }) => {
+				console.log(`Session terminated by user with ID: ${userId}`);
 
-      navigate("/questions");
-    });
+				if (newSocket.connected) {
+					newSocket.disconnect();
+					console.log("Socket disconnected due to session termination.");
+				}
 
-    newSocket.on("messageReceived", (data) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { username: data.username, message: data.message },
-      ]);
-    });
+				navigate("/questions");
+			});
 
-    return () => {
-      newSocket.disconnect(); // Cleanup WebSocket connection on component unmount
-    };
-  }, []);
+			newSocket.on("messageReceived", (data) => {
+				setMessages((prevMessages) => [
+					...prevMessages,
+					{ username: data.username, message: data.message },
+				]);
+			});
+		}
+		
+		initializeSocket();
+		return () => {
+			if (socket) {
+				socket.disconnect(); // Cleanup WebSocket connection on component unmount
+			}
+		};
+	}, []);
 
   const handleCodeChange = (newCode: string | undefined) => {
     if (newCode === undefined) return; // if not code, do nothing

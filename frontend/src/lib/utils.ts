@@ -65,3 +65,31 @@ export async function callFunction(
 
   return { success: true, data: data };
 }
+
+// collab-service-http ver: Utility function for making fetch requests with credentials
+export async function collabServiceHttpCallFunction(
+	functionName: string,
+	method: string = "POST",
+	body?: any,
+): Promise<SuccessObject> {
+	const url = `${collabServiceHttpBackendUrl}/${functionName}`;
+	const token = sessionStorage.getItem("authToken");
+
+	const response = await fetch(url, {
+		method: method,
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(body),
+	});
+
+	// Check for empty response
+	const data = await response.json().catch(() => ({ success: true }));
+
+	if (!response.ok) {
+		return { success: false, error: data.message };
+	}
+
+	return { success: true, data: data };
+}
