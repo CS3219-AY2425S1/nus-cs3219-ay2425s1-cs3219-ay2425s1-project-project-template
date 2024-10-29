@@ -36,15 +36,16 @@
         </div>
 
         <!-- Show Difficulty Options -->
-        <div class="dropdown-content" *ngIf="isDifficultyClicked">
-          <button (click)="filterByDifficulty('Easy')">Easy</button>
-          <button (click)="filterByDifficulty('Medium')">Medium</button>
-          <button (click)="filterByDifficulty('Hard')">Hard</button>
+        <div *ngIf="isDifficultyClicked">
+          <button class="dropdown-btn cursor-pointer" (click)="filterByDifficulty('Easy')">Easy</button>
+          <button class="dropdown-btn cursor-pointer" (click)="filterByDifficulty('Medium')">Medium</button>
+          <button class="dropdown-btn cursor-pointer" (click)="filterByDifficulty('Hard')">Hard</button>
         </div>
 
         <!-- Show Category Options -->
-        <div class="dropdown-content" *ngIf="isCategoryClicked">
-          <button
+        <div *ngIf="isCategoryClicked">
+          <button 
+            class="dropdown-btn cursor-pointer"
             *ngFor="let category of categories"
             (click)="filterByCategory(category)">
             {{ category }}
