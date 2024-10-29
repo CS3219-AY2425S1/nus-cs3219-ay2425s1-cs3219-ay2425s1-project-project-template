@@ -18,7 +18,6 @@ function QuestionTable() {
 
   // Fetch data asynchronously on component mount
   useEffect(() => {
-    console.log("Fetching data...");
     refetch();
   }, []);
 
