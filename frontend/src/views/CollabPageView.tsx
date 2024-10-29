@@ -113,8 +113,11 @@ const CollabPageView: React.FC = () => {
 				newSocket.disconnect();
 				console.log("Socket disconnected due to session termination.");
 			}
-
 			navigate("/questions");
+		});
+
+		newSocket.on("userLeft", ({ userId }) => {
+			alert(`User ${userId} has left the session.`);
 		});
 
 		newSocket.on("messageReceived", (data) => {
