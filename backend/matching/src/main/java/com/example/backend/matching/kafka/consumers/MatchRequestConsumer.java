@@ -1,8 +1,6 @@
 package com.example.backend.matching.kafka.consumers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -19,6 +17,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.backend.matching.model.VerificationResponse;
+import com.example.backend.matching.model.VerifyMatchesDTO;
 
 @Component
 public class MatchRequestConsumer {
@@ -42,6 +41,8 @@ public class MatchRequestConsumer {
         if (waitingRequests.containsKey(key)) {
             String receivedUserEmail = value.split("_")[1];
             String storedUserEmail = waitingRequests.get(key).split("_")[1];
+            String matchCriteriaTopic = key.split("_")[0];
+            String matchCriteriaDifficulty = key.split("_")[2];
 
             // Do not match the same user with themselves
             if (!storedUserEmail.equals(receivedUserEmail)) {
@@ -52,15 +53,13 @@ public class MatchRequestConsumer {
                 System.out.println("Matching users: " + value + " and " + otherUserValue);
                 System.out.println("Verifying match requests...");
 
-                List<String> matchRequests = new ArrayList<>();
-                matchRequests.add(value);
-                matchRequests.add(otherUserValue);
+                VerifyMatchesDTO verifyMatchesDTO = new VerifyMatchesDTO(value, otherUserValue, matchCriteriaDifficulty, matchCriteriaTopic);
 
                 try {
                     HttpHeaders headers = new HttpHeaders();
                     headers.setContentType(MediaType.APPLICATION_JSON);
 
-                    HttpEntity<List<String>> request = new HttpEntity<>(matchRequests, headers);
+                    HttpEntity<VerifyMatchesDTO> request = new HttpEntity<>(verifyMatchesDTO, headers);
                     ResponseEntity<VerificationResponse> response = restTemplate.exchange(
                         VERIFY_API_URL,
                         HttpMethod.POST,

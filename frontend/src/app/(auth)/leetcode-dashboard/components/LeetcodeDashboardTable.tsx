@@ -284,6 +284,7 @@ export function LeetcodeDashboardTable({
   ];
 
   useEffect(() => {
+    setIsLoading(true);
     getLeetcodeDashboardData(
       pagination.pageIndex + 1,
       pagination.pageSize,
