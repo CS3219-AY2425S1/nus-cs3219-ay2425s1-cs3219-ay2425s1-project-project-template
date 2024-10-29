@@ -4,11 +4,6 @@ import { LanguageMode } from '../types/LanguageMode'
 import chatModelSchema from './chat.model'
 
 const collabSchema = new Schema<CollabDto>({
-    questionId: {
-        type: String,
-        required: true,
-        unique: true,
-    },
     language: {
         type: String,
         enum: Object.values(LanguageMode),

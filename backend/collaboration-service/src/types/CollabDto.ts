@@ -20,10 +20,6 @@ export class CollabDto {
     @IsNotEmpty()
     matchId: string
 
-    @IsString()
-    @IsNotEmpty()
-    questionId: string
-
     @IsEnum(LanguageMode)
     @IsNotEmpty()
     language: LanguageMode
