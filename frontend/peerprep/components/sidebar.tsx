@@ -20,9 +20,6 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
   const { theme } = useTheme();
   const currentPath = usePathname();
   const router = useRouter();
-  const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
-  );
   const [isModalOpen, setModalOpen] = useState(false); // Track modal open state
 
   const handleLogout = async () => {
@@ -35,15 +32,7 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
   };
 
   return (
-    <div className="h-fit flex flex-col fixed pt-4 relative w-1/5 max-w-52 min-w-36">
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type as "success" | "error"}
-          onClose={() => setToast(null)}
-        />
-      )}
-
+    <div className="h-fit flex flex-col fixed pt-4 relative w-1/5 max-w-52 min-w-36 mr-6">
       <SignOutConfirmationModal
         isOpen={isModalOpen}
         onOpenChange={setModalOpen}
