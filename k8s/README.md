@@ -23,7 +23,7 @@
 
     ```sh
     # For Horizontal Pod Autoscaling
-    minikube addons enable metric-server
+    minikube addons enable metrics-server
 
     # For Nginx Ingress Controller
     # Install
@@ -59,7 +59,7 @@
 1. Run the load test script:
 
     ```sh
-    ./scripts/k8s-load-test.sh
+    ./scripts/k8s-test-load.sh
     ```
 
     In its current configuration, it will run a load testing container to ping the user-service.
@@ -90,7 +90,7 @@
 2. Run the command to set up the ingress controller:
 
     ```sh
-    kubectl apply -f ./k8s/ingress/06-nginx-ingress.yaml
+    kubectl apply -f ./k8s/ingress/nginx-ingress.yaml
     ```
 
     It should take a couple of minutes. Once done, you should run this command:
