@@ -11,7 +11,7 @@ if (!fs.existsSync(CODE_DIR)) {
 
 // Set limits
 const EXECUTION_TIMEOUT_MS = 2000; // 2 seconds for execution
-const COMPILATION_TIMEOUT_MS = 3000; // 2 seconds for compilation
+const COMPILATION_TIMEOUT_MS = 3000; // 3 seconds for compilation
 const MEMORY_LIMIT_MB = 100; // Set memory limit to 100 MB
 
 // Code execution logic
@@ -58,12 +58,12 @@ const executeCode = (req, res) => {
     fs.writeFileSync(filePath, code);
     fs.writeFileSync(inputFilePath, input);
 
-    // Synchronous function to execute a command with custom error message
+    // Synchronous function to execute a command with custom error message and capture stdout/stderr
     const execWithTimeoutSync = (command, timeout, errorMessage) => {
       try {
         return execSync(command, { timeout, stdio: 'pipe' }).toString();
       } catch (error) {
-        throw new Error(errorMessage);
+        throw new Error(error.stderr ? error.stderr.toString() : errorMessage);
       }
     };
 
