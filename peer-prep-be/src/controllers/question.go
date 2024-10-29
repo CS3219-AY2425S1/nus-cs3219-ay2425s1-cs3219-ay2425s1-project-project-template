@@ -177,6 +177,7 @@ func UpdateQuestion(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	// questionId in URL param is in hex format
 	questionId := c.Param("questionId")
+	var existingQuestion models.Question
 	var question models.Question
 	defer cancel()
 
@@ -194,6 +195,13 @@ func UpdateQuestion(c echo.Context) error {
 	// After binding, validate the fields of question variable
 	if validationErr := validate.Struct(&question); validationErr != nil {
 		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": validationErr.Error()}})
+	}
+
+	err = questionCollection.FindOne(ctx, bson.M{"question_title": question.Question_title}).Decode(&existingQuestion)
+
+	// Only want to throw this error if there's a duplicate found, meaning FindOne has no error
+	if err == nil {
+		return c.JSON(http.StatusBadRequest, responses.StatusResponse{Status: http.StatusBadRequest, Message: errMessage, Data: &echo.Map{"data": "Question with the same title already exists."}})
 	}
 
 	// Update the question in the database
