@@ -25,13 +25,14 @@ public class MatchRequestConsumer {
         String[] userInformation = value.split("_");
         String collaborationId = userInformation[0];
         String questionId = userInformation[1];
-        String user1Id = userInformation[2];
-        String user1Email = userInformation[3];
-        String user2Id = userInformation[4];
-        String user2Email = userInformation[5];
+        String language = userInformation[2];
+        String user1Id = userInformation[3];
+        String user1Email = userInformation[4];
+        String user2Id = userInformation[5];
+        String user2Email = userInformation[6];
     
-        MatchNotification user1Notification = new MatchNotification(user2Email, collaborationId, questionId);
-        MatchNotification user2Notification = new MatchNotification(user1Email, collaborationId, questionId);
+        MatchNotification user1Notification = new MatchNotification(user2Email, collaborationId, questionId, language);
+        MatchNotification user2Notification = new MatchNotification(user1Email, collaborationId, questionId, language);
 
         try {
             String jsonNotification1 = objectMapper.writeValueAsString(user1Notification);
