@@ -130,7 +130,7 @@ export async function findRandomQuestionByCategoryAndComplexity(req, res) {
       complexity
     );
     if (!questions || questions.length === 0) {
-      return res.status(404).json({ message: 'Question not found' });
+      return res.status(404).json({ message: 'No questions found' });
     }
     // Select a random question from the array
     const randomIndex = Math.floor(Math.random() * questions.length);
