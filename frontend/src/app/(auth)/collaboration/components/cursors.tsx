@@ -20,23 +20,24 @@ type User = {
 
 export function Cursors({ yProvider, username, cursorPosition }: Props) {
     const [users, setUsers] = useState<Map<number, { user: User }>>(new Map());
+    const generateRandomColor = () => {
+        let color;
+        do {
+            color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+        } while (color === "#000000" || color === "#1e1e1e");
+        return color;
+    };
+
+    const [userColor] = useState(generateRandomColor);
 
     useEffect(() => {
         const awareness = yProvider.awareness;
         const clientId = yProvider.awareness.clientID;
     
         function setLocalUser() {
-            const generateRandomColor = () => {
-                let color;
-                do {
-                    color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-                } while (color === "#000000" || color === "#1e1e1e");
-                return color;
-            };
-    
             const localUser = {
                 name: username,
-                color: generateRandomColor(),
+                color: userColor,
                 clientId,
                 cursor: cursorPosition,
             };

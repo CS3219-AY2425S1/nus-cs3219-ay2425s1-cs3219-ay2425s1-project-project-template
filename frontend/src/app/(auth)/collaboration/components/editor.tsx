@@ -5,6 +5,7 @@ import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { getUser } from "@/api/user";
 import { Cursors } from "./cursors";
+import { Toolbar } from "./toolbar";
 
 type Props = {
     room: string;
@@ -98,16 +99,17 @@ function Collaboration({ room, language }: Props) {
     }, [room, saveSession]);
 
     return (
-        <div>
+        <div style={{ backgroundColor: "#1e1e1e", color: "#d4d4d4", height: "100vh", width: "100vw" }}>
             {providerRef.current && username ? (
-                <Cursors yProvider={providerRef.current} username={username} cursorPosition={selectionRange || {}}/>) : null}
+            <Cursors yProvider={providerRef.current} username={username} cursorPosition={selectionRange || {}}/>) : null}
+            <Toolbar editor={editorRef.current} />
             <Editor
-                height="100vh"
-                width="100vw"
-                theme="vs-dark"
-                defaultLanguage={language}
-                defaultValue="// start collaborating here!"
-                onMount={handleEditorDidMount}
+            height="100vh"
+            width="100vw"
+            theme="vs-dark"
+            defaultLanguage={language}
+            defaultValue="// start collaborating here!"
+            onMount={handleEditorDidMount}
             />
         </div>
     );
