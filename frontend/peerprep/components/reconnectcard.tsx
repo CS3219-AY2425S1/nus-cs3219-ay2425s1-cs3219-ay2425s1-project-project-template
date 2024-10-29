@@ -15,7 +15,7 @@ const ReconnectCard: React.FC<ReconnectCardProps> = ({
     <Card className="flex-1 bg-gradient-to-br from-[#6F0AD4] to-[#FE9977]">
       <CardBody>
         <h4 className="text-white font-medium text-large p-2">
-          You're currently in a session
+          You&apos;re currently in a session
         </h4>
       </CardBody>
       <CardFooter className="flex justify-end gap-4 p-5">

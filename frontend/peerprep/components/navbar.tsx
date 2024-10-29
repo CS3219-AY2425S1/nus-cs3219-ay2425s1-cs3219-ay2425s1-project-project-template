@@ -6,12 +6,12 @@ import {
 } from "@nextui-org/navbar";
 import NextLink from "next/link";
 
+import { GreetingMessageHeader } from "./greetingmessageheader";
+
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
-import { fontFun } from "@/config/fonts";
-import { getSession, getUsername } from "@/auth/actions";
-import { GreetingMessageHeader } from "./greetingmessageheader";
+import { getUsername } from "@/auth/actions";
 
 export const Navbar = async () => {
   const user = await getUsername();

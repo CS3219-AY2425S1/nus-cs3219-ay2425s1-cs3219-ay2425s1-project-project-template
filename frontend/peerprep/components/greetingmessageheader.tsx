@@ -1,7 +1,8 @@
 "use client";
 
-import { fontFun } from "@/config/fonts";
 import { usePathname } from "next/navigation";
+
+import { fontFun } from "@/config/fonts";
 
 interface GreetingMessageProps {
   user: string;

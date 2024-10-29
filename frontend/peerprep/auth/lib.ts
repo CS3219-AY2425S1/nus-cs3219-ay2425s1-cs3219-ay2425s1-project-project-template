@@ -39,6 +39,6 @@ export const createUserOptions: SessionOptions = {
   cookieOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 3 * 60
+    maxAge: 3 * 60,
   },
 };

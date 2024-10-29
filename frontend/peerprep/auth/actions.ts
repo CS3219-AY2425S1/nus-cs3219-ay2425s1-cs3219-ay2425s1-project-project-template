@@ -1,12 +1,19 @@
 "use server";
 
+import { TextEncoder } from "util";
+
 import { getIronSession } from "iron-session";
 import { env } from "next-runtime-env";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import { TextEncoder } from "util";
 
-import { sessionOptions, SessionData, defaultSession, CreateUserSessionData, createUserOptions } from "./lib";
+import {
+  sessionOptions,
+  SessionData,
+  defaultSession,
+  CreateUserSessionData,
+  createUserOptions,
+} from "./lib";
 
 const USER_SERVICE_URL = env("NEXT_PUBLIC_USER_SERVICE_URL");
 
@@ -25,48 +32,58 @@ export const getSession = async () => {
 };
 
 export const getCreateUserSession = async () => {
-  const session = await getIronSession<CreateUserSessionData>(cookies(), createUserOptions);
+  const session = await getIronSession<CreateUserSessionData>(
+    cookies(),
+    createUserOptions,
+  );
+
   if (!session.isPending) {
     session.isPending = false;
   }
+
   return session;
-}
+};
 
 export const getAccessToken = async () => {
   const session = await getSession();
+
   return session.accessToken;
 };
 
 export const getEmailToken = async () => {
   const session = await getCreateUserSession();
+
   return session.emailToken;
-}
+};
 
 export const getUsername = async () => {
   const session = await getSession();
+
   return session.username;
-}
+};
 
 export const isSessionLoggedIn = async () => {
   const session = await getSession();
+
   return session.isLoggedIn;
 };
 
-export const isSessionAdmin = async () =>  {
-    const session = await getSession();
+export const isSessionAdmin = async () => {
+  const session = await getSession();
 
-    console.log ("isSessionAdmin: ", session.isAdmin);
-    if (!session.isAdmin) {
-        return false;
-    } else {
-        return session.isAdmin;
-    }
+  console.log("isSessionAdmin: ", session.isAdmin);
+  if (!session.isAdmin) {
+    return false;
+  } else {
+    return session.isAdmin;
+  }
 };
 
-export const getTimeToExpire = async () =>  {
+export const getTimeToExpire = async () => {
   const session = await getCreateUserSession();
+
   return session.ttl;
-}
+};
 
 export const login = async (formData: FormData) => {
   const session = await getSession();
@@ -146,12 +163,14 @@ export const signUp = async (formData: FormData) => {
 
     if (response.ok) {
       const res = await response.json();
+
       session.emailToken = res.data.token;
       session.isPending = true;
       session.ttl = res.data.expiry;
-      
+
       await session.save();
-      return { status: "success", message: "User registered successfully."}; // Return success status
+
+      return { status: "success", message: "User registered successfully." }; // Return success status
     } else {
       // Handle error response (e.g., show error message)
       const errorData = await response.json();
@@ -179,19 +198,27 @@ export const resendCode = async () => {
     const secret = env("JWT_SECRET");
 
     if (!emailToken || !secret) {
-      return { status: "error", message: "Token has expired or does not exist, or an internal error occurred." };
+      return {
+        status: "error",
+        message:
+          "Token has expired or does not exist, or an internal error occurred.",
+      };
     }
 
     const secretKey = new TextEncoder().encode(secret);
     const { payload } = await jwtVerify(emailToken, secretKey);
 
-    const response = await fetch(`${USER_SERVICE_URL}/users/${payload.id}/resend-request`, {
-      method: "PATCH",
-      headers: { "Authorization": `Bearer ${emailToken}` },
-    });
+    const response = await fetch(
+      `${USER_SERVICE_URL}/users/${payload.id}/resend-request`,
+      {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${emailToken}` },
+      },
+    );
 
     if (response.ok) {
       const res = await response.json();
+
       signUpSession.emailToken = res.data.token;
       signUpSession.isPending = true;
       signUpSession.ttl = res.data.expiry;
@@ -202,12 +229,17 @@ export const resendCode = async () => {
 
       return { status: "success", message: "Code resent successfully" };
     } else {
-      console.error("Code resend fail")
+      console.error("Code resend fail");
       const errorData = await response.json();
-      return { status: "error", message: errorData.message || "Code resend failed" };
+
+      return {
+        status: "error",
+        message: errorData.message || "Code resend failed",
+      };
     }
   } catch (err) {
     console.error("Code resend error:", err);
+
     return { status: "error", message: "An unexpected error occurred." };
   }
 };
@@ -215,14 +247,16 @@ export const resendCode = async () => {
 export const verifyCode = async (code: number) => {
   const session = await getSession();
   const signUpSession = await getCreateUserSession();
-  
 
   try {
     const emailToken = await getEmailToken();
     const secret = env("JWT_SECRET");
 
     if (!emailToken) {
-      return { status: "error", message: "Token has expired or does not exist" };
+      return {
+        status: "error",
+        message: "Token has expired or does not exist",
+      };
     }
 
     if (!secret) {
@@ -234,20 +268,22 @@ export const verifyCode = async (code: number) => {
 
     // Decode the JWT token
     const { payload } = await jwtVerify(emailToken, secretKey);
-    
-    
+
     // Extract the verification code from the token's payload
     const verificationCode = payload.code;
-    
+
     if (!verificationCode) {
-      return { status: "error", message: "Verification code not found in token." };
+      return {
+        status: "error",
+        message: "Verification code not found in token.",
+      };
     }
 
     if (verificationCode === code) {
       const response = await fetch(`${USER_SERVICE_URL}/auth/${payload.id}`, {
         method: "PATCH",
         headers: {
-          "Authorization": `Bearer ${emailToken}`,
+          Authorization: `Bearer ${emailToken}`,
         },
       });
 
@@ -265,31 +301,51 @@ export const verifyCode = async (code: number) => {
 
         await session.save();
 
-        return { status: "success", message: "Code verified successfully, user registered successfully!" };
+        return {
+          status: "success",
+          message: "Code verified successfully, user registered successfully!",
+        };
       } else {
-        return { status: "error", message: "There was a problem registering the user." };
+        return {
+          status: "error",
+          message: "There was a problem registering the user.",
+        };
       }
     } else {
-      return { status: "error", message: "Verification code is wrong! Please check and try again!" };
+      return {
+        status: "error",
+        message: "Verification code is wrong! Please check and try again!",
+      };
     }
   } catch (error) {
     console.error("Error verifying token:", error);
-    return { status: "error", message: "There was an error validating your code." };
+
+    return {
+      status: "error",
+      message: "There was an error validating your code.",
+    };
   }
 };
 
-export const deleteNewUserRequest = async (email:string) => {
+export const deleteNewUserRequest = async (email: string) => {
   if (!email) {
-    return { status: "error", message: "No email provided"}
+    return { status: "error", message: "No email provided" };
   }
 
   const response = await fetch(`${USER_SERVICE_URL}/users/${email}`, {
-    method: "DELETE"
+    method: "DELETE",
   });
 
   if (response.ok) {
-    return { status: "warning", message: "Verification code has expired please sign-up again!" }
+    return {
+      status: "warning",
+      message: "Verification code has expired please sign-up again!",
+    };
   } else {
-    return { status: "error", message: "There was a fatal error, please sign-up with a different email and username!"}
+    return {
+      status: "error",
+      message:
+        "There was a fatal error, please sign-up with a different email and username!",
+    };
   }
-}
+};

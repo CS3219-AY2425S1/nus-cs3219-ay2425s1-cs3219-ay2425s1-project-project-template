@@ -1,15 +1,16 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import LanguageSelector from "./LanguageSelector";
-import Output from "./Output";
 import * as Y from "yjs";
-import { socket } from "../../services/sessionService";
-import { SupportedLanguages } from "../../utils/utils";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
-import { Card } from '@nextui-org/react';
+import { Card } from "@nextui-org/react";
 
+import { SupportedLanguages } from "../../utils/utils";
+import { socket } from "../../services/sessionService";
+
+import Output from "./Output";
+import LanguageSelector from "./LanguageSelector";
 
 export default function CodeEditor() {
   const { theme } = useTheme();
@@ -18,7 +19,7 @@ export default function CodeEditor() {
   const editorRef = useRef<any>(null);
   const [value, setValue] = useState<string>("");
   const [language, setLanguage] = useState<SupportedLanguages>(
-    "javascript" as SupportedLanguages
+    "javascript" as SupportedLanguages,
   );
 
   const userChangeRef = useRef<boolean>(false);
@@ -26,6 +27,7 @@ export default function CodeEditor() {
   const onMount = async (editor: any) => {
     editorRef.current = editor;
     const model = editor.getModel();
+
     if (model) {
       const MonacoBinding = (await import("y-monaco")).MonacoBinding; // not dynamically importing this causes an error
       const binding = new MonacoBinding(yText, model, new Set([editor]));
@@ -33,6 +35,7 @@ export default function CodeEditor() {
 
     doc.on("update", async (update: Uint8Array) => {
       const resolvedSocket = await socket;
+
       resolvedSocket?.emit("update", update);
       console.log("update", update);
     });
@@ -42,6 +45,7 @@ export default function CodeEditor() {
     setLanguage(language);
     (async () => {
       const resolvedSocket = await socket;
+
       resolvedSocket?.emit("selectLanguage", language);
     })();
   };
@@ -53,6 +57,7 @@ export default function CodeEditor() {
       resolvedSocket?.on("initialData", (data: any) => {
         const { sessionData } = data;
         const { yDocUpdate } = sessionData;
+
         Y.applyUpdate(doc, new Uint8Array(yDocUpdate));
       });
 
@@ -69,6 +74,7 @@ export default function CodeEditor() {
     return () => {
       (async () => {
         const resolvedSocket = await socket;
+
         resolvedSocket?.off("initialData");
         resolvedSocket?.off("updateContent");
         resolvedSocket?.off("updateLanguage");

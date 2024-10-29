@@ -21,7 +21,7 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
   const currentPath = usePathname();
   const router = useRouter();
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
   const [isModalOpen, setModalOpen] = useState(false); // Track modal open state
 

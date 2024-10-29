@@ -3,8 +3,9 @@ import { Viewport } from "next";
 import clsx from "clsx";
 import { PublicEnvScript } from "next-runtime-env";
 
-import { Providers } from "./providers";
 import { isSessionLoggedIn } from "../auth/actions";
+
+import { Providers } from "./providers";
 
 import { fontSans } from "@/config/fonts";
 
@@ -36,7 +37,7 @@ export default async function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>

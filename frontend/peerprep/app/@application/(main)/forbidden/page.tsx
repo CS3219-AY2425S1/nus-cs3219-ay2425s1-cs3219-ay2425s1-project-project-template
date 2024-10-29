@@ -3,8 +3,10 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import forbiddenImage from "../../../images/Forbidden.png";
 import { Button } from "@nextui-org/button";
+
+import forbiddenImage from "../../../images/Forbidden.png";
+
 import BoxIcon from "@/components/boxicons";
 
 const ForbiddenPage = () => {
@@ -20,7 +22,7 @@ const ForbiddenPage = () => {
         403 Forbidden
       </h1>
       <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
-        Oops! You don't have permission to access this page.
+        Oops! You don&apos;t have permission to access this page.
       </p>
       <img src={forbiddenImage.src} alt="Illustration" className="w-1/5 mb-8" />
       <Button

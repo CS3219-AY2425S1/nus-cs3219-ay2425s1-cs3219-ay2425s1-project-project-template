@@ -1,9 +1,11 @@
 // pages/403.js
 import React from "react";
-import errorImage from "../../images/404.png";
 import { Button } from "@nextui-org/button";
-import BoxIcon from "@/components/boxicons";
 import Link from "next/link";
+
+import errorImage from "../../images/404.png";
+
+import BoxIcon from "@/components/boxicons";
 
 export default function NotFound() {
   return (

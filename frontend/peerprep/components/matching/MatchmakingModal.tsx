@@ -46,7 +46,7 @@ const MatchmakingModal: React.FC<StartSessionProps> = ({
 
   //TODO: Load difficulty and topic from the question-service
   const [selectedDifficultyKeys, setSelectedDifficultyKeys] = useState(
-    new Set<string>()
+    new Set<string>(),
   );
   const [selectedTopicKeys, setSelectedTopicKeys] = useState(new Set<string>());
 

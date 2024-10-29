@@ -1,6 +1,7 @@
 import io from "socket.io-client";
-import { getAccessToken } from "../auth/actions";
 import { env } from "next-runtime-env";
+
+import { getAccessToken } from "../auth/actions";
 const NEXT_PUBLIC_COLLAB_SERVICE_URL = env("NEXT_PUBLIC_COLLAB_SERVICE_URL");
 
 const getToken = async () => {
@@ -8,13 +9,16 @@ const getToken = async () => {
 
   if (!token) {
     console.error("Access token not found");
+
     return null;
   }
+
   return token;
 };
 
 const initializeSocket = async () => {
   const token = await getToken();
+
   if (!token) return;
 
   const socket = io(NEXT_PUBLIC_COLLAB_SERVICE_URL, {
@@ -31,12 +35,15 @@ export const socket = initializeSocket();
 
 export const checkUserMatchStatus = async () => {
   try {
-    const response = await fetch(`${NEXT_PUBLIC_COLLAB_SERVICE_URL}/api/session/check`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${await getAccessToken()}`,
+    const response = await fetch(
+      `${NEXT_PUBLIC_COLLAB_SERVICE_URL}/api/session/check`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${await getAccessToken()}`,
+        },
       },
-    });
+    );
 
     if (response.status === 200) {
       return true;
@@ -48,16 +55,19 @@ export const checkUserMatchStatus = async () => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 export const leaveMatch = async () => {
   try {
-    const response = await fetch(`${NEXT_PUBLIC_COLLAB_SERVICE_URL}/api/session/leave`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${await getAccessToken()}`,
+    const response = await fetch(
+      `${NEXT_PUBLIC_COLLAB_SERVICE_URL}/api/session/leave`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${await getAccessToken()}`,
+        },
       },
-    });
+    );
 
     if (response.status === 200) {
       return;
@@ -67,5 +77,4 @@ export const leaveMatch = async () => {
   } catch (error) {
     throw error;
   }
-}
-
+};

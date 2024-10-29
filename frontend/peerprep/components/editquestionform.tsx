@@ -74,7 +74,7 @@ EditQuestionFormProps) {
   const [testCases, setTestCases] =
     useState<{ input: string; output: string }[]>(initialTestCases);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
-    null
+    null,
   );
   const [question, setQuestion] = useState<Question | null>(null);
 
@@ -99,8 +99,8 @@ EditQuestionFormProps) {
               .map((str) => str.trim());
 
             return { input, output };
-          })
-        ) || []
+          }),
+        ) || [],
       );
       setQuestion(questionData?.question);
     }
@@ -144,7 +144,7 @@ EditQuestionFormProps) {
   // Handle removing a category
   const removeCategory = (category: string) => {
     setCategories((prevCategories) =>
-      prevCategories.filter((cat) => cat !== category)
+      prevCategories.filter((cat) => cat !== category),
     );
   };
 
@@ -173,7 +173,7 @@ EditQuestionFormProps) {
   // Handle input change for test case
   const handleInputChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const updatedTestCases = [...testCases];
     const { name, value } = event.target;
@@ -219,11 +219,11 @@ EditQuestionFormProps) {
         categories,
         templateCode,
         testCases,
-        language
+        language,
       )
     ) {
       setErrorMessage(
-        "Please fill in all the required fields before submitting."
+        "Please fill in all the required fields before submitting.",
       );
       setErrorModalOpen(true); // Show error modal with the validation message
 
@@ -239,7 +239,7 @@ EditQuestionFormProps) {
         selectedTab,
         templateCode,
         testCases,
-        language
+        language,
       );
 
       if (response.ok) {
@@ -249,7 +249,7 @@ EditQuestionFormProps) {
         const errorData = await response.json();
 
         setErrorMessage(
-          errorData.error || "Failed to update the question. Please try again."
+          errorData.error || "Failed to update the question. Please try again.",
         );
         setErrorModalOpen(true);
       }

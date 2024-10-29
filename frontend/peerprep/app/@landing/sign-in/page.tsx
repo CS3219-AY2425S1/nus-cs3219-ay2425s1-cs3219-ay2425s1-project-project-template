@@ -4,6 +4,7 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // For redirection
+import { CircularProgress } from "@nextui-org/react"; // Import CircularProgress from NextUI
 
 import BoxIcon from "@/components/boxicons";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
@@ -11,7 +12,6 @@ import PeerprepLogo from "@/components/peerpreplogo";
 import { fontFun, fontLogo } from "@/config/fonts";
 import { login } from "@/auth/actions";
 import Toast from "@/components/toast"; // Import Toast component
-import { CircularProgress } from "@nextui-org/react"; // Import CircularProgress from NextUI
 import { delay } from "@/utils/utils";
 
 export default function SignInPage() {
@@ -21,7 +21,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state for button
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -30,6 +30,7 @@ export default function SignInPage() {
     setIsLoading(true); // Start loading and disable inputs
 
     const signInFormData = new FormData();
+
     signInFormData.append("identifier", id);
     signInFormData.append("password", password);
 

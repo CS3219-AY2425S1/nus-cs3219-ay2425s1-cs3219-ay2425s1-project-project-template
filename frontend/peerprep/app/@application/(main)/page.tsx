@@ -1,10 +1,10 @@
 "use client";
 
-import { Card, CardBody, CardFooter } from "@nextui-org/card";
-import { use, useEffect, useState } from "react";
+import { Card, CardBody } from "@nextui-org/card";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import MatchUI from "@/components/matching/MatchUI";
-import { useRouter } from "next/navigation";
 import StartMatchCard from "@/components/startmatchcard";
 import { checkUserMatchStatus, leaveMatch } from "@/services/sessionService";
 import ReconnectCard from "@/components/reconnectcard";
@@ -20,6 +20,7 @@ export default function Home() {
     const checkMatchStatus = async () => {
       try {
         const isInMatch = await checkUserMatchStatus(); // returns true or false
+
         setIsUserInMatch(isInMatch);
         setIsSessionServiceUp(true); // Indicate session service is up
       } catch (error) {

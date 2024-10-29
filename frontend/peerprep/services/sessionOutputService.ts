@@ -1,8 +1,9 @@
-import axios from 'axios';
-import { LANGUAGE_VERSIONS } from '../utils/utils';
+import axios from "axios";
+
+import { LANGUAGE_VERSIONS } from "../utils/utils";
 
 const API = axios.create({
-  baseURL: 'https://emkc.org/api/v2/piston'
+  baseURL: "https://emkc.org/api/v2/piston",
 });
 
 interface ExecuteCodeResponse {
@@ -24,8 +25,11 @@ interface ExecuteCodeResponse {
 
 type Language = keyof typeof LANGUAGE_VERSIONS;
 
-export const executeCode = async (language: Language, sourceCode: string): Promise<ExecuteCodeResponse> => {
-  const response = await API.post<ExecuteCodeResponse>('/execute', {
+export const executeCode = async (
+  language: Language,
+  sourceCode: string,
+): Promise<ExecuteCodeResponse> => {
+  const response = await API.post<ExecuteCodeResponse>("/execute", {
     language: language,
     version: LANGUAGE_VERSIONS[language],
     files: [
@@ -34,5 +38,6 @@ export const executeCode = async (language: Language, sourceCode: string): Promi
       },
     ],
   });
+
   return response.data;
 };

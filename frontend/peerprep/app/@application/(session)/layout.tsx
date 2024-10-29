@@ -27,7 +27,6 @@ export default async function ApplicationLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <section>
       <div className="relative flex flex-col h-screen">

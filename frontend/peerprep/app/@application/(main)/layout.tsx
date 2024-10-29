@@ -1,10 +1,11 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 
+import { isSessionAdmin } from "../../../auth/actions";
+
 import { siteConfig } from "@/config/site";
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
-import { isSessionAdmin } from "../../../auth/actions";
 
 export const metadata: Metadata = {
   title: {

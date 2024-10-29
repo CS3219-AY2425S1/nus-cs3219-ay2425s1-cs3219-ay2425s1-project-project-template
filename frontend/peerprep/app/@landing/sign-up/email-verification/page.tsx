@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
+import { CircularProgress } from "@nextui-org/react";
 
 import BoxIcon from "@/components/boxicons";
-import { CircularProgress } from "@nextui-org/react";
 import Toast from "@/components/toast"; // Import the Toast component
 import { fontFun } from "@/config/fonts";
 import {
@@ -22,7 +22,7 @@ export default function EmailVerificationPage() {
   const searchParams = useSearchParams();
   const [code, setCode] = useState<string>("");
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
   const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state for button
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -31,6 +31,7 @@ export default function EmailVerificationPage() {
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
+
     if (emailParam) {
       setEmail(emailParam);
     }
@@ -48,6 +49,7 @@ export default function EmailVerificationPage() {
     const initializeExpirationTime = async () => {
       try {
         const expirationString = await getTimeToExpire();
+
         expirationTime = expirationString
           ? new Date(expirationString).getTime()
           : Date.now() + 3 * 60 * 1000; // Default to 3 minutes
@@ -61,8 +63,9 @@ export default function EmailVerificationPage() {
       const timer = setInterval(() => {
         if (expirationTime) {
           const timeRemaining = Math.floor(
-            (expirationTime - Date.now()) / 1000
+            (expirationTime - Date.now()) / 1000,
           );
+
           if (timeRemaining <= 0) {
             clearInterval(timer);
             handleExpiration();
@@ -78,6 +81,7 @@ export default function EmailVerificationPage() {
     const handleExpiration = async () => {
       try {
         const res = await deleteNewUserRequest(email);
+
         setToast({ message: res.message, type: res.status });
       } catch (error) {
         setDisableInput(true);
@@ -97,6 +101,7 @@ export default function EmailVerificationPage() {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
+
     return `${minutes}:${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
   };
 
@@ -105,6 +110,7 @@ export default function EmailVerificationPage() {
     await delay(200);
 
     const response = await verifyCode(Number(code));
+
     if (response.status === "success") {
       setToast({
         message: "You have registered successfully!",
