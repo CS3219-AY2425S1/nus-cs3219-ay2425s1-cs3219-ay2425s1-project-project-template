@@ -60,8 +60,8 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
       </Stack>
       <Box
         bgcolor='black'
-        height="28vh"
-        maxHeight={'28vh'}
+        height="30vh"
+        maxHeight={'30vh'}
         width="100%"
         p={2}
         color={isError ? "red.400" : "white"}
