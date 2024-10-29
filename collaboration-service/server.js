@@ -9,16 +9,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",  // Allow all origins
+    origin: '*', // Allow all origins
     methods: ['GET', 'POST'],
   },
   path: '/api/collab/socket.io',
-  pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
-  pingInterval: 25000,  // Interval between ping packets
+  pingTimeout: 60000, // Set a higher timeout (e.g., 60 seconds)
+  pingInterval: 25000, // Interval between ping packets
 });
 
 // Serve static files
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 // Use the session routes at the '/api/collab' path (passing `io` for socket handling)
 // Note that socket bypasses authMiddleware here

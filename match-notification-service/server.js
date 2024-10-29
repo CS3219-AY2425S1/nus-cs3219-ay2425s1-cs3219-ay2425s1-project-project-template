@@ -49,29 +49,29 @@ async function initRabbitMQ() {
       const matchFound = JSON.parse(msg.content.toString());
       console.log(`Match found:`, matchFound);
 
-      const { userId, matchUserId, roomId, questionId } = matchFound;
+      const { userId, matchedUserId, sessionId, questionId } = matchFound;
 
       const userSocketId = connectedClients[userId];
-      const matchUserSocketId = connectedClients[matchUserId];
+      const matchUserSocketId = connectedClients[matchedUserId];
 
       if (userSocketId && matchUserSocketId) {
         // Emit to both users
         const matchFoundA = {
-          userId: userId,
-          matchUserId: matchUserId,
-          roomId: roomId,
-          questionId: questionId,
+          userId,
+          matchedUserId,
+          sessionId,
+          questionId,
         };
         io.to(userSocketId).emit('match_found', matchFoundA);
         const matchFoundB = {
-          userId: matchUserId,
-          matchUserId: userId,
-          roomId: roomId,
-          questionId: questionId,
+          userId: matchedUserId,
+          matchedUserId: userId,
+          sessionId,
+          questionId,
         };
         io.to(matchUserSocketId).emit('match_found', matchFoundB);
         console.log(
-          `Notified user ${userId} and ${matchUserId} of match at room ${roomId}`,
+          `Notified user ${userId} and ${matchedUserId} of match at room ${sessionId}`,
         );
       }
 

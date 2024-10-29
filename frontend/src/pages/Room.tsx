@@ -19,19 +19,19 @@ function Room() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const matchData = location.state;
+  const sessionData = location.state;
 
   const socketRef = useRef<Socket | null>(null);
   const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
-    if (!matchData) {
+    if (!sessionData) {
       return;
     }
 
-    const { roomId, matchUserId, questionId } = matchData;
-    connectSocket(roomId, matchUserId, questionId);
-  }, [matchData]);
+    const { sessionId, matchedUserId, questionId } = sessionData;
+    connectSocket(sessionId, matchedUserId, questionId);
+  }, [sessionData]);
 
   const connectSocket = (
     sessionId: string,
@@ -113,7 +113,7 @@ function Room() {
             <Skeleton h="150px" w="calc(50% - 5px)" />
             <Skeleton h="150px" w="calc(50% - 5px)" />
           </Group>
-          <RoomTabs questionId={matchData.questionId} />
+          <RoomTabs questionId={sessionData.questionId} />
         </Stack>
 
         <CodeEditorLayout

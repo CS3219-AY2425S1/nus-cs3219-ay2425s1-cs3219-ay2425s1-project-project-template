@@ -5,10 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
+import { checkSession } from '../../../apis/CollaborationApi';
 import { useAuth } from '../../../hooks/AuthProvider';
+import { SessionResponse } from '../../../types/Collaboration';
 import HelpModal from '../../modal/HelpModal';
 import MatchingCriteriaModal from '../../modal/MatchingCriteriaModal';
 import MatchingModal from '../../modal/MatchingModal';
+import RejoinSessionModal from '../../modal/RejoinSessionModal';
 
 function PracticeLayout() {
   const [isHelpModalOpened, { open: openHelpModal, close: closeHelpModal }] =
@@ -21,7 +24,13 @@ function PracticeLayout() {
     isMatchingModalOpen,
     { open: openMatchingModal, close: closeMatchingModal },
   ] = useDisclosure(false);
+  const [
+    isRejoinSessionModalOpen,
+    { open: openRejoinSessionModal, close: closeRejoinSessionModal },
+  ] = useDisclosure(false);
 
+  const [existingSession, setExistingSession] =
+    useState<SessionResponse | null>(null);
   const [displayTimer, setDisplayTimer] = useState(0);
   const timerRef = useRef(0);
   const hasTimedOut = useRef(false);
@@ -88,15 +97,15 @@ function PracticeLayout() {
       socketRef.current?.emit('register', auth.userId, difficulties, topics);
     });
 
-    socketRef.current.on('match_found', (match) => {
-      console.log(match);
+    socketRef.current.on('match_found', (session) => {
+      console.log(session);
       notifications.show({
         title: 'Match found!',
         message: 'Creating a practice room...',
         color: 'green',
       });
       handleCancelMatching();
-      navigate('/room', { state: match });
+      navigate('/room', { state: session });
     });
 
     socketRef.current.on('disconnect', handleCancelMatching);
@@ -108,6 +117,34 @@ function PracticeLayout() {
       socketRef.current.disconnect();
     }
     closeMatchingModal();
+  };
+
+  const handleStartMatching = () => {
+    checkSession().then(
+      (response: SessionResponse) => {
+        const { sessionId, matchedUserId, questionId } = response;
+        if (!sessionId || !matchedUserId || !questionId) {
+          openMatchingCriteriaModal();
+          return;
+        }
+        setExistingSession(response);
+        openRejoinSessionModal();
+      },
+      (error: any) => {
+        console.log(error);
+      },
+    );
+  };
+
+  const rejoinSession = () => {
+    if (existingSession) {
+      notifications.show({
+        title: 'Success',
+        message: 'Rejoining existing room.',
+        color: 'green',
+      });
+      navigate('/room', { state: existingSession });
+    }
   };
 
   const findMatch = (difficulties: string[], topics: string[]) => {
@@ -126,7 +163,7 @@ function PracticeLayout() {
         <Title order={2} ta="start">
           Practice Now
         </Title>
-        <Button onClick={openMatchingCriteriaModal}>Start Interview</Button>
+        <Button onClick={handleStartMatching}>Start Interview</Button>
         <Text ta="center">
           Not sure how this works?{' '}
           <UnstyledButton fw={700} onClick={openHelpModal}>
@@ -149,6 +186,12 @@ function PracticeLayout() {
         closeMatchingModal={handleCancelMatching}
         displayTimer={displayTimer}
         timeoutTime={timeoutTime}
+      />
+      <RejoinSessionModal
+        isOpen={isRejoinSessionModalOpen}
+        closeModal={closeRejoinSessionModal}
+        rejoinSession={rejoinSession}
+        startNewMatch={openMatchingCriteriaModal}
       />
     </>
   );

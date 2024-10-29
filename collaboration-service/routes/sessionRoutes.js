@@ -11,7 +11,7 @@ module.exports = (io) => {
   });
 
   // Handle session check for a specific user
-  router.get('/check-session/', (req, res) => {
+  router.get('/check-session', (req, res) => {
     try {
       const userId = req.user.userId;
 
