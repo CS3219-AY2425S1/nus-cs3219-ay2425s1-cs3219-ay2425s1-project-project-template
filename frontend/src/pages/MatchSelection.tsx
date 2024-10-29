@@ -9,6 +9,7 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import { MatchDataResponse } from "../@types/match";
 import humanImage from "../assets/human.png";
 import LabelValue from "../components/LabelValue";
+import { useNavigate } from "react-router-dom";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_API_URL;
 
@@ -22,6 +23,7 @@ const MatchSelection = () => {
   const [timer, setTimer] = useState<number>(30);
   const { user, token } = useAuth();
   const socketRef = useRef<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getTopics = async () => {
@@ -82,6 +84,8 @@ const MatchSelection = () => {
       setMatchUserName(matchData.matchUserName);
       setIsMatching(false);
       setNoMatchFound(false);
+
+      setTimeout(async() => navigate(`/collaboration/${matchData.roomId}`), 5000)
       socketRef.current.disconnect();
     });
 
@@ -101,7 +105,7 @@ const MatchSelection = () => {
       console.error("Error joining room for match updates.");
       socketRef.current.disconnect();
     }
-  }, [user, topic, difficulty, token]);
+  }, [user, topic, difficulty, token, navigate]);
 
   const handleCancelMatch = useCallback(async () => {
     setIsMatching(false);
@@ -128,6 +132,7 @@ const MatchSelection = () => {
   const handleTopicChange = useCallback((e: SelectChangeEvent<string>) => {
     setTopic(e.target.value as string);
   }, []);
+  
    //Placeholder join room
   const handleJoinRoom = () => {
     console.log("Room Joined");

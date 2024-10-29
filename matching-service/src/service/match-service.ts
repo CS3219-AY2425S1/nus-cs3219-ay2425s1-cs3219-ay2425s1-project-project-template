@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { MatchRequest } from "../types/match-types";
 import { connectRabbitMQ, getChannel } from "../queue/rabbitmq";
 import Redis from "ioredis";
+import { v4 as uuidv4 } from 'uuid';
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
@@ -41,13 +42,17 @@ async function processMatchRequest(request: MatchRequest, io: Server) {
     redis.del(`match_request:${match.userName}`);
     console.log(`Match found between ${request.userName} and ${match.userName}`);
 
+    const roomId = uuidv4(); // Generate a unique roomId
+
     io.to(request.userName).emit("match_found", {
       success: true,
       matchUserName: match.userName,
+      roomId: roomId
     });
     io.to(match.userName).emit("match_found", {
       success: true,
       matchUserName: request.userName,
+      roomId: roomId
     });
   } else {
     console.log(`No immediate match for ${request.userName}, waiting for 30 seconds.`);
