@@ -36,14 +36,14 @@
         </div>
 
         <!-- Show Difficulty Options -->
-        <div *ngIf="isDifficultyClicked">
+        <div class="dropdown-content" *ngIf="isDifficultyClicked">
           <button (click)="filterByDifficulty('Easy')">Easy</button>
           <button (click)="filterByDifficulty('Medium')">Medium</button>
           <button (click)="filterByDifficulty('Hard')">Hard</button>
         </div>
 
         <!-- Show Category Options -->
-        <div *ngIf="isCategoryClicked">
+        <div class="dropdown-content" *ngIf="isCategoryClicked">
           <button
             *ngFor="let category of categories"
             (click)="filterByCategory(category)">
