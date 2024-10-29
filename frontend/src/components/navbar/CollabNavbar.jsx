@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from "react";
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import TimerIcon from '@mui/icons-material/Timer';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -7,10 +8,10 @@ import { NavbarContainer } from './NavbarContainer';
 import { NavbarLogo } from './NavbarLogo';
 import { NavbarButton } from './NavbarButton';
 
-export default function CollabNavbar({ partnerUsername }) {
+export default function CollabNavbar({ partnerUsername, countdown }) {
     const navigate = useNavigate();
     const username = partnerUsername;
-    const [remainingTime, setRemainingTime] = useState("30:00");
+    const remainingTime = countdown;
 
     const handleSubmit = () => {
         // Handle submit logic here
@@ -30,6 +31,7 @@ export default function CollabNavbar({ partnerUsername }) {
             {/* Middle: username and timer */}
             <Box sx={{ display: 'flex', gap: 5, flexGrow: 1, alignItems: 'center', marginLeft: '30px' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <PeopleAltIcon style={{ color: '#000' }} />
                     <p style={{ color: '#000', fontSize: '1.2rem', fontWeight: 'bold' }}>{username}</p>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>

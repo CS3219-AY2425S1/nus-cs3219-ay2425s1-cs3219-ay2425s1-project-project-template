@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Editor from "@monaco-editor/react";
 import * as Y from "yjs";
@@ -15,11 +15,18 @@ const Collab = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { username } = useAuth();
+
     const ydoc = useRef(new Y.Doc()).current;
     const editorRef = useRef(null);
     const socketRef = useRef(null);
     const providerRef = useRef(null);
 
+    const [showPopup, setShowPopup] = useState(false);
+    const [countdown, setCountdown] = useState(1800);
+    const [timeOver, setTimeOver] = useState(false);
+    const [userLeft, setUserLeft] = useState(false);
+
+    // Setup socket connection
     useEffect(() => {
         if (!location.state) {
             navigate("/home");
@@ -36,6 +43,7 @@ const Collab = () => {
         };
     }, [username, location.state, navigate]);
 
+    // Cleanup function
     useEffect(() => {
         return () => {
             if (providerRef.current) {
@@ -43,6 +51,9 @@ const Collab = () => {
             }
         };
     }, []);
+
+    // Timer function
+
 
     if (!location.state) {
         return null;
@@ -75,7 +86,7 @@ const Collab = () => {
                 width: "100vw"
             }}
         >
-            <CollabNavBar partnerUsername={partnerUsername}/>
+            <CollabNavBar partnerUsername={partnerUsername} countdown={"30:00"}/>
             <Editor
                 height="100%"
                 width="100%"
