@@ -22,7 +22,7 @@ export default function EmailVerificationPage() {
   const searchParams = useSearchParams();
   const [code, setCode] = useState<string>("");
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null,
+    null
   );
   const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state for button
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -63,7 +63,7 @@ export default function EmailVerificationPage() {
       const timer = setInterval(() => {
         if (expirationTime) {
           const timeRemaining = Math.floor(
-            (expirationTime - Date.now()) / 1000,
+            (expirationTime - Date.now()) / 1000
           );
 
           if (timeRemaining <= 0) {
@@ -79,20 +79,11 @@ export default function EmailVerificationPage() {
     };
 
     const handleExpiration = async () => {
-      try {
-        const res = await deleteNewUserRequest(email);
-
-        setToast({ message: res.message, type: res.status });
-      } catch (error) {
-        setDisableInput(true);
-        console.error("Error deleting user:", error);
-        setToast({
-          message: "An error occurred while deleting the user.",
-          type: "error",
-        });
-      } finally {
-        setTimeout(() => location.reload(), 1000);
-      }
+      setToast({
+        message: "Code has expired please sign-up again",
+        type: "warning",
+      });
+      setTimeout(() => location.reload(), 1500);
     };
 
     initializeExpirationTime().then(updateCountdown);
@@ -234,7 +225,7 @@ export default function EmailVerificationPage() {
           <span className="text-xs">
             Did not get it?{" "}
             <Button
-              className="underline text-xs bg-violet-700/25 hover:bg-violet-700/75"
+              className="underline text-xs text-white bg-violet-700/25 hover:bg-violet-500/90"
               onClick={handleResend}
               size="sm"
               variant="flat"

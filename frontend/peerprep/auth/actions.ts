@@ -306,12 +306,14 @@ export const verifyCode = async (code: number) => {
           message: "Code verified successfully, user registered successfully!",
         };
       } else {
+        const errorData = await response.json();
         return {
           status: "error",
-          message: "There was a problem registering the user.",
+          message: errorData.message || "There was a problem registering the user.",
         };
       }
     } else {
+      console.log(verificationCode, code);
       return {
         status: "error",
         message: "Verification code is wrong! Please check and try again!",
