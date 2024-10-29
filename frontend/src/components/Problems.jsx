@@ -24,7 +24,7 @@ export default function Problems({ problem }) {
             {problem.complexity}
           </span>
         </div>
-        <div className="text-white mb-6">{problem.description}</div>
+        <div className="text-white mb-6" style={{ whiteSpace: 'pre-line' }}>{problem.description}</div>
       </div>
     </div>
   );
