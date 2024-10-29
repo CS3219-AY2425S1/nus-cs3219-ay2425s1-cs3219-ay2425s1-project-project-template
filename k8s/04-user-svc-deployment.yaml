@@ -63,9 +63,7 @@ spec:
       
       containers:
         - name: user-express
-          # TODO: change tag to latest
-          # image: ay2425s1cs3219g16/user-express:main
-          image: ay2425s1cs3219g16/user-express:sha-ff94455
+          image: ay2425s1cs3219g16/user-express:latest
           imagePullPolicy: IfNotPresent
           envFrom:
           - secretRef: 

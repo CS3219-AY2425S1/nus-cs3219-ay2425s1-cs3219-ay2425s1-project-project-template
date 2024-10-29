@@ -63,8 +63,7 @@ spec:
       
       containers:
         - name: question-express
-          # TODO: change tag to latest
-          image: ay2425s1cs3219g16/question-express:main
+          image: ay2425s1cs3219g16/question-express:latest
           imagePullPolicy: IfNotPresent
           envFrom:
           - secretRef: 
