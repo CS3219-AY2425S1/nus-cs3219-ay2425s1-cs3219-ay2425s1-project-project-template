@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import MatchUI from "@/components/matching/MatchUI";
 import StartMatchCard from "@/components/startmatchcard";
-import { checkUserMatchStatus, leaveMatch } from "@/services/sessionService";
+import { checkUserMatchStatus, leaveMatch } from "@/services/sessionAPI";
 import ReconnectCard from "@/components/reconnectcard";
 import BoxIcon from "@/components/boxicons";
 
