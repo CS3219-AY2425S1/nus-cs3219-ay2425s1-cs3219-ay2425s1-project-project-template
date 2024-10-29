@@ -7,7 +7,7 @@ const FindingPeer = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { selectedTopics, selectedLevel, waitTimeInSeconds } =
+  const { selectedTopic, selectedLevel, waitTimeInSeconds } =
     location.state || {};
 
   const [time, setTime] = useState(waitTimeInSeconds || 120);
@@ -47,7 +47,7 @@ const FindingPeer = () => {
     const waitTime = time;
 
     matchingService
-      .connect(token, selectedTopics.join(","), complexity, waitTime)
+      .connect(token, selectedTopic, complexity, waitTime)
       .then(() => {
         toast.success("Connected to matching service");
 
@@ -82,7 +82,7 @@ const FindingPeer = () => {
     return () => {
       matchingService.disconnect();
     };
-  }, [selectedTopics, selectedLevel, navigate]);
+  }, [selectedTopic, selectedLevel, navigate]);
 
   return (
     <div className="flex min-h-screen bg-black">
@@ -96,7 +96,7 @@ const FindingPeer = () => {
         </div>
         <div className="mb-4 flex space-x-1 text-sm text-gray-300">
           <h1 className="font-bold text-lime-400">Topics:</h1>
-          <p>{selectedTopics?.join(", ")}</p>
+          <p>{selectedTopic}</p>
         </div>
         <div className="mb-4 flex space-x-1 text-sm text-gray-300">
           <h1 className="font-bold text-lime-400">Level:</h1>
