@@ -168,6 +168,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker images for PeerPrep Services
         uses: docker/build-push-action@v6
