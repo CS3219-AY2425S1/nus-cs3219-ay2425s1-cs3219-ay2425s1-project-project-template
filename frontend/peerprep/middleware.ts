@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getCreateUserSession, getSession } from "./auth/actions";
+import { checkUserMatchStatus } from "./services/sessionService";
 
 export async function middleware(req: any) {
   const url = req.nextUrl.clone(); // Clone the URL
@@ -14,7 +15,8 @@ export async function middleware(req: any) {
   if (!token) {
     if (
       url.pathname.startsWith("/home") ||
-      url.pathname.startsWith("/questions-management")
+      url.pathname.startsWith("/questions-management") ||
+      url.pathname.startsWith("/session")
     ) {
       url.pathname = "/sign-in";
 
@@ -47,6 +49,15 @@ export async function middleware(req: any) {
 
       return NextResponse.redirect(url);
     }
+
+    // Check if the user is in a session
+    const isInSession = await checkUserMatchStatus();
+
+    if (!isInSession && url.pathname.startsWith("/session")) {
+      url.pathname = "/forbidden";
+      return NextResponse.redirect(url);
+    }
+
   }
 
   // If no conditions match, allow the request to proceed
@@ -54,5 +65,5 @@ export async function middleware(req: any) {
 }
 
 export const config = {
-  matcher: ["/questions-management/:path*", "/sign-in", "/sign-up/:path*"],
+  matcher: ["/questions-management/:path*", "/sign-in", "/sign-up/:path*", "/session"],
 };
