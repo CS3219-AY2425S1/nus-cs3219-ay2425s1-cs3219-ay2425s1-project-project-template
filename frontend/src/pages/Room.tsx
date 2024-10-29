@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
-import LeaveSessionModal from '../components/modal/LeaveSessionModal';
+import ConfirmationModal from '../components/modal/ConfirmationModal';
 import RoomTabs from '../components/tabs/RoomTabs';
 
 function Room() {
@@ -117,10 +117,13 @@ function Room() {
         />
       </Group>
 
-      <LeaveSessionModal
-        isLeaveSessionModalOpened={isLeaveSessionModalOpened}
-        closeLeaveSessionModal={closeLeaveSessionModal}
-        handleLeaveSession={handleLeaveSession}
+      <ConfirmationModal
+        isConfirmationModalOpened={isLeaveSessionModalOpened}
+        closeConfirmationModal={closeLeaveSessionModal}
+        handleConfirmation={handleLeaveSession}
+        description="Are you sure you want to leave this session?"
+        confirmationButtonLabel="Leave"
+        confirmationButtonColor="red"
       />
     </>
   );
