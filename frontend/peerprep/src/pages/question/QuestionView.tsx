@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from "react";
-import { QueryObserverResult } from "@tanstack/react-query";
-
+//import { QueryObserverResult } from "@tanstack/react-query";
 import { Question, Topic } from "./questionModel";
 import { ColumnFilter, ColumnDef } from "@tanstack/react-table";
-import { useQuesApiContext } from "../../context/ApiContext";
+//import { useQuesApiContext } from "../../context/ApiContext";
 import {
   Badge,
   Box,
@@ -57,8 +56,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 }) => {
   const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
   const {
-    isOpen: isMenuOpen,
-    onOpen: onMenuOpen,
+    //isOpen: isMenuOpen,
+    //onOpen: onMenuOpen,
     onClose: onMenuClose,
   } = useDisclosure();
   const {
@@ -83,6 +82,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     try {
       await onAddLeetCodeQuestion(newQuestion);
       toast.success("LeetCode Question added successfully!");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to add LeetCode Question.");
     }
@@ -155,12 +155,27 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Function to get the color for a category
   const getCategoryColor = (category: string) => {
     if (!category) return "white";
-    // Find the category in the predefined list
-    let found = topics.find(
+  
+    const found = topics.find(
       (c) => c.id.toLowerCase() === category.toLowerCase()
     );
-    return found ? found.color : "white";
-  };
+  
+    if (found) return found.color;
+  
+    // Generate a random color, excluding white
+    const getRandomColor = () => {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      while (color === '#FFFFFF' || color === '#00000000') { 
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+      }
+      return color;
+    };
+  
+    return getRandomColor();
+  };  
 
   // Define the table columns
   const columns: ColumnDef<Question>[] = useMemo(
