@@ -12,10 +12,10 @@ app.use(express.static(path.join(__dirname, '../public')))
 export interface IMessage {
     text: string
     name: string
-    id: string
+    email: string
     socketId: string
     roomId: string
-    image?: string
+    time: string
 }
 
 // room id -> socket[]
@@ -41,13 +41,15 @@ io.on('connection', (socket: Socket) => {
         for (const [roomId, users] of Object.entries(roomUsers)) {
             if (Object.keys(users).includes(socket.id)) {
                 delete roomUsers[roomId][socket.id]
-                Object.values(roomUsers[roomId]).forEach((s) =>
-                    s.emit('receive_message', {
-                        text: 'A user left the room.',
-                        socketId: 'kurakani',
-                        roomId: roomId,
-                    })
-                )
+                const msg: IMessage = {
+                    text: 'A user left the room.',
+                    socketId: 'kurakani',
+                    roomId: roomId,
+                    time: new Date().toString(),
+                    name: '',
+                    email: '',
+                }
+                Object.values(roomUsers[roomId]).forEach((s) => s.emit('receive_message', msg))
             }
         }
         io.emit('users_response', roomUsers)

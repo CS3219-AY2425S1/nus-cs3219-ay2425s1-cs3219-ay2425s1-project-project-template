@@ -1,7 +1,6 @@
-import { FC, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { mockChatData, mockUserData } from '@/mock-data'
-import { Category } from '@repo/user-types'
+import { mockUserData } from '@/mock-data'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
@@ -11,15 +10,7 @@ interface ICollaborator {
     email: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props {}
-
 const userData: ICollaborator = mockUserData
-const initialChatData = mockChatData
-
-const formatQuestionCategories = (cat: Category[]) => {
-    return cat.join(', ')
-}
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -29,15 +20,14 @@ const formatTimestamp = (timestamp: string) => {
 export interface IMessage {
     text: string
     name: string
-    id: string
+    email: string
     socketId: string
     roomId: string
-    image?: string
+    time: string
 }
 
-// eslint-disable-next-line arrow-body-style
-const Chat: FC<Props> = () => {
-    const [chatData, setChatData] = useState<{ [key: string]: IMessage[] }>()
+const Chat = () => {
+    const [chatData, setChatData] = useState<IMessage[]>()
     const [socket, setSocket] = useState<socketIO.Socket>()
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
@@ -53,9 +43,7 @@ const Chat: FC<Props> = () => {
         const socket = socketIO.connect('ws://localhost:3009')
         socket.on('receive_message', (data: IMessage) => {
             setChatData((prev) => {
-                const newMessages = { ...prev }
-                newMessages[data.roomId] = [...(newMessages[data.roomId] ?? []), data]
-                return newMessages
+                return [...(prev ?? []), data]
             })
         })
         setSocket(socket)
@@ -91,16 +79,24 @@ const Chat: FC<Props> = () => {
         if (!session || !socket) return
 
         if (message.trim()) {
-            socket.emit('send_message', {
+            const msg: IMessage = {
                 text: message,
                 name: session.user.username,
-                time: new Date(),
-                socketId: socket.id,
-                roomId,
-            })
+                time: new Date().toString(),
+                socketId: socket.id || '',
+                roomId: roomId as string,
+                email: session.user.email,
+            }
+            socket.emit('send_message', msg)
         }
         setValue('')
     }
+
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
+    }, [chatData])
 
     return (
         <>
@@ -109,14 +105,14 @@ const Chat: FC<Props> = () => {
                     Object.values(chatData).map((chat, index) => (
                         <div
                             key={index}
-                            className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.user, 'label')}`}
+                            className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat({ name: chat.name, email: chat.email }, 'label')}`}
                         >
                             <div className="flex items-center gap-2">
-                                <h4 className="text-xs font-medium">{chat.user.name}</h4>
-                                <span className="text-xs text-slate-400">{formatTimestamp(chat.timestamp)}</span>
+                                <h4 className="text-xs font-medium">{chat.name}</h4>
+                                <span className="text-xs text-slate-400">{formatTimestamp(chat.time)}</span>
                             </div>
                             <div
-                                className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.user, 'text')}`}
+                                className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat({ name: chat.name, email: chat.email }, 'text')}`}
                             >
                                 {chat.text}
                             </div>
