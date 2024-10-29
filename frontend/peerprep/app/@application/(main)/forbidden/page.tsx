@@ -5,8 +5,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/button";
 
-import forbiddenImage from "../../../images/Forbidden.png";
-
+import forbiddenImage from "@/images/Forbidden.png";
 import BoxIcon from "@/components/boxicons";
 
 const ForbiddenPage = () => {

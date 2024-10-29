@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import BoxIcon from "./boxicons";
-import Toast from "./toast";
 import { SignOutConfirmationModal } from "./signoutconfirmationmodal"; // Import the modal
 
 import { siteConfig } from "@/config/site";
@@ -21,7 +20,7 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
   const currentPath = usePathname();
   const router = useRouter();
   const [toast, setToast] = useState<{ message: string; type: string } | null>(
-    null
+    null,
   );
   const [isModalOpen, setModalOpen] = useState(false); // Track modal open state
 
