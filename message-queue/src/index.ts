@@ -357,8 +357,7 @@ app.post("/match", async (req: Request, res: Response) => {
       //console.log("Length of users: " + users.length)
     }
 
-    console.log("SUCCESSFUL MATCH: " + response.matchedUsers)
-    console.log("TIMEOUT: " + response.timeout)
+    console.log("SUCCESSFUL MATCH: " + JSON.stringify(response.matchedUsers))
 
     // Timeout, cannot find match; assumes matchedUsers.length != 2
     res.json(response)
