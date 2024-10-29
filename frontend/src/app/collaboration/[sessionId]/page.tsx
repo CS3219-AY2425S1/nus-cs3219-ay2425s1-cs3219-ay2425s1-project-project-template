@@ -1,3 +1,4 @@
+import { getSessionInfo } from "@/services/collaborationService";
 import {
   ResizablePanel,
   ResizablePanelGroup,
@@ -6,9 +7,22 @@ import {
 import CollabCodePanel from "@/app/collaboration/_components/Editor";
 import TestResultPanel from "@/app/collaboration/_components/TestResult";
 import QuestionTabPanel from "@/app/collaboration/_components/Question";
-import Chatbox from "./_components/Chat/Chatbox";
+import Chatbox from "../_components/Chat/Chatbox";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page({
+  params,
+}: {
+  params: { sessionId: string };
+}) {
+  const { sessionId } = params;
+
+  const sessionInfoResponse = await getSessionInfo(sessionId);
+
+  if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data) {
+    redirect("/dashboard");
+  }
+
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
 
   return (
@@ -26,7 +40,7 @@ export default function Page() {
         <ResizablePanel defaultSize={70}>
           <ResizablePanelGroup direction={"vertical"}>
             <ResizablePanel className="p-1" defaultSize={70}>
-              <CollabCodePanel />
+              <CollabCodePanel sessionId={sessionId} />
             </ResizablePanel>
 
             <ResizableHandle withHandle={true} />

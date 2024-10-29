@@ -6,7 +6,12 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'ws';
 import * as Y from 'yjs';
-import { setupWSConnection } from 'y-websocket/bin/utils';
+import { setupWSConnection, setPersistence } from 'y-websocket/bin/utils';
+import { Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { config } from './configs';
+import { MongodbPersistence } from 'y-mongodb-provider';
 
 @WebSocketGateway({
   path: '/yjs',
@@ -17,16 +22,23 @@ import { setupWSConnection } from 'y-websocket/bin/utils';
 export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
-  private documents = new Map<string, Y.Doc>();
+  constructor(
+    @Inject('COLLABORATION_SERVICE')
+    private readonly collaborationClient: ClientProxy,
+  ) {}
 
-  handleConnection(client: WebSocket, request: Request) {
+  async handleConnection(client: WebSocket, request: Request) {
     try {
-      console.log('Client connected');
-
       const url = new URL(request.url, 'http://${request.headers.host}');
       const sessionId = url.searchParams.get('sessionId');
+      // roomId is appended to the end of the URL like so /yjs?sessionId=123&userId=456/roomId789
+      // Thus the reason to split the userIdParam by '/' to get the userId and roomId
+      // Very hacky. App might break if param order changes
+      const userIdParam = url.searchParams.get('userId');
+      const userId = userIdParam.split('/')[0];
+      const roomId = userIdParam.split('/')[1];
 
-      console.log('Session ID:', sessionId);
+      setupWSConnection(client, request, { docName: roomId, gc: true });
 
       if (!sessionId) {
         console.error('No session ID provided');
@@ -34,14 +46,27 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      let doc = this.documents.get(sessionId);
-      if (!doc) {
-        console.log(`Creating a new document for session ID: ${sessionId}`);
-        doc = new Y.Doc();
-        this.documents.set(sessionId, doc);
+      if (!userId) {
+        console.error('No user ID provided');
+        client.close(1008, 'No user ID provided');
+        return;
       }
 
-      setupWSConnection(client, request, { doc });
+      console.log('Session ID:', sessionId, 'User ID:', userId);
+
+      const sessionDetails = await this.validateSessionDetails(
+        sessionId,
+        userId,
+      );
+      if (!sessionDetails.isValid) {
+        console.error(sessionDetails.message);
+        client.close(1008, sessionDetails.message);
+        return;
+      }
+
+      this.setupPersistence(roomId);
+
+      client.send(`Connected to y-websocket via session: ${sessionId}`);
     } catch (error) {
       console.error('Error handling connection:', error);
       client.close(1011, 'Internal server error');
@@ -49,6 +74,81 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: any) {
-    console.log('Client disconnected');
+    client.close('Connection closed');
+  }
+
+  private async validateSessionDetails(sessionId: string, userId: string) {
+    try {
+      const payload = { id: sessionId };
+      const sessionDetails = await firstValueFrom(
+        this.collaborationClient.send(
+          { cmd: 'get-session-details-by-id' },
+          payload,
+        ),
+      );
+
+      if (!sessionDetails || !sessionDetails.userIds.includes(userId)) {
+        return {
+          isValid: false,
+          message:
+            'Invalid session or the user is not a participant of the session',
+        };
+      }
+
+      if (sessionDetails.status !== 'active') {
+        return {
+          isValid: false,
+          message: 'Session is not currently active',
+        };
+      }
+
+      return {
+        isValid: true,
+        message: 'Session details are validated',
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        message: 'Error validating session details',
+      };
+    }
+  }
+
+  private setupPersistence(docName: string) {
+    const mongoPersistence = new MongodbPersistence(
+      config.mongo.connectionString,
+      {
+        collectionName: 'yjs-documents',
+        flushSize: 100,
+        multipleCollections: false,
+      },
+    );
+
+    setPersistence({
+      bindState: async (docName, ydoc) => {
+        const persistedYdoc = await mongoPersistence.getYDoc(docName);
+        const persistedStateVector = Y.encodeStateVector(persistedYdoc);
+
+        const diff = Y.encodeStateAsUpdate(ydoc, persistedStateVector);
+        if (
+          diff.reduce(
+            (previousValue, currentValue) => previousValue + currentValue,
+            0,
+          ) > 0
+        ) {
+          mongoPersistence.storeUpdate(docName, diff);
+        }
+
+        Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc));
+        ydoc.on('update', async (update) => {
+          mongoPersistence.storeUpdate(docName, update);
+        });
+
+        persistedYdoc.destroy();
+      },
+      writeState: async (docName, ydoc) => {
+        await mongoPersistence.flushDocument(docName);
+      },
+    });
   }
 }

@@ -13,6 +13,18 @@ export default async function DescriptionTabContent() {
   const questions = QuestionsSchema.parse(questionsResponse.data.questions);
   const question = questions[0];
 
+  // const sessionQuestionResponse = await getQuestionBySlug(
+  //   sessionInfoResponse.data.questionId
+  // );
+
+  // if (
+  //   sessionQuestionResponse.statusCode !== 200 ||
+  //   !sessionQuestionResponse.data
+  // ) {
+  //   redirect("/dashboard");
+  //   return <div>Question not found: {sessionInfoResponse.data.questionId}</div>;
+  // }
+
   return (
     <div className="flex flex-col p-4 h-full">
       <div
