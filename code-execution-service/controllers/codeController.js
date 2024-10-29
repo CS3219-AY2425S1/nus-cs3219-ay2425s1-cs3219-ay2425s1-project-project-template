@@ -41,7 +41,7 @@ const executeCode = (req, res) => {
         filename = 'tempCode.js';
         filePath = path.join(uniqueDir, filename);
         inputFilePath = path.join(uniqueDir, 'input.txt');
-        execCommand = `ulimit -v ${MEMORY_LIMIT_KB}; node ${filePath} < ${inputFilePath}`;
+        execCommand = `ulimit -v ${MEMORY_LIMIT_KB*5}; node ${filePath} < ${inputFilePath}`; // breaks if we use 1-4 time the memory limit
         break;
       case 'cpp':
         filename = 'tempCode.cpp';
