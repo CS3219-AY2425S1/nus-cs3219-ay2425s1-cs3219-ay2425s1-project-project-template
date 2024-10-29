@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,18 +28,22 @@ function App() {
         .then((data) => {
           if (data.message == "Token verified") {
             setIsAuthenticated(true);
+            setUserIsAdmin(data.data.isAdmin);
           } else {
             localStorage.removeItem("token");
             setIsAuthenticated(false);
+            setUserIsAdmin(false);
           }
         })
         .catch((error) => {
           console.error("Error verifying token:", error);
           localStorage.removeItem("token");
           setIsAuthenticated(false);
-      });
+          setUserIsAdmin(false);
+        });
     } else {
       setIsAuthenticated(false);
+      setUserIsAdmin(false);
     }
   }, []);
 
@@ -50,7 +55,10 @@ function App() {
           {/* Only allow login/signup routes if the user is not authenticated */}
           {!isAuthenticated ? (
             <>
-              <Route path="/login" element={<Login updateAuthStatus={setIsAuthenticated} />} />
+              <Route
+                path="/login"
+                element={<Login updateAuthStatus={setIsAuthenticated} />}
+              />
               <Route path="/signup" element={<Signup />} />
             </>
           ) : (
@@ -58,9 +66,15 @@ function App() {
           )}
 
           {/* Public or authenticated routes */}
-          <Route path="/" element={<QuestionPage />} />
+          <Route
+            path="/"
+            element={<QuestionPage userIsAdmin={userIsAdmin} />}
+          />
           <Route path="/home" element={<Home />} />
-          <Route path="/questions" element={<QuestionPage />} />
+          <Route
+            path="/questions"
+            element={<QuestionPage userIsAdmin={userIsAdmin} />}
+          />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/match-me" element={<MatchingPage />} />
         </Routes>

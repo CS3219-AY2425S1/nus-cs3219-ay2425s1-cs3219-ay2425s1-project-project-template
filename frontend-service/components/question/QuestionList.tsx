@@ -18,10 +18,25 @@ import {
   Card,
   Button,
   Flex,
+  IconButton,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
+import { AddIcon } from "@chakra-ui/icons";
+import AddQuestion from "./AddQuestion";
 import { Question } from "../types";
 
-const QuestionList: React.FC = () => {
+interface QuestionListProps {
+  userIsAdmin: boolean;
+}
+
+const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
   const { questions, loading, error } = useQuestions();
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState<{
@@ -29,6 +44,7 @@ const QuestionList: React.FC = () => {
     direction: "asc" | "desc" | "both";
   }>({ key: "questionId", direction: "both" });
   const [currentPage, setCurrentPage] = useState(1);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const rowsPerPage = 7;
 
   type SortableKeys = keyof Question;
@@ -98,9 +114,9 @@ const QuestionList: React.FC = () => {
   return (
     <Box display="flex" justifyContent="flex-end">
       <Card p={6} borderRadius="lg" maxW="1000px">
-        {/* Search bar */}
-        <Box mb={6}>
-          <InputGroup>
+        <Box display="flex" justifyContent="space-between" mb={4}>
+          {/* Search bar */}
+          <InputGroup mr={4}>
             <InputLeftAddon fontWeight="bold">Search:</InputLeftAddon>
             <Input
               placeholder="your questions..."
@@ -110,6 +126,16 @@ const QuestionList: React.FC = () => {
               focusBorderColor="blue.500"
             />
           </InputGroup>
+
+          {/* Add Question Button */}
+          {userIsAdmin && (
+            <IconButton
+              aria-label="Add Question"
+              icon={<AddIcon />}
+              colorScheme="blue"
+              onClick={onOpen}
+            />
+          )}
         </Box>
 
         {/* Table */}
@@ -214,6 +240,19 @@ const QuestionList: React.FC = () => {
                   </Td>
 
                   <Td>{question.category.join(", ")}</Td>
+                  {/* <Td>
+                    <Button
+                      colorScheme="red"
+                      onClick={() => handleDelete(question.questionId)}
+                    >
+                      Delete
+                    </Button>
+                    <Link to={`/questions/edit/${question.questionId}`}>
+                      <Button colorScheme="teal" ml={2}>
+                        Edit
+                      </Button>
+                    </Link>
+                  </Td> */}
                 </Tr>
               ))}
             </Tbody>
@@ -244,6 +283,23 @@ const QuestionList: React.FC = () => {
           </Box>
         </Flex>
       </Card>
+
+      {/* Modal for Adding Question */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Add a New Question</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <AddQuestion />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

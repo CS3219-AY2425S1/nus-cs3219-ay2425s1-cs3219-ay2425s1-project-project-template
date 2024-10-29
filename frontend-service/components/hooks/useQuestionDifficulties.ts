@@ -7,7 +7,9 @@ const useQuestionDifficulties = () => {
   useEffect(() => {
     const fetchDifficulties = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/questions/difficulties");
+        const response = await fetch(
+          "http://localhost:8080/api/questions/difficulties"
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch difficulties");
         }
@@ -15,7 +17,12 @@ const useQuestionDifficulties = () => {
         if (!Array.isArray(data)) {
           throw new Error("Expected an array of difficulties");
         }
-        setDifficulties(data);
+        const orderedDifficulties = ["Easy", "Medium", "Hard"];
+        const sortedDifficulties = orderedDifficulties.filter((diff) =>
+          data.includes(diff)
+        );
+
+        setDifficulties(sortedDifficulties);
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);
