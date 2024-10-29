@@ -1,4 +1,4 @@
-import { UserCredential, getAuth, onAuthStateChanged } from "firebase/auth"; // Import UserCredential type
+import { UserCredential } from "firebase/auth"; // Import UserCredential type
 import { SuccessObject, callUserFunction } from "@/lib/utils";
 
 export async function addToUserCollection(userCredential: UserCredential, username: string): Promise<SuccessObject> {
@@ -15,26 +15,9 @@ export async function addToUserCollection(userCredential: UserCredential, userna
     return res;
 }
 
-export async function fetchAdminStatus(): Promise<SuccessObject> {
-    const auth = getAuth();
-
-    return new Promise((resolve) => {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    
-                    const res = await callUserFunction("admin/checkAdminStatus", "GET");
-                    resolve(res);
-                } catch (error: any) {
-                    console.error("Error fetching admin status:", error);
-                    resolve({ success: false, error: error.message });
-                }
-            } else {
-                console.log("No user is currently logged in.");
-                resolve({ success: false, error: "No user is currently logged in." });
-            }
-        });
-    });
+export const fetchAdminStatus = async () => {
+        const res = await callUserFunction("admin/checkAdminStatus", "GET");
+        return res
 }
 
 export const doesUserExist = async (username: string) => {
@@ -54,10 +37,8 @@ export const doesUserExist = async (username: string) => {
 
 export async function getUsernameByUid(uid: string) {
     try {
-        console.log("UID before sending: " + uid)
         const result = await callUserFunction(`user/username/${uid}`)
         if (result.success) {
-            console.log(result)
             return result.data;
         } else {
             throw new Error(result.error || "Unable to fetch username");
