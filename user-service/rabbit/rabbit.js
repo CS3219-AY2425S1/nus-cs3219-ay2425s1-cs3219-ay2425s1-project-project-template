@@ -12,7 +12,7 @@ const MATCH_RESULT_ROUTING = 'MATCH-RESULT-ROUTING'
 const CANCEL_REQUEST_QUEUE = 'CANCEL-REQUEST-QUEUE'
 const CANCEL_RESULT_QUEUE = 'CANCEL-RESULT-QUEUE'
 const CANCEL_REQUEST_ROUTING = 'CANCEL-REQUEST-ROUTING'
-const CANCEL_RESULT_ROUTING = 'CANCEL-REQUEST-ROUTING'
+const CANCEL_RESULT_ROUTING = 'CANCEL-RESULT-ROUTING'
 
 
 export const createChannel = async () => {
@@ -91,7 +91,24 @@ export const receiveMatchResult = async (channel, io) => {
 
 export const receiveCancelResult = async (channel, io) => {
     try {
-        
+        channel.consume(CANCEL_RESULT_QUEUE, (data) => {
+            if (data) {
+                console.log("cancelresult received: ", data)
+                const message = data.content.toString()
+                channel.ack(data)
+                // Emit socket.io event when a match is found
+                const cancelData = JSON.parse(message);
+
+                const user1Socket = io.sockets.sockets.get(cancelData.socketId); // User 1's socket
+
+                if (user1Socket) {
+                    // Notify User 1
+                    user1Socket.emit('cancel_success', {
+                        success: true
+                    });
+                }
+            }
+        })
     } catch (e) {
         console.log(e)
     }

@@ -12,7 +12,7 @@ const MATCH_RESULT_ROUTING = 'MATCH-RESULT-ROUTING'
 const CANCEL_REQUEST_QUEUE = 'CANCEL-REQUEST-QUEUE'
 const CANCEL_RESULT_QUEUE = 'CANCEL-RESULT-QUEUE'
 const CANCEL_REQUEST_ROUTING = 'CANCEL-REQUEST-ROUTING'
-const CANCEL_RESULT_ROUTING = 'CANCEL-REQUEST-ROUTING'
+const CANCEL_RESULT_ROUTING = 'CANCEL-RESULT-ROUTING'
 
 
 exports.createChannel = async () => {
@@ -37,6 +37,7 @@ exports.sendMatchResult = (channel, payload) => {
 
 exports.sendCancelResult = (channel, payload) => {
     try {
+        console.log("sendCancelResult called in matchin-service")
         channel.publish(RESULT_EXCHANGE, CANCEL_RESULT_ROUTING, payload)
     } catch (e) {
         console.log(e)

@@ -6,36 +6,36 @@ import { requestMatch, cancelMatch } from "../controller/match-controller.js"
 
 
 const router = express.Router();
-let channel = null;
+let matchChannel = null;
+let cancelChannel = null;
 
 router.post("/match-request", verifyAccessToken, async (req, res, next) => {
-    if (!channel) {
-        channel = await createChannel();
-        if (channel) {
-            console.log("here are the io: ", req.io)
-            receiveMatchResult(channel, req.io);
+    if (!matchChannel) {
+        matchChannel = await createChannel();
+        if (matchChannel) {
+            receiveMatchResult(matchChannel, req.io);
         } else {
             return res.status(500).json({ message: "RabbitMQ connection issue. Try again later." });
         }
     }
 
-    await requestMatch(channel)(req, res, next);
+    await requestMatch(matchChannel)(req, res, next);
 });
 
 router.post("/cancel-request", verifyAccessToken, async (req, res, next) => {
     console.log("Received cancel request"); // Log to check if this is reached
 
     try {
-        if (!channel) {
-            channel = await createChannel();
-            if (!channel) {
-                return res.status(500).json({ message: "RabbitMQ connection issue. Try again later." });
+        if (!cancelChannel) {
+            cancelChannel = await createChannel();
+            if (cancelChannel) {
+                receiveCancelResult(cancelChannel, req.io);
             }
+            
+            return res.status(500).json({ message: "RabbitMQ connection issue. Try again later." });
         }
 
-        const result = await cancelMatch(channel)(req, res, next);
-        // console.log(result)
-        // return res.status(200).json(result);
+        cancelMatch(cancelChannel)(req, res, next);
     } catch (error) {
         console.error("Error handling cancel request:", error);
         return res.status(500).json({ message: "Failed to cancel match. Try again later." });
