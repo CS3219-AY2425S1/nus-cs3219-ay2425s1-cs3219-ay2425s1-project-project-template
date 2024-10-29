@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { addToUserCollection, doesUserExist } from "@/services/UserFunctions";
+import { isValidUsername } from "@/lib/regex";
 
 const CreateAccountPage: React.FC = () => {
 	const [email, setEmail] = useState<string>("");
@@ -30,7 +31,6 @@ const CreateAccountPage: React.FC = () => {
 
 	const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevent refresh
-		const isValidUsername = (username: string): boolean => /^[a-zA-Z0-9]+$/.test(username);
 		if (!isValidUsername(newUsername)) {
 			// Handle invalid username error
 			setAlertIcon(false);
