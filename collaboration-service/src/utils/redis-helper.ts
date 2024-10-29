@@ -7,9 +7,11 @@ const redisClient = new Redis(process.env.COLLAB_REDIS_URL || 'redis://localhost
 export const pubClient = redisClient.duplicate();
 export const subClient = redisClient.duplicate();
 
-// check if redis client is connected
+// Check if redis client is connected
 redisClient.on('connect', () => {
     console.log('Connected to Redis');
+    // // Delete all data in Redis on startup [for development only]
+    // redisClient.flushall();
 });
 
 // Function to store document language in Redis

@@ -10,7 +10,7 @@
 
 # env:
 #   NODE_VERSION: "16"
-# COLLABORATION_SERVICE_URL: "http://localhost:8001/api"
+# COLLABORATION_SERVICE_URL: "http://localhost:8010/api"
 # MATCHING_SERVICE_URL: "http://localhost:8002/api"
 # QUESTION_SERVICE_URL: "http://localhost:8003/api"
 # USER_SERVICE_URL: "http://localhost:8004"

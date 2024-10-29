@@ -19,7 +19,7 @@ import { WysiMarkEditor } from "./wysimarkeditor";
 import BoxIcon from "./boxicons";
 
 import { capitalize, languages } from "@/utils/utils";
-import { complexityColorMap } from "@/app/@application/questions-management/columns";
+import { complexityColorMap } from "@/app/@application/(main)/questions-management/columns";
 import {
   useUniqueCategoriesFetcher,
   isValidQuestionSubmission,

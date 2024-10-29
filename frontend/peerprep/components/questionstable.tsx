@@ -31,7 +31,7 @@ import {
   Question,
   RenderCell,
   complexityOptions,
-} from "@/app/@application/questions-management/columns";
+} from "@/app/@application/(main)/questions-management/columns";
 import {
   deleteQuestion,
   useQuestionsFetcher,
