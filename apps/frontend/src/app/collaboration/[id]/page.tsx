@@ -399,7 +399,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     language={selectedLanguage}
                     setMatchedUser={setMatchedUser}
                     handleCloseCollaboration={handleCloseCollaboration}
-                    // providerRef={providerRef}
+                    providerRef={providerRef}
                     matchedUser={matchedUser}
                     onCodeChange={handleCodeChange}
                   />

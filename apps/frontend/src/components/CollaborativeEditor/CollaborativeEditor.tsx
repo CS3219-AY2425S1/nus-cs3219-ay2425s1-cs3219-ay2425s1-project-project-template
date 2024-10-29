@@ -32,7 +32,7 @@ interface CollaborativeEditorProps {
   language: string;
   setMatchedUser: Dispatch<SetStateAction<string>>;
   handleCloseCollaboration: (type: string) => void;
-  //   providerRef: MutableRefObject<WebrtcProvider | null>;
+  providerRef: MutableRefObject<WebrtcProvider | null>;
   matchedUser: string;
   onCodeChange: (code: string) => void;
 }
@@ -77,7 +77,7 @@ const CollaborativeEditor = forwardRef(
     ref: ForwardedRef<CollaborativeEditorHandle>
   ) => {
     const editorRef = useRef(null);
-    const providerRef = useRef<WebrtcProvider | null>(null);
+    // const providerRef = useRef<WebrtcProvider | null>(null);
     const [selectedLanguage, setSelectedLanguage] = useState("JavaScript");
     let sessionEndNotified = false;
 
@@ -168,9 +168,9 @@ const CollaborativeEditor = forwardRef(
 
     useImperativeHandle(ref, () => ({
       endSession: () => {
-        if (providerRef.current) {
+        if (props.providerRef.current) {
           // Set awareness state to indicate session ended to notify peer about session ending
-          providerRef.current.awareness.setLocalStateField(
+          props.providerRef.current.awareness.setLocalStateField(
             "sessionEnded",
             true
           );
@@ -191,7 +191,7 @@ const CollaborativeEditor = forwardRef(
         maxConns: 2,
       });
 
-      providerRef.current = provider;
+      props.providerRef.current = provider;
       const ytext = ydoc.getText("codemirror");
       const undoManager = new Y.UndoManager(ytext);
 
@@ -222,8 +222,8 @@ const CollaborativeEditor = forwardRef(
 
               props.handleCloseCollaboration("peer");
               sessionEndNotified = true;
-              if (providerRef.current) {
-                providerRef.current.disconnect();
+              if (props.providerRef.current) {
+                props.providerRef.current.disconnect();
               }
               return;
             }
