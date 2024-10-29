@@ -36,13 +36,13 @@ export default function ForgotPasswordPage() {
     }
 
 
-    return <div className="flex flex-row min-w-full min-h-screen">
-        <div className="py-12 flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
+    return <div className="flex flex-col min-w-full min-h-screen bg-white justify-center items-center gap-10 text-lg">
             <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />
             {success ?
                 <>
                     <h1>Reset email address has been sent if the email is associated with an account</h1>
                     <h1>Please check your email inbox and junk inbox.</h1>
+                    <Link className="text-buttonColour hover:underline" to="/">Return to homepage</Link>
                 </> :
                 <form className="flex w-2/5 flex-col gap-y-8 items-center" onSubmit={handleSubmit(onSubmit)}>
                     <h1>Enter the email address associated with your account and we will send you a link to reset your password </h1>
@@ -62,6 +62,5 @@ export default function ForgotPasswordPage() {
                     <span>Already have an account? <Link className="text-buttonColour hover:underline" to="/login" replace>Login</Link> now!</span>
                 </form>
             }
-        </div>
     </div>;
 }
