@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Spinner, Box, Text } from "@chakra-ui/react";
 import Timer from "./Timer";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -36,7 +36,7 @@ const MatchingView: React.FC = () => {
     setTimeout(() => {
       // Redirect to the collaboration room
       navigate(
-        `/collaboration?topic=${topic}&difficulty=${difficulty}&room=${room}`
+        `/editor?topic=${topic}&difficulty=${difficulty}&room=${room}`
       );
     }, 1000);
   };
