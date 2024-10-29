@@ -1,9 +1,11 @@
+const uuid = require('uuid');
 const amqp = require('amqplib');
 const express = require('express');
 const redis = require('redis');
 
 const app = express();
 const PORT = 4000;
+const QUESTION_API_BASE_URL = 'http://nginx/api/questions';
 
 const redisClient = redis.createClient({
   socket: {
@@ -75,21 +77,48 @@ async function showUserQueue(status) {
     }),
   );
 
-  console.log(status + ": " + JSON.stringify(values, null, 2)); 
+  console.log(status + ': ' + JSON.stringify(values, null, 2));
 }
 
 async function matchUsers(searchRequest) {
   const { userId, difficulty, topics } = searchRequest;
 
-  await showUserQueue("Before queue");
+  await showUserQueue('Before queue');
 
-  if (userId == null) return; 
+  if (userId == null) return;
 
   const userExists = (await redisClient.get(userId)) !== null;
   if (userExists) {
-    console.log("Duplicate user:", userId);
-    return; 
+    console.log('Duplicate user:', userId);
+    return;
   }
+
+  const response = await fetch(`${QUESTION_API_BASE_URL}/filter-one`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ difficulties: difficulty, topics: topics }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  let question;
+  try {
+    question = await response.json();
+  } catch (error) {
+    const message = `A question could not be found with the provided criteria.`;
+    console.error(message);
+    channel.sendToQueue(
+      'error_queue',
+      Buffer.from(JSON.stringify({ userId, errorTag: 'no_question_error' })),
+    );
+    return;
+  }
+
+  console.log('Question:', question);
 
   const matchedByTopics = await findMatchByTopics(topics);
   const matchedByDifficulty = await findMatchByDifficulty(difficulty);
@@ -119,6 +148,8 @@ async function matchUsers(searchRequest) {
     const matchMessage = {
       userId,
       matchUserId: matchedUser,
+      roomId: uuid.v7(),
+      questionId: question.id,
     };
 
     channel.sendToQueue(
@@ -147,7 +178,7 @@ async function matchUsers(searchRequest) {
     });
   }
 
-  await showUserQueue("After queue");
+  await showUserQueue('After queue');
 }
 
 async function findMatchByTopics(topics) {
@@ -155,12 +186,11 @@ async function findMatchByTopics(topics) {
 
   topics.forEach((tag) => multi.sMembers(`topics:${tag}`));
 
-  const replies = await
-    multi.exec((err, replies) => {
-      if (err) return reject(err);
-      console.log('Replies from Redis:', replies); // Log replies
-      resolve(replies);
-    });
+  const replies = await multi.exec((err, replies) => {
+    if (err) return reject(err);
+    console.log('Replies from Redis:', replies); // Log replies
+    resolve(replies);
+  });
 
   const keys = [...new Set(replies.flat())];
   return keys;
@@ -171,12 +201,11 @@ async function findMatchByDifficulty(difficulty) {
 
   difficulty.forEach((tag) => multi.sMembers(`difficulty:${tag}`));
 
-  const replies = await
-    multi.exec((err, replies) => {
-      if (err) return reject(err);
-      console.log('Replies from Redis:', replies); // Log replies
-      resolve(replies);
-    });
+  const replies = await multi.exec((err, replies) => {
+    if (err) return reject(err);
+    console.log('Replies from Redis:', replies); // Log replies
+    resolve(replies);
+  });
 
   const keys = [...new Set(replies.flat())];
   return keys;

@@ -91,9 +91,22 @@ function MatchingModal({
     });
 
     socketRef.current.on('existing_search', () => {
+      setIsConnecting(false);
       notifications.show({
         title: 'Existing search',
         message: 'There is already an existing matching session. Please try again later.',
+        color: 'red',
+      });
+      socketRef.current?.close();
+      handleCancel();
+    });
+
+    socketRef.current.on('no_question_error', () => {
+      setIsConnecting(false);
+      notifications.show({
+        title: 'No Available Questions',
+        message:
+          'There are no available questions for your selected topic and difficulty combination. Please try a different combination and maybe widen your search.',
         color: 'red',
       });
       socketRef.current?.close();
