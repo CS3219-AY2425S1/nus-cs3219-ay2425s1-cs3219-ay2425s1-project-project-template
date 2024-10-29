@@ -1,10 +1,11 @@
 const { db, auth } = require("../config/firebaseConfig.js");
 const admin = require('firebase-admin');
+const isValidUsername = require("../lib/regex.js")
 
 // Function to create a new user and add them to the Firestore collection
 const addToUserCollection = async (req, res) => {
     const { uid, email, displayName, username } = req.body;
-    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+    if (!isValidUsername(username)) {
         return res.status(400).json({ success: false, message: "Username must be alphanumeric only." });
     }
     try {
@@ -14,7 +15,6 @@ const addToUserCollection = async (req, res) => {
         await db.collection("users").doc(uid).set({
             uid: uid,
             email: email,
-            displayName: displayName || 'No Name',
             isAdmin: false,
             username: username,
         });

@@ -2,15 +2,14 @@ import { UserCredential, getAuth, onAuthStateChanged } from "firebase/auth"; // 
 import { SuccessObject, callUserFunction } from "@/lib/utils";
 
 export async function addToUserCollection(userCredential: UserCredential, username: string): Promise<SuccessObject> {
-    const { uid, email, displayName } = userCredential.user;
+    const { uid, email } = userCredential.user;
     // Prepare the data to send in the request body
     const userData = {
         uid,
         email,
-        displayName: displayName || '', // Use an empty string if displayName is not provided
         username: username,
     };
-    console.log("sending user to collection..." + userData)
+    
     const res = await callUserFunction("user/addToUserCollection", "POST", userData);
 
     return res;
