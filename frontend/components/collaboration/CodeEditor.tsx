@@ -1,73 +1,58 @@
-"use client";
-
-import ReactQuill from "react-quill";
-import { QuillBinding } from "y-quill";
+import { useRef, useEffect } from "react";
+import Editor, { useMonaco } from "@monaco-editor/react";
+import { type editor } from "monaco-editor";
+// import { WebsocketProvider } from 'y-websocket';
 import * as Y from "yjs";
-import { useEffect, useRef, useState } from "react";
+import { MonacoBinding } from "y-monaco";
 import { WebrtcProvider } from "y-webrtc";
-import 'react-quill/dist/quill.snow.css';
 
-export function CollaborativeEditor() {
-  const [text, setText] = useState<Y.Text>();
-  const [provider, setProvider] = useState<WebrtcProvider>();
+var randomColor = require("randomcolor"); // import the script
+const RandomColor = randomColor(); // a hex code for an attractive color
 
+export default function CodeEditor() {
+  const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
+  const monaco = useMonaco();
+
+  // read room Id here:
+
+  // read userContext here
+
+  // Runs once when the component mounts to set the initial language.
   useEffect(() => {
-    const yDoc = new Y.Doc();
-    const yText = yDoc.getText("quill");
-    const yProvider = new WebrtcProvider("quill-temp", yDoc);
+    if (typeof window !== "undefined") {
+      if (monaco) {
+        // create a yew yjs doc
+        const ydoc = new Y.Doc();
+        // establish partykit as your websocket provider
+        const provider = new WebrtcProvider("temp", ydoc);
+        // get the text from the monaco editor
+        const yDocTextMonaco = ydoc.getText("monaco");
+        // get the monaco editor
+        const editor = monaco.editor.getEditors()[0];
 
-    setProvider(yProvider);
-
-    return () => {
-      yDoc?.destroy();
-      yProvider?.destroy();
-    };
-  }, []);
-
-  if (!text || !provider) {
-    return null;
-  }
-
-  return <QuillEditor provider={provider} yText={text} />;
-}
-
-type EditorProps = {
-  yText: Y.Text;
-  provider: any;
-};
-
-function QuillEditor({ yText, provider }: EditorProps) {
-  const reactQuillRef = useRef<ReactQuill>(null);
-
-  // Set up Yjs and Quill
-  useEffect(() => {
-    let quill: ReturnType<ReactQuill["getEditor"]>;
-    let binding: QuillBinding;
-
-    if (!reactQuillRef.current) {
-      return;
+        // create the monaco binding to the yjs doc
+        new MonacoBinding(
+          yDocTextMonaco,
+          editor.getModel()!,
+          // @ts-expect-error TODO: fix this
+          new Set([editor]),
+          provider.awareness,
+        );
+      }
     }
-
-    quill = reactQuillRef.current.getEditor();
-    binding = new QuillBinding(yText, quill, provider.awareness);
-
-    return () => {
-      binding?.destroy?.();
-    };
-  }, [yText, provider]);
+  }, [monaco]);
 
   return (
-    <ReactQuill
-      ref={reactQuillRef}
-      modules={{
-        toolbar: false,
-        history: {
-          // Local undo shouldn't undo changes from remote users
-          userOnly: true,
-        },
+    <Editor
+      height="100vh"
+      language="javascript"
+      options={{
+        scrollBeyondLastLine: false,
+        fixedOverflowWidgets: true,
+        fontSize: 14,
       }}
-      placeholder="Start typing here…"
-      theme="snow"
+      theme="vs-dark"
+      width="50vw"
     />
   );
 }
