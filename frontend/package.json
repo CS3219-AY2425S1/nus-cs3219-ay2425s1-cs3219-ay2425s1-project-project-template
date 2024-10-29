@@ -13,9 +13,7 @@
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
-    "buffer": "^6.0.3",
-    "peerjs": "^1.5.4",
-    "process": "^0.11.10",
+    "monaco-editor": "^0.52.0",
     "react": "^18.3.1",
     "react-cookie": "^7.2.0",
     "react-dom": "^18.3.1",
@@ -26,7 +24,7 @@
     "socket.io-client": "^4.8.1",
     "web-vitals": "^2.1.4",
     "y-monaco": "^0.1.6",
-    "y-protocols": "^1.0.6",
+    "y-websocket": "^2.0.4",
     "yjs": "^13.6.20"
   },
   "scripts": {

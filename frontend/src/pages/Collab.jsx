@@ -1,51 +1,71 @@
-import { useState, useRef, useEffect } from "react";
-import Editor from "@monaco-editor/react"
+import { useRef, useEffect } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+import Editor from "@monaco-editor/react";
 import * as Y from "yjs";
+import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
-import Peer from "peerjs"
 import io from 'socket.io-client';
-import process from "process";
-import { Buffer } from "buffer";
 
 import CollabNavBar from "../components/navbar/CollabNavbar";
 import useAuth from "../hooks/useAuth";
 
-window.process = { env: { NODE_ENV: "development" } };
-window.Buffer = Buffer;
+const serverWsUrl = "ws://localhost:8200/collaboration";
 
 const Collab = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { username } = useAuth();
+    const ydoc = useRef(new Y.Doc()).current;
     const editorRef = useRef(null);
-    const ydoc = new Y.Doc();
     const socketRef = useRef(null);
-    const peerInstance = useRef(null);
+    const providerRef = useRef(null);
 
     useEffect(() => {
-        socketRef.current = io("http://localhost:3001"); // connect to server
-        peerInstance.current = new Peer();
+        if (!location.state) {
+            navigate("/home");
+            return;
+        }
 
-        peerInstance.current.on("open", (id) => {
-            console.log(`My peer ID is: ${id}`);
-            socketRef.current.emit('join', id);
-        });
-
-        socketRef.current.on("peer-connect", (peerId) => {
-            const conn = peerInstance.current.connect(peerId);
-
-            conn.on("open", () => {
-                console.log("Connected to peer via WebRTC");
-
-                const editor = editorRef.current.editor;
-                const type = ydoc.getText("monaco");
-                new MonacoBinding(type, editor.getModel(), new Set([editor]), ydoc);
-            });
-        });
+        socketRef.current = io(serverWsUrl);
+        socketRef.current.emit("add-user", username?.toString());
 
         return () => {
-            ydoc.destroy();
-            peerInstance.current.destroy();
-        }
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+        };
+    }, [username, location.state, navigate]);
+
+    useEffect(() => {
+        return () => {
+            if (providerRef.current) {
+                providerRef.current.destroy();
+            }
+        };
     }, []);
-    
+
+    if (!location.state) {
+        return null;
+    }
+
+    const { difficulty, topic, language, matchedUser, roomId } = location.state;
+    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
+
+    const handleEditorDidMount = (editor) => {
+        editorRef.current = editor;
+        editorRef.current.setValue("");
+
+        const monacoText = ydoc.getText("monaco");
+        monacoText.delete(0, monacoText.length);
+
+        providerRef.current = new WebsocketProvider(serverWsUrl, roomId, ydoc);
+        new MonacoBinding(monacoText, editorRef.current.getModel(), new Set([editorRef.current]));
+
+        providerRef.current.on('status', event => {
+            console.log(event.status); // logs "connected" or "disconnected"
+        });
+    };
+
     return (
         <div
             style={{
@@ -55,19 +75,22 @@ const Collab = () => {
                 width: "100vw"
             }}
         >
-            <CollabNavBar />
+            <CollabNavBar partnerUsername={partnerUsername}/>
             <Editor
                 height="100%"
                 width="100%"
                 theme="vs-dark"
-                defaultLanguage="javascript"
-                editorDidMount={(editor) => {
-                    editorRef.current = { editor };
+                defaultLanguage="python"
+                language={language}
+                onMount={handleEditorDidMount}
+                options={{
+                    fontSize: 16,
+                    scrollBeyondLastLine: false,
+                    minimap: { enabled: false }
                 }}
             />
         </div>
-    )
-
-}
+    );
+};
 
 export default Collab;

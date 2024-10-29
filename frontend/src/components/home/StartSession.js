@@ -8,7 +8,7 @@ import MatchFound from "../matching/MatchFound";
 const StartSession = ({ username }) => {
   const [difficulty, setDifficulty] = useState('Easy');
   const [topic, setTopic] = useState('Array');
-  const [language, setLanguage] = useState('Python');
+  const [language, setLanguage] = useState('python');
   const [showPopup, setShowPopup] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const [matchFound, setMatchFound] = useState(false);
@@ -103,7 +103,7 @@ const StartSession = ({ username }) => {
     }
 
     return () => clearInterval(timer);
-  }, [showPopup, countdown]);
+  }, [showPopup, countdown, matchFound]);
 
   // WebSocket to listen for match events
   useEffect(() => {
@@ -153,9 +153,9 @@ const StartSession = ({ username }) => {
         <div className="form-group">
           <label>Language</label>
           <select value={language} onChange={(e) => setLanguage(e.target.value)}>
-            <option value="Python">Python</option>
-            <option value="JavaScript">JavaScript</option>
-            <option value="Java">Java</option>
+            <option value="python">Python</option>
+            <option value="javaScript">JavaScript</option>
+            <option value="java">Java</option>
           </select>
         </div>
         <button onClick={handleFindMatch}>Find a Match</button>
@@ -168,7 +168,7 @@ const StartSession = ({ username }) => {
         <MatchNotFound closePopup={normalClosePopup} />
       )}
       {matchFound && matchedUser && (
-        <MatchFound matchedUser={matchedUser} closePopup={normalClosePopup} />
+        <MatchFound matchData={{matchedUser, difficulty, topic, language}} closePopup={normalClosePopup} />
       )}
     </div>
   );

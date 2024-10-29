@@ -1,9 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const http = require('http');
-const { Server } = require('socket.io');
-const { PeerServer } = require('peer');
-const path = require('path');
+const { createServer } = require('http');
+const WebSocketServer = require('ws').Server;
+const setupWSConnection = require('y-websocket/bin/utils').setupWSConnection;
 
 const app = express();
 
@@ -12,27 +11,15 @@ app.use(cors({
     methods: ['GET', 'POST']
 }));
 
+app.use(express.json());
 
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000', // Frontend origin
-    methods: ['GET', 'POST']
-  }
+const httpServer = createServer(app);
+const port = 8200;
+const wss = new WebSocketServer({ server: httpServer });
+httpServer.listen(port, () => {
+    console.log(`Collab server listening at http://localhost:${port}`);
 });
-
-const peerServer = PeerServer({ port: 5001, path: '/peerjs' });
-app.use('/peerjs', peerServer);
-
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
-
-server.listen(5000, () => {
-  console.log('Express and Socket.IO server running on port 5000');
+wss.on('connection', (ws, req) => {
+  console.log("wss:connection");
+  setupWSConnection(ws, req);
 });

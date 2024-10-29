@@ -1,24 +1,16 @@
 import React from 'react';
+import { useState } from "react";
 import TimerIcon from '@mui/icons-material/Timer';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useCookies } from 'react-cookie';
 import { NavbarContainer } from './NavbarContainer';
 import { NavbarLogo } from './NavbarLogo';
-import { NavbarLink } from './NavbarLink';
 import { NavbarButton } from './NavbarButton';
 
-const username = "JaneDoe123"; // partner's username
-const remainingTime = "29:31";
-
-export default function CollabNavbar() {
+export default function CollabNavbar({ partnerUsername }) {
     const navigate = useNavigate();
-    const [cookies, removeCookie] = useCookies(["token"]);
-
-    const handleLogout = () => {
-        removeCookie("token");
-        navigate("/login");
-    };
+    const username = partnerUsername;
+    const [remainingTime, setRemainingTime] = useState("30:00");
 
     const handleSubmit = () => {
         // Handle submit logic here
