@@ -1,5 +1,5 @@
 const { v4 } = require('uuid')
-const { send, sendMatchResult, sendCancelResult } = require('../rabbit/rabbit.js')
+const { send, sendMatchResult, sendCancelResult, sendQuestionRequest } = require('../rabbit/rabbit.js')
 
 const ROUTING_KEY = 'USER-ROUTING-KEY'
 
@@ -28,7 +28,7 @@ exports.processMatchRequest = (channel) => {
                 const waitingRequest = waitingRequests[perfectMatch]
                 console.log(JSON.stringify(waitingRequest))
                 delete waitingRequests[perfectMatch]
-                sendMatchResult(channel, Buffer.from(JSON.stringify(createSuccessPayload(request, waitingRequest))))
+                sendQuestionRequest(channel, Buffer.from(JSON.stringify(createSuccessPayload(request, waitingRequest))))
             } else {
                 // No perfect match
                 // Add to wait queue
@@ -100,7 +100,9 @@ function createSuccessPayload(request1, request2) {
         user1Id: request1.id,
         user2Id: request2.id,
         user1SocketId: request1.socketId,
-        user2SocketId: request2.socketId
+        user2SocketId: request2.socketId,
+        complexity: request1.complexity, 
+        category: request1.category
     }
 }
 

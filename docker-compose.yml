@@ -26,6 +26,9 @@ services:
       - /usr/src/app/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
+    depends_on:      
+      rabbitmq:
+        condition: service_healthy  # Wait until RabbitMQ is healthy
 
   user-service:
     build: ./user-service

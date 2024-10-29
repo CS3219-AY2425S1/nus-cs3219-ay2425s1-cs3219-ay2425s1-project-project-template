@@ -3,8 +3,10 @@ const cors = require('cors')
 const dotenv = require('dotenv').config();
 const connectDB = require('./config/db')
 const questionsRouter = require('./routes/questionsRoutes')
+const initializeRabbitMQ = require('./rabbit/rabbitmq')
 
 connectDB();
+initializeRabbitMQ(); 
 
 const app = express()
 

@@ -117,7 +117,6 @@ const CANCEL_RESULT_QUEUE = 'CANCEL-RESULT-QUEUE'
 export const cancelMatch = (channel) => {
     return async (req, res, next) => {
         try {
-
             const { socketId } = req.body;
             const { id } = req.user;
             const cancelRequestPayload = { socketId, id }

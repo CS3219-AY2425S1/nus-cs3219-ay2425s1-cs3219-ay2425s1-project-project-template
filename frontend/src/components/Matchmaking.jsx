@@ -56,6 +56,7 @@ const MatchComponent = () => {
         socket.on("match_found", (data) => {
             setMatchedUserId(data.matchedUser.id);
             setIsWaiting(false);
+            console.log(data.question)
         });
 
         socket.on("cancel_success", () => {

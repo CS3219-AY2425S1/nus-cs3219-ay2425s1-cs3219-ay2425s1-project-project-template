@@ -1,4 +1,6 @@
-import * as amqp from 'amqplib';
+var amqp = require('amqplib');
+
+const { getRandomQuestion } = require('../models/questionModel')
 
 const REQUEST_EXCHANGE = 'REQUEST-EXCHANGE';
 const RESULT_EXCHANGE = 'RESULT-EXCHANGE'
@@ -13,40 +15,42 @@ const QUESTION_TO_USER_ROUTING = 'QUESTION-TO-USER-ROUTING'
 
 const initializeRabbitMQ = async () => {
     try {
-        const connection = await amqp.connect(process.env.RABBIT_URI || 'amqp://localhost');
+        const connection = await amqp.connect(process.env.RABBIT_URI || 'amqp://rabbitmq:5672');
         const channel = await connection.createChannel();
+        await channel.assertExchange(RESULT_EXCHANGE, 'direct')
+        await channel.assertExchange(REQUEST_EXCHANGE, 'direct')
+        const queue = await channel.assertQueue(MATCH_TO_QUESTION_QUEUE)
+        channel.bindQueue(queue.queue, REQUEST_EXCHANGE, MATCH_TO_QUESTION_ROUTING)
+
         let payload = null
 
         // Start consuming messages
-        channel.consume(QUESTION_REQUEST_QUEUE, (msg) => {
+        channel.consume(MATCH_TO_QUESTION_QUEUE, (msg) => {
             if (msg !== null) {
                 const requestPayload = JSON.parse(msg.content.toString());
                 console.log('Received add question request:', requestPayload);
-                
-                // Process the request (e.g., fetch a random question)
-                const question = getRandomQuestion(); // Your function to retrieve a question
 
-                payload = { requestPayload, question }
-                
-                
+                // Process the request (e.g., fetch a random question)
+                const question = getRandomQuestion(requestPayload); // Your function to retrieve a question
+
+                payload = { ...requestPayload, question }
+
                 // Acknowledge the message after processing
                 channel.ack(msg);
 
                 // Optionally, send the response to the match-service
+                // send the payload with question attached to the user service 
+                if (payload) {
+                    console.log("there is a payload: ", payload)
+                    channel.publish(RESULT_EXCHANGE, QUESTION_TO_USER_ROUTING, Buffer.from(JSON.stringify(payload)))
+                }
             }
         });
 
-        // send the payload with question attached to the user service 
-        if (payload) {
-            channel.publish(RESULT_EXCHANGE, QUESTION_TO_USER_ROUTING, payload)
-        }
+
     } catch (error) {
         console.error('Failed to initialize RabbitMQ connection:', error);
     }
 };
 
-
-
-
-// Call this function during server startup
-initializeRabbitMQ();
+module.exports = initializeRabbitMQ

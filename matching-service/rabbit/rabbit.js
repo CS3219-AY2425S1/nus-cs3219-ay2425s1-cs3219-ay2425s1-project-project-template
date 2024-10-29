@@ -1,5 +1,4 @@
-var amqp = require('amqplib');
-const dotenv = require('dotenv').config();
+const amqp = require('amqplib');
 
 const REQUEST_EXCHANGE = 'REQUEST-EXCHANGE'
 const RESULT_EXCHANGE = 'RESULT-EXCHANGE'
@@ -30,9 +29,11 @@ exports.createChannel = async () => {
     }
 }
 
-// payload: userID1, userID2, socketID1, socketID2 
+// send to question-service
+// payload: userID1, userID2, socketID1, socketID2, complexity, category
 exports.sendQuestionRequest = (channel, payload) => {
     try {
+        console.log("question request sent")
         channel.publish(REQUEST_EXCHANGE, MATCH_TO_QUESTION_ROUTING, payload)
     } catch (e) {
         console.log(e)

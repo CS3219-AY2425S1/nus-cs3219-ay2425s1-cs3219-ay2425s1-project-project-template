@@ -19,7 +19,13 @@ exports.getQuestion = async (req, res, next) => {
     } catch(error) {
         res.status(400).json({ message: 'Cannot find quesiton.' })
     }
+}
 
+// returns a random question with the specified complexity and category
+exports.getRandomQuestion = async (requestPayload) => {
+    const { complexity, category } = requestPayload
+
+    // const question = await Question.find
 }
 
 // adds new question
