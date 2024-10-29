@@ -104,7 +104,7 @@ async function matchUsers(searchRequest) {
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  
+
   let question;
   try {
     question = await response.json();
@@ -147,8 +147,8 @@ async function matchUsers(searchRequest) {
   if (matchedUser) {
     const matchMessage = {
       userId,
-      matchUserId: matchedUser,
-      roomId: uuid.v7(),
+      matchedUserId: matchedUser,
+      sessionId: uuid.v7(),
       questionId: question.id,
     };
 
@@ -157,9 +157,9 @@ async function matchUsers(searchRequest) {
       Buffer.from(JSON.stringify(matchMessage)),
     );
     console.log(
-      `Match found: User ID ${userId} matched with ${matchMessage.matchUserId}`,
+      `Match found: User ID ${userId} matched with ${matchMessage.matchedUserId}`,
     );
-    redisClient.del(matchMessage.matchUserId);
+    redisClient.del(matchMessage.matchedUserId);
     const keys = await redisClient.keys('*');
     const filteredKeys = keys.filter(
       (key) => key.startsWith('difficulty:') || key.startsWith('topics:'),
