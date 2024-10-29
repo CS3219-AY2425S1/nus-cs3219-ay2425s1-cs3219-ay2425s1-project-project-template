@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import MatchingOptions from "@/components/custom/MatchingOptions/MatchingOptions";
 import QuestionTable from "@/components/custom/QuestionTable/QuestionTable";
 import { Separator } from "@/components/ui/separator";
@@ -10,7 +10,6 @@ import "@/css/styles.css";
 
 const QuestionPageView: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
-  const [isMediumScreen, setIsMediumScreen] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -21,18 +20,6 @@ const QuestionPageView: React.FC = () => {
     navigate(path);
     setShowDropdown(false);
   };
-
-  // Effect to track window size
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMediumScreen(window.innerWidth >= 768); // Adjust breakpoint as needed
-    };
-
-    handleResize(); // Set initial value
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize); // Cleanup
-  }, []);
 
   return (
     <main className="h-screen w-screen p-5">
