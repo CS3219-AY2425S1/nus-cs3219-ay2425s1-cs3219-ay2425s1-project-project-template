@@ -123,6 +123,24 @@ export function handleCodeExecution(socket: Socket, io: Server) {
     });
 }
 
+export function handleTermination(socket: Socket, io: Server) {
+    socket.on('changeModalVisibility', (isVisible) => {
+        console.log('Modal visibility changed:', isVisible);
+        const roomId = socket.data.roomId;
+        socket.to(roomId).emit('modalVisibility', isVisible);
+    });
+
+    socket.on('terminateOne', async () => {
+        const roomId = socket.data.roomId;
+        socket.to(roomId).emit('terminateOne');
+    });
+
+    socket.on('terminateSession', async () => {
+        console.log('Session terminated');
+        const roomId = socket.data.roomId;
+        socket.to(roomId).emit('terminateSession');
+    });
+}
 
 export async function handleDisconnect(socket: Socket, io: Server) {
     socket.on('disconnect', async () => {

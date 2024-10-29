@@ -11,9 +11,9 @@ router.get('/', (req, res) => {res.send('Hello from session service!')});
 router.post("/create", sessionController.createSession);
 
 // Check if user is in a session
-router.post("/check", validateApiJWT, sessionController.checkSessionStatus);
+router.get("/check", validateApiJWT, sessionController.checkSessionStatus);
 
 // Remove user from session
-router.post("/leave", validateApiJWT, sessionController.leaveSession);
+router.get("/leave", validateApiJWT, sessionController.leaveSession);
 
 export default router;
