@@ -8,6 +8,7 @@ interface CodeEditorProps {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   extensions: Extension[];
+  readOnly?: boolean;
 }
 
 const customSublime = sublimeInit({
@@ -16,7 +17,7 @@ const customSublime = sublimeInit({
   },
 });
 
-function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
+function CodeEditor({ code, setCode, extensions, readOnly=false }: CodeEditorProps) {
   return (
     <CodeMirror
       value={code}
@@ -24,6 +25,7 @@ function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
       className={classes.codeMirror}
       extensions={extensions}
       onChange={setCode}
+      readOnly={readOnly}
     />
   );
 }
