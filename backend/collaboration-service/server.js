@@ -4,6 +4,7 @@ import { MongoClient } from 'mongodb';
 import http from 'http';
 import express from 'express';
 import * as Y from 'yjs';
+import 'dotenv/config';
 
 // Track active rooms and their clients
 const rooms = new Map(); // roomName -> Set<connection>
