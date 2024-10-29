@@ -38,7 +38,7 @@ const usersAgreedEnd: UsersAgreedEnd = {};
 
 io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
-
+  
   // Retrieve accessToken from cookies in the handshake headers
   const accessToken = socket.handshake.headers.cookie
     ?.split("; ")

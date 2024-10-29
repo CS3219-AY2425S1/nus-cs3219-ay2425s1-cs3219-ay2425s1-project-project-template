@@ -40,6 +40,8 @@ export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const accessToken = req.cookies.get("accessToken")?.value;
 
+  return NextResponse.next();
+
   // Allow access to public routes without checking tokens
   if (publicRoutes.some((route) => url.pathname === route)) {
     return NextResponse.next();

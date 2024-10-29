@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
 import { Providers } from "@/app/providers";
-import { fontSans, fontMono } from "@/config/fonts";
+import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 import "@/styles/globals.css";
 
@@ -24,11 +24,6 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
-};
-
-export const fonts = {
-  sans: fontSans.style.fontFamily,
-  mono: fontMono.style.fontFamily,
 };
 
 export default function RootLayout({

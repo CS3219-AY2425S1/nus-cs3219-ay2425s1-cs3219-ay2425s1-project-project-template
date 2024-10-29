@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { useGetQuestion } from "@/hooks/api/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 
-export default function Page() {
+function QuestionContent() {
   const searchParams = useSearchParams();
   const questionId = searchParams?.get("id");
   const idString: string = (
@@ -19,5 +20,13 @@ export default function Page() {
     <p>Error fetching Question</p>
   ) : (
     <QuestionDescription isCollab={false} question={question} />
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<h1>Loading question...</h1>}>
+      <QuestionContent />
+    </Suspense>
   );
 }
