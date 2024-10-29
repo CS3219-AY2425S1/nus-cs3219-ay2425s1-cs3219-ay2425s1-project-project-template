@@ -4,8 +4,17 @@ import {
   type MRT_ColumnDef,
   type MRT_Row,
 } from "material-react-table";
-import { Box, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Box,
+  ThemeProvider,
+  createTheme,
+  CircularProgress,
+  Alert,
+  Typography,
+} from "@mui/material";
 import { Question } from "../Question/question";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 interface DataTableProps {
   onSelectQuestion: (question: Question) => void;
@@ -17,7 +26,29 @@ const theme = createTheme({
   },
 });
 
+//READ hook (get questions from api)
+function useGetQuestions() {
+  return useQuery<Question[]>({
+    queryKey: ["questions"],
+    queryFn: async () => {
+      return (
+        await axios.get(
+          `http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`
+        )
+      ).data;
+    },
+    refetchOnWindowFocus: false,
+  });
+}
+
 const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
+  const {
+    data: fetchedQuestions = [],
+    isError,
+    isFetching,
+    isLoading,
+  } = useGetQuestions();
+
   // Sample data to populate the table
   const sampleQuestions: Question[] = [
     {
@@ -86,14 +117,34 @@ const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <MaterialReactTable
-        columns={columns}
-        data={sampleQuestions} // Use the fetched data here
-        muiTableBodyRowProps={({ row }) => ({
-          onClick: () => handleRowClick(row),
-          style: { cursor: "pointer" },
-        })}
-      />
+      {isLoading ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <CircularProgress />
+        </Box>
+      ) : isError ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <Typography color="error">Failed to load questions.</Typography>
+        </Box>
+      ) : (
+        <MaterialReactTable
+          columns={columns}
+          data={isFetching ? [] : fetchedQuestions}
+          muiTableBodyRowProps={({ row }) => ({
+            onClick: () => handleRowClick(row),
+            style: { cursor: "pointer" },
+          })}
+        />
+      )}
     </ThemeProvider>
   );
 };
