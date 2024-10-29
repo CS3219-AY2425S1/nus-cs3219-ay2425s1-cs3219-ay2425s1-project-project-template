@@ -1,27 +1,14 @@
 import React from 'react';
-import { useState } from "react";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import TimerIcon from '@mui/icons-material/Timer';
 import { Box } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { NavbarContainer } from './NavbarContainer';
 import { NavbarLogo } from './NavbarLogo';
 import { NavbarButton } from './NavbarButton';
 
-export default function CollabNavbar({ partnerUsername, countdown }) {
-    const navigate = useNavigate();
+export default function CollabNavbar({ partnerUsername, countdown, handleSubmit, handleQuit }) {
     const username = partnerUsername;
     const remainingTime = countdown;
-
-    const handleSubmit = () => {
-        // Handle submit logic here
-        console.log("Submit clicked");
-    };
-
-    const handleQuit = () => {
-        // Handle quit logic here
-        navigate("/home");
-    };
 
     return (
         <NavbarContainer>

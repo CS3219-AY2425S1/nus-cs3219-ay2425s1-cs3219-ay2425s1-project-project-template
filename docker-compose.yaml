@@ -70,6 +70,7 @@ services:
     build: ./backend/collab-backend
     ports:
       - "8200:8200"
+      - "8201:8201"
     volumes:
       - ./backend/collab-backend:/app
       - /app/node_modules

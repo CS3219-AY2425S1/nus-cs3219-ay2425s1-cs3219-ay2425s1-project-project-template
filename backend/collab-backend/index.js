@@ -1,25 +1,65 @@
 const express = require('express');
 const cors = require('cors');
 const { createServer } = require('http');
-const WebSocketServer = require('ws').Server;
+const { Server } = require('socket.io');
+const WebSocket = require('ws');
 const setupWSConnection = require('y-websocket/bin/utils').setupWSConnection;
 
 const app = express();
-
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST']
-}));
-
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
-const httpServer = createServer(app);
-const port = 8200;
-const wss = new WebSocketServer({ server: httpServer });
-httpServer.listen(port, () => {
-    console.log(`Collab server listening at http://localhost:${port}`);
+// Port configurations
+const socketIoPort = 8200;
+const yjsPort = 8201;
+
+// Server setup for Socket.IO on port 8200
+const ioServer = createServer(app);
+const io = new Server(ioServer, {
+    path: "/socket.io",
+    cors: { origin: 'http://localhost:3000' },
 });
+
+io.on('connection', (socket) => {
+    console.log('Socket.IO client connected');
+
+    socket.on('add-user', (username) => {
+        console.log(`${username} joined`);
+        socket.username = username;
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Socket.IO client disconnected');
+        if (socket.username) {
+            console.log(`${socket.username} left`);
+            socket.broadcast.emit('user-left');
+        }
+    });
+});
+
+ioServer.listen(socketIoPort, () => {
+    console.log(`Socket.IO server listening at http://localhost:${socketIoPort}`);
+});
+
+// Server setup for y-websocket on port 8201
+const yjsServer = createServer(app);
+const wss = new WebSocket.Server({ noServer: true });
+
+yjsServer.on('upgrade', (request, socket, head) => {
+    if (request.url.startsWith('/yjs')) {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    } else {
+        socket.destroy();
+    }
+});
+
 wss.on('connection', (ws, req) => {
-  console.log("wss:connection");
-  setupWSConnection(ws, req);
+    console.log("WebSocket client connected for y-websocket");
+    setupWSConnection(ws, req);
+});
+
+yjsServer.listen(yjsPort, () => {
+    console.log(`y-websocket server listening at http://localhost:${yjsPort}`);
 });

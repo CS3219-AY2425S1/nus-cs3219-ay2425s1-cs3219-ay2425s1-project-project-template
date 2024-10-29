@@ -7,9 +7,12 @@ import { MonacoBinding } from "y-monaco";
 import io from 'socket.io-client';
 
 import CollabNavBar from "../components/navbar/CollabNavbar";
+import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
+import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import useAuth from "../hooks/useAuth";
 
-const serverWsUrl = "ws://localhost:8200/collaboration";
+const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
+const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
 
 const Collab = () => {
     const navigate = useNavigate();
@@ -26,18 +29,26 @@ const Collab = () => {
     const [timeOver, setTimeOver] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
 
-    // Setup socket connection
+    const [showQuitPopup, setShowQuitPopup] = useState(false);
+    const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
+
     useEffect(() => {
         if (!location.state) {
             navigate("/home");
             return;
         }
-
-        socketRef.current = io(serverWsUrl);
+    
+        socketRef.current = io(socketIoUrl);
         socketRef.current.emit("add-user", username?.toString());
-
+    
+        // Listen for user-left event
+        socketRef.current.on("user-left", () => {
+            setShowPartnerQuitPopup(true);
+        });
+    
         return () => {
             if (socketRef.current) {
+                socketRef.current.emit("user-left"); // Emit user-left event on disconnect
                 socketRef.current.disconnect();
             }
         };
@@ -54,7 +65,6 @@ const Collab = () => {
 
     // Timer function
 
-
     if (!location.state) {
         return null;
     }
@@ -69,13 +79,34 @@ const Collab = () => {
         const monacoText = ydoc.getText("monaco");
         monacoText.delete(0, monacoText.length);
 
-        providerRef.current = new WebsocketProvider(serverWsUrl, roomId, ydoc);
+        providerRef.current = new WebsocketProvider(yjsWsUrl, roomId, ydoc);
         new MonacoBinding(monacoText, editorRef.current.getModel(), new Set([editorRef.current]));
 
         providerRef.current.on('status', event => {
             console.log(event.status); // logs "connected" or "disconnected"
         });
     };
+
+    const handleSubmit = () => {
+        console.log("Submit button clicked");
+    }
+
+    const handleQuit = () => {
+        setShowQuitPopup(true);
+    }
+
+    const handleQuitConfirm = () => {
+        setShowPartnerQuitPopup(false);
+        socketRef.current.emit("user-left");
+        if (providerRef.current) {
+            providerRef.current.destroy();
+        }
+        navigate("/home");
+    }
+
+    const handleQuitCancel = () => {
+        setShowQuitPopup(false);
+    }
 
     return (
         <div
@@ -86,7 +117,12 @@ const Collab = () => {
                 width: "100vw"
             }}
         >
-            <CollabNavBar partnerUsername={partnerUsername} countdown={"30:00"}/>
+            <CollabNavBar 
+                partnerUsername={partnerUsername} 
+                countdown={"30:00"} 
+                handleSubmit={handleSubmit}
+                handleQuit={handleQuit}
+            />
             <Editor
                 height="100%"
                 width="100%"
@@ -100,6 +136,19 @@ const Collab = () => {
                     minimap: { enabled: false }
                 }}
             />
+            {/* Conditionally render popups */}
+            {showQuitPopup && (
+                <QuitConfirmationPopup 
+                    confirmQuit={handleQuitConfirm} 
+                    cancelQuit={handleQuitCancel} 
+                />
+            )}
+            {showPartnerQuitPopup && (
+                <PartnerQuitPopup 
+                    confirmQuit={handleQuitConfirm} 
+                    cancelQuit={() => setShowPartnerQuitPopup(false)} 
+                />
+            )}
         </div>
     );
 };
