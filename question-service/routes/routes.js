@@ -3,6 +3,16 @@ import { Router } from 'express';
 import { createNewQuestion } from '../controller/create.js';
 import { deleteQuestion } from '../controller/delete.js';
 import { getImage, uploadImage } from '../controller/imageController.js';
+import {
+  getAllQuestions,
+  getAllTopics,
+  getNextAvailId,
+  getOneQuestionByFilter,
+  getQuestionByDifficulty,
+  getQuestionByFilter,
+  getQuestionById,
+  getQuestionByTopic,
+} from '../controller/read.js';
 import { updateQuestion } from '../controller/update.js';
 
 const router = Router();
