@@ -63,7 +63,7 @@ const executeCode = (req, res) => {
       try {
         return execSync(command, { timeout, stdio: 'pipe' }).toString();
       } catch (error) {
-        throw new Error(error.stderr ? error.stderr.toString() : errorMessage);
+        throw new Error(error.code == 'ETIMEDOUT' ? errorMessage : error.stderr.toString());
       }
     };
 
