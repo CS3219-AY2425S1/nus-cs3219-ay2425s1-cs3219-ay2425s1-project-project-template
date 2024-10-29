@@ -156,17 +156,21 @@ const EditorView: React.FC = () => {
     placeholderData: keepPreviousData,
   });
 
+  //console.log("question chosen: ", questions);
+
   const filterQuestionByTopicAndDifficulty = (
     questions: Question[],
     targetTopic: string,
     targetDifficulty: string
   ): Question | undefined => {
-    return questions.find(
-      (question) => 
-        question.Categories.toLowerCase() === targetTopic.toLowerCase() &&
+    return questions.find((question) => {
+      const categoriesArray = question.Categories.split(',').map((cat) => cat.trim().toLowerCase());
+      return (
+        categoriesArray.includes(targetTopic.toLowerCase()) &&
         question.Complexity.toLowerCase() === targetDifficulty.toLowerCase()
-    );
-  };
+      );
+    });
+  };  
 
   const filteredQuestion = filterQuestionByTopicAndDifficulty(questions, topic, difficulty);
   console.log("question chosen: ", filteredQuestion);
@@ -246,7 +250,7 @@ const styles = {
         flex: 1,
         padding: "20px",
         borderRight: "1px solid #ccc",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "#170c0c",
         overflowY: "auto" as const,
     },
     chatContainer: {
