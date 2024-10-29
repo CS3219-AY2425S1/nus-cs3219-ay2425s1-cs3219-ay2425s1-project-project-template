@@ -113,7 +113,7 @@ function Room() {
             <Skeleton h="150px" w="calc(50% - 5px)" />
             <Skeleton h="150px" w="calc(50% - 5px)" />
           </Group>
-          <RoomTabs />
+          <RoomTabs questionId={matchData.questionId} />
         </Stack>
 
         <CodeEditorLayout
