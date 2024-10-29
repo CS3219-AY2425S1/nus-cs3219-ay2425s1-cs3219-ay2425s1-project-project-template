@@ -2,7 +2,6 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
-import { connectRabbitMQ } from "./queue/rabbitmq";
 import { handleCodeUpdates, joinCollaborationRoom } from "./service/collaboration-service";
 
 const PORT = process.env.PORT || 3003;
@@ -37,15 +36,4 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Client disconnected: ${socket.id}`);
   });
-});
-
-// Start the server and connect RabbitMQ
-server.listen(PORT, async () => {
-  try {
-    await connectRabbitMQ(io); // pass io to handle messaging between services
-    console.log(`Collaboration service is running on port ${PORT}`);
-  } catch (error) {
-    console.error("Failed to connect to RabbitMQ:", error);
-    process.exit(1);
-  }
 });
