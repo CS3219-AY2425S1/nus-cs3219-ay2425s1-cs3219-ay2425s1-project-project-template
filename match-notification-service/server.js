@@ -9,7 +9,7 @@ const PORT = process.env.MATCHING_NOTIFICATION_PORT || 4001;
 
 // Apply CORS middleware
 app.use(cors());
-app.options("*", cors());
+app.options('*', cors());
 
 // Add a route handler for the root path
 app.get('/', (req, res) => {
@@ -19,16 +19,16 @@ app.get('/', (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",  // Allow all origins
+    origin: '*', // Allow all origins
     methods: ['GET', 'POST'],
   },
   path: '/api/matching-notification/socket.io',
-  pingTimeout: 60000,  // Set a higher timeout (e.g., 60 seconds)
-  pingInterval: 25000,  // Interval between ping packets
+  pingTimeout: 60000, // Set a higher timeout (e.g., 60 seconds)
+  pingInterval: 25000, // Interval between ping packets
 });
 
 // Store connected clients
-let connectedClients = {};  // Mapping of userId to socketId
+let connectedClients = {}; // Mapping of userId to socketId
 
 let connection;
 let channel;
@@ -49,19 +49,33 @@ async function initRabbitMQ() {
       const matchFound = JSON.parse(msg.content.toString());
       console.log(`Match found:`, matchFound);
 
-      const { userId, matchUserId, roomId } = matchFound;
+      const { userId, matchedUserId, sessionId, questionId } = matchFound;
 
       const userSocketId = connectedClients[userId];
-      const matchUserSocketId = connectedClients[matchUserId];
+      const matchUserSocketId = connectedClients[matchedUserId];
 
       if (userSocketId && matchUserSocketId) {
         // Emit to both users
-        io.to(userSocketId).emit('match_found', matchFound);
-        io.to(matchUserSocketId).emit('match_found', matchFound);
-        console.log(`Notified user ${userId} and ${matchUserId} of match at room ${roomId}`);
+        const matchFoundA = {
+          userId,
+          matchedUserId,
+          sessionId,
+          questionId,
+        };
+        io.to(userSocketId).emit('match_found', matchFoundA);
+        const matchFoundB = {
+          userId: matchedUserId,
+          matchedUserId: userId,
+          sessionId,
+          questionId,
+        };
+        io.to(matchUserSocketId).emit('match_found', matchFoundB);
+        console.log(
+          `Notified user ${userId} and ${matchedUserId} of match at room ${sessionId}`,
+        );
       }
 
-      channel.ack(msg);  // Acknowledge the message
+      channel.ack(msg); // Acknowledge the message
     }
   });
 
@@ -94,7 +108,10 @@ io.on('connection', (socket) => {
   // Register the userId with the socket and send search request to RabbitMQ
   socket.on('register', (userId, difficulty, topics) => {
     if (connectedClients[userId]) {
-      io.to(socket.id).emit('existing_search', 'User is already searching in another matching service.');
+      io.to(socket.id).emit(
+        'existing_search',
+        'User is already searching in another matching service.',
+      );
       console.log(`User ${userId} is already searching in matching service.`);
     } else {
       // Register the new connection
@@ -103,7 +120,10 @@ io.on('connection', (socket) => {
 
       // Send search request to RabbitMQ
       const searchRequest = { userId, difficulty, topics };
-      channel.sendToQueue('search_queue', Buffer.from(JSON.stringify(searchRequest)));
+      channel.sendToQueue(
+        'search_queue',
+        Buffer.from(JSON.stringify(searchRequest)),
+      );
       console.log(`Search request sent for user ${userId}`);
     }
   });
@@ -113,12 +133,17 @@ io.on('connection', (socket) => {
     for (const userId in connectedClients) {
       if (connectedClients[userId] === socket.id) {
         // Send disconnect request to RabbitMQ
-        channel.sendToQueue('disconnect_queue', Buffer.from(JSON.stringify({ userId })));
+        channel.sendToQueue(
+          'disconnect_queue',
+          Buffer.from(JSON.stringify({ userId })),
+        );
         console.log(`Disconnect request sent for user ${userId}`);
 
         // Remove user from connected clients
         delete connectedClients[userId];
-        console.log(`User ${userId} disconnected and removed from active clients.`);
+        console.log(
+          `User ${userId} disconnected and removed from active clients.`,
+        );
         break;
       }
     }
