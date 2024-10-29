@@ -1,5 +1,6 @@
 import { FC , useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { Card, CardContent } from '@mui/material';
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -90,7 +91,7 @@ const CollaborationPage: FC = () => {
         <div className="flex flex-col gap-4">
           {/* Question */}
           <Card className="border-gray-700 text-white flex flex-col h-full">
-            <CardContent className="p-6 bg-gray-800 flex-grow">
+            <CardContent className="p-6 bg-gray-800 flex-grow overflow-y-auto" style={{ maxHeight: '86vh' }}>
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-lg font-bold text-white">
                   {selectedQuestion?.title || question.title}{" "}
@@ -99,9 +100,9 @@ const CollaborationPage: FC = () => {
                   {selectedQuestion?.complexity || question.complexity}
                 </span>
               </div>
-              <p className="mb-4 text-gray-300 whitespace-pre-line text-left text-base">
+              <ReactMarkdown className="mb-4 text-gray-300 whitespace-pre-line text-left text-base">
                 {selectedQuestion?.description || question.description}
-              </p>
+              </ReactMarkdown>
             </CardContent>
           </Card>
           {/* Chat Card */}

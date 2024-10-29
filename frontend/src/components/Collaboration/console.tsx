@@ -60,7 +60,8 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
       </Stack>
       <Box
         bgcolor='black'
-        height="80%"
+        height="28vh"
+        maxHeight={'28vh'}
         width="100%"
         p={2}
         color={isError ? "red.400" : "white"}
@@ -70,8 +71,8 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         overflow={"auto"}
       >
         {output.length!=0
-          ? output.map((line, i) => <Text fontFamily={"monospace"} color='white' key={i}>{line}</Text>)
-          : <Text color='white'>Click "Run Code" to see the output here</Text>}
+          ? output.map((line, i) => <Text fontSize={14} fontFamily={"monospace"} color='white' key={i}>{line}</Text>)
+          : <Text fontSize={14} color='white'>Click "Run Code" to see the output here</Text>}
       </Box>
     </Box>
   );
