@@ -44,11 +44,13 @@ export default function HomeNavBar({ isAuthenticated, onLogout }) {
                   Dashboard
                 </Button>
               </Link>
-              <Link to="/match-me">
-                <Button variant="ghost" fontWeight="bold" mr={86}>
-                  Match Me
-                </Button>
-              </Link>
+              {/* if user is authenticated then show match me button */}
+              {isAuthenticated && (
+                <Link to="/match-me">
+                  <Button variant="ghost" fontWeight="bold" mr={86}>
+                    Match Me
+                  </Button>
+                </Link>)}
               <Link to="/aboutus">
                 <Button variant="ghost" fontWeight="bold" mr={86}>
                   About Us

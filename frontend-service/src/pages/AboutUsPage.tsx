@@ -41,7 +41,7 @@ const AboutUs: React.FC = () => {
       </Box>
 
       {/* Key Features Section */}
-      <Box bg="gray.50" mt={10} bg="gray.50" p={8} borderRadius="md" boxShadow="md">
+      <Box bg="gray.50" mt={10} p={8} borderRadius="md" boxShadow="md">
         <Heading as="h2" size="lg" color="#65afff">
           Key Features
         </Heading>
