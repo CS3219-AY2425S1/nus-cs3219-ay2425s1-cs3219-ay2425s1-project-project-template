@@ -1,6 +1,6 @@
 const { db, auth } = require("../config/firebaseConfig.js");
 const admin = require('firebase-admin');
-const isValidUsername = require("../lib/regex.js")
+const { isValidUsername } = require("../lib/regex.js")
 
 // Function to create a new user and add them to the Firestore collection
 const addToUserCollection = async (req, res) => {
