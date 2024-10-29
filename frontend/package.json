@@ -48,7 +48,8 @@
     "uuid": "^10.0.0",
     "ws": "^8.18.0",
     "y-monaco": "^0.1.6",
-    "y-webrtc": "^10.3.0"
+    "y-webrtc": "^10.3.0",
+    "y-websocket": "^2.0.4"
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
