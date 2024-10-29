@@ -11,20 +11,12 @@ import {
   updateUserById as _updateUserById,
   confirmUserById as _confirmUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
-  updateUserAccountCreationTime as _upupdateUserAccountCreationTime,
+  updateUserAccountCreationTime as _updateUserAccountCreationTime,
   sendFriendRequestById as _sendFriendRequestById,
   acceptFriendRequestById as _acceptFriendRequestById,
   addMatchToUserById as _addMatchToUserById,
 } from "../model/repository.js";
 import jwt from "jsonwebtoken";
-
-const isValidEmail = (email) =>
-  /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
-
-const isValidUsername = (username) =>
-  /^[a-zA-Z0-9_-]{2,32}$/.test(username); // 2-32 chars, a-z, A-Z, 0-9, _ or -
-
-const isValidPassword = (password) => password.length >= 8; // At least 8 chars
 
 import nodemailer from 'nodemailer';
 
@@ -38,100 +30,86 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Helper functions
+const isValidEmail = (email) =>
+  /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
+
+const isValidUsername = (username) =>
+  /^[a-zA-Z0-9_-]{2,32}$/.test(username);
+
+const isValidPassword = (password) => password.length >= 8;
+
+const validateUserData = ({ username, email, password }) => {
+  if (!username || !email || !password) {
+    return "Username, email, and password are required.";
+  }
+  if (!isValidUsername(username)) {
+    return "Username must be 2-32 characters and can contain a-z, A-Z, 0-9, _ or -.";
+  }
+  if (!isValidEmail(email)) {
+    return "Invalid email format.";
+  }
+  if (!isValidPassword(password)) {
+    return "Password must be at least 8 characters long.";
+  }
+  return null;
+};
+
+const generateEmailToken = (userId, verificationCode, expiresInSeconds) => {
+  return jwt.sign({ id: userId, code: verificationCode }, process.env.JWT_SECRET, { expiresIn: expiresInSeconds });
+};
+
+const sendVerificationEmail = async (email, username, verificationCode) => {
+  return transporter.sendMail({
+    from: '"PeerPrep" <peerprep38@gmail.com>',
+    to: email,
+    subject: 'Confirm your PeerPrep Account',
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+      <h2 style="text-align: center; color: #6A0CE2;">Confirm Your Account</h2>
+      <p style="font-size: 16px;">Hello <span style="color: #6A0CE2; font-weight: bold;">${username}</span>,</p>
+      <p style="font-size: 16px;">Thank you for signing up! To complete your registration, please use the following verification code:</p>
+      <div style="text-align: center; margin: 20px 0;">
+        <span style="font-size: 24px; font-weight: bold; color: #6A0CE2; background-color: #f4f4f4; padding: 10px 20px; border-radius: 5px;">${verificationCode}</span>
+      </div>
+      <p style="font-size: 16px;">Please enter this code in the verification section to confirm your account.</p>
+      <p style="font-size: 14px; color: #777;">If you did not sign up for this account, please disregard this email.</p>
+      <hr style="border-top: 1px solid #eee; margin: 20px 0;">
+      <p style="font-size: 14px; text-align: center; color: #aaa;">This is an automated message. Please do not reply.</p>
+      </div>
+    `,
+  });
+};
+
 export async function createUserRequest(req, res) {
   try {
     const { username, email, password } = req.body;
 
-    // Check if all fields are provided
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        message: "Username, email, and password are required.",
-      });
-    }
+    const error = validateUserData({ username, email, password });
+    if (error) return res.status(400).json({ message: error });
 
-    // Validate field formats
-    if (!isValidUsername(username)) {
-      return res.status(400).json({
-        message:
-          "Username must be 2-32 characters and can contain a-z, A-Z, 0-9, _ or -.",
-      });
-    }
-
-    if (!isValidEmail(email)) {
-      return res.status(400).json({ message: "Invalid email format." });
-    }
-
-    if (!isValidPassword(password)) {
-      return res.status(400).json({
-        message: "Password must be at least 8 characters long.",
-      });
-    }
-
-    // Check if the username or email already exists
     const existingUser = await _findUserByUsernameOrEmail(username, email);
     if (existingUser) {
-      return res
-        .status(409)
-        .json({ message: "Username or email already exists." });
+      return res.status(409).json({ message: "Username or email already exists." });
     }
 
-    // Hash the password
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
-
-    // Create the user
-    const createdUser = await _createTempUser(username, email, hashedPassword, false);
-
-    // Generate random code for verification
+    const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const expirationDate = new Date(Date.now() + 3 * 60 * 1000);
+    const expiresInSeconds = Math.floor((expirationDate.getTime() - Date.now()) / 1000);
 
-    // Generate JWT access token
-    const emailToken = jwt.sign(
-      { id: createdUser.id, code: verificationCode },
-      process.env.JWT_SECRET,
-      { expiresIn: "3m" },
-    );
+    const createdUser = await _createTempUser(username, email, hashedPassword, false, expirationDate);
+    const emailToken = generateEmailToken(createdUser.id, verificationCode, expiresInSeconds);
 
-    try {
-      const info = await transporter.sendMail({
-        from: '"PeerPrep" <peerprep38@gmail.com>',
-        to: `${email}`, // Double-check this hardcoded email or make it dynamic
-        subject: 'Confirm your PeerPrep Account',
-        html: `
-              <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="text-align: center; color: #6A0CE2;">Confirm Your Account</h2>
-              <p style="font-size: 16px;">Hello <span style="color: #6A0CE2; font-weight: bold;">${username}</span>,</p>
-              <p style="font-size: 16px;">Thank you for signing up! To complete your registration, please use the following verification code:</p>
-              <div style="text-align: center; margin: 20px 0;">
-                <span style="font-size: 24px; font-weight: bold; color: #6A0CE2; background-color: #f4f4f4; padding: 10px 20px; border-radius: 5px;">${verificationCode}</span>
-              </div>
-              <p style="font-size: 16px;">Please enter this code in the verification section to confirm your account.</p>
-              <p style="font-size: 14px; color: #777;">If you did not sign up for this account, please disregard this email.</p>
-              <hr style="border-top: 1px solid #eee; margin: 20px 0;">
-              <p style="font-size: 14px; text-align: center; color: #aaa;">This is an automated message. Please do not reply.</p>
-            </div>
-              `,
-      });
-    
-      console.log("Message sent: %s", info.messageId); // Logs info when email is successfully sent
+    await sendVerificationEmail(email, username, verificationCode);
 
-      return res.status(201).json({
-        message: `Created new user ${username} request successfully`,
-        data: {token: emailToken, expiry: new Date(Date.now() + 3 * 60 * 1000)},
-      });
-    } catch (error) {
-      console.error("Error sending email:", error); // Log any errors encountered
-      _deleteUserById(createdUser.id);
-      return res.status(500).json({
-        message: "Unknown error occured when sending out verification email",
-      });
-    }
-    
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Unknown error occurred when creating a new user!",
+    return res.status(201).json({
+      message: `Created new user ${username} request successfully`,
+      data: { token: emailToken, expiry: expirationDate },
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Unknown error occurred when creating a new user!" });
   }
 }
 
@@ -144,7 +122,7 @@ export async function deleteUserRequest(req, res) {
     const user = await _findUserByEmail(email);
     if (!user) {
       return res.status(404).json({ message: `User with email: ${email} not found` });
-    } else if (user.isConfirm) {
+    } else if (user.isVerified) {
       return res.status(403).json({ message: `This operation is illegal`});
     }
     await _deleteUserById(user.id);
@@ -406,7 +384,7 @@ export function formatUserResponse(user) {
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,
-    isConfirm: user.isConfirm,
+    isVerified: user.isVerified,
     createdAt: user.createdAt,
   };
 }
@@ -415,57 +393,23 @@ export function formatUserResponse(user) {
 export async function refreshEmailToken(req, res) {
   try {
     const verifiedUser = req.user;
-    const updatedUser = await _upupdateUserAccountCreationTime(verifiedUser.id, Date.now());
 
+    const expirationDate = new Date(Date.now() + 3 * 60 * 1000);
+    const expiresInSeconds = Math.floor((expirationDate.getTime() - Date.now()) / 1000);
 
-    // Generate random code for verification
+    await _updateUserAccountCreationTime(verifiedUser.id, Date.now(), expirationDate);
+
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const emailToken = generateEmailToken(verifiedUser.id, verificationCode, expiresInSeconds);
 
-    // Generate JWT access token
-    const emailToken = jwt.sign(
-      { id: updatedUser.id, code: verificationCode },
-      process.env.JWT_SECRET,
-      { expiresIn: "3m" },
-    );
+    await sendVerificationEmail(verifiedUser.email, verifiedUser.username, verificationCode);
 
-    try {
-      const info = await transporter.sendMail({
-        from: '"PeerPrep" <peerprep38@gmail.com>',
-        to: `${updatedUser.email}`, // Double-check this hardcoded email or make it dynamic
-        subject: 'Confirm your PeerPrep Account',
-        html: `
-              <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="text-align: center; color: #6A0CE2;">Confirm Your Account</h2>
-              <p style="font-size: 16px;">Hello <span style="color: #6A0CE2; font-weight: bold;">${updatedUser.username}</span>,</p>
-              <p style="font-size: 16px;">Thank you for signing up! To complete your registration, please use the following verification code:</p>
-              <div style="text-align: center; margin: 20px 0;">
-                <span style="font-size: 24px; font-weight: bold; color: #6A0CE2; background-color: #f4f4f4; padding: 10px 20px; border-radius: 5px;">${verificationCode}</span>
-              </div>
-              <p style="font-size: 16px;">Please enter this code in the verification section to confirm your account.</p>
-              <p style="font-size: 14px; color: #777;">If you did not sign up for this account, please disregard this email.</p>
-              <hr style="border-top: 1px solid #eee; margin: 20px 0;">
-              <p style="font-size: 14px; text-align: center; color: #aaa;">This is an automated message. Please do not reply.</p>
-            </div>
-              `,
-      });
-    
-      console.log("Message sent: %s", info.messageId); // Logs info when email is successfully sent
-
-      return res.status(201).json({
-        message: `Token refreshed for new user ${updateUser.username} successfully`,
-        data: {token: emailToken, expiry: new Date(Date.now() + 3 * 60 * 1000)},
-      });
-    } catch (error) {
-      console.error("Error sending email:", error); // Log any errors encountered
-      _deleteUserById(createdUser.id);
-      return res.status(500).json({
-        message: "Unknown error occured when sending out verification email",
-      });
-    }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Unknown error occurred when refreshing token",
+    return res.status(201).json({
+      message: `Token refreshed successfully`,
+      data: { token: emailToken, expiry: expirationDate },
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Unknown error occurred when refreshing token" });
   }
 }

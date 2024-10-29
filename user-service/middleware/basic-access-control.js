@@ -46,10 +46,10 @@ export function verifyEmailToken(req, res, next) {
     const dbUser = await _findUserById(user.id);
     if (!dbUser) {
       return res.status(401).json({ message: "Authentication failed" });
-    } else if (dbUser.isConfirm) {
+    } else if (dbUser.isVerified) {
       return res.status(401).json({message: "Invalid request"});
     }
-    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdminm, isConfirm: dbUser.isConfirm};
+    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdminm, isVerified: dbUser.isVerified};
     next();
   });
 }
