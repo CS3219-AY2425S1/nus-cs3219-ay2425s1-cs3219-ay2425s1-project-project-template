@@ -79,25 +79,22 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
       else {
 
         const formattedStatus = message.status[0].toUpperCase() + status.slice(1);
-        const sessionname = message.user2_id+message.user1_id+message.question_id;
+        const sessionname = message.user2_id+message.user1_id+message.question_id+Date.now();
         console.log(sessionname)
-        let matched_user = message.user1_id;
         if (is_user1) {
-          matched_user = message.user2_id;
+
           const ack = {
             status: "success",
             uid: message.uid
           }
           send(JSON.stringify(ack));
-        }
-        updateCollaborationInfo(message, status);
-        if (collaborationStore.isCollaborating) {
+          console.log('sending ack:', ack);
           toast({
             description: `${formattedStatus} found! Matched with user ${message.user2_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
           });
-          createSession(sessionname, message.user1_id); // creating convo called here
+          createSession(sessionname, message.user1_id); // 调用创建会话函数
         } else {
-          createSession(sessionname, message.user2_id); // creating convo called here
+          createSession(sessionname, message.user2_id); // 调用创建会话函数
           toast({
             description: `${formattedStatus} found! Matched with user ${message.user1_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
           });
@@ -325,15 +322,23 @@ onUnmounted(() => {
                 Cancel Matching
               </Button>
             </div>
-
+            <!--
             <Button v-else class="w-3/4 mt-3"
               :disabled="isProcessing || matchFound || collaborationStore.isCollaborating">
               Match
             </Button>
+            -->
+
+            <Button v-else class="w-3/4 mt-3" :disabled="isProcessing">
+              Match
+            </Button>
           </div>
-
-
         </form>
+        <!--
+        <Button @click="collaborationStore.clearCollaborationInfo" class="w-full">
+          Clear
+        </Button>
+        -->
       </CardContent>
     </Card>
   </div>
