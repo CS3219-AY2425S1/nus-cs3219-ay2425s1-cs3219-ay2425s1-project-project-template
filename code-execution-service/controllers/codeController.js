@@ -28,26 +28,32 @@ const executeCode = (req, res) => {
     switch (language) {
       case 'python':
         filename = 'tempCode.py';
-        command = `echo "${input}" | python3 ${path.join(uniqueDir, filename)}`;
+        command = `python3 ${path.join(uniqueDir, filename)} < ${path.join(uniqueDir, 'input.txt')}`;
         break;
       case 'javascript':
         filename = 'tempCode.js';
-        command = `echo "${input}" | node ${path.join(uniqueDir, filename)}`;
+        command = `node ${path.join(uniqueDir, filename)} < ${path.join(uniqueDir, 'input.txt')}`;
         break;
       case 'cpp':
         filename = 'tempCode.cpp';
-        command = `g++ ${path.join(uniqueDir, filename)} -o ${path.join(uniqueDir, 'tempCode')} && echo "${input}" | ${path.join(uniqueDir, 'tempCode')}`;
+        command = `g++ ${path.join(uniqueDir, filename)} -o ${path.join(uniqueDir, 'tempCode')} && ${path.join(uniqueDir, 'tempCode')} < ${path.join(uniqueDir, 'input.txt')}`;
         break;
       default:
         fs.rmSync(uniqueDir, { recursive: true }); // Clean up directory
         return res.status(400).json({ error: 'Unsupported language.' });
     }
 
-    // Save code to file
+    // Now that filename is set, define filePath
     const filePath = path.join(uniqueDir, filename);
+    const inputFilePath = path.join(uniqueDir, 'input.txt');
+
+    // Write the code to the file in the unique directory
     fs.writeFileSync(filePath, code);
 
-    // Execute code
+    // Write the input to 'input.txt' in the unique directory
+    fs.writeFileSync(inputFilePath, input);
+
+    // Execute the code file
     exec(command, (error, stdout, stderr) => {
       // Clean up generated files and directory after execution
       fs.rmSync(uniqueDir, { recursive: true });
@@ -58,7 +64,7 @@ const executeCode = (req, res) => {
       res.send({ output: stdout });
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: 'Unknown server error' });
   }
 };
