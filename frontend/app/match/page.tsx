@@ -1,16 +1,11 @@
 "use client";
 
 import MatchingPageBody from "@/components/matching/MatchingPageBody";
-import DefaultLayout from "@/layouts/default";
 
-const MatchPage = () => {
+export default function Page() {
   return (
     <>
-      <DefaultLayout isLoggedIn={true}>
-        <MatchingPageBody />
-      </DefaultLayout>
+      <MatchingPageBody />
     </>
   );
-};
-
-export default MatchPage;
+}

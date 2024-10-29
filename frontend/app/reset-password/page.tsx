@@ -1,27 +1,23 @@
-"use client"
+// src/app/reset-password/page.tsx
 
-import React from "react";
+"use client";
+
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
-import { useResetPassword } from "@/hooks/api/auth"; // Adjust based on your project
-import DefaultLayout from "@/layouts/default";
+import { useResetPassword } from "@/hooks/api/auth";
 
-const ResetPasswordPage = () => {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
   const tokenString: string = (
     Array.isArray(token) ? token[0] : token
   ) as string;
-  const {
-    mutate: resetPassword,
-    isPending,
-    isError,
-    error,
-  } = useResetPassword();
+  const { mutate: resetPassword } = useResetPassword();
 
   const handleResetPassword = (
     newPassword: string,
@@ -53,25 +49,26 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <DefaultLayout isLoggedIn={false}>
-      <div className="flex items-start justify-center pt-[25vh]">
-        <Card className="w-full max-w-lg p-8">
-          <h2 className="text-3xl font-semibold text-center">
-            Reset Your Password
-          </h2>
-
-          {/* ResetPasswordForm component, passing required props */}
-          <ResetPasswordForm onSubmit={handleResetPassword} />
-
-          <div className="mt-6 text-center">
-            <Button className="mt-2" onClick={handleLogin}>
-              Back to Login
-            </Button>
-          </div>
-        </Card>
-      </div>
-    </DefaultLayout>
+    <div className="flex items-start justify-center pt-[5vh]">
+      <Card className="w-full max-w-lg p-8">
+        <h2 className="text-3xl font-semibold text-center">
+          Reset Your Password
+        </h2>
+        <ResetPasswordForm onSubmit={handleResetPassword} />
+        <div className="mt-6 text-center">
+          <Button className="mt-2" onClick={handleLogin}>
+            Back to Login
+          </Button>
+        </div>
+      </Card>
+    </div>
   );
-};
+}
 
-export default ResetPasswordPage;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}

@@ -14,6 +14,7 @@ export interface UserMatchResponse {
 }
 
 export interface SuccessfulMatchResponse {
+  roomId: string;
   state: string;
   user1: string;
   user2: string;

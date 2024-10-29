@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   createContext,
   useState,
@@ -8,13 +10,9 @@ import io, { type Socket } from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-interface SocketContextType {
-  socket: Socket | null;
-}
-
 const socketIOURL = process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
 
-export const SocketContext = createContext<SocketContextType>({ socket: null });
+export const SocketContext = createContext<Socket | null>(null);
 
 interface SocketProviderProps {
   children: ReactNode;
@@ -22,6 +20,7 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!socketIOURL) {
@@ -34,13 +33,16 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         draggable: true,
       });
       console.error("Server Error: Could not connect to the server");
+      setLoading(false);
     } else {
       const socketIOInstance = io(socketIOURL, {
         path: process.env.NEXT_PUBLIC_COLLAB_SERVICE_PATH,
         transports: ["websocket"],
       });
 
+      setLoading(false);
       setSocket(socketIOInstance);
+      console.log(socket)
       console.log("SocketIO instance connected");
 
       // Handle socket connection error
@@ -72,11 +74,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     }
   }, []);
 
+  if (loading) {
+    return null;
+  }
+
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={socket}>
       <ToastContainer />
       {children}
     </SocketContext.Provider>
   );
 };
-

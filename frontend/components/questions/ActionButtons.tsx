@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Modal,
   ModalContent,
@@ -7,7 +9,7 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 import { Button } from "@nextui-org/button";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { PencilIcon, TrashIcon } from "@/components/icons";
@@ -27,9 +29,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ question }) => {
 
   const handleEditOnClick = () => {
     // Redirect to the edit page with only questionId
-    router.push({
-      pathname: `/admin/questions/edit/${question.questionId}`,
-    });
+    router.push(`/admin/questions/edit/${question.questionId}`);
   };
 
   const confirmDelete = () => {

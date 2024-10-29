@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback } from "react";
 import { Key as ReactKey } from "react";
 import Link from "next/link";

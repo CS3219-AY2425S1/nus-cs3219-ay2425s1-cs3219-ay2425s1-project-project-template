@@ -1,12 +1,23 @@
-"use client"
+"use client";
 
+import { useState, useContext, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@nextui-org/modal";
 import { Button } from "@nextui-org/button";
 import { Avatar } from "@nextui-org/avatar";
+import { toast } from "react-toastify";
 
-import DefaultLayout from "@/layouts/default";
 import { Question } from "@/types/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
-import { SocketProvider, SocketContext } from "@/context/SockerIOContext";
+import { SocketContext } from "@/context/SockerIOContext";
+import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
 
 const mockQuestion: Question = {
@@ -19,27 +30,147 @@ const mockQuestion: Question = {
   constraints: "0 <= n <= 30.",
 };
 
-const CollaborationPage = () => {
+export default function Page() {
+  const router = useRouter();
+  const params = useParams();
+  const roomId = params?.roomId;
+
+  const socket = useContext(SocketContext);
+  const { user } = useUser();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [otherUserDisconnect, setUserDisconnect] = useState<boolean>(false);
+  const [otherUser, setOtherUser] = useState<string>("");
+
+  const socketListeners = () => {
+    socket?.on("user-disconnect", () => {
+      setUserDisconnect(true);
+      setOtherUser("");
+    });
+
+    socket?.on("waiting-for-other-user-end", () => {
+      toast.info(`Waiting for other user to click exit.`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+      });
+    });
+
+    socket?.on("both-users-agreed-end", () => {
+      router.push("/match");
+    });
+  };
+
+  const handleEndSession = (): void => {
+    socket?.emit("user-agreed-end", roomId, user?.id);
+  };
+
+  useEffect(() => {
+    if (socket && roomId && user) {
+      socket.emit("join-room", roomId, user?.username);
+
+      socket.on("user-join", (otherUser: string) => {
+        if (otherUser !== user?.username) {
+          toast.info(`User ${otherUser} has joined the room`, {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+          });
+          setOtherUser(otherUser);
+        }
+      });
+    }
+
+    socketListeners();
+  }, [socket, roomId, user]);
+
+  const isAvatarActive = (otherUser: string) => {
+    if (otherUser) {
+      return "success";
+    } else {
+      return "default";
+    }
+  };
 
   return (
-    <SocketProvider>
-      <DefaultLayout isLoggedIn={true}>
-        <div className="flex items-end justify-end mt-4">
-          <Avatar />
-          <Avatar />
-          <Button color="danger">Exit Session</Button>
+    <>
+      <div className="flex items-end justify-end mt-4">
+        <Avatar isBordered color={isAvatarActive(otherUser)} name={otherUser} />
+        <Avatar
+          isBordered
+          className="mx-8"
+          color="success"
+          name={user?.username}
+        />
+        <Button className="mx-8" color="danger" onPress={onOpen}>
+          Exit Session
+        </Button>
+      </div>
+      <div className="flex">
+        <div className="flex-[2_2_0%]">
+          <QuestionDescription isCollab={true} question={mockQuestion} />
         </div>
-        <div className="flex">
-          <div className="flex-[2_2_0%]">
-            <QuestionDescription isCollab={true} question={mockQuestion} />
-          </div>
-          <div className="flex-[3_3_0%]">
-            <CodeEditor />
-          </div>
+        <div className="flex-[3_3_0%]">
+          <CodeEditor />
         </div>
-      </DefaultLayout>
-    </SocketProvider>
-  );
-};
+      </div>
 
-export default CollaborationPage;
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Exit Session
+              </ModalHeader>
+              <ModalBody>
+                <p>Did both users agree to exit the session?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  No
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    handleEndSession();
+                    onClose();
+                  }}
+                >
+                  Yes, Exit
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        hideCloseButton={true}
+        isDismissable={false}
+        isOpen={otherUserDisconnect}
+      >
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Other user disconnected
+              </ModalHeader>
+              <ModalBody>
+                <p>The other user disconnected, the room will now be closed.</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    router.push("/match");
+                  }}
+                >
+                  Back to match
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
+  );
+}

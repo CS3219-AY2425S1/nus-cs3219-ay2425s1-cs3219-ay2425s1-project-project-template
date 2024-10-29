@@ -1,11 +1,14 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { useGetQuestion } from "@/hooks/api/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 
-export default function QuestionDescriptionPage() {
-  const router = useRouter();
-  const { id: questionId } = router.query;
+function QuestionContent() {
+  const searchParams = useSearchParams();
+  const questionId = searchParams?.get("id");
   const idString: string = (
     Array.isArray(questionId) ? questionId[0] : questionId
   ) as string;
@@ -17,5 +20,13 @@ export default function QuestionDescriptionPage() {
     <p>Error fetching Question</p>
   ) : (
     <QuestionDescription isCollab={false} question={question} />
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<h1>Loading question...</h1>}>
+      <QuestionContent />
+    </Suspense>
   );
 }

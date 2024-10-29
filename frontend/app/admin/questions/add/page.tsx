@@ -1,12 +1,13 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
 import { Question } from "@/types/questions";
 import { useAddQuestions } from "@/hooks/api/questions";
 
-const AddQuestionsPage = () => {
+export default function Page() {
   const router = useRouter();
   const [formData, setFormData] = useState<Question>({
     title: "",
@@ -32,23 +33,19 @@ const AddQuestionsPage = () => {
   };
 
   return (
-    <DefaultLayout isLoggedIn={true}>
-      <div className="flex items-center justify-center">
-        <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
-          <QuestionForm
-            formData={formData}
-            formType="Add"
-            setFormData={setFormData}
-            onSubmit={handleOnSubmit}
-          />
+    <div className="flex items-center justify-center">
+      <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
+        <QuestionForm
+          formData={formData}
+          formType="Add"
+          setFormData={setFormData}
+          onSubmit={handleOnSubmit}
+        />
 
-          {isError && (
-            <p className="text-red-500 mt-4 text-center">{`${error?.message}. Please try again later.`}</p>
-          )}
-        </div>
+        {isError && (
+          <p className="text-red-500 mt-4 text-center">{`${error?.message}. Please try again later.`}</p>
+        )}
       </div>
-    </DefaultLayout>
+    </div>
   );
-};
-
-export default AddQuestionsPage;
+}

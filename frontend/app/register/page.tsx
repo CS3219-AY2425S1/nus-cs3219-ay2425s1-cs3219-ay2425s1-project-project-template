@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -7,7 +7,6 @@ import { Card } from "@nextui-org/card";
 
 import RegistrationForm from "@/components/forms/RegistrationForm";
 import { useRegister } from "@/hooks/api/auth";
-import DefaultLayout from "@/layouts/default";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -17,7 +16,7 @@ const RegisterPage = () => {
   const handleRegister = (
     username: string,
     email: string,
-    password: string
+    password: string,
   ) => {
     register(
       { username, email, password },
@@ -29,7 +28,7 @@ const RegisterPage = () => {
           console.error("Registration failed:", err);
           setErrorMessage("An unexpected error occurred. Please try again.");
         },
-      }
+      },
     );
   };
   const handleLogin = () => {
@@ -37,27 +36,25 @@ const RegisterPage = () => {
   };
 
   return (
-    <DefaultLayout isLoggedIn={false}>
-      <div className="flex items-start justify-center pt-[25vh]">
-        <Card className="w-full max-w-lg p-8">
-          <h2 className="text-3xl font-semibold text-center">
-            Welcome to Peerprep!
-          </h2>
+    <div className="flex items-start justify-center pt-[5vh]">
+      <Card className="w-full max-w-lg p-8">
+        <h2 className="text-3xl font-semibold text-center">
+          Welcome to Peerprep!
+        </h2>
 
-          <RegistrationForm onSubmit={handleRegister} />
+        <RegistrationForm onSubmit={handleRegister} />
 
-          {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
-          {isPending && <p className="text-gray-400 mt-4">Registering...</p>}
+        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+        {isPending && <p className="text-gray-400 mt-4">Registering...</p>}
 
-          <div className="mt-6 text-center">
-            <h3> Have an account?</h3>
-            <Button className="mt-2" onClick={handleLogin}>
-              Back to Login
-            </Button>
-          </div>
-        </Card>
-      </div>
-    </DefaultLayout>
+        <div className="mt-6 text-center">
+          <h3> Have an account?</h3>
+          <Button className="mt-2" onClick={handleLogin}>
+            Back to Login
+          </Button>
+        </div>
+      </Card>
+    </div>
   );
 };
 
