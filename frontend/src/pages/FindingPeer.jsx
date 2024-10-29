@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import matchingService from "../services/MatchingService";
+import { getQuestionToCollaborate} from "../services/QuestionService";
 
 const FindingPeer = () => {
   const location = useLocation();
@@ -41,6 +42,16 @@ const FindingPeer = () => {
     navigate("/matching-service");
   };
 
+  const fetchQuestionToCollaborate = async (selectedTopic, selectedLevel) => {
+    try {
+      const question = await getQuestionToCollaborate(selectedTopic, selectedLevel);
+      return question;
+    } catch (error) {
+      console.error("Error fetching question:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     const complexity = selectedLevel;
@@ -56,11 +67,17 @@ const FindingPeer = () => {
           console.log("Match found, redirecting to room:", roomId);
           clearInterval();
           toast.success("Match found! Redirecting to the collaboration room...");
-          
-          // Delay the navigation to ensure toast is visible
-          setTimeout(() => {
-            navigate(`/room/${roomId}`);
-          }, 3000);  // Wait for 3 seconds before navigating
+
+          fetchQuestionToCollaborate(selectedTopic, selectedLevel).then((question) => {
+            if (question) {
+              // Delay the navigation to ensure toast is visible
+              setTimeout(() => {
+                navigate(`/room/${roomId}`, { state: { question } });
+              }, 3000);  // Wait for 3 seconds before navigating
+            } else {
+              toast.error("Failed to fetch question");
+            }
+          });
         });
         
         //  When an error message is received, call the onError event

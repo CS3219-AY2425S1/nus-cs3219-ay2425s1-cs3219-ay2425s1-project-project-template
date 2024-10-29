@@ -40,3 +40,12 @@ export const createQuestion = async (question) => {
     throw new Error("Error creating question");
   }
 };
+
+export const getQuestionToCollaborate = async (category, complexity) => {
+  try {
+    const response = await questionApi.get(`/question/${category}/${complexity}`);
+    return response.data;
+  } catch (error) { 
+    throw new Error("Error fetching question");   
+  }
+};
