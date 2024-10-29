@@ -28,11 +28,15 @@ function Room() {
       return;
     }
 
-    const { roomId, matchUserId } = matchData;
-    connectSocket(roomId, matchUserId);
+    const { roomId, matchUserId, questionId } = matchData;
+    connectSocket(roomId, matchUserId, questionId);
   }, [matchData]);
 
-  const connectSocket = (sessionId: string, matchedUserId: string) => {
+  const connectSocket = (
+    sessionId: string,
+    matchedUserId: string,
+    questionId: number,
+  ) => {
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
@@ -53,7 +57,7 @@ function Room() {
       socketRef.current?.emit('join-session', {
         sessionId,
         matchedUserId,
-        questionId: 1,
+        questionId,
       });
     });
 
