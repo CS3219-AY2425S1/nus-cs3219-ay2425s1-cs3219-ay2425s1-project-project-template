@@ -11,7 +11,6 @@ function QuestionTable() {
 
   // Define a refetch function to reload the questions
   const refetch = async () => {
-    setLoading(true);
     const questions = await getData();
     setData(questions);
     setLoading(false);
@@ -19,6 +18,7 @@ function QuestionTable() {
 
   // Fetch data asynchronously on component mount
   useEffect(() => {
+    console.log("Fetching data...");
     refetch();
   }, []);
 

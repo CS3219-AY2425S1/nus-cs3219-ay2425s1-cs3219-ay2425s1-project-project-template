@@ -70,26 +70,14 @@ const QuestionPageView: React.FC = () => {
 
       <Separator className="my-2" />
 
-      {/* Conditional Layout Rendering */}
-      {isMediumScreen ? (
-        <div className="grid grid-cols-4 gap-4">
-          <div className="col-span-3 p-4 rounded-lg shadow-lg">
-            <QuestionTable />
-          </div>
-          <div className="col-span-1 p-4 rounded-lg shadow-lg">
-            <MatchingOptions />
-          </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="p-4 col-span-3 md:col-span-1 rounded-lg shadow-lg">
+          <MatchingOptions />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          <div className="p-4 rounded-lg shadow-lg">
-            <MatchingOptions />
-          </div>
-          <div className="p-4 rounded-lg shadow-lg">
-            <QuestionTable />
-          </div>
+        <div className="p-4 col-span-3 md:col-span-2 rounded-lg shadow-lg">
+          <QuestionTable />
         </div>
-      )}
+      </div>
     </main>
   );
 };
