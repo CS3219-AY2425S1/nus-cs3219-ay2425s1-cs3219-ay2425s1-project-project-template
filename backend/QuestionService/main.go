@@ -30,6 +30,13 @@ func main() {
 		MaxAge:           12 * 60 * 60,
 	}))
 
+	// get page for route /
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Welcome to Question Service blah blah",
+		})
+	})
+
 	//router.Use(middleware.Authentication())
 	routes.QuestionRoutes(router) // Creates Question api routes
 	router.Run(":" + port)

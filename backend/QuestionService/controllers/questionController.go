@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -165,6 +166,106 @@ func AddQuestionToDb() gin.HandlerFunc {
 	}
 }
 
+func AddLeetCodeQuestionToDb() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+        defer cancel()
+
+        var LeetCodeAPIRequest models.LeetCodeAPIRequest
+
+        // Bind incoming JSON request
+        if err := c.ShouldBindJSON(&LeetCodeAPIRequest); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+            return
+        }
+
+        titleSlug := strings.ToLower(strings.ReplaceAll(LeetCodeAPIRequest.Title, " ", "-"))
+
+        // Fetch question from the API
+        apiUrl := fmt.Sprintf("http://alfa_leetcode_api:3000/select?titleSlug=%s", titleSlug)
+        resp, err := http.Get(apiUrl)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch question from API"})
+            return
+        }
+        defer resp.Body.Close()
+
+        // Define a map to parse the API response
+        var apiResponse map[string]interface{}
+        if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse API response"})
+            return
+        }
+
+        // Extract the "question" field from the API response
+        questionDescription, ok := apiResponse["question"].(string)
+        if !ok {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract question description"})
+            return
+        }
+
+        // Extract and concatenate the categories from "topicTags"
+        topicTags, ok := apiResponse["topicTags"].([]interface{})
+        if !ok {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract topic tags"})
+            return
+        }
+
+        var categories []string
+        for _, tag := range topicTags {
+            tagMap, ok := tag.(map[string]interface{})
+            if ok {
+                if name, found := tagMap["name"].(string); found {
+                    categories = append(categories, name)
+                }
+            }
+        }
+        categoriesString := strings.Join(categories, ", ")
+
+        // Extract "difficulty" for Complexity
+        difficulty, ok := apiResponse["difficulty"].(string)
+        if !ok {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract difficulty"})
+            return
+        }
+
+        // Extract the link
+        link, ok := apiResponse["link"].(string)
+        if !ok {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract question link"})
+            return
+        }
+
+        // Create the question object
+        question := models.Question{
+            ID:          primitive.NewObjectID(),
+            Title:       LeetCodeAPIRequest.Title,
+            Description: questionDescription,
+            Categories:  categoriesString,
+            Complexity:  difficulty,
+            Link:        link,
+        }
+
+        // Check for duplicate title
+        if !helper.HasDuplicateTitle(&question, database.Coll, ctx) {
+			c.JSON(http.StatusConflict, gin.H{"error": "Question with the same title already exists"})
+			return
+		}
+
+        // Parse question before inserting into the database
+        helper.ParseQuestionForDb(&question)
+
+        // Insert the question into the database
+        _, err = database.Coll.InsertOne(ctx, question)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add question to the database"})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"message": "Question added successfully", "question": question})
+    }
+}
+
 func UpdateQuestion(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -200,6 +301,46 @@ func UpdateQuestion(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Question updated successfully"})
+}
+
+func GetTopics(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// Perform a distinct query to get unique categories
+	topics, err := database.Coll.Distinct(ctx, "categories", bson.M{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch topics", "details": err.Error()})
+		return
+	}
+
+	// Check if topics list is empty
+	if len(topics) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "No topics found", "topics": []string{}})
+		return
+	}
+
+	// Create a set to hold unique individual topics
+	topicSet := make(map[string]struct{})
+	for _, topic := range topics {
+		if str, ok := topic.(string); ok {
+			// Split by commas and trim each topic, then add to the set
+			for _, individualTopic := range strings.Split(str, ",") {
+				trimmedTopic := strings.TrimSpace(individualTopic)
+				if trimmedTopic != "" {
+					topicSet[trimmedTopic] = struct{}{}
+				}
+			}
+		}
+	}
+
+	// Convert the set to a slice for JSON response
+	var stringTopics []string
+	for topic := range topicSet {
+		stringTopics = append(stringTopics, topic)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Topics retrieved successfully", "topics": stringTopics})
 }
 
 func DeleteQuestion(c *gin.Context) {

@@ -16,7 +16,7 @@ import cors from "cors";
 import { initializeCollaborationService } from "./controller/websocket-controller.js"; // Adjusted path
 
 const app = express();
-const port = 3000;
+const port = 8080;
 
 // Set up bull dashboard for monitoring queue
 const serverAdapter = new ExpressAdapter();

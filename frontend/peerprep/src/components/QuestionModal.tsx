@@ -19,7 +19,7 @@ import {
   Checkbox,
   Select,
 } from "@chakra-ui/react";
-import { Question } from "../pages/question/questionService";
+import { Question } from "../pages/question/questionModel";
 import { CATEGORIES, COMPLEXITIES } from "../constants/data";
 
 type QuestionModalProps = {

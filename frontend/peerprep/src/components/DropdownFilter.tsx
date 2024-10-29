@@ -36,7 +36,8 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [buttonText, setButtonText] = useState<string>("ALL");
-  const [textColor, setTextColor] = useState<string>("white")
+  const [textColor, setTextColor] = useState<string>("white");
+
 
   const handleFilterChange = (selectedFilter: string) => {
     setSelectedFilter(selectedFilter);

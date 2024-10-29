@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   HStack,
   Icon,
@@ -10,18 +10,22 @@ import {
 } from "@chakra-ui/react";
 import { ColumnFilter } from "@tanstack/react-table";
 import { FaSearch } from "react-icons/fa";
-import { COMPLEXITIES, CATEGORIES } from "../constants/data"; // Assuming data exists for both
+import { COMPLEXITIES } from "../constants/data"; // Assuming data exists for both
 import DropdownFilter from "./DropdownFilter";
+import { Topic } from "../pages/question/questionModel";
 
 interface FiltersProps {
   columnFilters: ColumnFilter[];
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFilter[]>>;
+  topics: Topic[];
 }
 
 const Filters: React.FC<FiltersProps> = ({
   columnFilters,
   setColumnFilters,
+  topics,
 }) => {
+
   const questions = columnFilters.find((f) => f.id === "title")?.value || "";
 
   const onFilterChange = (id: string, value: string) =>
@@ -78,7 +82,7 @@ const Filters: React.FC<FiltersProps> = ({
       </Text>
       <DropdownFilter
         label="Topics"
-        filters={CATEGORIES}
+        filters={topics}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
         filterKey="Categories"
