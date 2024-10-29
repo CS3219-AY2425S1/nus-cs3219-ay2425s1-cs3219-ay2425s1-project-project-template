@@ -17,7 +17,6 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from './schemas/question.schema';
 import { QuestionCategory, QuestionComplexity } from './types/question.types';
 import { FilterQuestionDto } from './dto/filter-question.dto';
-
 @Controller('questions')
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
