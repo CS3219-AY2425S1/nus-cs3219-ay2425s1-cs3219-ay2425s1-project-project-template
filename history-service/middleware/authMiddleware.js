@@ -10,10 +10,7 @@ const authMiddleware = async (req, res, next) => {
 
     // Verify the token and extract the user payload
     const decoded = jwt.verify(token, process.env.USER_JWT_SECRET);
-
-    if (decoded.role !== 'admin') {
-        return res.status(403).json({ error: 'Unauthorized access. Admin only.' });
-    }
+    req.decoded = decoded;
 
     next();
   } catch (err) {
@@ -21,6 +18,15 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+const verifyIsAdmin = (req, res, next) => {
+  if (req.decoded.isAdmin) {
+    return next();
+  }
+
+  return res.status(403).json({ message: "Not authorized to access this resource" });
+}
+
 module.exports = {
   authMiddleware,
+  verifyIsAdmin,
 }

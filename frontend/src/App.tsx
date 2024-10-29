@@ -1,6 +1,5 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import './App.css';
@@ -10,6 +9,7 @@ import Admin from './pages/Admin';
 import FilterSelection from './pages/FilterSelection';
 import Landing from './pages/Landing';
 import Room from './pages/Room';
+import Dashboard from './pages/Dashboard';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -40,6 +40,7 @@ function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/select" element={<FilterSelection />} />
             <Route path="/room" element={<Room />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

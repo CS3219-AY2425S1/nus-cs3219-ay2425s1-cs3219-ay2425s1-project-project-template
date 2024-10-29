@@ -1,20 +1,43 @@
-.circle-container {
+.counter-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 1rem;
+
+}
+
+.circle-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .circle {
   width: 9rem;
   height: 9rem;
   border-radius: 50%;
-  border: 0.4rem solid;
   display: flex; 
   align-items: center; 
   justify-content: center; 
   color: white;
+}
+
+.inner-circle {
+  width: 8rem; 
+  height: 8rem;
+  border-radius: 50%;
+  background-color: rgb(26, 32, 44);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 .number-container {

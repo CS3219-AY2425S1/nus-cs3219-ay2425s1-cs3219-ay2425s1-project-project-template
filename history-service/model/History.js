@@ -4,7 +4,7 @@ const HistorySchema = new mongoose.Schema({
   userIdOne: { type: String, required: true },
   userIdTwo: { type: String, required: true },
   textWritten: { type: String, required: true },
-  questionId: { type: String, required: true },
+  questionId: { type: Number, required: true },
   questionName: { type: String, required: true },
   questionDifficulty: { type: String, required: true },
   programmingLanguage: { type: String, required: true },
