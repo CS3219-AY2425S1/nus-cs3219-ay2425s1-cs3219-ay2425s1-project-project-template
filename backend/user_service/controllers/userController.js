@@ -6,7 +6,7 @@ const isValidUsername = require("../lib/regex.js")
 const addToUserCollection = async (req, res) => {
     const { uid, email, displayName, username } = req.body;
     if (!isValidUsername(username)) {
-        return res.status(400).json({ success: false, message: "Username must be alphanumeric only." });
+        return res.status(400).json({ success: false, error: "Username must be alphanumeric only." });
     }
     try {
         console.log("Attempting to add user to Firestore:", uid, email, displayName);
@@ -31,7 +31,7 @@ const checkAdminStatus = async (req, res) => {
     const token = req.headers.authorization?.split('Bearer ')[1];
 
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
 
     try {
@@ -42,7 +42,7 @@ const checkAdminStatus = async (req, res) => {
         // Fetch user data from Firestore
         const userDoc = await admin.firestore().collection('users').doc(uid).get();
         if (!userDoc.exists) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
 
         const userData = userDoc.data();
@@ -60,7 +60,7 @@ const checkUsernameExists = async (req, res) => {
     const { username } = req.query; // Get username from query parameters
   
     if (!username) {
-      return res.status(400).json({ success: false, message: 'Username is required' });
+      return res.status(400).json({ success: false, error: 'Username is required' });
     }
   
     try {
@@ -73,8 +73,29 @@ const checkUsernameExists = async (req, res) => {
       }
     } catch (error) {
       console.error("Error checking username:", error);
-      return res.status(500).json({ success: false, message: 'Server error' });
+      return res.status(500).json({ success: false, error: 'Server error' });
     }
   };
 
-module.exports = { addToUserCollection, checkAdminStatus, checkUsernameExists };
+const getUsernameByUid = async (req, res) => {
+    const { uid } = req.params;
+    if (!uid) {
+        return res.status(400).json({ success: false, error: 'Username is required' });
+      }
+
+    try {
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (userDoc.exists) {
+            username = userDoc.data().username;
+            return res.status(200).json(username);
+        } else {
+            return res.status(404).json({ error: 'Username not found for the provided uid' });
+        }
+    } catch (error) {
+        console.error("Error retrieving username by uid:", error);
+        throw error;
+    }
+
+}
+
+module.exports = { addToUserCollection, checkAdminStatus, checkUsernameExists, getUsernameByUid };

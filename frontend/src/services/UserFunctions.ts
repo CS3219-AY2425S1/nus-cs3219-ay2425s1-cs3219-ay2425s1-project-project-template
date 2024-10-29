@@ -41,7 +41,6 @@ export const doesUserExist = async (username: string) => {
     try {
       const result = await callUserFunction(`check-username?username=${encodeURIComponent(username)}`);
       
-      console.log(result)
       if (result.success) {
         return result.data.exists; // returns true if username is taken
       } else {
@@ -52,3 +51,19 @@ export const doesUserExist = async (username: string) => {
       throw error; // rethrow the error for further handling
     }
   };
+
+export async function getUsernameByUid(uid: string) {
+    try {
+        console.log("UID before sending: " + uid)
+        const result = await callUserFunction(`user/username/${uid}`)
+        if (result.success) {
+            console.log(result)
+            return result.data;
+        } else {
+            throw new Error(result.error || "Unable to fetch username");
+        }
+    } catch (error) {
+        console.error("Error checking uid for username:", error);
+        throw error; // rethrow the error for further handling
+    }
+}

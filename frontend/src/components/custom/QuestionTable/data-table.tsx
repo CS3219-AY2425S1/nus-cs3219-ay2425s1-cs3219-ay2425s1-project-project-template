@@ -81,7 +81,7 @@ export function DataTable<TData, TValue>({
       }
 
       const isAdmin: boolean = res.data.isAdmin;
-      console.log("user is admin: " + res.data.isAdmin)
+      
       return isAdmin;
   };
 
