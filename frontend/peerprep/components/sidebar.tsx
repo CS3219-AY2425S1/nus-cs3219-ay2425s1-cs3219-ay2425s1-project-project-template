@@ -67,10 +67,10 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
                     item.href === "/" && currentPath === "/"
                       ? "#7828C8"
                       : currentPath.startsWith(item.href) && item.href !== "/"
-                      ? "#7828C8"
-                      : theme === "dark"
-                      ? "#d1d5db"
-                      : "#4b5563"
+                        ? "#7828C8"
+                        : theme === "dark"
+                          ? "#d1d5db"
+                          : "#4b5563"
                   }
                 />
               }
@@ -82,8 +82,8 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
                   item.href === "/" && currentPath === "/"
                     ? "text-secondary"
                     : currentPath.startsWith(item.href) && item.href !== "/"
-                    ? "text-secondary"
-                    : "text-gray-600 dark:text-gray-300"
+                      ? "text-secondary"
+                      : "text-gray-600 dark:text-gray-300"
                 }
               >
                 {item.label}

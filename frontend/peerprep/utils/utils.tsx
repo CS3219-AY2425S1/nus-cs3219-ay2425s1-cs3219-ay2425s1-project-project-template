@@ -36,3 +36,6 @@ export const languages = [
   "R",
   "OBJECTIVE-C",
 ];
+
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

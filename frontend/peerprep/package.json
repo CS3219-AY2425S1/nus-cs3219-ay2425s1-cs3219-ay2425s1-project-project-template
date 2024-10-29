@@ -25,8 +25,6 @@
     "@react-aria/ssr": "3.9.4",
     "@react-aria/visually-hidden": "3.8.12",
     "@react-stately/data": "^3.11.6",
-    "@tiptap/pm": "^2.7.2",
-    "@uiw/react-md-editor": "^3.25.6",
     "@wysimark/react": "^3.0.20",
     "axios": "^1.7.7",
     "boxicons": "^2.1.4",
@@ -35,6 +33,7 @@
     "framer-motion": "~11.1.1",
     "intl-messageformat": "^10.5.0",
     "iron-session": "^8.0.3",
+    "jose": "^5.9.6",
     "next": "14.2.4",
     "next-remove-imports": "^1.0.12",
     "next-runtime-env": "^3.2.2",
@@ -48,6 +47,7 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "20.5.7",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",

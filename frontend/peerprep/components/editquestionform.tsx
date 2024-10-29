@@ -219,7 +219,7 @@ EditQuestionFormProps) {
         categories,
         templateCode,
         testCases,
-        language // New field
+        language
       )
     ) {
       setErrorMessage(
@@ -239,7 +239,7 @@ EditQuestionFormProps) {
         selectedTab,
         templateCode,
         testCases,
-        language // New field
+        language
       );
 
       if (response.ok) {
