@@ -42,6 +42,7 @@ public class MatchRequestConsumer {
             String receivedUserEmail = value.split("_")[1];
             String storedUserEmail = waitingRequests.get(key).split("_")[1];
             String matchCriteriaTopic = key.split("_")[0];
+            String matchCriteriaLanguage = key.split("_")[1];
             String matchCriteriaDifficulty = key.split("_")[2];
 
             // Do not match the same user with themselves
@@ -53,7 +54,7 @@ public class MatchRequestConsumer {
                 System.out.println("Matching users: " + value + " and " + otherUserValue);
                 System.out.println("Verifying match requests...");
 
-                VerifyMatchesDTO verifyMatchesDTO = new VerifyMatchesDTO(value, otherUserValue, matchCriteriaDifficulty, matchCriteriaTopic);
+                VerifyMatchesDTO verifyMatchesDTO = new VerifyMatchesDTO(value, otherUserValue, matchCriteriaTopic, matchCriteriaDifficulty, matchCriteriaLanguage);
 
                 try {
                     HttpHeaders headers = new HttpHeaders();

@@ -59,8 +59,9 @@ public class MatchingVerificationRestController {
         String userEmail1 = matchReq1.split("_")[1];
         String userId2 = matchReq2.split("_")[0];
         String userEmail2 = matchReq2.split("_")[1];
-        String matchCriteriaDifficulty = userMatches.getMatchCriteriaDifficulty();
         String matchCriteriaTopic = userMatches.getMatchCriteriaTopic();
+        String matchCriteriaDifficulty = userMatches.getMatchCriteriaDifficulty();
+        String matchCriteriaLanguage = userMatches.getMatchCriteriaLanguage();
 
         System.out.println("Verifying match requests: " + matchReq1 + " and " + matchReq2);
 
@@ -134,6 +135,8 @@ public class MatchingVerificationRestController {
                                     + "_" 
                                     + questionId 
                                     + "_" 
+                                    + matchCriteriaLanguage
+                                    + "_"
                                     + userId1 
                                     + "_" 
                                     + userEmail1 

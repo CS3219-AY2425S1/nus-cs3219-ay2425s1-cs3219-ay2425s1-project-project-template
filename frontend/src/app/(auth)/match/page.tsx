@@ -36,6 +36,7 @@ interface FindMatchSocketMessageResponse {
   matchedUserEmail: string;
   collaborationId: string;
   questionId: string;
+  language: string;
 }
 
 const TIMEOUT_TIMER = 30; // in seconds
@@ -131,6 +132,7 @@ const FindPeer = () => {
               const matchedUserEmail = response.matchedUserEmail;
               const collaborationId = response.collaborationId;
               const questionId = response.questionId;
+              const language = response.language;
               closeLoadingSpinner();
               clearTimeout(timeout);
               Swal.fire(
