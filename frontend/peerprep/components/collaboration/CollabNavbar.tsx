@@ -14,9 +14,7 @@ import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { getUsername } from "@/auth/actions";
 
-export const CollabNavbar = async () => {
-  const user = await getUsername();
-
+export const CollabNavbar = () => {
   return (
     <NextUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-4/5 sm:basis-full gap-10" justify="start">
@@ -45,5 +43,3 @@ export const CollabNavbar = async () => {
     </NextUINavbar>
   );
 };
-
-const HeaderText = async () => {};
