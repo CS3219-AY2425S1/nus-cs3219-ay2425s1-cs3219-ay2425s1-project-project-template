@@ -19,9 +19,7 @@ export default function TestcasesTab({ testcases }: { testcases: ITestcase[] }) 
                 <span className="mt-2">{testcases[activeTestcaseIdx]?.inputVar} =</span>
                 <span className="px-2 py-1 rounded-lg bg-slate-100">{testcases[activeTestcaseIdx]?.input}</span>
                 <span className="mt-2">Expected output = </span>
-                <span className="px-2 py-1 rounded-lg bg-slate-100">
-                    {testcases[activeTestcaseIdx]?.expectedOutput}
-                </span>
+                <span className="px-2 py-1 rounded-lg bg-slate-100">{testcases[activeTestcaseIdx]?.output}</span>
             </div>
         </div>
     )

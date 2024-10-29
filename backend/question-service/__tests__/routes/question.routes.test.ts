@@ -211,6 +211,8 @@ describe('Question Routes', () => {
                     categories: [Category.ALGORITHMS],
                     complexity: Complexity.MEDIUM,
                     link: 'https://www.newlink.com',
+                    testInputs: ['hello', 'Hannah'],
+                    testOutputs: ['olleh', 'hannaH'],
                 })
                 expect(response.status).toBe(200)
                 expect(response.body.title).toEqual('new title')
@@ -218,12 +220,14 @@ describe('Question Routes', () => {
                 expect(response.body.categories).toEqual([Category.ALGORITHMS])
                 expect(response.body.complexity).toEqual(Complexity.MEDIUM)
                 expect(response.body.link).toEqual('https://www.newlink.com')
+                expect(response.body.testInputs).toEqual(['hello', 'Hannah'])
+                expect(response.body.testOutputs).toEqual(['olleh', 'hannaH'])
             })
 
             it('should return 400 BAD REQUEST for invalid requests and a list of errors', async () => {
                 const response = await authenticatedTestAgent.put(`/questions/${question.id}`).send({})
                 expect(response.status).toBe(400)
-                expect(response.body).toHaveLength(6)
+                expect(response.body).toHaveLength(8)
             })
 
             it('should return 404 NOT FOUND for requests with invalid ids', async () => {
@@ -234,6 +238,8 @@ describe('Question Routes', () => {
                     categories: [Category.ALGORITHMS],
                     complexity: Complexity.MEDIUM,
                     link: 'https://www.newlink.com',
+                    testInputs: ['hello', 'Hannah'],
+                    testOutputs: ['olleh', 'hannaH'],
                 })
                 expect(response.status).toBe(404)
             })
@@ -247,6 +253,8 @@ describe('Question Routes', () => {
                     categories: [Category.ALGORITHMS],
                     complexity: Complexity.MEDIUM,
                     link: 'https://www.newlink.com',
+                    testInputs: ['1->2->3->4->2', '1->2->3->4->5'],
+                    testOutputs: ['true', 'false'],
                 })
                 expect(response.status).toBe(409)
             })
@@ -260,6 +268,8 @@ describe('Question Routes', () => {
                     categories: [Category.ALGORITHMS],
                     complexity: Complexity.MEDIUM,
                     link: 'https://www.newlink.com',
+                    testInputs: ['1->2->3->4->2', '1->2->3->4->5'],
+                    testOutputs: ['true', 'false'],
                 })
                 expect(response.status).toBe(201)
                 expect(response.body.title).toEqual('new title')
@@ -267,12 +277,14 @@ describe('Question Routes', () => {
                 expect(response.body.categories).toEqual([Category.ALGORITHMS])
                 expect(response.body.complexity).toEqual(Complexity.MEDIUM)
                 expect(response.body.link).toEqual('https://www.newlink.com')
+                expect(response.body.testInputs).toEqual(['1->2->3->4->2', '1->2->3->4->5'])
+                expect(response.body.testOutputs).toEqual(['true', 'false'])
             })
 
             it('should return 400 BAD REQUEST for invalid requests and a list of errors', async () => {
                 const response = await authenticatedTestAgent.post('/questions').send({})
                 expect(response.status).toBe(400)
-                expect(response.body).toHaveLength(5)
+                expect(response.body).toHaveLength(7)
             })
 
             it('should return 409 CONFLICT for requests with duplicate titles', async () => {
@@ -283,6 +295,8 @@ describe('Question Routes', () => {
                     categories: [Category.ALGORITHMS],
                     complexity: Complexity.MEDIUM,
                     link: 'https://www.newlink.com',
+                    testInputs: ['1->2->3->4->2', '1->2->3->4->5'],
+                    testOutputs: ['true', 'false'],
                 })
                 expect(response.status).toBe(409)
             })

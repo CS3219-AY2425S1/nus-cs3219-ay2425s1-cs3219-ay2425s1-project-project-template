@@ -8,21 +8,12 @@ services:
             - MATCHING_SERVICE_URL=http://matching-service:3006
             - RMQ_URL=http://rabbitmq:15672
             - DOMAIN_NAME=${DOMAIN_NAME}
-            - VPS_SSL_CERT_FILE=${VPS_SSL_CERT_FILE}
-            - VPS_SSL_KEY_FILE=${VPS_SSL_KEY_FILE}
-            - VPS_SSL_CONFIG_FILE=${VPS_SSL_CONFIG_FILE}
-            - VPS_SSL_DHPARAMS_FILE=${VPS_SSL_DHPARAMS_FILE}
         image: nginx:1.27.2-alpine
         ports:
-            - 80:80
-            - 443:443
+            - 8080:8080
         restart: always
         volumes:
-            - ./nginx/templates/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
-            - ${VPS_SSL_CERT_FILE}:/etc/nginx/ssl/server.crt
-            - ${VPS_SSL_KEY_FILE}:/etc/nginx/ssl/server.key
-            - ${VPS_SSL_CONFIG_FILE}:/etc/nginx/ssl/options-ssl-nginx.conf
-            - ${VPS_SSL_DHPARAMS_FILE}:/etc/nginx/ssl/server-dhparams.pem
+            - ./nginx/templates/local-nginx.conf.template:/etc/nginx/templates/nginx.conf.template
         networks:
             - backend-network
         depends_on:
@@ -33,7 +24,9 @@ services:
 
     matching-service:
         container_name: matching-service
-        image: glemenneo/cs3219-ay2425s1-project-g31-matching-service:latest
+        build:
+            context: .
+            dockerfile: ./backend/matching-service/Dockerfile
         environment:
             - NODE_ENV=development
             - PORT=3006
@@ -80,7 +73,9 @@ services:
 
     user-service:
         container_name: user-service
-        image: glemenneo/cs3219-ay2425s1-project-g31-user-service:latest
+        build:
+            context: .
+            dockerfile: ./backend/user-service/Dockerfile
         environment:
             - NODE_ENV=development
             - PORT=3002
@@ -111,7 +106,9 @@ services:
 
     question-service:
         container_name: question-service
-        image: glemenneo/cs3219-ay2425s1-project-g31-question-service:latest
+        build:
+            context: .
+            dockerfile: ./backend/question-service/Dockerfile
         environment:
             - NODE_ENV=development
             - PORT=3004
