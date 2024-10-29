@@ -9,10 +9,13 @@ import {
   isSocketConnected,
 } from "../../services/matchingSocketService";
 
+import { initializeSocket as initializeSessionSocket } from "../../services/matchingSocketService";
+
 import MatchFoundModal from "./MatchFoundModal";
 import MatchmakingModal from "./MatchmakingModal";
 import MatchTimeoutModal from "./MatchTimeoutModal";
 import MatchErrorModal from "./MatchErrorModal";
+import { delay } from "@/utils/utils";
 
 interface MatchUIProps {
   onClose: () => void;
@@ -64,7 +67,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleMatchingContinue = async (
     selectedDifficultyKeys: Set<string>,
-    selectedTopicKeys: Set<string>,
+    selectedTopicKeys: Set<string>
   ) => {
     // Set timer for matchmaking
     let time = 1;
@@ -94,15 +97,15 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
       setMatchmakingError("You are already registered for matching.");
     } else if (error === "Failed to select question based on criteria.") {
       setMatchmakingError(
-        "We couldn't find a suitable question. Please try again.",
+        "We couldn't find a suitable question. Please try again."
       );
     } else if (error === "Failed to initialize session.") {
       setMatchmakingError(
-        "An error occurred while setting up the session. Please try again.",
+        "An error occurred while setting up the session. Please try again."
       );
     } else if (error === "Failed to save match data.") {
       setMatchmakingError(
-        "An error occurred while saving match data. Please try again.",
+        "An error occurred while saving match data. Please try again."
       );
     } else {
       setMatchmakingError("An unexpected error occurred during matchmaking.");
@@ -113,7 +116,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
 
   const handleRegisterForMatching = async (
     difficulty: Set<string>,
-    topic: Set<string>,
+    topic: Set<string>
   ) => {
     const userParams = {
       difficulty: Array.from(difficulty),
@@ -126,7 +129,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
       handleRedirectToSession,
       () => console.log("Registration successful!"), // Handle success
       handleMatchingTimeout,
-      handleMatchingError,
+      handleMatchingError
     );
   };
 
@@ -147,7 +150,7 @@ const MatchUI = ({ onClose }: MatchUIProps) => {
     // TODO: Redirect to session page
   };
 
-  const handleRedirectToSession = () => {
+  const handleRedirectToSession = async () => {
     console.log("Redirecting to session");
     router.push("/session");
   };

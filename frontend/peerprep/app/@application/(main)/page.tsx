@@ -38,7 +38,7 @@ export default function Home() {
 
   const handleReconnect = () => {
     // Reconnect to the match
-    router.push("/match");
+    router.push("/session");
   };
 
   const handleLeaveMatch = () => {
