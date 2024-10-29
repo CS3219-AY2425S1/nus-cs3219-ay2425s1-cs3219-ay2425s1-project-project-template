@@ -39,7 +39,7 @@ const executeCode = (req, res) => {
         command = `g++ ${path.join(uniqueDir, filename)} -o ${path.join(uniqueDir, 'tempCode')} && echo "${input}" | ${path.join(uniqueDir, 'tempCode')}`;
         break;
       default:
-        fs.rmdirSync(uniqueDir, { recursive: true }); // Clean up directory
+        fs.rmSync(uniqueDir, { recursive: true }); // Clean up directory
         return res.status(400).json({ error: 'Unsupported language.' });
     }
 
@@ -50,7 +50,7 @@ const executeCode = (req, res) => {
     // Execute code
     exec(command, (error, stdout, stderr) => {
       // Clean up generated files and directory after execution
-      fs.rmdirSync(uniqueDir, { recursive: true });
+      fs.rmSync(uniqueDir, { recursive: true });
 
       if (error) {
         return res.status(500).json({ error: stderr || error.message });
