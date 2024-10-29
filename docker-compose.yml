@@ -82,6 +82,29 @@ services:
           #   - node_modules/
         - action: rebuild
           path: ./matching-service/package.json
+  collab-service:
+    build: ./collaboration-service
+    ports:
+      - 3003:3003
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis: 
+        condition: service_started
+    environment: 
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+    networks:
+      - demo-network
+    develop:
+      watch:
+        - action: sync
+          path: ./collaboration-service
+          target: /app
+          # ignore:
+          #   - node_modules/
+        - action: rebuild
+          path: ./collaboration-service/package.json
 
   frontend:
     build: ./frontend
