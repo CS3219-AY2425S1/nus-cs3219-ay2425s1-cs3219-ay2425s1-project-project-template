@@ -9,6 +9,7 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
+  MutableRefObject,
 } from "react";
 import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
@@ -31,10 +32,28 @@ interface CollaborativeEditorProps {
   language: string;
   setMatchedUser: Dispatch<SetStateAction<string>>;
   handleCloseCollaboration: (type: string) => void;
+//   providerRef: MutableRefObject<WebrtcProvider | null>;
+  matchedUser: string;
+  onCodeChange: (code: string) => void;
 }
 
 export interface CollaborativeEditorHandle {
   endSession: () => void;
+}
+
+interface AwarenessUpdate {
+  added: number[];
+  updated: number[];
+  removed: number[];
+}
+
+interface Awareness {
+  user: {
+    name: string;
+    color: string;
+    colorLight: string;
+  };
+  codeSavedStatus: boolean;
 }
 
 export const usercolors = [
@@ -60,60 +79,62 @@ const CollaborativeEditor = forwardRef(
     const editorRef = useRef(null);
     const providerRef = useRef<WebrtcProvider | null>(null);
     const [selectedLanguage, setSelectedLanguage] = useState("JavaScript");
-    // const [sessionEndNotified, setSessionEndNotified] =
-    //   useState<boolean>(false);
     let sessionEndNotified = false;
 
     const languageConf = new Compartment();
 
     // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
-    const autoLanguage = EditorState.transactionExtender.of((tr) => {
-      if (!tr.docChanged) return null;
+  const autoLanguage = EditorState.transactionExtender.of((tr) => {
+    if (!tr.docChanged) return null;
 
-      const snippet = tr.newDoc.sliceString(0, 100);
-      // Test for various language
-      const docIsPython = /^\s*(def|class)\s/.test(snippet);
-      const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
-        snippet
-      ); // Java has some problems
-      const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
-      const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
+    const snippet = tr.newDoc.sliceString(0, 100);
 
-      let newLanguage;
-      let languageType;
-      let languageLabel;
+    // Handle code change
+    props.onCodeChange(tr.newDoc.toString());
 
-      if (docIsPython) {
-        newLanguage = python();
-        languageLabel = "Python";
-        languageType = pythonLanguage;
-      } else if (docIsJava) {
-        newLanguage = java();
-        languageLabel = "Java";
-        languageType = javaLanguage;
-      } else if (docIsGo) {
-        newLanguage = go();
-        languageLabel = "Go";
-        languageType = goLanguage;
-      } else if (docIsCpp) {
-        newLanguage = cpp();
-        languageLabel = "C++";
-        languageType = cppLanguage;
-      } else {
-        newLanguage = javascript(); // Default to JavaScript
-        languageLabel = "JavaScript";
-        languageType = javascriptLanguage;
-      }
+    // Test for various language
+    const docIsPython = /^\s*(def|class)\s/.test(snippet);
+    const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
+      snippet
+    ); // Java has some problems
+    const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
+    const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
 
-      const stateLanguage = tr.startState.facet(language);
-      if (languageType == stateLanguage) return null;
+    let newLanguage;
+    let languageType;
+    let languageLabel;
 
-      setSelectedLanguage(languageLabel);
+    if (docIsPython) {
+      newLanguage = python();
+      languageLabel = "Python";
+      languageType = pythonLanguage;
+    } else if (docIsJava) {
+      newLanguage = java();
+      languageLabel = "Java";
+      languageType = javaLanguage;
+    } else if (docIsGo) {
+      newLanguage = go();
+      languageLabel = "Go";
+      languageType = goLanguage;
+    } else if (docIsCpp) {
+      newLanguage = cpp();
+      languageLabel = "C++";
+      languageType = cppLanguage;
+    } else {
+      newLanguage = javascript(); // Default to JavaScript
+      languageLabel = "JavaScript";
+      languageType = javascriptLanguage;
+    }
 
-      return {
-        effects: languageConf.reconfigure(newLanguage),
-      };
-    });
+    const stateLanguage = tr.startState.facet(language);
+    if (languageType == stateLanguage) return null;
+
+    setSelectedLanguage(languageLabel);
+
+    return {
+      effects: languageConf.reconfigure(newLanguage),
+    };
+  });
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -214,6 +235,20 @@ const CollaborativeEditor = forwardRef(
           }
         }
       });
+        
+      // Listener for awareness updates to receive status changes from peers
+    provider.awareness.on("update", ({ added, updated } : AwarenessUpdate) => {
+      added.concat(updated).filter(clientId => clientId !== provider.awareness.clientID).forEach((clientID) => {
+        const state = provider.awareness.getStates().get(clientID) as Awareness;
+        if (state && state.codeSavedStatus) {
+          // Display the received status message
+          messageApi.open({
+            type: "success",
+            content: `${props.matchedUser ?? "Peer"} saved code successfully!`,
+          });
+        }
+      });
+    });
 
       const state = EditorState.create({
         doc: ytext.toString(),
