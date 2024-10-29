@@ -124,9 +124,11 @@ def can_add_to_queue(redis_client, user_id, request_time, logger):
 
 
 def can_proceed(redis_client, user1_id, user2_id, logger=None):
+    if user1_id == user2_id:
+        return {"can_proceed": False, "cancelled_users": []}
+
     user1_state = redis_client.hget(f"user:{user1_id}", "state")
     user2_state = redis_client.hget(f"user:{user2_id}", "state")
-
     if user1_state != b"cancelled" and user2_state != b"cancelled":
         return {"can_proceed": True, "cancelled_users": []}
 
