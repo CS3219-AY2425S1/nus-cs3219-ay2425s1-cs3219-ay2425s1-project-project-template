@@ -269,9 +269,6 @@ export default function CollaborationPage(props: CollaborationProps) {
     localStorage.removeItem("collabId");
     localStorage.removeItem("questionDocRefId");
     localStorage.removeItem("matchedTopics");
-
-    // Redirect back to matching page
-    router.push("/matching");
   };
 
   return (

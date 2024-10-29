@@ -25,4 +25,14 @@ First, run the development server:
 pnpm dev
 ```
 
-## Build Dockerfile (TODO)
+## Build Dockerfile
+
+```bash
+docker build -t signalling-service -f Dockerfile .
+```
+
+## Run Docker Container
+
+```bash
+docker run -p 4444:4444 --env-file .env -d signalling-service
+```
