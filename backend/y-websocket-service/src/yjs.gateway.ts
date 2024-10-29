@@ -22,8 +22,6 @@ import { MongodbPersistence } from 'y-mongodb-provider';
 export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
-  private documents = new Map<string, Y.Doc>();
-
   constructor(
     @Inject('COLLABORATION_SERVICE')
     private readonly collaborationClient: ClientProxy,
@@ -33,7 +31,14 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const url = new URL(request.url, 'http://${request.headers.host}');
       const sessionId = url.searchParams.get('sessionId');
-      const userId = url.searchParams.get('userId');
+      // roomId is appended to the end of the URL like so /yjs?sessionId=123&userId=456/roomId789
+      // Thus the reason to split the userIdParam by '/' to get the userId and roomId
+      // Very hacky. App might break if param order changes
+      const userIdParam = url.searchParams.get('userId');
+      const userId = userIdParam.split('/')[0];
+      const roomId = userIdParam.split('/')[1];
+
+      setupWSConnection(client, request, { docName: roomId, gc: true });
 
       if (!sessionId) {
         console.error('No session ID provided');
@@ -59,9 +64,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      this.setupPersistence(sessionId);
-
-      setupWSConnection(client, request, { docName: sessionId });
+      this.setupPersistence(roomId);
 
       client.send(`Connected to y-websocket via session: ${sessionId}`);
     } catch (error) {

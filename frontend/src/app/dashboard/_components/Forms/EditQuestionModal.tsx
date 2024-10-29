@@ -72,9 +72,11 @@ export function EditQuestionModal({
           description: "The question has been updated successfully.",
         });
       } else {
+        const message =
+          question.message || "There was an error editing the question.";
         toast({
           title: "Error",
-          description: "There was an error editing the question.",
+          description: message,
         });
       }
     },
