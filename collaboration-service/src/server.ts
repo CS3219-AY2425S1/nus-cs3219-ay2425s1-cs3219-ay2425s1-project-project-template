@@ -37,3 +37,8 @@ io.on("connection", (socket) => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 });
+
+// Start the server and connect RabbitMQ
+server.listen(PORT, async () => {
+  console.log(`Collaboration service is running on port ${PORT}`);
+});
