@@ -6,11 +6,17 @@ import { WebrtcProvider } from "y-webrtc";
 import { getUser } from "@/api/user";
 import { Cursors } from "./cursors";
 
-function Collaboration({ room }) {
-    const editorRef = useRef(null);
+type Props = {
+    room: string;
+    language: string;
+}
+
+function Collaboration({ room, language }: Props) {
+    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const docRef = useRef(new Y.Doc()); // Initialize a single YJS document
     const providerRef = useRef(null); // Ref to store the provider instance
     const [username, setUsername] = useState<string | null>(null);
+    const [selectionRange, setSelectionRange] = useState(null);
 
     // Fetch username on component mount
     useEffect(() => {
@@ -69,6 +75,13 @@ function Collaboration({ room }) {
             // Bind YJS text to Monaco editor
             new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), providerRef.current.awareness);
         }
+
+        editor.onDidChangeCursorPosition((e) => {
+            var selection = editorRef.current.getSelection();
+            if (selection) {
+                setSelectionRange(selection);
+            }
+        });
     }
 
     // Save session before page unload
@@ -87,12 +100,12 @@ function Collaboration({ room }) {
     return (
         <div>
             {providerRef.current && username ? (
-                <Cursors yProvider={providerRef.current} username={username} />) : null}
+                <Cursors yProvider={providerRef.current} username={username} cursorPosition={selectionRange || {}}/>) : null}
             <Editor
                 height="100vh"
                 width="100vw"
                 theme="vs-dark"
-                defaultLanguage="javascript"
+                defaultLanguage={language}
                 defaultValue="// start collaborating here!"
                 onMount={handleEditorDidMount}
             />

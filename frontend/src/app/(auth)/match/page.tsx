@@ -123,21 +123,24 @@ const FindPeer = () => {
                 ...prevMessages,
                 message.body,
               ]);
+              console.log("Received message: ", message.body);
               const response: FindMatchSocketMessageResponse = JSON.parse(
                 message.body
               );
               const matchedUserEmail = response.matchedUserEmail;
               closeLoadingSpinner();
               clearTimeout(timeout);
-              Swal.fire(
+                Swal.fire(
                 "Match Found!",
                 `We found a match for you! You have been matched with ${matchedUserEmail}.`,
                 "success"
-              ).then(() => {
+                ).then(() => {
                 // Create a unique string for the room
                 const room = [CURRENT_USER, matchedUserEmail].sort().join("-");
-                window.location.href = `/collaboration/${room}`;
-              });
+                // Pass language as a query parameter to the collaboration page
+                const language = "javascript"; //change to the language selected
+                window.location.href = `/collaboration/${room}?language=${encodeURIComponent(language)}`;
+                });
               client.deactivate();
             } catch (error) {
               console.error(
