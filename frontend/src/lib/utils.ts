@@ -1,10 +1,15 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export const SERVICE_QUESTION =
+export const HTTP_SERVICE_USER =
+  import.meta.env.USER_SERVICE_BACKEND_URL || "http://localhost:5001";
+export const HTTP_SERVICE_QUESTION =
   import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
-export const SERVICE_COLLAB =
+export const HTTP_SERVICE_COLLAB =
   import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+
+export const WS_SERVICE_COLLAB =
+  import.meta.env.VITE_COLLAB_SERVICE_WS_URL || "ws://localhost:5004";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -64,32 +69,4 @@ export async function callFunction(
   }
 
   return { success: true, data: data };
-}
-
-// collab-service-http ver: Utility function for making fetch requests with credentials
-export async function collabServiceHttpCallFunction(
-	functionName: string,
-	method: string = "POST",
-	body?: any,
-): Promise<SuccessObject> {
-	const url = `${collabServiceHttpBackendUrl}/${functionName}`;
-	const token = sessionStorage.getItem("authToken");
-
-	const response = await fetch(url, {
-		method: method,
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(body),
-	});
-
-	// Check for empty response
-	const data = await response.json().catch(() => ({ success: true }));
-
-	if (!response.ok) {
-		return { success: false, error: data.message };
-	}
-
-	return { success: true, data: data };
 }
