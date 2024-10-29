@@ -66,8 +66,13 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
     ),
     accessorKey: "title",
     cell: ({ row }) => {
-      return <QuestionDialog question={row.original} />;
+      return (
+        <div className="line-clamp-1">
+          <QuestionDialog question={row.original} />
+        </div>
+      );
     },
+    size: 100,
   },
   {
     header: ({ column }) => (
@@ -95,7 +100,6 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
   {
     id: "admins",
     size: 40,
-    maxSize: 40,
     cell: ({ row }) => {
       const question = row.original;
       return (
