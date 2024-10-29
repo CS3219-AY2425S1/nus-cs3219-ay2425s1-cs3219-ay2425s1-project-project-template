@@ -144,8 +144,8 @@ services:
     container_name: code-execution-service-backend
     networks:
       - my-network
-    ports:
-      - "8050:8050"  # for testing
+    # ports:
+    #   - "8050:8050"  # for testing
     env_file:
       - .env/.code_execution_env
 
