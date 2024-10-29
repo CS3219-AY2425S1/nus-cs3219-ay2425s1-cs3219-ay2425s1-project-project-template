@@ -37,7 +37,7 @@ interface QuestionListProps {
 }
 
 const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
-  const { questions, loading, error } = useQuestions();
+  const { questions, loading, error, fetchQuestions } = useQuestions();
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: SortableKeys;
@@ -97,6 +97,10 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
       }
     }
     setSortConfig({ key, direction });
+  };
+
+  const refreshQuestions = () => {
+    fetchQuestions();
   };
 
   if (loading) {
@@ -291,7 +295,7 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
           <ModalHeader>Add a New Question</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <AddQuestion />
+            <AddQuestion onAddQuestion={refreshQuestions} />
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" onClick={onClose}>

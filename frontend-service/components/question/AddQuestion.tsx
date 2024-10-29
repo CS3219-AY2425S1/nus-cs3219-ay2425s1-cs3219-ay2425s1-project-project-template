@@ -12,7 +12,11 @@ import {
 import useQuestionTopics from "../hooks/useQuestionTopics";
 import useQuestionDifficulties from "../hooks/useQuestionDifficulties";
 
-const AddQuestion: React.FC = () => {
+interface AddQuestionProps {
+  onAddQuestion: () => void;
+}
+
+const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string[]>([]);
@@ -61,6 +65,8 @@ const AddQuestion: React.FC = () => {
         setDescription("");
         setCategory([]);
         setDifficulty("");
+
+        onAddQuestion(); // refresh table
       } else {
         toast({
           title: "Error",
