@@ -9,7 +9,7 @@ import {
   isSocketConnected,
 } from "../../services/matchingSocketService";
 
-import { initializeSocket as initializeSessionSocket } from "../../services/matchingSocketService";
+import { initializeSocket as initializeSessionSocket } from "../../services/sessionService";
 
 import MatchFoundModal from "./MatchFoundModal";
 import MatchmakingModal from "./MatchmakingModal";

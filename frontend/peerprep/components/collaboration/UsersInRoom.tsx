@@ -7,9 +7,16 @@ import ReactMarkdown from "react-markdown";
 
 import { socket } from "../../services/sessionService";
 
-export const UsersInRoom = () => {
+interface UsersInRoomProps {
+  usersInRoom: string[];
+  setUsersInRoom: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const UsersInRoom = ({
+  usersInRoom,
+  setUsersInRoom,
+}: UsersInRoomProps) => {
   const { theme, resolvedTheme } = useTheme();
-  const [users, setUsers] = useState<string[]>([]);
   const [isThemeReady, setIsThemeReady] = useState<boolean>(false);
 
   useEffect(() => {
@@ -22,23 +29,17 @@ export const UsersInRoom = () => {
     (async () => {
       const resolvedSocket = await socket;
 
-      resolvedSocket?.on("initialData", (data: any) => {
-        const { sessionData } = data;
-
-        setUsers(sessionData.usersInRoom || []);
-      });
-
       resolvedSocket?.on("userJoined", (data: any) => {
         const { usersInRoom } = data;
 
-        setUsers(usersInRoom || []);
-        console.log("user joined", users);
+        setUsersInRoom(usersInRoom || []);
+        console.log("user joined", usersInRoom);
       });
 
       resolvedSocket?.on("userLeft", (data: any) => {
         const { usersInRoom } = data;
 
-        setUsers(usersInRoom || []);
+        setUsersInRoom(usersInRoom || []);
       });
     })();
 
@@ -54,7 +55,7 @@ export const UsersInRoom = () => {
   }, []);
 
   const cardBgColor =
-    users.length >= 2
+    usersInRoom.length >= 2
       ? theme === "dark"
         ? "bg-gradient-to-br from-[#2055A6] to-[#6F0AD4]"
         : "bg-gradient-to-br from-[#E0EEFA] to-[#C8BDE3]"
@@ -74,7 +75,7 @@ export const UsersInRoom = () => {
         <div className="flex flex-row items-center gap-2">
           <h3 className="text-lg font-bold mb-0.75">Users in Room:</h3>
           <div className="flex flex-wrap gap-1.5">
-            {users.map((user, index) => (
+            {usersInRoom.map((user, index) => (
               <Card
                 key={index}
                 className="p-1.5 bg-[#F9F9FC] dark:bg-blue-900 rounded-lg shadow min-h-[30px]"

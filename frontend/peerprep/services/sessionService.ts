@@ -2,7 +2,11 @@ import io from "socket.io-client";
 import { env } from "next-runtime-env";
 
 import { getAccessToken } from "../auth/actions";
+import { Dispatch } from "react";
+import { Socket } from "socket.io-client";
 const NEXT_PUBLIC_COLLAB_SERVICE_URL = env("NEXT_PUBLIC_COLLAB_SERVICE_URL");
+
+export let socket: Socket | null = null;
 
 const getToken = async () => {
   const token = await getAccessToken();
@@ -16,25 +20,43 @@ const getToken = async () => {
   return token;
 };
 
-const initializeSocket = async () => {
+export const initializeSessionSocket =
+async (setLanguage: Dispatch<any>,
+       setUsersInRoom: Dispatch<any>,
+       setQuestionDescription: Dispatch<any>,
+       setQuestionTestcases: Dispatch<any>,
+       updateDoc: (arg0: Uint8Array) => void) => {
+
   const token = await getToken();
 
   if (!token) return;
 
-  const socket = io(NEXT_PUBLIC_COLLAB_SERVICE_URL, {
+  socket = io(NEXT_PUBLIC_COLLAB_SERVICE_URL, {
     auth: { token },
     transports: ["websocket"],
     reconnectionAttempts: 5,
     timeout: 20000,
   });
 
-  return socket;
+  socket.connect();
+
+  socket.on("connect", () => {
+    console.log("Connected to session service");
+  });
+
+  socket.on("initialData", (data: any) => {
+    console.log("Populating initial data");
+    const { sessionData } = data;
+    setLanguage(sessionData.language);
+    setUsersInRoom(sessionData.usersInRoom);
+    setQuestionDescription(sessionData.questionDescription);
+    setQuestionTestcases(sessionData.questionTestcases);
+    updateDoc(new Uint8Array(sessionData.yDocUpdate));
+  });
 };
 
-export const socket = initializeSocket();
 
 export const isSocketConnected = async () => {
-  const resolvedSocket = await socket;
-  return resolvedSocket ? resolvedSocket.connected : false;
+  return socket ? socket.connected : false;
 }
 

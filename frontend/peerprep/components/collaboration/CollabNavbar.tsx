@@ -14,7 +14,15 @@ import { SettingButton, NotificationButton } from "@/components/navbar-buttons";
 import { Logo } from "@/components/icons";
 import { getUsername } from "@/auth/actions";
 
-export const CollabNavbar = () => {
+export interface CollabNavbarProps {
+  usersInRoom: string[];
+  setUsersInRoom: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const CollabNavbar = ({
+  usersInRoom,
+  setUsersInRoom,
+}: CollabNavbarProps) => {
   return (
     <NextUINavbar maxWidth="full" position="sticky">
       <NavbarContent className="basis-4/5 sm:basis-full gap-10" justify="start">
@@ -26,7 +34,11 @@ export const CollabNavbar = () => {
         {/* <GreetingMessageHeader user={user || "User"} /> */}
       </NavbarContent>
       <NavbarContent className="basis-full" justify="center">
-        <UsersInRoom /> {/* Add the UsersInRoom component */}
+        <UsersInRoom
+          usersInRoom={usersInRoom}
+          setUsersInRoom={setUsersInRoom}
+        />
+        {/* Add the UsersInRoom component */}
       </NavbarContent>
       <NavbarContent className="basis-1/5" justify="center">
         <TerminateModal /> {/* Add the UsersInRoom component */}
