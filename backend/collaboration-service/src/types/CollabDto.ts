@@ -17,6 +17,10 @@ import { ChatModel } from '.'
 export class CollabDto {
     @IsString()
     @IsNotEmpty()
+    matchId: string
+
+    @IsString()
+    @IsNotEmpty()
     questionId: string
 
     @IsEnum(LanguageMode)
@@ -42,12 +46,14 @@ export class CollabDto {
     createdAt: Date
 
     constructor(
+        matchId: string,
         language: LanguageMode,
         code: string,
         executionResult: string,
         chatHistory: ChatModel[],
         createdAt: Date
     ) {
+        this.matchId = matchId
         this.language = language
         this.code = code
         this.executionResult = executionResult
@@ -56,9 +62,13 @@ export class CollabDto {
     }
 
     static fromRequest({
-        body: { language, code, executionResult, chatHistory, createdAt },
+        body: { matchId, language, code, executionResult, chatHistory, createdAt },
     }: ITypedBodyRequest<CollabDto>): CollabDto {
-        return new CollabDto(language, code, executionResult, chatHistory, createdAt)
+        return new CollabDto(matchId, language, code, executionResult, chatHistory, createdAt)
+    }
+
+    static fromModel({ matchId, language, code, executionResult, chatHistory, createdAt }: CollabDto): CollabDto {
+        return new CollabDto(matchId, language, code, executionResult, chatHistory, createdAt)
     }
 
     async validate(): Promise<ValidationError[]> {

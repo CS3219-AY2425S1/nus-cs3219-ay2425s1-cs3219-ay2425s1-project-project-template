@@ -5,10 +5,14 @@ import { ChatModel } from '../types'
 
 const collabModel: Model<CollabDto> = model('collab', collabSchema)
 
-export async function createSession(dto: CollabDto, id: string): Promise<CollabDto> {
+export async function createSession(dto: CollabDto): Promise<CollabDto> {
     return collabModel.create({
-        _id: id,
-        ...dto,
+        _id: dto.matchId,
+        language: dto.language,
+        code: dto.code,
+        executionResult: dto.executionResult,
+        chatHistory: dto.chatHistory,
+        createdAt: dto.createdAt,
     })
 }
 

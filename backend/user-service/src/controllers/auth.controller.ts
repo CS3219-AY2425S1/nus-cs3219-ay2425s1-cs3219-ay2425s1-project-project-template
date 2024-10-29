@@ -1,7 +1,6 @@
 import { IAuthenticatedRequest, ITypedBodyRequest } from '@repo/request-types'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { generateOTP, sendMail } from '../common/mail.util'
-
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
 import { Response } from 'express'
 import { UpdatePasswordDto } from '../types/UpdatePasswordDto'
