@@ -6,7 +6,13 @@ export function capitalize(word: string) {
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
-export type SupportedLanguages = 'javascript' | 'typescript' | 'python' | 'java' | 'csharp' | 'php';
+export type SupportedLanguages =
+  | "javascript"
+  | "typescript"
+  | "python"
+  | "java"
+  | "csharp"
+  | "php";
 
 export const LANGUAGE_VERSIONS = {
   javascript: "18.15.0",
@@ -48,3 +54,5 @@ export const languages = [
   "OBJECTIVE-C",
 ];
 
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
