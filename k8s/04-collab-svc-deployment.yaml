@@ -63,8 +63,7 @@ spec:
       
       containers:
         - name: collab-express
-          # TODO: change tag to latest
-          image: ay2425s1cs3219g16/collab-express:main
+          image: ay2425s1cs3219g16/collab-express:latest
           imagePullPolicy: IfNotPresent
           envFrom:
           - secretRef: 
