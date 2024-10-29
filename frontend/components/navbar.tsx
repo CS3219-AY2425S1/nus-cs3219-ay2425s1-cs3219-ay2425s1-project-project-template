@@ -16,6 +16,7 @@ import { Avatar } from "@nextui-org/avatar";
 import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import NavLink from "@/components/navLink";
 import { useLogout } from "@/hooks/api/auth";
@@ -24,15 +25,11 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";
 import { useUser } from "@/hooks/users";
 
-// Define the props interface
-interface NavbarProps {
-  isLoggedIn: boolean;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
+export const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { mutate: logout } = useLogout();
 
@@ -40,9 +37,18 @@ export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
     logout(undefined, {
       onSuccess: () => {
         router.push("/");
+        setUser(null);
       },
     });
   };
+
+  useEffect(() => {
+    if (user) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, [user]);
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">

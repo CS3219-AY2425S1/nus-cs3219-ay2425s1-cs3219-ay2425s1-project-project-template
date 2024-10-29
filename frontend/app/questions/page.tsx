@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { useQuestions } from "@/hooks/api/questions";
 import QuestionTable from "@/components/questions/QuestionTable";
-import DefaultLayout from "@/layouts/default";
 
 export default function Page() {
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -15,23 +14,21 @@ export default function Page() {
 
   return (
     <>
-      <DefaultLayout isLoggedIn={true}>
-        {isLoading ? (
-          <p>Fetching Questions...</p>
-        ) : isError ? (
-          <p>Had Trouble Fetching Questions!</p>
-        ) : (
-          <div className="flex justify-center">
-            <QuestionTable
-              handlePageOnClick={handleOnPageClick}
-              isAdmin={false}
-              pageNumber={pageNumber}
-              questions={questionList?.questions || []}
-              totalPages={parseInt(questionList?.totalPages || "1")}
-            />
-          </div>
-        )}
-      </DefaultLayout>
+      {isLoading ? (
+        <p>Fetching Questions...</p>
+      ) : isError ? (
+        <p>Had Trouble Fetching Questions!</p>
+      ) : (
+        <div className="flex justify-center">
+          <QuestionTable
+            handlePageOnClick={handleOnPageClick}
+            isAdmin={false}
+            pageNumber={pageNumber}
+            questions={questionList?.questions || []}
+            totalPages={parseInt(questionList?.totalPages || "1")}
+          />
+        </div>
+      )}
     </>
   );
 }

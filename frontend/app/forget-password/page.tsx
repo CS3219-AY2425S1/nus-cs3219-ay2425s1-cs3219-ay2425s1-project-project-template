@@ -1,20 +1,16 @@
+"use client";
+
 import React from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 
 import ForgetPasswordForm from "@/components/forms/ForgetPasswordForm";
 import { useForgetPassword } from "@/hooks/api/auth";
-import DefaultLayout from "@/layouts/default";
 
-const ForgetPasswordPage = () => {
+export default function Page() {
   const router = useRouter();
-  const {
-    mutate: forgetPassword,
-    isPending,
-    isError,
-    error,
-  } = useForgetPassword();
+  const { mutate: forgetPassword, isPending } = useForgetPassword();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const handleForgetPassword = (email: string) => {
@@ -34,7 +30,7 @@ const ForgetPasswordPage = () => {
             setErrorMessage("An unexpected error occurred. Please try again.");
           }
         },
-      }
+      },
     );
   };
 
@@ -43,29 +39,25 @@ const ForgetPasswordPage = () => {
   };
 
   return (
-    <DefaultLayout isLoggedIn={false}>
-      <div className="flex items-start justify-center pt-[25vh]">
-        <Card className="w-full max-w-lg p-8">
-          <h2 className="text-3xl font-semibold text-center">
-            Forgot Your Password?
-          </h2>
+    <div className="flex items-start justify-center pt-[5vh]">
+      <Card className="w-full max-w-lg p-8">
+        <h2 className="text-3xl font-semibold text-center">
+          Forgot Your Password?
+        </h2>
 
-          {/* ForgetPasswordForm component, with the correct onSubmit handler */}
-          <ForgetPasswordForm onSubmit={handleForgetPassword} />
+        {/* ForgetPasswordForm component, with the correct onSubmit handler */}
+        <ForgetPasswordForm onSubmit={handleForgetPassword} />
 
-          {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
-          {isPending && (
-            <p className="text-gray-400 mt-4">Sending reset email...</p>
-          )}
-          <div className="mt-6 text-center">
-            <Button className="mt-2" onClick={handleLogin}>
-              Back to Login
-            </Button>
-          </div>
-        </Card>
-      </div>
-    </DefaultLayout>
+        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+        {isPending && (
+          <p className="text-gray-400 mt-4">Sending reset email...</p>
+        )}
+        <div className="mt-6 text-center">
+          <Button className="mt-2" onClick={handleLogin}>
+            Back to Login
+          </Button>
+        </div>
+      </Card>
+    </div>
   );
-};
-
-export default ForgetPasswordPage;
+}

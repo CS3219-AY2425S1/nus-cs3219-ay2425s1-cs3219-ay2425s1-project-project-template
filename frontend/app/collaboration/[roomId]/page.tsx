@@ -14,12 +14,11 @@ import { Button } from "@nextui-org/button";
 import { Avatar } from "@nextui-org/avatar";
 import { toast } from "react-toastify";
 
-import DefaultLayout from "@/layouts/default";
 import { Question } from "@/types/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 import { SocketContext } from "@/context/SockerIOContext";
 import { useUser } from "@/hooks/users";
-import { ToastContainer } from "react-toastify";
+import CodeEditor from "@/components/collaboration/CodeEditor";
 
 const mockQuestion: Question = {
   title: "Fibonacci Number",
@@ -94,92 +93,84 @@ export default function Page() {
 
   return (
     <>
-      <DefaultLayout isLoggedIn={true}>
-        <div className="flex items-end justify-end mt-4">
-          <Avatar
-            isBordered
-            color={isAvatarActive(otherUser)}
-            name={otherUser}
-          />
-          <Avatar
-            isBordered
-            className="mx-8"
-            color="success"
-            name={user?.username}
-          />
-          <Button className="mx-8" color="danger" onPress={onOpen}>
-            Exit Session
-          </Button>
+      <div className="flex items-end justify-end mt-4">
+        <Avatar isBordered color={isAvatarActive(otherUser)} name={otherUser} />
+        <Avatar
+          isBordered
+          className="mx-8"
+          color="success"
+          name={user?.username}
+        />
+        <Button className="mx-8" color="danger" onPress={onOpen}>
+          Exit Session
+        </Button>
+      </div>
+      <div className="flex">
+        <div className="flex-[2_2_0%]">
+          <QuestionDescription isCollab={true} question={mockQuestion} />
         </div>
-        <div className="flex flex-row">
-          <section className="flex-[2_2_0%]">
-            <QuestionDescription isCollab={true} question={mockQuestion} />
-          </section>
-          <div className="flex-[3_3_0%]">
-            <h1>Placeholder for code editor</h1>
-          </div>
+        <div className="flex-[3_3_0%]">
+          <CodeEditor />
         </div>
+      </div>
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Exit Session
-                </ModalHeader>
-                <ModalBody>
-                  <p>Did both users agree to exit the session?</p>
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    No
-                  </Button>
-                  <Button
-                    color="primary"
-                    onPress={() => {
-                      handleEndSession();
-                      onClose();
-                    }}
-                  >
-                    Yes, Exit
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Exit Session
+              </ModalHeader>
+              <ModalBody>
+                <p>Did both users agree to exit the session?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  No
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    handleEndSession();
+                    onClose();
+                  }}
+                >
+                  Yes, Exit
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
 
-        <Modal
-          hideCloseButton={true}
-          isDismissable={false}
-          isOpen={otherUserDisconnect}
-        >
-          <ModalContent>
-            {() => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Other user disconnected
-                </ModalHeader>
-                <ModalBody>
-                  <p>
-                    The other user disconnected, the room will now be closed.
-                  </p>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="primary"
-                    onPress={() => {
-                      router.push("/match");
-                    }}
-                  >
-                    Back to match
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
-      </DefaultLayout>
+      <Modal
+        hideCloseButton={true}
+        isDismissable={false}
+        isOpen={otherUserDisconnect}
+      >
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Other user disconnected
+              </ModalHeader>
+              <ModalBody>
+                <p>The other user disconnected, the room will now be closed.</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    router.push("/match");
+                  }}
+                >
+                  Back to match
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 }

@@ -66,7 +66,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form className="mt-8" onSubmit={handleSubmit}>
+    <form className="m-5" onSubmit={handleSubmit}>
       <div className="mb-4">
         <h2 className="text-2xl font-semibold text-center">Login</h2>
       </div>
@@ -75,13 +75,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         <label className="block text-gray-400" htmlFor="email">
           Email
         </label>
-        <Input 
-          errorMessage="Please provide a valid email." 
-          isInvalid={!!errors.email} 
-          isRequired={true} 
-          type="email" 
-          value={formData.email} 
-          onChange={handleEmailOnChange} 
+        <Input
+          errorMessage="Please provide a valid email."
+          isInvalid={!!errors.email}
+          isRequired={true}
+          type="email"
+          value={formData.email}
+          onChange={handleEmailOnChange}
         />
       </div>
 
@@ -89,13 +89,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         <label className="block text-gray-400" htmlFor="password">
           Password
         </label>
-        <Input 
-          errorMessage="Password is required." 
+        <Input
+          errorMessage="Password is required."
           isInvalid={!!errors.password}
-          isRequired={true} 
-          type="password" 
-          value={formData.password} 
-          onChange={handlePasswordOnChange} 
+          isRequired={true}
+          type="password"
+          value={formData.password}
+          onChange={handlePasswordOnChange}
         />
       </div>
 

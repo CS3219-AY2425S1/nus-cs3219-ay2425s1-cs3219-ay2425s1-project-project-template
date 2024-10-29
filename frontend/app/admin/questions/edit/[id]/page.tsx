@@ -3,7 +3,6 @@
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
-import DefaultLayout from "@/layouts/default";
 import QuestionForm from "@/components/forms/QuestionForm";
 import { useGetQuestion } from "@/hooks/api/questions";
 import { useUpdateQuestions } from "@/hooks/api/questions";
@@ -61,30 +60,28 @@ export default function Page() {
   };
 
   return (
-    <DefaultLayout isLoggedIn={true}>
-      <div className="flex items-center justify-center">
-        <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>Error loading question. Please try again later.</p>
-          ) : !question ? (
-            <p>Question does not exist!</p>
-          ) : (
-            <>
-              <QuestionForm
-                formData={formData}
-                formType="Edit"
-                setFormData={setFormData}
-                onSubmit={handleOnSubmit}
-              />
-              {isUpdateError && (
-                <p className="text-red-500 mt-4 text-center">{`${updateError?.message}. Please try again later.`}</p>
-              )}
-            </>
-          )}
-        </div>
+    <div className="flex items-center justify-center">
+      <div className="w-full max-w-4xl p-4 border-solid border-2 rounded-lg">
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error loading question. Please try again later.</p>
+        ) : !question ? (
+          <p>Question does not exist!</p>
+        ) : (
+          <>
+            <QuestionForm
+              formData={formData}
+              formType="Edit"
+              setFormData={setFormData}
+              onSubmit={handleOnSubmit}
+            />
+            {isUpdateError && (
+              <p className="text-red-500 mt-4 text-center">{`${updateError?.message}. Please try again later.`}</p>
+            )}
+          </>
+        )}
       </div>
-    </DefaultLayout>
+    </div>
   );
 }
