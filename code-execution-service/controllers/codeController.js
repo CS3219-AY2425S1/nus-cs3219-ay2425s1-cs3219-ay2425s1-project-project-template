@@ -11,8 +11,8 @@ if (!fs.existsSync(CODE_DIR)) {
 
 // Set limits
 const EXECUTION_TIMEOUT_MS = 2000; // 2 seconds for execution
-const COMPILATION_TIMEOUT_MS = 3000; // 3 seconds for compilation
-const MEMORY_LIMIT_MB = 100; // Set memory limit to 100 MB
+const COMPILATION_TIMEOUT_MS = 10000; // 10 seconds for compilation
+const MEMORY_LIMIT_KB = 100 * 1024; // 100 MB in KB
 
 // Code execution logic
 const executeCode = (req, res) => {
@@ -35,20 +35,20 @@ const executeCode = (req, res) => {
         filename = 'tempCode.py';
         filePath = path.join(uniqueDir, filename);
         inputFilePath = path.join(uniqueDir, 'input.txt');
-        execCommand = `python3 ${filePath} < ${inputFilePath}`;
+        execCommand = `ulimit -v ${MEMORY_LIMIT_KB}; python3 ${filePath} < ${inputFilePath}`;
         break;
       case 'javascript':
         filename = 'tempCode.js';
         filePath = path.join(uniqueDir, filename);
         inputFilePath = path.join(uniqueDir, 'input.txt');
-        execCommand = `node ${filePath} < ${inputFilePath}`;
+        execCommand = `ulimit -v ${MEMORY_LIMIT_KB}; node ${filePath} < ${inputFilePath}`;
         break;
       case 'cpp':
         filename = 'tempCode.cpp';
         filePath = path.join(uniqueDir, filename);
         inputFilePath = path.join(uniqueDir, 'input.txt');
         compileCommand = `g++ ${filePath} -o ${path.join(uniqueDir, 'tempCode')}`;
-        execCommand = `${path.join(uniqueDir, 'tempCode')} < ${inputFilePath}`;
+        execCommand = `ulimit -v ${MEMORY_LIMIT_KB}; ${path.join(uniqueDir, 'tempCode')} < ${inputFilePath}`;
         break;
       default:
         fs.rmSync(uniqueDir, { recursive: true }); // Clean up directory
@@ -63,7 +63,8 @@ const executeCode = (req, res) => {
       try {
         return execSync(command, { timeout, stdio: 'pipe' }).toString();
       } catch (error) {
-        throw new Error(error.code == 'ETIMEDOUT' ? errorMessage : error.stderr.toString());
+        console.log(error)
+        throw new Error(error.code === 'ETIMEDOUT' ? errorMessage : error.stderr.toString());
       }
     };
 
@@ -73,7 +74,7 @@ const executeCode = (req, res) => {
         // Compile
         execWithTimeoutSync(compileCommand, COMPILATION_TIMEOUT_MS, 'Compilation timed out');
         // Execute
-        const output = execWithTimeoutSync(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out');
+        const output = execWithTimeoutSync(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out / Memory Error');
         
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
@@ -86,7 +87,7 @@ const executeCode = (req, res) => {
     } else {
       // For other languages, execute immediately
       try {
-        const output = execWithTimeoutSync(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out');
+        const output = execWithTimeoutSync(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out / Memory Error');
         
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
