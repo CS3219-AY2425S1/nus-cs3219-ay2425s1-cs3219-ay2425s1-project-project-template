@@ -169,7 +169,7 @@ const styles = {
     height: "200px",
     padding: "10px",
     borderBottom: "1px solid #ccc",
-    overflowY: "auto" as "auto",
+    overflowY: "auto" as const,
     backgroundColor: "#fafafa",
   },
   message: {
@@ -178,7 +178,7 @@ const styles = {
   socketIdDisplay: {
     padding: "10px",
     backgroundColor: "#e9ecef",
-    textAlign: "center" as "center",
+    textAlign: "center" as const,
     color: "blue",
   },
   chatInput: {

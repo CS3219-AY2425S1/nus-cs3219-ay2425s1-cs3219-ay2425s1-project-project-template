@@ -56,6 +56,15 @@ export const initializeCollaborationService = (server) => {
       }
     });
 
+    // Handle code changes
+    socket.on("sendCode", ({ room, code }) => {
+      socket.to(room).emit("codeChange", code);
+    });
+
+    socket.on("changeLanguage", ({ room, language }) => {
+      socket.to(room).emit("languageChange", language);
+    });
+
     // Handle disconnection
     socket.on("disconnect", async () => {
       const currentJobs = await matchingQueue.getJobs([
@@ -115,3 +124,5 @@ export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
 export const notifyUserOfMatchFailed = (socketId, message) => {
   io.to(socketId).emit("matchFailed", { error: message });
 };
+
+
