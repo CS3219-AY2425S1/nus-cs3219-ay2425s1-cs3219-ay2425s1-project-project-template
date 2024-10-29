@@ -32,7 +32,7 @@ export async function handleLogin(req, res) {
       return res.status(401).json({ message: "Wrong username/email and/or password" });
     }
 
-    if (!user.isConfirm) {
+    if (!user.isVerified) {
       return res.status(403).json({message: "You have not verified your account"});
     }
 

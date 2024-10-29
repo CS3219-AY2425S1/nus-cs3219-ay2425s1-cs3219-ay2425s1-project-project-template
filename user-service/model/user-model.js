@@ -26,10 +26,13 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
-  isConfirm: {
+  isVerified: {
     type: Boolean,
     required: true,
     default: false
+  },
+  expireAt: {
+    type: Date
   },
   friends: {
     type: [String], // Array of strings for friend IDs
@@ -50,5 +53,7 @@ const UserModelSchema = new Schema({
     default: [], // Default to an empty array
   },
 });
+
+UserModelSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 })
 
 export default mongoose.model("UserModel", UserModelSchema);
