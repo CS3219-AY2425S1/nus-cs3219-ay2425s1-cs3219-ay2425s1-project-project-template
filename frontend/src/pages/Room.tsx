@@ -22,6 +22,7 @@ function Room() {
   const matchData = location.state;
 
   const socketRef = useRef<Socket | null>(null);
+  const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
     if (!matchData) {
@@ -66,6 +67,7 @@ function Room() {
     });
 
     socketRef.current.on('code-updated', (newCode) => {
+      isRemoteUpdateRef.current = true;
       setCode(newCode);
     });
 
@@ -89,7 +91,11 @@ function Room() {
   };
 
   useEffect(() => {
-    socketRef.current?.emit('edit-code', code);
+    if (isRemoteUpdateRef.current) {
+      isRemoteUpdateRef.current = false;
+    } else {
+      socketRef.current?.emit('edit-code', code);
+    }
   }, [code]);
 
   const handleLeaveSession = () => {
