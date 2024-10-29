@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose'
 import { CollabDto } from '../types/CollabDto'
 import { LanguageMode } from '../types/LanguageMode'
-import { ChatModel } from '../types'
+import chatModelSchema from './chat.model'
 
 const collabSchema = new Schema<CollabDto>({
     questionId: {
@@ -23,7 +23,7 @@ const collabSchema = new Schema<CollabDto>({
         required: true,
     },
     chatHistory: {
-        type: [ChatModel],
+        type: [chatModelSchema],
         required: true,
     },
     createdAt: {

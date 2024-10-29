@@ -13,6 +13,7 @@ import {
 import { Type } from 'class-transformer'
 import { LanguageMode } from './LanguageMode'
 import { ChatModel } from '.'
+import 'reflect-metadata'
 
 export class CollabDto {
     @IsString()
