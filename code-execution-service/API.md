@@ -3,7 +3,7 @@
 ## Base URL
 
 ```url
-http://code-execution-service-backend/api/codex/
+http://code-execution-service/api/codex/
 ```
 
 ## Security
@@ -12,7 +12,79 @@ The client will require a valid JWT created from our user service to use our end
 
 ## Endpoint
 
-### POST /
+### 1. Health Check
+
+**GET** `/`
+
+#### Description
+
+Check the health status of the API.
+
+#### Response
+
+- **200 OK**: Returns a simple message indicating that the service is running.
+
+#### Example Response
+
+```json
+"Hello world!"
+```
+
+---
+
+### 2. Get Supported Languages
+
+**GET** `/languages`
+
+#### Description
+
+Retrieve a list of programming languages supported by the code execution service.
+
+#### Response
+
+- **200 OK**: Returns an array of supported languages.
+
+#### Example Response
+
+```json
+["python", "javascript", "cpp"]
+```
+
+---
+
+### 3. Get Starter Code
+
+**GET** `/starter-code/:language`
+
+#### Description
+
+Retrieve starter code and sample input for the specified programming language.
+
+#### Parameters
+
+- **language** (path parameter): The programming language for which to retrieve the starter code. Supported values are `python`, `javascript`, and `cpp`.
+
+#### Response
+
+- **200 OK**: Returns the starter code and sample input for the specified language.
+- **400 Bad Request**: If the specified language is not supported.
+
+#### Example Response
+
+```json
+{
+    "code": "num1 = int(input())\nnum2 = int(input())\nsum_result = num1 + num2\nprint(f'The sum of {num1} and {num2} is {sum_result}')",
+    "input": "20\n30"
+}
+```
+
+---
+
+### 4. Execute Code
+
+**POST** `/`
+
+#### Description
 
 Executes code in a specified programming language within a Docker container, optionally with input.
 
@@ -45,12 +117,12 @@ Executes code in a specified programming language within a Docker container, opt
 
     ```json
         {
-        "output": "The sum of 20 and 30 is 50\n"
-
+        "output": "The sum of 20 and 30 is 50\n",
+        "is_error": false
     }
     ```
 
-  - **Description**: Returns the output of the executed code.
+  - **Description**: Returns the output of the executed code, and flag to indicate if there was an error while running the code.
 
 - **Error Responses**:
 
@@ -106,30 +178,20 @@ Executes code in a specified programming language within a Docker container, opt
 
 ```json
 {
-    "output": "Traceback (most recent call last):\n  File \"/tempCode.py\", line 3, in <module>\n    sum_result = myMistake + num2\n                 ^^^^^^^^^\nNameError: name 'myMistake' is not defined\n"
+    "output": "Traceback (most recent call last):\n  File \"/tempCode.py\", line 3, in <module>\n    sum_result = myMistake + num2\n                 ^^^^^^^^^\nNameError: name 'myMistake' is not defined\n",
+    "is_error": true
 }
 ```
-
-## Docker Execution Details
-
-The code is executed inside a Docker container specific to the language provided:
-
-- **Python**: Executes `.py` files using `python:latest`.
-- **JavaScript**: Executes `.js` files using `node:latest`.
-- **C++**: Compiles and runs `.cpp` files using `gcc:latest`.
-
-Each language uses `echo` to pass any input and mounts the temporary file read-only to prevent file modification.
 
 ## Error Handling
 
 - If the provided language is unsupported, a `400` error with the message `"Unsupported language."` is returned.
-- Errors encountered during execution (e.g., syntax errors) are returned in the `500` error response.
+- Errors encountered during execution (e.g., syntax errors) are returned in the `200` normal response, with `is_error` set to `true`.
 - Any unknown errors are logged on the server and return a generic error message to the client.
 
 ## Important Notes
 
 1. **File Cleanup**: Temporary files created for code execution are deleted after the process to prevent storage accumulation.
-2. **Security**: Ensure proper validation and sandboxing as running arbitrary code in Docker, even with restrictions, can have security implications.
 
 ## Additional Information
 
