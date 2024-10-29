@@ -56,12 +56,12 @@ const executeCode = (req, res) => {
     fs.writeFileSync(filePath, code);
     fs.writeFileSync(inputFilePath, input);
 
-    // Function to execute a command with a timeout
-    const execWithTimeout = (command, timeout) => {
+    // Function to execute a command with a timeout and custom error message
+    const execWithTimeout = (command, timeout, errorMessage) => {
       return new Promise((resolve, reject) => {
         const process = exec(command, { timeout }, (error, stdout, stderr) => {
           if (error) {
-            reject(stderr || error.message);
+            reject(new Error(errorMessage));
           } else {
             resolve(stdout);
           }
@@ -71,35 +71,33 @@ const executeCode = (req, res) => {
 
     // Compile the C++ code with a time limit
     if (language === 'cpp') {
-      execWithTimeout(compileCommand, COMPILATION_TIMEOUT_MS)
+      execWithTimeout(compileCommand, COMPILATION_TIMEOUT_MS, 'Compilation timed out')
         .then(() => {
           // Now execute the compiled code with memory limit
-          return execWithTimeout(execCommand, EXECUTION_TIMEOUT_MS);
+          return execWithTimeout(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out');
         })
         .then(output => {
           // Clean up generated files and directory after execution
           fs.rmSync(uniqueDir, { recursive: true });
-          res.send({ output });
+          res.status(200).json({ output, is_error: false });
         })
         .catch(error => {
           // Clean up generated files and directory after execution
           fs.rmSync(uniqueDir, { recursive: true });
-          console.error('Execution error:', error); // Log the error for debugging
-          res.status(500).json({ error: error.message });
+          res.status(200).json({ output: error.message, is_error: true });
         });
     } else {
       // For other languages, execute immediately
-      execWithTimeout(execCommand, EXECUTION_TIMEOUT_MS)
+      execWithTimeout(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out')
         .then(output => {
           // Clean up generated files and directory after execution
           fs.rmSync(uniqueDir, { recursive: true });
-          res.send({ output });
+          res.status(200).json({ output, is_error: false });
         })
         .catch(error => {
           // Clean up generated files and directory after execution
           fs.rmSync(uniqueDir, { recursive: true });
-          console.error('Execution error:', error); // Log the error for debugging
-          res.status(500).json({ error: error.message });
+          res.status(200).json({ output: error.message, is_error: true });
         });
     }
 
