@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import NavBar from "./components/NavBar";
 import MatchUsers from "./pages/MatchUsers";
+import CollabSpace from "./pages/CollabSpace";
 
 function App() {
     return (
@@ -22,7 +23,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/home" element={<Home />} />
-
+                <Route path="/collab" element={<CollabSpace/>}/>
                 <Route path="/users-match" element={<MatchUsers />} />
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>

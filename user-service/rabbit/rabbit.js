@@ -14,6 +14,11 @@ const CANCEL_RESULT_QUEUE = 'CANCEL-RESULT-QUEUE'
 const CANCEL_REQUEST_ROUTING = 'CANCEL-REQUEST-ROUTING'
 const CANCEL_RESULT_ROUTING = 'CANCEL-RESULT-ROUTING'
 
+const MATCH_TO_QUESTION_QUEUE = 'MATCH-TO-QUESTION-QUEUE'
+const QUESTION_TO_USER_QUEUE = 'QUESTION-TO-USER-QUEUE'
+const MATCH_TO_QUESTION_ROUTING = 'MATCH-TO-QUESTION-ROUTING'
+const QUESTION_TO_USER_ROUTING = 'QUESTION-TO-USER-ROUTING'
+
 
 export const createChannel = async () => {
     try {
@@ -21,14 +26,23 @@ export const createChannel = async () => {
         const channel = await connection.createChannel()
 
         await channel.assertExchange(REQUEST_EXCHANGE, 'direct')
+
         const matchRequestQueue = await channel.assertQueue(MATCH_REQUEST_QUEUE)
         channel.bindQueue(matchRequestQueue.queue, REQUEST_EXCHANGE, MATCH_REQUEST_ROUTING)
+
         const cancelRequestQueue = await channel.assertQueue(CANCEL_REQUEST_QUEUE)
         channel.bindQueue(cancelRequestQueue.queue, REQUEST_EXCHANGE, CANCEL_REQUEST_ROUTING)
+
+        const matchToQuestionQueue = await channel.assertQueue(MATCH_TO_QUESTION_QUEUE)
+        channel.bindQueue(matchToQuestionQueue.queue, REQUEST_EXCHANGE, MATCH_TO_QUESTION_ROUTING)
         
         await channel.assertExchange(RESULT_EXCHANGE, 'direct')
         const matchResultQueue = await channel.assertQueue(MATCH_RESULT_QUEUE)
         channel.bindQueue(matchResultQueue.queue, RESULT_EXCHANGE, MATCH_RESULT_ROUTING)
+
+        const questionToUserQueue = await channel.assertQueue(QUESTION_TO_USER_QUEUE)
+        channel.bindQueue(questionToUserQueue.queue, RESULT_EXCHANGE, QUESTION_TO_USER_ROUTING)
+
         const cancelResultQueue = await channel.assertQueue(CANCEL_RESULT_QUEUE)
         channel.bindQueue(cancelResultQueue.queue, RESULT_EXCHANGE, CANCEL_RESULT_ROUTING)
 
@@ -57,7 +71,7 @@ export const sendCancelRequest = (channel, payload) => {
 
 export const receiveMatchResult = async (channel, io) => {
     try {
-        channel.consume(MATCH_RESULT_QUEUE, (data) => {
+        channel.consume(QUESTION_TO_USER_QUEUE, (data) => {
             if (data) {
                 const message = data.content.toString()
                 channel.ack(data)
@@ -74,12 +88,14 @@ export const receiveMatchResult = async (channel, io) => {
                     user1Socket.emit('match_found', {
                         success: true,
                         matchedUser: { id: matchData.user2Id },
+                        question: matchData.question
                     });
 
                     // Notify User 2
                     user2Socket.emit('match_found', {
                         success: true,
                         matchedUser: { id: matchData.user1Id },
+                        question: matchData.question
                     });
                 }
             }
