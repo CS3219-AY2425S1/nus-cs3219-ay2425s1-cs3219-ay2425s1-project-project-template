@@ -55,8 +55,8 @@ const validateUserData = ({ username, email, password }) => {
   return null;
 };
 
-const generateEmailToken = (userId, verificationCode, expiresInSeconds) => {
-  return jwt.sign({ id: userId, code: verificationCode }, process.env.JWT_SECRET, { expiresIn: expiresInSeconds });
+const generateEmailToken = (userId, createdAt, verificationCode, expiresInSeconds) => {
+  return jwt.sign({ id: userId, createdAt: createdAt, code: verificationCode }, process.env.JWT_SECRET, { expiresIn: expiresInSeconds });
 };
 
 const sendVerificationEmail = async (email, username, verificationCode) => {
@@ -90,16 +90,25 @@ export async function createUserRequest(req, res) {
 
     const existingUser = await _findUserByUsernameOrEmail(username, email);
     if (existingUser) {
+      if (!existingUser.isVerified) {
+        const match = await bcrypt.compare(password, existingUser.password);
+        if (match) {
+          req.user = existingUser;
+          return refreshEmailToken(req, res);
+        } else {
+          return res.status(409).json({message: "An unverified account has been linked to your username/email, use the same password or try again after 3 minutes"})
+        }
+      }
       return res.status(409).json({ message: "Username or email already exists." });
     }
-
+    
     const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
     const expirationDate = new Date(Date.now() + 3 * 60 * 1000);
     const expiresInSeconds = Math.floor((expirationDate.getTime() - Date.now()) / 1000);
 
     const createdUser = await _createTempUser(username, email, hashedPassword, false, expirationDate);
-    const emailToken = generateEmailToken(createdUser.id, verificationCode, expiresInSeconds);
+    const emailToken = generateEmailToken(createdUser.id, createdUser.createdAt, verificationCode, expiresInSeconds);
 
     await sendVerificationEmail(email, username, verificationCode);
 
@@ -130,6 +139,31 @@ export async function deleteUserRequest(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when deleting user!" });
+  }
+}
+
+export async function refreshEmailToken(req, res) {
+  try {
+    const verifiedUser = req.user;
+
+    const now = Date.now();
+    const expirationDate = new Date(now + 3 * 60 * 1000);
+    const expiresInSeconds = Math.floor((expirationDate.getTime() - Date.now()) / 1000);
+
+    await _updateUserAccountCreationTime(verifiedUser.id, now, expirationDate);
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const emailToken = generateEmailToken(verifiedUser.id, now, verificationCode, expiresInSeconds);
+
+    await sendVerificationEmail(verifiedUser.email, verifiedUser.username, verificationCode);
+
+    return res.status(201).json({
+      message: `Token refreshed successfully`,
+      data: { token: emailToken, expiry: expirationDate },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Unknown error occurred when refreshing token" });
   }
 }
 
@@ -390,26 +424,3 @@ export function formatUserResponse(user) {
 }
 
 
-export async function refreshEmailToken(req, res) {
-  try {
-    const verifiedUser = req.user;
-
-    const expirationDate = new Date(Date.now() + 3 * 60 * 1000);
-    const expiresInSeconds = Math.floor((expirationDate.getTime() - Date.now()) / 1000);
-
-    await _updateUserAccountCreationTime(verifiedUser.id, Date.now(), expirationDate);
-
-    const verificationCode = Math.floor(100000 + Math.random() * 900000);
-    const emailToken = generateEmailToken(verifiedUser.id, verificationCode, expiresInSeconds);
-
-    await sendVerificationEmail(verifiedUser.email, verifiedUser.username, verificationCode);
-
-    return res.status(201).json({
-      message: `Token refreshed successfully`,
-      data: { token: emailToken, expiry: expirationDate },
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Unknown error occurred when refreshing token" });
-  }
-}

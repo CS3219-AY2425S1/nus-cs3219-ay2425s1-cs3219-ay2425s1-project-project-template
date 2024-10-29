@@ -49,7 +49,11 @@ export function verifyEmailToken(req, res, next) {
     } else if (dbUser.isVerified) {
       return res.status(401).json({message: "Invalid request"});
     }
-    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdminm, isVerified: dbUser.isVerified};
+
+    if (dbUser.createdAt.getTime() !== new Date(user.createdAt).getTime()) {
+      return res.status(401).json({ message: "Old token used, use new token instead" });
+    }
+    req.user = { id: dbUser.id, username: dbUser.username, email: dbUser.email, isAdmin: dbUser.isAdmin, isVerified: dbUser.isVerified, createdAt: dbUser.createdAt, expireAt: dbUser.expireAt};
     next();
   });
 }
