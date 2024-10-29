@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import useQuestions from "../hooks/useQuestions";
 import {
@@ -27,6 +27,12 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import AddQuestion from "./AddQuestion";
@@ -37,7 +43,8 @@ interface QuestionListProps {
 }
 
 const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
-  const { questions, loading, error, fetchQuestions } = useQuestions();
+  const { questions, loading, error, addQuestion, deleteQuestion } =
+    useQuestions();
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: SortableKeys;
@@ -45,6 +52,12 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
   }>({ key: "questionId", direction: "both" });
   const [currentPage, setCurrentPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [questionToDelete, setQuestionToDelete] = useState<number | null>(null);
+  const [questionTitleToDelete, setQuestionTitleToDelete] = useState<
+    string | null
+  >(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const rowsPerPage = 7;
 
   type SortableKeys = keyof Question;
@@ -99,8 +112,27 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
     setSortConfig({ key, direction });
   };
 
-  const refreshQuestions = () => {
-    fetchQuestions();
+  const handleAddQuestion = (newQuestion: Question) => {
+    addQuestion(newQuestion);
+  };
+
+  const openDeleteDialog = (questionId: number, questionTitle: string) => {
+    setQuestionToDelete(questionId);
+    setQuestionTitleToDelete(questionTitle);
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setQuestionToDelete(null);
+    setQuestionTitleToDelete(null);
+    setDeleteDialogOpen(false);
+  };
+
+  const confirmDelete = () => {
+    if (questionToDelete !== null) {
+      deleteQuestion(questionToDelete);
+      closeDeleteDialog();
+    }
   };
 
   if (loading) {
@@ -244,19 +276,27 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
                   </Td>
 
                   <Td>{question.category.join(", ")}</Td>
-                  {/* <Td>
-                    <Button
-                      colorScheme="red"
-                      onClick={() => handleDelete(question.questionId)}
-                    >
-                      Delete
-                    </Button>
-                    <Link to={`/questions/edit/${question.questionId}`}>
-                      <Button colorScheme="teal" ml={2}>
-                        Edit
+
+                  {userIsAdmin && (
+                    <Td>
+                      {/* Delete question button */}
+                      <Button
+                        colorScheme="red"
+                        onClick={() =>
+                          openDeleteDialog(question.questionId, question.title)
+                        }
+                      >
+                        Delete
                       </Button>
-                    </Link>
-                  </Td> */}
+
+                      {/* Edit question button */}
+                      <Link to={`/questions/edit/${question.questionId}`}>
+                        <Button colorScheme="teal" ml={2}>
+                          Edit
+                        </Button>
+                      </Link>
+                    </Td>
+                  )}
                 </Tr>
               ))}
             </Tbody>
@@ -295,7 +335,7 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
           <ModalHeader>Add a New Question</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <AddQuestion onAddQuestion={refreshQuestions} />
+            <AddQuestion onAddQuestion={handleAddQuestion} />
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" onClick={onClose}>
@@ -304,6 +344,36 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* AlertDialog for Delete Confirmation */}
+      <AlertDialog
+        isOpen={deleteDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={closeDeleteDialog}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Question
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this question "
+              <strong>{questionTitleToDelete}</strong>"? This action cannot be
+              undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={closeDeleteDialog}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={confirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };

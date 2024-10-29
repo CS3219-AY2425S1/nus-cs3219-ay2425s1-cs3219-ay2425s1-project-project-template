@@ -13,7 +13,13 @@ import useQuestionTopics from "../hooks/useQuestionTopics";
 import useQuestionDifficulties from "../hooks/useQuestionDifficulties";
 
 interface AddQuestionProps {
-  onAddQuestion: () => void;
+  onAddQuestion: (question: {
+    questionId: number;
+    title: string;
+    description: string;
+    category: string[];
+    difficulty: string;
+  }) => void;
 }
 
 const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
@@ -22,10 +28,10 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
   const [category, setCategory] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState("");
   const { topics, error } = useQuestionTopics();
-  const { difficulties, difficultiesError } = useQuestionDifficulties();
+  const { difficulties, error: difficultiesError } = useQuestionDifficulties();
   const toast = useToast();
 
-  const handleAddQuestion = async () => {
+  const handleAddQuestion = () => {
     if (!title || !description || !category.length || !difficulty) {
       toast({
         title: "Missing fields",
@@ -37,54 +43,18 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:8080/api/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          questionId: Math.floor(Math.random() * 10000),
-          title,
-          description,
-          category,
-          difficulty,
-        }),
-      });
-      const data = await response.json();
+    onAddQuestion({
+      questionId: Math.floor(Math.random() * 10000),
+      title,
+      description,
+      category,
+      difficulty,
+    });
 
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Question added successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-        setTitle("");
-        setDescription("");
-        setCategory([]);
-        setDifficulty("");
-
-        onAddQuestion(); // refresh table
-      } else {
-        toast({
-          title: "Error",
-          description: data.message || "Failed to add question",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred while adding the question.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
+    setTitle("");
+    setDescription("");
+    setCategory([]);
+    setDifficulty("");
   };
 
   return (

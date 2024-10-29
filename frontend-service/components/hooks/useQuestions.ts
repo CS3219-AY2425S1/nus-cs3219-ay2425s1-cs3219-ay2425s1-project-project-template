@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Question } from "../types";
+import { useToast } from "@chakra-ui/react";
 
 const useQuestions = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   const fetchQuestions = async () => {
     try {
@@ -25,11 +27,98 @@ const useQuestions = () => {
     }
   };
 
+  const addQuestion = async (newQuestion: Question) => {
+    try {
+      const response = await fetch("http://localhost:8080/api/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newQuestion),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Question added successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        fetchQuestions();
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to add question",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while adding the question.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const deleteQuestion = async (questionId: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/questions/${questionId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        toast({
+          title: "Question deleted.",
+          description: "The question has been deleted successfully.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+
+        fetchQuestions();
+      } else {
+        const data = await response.json();
+        toast({
+          title: "Error",
+          description: data.message || "Failed to delete question.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting the question.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, []);
 
-  return { questions, loading, error, fetchQuestions };
+  return {
+    questions,
+    loading,
+    error,
+    fetchQuestions,
+    addQuestion,
+    deleteQuestion,
+  };
 };
 
 export default useQuestions;
