@@ -14,6 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files into the container
 COPY firebase.py .
 COPY run.py .
+COPY .env ./
+COPY firebase-cred.json ./firebase-cred.json
 
 # Copy Supervisor configuration file
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -23,7 +25,6 @@ EXPOSE 5002
 
 # Set environment variables for Flask
 ENV FLASK_APP=run.py
-ENV FLASK_ENV=development  
 ENV PYTHONUNBUFFERED=1
 
 # Run the application with supervisord

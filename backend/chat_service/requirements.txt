@@ -2,3 +2,4 @@ Flask
 Flask-SocketIO
 Flask-CORS
 firebase-admin
+waitress

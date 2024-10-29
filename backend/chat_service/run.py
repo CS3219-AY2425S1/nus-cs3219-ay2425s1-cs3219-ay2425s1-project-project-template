@@ -117,4 +117,9 @@ def handle_message(data):
     # Broadcast the message to all connected clients
     emit('chat message', {'conversation': conversation, 'message': message_data}, broadcast=True)
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5002)
+    import os
+    if os.getenv('FLASK_ENV') == 'development':
+        socketio.run(app, host='0.0.0.0', port=5002)
+    else:
+        from waitress import serve
+        serve(app, host='0.0.0.0', port=5002)

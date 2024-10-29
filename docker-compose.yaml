@@ -123,6 +123,8 @@ services:
     build:
       context: ./backend/chat_service
       dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
     ports:
       - "5002:5002"
     networks:
