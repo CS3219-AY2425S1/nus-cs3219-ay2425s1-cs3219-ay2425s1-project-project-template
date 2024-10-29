@@ -137,7 +137,7 @@ export async function findRandomQuestionByCategoryAndComplexity(req, res) {
     const randomQuestion = questions[randomIndex];
 
     // Return only the ID of the selected question
-    return res.status(200).json({ questionId: randomQuestion._id });
+    return res.status(200).json(randomQuestion);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

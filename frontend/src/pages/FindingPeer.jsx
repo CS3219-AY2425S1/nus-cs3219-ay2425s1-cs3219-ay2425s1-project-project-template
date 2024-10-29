@@ -70,6 +70,7 @@ const FindingPeer = () => {
 
           fetchQuestionToCollaborate(selectedTopic, selectedLevel).then((question) => {
             if (question) {
+              console.log("Question fetched:", question);
               // Delay the navigation to ensure toast is visible
               setTimeout(() => {
                 navigate(`/room/${roomId}`, { state: { question } });
