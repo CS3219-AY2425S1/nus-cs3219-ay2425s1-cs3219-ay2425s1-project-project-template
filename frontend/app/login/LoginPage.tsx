@@ -1,5 +1,7 @@
+"use client";
+
 import React from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 
@@ -9,7 +11,7 @@ import DefaultLayout from "@/layouts/default";
 import { useUser } from "@/hooks/users";
 import { User } from "@/types/user";
 
-const LoginPage = () => {
+export default function LoginPage() {
   const router = useRouter();
   const { setUser } = useUser();
   const { mutate: login, isPending } = useLogin();
@@ -82,6 +84,4 @@ const LoginPage = () => {
       </div>
     </DefaultLayout>
   );
-};
-
-export default LoginPage;
+}

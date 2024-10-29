@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@nextui-org/button";
 import { Avatar } from "@nextui-org/avatar";
 
@@ -5,6 +7,7 @@ import DefaultLayout from "@/layouts/default";
 import { Question } from "@/types/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 import { SocketProvider, SocketContext } from "@/context/SockerIOContext";
+import CodeEditor from "@/components/collaboration/CodeEditor";
 
 const mockQuestion: Question = {
   title: "Fibonacci Number",
@@ -31,7 +34,7 @@ const CollaborationPage = () => {
             <QuestionDescription isCollab={true} question={mockQuestion} />
           </div>
           <div className="flex-[3_3_0%]">
-            <h1>Placeholder for Code Editor</h1>
+            <CodeEditor />
           </div>
         </div>
       </DefaultLayout>

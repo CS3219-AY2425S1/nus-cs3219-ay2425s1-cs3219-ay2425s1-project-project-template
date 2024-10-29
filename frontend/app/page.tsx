@@ -1,3 +1,5 @@
+"use client"
+
 import { Link } from "@nextui-org/link";
 import { button as buttonStyles } from "@nextui-org/theme";
 
@@ -6,7 +8,7 @@ import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 
-export default function IndexPage() {
+export default function Page() {
   return (
     <DefaultLayout isLoggedIn={false}>
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
