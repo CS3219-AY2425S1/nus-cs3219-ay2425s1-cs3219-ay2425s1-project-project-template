@@ -29,20 +29,21 @@ type QuestionViewProps = {
   onAddQuestion: (newQuestion: {
     title: string;
     description: string;
-    categories: string;
+    categories: string[];
     complexity: string;
     link: string;
   }) => Promise<void>;
-  onAddLeetCodeQuestion: (newQuestion: {
-    title: string;
-  }) => Promise<void>;
-  onEditQuestion: (newQuestion: {
-    title: string;
-    description: string;
-    categories: string;
-    complexity: string;
-    link: string;
-  }, id: string) => Promise<void>;
+  onAddLeetCodeQuestion: (newQuestion: { title: string }) => Promise<void>;
+  onEditQuestion: (
+    newQuestion: {
+      title: string;
+      description: string;
+      categories: string[];
+      complexity: string;
+      link: string;
+    },
+    id: string
+  ) => Promise<void>;
   onDeleteQuestion: (id: string) => Promise<void>;
 };
 
@@ -65,7 +66,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
   const {
     isOpen: isQuestionModalOpen,
     onOpen: onQuestionModalOpen,
@@ -82,7 +85,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     try {
       await onAddLeetCodeQuestion(newQuestion);
       toast.success("LeetCode Question added successfully!");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to add LeetCode Question.");
     }
@@ -93,7 +96,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const handleAdd = async (newQuestion: {
     title: string;
     description: string;
-    categories: string;
+    categories: string[];
     complexity: string;
     link: string;
   }) => {
@@ -112,7 +115,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const handleEdit = async (updatedQuestion: {
     title: string;
     description: string;
-    categories: string;
+    categories: string[];
     complexity: string;
     link: string;
   }) => {
@@ -155,27 +158,27 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Function to get the color for a category
   const getCategoryColor = (category: string) => {
     if (!category) return "white";
-  
+
     const found = topics.find(
       (c) => c.id.toLowerCase() === category.toLowerCase()
     );
-  
+
     if (found) return found.color;
-  
+
     // Generate a random color, excluding white
     const getRandomColor = () => {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      while (color === '#FFFFFF' || color === '#00000000') { 
+      const letters = "0123456789ABCDEF";
+      let color = "#";
+      while (color === "#FFFFFF" || color === "#00000000") {
         for (let i = 0; i < 6; i++) {
           color += letters[Math.floor(Math.random() * 16)];
         }
       }
       return color;
     };
-  
+
     return getRandomColor();
-  };  
+  };
 
   // Define the table columns
   const columns: ColumnDef<Question>[] = useMemo(
@@ -191,13 +194,20 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         header: "Topic",
         accessorKey: "Categories",
         cell: ({ getValue }) => {
-          const categories = getValue<string>().split(",").map(cat => cat.trim());
+          const categories = getValue<string[]>();
+
           return (
             <HStack spacing={1}>
               {categories.map((category) => {
-                const color = getCategoryColor(category);
                 return (
-                  <Badge key={category} borderRadius="lg" px="4" py="2" bg={color} color="white">
+                  <Badge
+                    key={category}
+                    borderRadius="lg"
+                    px="4"
+                    py="2"
+                    bg="purple.500"
+                    color="white"
+                  >
                     {category}
                   </Badge>
                 );
@@ -270,7 +280,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   );
 
   return (
-    <Box className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]" p={4}>
+    <Box
+      className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
+      p={4}
+    >
       <h2 className="flex justify-center text-white text-3xl font-semibold">
         Questions
       </h2>
@@ -281,13 +294,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             columnFilters={columnFilters}
             setColumnFilters={setColumnFilter}
             topics={topics}
-
           />
           <HStack mb={6} spacing={4} align="center">
-            <Button
-              colorScheme="purple"
-              onClick={onLeetCodeModalOpen}
-            >
+            <Button colorScheme="purple" onClick={onLeetCodeModalOpen}>
               Add LeetCode Question
             </Button>
             <Button

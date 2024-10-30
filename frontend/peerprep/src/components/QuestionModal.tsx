@@ -47,12 +47,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [complexity, setComplexity] = useState("");
   const [link, setLink] = useState("");
 
+  console.log("selectedCategories", selectedCategories);
+
   // Populate fields with initial question data if editing
   useEffect(() => {
     if (isOpen && initialQuestion) {
       setTitle(initialQuestion.Title);
       setDescription(initialQuestion.Description);
-      setSelectedCategories(initialQuestion.Categories.split(", ")); // Assuming Categories is a comma-separated string
+      setSelectedCategories(initialQuestion.Categories); // Assuming Categories is a comma-separated string
       setComplexity(initialQuestion.Complexity);
       setLink(initialQuestion.Link);
     } else {

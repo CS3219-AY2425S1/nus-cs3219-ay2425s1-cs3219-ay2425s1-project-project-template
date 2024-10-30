@@ -13,21 +13,17 @@ import (
 
 // Parse question object to be put in db
 func ParseQuestionForDb(question *models.Question) {
-	question.Complexity = strings.ToLower(question.Complexity)
+
+	for i, v := range question.Categories {
+		question.Categories[i] = strings.ToLower(v)
+	}
 	question.Title	= strings.ToLower(question.Title)
 }
-
-// func CreateUniqueIdQuestion(question *models.Question) {
-// 	objectId := primitive.NewObjectID()
-// 	idStr := objectId.Hex()
-
-// 	question.ID = idStr
-// }
 
 // Validation functions for questions
 func IsQuestionFieldsEmpty(question *models.Question) bool {
 	return question.Title != "" && question.Description != "" &&
-		question.Categories != "" && question.Complexity != "" && question.Link != ""
+		len(question.Categories) != 0 && question.Complexity != "" && question.Link != ""
 }
 
 
