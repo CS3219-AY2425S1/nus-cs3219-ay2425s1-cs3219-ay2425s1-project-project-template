@@ -43,7 +43,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        pytest backend/question_service/tests/ -v --cov=app --cov-report=xml
+        pytest backend/question_service/tests/ -v --cov=app --cov-report=xml:backend/question_service/coverage.xml
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
