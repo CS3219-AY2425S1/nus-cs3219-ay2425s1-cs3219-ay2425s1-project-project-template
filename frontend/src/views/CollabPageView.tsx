@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
@@ -265,19 +265,8 @@ const CollabPageView: React.FC = () => {
           margin: "15px 0px 0px 7px", // Add some margin
         }}
       >
-        <Button variant="link">
-          <Home style={{ marginRight: "10px" }} />
-          Homepage
-        </Button>
-        <div
-          style={{
-            height: "24px",
-            width: "1px",
-            backgroundColor: "lightgrey",
-            margin: "0 10px",
-          }}
-        />
         <Button variant="link" onClick={handleQuitSession}>
+          <LogOut style={{ marginRight: "10px" }} />
           Quit Session
         </Button>
       </div>
@@ -290,24 +279,31 @@ const CollabPageView: React.FC = () => {
           overflow: "auto", // Add scrollbars when content overflows
         }}
       >
-        {/* left side question box */}
+        {/* left side */}
         <div
           style={{
             flexBasis: "50%", // Takes up 50% of the width
-            flexDirection: "column", // Stacks the title and description vertically
-            alignItems: "flex-start", // Aligns the title and description to the left
-            padding: "20px",
-            border: "2px solid lightgrey", // Adds a border
-            borderRadius: "10px", // Rounds the corners
+            display: "flex", // Create a vertical layout inside the right half
+            flexDirection: "column", // Stack the top and bottom halves vertically
             margin: "15px 7.5px 15px 15px", // top right bottom left (clockwise)
             width: "50%",
-            overflow: "auto", // Add scrollbars when content overflows
           }}
         >
-          {/* id & title */}
-          <h2 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-            {questionData.title}
-          </h2>
+          {/* top-left question box */}
+          <div
+            style={{
+              flex: 6, // Takes up 60% vertically of the left side
+              alignItems: "flex-start", // Aligns the title and description to the left
+              padding: "20px",
+              border: "2px solid lightgrey", // Adds a border
+              borderRadius: "10px", // Rounds the corners
+              overflow: "auto", // Add scrollbars when content overflows
+            }}
+          >
+            {/* id & title */}
+            <h2 style={{ fontSize: "2rem", fontWeight: "bold" }}>
+              {questionData.title}
+            </h2>
 
           {/* tags (difficulty & topics) */}
           <div
@@ -361,30 +357,41 @@ const CollabPageView: React.FC = () => {
               </div>
             ))}
 
-            {/* constraints */}
-            <div style={{ marginTop: "35px" }}>
-              <strong>Constraints:</strong>
-              <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
-                {questionData.constraints.map((constraint, index) => (
-                  <li key={index}>{constraint}</li>
-                ))}
-              </ul>
+              {/* constraints */}
+              <div style={{ marginTop: "35px" }}>
+                <strong>Constraints:</strong>
+                <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
+                  {questionData.constraints.map((constraint, index) => (
+                    <li key={index}>{constraint}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
-          {/* Chatbox */}
+
+          {/* bottom-left chatbox */}
           <div
             style={{
-              marginTop: "25px",
-              width: "100%",
+              flex: 4, // Takes up 40% vertically of the left side
+              marginTop: "15px",
               border: "2px solid lightgrey",
               borderRadius: "10px",
               padding: "10px",
             }}
           >
-            <h3 style={{ marginBottom: "10px", fontWeight: "bold" }}>Chat</h3>
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: "bold",
+                alignSelf: "flex-start",
+                margin: "0 25px 10px 5px",
+              }}
+            >
+              Chat
+            </h2>
             <div
               style={{
-                height: "200px",
+				height: "50%",
                 overflowY: "scroll",
                 border: "1px solid #d0d7de",
                 borderRadius: "5px",
