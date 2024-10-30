@@ -1,7 +1,6 @@
 import { sublimeInit } from '@uiw/codemirror-theme-sublime';
-import { Extension, useCodeMirror } from '@uiw/react-codemirror';
-import { useEffect, useRef } from 'react';
-import { EditorView } from '@codemirror/view'; // Ensure EditorView is imported
+import CodeMirror, { Extension, EditorView } from '@uiw/react-codemirror'; // Import EditorView from CodeMirror
+import { useRef } from 'react';
 
 import './CodeEditor.css';
 import classes from './CodeEditor.module.css';
@@ -19,34 +18,29 @@ const customSublime = sublimeInit({
 });
 
 function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
-  const editorRef = useRef<EditorView | null>(null); // Ref for EditorView
+  const editorRef = useRef<EditorView | null>(null); // Reference for the EditorView
 
-  const { setContainer, view } = useCodeMirror({
-    value: code,
-    theme: customSublime,
-    extensions,
-    onChange: setCode, // Directly use setCode for onChange
-    onUpdate: (update) => {
-      if (update.state) {
-        const cursorPos = update.state.selection.main.head; // Get cursor position
-        const line = update.state.doc.lineAt(cursorPos).number; // Get line number
-        const ch = cursorPos - update.state.doc.lineAt(line - 1).from; // Get character position
-        console.log(`Cursor Position: Line ${line}, Ch ${ch + 1}`); // Log line and character
-      }
-    },
-  });
-
-  // Store the view only if it is defined
-  useEffect(() => {
-    if (view) {
-      editorRef.current = view;
+  const handleChange = (value: string) => {
+    setCode(value);
+    
+    // Find the current cursor position
+    if (editorRef.current) {
+      const cursorPos = editorRef.current.state.selection.main.head; // Get the cursor position
+      const line = editorRef.current.state.doc.lineAt(cursorPos).number; // Get the line number
+      const ch = cursorPos - editorRef.current.state.doc.lineAt(line - 1).from; // Get character position
+      console.log(`Cursor Position: Line ${line}, Ch ${ch + 1}`); // Log cursor position
     }
-  }, [view]); // Update editorRef only when view changes
+  };
 
   return (
-    <div ref={setContainer} className={classes.codeMirrorContainer}>
-      {/* CodeMirror will be rendered here automatically */}
-    </div>
+    <CodeMirror
+      value={code}
+      theme={customSublime}
+      className={classes.codeMirror}
+      extensions={extensions}
+      onChange={handleChange} // Use handleChange to log cursor position
+      ref={editorRef} // Attach ref to the CodeMirror component
+    />
   );
 }
 
