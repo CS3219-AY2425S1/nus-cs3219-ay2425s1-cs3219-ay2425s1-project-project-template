@@ -22,7 +22,10 @@ const QuestionPageView: React.FC = () => {
   };
 
   return (
-    <main className="h-screen w-screen p-5">
+    <main
+      className="h-screen w-screen p-5"
+      style={{ height: "100%", backgroundColor: "white" }}
+    >
       <div className="flex items-center justify-between mb-4">
         <Title title="Question Bank" />
         <img
@@ -58,7 +61,10 @@ const QuestionPageView: React.FC = () => {
       <Separator className="my-2" />
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="p-4 col-span-3 md:col-span-1 rounded-lg shadow-lg">
+        <div
+          className="p-4 col-span-3 md:col-span-1 rounded-lg shadow-lg"
+          style={{ height: "100vh" }}
+        >
           <MatchingOptions />
         </div>
         <div className="p-4 col-span-3 md:col-span-2 rounded-lg shadow-lg">
