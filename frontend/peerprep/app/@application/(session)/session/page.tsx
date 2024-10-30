@@ -67,7 +67,9 @@ const App: React.FC = () => {
       setUsersInRoom,
       setQuestionDescription,
       setQuestionTestcases,
-      updateDoc
+      updateDoc,
+      setCodeOutput,
+      setIsCodeError
     );
 
     return () => {

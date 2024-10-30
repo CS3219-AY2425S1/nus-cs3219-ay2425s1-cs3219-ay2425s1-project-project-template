@@ -26,7 +26,10 @@ export const initializeSessionSocket = async (
   setUsersInRoom: Dispatch<any>,
   setQuestionDescription: Dispatch<any>,
   setQuestionTestcases: Dispatch<any>,
-  updateDoc: (arg0: Uint8Array) => void) => {
+  updateDoc: (arg0: Uint8Array) => void,
+  setCodeOutput: Dispatch<any>,
+  setIsCodeError: Dispatch<any>
+) => {
 
   const token = await getToken();
 
@@ -63,7 +66,7 @@ export const initializeSessionSocket = async (
 
   registerEditorEvents(updateDoc, setLanguage);
 
-
+  registerCodeExecutionEvents(setCodeOutput, setIsCodeError);
 
 };
 
@@ -96,6 +99,20 @@ const registerEditorEvents = async (updateDoc: (arg0: Uint8Array) => void, setLa
   });
 }
 
+const registerCodeExecutionEvents = async (setCodeOutput: Dispatch<any>, setIsCodeError: Dispatch<any>) => {
+  if (!socket) return;
+
+  socket.on("updateOutput", (data: any) => {
+    if (data.stderr) {
+      setCodeOutput(data.stderr.split("\n"));
+      setIsCodeError(true);
+    } else {
+      setCodeOutput(data.stdout.split("\n"));
+      setIsCodeError(false);
+    }
+  });
+}
+
 export const disconnectSocket = async () => {
   if (socket) {
     socket.disconnect();
@@ -109,7 +126,7 @@ export const isSocketConnected = async () => {
 
 export const propagateCodeOutput = async (codeOutput: codeOutputInterface) => {
   if (!socket) return;
-
+  console.log("Propagating code execution", codeOutput);
   socket.emit("codeExecution", codeOutput);
 }
 

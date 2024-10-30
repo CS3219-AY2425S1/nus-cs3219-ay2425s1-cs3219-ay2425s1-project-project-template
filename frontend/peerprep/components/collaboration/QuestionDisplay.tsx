@@ -11,7 +11,7 @@ import { socket } from "../../services/sessionService";
 
 interface QuestionDisplayProps {
   question: string;
-  testCases: [string];
+  testCases: string[];
 }
 
 export default function QuestionDisplay({ question, testCases }: QuestionDisplayProps) {
