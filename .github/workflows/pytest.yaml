@@ -39,12 +39,11 @@ jobs:
       run: |
         echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/question_service/firebase-cred.json
         echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/user_service/firebase-cred.json
+        echo "${{ secrets.FIREBASE_CRED_JSON }}" > firebase-cred.json
 
     - name: Run tests with pytest
       run: |
-        cd backend/question_service
-        pwd
-        pytest tests/ -v --cov=app --cov-report=xml
+        pytest backend/question_service/tests/ -v --cov=app --cov-report=xml
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
