@@ -46,6 +46,8 @@ services:
     networks:
       - my-network
     entrypoint: ['sh', '-c', 'npm run build && exit 0']
+    env_file:
+      - .env/.frontend_env
 
   user-service:
     build:
