@@ -37,9 +37,9 @@ jobs:
     # Add firebase-cred.json file to backend services
     - name: Add Firebase credentials
       run: |
-        echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/question_service/firebase-cred.json
-        echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/user_service/firebase-cred.json
-        echo "${{ secrets.FIREBASE_CRED_JSON }}" > firebase-cred.json
+        echo "${{ secrets.FIREBASE_CRED_JSON_BASE64 }}" | base64 -d > backend/question_service/firebase-cred.json
+        echo "${{ secrets.FIREBASE_CRED_JSON_BASE64 }}" | base64 -d > backend/user_service/firebase-cred.json
+        echo "${{ secrets.FIREBASE_CRED_JSON_BASE64 }}" | base64 -d > firebase-cred.json
 
     - name: Run tests with pytest
       run: |
