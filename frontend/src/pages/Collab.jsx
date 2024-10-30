@@ -25,31 +25,34 @@ const Collab = () => {
     const socketRef = useRef(null);
     const providerRef = useRef(null);
 
-    const [showPopup, setShowPopup] = useState(false);
-    const [countdown, setCountdown] = useState(1800);
-    const [timeOver, setTimeOver] = useState(false);
-    const [userLeft, setUserLeft] = useState(false);
-
     const [showQuitPopup, setShowQuitPopup] = useState(false);
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
 
+    // Ensure location state exists, else redirect to home
     useEffect(() => {
         if (!location.state) {
             navigate("/home");
             return;
         }
-    
+
+        const { roomId } = location.state;
+
+        // Setup socket.io connection
         socketRef.current = io(socketIoUrl);
+
+        // Emit events on connection
         socketRef.current.emit("add-user", username?.toString());
-    
-        // Listen for user-left event
+        socketRef.current.emit("join-room", roomId);
+
+        // Listen for user-left event for the specific room
         socketRef.current.on("user-left", () => {
             setShowPartnerQuitPopup(true);
         });
-    
+
+        // Clean up on component unmount
         return () => {
             if (socketRef.current) {
-                socketRef.current.emit("user-left"); // Emit user-left event on disconnect
+                socketRef.current.emit("user-left", roomId);
                 socketRef.current.disconnect();
             }
         };
@@ -73,6 +76,7 @@ const Collab = () => {
     const { question, language, matchedUser, roomId } = location.state;
     const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
+    // Initialize editor and Yjs 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
         editorRef.current.setValue("");
@@ -80,48 +84,35 @@ const Collab = () => {
         const monacoText = ydoc.getText("monaco");
         monacoText.delete(0, monacoText.length);
 
-        providerRef.current = new WebsocketProvider(yjsWsUrl, roomId, ydoc);
+        providerRef.current = new WebsocketProvider(yjsWsUrl, location.state.roomId, ydoc);
         new MonacoBinding(monacoText, editorRef.current.getModel(), new Set([editorRef.current]));
 
-        providerRef.current.on('status', event => {
+        providerRef.current.on('status', (event) => {
             console.log(event.status); // logs "connected" or "disconnected"
         });
     };
 
-    const handleSubmit = () => {
-        console.log("Submit button clicked");
-    }
-
-    const handleQuit = () => {
-        setShowQuitPopup(true);
-    }
+    const handleQuit = () => setShowQuitPopup(true);
 
     const handleQuitConfirm = () => {
         setShowPartnerQuitPopup(false);
-        socketRef.current.emit("user-left");
-        if (providerRef.current) {
-            providerRef.current.destroy();
-        }
+        socketRef.current.emit("user-left", location.state.roomId);
+        providerRef.current?.destroy();
         navigate("/home");
-    }
+    };
 
-    const handleQuitCancel = () => {
-        setShowQuitPopup(false);
-    }
+    const handleQuitCancel = () => setShowQuitPopup(false);
+
+    if (!location.state) return null;
+
+    const { difficulty, topic, language, matchedUser, roomId } = location.state;
+    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100vh",
-                width: "100vw"
-            }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
             <CollabNavBar 
                 partnerUsername={partnerUsername} 
                 countdown={"30:00"} 
-                handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
             <div style={{ display: "flex", flex: 1 }}>
