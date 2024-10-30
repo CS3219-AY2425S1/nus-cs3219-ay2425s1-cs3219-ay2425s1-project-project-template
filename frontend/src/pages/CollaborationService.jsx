@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PeerPrep from "./PeerPrep";
 import CodeEditor from "../components/CodeEditor";
@@ -7,28 +7,13 @@ import Problems from "../components/Problems";
 
 export default function CollaborationService() {
   const location = useLocation();
+  const question = location.state?.question;
+  console.log("Question ID:", question);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("Python");
   const [messages, setMessages] = useState([]);
-  const [problem, setProblem] = useState({
-    title: "Binary Search",
-    difficulty: "Medium",
-    tags: ["Array", "Binary Search"],
-    description:
-      "Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1.",
-    examples: [
-      {
-        input: "nums = [-1,0,3,5,9,12], target = 9",
-        output: "4",
-        explanation: "9 exists in nums and its index is 4",
-      },
-      {
-        input: "nums = [-1,0,3,5,9,12], target = 2",
-        output: "-1",
-        explanation: "2 does not exist in nums so return -1",
-      },
-    ],
-  });
+  const [problem, setProblem] = useState(question);
+
 
   const sendMessage = (text) => {
     setMessages([...messages, { sender: "me", text }]);
