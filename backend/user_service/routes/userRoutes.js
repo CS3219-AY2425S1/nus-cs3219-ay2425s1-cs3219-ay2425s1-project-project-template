@@ -16,7 +16,7 @@ router.post('/user/addToUserCollection', addToUserCollection);
 router.get('/admin/checkAdminStatus', authenticateToken, checkAdminStatus); 
 
 // Add the endpoint to check for username existence
-router.get('/check-username', authenticateToken, checkUsernameExists);
+router.get('/check-username', checkUsernameExists);
 
 // Route to get username by uid
 router.get('/user/username/:uid', authenticateToken, getUsernameByUid);
