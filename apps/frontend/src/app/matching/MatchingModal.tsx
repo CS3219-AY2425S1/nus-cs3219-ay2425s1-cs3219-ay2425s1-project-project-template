@@ -18,8 +18,8 @@ import { useTimer } from 'react-timer-hook';
 import { useRouter } from 'next/router';
 
 interface MatchingModalProps {
-    isOpen: boolean;
-    close: () => void;
+  isOpen: boolean;
+  close: () => void;
 }
 
 export interface MatchParams {
@@ -52,14 +52,14 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
     });
     const passed = MATCH_TIMEOUT - totalSeconds;
 
-    function close() {
-        // clean up matching and closedType State
-        if (matchingState.state === "timeout") {
-            matchingState.ok();
-        }
-        setClosedType("finding");
-        _close();
+  function close() {
+    // clean up matching and closedType State
+    if (matchingState.state === "timeout") {
+      matchingState.ok();
     }
+    setClosedType("finding");
+    _close();
+  }
 
     const startMatch = matchingState.state == "closed" || matchingState.state == "timeout" ? async (params: MatchParams): Promise<void> => {
         const user = await ValidateUser();
