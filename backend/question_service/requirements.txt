@@ -5,3 +5,7 @@ python-dotenv
 waitress
 supervisor==4.2.5
 confluent_kafka
+pytest
+pytest-cov 
+pytest-mock
+
