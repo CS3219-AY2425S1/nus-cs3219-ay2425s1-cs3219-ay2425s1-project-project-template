@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Modal, TextInput, Button, Text } from '@mantine/core';
-import { useAuth } from '../../hooks/AuthProvider'; // Adjust the path as needed
+import { useAuth } from '../../hooks/AuthProvider'; 
 
 interface EditProfileModalProps {
   isEditProfileModalOpen: boolean;
@@ -33,7 +33,7 @@ function EditProfileModal({
   return (
     <Modal opened={isEditProfileModalOpen} onClose={closeEditProfileModal} title="Edit Profile">
       <TextInput
-        label="Username"
+        label="New Username"
         value={username}
         onChange={(event) => setUsername(event.currentTarget.value)}
       />

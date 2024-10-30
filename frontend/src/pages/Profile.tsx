@@ -7,7 +7,6 @@ import {
   Text,
   Stack,
   Title,
-  PasswordInput,
 } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { useState, useEffect } from 'react';
@@ -20,14 +19,12 @@ import EditProfileModal from '../components/modal/EditProfileModal';
 function Profile() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [lastLogin, setLastLogin] = useState('');
   const [
     isEditProfileModalOpened,
     { open: openEditProfileModal, close: closeEditProfileModal },
   ] = useDisclosure(false);
   const [profileError, setProfileError] = useState<string | null>(null);
-  const [passwordVisible, setPasswordVisible] = useState(false);
   const auth = useAuth();
 
   // Fetch user profile
@@ -38,7 +35,6 @@ function Profile() {
         if (auth.userProfile) {
           setEmail(auth.userProfile.email);
           setUsername(auth.userProfile.username);
-          setPassword('password');
           setLastLogin(auth.userProfile.lastLogin);
         }
       } catch (error) {
@@ -83,28 +79,6 @@ function Profile() {
           <Paper withBorder p="md">
             <Title order={4} mb="xs">Email</Title>
             <Text>{email}</Text>
-          </Paper>
-          <Paper withBorder p="md">
-            <Title order={4} mb="xs">Password</Title>
-            <PasswordInput
-              value={password}
-              readOnly
-              visible={passwordVisible}
-              onVisibilityChange={setPasswordVisible}
-              variant="unstyled"
-              styles={(theme) => ({
-                innerInput: {
-                  fontSize: theme.fontSizes.md,
-                  padding: 0,
-                  height: 'auto',
-                },
-                visibilityToggle: {
-                  top: 0,
-                  bottom: 0,
-                  right: 0,
-                },
-              })}
-            />
           </Paper>
           <Paper withBorder p="md">
             <Title order={4} mb="xs">Last Login</Title>
