@@ -33,16 +33,6 @@ export default async function Page(props: { params: Params }) {
 
   const question = QuestionSchema.parse(questionResponse.data);
 
-  const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
-
-  const questionResponse = await getQuestion(sessionInfo.questionId);
-
-  if (questionResponse.statusCode !== 200 || !questionResponse.data) {
-    redirect("/dashboard");
-  }
-
-  const question = QuestionSchema.parse(questionResponse.data);
-
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
 
   return (
@@ -52,7 +42,6 @@ export default async function Page(props: { params: Params }) {
         direction="horizontal"
       >
         <ResizablePanel className="p-1" defaultSize={30}>
-          <QuestionTabPanel question={question} />
           <QuestionTabPanel question={question} />
         </ResizablePanel>
 
