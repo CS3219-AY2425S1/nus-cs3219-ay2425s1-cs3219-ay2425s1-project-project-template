@@ -84,7 +84,7 @@ export async function handleVerifyEmailToken(req, res) {
 
     if (!user.isVerified) // New account
       await _updateUserVerifyStatusById(user.id, true);
-    else { // Update email
+    else if (email !== user.email) { // Update email
       if (!user.tempEmail || email !== user.tempEmail) // already used or for wrong email 
         return res.status(403).json({ message: "Invalid token" });
 

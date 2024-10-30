@@ -18,7 +18,7 @@ const VerifyEmail = () => {
     const token = urlParams.get('token');
       
     axios.post(
-      "http://localhost:3001/auth/verify-emailt",
+      "http://localhost:3001/auth/verify-email",
       { token: token },
       { withCredentials: true }
 
@@ -47,6 +47,7 @@ const VerifyEmail = () => {
   return <AuthLayout>
     <img className='verify-image' width='320' height='320'
       src={result === undefined ? VerifiyingLogo : (result ? VerifiedCheckgLogo : VerifiedFailLogo)}
+      alt={result === undefined ? 'Verifiying...' : (result ? 'Verified' : 'Verification Failed')}
     />
     <h2>{statusMessage}</h2>
     <div className="extra-links">

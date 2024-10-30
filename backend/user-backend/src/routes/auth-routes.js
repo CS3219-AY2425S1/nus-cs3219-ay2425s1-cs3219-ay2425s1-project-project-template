@@ -10,7 +10,7 @@ router.post("/login", handleLogin);
 router.get("/verify-token", verifyAccessToken, handleVerifyToken);
 
 // Verify token for associated account
-router.post("/verify-account", handleVerifyEmailToken);
+router.post("/verify-email", handleVerifyEmailToken);
 
 // Send verification link to a user
 router.post("/resend-verification", handleResendVerification);
