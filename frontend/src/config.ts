@@ -7,7 +7,7 @@ interface Config {
 }
 
 const config: Config = {
-  ROOT_BASE_API: process.env.ROOT_BASE_API || 'http://192.168.1.32/',
+  ROOT_BASE_API: process.env.ROOT_BASE_API || 'http://localhost/',
 };
 
 export default config;

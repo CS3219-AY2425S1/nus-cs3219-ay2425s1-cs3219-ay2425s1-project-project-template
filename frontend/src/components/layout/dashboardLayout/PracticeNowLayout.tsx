@@ -65,7 +65,7 @@ function PracticeLayout() {
       setDisplayTimer(0);
       hasTimedOut.current = false;
 
-      interval = setInterval(() => {
+      interval = window.setInterval(() => {
         timerRef.current += 1;
         setDisplayTimer(timerRef.current);
         if (timerRef.current >= timeoutTime) {
