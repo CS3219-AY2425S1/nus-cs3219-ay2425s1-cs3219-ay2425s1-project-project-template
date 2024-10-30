@@ -111,6 +111,55 @@ const useQuestions = () => {
     fetchQuestions();
   }, []);
 
+  const editQuestion = async (
+    questionId: number,
+    updatedQuestion: Partial<Question>
+  ) => {
+    try {
+      console.log("Received payload:", updatedQuestion); // Log received payload
+
+      const response = await fetch(
+        `http://localhost:8080/api/questions/${questionId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedQuestion),
+        }
+      );
+
+      if (response.ok) {
+        toast({
+          title: "Question updated.",
+          description: "The question has been updated successfully.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+
+        fetchQuestions();
+      } else {
+        const data = await response.json();
+        toast({
+          title: "Error",
+          description: data.message || "Failed to update question.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while updating the question.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return {
     questions,
     loading,
@@ -118,6 +167,7 @@ const useQuestions = () => {
     fetchQuestions,
     addQuestion,
     deleteQuestion,
+    editQuestion,
   };
 };
 

@@ -36,6 +36,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import AddQuestion from "./AddQuestion";
+import EditQuestion from "./EditQuestion";
 import { Question } from "../types";
 
 interface QuestionListProps {
@@ -43,8 +44,14 @@ interface QuestionListProps {
 }
 
 const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
-  const { questions, loading, error, addQuestion, deleteQuestion } =
-    useQuestions();
+  const {
+    questions,
+    loading,
+    error,
+    addQuestion,
+    deleteQuestion,
+    editQuestion,
+  } = useQuestions();
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: SortableKeys;
@@ -58,6 +65,8 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
     string | null
   >(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [questionToEdit, setQuestionToEdit] = useState<Question | null>(null);
   const rowsPerPage = 7;
 
   type SortableKeys = keyof Question;
@@ -135,6 +144,28 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
     }
   };
 
+  const openEditDialog = (question: Question) => {
+    setQuestionToEdit(question);
+    setEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setQuestionToEdit(null);
+    setEditDialogOpen(false);
+  };
+
+  const handleEditSubmit = (questionToEdit: Question) => {
+    if (questionToEdit) {
+      editQuestion(questionToEdit.questionId, {
+        title: questionToEdit.title,
+        description: questionToEdit.description,
+        category: questionToEdit.category,
+        difficulty: questionToEdit.difficulty,
+      });
+      closeEditDialog();
+    }
+  };
+
   if (loading) {
     return (
       <Box textAlign="center">
@@ -149,7 +180,7 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
 
   return (
     <Box display="flex" justifyContent="flex-end">
-      <Card p={6} borderRadius="lg" maxW="1000px">
+      <Card p={6} borderRadius="lg" minW="80%" maxW="100%" width="100%">
         <Box display="flex" justifyContent="space-between" mb={4}>
           {/* Search bar */}
           <InputGroup mr={4}>
@@ -240,6 +271,15 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
                 <Th bgColor="yellow.300" fontFamily="Poppins, sans-serif">
                   Topic
                 </Th>
+
+                {/* Actions Column */}
+                {userIsAdmin && (
+                  <Th
+                    bgColor="yellow.300"
+                    fontFamily="Poppins, sans-serif"
+                    width="10%"
+                  ></Th>
+                )}
               </Tr>
             </Thead>
 
@@ -250,7 +290,14 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
 
                   <Td>
                     <Link to={`/questions/${question.questionId}`}>
-                      {question.title}
+                      <Text
+                        isTruncated
+                        maxWidth="400px"
+                        title={question.title}
+                        align="left"
+                      >
+                        {question.title}
+                      </Text>
                     </Link>
                   </Td>
 
@@ -290,11 +337,13 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
                       </Button>
 
                       {/* Edit question button */}
-                      <Link to={`/questions/edit/${question.questionId}`}>
-                        <Button colorScheme="teal" ml={2}>
-                          Edit
-                        </Button>
-                      </Link>
+                      <Button
+                        colorScheme="teal"
+                        ml={2}
+                        onClick={() => openEditDialog(question)}
+                      >
+                        Edit
+                      </Button>
                     </Td>
                   )}
                 </Tr>
@@ -331,17 +380,13 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
       {/* Modal for Adding Question */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent minWidth="600px" height="fit-content">
           <ModalHeader>Add a New Question</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <AddQuestion onAddQuestion={handleAddQuestion} />
           </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
+          <ModalFooter />
         </ModalContent>
       </Modal>
 
@@ -374,6 +419,25 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+      {/* Modal for Editing Question */}
+      <Modal isOpen={editDialogOpen} onClose={closeEditDialog}>
+        <ModalOverlay />
+        <ModalContent minWidth="600px" height="fit-content">
+          <ModalHeader>Edit Question</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {questionToEdit && (
+              <EditQuestion
+                question={questionToEdit}
+                onSave={handleEditSubmit}
+                onCancel={closeEditDialog}
+              />
+            )}
+          </ModalBody>
+          <ModalFooter />
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

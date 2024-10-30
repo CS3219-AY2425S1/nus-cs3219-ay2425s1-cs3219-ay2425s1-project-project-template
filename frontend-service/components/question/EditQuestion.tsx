@@ -1,32 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Input,
-  Button,
+  Text,
   Textarea,
   Select,
-  useToast,
+  Button,
   Spinner,
-  Text,
+  useToast,
 } from "@chakra-ui/react";
 import { Question } from "../types";
 import useQuestionTopics from "../hooks/useQuestionTopics";
 import useQuestionDifficulties from "../hooks/useQuestionDifficulties";
 
-interface AddQuestionProps {
-  onAddQuestion: (question: Question) => void;
+interface EditQuestionProps {
+  question: Question;
+  onSave: (updatedQuestion: Question) => void;
+  onCancel: () => void;
 }
 
-const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<string[]>([]);
-  const [difficulty, setDifficulty] = useState("");
-  const { topics, error } = useQuestionTopics();
+const EditQuestion: React.FC<EditQuestionProps> = ({
+  question,
+  onSave,
+  onCancel,
+}) => {
+  const [title, setTitle] = useState(question.title);
+  const [description, setDescription] = useState(question.description);
+  const [category, setCategory] = useState(question.category);
+  const [difficulty, setDifficulty] = useState(question.difficulty);
+  const { topics, error: topicsError } = useQuestionTopics();
   const { difficulties, error: difficultiesError } = useQuestionDifficulties();
   const toast = useToast();
 
-  const handleAddQuestion = () => {
+  useEffect(() => {
+    setTitle(question.title);
+    setDescription(question.description);
+    setCategory(question.category);
+    setDifficulty(question.difficulty);
+  }, [question]);
+
+  const handleSave = () => {
     if (!title || !description || !category.length || !difficulty) {
       toast({
         title: "Missing fields",
@@ -38,23 +51,18 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
       return;
     }
 
-    onAddQuestion({
-      questionId: Math.floor(Math.random() * 10000),
+    onSave({
+      ...question,
       title,
       description,
       category,
       difficulty,
     });
-
-    setTitle("");
-    setDescription("");
-    setCategory([]);
-    setDifficulty("");
   };
 
   return (
-    <Box margin="0 auto" padding="4" boxShadow="md">
-      {/* Enter title */}
+    <Box maxWidth="600px" margin="0 auto" padding="4" boxShadow="md">
+      {/* Edit title */}
       <Input
         placeholder="Title"
         value={title}
@@ -62,7 +70,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
         mb={4}
       />
 
-      {/* Enter description */}
+      {/* Edit description */}
       <Textarea
         placeholder="Description"
         value={description}
@@ -71,10 +79,10 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
         minHeight="150px"
       />
 
-      {/* Select Topics */}
-      {error ? (
+      {/* Edit Topics */}
+      {topicsError ? (
         <Text color="red.500" mb={4}>
-          {error}
+          {topicsError}
         </Text>
       ) : topics.length === 0 ? (
         <Spinner size="md" />
@@ -95,7 +103,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
         </Select>
       )}
 
-      {/* Select Difficulty from Fetched Data */}
+      {/* Edit difficulty */}
       {difficultiesError ? (
         <Text color="red.500" mb={4}>
           {difficultiesError}
@@ -104,7 +112,6 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
         <Spinner size="md" />
       ) : (
         <Select
-          placeholder="Select Difficulty"
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value)}
           mb={4}
@@ -117,11 +124,12 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
         </Select>
       )}
 
-      <Button colorScheme="blue" onClick={handleAddQuestion}>
-        Add Question
+      <Button colorScheme="blue" onClick={handleSave} mr={3}>
+        Save Changes
       </Button>
+      <Button onClick={onCancel}>Cancel</Button>
     </Box>
   );
 };
 
-export default AddQuestion;
+export default EditQuestion;
