@@ -33,11 +33,11 @@ const checkAdminStatus = async (req, res) => {
 
     try {
         // Verify the token
-        const decodedToken = await admin.auth().verifyIdToken(token);
+        const decodedToken = await auth.verifyIdToken(token);
         const uid = decodedToken.uid;
 
         // Fetch user data from Firestore
-        const userDoc = await admin.firestore().collection('users').doc(uid).get();
+        const userDoc = await db.collection('users').doc(uid).get();
         if (!userDoc.exists) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
