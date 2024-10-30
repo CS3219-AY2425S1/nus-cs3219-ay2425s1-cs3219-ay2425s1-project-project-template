@@ -87,6 +87,26 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   }
 });
 
+// Check if a session exists
+router.get(
+  "/:id/check",
+  [...idValidators],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { id } = req.params;
+
+    try {
+      const sessionExists = await Session.exists({ collabid: id });
+      res.status(200).json({ exists: Boolean(sessionExists) });
+    } catch (error) {
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
+
 // Update a session by ID
 router.post(
   "/:id/update",

@@ -17,6 +17,7 @@ import {
   topicsList,
 } from "@/utils/constants";
 import Swal from "sweetalert2";
+import { checkSession, createSession, fetchSession } from "@/api/collaboration";
 // import { createRoot } from "react-dom/client";
 
 interface FindMatchFormOutput {
@@ -35,7 +36,7 @@ interface FindMatchSocketMessage {
 interface FindMatchSocketMessageResponse {
   matchedUserEmail: string;
   collaborationId: string;
-  questionId: string;
+  questionId: number;
   language: string;
 }
 
@@ -136,17 +137,31 @@ const FindPeer = () => {
               const language = response.language;
               closeLoadingSpinner();
               clearTimeout(timeout);
-                Swal.fire(
+              Swal.fire(
                 "Match Found!",
                 `We found a match for you! You have been matched with ${matchedUserEmail}.`,
                 "success"
-                ).then(() => {
-                // Create a unique string for the room
-                const room = [CURRENT_USER, matchedUserEmail].sort().join("-");
+              ).then(async () => {
+                // Create a session in the collaboration service
+                try {
+                  const sessionExists = await checkSession(collaborationId);
+                  if (!sessionExists.exists) {
+                    await createSession({
+                      collabid: collaborationId,
+                      users: [CURRENT_USER!, matchedUserEmail],
+                      question_id: questionId,
+                      language: language,
+                    });
+                  }
+                } catch (error) {
+                  console.error(error);
+                }
+
                 // Pass language as a query parameter to the collaboration page
-                const language = "javascript"; //change to the language selected
-                window.location.href = `/collaboration/${room}?language=${encodeURIComponent(language)}`;
-                });
+                window.location.href = `/collaboration/${collaborationId}?language=${encodeURIComponent(
+                  language
+                )}`;
+              });
               client.deactivate();
             } catch (error) {
               console.error(
