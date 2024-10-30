@@ -13,7 +13,8 @@
 		"question-service",
 		"peerprep-fe",
 		"user-service",
-		"matching-service"
+		"matching-service",
+		"api-gateway"
 	],
 	"dependencies": {
 		"cors": "^2.8.5",
