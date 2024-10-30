@@ -26,8 +26,9 @@ import {
   Question,
   UpdateQuestionInput,
 } from '../types/Question';
+import config from '../config';
 
-const API_BASE_URL = 'http://localhost/api/questions';
+const API_BASE_URL = `${config.ROOT_BASE_API}api/questions`;
 
 function QuestionEditor() {
   const [
