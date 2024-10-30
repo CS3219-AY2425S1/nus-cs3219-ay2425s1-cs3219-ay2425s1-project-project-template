@@ -110,7 +110,6 @@ export async function addUpdateToYDocInRedis(sessionId: string, yDocUpdate: Uint
             return null;
         }
         await redisClient.rpush(sessionId, Buffer.from(yDocUpdate));
-        console.log(`Added update to YDoc in Redis for session ${sessionId}`);
     } catch (err) {
         console.error(`Error updating YDoc in Redis for session ${sessionId}:`, err);
     }
