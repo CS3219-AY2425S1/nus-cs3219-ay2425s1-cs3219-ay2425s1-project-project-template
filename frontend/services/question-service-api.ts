@@ -1,5 +1,6 @@
-import { Difficulty, IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
+import { IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
 import { QuestionDto } from '@/types/question'
+import { Complexity } from '@repo/user-types'
 import axios from 'axios'
 import axiosClient from './axios-middleware'
 
@@ -100,7 +101,7 @@ export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion 
     try {
         const body: QuestionDto = {
             ...data,
-            complexity: data.complexity.toUpperCase() as Difficulty,
+            complexity: data.complexity.toUpperCase() as Complexity,
             testInputs: data.testCases?.map((testCase) => testCase.input),
             testOutputs: data.testCases?.map((testCase) => testCase.output),
         }
