@@ -57,7 +57,7 @@ useEffect(() => {
         className="bg-red-400 hover:bg-red-500"
         size="sm"
       >
-        <X size={20} />
+        <X size={30} />
       </Button>
       <DeleteQuestionDialog
         open={openDialog}
