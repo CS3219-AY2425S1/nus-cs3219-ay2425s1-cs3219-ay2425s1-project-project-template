@@ -10,6 +10,7 @@ import CollabNavBar from "../components/navbar/CollabNavbar";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import useAuth from "../hooks/useAuth";
+import "../styles/collab.css";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
 const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
@@ -69,7 +70,7 @@ const Collab = () => {
         return null;
     }
 
-    const { difficulty, topic, language, matchedUser, roomId } = location.state;
+    const { question, language, matchedUser, roomId } = location.state;
     const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
     const handleEditorDidMount = (editor) => {
@@ -123,19 +124,32 @@ const Collab = () => {
                 handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
-            <Editor
-                height="100%"
-                width="100%"
-                theme="vs-dark"
-                defaultLanguage="python"
-                language={language}
-                onMount={handleEditorDidMount}
-                options={{
-                    fontSize: 16,
-                    scrollBeyondLastLine: false,
-                    minimap: { enabled: false }
-                }}
-            />
+            <div style={{ display: "flex", flex: 1 }}>
+                    <div className="question-container" >
+                        <div className="question-header" >
+                            <h2>{question.title}</h2>
+                        </div>
+                        <p>{question.description}</p>
+                        {question.images && question.images.map((image, index) => (
+                            <img key={index} src={image} alt={`Question image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
+                        ))}
+                        <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">View on LeetCode</a>
+                    </div>
+
+                <Editor
+                    height="100%"
+                    width="50%"
+                    theme="vs-dark"
+                    defaultLanguage="python"
+                    language={language}
+                    onMount={handleEditorDidMount}
+                    options={{
+                        fontSize: 16,
+                        scrollBeyondLastLine: false,
+                        minimap: { enabled: false }
+                    }}
+                />
+            </div>
             {/* Conditionally render popups */}
             {showQuitPopup && (
                 <QuitConfirmationPopup 

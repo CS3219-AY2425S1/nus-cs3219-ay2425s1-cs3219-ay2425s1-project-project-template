@@ -76,6 +76,23 @@ const getQuestionById = async (id, cookies) => {
     }
 };
 
+// Get question by topic and difficulty
+const getQuestionByTopicAndDifficulty = async (topic, difficulty, cookies) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/search`, {
+            headers: {
+                Authorization: `Bearer ${cookies.token}`
+            },
+            params: { topic, difficulty },
+            withCredentials: true
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error getting question by topic and difficulty:', error);
+        throw reformatError('Error getting question by topic and difficulty:', error);
+    }
+};
+
 // Filter questions by specific category (topic / difficulty)
 const filterQuestions = async (category, filter) => {
     try {
@@ -83,7 +100,7 @@ const filterQuestions = async (category, filter) => {
         return response.data;
     } catch (error) {
         console.error('Error filtering questions:', error);
-        throw reformatError('Error filteirng questions:', error);
+        throw reformatError('Error filtering questions:', error);
     }
 };
 
@@ -102,4 +119,6 @@ const getAllQuestions = async (cookies) => {
     }
 };
 
-export default { createQuestion, updateQuestion, deleteQuestion, getQuestionById, filterQuestions, getAllQuestions };
+const questionService = { createQuestion, updateQuestion, deleteQuestion, getQuestionById, getQuestionByTopicAndDifficulty, filterQuestions, getAllQuestions };
+
+export default questionService;
