@@ -1,11 +1,11 @@
 import React from "react";
 
-export default function TopicSelector({ topics, selectedTopics, setSelectedTopics }) {
+export default function TopicSelector({ topic, selectedTopic, setSelectedTopic }) {
   const toggleTopic = (topic) => {
-    if (selectedTopics.includes(topic)) {
-      setSelectedTopics(selectedTopics.filter((t) => t !== topic));
+    if (selectedTopic === topic) {
+      setSelectedTopic(null);
     } else {
-      setSelectedTopics([...selectedTopics, topic]);
+      setSelectedTopic(topic);
     }
   };
 
@@ -13,11 +13,11 @@ export default function TopicSelector({ topics, selectedTopics, setSelectedTopic
     <div>
       <div className="text-L font-bold text-[#bcfe4d] mb-4">TOPIC</div>
       <div className="flex flex-wrap gap-2">
-        {topics.map((topic) => (
+        {topic.map((topic) => (
           <button
             key={topic}
             className={`px-4 py-1 rounded-full text-sm text-black transition-colors ${
-              selectedTopics.includes(topic) ? 'bg-[#bcfe4d]' : 'bg-[#DDDDDD] hover:bg-[#bcfe4d]'
+              selectedTopic === topic ? 'bg-[#bcfe4d]' : 'bg-[#DDDDDD] hover:bg-[#bcfe4d]'
             }`}	
             onClick={() => toggleTopic(topic)}
           >

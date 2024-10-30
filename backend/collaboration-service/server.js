@@ -11,7 +11,7 @@ const rooms = new Map(); // roomName -> Set<connection>
 const docs = new Map(); // roomName -> Y.Doc
 
 // MongoDB setup
-const MONGO_URI = 'mongodb://localhost:27017';
+const MONGO_URI = 'mongodb+srv://admin:a28Rl4dekx3IrtU2@collaborationservice.dan5w.mongodb.net/?retryWrites=true&w=majority&appName=CollaborationService';
 const DB_NAME = 'yjs-docs';
 let mongoClient;
 

@@ -58,3 +58,8 @@ export async function updateQuestionById(id, title, description, category, compl
 export async function deleteQuestionById(id) {
   return QuestionModel.findByIdAndDelete(id);
 }
+
+// Find a question using category and complexity
+export async function findQuestionByCategoryAndComplexity(category, complexity) {
+  return QuestionModel.find({ category, complexity });
+}

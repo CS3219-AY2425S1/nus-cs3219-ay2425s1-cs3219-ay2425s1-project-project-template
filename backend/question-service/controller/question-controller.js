@@ -5,6 +5,7 @@ import {
   findAllQuestions as _findAllQuestions,
   findQuestionById as _findQuestionById,
   findQuestionByComplexity as _findQuestionByComplexity,
+  findQuestionByCategoryAndComplexity as _findQuestionByCategoryAndComplexity,
   updateQuestionById as _updateQuestionById,
 } from '../model/repository.js';
 
@@ -120,3 +121,26 @@ export async function deleteQuestionById(req, res) {
     return res.status(500).json({ message: error.message });
   }
 }
+
+export async function findRandomQuestionByCategoryAndComplexity(req, res) {
+  try {
+    const { category, complexity } = req.params;
+    const questions = await _findQuestionByCategoryAndComplexity(
+      category,
+      complexity
+    );
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ message: 'No questions found' });
+    }
+    // Select a random question from the array
+    const randomIndex = Math.floor(Math.random() * questions.length);
+    const randomQuestion = questions[randomIndex];
+
+    // Return only the ID of the selected question
+    return res.status(200).json(randomQuestion);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+
