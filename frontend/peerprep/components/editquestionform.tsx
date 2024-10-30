@@ -70,6 +70,8 @@ EditQuestionFormProps) {
       const binding = new MonacoBinding(yText, model, new Set([editor]));
     }
 
+    model.setValue(initialTemplateCode);
+
     yDoc.on("update", () => {
       // console.log("Yjs update");
       // console.log(yText.toString());

@@ -52,7 +52,7 @@ export const sessionController = {
         console.log('templateCodeYDocUpdate:', questionTemplateCode);
         console.log('questionTemplateCode:', new Uint8Array(questionTemplateCode));
 
-        addUpdateToYDocInRedis(sessionId, new Uint8Array(questionTemplateCode));
+        addUpdateToYDocInRedis(sessionId, questionTemplateCode);
         setLanguageInRedis(sessionId, questionData.question.language);
 
         const session = new Session({

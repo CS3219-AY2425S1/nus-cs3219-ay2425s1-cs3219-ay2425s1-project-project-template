@@ -67,6 +67,8 @@ export default function AddQuestionForm({
     yDoc.on("update", () => {
       setYDocUpdate(Y.encodeStateAsUpdateV2(yDoc));
     });
+
+    model.setValue(initialTemplateCode);
   };
 
   const [successModalOpen, setSuccessModalOpen] = useState(false);
