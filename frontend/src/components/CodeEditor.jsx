@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useCollaborativeEditor } from "../hooks/useCollaborativeEditor";
 import { useLocation } from "react-router-dom";
 
-const collaborationServiceBaseUrl = import.meta.env
-  .VITE_COLLABORATION_SERVICE_BASEURL;
+const collaborationServiceBaseUrl = import.meta.env.VITE_COLLABORATION_SERVICE_BASEURL;
 
 export default function CodeEditor({ code, setCode, language, setLanguage }) {
   const location = useLocation();
@@ -11,7 +10,7 @@ export default function CodeEditor({ code, setCode, language, setLanguage }) {
   const { status, connectedUsers, getContent, setContent } =
     useCollaborativeEditor({
       roomName,
-      wsUrl: collaborationServiceBaseUrl || "ws://localhost:3006",
+      wsUrl: collaborationServiceBaseUrl || "ws://localhost:6006",
       containerId: "editor-container",
     });
 
