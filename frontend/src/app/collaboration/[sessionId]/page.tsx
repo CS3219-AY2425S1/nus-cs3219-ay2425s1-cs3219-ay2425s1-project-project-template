@@ -9,6 +9,8 @@ import TestResultPanel from "@/app/collaboration/_components/TestResult";
 import QuestionTabPanel from "@/app/collaboration/_components/Question";
 import Chatbox from "../_components/Chat/Chatbox";
 import { redirect } from "next/navigation";
+import { getQuestion } from "@/services/questionService";
+import { SessionInfoSchema } from "@/types/SessionInfo";
 
 export default async function Page({
   params,
@@ -16,8 +18,20 @@ export default async function Page({
   params: { sessionId: string };
 }) {
   const { sessionId } = params;
-
   const sessionInfoResponse = await getSessionInfo(sessionId);
+
+  const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
+
+  const questionId = sessionInfo.questionId;
+
+  const questionResponse = await getQuestion(questionId);
+
+  if (questionResponse.statusCode !== 200 || !questionResponse.data) {
+    redirect("/dashboard");
+    return;
+  }
+
+  const question = questionResponse.data;
 
   if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data) {
     redirect("/dashboard");
@@ -32,7 +46,7 @@ export default async function Page({
         direction="horizontal"
       >
         <ResizablePanel className="p-1" defaultSize={30}>
-          <QuestionTabPanel />
+          <QuestionTabPanel question={question} />
         </ResizablePanel>
 
         <ResizableHandle withHandle={true} />
