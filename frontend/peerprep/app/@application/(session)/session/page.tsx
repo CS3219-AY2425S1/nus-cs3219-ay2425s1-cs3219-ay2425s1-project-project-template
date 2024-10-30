@@ -101,6 +101,7 @@ const App: React.FC = () => {
 
     return () => {
       disconnectSocket();
+      doc.destroy();
     };
   }, []);
 

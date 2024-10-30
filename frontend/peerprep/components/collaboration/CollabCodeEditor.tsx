@@ -66,7 +66,7 @@ export default function CollabCodeEditor({
               theme={theme === "dark" ? "vs-dark" : "vs-light"}
               language={language}
               onMount={onMount}
-              options={{ fontSize: 14 }}
+              options={{ fontSize: 14, autoIndent: "none" }}
             />
           </div>
         </div>
