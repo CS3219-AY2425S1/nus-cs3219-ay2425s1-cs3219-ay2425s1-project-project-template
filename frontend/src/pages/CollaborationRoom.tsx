@@ -55,8 +55,8 @@ const CollaborativeEditor: React.FC = () => {
 
 
     return () => {
-      socketRef.current?.disconnect();
-    };
+      cleanupCollaboration();
+        };
   }, [roomId, user, navigate]);
 
   const handleEditorChange = (newCode: string | undefined) => {
@@ -68,13 +68,15 @@ const CollaborativeEditor: React.FC = () => {
   };
 
   const handleLeaveRoom = () => {
-    if (socketRef.current) {
-      if (user != null) {
-        socketRef.current.emit("leave_collab", { roomId, userName: user.name });
-        socketRef.current.disconnect();
-      }
-    }
+    cleanupCollaboration();
     navigate("/matching"); // Redirect to match selection after leaving the room
+  };
+
+  const cleanupCollaboration = () => {
+    if (socketRef.current && user) {
+      socketRef.current.emit("leave_collab", { roomId, userName: user.name });
+      socketRef.current.disconnect();
+    }
   };
 
   return (
