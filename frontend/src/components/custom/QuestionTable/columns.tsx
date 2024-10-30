@@ -29,14 +29,14 @@ const getDifficultyClass = (difficulty: string) => {
   }
 };
 
-export const columns = (refetch: () => void): ColumnDef<Question>[] => [
+export const columns = (refetch: () => void, isAdmin: boolean): ColumnDef<Question>[] => [
   {
     id: "delete",
     size: 10,
     maxSize: 10,
     cell: ({ row }) => {
       const question = row.original;
-      return <DeleteQuestionButton question={question} onDelete={refetch} />;
+      return <DeleteQuestionButton question={question} onDelete={refetch} isAdmin={isAdmin}/>;
     },
   },
   {
@@ -107,7 +107,7 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
     maxSize: 10,
     cell: ({ row }) => {
       const question = row.original;
-      return <EditQuestionButton question={question} onEdit={refetch} />;
+      return <EditQuestionButton question={question} onEdit={refetch} isAdmin={isAdmin}/>;
     },
   },
 ];

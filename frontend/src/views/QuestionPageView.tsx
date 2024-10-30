@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MatchingOptions from "@/components/custom/MatchingOptions/MatchingOptions";
 import QuestionTable from "@/components/custom/QuestionTable/QuestionTable";
 import { Separator } from "@/components/ui/separator";
@@ -7,10 +7,12 @@ import profileIcon from "@/assets/profile.png"; // Adjust the path if necessary
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import "@/css/styles.css";
+import { fetchAdminStatus } from "@/services/UserFunctions";
 
 const QuestionPageView: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
@@ -20,6 +22,29 @@ const QuestionPageView: React.FC = () => {
     navigate(path);
     setShowDropdown(false);
   };
+
+  async function fetchStatus(): Promise<boolean> {
+
+    const res = await fetchAdminStatus();
+    if (!res.success) {
+      console.error("Error fetching data", res.error);
+      return false;
+    }
+
+    const isAdmin: boolean = res.data.isAdmin;
+    return isAdmin;
+  };
+
+
+  useEffect(() => {
+      
+    async function updateStatus() {
+      const result = await fetchStatus();
+      setIsAdmin(result)
+    }
+    updateStatus();
+    
+  }, []);
 
   return (
     <main className="h-screen w-screen p-5">
@@ -61,7 +86,7 @@ const QuestionPageView: React.FC = () => {
 
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-3 p-4 rounded-lg shadow-lg">
-          <QuestionTable />
+          <QuestionTable isAdmin={isAdmin}/>
         </div>
 
         <div className="col-span-1 p-4 rounded-lg shadow-lg">

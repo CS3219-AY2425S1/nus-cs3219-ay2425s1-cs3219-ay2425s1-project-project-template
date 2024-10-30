@@ -5,7 +5,13 @@ import { getAllQuestions } from "@/services/QuestionFunctions";
 import { DataTable } from "./data-table";
 import moment from "moment";
 
-function QuestionTable() {
+interface QuestionTableProps {
+  isAdmin: boolean;
+}
+
+const QuestionTable: React.FC<QuestionTableProps> = ({
+  isAdmin,
+}) => {
   const [data, setData] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true); // To show a loading state
 
@@ -30,9 +36,10 @@ function QuestionTable() {
       ) : (
         <div className="font-bold">
           <DataTable
-            columns={columns(refetch)}
+            columns={columns(refetch, isAdmin)}
             data={data || []}
             refetch={refetch}
+            isAdmin={isAdmin}
           />
         </div>
       )}
