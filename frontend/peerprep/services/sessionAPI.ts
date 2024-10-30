@@ -22,7 +22,7 @@ export const checkUserMatchStatus = async () => {
       if (response.status === 204) {
         return false;
       }
-      throw new Error(`Unexpected status code: ${response.status}`);
+      console.error(`Unexpected status code: ${response.status}`);
     } catch (error) {
       throw error;
     }
