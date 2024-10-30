@@ -4,8 +4,7 @@ import "../styles/HomePage.css";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-
-const QUESTIONS_SERVICE_HOST = "http://localhost:3001";
+import { QUESTIONS_SERVICE } from "../Services";
 
 export const HomePage = () => {
   const [questions, setQuestions] = useState([]);
@@ -14,7 +13,7 @@ export const HomePage = () => {
 
   const getQuestions = async () => {
     try {
-      const response = await axios.get(`${QUESTIONS_SERVICE_HOST}/questions`);
+      const response = await axios.get(`${QUESTIONS_SERVICE}/questions`);
       setQuestions(response.data);
     } catch (error) {
       console.log(error);
@@ -23,7 +22,7 @@ export const HomePage = () => {
 
   const deleteQuestion = async (id) => {
     try {
-      await axios.delete(`${QUESTIONS_SERVICE_HOST}/questions/${id}`);
+      await axios.delete(`${QUESTIONS_SERVICE}/questions/${id}`);
       console.log(`Question with id ${id} deleted successfully.`);
       setQuestions((prevQuestions) =>
         prevQuestions.filter((item) => item.id !== id)

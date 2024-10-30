@@ -5,11 +5,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Select from 'react-select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { QUESTIONS_SERVICE } from "../Services";
 
 // This should be dynamic routing and go by question ID
 export const Question = () => {
 
-  const QUESTIONS_SERVICE_HOST = "http://localhost:3001";
   const navigate = useNavigate();
   const params = useParams();
 
@@ -66,7 +66,7 @@ export const Question = () => {
 
   const saveQuestion = async (e) => {
     try {
-      const response = await axios.patch(`${QUESTIONS_SERVICE_HOST}/questions/${params.id}`, {
+      const response = await axios.patch(`${QUESTIONS_SERVICE}/questions/${params.id}`, {
         title: title,
         description: descriptionText,
         category: revertCategoryArray(category),
@@ -98,7 +98,7 @@ export const Question = () => {
     setHasEdited(false);
     setEditMode(false);
     try {
-      const response = await axios.get(`${QUESTIONS_SERVICE_HOST}/questions/${id}`);
+      const response = await axios.get(`${QUESTIONS_SERVICE}/questions/${id}`);
       if (response.status === 404 || response.status === 500) {
         //404 not found
         navigate("/*")
@@ -119,7 +119,7 @@ export const Question = () => {
       alert("Some fields are empty!");
     } else {
       try {
-        const response = await axios.post(`${QUESTIONS_SERVICE_HOST}/questions`, {
+        const response = await axios.post(`${QUESTIONS_SERVICE}/questions`, {
           complexity: complexity,
           category: revertCategoryArray(category),
           title: title,

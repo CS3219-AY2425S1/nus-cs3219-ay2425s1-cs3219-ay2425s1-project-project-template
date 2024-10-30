@@ -10,9 +10,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { NOTIFICATION_SERVICE, MATCHING_SERVICE } from "../Services";
 
-const NOTIFICATION_SERVICE = "http://localhost:5000";
-const MATCHING_SERVICE = "http://localhost:5001";
 const userId = localStorage.getItem("userId");
 const topics = [
   "Algorithms",

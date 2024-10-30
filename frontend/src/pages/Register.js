@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles/Register.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { USER_SERVICE } from '../Services';
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -9,8 +10,6 @@ export const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  const USER_SERVICE_HOST = 'http://localhost:3002';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -23,7 +22,7 @@ export const Register = () => {
         return;
     } else {
       try {
-        const response = await axios.post(`${USER_SERVICE_HOST}/users/create`, {
+        const response = await axios.post(`${USER_SERVICE}/users/create`, {
           username: username,
           email: email,
           password: password
