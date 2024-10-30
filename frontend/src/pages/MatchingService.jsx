@@ -6,7 +6,7 @@ import PeerPrep from "./PeerPrep";
 import { useNavigate } from "react-router-dom";
 
 export default function MatchingService() {
-  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedWaitTime, setSelectedWaitTime] = useState("");
   const [error, setError] = useState("");
@@ -38,8 +38,8 @@ export default function MatchingService() {
   const waitTimes = ["30s", "1min", "2mins", "5mins"];
 
   const handleStartMatching = () => {
-    if (selectedTopics.length === 0) {
-      setError("Please select at least one topic.");
+    if (!selectedTopic) {
+      setError("Please select a topic.");
       return;
     }
     if (!selectedLevel) {
@@ -57,7 +57,7 @@ export default function MatchingService() {
 
     navigate("/finding-a-peer", {
       state: {
-        selectedTopics,
+        selectedTopic,
         selectedLevel,
         waitTimeInSeconds,
       },
@@ -85,9 +85,9 @@ export default function MatchingService() {
         <div className="flex gap-x-4">
           <div className="w-1/2 rounded-lg border border-[#333333] bg-[#111111] p-6">
             <TopicSelect
-              topics={topics}
-              selectedTopics={selectedTopics}
-              setSelectedTopics={setSelectedTopics}
+              topic={topics}
+              selectedTopic={selectedTopic}
+              setSelectedTopic={setSelectedTopic}
             />
           </div>
           <div className="w-1/2 flex-1 rounded-lg border border-[#333333] bg-[#111111] p-6">

@@ -1,12 +1,14 @@
 import Redis from 'ioredis';
 import { io } from '../server.js';
+import 'dotenv/config';
 
 let socketChannel;
-
+const redisHost = process.env.REDIS_HOST || "localhost";
+const redisPort = process.env.REDIS_PORT || 6379;
 export const startRedis = async () => {
   socketChannel = new Redis({
-    port: 6379,
-    host: 'localhost',
+    port: redisPort,
+    host: redisHost,
   });
 };
 

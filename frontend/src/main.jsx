@@ -15,6 +15,7 @@ import Help from "./pages/Help.jsx";
 import FindingPeer from "./pages/FindingPeer.jsx";
 import MatchingService from "./pages/MatchingService.jsx";
 import Room from "./pages/Room.jsx";
+import CollaborationService from "./pages/CollaborationService.jsx";
 
 const router = createBrowserRouter([
   {
@@ -72,7 +73,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/room/:id",
-        element: <Room />,
+        element: <CollaborationService />,
         errorElement: <ErrorPage />,
       },
     ],

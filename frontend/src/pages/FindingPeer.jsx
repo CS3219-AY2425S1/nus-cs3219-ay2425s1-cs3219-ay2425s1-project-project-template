@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import matchingService from "../services/MatchingService";
+import { getQuestionToCollaborate} from "../services/QuestionService";
 
 const FindingPeer = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { selectedTopics, selectedLevel, waitTimeInSeconds } =
+  const { selectedTopic, selectedLevel, waitTimeInSeconds } =
     location.state || {};
 
   const [time, setTime] = useState(waitTimeInSeconds || 120);
@@ -41,13 +42,23 @@ const FindingPeer = () => {
     navigate("/matching-service");
   };
 
+  const fetchQuestionToCollaborate = async (selectedTopic, selectedLevel) => {
+    try {
+      const question = await getQuestionToCollaborate(selectedTopic, selectedLevel);
+      return question;
+    } catch (error) {
+      console.error("Error fetching question:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     const complexity = selectedLevel;
     const waitTime = time;
 
     matchingService
-      .connect(token, selectedTopics.join(","), complexity, waitTime)
+      .connect(token, selectedTopic, complexity, waitTime)
       .then(() => {
         toast.success("Connected to matching service");
 
@@ -56,11 +67,18 @@ const FindingPeer = () => {
           console.log("Match found, redirecting to room:", roomId);
           clearInterval();
           toast.success("Match found! Redirecting to the collaboration room...");
-          
-          // Delay the navigation to ensure toast is visible
-          setTimeout(() => {
-            navigate(`/room/${roomId}`);
-          }, 3000);  // Wait for 3 seconds before navigating
+
+          fetchQuestionToCollaborate(selectedTopic, selectedLevel).then((question) => {
+            if (question) {
+              console.log("Question fetched:", question);
+              // Delay the navigation to ensure toast is visible
+              setTimeout(() => {
+                navigate(`/room/${roomId}`, { state: { question } });
+              }, 3000);  // Wait for 3 seconds before navigating
+            } else {
+              toast.error("Failed to fetch question");
+            }
+          });
         });
         
         //  When an error message is received, call the onError event
@@ -82,7 +100,7 @@ const FindingPeer = () => {
     return () => {
       matchingService.disconnect();
     };
-  }, [selectedTopics, selectedLevel, navigate]);
+  }, [selectedTopic, selectedLevel, navigate]);
 
   return (
     <div className="flex min-h-screen bg-black">
@@ -96,7 +114,7 @@ const FindingPeer = () => {
         </div>
         <div className="mb-4 flex space-x-1 text-sm text-gray-300">
           <h1 className="font-bold text-lime-400">Topics:</h1>
-          <p>{selectedTopics?.join(", ")}</p>
+          <p>{selectedTopic}</p>
         </div>
         <div className="mb-4 flex space-x-1 text-sm text-gray-300">
           <h1 className="font-bold text-lime-400">Level:</h1>

@@ -18,6 +18,11 @@ export const io = new Server(httpServer, {
   cors: {
     origin: [
       'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://localhost:3004',
+      'http://localhost:3005',
       'http://localhost:6000',
       'http://localhost:6001',
       'http://localhost:6002',
@@ -40,8 +45,6 @@ try {
 httpServer.listen(port, () => {
   console.log('Matching Service listening on port ' + port);
 });
-
-console.log('Matching Service listening on port ' + port);
 
 // Check if the token is valid and verify the token before any connection of the socket
 io.use(verifyAccessToken);
