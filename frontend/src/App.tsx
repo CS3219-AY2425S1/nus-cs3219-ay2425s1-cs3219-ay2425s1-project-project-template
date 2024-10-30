@@ -8,11 +8,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider, } from '@tanstack/react-query'
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import { useContext, useEffect } from "react";
-import { AuthContext } from "./hooks/AuthContext";
+import { AuthContext } from "./contexts/AuthContext";
 import PublicRoute from "./routes/PublicRoute";
 import SettingsPage from "./pages/Settings/settings";
 import ForgotPasswordPage from "./pages/ForgotPassword/forgotPassword";
 import ResetPasswordPage from "./pages/ResetPassword/ResetPassword";
+import VideoCall from "./components/Communication/videoCall";
+import NavBar from "./components/NavBar/navbar";
 
 const queryClient = new QueryClient();
 const TOAST_LIMIT = 3
@@ -43,8 +45,9 @@ function App() {
               <Route path="/resetpassword" element={<ResetPasswordPage />} />
             </Route>
             <Route element={<PrivateRoute />}>
-              <Route path="/" element={<QuestionPage />} />
+              <Route path="/" element={<QuestionPage />} /> 
               <Route path="/settings" element={<SettingsPage />} />
+              {/* <Route path="/comm" element={<><NavBar/> <VideoCall/></>} /> */}
             </Route>
           </Routes>
         </BrowserRouter>
