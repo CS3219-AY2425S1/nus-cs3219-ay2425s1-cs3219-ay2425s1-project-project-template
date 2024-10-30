@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"cloud.google.com/go/firestore"
 	"encoding/json"
-	"google.golang.org/api/iterator"
 	"history-service/models"
 	"history-service/utils"
 	"net/http"
+
+	"cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 )
 
 // Create a new code snippet

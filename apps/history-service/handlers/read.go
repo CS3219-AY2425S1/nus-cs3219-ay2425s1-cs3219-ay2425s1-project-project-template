@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"google.golang.org/api/iterator"
 	"history-service/models"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"google.golang.org/api/iterator"
 )
 
 // Read a code snippet by ID

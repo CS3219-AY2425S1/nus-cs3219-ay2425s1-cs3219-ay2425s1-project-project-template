@@ -1,15 +1,16 @@
 package handlers
 
 import (
-	"cloud.google.com/go/firestore"
 	"encoding/json"
+	"history-service/models"
+	"history-service/utils"
+	"net/http"
+
+	"cloud.google.com/go/firestore"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"history-service/models"
-	"history-service/utils"
-	"net/http"
 )
 
 func (s *Service) CreateOrUpdateHistory(w http.ResponseWriter, r *http.Request) {
