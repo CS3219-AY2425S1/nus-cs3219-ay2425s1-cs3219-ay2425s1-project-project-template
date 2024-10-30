@@ -21,7 +21,7 @@ const QuestionCard: React.FC<QuestionProps> = ({
   return (
     <Card variant={variant} className="w-full h-full">
       <CardHeader>
-        <CardTitle>{question.title}</CardTitle>
+        <CardTitle className="break-words">{question.title}</CardTitle>
         <div className="inline-flex gap-1">
           <Badge
             className={`inline-flex items-center justify-center rounded-full text-xs font-medium`}
@@ -46,7 +46,7 @@ const QuestionCard: React.FC<QuestionProps> = ({
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="break-words">
         <div>{question.description}</div>
         {(question.examples.length > 0 || question.constraints.length > 0) && (
           <Separator className="my-2" />

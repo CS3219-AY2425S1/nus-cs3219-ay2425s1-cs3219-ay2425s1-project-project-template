@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { SingleSelect } from "@/components/ui/single-select";
 import { Textarea } from "@/components/ui/textarea";
-import { SuccessObject, callFunction } from "@/lib/utils";
+import { HTTP_SERVICE_QUESTION, SuccessObject, callFunction } from "@/lib/utils";
 import {
   Difficulty,
   Question,
@@ -84,6 +84,7 @@ const EditQuestionCard: React.FC<EditQuestionCardProps> = ({
     };
 
     const result: SuccessObject = await callFunction(
+      HTTP_SERVICE_QUESTION,
       "edit-question",
       "PUT",
       question

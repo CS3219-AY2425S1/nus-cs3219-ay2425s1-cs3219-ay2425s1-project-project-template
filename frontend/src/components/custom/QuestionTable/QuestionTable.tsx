@@ -5,13 +5,18 @@ import { getAllQuestions } from "@/services/QuestionFunctions";
 import { DataTable } from "./data-table";
 import moment from "moment";
 
-function QuestionTable() {
+interface QuestionTableProps {
+  isAdmin: boolean;
+}
+
+const QuestionTable: React.FC<QuestionTableProps> = ({
+  isAdmin,
+}) => {
   const [data, setData] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true); // To show a loading state
 
   // Define a refetch function to reload the questions
   const refetch = async () => {
-    setLoading(true);
     const questions = await getData();
     setData(questions);
     setLoading(false);
@@ -24,15 +29,16 @@ function QuestionTable() {
 
   // Return a loading indicator or the table once data is available
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       {loading ? (
         <p>Loading...</p> // Show loading text or spinner
       ) : (
         <div className="font-bold">
           <DataTable
-            columns={columns(refetch)}
+            columns={columns(refetch, isAdmin)}
             data={data || []}
             refetch={refetch}
+            isAdmin={isAdmin}
           />
         </div>
       )}
