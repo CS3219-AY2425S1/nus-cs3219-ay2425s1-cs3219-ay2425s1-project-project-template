@@ -56,12 +56,12 @@ const TagInput: React.FC<{
             <Tag.CheckableTag
                 className={`difficulty-tag ${difficultyOption.value}-tag`}
                 key={difficultyOption.value}
-                checked={value.includes(difficultyOption.label)}
+                checked={value.includes(difficultyOption.value)}
                 onChange={(enabled) => {
                     onChange(
                         enabled 
-                            ? [...value, difficultyOption.label] 
-                            : value.filter(diff => diff !== difficultyOption.label)
+                            ? [...value, difficultyOption.value] 
+                            : value.filter(diff => diff !== difficultyOption.value)
                     )
                 }}
             >

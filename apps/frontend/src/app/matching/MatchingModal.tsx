@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import { 
     Form,
@@ -15,7 +17,7 @@ import MatchCancelledContent from './modalContent/MatchCancelledContent';
 import useMatching from '../services/use-matching';
 import { ValidateUser } from '../services/user';
 import { useTimer } from 'react-timer-hook';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface MatchingModalProps {
   isOpen: boolean;
@@ -43,8 +45,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                 return;
             }
             if (matchingState.state === "found") {
-                matchingState.ok();
-                setClosedType("joined");
+                join();
                 return;
             }
             console.warn(`matching is in ${matchingState.state}`)
@@ -52,14 +53,14 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
     });
     const passed = MATCH_TIMEOUT - totalSeconds;
 
-  function close() {
-    // clean up matching and closedType State
-    if (matchingState.state === "timeout") {
-      matchingState.ok();
+    function close() {
+        // clean up matching and closedType State
+        if (matchingState.state === "timeout") {
+            matchingState.ok();
+        }
+        setClosedType("finding");
+        _close();
     }
-    setClosedType("finding");
-    _close();
-  }
 
     const startMatch = matchingState.state == "closed" || matchingState.state == "timeout" ? async (params: MatchParams): Promise<void> => {
         const user = await ValidateUser();
@@ -75,6 +76,22 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
             ...params
         });
     } : undefined;
+
+    const join = matchingState.state == "found" ? (() => {
+        matchingState.ok();
+        setClosedType("joined");
+        localStorage.setItem("user", matchingState.info.user);
+        localStorage.setItem(
+            "matchedUser",
+            matchingState.info.matchedUser
+        );
+        localStorage.setItem("collabId", matchingState.info.matchId);
+        localStorage.setItem("questionDocRefId", matchingState.info.questionDocRefId);
+        localStorage.setItem("matchedTopics", matchingState.info.matchedTopics.join(","));
+    
+        // Redirect to collaboration page
+        router.push(`/collaboration/${matchingState.info.matchId}`);
+    }) : () => { throw new Error("join called when not found"); }
     
     useEffect(() => {
         if (matchingState.state === "cancelling" || matchingState.state === "timeout") {
@@ -129,21 +146,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                         matchingState.ok();
                         setClosedType("cancelled");
                     }}
-                    join={() => {
-                      matchingState.ok();
-                      setClosedType("joined");
-                      localStorage.setItem("user", matchingState.info.user);
-                      localStorage.setItem(
-                        "matchedUser",
-                        matchingState.info.matchedUser
-                      );
-                      localStorage.setItem("collabId", matchingState.info.matchId);
-                      localStorage.setItem("questionDocRefId", matchingState.info.questionDocRefId);
-                      localStorage.setItem("matchedTopics", matchingState.info.matchedTopics.join(","));
-
-                      // Redirect to collaboration page
-                      router.push(`/collaboration/${matchingState.info.matchId}`);
-                    }}
+                    join={join}
                     name1={matchingState.info.user}
                     name2={matchingState.info.matchedUser}
                     joiningIn={totalSeconds}
