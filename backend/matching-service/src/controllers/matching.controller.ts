@@ -1,18 +1,20 @@
 import { ITypedBodyRequest } from '@repo/request-types'
-import { WebSocketMessageType } from '@repo/ws-types'
-import { randomUUID } from 'crypto'
 import { Response } from 'express'
-import { createMatch, isUserInMatch } from '../models/matching.repository'
 import { wsConnection } from '../server'
 import mqConnection from '../services/rabbitmq.service'
-import { IMatch } from '../types/IMatch'
+import { randomUUID } from 'crypto'
+import { WebSocketMessageType } from '@repo/ws-types'
+import { IMatch } from '@repo/user-types'
 import { MatchDto } from '../types/MatchDto'
+import { createMatch, getMatchByUserIdandMatchId, isUserInMatch } from '../models/matching.repository'
+import { getRandomQuestion } from '../services/matching.service'
+import { convertComplexityToSortedComplexity } from '@repo/question-types'
 import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
     if (userHasMatch) {
-        response.status(403).send('USER_ALREADY_IN_MATCH')
+        response.status(403).send(userHasMatch)
         return
     }
 
@@ -51,8 +53,14 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
         wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
-    data.questionId = randomUUID() // TODO: replace with actual question ID
-    const createDto = MatchDto.fromJSON(data)
+
+    const question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+
+    if (!question) {
+        throw new Error('Question not found')
+    }
+
+    const createDto = MatchDto.fromJSON({ ...data, question })
     const errors = await createDto.validate()
     if (errors.length) {
         throw new Error('Invalid match data')
@@ -61,4 +69,17 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
     wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
     wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
     return dto
+}
+
+export async function getMatchDetails(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
+    const userId = request.user.id
+    const matchId = request.params.id
+    const match = await getMatchByUserIdandMatchId(userId, matchId)
+
+    if (!match) {
+        response.status(404).send('MATCH_NOT_FOUND')
+        return
+    }
+
+    response.status(200).send(match)
 }

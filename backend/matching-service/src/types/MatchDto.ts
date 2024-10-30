@@ -1,16 +1,14 @@
-import { Category, Complexity } from '@repo/user-types'
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, ValidationError, validate } from 'class-validator'
-import { IMatch } from './IMatch'
+import { Category, Complexity, IMatch } from '@repo/user-types'
+import { IsEnum, IsNotEmpty, IsObject, IsString, ValidationError, validate } from 'class-validator'
 
 export class MatchDto {
     @IsEnum(Complexity)
     @IsNotEmpty()
     complexity: Complexity
 
-    @IsArray()
-    @IsEnum(Category, { each: true })
-    @ArrayNotEmpty()
-    categories: Category[]
+    @IsEnum(Category)
+    @IsNotEmpty()
+    category: Category
 
     @IsString()
     @IsNotEmpty()
@@ -18,11 +16,19 @@ export class MatchDto {
 
     @IsString()
     @IsNotEmpty()
+    user1Name: string
+
+    @IsString()
+    @IsNotEmpty()
     user2Id: string
 
     @IsString()
     @IsNotEmpty()
-    questionId: string
+    user2Name: string
+
+    @IsObject()
+    @IsNotEmpty()
+    question: object
 
     @IsNotEmpty()
     isCompleted: boolean
@@ -32,18 +38,22 @@ export class MatchDto {
 
     constructor(
         user1Id: string,
+        user1Name: string,
         user2Id: string,
+        user2Name: string,
         complexity: Complexity,
-        categories: Category[],
-        questionId: string,
+        category: Category,
+        question: object,
         isCompleted: boolean = false,
         createdAt: Date = new Date()
     ) {
         this.user1Id = user1Id
+        this.user1Name = user1Name
         this.user2Id = user2Id
+        this.user2Name = user2Name
         this.complexity = complexity
-        this.categories = categories
-        this.questionId = questionId
+        this.category = category
+        this.question = question
         this.isCompleted = isCompleted
         this.createdAt = createdAt
     }
@@ -51,10 +61,12 @@ export class MatchDto {
     static fromJSON(data: IMatch): MatchDto {
         return new MatchDto(
             data.user1Id,
+            data.user1Name,
             data.user2Id,
+            data.user2Name,
             data.complexity,
-            data.categories,
-            data.questionId,
+            data.category,
+            data.question,
             data.isCompleted,
             data.createdAt
         )
