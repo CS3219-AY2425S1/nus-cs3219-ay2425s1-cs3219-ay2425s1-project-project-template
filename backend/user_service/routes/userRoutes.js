@@ -13,12 +13,12 @@ router.post('/verify-token', authenticateToken, (req, res) => {
 router.post('/user/addToUserCollection', addToUserCollection);
 
 // Route for checking admin status
-router.get('/admin/checkAdminStatus', checkAdminStatus); 
+router.get('/admin/checkAdminStatus', authenticateToken, checkAdminStatus); 
 
 // Add the endpoint to check for username existence
-router.get('/check-username', checkUsernameExists);
+router.get('/check-username', authenticateToken, checkUsernameExists);
 
 // Route to get username by uid
-router.get('/user/username/:uid', getUsernameByUid);
+router.get('/user/username/:uid', authenticateToken, getUsernameByUid);
 
 module.exports = router;
