@@ -113,8 +113,10 @@ services:
 volumes:
   user-db-data:
     name: user-db-data
+    external: true
   question-db-data:
     name: question-db-data
+    external: true
 
 
 # Notes:

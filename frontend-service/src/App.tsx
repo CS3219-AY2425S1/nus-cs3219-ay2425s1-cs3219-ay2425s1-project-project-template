@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import { Box } from "@chakra-ui/react";
 import "./App.css";
 import QuestionPage from "./pages/QuestionPage";
@@ -8,7 +8,13 @@ import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
 import MatchingPage from "./pages/MatchingPage";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
+import CodeEditor from '../components/collab/CodeEditor';
+import RoomPage from "./pages/RoomPage";
+import ProfilePage from "./pages/ProfilePage";
+import AboutUs from "./pages/AboutUsPage";
+import ChangePasswordPage from "./pages/ChangePassword";
+import AboutUsPage from "./pages/AboutUsPage";
 
 interface UserData {
   id: string
@@ -91,6 +97,11 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/match-me" element={<MatchingPage />} />
+          <Route path="/editor" element={<CodeEditor />} />
+          <Route path="/room" element={<RoomPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/aboutus" element={<AboutUsPage />} />
+          <Route path="/changepassword" element={<ChangePasswordPage />} />
         </Routes>
       </Box>
     </Box>
