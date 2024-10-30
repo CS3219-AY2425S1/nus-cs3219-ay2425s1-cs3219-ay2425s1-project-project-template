@@ -209,13 +209,6 @@ const CollabPageView: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (event: any) => {
-    if (event.key === "Enter") {
-      event.preventDefault(); // Prevent any default form submission
-      handleMessageSend();
-    }
-  }; 
-
   // Callback function to mount editor to auto-focus when page loads
   const onMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
