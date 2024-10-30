@@ -11,7 +11,6 @@ function QuestionTable() {
 
   // Define a refetch function to reload the questions
   const refetch = async () => {
-    setLoading(true);
     const questions = await getData();
     setData(questions);
     setLoading(false);
@@ -24,7 +23,7 @@ function QuestionTable() {
 
   // Return a loading indicator or the table once data is available
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       {loading ? (
         <p>Loading...</p> // Show loading text or spinner
       ) : (

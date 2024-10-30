@@ -19,7 +19,11 @@ import {
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
 import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
 import { Loader2 } from "lucide-react";
-import { collabServiceHttpCallFunction } from "@/lib/utils";
+import {
+  HTTP_SERVICE_COLLAB,
+  WS_SERVICE_COLLAB,
+  callFunction,
+} from "@/lib/utils";
 
 const customQuestion: Question = {
   id: "Placeholder",
@@ -50,13 +54,11 @@ const CollabPageView: React.FC = () => {
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  const collabServiceBackendUrl =
-    import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "ws://localhost:5004";
-
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const response = await collabServiceHttpCallFunction(
+        const response = await callFunction(
+          HTTP_SERVICE_COLLAB,
           "verify-session",
           "POST",
           {
@@ -69,10 +71,10 @@ const CollabPageView: React.FC = () => {
           console.log("Session verified successfully: ", data.message);
           return true;
         } else {
-            alert(
-              `Collab session verification failed. \nPlease use the matching service to access the collab page.`
-            );
-            navigate("/questions");
+          alert(
+            `Collab session verification failed. \nPlease use the matching service to access the collab page.`
+          );
+          navigate("/questions");
           return false;
         }
       } catch (error) {
@@ -92,7 +94,7 @@ const CollabPageView: React.FC = () => {
       const uid = sessionStorage.getItem("uid");
 
       // Initialize the WebSocket connection when the component mounts
-      const newSocket = io(collabServiceBackendUrl, {
+      const newSocket = io(WS_SERVICE_COLLAB, {
         auth: {
           token: token,
           uid: uid,
@@ -134,6 +136,10 @@ const CollabPageView: React.FC = () => {
         navigate("/questions");
       });
 
+      newSocket.on("userLeft", ({ userId }) => {
+        alert(`User ${userId} has left the session.`);
+      });
+      
       newSocket.on("messageReceived", (data) => {
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -170,7 +176,7 @@ const CollabPageView: React.FC = () => {
       socket.emit("sendMessage", {
         sessionId: sessionIdObj,
         message: message.trim(),
-        username: userId,
+        uid: userId,
       });
       setMessage(""); // Clear the input field
     }
@@ -179,10 +185,9 @@ const CollabPageView: React.FC = () => {
   // Handle Quit Session button click
   const handleQuitSession = () => {
     if (socket) {
-      const uid = sessionStorage.getItem("uid");
       socket.emit("terminateSession", {
         sessionId: sessionIdObj,
-        uid: uid,
+        uid: userId,
       });
     }
   };
@@ -220,7 +225,8 @@ const CollabPageView: React.FC = () => {
     try {
       setIsLoading(true);
 
-      const response = await collabServiceHttpCallFunction(
+      const response = await callFunction(
+        HTTP_SERVICE_COLLAB,
         "execute-code",
         "POST",
         {
@@ -299,57 +305,57 @@ const CollabPageView: React.FC = () => {
               {questionData.title}
             </h2>
 
-            {/* tags (difficulty & topics) */}
-            <div
-              style={{
-                marginTop: "15px",
-                marginBottom: "15px",
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "10px",
-              }}
-            >
-              <Badge>{questionData.difficulty}</Badge>
-              {questionData.topics.map((topic, index) => (
-                <Badge key={index} variant="outline">
-                  {topic}
-                </Badge>
-              ))}
-            </div>
+          {/* tags (difficulty & topics) */}
+          <div
+            style={{
+              marginTop: "15px",
+              marginBottom: "15px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+            }}
+          >
+            <Badge>{questionData.difficulty}</Badge>
+            {questionData.topics.map((topic, index) => (
+              <Badge key={index} variant="outline">
+                {topic}
+              </Badge>
+            ))}
+          </div>
 
-            {/* description */}
-            <p>{questionData.description}</p>
+          {/* description */}
+          <p>{questionData.description}</p>
 
-            {/* examples */}
-            <div style={{ marginTop: "35px" }}>
-              {questionData.examples.map((example, index) => (
-                <div key={index} style={{ marginBottom: "20px" }}>
-                  <p style={{ marginBottom: "10px" }}>
-                    <strong>Example {index + 1}:</strong>
-                  </p>
-                  <div
+          {/* examples */}
+          <div style={{ marginTop: "35px" }}>
+            {questionData.examples.map((example, index) => (
+              <div key={index} style={{ marginBottom: "20px" }}>
+                <p style={{ marginBottom: "10px" }}>
+                  <strong>Example {index + 1}:</strong>
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <blockquote
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "10px",
+                      paddingLeft: "10px",
+                      borderLeft: "5px solid #d0d7de",
                     }}
                   >
-                    <blockquote
-                      style={{
-                        paddingLeft: "10px",
-                        borderLeft: "5px solid #d0d7de",
-                      }}
-                    >
-                      <pre>
-                        <strong>Input:</strong> {example.input}
-                      </pre>
-                      <pre>
-                        <strong>Output:</strong> {example.output}
-                      </pre>
-                    </blockquote>
-                  </div>
+                    <pre>
+                      <strong>Input:</strong> {example.input}
+                    </pre>
+                    <pre>
+                      <strong>Output:</strong> {example.output}
+                    </pre>
+                  </blockquote>
                 </div>
-              ))}
+              </div>
+            ))}
 
               {/* constraints */}
               <div style={{ marginTop: "35px" }}>
