@@ -28,7 +28,12 @@ export const initializeSessionSocket = async (
   setQuestionTestcases: Dispatch<any>,
   updateDoc: (arg0: Uint8Array) => void,
   setCodeOutput: Dispatch<any>,
-  setIsCodeError: Dispatch<any>
+  setIsCodeError: Dispatch<any>,
+  setIsCancelled: Dispatch<any>,
+  setModalVisibility: Dispatch<any>,
+  setUserConfirmed: Dispatch<any>,
+  setIsFirstToCancel: Dispatch<any>,
+  router: any
 ) => {
 
   const token = await getToken();
@@ -68,6 +73,7 @@ export const initializeSessionSocket = async (
 
   registerCodeExecutionEvents(setCodeOutput, setIsCodeError);
 
+  registerModalEvents(setIsCancelled, setModalVisibility, setUserConfirmed, setIsFirstToCancel, router);
 };
 
 const registerUserEvents = async (setUsersInRoom: Dispatch<any>) => {
@@ -113,6 +119,33 @@ const registerCodeExecutionEvents = async (setCodeOutput: Dispatch<any>, setIsCo
   });
 }
 
+export const registerModalEvents = async (setIsCancelled: Dispatch<any>, setModalVisibility: Dispatch<any>, setUserConfirmed: Dispatch<any>, setIsFirstToCancel: Dispatch<any>, router: any) => {
+  if (!socket) return;
+
+  socket.on("modalVisibility", (isVisible: boolean) => {
+    // console.log("Received modal visibility", isVisible);
+    setModalVisibility(isVisible);
+    setIsCancelled(!isVisible);
+
+    if (!isVisible) {
+      setUserConfirmed(false);
+      setIsFirstToCancel(true);
+    }
+  })
+
+  socket.on("terminateOne", () => {
+    console.log("Partner confirmed termination");
+    setIsFirstToCancel(false);
+  });
+
+  socket.on("terminateSession", () => {
+    setModalVisibility(false);
+    console.log("Session terminated");
+    socket?.disconnect();
+    router.push("/");
+  });
+}
+
 export const disconnectSocket = async () => {
   if (socket) {
     socket.disconnect();
@@ -141,3 +174,34 @@ export const propagateDocUpdate = async (update: Uint8Array) => {
   console.log("Propagating document update", update);
   socket.emit("update", update);
 }
+
+export const openModal = async (setModalVisibility: Dispatch<any>) => {
+  if (!socket) return;
+
+  setModalVisibility(true);
+  socket.emit("changeModalVisibility", true);
+}
+
+export const closeModal = async (setModalVisibility: Dispatch<any>, setUserConfirmed: Dispatch<any>, setIsFirstToCancel: Dispatch<any>) => {
+  if (!socket) return;
+
+  setModalVisibility(false);
+  setUserConfirmed(false);
+  setIsFirstToCancel(true);
+  socket.emit("changeModalVisibility", false);
+}
+
+export const confirmTermination = async (isFirstToCancel: boolean, router: any, setUserConfirmed: Dispatch<any>, setModalVisibility: Dispatch<any>) => {
+  setUserConfirmed(true);
+  if (!socket) return;
+
+  if (isFirstToCancel) {
+    socket.emit("terminateOne");
+  } else {
+    setModalVisibility(false);  
+    socket.emit("terminateSession");
+    socket.disconnect();
+    router.push("/");
+  };
+}
+

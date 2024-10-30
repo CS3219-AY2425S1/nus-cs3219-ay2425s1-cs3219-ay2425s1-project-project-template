@@ -17,11 +17,27 @@ import { getUsername } from "@/auth/actions";
 export interface CollabNavbarProps {
   usersInRoom: string[];
   setUsersInRoom: React.Dispatch<React.SetStateAction<string[]>>;
+  isModalVisible: boolean;
+  userConfirmed: boolean;
+  isCancelled: boolean;
+  isFirstToCancel: boolean;
+  handleOpenModal: () => void;
+  handleCloseModal: () => void;
+  handleConfirm: () => void;
+  setIsCancelled: (isCancelled: boolean) => void;
 }
 
 export const CollabNavbar = ({
   usersInRoom,
   setUsersInRoom,
+  isModalVisible,
+  userConfirmed,
+  isCancelled,
+  isFirstToCancel,
+  handleOpenModal,
+  handleCloseModal,
+  handleConfirm,
+  setIsCancelled,
 }: CollabNavbarProps) => {
   return (
     <NextUINavbar maxWidth="full" position="sticky">
@@ -41,7 +57,16 @@ export const CollabNavbar = ({
         {/* Add the UsersInRoom component */}
       </NavbarContent>
       <NavbarContent className="basis-1/5" justify="center">
-        <TerminateModal /> {/* Add the UsersInRoom component */}
+        <TerminateModal 
+          isModalVisible={isModalVisible}
+          userConfirmed={userConfirmed}
+          isCancelled={isCancelled}
+          isFirstToCancel={isFirstToCancel}
+          handleOpenModal={handleOpenModal}
+          handleCloseModal={handleCloseModal}
+          handleConfirm={handleConfirm}
+          setIsCancelled={setIsCancelled}
+        /> {/* Add the UsersInRoom component */}
       </NavbarContent>
       <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="flex items-center justify-center gap-5">

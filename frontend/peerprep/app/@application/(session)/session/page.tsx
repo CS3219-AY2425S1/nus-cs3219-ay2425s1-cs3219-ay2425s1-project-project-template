@@ -12,17 +12,27 @@ import {
   propagateCodeOutput,
   propagateDocUpdate,
   propagateLanguage,
+  openModal,
+  closeModal,
+  confirmTermination
 } from "@/services/sessionService";
 import CollabCodeEditor from "../../../../components/collaboration/CollabCodeEditor";
 import { codeOutputInterface } from "@/components/collaboration/Output";
+import { useRouter } from "next/navigation";
 
 const App: React.FC = () => {
+  const router = useRouter();
   const [language, setLanguage] = useState<SupportedLanguages>("javascript");
   const [usersInRoom, setUsersInRoom] = useState<string[]>([]);
   const [questionDescription, setQuestionDescription] = useState<string>("");
   const [questionTestcases, setQuestionTestcases] = useState<string[]>([]);
   const [codeOutput, setCodeOutput] = useState<string[] | null>(null);
   const [isCodeError, setIsCodeError] = useState<boolean>(false);
+
+  const [isModalVisible, setModalVisibility] = useState<boolean>(false);
+  const [userConfirmed, setUserConfirmed] = useState<boolean>(false);
+  const [isCancelled, setIsCancelled] = useState<boolean>(false); // Is termination cancelled
+  const [isFirstToCancel, setIsFirstToCancel] = useState<boolean>(true);
 
   const doc = new Y.Doc();
   const yText = doc.getText("code");
@@ -61,6 +71,18 @@ const App: React.FC = () => {
     }
   }
 
+  const handleOpenModal = async () => {
+    openModal(setModalVisibility);
+  }
+
+  const handleCloseModal = async () => {
+    closeModal(setModalVisibility, setUserConfirmed, setIsFirstToCancel);
+  }
+
+  const handleConfirm = async () => {
+    confirmTermination(isFirstToCancel, router, setUserConfirmed, setModalVisibility);
+  }
+
   useEffect(() => {
     initializeSessionSocket(
       setLanguage,
@@ -69,7 +91,12 @@ const App: React.FC = () => {
       setQuestionTestcases,
       updateDoc,
       setCodeOutput,
-      setIsCodeError
+      setIsCodeError,
+      setIsCancelled,
+      setModalVisibility,
+      setUserConfirmed,
+      setIsFirstToCancel,
+      router
     );
 
     return () => {
@@ -79,7 +106,18 @@ const App: React.FC = () => {
 
   return (
     <div className="relative flex flex-col h-screen">
-      <CollabNavbar usersInRoom={usersInRoom} setUsersInRoom={setUsersInRoom} />
+      <CollabNavbar 
+        usersInRoom={usersInRoom} 
+        setUsersInRoom={setUsersInRoom} 
+        isModalVisible={isModalVisible}
+        userConfirmed={userConfirmed}
+        isCancelled={isCancelled}
+        isFirstToCancel={isFirstToCancel}
+        handleOpenModal={handleOpenModal}
+        handleCloseModal={handleCloseModal}
+        handleConfirm={handleConfirm}
+        setIsCancelled={setIsCancelled}
+      />
       <div className="flex flex-row w-full h-[90vh] gap-2">
         <div className="flex w-1/2 h-full">
           <QuestionDisplay question={questionDescription} testCases={questionTestcases} />
