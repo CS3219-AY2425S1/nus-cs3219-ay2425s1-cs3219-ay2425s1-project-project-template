@@ -23,10 +23,10 @@ const EditQuestionButton: React.FC<EditQuestionButtonProps> = ({
     <>
       <Button
         onClick={handleOpenDialog}
-        className="bg-green-400 hover:bg-green-500"
+        className="bg-yellow-400 hover:bg-yellow-500"
         size="sm"
       >
-        <RefreshCcw />
+        <RefreshCcw size={30} />
       </Button>
       <EditQuestionDialog
         open={openDialog}

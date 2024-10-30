@@ -8,23 +8,22 @@ function MatchingOptions() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
 
   return (
-    <div className="grid">
-      <h1 className="grid-rows-1 my-2">Matching Options</h1>
+    <div className="grid max-w-full p-4 overflow-hidden">
+      <h1 className="my-2">Matching Options</h1>
       <SingleSelect
-        className="grid-rows-1 my-2"
+        className="my-2"
         options={topicArray}
         defaultValue={selectedTopic}
         onValueChange={setSelectedTopic}
         placeholder="Select Topic"
       />
-      <div className="flex grid-rows-1 my-2">
-        <SingleSelect
-          options={difficultyArray}
-          defaultValue={selectedDifficulty}
-          onValueChange={setSelectedDifficulty}
-          placeholder="Select Difficulty"
-        />
-      </div>
+      <SingleSelect
+        className="my-2"
+        options={difficultyArray}
+        defaultValue={selectedDifficulty}
+        onValueChange={setSelectedDifficulty}
+        placeholder="Select Difficulty"
+      />
       <MatchingButton
         selectedDifficulty={selectedDifficulty}
         selectedTopic={selectedTopic}
