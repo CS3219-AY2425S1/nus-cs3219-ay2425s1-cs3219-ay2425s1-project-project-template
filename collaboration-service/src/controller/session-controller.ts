@@ -52,11 +52,11 @@ export const sessionController = {
 
         console.log('questionTestcases:', questionTestcases);
 
-        const yDocBuffer = Buffer.from(Y.encodeStateAsUpdate(yDoc));
+        const yDocBuffer = Buffer.from(Y.encodeStateAsUpdateV2(yDoc));
 
         const sessionId = uuidv4(); // Use UUID for unique session ID
 
-        addUpdateToYDocInRedis(sessionId, yDocBuffer);
+        // addUpdateToYDocInRedis(sessionId, yDocBuffer);
         setLanguageInRedis(sessionId, 'javascript');
 
         const session = new Session({
