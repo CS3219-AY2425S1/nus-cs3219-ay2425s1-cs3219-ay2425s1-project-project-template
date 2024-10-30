@@ -46,6 +46,13 @@ class CollabController {
       });
     });
 
+    socket.on('languageUpdate', (data) => {
+      const { sessionIdObj, language } = data;
+      console.log(`Received language update request for session: ${sessionIdObj}`);
+      socket.to(sessionIdObj).emit('languageUpdated', { language });
+      console.log(`Language updated in session ${sessionIdObj}: ${language}`);
+    });
+
     socket.on('terminateSession', async (data) => {
       const { sessionId, uid } = data;
       try {
