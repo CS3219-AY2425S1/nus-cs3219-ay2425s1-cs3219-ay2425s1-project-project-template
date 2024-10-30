@@ -120,7 +120,7 @@ const MatchingFilters = () => {
         });
 
         socket.on('matchAccepted', (data: any) => {
-            console.log('Both users have accepted the match:', data.matchId);
+            console.log('Both users have accepted the match:', data.matchId, data.roomId);
             setMatchStatus('accepted');
             // codespace logic
         });
