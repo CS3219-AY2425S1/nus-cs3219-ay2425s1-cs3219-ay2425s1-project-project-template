@@ -9,6 +9,7 @@ import io from 'socket.io-client';
 import CollabNavBar from "../components/navbar/CollabNavbar";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
+import TimeUpPopup from "../components/collaboration/TimeUpPopup";
 import useAuth from "../hooks/useAuth";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
@@ -23,9 +24,10 @@ const Collab = () => {
     const editorRef = useRef(null);
     const socketRef = useRef(null);
     const providerRef = useRef(null);
+    const intervalRef = useRef(null);
 
     const [showPopup, setShowPopup] = useState(false);
-    const [countdown, setCountdown] = useState(1800);
+    const [countdown, setCountdown] = useState(10); // changed to 10s for testing
     const [timeOver, setTimeOver] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
 
@@ -64,7 +66,21 @@ const Collab = () => {
     }, []);
 
     // Timer function
+    useEffect(() => {
+        if (countdown > 0 && !timeOver) {
+            intervalRef.current = setInterval(() => {
+                setCountdown((prevCountdown) => {
+                    if (prevCountdown <= 1) {
+                        clearInterval(intervalRef.current); // Clear interval at end of countdown
+                        setTimeOver(true);
+                    }
+                    return prevCountdown - 1;
+                });
+            }, 1000);
+        }
 
+        return () => clearInterval(intervalRef.current);
+    }, [countdown, timeOver]);
     if (!location.state) {
         return null;
     }
@@ -108,6 +124,13 @@ const Collab = () => {
         setShowQuitPopup(false);
     }
 
+    const handleContinueSession = () => {
+        clearInterval(intervalRef.current);
+        setCountdown(10);  // changed to 10s for testing
+        setTimeOver(false);
+    };
+
+
     return (
         <div
             style={{
@@ -119,7 +142,7 @@ const Collab = () => {
         >
             <CollabNavBar 
                 partnerUsername={partnerUsername} 
-                countdown={"30:00"} 
+                countdown={countdown} 
                 handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
@@ -148,6 +171,11 @@ const Collab = () => {
                     confirmQuit={handleQuitConfirm} 
                     cancelQuit={() => setShowPartnerQuitPopup(false)} 
                 />
+            )}
+            {timeOver && (
+                <TimeUpPopup 
+                    continueSession={handleContinueSession}
+                    quitSession={handleQuitConfirm}/>
             )}
         </div>
     );
