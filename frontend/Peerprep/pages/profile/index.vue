@@ -9,7 +9,6 @@ const isLoading = ref(true);
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
-const runtimeConfig = useRuntimeConfig();
 const userProfile = ref<UserProfile>({
     displayName: '',
     email: '',
@@ -25,7 +24,7 @@ const getInitials = () => {
 
 const getQuestionInfo = async (question_id: string) => {
     try {
-        const response = await fetch(`${runtimeConfig.public.questionService}/questions/${question_id}`);
+        const response = await fetch(`/api/questions/${question_id}`);
 
         if (!response.ok) {
             console.error(`Error fetching question info: ${response.status} ${response.statusText}`);
@@ -46,7 +45,7 @@ const getQuestionInfo = async (question_id: string) => {
 
 const getUserDisplayName = async (user_id: string) => {  // This function might be a security risk, consider moving it to user service
     try {
-        const response = await fetch(`${runtimeConfig.public.userService}/users/${user_id}`);
+        const response = await fetch(`/api/users/${user_id}`);
 
         if (!response.ok) {
             console.error(`Error fetching user data: ${response.status} ${response.statusText}`)
@@ -80,7 +79,7 @@ const fetchAttemptList = async () => {
         isLoading.value = true;
 
         const token = await authStore.getToken();
-        const response = await fetch(`${runtimeConfig.public.userService}/users/${user.value.uid}/history`, {
+        const response = await fetch(`/api/users/${user.value.uid}/history`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`

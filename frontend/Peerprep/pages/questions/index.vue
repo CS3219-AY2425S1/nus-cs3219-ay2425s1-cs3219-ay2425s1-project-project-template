@@ -7,13 +7,12 @@ import Toaster from '@/components/ui/toast/Toaster.vue';
 const questions = ref<Question[]>([]);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-const runtimeConfig = useRuntimeConfig();
 
 const fetchQuestions = async () => {
   try {
     isLoading.value = true;
     error.value = null;
-    const { data, error: fetchError } = await useFetch(`${runtimeConfig.public.questionService}/questions`)
+    const { data, error: fetchError } = await useFetch(`/api/questions`)
     if (fetchError.value) {
       throw new Error(fetchError.value.message);
     }

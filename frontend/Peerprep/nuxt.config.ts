@@ -15,11 +15,11 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
   ],
   runtimeConfig: {
+    matchingService: `http://matching_service:8000`,
+    questionService: `http://question_service:5000`,
+    userService: `http://user_service:5001`,
     public: {
-      matchingService: `http://${process.env.HOST_ADDRESS}:8000`,
       webSocketUrl: `ws://${process.env.HOST_ADDRESS}:8001`,
-      questionService: `http://${process.env.HOST_ADDRESS}:5000`,
-      userService: `http://${process.env.HOST_ADDRESS}:5001`,
     },
   },
   shadcn: {

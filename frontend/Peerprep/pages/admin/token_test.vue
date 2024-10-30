@@ -20,10 +20,9 @@ const getUserToken = async () => {
     isAdmin.value = tokenResult.claims.admin || "false";
     userDetails.value = user;
 };
-const runtimeConfig = useRuntimeConfig();
 
 const sendTokenToUserService = async () => {
-    const response = await fetch(`${runtimeConfig.public.userService}/auth/verify_token`, {
+    const response = await fetch(`/api/auth/verify_token`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

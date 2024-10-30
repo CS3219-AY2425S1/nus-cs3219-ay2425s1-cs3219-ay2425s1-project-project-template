@@ -154,15 +154,12 @@ export const useAuthStore = defineStore("auth", () => {
     await refreshUser();
     const runtimeConfig = useRuntimeConfig();
     const token = await getToken();
-    const response = await fetch(
-      `${runtimeConfig.public.userService}/users/myself`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await fetch(`/api/users/myself`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Error deleting user");

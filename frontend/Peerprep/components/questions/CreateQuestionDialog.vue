@@ -6,7 +6,6 @@ import { useToast } from '@/components/ui/toast/use-toast';
 const props = defineProps<{ refreshData: () => void }>();
 
 const { toast } = useToast();
-const runtimeConfig = useRuntimeConfig();
 
 const question = reactive<Question>({
     title: "",
@@ -49,7 +48,7 @@ const submitQuestion = async () => {
     try {
         const category_arr = question.category.split(',').map(cat => cat.trim());
 
-        const { data, error } = await useFetch(`${runtimeConfig.public.questionService}/questions`, {
+        const { data, error } = await useFetch(`/api/questions`, {
             method: 'POST',
             body: JSON.stringify({
                 title: question.title,

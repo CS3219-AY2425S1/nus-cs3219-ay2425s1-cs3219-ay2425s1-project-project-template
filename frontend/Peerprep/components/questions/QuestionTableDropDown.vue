@@ -9,12 +9,11 @@ const props = defineProps<{
 }>()
 
 const { toast } = useToast();
-const runtimeConfig = useRuntimeConfig();
 const emit = defineEmits(['refresh']);
 
 const deleteQuestion = async () => {
   try {
-    const { error } = await useFetch(`${runtimeConfig.public.questionService}/questions/${props.question.id}`, {
+    const { error } = await useFetch(`/api/questions/${props.question.id}`, {
       method: 'DELETE',
     });
 

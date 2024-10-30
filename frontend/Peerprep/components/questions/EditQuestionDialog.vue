@@ -65,7 +65,7 @@ const updateQuestion = async () => {
   try {
     const category_arr = editedQuestion.category.split(',').map(cat => cat.trim());
 
-    const { data, error } = await useFetch(`${runtimeConfig.public.questionService}/questions/${props.question.id}`, {
+    const { data, error } = await useFetch(`/api/questions/${props.question.id}`, {
       method: 'PUT',
       body: JSON.stringify({
         title: editedQuestion.title,

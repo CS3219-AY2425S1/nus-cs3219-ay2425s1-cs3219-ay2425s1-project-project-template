@@ -10,10 +10,9 @@ definePageMeta({
 const users = ref<User[]>([])
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-const runtimeConfig = useRuntimeConfig();
 
 const checkIfUidAdmin = async (uid: string) => {
-    const { data, error } = await useFetch<boolean>(`${runtimeConfig.public.userService}/admin/users/${uid}/is_admin`)
+    const { data, error } = await useFetch<boolean>(`/api/users/${uid}/is_admin`)
 
     if (error.value) {  // If there is an error in the fetch
         throw new Error(error.value.message);
@@ -32,7 +31,7 @@ const fetchUsers = async () => {
         error.value = null;
 
         // Get a list of users
-        const { data, error: fetchError } = await useFetch(`${runtimeConfig.public.userService}/users`)
+        const { data, error: fetchError } = await useFetch(`/api/users`)
 
         if (fetchError.value) {
             throw new Error(fetchError.value.message);

@@ -30,7 +30,7 @@ let countdownInterval: number | null = null
 
 const fetchTopics = async () => {
   try {
-    const { data, error } = await useFetch(`${runtimeConfig.public.questionService}/questions/categories`)
+    const { data, error } = await useFetch(`/api/questions/categories`)
     if (error.value) {
       throw new Error('Failed to fetch topics');
     }
@@ -124,7 +124,7 @@ async function handleCancel() {
 
   const token = await user.value?.getIdToken();
   try {
-    const response = await $fetch(`${runtimeConfig.public.matchingService}/cancel/${user.value?.uid}`, {
+    const response = await $fetch(`/api/matching/cancel/${user.value?.uid}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ async function handleSubmit() {
   })
 
   try {
-    const response: MatchResponse = await $fetch(`${runtimeConfig.public.matchingService}/matching`, {
+    const response: MatchResponse = await $fetch(`/api/matching`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -288,8 +288,7 @@ onUnmounted(() => {
               </Button>
             </div>
 
-            <Button v-else class="w-3/4 mt-3"
-              :disabled="isProcessing || matchFound || collaborationStore.isCollaborating">
+            <Button v-else class="w-3/4 mt-3" :disabled="isProcessing || collaborationStore.isCollaborating">
               Match
             </Button>
           </div>
