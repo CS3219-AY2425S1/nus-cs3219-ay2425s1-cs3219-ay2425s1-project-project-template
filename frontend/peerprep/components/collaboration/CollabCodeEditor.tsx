@@ -12,17 +12,24 @@ import { socket } from "../../services/sessionService";
 import Output from "./Output";
 import LanguageSelector from "./LanguageSelector";
 
-export default function CodeEditor() {
-  const { theme } = useTheme();
-  const doc = new Y.Doc();
-  const yText = doc.getText("code");
-  const editorRef = useRef<any>(null);
-  const [value, setValue] = useState<string>("");
-  const [language, setLanguage] = useState<SupportedLanguages>(
-    "javascript" as SupportedLanguages,
-  );
+interface CollabCodeEditorProps {
+  language: SupportedLanguages;
+  yDoc: Y.Doc;
+  propagateUpdates: (
+    docUpdate?: Uint8Array,
+    languageUpdate?: SupportedLanguages,
+    codeOutput?: string
+  ) => void;
+}
 
-  const userChangeRef = useRef<boolean>(false);
+export default function CollabCodeEditor({
+  language,
+  yDoc,
+  propagateUpdates,
+}: CollabCodeEditorProps) {
+  const { theme } = useTheme();
+  const yText = yDoc.getText("code");
+  const editorRef = useRef<any>(null);
 
   const onMount = async (editor: any) => {
     editorRef.current = editor;
@@ -33,11 +40,8 @@ export default function CodeEditor() {
       const binding = new MonacoBinding(yText, model, new Set([editor]));
     }
 
-    doc.on("update", async (update: Uint8Array) => {
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.emit("update", update);
-      console.log("update", update);
+    yDoc.on("update", async (update: Uint8Array) => {
+      propagateUpdates(update);
     });
   };
 
@@ -95,7 +99,6 @@ export default function CodeEditor() {
               theme={theme === "dark" ? "vs-dark" : "vs-light"}
               language={language}
               onMount={onMount}
-              value={value}
               options={{ fontSize: 14 }}
             />
           </div>

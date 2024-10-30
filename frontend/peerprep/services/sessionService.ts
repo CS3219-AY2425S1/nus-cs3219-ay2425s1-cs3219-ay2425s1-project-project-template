@@ -53,8 +53,35 @@ async (setLanguage: Dispatch<any>,
     setQuestionTestcases(sessionData.questionTestcases);
     updateDoc(new Uint8Array(sessionData.yDocUpdate));
   });
+
+  registerUserEvents(setUsersInRoom);
+
+
+
 };
 
+const registerUserEvents = async (setUsersInRoom: Dispatch<any>) => {
+
+  if (!socket) return;
+
+  socket.on("userJoined", (data: any) => {
+    const { usersInRoom } = data;
+
+    setUsersInRoom(usersInRoom)
+  });
+  socket.on("userLeft", (data: any) => {
+    const { usersInRoom } = data;
+
+    setUsersInRoom(usersInRoom);
+  });
+};
+
+export const disconnectSocket = async () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};
 
 export const isSocketConnected = async () => {
   return socket ? socket.connected : false;

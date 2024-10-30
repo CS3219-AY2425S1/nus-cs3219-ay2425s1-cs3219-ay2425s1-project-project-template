@@ -1,6 +1,5 @@
 "use client";
 import { CollabNavbar } from "@/components/collaboration/CollabNavbar";
-import CodeEditor from "../../../../components/collaboration/CodeEditor";
 
 import QuestionDisplay from "@/components/collaboration/QuestionDisplay";
 
@@ -8,18 +7,38 @@ import * as Y from "yjs";
 import { use, useEffect, useState } from "react";
 import { SupportedLanguages } from "@/utils/utils";
 import { initializeSessionSocket } from "@/services/sessionService";
+import CollabCodeEditor from "../../../../components/collaboration/CollabCodeEditor";
 
 const App: React.FC = () => {
   const [language, setLanguage] = useState<SupportedLanguages>("javascript");
   const [usersInRoom, setUsersInRoom] = useState<string[]>([]);
   const [questionDescription, setQuestionDescription] = useState<string>("");
   const [questionTestcases, setQuestionTestcases] = useState<string[]>([]);
+  const [codeOutput, setCodeOutput] = useState<string>("");
 
   const doc = new Y.Doc();
   const yText = doc.getText("code");
   const updateDoc = async (update: Uint8Array) => {
     Y.applyUpdate(doc, update);
   };
+
+  async function propagateUpdates(
+    docUpdate?: Uint8Array,
+    languageUpdate?: SupportedLanguages,
+    codeOutput?: string
+  ) {
+    if (docUpdate) {
+      updateDoc(docUpdate);
+    }
+
+    if (languageUpdate) {
+      setLanguage(languageUpdate);
+    }
+
+    if (codeOutput) {
+      console.log("Code output:", codeOutput);
+    }
+  }
 
   useEffect(() => {
     initializeSessionSocket(
@@ -39,7 +58,11 @@ const App: React.FC = () => {
           <QuestionDisplay />
         </div>
         <div className="flex w-1/2 h-full">
-          <CodeEditor />
+          <CollabCodeEditor
+            language={language}
+            yDoc={doc}
+            propagateUpdates={propagateUpdates}
+          />
         </div>
       </div>
     </div>

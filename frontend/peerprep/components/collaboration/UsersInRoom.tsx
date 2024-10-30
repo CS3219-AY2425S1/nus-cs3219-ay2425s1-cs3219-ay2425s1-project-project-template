@@ -25,35 +25,6 @@ export const UsersInRoom = ({
     }
   }, [resolvedTheme]);
 
-  useEffect(() => {
-    (async () => {
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.on("userJoined", (data: any) => {
-        const { usersInRoom } = data;
-
-        setUsersInRoom(usersInRoom || []);
-        console.log("user joined", usersInRoom);
-      });
-
-      resolvedSocket?.on("userLeft", (data: any) => {
-        const { usersInRoom } = data;
-
-        setUsersInRoom(usersInRoom || []);
-      });
-    })();
-
-    return () => {
-      (async () => {
-        const resolvedSocket = await socket;
-
-        resolvedSocket?.off("initialData");
-        resolvedSocket?.off("userJoined");
-        resolvedSocket?.off("userLeft");
-      })();
-    };
-  }, []);
-
   const cardBgColor =
     usersInRoom.length >= 2
       ? theme === "dark"
