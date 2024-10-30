@@ -5,10 +5,6 @@ on:
   pull_request:
     branches:
       - main
-  workflow_run:
-    workflows: ["Docker Compose Build and Test"]  # Name of your docker-compose workflow
-    types:
-      - completed
 
 jobs:
   test:
