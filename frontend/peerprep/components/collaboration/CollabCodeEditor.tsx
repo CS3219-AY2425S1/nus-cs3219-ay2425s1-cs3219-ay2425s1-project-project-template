@@ -9,22 +9,26 @@ import { Card } from "@nextui-org/react";
 import { SupportedLanguages } from "../../utils/utils";
 import { socket } from "../../services/sessionService";
 
-import Output from "./Output";
+import Output, { codeOutputInterface } from "./Output";
 import LanguageSelector from "./LanguageSelector";
 
 interface CollabCodeEditorProps {
   language: SupportedLanguages;
   yDoc: Y.Doc;
+  codeOutput: string[] | null;
+  isCodeError: boolean;
   propagateUpdates: (
     docUpdate?: Uint8Array,
     languageUpdate?: SupportedLanguages,
-    codeOutput?: string
+    codeOutput?: codeOutputInterface
   ) => void;
 }
 
 export default function CollabCodeEditor({
   language,
   yDoc,
+  codeOutput,
+  isCodeError,
   propagateUpdates,
 }: CollabCodeEditorProps) {
   const { theme } = useTheme();
@@ -46,45 +50,8 @@ export default function CollabCodeEditor({
   };
 
   const onSelect = (language: SupportedLanguages) => {
-    setLanguage(language);
-    (async () => {
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.emit("selectLanguage", language);
-    })();
+    propagateUpdates(undefined, language);
   };
-
-  useEffect(() => {
-    (async () => {
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.on("initialData", (data: any) => {
-        const { sessionData } = data;
-        const { yDocUpdate } = sessionData;
-
-        Y.applyUpdate(doc, new Uint8Array(yDocUpdate));
-      });
-
-      resolvedSocket?.on("updateContent", (update: any) => {
-        update = new Uint8Array(update);
-        Y.applyUpdate(doc, update);
-      });
-
-      resolvedSocket?.on("updateLanguage", (updatedLanguage: string) => {
-        setLanguage(updatedLanguage as SupportedLanguages);
-      });
-    })();
-
-    return () => {
-      (async () => {
-        const resolvedSocket = await socket;
-
-        resolvedSocket?.off("initialData");
-        resolvedSocket?.off("updateContent");
-        resolvedSocket?.off("updateLanguage");
-      })();
-    };
-  }, []);
 
   return (
     <div className="flex justify-center items-center h-full w-full">
@@ -104,7 +71,13 @@ export default function CollabCodeEditor({
           </div>
         </div>
         <div className="flex w-full h-1/4">
-          <Output editorRef={editorRef} language={language} />
+          <Output
+            codeOutput={codeOutput}
+            editorRef={editorRef}
+            language={language}
+            propagateUpdates={propagateUpdates}
+            isCodeError={isCodeError}
+          />
         </div>
       </Card>
     </div>

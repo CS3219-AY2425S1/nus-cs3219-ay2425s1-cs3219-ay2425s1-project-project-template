@@ -6,15 +6,23 @@ import QuestionDisplay from "@/components/collaboration/QuestionDisplay";
 import * as Y from "yjs";
 import { use, useEffect, useState } from "react";
 import { SupportedLanguages } from "@/utils/utils";
-import { initializeSessionSocket } from "@/services/sessionService";
+import {
+  disconnectSocket,
+  initializeSessionSocket,
+  propagateCodeOutput,
+  propagateDocUpdate,
+  propagateLanguage,
+} from "@/services/sessionService";
 import CollabCodeEditor from "../../../../components/collaboration/CollabCodeEditor";
+import { codeOutputInterface } from "@/components/collaboration/Output";
 
 const App: React.FC = () => {
   const [language, setLanguage] = useState<SupportedLanguages>("javascript");
   const [usersInRoom, setUsersInRoom] = useState<string[]>([]);
   const [questionDescription, setQuestionDescription] = useState<string>("");
   const [questionTestcases, setQuestionTestcases] = useState<string[]>([]);
-  const [codeOutput, setCodeOutput] = useState<string>("");
+  const [codeOutput, setCodeOutput] = useState<string[] | null>(null);
+  const [isCodeError, setIsCodeError] = useState<boolean>(false);
 
   const doc = new Y.Doc();
   const yText = doc.getText("code");
@@ -22,21 +30,34 @@ const App: React.FC = () => {
     Y.applyUpdate(doc, update);
   };
 
-  async function propagateUpdates(
+  function propagateUpdates(
     docUpdate?: Uint8Array,
     languageUpdate?: SupportedLanguages,
-    codeOutput?: string
+    codeOutput?: codeOutputInterface
   ) {
     if (docUpdate) {
       updateDoc(docUpdate);
+      propagateDocUpdate(docUpdate);
     }
 
     if (languageUpdate) {
       setLanguage(languageUpdate);
+      propagateLanguage(languageUpdate);
     }
 
     if (codeOutput) {
-      console.log("Code output:", codeOutput);
+      handleCodeUpdate(codeOutput);
+      propagateCodeOutput(codeOutput);
+    }
+  }
+
+  function handleCodeUpdate(codeOutput: codeOutputInterface) {
+    if (codeOutput.stderr) {
+      setCodeOutput(codeOutput.stderr.split("\n"));
+      setIsCodeError(true);
+    } else {
+      setCodeOutput(codeOutput.stdout.split("\n"));
+      setIsCodeError(false);
     }
   }
 
@@ -48,6 +69,10 @@ const App: React.FC = () => {
       setQuestionTestcases,
       updateDoc
     );
+
+    return () => {
+      disconnectSocket();
+    };
   }, []);
 
   return (
@@ -62,6 +87,8 @@ const App: React.FC = () => {
             language={language}
             yDoc={doc}
             propagateUpdates={propagateUpdates}
+            codeOutput={codeOutput}
+            isCodeError={isCodeError}
           />
         </div>
       </div>
