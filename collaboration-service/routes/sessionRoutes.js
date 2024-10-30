@@ -1,19 +1,19 @@
 const express = require('express');
- const router = express.Router();
- const sessionController = require('../controllers/sessionController');
- const { authMiddlewareSocket } = require('../middleware/authMiddleware');
+const router = express.Router();
+const sessionController = require('../controllers/sessionController');
+const { authMiddlewareSocket } = require('../middleware/authMiddleware');
 
- // This route serves the socket connection for session handling
- module.exports = (io) => {
+// This route serves the socket connection for session handling
+module.exports = (io) => {
 
   // health check
   router.get('/', (req, res) => {
-     return res.send('hello world');
-   });
+    return res.send('hello world');
+  });
 
-   // Handle session check for a specific user
-   router.get('/check-session', (req, res) => {
-     try {
+  // Handle session check for a specific user
+  router.get('/check-session', (req, res) => {
+    try {
       const userId = req.user.userId;
       if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
@@ -39,6 +39,6 @@ const express = require('express');
       socket.disconnect(true);
     }
   });
-  
+
   return router;
 };
