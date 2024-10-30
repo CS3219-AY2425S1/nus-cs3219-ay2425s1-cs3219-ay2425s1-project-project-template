@@ -32,6 +32,10 @@ export const initializeSessionSocket = async (
 
   if (!token) return;
 
+  if (socket) {
+    return;
+  }
+
   socket = io(NEXT_PUBLIC_COLLAB_SERVICE_URL, {
     auth: { token },
     transports: ["websocket"],
