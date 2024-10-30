@@ -7,7 +7,6 @@ import Toaster from '@/components/ui/toast/Toaster.vue';
 const questions = ref<Question[]>([]);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-const runtimeConfig = useRuntimeConfig();
 
 const fetchQuestions = async () => {
   try {
