@@ -138,8 +138,8 @@ export default function Questions() {
                     toast.success('Question created successfully')
                     handleCloseModal()
                 }
-            } catch (error) {
-                toast.error('Failed to create question' + error)
+            } catch (error: unknown) {
+                toast.error((error as Error).message)
                 return
             }
         } else if (modificationType === Modification.UPDATE) {
@@ -149,8 +149,8 @@ export default function Questions() {
                     toast.success('Question updated successfully')
                     handleCloseModal()
                 }
-            } catch (error) {
-                toast.error('Failed to update question' + error)
+            } catch (error: unknown) {
+                toast.error((error as Error).message)
                 return
             }
         } else if (modificationType === Modification.DELETE) {
