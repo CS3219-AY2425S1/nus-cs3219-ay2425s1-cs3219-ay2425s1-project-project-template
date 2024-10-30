@@ -1,15 +1,21 @@
+import { getToken } from "@/lib/utils";
 import {
   CreateQuestionData,
   Question,
   QuestionSchema,
   UpdateQuestionData,
-} from '@/types/question';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+} from "@/types/question";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 async function fetchQuestion(id: number): Promise<Question> {
-  const response = await fetch(`http://localhost:8080/api/question/${id}`);
+  const token = getToken();
+  const response = await fetch(`http://localhost:8080/api/question/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    throw new Error("Network response was not ok");
   }
   const data = await response.json();
 
@@ -20,7 +26,7 @@ async function fetchQuestion(id: number): Promise<Question> {
 
 export function useQuestion(id: number) {
   return useQuery<Question, Error>({
-    queryKey: ['question', id],
+    queryKey: ["question", id],
     queryFn: () => fetchQuestion(id),
   });
 }
@@ -36,25 +42,27 @@ export function useCreateQuestion() {
         constraints: data.constraints.map(
           (constraint) => constraint.constraint
         ),
-      } satisfies Omit<Question, 'id'>;
+      } satisfies Omit<Question, "id">;
 
-      const response = await fetch('http://localhost:8080/api/question', {
-        method: 'POST',
+      const token = getToken();
+      const response = await fetch("http://localhost:8080/api/question", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(dataForBackend),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create question');
+        throw new Error("Failed to create question");
       }
 
       const question = await response.json();
       return QuestionSchema.parse(question);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['questions'] });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
   });
 }
@@ -64,26 +72,28 @@ export function useUpdateQuestion() {
 
   return useMutation({
     mutationFn: async (data: UpdateQuestionData) => {
+      const token = getToken();
       const response = await fetch(
         `http://localhost:8080/api/question/${data.id}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(data),
         }
       );
       if (!response.ok) {
-        throw new Error('Failed to update question');
+        throw new Error("Failed to update question");
       }
 
       const question = await response.json();
       return QuestionSchema.parse(question);
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['question', data.id] });
-      queryClient.invalidateQueries({ queryKey: ['questions'] });
+      queryClient.invalidateQueries({ queryKey: ["question", data.id] });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
   });
 }
@@ -93,19 +103,23 @@ export function useDeleteQuestion() {
 
   return useMutation({
     mutationFn: async (id: number) => {
+      const token = getToken();
       const response = await fetch(`http://localhost:8080/api/question/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete question');
+        throw new Error("Failed to delete question");
       }
 
       return id;
     },
     onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ['questions'] });
-      queryClient.invalidateQueries({ queryKey: ['question', id] });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
+      queryClient.invalidateQueries({ queryKey: ["question", id] });
     },
   });
 }
