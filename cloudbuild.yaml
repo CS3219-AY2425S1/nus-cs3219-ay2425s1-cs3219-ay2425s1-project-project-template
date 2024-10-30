@@ -13,7 +13,7 @@ steps:
       - "--image"
       - "gcr.io/$PROJECT_ID/frontend"
       - "--region"
-      - "asia-southeast2"
+      - "asia-southeast1"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
@@ -38,7 +38,7 @@ steps:
       - "--image"
       - "gcr.io/$PROJECT_ID/question-service"
       - "--region"
-      - "asia-southeast2"
+      - "asia-southeast1"
 
   # User Service
   - name: "gcr.io/cloud-builders/docker"
@@ -60,7 +60,7 @@ steps:
       - "--image"
       - "gcr.io/$PROJECT_ID/user-service"
       - "--region"
-      - "asia-southeast2"
+      - "asia-southeast1"
 
   # Notification Service
   - name: "gcr.io/cloud-builders/docker"
@@ -82,7 +82,7 @@ steps:
       - "--image"
       - "gcr.io/$PROJECT_ID/notification-service"
       - "--region"
-      - "asia-southeast2"
+      - "asia-southeast1"
 
   # Matching Service
   - name: "gcr.io/cloud-builders/docker"
@@ -104,7 +104,7 @@ steps:
       - "--image"
       - "gcr.io/$PROJECT_ID/matching-service"
       - "--region"
-      - "asia-southeast2"
+      - "asia-southeast1"
 
 images:
   - "gcr.io/$PROJECT_ID/frontend"
