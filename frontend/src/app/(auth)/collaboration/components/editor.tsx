@@ -130,7 +130,7 @@ function Collaboration({ room, language }: Props) {
           cursorPosition={selectionRange || {}}
         />
       ) : null}
-      <Toolbar editor={editorRef.current} />
+      <Toolbar editor={editorRef.current} language={language} />
       <Editor
         height="100vh"
         width="100vw"
