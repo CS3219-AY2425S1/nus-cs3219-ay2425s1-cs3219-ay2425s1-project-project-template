@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core"
 import { Observable } from "rxjs"
 
 import { Question } from "../app/models/question.model"
+import { Category } from "../app/models/category.model"
 
 @Injectable({
   providedIn: "root"
@@ -57,4 +58,5 @@ export class QuestionService {
   deleteQuestion(id: string): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`)
   }
+  
 }
