@@ -7,7 +7,8 @@ interface Config {
 }
 
 const config: Config = {
-  ROOT_BASE_API: 'http://192.168.1.32/',
+  // replace localhost with your IP addr
+  ROOT_BASE_API: 'http://localhost/', 
 };
 
 export default config;
