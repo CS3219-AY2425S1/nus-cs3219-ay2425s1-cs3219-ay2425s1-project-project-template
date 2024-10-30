@@ -11,6 +11,7 @@ import Chatbox from "../_components/Chat/Chatbox";
 import { redirect } from "next/navigation";
 import { getQuestion } from "@/services/questionService";
 import { SessionInfoSchema } from "@/types/SessionInfo";
+import { QuestionSchema } from "@/types/Question";
 
 export default async function Page({
   params,
@@ -20,22 +21,19 @@ export default async function Page({
   const { sessionId } = params;
   const sessionInfoResponse = await getSessionInfo(sessionId);
 
-  const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
-
-  const questionId = sessionInfo.questionId;
-
-  const questionResponse = await getQuestion(questionId);
-
-  if (questionResponse.statusCode !== 200 || !questionResponse.data) {
-    redirect("/dashboard");
-    return;
-  }
-
-  const question = questionResponse.data;
-
   if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data) {
     redirect("/dashboard");
   }
+
+  const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
+
+  const questionResponse = await getQuestion(sessionInfo.questionId);
+
+  if (questionResponse.statusCode !== 200 || !questionResponse.data) {
+    redirect("/dashboard");
+  }
+
+  const question = QuestionSchema.parse(questionResponse.data);
 
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
 
