@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
+import { useEffect, useRef } from "react";
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
 
 interface QuillEditorProps {
   value: string;
@@ -16,33 +16,38 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ value, onChange }) => {
   useEffect(() => {
     if (quillRef.current && !quillInstance.current) {
       quillInstance.current = new Quill(quillRef.current, {
-        theme: 'snow',
+        theme: "snow",
         modules: {
           toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'font': [] }],
-            ['link', 'image', 'clean'],
+            [{ header: [1, 2, 3, 4, 5, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ color: [] }, { background: [] }],
+            [{ font: [] }],
+            ["link", "image", "clean"],
           ],
         },
       });
 
-      quillInstance.current.root.innerHTML = value || "<p>Type your description here</p>";
+      quillInstance.current.root.innerHTML =
+        value || "<p>Type your description here</p>";
 
       // Handle change events
-      quillInstance.current.on('text-change', () => {
+      quillInstance.current.on("text-change", () => {
         const html = quillInstance.current?.root.innerHTML;
-        onChange(html || '');
+        onChange(html || "");
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange]);
 
   // Update value when props change
   useEffect(() => {
-    if (quillInstance.current && value !== quillInstance.current.root.innerHTML) {
+    if (
+      quillInstance.current &&
+      value !== quillInstance.current.root.innerHTML
+    ) {
       quillInstance.current.root.innerHTML = value;
     }
   }, [value]);
@@ -51,9 +56,9 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ value, onChange }) => {
     <div
       ref={quillRef}
       style={{
-        height: '300px',
-        border: '1px solid #ccc',
-        outline: 'none',
+        height: "300px",
+        border: "1px solid #ccc",
+        outline: "none",
       }}
     />
   );

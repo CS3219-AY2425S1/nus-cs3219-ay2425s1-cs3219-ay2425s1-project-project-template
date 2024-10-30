@@ -13,12 +13,10 @@ import { getQuestion } from "@/services/questionService";
 import { SessionInfoSchema } from "@/types/SessionInfo";
 import { QuestionSchema } from "@/types/Question";
 
-export default async function Page({
-  params,
-}: {
-  params: { sessionId: string };
-}) {
-  const { sessionId } = params;
+type Params = Promise<{ sessionId: string }>;
+
+export default async function Page(props: { params: Params }) {
+  const { sessionId } = await props.params;
   const sessionInfoResponse = await getSessionInfo(sessionId);
 
   if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data) {
