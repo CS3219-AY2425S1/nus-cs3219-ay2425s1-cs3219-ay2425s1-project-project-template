@@ -28,3 +28,10 @@ export type Profile = {
     username: string;
     lastLogin: string;
 }
+
+export type RegisterInput = {
+  email: string;
+  username: string;
+  password: string;
+};
+

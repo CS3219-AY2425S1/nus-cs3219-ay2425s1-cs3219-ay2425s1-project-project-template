@@ -7,7 +7,6 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import '@mantine/core/styles.css';
 import { useDisclosure } from '@mantine/hooks';
 
 import LoginModal from '../components/modal/LoginModal';
@@ -24,7 +23,7 @@ function Landing() {
   return (
     <>
       <AppShell withBorder={false} header={{ height: 80 }}>
-        <AppShell.Header px="40px" py="16px" bg="slate.8">
+        <AppShell.Header px="40px" py="16px" bg="slate.9">
           <Group justify="space-between">
             <a href="." className="logo">
               <Title c="white">PeerPrep</Title>

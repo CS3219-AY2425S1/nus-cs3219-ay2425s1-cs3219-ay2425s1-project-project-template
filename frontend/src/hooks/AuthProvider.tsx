@@ -53,7 +53,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setToken(response.token);
         localStorage.setItem('token', response.token);
         setUserId(response.userId);
-        navigate('../select');
+        navigate('/dashboard');
       },
       (error: any) => {
         setError(error);
