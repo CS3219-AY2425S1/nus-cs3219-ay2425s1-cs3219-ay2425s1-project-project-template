@@ -5,7 +5,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { SuccessObject, callFunction } from "@/lib/utils";
+import { HTTP_SERVICE_QUESTION, SuccessObject, callFunction } from "@/lib/utils";
 import { Question } from "@/models/Question";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { Loader2 } from "lucide-react";
@@ -32,6 +32,7 @@ const DeleteQuestionDialog: React.FC<DeleteQuestionCardProps> = ({
 
   const handleDelete = async () => {
     const result: SuccessObject = await callFunction(
+      HTTP_SERVICE_QUESTION,
       "delete-question",
       "DELETE",
       { id: question.id }
