@@ -248,6 +248,15 @@ const CollabPageView: React.FC = () => {
     }
   };
 
+  // ref to keep chatbox scroll at the bottom
+  const chatboxRef = useRef<HTMLDivElement>(null);
+  // Update the scroll position to bottom when content changes
+  useEffect(() => {
+    if (chatboxRef.current) {
+      chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+    }
+  });
+
   return (
     <main
       style={{
@@ -401,6 +410,7 @@ const CollabPageView: React.FC = () => {
                 marginBottom: "10px",
                 backgroundColor: "#f9f9f9",
               }}
+              ref={chatboxRef}
             >
               {messages.map((msg, index) => (
                 <p key={index} style={{ margin: "5px 0" }}>
@@ -410,7 +420,7 @@ const CollabPageView: React.FC = () => {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <Textarea
-                style={{ flex: 1 }}
+                style={{ flex: 1, overflowY: "scroll" }}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type your message here..."
