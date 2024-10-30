@@ -1,83 +1,28 @@
-import cors from 'cors'
-import dotenv from 'dotenv'
-import express from 'express'
-import { createServer, IncomingMessage } from 'http'
-import { Room } from '../models/types'
-import logger from '../utils/logger'
-import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
-import { WebSocket } from 'ws'
-import { router as submitCodeRouter } from '../submit-code/submitCodeRouter'
-import { createRoomId } from '../utils/utils'
-import { connect } from 'mongoose'
+// backend/collab-service/server/index.ts
 
-dotenv.config({ path: './.env' })
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import { createServer } from 'http';
+import logger from '../utils/logger';
 
-const app = express()
-app.use(cors())
-app.use(express.json())
-app.use(submitCodeRouter)
+import createRoomRouter from '../create-room/createRoomRouter';
+import { setupWebSocketServer } from '../websocket/websocketServer';
 
-const PORT = process.env.PORT
-const server = createServer(app)
-const wss = new WebSocket.Server({ server })
+dotenv.config({ path: './.env' });
 
-const rooms = new Map<string, Room>()
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.post('/create-room', async (req: any, res: any) => {
-    const { userId1, userId2 } = req.body
-    const roomId = createRoomId(userId1, userId2)
+app.use(createRoomRouter);
 
-    if (rooms.has(roomId)) {
-        return res.status(400).json({ message: 'Room already exists' })
-    }
+const PORT = process.env.PORT || 5003;
+const server = createServer(app);
 
-    const yDoc = new Y.Doc()
-    rooms.set(roomId, {
-        roomId,
-        code: yDoc,
-        connectedClients: new Set<WebSocket>(),
-    })
-    
-    return res.status(200).json({ roomId })
-})
-
-wss.on('connection', (ws: WebSocket, req: IncomingMessage) => { 
-    const roomId = 'dummy'
-    const room = rooms.get(roomId)
-
-    if (!room) {
-        ws.close()
-        return
-    }
-
-    room.connectedClients.add(ws)
-
-    const provider = new WebsocketProvider(
-        `ws://localhost:${PORT}`,
-        roomId,
-        room.code,
-    )
-    
-    // broadcast code changes to all connected clients
-    room.code.on('update', (update) => {
-        room.connectedClients.forEach((client) => {
-            if (client !== ws) {
-                client.send(update)
-            }
-        })
-    })
-
-    ws.on('close', () => {
-        room.connectedClients.delete(ws)
-        if (room.connectedClients.size === 0) {
-            rooms.delete(roomId)
-        }
-
-        provider.destroy()
-    })
-})
+setupWebSocketServer(server);
 
 server.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`)
-})
+  logger.info(`Server running on port ${PORT}`);
+});
+
