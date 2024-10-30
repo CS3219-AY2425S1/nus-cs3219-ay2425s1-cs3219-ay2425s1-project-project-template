@@ -21,7 +21,13 @@ const MatchingPage: React.FC = () => {
 
   // Helper function to handle authenticated fetch requests with error handling
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+      console.error("No authentication token found. Redirecting to login.");
+      navigate("/login")
+      return
+    }
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

@@ -28,7 +28,12 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.data.accessToken);
+        localStorage.setItem("token", data.data.accessToken)
+        localStorage.setItem("userId", data.data.userId)
+        localStorage.setItem("email", email)
+        console.log("Stored token:", localStorage.getItem("token"))
+        console.log("Stored userId:", localStorage.getItem("userId"))
+        console.log("Stored email:", localStorage.getItem("email"))
         updateAuthStatus(true);
         navigate("/questions");
       } else {
