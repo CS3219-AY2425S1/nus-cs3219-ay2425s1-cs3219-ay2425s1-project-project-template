@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: private-api-gateway
+  namespace: g55
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://user-service.g55.svc.cluster.local:8080/api/auth/verify-token"
+    nginx.ingress.kubernetes.io/auth-signin: "http://user-service.g55.svc.cluster.local:8080/api/auth/login"
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8080
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8080
+          - path: /api/question
+            pathType: Prefix
+            backend:
+              service:
+                name: question-service
+                port:
+                  number: 8080
+          - path: /api/match
+            pathType: Prefix
+            backend:
+              service:
+                name: matching-service
+                port:
+                  number: 8080
