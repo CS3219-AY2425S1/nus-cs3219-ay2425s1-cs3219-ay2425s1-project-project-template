@@ -133,7 +133,7 @@ if __name__ == '__main__':
     
     while True:
         try:
-            print("Attempting to connect to notification service...")
+            print(f"Attempting to connect to notification service at {NOTIFICATION_SERVICE}")
             sio.connect(NOTIFICATION_SERVICE)
             print("Successfully connected to notification service!")
             break
