@@ -22,5 +22,5 @@ export function getToken(): string {
 }
 
 export function deleteToken() {
-    document.cookie = `${KEY}=`;
+    document.cookie = `${KEY}=nothinghere;expires=0`;
 }
