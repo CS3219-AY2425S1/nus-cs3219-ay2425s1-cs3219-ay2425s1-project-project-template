@@ -1,7 +1,7 @@
 import { sublimeInit } from '@uiw/codemirror-theme-sublime';
 import { Extension, useCodeMirror } from '@uiw/react-codemirror';
 import { useEffect, useRef } from 'react';
-import { EditorView } from '@codemirror/view'; // Make sure to import EditorView
+import { EditorView } from '@codemirror/view'; // Ensure EditorView is imported
 
 import './CodeEditor.css';
 import classes from './CodeEditor.module.css';
@@ -19,7 +19,7 @@ const customSublime = sublimeInit({
 });
 
 function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
-  const editorRef = useRef<EditorView | null>(null); // Ensure it's either EditorView or null
+  const editorRef = useRef<EditorView | null>(null); // Ref for EditorView
 
   const { setContainer, view } = useCodeMirror({
     value: code,
@@ -29,7 +29,9 @@ function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
     onUpdate: (update) => {
       if (update.state) {
         const cursorPos = update.state.selection.main.head; // Get cursor position
-        console.log(`Cursor Position: Line ${cursorPos.line + 1}, Ch ${cursorPos.ch + 1}`);
+        const line = update.state.doc.lineAt(cursorPos).number; // Get line number
+        const ch = cursorPos - update.state.doc.lineAt(line - 1).from; // Get character position
+        console.log(`Cursor Position: Line ${line}, Ch ${ch + 1}`); // Log line and character
       }
     },
   });
