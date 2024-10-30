@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsString, IsDate, IsMongoId } from 'class-validator';
+import { IsNotEmpty, IsString, IsDate, IsMongoId, IsArray, IsBoolean } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateQuestionHistoryDto {
   @IsMongoId()
   @IsNotEmpty()
-  userId: string;
+  sessionId: string;
 
   @IsMongoId()
   @IsNotEmpty()
@@ -11,9 +12,15 @@ export class CreateQuestionHistoryDto {
 
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   attemptDate: Date;
 
   @IsString()
   @IsNotEmpty()
-  attemptDetails: string;
+  attemptCode: string;
+
+  @IsArray()
+  @IsBoolean({ each: true })
+  @IsNotEmpty()
+  testCasesPassed: boolean[];
 }

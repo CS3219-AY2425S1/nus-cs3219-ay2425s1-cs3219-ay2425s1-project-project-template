@@ -5,9 +5,11 @@ import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 export type QuestionHistoryDocument = HydratedDocument<QuestionHistory>;
 
 @Schema({ collection: 'questionhistories', timestamps: true })
-export class QuestionHistory{
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+export class QuestionHistory {
+  _id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Session', required: true })
+  sessionId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Question', required: true })
   questionId: Types.ObjectId;
@@ -16,7 +18,10 @@ export class QuestionHistory{
   attemptDate: Date;
 
   @Prop({ required: true })
-  attemptDetails: string;
+  attemptCode: String;
+
+  @Prop({ type: [Boolean], required: true })
+  testCasesPassed: Boolean[];
 }
 
 export const QuestionHistorySchema = SchemaFactory.createForClass(QuestionHistory);
