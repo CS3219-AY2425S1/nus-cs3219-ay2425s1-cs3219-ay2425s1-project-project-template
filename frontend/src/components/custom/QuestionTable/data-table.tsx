@@ -71,12 +71,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center justify-between my-3">
+      <div className="grid grid-cols-7 gap-2 my-3">
         <Input
           placeholder="Filter"
           value={globalFilter}
           onChange={(event) => table.setGlobalFilter(event.target.value)}
-          className="max-w-sm"
+          className="col-span-3 max-w-sm"
         />
 
         <MultiSelect
@@ -84,11 +84,13 @@ export function DataTable<TData, TValue>({
           value={(table.getColumn("topics")?.getFilterValue() as string) ?? ""}
           onValueChange={handleValueChange}
           placeholder="Filter Topics"
-          className="max-w-sm"
+          className="col-span-3 max-w-sm"
         />
-
-        <AddQuestionButton onCreate={refetch} isAdmin={isAdmin}/>
+        <div className="col-span-1 justify-self-end">
+          <AddQuestionButton onCreate={refetch} isAdmin={isAdmin}/>
+        </div>
       </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>

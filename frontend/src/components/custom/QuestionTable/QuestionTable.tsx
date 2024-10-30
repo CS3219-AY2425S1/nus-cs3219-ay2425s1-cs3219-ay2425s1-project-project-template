@@ -17,7 +17,6 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
 
   // Define a refetch function to reload the questions
   const refetch = async () => {
-    setLoading(true);
     const questions = await getData();
     setData(questions);
     setLoading(false);
@@ -30,7 +29,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({
 
   // Return a loading indicator or the table once data is available
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       {loading ? (
         <p>Loading...</p> // Show loading text or spinner
       ) : (

@@ -15,7 +15,7 @@ const QuestionDialog: React.FC<QuestionProps> = ({ question }) => {
           {question.title}
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex justify-center">
+      <DialogContent className="flex justify-center max-w-[80%] max-h-[80%] overflow-y-auto">
         <QuestionCard variant="ghost" question={question} />
       </DialogContent>
     </Dialog>

@@ -39,9 +39,9 @@ class CollabController {
     });
 
     socket.on('sendMessage', (data) => {
-      const { sessionId, message } = data;
+      const { sessionId, message, uid } = data;
       io.to(sessionId).emit('messageReceived', {
-        username: socket.id,
+        username: uid,
         message,
       });
     });
@@ -54,7 +54,8 @@ class CollabController {
       } catch (error) {
         console.error(`Unable to delete session ${sessionId} from database`);
       }
-      io.to(sessionId).emit('sessionTerminated', { userId: uid });
+      socket.to(sessionId).emit('userLeft', { userId: uid });
+      socket.emit('sessionTerminated', { userId: uid });
     });
   };
 

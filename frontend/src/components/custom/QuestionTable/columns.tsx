@@ -29,6 +29,7 @@ const getDifficultyClass = (difficulty: string) => {
   }
 };
 
+
 export const columns = (refetch: () => void, isAdmin: boolean): ColumnDef<Question>[] => [
   {
     id: "delete",
@@ -67,7 +68,7 @@ export const columns = (refetch: () => void, isAdmin: boolean): ColumnDef<Questi
         {String(cell.getValue())}
       </div>
     ),
-    size: 20,
+    size: 30,
   },
   {
     header: ({ column }) => (
@@ -75,8 +76,13 @@ export const columns = (refetch: () => void, isAdmin: boolean): ColumnDef<Questi
     ),
     accessorKey: "title",
     cell: ({ row }) => {
-      return <QuestionDialog question={row.original} />;
+      return (
+        <div className="line-clamp-1">
+          <QuestionDialog question={row.original} />
+        </div>
+      );
     },
+    size: 100,
   },
   {
     header: ({ column }) => (
@@ -99,15 +105,14 @@ export const columns = (refetch: () => void, isAdmin: boolean): ColumnDef<Questi
         </div>
       );
     },
-    size: 25,
+    size: 35,
   },
   {
-    id: "edit",
-    size: 10,
-    maxSize: 10,
+    id: "admins",
+    size: 40,
     cell: ({ row }) => {
       const question = row.original;
-      return <EditQuestionButton question={question} onEdit={refetch} isAdmin={isAdmin}/>;
+      return <EditQuestionButton question={question} onEdit={refetch} isAdmin={isAdmin} />;
     },
   },
 ];
