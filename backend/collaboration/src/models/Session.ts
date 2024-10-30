@@ -26,7 +26,7 @@ const sessionSchema: Schema = new Schema(
       required: true,
     },
     language: {
-      type: [String],
+      type: String,
       required: true,
     },
     question_id: {
