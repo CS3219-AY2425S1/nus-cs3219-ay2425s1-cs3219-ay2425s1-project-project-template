@@ -15,6 +15,7 @@ import MatchCancelledContent from './modalContent/MatchCancelledContent';
 import useMatching from '../services/use-matching';
 import { ValidateUser } from '../services/user';
 import { useTimer } from 'react-timer-hook';
+import { useRouter } from 'next/router';
 
 interface MatchingModalProps {
     isOpen: boolean;
@@ -32,6 +33,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
     const matchingState = useMatching();
     const [closedType, setClosedType] = useState<"finding" | "cancelled" | "joined">("finding");
     const isClosable = ["timeout", "closed"].includes(matchingState.state);
+    const router = useRouter();
     const { totalSeconds, pause: pauseTimer, restart: restartTimer } = useTimer({
         expiryTimestamp: new Date(Date.now() + MATCH_TIMEOUT * 1000),
         autoStart: false,
@@ -104,8 +106,8 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                             cancel={() => {
                                 setClosedType("cancelled");
                             }}
-                            name1={matchingState.info?.myName ?? ""}
-                            name2={matchingState.info?.partnerName ??""}
+                            name1={matchingState.info?.user ?? ""}
+                            name2={matchingState.info?.matchedUser ?? ""}
                         />;
                 }
             case 'matching':
@@ -128,11 +130,22 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
                         setClosedType("cancelled");
                     }}
                     join={() => {
-                        matchingState.ok();
-                        setClosedType("joined");
+                      matchingState.ok();
+                      setClosedType("joined");
+                      localStorage.setItem("user", matchingState.info.user);
+                      localStorage.setItem(
+                        "matchedUser",
+                        matchingState.info.matchedUser
+                      );
+                      localStorage.setItem("collabId", matchingState.info.matchId);
+                      localStorage.setItem("questionDocRefId", matchingState.info.questionDocRefId);
+                      localStorage.setItem("matchedTopics", matchingState.info.matchedTopics.join(","));
+
+                      // Redirect to collaboration page
+                      router.push(`/collaboration/${matchingState.info.matchId}`);
                     }}
-                    name1={matchingState.info.myName}
-                    name2={matchingState.info.partnerName}
+                    name1={matchingState.info.user}
+                    name2={matchingState.info.matchedUser}
                     joiningIn={totalSeconds}
                     />
             case 'timeout':
@@ -140,7 +153,7 @@ const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) 
             default:
                 throw new Error('Invalid matching state.');
         }
-    };
+      }
 
     return (
         <Modal open={isOpen}

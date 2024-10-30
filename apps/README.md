@@ -56,7 +56,7 @@ Once running, you can access:
 
 - The **frontend** at http://localhost:3000
 - The **user service** at http://localhost:3001
-- The **question service** at http://localhost:8080
+- The **question service** at http://localhost:8080 (REST) and http://localhost:50051 (gRPC)
 - The **matching service** at http://localhost:8081
 - The **redis service** at http://localhost:6379
 

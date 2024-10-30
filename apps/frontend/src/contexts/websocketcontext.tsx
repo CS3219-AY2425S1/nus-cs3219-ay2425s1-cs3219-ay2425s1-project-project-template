@@ -13,12 +13,15 @@ export type SocketState = {
     cancel(): void;
     timeout(): void;
 };
+
 export type MatchInfo = {
     matchId: string;
-    partnerId: string;
-    myName: string;
-    partnerName: string;
+    user: string;
+    matchedUser: string;
+    questionDocRefId: string;
+    matchedTopics: string[];
 }
+
 export type MatchState = SocketState | {
     state: "found";
     info: MatchInfo;

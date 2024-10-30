@@ -1,14 +1,6 @@
 "use client";
 import Header from "@/components/Header/header";
-import {
-  Button,
-  Col,
-  Layout,
-  message,
-  Row,
-  Tag,
-  Select,
-} from "antd";
+import { Button, Col, Layout, message, Row, Tag, Select } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
   PlusCircleOutlined,
@@ -26,13 +18,10 @@ import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
-import {
-  ValidateUser,
-  VerifyTokenResponseType,
-} from "../../services/user";
-import { useRouter } from 'next/navigation';
+import { ValidateUser, VerifyTokenResponseType } from "../../services/user";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function QuestionPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
 
   // Message States
@@ -45,10 +34,11 @@ export default function Home() {
     });
   };
 
+  const router = useRouter();
+
   // Retrieve the docRefId from query params during page navigation
   const searchParams = useSearchParams();
   const docRefId: string = searchParams?.get("data") ?? "";
-
   // Code Editor States
   const [questionTitle, setQuestionTitle] = useState<string | undefined>(
     undefined
@@ -65,24 +55,24 @@ export default function Home() {
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
-  const router = useRouter();
-  
   useLayoutEffect(() => {
     var isAuth = false;
 
-    ValidateUser().then((data: VerifyTokenResponseType) => {
-      setUserId(data.data.id);
-      setEmail(data.data.email);
-      setUsername(data.data.username);
-      setIsAdmin(data.data.isAdmin);
-      isAuth = true;
-    }).finally(() => {
-      if(!isAuth){
-        // cannot verify
-        router.push('/login'); // Client-side redirect using router.push
-      }
-    });
-  }, [router])
+    ValidateUser()
+      .then((data: VerifyTokenResponseType) => {
+        setUserId(data.data.id);
+        setEmail(data.data.email);
+        setUsername(data.data.username);
+        setIsAdmin(data.data.isAdmin);
+        isAuth = true;
+      })
+      .finally(() => {
+        if (!isAuth) {
+          // cannot verify
+          router.push("/login"); // Client-side redirect using router.push
+        }
+      });
+  }, [router]);
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
@@ -112,10 +102,10 @@ export default function Home() {
                     <h3 className="problem-description-title">
                       {questionTitle}
                     </h3>
-                    <text className="problem-solve-status">
+                    <span className="problem-solve-status">
                       Solved&nbsp;
                       <CheckCircleOutlined />
-                    </text>
+                    </span>
                   </div>
                   <div className="complexity-div">
                     <Tag
@@ -135,13 +125,13 @@ export default function Home() {
                     </Tag>
                   </div>
                   <div id="tag-container" className="tag-container">
-                    <text className="topic-label">Topics: </text>
+                    <span className="topic-label">Topics: </span>
                     {categories.map((category) => (
                       <Tag key={category}>{category}</Tag>
                     ))}
                   </div>
                   <div className="description-text">
-                    <text>{description}</text>
+                    <span>{description}</span>
                   </div>
                 </div>
               </Row>
@@ -184,9 +174,9 @@ export default function Home() {
                   </div>
                   <div className="language-select">
                     <div>
-                      <text className="language-text">
+                      <span className="language-text">
                         Select Language:&nbsp;
-                      </text>
+                      </span>
                       <Select
                         className="select-language-button"
                         defaultValue={selectedItem}
@@ -216,15 +206,15 @@ export default function Home() {
                   </div>
                   <div className="session-details-text-div">
                     <div className="session-details-text">
-                      <text className="session-headers">Start Time: </text>
+                      <span className="session-headers">Start Time: </span>
                       01:23:45
                       <br />
-                      <text className="session-headers">
+                      <span className="session-headers">
                         Session Duration:{" "}
-                      </text>
+                      </span>
                       01:23:45
                       <br />
-                      <text className="session-headers">Matched with: </text>
+                      <span className="session-headers">Matched with: </span>
                       John Doe
                     </div>
                   </div>

@@ -11,6 +11,8 @@ services:
       - ./frontend/.env
     volumes:
       - ./frontend:/frontend
+    depends_on:
+      - signalling-service
 
   user-service:
     build:
@@ -31,6 +33,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080
+      - 50051:50051
     env_file:
       - ./question-service/.env
     networks:
@@ -52,6 +55,32 @@ services:
       - ./matching-service:/matching-service
     depends_on:
       - redis
+
+  history-service:
+    build:
+      context: ./history-service
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    env_file:
+      - ./history-service/.env
+    networks:
+      - apps_network
+    volumes:
+      - ./history-service:/history-service
+  
+  signalling-service:
+    build:
+      context: ./signalling-service
+      dockerfile: Dockerfile
+    ports:
+      - 4444:4444
+    env_file:
+      - ./signalling-service/.env
+    networks:
+      - apps_network
+    volumes:
+      - ./signalling-service:/signalling-service
 
   redis:
     image: redis:latest

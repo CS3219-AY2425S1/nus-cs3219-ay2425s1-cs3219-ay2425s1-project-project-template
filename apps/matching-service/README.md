@@ -75,8 +75,8 @@ Client sends matching parameters:
 {
   "type": "match_request",
   "topics": ["Algorithms", "Arrays"],
-  "difficulties": ["Easy", "Medium"],
-  "username": "Jane Doe"
+  "difficulties": ["easy", "medium"],
+  "username": "1f0myn"
 }
 ```
 
@@ -84,12 +84,15 @@ Server response on successful match:
 
 ```json
 {
-  "type": "match_found",
-  "matchId": "1c018916a34c5bee21af0b2670bd6156",
-  "user": "zkb4px",
-  "matchedUser": "JohnDoe",
-  "topic": "Algorithms",
-  "difficulty": "Medium"
+  "type": "match_question_found",
+  "match_id": "c377f463d380a9bd1dd03242892ef32e",
+  "user": "1f0myn",
+  "matched_user": "jrsznp",
+  "matched_topics": ["Graphs", "Bit Manipulation", "Databases"],
+  "question_doc_ref_id": "5lObMfyyKPgNXSuLcGEm",
+  "question_name": "Repeated DNA Sequences",
+  "question_difficulty": "medium",
+  "question_topics": ["Algorithms", "Bit Manipulation"]
 }
 ```
 
@@ -128,21 +131,27 @@ Before running the following commands, ensure that the URL for the Redis server 
 To run the application via Docker, run the following command:
 
 1. Set up the Go Docker container for the matching service
+
 ```bash
 docker build -f Dockerfile -t match-go-app .
 ```
 
 2. Create the Docker network for Redis and Go
+
 ```bash
 docker network create redis-go-network
 ```
 
 3. Start a new Redis container in detached mode using the Redis image from Docker Hub
+
 ```bash
 docker run -d --name redis-container --network redis-go-network redis
 ```
 
 4. Run the Go Docker container for the matching-service
+
 ```bash
 docker run -d -p 8081:8081 --name go-app-container --network redis-go-network match-go-app
 ```
+
+**NOTE:** As there is a dependency on the question-service to return the found questions, the matching-service does not work fully unless the question-service is present.

@@ -141,4 +141,8 @@ export const ProgrammingLanguageOptions = [
     value: "c++",
     label: "C++",
   },
+  {
+    value: "javascript",
+    label: "JavaScript",
+  },
 ];

@@ -54,7 +54,7 @@ const MatchFoundContent: React.FC<Props> = ({join, cancel, name1: me, name2: you
                 Cancel
             </button>
         </div>
-    )
-}
+    );
+};
 
 export default MatchFoundContent;
