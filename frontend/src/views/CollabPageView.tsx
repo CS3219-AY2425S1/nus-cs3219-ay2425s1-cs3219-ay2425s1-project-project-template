@@ -69,10 +69,10 @@ const CollabPageView: React.FC = () => {
           console.log("Session verified successfully: ", data.message);
           return true;
         } else {
-          alert(
-            `Collab session verification failed. \nPlease use the matching service to access the collab page.`
-          );
-          navigate("/questions");
+            alert(
+              `Collab session verification failed. \nPlease use the matching service to access the collab page.`
+            );
+            navigate("/questions");
           return false;
         }
       } catch (error) {
@@ -273,101 +273,119 @@ const CollabPageView: React.FC = () => {
           overflow: "auto", // Add scrollbars when content overflows
         }}
       >
-        {/* left side question box */}
+        {/* left side */}
         <div
           style={{
             flexBasis: "50%", // Takes up 50% of the width
-            flexDirection: "column", // Stacks the title and description vertically
-            alignItems: "flex-start", // Aligns the title and description to the left
-            padding: "20px",
-            border: "2px solid lightgrey", // Adds a border
-            borderRadius: "10px", // Rounds the corners
+            display: "flex", // Create a vertical layout inside the right half
+            flexDirection: "column", // Stack the top and bottom halves vertically
             margin: "15px 7.5px 15px 15px", // top right bottom left (clockwise)
             width: "50%",
-            overflow: "auto", // Add scrollbars when content overflows
           }}
         >
-          {/* id & title */}
-          <h2 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-            {questionData.title}
-          </h2>
-
-          {/* tags (difficulty & topics) */}
+          {/* top-left question box */}
           <div
             style={{
-              marginTop: "15px",
-              marginBottom: "15px",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "10px",
+              flex: 6, // Takes up 60% vertically of the left side
+              alignItems: "flex-start", // Aligns the title and description to the left
+              padding: "20px",
+              border: "2px solid lightgrey", // Adds a border
+              borderRadius: "10px", // Rounds the corners
+              overflow: "auto", // Add scrollbars when content overflows
             }}
           >
-            <Badge>{questionData.difficulty}</Badge>
-            {questionData.topics.map((topic, index) => (
-              <Badge key={index} variant="outline">
-                {topic}
-              </Badge>
-            ))}
-          </div>
+            {/* id & title */}
+            <h2 style={{ fontSize: "2rem", fontWeight: "bold" }}>
+              {questionData.title}
+            </h2>
 
-          {/* description */}
-          <p>{questionData.description}</p>
+            {/* tags (difficulty & topics) */}
+            <div
+              style={{
+                marginTop: "15px",
+                marginBottom: "15px",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
+              <Badge>{questionData.difficulty}</Badge>
+              {questionData.topics.map((topic, index) => (
+                <Badge key={index} variant="outline">
+                  {topic}
+                </Badge>
+              ))}
+            </div>
 
-          {/* examples */}
-          <div style={{ marginTop: "35px" }}>
-            {questionData.examples.map((example, index) => (
-              <div key={index} style={{ marginBottom: "20px" }}>
-                <p style={{ marginBottom: "10px" }}>
-                  <strong>Example {index + 1}:</strong>
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                  }}
-                >
-                  <blockquote
+            {/* description */}
+            <p>{questionData.description}</p>
+
+            {/* examples */}
+            <div style={{ marginTop: "35px" }}>
+              {questionData.examples.map((example, index) => (
+                <div key={index} style={{ marginBottom: "20px" }}>
+                  <p style={{ marginBottom: "10px" }}>
+                    <strong>Example {index + 1}:</strong>
+                  </p>
+                  <div
                     style={{
-                      paddingLeft: "10px",
-                      borderLeft: "5px solid #d0d7de",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
                     }}
                   >
-                    <pre>
-                      <strong>Input:</strong> {example.input}
-                    </pre>
-                    <pre>
-                      <strong>Output:</strong> {example.output}
-                    </pre>
-                  </blockquote>
+                    <blockquote
+                      style={{
+                        paddingLeft: "10px",
+                        borderLeft: "5px solid #d0d7de",
+                      }}
+                    >
+                      <pre>
+                        <strong>Input:</strong> {example.input}
+                      </pre>
+                      <pre>
+                        <strong>Output:</strong> {example.output}
+                      </pre>
+                    </blockquote>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {/* constraints */}
-            <div style={{ marginTop: "35px" }}>
-              <strong>Constraints:</strong>
-              <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
-                {questionData.constraints.map((constraint, index) => (
-                  <li key={index}>{constraint}</li>
-                ))}
-              </ul>
+              {/* constraints */}
+              <div style={{ marginTop: "35px" }}>
+                <strong>Constraints:</strong>
+                <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
+                  {questionData.constraints.map((constraint, index) => (
+                    <li key={index}>{constraint}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
-          {/* Chatbox */}
+
+          {/* bottom-left chatbox */}
           <div
             style={{
-              marginTop: "25px",
-              width: "100%",
+              flex: 4, // Takes up 40% vertically of the left side
+              marginTop: "15px",
               border: "2px solid lightgrey",
               borderRadius: "10px",
               padding: "10px",
             }}
           >
-            <h3 style={{ marginBottom: "10px", fontWeight: "bold" }}>Chat</h3>
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: "bold",
+                alignSelf: "flex-start",
+                margin: "0 25px 10px 5px",
+              }}
+            >
+              Chat
+            </h2>
             <div
               style={{
-                height: "200px",
+				height: "50%",
                 overflowY: "scroll",
                 border: "1px solid #d0d7de",
                 borderRadius: "5px",
