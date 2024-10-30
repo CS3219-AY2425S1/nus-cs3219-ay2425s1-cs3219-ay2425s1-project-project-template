@@ -7,7 +7,7 @@ import useAuth from '../../hooks/useAuth';
 
 const generateRoomId = (difficulty, topic, language, matchedUser) => {
   const { user1, user2 } = matchedUser;
-  const timestamp = new Date().getTime();
+  const timestamp = new Date().getDate();
   const data = `${difficulty}-${topic}-${language}-${user1}-${user2}-${timestamp}`;
   const roomId = btoa(data); // encode using base64
   return roomId;

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import QuestionNotFoundError from '../errors/QuestionNotFoundError';
 
 const BASE_URL = 'http://localhost:4000/api/questions';
 
@@ -86,9 +87,14 @@ const getQuestionByTopicAndDifficulty = async (topic, difficulty, cookies) => {
             params: { topic, difficulty },
             withCredentials: true
         });
+        if (!response.data) {
+            throw new QuestionNotFoundError();
+        }
         return response.data;
     } catch (error) {
-        console.error('Error getting question by topic and difficulty:', error);
+        if (error.response && error.response.status === 404) {
+            throw new QuestionNotFoundError();
+        }
         throw reformatError('Error getting question by topic and difficulty:', error);
     }
 };

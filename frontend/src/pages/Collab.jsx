@@ -133,7 +133,11 @@ const Collab = () => {
                         {question.images && question.images.map((image, index) => (
                             <img key={index} src={image} alt={`Question image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
                         ))}
-                        <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">View on LeetCode</a>
+                        {question.leetcode_link && (
+                            <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
+                                View on LeetCode
+                            </a>
+                        )}
                     </div>
 
                 <Editor
