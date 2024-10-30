@@ -67,3 +67,17 @@ services:
     container_name: redis-container
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
+
+  history-service:
+    build:
+      context: ./backend/HistoryService
+      target: ${BUILD_ENV}
+    ports:
+      - ${HISTORY_SVC_PORT}:${HISTORY_SVC_PORT}
+    environment:
+      - PORT=${HISTORY_SVC_PORT}
+      - MONGOURI=${HISTORY_DB_URI}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    volumes:
+      - ./backend/HistoryService:/app
+      - /app/node_modules
