@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { login, getUserProfile, updateUserProfile, forgotPassword} from '../apis/AuthApi';
-import { AuthResponse, LoginInput, UpdateProfileInput, Profile } from '../types/Api';
+import { AuthResponse, LoginInput, UpdateProfileInput, Profile, ForgotPasswordInput } from '../types/Api';
 
 type AuthContextProps = {
   token: string | null;
@@ -19,7 +19,7 @@ type AuthContextProps = {
     setError: React.Dispatch<React.SetStateAction<string | null>>
   ) => Promise<void>;
   forgotPasswordAction: (
-    email: string,
+    email: ForgotPasswordInput,
     setError: React.Dispatch<React.SetStateAction<string | null>>
   ) => Promise<void>;
 };
@@ -97,10 +97,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const forgotPasswordAction = async (
-    email: string,
+    email: ForgotPasswordInput,
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => {
-    forgotPassword({ email })
+    forgotPassword(email)
       .then((response) => {
         setError(null);
         console.log("Password reset email sent successfully:", response);

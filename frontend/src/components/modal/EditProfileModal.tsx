@@ -18,7 +18,7 @@ function EditProfileModal({
   const [editProfileError, setEditProfileError] = useState<string | null>(null);
 
   const auth = useAuth();
-
+  
   const handleSaveChanges = async () => {
     try {
       const updatedProfileData = { username, password }; 
