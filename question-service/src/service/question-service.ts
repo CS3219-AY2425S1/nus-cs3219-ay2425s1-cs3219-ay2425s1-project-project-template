@@ -1,4 +1,4 @@
-import { saveQuestion, getQuestions, getQuestionById, updateQuestionById, deleteQuestionById, getQuestionByTitle, getTotalQuestions, getAllTopics } from '../repo/question-repo';
+import { saveQuestion, getQuestions, getQuestionById, updateQuestionById, deleteQuestionById, getQuestionByTitle, getTotalQuestions, getAllTopics, getQuestionsByTopic } from '../repo/question-repo';
 
 export async function createQuestion(questionData: any) {
     if (!questionData.title || !questionData.description) {
@@ -98,6 +98,17 @@ export async function fetchAllTopics() {
     }
     return topics;
 
+}
+
+export async function fetchRandomQuestionByTopic(topic: string, complexity: string) {
+    console.log("topic in service", topic);
+    const questions = await getQuestionsByTopic(topic, complexity);
+    console.log("questions", questions);
+    if (!questions) {
+        throw new Error(`Error fetching question`);
+    }
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    return randomQuestion;
 }
 
 

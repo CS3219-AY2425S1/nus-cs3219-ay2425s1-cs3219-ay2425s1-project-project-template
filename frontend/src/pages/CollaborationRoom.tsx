@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { io, Socket } from "socket.io-client";
 import { Editor } from "@monaco-editor/react";
 import { Box, Typography, Button } from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { toast } from "react-toastify";
 
@@ -17,12 +17,15 @@ const CollaborativeEditor: React.FC = () => {
   const [code, setCode] = useState<string>("function helloWorld() { console.log('Hello, world!'); }");
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const question = {
-    title: "Two Sum Problem",
-    description: "Given an array of integers, return indices of the two numbers such that they add up to a specific target. You may assume that each input would have exactly one solution, and you may not use the same element twice.",
-    difficulty: "Easy",
-  };
+  const { question } = location.state;
+
+  // const question = {
+  //   title: "Two Sum Problem",
+  //   description: "Given an array of integers, return indices of the two numbers such that they add up to a specific target. You may assume that each input would have exactly one solution, and you may not use the same element twice.",
+  //   difficulty: "Easy",
+  // };
 
   useEffect(() => {
     if (!user) {
@@ -81,7 +84,7 @@ const CollaborativeEditor: React.FC = () => {
       {/* Displaying the hardcoded question */}
       <Typography variant="h4">{question.title}</Typography>
       <Typography variant="h6" color="textSecondary">
-        Difficulty: {question.difficulty}
+        Difficulty: {question.complexity}
       </Typography>
       <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
         {question.description}

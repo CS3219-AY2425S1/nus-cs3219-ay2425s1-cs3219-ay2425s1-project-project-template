@@ -6,7 +6,8 @@ import {
   modifyQuestionById as modifyQuestionByIdService,
   removeQuestionById as removeQuestionByIdService,
   fetchQuestionByTitle as fetchQuestionByTitleService,
-  fetchAllTopics as fetchAllTopicsService
+  fetchAllTopics as fetchAllTopicsService,
+  fetchRandomQuestionByTopic as fetchRandomQuestionByTopicService
 } from '../service/question-service';
 
 // Helper function to handle and format errors properly
@@ -100,6 +101,20 @@ export async function fetchAllTopics(req: Request, res: Response) {
     try {
         const topics = await fetchAllTopicsService();
         res.status(200).json(topics);
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
+export async function fetchRandomQuestionByTopic(req: Request, res: Response) {
+    try {
+        const { topic, complexity } = req.query;
+        const question = await fetchRandomQuestionByTopicService(topic as string, complexity as string);
+        if (question) {
+            res.status(200).json(question);
+        } else {
+            res.status(404).json({ message: 'Question not found' });
+        }
     } catch (error) {
         handleError(error, res);
     }

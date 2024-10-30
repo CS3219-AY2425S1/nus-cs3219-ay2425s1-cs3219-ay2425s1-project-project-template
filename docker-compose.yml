@@ -68,7 +68,8 @@ services:
         condition: service_healthy
       redis: 
         condition: service_started
-    environment: 
+    environment:
+      QUESTION_API_URL: http://question-service:3002
       RABBITMQ_URL: amqp://rabbitmq:5672
       REDIS_URL: redis://redis:6379
     networks:
@@ -87,12 +88,9 @@ services:
     ports:
       - 3003:3003
     depends_on:
-      rabbitmq:
-        condition: service_healthy
       redis: 
         condition: service_started
     environment: 
-      RABBITMQ_URL: amqp://rabbitmq:5672
       REDIS_URL: redis://redis:6379
     networks:
       - demo-network

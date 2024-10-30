@@ -10,6 +10,7 @@ import { MatchDataResponse } from "../@types/match";
 import humanImage from "../assets/human.png";
 import LabelValue from "../components/LabelValue";
 import { useNavigate } from "react-router-dom";
+import { Question } from "../@types/question";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_API_URL;
 
@@ -17,6 +18,7 @@ const MatchSelection = () => {
   const [difficulty, setDifficulty] = useState<string>("Easy");
   const [topic, setTopic] = useState<string>("");
   const [topics, setTopics] = useState<string[]>([]);
+  // const [title, setTitle] = useState<string>("");
   const [isMatching, setIsMatching] = useState<boolean>(false);
   const [matchUserName, setMatchUserName] = useState<string | null>(null);
   const [noMatchFound, setNoMatchFound] = useState<boolean>(false);
@@ -25,6 +27,7 @@ const MatchSelection = () => {
   const { user, token } = useAuth();
   const socketRef = useRef<any>(null);
   const navigate = useNavigate();
+  const [question, setQuestion] = useState<Question | null>(null);
 
   useEffect(() => {
     const getTopics = async () => {
@@ -86,6 +89,7 @@ const MatchSelection = () => {
       setIsMatching(false);
       setNoMatchFound(false);
       setRoomId(matchData.roomId);
+      setQuestion(matchData.question);
 
       // setTimeout(async() => navigate(`/collaboration/${matchData.roomId}`), 5000)
       socketRef.current.disconnect();
@@ -137,7 +141,11 @@ const MatchSelection = () => {
   
    //Placeholder join room
   const handleJoinRoom = () => {
-    navigate(`/collaboration/${roomId}`);
+          navigate(`/collaboration/${roomId}`, {
+        state: {
+          question: question,
+        },
+      });
     console.log("Room Joined");
   };
 
@@ -367,7 +375,7 @@ const MatchSelection = () => {
                 </>
               )}
             </Box>
-            {matchUserName ? (
+            {matchUserName && question ? (
               <Box
                 sx={{
                   display: "flex",
@@ -380,9 +388,9 @@ const MatchSelection = () => {
               >
                 <LabelValue label="User" value={matchUserName} />
                 <LabelValue label="Proficiency Level" value="Expert" />
-                <LabelValue label="Question" value="TwoSum" />
-                <LabelValue label="Topic" value="Array" />
-                <LabelValue label="Difficulty" value="Easy" />
+                <LabelValue label="Question" value={question.title}/>
+                <LabelValue label="Topic" value={topic} />
+                <LabelValue label="Difficulty" value={question.complexity} />
               </Box>
             ) : (
               <></>

@@ -91,3 +91,21 @@ export async function updateQuestionById(id: string, title: string, description:
 export async function deleteQuestionById(id: string) {
     return await questionModel.findByIdAndDelete(id);
 }
+
+export async function getQuestionsByTopic(topic: string, complexity: string) {
+    try {
+        console.log('Searching for topic in category array:', topic);
+        
+        // Use $in to check if the topic exists in the category array
+        const questions = await questionModel.find({ 
+            category: { $in: [new RegExp(topic, "i")] },
+            complexity: new RegExp(complexity, "i")
+        });
+        
+        console.log('Questions found:', questions);
+        return questions;
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+        throw new Error("Unable to fetch questions.");
+      }
+}

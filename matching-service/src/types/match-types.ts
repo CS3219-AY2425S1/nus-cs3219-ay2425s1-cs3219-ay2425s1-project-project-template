@@ -13,3 +13,10 @@ export interface MatchRequest {
   topic: string;
   difficulty: string;
 }
+
+export interface QuestionResponse {
+  title: string;
+  description: string;
+  category: [string];
+  complexity: string;
+}

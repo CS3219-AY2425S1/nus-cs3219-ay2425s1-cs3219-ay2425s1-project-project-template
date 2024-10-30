@@ -6,7 +6,8 @@ import {
   modifyQuestionById,
   removeQuestionById,
   fetchQuestionByTitle,
-  fetchAllTopics
+  fetchAllTopics,
+  fetchRandomQuestionByTopic
 } from '../controller/question-controller';  // Import your controller methods
 import { authenticateJWT, isAdmin } from '../middleware/auth-middleware';  // Import the middleware
 
@@ -32,6 +33,8 @@ router.put('/questions/:id', authenticateJWT, isAdmin, modifyQuestionById);
 
 // Route to delete a specific question by ID
 router.delete('/questions/:id', authenticateJWT, isAdmin, removeQuestionById);
+
+router.get('/question', fetchRandomQuestionByTopic)
 
 
 export default router;
