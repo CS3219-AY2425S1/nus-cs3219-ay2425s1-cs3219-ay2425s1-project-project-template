@@ -121,7 +121,7 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
     setSortConfig({ key, direction });
   };
 
-  const handleAddQuestion = (newQuestion: Question) => {
+  const handleAddQuestion = (newQuestion: Omit<Question, "questionId">) => {
     addQuestion(newQuestion);
   };
 

@@ -14,7 +14,7 @@ import useQuestionTopics from "../hooks/useQuestionTopics";
 import useQuestionDifficulties from "../hooks/useQuestionDifficulties";
 
 interface AddQuestionProps {
-  onAddQuestion: (question: Question) => void;
+  onAddQuestion: (question: Omit<Question, "questionId">) => void;
 }
 
 const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
@@ -39,7 +39,6 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
     }
 
     onAddQuestion({
-      questionId: Math.floor(Math.random() * 10000),
       title,
       description,
       category,

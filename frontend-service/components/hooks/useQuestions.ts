@@ -116,8 +116,6 @@ const useQuestions = () => {
     updatedQuestion: Partial<Question>
   ) => {
     try {
-      console.log("Received payload:", updatedQuestion); // Log received payload
-
       const response = await fetch(
         `http://localhost:8080/api/questions/${questionId}`,
         {
