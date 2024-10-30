@@ -46,7 +46,7 @@ function App() {
               <Route path="/resetpassword" element={<ResetPasswordPage />} />
             </Route>
             <Route element={<PrivateRoute/>}>
-              <Route path="/" element= {<><NavBar /><QuestionPage /></>} />
+              <Route path="/" element= {<><QuestionPage /></>} />
               <Route path="/collaboration/:roomId" element={<CollaborationPage />} />
             </Route>
           </Routes>

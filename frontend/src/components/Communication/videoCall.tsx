@@ -2,10 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { Socket, io } from "socket.io-client";
 import SimplePeer, { SignalData } from "simple-peer";
-import { RoomContext } from "../../contexts/RoomContext";
+import { useParams } from "react-router-dom";
 
 export default function VideoCall() {
-    const {roomId, setUserMatch} = useContext(RoomContext);
+    const {roomId} = useParams();
     const {user} = useContext(AuthContext);
     const [isReceivingCall, setIsReceivingCall] = useState(false);
     const [isShowVideo, setIsShowVideo] = useState(false);
@@ -18,7 +18,6 @@ export default function VideoCall() {
 
     useEffect(() => {
         console.log(user.username);
-        setUserMatch("test11", "test12");
         console.log(roomId)
     }, [])
 
@@ -54,7 +53,7 @@ export default function VideoCall() {
         socketRef.current.on("call-response", (isAnswer: boolean) => {
             if (isAnswer) {
                 setIsShowVideo(true);
-                initiatePeerConnection(roomId, true); // true because this socket is the caller
+                initiatePeerConnection(roomId!, true); // true because this socket is the caller
             } else {
                 console.log("call declined");
                 setIsShowVideo(false);
@@ -81,7 +80,7 @@ export default function VideoCall() {
     const acceptCall = () => {
         socketRef.current!.emit("call-response", true, roomId)
         setIsReceivingCall(false);
-        initiatePeerConnection(roomId, false);
+        initiatePeerConnection(roomId!, false);
         setIsShowVideo(true);
     }
 
