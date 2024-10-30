@@ -3,6 +3,7 @@
 # Change BASE TAG to your Docker Hub username
 BASE_TAG="delishad21"
 VERSION_BASE="dev1.0."
+VERSION="dev"
 
 # Function to get the latest version of a service
 get_latest_version() {

@@ -4,7 +4,6 @@ import * as Y from 'yjs';
 import { addConnectedUser, addUpdateToYDocInRedis, deleteLanguageFromRedis, deleteYDocFromRedis, getLanguageFromRedis, getYDocFromRedis, isUserConnected, removeConnectedUser, setLanguageInRedis } from "../utils/redis-helper";
 
 const userSocketMap: { [key: string]: string } = {};
-const sessionDocMap: { [key: string]: Y.Doc } = {};
 
 export async function initialize(socket: Socket, io: Server) {
 
@@ -38,27 +37,16 @@ export async function initialize(socket: Socket, io: Server) {
         }
 
         const questionDescription = session.questionDescription;
-        const questionTemplateCode = session.questionTemplateCode;
         const questionTestcases = session.questionTestcases;
 
-        const yDoc = sessionDocMap[session.session_id];
+        const yDoc = await getYDocFromRedis(session.session_id);
 
         let yDocUpdate: Uint8Array;
 
         if (!yDoc) {
-            console.warn(`YDoc not found for session ${session.session_id}. Retrieving from Redis`);
-            const redisYDoc = await getYDocFromRedis(session.session_id);
-            if (!redisYDoc) {
-                console.warn('YDoc not found in Redis, initializing new YDoc from session data');
-                const newYDoc = new Y.Doc();
-                Y.applyUpdateV2(newYDoc, new Uint8Array(session.yDoc));
-                addUpdateToYDocInRedis(session.session_id, Y.encodeStateAsUpdateV2(newYDoc));
-                sessionDocMap[session.session_id] = newYDoc;
-                yDocUpdate = Y.encodeStateAsUpdateV2(newYDoc);
-            } else {
-                sessionDocMap[session.session_id] = redisYDoc;
-                yDocUpdate = Y.encodeStateAsUpdateV2(redisYDoc);
-            }
+            console.warn(`YDoc not found for session ${session.session_id}. Creating new YDoc with template code`);
+            addUpdateToYDocInRedis(session.session_id, new Uint8Array(session.yDoc));
+            yDocUpdate = new Uint8Array(session.yDoc);
         } else {
             yDocUpdate = Y.encodeStateAsUpdateV2(yDoc);
         }
@@ -84,7 +72,6 @@ export async function initialize(socket: Socket, io: Server) {
             message: 'You have joined the session!',
             sessionData: {
                 questionDescription,
-                questionTemplateCode,
                 questionTestcases,
                 yDocUpdate,
                 selectedLanguage,
@@ -108,7 +95,7 @@ export function handleUpdateContent(socket: Socket, io: Server) {
         const yDocUpdate = update;
         const roomId = socket.data.roomId
 
-        socket.to(roomId).emit('updateContent', yDocUpdate);
+        io.to(roomId).emit('updateContent', yDocUpdate);
 
         // Add Update to YDoc in Redis
         addUpdateToYDocInRedis(roomId, yDocUpdate);
