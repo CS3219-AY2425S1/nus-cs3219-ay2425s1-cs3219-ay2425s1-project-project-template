@@ -80,7 +80,7 @@ const App: React.FC = () => {
       <CollabNavbar usersInRoom={usersInRoom} setUsersInRoom={setUsersInRoom} />
       <div className="flex flex-row w-full h-[90vh] gap-2">
         <div className="flex w-1/2 h-full">
-          <QuestionDisplay />
+          <QuestionDisplay question={questionDescription} testCases={questionTestcases} />
         </div>
         <div className="flex w-1/2 h-full">
           <CollabCodeEditor

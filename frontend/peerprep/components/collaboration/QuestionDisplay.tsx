@@ -9,32 +9,13 @@ import remarkBreaks from "remark-breaks";
 
 import { socket } from "../../services/sessionService";
 
-export default function QuestionDisplay() {
+interface QuestionDisplayProps {
+  question: string;
+  testCases: [string];
+}
+
+export default function QuestionDisplay({ question, testCases }: QuestionDisplayProps) {
   const { theme } = useTheme();
-  const [question, setQuestion] = useState<string>("Question Loading...");
-  const [testCases, setTestCases] = useState<[string]>([""]);
-
-  useEffect(() => {
-    (async () => {
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.on("initialData", (data: any) => {
-        const { sessionData } = data;
-        const { questionDescription, questionTestcases } = sessionData;
-
-        setQuestion(questionDescription);
-        setTestCases(questionTestcases);
-      });
-    })();
-
-    return () => {
-      (async () => {
-        const resolvedSocket = await socket;
-
-        resolvedSocket?.off("initialData");
-      })();
-    };
-  }, []);
 
   return (
     <div className="flex justify-center items-center h-full w-full">
