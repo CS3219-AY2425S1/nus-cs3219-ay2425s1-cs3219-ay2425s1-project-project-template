@@ -201,7 +201,7 @@ export function FindMatchProvider({
       reset();
       router.push(`/collaboration/${sessionId}`);
     },
-    [toast]
+    [router, toast]
   );
 
   const handleError = useCallback(
