@@ -7,6 +7,9 @@ const collabServiceBackendUrl =
 	import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
 const userServiceBackendUrl =
   import.meta.env.VITE_USER_SERVICE_BACKEND_URL || "http://localhost:5001";
+const collabServiceHttpBackendUrl = 
+    import.meta.env.VITE_COLLAB_SERVICE_HTTP_BACKEND_URL || "http://localhost:5004";
+
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -67,13 +70,13 @@ export async function callFunction(
 	return { success: true, data: data };
 }
 
-// collab-service ver: Utility function for making fetch requests with credentials
-export async function collabServiceCallFunction(
+// collab-service-http ver: Utility function for making fetch requests with credentials
+export async function collabServiceHttpCallFunction(
 	functionName: string,
 	method: string = "POST",
 	body?: any,
 ): Promise<SuccessObject> {
-	const url = `${collabServiceBackendUrl}/${functionName}`;
+	const url = `${collabServiceHttpBackendUrl}/${functionName}`;
 	const token = sessionStorage.getItem("authToken");
 
 	const response = await fetch(url, {
@@ -84,8 +87,6 @@ export async function collabServiceCallFunction(
 		},
 		body: JSON.stringify(body),
 	});
-
-	console.log(response);
 
 	// Check for empty response
 	const data = await response.json().catch(() => ({ success: true }));
