@@ -370,23 +370,51 @@ func DeleteQuestion(c *gin.Context) {
 }
 
 
-// func AssignQuestion(c *gin.Context) {
-// 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-// 	defer cancel()
+func AssignQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
 
-// 	type AssignRequest struct {
-// 		topic string
-// 		questionId string
-// 	}
+	type AssignRequest struct {
+		Category string
+		Complexity string
+	}
 
-// 	var assignRequest AssignRequest
+	var assignRequest AssignRequest
 
-// 	if err := c.ShouldBindJSON(&assignRequest); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-// 		return
-// 	}
+	if err := c.ShouldBindJSON(&assignRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
  
-// 	filter 
+	filter := bson.M{"$and": []bson.M{
+		{"complexity": strings.ToLower(assignRequest.Complexity)},
+		{"categories": bson.M{"$in": []string{strings.ToLower(assignRequest.Category)}}},
+	}}
 
+	cursor, err := database.Coll.Find(ctx, filter)
+
+	// check if can find matching
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var questionsApplicable []models.Question;
 	
-// }
+	for cursor.Next(context.Background()) {
+		var question models.Question
+		cursor.Decode(&question)
+		questionsApplicable = append(questionsApplicable, question)
+	}
+
+	if len(questionsApplicable) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No matching questions found"})
+		return
+	}
+
+	// Generate a random number to select a question
+	ind := helper.GenerateRandomIndex(len(questionsApplicable))
+
+	log.Println("ind", ind)
+	c.JSON(http.StatusOK, gin.H{"message": "Question assigned successfully", "question": questionsApplicable[ind]})
+}

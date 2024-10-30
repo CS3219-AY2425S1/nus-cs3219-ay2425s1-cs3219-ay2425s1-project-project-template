@@ -14,6 +14,7 @@ import (
 // Parse question object to be put in db
 func ParseQuestionForDb(question *models.Question) {
 
+	question.Complexity = strings.ToLower(question.Complexity)
 	for i, v := range question.Categories {
 		question.Categories[i] = strings.ToLower(v)
 	}
@@ -25,7 +26,6 @@ func IsQuestionFieldsEmpty(question *models.Question) bool {
 	return question.Title != "" && question.Description != "" &&
 		len(question.Categories) != 0 && question.Complexity != "" && question.Link != ""
 }
-
 
 func IsValidComplexity(question *models.Question) bool {
 	complexity := question.Complexity
