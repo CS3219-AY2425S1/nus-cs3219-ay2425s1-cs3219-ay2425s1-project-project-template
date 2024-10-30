@@ -1,14 +1,15 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { Suspense, lazy } from 'react';
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 
 import './App.css';
 import PrivateRoute from './components/PrivateRoute';
 import AuthProvider from './hooks/AuthProvider';
 
 const Admin = lazy(() => import('./pages/Admin'));
-const FilterSelection = lazy(() => import('./pages/FilterSelection'));
 const Landing = lazy(() => import('./pages/Landing'));
 const Room = lazy(() => import('./pages/Room'));
 
@@ -34,6 +35,7 @@ const theme = createTheme({
 function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
+      <Notifications position="top-right" />
       <BrowserRouter>
         <AuthProvider>
           <Suspense fallback={<></>}>
@@ -41,7 +43,6 @@ function App() {
               <Route path="/" element={<Landing />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/admin" element={<Admin />} />
-                <Route path="/select" element={<FilterSelection />} />
                 <Route path="/room" element={<Room />} />
               </Route>
             </Routes>

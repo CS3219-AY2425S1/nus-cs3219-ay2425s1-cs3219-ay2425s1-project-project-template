@@ -9,15 +9,20 @@ import classes from './CodeEditorLayout.module.css';
 
 interface CodeEditorLayoutProps {
   openLeaveSessionModal: () => void;
+  code: string;
+  setCode: React.Dispatch<React.SetStateAction<string>>;
 }
 
 type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
 
 const supportedLanguages: SupportedLanguage[] = ['python', 'java'];
 
-function CodeEditorLayout({ openLeaveSessionModal }: CodeEditorLayoutProps) {
+function CodeEditorLayout({
+  openLeaveSessionModal,
+  code,
+  setCode,
+}: CodeEditorLayoutProps) {
   const [language, setLanguage] = useState<SupportedLanguage>('python');
-  const [code, setCode] = useState('');
   const [extensions, setExtensions] = useState<Extension[]>([
     langs['python'](),
   ]);
@@ -63,10 +68,7 @@ function CodeEditorLayout({ openLeaveSessionModal }: CodeEditorLayoutProps) {
             option: classes.option,
           }}
         />
-        <Button
-          variant="light"
-          leftSection={<IconPlayerPlayFilled size={14} />}
-        >
+        <Button leftSection={<IconPlayerPlayFilled size={14} />}>
           Run Code
         </Button>
         <Space style={{ flexGrow: 1 }} />
