@@ -1,45 +1,23 @@
 const express = require('express');
-const router = express.Router();
-const sessionController = require('../controllers/sessionController');
-const { authMiddlewareSocket } = require('../middleware/authMiddleware');
-const axios = require('axios');
+ const router = express.Router();
+ const sessionController = require('../controllers/sessionController');
+ const { authMiddlewareSocket } = require('../middleware/authMiddleware');
 
-// This route serves the socket connection for session handling
-module.exports = (io) => {
+ // This route serves the socket connection for session handling
+ module.exports = (io) => {
+
   // health check
   router.get('/', (req, res) => {
-    return res.send('hello world');
-  });
+     return res.send('hello world');
+   });
 
-  async function fetchQuestions(url) {
-    try {
-      const response = await axios.get(url);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching questions:', error.message);
-      throw error;
-    }
-  }
-
-  router.post('/test', async (req, res) => {
-    try {
-      const url = req.body.url;
-      const result = await fetchQuestions(url);
-      res.send(result);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  })
-
-  // Handle session check for a specific user
-  router.get('/check-session', (req, res) => {
-    try {
+   // Handle session check for a specific user
+   router.get('/check-session', (req, res) => {
+     try {
       const userId = req.user.userId;
-
       if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
       }
-
       const sessionDetails = sessionController.checkSessionForUser(userId);
       return res.status(200).json(sessionDetails);
     } catch (error) {
@@ -61,6 +39,6 @@ module.exports = (io) => {
       socket.disconnect(true);
     }
   });
-
+  
   return router;
 };
