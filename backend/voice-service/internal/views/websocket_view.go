@@ -10,10 +10,8 @@ import (
 )
 
 type Room struct {
-	User1    *websocket.Conn
-	User2    *websocket.Conn
-	Offer    *webrtc.SessionDescription
-	IceQueue []webrtc.ICECandidateInit
+	Conn1 *websocket.Conn
+	Conn2 *websocket.Conn
 }
 
 var rooms = make(map[string]*Room)
@@ -29,13 +27,11 @@ type SignalingMessage struct {
 	Offer     *webrtc.SessionDescription `json:"offer,omitempty"`
 	Answer    *webrtc.SessionDescription `json:"answer,omitempty"`
 	Candidate *webrtc.ICECandidateInit   `json:"candidate,omitempty"`
-	UserID    string                     `json:"userID"`
 }
 
 // WebSocketHandler handles the WebSocket connection for signaling
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	roomID := r.URL.Query().Get("roomID")
-	userID := r.URL.Query().Get("userID")
 
 	// Upgrade HTTP connection to WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -45,25 +41,38 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	// Initialize room if it doesn't exist
+	// Initialize the room if it doesn't exist
 	if rooms[roomID] == nil {
 		rooms[roomID] = &Room{}
 	}
 
-	// Assign WebSocket connection to user
-	if userID == "user1" {
-		rooms[roomID].User1 = ws
-		log.Printf("User1 connected to room: %s", roomID)
-	} else if userID == "user2" {
-		rooms[roomID].User2 = ws
-		log.Printf("User2 connected to room: %s", roomID)
+	// Assign the WebSocket connection to Conn1 or Conn2
+	var conn *websocket.Conn
+	if rooms[roomID].Conn1 == nil {
+		rooms[roomID].Conn1 = ws
+		conn = rooms[roomID].Conn1
+		log.Printf("User connected to Conn1 in room: %s", roomID)
+	} else if rooms[roomID].Conn2 == nil {
+		rooms[roomID].Conn2 = ws
+		conn = rooms[roomID].Conn2
+		log.Printf("User connected to Conn2 in room: %s", roomID)
+	} else {
+		log.Println("Room is full:", roomID)
+		return
 	}
 
-	log.Printf("Room state after connection: %+v", rooms[roomID])
+	// Check if both users are connected
+	if rooms[roomID].Conn1 != nil && rooms[roomID].Conn2 != nil {
+		log.Println("Both users connected, room:", roomID)
+		readyMessage := map[string]string{"type": "ready"}
+		readyMessageJSON, _ := json.Marshal(readyMessage)
+		rooms[roomID].Conn1.WriteMessage(websocket.TextMessage, readyMessageJSON)
+		rooms[roomID].Conn2.WriteMessage(websocket.TextMessage, readyMessageJSON)
+	}
 
 	// Wait for signaling messages
 	for {
-		_, message, err := ws.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error reading WebSocket message:", err)
 			break
@@ -76,59 +85,22 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Handle offer from user1
-		if signalingMessage.Type == "offer" && userID == "user1" {
-			rooms[roomID].Offer = signalingMessage.Offer
-			log.Printf("Received offer from user1: %+v", signalingMessage)
-			if rooms[roomID].User2 != nil {
-				err = rooms[roomID].User2.WriteMessage(websocket.TextMessage, message)
-				if err != nil {
-					log.Println("Error forwarding offer to user2:", err)
-				} else {
-					log.Printf("Forwarding offer to user2 in room: %s", roomID)
-				}
+		// Hardcoded message forwarding between Conn1 and Conn2
+		if rooms[roomID].Conn1 != nil && rooms[roomID].Conn2 != nil {
+			var targetConn *websocket.Conn
+			if conn == rooms[roomID].Conn1 {
+				targetConn = rooms[roomID].Conn2
 			} else {
-				log.Printf("Message from user1 could not be routed; missing peer in room %s", roomID)
+				targetConn = rooms[roomID].Conn1
 			}
-		}
 
-		// Handle answer from user2
-		if signalingMessage.Type == "answer" && userID == "user2" {
-			if signalingMessage.Answer != nil && signalingMessage.Answer.SDP != "" {
-				log.Printf("Received answer from user2: %+v", signalingMessage)
-				if rooms[roomID].User1 != nil {
-					err = rooms[roomID].User1.WriteMessage(websocket.TextMessage, message)
-					if err != nil {
-						log.Println("Error forwarding answer to user1:", err)
-					} else {
-						log.Printf("Forwarding answer to user1 in room: %s", roomID)
-					}
-				}
-			} else {
-				log.Println("Invalid answer received from user2.")
-			}
-		}
-
-		// Handle ICE candidates
-		if signalingMessage.Type == "ice" {
-			log.Printf("Received ICE candidate from %s: %+v", userID, signalingMessage)
-
-			if userID == "user1" && rooms[roomID].User2 != nil {
-				err = rooms[roomID].User2.WriteMessage(websocket.TextMessage, message)
+			if targetConn != nil {
+				err = targetConn.WriteMessage(websocket.TextMessage, message)
 				if err != nil {
-					log.Println("Error forwarding ICE candidate to user2:", err)
+					log.Println("Error forwarding message to peer:", err)
 				} else {
-					log.Printf("Forwarding ICE candidate to user2 in room: %s", roomID)
+					log.Printf("Forwarded message to peer in room: %s", roomID)
 				}
-			} else if userID == "user2" && rooms[roomID].User1 != nil {
-				err = rooms[roomID].User1.WriteMessage(websocket.TextMessage, message)
-				if err != nil {
-					log.Println("Error forwarding ICE candidate to user1:", err)
-				} else {
-					log.Printf("Forwarding ICE candidate to user1 in room: %s", roomID)
-				}
-			} else {
-				log.Printf("ICE candidate could not be routed; missing peer in room %s", roomID)
 			}
 		}
 	}
