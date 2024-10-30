@@ -1,4 +1,4 @@
-import { UserCredential, getAuth, onAuthStateChanged } from "firebase/auth"; // Import UserCredential type
+import { UserCredential } from "firebase/auth"; // Import UserCredential type
 import { SuccessObject, callUserFunction } from "@/lib/utils";
 
 export async function addToUserCollection(userCredential: UserCredential): Promise<SuccessObject> {
@@ -15,24 +15,7 @@ export async function addToUserCollection(userCredential: UserCredential): Promi
     return res;
 }
 
-export async function fetchAdminStatus(): Promise<SuccessObject> {
-    const auth = getAuth();
-
-    return new Promise((resolve) => {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    
-                    const res = await callUserFunction("admin/checkAdminStatus", "GET");
-                    resolve(res);
-                } catch (error: any) {
-                    console.error("Error fetching admin status:", error);
-                    resolve({ success: false, error: error.message });
-                }
-            } else {
-                console.log("No user is currently logged in.");
-                resolve({ success: false, error: "No user is currently logged in." });
-            }
-        });
-    });
+export const fetchAdminStatus = async () => {
+    const res = await callUserFunction("admin/checkAdminStatus", "GET");
+    return res
 }

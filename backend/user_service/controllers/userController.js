@@ -26,16 +26,9 @@ const addToUserCollection = async (req, res) => {
 
 const checkAdminStatus = async (req, res) => {
     const token = req.headers.authorization?.split('Bearer ')[1];
-
-    if (!token) {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
-
+    console.log(req.user)
     try {
-        // Verify the token
-        const decodedToken = await auth.verifyIdToken(token);
-        const uid = decodedToken.uid;
-
+        const uid = req.user.uid
         // Fetch user data from Firestore
         const userDoc = await db.collection('users').doc(uid).get();
         if (!userDoc.exists) {
