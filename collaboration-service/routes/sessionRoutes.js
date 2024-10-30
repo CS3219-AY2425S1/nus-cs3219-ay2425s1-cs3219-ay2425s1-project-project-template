@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sessionController = require('../controllers/sessionController');
 const { authMiddlewareSocket } = require('../middleware/authMiddleware');
+const axios = require('axios');
 
 // This route serves the socket connection for session handling
 module.exports = (io) => {
@@ -9,6 +10,26 @@ module.exports = (io) => {
   router.get('/', (req, res) => {
     return res.send('hello world');
   });
+
+  async function fetchQuestions(url) {
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching questions:', error.message);
+      throw error;
+    }
+  }
+
+  router.post('/test', async (req, res) => {
+    try {
+      const url = req.body.url;
+      const result = await fetchQuestions(url);
+      res.send(result);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  })
 
   // Handle session check for a specific user
   router.get('/check-session', (req, res) => {
