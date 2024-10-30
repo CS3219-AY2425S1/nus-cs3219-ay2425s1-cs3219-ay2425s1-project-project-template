@@ -73,7 +73,7 @@ export function validatePassword(password) {
 }
 
 export async function sendVerificationEmail(user) {
-  const token = generateVerificationToken(user.id, user.email);
+  const token = generateVerificationToken(user.id, user.tempEmail || user.email);
 
   const verification_path = `/verify-email?token=${token}`;
   const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
@@ -88,7 +88,7 @@ export async function sendVerificationEmail(user) {
 
   const options = {
     from: process.env.PEERPREP_EMAIL,
-    to: user.email,
+    to: user.tempEmail || user.email,
     subject: '[PeerPrep] Email verification',
     html: `
       <p>

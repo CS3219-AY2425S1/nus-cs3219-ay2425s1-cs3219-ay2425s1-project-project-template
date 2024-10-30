@@ -18,7 +18,7 @@ const VerifyEmail = () => {
     const token = urlParams.get('token');
       
     axios.post(
-      "http://localhost:3001/auth/verify-account",
+      "http://localhost:3001/auth/verify-emailt",
       { token: token },
       { withCredentials: true }
 

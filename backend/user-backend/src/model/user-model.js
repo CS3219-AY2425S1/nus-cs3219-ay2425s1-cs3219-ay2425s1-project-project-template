@@ -37,6 +37,10 @@ const UserModelSchema = new Schema({
     type: Date,
     default: Date.now, // Setting default to the current date/time
   },
+  tempEmail: {
+    type: String,
+    required: false,
+  }
 });
 
 export default mongoose.model("users", UserModelSchema);

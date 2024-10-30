@@ -36,6 +36,25 @@ export async function findUserByUsernameOrEmail(username, email) {
   });
 }
 
+export async function findUserByUsernameOrAllEmails(username, email) {
+  return UserModel.findOne({
+    $or: [
+      { username },
+      { email },
+      { tempEmail: email },
+    ],
+  });
+}
+
+export async function findUserByAllEmails(email) {
+  return UserModel.findOne({
+    $or: [
+      { email },
+      { tempEmail: email },
+    ]
+  });
+}
+
 export async function findAllUsers() {
   return UserModel.find();
 }
@@ -62,6 +81,14 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
 
 export async function updateUserVerifyStatusById(userId, isVerified) {
   return await updateUserById(userId, { isVerified });
+}
+
+export async function deleteTempEmailById(userId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $unset: {tempEmail: ''} },
+    { new: true },  // return the updated user
+  ); 
 }
 
 export async function deleteUserById(userId) {

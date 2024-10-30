@@ -15,7 +15,8 @@ import {
   findUserByEmail as _findUserByEmail,
   findUserById as _findUserById,
   findUserByUsername as _findUserByUsername,
-  findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
+  findUserByUsernameOrAllEmails as _findUserByUsernameOrAllEmails,
+  findUserByAllEmails as _findUserByAllEmails,
   updateUserById as _updateUserById,
   updateUserImageById as _updateUserImageById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
@@ -34,10 +35,10 @@ export async function createUser(req, res) {
         return res.status(400).json({ message: "Invalid password" });
       }
 
-      const existingUser = await _findUserByUsernameOrEmail(username, email);
+      const existingUser = await _findUserByUsernameOrAllEmails(username, email);
       if (existingUser && existingUser.username == username) {
         return res.status(409).json({ message: "username already exists" });
-      } else if (existingUser && existingUser.email == email) {
+      } else if (existingUser && (existingUser.email == email || existingUser.tempEmail == email)) {
         return res.status(409).json({ message: "email already exists" });
       }
 
@@ -102,7 +103,7 @@ export async function getAllUsers(req, res) {
 export async function updateUser(req, res) {
   try {
     const username =  req.body.username && req.body.username.trim();
-    const email = req.body.email && req.body.email.trim();
+    let email = req.body.email && req.body.email.trim();
     const password = req.body.password && req.body.password.trim();
 
     if (username || email || password) {
@@ -125,17 +126,23 @@ export async function updateUser(req, res) {
         if (existingUser && existingUser.id !== userId) {
           return res.status(409).json({ message: "username already exists" });
         }
-        existingUser = await _findUserByEmail(email);
+        existingUser = await _findUserByAllEmails(email, email);
         if (existingUser && existingUser.id !== userId) {
           return res.status(409).json({ message: "email already exists" });
         }
       }
 
       const hashedPassword = hashPassword(password);
+      if (email === user.email) email = undefined;
 
       const updatedUser = await _updateUserById(userId, {
-        username, email, password: hashedPassword
+        username,
+        tempEmail: email,
+        password: hashedPassword
       });
+
+      if (email) sendVerificationEmail(updatedUser);
+
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: await formatFullUserResponse(updatedUser),
