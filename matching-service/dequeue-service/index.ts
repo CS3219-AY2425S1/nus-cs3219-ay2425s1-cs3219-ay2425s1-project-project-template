@@ -23,7 +23,7 @@ interface TimerData {
 
 const timersMap = new Map<string, TimerData>();
 
-const TIMEOUT_DURATION = 20000;
+const TIMEOUT_DURATION = 30000;
 
 // Start Kafka Producer
 (async () => {
@@ -41,6 +41,12 @@ const TIMEOUT_DURATION = 20000;
             const { userID, topic } = matchRequest;
 
             console.log(`Received match-event for user: ${userID}, topic: ${topic}`);
+            console.log(`Received match request: ${JSON.stringify(matchRequest)}`);
+
+            // Calculate the timeout duration relative to match request's timestamp
+            const currentTime = Date.now();
+            const requestTime = matchRequest.timestamp;
+            const elapsedTime = currentTime - requestTime;
 
             // Start a timer for this match
             const timerID = setTimeout(async () => {
@@ -54,7 +60,7 @@ const TIMEOUT_DURATION = 20000;
 
                 // Remove the timer reference
                 timersMap.delete(userID);
-            }, TIMEOUT_DURATION);
+            }, TIMEOUT_DURATION - elapsedTime); // If negative, will immediately produce a timeout event
 
             // Store the timer reference and topic in the map
             timersMap.set(userID, { userID, topic, timerID });

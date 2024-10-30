@@ -102,6 +102,7 @@ router.post('/find-match', async (req, res) => {
             topic: "match-events",
             messages: [{ key: userData.id, value: JSON.stringify(matchRequestData) }],
         });
+        console.log(`Produced match request: ${JSON.stringify(matchRequestData)}`);
 
         // Set user status to `isMatching`
         statusMap.set(userData.id, 'isMatching');
