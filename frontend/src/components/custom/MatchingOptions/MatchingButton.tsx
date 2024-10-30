@@ -28,18 +28,12 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
         "ws://localhost:5003/matching";
       const token = sessionStorage.getItem("authToken");
       const uid = sessionStorage.getItem("uid");
-      const otherUid = sessionStorage.getItem("otherUid");
-
-      console.log("Session Storage:", sessionStorage);
-
-      console.log("Session Storage:", sessionStorage);
 
       // Initialize WebSocket connection
       socketRef.current = io(matchingServiceBackendUrl, {
         auth: {
           token: token,
           uid: uid,
-          otherUid: otherUid,
         },
         withCredentials: true,
       });
