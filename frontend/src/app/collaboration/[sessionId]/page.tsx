@@ -4,11 +4,12 @@ import {
   ResizablePanelGroup,
   ResizableHandle,
 } from "@/components/ui/resizable";
-import CollabCodePanel from "@/app/collaboration/_components/Editor";
-import TestResultPanel from "@/app/collaboration/_components/TestResult";
 import QuestionTabPanel from "@/app/collaboration/_components/Question";
 import Chatbox from "../_components/Chat/Chatbox";
 import { redirect } from "next/navigation";
+import CenterPanel from "../_components/CenterPanel";
+import { UserProfile, UserProfileResponse, UserProfileSchema } from "@/types/User";
+import { getCurrentUser } from "@/services/userService";
 
 export default async function Page({
   params,
@@ -19,9 +20,15 @@ export default async function Page({
 
   const sessionInfoResponse = await getSessionInfo(sessionId);
 
-  if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data) {
+  const userProfileResponse: UserProfileResponse = await getCurrentUser();
+  const parsedProfile = UserProfileSchema.safeParse(userProfileResponse.data);
+  
+
+  if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data || userProfileResponse.statusCode !== 200 || !parsedProfile.success) {
     redirect("/dashboard");
   }
+
+  const userProfile: UserProfile = parsedProfile.data;
 
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
 
@@ -38,17 +45,7 @@ export default async function Page({
         <ResizableHandle withHandle={true} />
 
         <ResizablePanel defaultSize={70}>
-          <ResizablePanelGroup direction={"vertical"}>
-            <ResizablePanel className="p-1" defaultSize={70}>
-              <CollabCodePanel sessionId={sessionId} />
-            </ResizablePanel>
-
-            <ResizableHandle withHandle={true} />
-
-            <ResizablePanel className="p-1" defaultSize={30}>
-              <TestResultPanel />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <CenterPanel sessionId={sessionId} userProfile={userProfile}/>
         </ResizablePanel>
       </ResizablePanelGroup>
 

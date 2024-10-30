@@ -10,6 +10,7 @@ import { editor } from "monaco-editor";
 import InjectableCursorStyles from "./InjectableCursorStyles";
 import { UserProfile } from "@/types/User";
 import { getRandomColor } from "@/lib/cursorColors";
+import { useSessionContext } from "@/contexts/SessionContext";
 
 interface CollaborativeEditorProps {
   sessionId: string;
@@ -19,13 +20,8 @@ interface CollaborativeEditorProps {
   themeName?: string;
 }
 
-export default function CollaborativeEditor({
-  sessionId,
-  currentUser,
-  socketUrl = "ws://localhost:4001",
-  language = "typescript",
-  themeName = "dracula",
-}: CollaborativeEditorProps) {
+export default function CollaborativeEditor({ sessionId, currentUser, socketUrl = "ws://localhost:4001", language = "typescript", themeName = "dracula" }: CollaborativeEditorProps) {
+  const { setCurrentCode } = useSessionContext();
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
 
@@ -35,22 +31,22 @@ export default function CollaborativeEditor({
     if (!editorRef) return;
 
     const yDoc = new Y.Doc();
-    const yText = yDoc.getText("monaco");
-    const yProvider = new WebsocketProvider(
-      `${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`,
-      `c_${sessionId}`,
-      yDoc
-    );
+    const yTextInstance = yDoc.getText("monaco");
+    const yProvider = new WebsocketProvider(`${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`, `c_${sessionId}`, yDoc);
     setProvider(yProvider);
 
-    const binding = new MonacoBinding(
-      yText,
-      editorRef?.getModel() as editor.ITextModel,
-      new Set([editorRef]),
-      yProvider.awareness
-    );
+    const binding = new MonacoBinding(yTextInstance, editorRef.getModel() as editor.ITextModel, new Set([editorRef]), yProvider.awareness);
+
+    // Observe changes to the Y.Text document
+    const updateCode = () => {
+      setCurrentCode(yTextInstance.toString());
+    };
+
+    yTextInstance.observe(updateCode);
+    updateCode(); // Initialize with the current value
 
     return () => {
+      yTextInstance.unobserve(updateCode);
       yDoc.destroy();
       binding.destroy();
     };
@@ -69,13 +65,7 @@ export default function CollaborativeEditor({
 
   return (
     <div className="w-full h-full overflow-scroll">
-      {provider && (
-        <InjectableCursorStyles
-          yProvider={provider}
-          cursorName={currentUser.username}
-          cursorColor={colorRef.current}
-        />
-      )}
+      {provider && <InjectableCursorStyles yProvider={provider} cursorName={currentUser.username} cursorColor={colorRef.current} />}
       <Editor
         defaultValue={"class Solution {\n" + "  \n" + "}"}
         onMount={handleEditorOnMount}

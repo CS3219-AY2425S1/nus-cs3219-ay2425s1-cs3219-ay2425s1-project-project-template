@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   ForbiddenException,
   Get,
   Inject,
   Param,
+  Post,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -13,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { GetCollabSessionDto } from './dto';
+import { CodeReviewDto, GetCollabSessionDto } from './dto';
 import { firstValueFrom } from 'rxjs';
 import { GetCurrentUserId } from 'src/common/decorators';
 
@@ -62,5 +64,11 @@ export class CollaborationController {
       id: _id,
       ...sessionDetail,
     };
+  }
+
+  @Post('review-code')
+  @ApiOkResponse({ description: 'Code review successfully' })
+  async codeReview(@Body() dto: CodeReviewDto) {
+    return this.collaborationClient.send({ cmd: 'review-code' }, dto);
   }
 }

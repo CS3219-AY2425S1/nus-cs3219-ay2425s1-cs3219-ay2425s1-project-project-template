@@ -11,13 +11,13 @@ export function CollabCodePanel({ sessionId }: { sessionId: string }) {
             value: "code",
             label: "Code",
             Icon: Code,
-            content: <CollaborativeEditorTab sessionId={sessionId} />,
+            content: <CollaborativeEditorTab />,
           },
           {
             value: "whiteboard",
             label: "Whiteboard",
             Icon: Pencil,
-            content: <CollaborativeWhiteboardTab sessionId={sessionId} />,
+            content: <CollaborativeWhiteboardTab />,
           },
         ]
       : [
@@ -25,7 +25,7 @@ export function CollabCodePanel({ sessionId }: { sessionId: string }) {
             value: "code",
             label: "Code",
             Icon: Code,
-            content: <CollaborativeEditorTab sessionId={sessionId} />,
+            content: <CollaborativeEditorTab />,
           },
         ];
 

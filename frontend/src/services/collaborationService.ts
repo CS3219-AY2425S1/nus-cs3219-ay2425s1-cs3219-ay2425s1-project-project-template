@@ -36,3 +36,34 @@ export const getSessionInfo = cache(async function (
     };
   }
 });
+
+export async function createCodeReview(
+  code: string
+): Promise<any> {
+  try {
+    const access_token = await getAccessToken();
+
+    const res = await fetch(
+      process.env.PUBLIC_API_URL + `/api/collaboration/code-review`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+        body: JSON.stringify({ code }),
+      }
+    );
+
+    const data = await res.json();
+
+    console.log(data);
+
+    return SessionInfoResponseSchema.parse(data);
+  } catch (error) {
+    return {
+      statusCode: 500,
+      message: String(error),
+    };
+  }
+}
