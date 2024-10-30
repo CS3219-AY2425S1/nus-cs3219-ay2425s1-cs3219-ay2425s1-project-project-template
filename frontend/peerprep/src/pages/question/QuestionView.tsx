@@ -56,6 +56,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   onDeleteQuestion,
 }) => {
   const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
+
   const {
     //isOpen: isMenuOpen,
     //onOpen: onMenuOpen,
@@ -155,31 +156,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     return found ? found.color : "white";
   };
 
-  // Function to get the color for a category
-  const getCategoryColor = (category: string) => {
-    if (!category) return "white";
-
-    const found = topics.find(
-      (c) => c.id.toLowerCase() === category.toLowerCase()
-    );
-
-    if (found) return found.color;
-
-    // Generate a random color, excluding white
-    const getRandomColor = () => {
-      const letters = "0123456789ABCDEF";
-      let color = "#";
-      while (color === "#FFFFFF" || color === "#00000000") {
-        for (let i = 0; i < 6; i++) {
-          color += letters[Math.floor(Math.random() * 16)];
-        }
-      }
-      return color;
-    };
-
-    return getRandomColor();
-  };
-
   // Define the table columns
   const columns: ColumnDef<Question>[] = useMemo(
     () => [
@@ -214,6 +190,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               })}
             </HStack>
           );
+        },
+        filterFn: (row, columnId, filterValue) => {
+          const cat = row.getValue<string[]>(columnId);
+          return cat.includes(filterValue);
         },
       },
       {

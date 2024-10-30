@@ -18,6 +18,9 @@ import {
   MenuItem,
   Checkbox,
   Select,
+  HStack,
+  Box,
+  CloseButton,
 } from "@chakra-ui/react";
 import { Question } from "../pages/question/questionModel";
 import { CATEGORIES, COMPLEXITIES } from "../constants/data";
@@ -28,7 +31,7 @@ type QuestionModalProps = {
   onSave: (question: {
     title: string;
     description: string;
-    categories: string;
+    categories: string[];
     complexity: string;
     link: string;
   }) => void;
@@ -46,8 +49,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]); // To track selected categories
   const [complexity, setComplexity] = useState("");
   const [link, setLink] = useState("");
-
-  console.log("selectedCategories", selectedCategories);
+  const [inputCategory, setInputCategory] = useState("");
 
   // Populate fields with initial question data if editing
   useEffect(() => {
@@ -70,7 +72,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     onSave({
       title,
       description,
-      categories: selectedCategories.join(", "),
+      categories: selectedCategories,
       complexity,
       link,
     }); // Concatenate categories
@@ -88,6 +90,20 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         ? prev.filter((cat) => cat !== category)
         : [...prev, category]
     );
+  };
+
+  const addCategory = (cat: string) => {
+    if (cat === "") {
+      return;
+    }
+
+    cat = cat.toLowerCase();
+
+    if (!selectedCategories.includes(cat)) {
+      setSelectedCategories([...selectedCategories, cat]);
+    }
+
+    setInputCategory("");
   };
 
   return (
@@ -118,7 +134,31 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
           <FormControl mt={4}>
             <FormLabel>Categories</FormLabel>
             <Menu>
-              <MenuButton
+              <HStack pb={2}>
+                {selectedCategories.map((cat) => (
+                  <div className="flex flex-row p-1 space-x-2 border-2 border-purple-500 rounded-md capitalize">
+                    <span>{cat}</span>
+                    <CloseButton
+                      variant="outline"
+                      onClick={() =>
+                        setSelectedCategories(
+                          selectedCategories.filter((x) => x !== cat)
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+              </HStack>
+              <Input
+                value={inputCategory}
+                onChange={(e) => setInputCategory(e.target.value)}
+                placeholder="Enter category"
+              />
+              <Button mt={2} onClick={() => addCategory(inputCategory)}>
+                Add Category
+              </Button>
+
+              {/* <MenuButton
                 as={Button}
                 rightIcon={
                   <svg
@@ -134,13 +174,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                 {selectedCategories.length > 0
                   ? selectedCategories.join(", ")
                   : "Select Categories"}
-              </MenuButton>
+              </MenuButton> */}
               <MenuList>
                 {CATEGORIES.map((cat) => (
                   <MenuItem key={cat.id}>
                     <Checkbox
                       isChecked={selectedCategories.includes(cat.id)}
-                      onChange={() => toggleCategory(cat.id)}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        toggleCategory(cat.id);
+                      }}
                     >
                       {cat.id}
                     </Checkbox>

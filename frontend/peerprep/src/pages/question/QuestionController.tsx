@@ -27,9 +27,10 @@ const QuestionController: React.FC = () => {
       console.error("Expected an array but received:", topics);
       return []; // Return an empty array if topics is not valid
     }
-    return topics.map((topic) => ({
+    return topics.map((topic, ind) => ({
       id: topic,
-      color: generateRandomColor(),
+      color: ind % 2 == 0 ? "purple.700" : "purple.300",
+      // color: generateRandomColor(),
     }));
   };
 
@@ -114,6 +115,8 @@ const QuestionController: React.FC = () => {
       Complexity: newQuestion.complexity,
       Link: newQuestion.link,
     };
+
+    console.log("new question", newQuestionWithId);
 
     try {
       await api.post("/questions", newQuestionWithId);
