@@ -37,24 +37,6 @@ export function isSubset<T>(subset: Set<T>, superset: Set<T>): boolean {
 export const delay = (ms: number) =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
-export const decodeToken = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
-};
-
 // Utility function for making fetch requests with credentials
 export async function callFunction(
 	functionName: string,

@@ -6,7 +6,6 @@ import { Title } from "@/components/ui/title";
 import profileIcon from "@/assets/profile.png"; // Adjust the path if necessary
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { decodeToken } from "@/lib/utils";
 import { getUsernameByUid } from "@/services/UserFunctions";
 import "@/css/styles.css";
 
@@ -39,18 +38,12 @@ const QuestionPageView: React.FC = () => {
       }
     };
 
-    const token = sessionStorage.getItem("authToken");
-    if (token) {
-      const decoded = decodeToken(token);
-      if (decoded && decoded.user_id) {
-        
-        fetchUsername(decoded.user_id);
+    const uid = sessionStorage.getItem("uid");
+    if (uid) {
+        fetchUsername(uid);
       } else {
         setLoading(false); // End loading if no user_id found
       }
-    } else {
-      setLoading(false); // End loading if no token found
-    }
   }, []);
   
   return (
