@@ -5,11 +5,14 @@ on:
   pull_request:
     branches:
       - main
+  workflow_run:
+    workflows: ["Docker Compose Build and Test"]  # Name of your docker-compose workflow
+    types:
+      - completed
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Only run if docker-compose workflow succeeded
     defaults:
       run:
         working-directory: ./backend/question_service  # Set working directory for all run steps
