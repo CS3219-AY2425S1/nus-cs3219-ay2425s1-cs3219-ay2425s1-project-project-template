@@ -27,7 +27,7 @@ const Collab = () => {
     const intervalRef = useRef(null);
 
     const [showPopup, setShowPopup] = useState(false);
-    const [countdown, setCountdown] = useState(10); // changed to 10s for testing
+    const [countdown, setCountdown] = useState(100); // changed to 10s for testing
     const [timeOver, setTimeOver] = useState(false);
     const [userLeft, setUserLeft] = useState(false);
 
@@ -130,6 +130,12 @@ const Collab = () => {
         setTimeOver(false);
     };
 
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    };
+
 
     return (
         <div
@@ -142,7 +148,7 @@ const Collab = () => {
         >
             <CollabNavBar 
                 partnerUsername={partnerUsername} 
-                countdown={countdown} 
+                countdown={formatTime(countdown)} 
                 handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
