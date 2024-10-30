@@ -1,31 +1,46 @@
 import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/MatchPopup.css';
+import questionService from '../../services/question-service';
+import useAuth from '../../hooks/useAuth';
 
 const generateRoomId = (difficulty, topic, language, matchedUser) => {
   const { user1, user2 } = matchedUser;
-  const data = `${difficulty}-${topic}-${language}-${user1}-${user2}`;
+  const timestamp = new Date().getDate();
+  const data = `${difficulty}-${topic}-${language}-${user1}-${user2}-${timestamp}`;
   const roomId = btoa(data); // encode using base64
   return roomId;
 };
 
 const MatchFound = ({ matchData, closePopup }) => {
+    const { cookies } = useAuth();
     const navigate = useNavigate();
     const { difficulty, topic, language, matchedUser } = matchData;
     const roomId = generateRoomId(difficulty, topic, language, matchedUser);
 
-    const handleStartSession = () => {
+    const handleStartSession = async () => {
         closePopup();
-        
-        navigate('/collab', {
-          state: {
-            difficulty,
-            topic,
-            language,
-            matchedUser,
-            roomId
+
+        try {
+          const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, cookies);
+
+          if (question) {
+            console.log(question.title);
+            navigate('/collab', {
+              state: {
+                question,
+                language,
+                matchedUser,
+                roomId
+              }
+            });
+          } else {
+            console.error('Error fetching question');
           }
-        });
+        } catch (error) {
+          console.error('Error fetching question:', error);
+        }
     }
 
     return (

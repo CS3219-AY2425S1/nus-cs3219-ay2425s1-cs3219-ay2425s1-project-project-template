@@ -262,3 +262,23 @@ export const getQuestionById = async (req, res) => {
         }
     }
 }
+
+// Get a question by topic and difficulty
+
+export const getQuestionByTopicAndDifficulty = async (req, res) => {
+    const { topic, difficulty } = req.query;
+
+    try {
+        const question = await Question.findOne({ 
+            topic: { $in: [topic] }, 
+            difficulty 
+        });
+        if (!question) {
+            return res.status(404).json({ message: "Question not found" });
+        }
+
+        res.status(200).json(question);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
