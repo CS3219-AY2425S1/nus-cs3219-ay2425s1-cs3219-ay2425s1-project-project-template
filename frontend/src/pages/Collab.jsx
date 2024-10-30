@@ -103,11 +103,6 @@ const Collab = () => {
 
     const handleQuitCancel = () => setShowQuitPopup(false);
 
-    if (!location.state) return null;
-
-    const { difficulty, topic, language, matchedUser, roomId } = location.state;
-    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
-
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
             <CollabNavBar 
@@ -122,7 +117,7 @@ const Collab = () => {
                         </div>
                         <p>{question.description}</p>
                         {question.images && question.images.map((image, index) => (
-                            <img key={index} src={image} alt={`Question image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
+                            <img key={index} src={image} alt={`Question diagram ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
                         ))}
                         {question.leetcode_link && (
                             <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
