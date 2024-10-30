@@ -259,7 +259,7 @@ const CollabPageView: React.FC = () => {
 
   // chatbox: if user presses Enter key, send message
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault(); // Prevents the default behavior of adding a new line
       handleMessageSend(); // Call your function here
     }
@@ -428,7 +428,7 @@ const CollabPageView: React.FC = () => {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <Textarea
-                style={{ flex: 1, overflowY: "scroll" }}
+                style={{ flex: 1 }}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
