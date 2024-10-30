@@ -26,9 +26,7 @@ function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
     // Find the current cursor position
     if (editorRef.current) {
       const cursorPos = editorRef.current.state.selection.main.head; // Get the cursor position
-      const line = editorRef.current.state.doc.lineAt(cursorPos).number; // Get the line number
-      const ch = cursorPos - editorRef.current.state.doc.lineAt(line - 1).from; // Get character position
-      console.log(`Cursor Position: Line ${line}, Ch ${ch + 1}`); // Log cursor position
+      console.log(`Cursor Position: ${cursorPos}`); // Log cursor position
     }
   };
 
