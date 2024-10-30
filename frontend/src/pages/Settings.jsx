@@ -1,12 +1,7 @@
-import React from 'react'
-import PeerPrep from './PeerPrep'
+import PeerPrep from "./PeerPrep";
 
 const Settings = () => {
-  return (
-    <PeerPrep>
-        Settings
-    </PeerPrep>
-  )
-}
+  return <PeerPrep>Settings</PeerPrep>;
+};
 
-export default Settings
+export default Settings;
