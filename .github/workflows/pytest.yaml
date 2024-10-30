@@ -45,13 +45,13 @@ jobs:
       run: |
         pytest backend/question_service/tests/ -v --cov=app --cov-report=xml:backend/question_service/coverage.xml
 
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./backend/question_service/coverage.xml
-        flags: pytests
-        name: codecov-umbrella
-        fail_ci_if_error: true
+    #- name: Upload coverage reports to Codecov
+    #  uses: codecov/codecov-action@v3
+    #  with:
+    #    file: ./backend/question_service/coverage.xml
+    #    flags: pytests
+    #    name: codecov-umbrella
+    #    fail_ci_if_error: true
 
     - name: Upload test results
       if: always()  # Upload test results even if tests fail
