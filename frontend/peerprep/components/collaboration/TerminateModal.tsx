@@ -13,81 +13,101 @@ import { useRouter } from "next/navigation";
 
 import { socket } from "../../services/sessionService";
 
-export default function TerminateModal() {
-  const [isModalVisible, setModalVisibility] = useState<boolean>(false);
-  const [userConfirmed, setUserConfirmed] = useState<boolean>(false);
-  const [isCancelled, setIsCancelled] = useState<boolean>(false); // Is termination cancelled
-  const [isFirstToCancel, setIsFirstToCancel] = useState<boolean>(true);
-  const router = useRouter();
+interface TerminateModalProps {
+  isModalVisible: boolean;
+  userConfirmed: boolean;
+  isCancelled: boolean;
+  isFirstToCancel: boolean;
+  handleOpenModal: () => void;
+  handleCloseModal: () => void;
+  handleConfirm: () => void;
+  setIsCancelled: (isCancelled: boolean) => void;
+}
 
-  const openModal = async () => {
-    setModalVisibility(true);
-    const resolvedSocket = await socket;
+export default function TerminateModal({
+  isModalVisible,
+  userConfirmed,
+  isCancelled,
+  isFirstToCancel,
+  handleOpenModal: openModal,
+  handleCloseModal: closeModal,
+  handleConfirm,
+  setIsCancelled,
+}: TerminateModalProps) {
+  // const [isModalVisible, setModalVisibility] = useState<boolean>(false);
+  // const [userConfirmed, setUserConfirmed] = useState<boolean>(false);
+  // const [isCancelled, setIsCancelled] = useState<boolean>(false); // Is termination cancelled
+  // const [isFirstToCancel, setIsFirstToCancel] = useState<boolean>(true);
+  // const router = useRouter();
 
-    resolvedSocket?.emit("changeModalVisibility", true);
-  };
+  // const openModal = async () => {
+  //   setModalVisibility(true);
+  //   const resolvedSocket = await socket;
 
-  const closeModal = async () => {
-    setModalVisibility(false);
-    setUserConfirmed(false);
-    setIsFirstToCancel(true);
-    const resolvedSocket = await socket;
+  //   resolvedSocket?.emit("changeModalVisibility", true);
+  // };
 
-    resolvedSocket?.emit("changeModalVisibility", false);
-  };
+  // const closeModal = async () => {
+  //   setModalVisibility(false);
+  //   setUserConfirmed(false);
+  //   setIsFirstToCancel(true);
+  //   const resolvedSocket = await socket;
 
-  const handleConfirm = async () => {
-    setUserConfirmed(true);
-    if (isFirstToCancel) {
-      const resolvedSocket = await socket;
+  //   resolvedSocket?.emit("changeModalVisibility", false);
+  // };
 
-      resolvedSocket?.emit("terminateOne");
-    } else {
-      setModalVisibility(false);
-      const resolvedSocket = await socket;
+  // const handleConfirm = async () => {
+  //   setUserConfirmed(true);
+  //   if (isFirstToCancel) {
+  //     const resolvedSocket = await socket;
 
-      resolvedSocket?.emit("terminateSession");
-      resolvedSocket?.disconnect();
-      router.push("/");
-    }
-  };
+  //     resolvedSocket?.emit("terminateOne");
+  //   } else {
+  //     setModalVisibility(false);
+  //     const resolvedSocket = await socket;
 
-  useEffect(() => {
-    (async () => {
-      const resolvedSocket = await socket;
+  //     resolvedSocket?.emit("terminateSession");
+  //     resolvedSocket?.disconnect();
+  //     router.push("/");
+  //   }
+  // };
 
-      resolvedSocket?.on("modalVisibility", (isVisible: boolean) => {
-        // console.log("Received modal visibility", isVisible);
-        setModalVisibility(isVisible);
-        setIsCancelled(!isVisible);
+  // useEffect(() => {
+  //   (async () => {
+  //     const resolvedSocket = await socket;
 
-        if (!isVisible) {
-          setUserConfirmed(false);
-          setIsFirstToCancel(true);
-        }
-      });
+  //     resolvedSocket?.on("modalVisibility", (isVisible: boolean) => {
+  //       // console.log("Received modal visibility", isVisible);
+  //       setModalVisibility(isVisible);
+  //       setIsCancelled(!isVisible);
 
-      resolvedSocket?.on("terminateOne", () => {
-        console.log("Partner confirmed termination");
-        setIsFirstToCancel(false);
-      });
+  //       if (!isVisible) {
+  //         setUserConfirmed(false);
+  //         setIsFirstToCancel(true);
+  //       }
+  //     });
 
-      resolvedSocket?.on("terminateSession", () => {
-        setModalVisibility(false);
-        console.log("Session terminated");
-        resolvedSocket?.disconnect();
-        router.push("/");
-      });
-    })();
+  //     resolvedSocket?.on("terminateOne", () => {
+  //       console.log("Partner confirmed termination");
+  //       setIsFirstToCancel(false);
+  //     });
 
-    return () => {
-      (async () => {
-        const resolvedSocket = await socket;
+  //     resolvedSocket?.on("terminateSession", () => {
+  //       setModalVisibility(false);
+  //       console.log("Session terminated");
+  //       resolvedSocket?.disconnect();
+  //       router.push("/");
+  //     });
+  //   })();
 
-        resolvedSocket?.off("modalVisibility");
-      })();
-    };
-  }, []);
+  //   return () => {
+  //     (async () => {
+  //       const resolvedSocket = await socket;
+
+  //       resolvedSocket?.off("modalVisibility");
+  //     })();
+  //   };
+  // }, []);
 
   return (
     <div className="flex justify-center items-center h-full w-full">

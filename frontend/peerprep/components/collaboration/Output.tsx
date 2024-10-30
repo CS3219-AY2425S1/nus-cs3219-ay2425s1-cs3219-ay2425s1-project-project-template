@@ -13,45 +13,42 @@ type SupportedLanguages =
   | "csharp"
   | "php";
 
-interface OutputProps {
-  editorRef: React.RefObject<any>;
-  language: SupportedLanguages;
+export interface codeOutputInterface {
+  stdout: string;
+  stderr: string;
+  output: string;
+  code: number;
+  signal: string | null;
 }
 
-const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
+interface OutputProps {
+  codeOutput?: string[] | null;
+  editorRef: React.RefObject<any>;
+  language: SupportedLanguages;
+  propagateUpdates: (
+    docUpdate?: Uint8Array,
+    languageUpdate?: SupportedLanguages,
+    codeOutput?: codeOutputInterface
+  ) => void;
+  isCodeError: boolean;
+}
+
+const Output: React.FC<OutputProps> = ({
+  codeOutput,
+  editorRef,
+  language,
+  propagateUpdates,
+  isCodeError,
+}) => {
   const { theme, resolvedTheme } = useTheme();
   const [isThemeReady, setIsThemeReady] = useState<boolean>(false);
-  const [output, setOutput] = useState<string[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isError, setIsError] = useState<boolean>(false);
 
   useEffect(() => {
     if (resolvedTheme) {
       setIsThemeReady(true);
     }
   }, [resolvedTheme]);
-
-  useEffect(() => {
-    const handleUpdateOutput = (result: { stderr: string; stdout: string }) => {
-      if (result.stderr) {
-        setIsError(true);
-        setOutput(result.stderr.split("\n"));
-      } else {
-        setIsError(false);
-        setOutput(result.stdout.split("\n"));
-      }
-    };
-
-    (async () => {
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.on("updateOutput", handleUpdateOutput);
-
-      return () => {
-        resolvedSocket?.off("updateOutput", handleUpdateOutput);
-      };
-    })();
-  }, []);
 
   const runCode = async () => {
     const sourceCode = editorRef.current?.getValue();
@@ -61,19 +58,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
       setIsLoading(true);
       const { run: result } = await executeCode(language, sourceCode);
 
-      // Check if there is an error in the output
-      if (result.stderr) {
-        setIsError(true);
-        setOutput(result.stderr.split("\n"));
-      } else {
-        setIsError(false);
-        setOutput(result.stdout.split("\n"));
-      }
-
-      // Emit the result to the server
-      const resolvedSocket = await socket;
-
-      resolvedSocket?.emit("codeExecution", result);
+      propagateUpdates(undefined, undefined, result);
     } catch (error: any) {
       // would only occur if api is down
       console.log(error);
@@ -90,7 +75,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         <Button
           className=""
           variant="flat"
-          color={`${isError ? "danger" : "success"}`}
+          color={`${isCodeError ? "danger" : "success"}`}
           disabled={isLoading}
           onClick={runCode}
         >
@@ -98,9 +83,9 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         </Button>
       </div>
       <Card
-        className={`flex-1 p-4 overflow-auto 
+        className={`flex-1 p-4 overflow-auto
         ${
-          isError
+          isCodeError
             ? theme === "dark"
               ? "bg-gradient-to-br from-[#751A1A] to-[#331638]"
               : "bg-gradient-to-br from-[#FFA6A6] to-[#FFD4D4]"
@@ -112,8 +97,8 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         <div className="text-sm overflow-y-auto h-full">
           {" "}
           {/* Set font size for the output card */}
-          {output
-            ? output.map((line, index) => <p key={index}>{line}</p>)
+          {codeOutput
+            ? codeOutput.map((line, index) => <p key={index}>{line}</p>)
             : 'Click "Run Code" to see output here'}
         </div>
       </Card>
