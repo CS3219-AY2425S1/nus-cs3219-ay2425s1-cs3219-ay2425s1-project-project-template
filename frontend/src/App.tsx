@@ -4,7 +4,8 @@ import QuestionPage from "./pages/Question/page";
 import LoginPage from "./pages/Login/login";
 import SignupPage from "./pages/Signup/signup";
 import PrivateRoute from "./routes/PrivateRoute";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import CollaborationPage from './pages/Collaboration/collaboration';
+import { BrowserRouter, Navigate, redirect, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider, } from '@tanstack/react-query'
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import { useContext, useEffect } from "react";
@@ -44,10 +45,9 @@ function App() {
               <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
               <Route path="/resetpassword" element={<ResetPasswordPage />} />
             </Route>
-            <Route element={<PrivateRoute />}>
-              <Route path="/" element={<QuestionPage />} /> 
-              <Route path="/settings" element={<SettingsPage />} />
-              {/* <Route path="/comm" element={<><NavBar/> <VideoCall/></>} /> */}
+            <Route element={<PrivateRoute/>}>
+              <Route path="/" element= {<><NavBar /><QuestionPage /></>} />
+              <Route path="/collaboration/:roomId" element={<CollaborationPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
