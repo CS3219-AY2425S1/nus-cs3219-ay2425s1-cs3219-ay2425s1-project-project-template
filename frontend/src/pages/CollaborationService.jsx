@@ -14,9 +14,8 @@ export default function CollaborationService() {
   const [messages, setMessages] = useState([]);
   const [problem, setProblem] = useState(question);
 
-
-  const sendMessage = (text) => {
-    setMessages([...messages, { sender: "me", text }]);
+  const sendMessage = (text, sender = "me") => {
+    setMessages([...messages, { sender, text }]);
   };
 
   return (
@@ -35,10 +34,13 @@ export default function CollaborationService() {
             />
           </div>
           <div className="flex-[0.5]">
-            <ChatBox messages={messages} sendMessage={sendMessage} />
+            <ChatBox 
+                messages={messages} 
+                sendMessage={sendMessage} 
+                problem={problem}
+              />
           </div>
         </div>
-        
       </main>
     </PeerPrep>
   );  

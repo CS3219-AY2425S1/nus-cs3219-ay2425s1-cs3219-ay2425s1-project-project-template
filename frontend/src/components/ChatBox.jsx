@@ -1,13 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 
-export default function ChatBox({ messages, sendMessage }) {
-  const [newMessage, setNewMessage] = React.useState("");
-
-  const handleSend = () => {
-    if (newMessage.trim()) {
-      sendMessage(newMessage);
-      setNewMessage("");
+export default function ChatBox({ messages, sendMessage, problem }) {
+  const [newMessage, setNewMessage] = useState("");
+  
+  const handleSend = async () => {
+    if (!newMessage.trim()) return;
+    
+    // Send user message
+    sendMessage(newMessage);
+    
+    try {
+      const response = await fetch('http://localhost:3007/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: newMessage,
+          context: problem?.description || ''
+        })
+      });
+      
+      const data = await response.json();
+      sendMessage(data.response, 'ai');
+    } catch (error) {
+      console.error('AI response error:', error);
     }
+    
+    setNewMessage("");
   };
 
   return (
