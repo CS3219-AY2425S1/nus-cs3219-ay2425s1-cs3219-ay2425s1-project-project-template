@@ -37,7 +37,7 @@ import {
 import { AddIcon } from "@chakra-ui/icons";
 import AddQuestion from "./AddQuestion";
 import EditQuestion from "./EditQuestion";
-import { Question } from "../types";
+import { Question, Difficulty } from "../types";
 
 interface QuestionListProps {
   userIsAdmin: boolean;
@@ -71,6 +71,12 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
 
   type SortableKeys = keyof Question;
 
+  const difficultyOrder = {
+    [Difficulty.EASY]: 1,
+    [Difficulty.MEDIUM]: 2,
+    [Difficulty.HARD]: 3,
+  };
+
   // Filtered and Sorted Questions
   const filteredQuestions = questions
     .filter((question) =>
@@ -78,10 +84,17 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
     )
     .sort((a, b) => {
       if (sortConfig.key) {
-        if (sortConfig.direction === "asc") {
-          return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
-        } else if (sortConfig.direction === "desc") {
-          return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+        if (sortConfig.key === "difficulty") {
+          // Sort using custom order for difficulty
+          const diffA = difficultyOrder[a.difficulty as Difficulty] || 0;
+          const diffB = difficultyOrder[b.difficulty as Difficulty] || 0;
+          return sortConfig.direction === "asc" ? diffA - diffB : diffB - diffA;
+        } else {
+          if (sortConfig.direction === "asc") {
+            return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+          } else if (sortConfig.direction === "desc") {
+            return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+          }
         }
       }
       return 0; // No sorting
@@ -119,6 +132,12 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
       }
     }
     setSortConfig({ key, direction });
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleAddQuestion = (newQuestion: Omit<Question, "questionId">) => {
@@ -188,7 +207,7 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
             <Input
               placeholder="your questions..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
               size="md"
               focusBorderColor="blue.500"
             />
@@ -283,98 +302,116 @@ const QuestionList: React.FC<QuestionListProps> = ({ userIsAdmin }) => {
               </Tr>
             </Thead>
 
-            <Tbody>
-              {currentQuestions.map((question) => (
-                <Tr key={question.questionId}>
-                  <Td>{question.questionId}</Td>
+            {/* Show message in table body if no results found */}
+            {filteredQuestions.length === 0 ? (
+              <Text color="red.500" textAlign="center" mt={4}>
+                No questions found for your search.
+              </Text>
+            ) : (
+              <Tbody>
+                {currentQuestions.map((question) => (
+                  <Tr key={question.questionId}>
+                    <Td>{question.questionId}</Td>
 
-                  <Td>
-                    <Link to={`/questions/${question.questionId}`}>
-                      <Text
-                        isTruncated
-                        maxWidth="400px"
-                        title={question.title}
-                        align="left"
-                      >
-                        {question.title}
-                      </Text>
-                    </Link>
-                  </Td>
-
-                  <Td>
-                    <Box
-                      display="inline-block"
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                      bgColor={
-                        question.difficulty.toLowerCase() === "easy"
-                          ? "green.500"
-                          : question.difficulty.toLowerCase() === "medium"
-                          ? "yellow.400"
-                          : "red.500"
-                      }
-                      color="white"
-                      fontWeight="bold"
-                      textAlign="center"
-                    >
-                      {question.difficulty}
-                    </Box>
-                  </Td>
-
-                  <Td>{question.category.join(", ")}</Td>
-
-                  {userIsAdmin && (
                     <Td>
-                      {/* Delete question button */}
-                      <Button
-                        colorScheme="red"
-                        onClick={() =>
-                          openDeleteDialog(question.questionId, question.title)
-                        }
-                      >
-                        Delete
-                      </Button>
-
-                      {/* Edit question button */}
-                      <Button
-                        colorScheme="teal"
-                        ml={2}
-                        onClick={() => openEditDialog(question)}
-                      >
-                        Edit
-                      </Button>
+                      <Link to={`/questions/${question.questionId}`}>
+                        <Text
+                          isTruncated
+                          maxWidth="400px"
+                          title={question.title}
+                          align="left"
+                        >
+                          {question.title}
+                        </Text>
+                      </Link>
                     </Td>
-                  )}
-                </Tr>
-              ))}
-            </Tbody>
+
+                    <Td>
+                      <Box
+                        display="inline-block"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                        bgColor={
+                          question.difficulty.toLowerCase() === "easy"
+                            ? "green.500"
+                            : question.difficulty.toLowerCase() === "medium"
+                            ? "yellow.400"
+                            : "red.500"
+                        }
+                        color="white"
+                        fontWeight="bold"
+                        textAlign="center"
+                      >
+                        {question.difficulty}
+                      </Box>
+                    </Td>
+
+                    <Td>{question.category.join(", ")}</Td>
+
+                    {userIsAdmin && (
+                      <Td>
+                        {/* Delete question button */}
+                        <Button
+                          colorScheme="red"
+                          onClick={() =>
+                            openDeleteDialog(
+                              question.questionId,
+                              question.title
+                            )
+                          }
+                        >
+                          Delete
+                        </Button>
+
+                        {/* Edit question button */}
+                        <Button
+                          colorScheme="teal"
+                          ml={2}
+                          onClick={() => openEditDialog(question)}
+                        >
+                          Edit
+                        </Button>
+                      </Td>
+                    )}
+                  </Tr>
+                ))}
+              </Tbody>
+            )}
           </Table>
         </TableContainer>
 
         {/* Pagination */}
-        <Flex justify="space-between" mt={4} align="center">
-          {/* Page Info on the Left */}
-          <Text>
-            Page {currentPage} of {totalPages}
-          </Text>
+        {filteredQuestions.length === 0 ? (
+          <Flex justify="space-between" mt={4} align="center">
+            <Text mt={4} align="center">
+              Page 0 of 0
+            </Text>
+          </Flex>
+        ) : (
+          <Flex justify="space-between" mt={4} align="center">
+            {/* Page Info on the Left */}
+            <Text>
+              Page {currentPage} of {totalPages}
+            </Text>
 
-          <Box>
-            <Button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              mr={2}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </Box>
-        </Flex>
+            <Box>
+              <Button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                mr={2}
+              >
+                Previous
+              </Button>
+              <Button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </Box>
+          </Flex>
+        )}
       </Card>
 
       {/* Modal for Adding Question */}
