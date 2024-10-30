@@ -21,6 +21,7 @@ import {
   MATCH_IDLE_STATUS,
 } from "@/lib/consts";
 import { useQuestionCategories } from "@/hooks/useQuestions";
+import { getToken } from "@/lib/utils";
 
 const difficultyLevels = ["Easy", "Medium", "Hard"];
 
@@ -316,6 +317,7 @@ export default function DiscussRoute() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
           userId: userId,
@@ -352,6 +354,9 @@ export default function DiscussRoute() {
         `http://localhost:8080/api/match/${userId}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
         }
       );
 
