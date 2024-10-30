@@ -31,25 +31,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Create mock Firebase credentials
+    - name: Set up environment variables for backend
       run: |
-        echo '{
-          "type": "service_account",
-          "project_id": "mock-project",
-          "private_key_id": "mock-key-id",
-          "private_key": "mock-private-key",
-          "client_email": "mock@mock-project.iam.gserviceaccount.com",
-          "client_id": "mock-client-id",
-          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-          "token_uri": "https://oauth2.googleapis.com/token",
-          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mock@mock-project.iam.gserviceaccount.com"
-        }' > firebase-credentials.json
-      working-directory: ./backend/question_service
+        echo "CRED_PATH=./firebase-cred.json" > .env
 
-    - name: Set environment variables
+    - name: Add Firebase credentials
       run: |
-        echo "CRED_PATH=$GITHUB_WORKSPACE/backend/question_service/firebase-credentials.json" >> $GITHUB_ENV
+        echo "${{ secrets.FIREBASE_CRED_JSON }}" > firebase-cred.json
 
     - name: Run tests with pytest
       run: |
