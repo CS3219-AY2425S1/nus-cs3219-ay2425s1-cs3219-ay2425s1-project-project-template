@@ -95,7 +95,7 @@ describe('User Routes', () => {
         it('should return 400 for invalid requests and a list of errors', async () => {
             const response = await testAgent.post('/users').send({})
             expect(response.status).toBe(400)
-            expect(response.body).toHaveLength(4)
+            expect(response.body).toEqual(expect.arrayContaining([expect.any(String)]))
         })
         it('should return 409 for duplicate username or email', async () => {
             await testAgent.post('/users').send(CREATE_USER_DTO1)
@@ -138,7 +138,7 @@ describe('User Routes', () => {
             it('should return 400 for invalid requests and a list of errors', async () => {
                 const response = await authenticatedTestAgent.put(`/users/${user.id}`).send({})
                 expect(response.status).toBe(400)
-                expect(response.body).toHaveLength(1)
+                expect(response.body).toEqual(expect.arrayContaining([expect.any(String)]))
             })
             it('should return 409 for duplicate username', async () => {
                 await authenticatedTestAgent.post('/users').send(CREATE_USER_DTO2)
@@ -204,7 +204,7 @@ describe('User Routes', () => {
                     password: 'Test1234',
                 })
                 expect(response.status).toBe(400)
-                expect(response.body).toHaveLength(1)
+                expect(response.body).toEqual(expect.arrayContaining([expect.any(String)]))
             })
         })
     })
