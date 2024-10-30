@@ -24,7 +24,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
   useEffect(() => {
     if (isMatching) {
       const matchingServiceBackendUrl =
-        import.meta.env.VITE_MATCHING_SERVICE_BACKEND_URL ||
+        import.meta.env.VITE_MATCHING_SERVICE_WS_BACKEND_URL ||
         "ws://localhost:5003/matching";
       const token = sessionStorage.getItem("authToken");
       const uid = sessionStorage.getItem("uid");
