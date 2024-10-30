@@ -5,7 +5,7 @@ import logger from '../utils/logger'
 
 const editQuestion = async (req: Request, res: Response) => {
     const { questionId } = req.params
-    const { title, description, categories, difficulty } = req.body
+    const { title, description, categories, difficulty, testCases } = req.body
 
     if (!questionId) {
         logger.error('Question ID required')
@@ -33,7 +33,7 @@ const editQuestion = async (req: Request, res: Response) => {
             }
         }
 
-        const updatedFields = { title, description, categories, difficulty }
+        const updatedFields = { title, description, categories, difficulty, testCases }
 
         const updatedQuestion = await Question.findOneAndUpdate(
             { questionId },
