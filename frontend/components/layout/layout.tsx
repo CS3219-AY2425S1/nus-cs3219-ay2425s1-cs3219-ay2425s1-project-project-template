@@ -22,7 +22,7 @@ export default function RootLayout({
         },
     ]
 
-    const isHideNavbar = navBlacklist.some((item) => item.route === router.pathname)
+    const isHideNavbar = navBlacklist.some((item) => router.pathname.includes(item.route))
     const topMargin = isHideNavbar ? 'mt-5' : 'mt-[4rem]'
 
     return (

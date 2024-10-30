@@ -1,9 +1,12 @@
-import { Category, Complexity } from '@repo/user-types'
+import { Category, Complexity, IMatch } from '@repo/user-types'
 import { Schema } from 'mongoose'
-import { IMatch } from '../types/IMatch'
 
 const matchSchema = new Schema<IMatch>({
     user1Id: {
+        type: String,
+        required: true,
+    },
+    user1Name: {
         type: String,
         required: true,
     },
@@ -11,12 +14,16 @@ const matchSchema = new Schema<IMatch>({
         type: String,
         required: true,
     },
-    questionId: {
+    user2Name: {
         type: String,
         required: true,
     },
     isCompleted: {
         type: Boolean,
+        required: true,
+    },
+    question: {
+        type: Object,
         required: true,
     },
     complexity: {
@@ -60,8 +67,8 @@ const matchSchema = new Schema<IMatch>({
             }
         },
     },
-    categories: {
-        type: [String],
+    category: {
+        type: String,
         enum: Object.values(Category),
         required: true,
     },
