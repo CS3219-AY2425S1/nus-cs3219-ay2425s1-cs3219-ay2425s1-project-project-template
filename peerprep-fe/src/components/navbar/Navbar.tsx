@@ -46,9 +46,6 @@ export default function Navbar() {
               Admin
             </Link>
           )}
-          <Link href="/" className="text-gray-300 hover:text-white">
-            Questions
-          </Link>
           {/* Admin users should be able to add questions instead of match */}
           {path === '/admin' ? (
             <Button
@@ -57,7 +54,7 @@ export default function Navbar() {
             >
               Add Question
             </Button>
-          ) : path !== '/match' ? (
+          ) : path !== '/match' && isAuth ? (
             <PreMatch />
           ) : null}
           {isAuth ? (
@@ -88,11 +85,6 @@ export default function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="w-full">
                     Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="w-full">
-                    Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>

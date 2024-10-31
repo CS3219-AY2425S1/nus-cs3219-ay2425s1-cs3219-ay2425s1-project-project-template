@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/state/useAuthStore';
 import { useWebSocket } from '@/hooks/useWebsocket';
@@ -76,14 +75,7 @@ export default function LoadingPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#1a1f2e] text-gray-300">
-      <header className="flex items-center justify-between border-b border-gray-700 p-4">
-        <div className="flex items-center space-x-2">
-          <Code className="h-6 w-6" />
-          <span className="text-lg font-semibold">PeerPrep</span>
-        </div>
-        <User className="h-6 w-6" />
-      </header>
+    <div className="flex min-h-screen flex-col bg-gray-900 p-6 text-gray-100">
       <main className="flex flex-grow flex-col items-center justify-center space-y-6 px-4">
         {matchStatus === 'searching' && (
           <>
