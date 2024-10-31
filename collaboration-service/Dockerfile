@@ -4,19 +4,20 @@
 FROM node:18-alpine
 
 # Set working directory
-WORKDIR /usr/src/app/question-service
+WORKDIR /usr/src/app/collaboration-service
 
 # Copy package.json and install dependencies
-COPY package.json ./
+COPY package*.json ./
 # Ensure clean dependency install
 RUN rm -rf node_modules
+RUN npm install -g nodemon
 RUN npm install
 
 # Copy the rest of the app's source code
 # COPY . .
 
 # Expose the backend port
-EXPOSE 8080
+EXPOSE 4444
 
-# Command to run the backend server
+# Command to run nodemon
 CMD ["npm", "start"]

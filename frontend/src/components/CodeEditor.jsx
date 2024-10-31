@@ -1,102 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
-import { CodemirrorBinding } from "y-codemirror";
-import { UnControlled as CodeMirrorEditor } from "react-codemirror2";
-import * as Y from "yjs";
-import { WebrtcProvider } from "y-webrtc";
-import "./Editor.css";
-import RandomColor from "randomcolor";
-import "./EditorAddons";
+import { useTheme } from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { Editor } from "@monaco-editor/react";
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco';
+import { editor } from "monaco-editor";
 
-const CodeEditor = (props) => {
-    const [EditorRef, setEditorRef] = useState(null);
-    const [code, setCode] = useState("");
+const serverWsUrl = "ws://localhost:4444";
 
-    const handleEditorDidMount = (editor) => {
-        setEditorRef(editor);
-    };
+export default function CodeEditor() {
+    const theme = useTheme();
+    
+    const editorRef = useRef();
+    
+    function handleEditorDidMount(editor) {
+        editorRef.current = editor;
 
-    useEffect(() => {
-        if (EditorRef) {
-            const ydoc = new Y.Doc(); //create a ydoc
+        // Initialize yjs
+        const doc = new Y.Doc(); // collection of shared objects
 
-            let provider = null;
-            try {
-                provider = new WebrtcProvider("Any Room Name", ydoc, {
-                    //Remember the other tab or
-                    //other user should be in same room for seeing real-time changes
-                    signaling: [
-                        "wss://signaling.yjs.dev",
-                        "wss://y-webrtc-signaling-eu.herokuapp.com",
-                        "wss://y-webrtc-signaling-us.herokuapp.com",
-                    ],
-                });
+        // Connect to peers with WebSocket
+        const provider = new WebsocketProvider(serverWsUrl, "roomId", doc);
+        const type = doc.getText("monaco");
 
-                const yText = ydoc.getText("codemirror");
+        // Bind yjs doc to Manaco editor
+        const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]));
 
-                const yUndoManager = new Y.UndoManager(yText);
-
-                const awareness = provider.awareness; //awareness is what makes other user aware about your actions
-
-                const color = RandomColor(); //Provied any random color to be used for each user
-
-                awareness.setLocalStateField("user", {
-                    name: "Users Name",
-                    color: color,
-                });
-
-                const getBinding = new CodemirrorBinding(yText, EditorRef, awareness, {
-                    yUndoManager,
-                });
-            } catch (err) {
-                alert("error in collaborating try refreshing or come back later !");
-            }
-            return () => {
-                if (provider) {
-                    provider.disconnect(); //We destroy doc we created and disconnect
-                    ydoc.destroy(); //the provider to stop propagting changes if user leaves editor
-                }
-            };
-        }
-    }, [EditorRef]);
+    }
 
     return (
-        <div
-            style={{
-                display: "flex",
-                height: "100%",
-                width: "100%",
-                fontSize: "20px",
-                overflowY: "auto",
-            }}
-        >
-            <CodeMirrorEditor
-                onChange={(editor, data, value) => {
-                    setCode(value);
-                }}
-                autoScroll
-                options={{
-                    mode: "text/x-c++src", //this is for c++,  you can visit https://github.com/atharmohammad/Code-N-Collab/blob/master/src/Function/languageMapper.js  for other language types
-                    theme: "monokai",
-                    lineWrapping: true,
-                    smartIndent: true,
-                    lineNumbers: true,
-                    foldGutter: true,
-                    tabSize: 2,
-                    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-                    autoCloseTags: true,
-                    matchBrackets: true,
-                    autoCloseBrackets: true,
-                    extraKeys: {
-                        "Ctrl-Space": "autocomplete",
-                    },
-                }}
-                editorDidMount={(editor) => {
-                    handleEditorDidMount(editor);
-                    editor.setSize("100vw", "100%");
-                }}
-            />
-        </div>
+        <>
+        <Editor 
+            height="100vh"
+            language={"cpp"}
+            defaultValue={"// your code here"}
+            theme={theme.palette.mode === "dark" ? "vs-dark" : "vs-light"}
+            onMount={handleEditorDidMount}
+        />
+        </>
     );
 }
-
-export default CodeEditor;

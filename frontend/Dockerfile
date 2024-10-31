@@ -7,7 +7,7 @@ FROM node:21.1.0-alpine3.18
 RUN apk add --no-cache python3 make g++ 
 
 # Set working directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/frontend
 
 # Install dependencies
 COPY package.json ./

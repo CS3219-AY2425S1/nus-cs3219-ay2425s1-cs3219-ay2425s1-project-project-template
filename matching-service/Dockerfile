@@ -4,7 +4,7 @@
 FROM node:18-alpine
 
 # Set working directory
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/matching-service
 
 # Copy package.json and install dependencies
 COPY package.json ./
@@ -13,7 +13,7 @@ RUN rm -rf node_modules
 RUN npm install
 
 # Copy the rest of the app's source code
-COPY . .
+# COPY . .
 
 # Expose the backend port
 EXPOSE 8082

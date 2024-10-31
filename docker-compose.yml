@@ -22,8 +22,8 @@ services:
     ports:
       - "8080:8080"  # Expose question service on port 8080
     volumes:
-      - ./question-service:/usr/src/app  # For local development with live reloading
-      - /usr/src/app/node_modules  # Named volume for node_modules
+      - ./question-service:/usr/src/app/question-service  # For local development with live reloading
+      - /usr/src/app/question-service/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
     depends_on:      
@@ -36,8 +36,8 @@ services:
     ports:
       - "8081:8081"  # Expose user service on port 8081
     volumes:
-      - ./user-service:/usr/src/app  # For local development with live reloading
-      - /usr/src/app/node_modules  # Named volume for node_modules
+      - ./user-service:/usr/src/app/user-service  # For local development with live reloading
+      - /usr/src/app/user-service/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
     depends_on:
@@ -50,13 +50,27 @@ services:
     ports:
       - "8082:8082"  # Expose matching service on port 8082
     volumes:
-      - ./matching-service:/usr/src/app  # For local development with live reloading
-      - /usr/src/app/node_modules  # Named volume for node_modules
+      - ./matching-service:/usr/src/app/matching-service  # For local development with live reloading
+      - /usr/src/app/matching-service/node_modules  # Named volume for node_modules
     environment:
       - NODE_ENV=development  # Set environment to development
     depends_on:
       rabbitmq:
         condition: service_healthy  # Wait until RabbitMQ is healthy
+
+  collaboration-service:
+    build: ./collaboration-service
+    image: collaboration-service:latest
+    ports: 
+      - "4444:4444"
+    volumes: 
+      - ./collaboration-service:/usr/src/app/collaboration-service
+      - /usr/src/app/collaboration-service/node_modules
+    environment: 
+      - NODE_ENV=development
+    depends_on: 
+      rabbitmq:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
@@ -69,6 +83,7 @@ services:
       - question-service
       - user-service
       - matching-service
+      - collaboration-service
       - rabbitmq
 
 # volumes:
