@@ -109,28 +109,38 @@ const ProfilePage = () => {
     }
 
     try {
+      const verifyResult = await axiosClient.post(
+        `/auth/verify-password/${user.id}`,
+        {
+          password: passwordData.currentPassword,
+        },
+      );
+
       const result = await axiosClient.patch(`/users/${user.id}`, {
         password: passwordData.newPassword,
       });
 
-      if (result.status === 200) {
-        setPasswordMessage({
-          type: 'success',
-          text: 'Password updated successfully',
-        });
-
-        // reset the fields
-        setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
-        });
-
-        // Clear message after 5 seconds
-        setTimeout(() => {
-          setPasswordMessage(null);
-        }, 5000);
+      // throw error if result is not 200
+      if (result.status !== 200) {
+        throw new Error(result.data.message);
       }
+
+      setPasswordMessage({
+        type: 'success',
+        text: 'Password updated successfully',
+      });
+
+      // reset the fields
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+
+      // Clear message after 5 seconds
+      setTimeout(() => {
+        setPasswordMessage(null);
+      }, 5000);
     } catch (error: unknown) {
       const message =
         (error as { response?: { data?: { message?: string } } })?.response
