@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/authContext';
+import CollaborativeCodingPage from '../components/CollaborativeSpace';
 import axios from 'axios';
 
 const CollabRoomPage = ({ params }: {
@@ -48,6 +49,13 @@ const CollabRoomPage = ({ params }: {
     return (
         <div>
             <p>hello world this is room {roomId}</p>
+            <CollaborativeCodingPage
+                initialCode='import math'
+                language="javascript"
+                theme="vs-dark"
+                roomId={roomId}
+                userName={String(user?.email)}
+            />
         </div>
     );
 };

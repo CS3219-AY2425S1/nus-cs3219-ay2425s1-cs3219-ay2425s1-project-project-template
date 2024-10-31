@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as Y from 'yjs';
+import { Awareness } from 'y-protocols/awareness';
 import { WebSocket } from 'ws';
 import { createRoomId } from '../utils/utils';
 import { rooms } from '../server/rooms';
@@ -23,12 +24,14 @@ const createRoom = async (req: Request, res: Response):Promise<any> => {
     }
 
     const yDoc = new Y.Doc();
+    const awareness = new Awareness(yDoc);
 
     const newRoom: Room = {
         roomId,
         userIds: [userId1, userId2],
         code: yDoc,
         connectedClients: new Set<WebSocket>(),
+        awareness: awareness,
     };
 
     rooms.set(roomId, newRoom);

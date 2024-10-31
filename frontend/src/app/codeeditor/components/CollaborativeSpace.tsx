@@ -28,8 +28,8 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     const ydoc = new Y.Doc();
     ydocRef.current = ydoc;
 
-    // NEED TO UPDATE THIS
-    const provider = new WebsocketProvider('ws://localhost:1234', roomId, ydoc);
+    // websocket link updated 
+    const provider = new WebsocketProvider('ws://localhost:5003?roomId=${roomId}', roomId, ydoc);
     providerRef.current = provider;
 
     // Set user awareness
