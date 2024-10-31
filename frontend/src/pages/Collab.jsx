@@ -27,10 +27,8 @@ const Collab = () => {
     const providerRef = useRef(null);
     const intervalRef = useRef(null);
 
-    const [showPopup, setShowPopup] = useState(false);
-    const [countdown, setCountdown] = useState(100); // changed to 10s for testing
+    const [countdown, setCountdown] = useState(60); // set to 1 min default timer
     const [timeOver, setTimeOver] = useState(false);
-    const [userLeft, setUserLeft] = useState(false);
 
     const [showQuitPopup, setShowQuitPopup] = useState(false);
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
@@ -91,14 +89,6 @@ const Collab = () => {
         return () => clearInterval(intervalRef.current);
     }, [countdown, timeOver]);
 
-    if (!location.state) {
-        return null;
-    }
-
-
-    const { question, language, matchedUser, roomId } = location.state;
-    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
-
     // Initialize editor and Yjs 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
@@ -115,6 +105,13 @@ const Collab = () => {
         });
     };
 
+    if (!location.state) { return null; }
+
+    const { question, language, matchedUser, roomId } = location.state;
+    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
+
+    const handleSubmit = () => { console.log("Submit code"); };
+
     const handleQuit = () => setShowQuitPopup(true);
 
     const handleQuitConfirm = () => {
@@ -125,9 +122,6 @@ const Collab = () => {
     };
 
     const handleQuitCancel = () => setShowQuitPopup(false);
-
-    const { difficulty, topic, language, matchedUser, roomId } = location.state;
-    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
     const handleContinueSession = () => {
         clearInterval(intervalRef.current);
@@ -147,7 +141,6 @@ const Collab = () => {
                 partnerUsername={partnerUsername} 
                 countdown={formatTime(countdown)} 
                 handleSubmit={handleSubmit}
-                countdown={"30:00"} 
                 handleQuit={handleQuit}
             />
             <div style={{ display: "flex", flex: 1 }}>
