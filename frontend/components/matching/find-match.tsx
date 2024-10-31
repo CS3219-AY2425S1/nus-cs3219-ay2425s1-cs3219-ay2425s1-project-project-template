@@ -99,7 +99,7 @@ export default function FindMatch() {
             description: "Successfully matched",
             variant: "success",
           });
-          router.push(`/collaboration/${roomId}`);
+          router.push(`collab/${roomId}`);
         } else {
           toast({
             title: "Error",
@@ -148,7 +148,7 @@ export default function FindMatch() {
               description: "Successfully matched",
               variant: "success",
             });
-            router.push(`/collaboration/${roomId}`);
+            router.push(`collab/${roomId}`);
           } else {
             toast({
               title: "Error",

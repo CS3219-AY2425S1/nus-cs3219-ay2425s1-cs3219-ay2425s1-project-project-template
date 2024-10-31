@@ -19,12 +19,10 @@ export default function Chat() {
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    scrollToBottom();
+    if (partnerMessages.length > 0 || aiMessages.length > 0) {
+      scrollToBottom();
+    }
   }, [partnerMessages, aiMessages]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [chatTarget]);
 
   const scrollToBottom = () => {
     if (lastMessageRef.current) {
