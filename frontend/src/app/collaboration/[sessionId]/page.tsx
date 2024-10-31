@@ -49,12 +49,6 @@ export default async function Page(props: { params: Params }) {
 
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
 
-
-  
-
-
-  
-
   return (
     <div className="flex flex-row w-full h-full overflow-hidden">
       <ResizablePanelGroup
@@ -62,13 +56,13 @@ export default async function Page(props: { params: Params }) {
         direction="horizontal"
       >
         <ResizablePanel className="p-1" defaultSize={30}>
-          <QuestionTabPanel question={question}/>
+          <QuestionTabPanel question={question} />
         </ResizablePanel>
 
         <ResizableHandle withHandle={true} />
 
         <ResizablePanel defaultSize={70}>
-          <CenterPanel sessionId={sessionId} userProfile={userProfile}/>
+          <CenterPanel sessionId={sessionId} userProfile={userProfile} />
         </ResizablePanel>
       </ResizablePanelGroup>
 
