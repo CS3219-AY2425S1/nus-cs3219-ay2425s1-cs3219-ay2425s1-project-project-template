@@ -2,7 +2,7 @@ export type Question = {
   ID: string;
   Title: string;
   Description: string;
-  Categories: string;
+  Categories: string[];
   Complexity: string;
   Link: string;
 };
@@ -10,7 +10,7 @@ export type Question = {
 export type QuestionRequest = {
   Title: string;
   Description: string;
-  Categories: string;
+  Categories: string[];
   Complexity: string;
   Link: string;
 };
@@ -22,7 +22,7 @@ export type LeetCodeQuestionRequest = {
 export type Topic = {
   id: string;
   color: string;
-}
+};
 
 // Do not have to recreate API object here
 // This is done on the top level in <App/> component => You can think of useContext as a global state where u can retrieve

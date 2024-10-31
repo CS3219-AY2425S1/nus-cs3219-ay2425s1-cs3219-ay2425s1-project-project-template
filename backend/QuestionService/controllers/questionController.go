@@ -7,12 +7,12 @@ import (
 	"log"
 
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -119,21 +119,14 @@ func AddQuestionToDb() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		var QuestionRequest models.QuestionRequest
+		var question models.Question
 
-		if err := c.ShouldBindJSON(&QuestionRequest); err != nil {
+		if err := c.ShouldBindJSON(&question); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 			return
 		}
 
-		var question models.Question = models.Question{
-			ID:          primitive.NewObjectID(),
-			Title:       QuestionRequest.Title,
-			Description: QuestionRequest.Description,
-			Categories:  QuestionRequest.Categories,
-			Complexity:  QuestionRequest.Complexity,
-			Link:        QuestionRequest.Link,
-		}
+		question.ID = primitive.NewObjectID()
 
 		// Validate required fields
 		if !helper.IsQuestionFieldsEmpty(&question) {
@@ -220,7 +213,6 @@ func AddLeetCodeQuestionToDb() gin.HandlerFunc {
                 }
             }
         }
-        categoriesString := strings.Join(categories, ", ")
 
         // Extract "difficulty" for Complexity
         difficulty, ok := apiResponse["difficulty"].(string)
@@ -241,7 +233,7 @@ func AddLeetCodeQuestionToDb() gin.HandlerFunc {
             ID:          primitive.NewObjectID(),
             Title:       LeetCodeAPIRequest.Title,
             Description: questionDescription,
-            Categories:  categoriesString,
+            Categories:  categories,
             Complexity:  difficulty,
             Link:        link,
         }
@@ -347,25 +339,13 @@ func DeleteQuestion(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	// var jsonBody map[string]string
-	// if err := c.ShouldBindJSON(&jsonBody); err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
-	// 	return
-	// }
-
 	id := c.Query("id")
 
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
 		return
 	}
-
-	// id, exists := jsonBody["_id"]
-	// if !exists {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "Missing '_id' field in request body"})
-	// 	return
-	// }
-
+	
 	objectId, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
@@ -387,4 +367,54 @@ func DeleteQuestion(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Question deleted successfully"})
+}
+
+
+func AssignQuestion(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	type AssignRequest struct {
+		Category string
+		Complexity string
+	}
+
+	var assignRequest AssignRequest
+
+	if err := c.ShouldBindJSON(&assignRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+ 
+	filter := bson.M{"$and": []bson.M{
+		{"complexity": strings.ToLower(assignRequest.Complexity)},
+		{"categories": bson.M{"$in": []string{strings.ToLower(assignRequest.Category)}}},
+	}}
+
+	cursor, err := database.Coll.Find(ctx, filter)
+
+	// check if can find matching
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var questionsApplicable []models.Question;
+	
+	for cursor.Next(context.Background()) {
+		var question models.Question
+		cursor.Decode(&question)
+		questionsApplicable = append(questionsApplicable, question)
+	}
+
+	if len(questionsApplicable) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No matching questions found"})
+		return
+	}
+
+	// Generate a random number to select a question
+	ind := helper.GenerateRandomIndex(len(questionsApplicable))
+
+	log.Println("ind", ind)
+	c.JSON(http.StatusOK, gin.H{"message": "Question assigned successfully", "question": questionsApplicable[ind]})
 }

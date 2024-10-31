@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import {
   Button,
   Icon,
@@ -11,7 +11,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { ColumnFilter } from "@tanstack/react-table";
-import { FaCaretDown } from 'react-icons/fa';
+import { FaCaretDown } from "react-icons/fa";
 
 interface FilterOption {
   id: string;
@@ -29,7 +29,6 @@ interface DropdownFilterProps {
 
 const DropdownFilter: React.FC<DropdownFilterProps> = ({
   filters,
-  columnFilters,
   setColumnFilters,
   filterKey,
   color = "purple",
@@ -38,16 +37,19 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
   const [buttonText, setButtonText] = useState<string>("ALL");
   const [textColor, setTextColor] = useState<string>("white");
 
-
   const handleFilterChange = (selectedFilter: string) => {
     setSelectedFilter(selectedFilter);
 
     if (selectedFilter === "all") {
-      setTextColor("white")
+      setTextColor("white");
       setButtonText("ALL");
-      setColumnFilters((prev) => prev.filter((filter) => filter.id !== filterKey));
+      setColumnFilters((prev) =>
+        prev.filter((filter) => filter.id !== filterKey)
+      );
     } else {
-      const selectedOption = filters.find((filter) => filter.id === selectedFilter);
+      const selectedOption = filters.find(
+        (filter) => filter.id === selectedFilter
+      );
       setButtonText(selectedOption ? selectedOption.id : "ALL");
       setTextColor(selectedOption ? selectedOption.color : "white");
 
@@ -86,7 +88,14 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
         >
           {`${buttonText}`}
         </MenuButton>
-        <MenuList minWidth="auto" p="4" bg="gray.800" borderColor="gray.700">
+        <MenuList
+          minWidth="auto"
+          p="4"
+          bg="gray.800"
+          borderColor="gray.700"
+          maxHeight="300px"
+          overflowY="auto"
+        >
           <MenuOptionGroup
             type="radio"
             value={selectedFilter || "all"}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   HStack,
   Icon,
@@ -6,7 +6,6 @@ import {
   InputGroup,
   InputLeftElement,
   Text,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { ColumnFilter } from "@tanstack/react-table";
 import { FaSearch } from "react-icons/fa";
@@ -25,10 +24,9 @@ const Filters: React.FC<FiltersProps> = ({
   setColumnFilters,
   topics,
 }) => {
+  const filteredTitle = columnFilters.filter((x) => x.id === "Title");
 
-  const questions = columnFilters.find((f) => f.id === "title")?.value || "";
-
-  const onFilterChange = (id: string, value: string) =>
+  const onFilterChange = (id: string, value: string) => {
     setColumnFilters((prev) =>
       prev
         .filter((f) => f.id !== id)
@@ -37,6 +35,7 @@ const Filters: React.FC<FiltersProps> = ({
           value,
         })
     );
+  };
 
   return (
     <HStack mb={6} spacing={4} align="center">
@@ -62,8 +61,10 @@ const Filters: React.FC<FiltersProps> = ({
           }}
           _placeholder={{ color: "gray" }}
           borderRadius={8}
-          value={questions}
-          onChange={(e) => onFilterChange("title", e.target.value)}
+          value={
+            filteredTitle.length === 0 ? "" : String(filteredTitle[0].value)
+          }
+          onChange={(e) => onFilterChange("Title", e.target.value)}
         />
       </InputGroup>
       <Text textColor={"white"} size={"lg"}>

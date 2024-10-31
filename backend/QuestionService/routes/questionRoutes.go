@@ -15,4 +15,5 @@ func QuestionRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.DELETE("/questions", controller.DeleteQuestion)
 	incomingRoutes.POST("/questions", controller.AddQuestionToDb())
 	incomingRoutes.POST("/questions/leetcode", controller.AddLeetCodeQuestionToDb())
+	incomingRoutes.POST("/questions/matching", controller.AssignQuestion)
 }
