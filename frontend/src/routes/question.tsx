@@ -111,11 +111,8 @@ function Question() {
           })),
           difficulty: question.difficulty,
           link: question.link,
-          examples: question.examples.map((example) => ({
-            input: example.input,
-            output: example.output,
-          })),
-          constraints: question.constraints.map((constraint) => ({
+          examples: question.examples,
+          constraints: question.constraints?.map((constraint) => ({
             constraint,
           })),
         }
@@ -163,7 +160,7 @@ function Question() {
   return (
     <div className='relative w-full max-w-3xl p-4 space-y-4 h-full overflow-y-auto'>
       <div className='mb-2 text-2xl font-bold'>
-        <span className='mr-2'>{question.id + 1}.</span>
+        <span className='mr-2'>{question.id}.</span>
         <span>{question.title}</span>
       </div>
       <div className=''>
@@ -192,13 +189,8 @@ function Question() {
           <div key={index} className='mb-2'>
             <p className='font-bold'>Example {index + 1}</p>
             <blockquote className='mt-2 border-l-2 pl-6'>
-              <p>
-                <span className='mr-2'>Input:</span>
-                <span className='font-mono text-sm'>{example.input}</span>
-              </p>
-              <p>
-                <span className='mr-2'>Output:</span>
-                <span className='font-mono text-sm'>{example.output}</span>
+              <p className='font-mono text-sm whitespace-pre-line'>
+                {example}
               </p>
             </blockquote>
           </div>
@@ -207,12 +199,16 @@ function Question() {
 
       <br />
 
-      <div className='text font-bold mt-4 mb-2'>Constraints:</div>
-      <ul className='list-disc pl-5'>
-        {question.constraints.map((constraint, index) => (
-          <li key={index}>{constraint}</li>
-        ))}
-      </ul>
+      {question.constraints && question.constraints.length > 0 && (
+        <>
+          <div className='text font-bold mt-4 mb-2'>Constraints:</div>
+          <ul className='list-disc pl-5'>
+            {question.constraints.map((constraint, index) => (
+              <li key={index}>{constraint}</li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <div className='w-full text-right'>
         <a

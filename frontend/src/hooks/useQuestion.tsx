@@ -13,8 +13,6 @@ async function fetchQuestion(id: number): Promise<Question> {
   }
   const data = await response.json();
 
-  return data;
-
   return QuestionSchema.parse(data);
 }
 
