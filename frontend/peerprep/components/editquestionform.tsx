@@ -116,7 +116,7 @@ EditQuestionFormProps) {
       setTitle(questionData?.question.title);
       setSelectedComplexity(questionData?.question.complexity);
       setCategories(questionData?.question.category);
-      setLanguage(questionData?.question.language);
+      setLanguage(questionData?.question.language.toLowerCase());
       setDescription(questionData?.question.description);
       setTemplateCode(questionData?.question.templateCode);
       setTestCases(

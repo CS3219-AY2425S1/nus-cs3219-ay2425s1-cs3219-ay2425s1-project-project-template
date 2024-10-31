@@ -145,7 +145,7 @@ export const submitQuestion = async (
       (testCase) => `${testCase.input} -> ${testCase.output}`,
     ),
     language, // New field
-
+    templateCodeYDocUpdate: Buffer.from(templateCodeYDocUpdate)
   };
 
   const headers = await createAuthHeaders(); // Attach token
