@@ -1,23 +1,36 @@
-import { FC , useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Card, CardContent } from '@mui/material';
+import { FC, useState } from "react";
+import { useLocation } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import { Card, CardContent } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import PeopleIcon from "@mui/icons-material/People";
-import CodeEditor from '../../components/Collaboration/codeEditor';
+import CodeEditor from "../../components/Collaboration/codeEditor";
 
 import { Question } from "../Question/question";
 import LeaveRoomModal from "./leaveRoomModal";
 import QuestionSelectModal from "./questionSelectModal";
+import ChatCard from "./chatCard";
 
 const CollaborationPage: FC = () => {
   const location = useLocation();
-  const { roomId, userId, question } = location.state;
-  const [isLeaveRoomModalOpen, setIsLeaveRoomModalOpen] = useState<boolean>(false);
-  const [isChangeQuestionModalOpen, setIsChangeQuestionModalOpen] = useState(false);
+  // const { roomId = "", userId = "", question = null } = location.state || {};
+  const {
+    roomId = "123456",
+    userId = "123456",
+    question = {
+      title: "Placeholder Question Title",
+      description: "This is a placeholder description for testing.",
+      complexity: "Medium",
+    },
+  } = location.state || {};
+  const [isLeaveRoomModalOpen, setIsLeaveRoomModalOpen] =
+    useState<boolean>(false);
+  const [isChangeQuestionModalOpen, setIsChangeQuestionModalOpen] =
+    useState(false);
 
   const handleOpenLeaveRoomModal = () => {
     setIsLeaveRoomModalOpen(true);
@@ -33,7 +46,7 @@ const CollaborationPage: FC = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     question
   );
-  const onLeaveRoom = () => {}
+  const onLeaveRoom = () => {};
   const handleQuestionChangeClick = () => setIsChangeQuestionModalOpen(true);
   const handleChangeQuestionModalClose = () =>
     setIsChangeQuestionModalOpen(false);
@@ -46,10 +59,17 @@ const CollaborationPage: FC = () => {
     <div className="min-h-screen text-white">
       {/* Header */}
       <Box>
-        <AppBar position="static" sx={{ width: "100vw", backgroundColor: "#262928" }}>
+        <AppBar
+          position="static"
+          sx={{ width: "100vw", backgroundColor: "#262928" }}
+        >
           <Container maxWidth="xl">
             <Toolbar disableGutters>
-              <img className="h-12 mr-6" alt="peerprep logo" src="/logo-with-text.svg" />
+              <img
+                className="h-12 mr-6"
+                alt="peerprep logo"
+                src="/logo-with-text.svg"
+              />
               {/* Flexible space to push buttons to the right */}
               <Box sx={{ flexGrow: 1 }} />
               <Button
@@ -90,7 +110,10 @@ const CollaborationPage: FC = () => {
         <div className="flex flex-col gap-4">
           {/* Question */}
           <Card className="border-gray-700 text-white flex flex-col h-full">
-            <CardContent className="p-6 bg-gray-800 flex-grow">
+            <CardContent
+              className="p-6 bg-gray-800 flex-grow overflow-y-auto"
+              style={{ maxHeight: "86vh" }}
+            >
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-lg font-bold text-white">
                   {selectedQuestion?.title || question.title}{" "}
@@ -99,20 +122,22 @@ const CollaborationPage: FC = () => {
                   {selectedQuestion?.complexity || question.complexity}
                 </span>
               </div>
-              <p className="mb-4 text-gray-300 whitespace-pre-line text-left text-base">
+              <ReactMarkdown className="mb-4 text-gray-300 whitespace-pre-line text-left text-base">
                 {selectedQuestion?.description || question.description}
-              </p>
+              </ReactMarkdown>
             </CardContent>
           </Card>
           {/* Chat Card */}
-          {/* TODO: CHAT */}
+          <div className="flex-grow">
+            <ChatCard roomId={roomId} username={userId} />
+          </div>
         </div>
 
         {/* Right Panel - Monaco Editor & Console */}
         <div className="flex flex-col gap-4">
-        <Card className="border-gray-700 text-white flex flex-col h-full">
+          <Card className="border-gray-700 text-white flex flex-col h-full">
             <CardContent className="p-6 bg-gray-800 flex-grow">
-            <CodeEditor />
+              <CodeEditor />
             </CardContent>
           </Card>
         </div>
