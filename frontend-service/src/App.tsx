@@ -8,6 +8,7 @@ import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
 import MatchingPage from "./pages/MatchingPage";
+import Chat from "../components/chat/ChatComponent";
 import { useEffect, useState } from "react";
 
 function App() {
@@ -36,7 +37,7 @@ function App() {
           console.error("Error verifying token:", error);
           localStorage.removeItem("token");
           setIsAuthenticated(false);
-      });
+        });
     } else {
       setIsAuthenticated(false);
     }
@@ -50,7 +51,10 @@ function App() {
           {/* Only allow login/signup routes if the user is not authenticated */}
           {!isAuthenticated ? (
             <>
-              <Route path="/login" element={<Login updateAuthStatus={setIsAuthenticated} />} />
+              <Route
+                path="/login"
+                element={<Login updateAuthStatus={setIsAuthenticated} />}
+              />
               <Route path="/signup" element={<Signup />} />
             </>
           ) : (
@@ -63,6 +67,7 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/match-me" element={<MatchingPage />} />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </Box>
     </Box>
