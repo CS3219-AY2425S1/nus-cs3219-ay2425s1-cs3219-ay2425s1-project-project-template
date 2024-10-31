@@ -14,7 +14,7 @@ import {
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import { DEFAULT_CODE, SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
-import { UserCircle } from 'lucide-react';
+import { UserCircle, UserX } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import * as Y from 'yjs';
@@ -22,16 +22,14 @@ import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco'
 import { editor as MonacoEditor } from 'monaco-editor';
 
-// const TURN_SERVER_IP = '34.124.196.27';
-
 const CollaborationPage = () => {
-  const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
-    null,
-  );
+  const [selectionProblem, setSelectionProblem] = useState<Problem | null>(null);
   const searchParams = useSearchParams();
   const matchId = searchParams.get('matchId');
   const [language, setLanguage] = useState(SUPPORTED_PROGRAMMING_LANGUAGES[0]);
   const { problems, isLoading } = useFilteredProblems();
+  const [connectedClients, setConnectedClients] = useState<Set<number>>(new Set());
+  const [disconnectionAlert, setDisconnectionAlert] = useState<string | null>(null);
 
   // Layout states
   const [leftWidth, setLeftWidth] = useState(50);
@@ -74,16 +72,44 @@ const CollaborationPage = () => {
       return;
     }
     editorRef.current = editor;
-    const doc = new Y.Doc(); // a collection of shared objects -> Text
+    const doc = new Y.Doc();
     providerRef.current = new WebsocketProvider(sockServerURI, matchId, doc);
-    const type = doc.getText("monaco"); // Get the shared YJS text object
+    const type = doc.getText("monaco");
 
-    // Get the model from the editor
+    // Set up awareness handling
+    providerRef.current.awareness.setLocalState({
+      client: Math.floor(Math.random() * 1000000), // Generate random client ID
+      user: {
+        name: `User ${Math.floor(Math.random() * 100)}`, // You can replace this with actual user info
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}` // Random color
+      }
+    });
+
+    // Handle client updates
+    providerRef.current.awareness.on('change', () => {
+      const states = providerRef.current?.awareness.getStates();
+      if (states) {
+        const clients = new Set<number>();
+        states.forEach((state: any) => {
+          if (state.client) {
+            clients.add(state.client);
+          }
+        });
+        setConnectedClients(clients);
+      }
+    });
+
+    // Handle disconnections
+    providerRef.current.on('status', ({ status }: { status: string }) => {
+      if (status === 'disconnected') {
+        setDisconnectionAlert('A user has disconnected from the room');
+        // Auto-hide the alert after 3 seconds
+        setTimeout(() => setDisconnectionAlert(null), 3000);
+      }
+    });
+
     const model = editorRef.current?.getModel();
-
-    // Check if model is valid
     if (editorRef.current && model) {
-      // Bind YJS to Monaco only if the model is not null
       bindingRef.current = new MonacoBinding(
         type, 
         model, 
@@ -95,7 +121,6 @@ const CollaborationPage = () => {
     }
   };
 
-  // Handle selection of a problem
   const handleCallback = (id: number) => {
     const problem = problems.find((p) => p._id === id);
     if (problem) {
@@ -103,23 +128,21 @@ const CollaborationPage = () => {
     }
   };
 
-  // Cleanup function to dispose of resources
   useEffect(() => {
     return () => {
-      // Clean up binding and provider when the component unmounts
       if (bindingRef.current) {
-        bindingRef.current.destroy(); // Clean up the binding
-        bindingRef.current = null; // Clear the reference
+        bindingRef.current.destroy();
+        bindingRef.current = null;
       }
 
       if (providerRef.current) {
-        providerRef.current.destroy(); // Clean up the provider
-        providerRef.current = null; // Clear the reference
+        providerRef.current.destroy();
+        providerRef.current = null;
       }
 
       if (editorRef.current) {
-        editorRef.current.dispose(); // Dispose of the editor if necessary
-        editorRef.current = null; // Clear the reference
+        editorRef.current.dispose();
+        editorRef.current = null;
       }
     };
   }, []);
@@ -174,27 +197,18 @@ const CollaborationPage = () => {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-8 w-8 rounded-full"
-              onClick={() => {
-                console.log('Clicked user');
-              }}
-            >
-              <UserCircle className="h-6 w-6 text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-8 w-8 rounded-full"
-              onClick={() => {
-                console.log('Clicked user');
-              }}
-            >
-              <UserCircle className="h-6 w-6 text-gray-300" />
-            </Button>
+          <div className="flex gap-2">
+            {Array.from(connectedClients).map((clientId) => (
+              <Button
+                key={clientId}
+                variant="ghost"
+                size="icon"
+                className="relative h-8 w-8 rounded-full"
+                title={`User ${clientId}`}
+              >
+                <UserCircle className="h-6 w-6 text-gray-300" />
+              </Button>
+            ))}
           </div>
         </div>
 
