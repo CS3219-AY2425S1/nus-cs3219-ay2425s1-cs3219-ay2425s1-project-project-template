@@ -12,6 +12,7 @@ import { languages } from '@codemirror/language-data'
 // import { useRouter } from 'next/router'
 import { userColor } from '@/util/cursor-colors'
 import { CodeMirrorEditorProps } from '@/types/editor'
+import { oneDark } from '@codemirror/theme-one-dark'
 
 const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language }) => {
     const editorContainerRef = useRef<HTMLDivElement>(null)
@@ -65,6 +66,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
                     keymap.of([...yUndoManagerKeymap]),
                     basicSetup,
                     //   python(),
+                    oneDark,
                     compartment.of([]),
                     yCollab(ytext, wsProvider.awareness),
                 ],
@@ -83,7 +85,15 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
     }, [editorContainerRef, ydoc, ytext, session])
 
     return (
-        <div ref={editorContainerRef} style={{ height: '400px', overflow: 'scroll', border: '1px solid lightgray' }} />
+        <div
+            ref={editorContainerRef}
+            style={{
+                height: '400px',
+                overflow: 'scroll',
+                border: '1px solid lightgray',
+                backgroundColor: '#282c34',
+            }}
+        />
     )
 }
 
