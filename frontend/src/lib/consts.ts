@@ -6,3 +6,5 @@ export const MATCH_TIMEOUT_STATUS = 'timeout';
 export const MATCH_ERROR_STATUS = 'error';
 export const MATCH_IDLE_STATUS = 'idle';
 export const MATCH_WAITING_STATUS = 'waiting';
+
+export const MATCH_FOUND_SOUND_PATH = '/sounds/match-found.mp3';
