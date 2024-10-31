@@ -111,7 +111,9 @@ function Question() {
           })),
           difficulty: question.difficulty,
           link: question.link,
-          examples: question.examples,
+          examples: question.examples.map((example) => ({
+            example,
+          })),
           constraints: question.constraints?.map((constraint) => ({
             constraint,
           })) || [],
