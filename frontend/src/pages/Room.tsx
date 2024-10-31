@@ -8,6 +8,7 @@ import { Socket, io } from 'socket.io-client';
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
 import ConfirmationModal from '../components/modal/ConfirmationModal';
 import RoomTabs from '../components/tabs/RoomTabs';
+import config from '../config';
 
 import { SupportedLanguage } from '../components/layout/codeEditorLayout/CodeEditorLayout';
 
@@ -47,7 +48,7 @@ function Room() {
 
     const token = localStorage.getItem('token');
 
-    socketRef.current = io('http://localhost', {
+    socketRef.current = io(config.ROOT_BASE_API, {
       path: '/api/collab/socket.io',
       auth: {
         token: `Bearer ${token}`,
