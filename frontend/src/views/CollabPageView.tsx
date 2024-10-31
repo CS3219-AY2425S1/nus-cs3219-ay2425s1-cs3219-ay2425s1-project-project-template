@@ -263,6 +263,23 @@ const CollabPageView: React.FC = () => {
     }
   };
 
+  // ref to keep chatbox scroll at the bottom
+  const chatboxRef = useRef<HTMLDivElement>(null);
+  // Update the scroll position to bottom when content changes
+  useEffect(() => {
+    if (chatboxRef.current) {
+      chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+    }
+  });
+
+  // chatbox: if user presses Enter key, send message
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevents the default behavior of adding a new line
+      handleMessageSend(); // Call your function here
+    }
+  };
+
   return (
     <main
       style={{
@@ -307,7 +324,7 @@ const CollabPageView: React.FC = () => {
           {/* top-left question box */}
           <div
             style={{
-              flex: 6, // Takes up 60% vertically of the left side
+              flexBasis: "60%", // Takes up 60% vertically of the left side
               alignItems: "flex-start", // Aligns the title and description to the left
               padding: "20px",
               border: "2px solid lightgrey", // Adds a border
@@ -387,7 +404,8 @@ const CollabPageView: React.FC = () => {
           {/* bottom-left chatbox */}
           <div
             style={{
-              flex: 4, // Takes up 40% vertically of the left side
+              flexBasis: "40%", // Takes up 40% vertically of the left side
+              maxHeight: "40%",
               marginTop: "15px",
               border: "2px solid lightgrey",
               borderRadius: "10px",
@@ -407,6 +425,7 @@ const CollabPageView: React.FC = () => {
             <div
               style={{
                 height: "50%",
+                maxHeight: "50%",
                 overflowY: "scroll",
                 border: "1px solid #d0d7de",
                 borderRadius: "5px",
@@ -414,6 +433,7 @@ const CollabPageView: React.FC = () => {
                 marginBottom: "10px",
                 backgroundColor: "#f9f9f9",
               }}
+              ref={chatboxRef}
             >
               {messages.map((msg, index) => (
                 <p key={index} style={{ margin: "5px 0" }}>
@@ -426,6 +446,7 @@ const CollabPageView: React.FC = () => {
                 style={{ flex: 1 }}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Type your message here..."
               />
               <Button onClick={handleMessageSend}>Send</Button>
