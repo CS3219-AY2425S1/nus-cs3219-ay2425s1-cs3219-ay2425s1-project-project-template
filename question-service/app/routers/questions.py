@@ -9,12 +9,14 @@ from crud.questions import (
     get_question_categories,
     get_question_complexities,
     update_question_by_id,
+    fetch_random_question,
 )
 from exceptions.questions_exceptions import (
     DuplicateQuestionError,
     QuestionNotFoundError,
     BatchUploadFailedError,
     InvalidQuestionIdError,
+    RandomQuestionNotFoundError,
 )
 from fastapi import APIRouter, HTTPException, Query
 from models.questions import (
@@ -28,6 +30,20 @@ from models.questions import (
 )
 
 router = APIRouter()
+
+@router.get("/random",
+            response_description="Get a random question based on category and complexity",
+            response_model=QuestionModel
+            )
+async def get_random_question(
+    category: CategoryEnum | None = None,
+    complexity: ComplexityEnum | None = None,
+):
+    try:
+        question = await fetch_random_question(category, complexity)
+        return question
+    except RandomQuestionNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.post("/",
             response_description="Create new question",
