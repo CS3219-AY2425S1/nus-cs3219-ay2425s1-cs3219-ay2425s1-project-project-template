@@ -9,6 +9,8 @@ import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLa
 import ConfirmationModal from '../components/modal/ConfirmationModal';
 import RoomTabs from '../components/tabs/RoomTabs';
 
+import { SupportedLanguage } from '../components/layout/codeEditorLayout/CodeEditorLayout';
+
 function Room() {
   const [
     isLeaveSessionModalOpened,
@@ -16,6 +18,7 @@ function Room() {
   ] = useDisclosure(false);
 
   const [code, setCode] = useState('');
+  const [language, setLanguage] = useState<SupportedLanguage>('python');
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,6 +74,15 @@ function Room() {
       setCode(newCode);
     });
 
+    socketRef.current.on('load-language', (newLanguage) => {
+      setLanguage(newLanguage);
+    });
+
+    socketRef.current.on('language-updated', (newLanguage) => {
+      isRemoteUpdateRef.current = true;
+      setLanguage(newLanguage);
+    });
+
     socketRef.current.on('user-joined', () => {
       notifications.show({
         title: 'Partner connected',
@@ -96,7 +108,12 @@ function Room() {
     } else {
       socketRef.current?.emit('edit-code', code);
     }
-  }, [code]);
+  }, [code, language]);
+
+  const onLanguageChange = (newLanguage: SupportedLanguage) => {
+    setLanguage(newLanguage);
+    socketRef.current?.emit('edit-language', newLanguage);
+  };
 
   const handleLeaveSession = () => {
     if (socketRef.current) {
@@ -118,6 +135,8 @@ function Room() {
 
         <CodeEditorLayout
           openLeaveSessionModal={openLeaveSessionModal}
+          language={language}
+          onLanguageChange={onLanguageChange}
           code={code}
           setCode={setCode}
         />

@@ -11,9 +11,12 @@ interface CodeEditorLayoutProps {
   openLeaveSessionModal: () => void;
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
+  language: string;
+  onLanguageChange: (language: SupportedLanguage) => void;
+
 }
 
-type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
+export type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
 
 const supportedLanguages: SupportedLanguage[] = ['python', 'java'];
 
@@ -21,16 +24,17 @@ function CodeEditorLayout({
   openLeaveSessionModal,
   code,
   setCode,
+  language,
+  onLanguageChange,
 }: CodeEditorLayoutProps) {
-  const [language, setLanguage] = useState<SupportedLanguage>('python');
   const [extensions, setExtensions] = useState<Extension[]>([
     langs['python'](),
   ]);
 
-  const handleLanguageChange = (language: SupportedLanguage) => {
-    if (langs[language]) {
-      setExtensions([langs[language]()]);
-      setLanguage(language);
+  const handleLanguageChange = (newLanguage: SupportedLanguage) => {
+    if (langs[newLanguage]) {
+      setExtensions([langs[newLanguage]()]);
+      onLanguageChange(newLanguage);
     }
   };
 
