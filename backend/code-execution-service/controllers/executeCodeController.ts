@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Request, Response } from 'express'
 import logger from '../utils/logger'
+import { TestCase, languageExtensions } from '../models/types'
 
 const executeCodeController = async (req: any, res: any) => {
     const { questionId, code, language } = req.body
@@ -25,22 +26,41 @@ const executeCodeController = async (req: any, res: any) => {
         }
 
         const question = getQuestionRes.data[0]
-        const testCases = question.testCases
-        
+        const testCases: TestCase[] = question.testCases
+        const formattedInput = testCases
+            .map((testCase) => testCase.input)
+            .join('\n')
+        const fileName = `${questionId}.${languageExtensions.get(language)}`
+
         const executeCodeRes = await axios.post(
-            `${process.env.CODE_COMPILER_URL}/execute-code`,
-            { code, language, testCases },
-            { validateStatus: (status) => status >= 200 && status < 500 },
+            `${process.env.CODE_COMPILER_URL}`,
+            {
+                language: language,
+                stdin: formattedInput,
+                files: [
+                    {
+                        name: fileName,
+                        content: code,
+                    },
+                ],
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    "x-rapidapi-host": "onecompiler-apis.p.rapidapi.com",
+                    "x-rapidapi-key": process.env.ACCESS_TOKEN,
+                },
+                validateStatus: (status) => status >= 200 && status < 500,
+            },
         )
 
         console.log(executeCodeRes.data)
         return res.status(200).send(executeCodeRes.data)
-
     } catch (e) {
-        logger.error('Error appeared when retrieving question', e)
+        logger.error('Error appeared when executing code', e)
         return res
             .status(500)
-            .json({ message: 'Error appeared when retrieving question' })
+            .json({ message: 'Error appeared when executing code' })
     }
 }
 
