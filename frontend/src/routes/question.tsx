@@ -189,7 +189,7 @@ function Question() {
           <div key={index} className='mb-2'>
             <p className='font-bold'>Example {index + 1}</p>
             <blockquote className='mt-2 border-l-2 pl-6'>
-              <p className='font-mono text-sm whitespace-pre-line'>
+              <p className='font-mono text-sm whitespace-pre'>
                 {example}
               </p>
             </blockquote>
