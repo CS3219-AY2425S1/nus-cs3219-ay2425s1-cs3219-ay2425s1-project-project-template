@@ -8,8 +8,10 @@ import { useAuth } from "@/app/auth/auth-context";
 import { joinMatchQueue } from "@/lib/join-match-queue";
 import { leaveMatchQueue } from "@/lib/leave-match-queue";
 import { subscribeMatch } from "@/lib/subscribe-match";
+import { useRouter } from "next/navigation";
 
 export default function FindMatch() {
+  const router = useRouter();
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -62,6 +64,8 @@ export default function FindMatch() {
       return;
     }
 
+    let isMatched = false;
+
     const response = await joinMatchQueue(
       auth.token,
       auth?.user?.id,
@@ -70,12 +74,41 @@ export default function FindMatch() {
     );
     switch (response.status) {
       case 201:
-        toast({
-          title: "Matched",
-          description: "Successfully matched",
-          variant: "success",
-        });
-        return;
+        const initialResponseData = await response.json();
+        let responseData;
+        if (typeof initialResponseData === "string") {
+          try {
+            responseData = JSON.parse(initialResponseData);
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Unexpected error occured, please try again",
+              variant: "destructive",
+            });
+            return;
+          }
+        } else {
+          responseData = initialResponseData;
+        }
+
+        if (responseData.room_id) {
+          isMatched = true;
+          const roomId = responseData.room_id;
+          toast({
+            title: "Matched",
+            description: "Successfully matched",
+            variant: "success",
+          });
+          router.push(`/collaboration/${roomId}`);
+        } else {
+          toast({
+            title: "Error",
+            description: "Room ID not found",
+            variant: "destructive",
+          });
+        }
+        break;
+
       case 202:
       case 304:
         setIsSearching(true);
@@ -87,24 +120,55 @@ export default function FindMatch() {
         const queueTimeout = setTimeout(() => {
           handleCancel(true);
         }, waitTimeout);
-        ws.onmessage = () => {
-          setIsSearching(false);
-          clearTimeout(queueTimeout);
-          toast({
-            title: "Matched",
-            description: "Successfully matched",
-            variant: "success",
-          });
-          ws.onclose = () => null;
+
+        ws.onmessage = (event) => {
+          let responseData;
+
+          try {
+            responseData = JSON.parse(event.data);
+            if (typeof responseData === "string") {
+              responseData = JSON.parse(responseData);
+            }
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Unexpected error occured, please try again",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const roomId = responseData.room_id;
+          if (roomId) {
+            isMatched = true;
+            setIsSearching(false);
+            clearTimeout(queueTimeout);
+            toast({
+              title: "Matched",
+              description: "Successfully matched",
+              variant: "success",
+            });
+            router.push(`/collaboration/${roomId}`);
+          } else {
+            toast({
+              title: "Error",
+              description: "Room ID not found",
+              variant: "destructive",
+            });
+          }
         };
+
         ws.onclose = () => {
           setIsSearching(false);
           clearTimeout(queueTimeout);
-          toast({
-            title: "Matching Stopped",
-            description: "Matching has been stopped",
-            variant: "destructive",
-          });
+          if (!isMatched) {
+            // Only show this toast if no match was made
+            toast({
+              title: "Matching Stopped",
+              description: "Matching has been stopped",
+              variant: "destructive",
+            });
+          }
         };
         return;
       default:
