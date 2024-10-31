@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useEffect } from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,14 +17,22 @@ import { useAuthStore } from '@/state/useAuthStore';
 import { axiosClient } from '@/network/axiosClient';
 
 const ProfilePage = () => {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Add form state
   const [formData, setFormData] = useState({
-    username: user?.username,
-    email: user?.email,
+    username: user?.username || '',
+    email: user?.email || '',
   });
+
+  // Ensure that the data is updated when user is fetched from store
+  useEffect(() => {
+    setFormData({
+      username: user?.username || '',
+      email: user?.email || '',
+    });
+  }, [user]);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -32,13 +40,29 @@ const ProfilePage = () => {
     confirmPassword: '',
   });
 
-  // Add form handlers
-  const handleProfileSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  // Update error state to handle both error and success
+  const [profileMessage, setProfileMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
-    if (!user) {
-      return;
-    }
+  // Add function to check if form data has changed
+  const hasProfileChanges = () => {
+    return (
+      formData.username !== user?.username || formData.email !== user?.email
+    );
+  };
+
+  // Add form handlers
+  const handleProfileSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setProfileMessage(null);
+
+    if (!user) return;
 
     try {
       const result = await axiosClient.patch(`/users/${user.id}`, {
@@ -47,23 +71,40 @@ const ProfilePage = () => {
       });
 
       if (result.status === 200) {
-        console.log('Profile update:', formData);
+        setProfileMessage({
+          type: 'success',
+          text: 'Profile updated successfully',
+        });
+        setUser({
+          ...user,
+          email: formData.email ?? user.email,
+          username: formData.username ?? user.username,
+        });
+
+        // Clear message after 5 seconds
+        setTimeout(() => {
+          setProfileMessage(null);
+        }, 5000);
       }
-    } catch (error) {
-      console.error('Failed to update profile:', error);
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Failed to update profile';
+      setProfileMessage({ type: 'error', text: message });
     }
   };
 
   const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setPasswordMessage(null);
 
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      // You may want to add error state and display this to the user
-      console.error('New password and confirm password do not match');
+      setPasswordMessage({
+        type: 'error',
+        text: 'New password and confirm password do not match',
+      });
       return;
     }
 
@@ -73,18 +114,28 @@ const ProfilePage = () => {
       });
 
       if (result.status === 200) {
-        // You may want to add success state and display this to the user
-        console.log('Password updated successfully');
-        // Clear the password fields
+        setPasswordMessage({
+          type: 'success',
+          text: 'Password updated successfully',
+        });
+
+        // reset the fields
         setPasswordData({
           currentPassword: '',
           newPassword: '',
           confirmPassword: '',
         });
+
+        // Clear message after 5 seconds
+        setTimeout(() => {
+          setPasswordMessage(null);
+        }, 5000);
       }
-    } catch (error) {
-      // You may want to add error state and display this to the user
-      console.error('Failed to update password:', error);
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Failed to update password';
+      setPasswordMessage({ type: 'error', text: message });
     }
   };
 
@@ -133,10 +184,18 @@ const ProfilePage = () => {
               <Button
                 type="submit"
                 className="bg-[#4ADE80] text-slate-900 hover:bg-[#4ADE80]/90"
+                disabled={!hasProfileChanges()}
               >
                 Save Changes
               </Button>
             </form>
+            {profileMessage && (
+              <div
+                className={`mt-2 text-sm ${profileMessage.type === 'error' ? 'text-red-500' : 'text-green-500'}`}
+              >
+                {profileMessage.text}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -204,6 +263,13 @@ const ProfilePage = () => {
                 Update Password
               </Button>
             </form>
+            {passwordMessage && (
+              <div
+                className={`mt-2 text-sm ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-green-500'}`}
+              >
+                {passwordMessage.text}
+              </div>
+            )}
           </CardContent>
         </Card>
 
