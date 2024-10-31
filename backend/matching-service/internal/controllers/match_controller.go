@@ -52,21 +52,6 @@ func CancelMatchHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Match search canceled"})
 }
 
-// matchProgrammingLanguages checks if users share at least one common programming language or if they want to generalize the language matching
-func matchProgrammingLanguages(user1Languages, user2Languages []models.ProgrammingLanguageEnum, generalize bool) bool {
-	if generalize {
-		return true // Skip language check if generalization is allowed
-	}
-
-	for _, lang1 := range user1Languages {
-		for _, lang2 := range user2Languages {
-			if lang1 == lang2 {
-				return true // Match found with a common language
-			}
-		}
-	}
-	return false // No common language
-}
 // findIntersection returns the intersection of two slices of strings
 func findIntersection(a, b []string) []string {
 	set := make(map[string]bool)
@@ -107,7 +92,6 @@ func findComplexityIntersection(a, b []models.QuestionComplexityEnum) []models.Q
 	return intersection
 }
 
-
 // startMatchingProcess starts the matching logic with a timeout
 func startMatchingProcess(matchingInfo models.MatchingInfo) {
 	matchChan := make(chan *models.MatchingInfo)
@@ -122,8 +106,30 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 
 		// Only check programming languages if generalize_languages is false
 		if !matchingInfo.GeneralizeLanguages {
+			// Language matching logic integrated directly here
+
+			// If either user has no language selection (indicating "any" from the frontend), treat it as a match
+			if len(matchingInfo.ProgrammingLanguages) == 0 || len(result.ProgrammingLanguages) == 0 {
+				// Treat as a match since one user has selected "any"
+				matchChan <- result
+				return
+			}
+
 			// Check if programming languages match
-			if !matchProgrammingLanguages(matchingInfo.ProgrammingLanguages, result.ProgrammingLanguages, matchingInfo.GeneralizeLanguages) {
+			languageMatched := false
+			for _, lang1 := range matchingInfo.ProgrammingLanguages {
+				for _, lang2 := range result.ProgrammingLanguages {
+					if lang1 == lang2 {
+						languageMatched = true // Match found with a common language
+						break
+					}
+				}
+				if languageMatched {
+					break
+				}
+			}
+
+			if !languageMatched {
 				log.Printf("No match for user_id: %s due to language mismatch", matchingInfo.UserID)
 				matchChan <- nil
 				return
@@ -187,16 +193,17 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			// Find the intersection of complexities and categories
 			complexityIntersection := findComplexityIntersection(matchingInfo.DifficultyLevel, matchedUser.DifficultyLevel)
 			categoriesIntersection := findIntersection(matchingInfo.Categories, matchedUser.Categories)
+
 			// Prepare the match result
 			matchResult := models.MatchResult{
 				UserOneSocketID: matchingInfo.SocketID,
 				UserTwoSocketID: matchedUser.SocketID,
-				UserOne:         matchingInfo.UserID,        // Set UserOne as the ID of the first user
-				UserTwo:         matchedUser.UserID,         // Set UserTwo as the ID of the matched user
-				RoomID:          roomID,                     // Use the roomID generated for this match
-				Complexity:      complexityIntersection,     // Pass the intersection of complexities
-				Categories:      categoriesIntersection,     // Pass the intersection of categories
-				Question:        models.Question{},                         // Initially, Question will be empty
+				UserOne:         matchingInfo.UserID,    // Set UserOne as the ID of the first user
+				UserTwo:         matchedUser.UserID,     // Set UserTwo as the ID of the matched user
+				RoomID:          roomID,                 // Use the roomID generated for this match
+				Complexity:      complexityIntersection, // Pass the intersection of complexities
+				Categories:      categoriesIntersection, // Pass the intersection of categories
+				Question:        models.Question{},      // Initially, Question will be empty
 			}
 
 			// Publish the match result to RabbitMQ
