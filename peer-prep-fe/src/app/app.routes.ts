@@ -13,6 +13,7 @@ import {MatchModalComponent} from "../loading-screen/match-modal/match-modal.com
 import { authGuard } from "./authService/auth.guard"
 import { adminGuard } from "./authService/admin.guard"
 import { loginGuard } from "./authService/login.guard"
+import { CollabPageComponent } from "../collab-page/collab-page.component"
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -24,5 +25,6 @@ export const routes: Routes = [
   { path: "question-list", component: QuestionListComponent },
   { path: "loading-screen", component: MatchModalComponent },
   { path: "question-list", component: QuestionListComponent },
-  { path: "landing", component: LandingPageComponent, canActivate: [authGuard]}
+  { path: "landing", component: LandingPageComponent, canActivate: [authGuard]},
+  { path: "collab", component: CollabPageComponent }
 ]
