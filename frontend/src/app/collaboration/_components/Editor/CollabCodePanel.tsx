@@ -3,7 +3,7 @@ import TabPanel, { Tab } from "@/app/collaboration/_components/TabPanel";
 import CollaborativeEditorTab from "./CollaborativeEditor/CollaborativeEditorTab";
 import CollaborativeWhiteboardTab from "./CollaborativeWhiteboard/CollaborativeWhiteboardTab";
 
-export function CollabCodePanel({ sessionId }: { sessionId: string }) {
+export function CollabCodePanel() {
   const tabs: Tab[] =
     process.env.NEXT_PUBLIC_WHITEBOARD_FEATURE === "true"
       ? [

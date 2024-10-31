@@ -17,7 +17,7 @@ export default function CenterPanel({ sessionId, userProfile }: ContextWrapperPr
     <CodeProvider initialSessionId={sessionId} initialUserProfile={userProfile}>
       <ResizablePanelGroup direction={"vertical"}>
         <ResizablePanel className="p-1" defaultSize={70}>
-          <CollabCodePanel sessionId={sessionId} />
+          <CollabCodePanel />
         </ResizablePanel>
 
         <ResizableHandle withHandle={true} />

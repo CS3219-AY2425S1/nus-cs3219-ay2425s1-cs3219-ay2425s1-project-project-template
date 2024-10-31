@@ -51,7 +51,7 @@ export default function CollaborativeEditor({ sessionId, currentUser, socketUrl 
       yDoc.destroy();
       binding.destroy();
     };
-  }, [sessionId, currentUser, socketUrl, editorRef]);
+  }, [sessionId, currentUser, socketUrl, editorRef, setCurrentClientCode]);
 
   const handleEditorOnMount = useCallback(
     (e: editor.IStandaloneCodeEditor, monaco: Monaco) => {

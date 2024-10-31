@@ -7,30 +7,53 @@ import {
 import QuestionTabPanel from "@/app/collaboration/_components/Question";
 import Chatbox from "../_components/Chat/Chatbox";
 import { redirect } from "next/navigation";
+import { getQuestion } from "@/services/questionService";
+import { SessionInfoSchema } from "@/types/SessionInfo";
+import { QuestionSchema } from "@/types/Question";
 import CenterPanel from "../_components/CenterPanel";
 import { UserProfile, UserProfileResponse, UserProfileSchema } from "@/types/User";
 import { getCurrentUser } from "@/services/userService";
 
-export default async function Page({
-  params,
-}: {
-  params: { sessionId: string };
-}) {
-  const { sessionId } = params;
+type Params = Promise<{ sessionId: string }>;
 
+export default async function Page(props: { params: Params }) {
+  const { sessionId } = await props.params;
+  // Get session info
   const sessionInfoResponse = await getSessionInfo(sessionId);
 
+  if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data) {
+    redirect("/dashboard");
+  }
+
+  const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
+
+  // Get user profile
   const userProfileResponse: UserProfileResponse = await getCurrentUser();
   const parsedProfile = UserProfileSchema.safeParse(userProfileResponse.data);
-  
 
-  if (sessionInfoResponse.statusCode !== 200 || !sessionInfoResponse.data || userProfileResponse.statusCode !== 200 || !parsedProfile.success) {
+  if (userProfileResponse.statusCode !== 200 || !parsedProfile.success) {
     redirect("/dashboard");
   }
 
   const userProfile: UserProfile = parsedProfile.data;
 
+
+  // Get question
+  const questionResponse = await getQuestion(sessionInfo.questionId);
+
+  if (questionResponse.statusCode !== 200 || !questionResponse.data) {
+    redirect("/dashboard");
+  }
+
+  const question = QuestionSchema.parse(questionResponse.data);
+
   const chatFeature = process.env.NEXT_PUBLIC_CHAT_FEATURE === "true";
+
+
+  
+
+
+  
 
   return (
     <div className="flex flex-row w-full h-full overflow-hidden">
@@ -39,7 +62,7 @@ export default async function Page({
         direction="horizontal"
       >
         <ResizablePanel className="p-1" defaultSize={30}>
-          <QuestionTabPanel />
+          <QuestionTabPanel question={question}/>
         </ResizablePanel>
 
         <ResizableHandle withHandle={true} />

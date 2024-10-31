@@ -40,7 +40,7 @@ export const CodeProvider: React.FC<{ children: React.ReactNode; initialUserProf
   }, []);
 
   // TODO: Format code for input to code review
-  const formatCode = useCallback(() => {}, []);
+  // const formatCode = useCallback(() => {}, []);
 
   const generateCodeReview = useCallback(async () => {
     setCodeReview((prev) => ({ ...prev, isGeneratingCodeReview: true }));
