@@ -1,5 +1,4 @@
 import { connect } from 'mongoose'
-import { autoInsertQuestions } from './autoinsert.util'
 import config from './config.util'
 import logger from './logger.util'
 
@@ -8,9 +7,8 @@ export default async (connectionString: string): Promise<void> => {
         autoCreate: config.NODE_ENV !== 'production',
         autoIndex: config.NODE_ENV !== 'production',
     })
-        .then(async () => {
+        .then(() => {
             logger.info(`[Init] Connected to database`)
-            await autoInsertQuestions()
         })
         .catch((error: Error) => {
             logger.error(`[Init] Failed to connect to database: ${error.message}`)
