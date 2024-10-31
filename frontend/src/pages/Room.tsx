@@ -59,16 +59,16 @@ function Room() {
     socketRef.current.on('load-code', (newCode) => setCode(newCode));
 
     socketRef.current.on('code-updated', (newCode) => {
-      let cursorPosition: number = 0;
-      
       // Capture the current cursor position
+      let cursorPosition: number = 0;
       if (viewUpdateRef.current) {
         cursorPosition = viewUpdateRef.current.view.state.selection.main.head;
       }
-
+    
+      // Update the code with the new content
       isRemoteUpdateRef.current = true;
       setCode(newCode);
-
+    
       // Restore cursor position after the code has been updated
       setTimeout(() => {
         if (viewUpdateRef.current) {
@@ -76,8 +76,9 @@ function Room() {
             selection: { anchor: cursorPosition },
           });
         }
-      }, 0);
+      }, 1000); // Adjust the timeout duration if necessary
     });
+    
 
     socketRef.current.on('user-joined', () => {
       notifications.show({
