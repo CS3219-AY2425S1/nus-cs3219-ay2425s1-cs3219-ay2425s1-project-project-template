@@ -2,9 +2,10 @@ from fastapi.responses import JSONResponse, Response
 from typing import Union
 
 from logger import logger
-from models.match import MatchModel, MessageModel
+from models.match import MatchModel
 from utils.redis import acquire_lock, redis_client, release_lock
 from utils.socketmanager import manager
+import hashlib
 
 async def find_match_else_enqueue(
     user_id: str,
@@ -40,11 +41,15 @@ async def find_match_else_enqueue(
     queue = await redis_client.lrange(queue_key, 0, -1)
     logger.debug(_get_queue_state_message(topic, difficulty, queue, False))
     await release_lock(redis_client, queue_key)
+    
+    room_id = generate_room_id(matched_user, user_id)
+    
     response = MatchModel(
         user1=matched_user,
         user2=user_id,
         topic=topic,
         difficulty=difficulty,
+        room_id=room_id,
     )
     await manager.broadcast(matched_user, topic, difficulty, response.json())
     await manager.disconnect_all(matched_user, topic, difficulty)
@@ -87,3 +92,11 @@ def _get_queue_state_message(topic, difficulty, queue, before: bool):
     if before:
         return "Before - " + postfix
     return "After - " + postfix
+
+# Generate room ID for matched users
+def generate_room_id(user1_id: str, user2_id: str) -> str:
+    # Ensure consistency of room ID by ordering user IDs alphabetically
+    sorted_users = sorted([user1_id, user2_id])
+    concatenated_ids = f"{sorted_users[0]}-{sorted_users[1]}"
+    return hashlib.sha256(concatenated_ids.encode()).hexdigest()[:10]
+
