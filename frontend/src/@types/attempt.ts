@@ -10,7 +10,8 @@ export interface Question {
 export interface Attempt {
   questionId: Question;
   peerUserName?: string;
-  // Add other relevant fields if necessary, e.g., timestamp, status, etc.
+  status?: "Attempted" | "Completed"; // Added for clarity based on the schema
+  timestamp?: Date; // Added the timestamp property here
 }
 
 export interface FetchAttemptsResponse {
@@ -20,7 +21,6 @@ export interface FetchAttemptsResponse {
 export interface CreateAttemptResponse {
   success: boolean;
   message: string;
-  // Add other relevant fields based on your API response
 }
 
 export interface Counts {

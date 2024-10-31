@@ -45,7 +45,6 @@ const Dashboard = () => {
     indexOfLastEntry
   );
 
-  // Fetch attempts when component mounts or token changes
   useEffect(() => {
     const fetchAttemptsData = async () => {
       if (!token) {
@@ -58,7 +57,6 @@ const Dashboard = () => {
         const data = await fetchUserAttempts(token);
         console.log("Fetched attempts data:", data);
         setAttempts(data);
-        setFilteredAttempts(data);
 
         // Calculate counts
         const newCounts: Counts = { Easy: 0, Medium: 0, Hard: 0 };
@@ -72,6 +70,9 @@ const Dashboard = () => {
         });
         setCounts(newCounts);
         console.log("Updated counts:", newCounts);
+
+        // Apply initial filter and sort
+        filterAndSortAttempts(data, searchQuery, sortBy);
       } catch (error: any) {
         console.error("Failed to fetch attempts", error.response?.data || error.message);
       }
@@ -80,60 +81,50 @@ const Dashboard = () => {
     fetchAttemptsData();
   }, [token]);
 
-  // Sort attempts whenever sortBy or attempts change
-  useEffect(() => {
-    const sortAttempts = () => {
-      console.log(`Sorting attempts by: ${sortBy}`);
-      const sorted = [...attempts];
-      if (sortBy === "Difficulty") {
-        const difficultyOrder: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
-        sorted.sort((a, b) => {
-          return (
-            difficultyOrder.indexOf(a.questionId.complexity) -
-            difficultyOrder.indexOf(b.questionId.complexity)
-          );
-        });
-      } else if (sortBy === "Topic") {
-        sorted.sort((a, b) => {
-          const categoryA = a.questionId.category[0] || "";
-          const categoryB = b.questionId.category[0] || "";
-          return categoryA.localeCompare(categoryB);
-        });
-      } else if (sortBy === "Newest") {
-        // Assuming attempts have a timestamp, sort by newest
-        // If not, this needs to be adjusted accordingly
-        // Here, as no timestamp is present, keeping the order
-      }
-      setFilteredAttempts(sorted);
-      console.log("Sorted attempts:", sorted);
-    };
+  const filterAndSortAttempts = (data: Attempt[], query: string, criteria: string) => {
+    console.log(`Filtering and sorting attempts by: ${criteria}, with search query: ${query}`);
+    
+    // Firstly, Filter
+    const filtered = data.filter((attempt) => {
+      const searchTerm = query.toLowerCase();
+      const titleMatch = attempt.questionId.title.toLowerCase().includes(searchTerm);
+      const categoryMatch = attempt.questionId.category.some((category) =>
+        category.toLowerCase().includes(searchTerm)
+      );
+      const complexityMatch = attempt.questionId.complexity.toLowerCase().includes(searchTerm);
+      const peerMatch = attempt.peerUserName
+        ? attempt.peerUserName.toLowerCase().includes(searchTerm)
+        : false;
+      return titleMatch || categoryMatch || complexityMatch || peerMatch;
+    });
 
-    sortAttempts();
-  }, [sortBy, attempts]);
+    // Secondly, Sort
+    const sorted = [...filtered];
+    sorted.sort((a, b) => new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime()); // Default to "Newest"
 
-  // Filter attempts whenever searchQuery or attempts change
-  useEffect(() => {
-    const filterAttempts = () => {
-      console.log(`Filtering attempts with search query: ${searchQuery}`);
-      const filtered = attempts.filter((attempt) => {
-        const query = searchQuery.toLowerCase();
-        const titleMatch = attempt.questionId.title.toLowerCase().includes(query);
-        const categoryMatch = attempt.questionId.category.some((category) =>
-          category.toLowerCase().includes(query)
-        );
-        const complexityMatch = attempt.questionId.complexity.toLowerCase().includes(query);
-        const peerMatch = attempt.peerUserName
-          ? attempt.peerUserName.toLowerCase().includes(query)
-          : false;
-        return titleMatch || categoryMatch || complexityMatch || peerMatch;
+    if (criteria === "Difficulty") {
+      const difficultyOrder: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
+      sorted.sort((a, b) => {
+        const difficultyComparison = difficultyOrder.indexOf(a.questionId.complexity) - difficultyOrder.indexOf(b.questionId.complexity);
+        return difficultyComparison;
       });
-      setFilteredAttempts(filtered);
-      setCurrentPage(1);
-      console.log("Filtered attempts:", filtered);
-    };
+    } else if (criteria === "Topic") {
+      sorted.sort((a, b) => {
+        const categoryA = a.questionId.category[0] || "";
+        const categoryB = b.questionId.category[0] || "";
+        const topicComparison = categoryA.localeCompare(categoryB);
+        return topicComparison;
+      });
+    }
 
-    filterAttempts();
-  }, [searchQuery, attempts]);
+    setFilteredAttempts(sorted);
+    console.log("Filtered and sorted attempts:", sorted);
+  };
+
+  // Update filtered and sorted attempts 
+  useEffect(() => {
+    filterAndSortAttempts(attempts, searchQuery, sortBy);
+  }, [searchQuery, sortBy, attempts]);
 
   // Handlers
   const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,10 +151,10 @@ const Dashboard = () => {
       return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     };
 
-    // Create a regular expression for the search term
+    // Create a regular expression for the search term  
     const escapedSearchTerm = escapeRegExp(searchQuery);
     const regex = new RegExp(`(${escapedSearchTerm})`, "gi");
-
+    
     // Split the text by the search term
     const parts = text.split(regex);
 
