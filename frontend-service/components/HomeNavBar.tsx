@@ -8,7 +8,7 @@ import {
   Container,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import AccountButton from "../components/user/AccountButton"
+import AccountButton from "./account/AccountButton"
 
 interface HomeNavBarProps {
   isAuthenticated: boolean

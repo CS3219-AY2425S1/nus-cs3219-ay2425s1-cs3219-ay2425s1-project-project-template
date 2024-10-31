@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { Box } from "@chakra-ui/react";
 import "./App.css";
 import QuestionPage from "./pages/QuestionPage";
@@ -8,13 +8,12 @@ import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
 import MatchingPage from "./pages/MatchingPage";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CodeEditor from '../components/collab/CodeEditor';
 import RoomPage from "./pages/RoomPage";
-import ProfilePage from "./pages/ProfilePage";
-import AboutUs from "./pages/AboutUsPage";
-import ChangePasswordPage from "./pages/ChangePassword";
+import AccountPage from "./pages/AccountPage";
 import AboutUsPage from "./pages/AboutUsPage";
+import ChangePassword from "../components/account/functions/ChangePassword"
 
 interface UserData {
   id: string
@@ -68,7 +67,7 @@ function App() {
     <Box className="app" fontFamily="Poppins, sans-serif">
       <HomeNavBar
         isAuthenticated={isAuthenticated}
-        username={userData ? userData.username : 'John Doe'}
+        username={userData ? userData.username : ''}
         onLogout={handleLogout}
       />
       <Box pt="80px">
@@ -91,17 +90,32 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} /> // Redirect authenticated users
           )}
 
-          {/* Public or authenticated routes */}
+          {/* Public routes */}
           <Route path="/" element={<QuestionPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
-          <Route path="/match-me" element={<MatchingPage />} />
-          <Route path="/editor" element={<CodeEditor />} />
-          <Route path="/room" element={<RoomPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
-          <Route path="/changepassword" element={<ChangePasswordPage />} />
+
+          {isAuthenticated ? (
+            <>
+            <Route path="/match-me" element={<MatchingPage />} />
+            <Route path="/editor" element={<CodeEditor />} />
+            <Route path="/room" element={<RoomPage />} />
+
+            <Route path="/account" element={ <AccountPage
+                username={userData ? userData.username : ''}
+                id={userData ? userData.id: ''}
+                email={userData ? userData.email : ''} />}>
+                <Route path="password" element={<ChangePassword userId={userData?.id}/>}/>
+                <Route path="delete"/>
+            </Route>
+            </>
+          ) : (
+            <Route path="*" element={<Navigate to="/login" replace />} /> // Redirect authenticated users
+          )}
+
+
         </Routes>
       </Box>
     </Box>

@@ -27,8 +27,8 @@ export default function AccountButton({ username, onLogout }: AccountButtonProps
       </MenuButton>
       <MenuList>
         {/* Option to navigate to the account page */}
-        <MenuItem as={RouterLink} to="/my-account">
-          My Account
+        <MenuItem as={RouterLink} to="/account">
+          Account
         </MenuItem>
         {/* Logout option */}
         <MenuItem onClick={onLogout}>
