@@ -1,4 +1,5 @@
 "use client"
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { MultiSelect } from "@/components/multi-select";
@@ -20,10 +21,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Hourglass } from 'lucide-react';
 
 const MatchingFilters = () => {
+    const router = useRouter();
     const socketRef = useRef<Socket | null>(null);
     const { user, isAuthenticated } = useAuth();
     const { toast } = useToast()
-    const [selectedLanguage, setSelectedLanguage] = useState<string[]>();
+    const [selectedLanguage, setSelectedLanguage] = useState<string>();
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
@@ -122,7 +124,10 @@ const MatchingFilters = () => {
         socket.on('matchAccepted', (data: any) => {
             console.log('Both users have accepted the match:', data.matchId, data.roomId);
             setMatchStatus('accepted');
+
             // codespace logic
+            const { roomId } = data;
+            router.push(`/codeeditor/${roomId}`);
         });
 
         return () => {
