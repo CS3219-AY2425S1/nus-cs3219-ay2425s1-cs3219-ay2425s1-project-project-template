@@ -32,4 +32,4 @@ async function findUsersByCriteria(criteria) {
   return await collection.find(criteria).toArray()
 }
 
-export { addUser, updateUserStatus, findUsersByCriteria }
+export { getUsersCollection, addUser, updateUserStatus, findUsersByCriteria }

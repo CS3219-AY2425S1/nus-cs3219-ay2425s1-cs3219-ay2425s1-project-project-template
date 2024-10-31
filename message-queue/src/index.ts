@@ -4,8 +4,9 @@ import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
 import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE } from "./constants"
+import { connectToMongoDB, db } from "./db"
 import { deepEqual, getRandomIntegerInclusive, sleep } from "./helper"
-import { addUser, findUsersByCriteria, updateUserStatus } from "./models/user"
+import { addUser, findUsersByCriteria, getUsersCollection, updateUserStatus } from "./models/user"
 import { UserData } from "./types"
 
 const app: Express = express()
@@ -33,6 +34,7 @@ const connectRabbitMQ = async () => {
 }
 
 connectRabbitMQ()
+connectToMongoDB()
 
 const handleIncomingNotification = (msg: string) => {
   try {
@@ -60,97 +62,192 @@ const addDataToExchange = (userData: UserData, key: string) => {
 //   });
 // }
 
-async function pullDataFromExchange(queueName) {
+async function pullDataFromExchange(queue: string) {
+  console.log(">> QUEUE TO LISTEN: ", queue)
   try {
-    const connection = await amqp.connect(process.env.RABBITMQ_URI || "amqp://localhost")
-    const channel = await connection.createChannel()
-    await channel.assertQueue(queueName, { durable: true })
+    await channel.assertQueue(queue, {
+      durable: true
+    })
 
-    console.log(`Waiting for messages in ${queueName}...`)
+    channel.consume(queue, async (message) => {
+      if (message) {
+        const user = JSON.parse(message.content.toString())
+        const collection = await getUsersCollection()
+        const existingUser = collection.findOne({ user_id: user.user_id })
 
-    // Consume messages from the queue
-    channel.consume(
-      queueName,
-      async (msg) => {
-        if (msg !== null) {
-          const userData = JSON.parse(msg.content.toString())
-
-          console.log("Received message:", userData)
-
-          // Add user to MongoDB's "users" collection
-          await addUser(userData)
-
-          // Check for matches using the updated matchUsers logic
-          const matchedUser = await matchUsers(userData, queueName)
-
-          if (matchedUser) {
-            // Update queue status for both matched users in MongoDB
-            await updateUserStatus([userData.user_id, matchedUser.user_id], "matched")
-
-            // Acknowledge the message after successful processing and matching
-            channel.ack(msg)
-
-            console.log(`Matched users: ${userData.user_id} with ${matchedUser.user_id}`)
-          } else {
-            console.log(`No match found for user: ${userData.user_id}`)
-          }
+        if (!existingUser) {
+          await collection.insertOne(user)
         }
-      },
-      { noAck: false }
-    ) // Ensure noAck is set to false for manual acknowledgement
+
+        channel.ack(message)
+      }
+    })
   } catch (error) {
-    console.error("Error while pulling data from exchange:", error)
+    console.error("Error in pullDataFromExchange:", error)
   }
 }
-async function matchUsers(userData, key) {
-  // Priority: find by difficulty first, if no match, fall back to exact topic
-  let match = await findUsersByCriteria({
-    difficulty: userData.difficulty,
-    topic: userData.topic,
-    queue_status: { $ne: "matched" },
-    user_id: { $ne: userData.user_id }
-  })
 
-  if (match.length === 0) {
-    // If no users found with matching difficulty, match on topic
-    match = await findUsersByCriteria({
-      topic: userData.topic,
-      queue_status: { $ne: "matched" },
-      user_id: { $ne: userData.user_id }
-    })
-  }
+let waitingUsers: { [key: string]: (data: any) => void } = {}
 
-  if (match.length === 0) {
-    // If no match based on both, consider a random match
-    match = await findUsersByCriteria({
-      queue_status: { $ne: "matched" },
-      user_id: { $ne: userData.user_id }
-    })
-  }
-
-  return match.length ? match[0] : null
-}
-
-app.post("/match", async (req, res) => {
+async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: any[] }> {
+  let changeStream: any = null
   try {
-    const { userData, key } = req.body
+    // Check for a matching user in the queue based on difficulty and topic
+    const matchQuery = {
+      difficulty: userData.difficulty,
+      topic: userData.topic,
+      user_id: { $ne: userData.user_id } // Exclude the current user
+    }
 
-    // Add the user to the MongoDB queue
-    await addUser(userData)
+    let matchedUser = await db.collection("usersQueue").findOne(matchQuery)
 
-    // Attempt to find a match for the user by difficulty first, then by topic
-    const matchedUser = await matchUsers(userData, key)
+    if (!matchedUser) {
+      console.log("Step 1: No exact match found, checking for topic only")
+      const topicOnlyQuery = {
+        topic: userData.topic,
+        user_id: { $ne: userData.user_id } // Exclude the current user
+      }
+      matchedUser = await db.collection("usersQueue").findOne(topicOnlyQuery)
+    }
 
     if (matchedUser) {
-      // Update users' queue status to "matched" in MongoDB
-      await updateUserStatus([userData.user_id, matchedUser.user_id], "matched")
+      console.log("Step 2: Match found, notifying both users")
+      await db.collection("usersQueue").deleteOne({ user_id: matchedUser.user_id })
+      await db.collection("usersQueue").deleteOne({ user_id: userData.user_id })
+
+      const matchedResponse = {
+        matchedUsers: [userData, matchedUser]
+      }
+
+      if (waitingUsers[userData.user_id]) {
+        waitingUsers[userData.user_id](matchedResponse)
+        delete waitingUsers[userData.user_id]
+      }
+      if (waitingUsers[matchedUser.user_id]) {
+        waitingUsers[matchedUser.user_id](matchedResponse)
+        delete waitingUsers[matchedUser.user_id]
+      }
+
+      return matchedResponse
+    }
+
+    const existingUser = await db.collection("usersQueue").findOne({ user_id: userData.user_id })
+    if (!existingUser) {
+      console.log("Step 3: No existing entry, adding user to queue")
+      await db.collection("usersQueue").insertOne(userData)
+    } else {
+      console.log("Step 3: User already exists in the queue, skipping insert")
+      return { matchedUsers: [] } 
+    }
+
+    // **Create Change Stream and Handle Event**
+    return new Promise((resolve) => {
+      waitingUsers[userData.user_id] = resolve
+
+      const timer = setTimeout(async () => {
+        console.log("Step 4: Timeout reached, removing user from queue")
+        await db.collection("usersQueue").deleteOne({ user_id: userData.user_id })
+        resolve({ matchedUsers: [] })
+        delete waitingUsers[userData.user_id]
+
+        // Close change stream on timeout
+        if (changeStream) {
+          console.log("Closing change stream on timeout")
+          changeStream.close()
+        }
+      }, 30000)
+
+      // **Create the change stream and manage lifecycle**
+      changeStream = db.collection("usersQueue").watch()
+      changeStream.on("change", async (change) => {
+        console.log("Step 5: Change detected", change.operationType)
+
+        if (change.operationType === "insert") {
+          const newUser = change.fullDocument
+
+          if (
+            newUser.difficulty === userData.difficulty &&
+            newUser.topic === userData.topic &&
+            newUser.user_id !== userData.user_id  // Avoid matching with oneself
+          ) {
+            console.log("Step 5.1: Match found through change stream")
+            clearTimeout(timer)
+            await db.collection("usersQueue").deleteOne({ user_id: newUser.user_id })
+            await db.collection("usersQueue").deleteOne({ user_id: userData.user_id })
+
+            const matchedResponse = {
+              matchedUsers: [userData, newUser]
+            }
+
+            if (waitingUsers[userData.user_id]) {
+              waitingUsers[userData.user_id](matchedResponse)
+              delete waitingUsers[userData.user_id]
+            }
+            if (waitingUsers[newUser.user_id]) {
+              waitingUsers[newUser.user_id](matchedResponse)
+              delete waitingUsers[newUser.user_id]
+            }
+
+            // **Close the change stream once a match is found**
+            if (changeStream) {
+              console.log("Closing change stream after match")
+              changeStream.close()
+            }
+          }
+        }
+      })
+    })
+  } catch (error) {
+    console.error("Error in matchUsers:", error)
+
+    // **Ensure the change stream is closed on error**
+    if (changeStream) {
+      console.log("Closing change stream on error")
+      changeStream.close()
+    }
+    
+    return { matchedUsers: [] }
+  }
+}
+
+app.post("/match", async (req: Request, res: Response) => {
+  const { userData, key } = req.body
+
+  try {
+    addDataToExchange(userData, key)
+    console.log("Data Sent: ", req.body)
+
+    const MAX_WAIT_TIME = 30000
+    let matchFound = false
+    let response = { matchedUsers: [] }
+
+    const waitForMatch = async () => {
+      const startTime = Date.now()
+      while (Date.now() - startTime < MAX_WAIT_TIME && !matchFound) {
+        response = (await matchUsers(userData, key)) as { matchedUsers: UserData[] }
+        if (response.matchedUsers.length === 2) {
+          matchFound = true
+          break
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+      }
+    }
+
+    await waitForMatch()
+
+    if (response.matchedUsers.length === 2) {
+      const matchedUserIds = response.matchedUsers.map((user) => user.user_id)
+      await db.collection("usersQueue").deleteMany({ user_id: { $in: matchedUserIds } })
+
+      delete waitingUsers[response.matchedUsers[0].user_id]
+      delete waitingUsers[response.matchedUsers[1].user_id]
 
       res.json({
-        matchedUsers: [userData, matchedUser],
+        matchedUsers: response.matchedUsers,
         timeout: false
       })
     } else {
-      // No match found, send timeout response
+      await db.collection("usersQueue").deleteOne({ user_id: userData.user_id })
       res.json({
         matchedUsers: [],
         timeout: true

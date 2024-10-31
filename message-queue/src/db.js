@@ -25,4 +25,4 @@ async function connectToMongoDB() {
     throw err
   }
 }
-export { connectToMongoDB }
+export { connectToMongoDB, db }
