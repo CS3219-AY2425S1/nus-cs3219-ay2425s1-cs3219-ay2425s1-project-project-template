@@ -10,14 +10,16 @@ load_test_service() {
     exit 1
   fi
 
+  pod_name="$service_name-service-load-test"
+
   kubectl run -i \
-    --tty "$service_name-service-load-test" \
+    --tty $pod_name \
     --rm \
     -n $ns \
     --image=busybox \
     --labels="peerprep.network.$service_name-api=true" \
     --restart=Never \
-    -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://$service_name-service:$port/health && echo; done"
+    -- /bin/sh -c "while true; do wget -q -O- http://$service_name-service:$port/health > /dev/null 2>&1; done"
 }
 
 load_test_service user 9001
