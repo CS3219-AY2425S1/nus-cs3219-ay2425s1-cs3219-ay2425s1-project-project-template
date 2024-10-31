@@ -22,8 +22,9 @@ export class AppController {
 
   @MessagePattern({ cmd: 'review-code' })
   async handleReviewCode(@Payload() data: CodeReviewDto) {
-    const { questionId, code } = data;
-    const review = await this.codeReviewService.reviewCode(questionId, code);
+    // Here, sessionId is needed to retrieve the questionId (which should ideally be stored in the session details)
+    const { sessionId, code } = data;
+    const review = await this.codeReviewService.reviewCode(sessionId, code);
     return review;
   }
 }

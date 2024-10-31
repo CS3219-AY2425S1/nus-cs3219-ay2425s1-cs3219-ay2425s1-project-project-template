@@ -28,6 +28,13 @@ export class CollaborationController {
     private readonly collaborationClient: ClientProxy,
   ) {}
 
+  @Post('review')
+  @ApiOkResponse({ description: 'Code review successfully' })
+  async codeReview(@Body() dto: CodeReviewDto) {
+    // To implement middleware to check for session authentication if needed (similar to getSessionDetailsById)
+    return this.collaborationClient.send({ cmd: 'review-code' }, dto);
+  }
+  
   // Get session details by id
   @Get(':id')
   @ApiOkResponse({
@@ -66,9 +73,7 @@ export class CollaborationController {
     };
   }
 
-  @Post('review-code')
-  @ApiOkResponse({ description: 'Code review successfully' })
-  async codeReview(@Body() dto: CodeReviewDto) {
-    return this.collaborationClient.send({ cmd: 'review-code' }, dto);
-  }
+
+
+
 }

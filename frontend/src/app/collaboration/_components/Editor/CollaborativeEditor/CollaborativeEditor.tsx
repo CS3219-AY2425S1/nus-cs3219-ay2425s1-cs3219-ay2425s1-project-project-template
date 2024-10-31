@@ -21,7 +21,8 @@ interface CollaborativeEditorProps {
 }
 
 export default function CollaborativeEditor({ sessionId, currentUser, socketUrl = "ws://localhost:4001", language = "typescript", themeName = "dracula" }: CollaborativeEditorProps) {
-  const { setCurrentCode } = useSessionContext();
+  const { codeReview } = useSessionContext();
+  const { setCurrentClientCode } = codeReview;
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
 
@@ -39,11 +40,11 @@ export default function CollaborativeEditor({ sessionId, currentUser, socketUrl 
 
     // Observe changes to the Y.Text document
     const updateCode = () => {
-      setCurrentCode(yTextInstance.toString());
+      setCurrentClientCode(yTextInstance.toString());
     };
 
     yTextInstance.observe(updateCode);
-    updateCode(); // Initialize with the current value
+    updateCode();
 
     return () => {
       yTextInstance.unobserve(updateCode);
