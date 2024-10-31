@@ -47,6 +47,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onSelect 
     const handleClose = () => {
       setAnchorEl(null);
     };
+    
 
     return (
         <div>

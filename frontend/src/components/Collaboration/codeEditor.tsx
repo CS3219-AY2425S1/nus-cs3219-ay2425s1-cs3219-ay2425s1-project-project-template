@@ -1,12 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Editor from '@monaco-editor/react';
 import LanguageSelector from './languageSelector';
 import { CODE_SNIPPETS } from './languageSelector';
 import Stack from '@mui/material/Stack';
 import Output from './console';
+import { SocketContext, useSocket } from '../../contexts/SocketContext';
+import { useParams } from 'react-router-dom';
 
 const CodeEditor = () => {
+    const { roomId } = useParams();
+    const  { collabSocketRef }  = useSocket();
     const editorRef = useRef();
     const [value, setValue] = useState("");
     const [language, setLanguage] = useState("javascript");
@@ -18,8 +22,25 @@ const CodeEditor = () => {
     const onSelect = (language:string) => {
         setLanguage(language);
         setValue(CODE_SNIPPETS[language]);
+        collabSocketRef.current?.emit("language-change", roomId, language);
       };
+    
+    useEffect(() => {
+        if (!collabSocketRef.current) {
+            return;
+        }
 
+        collabSocketRef.current.on("sync-code", (edittedCode: string) => {
+            console.log("to sync");
+            setValue(edittedCode);
+        });
+        
+        collabSocketRef.current.on("sync-language", (language: string) => {
+            setLanguage(language);
+            setValue(CODE_SNIPPETS[language]);
+        })
+    }, [])
+    
     return (
         <Box height="80vh" width="100%">
             <Stack direction="column" spacing={1} height="100%" width="100%">
@@ -41,6 +62,7 @@ const CodeEditor = () => {
                     onChange={(value) => {
                         if (value !== undefined) {
                             setValue(value);
+                            collabSocketRef.current!.emit("edit-code", roomId, value);
                         }
                     }}
                 />

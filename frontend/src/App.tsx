@@ -48,6 +48,7 @@ function App() {
             <Route element={<PrivateRoute/>}>
               <Route path="/" element= {<><QuestionPage /></>} />
               <Route path="/collaboration/:roomId" element={<CollaborationPage />} />
+              <Route path="/settings" element={<SettingsPage/>}/>
             </Route>
           </Routes>
         </BrowserRouter>

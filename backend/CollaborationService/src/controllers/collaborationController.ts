@@ -20,11 +20,6 @@ export const handleConnection = (socket: Socket) : void => {
 
 // verify whether socket can join the room
 export const verifyRoomJoinPermission = (socket: Socket, roomID: string) : boolean => {
-  return !socket.rooms.has(roomID) && verifyInRoomPermission(socket, roomID);
+  return !socket.rooms.has(roomID);
 }
 
-// verify whether socket in the room has permissions to perform actions
-export const verifyInRoomPermission = (socket: Socket, roomID: string) : boolean => {
-  const users = decodeRoom(roomID);
-  return users.includes(socket.data.username);
-}

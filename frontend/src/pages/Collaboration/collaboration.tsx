@@ -1,5 +1,5 @@
-import { FC, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { FC, useContext, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Card, CardContent } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
@@ -14,13 +14,19 @@ import { Question } from "../Question/question";
 import LeaveRoomModal from "./leaveRoomModal";
 import QuestionSelectModal from "./questionSelectModal";
 import ChatCard from "./chatCard";
+import { Socket, io } from "socket.io-client";
+import { AuthContext } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
 
 const CollaborationPage: FC = () => {
+  const navigate = useNavigate();
+  const { collabSocketRef, commSocketRef } = useSocket();
+  const {user} = useContext(AuthContext);
   const location = useLocation();
   // const { roomId = "", userId = "", question = null } = location.state || {};
+  const { roomId } = useParams();
   const {
-    roomId = "123456",
-    userId = "123456",
+    userId =  user.id,
     question = {
       title: "Placeholder Question Title",
       description: "This is a placeholder description for testing.",
@@ -46,14 +52,90 @@ const CollaborationPage: FC = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     question
   );
-  const onLeaveRoom = () => {};
+  const onLeaveRoom = () => {
+    collabSocketRef.current?.emit("leave-room", roomId);
+    collabSocketRef.current?.disconnect();
+    commSocketRef.current?.disconnect();
+  };
   const handleQuestionChangeClick = () => setIsChangeQuestionModalOpen(true);
   const handleChangeQuestionModalClose = () =>
     setIsChangeQuestionModalOpen(false);
   const handleQuestionSelect = (question: Question) => {
+    collabSocketRef.current?.emit("question-change", roomId, question);
     setSelectedQuestion(question);
     setIsChangeQuestionModalOpen(false); // Close the modal after selection
   };
+
+  useEffect(() => {
+
+    collabSocketRef.current = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
+      auth: {
+        userId: user.id,
+        username: user.username
+      }
+    });
+    commSocketRef.current = io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
+      auth: {
+        userId: user.id,
+        username: user.username
+      }
+    });
+
+    if (!collabSocketRef.current) {
+      navigate("/");
+      return;
+    }
+    if (!commSocketRef.current) {
+      navigate("/");
+      return;
+    }
+
+    collabSocketRef.current.connect();
+    commSocketRef.current.connect();
+
+    if (collabSocketRef.current.connected) {
+      console.log(" THIS IS CONNECTED ")
+    } else {
+      console.log("THIS IS NOT CONNECTED")
+    }
+    collabSocketRef.current.on("connect_error", (err: Error) => {
+      console.log(`Error: ${err.message}`);
+      navigate("/");
+    })
+
+    commSocketRef.current.on("connect_error", (err: Error) => {
+      console.log(`Error ${err.message}`);
+      navigate("/");
+    })
+
+    collabSocketRef.current.emit("join-room", roomId);
+    commSocketRef.current.emit("join-comms-room", roomId);
+
+    collabSocketRef.current.on("user-left", (_user: string) => {
+      collabSocketRef.current?.disconnect();
+      commSocketRef.current?.disconnect();
+      navigate("/");
+    })
+
+    collabSocketRef.current.on("sync-question", (question: Question) => {
+      setSelectedQuestion(question);
+    })
+  
+    return () => {
+      if (collabSocketRef.current && collabSocketRef.current!.connected) {
+        collabSocketRef.current.emit("leave-room", roomId, user.username);
+        collabSocketRef.current.disconnect();
+      }  
+      
+      if (commSocketRef.current && commSocketRef.current.connected) {
+            commSocketRef.current.emit("leave-room", roomId, user.username)
+            commSocketRef.current.disconnect();
+        }
+    };
+  
+    }, [])
+  
+
 
   return (
     <div className="min-h-screen text-white">
@@ -129,7 +211,7 @@ const CollaborationPage: FC = () => {
           </Card>
           {/* Chat Card */}
           <div className="flex-grow">
-            <ChatCard roomId={roomId} username={userId} />
+            <ChatCard roomId={roomId!} username={userId} />
           </div>
         </div>
 
