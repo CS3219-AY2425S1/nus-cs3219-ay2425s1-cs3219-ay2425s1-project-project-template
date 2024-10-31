@@ -1,6 +1,3 @@
-# options:
-#     logging: "CLOUD_LOGGING_ONLY"
-
 steps:
   # Frontend Service
   - name: "gcr.io/cloud-builders/docker"
@@ -121,3 +118,7 @@ images:
   - "gcr.io/$PROJECT_ID/user-service"
   - "gcr.io/$PROJECT_ID/notification-service"
   - "gcr.io/$PROJECT_ID/matching-service"
+
+options:
+    logging: "CLOUD_LOGGING_ONLY"
+    
