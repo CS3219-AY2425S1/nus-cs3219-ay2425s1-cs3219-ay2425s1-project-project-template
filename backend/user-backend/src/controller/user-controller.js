@@ -1,6 +1,13 @@
 import { isValidObjectId } from "mongoose";
-import { getImageSignedUrl, hashPassword, replaceProfileImage } from "./user-controller-utils.js";
 import { DEFAULT_IMAGE } from "../model/user-model.js";
+import {
+  getImageSignedUrl,
+  hashPassword,
+  replaceProfileImage,
+  validateEmail,
+  validatePassword,
+  sendVerificationEmail,
+} from "./user-controller-utils.js";
 import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,
@@ -8,22 +15,37 @@ import {
   findUserByEmail as _findUserByEmail,
   findUserById as _findUserById,
   findUserByUsername as _findUserByUsername,
-  findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
+  findUserByUsernameOrAllEmails as _findUserByUsernameOrAllEmails,
+  findUserByAllEmails as _findUserByAllEmails,
   updateUserById as _updateUserById,
+  updateUserImageById as _updateUserImageById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const username =  req.body.username && req.body.username.trim();
+    const email = req.body.email && req.body.email.trim();
+    const password = req.body.password && req.body.password.trim();
+
     if (username && email && password) {
-      const existingUser = await _findUserByUsernameOrEmail(username, email);
-      if (existingUser) {
-        return res.status(409).json({ message: "username or email already exists" });
+      if (!validateEmail(email)) {
+        return res.status(400).json({ message: "Invalid email address" });
+      } else if (!validatePassword(password)) {
+        return res.status(400).json({ message: "Invalid password" });
+      }
+
+      const existingUser = await _findUserByUsernameOrAllEmails(username, email);
+      if (existingUser && existingUser.username == username) {
+        return res.status(409).json({ message: "username already exists" });
+      } else if (existingUser && (existingUser.email == email || existingUser.tempEmail == email)) {
+        return res.status(409).json({ message: "email already exists" });
       }
 
       const hashedPassword = hashPassword(password);
       const createdUser = await _createUser(username, email, hashedPassword);
+
+      sendVerificationEmail(createdUser);
 
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
@@ -80,13 +102,20 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const username =  req.body.username && req.body.username.trim();
+    let email = req.body.email && req.body.email.trim();
+    const password = req.body.password && req.body.password.trim();
 
     if (username || email || password) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
-        return res.status(404).json({ message: `User ${userId} not found` });
+        return res.status(400).json({ message: `Invalid user ID` });
+      } else if (email && !validateEmail(email)) {
+        return res.status(400).json({ message: "Invalid email address" });
+      } else if (password && !validatePassword(password)) {
+        return res.status(400).json({ message: "Invalid password" });
       }
+
       const user = await _findUserById(userId);
       if (!user) {
         return res.status(404).json({ message: `User ${userId} not found` });
@@ -97,15 +126,23 @@ export async function updateUser(req, res) {
         if (existingUser && existingUser.id !== userId) {
           return res.status(409).json({ message: "username already exists" });
         }
-        existingUser = await _findUserByEmail(email);
+        existingUser = await _findUserByAllEmails(email, email);
         if (existingUser && existingUser.id !== userId) {
           return res.status(409).json({ message: "email already exists" });
         }
       }
 
       const hashedPassword = hashPassword(password);
+      if (email === user.email) email = undefined;
 
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword);
+      const updatedUser = await _updateUserById(userId, {
+        username,
+        tempEmail: email,
+        password: hashedPassword
+      });
+
+      if (email) sendVerificationEmail(updatedUser);
+
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: await formatFullUserResponse(updatedUser),
@@ -141,7 +178,7 @@ export async function updateUserProfileImage(req, res) {
     const newImage = toDefault
       ? await replaceProfileImage(user, DEFAULT_IMAGE)
       : await replaceProfileImage(user, profileImage);
-    const updatedUser = await _updateUserById(userId, undefined, undefined, undefined, newImage);
+    const updatedUser = await _updateUserImageById(userId, newImage);
 
     return res.status(200).json({
       message: `Updated data for user ${userId}`,
@@ -211,11 +248,11 @@ export async function formatPartialUserResponse(user) {
 
 export async function formatFullUserResponse(user) {
   return {
-    id: user.id,
     username: user.username,
     email: user.email,
     profileImage: await getImageSignedUrl(user),
     isAdmin: user.isAdmin,
+    isVerified: user.isVerified,
     createdAt: user.createdAt,
   };
 }

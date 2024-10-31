@@ -20,13 +20,17 @@ const imageFileFilter = (req, file, cb) => {
     cb(new Error('Only image files are allowed.'), false);
   }
 };
-const imageUpload = multer({ dest: 'uploads/', fileFilter: imageFileFilter });
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: imageFileFilter }
+);
 
 const router = express.Router();
 
 // Get all users
 router.get("/", verifyAccessToken, verifyIsAdmin, getAllUsers);
 
+// Update a user privilege
 router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivilege);
 
 // Create a new user

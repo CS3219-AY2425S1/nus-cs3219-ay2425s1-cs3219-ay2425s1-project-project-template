@@ -23,15 +23,24 @@ const UserModelSchema = new Schema({
     required: true,
     default: DEFAULT_IMAGE,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now, // Setting default to the current date/time
-  },
   isAdmin: {
     type: Boolean,
     required: true,
     default: false,
   },
+  isVerified: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now, // Setting default to the current date/time
+  },
+  tempEmail: {
+    type: String,
+    required: false,
+  }
 });
 
 export default mongoose.model("users", UserModelSchema);
