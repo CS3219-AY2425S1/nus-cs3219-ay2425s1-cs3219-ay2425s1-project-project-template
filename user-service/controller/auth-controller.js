@@ -64,8 +64,6 @@ export async function verifyPassword(req, res) {
   const { password } = req.body;
   const verifiedUser = req.user;
 
-  console.log(id, password, verifiedUser);
-
   if (!id) {
     return res.status(400).json({ message: 'Missing id' });
   }
