@@ -146,7 +146,7 @@ const EditorView: React.FC = () => {
     }
 
     const yProvider = new WebsocketProvider(
-      process.env.WS_URL || "ws://localhost:1234",
+      "ws://localhost:1234",
       roomId,
       ydocRef.current
     );
