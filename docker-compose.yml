@@ -10,6 +10,7 @@ services:
     depends_on:
       - backend-service-question
       - backend-service-user
+      - backend-service-matching
 
   backend-service-question:
     build:
@@ -81,8 +82,6 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
     depends_on:
-      - backend-service-user
-      - backend-service-question
       - rabbitmq
 
   rabbitmq:
