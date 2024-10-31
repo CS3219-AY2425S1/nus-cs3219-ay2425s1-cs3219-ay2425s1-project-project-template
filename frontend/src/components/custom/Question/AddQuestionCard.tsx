@@ -5,7 +5,11 @@ import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { SingleSelect } from "@/components/ui/single-select";
 import { Textarea } from "@/components/ui/textarea";
-import { HTTP_SERVICE_QUESTION, SuccessObject, callFunction } from "@/lib/utils";
+import {
+  HTTP_SERVICE_QUESTION,
+  SuccessObject,
+  callFunction,
+} from "@/lib/utils";
 import {
   Difficulty,
   Question,
@@ -104,6 +108,7 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
               name="title"
               type="text"
               placeholder="Type your question title here."
+              maxLength={1000}
               required
               onChange={handleInputChange}
             />
@@ -115,6 +120,7 @@ const AddQuestionCard: React.FC<AddQuestionCardProps> = ({ onCreate }) => {
               name="description"
               placeholder="Type your question description here."
               className="resize-none"
+              maxLength={1000}
               required
               onChange={
                 handleInputChange as unknown as ChangeEventHandler<HTMLTextAreaElement> // Bad practice but necessary for now

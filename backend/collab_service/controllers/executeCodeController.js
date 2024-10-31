@@ -28,7 +28,7 @@ const executeCode = async (req, res) => {
 		return response.data;
 	} catch (error) {
         console.error("Error executing code:", error); // Log the full error object
-		res.status(500).send(error.message);
+		res.status(500).json({ message: error.message });
 	}
 };
 

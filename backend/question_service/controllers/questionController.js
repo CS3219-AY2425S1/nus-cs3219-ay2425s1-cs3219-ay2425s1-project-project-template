@@ -11,7 +11,7 @@ const getAllQuestions = async (req, res) => {
     }));
     res.status(200).json(questions);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -36,7 +36,7 @@ const getQuestionsOfTopicAndDifficulty = async (req, res) => {
     }));
     res.status(200).json(questions);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -100,7 +100,7 @@ const createQuestion = async (req, res) => {
       .status(201)
       .json({ id: newQuestionRef.id, ...questionDataWithDateCreated });
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -161,7 +161,7 @@ const editQuestion = async (req, res) => {
     });
     res.status(200).send();
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -177,7 +177,7 @@ const deleteQuestion = async (req, res) => {
     await questionsRef.delete();
     res.status(204).send();
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ message: error.message });
   }
 };
 
