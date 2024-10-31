@@ -13,6 +13,7 @@
     "dependencies": {
         "@codemirror/lang-python": "^6.1.6",
         "@codemirror/language-data": "^6.5.1",
+        "@codemirror/theme-one-dark": "^6.1.2",
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
         "@mui/icons-material": "^6.1.1",
@@ -42,6 +43,7 @@
         "react-dom": "^18",
         "react-select": "^5.8.1",
         "recoil": "^0.7.7",
+        "socket.io-client": "^4.8.1",
         "sonner": "^1.5.0",
         "tailwind-merge": "^1.14.0",
         "tailwindcss-animate": "^1.0.7",
