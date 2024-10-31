@@ -58,6 +58,7 @@ services:
       context: ./backend/collaboration-service
     ports:
       - "8080:8080" 
+      - "2501:2501"
     environment:
       - NODE_ENV=production
     depends_on:

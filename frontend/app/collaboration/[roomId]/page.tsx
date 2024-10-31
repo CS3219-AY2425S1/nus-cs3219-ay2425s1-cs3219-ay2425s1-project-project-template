@@ -110,7 +110,7 @@ export default function Page() {
           <QuestionDescription isCollab={true} question={mockQuestion} />
         </div>
         <div className="flex-[3_3_0%]">
-          <CodeEditor />
+          <CodeEditor roomId={roomId as string} />
         </div>
       </div>
 

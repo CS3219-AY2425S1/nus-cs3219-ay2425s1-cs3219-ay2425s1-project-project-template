@@ -6,10 +6,13 @@ import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
 
+interface CodeEditorProps {
+  roomId: string;
+}
 var randomColor = require("randomcolor"); // import the script
 const RandomColor = randomColor(); // a hex code for an attractive color
 
-export default function CodeEditor() {
+export default function CodeEditor({ roomId }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
 
@@ -25,8 +28,8 @@ export default function CodeEditor() {
         const ydoc = new Y.Doc();
         // establish partykit as your websocket provider
         const provider = new WebsocketProvider(
-          "ws://localhost:1234",
-          "temp",
+          "ws://localhost:2501",
+          roomId,
           ydoc,
         );
         // awareness for collaborative features
