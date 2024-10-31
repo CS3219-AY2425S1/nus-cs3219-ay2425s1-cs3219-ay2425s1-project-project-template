@@ -102,7 +102,8 @@ export default function VoiceChat() {
       <p>Room: {roomID}</p>
       <p>Your Peer ID: {peerID}</p>
       <p>Connected to: {connectionPeerID || "Waiting for peer..."}</p>
-
+      {/* Disable the specific ESLint rule for the audio element */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio ref={audioRef} autoPlay controls />
     </div>
   );
