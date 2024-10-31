@@ -55,8 +55,7 @@ export const joinRoom = async (req: Request, res: Response) => {
 
 export const createRoom = async (req: Request, res: Response) => {
   try {
-    const userId1 = req.body.userId; // Authenticated user's ID
-    const { userId2 } = req.body;
+    const { userId1, userId2 } = req.body;
 
     const roomId = uuidv4();
 
@@ -69,7 +68,7 @@ export const createRoom = async (req: Request, res: Response) => {
     }
 
     if (userId1 === userId2) {
-      res.status(400).json({ message: "Nice Try Buddy." });
+      res.status(400).json({ message: "Cannot create room with 2 same User ID." });
     }
 
     const newRoom: Room = {
@@ -80,6 +79,7 @@ export const createRoom = async (req: Request, res: Response) => {
         [userId2]: false
       },
       createdAt: Date.now(),
+      selectedQuestionId: 0, // default number when not selected yet
       status: 'active'
   };
 

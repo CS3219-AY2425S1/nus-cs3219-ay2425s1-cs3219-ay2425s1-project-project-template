@@ -3,6 +3,7 @@ export interface Room {
   code: string; 
   users: { [key: string]: boolean }; 
   createdAt: number;
+  selectedQuestionId: number;
   status: 'active' | 'inactive';
 }
   
