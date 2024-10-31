@@ -8,7 +8,6 @@ import index from './index'
 import { setupWSConnection } from 'y-websocket/bin/utils'
 import WebSocket from 'ws'
 import { WebSocketConnection } from './services/socketio.service'
-import loggerUtil from './common/logger.util'
 
 const server: Server = http.createServer(index)
 const wss = new WebSocket.Server({ noServer: true })
@@ -32,7 +31,7 @@ server.on('upgrade', (request, socket, head) => {
 wss.on('connection', (ws, req, user) => {
     const docName = req.url.slice(1)
     setupWSConnection(ws, req, { docName })
-    loggerUtil.info(`User ${user.id} connected to ${docName}`)
+    logger.info(`User ${user.id} connected to ${docName}`)
     ws.on('close', () => {})
 })
 
