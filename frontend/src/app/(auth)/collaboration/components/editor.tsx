@@ -19,6 +19,7 @@ function Collaboration({ room, language }: Props) {
   const providerRef = useRef(null); // Ref to store the provider instance
   const [username, setUsername] = useState<string | null>(null);
   const [selectionRange, setSelectionRange] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // Fetch username on component mount
   useEffect(() => {
@@ -52,11 +53,12 @@ function Collaboration({ room, language }: Props) {
 
   const saveSession = useCallback(async () => {
     if (docRef.current) {
-      console.log("saving");
+      setSaving(true);
       const serializedDoc = Buffer.from(
         Y.encodeStateAsUpdate(docRef.current)
       ).toString("base64");
       await updateSession(room, serializedDoc);
+      setTimeout(() => setSaving(false), 2000);
     }
   }, [room]);
 
@@ -110,6 +112,15 @@ function Collaboration({ room, language }: Props) {
     };
   }, [room, saveSession]);
 
+  // Automatically save session every minute
+  useEffect(() => {
+    const intervalId = setInterval(saveSession, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [saveSession]);
+
   useEffect(() => {
     loadSession();
   }, [loadSession]);
@@ -130,7 +141,7 @@ function Collaboration({ room, language }: Props) {
           cursorPosition={selectionRange || {}}
         />
       ) : null}
-      <Toolbar editor={editorRef.current} language={language} />
+      <Toolbar editor={editorRef.current} language={language} saving={saving} />
       <div className="w-full h-[1px] bg-primary-1000 mx-auto my-2"></div>
       <Editor
         height="100vh"
@@ -139,6 +150,7 @@ function Collaboration({ room, language }: Props) {
         defaultLanguage={language}
         defaultValue="// start collaborating here!"
         onMount={handleEditorDidMount}
+        options={{ wordWrap: "on" }}
       />
     </div>
   );
