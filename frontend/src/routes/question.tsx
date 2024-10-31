@@ -114,7 +114,7 @@ function Question() {
           examples: question.examples,
           constraints: question.constraints?.map((constraint) => ({
             constraint,
-          })),
+          })) || [],
         }
       : undefined
   ) satisfies CreateQuestionData | undefined;
@@ -234,7 +234,7 @@ function Question() {
 
 export default function QuestionRoute() {
   return (
-    <div className='mx-4 mb-4 border rounded-lg overflow-hidden h-full'>
+    <div className='mx-4 mb-4 border rounded-lg overflow-hidden w-full h-full'>
       <ResizablePanelGroup direction='horizontal'>
         <ResizablePanel defaultSize={40}>
           <Question />
