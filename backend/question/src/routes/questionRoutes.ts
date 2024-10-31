@@ -100,6 +100,30 @@ router.post("/all", async (req: Request, res: Response) => {
   }
 });
 
+// Retrieve all questions based on a list of question ids
+router.post("/all-ids", async (req: Request, res: Response) => {
+  console.log(req.body);
+  const questionIds = req.body.questionIds;
+  console.log(questionIds);
+
+  try {
+    const questions = await Question.find(
+      {
+        questionid: { $in: questionIds },
+      },
+      {
+        questionid: 1,
+        title: 1,
+        description: 1,
+        complexity: 1,
+        category: 1,
+      }).lean().exec();
+    return res.json(questions);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+});
+
 // Retrieve a specific question by id
 router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -119,38 +143,12 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
         deleted: 1,
       }
     ).exec();
+
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
     return res.json(question);
-  } catch (error) {
-    return res.status(500).send("Internal server error");
-  }
-});
-
-// Retrieve all questions based on a list of question ids
-router.post("/all-ids", async (req: Request, res: Response) => {
-  const questionIds = req.body.questionIds;
-
-  try {
-    const questions = await Question.find(
-      { questionid: { $in: questionIds } },
-      {
-        questionid: 1,
-        title: 1,
-        complexity: 1,
-        category: 1,
-      }
-    ).exec();
-
-    // Convert the questions to a map for easy access
-    const questionMap = questions.reduce((acc, question) => {
-      acc[question.questionid] = question;
-      return acc;
-    }, {});
-
-    return res.json(questionMap);
   } catch (error) {
     return res.status(500).send("Internal server error");
   }
