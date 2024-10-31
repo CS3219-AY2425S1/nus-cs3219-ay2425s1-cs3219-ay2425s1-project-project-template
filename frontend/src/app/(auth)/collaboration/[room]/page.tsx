@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import Question from "../components/question";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 // Disable SSR for this component
 const Collaboration = dynamic(() => import("../components/editor"), {
@@ -22,9 +23,14 @@ export default function CollaborationPage() {
   }, [room]);
 
   return (
-    <div className="grid grid-cols-2">
-      <Question collabid={room} />
-      <Collaboration room={room} language={language} />
-    </div>
+    <PanelGroup direction="horizontal" autoSaveId={room}>
+      <Panel defaultSize={45} minSize={30}>
+        <Question collabid={room} />
+      </Panel>
+      <PanelResizeHandle />
+      <Panel defaultSize={55} minSize={30}>
+        <Collaboration room={room} language={language} />
+      </Panel>
+    </PanelGroup>
   );
 }

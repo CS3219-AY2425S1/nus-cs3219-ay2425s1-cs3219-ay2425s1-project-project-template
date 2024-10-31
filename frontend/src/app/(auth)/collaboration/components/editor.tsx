@@ -120,7 +120,7 @@ function Collaboration({ room, language }: Props) {
         backgroundColor: "#1e1e1e",
         color: "#d4d4d4",
         height: "100vh",
-        width: "100vw",
+        width: "full",
       }}
     >
       {providerRef.current && username ? (
@@ -133,7 +133,7 @@ function Collaboration({ room, language }: Props) {
       <Toolbar editor={editorRef.current} language={language} />
       <Editor
         height="100vh"
-        width="100vw"
+        width="full"
         theme="vs-dark"
         defaultLanguage={language}
         defaultValue="// start collaborating here!"
