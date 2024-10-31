@@ -1,24 +1,30 @@
-import { Server } from "socket.io";
-import {createServer} from "http";
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { initializeCommunicationSockets } from "./sockets/handlers";
 import { errorMiddleware } from "./middleware/errorMiddleware";
-import { initialiseCommunicationHandlers } from "./socket/handler";
 
 const app = express();
 const httpServer = createServer(app);
-const port = process.env.COMM_SVC_PORT ?? 4005
 const io = new Server(httpServer, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-})
+  cors: {
+    origin: "*", //config.corsOrigin? This should be set to frontend domain
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(express.json());
 app.use(errorMiddleware);
 
-initialiseCommunicationHandlers(io);
+app.get("/", (req, res) => {
+  res.send("Communication service is running");
+});
 
-httpServer.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-})
+const PORT = process.env.COMM_SVC_PORT ?? 4005
+
+// Socket.io setup
+initializeCommunicationSockets(io);
+
+httpServer.listen(PORT, () => {
+  console.log(`Communication Server is running on port ${PORT}`);
+});

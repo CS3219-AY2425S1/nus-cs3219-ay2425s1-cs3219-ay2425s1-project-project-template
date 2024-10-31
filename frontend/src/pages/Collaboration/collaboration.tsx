@@ -27,6 +27,7 @@ const CollaborationPage: FC = () => {
   const { roomId } = useParams();
   const {
     userId =  user.id,
+    userName = user.username,
     question = {
       title: "Placeholder Question Title",
       description: "This is a placeholder description for testing.",
@@ -211,7 +212,7 @@ const CollaborationPage: FC = () => {
           </Card>
           {/* Chat Card */}
           <div className="flex-grow">
-            <ChatCard roomId={roomId!} username={userId} />
+            <ChatCard roomId={roomId!} username={userName} userId={userId} />
           </div>
         </div>
 
