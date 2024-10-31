@@ -8,6 +8,7 @@ import (
     "time"
 
     "github.com/gin-gonic/gin"
+    "github.com/gin-contrib/cors"
 )
 
 type Room struct {
@@ -16,12 +17,22 @@ type Room struct {
 }
 
 var (
-    rooms       = make(map[string]*Room)
-    roomsMutex  = sync.Mutex{}
+    rooms      = make(map[string]*Room)
+    roomsMutex = sync.Mutex{}
 )
 
 func main() {
     router := gin.Default()
+
+    // Add CORS middleware to allow requests from localhost:3000
+    router.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:3000"},
+        AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }))
 
     // Endpoint to join a room
     router.GET("/join/:roomID", joinRoom)
@@ -31,14 +42,12 @@ func main() {
         log.Fatalf("Server failed to start: %v", err)
     }
 }
-
 // joinRoom generates a unique peer ID and assigns it to a room.
 func joinRoom(c *gin.Context) {
-	
+
     roomID := c.Param("roomID")
     peerID := generatePeerID()
 	log.Println((roomID))
-	log.Println(peerID)
 
     roomsMutex.Lock()
     defer roomsMutex.Unlock()
@@ -46,10 +55,10 @@ func joinRoom(c *gin.Context) {
     // Create or update room with peer IDs
     if rooms[roomID] == nil {
         rooms[roomID] = &Room{Peer1ID: peerID}
-		log.Println(peerID)
-    } else if rooms[roomID].Peer1ID != "" && rooms[roomID].Peer2ID == "" {
+		log.Println("peer1ID" + peerID)
+    } else if rooms[roomID].Peer1ID != "" && rooms[roomID].Peer2ID == "" && rooms[roomID].Peer1ID != peerID {
         rooms[roomID].Peer2ID = peerID
-		log.Println(peerID)
+		log.Println("Peer2Id" +peerID)
     } else {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Room is full"})
         return
@@ -71,8 +80,13 @@ func joinRoom(c *gin.Context) {
     })
 }
 
-// generatePeerID creates a random unique peer ID
 func generatePeerID() string {
     rand.Seed(time.Now().UnixNano())
-    return "peer-" + string(rand.Intn(100000))
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    length := 10
+    result := make([]byte, length)
+    for i := range result {
+        result[i] = charset[rand.Intn(len(charset))]
+    }
+    return "peer-" + string(result)
 }
