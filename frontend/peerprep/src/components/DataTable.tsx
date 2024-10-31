@@ -26,7 +26,7 @@ const DataTable = <T,>({ columns, data, columnFilters }: DataTableProps<T>) => {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  console.log("column Filters", columnFilters);
+  // console.log("column Filters", columnFilters);
 
   return (
     <Box

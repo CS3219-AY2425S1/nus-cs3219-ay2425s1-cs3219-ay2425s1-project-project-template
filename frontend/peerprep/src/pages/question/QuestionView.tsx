@@ -26,6 +26,7 @@ import QuestionDescriptionModal from "../../components/QuestionDescriptionModal"
 type QuestionViewProps = {
   questions: Question[];
   topics: Topic[];
+  initialCF: ColumnFilter[];
   onAddQuestion: (newQuestion: {
     title: string;
     description: string;
@@ -50,12 +51,13 @@ type QuestionViewProps = {
 const QuestionView: React.FC<QuestionViewProps> = ({
   questions,
   topics,
+  initialCF,
   onAddQuestion,
   onAddLeetCodeQuestion,
   onEditQuestion,
   onDeleteQuestion,
 }) => {
-  const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>([]);
+  const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>(initialCF);
 
   const {
     //isOpen: isMenuOpen,

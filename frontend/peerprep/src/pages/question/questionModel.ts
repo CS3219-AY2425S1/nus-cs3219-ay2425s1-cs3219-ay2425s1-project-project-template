@@ -22,6 +22,7 @@ export type LeetCodeQuestionRequest = {
 export type Topic = {
   id: string;
   color: string;
+  difficulties: string[];
 };
 
 // Do not have to recreate API object here
