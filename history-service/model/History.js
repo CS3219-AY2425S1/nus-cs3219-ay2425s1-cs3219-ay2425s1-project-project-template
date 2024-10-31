@@ -5,8 +5,6 @@ const HistorySchema = new mongoose.Schema({
   userIdTwo: { type: String, required: true },
   textWritten: { type: String, required: true },
   questionId: { type: Number, required: true },
-  questionName: { type: String, required: true },
-  questionDifficulty: { type: String, required: true },
   programmingLanguage: { type: String, required: true },
   datetime: { type: Date, default: Date.now },
   sessionDuration: { type: Number }, // in minutes

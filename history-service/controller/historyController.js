@@ -13,7 +13,39 @@ const viewHistory = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to access this resource' });
         }
         const history = await getHistoryByUserId(userId);
-        res.status(200).json(history);
+
+        const response = await fetch("http://nginx/api/questions/all", {
+            method: 'GET',
+            headers: {
+                'Authorization': req.header('Authorization'),
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch questions');
+        }
+
+        const questions = await response.json();
+
+        const enrichedHistory = history.map(hist => {
+            const relatedQuestion = questions.find(q => q.id === hist.questionId);
+
+            return {
+                userIdOne: hist.userIdOne,
+                userIdTwo: hist.userIdTwo,
+                textWritten: hist.textWritten,
+                questionId: hist.questionId,
+                programmingLanguage: hist.programmingLanguage,
+                sessionDuration: hist.sessionDuration,
+                sessionStatus: hist.sessionStatus,
+                datetime: hist.datetime,
+                questionName: relatedQuestion?.title || 'Unknown Question Name',
+                questionDifficulty: relatedQuestion?.difficulty || 'Unknown Difficulty',
+            };
+        });
+
+        res.json(enrichedHistory);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -26,8 +58,6 @@ const saveCollaborationHistory = async (req, res) => {
         userIdTwo,
         textWritten,
         questionId,
-        questionName,
-        questionDifficulty,
         programmingLanguage,
         sessionDuration,
         sessionStatus,
@@ -39,8 +69,6 @@ const saveCollaborationHistory = async (req, res) => {
             userIdTwo,
             textWritten,
             questionId,
-            questionName,
-            questionDifficulty,
             programmingLanguage,
             sessionDuration,
             sessionStatus,
