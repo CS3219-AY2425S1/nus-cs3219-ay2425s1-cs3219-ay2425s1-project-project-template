@@ -29,7 +29,7 @@ export const fetchUserAttempts = async (token: string, signal?: AbortSignal) => 
   try {
     const response = await axios.get(`${API_URL}/api/attempts`, {
       headers: {
-        Authorization: `Bearer ${token}`, // GET requests typically don't need Content-Type
+        Authorization: `Bearer ${token}`, 
       },
       signal,
     });

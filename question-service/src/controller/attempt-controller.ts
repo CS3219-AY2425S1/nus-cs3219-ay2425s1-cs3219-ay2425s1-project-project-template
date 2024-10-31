@@ -34,12 +34,10 @@ export async function createAttemptController(req: any, res: Response) {
 export async function getAttemptsByUserController(req: any, res: Response) {
   try {
     const userId = req.user.id;
-    console.log("Fetching attempts for userId:", userId);
 
     const attempts = await fetchAttemptsByUserId(userId);
     res.status(200).json(attempts);
   } catch (error: any) {
-    console.error("Error fetching attempts:", error.message);
     res.status(400).json({ error: error.message });
   }
 }

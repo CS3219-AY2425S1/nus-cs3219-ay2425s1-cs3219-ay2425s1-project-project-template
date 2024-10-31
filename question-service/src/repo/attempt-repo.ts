@@ -6,7 +6,6 @@ export async function saveAttempt(attemptData: any) {
 }
 
 export async function getAttemptsByUserId(userId: string) {
-  console.log("Fetching attempts for userId:", userId);
   return await AttemptModel.find({ userId }).populate("questionId");
 }
 
