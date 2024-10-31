@@ -35,22 +35,29 @@ export default function LoginForm({ searchParams }: Props) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const result = await axiosClient.post('/auth/login', {
-      email: email,
-      password: password,
-    });
 
-    const data = result.data.data;
-    if (result.status === 200) {
-      const token = data.accessToken;
-      const res = await login(token);
-      if (res) {
-        setAuth(true, token, data);
-        router.push('/');
-        return;
+    try {
+      const result = await axiosClient.post('/auth/login', {
+        email: email,
+        password: password,
+      });
+
+      const data = result.data.data;
+      if (result.status === 200) {
+        const token = data.accessToken;
+        const res = await login(token);
+        if (res) {
+          setAuth(true, token, data);
+          router.push('/');
+          return;
+        }
       }
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Please provide correct email and password';
+      setError(message);
     }
-    setError(data.error || 'Please provide correct email and password');
   };
 
   const handleGithubLogin = () => {

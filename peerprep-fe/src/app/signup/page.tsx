@@ -26,36 +26,51 @@ export default function SignUpPage() {
 
     // const type = 'user';
     if (password !== confirmPassword) {
-      router.push('/signup');
       setError('Passwords do not match');
       return;
     }
-    const result = await axiosClient.post('/users', {
-      username: name,
-      email: email,
-      password: password,
-    });
 
-    if (result.request.status === 201) {
+    if (!agreeTerms) {
+      setError('Please agree to the Terms of Service and Privacy Policy');
+      return;
+    }
+
+    try {
+      const result = await axiosClient.post('/users', {
+        username: name,
+        email: email,
+        password: password,
+      });
+
+      if (result.request.status !== 201) {
+        setError('Username or Email already exists');
+        return;
+      }
+
       // Auto login after account creation
       const loginResult = await axiosClient.post('/auth/login', {
         email: email,
         password: password,
       });
-      const data = loginResult.data.data;
-      if (loginResult.status === 200) {
-        const token = data.accessToken;
-        const res = await login(token);
-        if (res) {
-          setAuth(true, token, data);
-          router.push('/');
-          return;
-        }
+      if (loginResult.request.status !== 200) {
+        setError('Unable to login');
+        return;
       }
-      setError(data.error || 'Unable to create account');
-    } else {
-      setError('Username or Email already exists');
-      console.error('Sign up failed');
+
+      const data = loginResult.data.data;
+
+      const token = data.accessToken;
+      const res = await login(token);
+      if (res) {
+        setAuth(true, token, data);
+        router.push('/');
+        return;
+      }
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Username or Email already exists';
+      setError(message);
     }
   };
 
