@@ -52,6 +52,7 @@ const CollabPageView: React.FC = () => {
   const navigate = useNavigate();
   const [questionData, setQuestionData] = useState<Question>(customQuestion);
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
+  const socketInitialized = useRef(false);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
@@ -84,6 +85,12 @@ const CollabPageView: React.FC = () => {
     };
 
     const initializeSocket = async () => {
+      // Prevent multiple initializations (a problem faced when winding up individual services)
+      if (socketInitialized.current) {
+        return;
+      }
+      socketInitialized.current = true;
+
       const sessionVerified = await verifySession();
       // Need a guard clause because navigate call is asynchronous, so can't rely on it
       if (!sessionVerified) {
@@ -131,15 +138,19 @@ const CollabPageView: React.FC = () => {
         setCode(CODE_SNIPPETS[data.language]); // set code snippet for collab-user
       });
 
+      newSocket.on("disconnect", () => {
+        console.log("Collab socket disconnected.");
+        navigate("/questions"); // Navigate after disconnecting
+      });
+
       newSocket.on("sessionTerminated", ({ userId }) => {
         console.log(`Session terminated by user with ID: ${userId}`);
 
         if (newSocket.connected) {
-          newSocket.disconnect();
-          console.log("Socket disconnected due to session termination.");
+          newSocket.disconnect(); 
+        } else {
+          navigate("/questions"); // Navigate if already disconnected
         }
-
-        navigate("/questions");
       });
 
       newSocket.on("userLeft", ({ userId }) => {
