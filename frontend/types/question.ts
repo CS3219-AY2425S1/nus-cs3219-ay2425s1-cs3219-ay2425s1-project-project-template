@@ -26,7 +26,7 @@ export interface IQuestion {
 export interface QuestionDto {
     title: string
     description: string
-    complexity: Difficulty
+    complexity: Complexity
     categories: string[]
     link?: string
     testInputs: string[]
