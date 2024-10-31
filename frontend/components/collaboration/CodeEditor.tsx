@@ -36,8 +36,10 @@ export default function CodeEditor({ roomId }: CodeEditorProps) {
         const yAwareness = provider.awareness;
         // get the text from the monaco editor
         const yDocTextMonaco = ydoc.getText("monaco");
-        // get the monaco editor
-        const editor = monaco.editor.getEditors()[0];
+
+        const editor =
+          monaco.editor.getEditors()[0] ||
+          monaco.editor.createModel("Hello World", "javaScript");
         // const userColor = RandomColor();
 
         // awareness.setLocalStateField("user", {
@@ -87,13 +89,20 @@ export default function CodeEditor({ roomId }: CodeEditorProps) {
         // create the monaco binding to the yjs doc
         new MonacoBinding(
           yDocTextMonaco,
-          editor.getModel()!,
+          editor.getModel() || monaco.editor.createModel("", "javaScript"),
           // @ts-expect-error TODO: fix this
           new Set([editor]),
           provider.awareness,
         );
       }
     }
+
+    return () => {
+      if (!monaco) {
+        return;
+      }
+      monaco.editor.getModels().forEach((editor) => editor.dispose());
+    };
   }, [monaco]);
 
   return (
