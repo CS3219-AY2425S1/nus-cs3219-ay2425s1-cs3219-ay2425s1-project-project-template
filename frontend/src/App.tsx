@@ -10,6 +10,7 @@ import PrivateRoute from './components/PrivateRoute';
 import AuthProvider from './hooks/AuthProvider';
 
 const Admin = lazy(() => import('./pages/Admin'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Landing = lazy(() => import('./pages/Landing'));
 const Room = lazy(() => import('./pages/Room'));
 
@@ -42,6 +43,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route element={<PrivateRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/room" element={<Room />} />
               </Route>
