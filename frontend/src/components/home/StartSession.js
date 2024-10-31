@@ -4,6 +4,10 @@ import { topics } from "../../assets/topics";
 import FindingMatch from "../matching/FindingMatch";
 import MatchNotFound from "../matching/MatchNotFound";
 import MatchFound from "../matching/MatchFound";
+import QuestionNotFound from '../matching/QuestionNotFound';
+import QuestionNotFoundError from '../../errors/QuestionNotFoundError';
+import questionService from '../../services/question-service';
+import useAuth from '../../hooks/useAuth';
 
 const StartSession = ({ username }) => {
   const [difficulty, setDifficulty] = useState('Easy');
@@ -14,6 +18,8 @@ const StartSession = ({ username }) => {
   const [matchFound, setMatchFound] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
   const [noMatchFound, setNoMatchFound] = useState(false);
+  const [noQuestionFound, setNoQuestionFound] = useState(false);
+  const { cookies } = useAuth();
 
   const handleFindMatch = async () => {
     // Send a POST request to the backend to find a match
@@ -25,6 +31,8 @@ const StartSession = ({ username }) => {
     setShowPopup(true);
 
     try {
+      const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, cookies);
+
       const response = await fetch('http://localhost:3002/api/find-match', {
         method: 'POST',
         headers: {
@@ -40,6 +48,11 @@ const StartSession = ({ username }) => {
         console.error('Error finding match:', result.error);
       }
     } catch (error) {
+      if (error instanceof QuestionNotFoundError) {
+        setNoQuestionFound(true);
+        setShowPopup(false);
+        return;
+      }
       console.error('Network error:', error);
     }
 
@@ -52,6 +65,7 @@ const StartSession = ({ username }) => {
     setShowPopup(false);
     setMatchFound(false);
     setNoMatchFound(false);
+    setNoQuestionFound(false);
     setCountdown(30);
   };
 
@@ -59,6 +73,7 @@ const StartSession = ({ username }) => {
     setShowPopup(false);
     setMatchFound(false);
     setNoMatchFound(false);
+    setNoQuestionFound(false);
   
       // Notify the backend to remove the user from the queue
       try {
@@ -161,6 +176,9 @@ const StartSession = ({ username }) => {
         <button onClick={handleFindMatch}>Find a Match</button>
       </div>
       {/* Conditionally render popups */}
+      {noQuestionFound && (
+          <QuestionNotFound closePopup={closePopup} />
+      )}
       {showPopup && !matchFound && !noMatchFound && (
         <FindingMatch countdown={countdown} closePopup={closePopup} />
       )}

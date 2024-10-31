@@ -11,6 +11,7 @@ import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationP
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
 import useAuth from "../hooks/useAuth";
+import "../styles/collab.css";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
 const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
@@ -89,14 +90,16 @@ const Collab = () => {
 
         return () => clearInterval(intervalRef.current);
     }, [countdown, timeOver]);
+
     if (!location.state) {
         return null;
     }
 
-    const { difficulty, topic, language, matchedUser, roomId } = location.state;
+
+    const { question, language, matchedUser, roomId } = location.state;
     const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
-    // Initialize editor and Yjs binding
+    // Initialize editor and Yjs 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
         editorRef.current.setValue("");
@@ -123,8 +126,6 @@ const Collab = () => {
 
     const handleQuitCancel = () => setShowQuitPopup(false);
 
-    if (!location.state) return null;
-
     const { difficulty, topic, language, matchedUser, roomId } = location.state;
     const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
@@ -140,7 +141,6 @@ const Collab = () => {
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
 
-
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
             <CollabNavBar 
@@ -150,19 +150,36 @@ const Collab = () => {
                 countdown={"30:00"} 
                 handleQuit={handleQuit}
             />
-            <Editor
-                height="100%"
-                width="100%"
-                theme="vs-dark"
-                defaultLanguage="python"
-                language={language}
-                onMount={handleEditorDidMount}
-                options={{
-                    fontSize: 16,
-                    scrollBeyondLastLine: false,
-                    minimap: { enabled: false }
-                }}
-            />
+            <div style={{ display: "flex", flex: 1 }}>
+                    <div className="question-container" >
+                        <div className="question-header" >
+                            <h2>{question.title}</h2>
+                        </div>
+                        <p>{question.description}</p>
+                        {question.images && question.images.map((image, index) => (
+                            <img key={index} src={image} alt={`Question diagram ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
+                        ))}
+                        {question.leetcode_link && (
+                            <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
+                                View on LeetCode
+                            </a>
+                        )}
+                    </div>
+
+                <Editor
+                    height="100%"
+                    width="50%"
+                    theme="vs-dark"
+                    defaultLanguage="python"
+                    language={language}
+                    onMount={handleEditorDidMount}
+                    options={{
+                        fontSize: 16,
+                        scrollBeyondLastLine: false,
+                        minimap: { enabled: false }
+                    }}
+                />
+            </div>
             {/* Conditionally render popups */}
             {showQuitPopup && (
                 <QuitConfirmationPopup 
