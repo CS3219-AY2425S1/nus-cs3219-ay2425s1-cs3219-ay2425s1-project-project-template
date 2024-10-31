@@ -137,14 +137,14 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
       await db.collection("usersQueue").insertOne(userData)
     } else {
       console.log("Step 3: User already exists in the queue, skipping insert")
-      return { matchedUsers: [] } 
+      return { matchedUsers: [] }
     }
 
     // **Create Change Stream and Handle Event**
     return new Promise((resolve) => {
       waitingUsers[userData.user_id] = resolve
 
-      const timer = setTimeout(async () => {
+      const timer = setInterval(async () => {
         console.log("Step 4: Timeout reached, removing user from queue")
         await db.collection("usersQueue").deleteOne({ user_id: userData.user_id })
         resolve({ matchedUsers: [] })
@@ -168,10 +168,10 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
           if (
             newUser.difficulty === userData.difficulty &&
             newUser.topic === userData.topic &&
-            newUser.user_id !== userData.user_id  // Avoid matching with oneself
+            newUser.user_id !== userData.user_id // Avoid matching with oneself
           ) {
             console.log("Step 5.1: Match found through change stream")
-            clearTimeout(timer)
+            clearInterval(timer)
             await db.collection("usersQueue").deleteOne({ user_id: newUser.user_id })
             await db.collection("usersQueue").deleteOne({ user_id: userData.user_id })
 
@@ -194,6 +194,13 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
               changeStream.close()
             }
           }
+        } else {
+          clearInterval(timer)
+          // **Close the change stream once a match is found**
+          if (changeStream) {
+            console.log("Closing change stream after delete event")
+            changeStream.close()
+          }
         }
       })
     })
@@ -205,7 +212,7 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
       console.log("Closing change stream on error")
       changeStream.close()
     }
-    
+
     return { matchedUsers: [] }
   }
 }
