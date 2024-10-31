@@ -102,6 +102,15 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
     let matchedUser = await db.collection("usersQueue").findOne(matchQuery)
 
     if (!matchedUser) {
+      console.log("Step 1.1: No exact match found, checking for difficulty only")
+      const difficultyOnlyQuery = {
+        difficulty: userData.difficulty,
+        user_id: { $ne: userData.user_id } // Exclude the current user
+      }
+      matchedUser = await db.collection("usersQueue").findOne(difficultyOnlyQuery)
+    }
+    
+    if (!matchedUser) {
       console.log("Step 1: No exact match found, checking for topic only")
       const topicOnlyQuery = {
         topic: userData.topic,
@@ -109,6 +118,7 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
       }
       matchedUser = await db.collection("usersQueue").findOne(topicOnlyQuery)
     }
+
 
     if (matchedUser) {
       console.log("Step 2: Match found, notifying both users")
