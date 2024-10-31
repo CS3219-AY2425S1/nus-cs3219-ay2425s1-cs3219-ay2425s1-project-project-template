@@ -45,7 +45,7 @@ const QuestionPageView: React.FC = () => {
 
   useEffect(() => {
     fetchUsernameAndAdminStatus();
-      setLoading(false); // End loading if no user_id found
+    setLoading(false); // End loading if no user_id found
   }, []);
   
 
