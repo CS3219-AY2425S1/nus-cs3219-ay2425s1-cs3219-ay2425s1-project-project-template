@@ -18,6 +18,7 @@ const customSublime = sublimeInit({
 });
 
 function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
+
   const cursorPosition = useRef({ line: 0, ch: 0 });
 
   const handleUpdate = (viewUpdate: ViewUpdate) => {
@@ -26,8 +27,21 @@ function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
       const line = viewUpdate.state.doc.lineAt(from).number;
       const ch = from - viewUpdate.state.doc.line(line).from;
       cursorPosition.current = { line, ch };
-      console.log("Cursor Position:", cursorPosition.current); // Logs position
     }
+  };
+
+  const handleChange = (newCode: string, viewUpdate: ViewUpdate) => {
+    // Get original cursor position 
+    const anchor = viewUpdate.state.selection.main.from;
+    const head = viewUpdate.state.selection.main.to;
+    console.log(anchor, head);
+
+    setCode(newCode); // Update the code
+
+    // Set cursor position back
+    viewUpdate.view.dispatch({
+      selection: { anchor, head },
+    });
   };
 
   return (
@@ -36,7 +50,7 @@ function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
       theme={customSublime}
       className={classes.codeMirror}
       extensions={extensions}
-      onChange={setCode}
+      onChange={handleChange} // Use the handleChange function
       onUpdate={handleUpdate}
     />
   );
