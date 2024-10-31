@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Question from "../components/question";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
@@ -13,8 +13,14 @@ const Collaboration = dynamic(() => import("../components/editor"), {
 
 export default function CollaborationPage() {
   const { room } = useParams() as { room: string };
-  const url = window.location.href;
-  const language = decodeURIComponent(url.split("?")[1].split("=")[1]);
+  const [language, setLanguage] = useState<string>("");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = window.location.href;
+      const langParam = decodeURIComponent(url.split("?")[1].split("=")[1]);
+      setLanguage(langParam);
+    }
+  }, []);
 
   useEffect(() => {
     if (room) {
