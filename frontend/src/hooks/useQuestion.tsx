@@ -5,9 +5,10 @@ import {
   UpdateQuestionData,
 } from '@/types/question';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QUESTION_API_BASE_URL } from '@/lib/consts';
 
 async function fetchQuestion(id: number): Promise<Question> {
-  const response = await fetch(`http://localhost:8080/api/question/${id}`);
+  const response = await fetch(`${QUESTION_API_BASE_URL}/${id}`);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -36,7 +37,7 @@ export function useCreateQuestion() {
         ),
       } satisfies Omit<Question, 'id'>;
 
-      const response = await fetch('http://localhost:8080/api/question', {
+      const response = await fetch(QUESTION_API_BASE_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ export function useUpdateQuestion() {
   return useMutation({
     mutationFn: async (data: UpdateQuestionData) => {
       const response = await fetch(
-        `http://localhost:8080/api/question/${data.id}`,
+        `${QUESTION_API_BASE_URL}/${data.id}`,
         {
           method: 'PUT',
           headers: {
@@ -91,7 +92,7 @@ export function useDeleteQuestion() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`http://localhost:8080/api/question/${id}`, {
+      const response = await fetch(`${QUESTION_API_BASE_URL}/${id}`, {
         method: 'DELETE',
       });
 
