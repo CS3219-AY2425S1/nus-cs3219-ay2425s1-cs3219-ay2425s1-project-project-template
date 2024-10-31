@@ -208,7 +208,7 @@ const Dashboard = () => {
                       <TableCell>{highlightText(attempt.questionId.category.join(", "), searchQuery)}</TableCell>
                       <TableCell>{highlightText(attempt.peerUserName || "N/A", searchQuery)}</TableCell>
                       <TableCell>{highlightText(attempt.questionId.complexity, searchQuery)}</TableCell>
-                      <TableCell>{attempt.timestamp ? format(new Date(attempt.timestamp), "MMM dd, yyyy") : "N/A"}</TableCell>                      
+                      <TableCell>{attempt.timestamp ? format(new Date(attempt.timestamp), "MMM dd, yyyy") : "0s"}</TableCell>                      
                       <TableCell>{attempt.timeTaken ? attempt.timeTaken >= 3600 ? `${Math.floor(attempt.timeTaken / 3600)}h ${Math.floor((attempt.timeTaken % 3600) / 60)}m ${attempt.timeTaken % 60}s`
                                   : `${Math.floor(attempt.timeTaken / 60)}m ${attempt.timeTaken % 60}s`
                                   : "N/A"}</TableCell>                      
