@@ -3,7 +3,10 @@ import { createCollaborationService, getSessionData } from '../services/collabor
 
 // Controller to handle creation of new collaboration service
 export const startCollaboration: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-    const { difficulty, category, sessionId } = req.body;
+    const { sessionId, difficulty, category } = req.body;
+    console.log("Parsed sessionId:", sessionId);
+    console.log("Parsed difficulty:", difficulty);
+    console.log("Parsed category:", category);
 
     if (!difficulty || !category || !sessionId) {
         res.status(400).json('Missing required fields');
@@ -12,7 +15,7 @@ export const startCollaboration: RequestHandler = async (req: Request, res: Resp
 
     try {
         // call service to CREATE collaboration session
-        const session = await createCollaborationService(difficulty, category, sessionId);
+        const session = await createCollaborationService(sessionId, difficulty, category);
         if (!session) {
             res.status(404).json('No suitable question found for specified difficulty and category');
             return;

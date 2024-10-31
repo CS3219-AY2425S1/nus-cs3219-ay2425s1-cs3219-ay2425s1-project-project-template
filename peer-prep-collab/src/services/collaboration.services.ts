@@ -3,14 +3,15 @@ import {v4 as uuidv4} from 'uuid';
 import {config} from '../config/config';
 import {Question} from '../models/question.model';
 import {Session} from '../models/session.model';
+import { QuestionsApiResponse } from '../models/qnresponse.model';
 
 // in-memory session storage, to integrate with Redis later on
 const activeSessions: Record<string, Session> = {};
 
 export const createCollaborationService = async (
+    sessionId: string,
     difficulty: string,
     category: string,
-    sessionId: string,
 ): Promise<Session | null> => {
     try {
         // fetch questions based on difficulty and category from questions service 
@@ -42,22 +43,33 @@ export const getQuestion = async (
     category: string
 ): Promise<Question | null> => {
     try {
-        // fetch questions based on difficulty and category from questions service 
-        const response = await axios.get(`${config.questionsServiceUrl}/questions/`, {
-            params: {
-                filterBy: 'question_categories',
-                filterValue: category,
-            }
-        });
+        console.log(`Fetching questions for category: ${category}`);
+        console.log(`Fetching questions for difficulty: ${difficulty}`);   
 
-        const preDifficultyQuestions = response.data as Question[];
+        // fetch questions based on difficulty and category from questions service 
+        // const response = await axios.get<QuestionsApiResponse>(
+        //     `${config.questionsServiceUrl}/questions?filterBy=question_categories&filterValue=${category}`
+        // );
+
+        const response = await axios.get<QuestionsApiResponse>(
+            `http://localhost:8080/questions?filterBy=question_categories&filterValues=Arrays`
+        );
+
+        console.log('Raw response data:', response.data);
+
+        const preDifficultyQuestions = response.data.data.data as Question[];
+
+        console.log('Questions fetched:', preDifficultyQuestions);
 
         const validQuestions = preDifficultyQuestions.filter((question: Question) => 
-            question.questionComplexity === difficulty
+            question.question_complexity.toLowerCase() === difficulty.toLowerCase() 
         );
+
+        console.log('Filtered questions by difficulty:', validQuestions);
 
         // pick a random question from the filtered list 
         if (validQuestions.length === 0) {
+            console.warn('No questions found for the given difficulty and category');
             return null;
         }
         const randomIndex = Math.floor(Math.random() * validQuestions.length);
