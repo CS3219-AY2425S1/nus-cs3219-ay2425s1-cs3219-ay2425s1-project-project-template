@@ -11,6 +11,7 @@ import ManageQuestions from "../pages/ManageQuestions";
 import AdminRoute from "./AdminRoutes";
 import EditQuestion from "../pages/EditQuestion";
 import MatchSelection from "../pages/MatchSelection";
+import CollaborativeEditor from "../pages/CollaborationRoom";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,16 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/collaboration",
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: ":roomId",
+        element: <CollaborativeEditor />,
+      }
+    ]
+  }
 ]);
 
 export default router;
