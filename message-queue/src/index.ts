@@ -5,6 +5,7 @@ import express, { Express, Request, Response } from "express"
 
 import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE } from "./constants"
 import { deepEqual, getRandomIntegerInclusive, sleep } from "./helper"
+import { addUser, findUsersByCriteria, updateUserStatus } from "./models/user"
 import { UserData } from "./types"
 
 const app: Express = express()
@@ -51,321 +52,113 @@ const addDataToExchange = (userData: UserData, key: string) => {
   channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
 }
 
-const pullDataFromExchange = async (queueName: string) => {
-  let message: amqp.ConsumeMessage
-  await channel.assertQueue(queueName, {
-    durable: true
-  })
+// async function pullDataFromExchange(queue) {
+//   // Pull data from RabbitMQ
+//   channel.consume(queue, async (msg) => {
+//     const userData = JSON.parse(msg.content.toString());
+//     await findMatch(userData); // Try to find a match
+//   });
+// }
 
-  await channel.consume(queueName, (msg) => {
-    if (!msg) {
-      return console.error("Invalid incoming message")
-    }
-    message = msg
-    try {
-      handleIncomingNotification(msg?.content?.toString())
-      channel.ack(msg)
-    } catch (e) {
-      console.log("Invalid message received")
-      console.error(e)
-      return {
-        channel,
-        message: ""
-      }
-    }
-  })
+async function pullDataFromExchange(queueName) {
+  try {
+    const connection = await amqp.connect(process.env.RABBITMQ_URI || "amqp://localhost")
+    const channel = await connection.createChannel()
+    await channel.assertQueue(queueName, { durable: true })
 
-  return {
-    channel,
-    message
+    console.log(`Waiting for messages in ${queueName}...`)
+
+    // Consume messages from the queue
+    channel.consume(
+      queueName,
+      async (msg) => {
+        if (msg !== null) {
+          const userData = JSON.parse(msg.content.toString())
+
+          console.log("Received message:", userData)
+
+          // Add user to MongoDB's "users" collection
+          await addUser(userData)
+
+          // Check for matches using the updated matchUsers logic
+          const matchedUser = await matchUsers(userData, queueName)
+
+          if (matchedUser) {
+            // Update queue status for both matched users in MongoDB
+            await updateUserStatus([userData.user_id, matchedUser.user_id], "matched")
+
+            // Acknowledge the message after successful processing and matching
+            channel.ack(msg)
+
+            console.log(`Matched users: ${userData.user_id} with ${matchedUser.user_id}`)
+          } else {
+            console.log(`No match found for user: ${userData.user_id}`)
+          }
+        }
+      },
+      { noAck: false }
+    ) // Ensure noAck is set to false for manual acknowledgement
+  } catch (error) {
+    console.error("Error while pulling data from exchange:", error)
   }
 }
+async function matchUsers(userData, key) {
+  // Priority: find by difficulty first, if no match, fall back to exact topic
+  let match = await findUsersByCriteria({
+    difficulty: userData.difficulty,
+    topic: userData.topic,
+    queue_status: { $ne: "matched" },
+    user_id: { $ne: userData.user_id }
+  })
 
-const matchUsers = async (userData: UserData, key: string) => {
-    let matchedUsers: UserData[] = []
-
-    let filteredUsers: UserData[] = users.filter((user: UserData) => {
-      return user.user_id !== userData.user_id
+  if (match.length === 0) {
+    // If no users found with matching difficulty, match on topic
+    match = await findUsersByCriteria({
+      topic: userData.topic,
+      queue_status: { $ne: "matched" },
+      user_id: { $ne: userData.user_id }
     })
+  }
 
-    matchedUsers.push(userData)
-
-    // Case 3: Only 1 person in the queue
-    let timeWaitedForMessage = 0
-    let currentTotalUsersWaiting = users.length
-
-    console.log(">>USER LENGTH: ", filteredUsers.length)
-
-    if (filteredUsers.length == 0) {
-      const waitForNewMessagesInterval = setInterval(async () => {
-        timeWaitedForMessage += 2
-        console.log(userData.user_id + ": Time waited for message Case 3: ", timeWaitedForMessage)
-        if (timeWaitedForMessage == 30 || users.length != currentTotalUsersWaiting) {
-          clearInterval(waitForNewMessagesInterval)
-        }
-      }, 2000)
-
-      while (timeWaitedForMessage < 30 && users.length == currentTotalUsersWaiting) {
-        await sleep(1000)
-      }
-      
-      filteredUsers = users.filter((user: UserData) => {
-        return user.user_id !== userData.user_id
-      })
-
-      // Means if new users have been added to the overall queue
-      if (currentTotalUsersWaiting != filteredUsers.length) {
-        for (const user of filteredUsers) {
-          if (user.topic == userData.topic && user.user_id != userData.user_id) {
-            matchedUsers.push(user)
-            break
-          }
-        }
-
-        // Possible that there isn't a perfect match
-        // In that case jump to next if statement
-        if (matchedUsers.length == 2) {
-          return {
-            matchedUsers,
-            timeout: false
-          }
-        }
-      }
-
-      if (filteredUsers.length > 0) {
-        console.log("Reach the default route")
-        // Filter one more level (Obtain users that are of the requested difficulty, try)
-        // To try and match on difficulty at least (tie-break)
-        const filteredUsersForDesiredDifficulty = filteredUsers.filter((user: UserData) => {
-          return DIFFICULTY_ROUTING_MAPPING[key] == user.difficulty
-        })
-        
-
-        let nextUser: UserData
-        if (filteredUsersForDesiredDifficulty.length > 0) {
-          const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsersForDesiredDifficulty.length - 1)
-          nextUser = filteredUsersForDesiredDifficulty[randomlySelectedIndex]
-          const userIdxOriginalArr = filteredUsers.findIndex((user) => deepEqual(nextUser, user))
-          filteredUsers.splice(userIdxOriginalArr, 1)
-        } else {
-          const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsers.length - 1)
-          nextUser = filteredUsers.splice(randomlySelectedIndex, 1)[0]
-        }
-
-        // if (nextUser.user_id == userData.user_id) {
-          // return {
-          //   matchedUsers: [], // don't allow 2 same user to match
-          //   timeout: true
-          // }
-        // }
-        matchedUsers.push(nextUser)
-        if (matchedUsers.length == 2) {
-          return {
-            matchedUsers,
-            timeout: false
-          }
-        } else {
-            return {
-              matchedUsers: [], // don't allow 2 same user to match
-              timeout: true
-            }
-        }
-      } else {
-        console.log("Reach the filtered route")
-        // Try to pull data from other difficulty queues
-        const filteredQueueNames = DIFFICULTY_ROUTING_KEYS.filter((routeKey) => {
-          return routeKey != key
-        })
-
-        for (const queueName of filteredQueueNames) {
-          await pullDataFromExchange(queueName as string)
-        }
-
-        filteredUsers = users.filter((user: UserData) => {
-          return user.user_id !== userData.user_id
-        })
-
-        for (const user of filteredUsers) {
-          console.log(user.topic + " " + userData.topic)
-          console.log(user.user_id + " " + userData.user_id)
-          if (user.topic == userData.topic && user.user_id != userData.user_id) {
-            matchedUsers.push(user)
-            break
-          }
-        }
-
-        if (matchedUsers.length == 2) {
-            return {
-              matchedUsers,
-              timeout: false
-            }
-        }
-
-        // Timeout, cannot find match; assumes matchedUsers.length != 2
-        return {
-          matchedUsers: [],
-          timeout: true
-        }
-      }
-    }
-
-    for (const user of filteredUsers) {
-      console.log("Reached Case 1")
-      // Case (1) - 2 people in queue have matching topic
-      if (user.topic == userData.topic && user.user_id != userData.user_id) {
-        matchedUsers.push(user)
-        break
-      }
-    }
-
-    if (matchedUsers.length == 2) {
-      return {
-        matchedUsers,
-        timeout: false
-      }
-    }
-
-    // Case (2) -> 1 person in queue, non matched topic so far
-    timeWaitedForMessage = 0
-    currentTotalUsersWaiting = users.length
-    const waitForNewMessagesInterval = setInterval(async () => {
-      timeWaitedForMessage += 2
-      console.log("Time waited for message Case 2: ", timeWaitedForMessage)
-      if (timeWaitedForMessage == 30 || users.length != currentTotalUsersWaiting) {
-        clearInterval(waitForNewMessagesInterval)
-      }
-    }, 2000)
-
-    while (timeWaitedForMessage < 30 && users.length == currentTotalUsersWaiting) {
-      await sleep(1000)
-    }
-
-    filteredUsers = users.filter((user: UserData) => {
-        return user.user_id !== userData.user_id
+  if (match.length === 0) {
+    // If no match based on both, consider a random match
+    match = await findUsersByCriteria({
+      queue_status: { $ne: "matched" },
+      user_id: { $ne: userData.user_id }
     })
+  }
 
-    // Check currentTotalUsersWaiting with current user's length
-    // If different, means new user added
-    if (currentTotalUsersWaiting != filteredUsers.length) {
-      for (const user of filteredUsers) {
-        if (user.topic == userData.topic && user.user_id != userData.user_id) {
-          matchedUsers.push(user)
-          break
-        }
-      }
-
-      // Possible that there isn't a perfect match
-      // In that case jump to next if statement
-      if (matchedUsers.length == 2) {
-        return {
-          matchedUsers,
-          timeout: false
-        }
-      }
-    }
-
-    if (filteredUsers.length > 0) {
-      // If still stuck with the same number of people
-      // Randomly match amongst current users
-      console.log("Randomly matched amongst current users case 3")
-
-      // Filter one more level (Obtain users that are of the requested difficulty, try)
-      // To try and match on difficulty at least (tie-break)
-      const filteredUsersForDesiredDifficulty = filteredUsers.filter((user: UserData) => {
-        return DIFFICULTY_ROUTING_MAPPING[key] == user.difficulty
-      })
-
-      let nextUser: UserData
-      if (filteredUsersForDesiredDifficulty.length > 0) {
-        const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsersForDesiredDifficulty.length - 1)
-        nextUser = filteredUsersForDesiredDifficulty[randomlySelectedIndex]
-        const userIdxOriginalArr = filteredUsers.findIndex((user) => deepEqual(nextUser, user))
-        filteredUsers.splice(userIdxOriginalArr, 1)
-      } else {
-        const randomlySelectedIndex = getRandomIntegerInclusive(0, filteredUsers.length - 1)
-        nextUser = filteredUsers.splice(randomlySelectedIndex, 1)[0]
-      }
-      matchedUsers.push(nextUser)
-      if (matchedUsers.length == 2) {
-          return {
-            matchedUsers,
-            timeout: false
-          }
-      } else {
-            return {
-              matchedUsers: [], // don't allow 2 same user to match
-              timeout: true
-            }
-      }
-    } else {
-      // Try to pull data from other difficulty queues
-      console.log("Checking other queues")
-      const filteredQueueNames = DIFFICULTY_ROUTING_KEYS.filter((routeKey) => {
-        return routeKey != key
-      })
-
-      for (const queueName of filteredQueueNames) {
-        await pullDataFromExchange(queueName as string)
-      }
-
-      for (const user of filteredUsers) {
-        if (user.topic == userData.topic && user.user_id != userData.user_id) {
-          matchedUsers.push(user)
-          break
-        }
-
-        if (matchedUsers.length == 2) {
-          return {
-            matchedUsers,
-            timeout: false
-          } 
-        }
-      }
-
-      // Timeout, cannot find match; assumes matchedUsers.length != 2
-      return {
-        matchedUsers: [],
-        timeout: true
-      }
-    }
+  return match.length ? match[0] : null
 }
 
-
-
-// Publish message to exchange
-app.post("/match", async (req: Request, res: Response) => {
+app.post("/match", async (req, res) => {
   try {
-    const { userData, key } = req.body //key-value pair of userData will be <difficulty>.<topic(s)>
-    addDataToExchange(userData, key)
-    console.log("Data Sent: ", req.body)
+    const { userData, key } = req.body
 
-    await pullDataFromExchange(DIFFICULTY_QUEUE_MAPPING[key])
-    const response = await matchUsers(userData, key)
-    //Remove the 2 matched users from backend
-    if (response.matchedUsers.length == 2) {
-      users = users.filter((user) => {
-        return user.user_id != response.matchedUsers[0].user_id
-      })
-      users = users.filter((user) => {
-        return user.user_id != response.matchedUsers[1].user_id
+    // Add the user to the MongoDB queue
+    await addUser(userData)
+
+    // Attempt to find a match for the user by difficulty first, then by topic
+    const matchedUser = await matchUsers(userData, key)
+
+    if (matchedUser) {
+      // Update users' queue status to "matched" in MongoDB
+      await updateUserStatus([userData.user_id, matchedUser.user_id], "matched")
+
+      res.json({
+        matchedUsers: [userData, matchedUser],
+        timeout: false
       })
     } else {
-      //Remove user if no match found after 30s
-      users = users.filter((user) => {
-        return user.user_id != userData.user_id
+      // No match found, send timeout response
+      res.json({
+        matchedUsers: [],
+        timeout: true
       })
-      //console.log("Length of users: " + users.length)
     }
-
-    console.log("SUCCESSFUL MATCH: " + JSON.stringify(response.matchedUsers))
-
-    // Timeout, cannot find match; assumes matchedUsers.length != 2
-    res.json(response)
-
-  } catch (e) {
-    console.error("Message incorrectly sent out")
-    console.error(e)
-    res.json({ 
+  } catch (error) {
+    console.error("Error while matching:", error)
+    res.status(500).json({
       matchedUsers: [],
       timeout: true
     })
@@ -378,7 +171,7 @@ app.post("/match/delete", (req: Request, res: Response) => {
   })
 
   res.json({
-    "message": "User removed from the queue"
+    message: "User removed from the queue"
   })
 })
 
