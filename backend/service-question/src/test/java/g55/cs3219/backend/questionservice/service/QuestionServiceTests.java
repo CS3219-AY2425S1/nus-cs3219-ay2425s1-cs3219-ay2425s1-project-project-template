@@ -1,19 +1,5 @@
 package g55.cs3219.backend.questionservice.service;
 
-import g55.cs3219.backend.questionservice.dto.QuestionDto;
-import g55.cs3219.backend.questionservice.exception.InvalidQuestionException;
-import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
-import g55.cs3219.backend.questionservice.model.DatabaseSequence;
-import g55.cs3219.backend.questionservice.model.Question;
-import g55.cs3219.backend.questionservice.repository.QuestionRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.mongodb.core.MongoOperations;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,12 +9,25 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoOperations;
+
+import g55.cs3219.backend.questionservice.dto.QuestionDto;
+import g55.cs3219.backend.questionservice.exception.InvalidQuestionException;
+import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
+import g55.cs3219.backend.questionservice.model.DatabaseSequence;
+import g55.cs3219.backend.questionservice.model.Question;
+import g55.cs3219.backend.questionservice.repository.QuestionRepository;
 
 @ExtendWith(MockitoExtension.class)
 class QuestionServiceTests {
@@ -172,6 +171,7 @@ class QuestionServiceTests {
     void createQuestion_InvalidInput_ThrowsInvalidQuestionException() {
         QuestionDto invalidDto = new QuestionDto();
         invalidDto.setTitle("Invalid Question");
+        invalidDto.setDescription("Some description");
 
         assertThrows(InvalidQuestionException.class, () -> questionService.createQuestion(invalidDto));
     }
