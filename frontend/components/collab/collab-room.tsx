@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React  from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Chat from "./chat";
 import CodeEditor from "./code-editor";
 import QuestionDisplay from "./question-display";
 
-export default function CollabRoom({ roomId }: { roomId: String }) {
+export default function CollabRoom({ roomId }: { roomId: string }) {
   return (
     <div className="h-full flex flex-col mx-4 p-4">
       <header className="flex justify-between border-b">

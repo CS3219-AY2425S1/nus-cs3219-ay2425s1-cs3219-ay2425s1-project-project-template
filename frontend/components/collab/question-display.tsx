@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Question } from "@/lib/schemas/question-schema";
+// import { Question } from "@/lib/schemas/question-schema";
 
 const difficultyColors = {
   Easy: "bg-green-500",
@@ -15,8 +15,8 @@ const difficultyColors = {
   Hard: "bg-red-500",
 };
 
-export default function QuestionDisplay({ question }: { question: Question }) {
-  return (
+// export default function QuestionDisplay({ question }: { question: Question }) {
+//   return (
     // <Card className="flex-shrink-0">
     //   <CardHeader>
     //     <CardTitle>{question.title}</CardTitle>
@@ -31,7 +31,8 @@ export default function QuestionDisplay({ question }: { question: Question }) {
     //     <p>{question.description}</p>
     //   </CardContent>
     // </Card>
-
+export default function QuestionDisplay() {
+  return (
     <Card className="flex-shrink-0">
       <CardHeader>
         <CardTitle>Placeholder Title</CardTitle>

@@ -6,10 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Play, HelpCircle, X } from "lucide-react";
-import { set } from "zod";
-
-const chatTarget: string[] = ["partner", "ai"];
+import { Send } from "lucide-react";
 
 export default function Chat() {
   const [chatTarget, setChatTarget] = useState<string>("partner");
@@ -59,8 +56,8 @@ export default function Chat() {
           <TabsContent value="partner" className="h-full">
             <ScrollArea className="h-[calc(70vh-280px)]">
               <div className="pr-4 space-y-2">
-                {partnerMessages.map((msg) => (
-                  <div>{msg}</div>
+                {partnerMessages.map((msg, index) => (
+                  <div key={index}>{msg}</div>
                 ))}
                 <div ref={lastMessageRef} />
               </div>
@@ -69,8 +66,8 @@ export default function Chat() {
           <TabsContent value="ai" className="h-full">
             <ScrollArea className="h-[calc(70vh-280px)]">
               <div className="pr-4 space-y-2">
-                {aiMessages.map((msg) => (
-                  <div>{msg}</div>
+                {aiMessages.map((msg, index) => (
+                  <div key={index}>{msg}</div>
                 ))}
                 <div ref={lastMessageRef} />
               </div>
