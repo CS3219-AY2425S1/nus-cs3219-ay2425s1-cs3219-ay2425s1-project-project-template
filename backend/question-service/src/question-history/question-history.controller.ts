@@ -8,9 +8,9 @@ export class QuestionHistoryController {
   constructor(private readonly questionHistoryService: QuestionHistoryService) {}
 
   @Post()
-  async logQuestionAttempt(@Body() createQuestionHistoryDto: CreateQuestionHistoryDto) {
+  async createQuestionHistory(@Body() createQuestionHistoryDto: CreateQuestionHistoryDto) {
     try {
-      return await this.questionHistoryService.logQuestionAttempt(createQuestionHistoryDto);
+      return await this.questionHistoryService.create(createQuestionHistoryDto);
     } catch (error) {
       throw new InternalServerErrorException(`Failed to log question attempt`);
     }
@@ -19,7 +19,7 @@ export class QuestionHistoryController {
   @Patch(':id')
   async updateQuestionHistory(@Param('id') id: string, @Body() updateQuestionHistoryDto: UpdateQuestionHistoryDto) {
     try {
-      return await this.questionHistoryService.updateQuestionHistory(id, updateQuestionHistoryDto);
+      return await this.questionHistoryService.update(id, updateQuestionHistoryDto);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
@@ -31,7 +31,7 @@ export class QuestionHistoryController {
   @Get()
   async getAllQuestionHistory() {
     try {
-      return await this.questionHistoryService.getAllQuestionHistory();
+      return await this.questionHistoryService.findAll();
     } catch (error) {
       throw new InternalServerErrorException(`Failed to get all question histories`);
     }
@@ -40,12 +40,25 @@ export class QuestionHistoryController {
   @Get(':sessionId')
   async getQuestionHistoryBySession(@Param('sessionId') sessionId: string) {
     try {
-      return await this.questionHistoryService.getQuestionHistoryBySession(sessionId);
+      return await this.questionHistoryService.findAllInSession(sessionId);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       }
       throw new InternalServerErrorException(`Failed to get question history for session ID ${sessionId}`);
+    }
+  }
+
+  @Get(':sessionId/:questionId')
+  async getSingleQuestionHistory(@Param('sessionId') sessionId: string, @Param('questionId') questionId: string) {
+    try {
+      // change to look for active question history?
+      return await this.questionHistoryService.findOne(sessionId, questionId);
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to get question history for session ID ${sessionId} and question ID ${questionId}`);
     }
   }
 }

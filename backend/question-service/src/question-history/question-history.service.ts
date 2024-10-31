@@ -14,17 +14,20 @@ export class QuestionHistoryService {
       private readonly questionHistoryDB: QuestionHistoryDB,
     ) {}
 
-    async logQuestionAttempt(createQuestionHistoryDto: CreateQuestionHistoryDto): Promise<QuestionHistory> {
-      return this.questionHistoryDB.logQuestionAttempt(createQuestionHistoryDto);
+    async create(createQuestionHistoryDto: CreateQuestionHistoryDto): Promise<QuestionHistory> {
+      return this.questionHistoryDB.createQuestionHistory(createQuestionHistoryDto);
     }
-    async updateQuestionHistory(id: string, updateQuestionHistoryDto: UpdateQuestionHistoryDto): Promise<QuestionHistory> {
+    async update(id: string, updateQuestionHistoryDto: UpdateQuestionHistoryDto): Promise<QuestionHistory> {
       return this.questionHistoryDB.updateQuestionHistory(id, updateQuestionHistoryDto);
     }
-    async getAllQuestionHistory(): Promise<QuestionHistory[]> {
+    async findAll(): Promise<QuestionHistory[]> {
       return this.questionHistoryDB.getAllQuestionHistory();
     }
-    async getQuestionHistoryBySession(sessionId: string): Promise<QuestionHistory[]> {
+    async findAllInSession(sessionId: string): Promise<QuestionHistory[]> {
       return this.questionHistoryDB.getQuestionHistoryBySession(sessionId);
+    }
+    async findOne(sessionId: string, questionId: string): Promise<QuestionHistory> {
+      return this.questionHistoryDB.getSingleQuestionHistory(sessionId, questionId);
     }
   }
 
