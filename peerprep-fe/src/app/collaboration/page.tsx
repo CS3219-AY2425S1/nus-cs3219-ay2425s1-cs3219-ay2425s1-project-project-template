@@ -37,6 +37,8 @@ const CollaborationPage = () => {
   const [leftWidth, setLeftWidth] = useState(50);
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const providerRef = useRef<WebsocketProvider | null>(null);
+  const bindingRef = useRef<MonacoBinding | null>(null);
   const editorRef = React.useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const sockServerURI = process.env.SOCK_SERVER_URL || "ws://localhost:4444";
 
@@ -73,7 +75,7 @@ const CollaborationPage = () => {
     }
     editorRef.current = editor;
     const doc = new Y.Doc(); // a collection of shared objects -> Text
-    const provider = new WebsocketProvider(sockServerURI, matchId, doc);
+    providerRef.current = new WebsocketProvider(sockServerURI, matchId, doc);
     const type = doc.getText("monaco"); // Get the shared YJS text object
 
     // Get the model from the editor
@@ -82,7 +84,12 @@ const CollaborationPage = () => {
     // Check if model is valid
     if (editorRef.current && model) {
       // Bind YJS to Monaco only if the model is not null
-      const binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
+      bindingRef.current = new MonacoBinding(
+        type, 
+        model, 
+        new Set([editorRef.current]), 
+        providerRef.current.awareness
+      );
     } else {
       console.error("Monaco editor model is null");
     }
@@ -95,6 +102,27 @@ const CollaborationPage = () => {
       setSelectionProblem(problem);
     }
   };
+
+  // Cleanup function to dispose of resources
+  useEffect(() => {
+    return () => {
+      // Clean up binding and provider when the component unmounts
+      if (bindingRef.current) {
+        bindingRef.current.destroy(); // Clean up the binding
+        bindingRef.current = null; // Clear the reference
+      }
+
+      if (providerRef.current) {
+        providerRef.current.destroy(); // Clean up the provider
+        providerRef.current = null; // Clear the reference
+      }
+
+      if (editorRef.current) {
+        editorRef.current.dispose(); // Dispose of the editor if necessary
+        editorRef.current = null; // Clear the reference
+      }
+    };
+  }, []);
 
   return (
     <div
