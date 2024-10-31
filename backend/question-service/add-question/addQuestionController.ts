@@ -29,7 +29,7 @@ const addQuestion = async (req: Request, res: Response) => {
 
     const testCasesArray: ITestCase[] = testCases.map((testCase: any) => ({
         input: testCase.input,
-        expectedOutput: testCase.expectedOutput,
+        expected: testCase.expected,
     }))
 
     const cleanedTestCases = removeDuplicateTestCases(testCasesArray)

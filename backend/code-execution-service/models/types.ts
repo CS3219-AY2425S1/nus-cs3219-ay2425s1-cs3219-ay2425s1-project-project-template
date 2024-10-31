@@ -1,6 +1,13 @@
 export interface TestCase {
-    input: string
-    expectedOutput: string
+    input: any
+    expected: any
+}
+
+export interface ExecutionResult {
+    input: any,
+    expected: any,
+    output: any
+    passed: boolean
 }
 
 export const languageExtensions = new Map([

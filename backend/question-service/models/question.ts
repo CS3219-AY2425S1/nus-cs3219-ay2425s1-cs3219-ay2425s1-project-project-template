@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose'
 
 export interface ITestCase {
     input: any,
-    expectedOutput: any
+    expected: any
 }
 interface IQuestion {
     questionId: number
@@ -16,7 +16,7 @@ interface IQuestion {
 
 const testCaseSchema = new Schema<ITestCase>({
     input: { type: Schema.Types.Mixed, required: true },
-    expectedOutput: { type: Schema.Types.Mixed, required: true }
+    expected: { type: Schema.Types.Mixed, required: true }
 })
 
 const questionSchema = new Schema<IQuestion>({

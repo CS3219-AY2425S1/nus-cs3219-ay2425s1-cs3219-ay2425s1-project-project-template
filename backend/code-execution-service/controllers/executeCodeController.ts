@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Request, Response } from 'express'
 import logger from '../utils/logger'
-import { TestCase, languageExtensions } from '../models/types'
+import { ExecutionResult, TestCase, languageExtensions } from '../models/types'
 
 const executeCodeController = async (req: any, res: any) => {
     const { questionId, code, language } = req.body
@@ -28,9 +28,9 @@ const executeCodeController = async (req: any, res: any) => {
         const question = getQuestionRes.data[0]
         const testCases: TestCase[] = question.testCases
         const formattedInput = testCases
-            .map((testCase) => testCase.input)
+            .map((testCase) => testCase.input.join(','))
             .join('\n')
-        const fileName = `${questionId}.${languageExtensions.get(language)}`
+        const fileName = `q${questionId}.${languageExtensions.get(language)}`
 
         const executeCodeRes = await axios.post(
             `${process.env.CODE_COMPILER_URL}`,
@@ -55,7 +55,29 @@ const executeCodeController = async (req: any, res: any) => {
         )
 
         console.log(executeCodeRes.data)
-        return res.status(200).send(executeCodeRes.data)
+        const codeOutput = executeCodeRes.data.stdout?.split('\n') || []
+
+        const results: ExecutionResult[] = testCases.map((tc, i) => ({
+            input: tc.input,
+            expected: tc.expected,
+            output: codeOutput[i],
+            passed: tc.expected == codeOutput[i]
+        }))
+        console.log(results)
+
+        logger.info('Code executed successfully', {
+            success: results.every(result => result.passed),
+            results,
+            compilationOutput: executeCodeRes.data.compilationOutput,
+            error: executeCodeRes.data.stderr,
+        })
+        return res.status(200).json({
+            success: results.every(result => result.passed),
+            results,
+            compilationOutput: executeCodeRes.data.compilationOutput,
+            error: executeCodeRes.data.stderr,
+        })
+
     } catch (e) {
         logger.error('Error appeared when executing code', e)
         return res
