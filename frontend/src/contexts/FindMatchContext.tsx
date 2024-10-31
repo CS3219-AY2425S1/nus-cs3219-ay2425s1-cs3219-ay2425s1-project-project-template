@@ -16,7 +16,7 @@ import { MatchRequest } from "@/types/Match";
 import { useToast } from "@/hooks/use-toast";
 
 import { useInterval } from "usehooks-ts";
-import {  useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface FindMatchContextProps {
   isConnected: boolean;
