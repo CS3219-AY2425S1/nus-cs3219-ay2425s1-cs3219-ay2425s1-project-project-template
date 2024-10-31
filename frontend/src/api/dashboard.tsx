@@ -1,13 +1,11 @@
-import {
-  DashboardUserHistoryExample,
-  DashboardUserInterviewMetadataExample,
-} from "@/api/dashboard_sample";
-import { SessionHistory, UserInterviewMetadata } from "@/types/dashboard";
+import { TCombinedSession } from "@/types/dashboard";
 
-export const getUserInterviewMetadata = (): UserInterviewMetadata => {
-  return DashboardUserInterviewMetadataExample;
-};
+// retrieve from .env
+const COLLAB_SERVICE = process.env.COLLAB_SERVICE;
 
-export const getUserHistory = (): SessionHistory[] => {
-  return DashboardUserHistoryExample;
-};
+export const getUserHistoryData = async (userId: string): Promise<TCombinedSession[]> => {
+  const url = `${COLLAB_SERVICE}/api/sessions/${userId}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}

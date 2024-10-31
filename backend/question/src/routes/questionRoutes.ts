@@ -129,6 +129,33 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   }
 });
 
+// Retrieve all questions based on a list of question ids
+router.post("/all-ids", async (req: Request, res: Response) => {
+  const questionIds = req.body.questionIds;
+
+  try {
+    const questions = await Question.find(
+      { questionid: { $in: questionIds } },
+      {
+        questionid: 1,
+        title: 1,
+        complexity: 1,
+        category: 1,
+      }
+    ).exec();
+
+    // Convert the questions to a map for easy access
+    const questionMap = questions.reduce((acc, question) => {
+      acc[question.questionid] = question;
+      return acc;
+    }, {});
+
+    return res.json(questionMap);
+  } catch (error) {
+    return res.status(500).send("Internal server error");
+  }
+});
+
 // Retrieve the number of questions by complexity and category
 router.post(
   "/count-question",
