@@ -145,6 +145,17 @@ services:
     env_file:
       - .env/.collaboration_env
 
+  code-execution-service:
+    build:
+      context: ./code-execution-service
+    container_name: code-execution-service-backend
+    networks:
+      - my-network
+    ports:
+      - "8050:8050"  # for testing
+    env_file:
+      - .env/.code_execution_env
+
 volumes:
   mongo-data:
   react-build:
