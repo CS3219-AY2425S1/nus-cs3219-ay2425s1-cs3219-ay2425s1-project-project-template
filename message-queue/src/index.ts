@@ -152,8 +152,13 @@ async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: a
 
         // Close change stream on timeout
         if (changeStream) {
-          console.log("Closing change stream on timeout")
-          changeStream.close()
+          try {
+            console.log("Closing change stream on timeout")
+            changeStream.close()
+          } catch (e) {
+            console.error(e)
+            return { matchedUsers: [] }
+          }
         }
       }, 30000)
 
