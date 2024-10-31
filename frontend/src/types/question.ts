@@ -39,11 +39,11 @@ export type Question = z.infer<typeof QuestionSchema>;
 export const createQuestionSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  examples: z
-    .array(
-      z.string()
-    )
-    .min(1, 'At least one example is required'),
+  examples: z.array(
+    z.object({
+      example: z.string()
+    })
+  ).min(1, 'At least one example is required'),
   constraints: z.array(
     z.object({
       constraint: z.string().min(1),
