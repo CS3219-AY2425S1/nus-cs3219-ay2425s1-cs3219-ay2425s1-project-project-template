@@ -93,6 +93,16 @@ export async function updateUserTempPasswordById(userId, tempPassword) {
   return await updateUserById(userId, { tempPassword });
 }
 
+// =======================  ADDS   ================================ //
+
+export async function addHistoryById(userId, newHistory) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $addToSet: { history: newHistory }},
+    { new: true },  // return the updated user
+  );
+}
+
 // ======================= DELETES ================================ //
 
 export async function deleteUserById(userId) {
@@ -113,4 +123,12 @@ export async function deleteTempPasswordById(userId) {
     { $unset: {tempPassword: ''} },
     { new: true },  // return the updated user
   ); 
+}
+
+export async function deleteHistoryById(userId, delHistory) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $pull: { history: delHistory }},
+    { new: true },  // return the updated user
+  );
 }

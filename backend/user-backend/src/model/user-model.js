@@ -45,6 +45,11 @@ const UserModelSchema = new Schema({
     type: String,
     required: false,
   },
+  history: {
+    type: Array,
+    required: true,
+    default: [],
+  },
 });
 
 export default mongoose.model("users", UserModelSchema);

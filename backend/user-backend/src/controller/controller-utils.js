@@ -23,6 +23,25 @@ export function hashPassword(password) {
   return password;
 }
 
+export async function formatPartialUserResponse(user) {
+  return {
+    username: user.username,
+    profileImage: await getImageSignedUrl(user),
+    createdAt: user.createdAt,
+  };
+}
+
+export async function formatFullUserResponse(user) {
+  return {
+    username: user.username,
+    email: user.email,
+    profileImage: await getImageSignedUrl(user),
+    isAdmin: user.isAdmin,
+    isVerified: user.isVerified,
+    createdAt: user.createdAt,
+  };
+}
+
 export async function replaceProfileImage(user, newImage) {
   if (user.profileImage !== DEFAULT_IMAGE) {
     await bucket.file(`${user.id}.${user.profileImage}`).delete();

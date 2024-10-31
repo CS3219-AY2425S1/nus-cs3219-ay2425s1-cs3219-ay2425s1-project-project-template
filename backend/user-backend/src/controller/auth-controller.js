@@ -12,8 +12,7 @@ import {
   deleteTempEmailById as _deleteTempEmailById,
   deleteTempPasswordById as _deleteTempPasswordById,
 } from "../model/repository.js";
-import { formatFullUserResponse } from "./user-controller.js";
-import { hashPassword, sendEmailVerification, sendPasswordVerification, validatePassword } from "./user-controller-utils.js";
+import { hashPassword, formatFullUserResponse, sendEmailVerification, sendPasswordVerification, validatePassword } from "./controller-utils.js";
 
 export async function handleLogin(req, res) {
   const { username, email, password } = req.body;

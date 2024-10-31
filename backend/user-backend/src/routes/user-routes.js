@@ -8,7 +8,9 @@ import {
   getUser,
   updateUser,
   updateUserPrivilege,
-  updateUserProfileImage
+  updateUserProfileImage,
+  addHistory,
+  deleteHistory,
 } from "../controller/user-controller.js";
 import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
 
@@ -47,5 +49,11 @@ router.patch("/:id/profileImage", imageUpload.single('profileImage'), verifyAcce
 
 // Delete a user
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
+
+// Add a question to user history
+router.post("/:id/history", verifyAccessToken, verifyIsOwnerOrAdmin, addHistory);
+
+// Delete a question from user history
+router.delete("/:id/history", verifyAccessToken, verifyIsOwnerOrAdmin, deleteHistory);
 
 export default router;

@@ -1,13 +1,14 @@
 import { isValidObjectId } from "mongoose";
 import { DEFAULT_IMAGE } from "../model/user-model.js";
 import {
-  getImageSignedUrl,
   hashPassword,
+  formatFullUserResponse,
+  formatPartialUserResponse,
   replaceProfileImage,
   validateEmail,
   validatePassword,
   sendEmailVerification,
-} from "./user-controller-utils.js";
+} from "./controller-utils.js";
 import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,
@@ -20,6 +21,8 @@ import {
   updateUserById as _updateUserById,
   updateUserImageById as _updateUserImageById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  addHistoryById as _addHistoryById,
+  deleteHistoryById as _deleteHistoryById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -238,21 +241,56 @@ export async function deleteUser(req, res) {
   }
 }
 
-export async function formatPartialUserResponse(user) {
-  return {
-    username: user.username,
-    profileImage: await getImageSignedUrl(user),
-    createdAt: user.createdAt,
-  };
+export async function addHistory(req, res) {
+  const userId = req.params.id;
+  const { question, partner, status, datetime } = req.body;
+
+  if (!(question && partner && status && datetime))
+    return res.status(400).json({ message: "Missing one or more of the required fields" });
+
+  try {
+    if (!isValidObjectId(userId))
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    const user = await _findUserById(userId);
+    if (!user)
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    const partnerUser = await _findUserByUsername(partner);
+    if (!partnerUser)
+      return res.status(404).json({ message: `Partner "${partner}" not found` });
+
+    const newHistory = { question, partner, status, datetime };
+    await _addHistoryById(user.id, newHistory);
+    return res.status(200).json({ message: "Successfully added question history" });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Unknown error when adding question history!" });
+  }
 }
 
-export async function formatFullUserResponse(user) {
-  return {
-    username: user.username,
-    email: user.email,
-    profileImage: await getImageSignedUrl(user),
-    isAdmin: user.isAdmin,
-    isVerified: user.isVerified,
-    createdAt: user.createdAt,
-  };
+export async function deleteHistory(req, res) {
+  const userId = req.params.id;
+  const { question, partner, status, datetime } = req.body;
+
+  if (!(question && partner && status && datetime))
+    return res.status(400).json({ message: "Missing one or more of the required fields" });
+
+  try {
+    if (!isValidObjectId(userId))
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    const user = await _findUserById(userId);
+    if (!user)
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    const delHistory = { question, partner, status, datetime };
+    await _deleteHistoryById(user.id, delHistory);
+    return res.status(200).json({ message: "Successfully deleted question history" });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Unknown error when deleting question history!" });
+  }
 }
