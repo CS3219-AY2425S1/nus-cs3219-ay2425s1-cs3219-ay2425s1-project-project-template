@@ -40,3 +40,17 @@ export const fetchUserAttempts = async (token: string, signal?: AbortSignal) => 
     throw error;
   }
 };
+
+export const fetchAttemptById = async (attemptId: string, token: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/attempts/${attemptId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching attempt by ID:", error);
+    throw error;
+  }
+};

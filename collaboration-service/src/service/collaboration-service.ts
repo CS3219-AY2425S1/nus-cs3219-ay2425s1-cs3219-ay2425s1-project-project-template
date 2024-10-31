@@ -66,7 +66,7 @@ export async function handleCodeUpdates(socket: Socket, { roomId, code }: { room
   await redis.set(`collab:${roomId}:code`, code, "EX", 3600);
   socket.to(roomId).emit("code_update", { code });
 }
-export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: string }) {
+export async function handleLeaveRoom(socket: Socket, { roomId, codeContent }: { roomId: string, codeContent: string }) {
   socket.leave(roomId);
 
   const userInfo = socketUserInfo[socket.id];
@@ -75,7 +75,7 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
     return;
   }
   const { userName, userId, questionId, token } = userInfo;
-  console.log(`User ${userName} left room ${roomId}`);
+  console.log(`User ${userName} left room ${roomId} with final code content:`, codeContent);
 
   // Calculate time taken in seconds
   const endTime = Date.now();
@@ -101,6 +101,9 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
   // Now, roomUsers[roomId] should contain the remaining users
   console.log(`Current users in room after removal:`, roomUsers[roomId]);
 
+  // Fetch the current code content from Redis
+  const currentCode = await redis.get(`collab:${roomId}:code`);
+
   let peerUserName: string | undefined;
 
   if (peerUserNames.length > 0) {
@@ -118,6 +121,7 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
       questionId,
       peerUserName,
       timeTaken,
+      codeContent,
     };
     console.log(`Sending attempt data to question-service:`, attemptData);
 

@@ -11,7 +11,7 @@ export async function createAttemptController(req: any, res: Response) {
   try {
     const userId = req.user.id;
     const userName = req.user.username; 
-    const { peerUserName, questionId, timeTaken } = req.body;
+    const { peerUserName, questionId, timeTaken, codeContent } = req.body;
 
     
     // Ensure peerUserName is not the same as the authenticated user's name
@@ -26,8 +26,8 @@ export async function createAttemptController(req: any, res: Response) {
         error: "Missing required fields: 'peerUserName', 'questionId', and 'timeTaken' are required.",
       });
     }
-    
-    const attemptData = { questionId, peerUserName, userId, timeTaken};
+
+    const attemptData = { questionId, peerUserName, userId, timeTaken, codeContent};
     console.log("Attempt data received:", attemptData);
 
     const attempt = await createAttempt(attemptData);

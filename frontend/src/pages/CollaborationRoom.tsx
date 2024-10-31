@@ -71,7 +71,7 @@ const CollaborativeEditor: React.FC = () => {
 
     // Cleanup when the component unmounts
     return () => {
-      cleanupCollaboration();
+      cleanupCollaboration(code);
     };
   }, [roomId, user, navigate]);
 
@@ -84,13 +84,13 @@ const CollaborativeEditor: React.FC = () => {
   };
 
   const handleLeaveRoom = () => {
-    cleanupCollaboration();
+    cleanupCollaboration(code);
     navigate("/matching"); // Redirect to match selection after leaving the room
   };
 
-  const cleanupCollaboration = () => {
+  const cleanupCollaboration = (codeContent: string) => {
     if (socketRef.current) {
-      socketRef.current.emit("leave_collab", { roomId });
+      socketRef.current.emit("leave_collab", { roomId, codeContent });
       socketRef.current.disconnect();
     }
   };

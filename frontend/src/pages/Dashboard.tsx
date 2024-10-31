@@ -17,9 +17,9 @@ import Header from "../components/Header";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { fetchUserAttempts } from "../api/attemptApi";
+import { fetchUserAttempts, fetchAttemptById } from "../api/attemptApi";
 import { DifficultyLevel, Attempt, Counts } from "../@types/attempt";
-import { format } from "date-fns";  // Added date-fns for formatting dates
+import { format } from "date-fns"; // Added date-fns for formatting dates
 
 const Dashboard = () => {
   // State variables
@@ -34,7 +34,7 @@ const Dashboard = () => {
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
-  // Pagination
+  // Pagination variables
   const entriesPerPage = 8;
   const totalEntries = filteredAttempts.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -84,7 +84,14 @@ const Dashboard = () => {
       const peerMatch = attempt.peerUserName
         ? attempt.peerUserName.toLowerCase().includes(searchTerm)
         : false;
-      return titleMatch || categoryMatch || complexityMatch || peerMatch;
+          // Date and time match
+      const dateMatch = attempt.timestamp
+      ? format(new Date(attempt.timestamp), "MMM dd, yyyy").toLowerCase().includes(searchTerm)
+      : false;
+      const timeTakenMatch = attempt.timeTaken
+      ? `${Math.floor(attempt.timeTaken / 60)}m ${attempt.timeTaken % 60}s`.toLowerCase().includes(searchTerm)
+      : false;
+      return titleMatch || categoryMatch || complexityMatch || peerMatch || dateMatch || timeTakenMatch;
     });
 
     const sorted = [...filtered];
@@ -116,41 +123,47 @@ const Dashboard = () => {
     setCurrentPage(pageNumber);
   };
 
+
+const handleViewAttempt = async (attemptId: string) => {
+  if (!token) {
+    console.error("Token is missing");
+    return;
+  }
+
+  try {
+    const attempt = await fetchAttemptById(attemptId, token); // Fetch specific attempt by ID
+
+    // Navigate to CollaborationDetails with specific attempt data
+    navigate(`/collaboration-details`, {
+      state: {
+        peerUserName: attempt.peerUserName,
+        timestamp: attempt.timestamp,
+        timeTaken: attempt.timeTaken,
+        codeContent: attempt.codeContent,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching specific attempt:", error);
+  }
+};
+
   const pageNumbers: number[] = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
   }
 
-  // Function to highlight search terms in text
   const highlightText = (text: string, searchQuery: string) => {
     if (!searchQuery) return text;
-
-    // Escape special regex characters in the search query
-    const escapeRegExp = (string: string) => {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    };
-
-    // Create a regular expression for the search term  
-    const escapedSearchTerm = escapeRegExp(searchQuery);
-    const regex = new RegExp(`(${escapedSearchTerm})`, "gi");
-    
-    // Split the text by the search term
-    const parts = text.split(regex);
-
-    return (
-      <>
-        {parts.map((part, index) =>
-          part.toLowerCase() === searchQuery.toLowerCase() ? (
-            <strong key={index}>{part}</strong> // Bold the matching part
-          ) : (
-            <span key={index}>{part}</span> // Regular text for non-matching parts
-          )
-        )}
-      </>
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    return text.split(regex).map((part, index) =>
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <strong key={index}>{part}</strong>
+      ) : (
+        part
+      )
     );
   };
 
-  
   return (
     <>
       <Header />
@@ -160,7 +173,6 @@ const Dashboard = () => {
           <Box p={2} border={1} borderColor="grey.300" borderRadius={2} flex="1 1 25%">
             <Typography variant="h5" gutterBottom>{user ? user.name : "Loading..."}</Typography>
             <Typography variant="subtitle1" gutterBottom>Proficiency: Expert</Typography>
-
             <Box mt={3} mb={3}>
               <Typography variant="subtitle1" gutterBottom>Questions Solved:</Typography>
               <Box>
@@ -169,7 +181,6 @@ const Dashboard = () => {
                 <Typography>Hard: {counts.Hard}</Typography>
               </Box>
             </Box>
-
             <Box mt={3}>
               <Button variant="outlined" fullWidth onClick={() => navigate("/dashboard/edit-profile")}>Edit Profile</Button>
               <Button variant="outlined" fullWidth onClick={() => navigate("/dashboard/change-password")}>Change Password</Button>
@@ -178,7 +189,6 @@ const Dashboard = () => {
 
           <Box p={2} border={1} borderColor="grey.300" borderRadius={2} flex="1 1 100%">
             <Typography variant="h6" gutterBottom>Attempts History</Typography>
-
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
               <TextField variant="outlined" label="Search" size="small" value={searchQuery} onChange={handleSearchChange} />
               <TextField select label="Sort By" value={sortBy} onChange={handleSortChange} size="small">
@@ -208,13 +218,17 @@ const Dashboard = () => {
                       <TableCell>{highlightText(attempt.questionId.category.join(", "), searchQuery)}</TableCell>
                       <TableCell>{highlightText(attempt.peerUserName || "N/A", searchQuery)}</TableCell>
                       <TableCell>{highlightText(attempt.questionId.complexity, searchQuery)}</TableCell>
-                      <TableCell>{attempt.timestamp ? format(new Date(attempt.timestamp), "MMM dd, yyyy") : "0s"}</TableCell>                      
-                      <TableCell>{attempt.timeTaken ? attempt.timeTaken >= 3600 ? `${Math.floor(attempt.timeTaken / 3600)}h ${Math.floor((attempt.timeTaken % 3600) / 60)}m ${attempt.timeTaken % 60}s`
-                                  : `${Math.floor(attempt.timeTaken / 60)}m ${attempt.timeTaken % 60}s`
-                                  : "N/A"}</TableCell>                      
+                      <TableCell>{highlightText(attempt.timestamp ? format(new Date(attempt.timestamp), "MMM dd, yyyy") : "N/A", searchQuery)}</TableCell>
+                      <TableCell>{highlightText(attempt.timeTaken ? `${Math.floor(attempt.timeTaken / 60)}m ${attempt.timeTaken % 60}s` : "0s", searchQuery)}</TableCell>
                       <TableCell>
-                        <Button variant="contained" color="primary" onClick={() => navigate(`/matching`)}>View</Button>
-                      </TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleViewAttempt(attempt._id)} // Pass the specific attemptId
+                      >
+                        View
+                      </Button>
+                    </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

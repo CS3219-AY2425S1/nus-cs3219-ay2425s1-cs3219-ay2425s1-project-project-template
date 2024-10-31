@@ -14,7 +14,7 @@ const AttemptSchema = new mongoose.Schema({
   },
   peerUserName: {
     type: String,
-    required: false,
+    required: true,
   },
   status: {
     type: String,
@@ -28,6 +28,11 @@ const AttemptSchema = new mongoose.Schema({
   timeTaken: {
     type: Number, // time in seconds
     default: 0,
+    required: true,
+  },
+  codeContent: {
+    type: String,
+    required: false, // Optional but stored
   },
 });
 

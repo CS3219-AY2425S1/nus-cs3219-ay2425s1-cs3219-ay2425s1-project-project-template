@@ -8,6 +8,7 @@ export interface Question {
   }
 
 export interface Attempt {
+  _id: string;
   questionId: Question;
   peerUserName?: string;
   status?: "Attempted" | "Completed"; // Added for clarity based on the schema

@@ -228,6 +228,19 @@ This document provides information about the various endpoints in the `attempt-r
 
 - Header: Authorization: Bearer <JWT_ACCESS_TOKEN>
 
+## Retrieve Attempted Question Data
+
+- Description: This endpoint allows an authenticated user to retrieve a particular attempt data based on the attempt id.
+
+- HTTP method: `GET`
+
+- Retrieve the attemptId from "Retrieve User Attempts" endpoint and place into the Endpoint URL.
+
+- Endpoint: `http://localhost:3002/api/attempts/{:attemptId}`
+
+- Header: Authorization: Bearer <JWT_ACCESS_TOKEN>
+
+
 ## Delete Latest User Attempt
 
 - Description: This endpoint allows an admin to delete the latest attempt entry. Only accessible to admin users.
