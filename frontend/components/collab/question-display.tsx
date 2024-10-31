@@ -17,20 +17,20 @@ const difficultyColors = {
 
 // export default function QuestionDisplay({ question }: { question: Question }) {
 //   return (
-    // <Card className="flex-shrink-0">
-    //   <CardHeader>
-    //     <CardTitle>{question.title}</CardTitle>
-    //     <CardDescription className="flex items-center space-x-2">
-    //       <span>{question.categories}</span>
-    //       <Badge className={`${difficultyColors[question.complexity]}`}>
-    //         {question.complexity}
-    //       </Badge>
-    //     </CardDescription>
-    //   </CardHeader>
-    //   <CardContent>
-    //     <p>{question.description}</p>
-    //   </CardContent>
-    // </Card>
+// <Card className="flex-shrink-0">
+//   <CardHeader>
+//     <CardTitle>{question.title}</CardTitle>
+//     <CardDescription className="flex items-center space-x-2">
+//       <span>{question.categories}</span>
+//       <Badge className={`${difficultyColors[question.complexity]}`}>
+//         {question.complexity}
+//       </Badge>
+//     </CardDescription>
+//   </CardHeader>
+//   <CardContent>
+//     <p>{question.description}</p>
+//   </CardContent>
+// </Card>
 export default function QuestionDisplay() {
   return (
     <Card className="flex-shrink-0">
