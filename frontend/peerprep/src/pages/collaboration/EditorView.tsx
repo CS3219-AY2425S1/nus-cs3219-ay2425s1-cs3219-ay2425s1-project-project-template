@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { io, Socket } from "socket.io-client";
+//import { io, Socket } from "socket.io-client";
 import { UserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Editor } from "@monaco-editor/react";
@@ -7,15 +7,17 @@ import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import axios from "axios";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import * as Y from "yjs";
+import { WebsocketProvider } from "y-websocket";
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
-  const socketRef = useRef<Socket | null>(null);
+  //const socketRef = useRef<Socket | null>(null);
+  //const [room, setRoom] = useState<string>("");
+  //const [socketId, setSocketId] = useState<string | undefined>("");
+  //const [isMatched, setIsMatched] = useState<boolean>(false);
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
-  const [room, setRoom] = useState<string>("");
-  const [socketId, setSocketId] = useState<string | undefined>("");
-  const [isMatched, setIsMatched] = useState<boolean>(false);
   const [language, setLanguage] = useState<string>("javascript");
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const userContext = useContext(UserContext);
@@ -25,104 +27,158 @@ const EditorView: React.FC = () => {
   const difficulty = searchParams.get("difficulty");
   const [code, setCode] = useState<string>(""); 
   const api = useQuesApiContext();
+  const ydocRef = useRef(new Y.Doc());
+  const roomIdParam = searchParams.get("roomId");
+  const defaultRoomId = "default-room";
+  const [roomId, setRoomId] = useState<string>(roomIdParam || defaultRoomId);
+  
+  useEffect(() => {
+    if (roomIdParam) {
+      setRoomId(roomIdParam);
+    }
+  }, [roomIdParam]);
+  
+  // useEffect(() => {
+  //   if (topic === null || difficulty === null || topic === "" || difficulty === "") {
+  //     navigate("/dashboard");
+  //     return;
+  //   }
+
+  //   socketRef.current = io("http://localhost:8080/");
+  //   const socket = socketRef.current;
+
+  //   if (socket === null) return;
+
+  //   socket.on("connect", () => {
+  //     setSocketId(socket.id);
+  //     socket.emit("joinQueue", { username: user?.username, topic, difficulty });
+  //   });
+
+  //   socket.on("matched", (data: { message: string; room: string }) => {
+  //     setRoom(data.room);
+  //     setIsMatched(true);
+  //   });
+
+  //   socket.on("queueEntered", (data: { message: string }) => {
+  //       console.log("queue entered", data);
+  //     });
+  
+  //   socket.on("matchFailed", (data: { error: string }) => {
+  //       console.log("Match failed:", data.error);
+  //       });
+  
+  //   socket.on("assignSocketId", (data: { socketId: string }) => {
+  //       console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
+  //       setSocketId(data.socketId); // Set the socket ID from the server
+  //       setMessages((prevMessages) => [
+  //         ...prevMessages,
+  //         `You are assigned to: ${data.socketId}`, // Add to messages
+  //       ]);
+  //     });
+  
+  //   socket.on("message", (data: string) => {
+  //       setMessages((prevMessages) => [...prevMessages, data]);
+  //       if (chatBoxRef.current) {
+  //         chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
+  //       }
+  //     });
+  
+  //   socket.on(
+  //       "receiveMessage",
+  //       (data: { username: string; message: string }) => {
+  //         setMessages((prevMessages) => [
+  //           ...prevMessages,
+  //           `${data.username}: ${data.message}`,
+  //         ]);
+  //         if (chatBoxRef.current) {
+  //           chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+  //         }
+  //       }
+  //     );
+
+  //   // Listen for incoming code changes
+  //   socket.on("codeChange", (newCode: string) => {
+  //       setCode(newCode);
+  //   });
+
+  //   // Listen for language changes
+  //   socket.on("languageChange", (newLanguage: string) => {
+  //       setLanguage(newLanguage);
+  //   });
+
+  //   return () => {
+  //       if (socketRef.current !== null) {
+  //           socketRef.current.disconnect();
+  //       }
+  //   };
+  // }, []);
+
+  // // Send code updates to other users in the room
+  // const handleEditorChange = (value: string | undefined) => {
+  //   if (!value || !isMatched) return;
+  //   setCode(value);
+  //   socketRef.current?.emit("sendCode", { room, code: value });
+  // };
+
+  // const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const newLanguage = e.target.value;
+  //   setLanguage(newLanguage);
+  //   socketRef.current?.emit("changeLanguage", { room, language: newLanguage });
+  // };
+
+
+  // const sendMessage = () => {
+  //   if (message.trim() && socketRef && isMatched) {
+  //     socketRef.current?.emit("sendMessage", {
+  //       room,
+  //       message,
+  //       username: user?.username,
+  //     });
+  //     setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
+  //     setMessage("");
+  //   }
+  // };
 
   useEffect(() => {
-    if (topic === null || difficulty === null || topic === "" || difficulty === "") {
+    if (!topic || !difficulty) {
       navigate("/dashboard");
       return;
     }
 
-    socketRef.current = io("http://localhost:8080/");
-    const socket = socketRef.current;
+    const yProvider = new WebsocketProvider(
+      process.env.WS_URL || "ws://localhost:1234",
+      roomId,
+      ydocRef.current
+    );
 
-    if (socket === null) return;
+    const yText = ydocRef.current.getText("monaco");
 
-    socket.on("connect", () => {
-      setSocketId(socket.id);
-      socket.emit("joinQueue", { username: user?.username, topic, difficulty });
-    });
-
-    socket.on("matched", (data: { message: string; room: string }) => {
-      setRoom(data.room);
-      setIsMatched(true);
-    });
-
-    socket.on("queueEntered", (data: { message: string }) => {
-        console.log("queue entered", data);
-      });
-  
-    socket.on("matchFailed", (data: { error: string }) => {
-        console.log("Match failed:", data.error);
-        });
-  
-    socket.on("assignSocketId", (data: { socketId: string }) => {
-        console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
-        setSocketId(data.socketId); // Set the socket ID from the server
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          `You are assigned to: ${data.socketId}`, // Add to messages
-        ]);
-      });
-  
-    socket.on("message", (data: string) => {
-        setMessages((prevMessages) => [...prevMessages, data]);
-        if (chatBoxRef.current) {
-          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
-        }
-      });
-  
-    socket.on(
-        "receiveMessage",
-        (data: { username: string; message: string }) => {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            `${data.username}: ${data.message}`,
-          ]);
-          if (chatBoxRef.current) {
-            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-          }
-        }
-      );
-
-    // Listen for incoming code changes
-    socket.on("codeChange", (newCode: string) => {
-        setCode(newCode);
-    });
-
-    // Listen for language changes
-    socket.on("languageChange", (newLanguage: string) => {
-        setLanguage(newLanguage);
+    // Sync code changes with the Yjs document
+    yText.observe(() => {
+      setCode(yText.toString());
     });
 
     return () => {
-        if (socketRef.current !== null) {
-            socketRef.current.disconnect();
-        }
+      yProvider.disconnect();
     };
-  }, []);
+  }, [roomId]);
 
-  // Send code updates to other users in the room
   const handleEditorChange = (value: string | undefined) => {
-    if (!value || !isMatched) return;
+    if (!value) return;
+    const yText = ydocRef.current.getText("monaco");
+    yText.delete(0, yText.length);
+    yText.insert(0, value);
     setCode(value);
-    socketRef.current?.emit("sendCode", { room, code: value });
   };
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-    socketRef.current?.emit("changeLanguage", { room, language: newLanguage });
+    setLanguage(e.target.value);
   };
 
-
   const sendMessage = () => {
-    if (message.trim() && socketRef && isMatched) {
-      socketRef.current?.emit("sendMessage", {
-        room,
-        message,
-        username: user?.username,
-      });
-      setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
+    if (message.trim()) {
+      const chatMessage = `${user?.username || "Guest"}: ${message}`;
+      setMessages((prevMessages) => [...prevMessages, chatMessage]);
       setMessage("");
     }
   };
@@ -164,7 +220,7 @@ const EditorView: React.FC = () => {
     targetDifficulty: string
   ): Question | undefined => {
     return questions.find((question) => {
-      const categoriesArray = question.Categories.split(',').map((cat) => cat.trim().toLowerCase());
+      const categoriesArray = question.Categories.map((cat) => cat.trim().toLowerCase());
       return (
         categoriesArray.includes(targetTopic.toLowerCase()) &&
         question.Complexity.toLowerCase() === targetDifficulty.toLowerCase()
@@ -216,9 +272,9 @@ const EditorView: React.FC = () => {
             <div key={index} style={styles.message}>{msg}</div>
           ))}
         </div>
-        <div className="socket-id-display" style={styles.socketIdDisplay}>
+        {/* <div className="socket-id-display" style={styles.socketIdDisplay}>
           {socketId && <div>Your Socket ID: {socketId}</div>}
-        </div>
+        </div> */}
         <div className="chat-input" style={styles.chatInput}>
           <input
             type="text"

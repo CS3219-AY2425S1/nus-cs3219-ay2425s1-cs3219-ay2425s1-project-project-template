@@ -89,6 +89,15 @@ services:
         - path: ../frontend/peerprep/package.json # rebuild when new dependencies are added
           action: rebuild
 
+  yjs_websocket: # New Yjs WebSocket server service
+    container_name: yjs_websocket_service
+    build:
+      context: ./yjs-websocket-server
+      dockerfile: Dockerfile
+    ports:
+      - "1234:1234"
+    restart: always
+
 volumes:
   mongo_db: {}
   redis_data: {}
