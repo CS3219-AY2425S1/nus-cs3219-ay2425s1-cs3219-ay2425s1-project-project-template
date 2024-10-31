@@ -11,15 +11,23 @@ export async function createAttemptController(req: any, res: Response) {
   try {
     const userId = req.user.id;
     const userName = req.user.username; 
-    const { peerUserName, questionId } = req.body;
+    const { peerUserName, questionId, timeTaken } = req.body;
 
+    
     // Ensure peerUserName is not the same as the authenticated user's name
     if (peerUserName === userName) {
       console.error("Validation Error: peerUserName cannot be the same as your own username.");
       return res.status(400).json({ error: "peerUserName cannot be the same as your own username." });
     }
-
-    const attemptData = { questionId, peerUserName, userId };
+    // Ensure required fields are provided
+    if (!peerUserName || !questionId || timeTaken === undefined) {
+      console.error("Validation Error: Missing required fields.");
+      return res.status(400).json({
+        error: "Missing required fields: 'peerUserName', 'questionId', and 'timeTaken' are required.",
+      });
+    }
+    
+    const attemptData = { questionId, peerUserName, userId, timeTaken};
     console.log("Attempt data received:", attemptData);
 
     const attempt = await createAttempt(attemptData);

@@ -196,13 +196,14 @@ This document provides information about the various endpoints in the `attempt-r
 
 - Body:
 
-  - Required: userId (string), questionId (string), peerUserName (string)
+  - Required: userId (string), questionId (string), peerUserName (string), timeTaken (number)
   ### Example:
   ```
   {
     "userId": "ID of user",
     "questionId": "ID of question",
     "peerUserName": "username of peer",
+    "timeTaken": 800 (Time taken for attempt in seconds)
   }
   ```
 

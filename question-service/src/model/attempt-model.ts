@@ -25,6 +25,10 @@ const AttemptSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  timeTaken: {
+    type: Number, // time in seconds
+    default: 0,
+  },
 });
 
 // To prevent duplicates, consider adding a compound index

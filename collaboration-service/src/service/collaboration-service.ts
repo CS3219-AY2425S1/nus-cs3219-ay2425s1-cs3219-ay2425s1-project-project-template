@@ -14,7 +14,7 @@ const socketUserInfo: { [socketId: string]: { userName: string; userId: string; 
 
 // Map to track all users who have ever been in each collaboration room
 const roomUserHistory: { [roomId: string]: Set<string> } = {};
-
+const sessionStartTime: { [socketId: string]: number } = {}; // Stores the start time in milliseconds
 export async function joinCollaborationRoom(socket: Socket, {
     roomId,
     userName,
@@ -32,6 +32,9 @@ export async function joinCollaborationRoom(socket: Socket, {
 ) {
   socket.join(roomId);
   console.log(`User ${userName} joined room ${roomId}`);
+
+  // Record the start time of the session
+  sessionStartTime[socket.id] = Date.now();
 
   // Map socket ID to user info
   socketUserInfo[socket.id] = { userName, userId, questionId, token };
@@ -74,6 +77,14 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
   const { userName, userId, questionId, token } = userInfo;
   console.log(`User ${userName} left room ${roomId}`);
 
+  // Calculate time taken in seconds
+  const endTime = Date.now();
+  const startTime = sessionStartTime[socket.id];
+  const timeTaken = Math.floor((endTime - startTime) / 1000); // time in seconds
+
+  // Clean up the start time from the map
+  delete sessionStartTime[socket.id];
+
   // Get the peer usernames from roomUserHistory[roomId], excluding the current user
   const peerUserNames = Array.from(roomUserHistory[roomId] || []).filter(
     (name) => name !== userName
@@ -93,7 +104,7 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
   let peerUserName: string | undefined;
 
   if (peerUserNames.length > 0) {
-    peerUserName = peerUserNames[0]; // You can decide how to handle multiple peers
+    peerUserName = peerUserNames[0]; 
   } else {
     peerUserName = undefined;
   }
@@ -106,6 +117,7 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
       userId,
       questionId,
       peerUserName,
+      timeTaken,
     };
     console.log(`Sending attempt data to question-service:`, attemptData);
 
@@ -124,8 +136,6 @@ export async function handleLeaveRoom(socket: Socket, { roomId }: { roomId: stri
     );
     
   }
-
-  
 
   // Notify the remaining user
   if (peerUserName) {

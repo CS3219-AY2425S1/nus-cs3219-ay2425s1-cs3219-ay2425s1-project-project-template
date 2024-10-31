@@ -19,7 +19,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { fetchUserAttempts } from "../api/attemptApi";
 import { DifficultyLevel, Attempt, Counts } from "../@types/attempt";
-
+import { format } from "date-fns";  // Added date-fns for formatting dates
 
 const Dashboard = () => {
   // State variables
@@ -40,10 +40,7 @@ const Dashboard = () => {
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = filteredAttempts.slice(
-    indexOfFirstEntry,
-    indexOfLastEntry
-  );
+  const currentEntries = filteredAttempts.slice(indexOfFirstEntry, indexOfLastEntry);
 
   useEffect(() => {
     const fetchAttemptsData = async () => {
@@ -52,10 +49,8 @@ const Dashboard = () => {
         return;
       }
 
-      console.log("Fetching user attempts with token:", token);
       try {
         const data = await fetchUserAttempts(token);
-        console.log("Fetched attempts data:", data);
         setAttempts(data);
 
         // Calculate counts
@@ -64,12 +59,9 @@ const Dashboard = () => {
           const difficulty = attempt.questionId.complexity;
           if (newCounts[difficulty] !== undefined) {
             newCounts[difficulty]++;
-          } else {
-            console.warn(`Unexpected difficulty level: ${difficulty}`);
           }
         });
         setCounts(newCounts);
-        console.log("Updated counts:", newCounts);
 
         // Apply initial filter and sort
         filterAndSortAttempts(data, searchQuery, sortBy);
@@ -82,9 +74,6 @@ const Dashboard = () => {
   }, [token]);
 
   const filterAndSortAttempts = (data: Attempt[], query: string, criteria: string) => {
-    console.log(`Filtering and sorting attempts by: ${criteria}, with search query: ${query}`);
-    
-    // Firstly, Filter
     const filtered = data.filter((attempt) => {
       const searchTerm = query.toLowerCase();
       const titleMatch = attempt.questionId.title.toLowerCase().includes(searchTerm);
@@ -98,49 +87,39 @@ const Dashboard = () => {
       return titleMatch || categoryMatch || complexityMatch || peerMatch;
     });
 
-    // Secondly, Sort
     const sorted = [...filtered];
-    sorted.sort((a, b) => new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime()); // Default to "Newest"
+    sorted.sort((a, b) => new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime());
 
     if (criteria === "Difficulty") {
       const difficultyOrder: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
-      sorted.sort((a, b) => {
-        const difficultyComparison = difficultyOrder.indexOf(a.questionId.complexity) - difficultyOrder.indexOf(b.questionId.complexity);
-        return difficultyComparison;
-      });
+      sorted.sort((a, b) => difficultyOrder.indexOf(a.questionId.complexity) - difficultyOrder.indexOf(b.questionId.complexity));
     } else if (criteria === "Topic") {
-      sorted.sort((a, b) => {
-        const categoryA = a.questionId.category[0] || "";
-        const categoryB = b.questionId.category[0] || "";
-        const topicComparison = categoryA.localeCompare(categoryB);
-        return topicComparison;
-      });
+      sorted.sort((a, b) => (a.questionId.category[0] || "").localeCompare(b.questionId.category[0] || ""));
     }
 
     setFilteredAttempts(sorted);
-    console.log("Filtered and sorted attempts:", sorted);
   };
 
-  // Update filtered and sorted attempts 
   useEffect(() => {
     filterAndSortAttempts(attempts, searchQuery, sortBy);
   }, [searchQuery, sortBy, attempts]);
 
-  // Handlers
   const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSortBy(event.target.value);
-    console.log(`Sort by changed to: ${event.target.value}`);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
-    console.log(`Search query changed to: ${event.target.value}`);
   };
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    console.log(`Page changed to: ${pageNumber}`);
   };
+
+  const pageNumbers: number[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   // Function to highlight search terms in text
   const highlightText = (text: string, searchQuery: string) => {
@@ -171,36 +150,19 @@ const Dashboard = () => {
     );
   };
 
-  const pageNumbers: number[] = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
+  
   return (
     <>
       <Header />
 
       <Container maxWidth="lg" sx={{ mt: 3 }}>
         <Box display="flex" flexDirection="row" gap={2}>
-          {/* User Info Section */}
-          <Box
-            p={2}
-            border={1}
-            borderColor="grey.300"
-            borderRadius={2}
-            flex="1 1 25%"
-          >
-            <Typography variant="h5" gutterBottom>
-              {user ? user.name : "Loading..."}
-            </Typography>
-            <Typography variant="subtitle1" gutterBottom>
-              Proficiency: Expert
-            </Typography>
+          <Box p={2} border={1} borderColor="grey.300" borderRadius={2} flex="1 1 25%">
+            <Typography variant="h5" gutterBottom>{user ? user.name : "Loading..."}</Typography>
+            <Typography variant="subtitle1" gutterBottom>Proficiency: Expert</Typography>
 
             <Box mt={3} mb={3}>
-              <Typography variant="subtitle1" gutterBottom>
-                Questions Solved:
-              </Typography>
+              <Typography variant="subtitle1" gutterBottom>Questions Solved:</Typography>
               <Box>
                 <Typography>Easy: {counts.Easy}</Typography>
                 <Typography>Medium: {counts.Medium}</Typography>
@@ -209,63 +171,23 @@ const Dashboard = () => {
             </Box>
 
             <Box mt={3}>
-              <Button
-                variant="outlined"
-                fullWidth
-                onClick={() => navigate("/dashboard/edit-profile")}
-              >
-                Edit Profile
-              </Button>
-              <Button
-                variant="outlined"
-                fullWidth
-                onClick={() => navigate("/dashboard/change-password")}
-              >
-                Change Password
-              </Button>
+              <Button variant="outlined" fullWidth onClick={() => navigate("/dashboard/edit-profile")}>Edit Profile</Button>
+              <Button variant="outlined" fullWidth onClick={() => navigate("/dashboard/change-password")}>Change Password</Button>
             </Box>
           </Box>
 
-          {/* Attempts History Section */}
-          <Box
-            p={2}
-            border={1}
-            borderColor="grey.300"
-            borderRadius={2}
-            flex="1 1 75%"
-          >
-            <Typography variant="h6" gutterBottom>
-              Attempts History
-            </Typography>
+          <Box p={2} border={1} borderColor="grey.300" borderRadius={2} flex="1 1 100%">
+            <Typography variant="h6" gutterBottom>Attempts History</Typography>
 
-            {/* Search and Sort Controls */}
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mb={3}
-            >
-              <TextField
-                variant="outlined"
-                label="Search"
-                size="small"
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <TextField
-                select
-                label="Sort By"
-                value={sortBy}
-                onChange={handleSortChange}
-                size="small"
-              >
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+              <TextField variant="outlined" label="Search" size="small" value={searchQuery} onChange={handleSearchChange} />
+              <TextField select label="Sort By" value={sortBy} onChange={handleSortChange} size="small">
                 <MenuItem value="Newest">Newest</MenuItem>
                 <MenuItem value="Difficulty">Difficulty</MenuItem>
                 <MenuItem value="Topic">Topic</MenuItem>
               </TextField>
             </Box>
 
-            {/* Attempts Table */}
             <Paper elevation={3}>
               <Table>
                 <TableHead>
@@ -274,28 +196,24 @@ const Dashboard = () => {
                     <TableCell>Topic</TableCell>
                     <TableCell>Peer</TableCell>
                     <TableCell>Difficulty</TableCell>
+                    <TableCell>Completed At (SGT)</TableCell>
+                    <TableCell>Time Taken</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {currentEntries.map((attempt, index) => (
                     <TableRow key={index}>
+                      <TableCell>{highlightText(attempt.questionId.title, searchQuery)}</TableCell>
+                      <TableCell>{highlightText(attempt.questionId.category.join(", "), searchQuery)}</TableCell>
+                      <TableCell>{highlightText(attempt.peerUserName || "N/A", searchQuery)}</TableCell>
+                      <TableCell>{highlightText(attempt.questionId.complexity, searchQuery)}</TableCell>
+                      <TableCell>{attempt.timestamp ? format(new Date(attempt.timestamp), "MMM dd, yyyy") : "N/A"}</TableCell>                      
+                      <TableCell>{attempt.timeTaken ? attempt.timeTaken >= 3600 ? `${Math.floor(attempt.timeTaken / 3600)}h ${Math.floor((attempt.timeTaken % 3600) / 60)}m ${attempt.timeTaken % 60}s`
+                                  : `${Math.floor(attempt.timeTaken / 60)}m ${attempt.timeTaken % 60}s`
+                                  : "N/A"}</TableCell>                      
                       <TableCell>
-                        {highlightText(attempt.questionId.title, searchQuery)}
-                      </TableCell>
-                      <TableCell>
-                        {highlightText(
-                          attempt.questionId.category.join(", "),
-                          searchQuery
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {highlightText(attempt.peerUserName || "N/A", searchQuery)}
-                      </TableCell>
-                      <TableCell>
-                        {highlightText(
-                          attempt.questionId.complexity,
-                          searchQuery
-                        )}
+                        <Button variant="contained" color="primary" onClick={() => navigate(`/matching`)}>View</Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -303,27 +221,11 @@ const Dashboard = () => {
               </Table>
             </Paper>
 
-            {/* Pagination Controls */}
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mt={2}
-            >
-              <Typography variant="body2">
-                Showing data {indexOfFirstEntry + 1} to{" "}
-                {Math.min(indexOfLastEntry, totalEntries)} of {totalEntries}{" "}
-                entries
-              </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+              <Typography variant="body2">Showing data {indexOfFirstEntry + 1} to {Math.min(indexOfLastEntry, totalEntries)} of {totalEntries} entries</Typography>
               <Box>
                 {pageNumbers.map((pageNumber) => (
-                  <IconButton
-                    key={pageNumber}
-                    onClick={() => handlePageChange(pageNumber)}
-                    color={pageNumber === currentPage ? "primary" : "default"}
-                  >
-                    {pageNumber}
-                  </IconButton>
+                  <IconButton key={pageNumber} onClick={() => handlePageChange(pageNumber)} color={pageNumber === currentPage ? "primary" : "default"}>{pageNumber}</IconButton>
                 ))}
               </Box>
             </Box>

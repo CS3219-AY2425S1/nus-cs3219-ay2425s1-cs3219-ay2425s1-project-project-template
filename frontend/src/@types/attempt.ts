@@ -12,6 +12,7 @@ export interface Attempt {
   peerUserName?: string;
   status?: "Attempted" | "Completed"; // Added for clarity based on the schema
   timestamp?: Date; // Added the timestamp property here
+  timeTaken?: number; // Store time taken
 }
 
 export interface FetchAttemptsResponse {
