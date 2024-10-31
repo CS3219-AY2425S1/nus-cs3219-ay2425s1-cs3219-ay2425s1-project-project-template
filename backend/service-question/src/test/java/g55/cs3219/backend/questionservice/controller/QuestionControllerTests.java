@@ -2,7 +2,6 @@ package g55.cs3219.backend.questionservice.controller;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,7 +50,7 @@ class QuestionControllerTests {
                 .description("Description 1")
                 .difficulty("Easy")
                 .categories(Arrays.asList("Category1", "Category2"))
-                .examples(Arrays.asList(new HashMap<>()))
+                .examples(Arrays.asList("Example1", "Example2"))
                 .constraints(Arrays.asList("Constraint1"))
                 .link("http://example1.com")
                 .build();
@@ -62,7 +61,7 @@ class QuestionControllerTests {
                 .description("Description 2")
                 .difficulty("Medium")
                 .categories(Arrays.asList("Category2", "Category3"))
-                .examples(Arrays.asList(new HashMap<>()))
+                .examples(Arrays.asList("Example1", "Example2"))
                 .constraints(Arrays.asList("Constraint2"))
                 .link("http://example2.com")
                 .build();
@@ -73,7 +72,7 @@ class QuestionControllerTests {
                 .description("Description 3")
                 .difficulty("Hard")
                 .categories(Arrays.asList("Category1", "Category3"))
-                .examples(Arrays.asList(new HashMap<>()))
+                .examples(Arrays.asList("Example1", "Example2"))
                 .constraints(Arrays.asList("Constraint3"))
                 .link("http://example3.com")
                 .build();
