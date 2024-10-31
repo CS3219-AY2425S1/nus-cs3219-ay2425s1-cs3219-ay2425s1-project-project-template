@@ -19,6 +19,7 @@ import QuestionDescription from "@/components/questions/QuestionDescription";
 import { SocketContext } from "@/context/SockerIOContext";
 import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
+import VoiceChat from "@/components/collaboration/VoiceChat";
 
 const mockQuestion: Question = {
   title: "Fibonacci Number",
@@ -110,6 +111,10 @@ export default function Page() {
           <QuestionDescription isCollab={true} question={mockQuestion} />
         </div>
         <div className="flex-[3_3_0%]">
+          {/* Render the VoiceChat component */}
+          <VoiceChat />
+          
+          {/* Render the CodeEditor */}
           <CodeEditor />
         </div>
       </div>
