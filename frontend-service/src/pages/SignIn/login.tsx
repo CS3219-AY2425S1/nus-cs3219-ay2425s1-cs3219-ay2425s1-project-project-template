@@ -5,7 +5,7 @@ import signupGraphic from "../../assets/images/signup_graphic.png";
 import { useToast } from "@chakra-ui/react";
 
 interface LoginProps {
-  updateAuthStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  updateAuthStatus: (isAuthenticated: boolean, userIsAdmin: boolean) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
@@ -29,8 +29,24 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem("token", data.data.accessToken);
-        updateAuthStatus(true);
-        navigate("/questions");
+
+        const verifyResponse = await fetch(
+          "http://localhost:3001/auth/verify-token",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${data.data.accessToken}`,
+            },
+          }
+        );
+        const verifyData = await verifyResponse.json();
+        if (verifyData.message === "Token verified") {
+          updateAuthStatus(true, verifyData.data.isAdmin);
+          navigate("/questions");
+        } else {
+          throw new Error("Failed to verify token after login.");
+        }
       } else {
         toast({
           title: "Error",

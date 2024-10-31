@@ -14,6 +14,11 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userIsAdmin, setUserIsAdmin] = useState(false);
 
+  const updateAuthStatus = (authStatus: boolean, isAdminStatus = false) => {
+    setIsAuthenticated(authStatus);
+    setUserIsAdmin(isAdminStatus);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -57,7 +62,7 @@ function App() {
             <>
               <Route
                 path="/login"
-                element={<Login updateAuthStatus={setIsAuthenticated} />}
+                element={<Login updateAuthStatus={updateAuthStatus} />}
               />
               <Route path="/signup" element={<Signup />} />
             </>
