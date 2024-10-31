@@ -57,7 +57,7 @@ class QuestionServiceTests {
             .description("Description 1")
             .difficulty("Easy")
             .categories(Arrays.asList("Category1", "Category2"))
-            .examples(Arrays.asList(new HashMap<>()))
+            .examples(Arrays.asList("Example1", "Example2"))
             .constraints(Arrays.asList("Constraint1"))
             .link("http://example1.com")
             .build();
@@ -68,7 +68,7 @@ class QuestionServiceTests {
             .description("Description 2")
             .difficulty("Medium")
             .categories(Arrays.asList("Category2", "Category3"))
-            .examples(Arrays.asList(new HashMap<>()))
+            .examples(Arrays.asList("Example1", "Example2"))
             .constraints(Arrays.asList("Constraint2"))
             .link("http://example2.com")
             .build();
@@ -79,7 +79,7 @@ class QuestionServiceTests {
             .description("Description 3")
             .difficulty("Hard")
             .categories(Arrays.asList("Category1", "Category3"))
-            .examples(Arrays.asList(new HashMap<>()))
+            .examples(Arrays.asList("Example1", "Example2"))
             .constraints(Arrays.asList("Constraint3"))
             .link("http://example3.com")
             .build();
@@ -238,12 +238,12 @@ class QuestionServiceTests {
         when(questionRepository.save(any(Question.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         QuestionDto updateDto = new QuestionDto();
-        updateDto.setExamples(List.of(new HashMap<>()));
+        updateDto.setExamples(List.of("Example3", "Example4"));
 
         QuestionDto result = questionService.updateQuestion(1, updateDto);
 
         assertEquals(1, result.getId());
-        assertEquals(List.of(new HashMap<>()), result.getExamples());
+        assertEquals(List.of("Example3", "Example4"), result.getExamples());
     }
 
     @Test
