@@ -125,6 +125,12 @@ const CollabPageView: React.FC = () => {
         setCode(data.code);
       });
 
+      newSocket.on("languageUpdated", (data) => {
+        console.log("Language update received from server:", data);
+        setSelectedLang(data.language); // set select language for collab-user
+        setCode(CODE_SNIPPETS[data.language]); // set code snippet for collab-user
+      });
+
       newSocket.on("sessionTerminated", ({ userId }) => {
         console.log(`Session terminated by user with ID: ${userId}`);
 
@@ -209,7 +215,16 @@ const CollabPageView: React.FC = () => {
 
   const onSelect = (language: string) => {
     setSelectedLang(language);
-    setCode(CODE_SNIPPETS[language]);
+    setCode(CODE_SNIPPETS[language]); // update local state
+
+    // socket-io to auto change language for collab-user
+    if (socket) {
+      console.log("Emitting language change:", language);
+      socket.emit("languageUpdate", {
+        sessionIdObj,
+        language: language,
+      });
+    }
   };
 
   const [codeOutput, setCodeOutput] = useState(null);
