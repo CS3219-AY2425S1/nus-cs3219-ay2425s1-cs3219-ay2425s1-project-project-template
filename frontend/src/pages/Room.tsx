@@ -67,9 +67,10 @@ function Room() {
       setCode(newCode);
     });
 
+    // Use externalSetCodeWithCursor for code updates from other users
     socketRef.current.on('code-updated', (newCode) => {
       isRemoteUpdateRef.current = true;
-      setCode(newCode);
+      externalSetCodeWithCursor(newCode);
     });
 
     socketRef.current.on('user-joined', () => {
@@ -106,6 +107,12 @@ function Room() {
     navigate('/dashboard');
   };
 
+  // Define the externalSetCodeWithCursor function
+  const externalSetCodeWithCursor = (newCode: string) => {
+    setCode(newCode); // You can also call the actual function here
+    // Additional logic for cursor management can go here if needed
+  };
+
   return (
     <>
       <Group h="100vh" bg="slate.8" gap="10px" p="10px">
@@ -121,6 +128,7 @@ function Room() {
           openLeaveSessionModal={openLeaveSessionModal}
           code={code}
           setCode={setCode}
+          setCodewithCursor={externalSetCodeWithCursor} // Pass the function as a prop
         />
       </Group>
 

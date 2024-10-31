@@ -9,7 +9,7 @@ interface CodeEditorProps {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   extensions: Extension[];
-  ifSetCursor?: boolean
+  setCodewithCursor: (newCode: string) => void;
 }
 
 const customSublime = sublimeInit({
@@ -18,7 +18,7 @@ const customSublime = sublimeInit({
   },
 });
 
-function CodeEditor({ code, setCode, extensions, ifSetCursor }: CodeEditorProps) {
+function CodeEditor({ code, setCode, extensions }: CodeEditorProps) {
   const [cursorPos, setCursorPos] = useState({ anchor: 0, head: 0 });
   const editorView = useRef<ViewUpdate['view'] | null>(null); // Store editor view
 
@@ -30,12 +30,14 @@ function CodeEditor({ code, setCode, extensions, ifSetCursor }: CodeEditorProps)
     }
   };
 
-  // Unified function to handle code changes
-  const handleCodeChange = (newCode: string) => {
+  // Expose a method to allow external calls
+  const setCodewithCursor = (newCode: string) => {
+    // Call the external setCodewithCursor function
     setCode(newCode);
-    
+
+    // Keep the cursor position in sync
     const doc = editorView.current?.state.doc;
-    if (ifSetCursor && doc && editorView.current) {
+    if (doc && editorView.current) {
       const maxPos = doc.length;
       const validAnchor = Math.min(cursorPos.anchor, maxPos);
       const validHead = Math.min(cursorPos.head, maxPos);
@@ -51,7 +53,7 @@ function CodeEditor({ code, setCode, extensions, ifSetCursor }: CodeEditorProps)
       theme={customSublime}
       className={classes.codeMirror}
       extensions={extensions}
-      onChange={handleCodeChange} // Use handleCodeChange for both cases
+      onChange={setCode}
       onUpdate={handleUpdate}
     />
   );

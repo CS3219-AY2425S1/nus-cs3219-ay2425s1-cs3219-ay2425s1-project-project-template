@@ -11,6 +11,7 @@ interface CodeEditorLayoutProps {
   openLeaveSessionModal: () => void;
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
+  setCodewithCursor: (newCode: string) => void; // Add this line
 }
 
 type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
@@ -21,6 +22,7 @@ function CodeEditorLayout({
   openLeaveSessionModal,
   code,
   setCode,
+  setCodewithCursor, // Add this line
 }: CodeEditorLayoutProps) {
   const [language, setLanguage] = useState<SupportedLanguage>('python');
   const [extensions, setExtensions] = useState<Extension[]>([
@@ -77,7 +79,13 @@ function CodeEditorLayout({
         </Button>
       </Group>
 
-      <CodeEditor code={code} setCode={setCode} extensions={extensions} />
+      {/* Pass setCodewithCursor to the CodeEditor component */}
+      <CodeEditor 
+        code={code} 
+        setCode={setCode} 
+        setCodewithCursor={setCodewithCursor} // Add this line
+        extensions={extensions} 
+      />
     </Stack>
   );
 }
