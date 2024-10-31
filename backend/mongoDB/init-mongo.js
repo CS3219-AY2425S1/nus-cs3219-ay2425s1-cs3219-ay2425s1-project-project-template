@@ -10,12 +10,12 @@ const seedQuestions = [
   {
     title: 'Reverse a String',
     description:
-      'Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\nExample 1:\nInput: s = ["h","e","l","l","o"]\nOutput: ["o","l","l","e","h"]\n\nExample 2:\nInput: s = ["H","a","n","n","a","h"]\nOutput: ["h","a","n","n","a","H"]\n\nConstraints:\n1 <= s.length <= 105\ns[i] is a printable ascii character.',
+      'Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.',
     categories: ['Strings', 'Algorithms'],
     difficulty: 'Easy',
     link: 'https://leetcode.com/problems/reverse-string/',
     constraints: [
-      '1 <= s.length <= 105',
+      '1 <= s.length <= 10^5',
       's[i] is a printable ascii character',
     ],
     examples: [
@@ -32,8 +32,8 @@ const seedQuestions = [
     difficulty: 'Easy',
     link: 'https://leetcode.com/problems/linked-list-cycle/',
     constraints: [
-      'The number of nodes in the list is in range [0, 104]',
-      '-105 <= Node.val <= 105',
+      'The number of nodes in the list is in range [0, 10^4]',
+      '-10^5 <= Node.val <= 10^5',
     ],
     examples: [
       'Input: head = [3,2,0,-4], pos = 1\nOutput: true\nExplanation: There is a cycle in the linked list, where the tail connects to the 1st node (0-indexed).',
@@ -65,7 +65,7 @@ const seedQuestions = [
     difficulty: 'Easy',
     link: 'https://leetcode.com/problems/add-binary/',
     constraints: [
-      '1 <= a.length, b.length <= 104',
+      '1 <= a.length, b.length <= 10^4',
       "a and b consist only of '0' or '1' characters",
       'Each string does not contain leading zeros except for the zero itself',
     ],
@@ -130,7 +130,7 @@ const seedQuestions = [
     difficulty: 'Medium',
     link: 'https://leetcode.com/problems/repeated-dna-sequences/',
     constraints: [
-      '1 <= s.length <= 105',
+      '1 <= s.length <= 10^5',
       "s[i] is either 'A', 'C', 'G', or 'T'",
     ],
     examples: [
@@ -167,8 +167,8 @@ const seedQuestions = [
     link: 'https://leetcode.com/problems/lru-cache/',
     constraints: [
       '1 <= capacity <= 3000',
-      '0 <= key <= 104',
-      '0 <= value <= 105',
+      '0 <= key <= 10^4',
+      '0 <= value <= 10^5',
     ],
     examples: [
       'Input: ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]\nOutput: [null, null, null, 1, null, -1, null, -1, 3, 4]',
@@ -217,7 +217,7 @@ const seedQuestions = [
     categories: ['Brainteaser'],
     difficulty: 'Medium',
     link: 'https://leetcode.com/problems/airplane-seat-assignment-probability/',
-    constraints: ['1 <= n <= 105'],
+    constraints: ['1 <= n <= 10^5'],
     examples: [
       'Input: n = 1\nOutput: 1.00000\nExplanation: The first person can only sit in their own seat.',
       'Input: n = 2\nOutput: 0.50000\nExplanation: The second person has probability 0.5 to sit in their own seat.',
@@ -232,8 +232,8 @@ const seedQuestions = [
     difficulty: 'Medium',
     link: 'https://leetcode.com/problems/validate-binary-search-tree/',
     constraints: [
-      'The number of nodes in the tree is in the range [1, 104]',
-      '-231 <= Node.val <= 231 - 1',
+      'The number of nodes in the tree is in the range [1, 10^4]',
+      '-2^31 <= Node.val <= 2^31 - 1',
     ],
     examples: [
       'Input: root = [2,1,3]\nOutput: true',
@@ -249,8 +249,8 @@ const seedQuestions = [
     difficulty: 'Hard',
     link: 'https://leetcode.com/problems/sliding-window-maximum/',
     constraints: [
-      '1 <= nums.length <= 105',
-      '-104 <= nums[i] <= 104',
+      '1 <= nums.length <= 10^5',
+      '-10^4 <= nums[i] <= 10^4',
       '1 <= k <= nums.length',
     ],
     examples: [
@@ -280,7 +280,7 @@ const seedQuestions = [
     difficulty: 'Hard',
     link: 'https://leetcode.com/problems/serialize-and-deserialize-binary-tree/',
     constraints: [
-      'The number of nodes in the tree is in the range [0, 104]',
+      'The number of nodes in the tree is in the range [0, 10^4]',
       '-1000 <= Node.val <= 1000',
     ],
     examples: [
@@ -314,7 +314,7 @@ const seedQuestions = [
     categories: ['Brainteaser'],
     difficulty: 'Hard',
     link: 'https://leetcode.com/problems/chalkboard-xor-game/',
-    constraints: ['1 <= nums.length <= 1000', '0 <= nums[i] < 216'],
+    constraints: ['1 <= nums.length <= 1000', '0 <= nums[i] < 2^16'],
     examples: [
       'Input: nums = [1,1,2]\nOutput: false\nExplanation: Alice has two choices: erase 1 or erase 2. If she erases 1, the nums array becomes [1, 2]. The bitwise XOR of all the elements of the chalkboard is 1 XOR 2 = 3. Now Bob can remove any element he wants, because Alice will be the one to erase the last element and she will lose. If Alice erases 2 first, now nums become [1, 1]. The bitwise XOR of all the elements of the chalkboard is 1 XOR 1 = 0. Alice will lose.',
       'Input: nums = [0,1]\nOutput: true',
