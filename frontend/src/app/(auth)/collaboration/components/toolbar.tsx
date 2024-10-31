@@ -33,7 +33,7 @@ export function Toolbar({ editor, language }: Props) {
       >
         <RedoIcon />
       </button>
-      <div className="bg-yellow-500 text-black py-1 px-2 rounded-full text-xs">
+      <div className="text-grey-300 h-6 py-1 px-2 ml-auto mr-2 rounded-full text-xs flex items-center justify-center">
         {languageCapitalized}
       </div>
     </div>

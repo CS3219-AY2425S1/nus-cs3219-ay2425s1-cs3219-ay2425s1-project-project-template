@@ -131,6 +131,7 @@ function Collaboration({ room, language }: Props) {
         />
       ) : null}
       <Toolbar editor={editorRef.current} language={language} />
+      <div className="w-full h-[1px] bg-primary-1000 mx-auto my-2"></div>
       <Editor
         height="100vh"
         width="full"

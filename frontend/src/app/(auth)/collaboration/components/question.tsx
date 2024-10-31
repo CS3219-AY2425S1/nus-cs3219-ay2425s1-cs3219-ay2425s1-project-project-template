@@ -24,16 +24,20 @@ const Question = ({ collabid }: { collabid: string }) => {
   }, [collabid]);
 
   return (
-    <div className="px-4 py-20">
-      <h1 className="text-yellow-500 text-3xl font-bold">{question?.title}</h1>
-      <span className="flex flex-wrap gap-1 my-1">
+    <div className="px-8 pb-20 pt-4">
+      <h1 className="text-yellow-500 text-4xl font-bold pb-2">
+        {question?.title}
+      </h1>
+      <span className="flex flex-wrap gap-1.5 my-1 pb-2">
         {question?.category.map((category) => (
           <Pill key={category} text={category} />
         ))}
         <ComplexityPill complexity={question?.complexity || ""} />
       </span>
-      <h2 className="text-secondary">Your collaborator: {collaborator}</h2>
-      <p className="text-white py-8">{question?.description}</p>
+      <h2 className="text-grey-300 text-s">
+        Your collaborator: {collaborator}
+      </h2>
+      <p className="text-white py-8 text-md">{question?.description}</p>
     </div>
   );
 };
