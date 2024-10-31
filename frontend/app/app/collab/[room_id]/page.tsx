@@ -1,14 +1,16 @@
 import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
 import CollabRoom from "@/components/collab/collab-room";
-import QuestionListing from "@/components/questions/questions-listing";
 import { Suspense } from "react";
 
-export default function QuestionListingPage() {
+export default function CollabPage({
+  params,
+}: {
+  params: { room_id: string };
+}) {
   return (
     <AuthPageWrapper requireLoggedIn>
       <Suspense>
-        {/* <QuestionListing /> */}
-        <CollabRoom roomId="1" />
+        <CollabRoom roomId={params.room_id} />
       </Suspense>
     </AuthPageWrapper>
   );
