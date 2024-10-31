@@ -14,7 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 sio = socketio.Client()
-NOTIFICATION_SERVICE = "https://notification-service-744918901630.asia-southeast1.run.app" \
+NOTIFICATION_SERVICE = "https://notification-service-230781056625.asia-southeast1.run.app" \
 if os.getenv('ENV') == "PROD" else os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
 
 PORT = int(os.environ.get('PORT', 5001))
