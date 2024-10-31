@@ -25,9 +25,9 @@ export default function LoadingPage() {
       if (lastMessage.status === 'matched') {
         console.log('Match found, your partner is', lastMessage.match.name);
         setMatchStatus('matched');
-
+        const matchId = lastMessage.matchId; 
         setTimeout(() => {
-          router.push('/collaboration');
+          router.push(`/collaboration?matchId=${matchId}`);
         }, 4000);
       } else {
         console.log('Match failed');

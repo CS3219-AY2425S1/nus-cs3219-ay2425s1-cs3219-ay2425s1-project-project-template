@@ -16,18 +16,20 @@ import { DEFAULT_CODE, SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
 import { UserCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco'
 import { editor as MonacoEditor } from 'monaco-editor';
 
-const TURN_SERVER_IP = '34.124.196.27';
+// const TURN_SERVER_IP = '34.124.196.27';
 
 const CollaborationPage = () => {
   const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
     null,
   );
-  const [code, setCode] = useState(DEFAULT_CODE);
+  const searchParams = useSearchParams();
+  const matchId = searchParams.get('matchId');
   const [language, setLanguage] = useState(SUPPORTED_PROGRAMMING_LANGUAGES[0]);
   const { problems, isLoading } = useFilteredProblems();
 
@@ -36,7 +38,7 @@ const CollaborationPage = () => {
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
-  const sockServerURI = "ws://localhost:4444";
+  const sockServerURI = process.env.SOCK_SERVER_URL || "ws://localhost:4444";
 
   // Handle dragging of the divider
   const handleMouseDown = useCallback(() => {
@@ -65,9 +67,13 @@ const CollaborationPage = () => {
   }, [handleMouseMove, handleMouseUp]);
 
   const handleEditorMount = (editor: any, monaco: any) => {
+    if (!matchId) {
+      console.error("Cannot mount editor: Match ID is undefined");
+      return;
+    }
     editorRef.current = editor;
     const doc = new Y.Doc(); // a collection of shared objects -> Text
-    const provider = new WebsocketProvider("ws://localhost:4444", "test-room", doc);
+    const provider = new WebsocketProvider(sockServerURI, matchId, doc);
     const type = doc.getText("monaco"); // Get the shared YJS text object
 
     // Get the model from the editor
@@ -165,7 +171,6 @@ const CollaborationPage = () => {
         </div>
 
         <ProblemCodeEditor
-          value={code}
           onMount={handleEditorMount}
         />
       </div>

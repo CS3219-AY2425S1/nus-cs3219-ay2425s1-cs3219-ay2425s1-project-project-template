@@ -2,12 +2,10 @@ import React from "react";
 import Editor from "@monaco-editor/react";
 
 interface ProblemCodeEditorProps {
-    value: string;
     onMount: (editor: any, monaco: any) => void;
 }
 
 const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({
-    value,
     onMount,
 }) => {
 
@@ -25,7 +23,6 @@ const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({
                 width="100%" 
                 language="python"
                 theme="vs-dark"
-                value={value} 
                 onMount={onMount}
                 options={{
                     fontSize: 14,
