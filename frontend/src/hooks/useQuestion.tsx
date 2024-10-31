@@ -31,6 +31,7 @@ export function useCreateQuestion() {
     mutationFn: async (data: CreateQuestionData) => {
       const dataForBackend = {
         ...data,
+        examples: data.examples.map((example) => example.example),
         categories: data.categories.map((category) => category.category),
         constraints: data.constraints.map(
           (constraint) => constraint.constraint
