@@ -26,6 +26,7 @@ const createRoom = async (req: Request, res: Response):Promise<any> => {
 
     const newRoom: Room = {
         roomId,
+        userIds: [userId1, userId2],
         code: yDoc,
         connectedClients: new Set<WebSocket>(),
     };

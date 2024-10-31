@@ -8,6 +8,7 @@ import logger from '../utils/logger';
 
 import createRoomRouter from '../create-room/createRoomRouter';
 import { setupWebSocketServer } from '../websocket/websocketServer';
+import { verifyRoom } from '../verify-room-validity/verifyRoomValidityController';
 
 dotenv.config({ path: './.env' });
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(createRoomRouter);
+app.use(verifyRoom);
 
 const PORT = process.env.PORT || 5003;
 const server = createServer(app);
