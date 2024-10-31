@@ -19,6 +19,7 @@ import {
   MATCH_ERROR_STATUS,
   MATCH_WAITING_STATUS,
   MATCH_IDLE_STATUS,
+  MATCH_FOUND_SOUND_PATH,
 } from '@/lib/consts';
 import { useQuestionCategories } from '@/hooks/useQuestions';
 
@@ -305,6 +306,10 @@ export default function DiscussRoute() {
         ws.current.close();
       }
     };
+  }, []);
+
+  useEffect(() => {
+    matchSound.current = new Audio(MATCH_FOUND_SOUND_PATH);
   }, []);
 
   const startMatching = async (
