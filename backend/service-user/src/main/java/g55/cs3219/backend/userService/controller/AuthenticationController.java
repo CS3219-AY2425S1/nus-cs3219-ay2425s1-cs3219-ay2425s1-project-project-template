@@ -84,6 +84,10 @@ public class AuthenticationController {
 
     @GetMapping("/verify-token")
     public ResponseEntity<?> verifyToken(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing token");
+        }
+
         try {
             User currentUser = (User) authentication.getPrincipal();
 
