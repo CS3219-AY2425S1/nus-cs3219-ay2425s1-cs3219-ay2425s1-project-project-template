@@ -13,7 +13,7 @@ import '@mantine/core/styles.css';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/AuthProvider';
 import { useDisclosure } from '@mantine/hooks';
-import { Link } from 'react-router-dom';
+import Header from '../components/header/Header';
 
 import EditProfileModal from '../components/modal/EditProfileModal';
 
@@ -52,17 +52,7 @@ function Profile() {
   return (
     <>
     <AppShell withBorder={false} header={{ height: 80 }}>
-      <AppShell.Header px="40px" py="16px" bg="slate.8">
-        <Group justify="space-between">
-          <a href="." className="logo">
-            <Title c="white">PeerPrep</Title>
-          </a>
-          <Link to='../profile'>
-            <Button>Log In</Button>
-          </Link>
-        </Group>
-      </AppShell.Header>
-
+      <Header />
       <AppShell.Main
         h="calc(100vh - 80px)"
         w="100%"
