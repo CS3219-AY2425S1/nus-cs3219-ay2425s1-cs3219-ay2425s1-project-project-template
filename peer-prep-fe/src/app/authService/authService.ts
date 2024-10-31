@@ -17,6 +17,7 @@ export class authService {
   }
 
   get currentUserValue() {
+    this.currentUser = sessionStorage.getItem("userData") ? sessionStorage.getItem("userData") : null
     return this.currentUserSubject.asObservable()
   }
 
@@ -40,10 +41,11 @@ export class authService {
   }
 
   isAdmin(): boolean {
-    if (!this.currentUser) {
+    const userJson: any = sessionStorage.getItem("userData")
+    if (userJson === null) {
       return false
     }
-    return this.currentUser.data.isAdmin
+    return JSON.parse(userJson).data.isAdmin
   }
 
   getToken(): string | null {

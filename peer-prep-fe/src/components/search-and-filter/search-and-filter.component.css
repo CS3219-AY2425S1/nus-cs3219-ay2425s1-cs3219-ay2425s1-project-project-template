@@ -65,7 +65,7 @@ button[type="submit"]:hover {
   background-color: white;
   z-index: 1;
   top: 102%; /* Position it below the filter button */
-  right: 12.5px;
+  width: 100%;
 }
 
 .filter-container:hover .dropdown-content {
@@ -80,6 +80,7 @@ button[type="submit"]:hover {
   display: block;
   background-color: #414141;
   width: 100%;
+  border: none;
 }
 
 .dropdown-btn:hover {
