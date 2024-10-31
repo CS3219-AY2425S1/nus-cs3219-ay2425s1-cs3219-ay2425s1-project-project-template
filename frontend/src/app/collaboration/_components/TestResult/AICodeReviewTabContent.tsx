@@ -45,7 +45,9 @@ export default function AICodeReviewTabContent() {
 
   return (
     <div className="h-full flex flex-col p-2">
-      <div ref={scrollRef} className="flex-1 bg-background-200 rounded-sm p-2 overflow-y-scroll max-h-72">{renderCodeReviewText}</div>
+      <div ref={scrollRef} className="flex-1 bg-background-200 rounded-sm p-2 overflow-y-scroll max-h-72">
+        {renderCodeReviewText}
+      </div>
       <div className="mt-5 self-end">
         <Button className="items-center space-x-2 p-3" onClick={generateCodeReview}>
           <Sparkles size={18} color="#FFFF00" />

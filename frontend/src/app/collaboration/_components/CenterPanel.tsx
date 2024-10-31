@@ -15,8 +15,8 @@ interface ContextWrapperProps {
 
 export default function CenterPanel({ sessionId, userProfile }: ContextWrapperProps) {
   return (
-    <CodeReviewAnimationProvider>
-      <SessionProvider initialSessionId={sessionId} initialUserProfile={userProfile}>
+    <SessionProvider initialSessionId={sessionId} initialUserProfile={userProfile}>
+      <CodeReviewAnimationProvider>
         <ResizablePanelGroup direction={"vertical"}>
           <ResizablePanel className="p-1" defaultSize={70}>
             <CollabCodePanel />
@@ -28,7 +28,7 @@ export default function CenterPanel({ sessionId, userProfile }: ContextWrapperPr
             <TestResultPanel />
           </ResizablePanel>
         </ResizablePanelGroup>
-      </SessionProvider>
-    </CodeReviewAnimationProvider>
+      </CodeReviewAnimationProvider>
+    </SessionProvider>
   );
 }

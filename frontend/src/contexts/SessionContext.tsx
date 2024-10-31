@@ -4,7 +4,6 @@ import { createContext, useContext, useState, useMemo, useCallback } from "react
 import { UserProfile } from "@/types/User";
 import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
-import { useCodeReviewAnimationContext } from "./CodeReviewAnimationContext";
 
 interface SessionContextType {
   sessionId: string;
@@ -24,7 +23,6 @@ interface SessionContextType {
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode; initialUserProfile: UserProfile; initialSessionId: string }> = ({ children, initialUserProfile, initialSessionId }) => {
-  const { startAnimation } = useCodeReviewAnimationContext();
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(initialUserProfile);
   const [codeReview, setCodeReview] = useState({
@@ -51,8 +49,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode; initialUserP
       if (response.statusCode !== 200) {
         throw new Error(response.message);
       }
+      console.log(response.data);
       setCodeReview((prev) => ({ ...prev, codeReviewResult: response.data, hasCodeReviewResults: true }));
-      startAnimation(response.data.body, response.data.codeSuggestion);
     } catch (error) {
       console.error("Code review generation failed:", error);
     } finally {
