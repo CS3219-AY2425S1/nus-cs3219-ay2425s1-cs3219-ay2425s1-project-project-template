@@ -40,7 +40,11 @@ const UserModelSchema = new Schema({
   tempEmail: {
     type: String,
     required: false,
-  }
+  },
+  tempPassword: {
+    type: String,
+    required: false,
+  },
 });
 
 export default mongoose.model("users", UserModelSchema);

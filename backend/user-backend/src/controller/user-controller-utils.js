@@ -72,12 +72,7 @@ export function validatePassword(password) {
   return re.test(password);
 }
 
-export async function sendVerificationEmail(user) {
-  const token = generateVerificationToken(user.id, user.tempEmail || user.email);
-
-  const verification_path = `/verify-email?token=${token}`;
-  const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
-
+async function sendEmail(email, subject, body) {
   const sender = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -88,20 +83,54 @@ export async function sendVerificationEmail(user) {
 
   const options = {
     from: process.env.PEERPREP_EMAIL,
-    to: user.tempEmail || user.email,
-    subject: '[PeerPrep] Email verification',
-    html: `
-      <p>
-        Click on this <a href=${verification_link}>link</a> to verify your email address.
-        The link will expire in 24 hours.
-      </p>
-    `
+    to: email,
+    subject: subject,
+    html: body,
   };
 
   await sender.sendMail(options);
 }
 
-function generateVerificationToken(userId, userEmail) {
+export async function sendEmailVerification(user) {
+  const email = user.tempEmail || user.email;
+
+  const token = generateEmailVerificationToken(user.id, email);
+  const verification_path = `/verify-email?token=${token}`;
+  const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
+
+  const subject = '[PeerPrep] Email verification';
+  const body = `
+      <p>
+        Click on this <a href=${verification_link}>link</a> to verify your email address.
+        The link will expire in 1 hour.
+      </p>
+    `;
+
+  await sendEmail(email, subject, body);
+}
+
+export async function sendPasswordVerification(user) {
+  const email = user.email;
+  const password = user.tempPassword;
+
+  const token = generatePasswordVerificationToken(user.id, password);
+  const verification_path = `/change-password?token=${token}`;
+  const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
+
+  const subject = '[PeerPrep] Confirmation of Password Change';
+  const body = `
+      <p>
+        You've recently requested to change password.
+        Click <a href=${verification_link}>here</a> to confirm the change.
+        <br/>
+        The link will expire in 15 minutes.
+      </p>
+    `;
+
+  await sendEmail(email, subject, body);
+}
+
+function generateEmailVerificationToken(userId, userEmail) {
   const payload = {
     id: userId,
     email: userEmail,
@@ -109,7 +138,20 @@ function generateVerificationToken(userId, userEmail) {
 
   return jwt.sign(
     payload,
-    process.env.JWT_VERIFICATION,
-    { expiresIn: '1d'}
+    process.env.JWT_EMAIL_VERIFICATION,
+    { expiresIn: '1h'} // expires in 1 hour
+  );
+}
+
+function generatePasswordVerificationToken(userId, password) {
+  const payload = {
+    id: userId,
+    password,
+  };
+
+  return jwt.sign(
+    payload,
+    process.env.JWT_PASSWORD_VERIFICATION,
+    { expiresIn: '15m'} // expires in 15 min
   );
 }

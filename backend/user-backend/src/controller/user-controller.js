@@ -6,7 +6,7 @@ import {
   replaceProfileImage,
   validateEmail,
   validatePassword,
-  sendVerificationEmail,
+  sendEmailVerification,
 } from "./user-controller-utils.js";
 import {
   createUser as _createUser,
@@ -45,7 +45,7 @@ export async function createUser(req, res) {
       const hashedPassword = hashPassword(password);
       const createdUser = await _createUser(username, email, hashedPassword);
 
-      sendVerificationEmail(createdUser);
+      sendEmailVerification(createdUser);
 
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
@@ -141,7 +141,7 @@ export async function updateUser(req, res) {
         password: hashedPassword
       });
 
-      if (email) sendVerificationEmail(updatedUser);
+      if (email) sendEmailVerification(updatedUser);
 
       return res.status(200).json({
         message: `Updated data for user ${userId}`,

@@ -59,6 +59,8 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
+// ======================= UPDATES ================================ //
+
 export async function updateUserById(userId, updatedValues) {
   return UserModel.findByIdAndUpdate(
     userId,
@@ -69,6 +71,10 @@ export async function updateUserById(userId, updatedValues) {
 
 export async function updateUserEmailById(userId, email) {
   return await updateUserById(userId, { email });
+}
+
+export async function updateUserPasswordById(userId, password) {
+  return await updateUserById(userId, { password });
 }
 
 export async function updateUserImageById(userId, profileImage) {
@@ -83,6 +89,16 @@ export async function updateUserVerifyStatusById(userId, isVerified) {
   return await updateUserById(userId, { isVerified });
 }
 
+export async function updateUserTempPasswordById(userId, tempPassword) {
+  return await updateUserById(userId, { tempPassword });
+}
+
+// ======================= DELETES ================================ //
+
+export async function deleteUserById(userId) {
+  return UserModel.findByIdAndDelete(userId);
+}
+
 export async function deleteTempEmailById(userId) {
   return UserModel.findByIdAndUpdate(
     userId,
@@ -91,6 +107,10 @@ export async function deleteTempEmailById(userId) {
   ); 
 }
 
-export async function deleteUserById(userId) {
-  return UserModel.findByIdAndDelete(userId);
+export async function deleteTempPasswordById(userId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $unset: {tempPassword: ''} },
+    { new: true },  // return the updated user
+  ); 
 }
